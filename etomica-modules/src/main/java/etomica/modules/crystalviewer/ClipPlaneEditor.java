@@ -10,7 +10,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.data.types.DataDouble;
 import etomica.graphics.DeviceBox;
 import etomica.graphics.DeviceCheckBox;
@@ -74,7 +74,7 @@ public class ClipPlaneEditor {
 	private final int MILLER_INDEX_MIN = -10;
 	private final int MILLER_INDEX_MAX = 10;
 
-    public ClipPlaneEditor(ISimulation sim, final LatticePlane latticePlane, final DisplayBox display) {
+    public ClipPlaneEditor(Simulation sim, final LatticePlane latticePlane, final DisplayBox display) {
 
         this.latticePlane = latticePlane;
         this.display = display;

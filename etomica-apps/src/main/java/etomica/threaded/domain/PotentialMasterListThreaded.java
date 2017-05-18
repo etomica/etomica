@@ -8,7 +8,7 @@ import etomica.api.IAtom;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IPotential;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.BoxAgentManager;
@@ -31,27 +31,27 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
 	BoxAgentManager agentManagerThreaded;
 	
 	
-	public PotentialMasterListThreaded(ISimulation sim, Space _space) {
+	public PotentialMasterListThreaded(Simulation sim, Space _space) {
 		this(sim, 0, _space);
 	}
 
-	public PotentialMasterListThreaded(ISimulation sim, double range, Space _space) {
+	public PotentialMasterListThreaded(Simulation sim, double range, Space _space) {
         this(sim, range, (IAtomPositionDefinition)null, _space);
 	}
 
-	public PotentialMasterListThreaded(ISimulation sim, double range,
-			IAtomPositionDefinition positionDefinition, Space _space) {
+	public PotentialMasterListThreaded(Simulation sim, double range,
+                                       IAtomPositionDefinition positionDefinition, Space _space) {
         this(sim, range, new BoxAgentSourceCellManagerList(sim, positionDefinition, _space), _space);
 	}
 
-	public PotentialMasterListThreaded(ISimulation sim, double range,
-			BoxAgentSourceCellManagerList boxAgentSource, Space _space) {
+	public PotentialMasterListThreaded(Simulation sim, double range,
+                                       BoxAgentSourceCellManagerList boxAgentSource, Space _space) {
 		this(sim, range, boxAgentSource, new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class), _space);
 	}
 
-	public PotentialMasterListThreaded(ISimulation sim, double range,
-			BoxAgentSourceCellManagerList boxAgentSource,
-			BoxAgentManager<NeighborCellManager> agentManager, Space _space) {
+	public PotentialMasterListThreaded(Simulation sim, double range,
+                                       BoxAgentSourceCellManagerList boxAgentSource,
+                                       BoxAgentManager<NeighborCellManager> agentManager, Space _space) {
 		super(sim, range, boxAgentSource, agentManager, new NeighborListAgentSourceThreaded(range, _space), _space);
         agentManagerThreaded = new BoxAgentManager<NeighborCellManagerThreaded>(new BoxAgentSourceCellManagerThreaded(sim, null, _space), NeighborCellManagerThreaded.class, sim);
 	}

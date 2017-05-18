@@ -7,7 +7,7 @@ package etomica.nbr;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.box.Box;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.AtomSetSinglet;
@@ -26,7 +26,7 @@ import etomica.util.Debug;
  */
 public class CriterionPositionWall implements NeighborCriterion, AgentSource<DoubleWrapper> {
 
-	public CriterionPositionWall(ISimulation sim) {
+	public CriterionPositionWall(Simulation sim) {
 		super();
 		this.interactionRange = Double.NaN;
         this.neighborRange = Double.NaN;

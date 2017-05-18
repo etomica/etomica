@@ -7,7 +7,7 @@ package etomica.models.oneDHardRods;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.data.DataSourceScalar;
@@ -58,17 +58,17 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
     protected double scaling;
     
     
-    public MeterDifferentImageSubtract(ISimulation sim, Space space,
-            CoordinateDefinition simCD, NormalModes simNM, CoordinateDefinition
-            otherCD, PotentialMasterList potentialMaster, int[] otherNCells, 
-            NormalModes otherNM){
+    public MeterDifferentImageSubtract(Simulation sim, Space space,
+                                       CoordinateDefinition simCD, NormalModes simNM, CoordinateDefinition
+            otherCD, PotentialMasterList potentialMaster, int[] otherNCells,
+                                       NormalModes otherNM){
         this(sim, space, simCD, simNM, otherCD, potentialMaster, 
                 otherNCells, otherNM, "file");
     }
-    public MeterDifferentImageSubtract(ISimulation sim, Space space,
-            CoordinateDefinition simCD, NormalModes simNM, CoordinateDefinition
-            otherCD, PotentialMasterList potentialMaster, int[] otherNCells, 
-            NormalModes otherNM, String otherFilename){
+    public MeterDifferentImageSubtract(Simulation sim, Space space,
+                                       CoordinateDefinition simCD, NormalModes simNM, CoordinateDefinition
+            otherCD, PotentialMasterList potentialMaster, int[] otherNCells,
+                                       NormalModes otherNM, String otherFilename){
         super("MeterSubtract", Null.DIMENSION);
         this.random = sim.getRandom();
         

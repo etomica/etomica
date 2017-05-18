@@ -7,7 +7,7 @@ package etomica.integrator;
 import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveEventManager;
@@ -31,7 +31,7 @@ import etomica.util.IEventManager;
 
 public class IntegratorMC extends IntegratorBox {
 
-    public IntegratorMC(ISimulation sim, IPotentialMaster potentialMaster) {
+    public IntegratorMC(Simulation sim, IPotentialMaster potentialMaster) {
         this(potentialMaster, sim.getRandom(), 1.0);
     }
     

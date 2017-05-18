@@ -8,7 +8,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IPotentialMaster;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
 import etomica.data.DataTag;
@@ -49,7 +49,7 @@ public class MeterBoltzmannHTTP implements IEtomicaDataSource {
     protected P1ConstraintNbr p1;
     protected HistogramCollapsing[] histogram;
     
-    public MeterBoltzmannHTTP(IPotentialMaster potentialMaster, ISpecies species, Space space, ISimulation sim) {
+    public MeterBoltzmannHTTP(IPotentialMaster potentialMaster, ISpecies species, Space space, Simulation sim) {
         this.potentialMaster = potentialMaster;
         meterPotential = new MeterPotentialEnergy(potentialMaster);
         this.species = species;

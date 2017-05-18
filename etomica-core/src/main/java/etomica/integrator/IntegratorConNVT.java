@@ -10,7 +10,7 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -40,7 +40,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource<
 
     protected AtomLeafAgentManager<Agent> agentManager;
 
-    public IntegratorConNVT(ISimulation sim, IPotentialMaster potentialMaster, Space space) {
+    public IntegratorConNVT(Simulation sim, IPotentialMaster potentialMaster, Space space) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, space);
     }
     

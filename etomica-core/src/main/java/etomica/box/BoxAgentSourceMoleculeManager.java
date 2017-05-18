@@ -4,7 +4,7 @@
 
 package etomica.box;
 
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.box.BoxAgentManager.BoxAgentSource;
@@ -15,7 +15,7 @@ import etomica.box.BoxAgentManager.BoxAgentSource;
  */
 public class BoxAgentSourceMoleculeManager implements BoxAgentSource<MoleculeAgentManager> {
 
-    public BoxAgentSourceMoleculeManager(MoleculeAgentSource moleculeAgentSource, ISimulation sim) {
+    public BoxAgentSourceMoleculeManager(MoleculeAgentSource moleculeAgentSource, Simulation sim) {
         super();
         this.sim = sim;
         this.moleculeAgentSource = moleculeAgentSource;
@@ -29,6 +29,6 @@ public class BoxAgentSourceMoleculeManager implements BoxAgentSource<MoleculeAge
         agent.dispose();
     }
 
-    protected ISimulation sim;
+    protected Simulation sim;
     private final MoleculeAgentSource moleculeAgentSource;
 }

@@ -14,7 +14,7 @@ import etomica.box.Box;
 import etomica.api.IPotential;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.iterator.IteratorDirective;
@@ -58,7 +58,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
     protected int D;
     protected MeterTemperature meterTemperature;
     
-    public IntegratorGear4NPH(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
+    public IntegratorGear4NPH(Simulation sim, IPotentialMaster potentialMaster, Space _space) {
         this(potentialMaster, sim.getRandom(),0.05, 1.0, _space);
     }
     

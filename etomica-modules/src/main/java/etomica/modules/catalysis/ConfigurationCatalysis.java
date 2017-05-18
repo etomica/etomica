@@ -8,7 +8,7 @@ import etomica.api.IAtom;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -35,8 +35,8 @@ import etomica.space.Space;
  */
 public class ConfigurationCatalysis implements Configuration {
 
-    public ConfigurationCatalysis(ISimulation sim, Space space,
-            ISpecies speciesSurface, ISpecies speciesC, ISpecies speciesO, AtomLeafAgentManager agentManager) {
+    public ConfigurationCatalysis(Simulation sim, Space space,
+                                  ISpecies speciesSurface, ISpecies speciesC, ISpecies speciesO, AtomLeafAgentManager agentManager) {
         this.sim = sim;
         this.space = space;
         this.speciesSurface = speciesSurface;
@@ -193,7 +193,7 @@ public class ConfigurationCatalysis implements Configuration {
     }
 
     protected final Space space;
-    protected final ISimulation sim;
+    protected final Simulation sim;
     protected final ISpecies speciesSurface, speciesO, speciesC;
     protected int nCO, nO2;
     protected final AtomLeafAgentManager agentManager;

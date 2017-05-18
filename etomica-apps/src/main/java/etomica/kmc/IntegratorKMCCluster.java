@@ -16,7 +16,7 @@ import etomica.action.XYZWriter;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -43,7 +43,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
     double temperature;
     private final Space space;
     IRandom random;
-    ISimulation sim;
+    Simulation sim;
     ISpecies [] species;
     IVectorMutable [] minPosition, currentSaddle, previousSaddle;
     double[] saddleVib;
@@ -69,7 +69,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
     BufferedReader buffReader;
     FileWriter writer;
     
-    public IntegratorKMCCluster(ISimulation _sim, IPotentialMaster _potentialMaster, double _temperature, int _totalSearches, IRandom _random, ISpecies [] _species, Space _space){
+    public IntegratorKMCCluster(Simulation _sim, IPotentialMaster _potentialMaster, double _temperature, int _totalSearches, IRandom _random, ISpecies [] _species, Space _space){
         super(_potentialMaster, _temperature);
         
         this.potentialMaster = _potentialMaster;

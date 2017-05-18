@@ -5,7 +5,7 @@
 package etomica.crystalviewer;
 
 import etomica.box.Box;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.config.ConfigurationLattice;
 import etomica.lattice.BravaisLattice;
@@ -22,7 +22,6 @@ import etomica.lattice.crystal.PrimitiveMonoclinic;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.lattice.crystal.PrimitiveTetragonal;
 import etomica.lattice.crystal.PrimitiveTriclinic;
-import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 
@@ -143,7 +142,7 @@ public class LatticePlaneTestUtility {
 		return latticePlane.getSpacePosition();
 	}
 
-	public ISimulation getSimulation() {
+	public Simulation getSimulation() {
 		return sim;
 	}
 	

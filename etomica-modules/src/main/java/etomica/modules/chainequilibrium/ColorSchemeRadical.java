@@ -10,7 +10,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.box.Box;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.graphics.ColorScheme;
@@ -19,7 +19,7 @@ import etomica.graphics.ColorSchemeCollective;
 
 public class ColorSchemeRadical extends ColorSchemeByType implements ColorSchemeCollective, AtomLeafAgentManager.AgentSource<ColorSchemeRadical.LengthAgent> {
 
-    public ColorSchemeRadical(ISimulation sim, AtomLeafAgentManager<IAtom[]> agentManager) {
+    public ColorSchemeRadical(Simulation sim, AtomLeafAgentManager<IAtom[]> agentManager) {
         super(sim);
         this.agentManager = agentManager;
         radicalColorMap = new AtomTypeAgentManager(this, sim);

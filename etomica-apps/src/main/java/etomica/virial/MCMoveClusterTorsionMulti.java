@@ -11,7 +11,7 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
@@ -36,7 +36,7 @@ import etomica.space.Space;
  */
 public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
 
-    public MCMoveClusterTorsionMulti(ISimulation sim, IPotentialMaster potentialMaster, Space space,
+    public MCMoveClusterTorsionMulti(Simulation sim, IPotentialMaster potentialMaster, Space space,
                                      P4BondTorsion torsionPotential) {
     	this(potentialMaster, space, sim.getRandom(), 1.0,torsionPotential, 20);
         setBondLength(1.0);

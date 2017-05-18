@@ -6,7 +6,7 @@ package etomica.association;
 
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.MoleculeArrayList;
 import etomica.integrator.mcmove.MCMoveMolecule;
@@ -25,8 +25,8 @@ public class MCMoveMoleculeMonomer extends MCMoveMolecule {
 	protected IAssociationHelperMolecule associationHelper;
 	
 	
-	public MCMoveMoleculeMonomer(ISimulation sim, IPotentialMaster potentialMaster,
-			Space _space) {
+	public MCMoveMoleculeMonomer(Simulation sim, IPotentialMaster potentialMaster,
+                                 Space _space) {
 		this(potentialMaster, sim.getRandom(), _space, 1.0, 15.0);
 	}
 

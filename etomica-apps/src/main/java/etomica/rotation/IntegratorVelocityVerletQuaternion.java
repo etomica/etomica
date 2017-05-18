@@ -17,7 +17,7 @@ import etomica.api.IAtomType;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -53,7 +53,6 @@ import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -82,17 +81,17 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
     protected final AtomActionTranslateBy translateBy;
     protected final MoleculeChildAtomAction translator;
     public int printInterval;
-    protected final ISimulation sim;
+    protected final Simulation sim;
 
     protected AtomLeafAgentManager<AtomAgent> leafAgentManager;
     protected MoleculeAgentManager moleculeAgentManager;
 
-    public IntegratorVelocityVerletQuaternion(ISimulation sim, PotentialMaster potentialMaster, Space space) {
+    public IntegratorVelocityVerletQuaternion(Simulation sim, PotentialMaster potentialMaster, Space space) {
         this(sim, potentialMaster, 0.05, 1.0, space);
     }
     
-    public IntegratorVelocityVerletQuaternion(ISimulation sim, PotentialMaster potentialMaster,
-            double timeStep, double temperature, Space space) {
+    public IntegratorVelocityVerletQuaternion(Simulation sim, PotentialMaster potentialMaster,
+                                              double timeStep, double temperature, Space space) {
         super(potentialMaster,sim.getRandom(),timeStep,temperature, space);
         this.sim = sim;
         forceSum = new PotentialCalculationForcePressureSum(space);

@@ -5,7 +5,7 @@
 package etomica.nbr.list;
 
 import etomica.box.Box;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.nbr.cell.BoxAgentSourceCellManager;
 import etomica.nbr.cell.NeighborCellManager;
@@ -16,7 +16,7 @@ import etomica.space.Space;
  */
 public class BoxAgentSourceCellManagerList extends BoxAgentSourceCellManager {
 
-    public BoxAgentSourceCellManagerList(ISimulation sim, IAtomPositionDefinition positionDefinition, Space _space) {
+    public BoxAgentSourceCellManagerList(Simulation sim, IAtomPositionDefinition positionDefinition, Space _space) {
         super(sim, positionDefinition, _space);
     }
 

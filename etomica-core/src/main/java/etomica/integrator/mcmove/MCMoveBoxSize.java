@@ -9,7 +9,7 @@ import etomica.action.BoxInflateDeformable;
 import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -37,8 +37,8 @@ public class MCMoveBoxSize extends MCMoveBoxStep {
     private transient int dim1, dim2;
     private transient double uNew = Double.NaN;
 
-    public MCMoveBoxSize(ISimulation sim, IPotentialMaster potentialMaster,
-    		            Space _space) {
+    public MCMoveBoxSize(Simulation sim, IPotentialMaster potentialMaster,
+                         Space _space) {
         this(potentialMaster, sim.getRandom(), _space);
     }
     

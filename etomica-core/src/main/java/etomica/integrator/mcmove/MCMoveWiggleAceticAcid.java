@@ -8,7 +8,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.IVectorMutable;
 import etomica.space.Space;
 import etomica.util.Debug;
@@ -20,7 +20,7 @@ import etomica.util.Debug;
  */
 public class MCMoveWiggleAceticAcid extends MCMoveMolecule {
 
-    public MCMoveWiggleAceticAcid(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
+    public MCMoveWiggleAceticAcid(Simulation sim, IPotentialMaster potentialMaster, Space _space) {
     	this(potentialMaster,sim.getRandom(), 0.1, _space);
     }
     

@@ -12,7 +12,7 @@ import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.MoleculeAgentManager;
@@ -41,12 +41,12 @@ import etomica.util.RandomNumberGenerator;
 public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
         implements Serializable {
 
-	 public CoordinateDefinitionNitrogen(ISimulation sim, Box box, Primitive primitive, Basis basis, Space _space) {
+	 public CoordinateDefinitionNitrogen(Simulation sim, Box box, Primitive primitive, Basis basis, Space _space) {
 		 this(sim, box, primitive, basis, _space, 2);
 		
 	 }
 	
-    public CoordinateDefinitionNitrogen(ISimulation sim, Box box, Primitive primitive, Basis basis, Space _space, int rotDim) {
+    public CoordinateDefinitionNitrogen(Simulation sim, Box box, Primitive primitive, Basis basis, Space _space, int rotDim) {
     	
     	super(sim, box, primitive, rotDim, basis, _space);
        /*

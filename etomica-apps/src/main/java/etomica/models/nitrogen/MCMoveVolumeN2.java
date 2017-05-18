@@ -8,7 +8,7 @@ import etomica.action.BoxInflate;
 import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
 import etomica.atom.iterator.AtomIterator;
@@ -29,8 +29,8 @@ import etomica.units.Pressure;
  */
 public class MCMoveVolumeN2 extends MCMoveBoxStep {
 
-    public MCMoveVolumeN2(ISimulation sim, IPotentialMaster potentialMaster,
-    		            Space _space) {
+    public MCMoveVolumeN2(Simulation sim, IPotentialMaster potentialMaster,
+                          Space _space) {
         this(potentialMaster, sim.getRandom(), _space, 1.0);
     }
     

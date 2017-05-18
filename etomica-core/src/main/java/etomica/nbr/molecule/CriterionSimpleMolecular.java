@@ -8,7 +8,7 @@ import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
@@ -31,7 +31,7 @@ import etomica.units.Length;
  */
 public class CriterionSimpleMolecular implements NeighborCriterionMolecular, MoleculeAgentSource {
 
-	public CriterionSimpleMolecular(ISimulation sim, Space _space, double interactionRange, double neighborRadius) {
+	public CriterionSimpleMolecular(Simulation sim, Space _space, double interactionRange, double neighborRadius) {
 		super();
         this.space = _space;
         dr = space.makeVector();

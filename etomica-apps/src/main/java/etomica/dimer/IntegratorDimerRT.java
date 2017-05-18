@@ -15,7 +15,7 @@ import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
@@ -43,7 +43,7 @@ import etomica.space.IVectorRandom;
 public class IntegratorDimerRT extends IntegratorBox implements AgentSource<IntegratorVelocityVerlet.MyAgent> {
 
 	public Box box1, box2;
-	public ISimulation sim;
+	public Simulation sim;
 	public double deltaR;
 	public double dTheta, deltaXl, dXl;
 	public double deltaTheta;
@@ -83,14 +83,14 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Inte
 	private final Space space;
 	
 	
-	public IntegratorDimerRT(ISimulation sim, IPotentialMaster potentialMaster,
-			                 ISpecies[] species, Space _space) {
+	public IntegratorDimerRT(Simulation sim, IPotentialMaster potentialMaster,
+                             ISpecies[] species, Space _space) {
 		this(sim, potentialMaster, sim.getRandom(), 1.0, species, _space);
 	}
 	
-	public IntegratorDimerRT(ISimulation aSim, IPotentialMaster potentialMaster,
-			                 IRandom random, double temperature,
-			                 ISpecies[] aspecies, Space _space) {
+	public IntegratorDimerRT(Simulation aSim, IPotentialMaster potentialMaster,
+                             IRandom random, double temperature,
+                             ISpecies[] aspecies, Space _space) {
 		super(potentialMaster, temperature);
 		this.random1 = random;
 		this.sim = aSim;

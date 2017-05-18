@@ -7,7 +7,7 @@ package etomica.action;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.IController;
 import etomica.api.IIntegrator;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.exception.ConfigurationOverlapException;
@@ -22,11 +22,11 @@ import etomica.space.Space;
  */
 public final class SimulationRestart extends SimulationActionAdapter {
     
-    public SimulationRestart(ISimulation sim, Space _space, IController _controller) {
+    public SimulationRestart(Simulation sim, Space _space, IController _controller) {
         setSimulation(sim, _space, _controller);
     }
 
-    protected void setSimulation(ISimulation sim, Space _space, IController _controller) {
+    protected void setSimulation(Simulation sim, Space _space, IController _controller) {
         super.setSimulation(sim, _space);
         controller = _controller;
         if (space != null) {

@@ -10,7 +10,7 @@ import java.util.List;
 import etomica.action.IAction;
 import etomica.box.Box;
 import etomica.api.IPotentialMaster;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorHard;
 import etomica.space.Space;
@@ -24,7 +24,7 @@ import etomica.space.Space;
 public class IntegratorHardMDMC extends IntegratorHard {
     protected List<IAction> thermostatActions;
 
-    public IntegratorHardMDMC(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
+    public IntegratorHardMDMC(Simulation sim, IPotentialMaster potentialMaster, Space _space) {
         super(sim, potentialMaster, _space);
         thermostatActions = new ArrayList<IAction>();
     }

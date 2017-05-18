@@ -9,7 +9,6 @@ import java.util.LinkedList;
 
 import etomica.api.IAtomType;
 import etomica.box.Box;
-import etomica.api.ISimulation;
 import etomica.api.ISimulationAtomTypeIndexEvent;
 import etomica.api.ISimulationBoxEvent;
 import etomica.api.ISimulationEventManager;
@@ -22,9 +21,9 @@ import etomica.api.ISpecies;
 public class SimulationEventManager implements ISimulationEventManager {
 
     private transient final LinkedList<ISimulationListener> intervalListeners = new LinkedList<ISimulationListener>();
-    private final ISimulation simulation;
+    private final Simulation simulation;
     
-    public SimulationEventManager(ISimulation sim) {
+    public SimulationEventManager(Simulation sim) {
         simulation = sim;
     }
 

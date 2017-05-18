@@ -5,7 +5,7 @@
 package etomica.nbr.cell;
 
 import etomica.box.Box;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxCellManager;
@@ -24,7 +24,7 @@ public class PotentialMasterCell extends PotentialMasterSite {
      * Creates PotentialMasterCell with default (1.0) range.  Range
      * should be set manually via setRange method.
      */
-    public PotentialMasterCell(ISimulation sim, Space _space) {
+    public PotentialMasterCell(Simulation sim, Space _space) {
         this(sim,1.0, _space);
     }
     
@@ -35,22 +35,22 @@ public class PotentialMasterCell extends PotentialMasterSite {
      * @param _space the governing Space
      * @param range the neighbor distance.  May be changed after construction.
      */
-    public PotentialMasterCell(ISimulation sim, double range, Space _space) {
+    public PotentialMasterCell(Simulation sim, double range, Space _space) {
         this(sim, range, (IAtomPositionDefinition)null, _space);
     }
 
-    public PotentialMasterCell(ISimulation sim, double range,
-            IAtomPositionDefinition positionDefinition, Space _space) {
+    public PotentialMasterCell(Simulation sim, double range,
+                               IAtomPositionDefinition positionDefinition, Space _space) {
         this(sim, range, new BoxAgentSourceCellManager(sim, positionDefinition, _space), _space);
     }
     
-    public PotentialMasterCell(ISimulation sim, double range, 
-    		BoxAgentSourceCellManager boxAgentSource, Space _space) {
+    public PotentialMasterCell(Simulation sim, double range,
+                               BoxAgentSourceCellManager boxAgentSource, Space _space) {
         this(sim, range, boxAgentSource, new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class), _space);
     }
     
-    public PotentialMasterCell(ISimulation sim, double range, BoxAgentSourceCellManager boxAgentSource,
-            BoxAgentManager<NeighborCellManager> agentManager, Space _space) {
+    public PotentialMasterCell(Simulation sim, double range, BoxAgentSourceCellManager boxAgentSource,
+                               BoxAgentManager<NeighborCellManager> agentManager, Space _space) {
         super(sim, boxAgentSource, agentManager, new Api1ACell(_space.D(),range,agentManager));
         setRange(range);
     }

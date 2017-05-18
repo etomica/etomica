@@ -4,7 +4,7 @@
 
 package etomica.models.oneDHardRods;
 
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.NormalModes;
@@ -26,17 +26,17 @@ public class MeterDifferentImageSubtractDoubleSize extends MeterDifferentImageSu
     private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "MeterDifferentImageSubtractDoubleSize";
     
-    public MeterDifferentImageSubtractDoubleSize(ISimulation sim, Space space,
-            CoordinateDefinition simCD, NormalModes simNM, CoordinateDefinition
-            otherCD, PotentialMasterList potentialMaster, int[] otherNCells, 
-            NormalModes otherNM){
+    public MeterDifferentImageSubtractDoubleSize(Simulation sim, Space space,
+                                                 CoordinateDefinition simCD, NormalModes simNM, CoordinateDefinition
+            otherCD, PotentialMasterList potentialMaster, int[] otherNCells,
+                                                 NormalModes otherNM){
         this(sim, space, simCD, simNM, otherCD, potentialMaster, 
                 otherNCells, otherNM, "file");
     }
-    public MeterDifferentImageSubtractDoubleSize(ISimulation sim, Space space,
-            CoordinateDefinition simCD, NormalModes simNM, CoordinateDefinition
-            otherCD, PotentialMasterList potentialMaster, int[] otherNCells, 
-            NormalModes otherNM, String otherFilename){
+    public MeterDifferentImageSubtractDoubleSize(Simulation sim, Space space,
+                                                 CoordinateDefinition simCD, NormalModes simNM, CoordinateDefinition
+            otherCD, PotentialMasterList potentialMaster, int[] otherNCells,
+                                                 NormalModes otherNM, String otherFilename){
         super(sim, space, simCD, simNM, otherCD, potentialMaster, otherNCells,
                 otherNM, otherFilename);
     }

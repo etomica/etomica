@@ -5,13 +5,12 @@
 package etomica.chem.models;
 
 import etomica.api.IElement;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.IConformation;
 import etomica.potential.Potential2;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheres;
 
@@ -114,7 +113,7 @@ public class ModelChain extends Model {
         return element;
     }
     
-    protected void initPotentials(ISimulation sim) {
+    protected void initPotentials(Simulation sim) {
         // we already have our bonding potential, so do nothing
     }
 
@@ -123,7 +122,7 @@ public class ModelChain extends Model {
                 bondingPotential,ApiBuilder.makeAdjacentPairIterator())};
     }
 
-    protected ISpecies makeSpeciesInternal(ISimulation sim) {
+    protected ISpecies makeSpeciesInternal(Simulation sim) {
         if (bondingPotential == null) {
             throw new RuntimeException("Please set the bonding potential before" +
                     " creating the Species");

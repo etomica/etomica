@@ -5,11 +5,10 @@
 package etomica;
 
 import etomica.box.Box;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.atom.AtomTypeLeaf;
 import etomica.chem.elements.ElementSimple;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheres;
@@ -34,7 +33,7 @@ public class UnitTestUtil {
         super();
     }
 
-    public static ISimulation makeStandardSpeciesTree() {
+    public static Simulation makeStandardSpeciesTree() {
         return makeStandardSpeciesTree(new int[] { 5, 7 }, 3, new int[] { 10, 10 });
     }
 
@@ -59,8 +58,8 @@ public class UnitTestUtil {
      * @return root of species hierarchy
      */
 
-    public static ISimulation makeStandardSpeciesTree(int[] n0, int nA0,
-            int[] n1) {
+    public static Simulation makeStandardSpeciesTree(int[] n0, int nA0,
+                                                     int[] n1) {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
         ISpecies species0 = null;
@@ -111,8 +110,8 @@ public class UnitTestUtil {
      *            type used to form a molecule.
      * @return root of the species hierarchy
      */
-    public static ISimulation makeMultitypeSpeciesTree(int[] nMolecules,
-            int[][] nAtoms) {
+    public static Simulation makeMultitypeSpeciesTree(int[] nMolecules,
+                                                      int[][] nAtoms) {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
         //        new SpeciesSpheres(sim);

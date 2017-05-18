@@ -10,7 +10,7 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
 import etomica.atom.MoleculeSource;
@@ -30,7 +30,7 @@ import etomica.space.Space;
  */
 public class MCMoveClusterAngleBendAceticAcid extends MCMoveBoxStep {
 
-    public MCMoveClusterAngleBendAceticAcid(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
+    public MCMoveClusterAngleBendAceticAcid(Simulation sim, IPotentialMaster potentialMaster, Space _space) {
     	this(potentialMaster,sim.getRandom(), 1.0, _space);
     }
     

@@ -10,7 +10,7 @@ import etomica.api.IAtomType;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
@@ -21,7 +21,7 @@ import etomica.nbr.NeighborCriterion;
  */
 public class CriterionTether3 implements NeighborCriterion, MoleculeAgentSource {
 
-    public CriterionTether3(ISimulation sim, ISpecies polymerSpecies, IAtomType surfaceType) {
+    public CriterionTether3(Simulation sim, ISpecies polymerSpecies, IAtomType surfaceType) {
         this.sim = sim;
         this.polymerSpecies = polymerSpecies;
         this.surfaceType = surfaceType;
@@ -90,7 +90,7 @@ public class CriterionTether3 implements NeighborCriterion, MoleculeAgentSource 
     public void releaseAgent(Object agent, IMolecule atom) {
     }
 
-    protected final ISimulation sim;
+    protected final Simulation sim;
     protected Box box;
     protected final ISpecies polymerSpecies;
     protected IMoleculeList polymerList;

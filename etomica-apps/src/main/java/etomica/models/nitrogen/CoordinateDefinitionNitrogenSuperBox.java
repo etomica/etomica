@@ -11,7 +11,7 @@ import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -43,7 +43,7 @@ import etomica.util.RandomNumberGenerator;
 public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMolecule
         implements Serializable {
 
-    public CoordinateDefinitionNitrogenSuperBox(ISimulation sim, Box box, Primitive primitive, Basis basis, Space _space) {
+    public CoordinateDefinitionNitrogenSuperBox(Simulation sim, Box box, Primitive primitive, Basis basis, Space _space) {
     	super(sim, box, primitive, 2, basis, _space);
        
     	rotationTensor = new RotationTensor3D();

@@ -10,7 +10,7 @@ import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -33,7 +33,7 @@ import etomica.util.Debug;
  */
 public class MCMoveClusterWiggleAceticAcid extends MCMoveMolecule {
 
-    public MCMoveClusterWiggleAceticAcid(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
+    public MCMoveClusterWiggleAceticAcid(Simulation sim, IPotentialMaster potentialMaster, Space _space) {
     	this(potentialMaster,sim.getRandom(), 0.1, _space);//0.1 rad wiggle move
     }
     

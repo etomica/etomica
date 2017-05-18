@@ -16,7 +16,7 @@ import java.util.LinkedList;
 
 import etomica.action.activity.Controller;
 import etomica.box.Box;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomFilter;
 import etomica.atom.DiameterHash;
@@ -53,7 +53,7 @@ public class DisplayBox extends Display {
     private boolean graphicResizable = true;
     private final Space space;
     private double sigma = 1.0;
-    protected final ISimulation sim;
+    protected final Simulation sim;
             
     //do not instantiate here; instead must be in graphic method
     public DisplayCanvas canvas = null;
@@ -108,7 +108,7 @@ public class DisplayBox extends Display {
      * }
      * @param box
      */
-    public DisplayBox(ISimulation sim, Box box, Space space, Controller controller) {
+    public DisplayBox(Simulation sim, Box box, Space space, Controller controller) {
         super();
         this.sim = sim;
         this.controller = controller;

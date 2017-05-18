@@ -9,7 +9,7 @@ import etomica.action.MoleculeChildAtomAction;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
 import etomica.config.Configuration;
@@ -24,9 +24,9 @@ import etomica.space.Space;
 
 public class ConfigurationSAM implements Configuration {
 
-    public ConfigurationSAM(ISimulation sim, Space space,
-            ISpecies speciesMolecules, ISpecies speciesSurface,
-            PotentialMasterList potentialMaster) {
+    public ConfigurationSAM(Simulation sim, Space space,
+                            ISpecies speciesMolecules, ISpecies speciesSurface,
+                            PotentialMasterList potentialMaster) {
         this.sim = sim;
         this.space = space;
         this.speciesMolecules = speciesMolecules;
@@ -201,7 +201,7 @@ public class ConfigurationSAM implements Configuration {
     }
     
     protected final Space space;
-    protected final ISimulation sim;
+    protected final Simulation sim;
     protected final ISpecies speciesMolecules;
     protected final ISpecies speciesSurface;
     protected double cellSizeX, cellSizeZ;

@@ -8,7 +8,7 @@ import java.util.LinkedList;
 
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.atom.MoleculeArrayList;
 import etomica.UnitTestUtil;
@@ -26,7 +26,7 @@ public class MoleculeIteratorAllMoleculesTest extends MoleculeIteratorTestAbstra
         int[] n0 = new int[] { 10, 1, 0, 0, 0};
         int nA0 = 5;
         int[] n1 = new int[] { 5, 1, 6, 0, 1};
-        ISimulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1);
+        Simulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1);
 
         ISpecies[] species = new ISpecies[sim.getSpeciesCount()];
         for(int i = 0; i < sim.getSpeciesCount(); i++) {

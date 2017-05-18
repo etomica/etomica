@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.lang.reflect.Array;
 
 import etomica.api.IAtomType;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.ISimulationAtomTypeIndexEvent;
 import etomica.api.ISimulationBoxEvent;
 import etomica.api.ISimulationIndexEvent;
@@ -33,7 +33,7 @@ public class AtomTypeAgentManager implements ISimulationListener, java.io.Serial
         agentSource = source;
     }
     
-    public AtomTypeAgentManager(AgentSource source, ISimulation sim) {
+    public AtomTypeAgentManager(AgentSource source, Simulation sim) {
         agentSource = source;
         init(sim);
     }
@@ -141,7 +141,7 @@ public class AtomTypeAgentManager implements ISimulationListener, java.io.Serial
      * Sets the SpeciesRoot for which this AtomAgentManager will manage 
      * AtomType agents.
      */
-    public void init(ISimulation newSim) {
+    public void init(Simulation newSim) {
         sim = newSim;
         sim.getEventManager().addListener(this);
 
@@ -221,7 +221,7 @@ public class AtomTypeAgentManager implements ISimulationListener, java.io.Serial
     private static final long serialVersionUID = 1L;
     private final AgentSource agentSource;
     protected Object[] agents;
-    protected ISimulation sim;
+    protected Simulation sim;
 
     /**
      * Iterator that loops over the agents, skipping null elements

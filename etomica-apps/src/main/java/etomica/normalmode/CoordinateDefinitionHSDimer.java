@@ -10,7 +10,7 @@ import etomica.action.MoleculeChildAtomAction;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
@@ -37,7 +37,7 @@ import etomica.species.Species;
 public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
         implements Serializable {
 	
-    public CoordinateDefinitionHSDimer(ISimulation sim, Box box, Primitive primitive, Basis basis, Space _space) {
+    public CoordinateDefinitionHSDimer(Simulation sim, Box box, Primitive primitive, Basis basis, Space _space) {
     	
     	super(sim, box, primitive, 2, basis, _space);
     	

@@ -8,7 +8,7 @@ import java.awt.Color;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.graphics.ColorScheme;
@@ -22,7 +22,7 @@ import etomica.util.Arrays;
  */
 public class ColorSchemeStepWise extends ColorScheme implements AtomTypeAgentManager.AgentSource {
 
-    public ColorSchemeStepWise(ISimulation sim, AtomLeafAgentManager bondingAgentManager) {
+    public ColorSchemeStepWise(Simulation sim, AtomLeafAgentManager bondingAgentManager) {
         super();
         simulation = sim;
         colorMaps = new AtomTypeAgentManager[0];
@@ -64,5 +64,5 @@ public class ColorSchemeStepWise extends ColorScheme implements AtomTypeAgentMan
 
     protected AtomTypeAgentManager[] colorMaps;
     protected final AtomLeafAgentManager bondingAgentManager;
-    protected final ISimulation simulation;
+    protected final Simulation simulation;
 }

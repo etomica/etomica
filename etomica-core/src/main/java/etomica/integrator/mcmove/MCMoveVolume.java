@@ -9,7 +9,7 @@ import etomica.box.Box;
 import etomica.api.IFunction;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -37,8 +37,8 @@ public class MCMoveVolume extends MCMoveBoxStep {
     protected double uNew = Double.NaN;
     protected double temperature;
 
-    public MCMoveVolume(ISimulation sim, IPotentialMaster potentialMaster,
-    		            Space _space) {
+    public MCMoveVolume(Simulation sim, IPotentialMaster potentialMaster,
+                        Space _space) {
         this(potentialMaster, sim.getRandom(), _space, 1.0);
     }
 

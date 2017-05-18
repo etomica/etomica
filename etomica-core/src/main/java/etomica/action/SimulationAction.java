@@ -4,7 +4,7 @@
 
 package etomica.action;
 
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 
 /**
  * Interface for classes that apply some elementary action (transformation) to a
@@ -13,5 +13,5 @@ import etomica.api.ISimulation;
  */
 public interface SimulationAction extends IAction {
 
-	public ISimulation getSimulation();
+	public Simulation getSimulation();
 }

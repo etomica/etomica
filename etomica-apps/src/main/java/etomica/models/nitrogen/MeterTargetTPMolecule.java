@@ -10,7 +10,7 @@ import java.io.IOException;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -64,7 +64,7 @@ public class MeterTargetTPMolecule implements IEtomicaDataSource {
     protected FileWriter fw;
     protected boolean isBetaPhase = false;
    
-    public MeterTargetTPMolecule(IPotentialMaster potentialMaster, ISpecies species, Space space, ISimulation sim) {
+    public MeterTargetTPMolecule(IPotentialMaster potentialMaster, ISpecies species, Space space, Simulation sim) {
         this.potentialMaster = potentialMaster;
         meterPotential = new MeterPotentialEnergy(potentialMaster);
         this.species = species;

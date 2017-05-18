@@ -6,7 +6,7 @@ package etomica.virial;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.IVectorMutable;
 import etomica.space.Space;
 
@@ -23,7 +23,7 @@ import etomica.space.Space;
 public class MCMoveClusterMoleculeLayerMove extends MCMoveClusterMolecule {
     private static final long serialVersionUID = 1L;
     protected final IVectorMutable vector1 , vector2 , crossVector; //crossVector = vector1 * vector2
-    public MCMoveClusterMoleculeLayerMove(ISimulation sim, Space _space) {
+    public MCMoveClusterMoleculeLayerMove(Simulation sim, Space _space) {
     	super (sim.getRandom(), _space, 1.0); //superclass parameter stepsize
     	
     	vector1     =  space.makeVector(); // Initialize 

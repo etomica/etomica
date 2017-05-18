@@ -16,7 +16,7 @@ import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -76,17 +76,17 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
     protected final RotationTensor3D axesTensor;
     protected final RotationTensor3D tempAxesTensor;
     protected final Tensor omegaTensor;
-    protected final ISimulation sim;
+    protected final Simulation sim;
     
     protected AtomLeafAgentManager<IntegratorRigidMatrixIterative.AtomAgent> leafAgentManager;
     protected MoleculeAgentManager moleculeAgentManager;
 
-    public IntegratorRigidMatrixIterative(ISimulation sim, PotentialMaster potentialMaster, Space _space) {
+    public IntegratorRigidMatrixIterative(Simulation sim, PotentialMaster potentialMaster, Space _space) {
         this(sim, potentialMaster, 0.05, 1.0, _space);
     }
     
-    public IntegratorRigidMatrixIterative(ISimulation sim, PotentialMaster potentialMaster,
-            double timeStep, double temperature, Space _space) {
+    public IntegratorRigidMatrixIterative(Simulation sim, PotentialMaster potentialMaster,
+                                          double timeStep, double temperature, Space _space) {
         super(potentialMaster,sim.getRandom(),timeStep,temperature, _space);
         this.sim = sim;
         torqueSum = new PotentialCalculationTorqueSum();

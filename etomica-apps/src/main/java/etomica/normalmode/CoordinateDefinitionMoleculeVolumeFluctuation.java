@@ -10,7 +10,7 @@ import etomica.action.BoxInflate;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
@@ -35,11 +35,11 @@ import etomica.space.Space;
 public class CoordinateDefinitionMoleculeVolumeFluctuation extends CoordinateDefinition
         implements Serializable {
 
-    public CoordinateDefinitionMoleculeVolumeFluctuation(ISimulation sim, Box box, Primitive primitive, int orientationDim, Space space) {
+    public CoordinateDefinitionMoleculeVolumeFluctuation(Simulation sim, Box box, Primitive primitive, int orientationDim, Space space) {
         this(sim, box, primitive, orientationDim, new BasisMonatomic(space), space);
     }
     
-    public CoordinateDefinitionMoleculeVolumeFluctuation(ISimulation sim, Box box, Primitive primitive, int orientationDim, Basis basis, Space space) {
+    public CoordinateDefinitionMoleculeVolumeFluctuation(Simulation sim, Box box, Primitive primitive, int orientationDim, Basis basis, Space space) {
         super(box, ((space.D() + orientationDim)*basis.getScaledCoordinates().length+1), primitive, basis, space);
         this.sim = sim;
         work1 = space.makeVector();
@@ -154,7 +154,7 @@ public class CoordinateDefinitionMoleculeVolumeFluctuation extends CoordinateDef
     }
     
     private static final long serialVersionUID = 1L;
-    protected final ISimulation sim;
+    protected final Simulation sim;
     protected MoleculeAgentManager moleculeSiteManager;
     protected final IVectorMutable work1;
     protected final double[] u;

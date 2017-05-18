@@ -8,7 +8,7 @@ import java.util.LinkedList;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.atom.AtomSetSinglet;
 import etomica.UnitTestUtil;
 
@@ -34,7 +34,7 @@ public class AtomIteratorArrayListAdjacentTest extends IteratorTestAbstract {
     
     public void testIteration() {
         int nAtoms = 11;
-        ISimulation sim = UnitTestUtil.makeStandardSpeciesTree(
+        Simulation sim = UnitTestUtil.makeStandardSpeciesTree(
                 new int[] {1},11,new int[] {1});
         IAtomList atomList = sim.getBox(0).getMoleculeList().getMolecule(0).getChildList();
 

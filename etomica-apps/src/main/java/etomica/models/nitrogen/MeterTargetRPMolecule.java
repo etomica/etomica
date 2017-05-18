@@ -7,7 +7,7 @@ package etomica.models.nitrogen;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
 import etomica.data.DataTag;
@@ -56,7 +56,7 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
 	private IVectorMutable[][] initMolecOrientation;
 	protected PRotConstraint pRotConstraint;
     
-    public MeterTargetRPMolecule(IPotentialMaster potentialMasterSampled, ISpecies species, Space space, ISimulation sim,
+    public MeterTargetRPMolecule(IPotentialMaster potentialMasterSampled, ISpecies species, Space space, Simulation sim,
                                  CoordinateDefinitionNitrogen coordinateDef, PRotConstraint pRotConstraint) {
         this.potentialMaster = potentialMasterSampled;
         this.coordinateDefinition = coordinateDef;

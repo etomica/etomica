@@ -6,7 +6,7 @@ package etomica.association;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.atom.AtomArrayList;
 import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
@@ -44,7 +44,7 @@ public class AssociationManagerMolecule implements MoleculeAgentSource,IListener
     private final MoleculeArrayList associatedMolecules = new MoleculeArrayList();
     private final IListener mcMoveListener;
 
-    public AssociationManagerMolecule(ISimulation sim, Box box, BoxAgentManager<NeighborCellManagerMolecular> cellAgentManager, AssociationDefinitionMolecule definition, double range) {
+    public AssociationManagerMolecule(Simulation sim, Box box, BoxAgentManager<NeighborCellManagerMolecular> cellAgentManager, AssociationDefinitionMolecule definition, double range) {
     	this.box = box;
     	agentManager = new MoleculeAgentManager(sim,box,this);
         associationDefinition = definition;

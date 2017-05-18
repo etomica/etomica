@@ -8,7 +8,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
 import etomica.integrator.mcmove.MCMoveAtom;
@@ -23,8 +23,8 @@ public class MCMoveAtomSmer extends MCMoveAtom {
 	
 	
 
-	public MCMoveAtomSmer(ISimulation sim, IPotentialMaster potentialMaster,
-			Space _space) {
+	public MCMoveAtomSmer(Simulation sim, IPotentialMaster potentialMaster,
+                          Space _space) {
 		this(potentialMaster, sim.getRandom(), _space, 1.0, 15.0, false);
 	}
 

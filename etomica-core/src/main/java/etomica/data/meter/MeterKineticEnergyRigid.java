@@ -10,7 +10,7 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.IMoleculeKinetic;
@@ -32,11 +32,11 @@ import etomica.units.Energy;
  */
 public class MeterKineticEnergyRigid extends DataSourceScalar {
 
-    public MeterKineticEnergyRigid(Space space, ISimulation sim) {
+    public MeterKineticEnergyRigid(Space space, Simulation sim) {
         this(space, sim, null);
     }
     
-    public MeterKineticEnergyRigid(Space space, ISimulation sim, Box box) {
+    public MeterKineticEnergyRigid(Space space, Simulation sim, Box box) {
         super("Kinetic Energy",Energy.DIMENSION);
         angularVelocity = space.makeVector();
         rotationTensor = (RotationTensor3D)space.makeRotationTensor();
@@ -112,7 +112,7 @@ public class MeterKineticEnergyRigid extends DataSourceScalar {
     }
 
     private static final long serialVersionUID = 1L;
-    protected final ISimulation sim;
+    protected final Simulation sim;
     protected Box box;
     protected final IVectorMutable angularVelocity;
     protected final RotationTensor3D rotationTensor;

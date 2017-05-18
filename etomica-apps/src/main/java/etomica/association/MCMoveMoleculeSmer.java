@@ -8,7 +8,7 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.MoleculeArrayList;
 import etomica.integrator.mcmove.MCMoveMolecule;
@@ -28,8 +28,8 @@ public class MCMoveMoleculeSmer extends MCMoveMolecule {
 	protected IAssociationHelperMolecule associationHelper;
 	
 
-	public MCMoveMoleculeSmer(ISimulation sim, IPotentialMaster potentialMaster,
-			Space _space) {
+	public MCMoveMoleculeSmer(Simulation sim, IPotentialMaster potentialMaster,
+                              Space _space) {
 		this(potentialMaster, sim.getRandom(), _space, 1.0, 15.0);
 	}
 

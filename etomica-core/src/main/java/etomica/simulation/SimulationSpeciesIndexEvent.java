@@ -4,7 +4,6 @@
 
 package etomica.simulation;
 
-import etomica.api.ISimulation;
 import etomica.api.ISimulationSpeciesIndexEvent;
 import etomica.api.ISpecies;
 
@@ -13,7 +12,7 @@ public class SimulationSpeciesIndexEvent extends SimulationSpeciesEvent
 
     private int index;
     
-    public SimulationSpeciesIndexEvent(ISimulation sim, ISpecies species,
+    public SimulationSpeciesIndexEvent(Simulation sim, ISpecies species,
                                        int index) {
         super(sim, species);
         this.index = index;

@@ -8,7 +8,7 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.Atom;
 import etomica.lattice.crystal.Primitive;
@@ -40,7 +40,7 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
     private ConformationHexane confHex;
     
     
-    public CoordinateDefinitionHexane(ISimulation sim, Box box, Primitive primitive,
+    public CoordinateDefinitionHexane(Simulation sim, Box box, Primitive primitive,
                                       SpeciesHexane species, Space space){
         super(sim, box, primitive, 6, space);
         

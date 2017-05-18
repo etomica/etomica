@@ -6,7 +6,7 @@ package etomica.box;
 
 import java.lang.reflect.Array;
 
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.ISimulationAtomTypeIndexEvent;
 import etomica.api.ISimulationBoxEvent;
 import etomica.api.ISimulationEventManager;
@@ -36,7 +36,7 @@ public class BoxAgentManager<E> implements ISimulationListener {
         }
     }
 
-    public BoxAgentManager(BoxAgentSource<E> source, Class boxAgentClass, ISimulation sim) {
+    public BoxAgentManager(BoxAgentSource<E> source, Class boxAgentClass, Simulation sim) {
         agentSource = source;
         this.boxAgentClass = boxAgentClass;
         setSimulation(sim);
@@ -70,7 +70,7 @@ public class BoxAgentManager<E> implements ISimulationListener {
      * Sets the Simulation containing Boxs to be tracked.  This method should
      * not be called if setSimulationEventManager is called.
      */
-    public void setSimulation(ISimulation sim) {
+    public void setSimulation(Simulation sim) {
         simEventManager = sim.getEventManager();
         // this will crash if the given sim is in the middle of its constructor
         simEventManager.addListener(this);

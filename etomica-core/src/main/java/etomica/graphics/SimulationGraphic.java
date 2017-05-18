@@ -22,7 +22,7 @@ import etomica.action.SimulationRestart;
 import etomica.action.activity.Controller;
 import etomica.box.Box;
 import etomica.api.IIntegrator;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.graphics.DisplayPlot.PopupListener;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorManagerMC;
@@ -51,7 +51,7 @@ public class SimulationGraphic implements SimulationContainer {
 
     private SimulationPanel simulationPanel;
     private final DeviceTrioControllerButton dcb;
-    protected final ISimulation simulation;
+    protected final Simulation simulation;
     protected final Controller controller;
     private int updateInterval = DEFAULT_UPDATE_INTERVAL;
     private final LinkedList<Display> displayList = new LinkedList<Display>();
@@ -63,27 +63,27 @@ public class SimulationGraphic implements SimulationContainer {
     protected int repaintSleep = 0;
 
 
-    public SimulationGraphic(ISimulation simulation,
+    public SimulationGraphic(Simulation simulation,
                              Space space,
                              Controller controller) {
     	this(simulation, GRAPHIC_ONLY, "", DEFAULT_UPDATE_INTERVAL, space, controller);
     }
 
-    public SimulationGraphic(ISimulation simulation,
+    public SimulationGraphic(Simulation simulation,
                              int graphicType,
                              Space space,
                              Controller controller) {
     	this(simulation, graphicType, "", DEFAULT_UPDATE_INTERVAL, space, controller);
     }
 
-    public SimulationGraphic(ISimulation simulation,
+    public SimulationGraphic(Simulation simulation,
                              String appName,
                              Space space,
                              Controller controller) {
     	this(simulation, GRAPHIC_ONLY, appName, DEFAULT_UPDATE_INTERVAL, space, controller);
     }
 
-    public SimulationGraphic(ISimulation simulation,
+    public SimulationGraphic(Simulation simulation,
                              int graphicType,
                              String appName,
                              Space space,
@@ -91,7 +91,7 @@ public class SimulationGraphic implements SimulationContainer {
     	this(simulation, graphicType, appName, DEFAULT_UPDATE_INTERVAL, space, controller);
     }
 
-    public SimulationGraphic(ISimulation simulation,
+    public SimulationGraphic(Simulation simulation,
                              String appName,
                              int updateInterval,
                              Space space,
@@ -99,7 +99,7 @@ public class SimulationGraphic implements SimulationContainer {
     	this(simulation, GRAPHIC_ONLY, appName, updateInterval, space, controller);
     }
 
-    public SimulationGraphic(ISimulation simulation,
+    public SimulationGraphic(Simulation simulation,
                              int graphicType,
                              String appName,
     		                 int updateInterval,
@@ -128,7 +128,7 @@ public class SimulationGraphic implements SimulationContainer {
         setupDisplayBox(simulation.getIntegrator(), new LinkedList<Box>());
     }
 
-    public ISimulation getSimulation() {return simulation;}
+    public Simulation getSimulation() {return simulation;}
     
     public final LinkedList<Display> displayList() { return displayList;}
     public final LinkedList<Device> deviceList() { return deviceList; }

@@ -9,7 +9,7 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSource;
@@ -50,7 +50,7 @@ public class MCMoveSmerRotate extends MCMoveBoxStep {
     protected final IVectorMutable r0;
     protected AssociationManager associationManager;
 
-    public MCMoveSmerRotate(ISimulation sim, PotentialMasterCell potentialMaster, Space _space, IPotentialAtomic trimerPotential) {
+    public MCMoveSmerRotate(Simulation sim, PotentialMasterCell potentialMaster, Space _space, IPotentialAtomic trimerPotential) {
         this(potentialMaster, sim.getRandom(), _space, 1.0, 15.0, false, trimerPotential);
     }
     

@@ -10,7 +10,7 @@ import etomica.api.IAtom;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -27,7 +27,7 @@ import etomica.space.Space;
 
 public class ConfigurationMembraneWater implements Configuration {
 
-    public ConfigurationMembraneWater(ISimulation sim, Space _space) {
+    public ConfigurationMembraneWater(Simulation sim, Space _space) {
     	space = _space;
         soluteMoleFraction = 1;
         solutionChamberDensity = 0.5;
@@ -298,7 +298,7 @@ public class ConfigurationMembraneWater implements Configuration {
     protected double solventChamberDensity, solutionChamberDensity;
     protected double soluteMoleFraction;
     protected int membraneDim;
-    protected final ISimulation sim;
+    protected final Simulation sim;
     private final Space space;
     protected IAtomPositionDefinition positionDefinition;
 }

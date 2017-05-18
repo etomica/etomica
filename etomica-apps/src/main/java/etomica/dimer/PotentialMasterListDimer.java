@@ -6,7 +6,7 @@ package etomica.dimer;
 
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.list.NeighborListManager;
@@ -17,7 +17,7 @@ import etomica.util.Debug;
 
 public class PotentialMasterListDimer extends PotentialMasterList{
 
-    public PotentialMasterListDimer(ISimulation sim, Space space) {
+    public PotentialMasterListDimer(Simulation sim, Space space) {
         super(sim, space);
         
     }

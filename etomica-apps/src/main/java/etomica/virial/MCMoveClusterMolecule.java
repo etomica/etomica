@@ -5,7 +5,7 @@
 package etomica.virial;
 
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.space.Space;
 
@@ -16,7 +16,7 @@ public class MCMoveClusterMolecule extends MCMoveMolecule {
     
     private static final long serialVersionUID = 1L;
 
-    public MCMoveClusterMolecule(ISimulation sim, Space _space) {
+    public MCMoveClusterMolecule(Simulation sim, Space _space) {
     	this(sim.getRandom(), _space, 1.0);
     }
     

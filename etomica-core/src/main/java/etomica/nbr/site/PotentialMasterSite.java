@@ -15,6 +15,7 @@ import etomica.box.BoxCellManager;
 import etomica.nbr.*;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.util.Arrays;
 import etomica.util.Debug;
@@ -27,22 +28,22 @@ public class PotentialMasterSite extends PotentialMasterNbr {
      * position definition to null, so that atom type's definition is used
      * to assign cells. 
 	 */
-	public PotentialMasterSite(ISimulation sim, int nCells, Space _space) {
+	public PotentialMasterSite(Simulation sim, int nCells, Space _space) {
         this(sim, new BoxAgentSiteSource(nCells, _space), _space);
     }
     
-    public PotentialMasterSite(ISimulation sim,
+    public PotentialMasterSite(Simulation sim,
     		                   BoxAgentSource<BoxCellManager> boxAgentSource, Space _space) {
         this(sim, boxAgentSource, new BoxAgentManager<BoxCellManager>(boxAgentSource, BoxCellManager.class), _space);
     }
     
-    public PotentialMasterSite(ISimulation sim, BoxAgentSource<BoxCellManager> boxAgentSource,
-    		BoxAgentManager<BoxCellManager> agentManager, Space _space) {
+    public PotentialMasterSite(Simulation sim, BoxAgentSource<BoxCellManager> boxAgentSource,
+                               BoxAgentManager<BoxCellManager> agentManager, Space _space) {
         this(sim, boxAgentSource, agentManager, new Api1ASite(_space.D(),agentManager));
     }
     
-    protected PotentialMasterSite(ISimulation sim, BoxAgentSource<? extends BoxCellManager> boxAgentSource, 
-            BoxAgentManager<? extends BoxCellManager> agentManager, AtomsetIteratorPDT neighborIterator) {
+    protected PotentialMasterSite(Simulation sim, BoxAgentSource<? extends BoxCellManager> boxAgentSource,
+                                  BoxAgentManager<? extends BoxCellManager> agentManager, AtomsetIteratorPDT neighborIterator) {
         super(sim, boxAgentSource, agentManager);
         atomSetSinglet = new AtomSetSinglet();
         this.neighborIterator = neighborIterator;

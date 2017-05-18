@@ -6,14 +6,13 @@ package etomica.space;
 
 import junit.framework.TestCase;
 import etomica.box.Box;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.Atom;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.IndexIteratorRectangular;
-import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.space3d.Tensor3D;
 import etomica.species.SpeciesSpheresMono;
@@ -156,7 +155,7 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
     int iMax;
     IVectorMutable dr, dr1, dr2, drStep;
     IVectorMutable[] edgeVectors;
-    ISimulation sim;
+    Simulation sim;
     SimulationGraphic simGraphic;
     DisplayBox display;
     Atom atom0, atom1, atom2;

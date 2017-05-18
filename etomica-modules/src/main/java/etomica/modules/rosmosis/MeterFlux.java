@@ -7,7 +7,7 @@ package etomica.modules.rosmosis;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -45,7 +45,7 @@ import etomica.units.Time;
  */
 public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource {
 
-    public MeterFlux(ISimulation sim, Space _space) {
+    public MeterFlux(Simulation sim, Space _space) {
         this.sim = sim;
     	this.space = _space;
         data = new DataDouble();
@@ -199,7 +199,7 @@ public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource {
         /* do nothing */
     }
 
-    protected final ISimulation sim;
+    protected final Simulation sim;
     protected final DataDouble data;
     protected DataInfoDouble dataInfo;
     protected final DataTag tag;

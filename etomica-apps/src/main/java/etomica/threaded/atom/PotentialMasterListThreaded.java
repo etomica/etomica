@@ -9,7 +9,7 @@ import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.BoxAgentManager;
@@ -31,25 +31,25 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
 	int ready2;
 	
 	
-	public PotentialMasterListThreaded(ISimulation sim, Space _space) {
+	public PotentialMasterListThreaded(Simulation sim, Space _space) {
 		super(sim, _space);
 	}
 
-	public PotentialMasterListThreaded(ISimulation sim, Space _space, double range) {
+	public PotentialMasterListThreaded(Simulation sim, Space _space, double range) {
 		super(sim, range, _space);
 	}
 
-	public PotentialMasterListThreaded(ISimulation sim, Space _space, double range,
+	public PotentialMasterListThreaded(Simulation sim, Space _space, double range,
                                        IAtomPositionDefinition positionDefinition) {
 		super(sim, range, positionDefinition, _space);
 	}
 
-	public PotentialMasterListThreaded(ISimulation sim, Space _space, double range,
+	public PotentialMasterListThreaded(Simulation sim, Space _space, double range,
                                        BoxAgentSourceCellManagerList boxAgentSource) {
 		super(sim, range, boxAgentSource, _space);
 	}
 
-	public PotentialMasterListThreaded(ISimulation sim, Space _space, double range,
+	public PotentialMasterListThreaded(Simulation sim, Space _space, double range,
                                        BoxAgentSourceCellManagerList boxAgentSource,
                                        BoxAgentManager agentManager) {
 		super(sim, range, boxAgentSource, agentManager, _space);

@@ -9,7 +9,7 @@ import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.MoleculeSource;
 import etomica.atom.MoleculeSourceRandomMolecule;
@@ -21,7 +21,7 @@ import etomica.space.IVectorRandom;
 
 public class MCMoveReptate extends MCMoveBoxStep {
     
-    public MCMoveReptate(ISimulation sim, IPotentialMaster potentialMaster, Space _space){
+    public MCMoveReptate(Simulation sim, IPotentialMaster potentialMaster, Space _space){
         this(potentialMaster, sim.getRandom(), 1.0, 15.0, false, _space);
     }
     

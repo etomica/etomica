@@ -12,7 +12,7 @@ import etomica.api.IMolecule;
 import etomica.api.IPotential;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSetSinglet;
@@ -33,7 +33,7 @@ import etomica.util.Arrays;
  */
 public class PotentialMasterMonatomic extends PotentialMaster implements AtomTypeAgentManager.AgentSource {
 
-    public PotentialMasterMonatomic(ISimulation sim) {
+    public PotentialMasterMonatomic(Simulation sim) {
         super();
         potentialAgentManager = new AtomTypeAgentManager(this, sim);
         potentialIterator = potentialAgentManager.makeIterator();

@@ -8,7 +8,7 @@ import java.awt.Color;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.graphics.ColorSchemeByType;
@@ -16,7 +16,7 @@ import etomica.modules.catalysis.InteractionTracker.CatalysisAgent;
 
 public class ColorSchemeRadical extends ColorSchemeByType {
 
-    public ColorSchemeRadical(ISimulation sim, AtomLeafAgentManager agentManager) {
+    public ColorSchemeRadical(Simulation sim, AtomLeafAgentManager agentManager) {
         super(sim);
         this.agentManager = agentManager;
         radicalColorMap = new AtomTypeAgentManager(this, sim);

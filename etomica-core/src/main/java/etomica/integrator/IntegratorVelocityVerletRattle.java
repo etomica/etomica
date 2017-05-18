@@ -12,7 +12,7 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomSetSinglet;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
@@ -32,12 +32,12 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
     private static final long serialVersionUID = 1L;
     protected final IVectorMutable dv;
 
-    public IntegratorVelocityVerletRattle(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
+    public IntegratorVelocityVerletRattle(Simulation sim, IPotentialMaster potentialMaster, Space _space) {
         this(sim, potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
     }
     
-    public IntegratorVelocityVerletRattle(ISimulation sim, IPotentialMaster potentialMaster, IRandom random,
-            double timeStep, double temperature, Space _space) {
+    public IntegratorVelocityVerletRattle(Simulation sim, IPotentialMaster potentialMaster, IRandom random,
+                                          double timeStep, double temperature, Space _space) {
         super(sim, potentialMaster,random,timeStep,temperature, _space);
         dv = space.makeVector();
     }

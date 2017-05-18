@@ -6,7 +6,7 @@ package etomica.nbr.list;
 
 import etomica.api.IAtom;
 import etomica.box.Box;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.nbr.cell.Cell;
 import etomica.nbr.cell.NeighborCellManager;
@@ -20,14 +20,14 @@ import etomica.space.Space;
  */
 public class NeighborCellManagerList extends NeighborCellManager {
 
-    public NeighborCellManagerList(ISimulation sim, Box box,
-            double potentialRange, Space _space) {
+    public NeighborCellManagerList(Simulation sim, Box box,
+                                   double potentialRange, Space _space) {
         this(sim, box, potentialRange, null, _space);
     }
 
-    public NeighborCellManagerList(ISimulation sim, Box box,
-            double potentialRange, IAtomPositionDefinition positionDefinition,
-            Space _space) {
+    public NeighborCellManagerList(Simulation sim, Box box,
+                                   double potentialRange, IAtomPositionDefinition positionDefinition,
+                                   Space _space) {
         super(sim, box, potentialRange, positionDefinition, _space);
     }
 

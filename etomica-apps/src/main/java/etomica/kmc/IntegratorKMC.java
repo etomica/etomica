@@ -10,7 +10,7 @@ import etomica.action.XYZWriter;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
 import etomica.config.ConfigurationFile;
@@ -31,7 +31,7 @@ public class IntegratorKMC extends IntegratorBox{
     double temperature;
     private final Space space;
     IRandom random;
-    ISimulation sim;
+    Simulation sim;
     ISpecies [] species;
     IVectorMutable [] minPosition, currentSaddle, previousSaddle;
     double[] saddleVib;
@@ -51,7 +51,7 @@ public class IntegratorKMC extends IntegratorBox{
     XYZWriter xyzfile;
     BoxImposePbc imposePbc;
     
-    public IntegratorKMC(ISimulation _sim, IPotentialMaster _potentialMaster, double _temperature, IRandom _random, ISpecies [] _species, Space _space){
+    public IntegratorKMC(Simulation _sim, IPotentialMaster _potentialMaster, double _temperature, IRandom _random, ISpecies [] _species, Space _space){
         super(_potentialMaster, _temperature);
         this.potentialMaster = _potentialMaster;
         this.temperature = _temperature;

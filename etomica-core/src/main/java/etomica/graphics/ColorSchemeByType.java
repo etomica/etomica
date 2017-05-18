@@ -8,7 +8,7 @@ import java.awt.Color;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.AtomTypeAgentManager.AgentSource;
 
@@ -19,7 +19,7 @@ import etomica.atom.AtomTypeAgentManager.AgentSource;
  */
 public class ColorSchemeByType extends ColorScheme implements AgentSource {
     
-    public ColorSchemeByType(ISimulation sim) {
+    public ColorSchemeByType(Simulation sim) {
     	super();
         colorMap = new AtomTypeAgentManager(this, sim);
     }

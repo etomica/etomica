@@ -7,7 +7,7 @@ package etomica.models.oneDHardRods;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.data.DataSourceScalar;
@@ -58,7 +58,7 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
     protected double scaling;
     protected double sqrtTemperature;
     
-    public MeterDifferentImageAdd(ISimulation sim, Space space, double temp,
+    public MeterDifferentImageAdd(Simulation sim, Space space, double temp,
                                   CoordinateDefinition simCD, NormalModes simNM, CoordinateDefinition
             otherCD, PotentialMasterList potentialMaster, int[] otherNCells,
                                   NormalModes otherNM) {
@@ -66,7 +66,7 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
                 otherNCells, otherNM, "file");
     }
     
-    public MeterDifferentImageAdd(ISimulation sim, Space space, double temp,
+    public MeterDifferentImageAdd(Simulation sim, Space space, double temp,
                                   CoordinateDefinition simCD, NormalModes simNM, CoordinateDefinition
             otherCD, PotentialMasterList potentialMaster, int[] otherNCells,
                                   NormalModes otherNM, String otherFilename){

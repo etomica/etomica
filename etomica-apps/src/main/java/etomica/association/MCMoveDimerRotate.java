@@ -8,7 +8,7 @@ import etomica.api.IAtom;
 import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSource;
@@ -48,7 +48,7 @@ public class MCMoveDimerRotate extends MCMoveBoxStep {
     protected final IVectorMutable r0;
     protected AssociationManager associationManager;
 
-    public MCMoveDimerRotate(ISimulation sim, PotentialMasterCell potentialMaster, Space _space, IPotentialAtomic dimerPotential) {
+    public MCMoveDimerRotate(Simulation sim, PotentialMasterCell potentialMaster, Space _space, IPotentialAtomic dimerPotential) {
         this(potentialMaster, sim.getRandom(), _space, 1.0, 15.0, false, dimerPotential);
     }
     

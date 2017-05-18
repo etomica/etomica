@@ -9,6 +9,7 @@ import java.awt.Graphics;
 import java.awt.Panel;
 
 import etomica.box.Box;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 import org.jmol.util.Colix;
 import org.jmol.util.Point3f;
@@ -17,7 +18,6 @@ import etomica.action.activity.Controller;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomFilter;
@@ -73,7 +73,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
     protected final AtomTypeAgentManager atomTypeOrientedManager;
     protected IVector rMin, rMax;
 
-    public DisplayBoxCanvasG3DSys(ISimulation sim, DisplayBox _box, Space _space, Controller controller) {
+    public DisplayBoxCanvasG3DSys(Simulation sim, DisplayBox _box, Space _space, Controller controller) {
         super(controller);
         displayBox = _box;
         space = _space;

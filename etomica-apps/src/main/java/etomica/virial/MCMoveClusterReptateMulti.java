@@ -10,7 +10,7 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.iterator.AtomIterator;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -31,7 +31,7 @@ public class MCMoveClusterReptateMulti extends MCMoveBox {
     private final MeterPotentialEnergy energyMeter;
     protected final IRandom random;
 
-    public MCMoveClusterReptateMulti(ISimulation sim, IPotentialMaster potentialMaster, int nAtoms) {
+    public MCMoveClusterReptateMulti(Simulation sim, IPotentialMaster potentialMaster, int nAtoms) {
     	this(potentialMaster, sim.getRandom(), nAtoms);
         setBondLength(1.0);
     }

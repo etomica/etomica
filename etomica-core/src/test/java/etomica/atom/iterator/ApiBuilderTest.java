@@ -12,7 +12,7 @@ import etomica.api.IAtomType;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.atom.AtomPair;
 import etomica.atom.MoleculePair;
@@ -458,7 +458,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         testNoIterates(api);
     }
 
-    private ISimulation sim;
+    private Simulation sim;
     int n0a, nAtoms, n1a;
     private static final IteratorDirective.Direction UP = IteratorDirective.Direction.UP;
     private static final IteratorDirective.Direction DOWN = IteratorDirective.Direction.DOWN;

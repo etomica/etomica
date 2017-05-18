@@ -10,7 +10,7 @@ import etomica.api.IAtom;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.MoleculeSetSinglet;
@@ -154,7 +154,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
     }
     
     private AtomIteratorBasis basisIterator;
-    private ISimulation sim;
+    private Simulation sim;
     int n0a, nAtoms, n1a;
 
 }

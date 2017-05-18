@@ -13,7 +13,7 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
@@ -48,12 +48,12 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
     protected final IVectorMutable temp;
     public int printInterval = 0;
 
-    public IntegratorVelocityVerletShake(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
+    public IntegratorVelocityVerletShake(Simulation sim, IPotentialMaster potentialMaster, Space _space) {
         this(sim, potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
     }
     
-    public IntegratorVelocityVerletShake(ISimulation sim, IPotentialMaster potentialMaster, IRandom random,
-            double timeStep, double temperature, Space _space) {
+    public IntegratorVelocityVerletShake(Simulation sim, IPotentialMaster potentialMaster, IRandom random,
+                                         double timeStep, double temperature, Space _space) {
         super(potentialMaster,random,timeStep,temperature, _space);
         // if you're motivated to throw away information earlier, you can use 
         // PotentialCalculationForceSum instead.

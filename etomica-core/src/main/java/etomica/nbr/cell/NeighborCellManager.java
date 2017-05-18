@@ -10,7 +10,7 @@ import etomica.api.IBoundary;
 import etomica.api.IBoundaryEvent;
 import etomica.api.IBoundaryListener;
 import etomica.box.Box;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
@@ -39,7 +39,7 @@ import etomica.util.IListener;
 
 public class NeighborCellManager implements BoxCellManager, IBoundaryListener, AtomLeafAgentManager.AgentSource<Cell> {
 
-    protected final ISimulation sim;
+    protected final Simulation sim;
     protected final CellLattice lattice;
     protected final IAtomPositionDefinition positionDefinition;
     protected final Box box;
@@ -55,7 +55,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
      * cells in each dimension is given by nCells. Position definition for each
      * atom is that given by its type (it is set to null in this class).
      */
-    public NeighborCellManager(ISimulation sim, Box box, double potentialRange, Space _space) {
+    public NeighborCellManager(Simulation sim, Box box, double potentialRange, Space _space) {
         this(sim, box, potentialRange, null, _space);
     }
     
@@ -66,7 +66,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
      * definition given by the atom's type is used.  Position definition is
      * declared final.
      */
-    public NeighborCellManager(ISimulation sim, Box box, double potentialRange, IAtomPositionDefinition positionDefinition, Space space) {
+    public NeighborCellManager(Simulation sim, Box box, double potentialRange, IAtomPositionDefinition positionDefinition, Space space) {
         this.positionDefinition = positionDefinition;
         this.box = box;
         this.sim = sim;

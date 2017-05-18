@@ -4,8 +4,10 @@
 
 package etomica.api;
 
+import etomica.simulation.Simulation;
+
 public interface ISimulationEvent {
 
-    public ISimulation getSimulation();
+    public Simulation getSimulation();
     
 }

@@ -10,7 +10,7 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenterAlkaneEH;
@@ -31,7 +31,7 @@ import etomica.space3d.RotationTensor3D;
  * Feb 2013
  */
 public class MCMoveClusterTorsionAlkaneEH extends MCMoveMolecule {
-    public MCMoveClusterTorsionAlkaneEH(ISimulation sim, IPotentialMaster potentialMaster, Space space, P4BondTorsion torsionPotential) {
+    public MCMoveClusterTorsionAlkaneEH(Simulation sim, IPotentialMaster potentialMaster, Space space, P4BondTorsion torsionPotential) {
     this(potentialMaster, space, sim.getRandom(), 1.0,torsionPotential, 20);
         setBondLength(1.0);
     }

@@ -12,7 +12,7 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -41,7 +41,7 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
 
     protected AtomLeafAgentManager<MyAgent> agentManager;
 
-    public IntegratorDroplet(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
+    public IntegratorDroplet(Simulation sim, IPotentialMaster potentialMaster, Space _space) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
     }
 

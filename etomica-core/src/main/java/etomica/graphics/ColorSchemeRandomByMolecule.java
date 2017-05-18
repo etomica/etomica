@@ -9,13 +9,13 @@ import etomica.api.IAtom;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 
 public class ColorSchemeRandomByMolecule extends ColorScheme implements MoleculeAgentSource {
     
-    public ColorSchemeRandomByMolecule(ISimulation sim, Box box, IRandom random) {
+    public ColorSchemeRandomByMolecule(Simulation sim, Box box, IRandom random) {
     	super();
         this.random = random;
         agentManager = new MoleculeAgentManager(sim, box, this);

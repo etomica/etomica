@@ -8,7 +8,7 @@ import etomica.action.AtomAction;
 import etomica.api.IAtomList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 
 /**
@@ -25,7 +25,7 @@ public class IntegratorAnalytic extends IntegratorMD {
     private static final long serialVersionUID = 1L;
     private AtomTimeAction action;
     
-    public IntegratorAnalytic(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
+    public IntegratorAnalytic(Simulation sim, IPotentialMaster potentialMaster, Space _space) {
         this(potentialMaster, sim.getRandom(), 0.05, _space);
     }
     

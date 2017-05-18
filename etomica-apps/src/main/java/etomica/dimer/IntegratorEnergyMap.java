@@ -9,7 +9,7 @@ import java.util.Formatter;
 
 import etomica.api.IAtom;
 import etomica.box.Box;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -25,9 +25,9 @@ public class IntegratorEnergyMap extends IntegratorBox implements AgentSource{
     String fileTail;
     private final Space space;
 
-    public IntegratorEnergyMap(ISimulation aSim, PotentialMaster potentialMaster,
-    		                   IAtom aAdatom, String aFileTail,
-    		                   Space _space) {
+    public IntegratorEnergyMap(Simulation aSim, PotentialMaster potentialMaster,
+                               IAtom aAdatom, String aFileTail,
+                               Space _space) {
         super(potentialMaster, 1.0);
         this.fileTail = aFileTail;
         this.adatom = aAdatom;

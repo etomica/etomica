@@ -13,7 +13,7 @@ import etomica.api.IAtom;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
@@ -40,7 +40,7 @@ import etomica.space.Space;
 
 public class IntegratorDimerMin extends IntegratorBox implements AgentSource<IntegratorVelocityVerlet.MyAgent> {
 
-	public ISimulation sim;
+	public Simulation sim;
 	public Box boxMin;
 	public AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> atomAgent0, atomAgentMin;
 	public PotentialCalculationForceSum force0, forceMin;
@@ -78,15 +78,15 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource<Int
 	public CalcVibrationalModes vib;
 	
 	
-	public IntegratorDimerMin(ISimulation sim, IPotentialMaster potentialMaster,
-			                  ISpecies[] species,
-			                  Boolean normalDir, Space _space) {
+	public IntegratorDimerMin(Simulation sim, IPotentialMaster potentialMaster,
+                              ISpecies[] species,
+                              Boolean normalDir, Space _space) {
 		this(sim, potentialMaster, 1.0, species, normalDir, _space);
 	}
 	
-	public IntegratorDimerMin(ISimulation aSim, IPotentialMaster potentialMaster,
-			                  double temperature,
-			                  ISpecies[] aspecies, Boolean normalDir, Space _space) {
+	public IntegratorDimerMin(Simulation aSim, IPotentialMaster potentialMaster,
+                              double temperature,
+                              ISpecies[] aspecies, Boolean normalDir, Space _space) {
 		super(potentialMaster, temperature);
 		this.sim = aSim;
 		this.force0 = new PotentialCalculationForceSum();

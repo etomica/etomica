@@ -13,7 +13,7 @@ import java.io.IOException;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.box.Box;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.data.DataPump;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -38,7 +38,6 @@ import etomica.overlap.IntegratorOverlap;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2HardSpherical;
-import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
@@ -267,7 +266,7 @@ public class SimDifferentImage extends Simulation {
         
         
 //JOINT
-        meterTargInRef = new MeterDifferentImageAdd((ISimulation)this, space, 
+        meterTargInRef = new MeterDifferentImageAdd((Simulation)this, space,
                 temperature, cDefRef, nmRef, cDefTarget, potentialMasterRef,
                 new int[targAtoms], nmTarg);
         MeterOverlapSameGaussian meterOverlapInRef = new 
