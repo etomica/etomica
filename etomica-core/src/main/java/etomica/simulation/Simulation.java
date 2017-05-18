@@ -26,8 +26,8 @@ import etomica.util.RandomNumberGeneratorUnix;
 
 /**
  * The main class that organizes the elements of a molecular simulation.
- * Holds a single Space instance that is referenced in
- * many places to obtain spatial elements such as vectors and boundaries.
+ * It contains boxes, species, an integrator, a random number generator,
+ * and a controller.
  */
 public class Simulation implements ISimulation  {
 
@@ -55,6 +55,10 @@ public class Simulation implements ISimulation  {
         return seeds;
     }
 
+    /**
+     * Adds a Box to the simulation.  This method should not be called if
+     * newBox is already held by the simulation.
+     */
     public final void addBox(Box newBox) {
         for (int i=0; i<boxList.length; i++) {
             if (boxList[i] == newBox) {
@@ -68,7 +72,11 @@ public class Simulation implements ISimulation  {
         }
         eventManager.boxAdded(newBox);
     }
-    
+
+    /**
+     * Removes a Box to the simulation.  This method should not be called if
+     * oldBox is not held by the simulation.
+     */
     public final void removeBox(Box oldBox) {
         boolean found = false;
         for (int i=0; i<boxList.length; i++) {
@@ -101,6 +109,9 @@ public class Simulation implements ISimulation  {
         return boxList[index];
     }
 
+    /**
+     * Returns number of boxes contained in the Simulation
+     */
     public int getBoxCount() {
     	return boxList.length;
     }
@@ -120,6 +131,9 @@ public class Simulation implements ISimulation  {
         return space;
     }
 
+    /**
+     * Returns the Simulation's random number generator.
+     */
     public IRandom getRandom() {
         return random;
     }
@@ -132,10 +146,18 @@ public class Simulation implements ISimulation  {
         random = newRandom;
     }
 
+    /**
+     * Returns the Simulation's event manager, which fires events for
+     * Boxes and Species being added and removed.
+     */
     public ISimulationEventManager getEventManager() {
         return eventManager;
     }
 
+    /**
+     * Adds species to the list of all ISpecies in the simulation, and
+     * adds notifies all IBoxes of the new ISpecies.
+     */
     public void addSpecies(ISpecies species) {
 
         int atomTypeMaxIndex = 0;
@@ -163,6 +185,9 @@ public class Simulation implements ISimulation  {
         eventManager.speciesAdded(species);
     }
 
+    /**
+     * Removes the given ISpecies from the ISimulation.
+     */
     public void removeSpecies(ISpecies removedSpecies) {
 
         int index = removedSpecies.getIndex();
@@ -205,10 +230,16 @@ public class Simulation implements ISimulation  {
         eventManager.speciesMaxIndexChanged(speciesList.length);
     }
 
+    /**
+     * Returns the number of Species in the Simulation.
+     */
     public int getSpeciesCount() {
         return speciesList.length;
     }
 
+    /**
+     * Returns the Species in the Simulation for the specified index.
+     */
     public ISpecies getSpecies(int index) {
         return speciesList[index];
     }
