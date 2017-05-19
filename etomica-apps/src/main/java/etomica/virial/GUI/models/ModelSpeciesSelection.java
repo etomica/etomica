@@ -286,7 +286,7 @@ public class ModelSpeciesSelection {
         for (int i=0; i<potentialsStringList.length; i++) {
 		   try {
 			   try {
-				   potentialsStringList[i] = (String)potentialList[i].getMethod("getMolecularModelDisplayName", new Class[0]).invoke(potentialList[i].getConstructor().newInstance(new Object[0]),new Object[0]);
+				   potentialsStringList[i] = (String)potentialList[i].getMethod("getMolecularModelDisplayName", new Class[0]).invoke(potentialList[i].getConstructor().newInstance());
 					} 
 			   catch (InstantiationException e1) {
 				   // TODO Auto-generated catch block

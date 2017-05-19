@@ -116,7 +116,7 @@ public class Dimension implements java.io.Serializable {
             String methodName = methods[i].getMethod().getName();
             if(methodName.equalsIgnoreCase("get"+property+"Dimension")) {
                 try {
-                    return (Dimension)methods[i].getMethod().invoke(obj, (Object[])null);
+                    return (Dimension)methods[i].getMethod().invoke(obj);
                 }
                 catch(java.lang.reflect.InvocationTargetException ex) {
                     System.out.println("InvocationTargetException in Dimension.introspect");
