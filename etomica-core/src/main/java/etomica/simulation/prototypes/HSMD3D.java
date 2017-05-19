@@ -61,7 +61,8 @@ public class HSMD3D extends Simulation {
      */
     public final IBox box;
     /**
-     * The Integrator performing the dynamics.
+     * The Integrator performing the dynamics.ls
+     *
      */
     public final IntegratorHard integrator;
     /**
