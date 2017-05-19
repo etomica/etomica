@@ -5,9 +5,9 @@
 package etomica.data.meter;
 
 import etomica.api.IAtomList;
-import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
+import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -104,7 +104,6 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
             for (int i=0; i<idx.length; i++) {
                 v.PEa1Tv1(idx[i], basis[i]);
             }
-            double foo = Math.sqrt(v.squared());
             if (v.squared() > cutoff2) {
                 continue;
             }
@@ -151,16 +150,12 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
 	}
 
     public IData getData() {
-        double term1 = 0;
-        double term2 = 0;
-        double dotprod = 0;
         int numAtoms = atomList.getAtomCount();
         for(int k=0; k<waveVec.length; k++){
-            term1 = 0;
-            term2 = 0;
-            dotprod = 0;
+            double term1 = 0;
+            double term2 = 0;
             for(int i=0; i<numAtoms; i++){
-                dotprod = waveVec[k].dot(atomList.getAtom(i).getPosition());
+                double dotprod = waveVec[k].dot(atomList.getAtom(i).getPosition());
                 term1 += Math.cos(dotprod);
                 term2 += Math.sin(dotprod);
             }
