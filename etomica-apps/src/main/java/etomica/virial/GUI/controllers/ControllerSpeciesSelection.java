@@ -231,7 +231,7 @@ public class ControllerSpeciesSelection {
 					if(modelSelectedSpecies.getSpeciesDataModel(modelSpeciesSelection.getNthSpeciesSelectedIndex()).getClass().getName().contains("Alkane")){
 						modelSelectedSpecies.setSpeciesDataModel(modelSelectedSpecies.getSpeciesDataModel(modelSpeciesSelection.getNthSpeciesSelectedIndex()).getClass().getConstructor(Integer.TYPE).newInstance(modelSpeciesSelection.getConstructorObject()),modelSpeciesSelection.getNthSpeciesSelectedIndex()+1);
 					}else{
-						modelSelectedSpecies.setSpeciesDataModel(modelSelectedSpecies.getSpeciesDataModel(modelSpeciesSelection.getNthSpeciesSelectedIndex()).getClass().getDeclaredConstructor().newInstance(null),modelSpeciesSelection.getNthSpeciesSelectedIndex()+1);
+						modelSelectedSpecies.setSpeciesDataModel(modelSelectedSpecies.getSpeciesDataModel(modelSpeciesSelection.getNthSpeciesSelectedIndex()).getClass().getDeclaredConstructor().newInstance(),modelSpeciesSelection.getNthSpeciesSelectedIndex()+1);
 					}
 				} catch (InstantiationException e) {
 					// TODO Auto-generated catch block

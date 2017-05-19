@@ -725,7 +725,7 @@ public class BuilderCollectionPotential {
 				if(MethodS1[j].getReturnType().equals(IAtomType.class)){
 					if(MethodS1[j].toString().toUpperCase().contains(Site1.toUpperCase()+"TYPE")|| MethodS1[j].toString().toUpperCase().contains(Site1Name.toUpperCase()+"TYPE")){
 						try {
-							Site1Atom = (IAtomType) MethodS1[j].invoke(species1, null);
+							Site1Atom = (IAtomType) MethodS1[j].invoke(species1);
 							SiteAtoms[0] = Site1Atom;
 						} catch (Exception e) {
 							e.printStackTrace();
@@ -742,7 +742,7 @@ public class BuilderCollectionPotential {
 					if(MethodS2[k].toString().toUpperCase().contains(Site2.toUpperCase()+"TYPE")|| MethodS2[k].toString().toUpperCase().contains(Site2Name.toUpperCase()+"TYPE")){
 						System.out.println(Site2+" "+ MethodS2[k].toString());
 						try {
-							Site2Atom = (IAtomType) MethodS2[k].invoke(species2, null);
+							Site2Atom = (IAtomType) MethodS2[k].invoke(species2);
 							SiteAtoms[1] = Site2Atom;
 						} catch (Exception e) {
 							e.printStackTrace();
