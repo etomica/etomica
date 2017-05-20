@@ -150,7 +150,8 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
 	}
 
     public IData getData() {
-        int numAtoms = atomList.getAtomCount();
+        long numAtoms = atomList.getAtomCount();
+        long n2 = numAtoms*numAtoms;
         for(int k=0; k<waveVec.length; k++){
             double term1 = 0;
             double term2 = 0;
@@ -159,7 +160,7 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
                 term1 += Math.cos(dotprod);
                 term2 += Math.sin(dotprod);
             }
-            struct[k] = ((term1*term1) + (term2*term2))/(numAtoms*numAtoms);
+            struct[k] = ((term1*term1) + (term2*term2))/n2;
         }
         return data;
     }
