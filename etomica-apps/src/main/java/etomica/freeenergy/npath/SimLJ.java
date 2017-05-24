@@ -84,7 +84,7 @@ public class SimLJ extends Simulation {
 
         IVectorMutable offset = space.makeVector();
         offset.setX(offsetDim, box.getBoundary().getBoxSize().getX(offsetDim)*0.5);
-        p1ImageHarmonic = new P1ImageHarmonic(space, offset, w, false);
+        p1ImageHarmonic = new P1ImageHarmonic(space, offset, w, true);
         potentialMasterCell.addPotential(p1ImageHarmonic, new IAtomType[]{leafType});
 
         mcMoveAtom = new MCMoveAtomNPath(random, potentialMasterCell, space, p1ImageHarmonic);
@@ -199,6 +199,7 @@ public class SimLJ extends Simulation {
         sim.ai.setMaxSteps(eqSteps);
         sim.getController().actionPerformed();
         sim.getController().reset();
+        sim.integrator.resetStepCount();
         sim.integrator.getMoveManager().setEquilibrating(false);
         sim.ai.setMaxSteps(steps);
 
@@ -222,7 +223,7 @@ public class SimLJ extends Simulation {
 
         System.out.println("swap acceptance: "+sim.mcMoveSwap.getTracker().acceptanceProbability());
         System.out.println("simple move step size: " + ((MCMoveStepTracker) sim.mcMoveAtom.getTracker()).getAdjustStepSize());
-        System.out.println("coupled move step size: " + ((MCMoveStepTracker) sim.mcMoveAtom.getTracker()).getAdjustStepSize());
+        System.out.println("coupled move step size: " + ((MCMoveStepTracker) sim.mcMoveAtomCoupled.getTracker()).getAdjustStepSize());
 
         System.out.println("spring energy: "+avgEnergies.getValue(0)/numAtoms+"   error: "+errEnergies.getValue(0)/numAtoms+"  cor: "+corEnergies.getValue(0));
         System.out.println("LJ energy: "+avgEnergies.getValue(1)/numAtoms+"   error: "+errEnergies.getValue(1)/numAtoms+"  cor: "+corEnergies.getValue(1));
