@@ -116,6 +116,7 @@ public class SimLJ extends Simulation {
         configuration.initializeCoordinates(box);
         potentialMasterCell.getNbrCellManager(box).assignCellAll();
         p1ImageHarmonic.findNOffset(box);
+        mcMoveAtomCoupled.setNOffset(p1ImageHarmonic.getNOffset());
     }
     
     public static void main(String[] args) {
@@ -222,8 +223,8 @@ public class SimLJ extends Simulation {
         IData covEnergies = accEnergies.getData(accEnergies.BLOCK_COVARIANCE);
 
         System.out.println("swap acceptance: "+sim.mcMoveSwap.getTracker().acceptanceProbability());
-        System.out.println("simple move step size: " + ((MCMoveStepTracker) sim.mcMoveAtom.getTracker()).getAdjustStepSize());
-        System.out.println("coupled move step size: " + ((MCMoveStepTracker) sim.mcMoveAtomCoupled.getTracker()).getAdjustStepSize());
+        System.out.println("simple move step size: " + sim.mcMoveAtom.getStepSize());
+        System.out.println("coupled move step size: " + sim.mcMoveAtomCoupled.getStepSize());
 
         System.out.println("spring energy: "+avgEnergies.getValue(0)/numAtoms+"   error: "+errEnergies.getValue(0)/numAtoms+"  cor: "+corEnergies.getValue(0));
         System.out.println("LJ energy: "+avgEnergies.getValue(1)/numAtoms+"   error: "+errEnergies.getValue(1)/numAtoms+"  cor: "+corEnergies.getValue(1));

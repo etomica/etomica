@@ -31,6 +31,7 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
     protected final IRandom random;
     protected Space space;
     protected IAtomList atoms;
+    protected int nOffset;
 
     public MCMoveAtomCoupled(IRandom random, IPotentialMaster potentialMaster, Space _space) {
         this(potentialMaster, random, _space, 1.0, 15.0, false);
@@ -62,16 +63,25 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         affectedAtomIterator = new AtomIteratorArrayListSimple();
     }
 
+    public void setNOffset(int newOffset) {
+        nOffset = newOffset;
+    }
+
     /**
      * Method to perform trial move.
      */
     public boolean doTrial() {
         atom = atomSource.getAtom();
         if (atom == null) return false;
-        int n = atoms.getAtomCount();
-        int idx2 = atom.getLeafIndex()+n/2;
-        if (idx2>=n) idx2-=n;
-        atom2 = atoms.getAtom(idx2);
+        int idx0 = atom.getLeafIndex();
+        IAtomList allAtoms = box.getLeafList();
+        if (idx0%(nOffset*2) >= nOffset) {
+            atom2 = atom;
+            atom = allAtoms.getAtom(idx0-nOffset);
+        }
+        else {
+            atom2 = allAtoms.getAtom(idx0+nOffset);
+        }
 
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();
