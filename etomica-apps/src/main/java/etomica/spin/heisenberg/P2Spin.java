@@ -107,6 +107,7 @@ public class P2Spin extends Potential2 implements IPotentialTorque,IPotentialAto
     private double coupling;
     
     protected IVectorMutable dr;
+    protected IVectorMutable dr2;
     private  final IVectorMutable [][] gradientAndTorque;
 	private final IVectorMutable[] gradient;
 	protected final IVectorMutable[] torque;
@@ -137,19 +138,12 @@ public class P2Spin extends Potential2 implements IPotentialTorque,IPotentialAto
 		double y1 = atom1.getOrientation().getDirection().getX(1);//sint1
 		double x2 = atom2.getOrientation().getDirection().getX(0);//cost2
 		double y2 = atom2.getOrientation().getDirection().getX(1);//sint2
-		
-		//sin(t1-t2) = sint1*cost2- cost1*sint2 =y1*x2-x1*y2
+
+		//u=-J*cos(t1-t2) and  du/dt1 = J*sin(t1-t2) = J*(sint1*cost2- cost1*sint2 =y1*x2-x1*y2)
 		double JSin = coupling*(y1*x2-x1*y2);
-		
+
 		torque[0].E(-JSin);
 		torque[1].E(JSin);
-//		double t1 = Math.acos(x1);
-//		System.out.println(" t1= "+t1);
-//		System.out.println("x1 = " + x1 + " y1 = " + y1);
-//		System.out.println("x2 = " + x2 + " y2 = " + y2);
-//		System.out.println(JSin);
-//		System.out.println("P2Spin Torque[0] = " + torque[0]);
-//		System.out.println("P2Spin Torque[1] = " + torque[1]);
 		return gradientAndTorque;
 	}
 
@@ -173,9 +167,9 @@ public class P2Spin extends Potential2 implements IPotentialTorque,IPotentialAto
     	double JCos = atom1.getOrientation().getDirection().dot(atom2.getOrientation().getDirection());
     	
     	
-    	secondDerivative[0].E(-JCos);
-    	secondDerivative[1].E(JCos);
-    	secondDerivative[2].E(-JCos);
+    	secondDerivative[0].E(JCos);
+    	secondDerivative[1].E(-JCos);
+    	secondDerivative[2].E(JCos);
     	
 //    	System.out.println(secondDerivative[0].component(0, 0));
 //    	System.out.println(secondDerivative[1].component(0, 0));
