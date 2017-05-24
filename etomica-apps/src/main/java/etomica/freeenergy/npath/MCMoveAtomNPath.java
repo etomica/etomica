@@ -30,6 +30,7 @@ public class MCMoveAtomNPath extends etomica.integrator.mcmove.MCMoveAtom {
         if (atom == null) return false;
         energyMeter.setTarget(atom);
         atomSinglet.atom = atom;
+        // p1 will only return half the spring energy when called through the meter
         uOld = energyMeter.getDataAsScalar()+p1.energy(atomSinglet);
         if(uOld > 1e8 && !fixOverlap) {
             throw new RuntimeException("atom "+atom+" in box "+box+" has an overlap");
@@ -41,6 +42,8 @@ public class MCMoveAtomNPath extends etomica.integrator.mcmove.MCMoveAtom {
     }//end of doTrial
 
     public double getB() {
-        return super.getB()-p1.energy(atomSinglet);
+        super.getB();
+        uNew += p1.energy(atomSinglet);
+        return -(uNew - uOld);
     }
 }
