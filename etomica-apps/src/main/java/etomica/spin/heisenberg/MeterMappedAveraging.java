@@ -96,6 +96,7 @@ public class MeterMappedAveraging implements IEtomicaDataSource ,AgentSource<Met
 		if (box == null) throw new IllegalStateException("no box");
 		
 		IAtomList leafList = box.getLeafList();
+		//the FSum maybe used in 3D so it's commented out here
 		 FSum.zeroSum();
 		 potentialMaster.calculate(box, allAtoms, FSum);
 		 secondDerivativeSum.zeroSum();
@@ -104,22 +105,32 @@ public class MeterMappedAveraging implements IEtomicaDataSource ,AgentSource<Met
 		
 		 double bt2 = bt*bt;
 		 double mu2 = mu*mu;
-
-		 int nM = leafList.getAtomCount();	
+		 int nM = leafList.getAtomCount();
 		 double A = 0;
 		 torqueSum.E(0);
+
 		 for (int i = 0;i < nM; i++){
 			 MoleculeAgent torqueAgent = (MoleculeAgent) leafAgentManager.getAgent(leafList.getAtom(i));
 			 torqueSum.PE(torqueAgent.torque);
+
+			 //test for <f(1-x^2)> the result is zero!!!!!
+//			 IAtomOriented atom = (IAtomOriented)leafList.getAtom(0);
+//			 double ex = atom.getOrientation().getDirection().getX(0);
+//			 double ey = atom.getOrientation().getDirection().getX(1);
+//			 torqueSum.PEa1Tv1((ex+ey),torqueAgent.torque);
+
 		 }//i loop
 
 
 		x[0] = -nM*bt2*mu2 - 0.25*bt2*bt2*mu2*torqueSum.squared()+ secondDerivativeSum.getSum();
 
+//		test for <f(1-x^2)>  the result is zero!!!!!
+//		x[0] = torqueSum.squared();
+//		x[0] = secondDerivativeSum.getSum();
 		return data;
 	}
 	
-	public void setDipoleSource(DipoleSource newDipoleSource) {
+	public void setDipoleSource(DipoleSource newDipoleSource) {//TODO should I delete this
 		dipoleSource = newDipoleSource;
 		secondDerivativeSum.setDipoleSource(newDipoleSource); 
 	}
