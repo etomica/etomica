@@ -167,9 +167,9 @@ public class P2Spin extends Potential2 implements IPotentialTorque,IPotentialAto
     	double JCos = atom1.getOrientation().getDirection().dot(atom2.getOrientation().getDirection());
     	
     	
-    	secondDerivative[0].E(JCos);
-    	secondDerivative[1].E(-JCos);
-    	secondDerivative[2].E(JCos);
+    	secondDerivative[0].E(-JCos);//ij
+    	secondDerivative[1].E(JCos);//ii
+    	secondDerivative[2].E(JCos);//jj
     	
 //    	System.out.println(secondDerivative[0].component(0, 0));
 //    	System.out.println(secondDerivative[1].component(0, 0));
