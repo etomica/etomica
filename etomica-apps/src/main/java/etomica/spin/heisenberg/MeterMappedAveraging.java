@@ -80,12 +80,6 @@ public class MeterMappedAveraging implements IEtomicaDataSource ,AgentSource<Met
 
 		allAtoms = new IteratorDirective();
 
-		AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent> atomAgentSource = new AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent>() {
-		    public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a,IBox box) {
-		        return new IntegratorVelocityVerlet.MyAgent(space);
-		    }
-		    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom,IBox box) {/**do nothing**/}
-        };
 	}
 
 	@Override
@@ -121,7 +115,7 @@ public class MeterMappedAveraging implements IEtomicaDataSource ,AgentSource<Met
 
         //dr.s
 //		x[0] = -nM*bt2*mu2 - 0.25*bt2*bt2*mu2*dr.squared()+ secondDerivativeSum.getSum();
-        x[0] = -nM*bt2*mu2 + 0.25*bt*bt2*mu2*secondDerivativeSum.getSum();
+        x[0] = -nM*bt2*mu2 + 0.25*J*bt*bt2*mu2*secondDerivativeSum.getSum();
 
 //		test for <f(1-x^2)>  the result is zero!!!!!
 //		x[0] = dr.squared();
