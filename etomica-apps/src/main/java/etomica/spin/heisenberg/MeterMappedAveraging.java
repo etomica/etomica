@@ -21,10 +21,8 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.potential.PotentialCalculationEnergySum;
-import etomica.potential.PotentialCalculationFSum;
-import etomica.potential.PotentialCalculationForceSum;
-import etomica.potential.PotentialCalculationPhiSumHeisenberg;
+import etomica.potential.*;
+
 import etomica.space.ISpace;
 import etomica.space1d.Vector1D;
 import etomica.units.Null;
@@ -39,10 +37,10 @@ public class MeterMappedAveraging implements IEtomicaDataSource ,AgentSource<Met
 	//private IBoundary boundary;
 	protected PotentialCalculationEnergySum energySum;
 	protected PotentialCalculationFSum FSum;
+    protected PotentialCalculationTorqueSum torqueSum;
 	protected PotentialCalculationPhiSumHeisenberg secondDerivativeSum;
 	protected final ISpace space;
 	private IBox box;
-	private IVectorMutable torqueSum;
 	//private double truncation;
 	protected double temperature;
 	protected double J;
@@ -71,16 +69,17 @@ public class MeterMappedAveraging implements IEtomicaDataSource ,AgentSource<Met
 		bt = 1/temperature;
 		mu = dipoleMagnitude;
 
-		torqueSum = new Vector1D();
+    	dr = new Vector1D();
+        leafAgentManager  = new AtomLeafAgentManager<MoleculeAgent>(this , box, MoleculeAgent.class);
+        torqueSum = new PotentialCalculationTorqueSum();
+        torqueSum.setAgentManager(leafAgentManager);
 		FSum = new PotentialCalculationFSum(space,dipoleMagnitude,interactionS,temperature);
 		energySum = new PotentialCalculationEnergySum();
-		secondDerivativeSum = new  PotentialCalculationPhiSumHeisenberg(space,dipoleMagnitude,interactionS,temperature);
-		leafAgentManager  = new AtomLeafAgentManager<MoleculeAgent>(this , box, MoleculeAgent.class); 
+		secondDerivativeSum = new  PotentialCalculationPhiSumHeisenberg(space);
+
 
 		allAtoms = new IteratorDirective();
-		dr = space.makeVector();
-		work = space.makeVector();
-		
+
 		AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent> atomAgentSource = new AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent>() {
 		    public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a,IBox box) {
 		        return new IntegratorVelocityVerlet.MyAgent(space);
@@ -96,9 +95,8 @@ public class MeterMappedAveraging implements IEtomicaDataSource ,AgentSource<Met
 		if (box == null) throw new IllegalStateException("no box");
 		
 		IAtomList leafList = box.getLeafList();
-		//the FSum maybe used in 3D so it's commented out here
-		 FSum.zeroSum();
-		 potentialMaster.calculate(box, allAtoms, FSum);
+        torqueSum.reset();
+        potentialMaster.calculate(box, allAtoms, torqueSum);
 		 secondDerivativeSum.zeroSum();
 		 potentialMaster.calculate(box, allAtoms, secondDerivativeSum);
 		 
@@ -107,33 +105,30 @@ public class MeterMappedAveraging implements IEtomicaDataSource ,AgentSource<Met
 		 double mu2 = mu*mu;
 		 int nM = leafList.getAtomCount();
 		 double A = 0;
-		 torqueSum.E(0);
+		 dr.E(0);
 
-		 for (int i = 0;i < nM; i++){
-			 MoleculeAgent torqueAgent = (MoleculeAgent) leafAgentManager.getAgent(leafList.getAtom(i));
-			 torqueSum.PE(torqueAgent.torque);
+//		 for (int i = 0;i < nM; i++){ torque square sum is zero so don't need it here.
+//			 MoleculeAgent torqueAgent = (MoleculeAgent) leafAgentManager.getAgent(leafList.getAtom(i));
+//			 dr.PE(torqueAgent.torque);
+////            System.out.println(torqueAgent.torque);
+//
+//			 //test for <f(1-x^2)> the result is zero!!!!!
+////			 IAtomOriented atom = (IAtomOriented)leafList.getAtom(0);
+////			 double ex = atom.getOrientation().getDirection().getX(0);
+////			 double ey = atom.getOrientation().getDirection().getX(1);
+////			 torqueSum.PEa1Tv1((ex+ey),torqueAgent.torque);
+//		 }//i loop
 
-			 //test for <f(1-x^2)> the result is zero!!!!!
-//			 IAtomOriented atom = (IAtomOriented)leafList.getAtom(0);
-//			 double ex = atom.getOrientation().getDirection().getX(0);
-//			 double ey = atom.getOrientation().getDirection().getX(1);
-//			 torqueSum.PEa1Tv1((ex+ey),torqueAgent.torque);
-
-		 }//i loop
-
-
-		x[0] = -nM*bt2*mu2 - 0.25*bt2*bt2*mu2*torqueSum.squared()+ secondDerivativeSum.getSum();
+        //dr.s
+//		x[0] = -nM*bt2*mu2 - 0.25*bt2*bt2*mu2*dr.squared()+ secondDerivativeSum.getSum();
+        x[0] = -nM*bt2*mu2 + 0.25*bt*bt2*mu2*secondDerivativeSum.getSum();
 
 //		test for <f(1-x^2)>  the result is zero!!!!!
-//		x[0] = torqueSum.squared();
+//		x[0] = dr.squared();
 //		x[0] = secondDerivativeSum.getSum();
 		return data;
 	}
 	
-	public void setDipoleSource(DipoleSource newDipoleSource) {//TODO should I delete this
-		dipoleSource = newDipoleSource;
-		secondDerivativeSum.setDipoleSource(newDipoleSource); 
-	}
 
 	public DataTag getTag() {
 		return tag;
