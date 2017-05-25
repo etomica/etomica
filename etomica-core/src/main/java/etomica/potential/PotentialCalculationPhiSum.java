@@ -130,8 +130,7 @@ public class PotentialCalculationPhiSum implements PotentialCalculationMolecular
 		
 		secondDerivativeSum += ej.dot(dr);//jj
 		
-//		System.exit(2);
-	
+
 		
 	}
 	
