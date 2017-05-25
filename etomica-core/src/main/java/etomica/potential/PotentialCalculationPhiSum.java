@@ -48,16 +48,7 @@ public class PotentialCalculationPhiSum implements PotentialCalculationMolecular
 	}
 
 	public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
-		// TODO Auto-generated method stub 
-		
-		
-		
-		
-		
-		
-		
-		//TODO very important should come back in the future.
-		
+
 	}
 
 	public void doCalculation(IMoleculeList molecules, IPotentialMolecular potential) {
@@ -65,9 +56,9 @@ public class PotentialCalculationPhiSum implements PotentialCalculationMolecular
 			return;
 		}
 		
-		IPotentialMolecularSecondDerivative potentialSeconDerivative = (IPotentialMolecularSecondDerivative) potential;
+		IPotentialMolecularSecondDerivative potentialSecondDerivative = (IPotentialMolecularSecondDerivative) potential;
 		
-		Tensor[] t = potentialSeconDerivative.secondDerivative(molecules);
+		Tensor[] t = potentialSecondDerivative.secondDerivative(molecules);
 		
 		IMolecule molecule0 = molecules.getMolecule(0);
 		IMolecule molecule1 = molecules.getMolecule(1);
@@ -80,7 +71,7 @@ public class PotentialCalculationPhiSum implements PotentialCalculationMolecular
 //		System.exit(2);
 		
 		
-//		ei.normalize();//TODO
+//		ei.normalize();
 //		ej.normalize();
 		
 //		debug only  
@@ -94,7 +85,6 @@ public class PotentialCalculationPhiSum implements PotentialCalculationMolecular
 		
 		
 		
-		//TODO
 //		System.out.println("ei = " + ei);
 //		System.out.println("ej = " + ej);
 //		System.out.println("t[0] = \n" + t[0]);
@@ -117,7 +107,6 @@ public class PotentialCalculationPhiSum implements PotentialCalculationMolecular
 		t[1].PEa1Tt1(traceii, iT);
 		t[2].PEa1Tt1(tracejj, iT);
 		
-		//TODO
 //		System.out.println("-Transpose(t[0]) + trace(t[0]) = \n"  + t[0]);
 //		System.exit(2);
 		
@@ -126,7 +115,6 @@ public class PotentialCalculationPhiSum implements PotentialCalculationMolecular
 		t[0].transform(dr);
 		secondDerivativeSum += 2*ei.dot(dr);//ij
 		
-		//TODO
 //		System.out.println("ij = " + 2*ei.dot(dr));
 //		System.exit(2);
 		
@@ -135,13 +123,11 @@ public class PotentialCalculationPhiSum implements PotentialCalculationMolecular
 		dr.E(ei);
 		t[1].transform(dr);
 		
-		//TODO
 		secondDerivativeSum += ei.dot(dr);//ii
 		
 		dr.E(ej);
 		t[2].transform(dr);
 		
-		//TODO
 		secondDerivativeSum += ej.dot(dr);//jj
 		
 //		System.exit(2);
