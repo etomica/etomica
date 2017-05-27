@@ -157,7 +157,7 @@ public class CollectionPotentialAtomicLike implements ICollectionPotential{
 		}else{
 			int tableIterationIndex = 0;
 			while(nonBondedPotentialsItr.hasNext()){
-				Map.Entry nonBondedPotentialsEntry = (Map.Entry) nonBondedPotentialsItr.next();
+				Map.Entry nonBondedPotentialsEntry = nonBondedPotentialsItr.next();
 				String[] nonBondedPotentialsMapKey= (String[]) nonBondedPotentialsEntry.getKey();
 				if(!(nonBondedPotentialsMapKey[0] == hashKey[0] && nonBondedPotentialsMapKey[1] == hashKey[1]) &&
 						!(nonBondedPotentialsMapKey[0] == hashKey[1] && nonBondedPotentialsMapKey[1] == hashKey[0])){

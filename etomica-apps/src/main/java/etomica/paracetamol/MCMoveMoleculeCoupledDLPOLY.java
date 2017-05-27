@@ -56,7 +56,7 @@ public class MCMoveMoleculeCoupledDLPOLY extends MCMoveBoxStep {
         affectedMoleculeIterator = new AtomIteratorArrayListSimple(affectedMoleculeList);
         
         singleAction = new AtomActionTranslateBy(_space);
-        groupTransVect = (IVector)singleAction.getTranslationVector();
+        groupTransVect = singleAction.getTranslationVector();
         
         moveMoleculeAction = new MoleculeChildAtomAction(singleAction);
         

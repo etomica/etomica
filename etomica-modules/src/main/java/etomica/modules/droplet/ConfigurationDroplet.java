@@ -29,7 +29,7 @@ public class ConfigurationDroplet implements Configuration {
         int numAtoms = leafList.getAtomCount();
         for (int i=0; i<numAtoms; i++) {
             IVector r = leafList.getAtom(i).getPosition();
-            ((IVector)r).setRandomInSphere(random);
+            r.setRandomInSphere(random);
             r.TE(axis);
         }
 

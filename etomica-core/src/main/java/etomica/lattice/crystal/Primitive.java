@@ -61,7 +61,7 @@ public abstract class Primitive implements java.io.Serializable {
      * Returns a new array with values equal to the lengths of the primitive vectors.
      */
     public double[] getSize() {
-        return (double[])size.clone();
+        return size.clone();
     }
     
     /**

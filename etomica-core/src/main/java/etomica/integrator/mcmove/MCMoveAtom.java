@@ -54,7 +54,7 @@ public class MCMoveAtom extends MCMoveBoxStep {
         atomSource = new AtomSourceRandomLeaf();
         ((AtomSourceRandomLeaf)atomSource).setRandomNumberGenerator(random);
         this.energyMeter = meterPE;
-        translationVector = (IVector)space.makeVector();
+        translationVector = space.makeVector();
         setStepSizeMax(stepSizeMax);
         setStepSizeMin(0.0);
         setStepSize(stepSize);

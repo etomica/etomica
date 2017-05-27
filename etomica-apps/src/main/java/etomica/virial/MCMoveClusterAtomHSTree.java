@@ -95,7 +95,7 @@ public class MCMoveClusterAtomHSTree extends MCMoveAtom {
                     continue;
                 }
                 // insert nbr2 around nbr
-                IVector pos = (IVector)leafAtoms.getAtom(nbr2).getPosition();
+                IVector pos = leafAtoms.getAtom(nbr2).getPosition();
 
                 pos.setRandomInSphere(random);
                 pos.TE(sigma);

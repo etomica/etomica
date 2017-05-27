@@ -56,7 +56,7 @@ public class MCMoveInsertDeleteVacancy extends MCMoveInsertDeleteBiased implemen
                                      IRandom random, Space _space, IIntegrator integrator, double nbrDistance, int maxN, int maxVacancy) {
         super(potentialMaster, random, _space, maxN-maxVacancy, maxN);
         this.potentialMaster = (PotentialMasterList)potentialMaster;
-        dest = (IVector)_space.makeVector();
+        dest = _space.makeVector();
         dr = _space.makeVector();
         this.integrator = integrator;
         minDistance = 0.95;

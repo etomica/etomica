@@ -120,7 +120,7 @@ public class Sam extends Simulation {
         chainPhi = new double[4];
 
         config = new ConfigurationSAM(this, space, species, speciesSurface, potentialMaster);
-        Basis alkaneBasis = new Basis(new IVector[]{space.makeVector(new double[]{1.0/6.0,0,1.0/6.0}), ((Space)space).makeVector(new double[]{2.0/3.0, 0, 2.0/3.0})});
+        Basis alkaneBasis = new Basis(new IVector[]{space.makeVector(new double[]{1.0/6.0,0,1.0/6.0}), space.makeVector(new double[]{2.0/3.0, 0, 2.0/3.0})});
         Basis surfaceBasis = new Basis(new IVector[]{
                 space.makeVector(new double[]{2.0/6.0, 0, 0}),
                 space.makeVector(new double[]{5.0/6.0, 0, 1.0/6.0}),
@@ -547,7 +547,7 @@ public class Sam extends Simulation {
         SimulationGraphic simGraphic = new SimulationGraphic(sim, Space3D.getInstance(), sim.getController());
         simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(15));
 //        sim.integrator.setActionInterval(simGraphic.getPaintAction(sim.box), 10);
-        ((DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box).canvas).setDrawBoundary(DisplayCanvas.DRAW_BOUNDARY_NONE);
+        simGraphic.getDisplayBox(sim.box).canvas.setDrawBoundary(DisplayCanvas.DRAW_BOUNDARY_NONE);
         simGraphic.makeAndDisplayFrame();
     }
 }

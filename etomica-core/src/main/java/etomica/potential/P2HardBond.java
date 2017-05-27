@@ -96,8 +96,8 @@ public class P2HardBond extends Potential2HardSpherical {
             }
         }
         
-        double rm0 = ((IAtom)atom0).getType().rm();
-        double rm1 = ((IAtom)atom1).getType().rm();
+        double rm0 = atom0.getType().rm();
+        double rm1 = atom1.getType().rm();
         
         lastCollisionVirial = 2.0 / (rm0+rm1) * bij;
         lastCollisionVirialr2 = lastCollisionVirial / r2;

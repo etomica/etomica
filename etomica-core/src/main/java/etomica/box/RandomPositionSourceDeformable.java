@@ -21,7 +21,7 @@ import etomica.space.Space;
 public class RandomPositionSourceDeformable implements RandomPositionSource {
     
     public RandomPositionSourceDeformable(Space space, IRandom random) {
-        p = (IVector)space.makeVector();
+        p = space.makeVector();
         this.random = random;
     }
 

@@ -160,7 +160,7 @@ public class InsertionGraphic extends SimulationGraphic {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 if(evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) return; 
                 setPotential((String)evt.getItem());
-                if((String)evt.getItem() == repulsionOnly) {
+                if(evt.getItem() == repulsionOnly) {
                     lamBox.setEditable(false);
                 }
                 else {

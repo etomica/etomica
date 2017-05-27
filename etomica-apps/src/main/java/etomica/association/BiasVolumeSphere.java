@@ -23,7 +23,7 @@ public class BiasVolumeSphere extends BiasVolume {
     public BiasVolumeSphere(Space space, IRandom random){
         super(space);
         this.random = random;
-        work = (IVector)space.makeVector();
+        work = space.makeVector();
         radius = 1.0;//size of the sphere
         innerRadius = 0.9;
     }

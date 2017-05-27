@@ -278,8 +278,8 @@ public class VirialH2PISimple {
 			@Override
 			public void integratorStepFinished(IIntegratorEvent e) {
 				IAtomList atoms = sim.box[1].getLeafList();
-				IVector a0 = (IVector) ((IAtomOriented)atoms.getAtom(0)).getOrientation().getDirection();
-				IVector a1 = (IVector) ((IAtomOriented)atoms.getAtom(1)).getOrientation().getDirection();
+				IVector a0 = ((IAtomOriented)atoms.getAtom(0)).getOrientation().getDirection();
+				IVector a1 = ((IAtomOriented)atoms.getAtom(1)).getOrientation().getDirection();
 				double angle = Math.acos(a0.dot(a1));
 				h1.addValue(angle);
 			}

@@ -20,7 +20,7 @@ public class ConfigurationClusterChain extends ConfigurationCluster {
 		BoxCluster clusterBox =(BoxCluster) box;
 		IAtomList list = box.getLeafList();
 		for (int i=1;i<list.getAtomCount();i++){
-			((IVector)list.getAtom(i).getPosition()).setX(0, 0.9*i);
+			list.getAtom(i).getPosition().setX(0, 0.9*i);
 		 }
 		 clusterBox.trialNotify();
 		 clusterBox.acceptNotify();

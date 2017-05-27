@@ -254,9 +254,9 @@ public class Quaternion extends Object {
     protected void updateQuaternion() {
         if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);
         double [] q = this.getDoubleArray();        
-        ((IVector) vec).setX(0, q1);
-        ((IVector) vec).setX(1, q2);
-        ((IVector) vec).setX(2, q3);
+        vec.setX(0, q1);
+        vec.setX(1, q2);
+        vec.setX(2, q3);
         norm = Math.sqrt(q0*q0 + q1*q1 + q2*q2 + q3*q3);
         if (norm == 0) throw new RuntimeException("Norm of quaternion is zero!!! "+ q);
     }
@@ -608,8 +608,8 @@ public class Quaternion extends Object {
 	public void rotateOrientation(OrientationFull3D or) {
 	    if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);
         if (! this.isUnitQuaternion()) throw new RuntimeException("This is not a unit quaternion and therefore not a rotation operator. Normalize it first");
-	    this.rotateVector((IVector)or.getDirection());
-	    this.rotateVector((IVector)or.getSecondaryDirection());
+	    this.rotateVector(or.getDirection());
+	    this.rotateVector(or.getSecondaryDirection());
 	}
 	
 	/**

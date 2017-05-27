@@ -142,7 +142,7 @@ public class ConfigurationClusterWertheimGCPM4Pt extends ConfigurationCluster {
 		BoxCluster clusterBox =(BoxCluster) box;
 		IMoleculeList list = box.getMoleculeList();
 		for (int i=1;i<list.getMoleculeCount();i++){
-			((IVector)list.getMolecule(i).getChildList().getAtom(0).getPosition()).setX(0, 0.9*i);
+			list.getMolecule(i).getChildList().getAtom(0).getPosition().setX(0, 0.9*i);
 		 }
 		clusterBox.trialNotify();
 		clusterBox.acceptNotify();
@@ -225,7 +225,7 @@ public class ConfigurationClusterWertheimGCPM4Pt extends ConfigurationCluster {
 		pair.atom1 = water;
 		
         while (true){
-	        IVector positionWater = (IVector)space.makeVector();
+	        IVector positionWater = space.makeVector();
 	        positionWater.setRandomInSphere(random);
 	        positionWater.TE(4.0);//place water molecule within a sphere with r = 4A
 	        MoleculeActionTranslateTo translation = new MoleculeActionTranslateTo(space);
@@ -265,7 +265,7 @@ public class ConfigurationClusterWertheimGCPM4Pt extends ConfigurationCluster {
 		pair.atom1 = water;
 	
         while (true){
-        	IVector positionWater = (IVector)space.makeVector();
+        	IVector positionWater = space.makeVector();
 	        positionWater.setRandomInSphere(random);
 	        positionWater.TE(4.0);//place water molecule within a sphere with r = 4A
 	        positionWater.PE(pair.atom0.getChildList().getAtom(0).getPosition());
@@ -306,7 +306,7 @@ public class ConfigurationClusterWertheimGCPM4Pt extends ConfigurationCluster {
 		pair.atom1 = water;
 	
         while (true){
-        	IVector positionWater = (IVector)space.makeVector();
+        	IVector positionWater = space.makeVector();
 	        positionWater.setRandomInSphere(random);
 	        positionWater.TE(4.0);//place water molecule within a sphere with r = 8A
 	        positionWater.PE(pair.atom0.getChildList().getAtom(0).getPosition());
@@ -350,7 +350,7 @@ public class ConfigurationClusterWertheimGCPM4Pt extends ConfigurationCluster {
 		
 	
         while (true){
-        	IVector positionWater = (IVector)space.makeVector();
+        	IVector positionWater = space.makeVector();
 	        positionWater.setRandomInSphere(random);
 	        positionWater.TE(4.0);//place water molecule within a sphere with r = 8A
 	        positionWater.PE(pair.atom0.getChildList().getAtom(0).getPosition());
@@ -392,7 +392,7 @@ public class ConfigurationClusterWertheimGCPM4Pt extends ConfigurationCluster {
 		pair2.atom1 = water;
 	
         while (true){
-        	IVector positionWater = (IVector)space.makeVector();
+        	IVector positionWater = space.makeVector();
 	        positionWater.setRandomInSphere(random);
 	        positionWater.TE(3.5);//place water molecule within a sphere with r = 4A
 	        //positionWater.PE(pair.atom0.getChildList().getAtom(0).getPosition());

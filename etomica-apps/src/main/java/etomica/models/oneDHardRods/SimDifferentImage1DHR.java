@@ -500,8 +500,8 @@ public class SimDifferentImage1DHR extends Simulation {
         System.out.println("output data to " + filename);System.out.println("instantiated");
         
         //Divide out all the steps, so that the subpieces have the proper # of steps
-        runNumSteps /= (int)subBlockSize;
-        eqNumSteps /= (int)subBlockSize;
+        runNumSteps /= subBlockSize;
+        eqNumSteps /= subBlockSize;
         benNumSteps /= subBlockSize;
         
         //start simulation & equilibrate
@@ -551,7 +551,7 @@ public class SimDifferentImage1DHR extends Simulation {
         System.out.println("equilibration finished.");
         
         // start simulation
-        sim.setAccumulatorBlockSize((int)runBlockSize);
+        sim.setAccumulatorBlockSize(runBlockSize);
         sim.integratorSim.getMoveManager().setEquilibrating(false);
         sim.activityIntegrate.setMaxSteps(runNumSteps);
         sim.getController().actionPerformed();

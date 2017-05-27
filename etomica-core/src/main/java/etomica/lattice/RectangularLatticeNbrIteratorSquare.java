@@ -200,7 +200,7 @@ public class RectangularLatticeNbrIteratorSquare extends
      * Returns (a copy of) the array specifying the neighbor range.
      */
     public int[] getRange() {
-        return (int[])range.clone();
+        return range.clone();
     }
 
 //  private void gatherAllNeighbors(int d, int startIndex) {

@@ -64,7 +64,7 @@ public class MCMoveAtomCoupledUmbrella extends MCMoveBoxStep {
         setNormalModes(normalMode);
         harmonicEnergyMeter = new MeterHarmonicEnergy(coordinateDefinition, normalModes);
         
-        translationVector = (IVector)_space.makeVector();
+        translationVector = _space.makeVector();
         setStepSizeMax(0.5);
         setStepSizeMin(0.0);
         setStepSize(0.1);

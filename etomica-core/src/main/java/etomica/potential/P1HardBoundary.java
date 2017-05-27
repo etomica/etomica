@@ -146,7 +146,7 @@ public class P1HardBoundary implements PotentialHard, Drawable {
         // dv = 2*NewVelocity
         double newP = atom.getPosition().getX(imin) - falseTime*v.getX(imin)*2.0;
         atom.getPosition().setX(imin,newP);
-        double dp = 2.0/(((IAtom)atom).getType().rm())*(-v.getX(imin));
+        double dp = 2.0/(atom.getType().rm())*(-v.getX(imin));
         lastVirial = dp;
         lastCollisionDim = imin;
     }//end of bump

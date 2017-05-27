@@ -83,7 +83,7 @@ public class MeterKineticEnergyRigid extends DataSourceScalar {
                     IAtomList children = molecule.getChildList();
                     for (int iLeaf=0; iLeaf<children.getAtomCount(); iLeaf++) {
                         IAtomKinetic a = (IAtomKinetic)children.getAtom(iLeaf);
-                        double mass = ((IAtom)a).getType().getMass();
+                        double mass = a.getType().getMass();
                         if(mass == Double.POSITIVE_INFINITY) continue;
         //                    System.out.println("force: "+((MyAgent)a.ia).force.toString());
                         IVector velocity = a.getVelocity();

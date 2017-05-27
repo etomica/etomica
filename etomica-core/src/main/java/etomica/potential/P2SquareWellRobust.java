@@ -110,8 +110,8 @@ public class P2SquareWellRobust extends Potential2HardSpherical implements AtomL
 
         double r2 = dr.squared();
         double bij = dr.dot(dv);
-        double rm0 = ((IAtom)atom0).getType().rm();
-        double rm1 = ((IAtom)atom1).getType().rm();
+        double rm0 = atom0.getType().rm();
+        double rm1 = atom1.getType().rm();
         double reduced_m = 1.0/(rm0+rm1);
         if(2*r2 < (coreDiameterSquared+wellDiameterSquared) || lambda == 1) {   // Hard-core collision
             if (Debug.ON && !ignoreOverlap && Math.abs(r2 - coreDiameterSquared)/coreDiameterSquared > 1.e-9) {

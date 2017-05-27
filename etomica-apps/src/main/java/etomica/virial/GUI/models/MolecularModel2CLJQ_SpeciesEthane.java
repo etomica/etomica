@@ -175,7 +175,7 @@ public class MolecularModel2CLJQ_SpeciesEthane implements IMolecularModel_Specie
 		//SpeciesFactory speciesFactory = new SpeciesFactoryTangentSpheres(2,this.getConformation());
 		
 		//return speciesFactory.makeSpecies(this.space);
-		return (ISpecies)ethaneSpecies;
+		return ethaneSpecies;
 	}
 	
 	//Creates the LJ Molecule Species

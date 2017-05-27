@@ -32,7 +32,7 @@ public class PotentialMasterListDimer extends PotentialMasterList{
             super.calculate(box, id, pc);
             return;
         }
-        NeighborListManager neighborManager = (NeighborListManager)neighborListAgentManager.getAgent(box);
+        NeighborListManager neighborManager = neighborListAgentManager.getAgent(box);
         
         if (Debug.ON && id.direction() != IteratorDirective.Direction.UP) {
             throw new IllegalArgumentException("When there is no target, iterator directive must be up");

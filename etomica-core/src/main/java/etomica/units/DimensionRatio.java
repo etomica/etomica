@@ -23,7 +23,7 @@ public final class DimensionRatio extends Dimension {
     }
 
     private static double[] makeSignature(Dimension nDim, Dimension dDim) {
-        double[] sig = (double[]) nDim.signature().clone();
+        double[] sig = nDim.signature().clone();
         for (int i = 0; i < sig.length; i++) {
             sig[i] -= dDim.signature()[i];
         }

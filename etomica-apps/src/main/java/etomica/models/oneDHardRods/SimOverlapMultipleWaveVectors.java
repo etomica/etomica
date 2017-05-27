@@ -147,7 +147,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         changeMove.setWaveVectorCoefficients(waveVectorFactoryTarget.getCoefficients());
         changeMove.setEigenVectors(nm.getEigenvectors());
         changeMove.setCoordinateDefinition(coordinateDefinitionTarget);
-        changeMove.setBox((Box)boxTarget);
+        changeMove.setBox(boxTarget);
         changeMove.setStepSizeMin(0.001);
         changeMove.setStepSize(0.01);
         changeMove.setOmegaSquared(nm.getOmegaSquared());
@@ -240,7 +240,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         compareMove.setEigenVectors(nm.getEigenvectors());
         compareMove.setCoordinateDefinition(coordinateDefinitionRef);
         compareMove.setTemperature(temperature);
-        compareMove.setBox((Box)boxRef);
+        compareMove.setBox(boxRef);
         compareMove.setStepSizeMin(0.001);
         compareMove.setStepSize(0.01);
         
@@ -432,12 +432,12 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
 //        setAccumulatorBlockSize((int)eqBlockSize);
         
         for (int i=0; i<2; i++) {
-            if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(true);
+            if (integrators[i] instanceof IntegratorMC) integrators[i].getMoveManager().setEquilibrating(true);
         }
         getController().actionPerformed();
         getController().reset();
         for (int i=0; i<2; i++) {
-            if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(false);
+            if (integrators[i] instanceof IntegratorMC) integrators[i].getMoveManager().setEquilibrating(false);
         }
         
         if (bennettParam == -1) {
@@ -520,8 +520,8 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         System.out.println("instantiated");
         
         //Divide out all the steps, so that the subpieces have the proper # of steps
-        numSteps /= (int)subBlockSize;
-        numEqSteps /= (int)subBlockSize;
+        numSteps /= subBlockSize;
+        numEqSteps /= subBlockSize;
         numBenSteps /= subBlockSize;
         
         //start simulation & equilibrate
@@ -547,7 +547,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         }
         System.out.println("equilibration finished.");
 //        sim.setBennettParameter(0.573265415766427);
-        sim.setAccumulatorBlockSize((int)runBlockSize);
+        sim.setAccumulatorBlockSize(runBlockSize);
         
         sim.integratorSim.getMoveManager().setEquilibrating(false);
         sim.activityIntegrate.setMaxSteps(numSteps);

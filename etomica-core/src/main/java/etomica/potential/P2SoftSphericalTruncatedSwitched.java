@@ -154,7 +154,7 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
     }
     
     public double virial(IAtomList atoms) {
-        dr.Ev1Mv2(((MoleculeOrientedDynamic)atoms.getAtom(1)).getPosition(),((MoleculeOrientedDynamic)atoms.getAtom(0)).getPosition());
+        dr.Ev1Mv2(atoms.getAtom(1).getPosition(), atoms.getAtom(0).getPosition());
         boundary.nearestImage(dr);
         if (dr.squared() < r2Cutoff) {
             return potential.virial(atoms);

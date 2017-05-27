@@ -79,8 +79,8 @@ public class P2SquareWellBondingCO extends Potential2HardSpherical {
         double r2 = dr.squared();
         double bij = dr.dot(dv);
         double eps = 1.0e-10;
-        double rm0 = ((IAtom)atom0).getType().rm();
-        double rm1 = ((IAtom)atom1).getType().rm();
+        double rm0 = atom0.getType().rm();
+        double rm1 = atom1.getType().rm();
         double reduced_m = 1.0/(rm0+rm1);
         double nudge = 0;
         CatalysisAgent agent0 = (CatalysisAgent)agentManager.getAgent(atom0);

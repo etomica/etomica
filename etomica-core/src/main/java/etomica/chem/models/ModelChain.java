@@ -133,7 +133,7 @@ public class ModelChain extends Model {
         }
         
         if (element == null) {
-            setElement(new ElementSimple((Simulation)sim));
+            setElement(new ElementSimple(sim));
         }
         
         if (conformation == null) {

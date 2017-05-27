@@ -159,7 +159,7 @@ public class CastGroupToDoubleArray extends DataProcessor {
             }
             return outputData;
         case 4:  // a single DataVector
-            ((DataVector)group.getData(0)).assignTo(outputData.getData());
+            group.getData(0).assignTo(outputData.getData());
             return outputData;
         case 5:  // multiple DataVectors
             double[] x = outputData.getData();
@@ -172,7 +172,7 @@ public class CastGroupToDoubleArray extends DataProcessor {
             }
             return outputData;
         case 6:  // a single DataTensor
-            ((DataTensor)group.getData(0)).assignTo(outputData.getData());
+            group.getData(0).assignTo(outputData.getData());
             return outputData;
         case 7:  // multiple DataTensors
             x = outputData.getData();

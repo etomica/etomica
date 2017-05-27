@@ -23,7 +23,7 @@ public class BiasVolumeCube extends BiasVolume {
         super(space);
         this.random = random;
         dimensions = space.makeVector();
-        work = (IVector)space.makeVector();
+        work = space.makeVector();
         dimensions.E(2.0);//size of the cube
     }
     

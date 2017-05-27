@@ -87,7 +87,7 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
     // where 1 and 2 are target and reference or vica versa, depending on
     // which box the values are coming from.
     public boolean addData(IData value) {
-        if (Debug.ON && ((DataDoubleArray)value).getLength() != 2) {
+        if (Debug.ON && value.getLength() != 2) {
             throw new IllegalArgumentException("must receive cluster value and 'other' weight (only)");
         }
         double value1 = ((DataDoubleArray)value).getData()[1];

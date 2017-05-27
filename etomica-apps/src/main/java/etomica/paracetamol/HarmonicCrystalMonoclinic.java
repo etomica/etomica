@@ -35,7 +35,7 @@ public class HarmonicCrystalMonoclinic {
 
     public HarmonicCrystalMonoclinic(int[] nCells, Primitive primitive, Basis basis, Box box, Space _space) {
         //this.potential = potential;
-        this.nCells = (int[])nCells.clone();
+        this.nCells = nCells.clone();
         this.space = _space;
         lattice = new BravaisLatticeCrystal(primitive, basis);
         normalModes = new NormalModesPotentialParacetamol(nCells, primitive, basis, space);

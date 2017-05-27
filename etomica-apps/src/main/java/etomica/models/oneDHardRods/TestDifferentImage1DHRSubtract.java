@@ -148,7 +148,7 @@ public class TestDifferentImage1DHRSubtract extends Simulation {
         mcMoveMode.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
         mcMoveMode.addChangeableWV(changeable);
         
-        meterdi = new MeterDifferentImageSubtract1D("MeterDI", /*potentialMaster,*/ numAtoms, density, (Simulation)this, 
+        meterdi = new MeterDifferentImageSubtract1D("MeterDI", /*potentialMaster,*/ numAtoms, density, this,
                 primitive, basis, coordinateDefinition, nm, 1.0);
         
         accumulatorDI = new AccumulatorAverageFixed(blocksize);

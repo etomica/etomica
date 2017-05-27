@@ -30,8 +30,8 @@ public class BiasVolumeSphereOrientedDoubleSites extends BiasVolume {
     public BiasVolumeSphereOrientedDoubleSites(Space space, IRandom random){
         super(space);
         this.random = random;
-        work = (IVector)space.makeVector();
-        direction = (IVector)space.makeVector();
+        work = space.makeVector();
+        direction = space.makeVector();
         radius = 1.0;//size of the sphere
         innerRadius = 0.8;
     }

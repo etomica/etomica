@@ -45,7 +45,7 @@ public class MCMoveBiasUB extends MCMoveBox {
         this.smerList = new AtomArrayList();
         this.dr = space.makeVector();
         meterPotentialEnergy = new MeterPotentialEnergy(potentialMaster);
-        orientation = (IVector)space.makeVector();
+        orientation = space.makeVector();
         oldPosition = space.makeVector();
         oldDirection = space.makeVector();
         perParticleFrequency = true;// the frequency of the move is increasing with the system size
@@ -95,7 +95,7 @@ public class MCMoveBiasUB extends MCMoveBox {
             uOld = meterPotentialEnergy.getDataAsScalar();
             oldPosition.E(atomA.getPosition());
             oldDirection.E(((IAtomOriented)atomA).getOrientation().getDirection());
-            ((IVector)atomA.getPosition()).setRandomCube(random);
+            atomA.getPosition().setRandomCube(random);
             atomA.getPosition().TE(box.getBoundary().getBoxSize());//translate
             orientation.setRandomSphere(random);
             ((IAtomOriented)atomA).getOrientation().setDirection(orientation);//orientation

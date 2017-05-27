@@ -206,12 +206,12 @@ public class SimCalcSSoftSphere2D extends Simulation {
         pdbWriter.setFileName("calcS_nA"+nA+"_n"+exponent+"_T"+temperature+".pdb");
         pdbWriter.actionPerformed();
         
-        System.out.println("Average Energy: "+ ((DataGroup)energyAverage.getData()).getValue(energyAverage.AVERAGE.index));
-        System.out.println("Error Energy: "+ ((DataGroup)energyAverage.getData()).getValue(energyAverage.ERROR.index));
+        System.out.println("Average Energy: "+ energyAverage.getData().getValue(energyAverage.AVERAGE.index));
+        System.out.println("Error Energy: "+ energyAverage.getData().getValue(energyAverage.ERROR.index));
         System.out.println(" ");
         
-        System.out.println("Average Pressure: "+ ((DataGroup)pressureAverage.getData()).getValue(energyAverage.AVERAGE.index));
-        System.out.println("Error Pressure: "+ ((DataGroup)pressureAverage.getData()).getValue(energyAverage.ERROR.index));
+        System.out.println("Average Pressure: "+ pressureAverage.getData().getValue(energyAverage.AVERAGE.index));
+        System.out.println("Error Pressure: "+ pressureAverage.getData().getValue(energyAverage.ERROR.index));
     }
 
     private static final long serialVersionUID = 1L;

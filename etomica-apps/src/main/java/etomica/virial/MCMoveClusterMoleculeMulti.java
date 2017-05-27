@@ -47,7 +47,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
         super.setBox(p);
         translationVectors = new IVector[box.getMoleculeList().getMoleculeCount()];
         for (int i=0; i<box.getMoleculeList().getMoleculeCount(); i++) {
-            translationVectors[i] = (IVector)space.makeVector();
+            translationVectors[i] = space.makeVector();
         }
         if (constraintMap == null) {
             constraintMap = new int[box.getMoleculeList().getMoleculeCount()];

@@ -28,7 +28,7 @@ public class ConfigurationClusterMove extends ConfigurationCluster {
 		while (clusterBox.getSampleCluster().value(clusterBox) == 0) {
     		IAtomList list = box.getLeafList();
     		for (int i=1;i<list.getAtomCount();i++){
-    			((IVector)list.getAtom(i).getPosition()).setRandomInSphere(random);
+    			list.getAtom(i).getPosition().setRandomInSphere(random);
     			list.getAtom(i).getPosition().TE(distance);
     		}
             clusterBox.trialNotify();

@@ -211,7 +211,7 @@ public class SimulationRunner {
         				Iterator<Entry<String[],IPotential>> potentialMapItr = potentialMapEntries.iterator();
         				
         				
-        				Map.Entry potentialEntry = (Map.Entry) potentialMapItr.next();
+        				Map.Entry potentialEntry = potentialMapItr.next();
             			potentialEntry.getKey();
             			IPotentialAtomic potential = (IPotentialAtomic) potentialEntry.getValue();
             			
@@ -364,7 +364,7 @@ public class SimulationRunner {
     	        			  Iterator<Entry<String[],IPotential>> potentialMapItr = potentialMapEntries.iterator();
     	        			  if(potentialMap.size() > 1){
     	        				  while(potentialMapItr.hasNext()){
-    	        					  Map.Entry potentialEntry = (Map.Entry) potentialMapItr.next();
+    	        					  Map.Entry potentialEntry = potentialMapItr.next();
     	        					  String[] potentialMapKey= (String[]) potentialEntry.getKey();
     	        					  potentialEntry.getValue();
     	        				  
@@ -374,7 +374,7 @@ public class SimulationRunner {
     	        					  }
     	        				  }
     	        			  }else{
-    	        				  Map.Entry potentialEntry = (Map.Entry) potentialMapItr.next();
+    	        				  Map.Entry potentialEntry = potentialMapItr.next();
 	        					  potentialEntry.getKey();
 	        					  potential= (IPotential) potentialEntry.getValue();
     	        			  }
@@ -440,7 +440,7 @@ public class SimulationRunner {
     	        			  
     	        			  if(potentialMap.size() > 1){
     	        				  while(potentialMapItr.hasNext()){
-    	        					  Map.Entry potentialEntry = (Map.Entry) potentialMapItr.next();
+    	        					  Map.Entry potentialEntry = potentialMapItr.next();
     	        					  String[] potentialMapKey= (String[]) potentialEntry.getKey();
     	        					  potentialEntry.getValue();
     	        				  
@@ -450,7 +450,7 @@ public class SimulationRunner {
     	        					  }
     	        				  }
     	        			  }else{
-    	        				  Map.Entry potentialEntry = (Map.Entry) potentialMapItr.next();
+    	        				  Map.Entry potentialEntry = potentialMapItr.next();
 	        					  potentialEntry.getKey();
 	        					  potential= (IPotential) potentialEntry.getValue();
     	        			  }
@@ -612,11 +612,11 @@ public class SimulationRunner {
 		Iterator<Entry<String[], IPotential>> potentialsItr = potentialsEntries.iterator();
 		
 		while(atomGroupsItr.hasNext()){
-			Map.Entry atomGroupsEntry = (Map.Entry) atomGroupsItr.next();
+			Map.Entry atomGroupsEntry = atomGroupsItr.next();
 			String[] atomGroupsMapKey= (String[]) atomGroupsEntry.getKey();
 			
 			while (bondedPotentialsItr.hasNext()) {
-				Map.Entry bondedPotentialsEntry = (Map.Entry) bondedPotentialsItr.next();
+				Map.Entry bondedPotentialsEntry = bondedPotentialsItr.next();
 				String[] bondedPotentialsMapKey= (String[]) bondedPotentialsEntry.getKey();
 				if(bondedPotentialsMapKey[0] == atomGroupsMapKey[0] && bondedPotentialsMapKey[1] == atomGroupsMapKey[1] 
 						|| bondedPotentialsMapKey[0] == atomGroupsMapKey[1] && bondedPotentialsMapKey[1] == atomGroupsMapKey[0]){
@@ -636,11 +636,11 @@ public class SimulationRunner {
 		}
 		
 		while(atomGroupsItr.hasNext()){
-			Map.Entry atomGroupsEntry = (Map.Entry) atomGroupsItr.next();
+			Map.Entry atomGroupsEntry = atomGroupsItr.next();
 			String[] atomGroupsMapKey= (String[]) atomGroupsEntry.getKey();
 			
 			while (potentialsItr.hasNext()) {
-				Map.Entry potentialsEntry = (Map.Entry) potentialsItr.next();
+				Map.Entry potentialsEntry = potentialsItr.next();
 				String[] potentialsMapKey= (String[]) potentialsEntry.getKey();
 				if(potentialsMapKey[0] == atomGroupsMapKey[0] && potentialsMapKey[1] == atomGroupsMapKey[1] 
 						|| potentialsMapKey[0] == atomGroupsMapKey[1] && potentialsMapKey[1] == atomGroupsMapKey[0]){
@@ -673,11 +673,11 @@ public class SimulationRunner {
 			Iterator<Entry<String[], IPotential>> PotentialItr = PotentialEntries.iterator();
 			
 			while(PotentialItr.hasNext()){
-				Map.Entry PotentialEntry = (Map.Entry) PotentialItr.next();
+				Map.Entry PotentialEntry = PotentialItr.next();
 				
 				String[] PotentialKey= (String[]) PotentialEntry.getKey();
 				while (AtomItr.hasNext()) {
-					Map.Entry AtomEntry = (Map.Entry) AtomItr.next();
+					Map.Entry AtomEntry = AtomItr.next();
 					String[] AtomKey= (String[]) AtomEntry.getKey();
 					if(AtomKey[0] == PotentialKey[0] && AtomKey[1] == PotentialKey[1] || AtomKey[0] == PotentialKey[1] && AtomKey[1] == PotentialKey[0]){
 						Object[] AtomObjects = (Object[]) AtomEntry.getValue();

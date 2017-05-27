@@ -75,7 +75,7 @@ public class P2SquareWellBonded extends P2SquareWell {
             IAtomKinetic atom1 = (IAtomKinetic)atoms.getAtom(1);
 
             // ** Makes 2 things, and atomPair pair, 
-            IAtom a0Partner = (IAtom)agentManager.getAgent((IAtom)atom0);
+            IAtom a0Partner = (IAtom)agentManager.getAgent(atom0);
             if (a0Partner != atom1) {
 
                 dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());

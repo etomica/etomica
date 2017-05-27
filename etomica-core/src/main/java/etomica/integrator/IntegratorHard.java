@@ -215,7 +215,7 @@ public class IntegratorHard extends IntegratorMD
                     }
                     else if (Debug.LEVEL > 2 && !(debugPair.atom0 instanceof IMolecule)) {
                         dr.Ea1Tv1(collisionTimeStep,((IAtomKinetic)debugPair.atom0).getVelocity());
-                        dr.PE(((IAtomKinetic)debugPair.atom0).getPosition());
+                        dr.PE(debugPair.atom0.getPosition());
                         System.out.println(debugPair.atom0+" coordinates "+dr);
                     }
                 }

@@ -59,7 +59,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
         if(!enabled) return;
         IAtom targetAtom = id.getTargetAtom();
         IMolecule targetMolecule = id.getTargetMolecule();
-        NeighborListManager neighborManager = (NeighborListManager)neighborListAgentManager.getAgent(box);
+        NeighborListManager neighborManager = neighborListAgentManager.getAgent(box);
 
         if (targetAtom == null && targetMolecule == null) {
             //no target atoms specified -- do one-target algorithm to SpeciesMaster
@@ -162,7 +162,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
 				
         for (int i=0; i<t; i++){
 			threads[i] = new PotentialMasterListWorker(i, rangedAgentManager, this);
-			threads[i].fillNeighborListArray(i, t, (NeighborListManager)neighborListAgentManager.getAgent(box), box);
+			threads[i].fillNeighborListArray(i, t, neighborListAgentManager.getAgent(box), box);
             threads[i].start();
 		}
            

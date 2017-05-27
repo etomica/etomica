@@ -37,7 +37,7 @@ public class ClusterCoupledAtomFlipped  extends ClusterCoupledFlipped {
     	}
     	IOrientation or = ((IAtomOriented)childAtoms.getAtom(0)).getOrientation();
     	if (or instanceof OrientationFull3D) {
-    	    ((IVector)((OrientationFull3D) or).getSecondaryDirection()).normalize();
+    	    ((OrientationFull3D) or).getSecondaryDirection().normalize();
     	    axis.E(((OrientationFull3D) or).getSecondaryDirection());
     	    ((OrientationFull3D)or).rotateBy(Math.PI, axis);
     	    if (false && (Math.abs(axis.squared()-1) > 1e-10 || Math.abs(or.getDirection().squared() - 1) > 1e-10 || Math.abs(((OrientationFull3D)or).getSecondaryDirection().squared() - 1) > 1e-10)) {
@@ -45,7 +45,7 @@ public class ClusterCoupledAtomFlipped  extends ClusterCoupledFlipped {
     	    }
     	}
     	else {
-            IVector v = (IVector)or.getDirection();
+            IVector v = or.getDirection();
             v.TE(-1.0);
     	}
     }

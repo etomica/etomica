@@ -166,7 +166,7 @@ public class Tensor1D implements etomica.space.Tensor, java.io.Serializable {
     }
     
     public void transform(IVector v) {
-        ((Vector1D)v).TE(xx);
+        v.TE(xx);
     }
 
     public double determinant() {

@@ -339,9 +339,9 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 	   IVector Xk = space.makeVector();
 	   IVector Xkp = space.makeVector();
 	   AtomPositionCOM com_0 = new AtomPositionCOM(space);
-	   IVector comk = (IVector) com_0.position(mol0);
+	   IVector comk = com_0.position(mol0);
 	   AtomPositionCOM com_1 = new AtomPositionCOM(space);
-	   IVector comkp = (IVector) com_1.position(mol1);
+	   IVector comkp = com_1.position(mol1);
 	   int numSites0 = mol0.getChildList().getAtomCount();
 	   int numSites1 = mol1.getChildList().getAtomCount();
 	   IVector f0 = space.makeVector();

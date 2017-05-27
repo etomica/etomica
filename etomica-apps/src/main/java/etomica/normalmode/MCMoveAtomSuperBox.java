@@ -41,7 +41,7 @@ public class MCMoveAtomSuperBox extends MCMoveBoxStep {
         cells = coordinateDefinition.getBasisCells();
         
         energyMeter = new MeterPotentialEnergy(potentialMaster);
-        translationVector = (IVector)_space.makeVector();
+        translationVector = _space.makeVector();
         setStepSizeMax(0.5);
         setStepSizeMin(0.0);
         setStepSize(0.1);

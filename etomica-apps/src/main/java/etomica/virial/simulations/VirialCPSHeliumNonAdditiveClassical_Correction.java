@@ -133,12 +133,12 @@ public class VirialCPSHeliumNonAdditiveClassical_Correction {
         
     	ClusterAbstract[] targetDiagrams2 = new ClusterAbstract[1];
     	targetDiagrams2[0] = targetCluster2;
-    	ClusterDifference targetCluster = new ClusterDifference((ClusterAbstract)targetCluster1, targetDiagrams2);
+    	ClusterDifference targetCluster = new ClusterDifference(targetCluster1, targetDiagrams2);
     	
     
     	
     	MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
-        ClusterAbstract refCluster = Standard.virialCluster(nPoints, (MayerFunction)fRef, nPoints>3, null, false);
+        ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, nPoints>3, null, false);
         refCluster.setTemperature(temperature);
 
 

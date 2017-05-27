@@ -172,8 +172,8 @@ public class SimFe extends Simulation {
         integrator.setBox(box);
 
         if (numInnerSteps>0) {
-            ((IntegratorImageHarmonicMD)integrator).setP1Harmonic(p1ImageHarmonic);
-            ((IntegratorImageHarmonicMD)integrator).setNumInnerSteps(numInnerSteps);
+            integrator.setP1Harmonic(p1ImageHarmonic);
+            integrator.setNumInnerSteps(numInnerSteps);
         }
         else {
 //            ((IntegratorImageHarmonicMD0) integrator).setP1Harmonic(p1ImageHarmonic);

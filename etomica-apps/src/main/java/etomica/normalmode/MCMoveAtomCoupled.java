@@ -51,7 +51,7 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         atomSource = new AtomSourceRandomLeaf();
         ((AtomSourceRandomLeaf)atomSource).setRandomNumberGenerator(random);
         this.energyMeter = energyMeter;
-        translationVector = (IVector)_space.makeVector();
+        translationVector = _space.makeVector();
         setStepSizeMax(0.5);
         setStepSizeMin(0.0);
         setStepSize(0.1);

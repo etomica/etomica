@@ -586,8 +586,8 @@ public class PistonCylinderGraphic extends SimulationGraphic {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 if(evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) return; 
                 setPotential((String)evt.getItem());
-                if((String)evt.getItem() == IDEAL_GAS ||
-                   (String)evt.getItem() == REPULSION_ONLY) {
+                if(evt.getItem() == IDEAL_GAS ||
+                   evt.getItem() == REPULSION_ONLY) {
                 	epsBox.setEditable(false);
                 	lamBox.setEditable(false);
                 }

@@ -311,8 +311,8 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
             rvx += hv * dr.dot(dv)/r2;
             IVector[] f = potentialSoft.gradient(pair);
             vf += dv.dot(f[0]); //maybe should be (-)?
-            ((Agent)integratorAgentManager.getAgent((IAtom)atom0)).force().ME(f[0]);
-            ((Agent)integratorAgentManager.getAgent((IAtom)atom1)).force().ME(f[1]);
+            integratorAgentManager.getAgent((IAtom)atom0).force().ME(f[0]);
+            integratorAgentManager.getAgent((IAtom)atom1).force().ME(f[1]);
         }
     }
 }

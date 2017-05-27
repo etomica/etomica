@@ -121,7 +121,7 @@ public class MCMoveClusterPolyhedraTree extends MCMoveAtom {
                 pair.atom1 = leafAtoms.getAtom(nbr2);
                 // insert nbr2 around nbr
                 IVector q = ((AtomOrientedQuaternion)leafAtoms.getAtom(nbr2)).getQuaternion();
-                IVector pos = (IVector)leafAtoms.getAtom(nbr2).getPosition();
+                IVector pos = leafAtoms.getAtom(nbr2).getPosition();
 
                 while (true) {
                     pos.setRandomInSphere(random);

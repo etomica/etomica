@@ -1155,15 +1155,15 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
             double gamma = Double.parseDouble(fields[4]);
             ((OrientationFull3D)atom1.getOrientation()).setDirections(zm, x);
             ((OrientationFull3D)atom1.getOrientation()).rotateBy(alpha, zm);
-            axis.E(((OrientationFull3D)atom1.getOrientation()).getDirection());
+            axis.E(atom1.getOrientation().getDirection());
             axis.XE(((OrientationFull3D)atom1.getOrientation()).getSecondaryDirection());
             ((OrientationFull3D)atom1.getOrientation()).rotateBy(-Math.acos(cosBeta), axis);
-            axis.E(((OrientationFull3D)atom1.getOrientation()).getDirection());
+            axis.E(atom1.getOrientation().getDirection());
             ((OrientationFull3D)atom1.getOrientation()).rotateBy(gamma, axis);
             
             p.E(new double[]{xw,0,zw});
 //            System.out.println("p "+p);
-            p.PEa1Tv1(cmx, ((OrientationFull3D)atom1.getOrientation()).getDirection());
+            p.PEa1Tv1(cmx, atom1.getOrientation().getDirection());
             atom1.getPosition().E(p);
 //            ((OrientationFull3D)atom1.getOrientation()).setDirections(z,x);
 //            System.out.println("H2O or1 "+((OrientationFull3D)atom1.getOrientation()).getDirection());

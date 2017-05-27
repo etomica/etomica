@@ -122,7 +122,7 @@ public static void main(String[] args) {
 		
 		double temp = temps[t];
    
-		double[] results = getConvergence((Potential2SoftSpherical) p2, power, r_max, temp,  printapalooza, allFFT);
+		double[] results = getConvergence(p2, power, r_max, temp,  printapalooza, allFFT);
 
 		double B2 = results[0];;
 		double B2Error = results[1];

@@ -209,7 +209,7 @@ public class P4BondTorsionAlkaneXCCH extends Potential implements PotentialSoft 
         atoms.add(atom3);
         int n = 40;
         IVector gradient = space.makeVector();
-        IVector dr = (IVector)space.makeVector();
+        IVector dr = space.makeVector();
         for (int i=0; i<n; i++) {
             atom0.getPosition().E(positionSource.randomPosition());
             atom1.getPosition().E(positionSource.randomPosition());

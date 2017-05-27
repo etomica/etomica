@@ -94,7 +94,7 @@ public class PotentialCalculationPressureTensor implements PotentialCalculation 
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtomKinetic atom = (IAtomKinetic)leafList.getAtom(iLeaf);
                 workTensor.Ev1v2(atom.getVelocity(), atom.getVelocity());
-                workTensor.TE(((IAtom)atom).getType().getMass());
+                workTensor.TE(atom.getType().getMass());
                 pressureTensor.PE(workTensor);
             }
             return pressureTensor;

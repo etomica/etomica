@@ -141,13 +141,13 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource<Dou
     }
 
 	public boolean needUpdate(IAtom atom) {
-        dr = Math.abs(atom.getPosition().getX(neighborDim) - ((DoubleWrapper)agentManager.getAgent(atom)).x);
+        dr = Math.abs(atom.getPosition().getX(neighborDim) - agentManager.getAgent(atom).x);
         if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.allAtoms(new AtomSetSinglet(atom))) {
             System.out.println("atom "+atom+" displacement "+dr+" "+atom.getPosition());
         }
 		if (Debug.ON && Debug.DEBUG_NOW && dr > rMaxSafe) {
 			System.out.println("atom "+atom+" exceeded safe limit ("+dr+" > "+rMaxSafe+")");
-			System.out.println("old position "+((DoubleWrapper)agentManager.getAgent(atom)).x);
+			System.out.println("old position "+ agentManager.getAgent(atom).x);
 			System.out.println("new position "+(atom).getPosition().getX(neighborDim));
             System.err.println("stop that");
 		}

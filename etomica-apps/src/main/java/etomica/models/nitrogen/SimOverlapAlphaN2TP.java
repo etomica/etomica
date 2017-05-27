@@ -351,7 +351,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
             }
         }
         meterRotation.writeUdistribution(filename);
-		double averageOrderParameter = ((DataGroup)orderParameterAverage.getData()).getValue(sim.accumulator.AVERAGE.index);
+		double averageOrderParameter = orderParameterAverage.getData().getValue(sim.accumulator.AVERAGE.index);
 //		System.out.println("orientational order parameter: "+ averageOrderParameter/(numMolecules*numMolecules));
 		
 		System.out.println("orientational order parameter: "+ 0.5*averageOrderParameter);

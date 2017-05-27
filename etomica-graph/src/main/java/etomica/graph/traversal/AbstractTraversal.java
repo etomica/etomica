@@ -96,7 +96,7 @@ public abstract class AbstractTraversal implements Traversal {
     // we have seen no nodes
     setSeen(0);
     // one bit per every node we may see
-    setGoal(BitmapUtils.bitMask((byte) graph.nodeCount()));
+    setGoal(BitmapUtils.bitMask(graph.nodeCount()));
     return true;
   }
 

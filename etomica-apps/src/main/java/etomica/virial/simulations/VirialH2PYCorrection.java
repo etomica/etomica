@@ -107,7 +107,7 @@ public class VirialH2PYCorrection {
         P2EffectiveFeynmanHibbs p2SemiClassical = null;
         final P2HydrogenPatkowskiIso p2patIso = new P2HydrogenPatkowskiIso(space);        
 
-        p2SemiClassical = new P2EffectiveFeynmanHibbs(space,(Potential2SoftSpherical)p2patIso);
+        p2SemiClassical = new P2EffectiveFeynmanHibbs(space, p2patIso);
         p2SemiClassical.setMass(Hydrogen.INSTANCE.getMass()*2);
         p2SemiClassical.setTemperature(temperature);
         Potential2Spherical p2 = p2SemiClassical;

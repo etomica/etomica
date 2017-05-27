@@ -87,7 +87,7 @@ public class Orientation3D implements IOrientation3D, Serializable {
         double tempSq = 0;
         do {
             // first get a random unit vector
-            ((IVector)temp).setRandomSphere(random);
+            temp.setRandomSphere(random);
             // find the component of the unit vector perpendicular to our direction
             temp.PEa1Tv1(-temp.dot(direction), direction);
             // if the random unit vector was nearly parallel (or anti-parallel)

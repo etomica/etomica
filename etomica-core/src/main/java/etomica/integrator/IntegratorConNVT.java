@@ -101,7 +101,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource<
 
             work1.E(v); //work1 = v
             work2.E(agentManager.getAgent(a).force);	//work2=F
-            work1.PEa1Tv1(halfTime*((IAtom)a).getType().rm(),work2); //work1= p/m + F*Dt2/m = v + F*Dt2/m
+            work1.PEa1Tv1(halfTime* a.getType().rm(),work2); //work1= p/m + F*Dt2/m = v + F*Dt2/m
 
             k+=work1.squared();
         }   
@@ -117,7 +117,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource<
 
             double scale = (2.0*chi-1.0); 
             work3.Ea1Tv1(scale,v); 
-            work4.Ea1Tv1(chi*((IAtom)a).getType().rm(),agent.force);
+            work4.Ea1Tv1(chi* a.getType().rm(),agent.force);
             work4.TE(timeStep);
             work3.PE(work4);
             v.E(work3);

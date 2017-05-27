@@ -165,7 +165,7 @@ public class MCMoveReptate extends MCMoveBoxStep {
         super.setBox(p);
         energyMeter.setBox(p);
         atomSource.setBox(p);
-        tempV = (IVector)space.makeVector();
+        tempV = space.makeVector();
         positionOld = space.makeVector();
     }
     

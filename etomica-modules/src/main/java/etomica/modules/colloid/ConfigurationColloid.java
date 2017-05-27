@@ -169,7 +169,7 @@ public class ConfigurationColloid implements Configuration {
         IAtom previousAtom = null;
         int iMonomer = 0;
         IVector dr = space.makeVector();
-        IVector temp = (IVector)space.makeVector();
+        IVector temp = space.makeVector();
         IVector lastPos = space.makeVector();
 
         for (int j=0; j<nGraft; j++) {

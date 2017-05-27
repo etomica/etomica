@@ -221,7 +221,7 @@ public class MinimizationTIP4P extends Simulation{
 		            IVector pO = atoms.getAtom(sim.species.indexO).getPosition();
 		            for (int j = 0; j < atoms.getAtomCount(); j++){
 		            	IAtom atomj = atoms.getAtom(j);
-		            	IVector fj = ((IntegratorVelocityVerlet.MyAgent)atomAgentManager.getAgent(atomj)).force;
+		            	IVector fj = atomAgentManager.getAgent(atomj).force;
 		            	f.PE(fj);
 		            	if(j != sim.species.indexO){
 		            		dr.Ev1Mv2(atomj.getPosition(), pO);
@@ -360,7 +360,7 @@ public class MinimizationTIP4P extends Simulation{
         	T.E(0);
         	for(int j=0;j<iMol.getChildList().getAtomCount();j++){
             	IAtom jAtom = iMol.getChildList().getAtom(j);
-            	IVector fj = ((IntegratorVelocityVerlet.MyAgent)atomAgentManager.getAgent(jAtom)).force;
+            	IVector fj = atomAgentManager.getAgent(jAtom).force;
         		fSum.PE(fj);
         		r.Ev1Mv2(jAtom.getPosition(), iMol.getChildList().getAtom(2).getPosition());
         		sim.box.getBoundary().nearestImage(r);

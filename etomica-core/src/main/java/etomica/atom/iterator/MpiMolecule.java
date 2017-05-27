@@ -105,7 +105,7 @@ public class MpiMolecule implements MoleculesetIteratorPDT, java.io.Serializable
      * clobbers iteration state.
      */
     public int size() {
-        ((AtomIteratorBoxDependent)iterator).setBox(box);
+        iterator.setBox(box);
         return iterator.size();
     }
 

@@ -108,7 +108,7 @@ public class PrimitiveCubic extends Primitive {
      * given by the size of the primitive vectors.
      */
     public Polytope wignerSeitzCell() {
-        return (D == 2) ? (Polytope)new Square(space,aBC) :  (Polytope)new Cube(space,aBC);
+        return (D == 2) ? new Square(space,aBC) : new Cube(space,aBC);
     }
     
     /**
@@ -116,7 +116,7 @@ public class PrimitiveCubic extends Primitive {
      * given by the size of the primitive vectors.
      */
     public Polytope unitCell() {
-        return (D == 2) ? (Polytope)new Square(space,aBC) :  (Polytope)new Cube(space,aBC);
+        return (D == 2) ? new Square(space,aBC) : new Cube(space,aBC);
     }
     
     public String toString() {return "Cubic";}

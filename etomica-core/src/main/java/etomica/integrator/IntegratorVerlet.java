@@ -80,14 +80,14 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource<
             pressureTensor.E(forceSum.getPressureTensor());
             IVector v = a.getVelocity();
             workTensor.Ev1v2(v,v);
-            workTensor.TE(((IAtom)a).getType().getMass());
+            workTensor.TE(a.getType().getMass());
             pressureTensor.PE(workTensor);
             
             Agent agent = agentManager.getAgent(a);
             IVector r = a.getPosition();
             work.E(r);
             r.PE(agent.rMrLast);
-            agent.force.TE(((IAtom)a).getType().rm()*t2);
+            agent.force.TE(a.getType().rm()*t2);
             r.PE(agent.force);
             agent.rMrLast.E(r);
             agent.rMrLast.ME(work);

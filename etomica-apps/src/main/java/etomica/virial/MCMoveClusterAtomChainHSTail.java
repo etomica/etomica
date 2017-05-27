@@ -19,7 +19,7 @@ public class MCMoveClusterAtomChainHSTail extends MCMoveAtom {
     public MCMoveClusterAtomChainHSTail(IRandom random, Space _space, double sigma, double pow) {
         super(random, null, _space);
         this.sigma = sigma;
-        dr = (IVector)space.makeVector();
+        dr = space.makeVector();
         this.pow = pow;
         
         totPCore = (pow-3) / pow;
@@ -31,7 +31,7 @@ public class MCMoveClusterAtomChainHSTail extends MCMoveAtom {
         int n = leafAtoms.getAtomCount();
 
         for (int i=1; i<n; i++) {
-            IVector pos = (IVector)leafAtoms.getAtom(i).getPosition();
+            IVector pos = leafAtoms.getAtom(i).getPosition();
             double rand = random.nextDouble();
             if (rand < totPCore) {
                 pos.setRandomInSphere(random);

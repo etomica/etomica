@@ -77,7 +77,7 @@ public class IntegratorHardPiston extends IntegratorHard {
         for (int iLeaf=0; iLeaf<nAtoms; iLeaf++) {
             IAtom atom1 = leafList.getAtom(iLeaf);
             atomSetSinglet.atom = atom1;
-            PotentialHard atom1Potential = ((Agent)agentManager.getAgent(atom1)).collisionPotential;
+            PotentialHard atom1Potential = agentManager.getAgent(atom1).collisionPotential;
             if (Debug.ON && Debug.DEBUG_NOW && ((Debug.allAtoms(atomSetSinglet) && Debug.LEVEL > 1) || (Debug.anyAtom(atomSetSinglet) && Debug.LEVEL > 2))) {
                 System.out.println(atom1+" thought it would collide with the piston");
             }
@@ -95,7 +95,7 @@ public class IntegratorHardPiston extends IntegratorHard {
                 System.out.println("collision down time "+collisionTime+" for atom "+atom1+" with null "+pistonPotential.getClass());
             }
             if(collisionTime < Double.POSITIVE_INFINITY) {
-                Agent aia = (Agent)agentManager.getAgent(atom1);
+                Agent aia = agentManager.getAgent(atom1);
                 if(collisionTime < aia.collisionTime()) {
                     if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || Debug.anyAtom(atomSetSinglet))) {
                         System.out.println("setting down time "+collisionTime+" for atom "+atom1+" with null");

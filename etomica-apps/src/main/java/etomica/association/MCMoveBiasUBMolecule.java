@@ -61,7 +61,7 @@ public class MCMoveBiasUBMolecule extends MCMoveBox implements MCMoveMolecular{
         meterPotentialEnergy = new MeterPotentialEnergy(potentialMaster);
         rotationTensor = (RotationTensor3D)(space.makeRotationTensor());
         AtomActionTranslateBy translator = new AtomActionTranslateBy(space);
-        groupTranslationVector = (IVector)translator.getTranslationVector();
+        groupTranslationVector = translator.getTranslationVector();
         moveMoleculeAction = new MoleculeChildAtomAction(translator);
         perParticleFrequency = true;// the frequency of the move is increasing with the system size
         oldPosition = new IVector[0];

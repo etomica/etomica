@@ -2415,7 +2415,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         if (comHack) {
             int[] seeds = new int[] {1300602402,1236700976,-450785077,-1529402919};
             IRandom random = new RandomMersenneTwister(seeds);
-            IVector rV1 = (IVector)space.makeVector();
+            IVector rV1 = space.makeVector();
             rV1.setRandomSphere(random);
             comB.PEa1Tv1(comHackDist,rV1);
         }        

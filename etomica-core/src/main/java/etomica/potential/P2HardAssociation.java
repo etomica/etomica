@@ -49,7 +49,7 @@ public class P2HardAssociation extends Potential2HardSpherical {
         double r2 = dr.squared();
         double bij = dr.dot(dv);
 
-        double reduced_m = 1/(((IAtom)atom0).getType().rm() + ((IAtom)atom1).getType().rm());
+        double reduced_m = 1/(atom0.getType().rm() + atom1.getType().rm());
         double nudge = 0;
         if (bij > 0.0) {    //Separating
             double ke = bij*bij*reduced_m/(2*r2);

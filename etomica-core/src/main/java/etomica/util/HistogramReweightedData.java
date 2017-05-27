@@ -105,7 +105,7 @@ public class HistogramReweightedData implements Histogram, java.io.Serializable 
         //returns an array representing the present histogram
         if (sum != 0) {
 		    for(int i=0; i<nBins; i++) {
-		        histogram[i] = (double)sums[i]/(weightSum*deltaX);
+		        histogram[i] = sums[i] /(weightSum*deltaX);
 		    }
         }
 	    return histogram;

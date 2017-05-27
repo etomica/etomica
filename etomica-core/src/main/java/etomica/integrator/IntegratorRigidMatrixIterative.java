@@ -168,7 +168,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
                     if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
                         System.out.println("first "+a+" r="+r+", v="+v+", f="+agent.force);
                     }
-                    v.PEa1Tv1(0.5*timeStep*((Atom)a).getType().rm(),agent.force);  // p += f(old)*dt/2
+                    v.PEa1Tv1(0.5*timeStep* a.getType().rm(),agent.force);  // p += f(old)*dt/2
                     r.PEa1Tv1(timeStep,v);         // r += p*dt/m
                 }
                 continue;
@@ -303,13 +303,13 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
 //                    System.out.println("force: "+((MyAgent)a.ia).force.toString());
                     IVector velocity = a.getVelocity();
                     workTensor.Ev1v2(velocity,velocity);
-                    workTensor.TE(((Atom)a).getType().getMass());
+                    workTensor.TE(a.getType().getMass());
                     pressureTensor.PE(workTensor);
                     if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
                         System.out.println("second "+a+" v="+velocity+", f="+leafAgentManager.getAgent(a).force);
                     }
-                    velocity.PEa1Tv1(0.5*timeStep*((Atom)a).getType().rm(),leafAgentManager.getAgent(a).force);  //p += f(new)*dt/2
-                    currentKineticEnergy += velocity.squared()*((Atom)a).getType().getMass();
+                    velocity.PEa1Tv1(0.5*timeStep* a.getType().rm(),leafAgentManager.getAgent(a).force);  //p += f(new)*dt/2
+                    currentKineticEnergy += velocity.squared()* a.getType().getMass();
                 }
                 // skip the rotational stuff
                 continue;
@@ -394,7 +394,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
             if (typeAgentManager.getAgent(molecule.getType()) == null) {
                 for (int iLeaf=0; iLeaf<children.getAtomCount(); iLeaf++) {
                     IAtomKinetic a = (IAtomKinetic)children.getAtom(iLeaf);
-                    double mass = ((IAtom)a).getType().getMass();
+                    double mass = a.getType().getMass();
                     momentum.PEa1Tv1(mass, a.getVelocity());
                     totalMass += mass;
                 }
@@ -417,8 +417,8 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
 //                    System.out.println("force: "+((MyAgent)a.ia).force.toString());
                     IVector velocity = a.getVelocity();
                     velocity.ME(momentum);
-                    totalMass += ((IAtom)a).getType().getMass();
-                    KE += velocity.squared() * ((IAtom)a).getType().getMass();
+                    totalMass += a.getType().getMass();
+                    KE += velocity.squared() * a.getType().getMass();
                     D += 3;
                 }
                 continue;

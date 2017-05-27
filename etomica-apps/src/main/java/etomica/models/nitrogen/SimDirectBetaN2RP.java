@@ -175,8 +175,8 @@ public class SimDirectBetaN2RP extends Simulation {
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.getController().actionPerformed();
 
-        double average = ((DataGroup)sim.boltzmannAverage.getData()).getValue(sim.boltzmannAverage.AVERAGE.index);
-        double error = ((DataGroup)sim.boltzmannAverage.getData()).getValue(sim.boltzmannAverage.ERROR.index);
+        double average = sim.boltzmannAverage.getData().getValue(sim.boltzmannAverage.AVERAGE.index);
+        double error = sim.boltzmannAverage.getData().getValue(sim.boltzmannAverage.ERROR.index);
         meterOrient.writeUdistribution("rotDistA"+angle[0]);
         
         System.out.println("boltzmann average "+angle[0] +" to "+angle[1]+": " + average + " ;err: " + error);

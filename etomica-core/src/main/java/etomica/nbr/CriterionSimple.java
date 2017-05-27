@@ -85,7 +85,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource<IVector> 
         if (Debug.ON && interactionRange > Math.sqrt(neighborRadius2)) {
             throw new IllegalStateException("Interaction range ("+interactionRange+") must be less than neighborRange ("+Math.sqrt(neighborRadius2)+")");
         }
-		r2 = atom.getPosition().Mv1Squared((IVector)agentManager.getAgent(atom));
+		r2 = atom.getPosition().Mv1Squared(agentManager.getAgent(atom));
         if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.allAtoms(new AtomSetSinglet(atom))) {
             System.out.println("atom "+atom+" displacement "+r2+" "+atom.getPosition());
         }

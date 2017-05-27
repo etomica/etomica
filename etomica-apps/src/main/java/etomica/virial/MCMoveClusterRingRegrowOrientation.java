@@ -96,7 +96,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 	@Override
 	public boolean doTrial() {
 		weightOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
-		IVector axis = (IVector) space.makeVector();
+		IVector axis = space.makeVector();
 		IVector oldCenter = space.makeVector();
 		IVector newCenter = space.makeVector();
 		IMoleculeList molecules = box.getMoleculeList();
@@ -125,7 +125,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 				uOld += kHarmonic*dist(jAtom,jPrev, i);
 			}
 			oldOrientations[i][0].setDirection(((IAtomOriented) atoms.getAtom(0)).getOrientation().getDirection());
-			IVector rV1 = (IVector)space.makeVector();
+			IVector rV1 = space.makeVector();
 			rV1.setRandomSphere(random);
 			newOrientations[i][0] = (IOrientation3D)((IAtomOriented) atoms.getAtom(0)).getOrientation();
 			newOrientations[i][0].setDirection(rV1);
@@ -242,11 +242,11 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 						rotateVectorV(dummyAlpha, rV1, rV2);
 
 						if (!doExchange[i]) {
-							rotateVectorV(newAlpha[imageIndex],rV2,(IVector)newOrientations[i][imageIndex].getDirection());
+							rotateVectorV(newAlpha[imageIndex],rV2, newOrientations[i][imageIndex].getDirection());
 						}
 						else {
 							double angle = 2*Math.PI*random.nextDouble();
-							rotateVectorV(angle,rV2,(IVector)newOrientations[i][imageIndex].getDirection());
+							rotateVectorV(angle,rV2, newOrientations[i][imageIndex].getDirection());
 						}
 						theta[imageIndex] = 0; // without the loss of generality
 					}
@@ -265,7 +265,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 						axis.PEa1Tv1(-axis.dot(newCenter), newCenter);
 						axis.normalize();
 
-						rotateVectorV(newAlpha[imageIndex], axis,(IVector)newOrientations[i][imageIndex].getDirection());
+						rotateVectorV(newAlpha[imageIndex], axis, newOrientations[i][imageIndex].getDirection());
 						theta[imageIndex] = random.nextDouble()*2*Math.PI;
 						newOrientations[i][imageIndex].rotateBy(theta[imageIndex], newCenter);
 					}

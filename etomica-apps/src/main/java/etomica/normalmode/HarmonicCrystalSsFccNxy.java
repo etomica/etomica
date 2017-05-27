@@ -40,7 +40,7 @@ public class HarmonicCrystalSsFccNxy {
     public HarmonicCrystalSsFccNxy(int[] nCells, Primitive primitive, Basis 
             basis, Potential2SoftSpherical potential, Space _space) {
         this.potential = potential;
-        this.nCells = (int[])nCells.clone();
+        this.nCells = nCells.clone();
         this.space = _space;
         lattice = new BravaisLatticeCrystal(primitive, basis);
         normalModes = new NormalModesPotential(nCells, primitive, basis, 

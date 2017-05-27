@@ -58,7 +58,7 @@ public class MeterKineticEnergy extends DataSourceScalar {
         iterator.reset();
         for (IAtomKinetic atom = (IAtomKinetic)iterator.nextAtom(); atom != null;
              atom = (IAtomKinetic)iterator.nextAtom()) {
-            double mass = ((IAtom)atom).getType().getMass();
+            double mass = atom.getType().getMass();
             if(mass == Double.POSITIVE_INFINITY) continue;
             ke += 0.5*mass*(atom.getVelocity().squared());
         }

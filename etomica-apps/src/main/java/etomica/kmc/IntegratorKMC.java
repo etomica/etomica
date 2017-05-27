@@ -276,7 +276,7 @@ public class IntegratorKMC extends IntegratorBox{
     private double truncate(double numA, int digits){
         digits = (int)Math.pow(10,digits);
         numA = (long)(digits*numA);
-        numA = (double)(numA/digits);
+        numA = numA/digits;
         return numA;
     }
     public boolean checkMin(){

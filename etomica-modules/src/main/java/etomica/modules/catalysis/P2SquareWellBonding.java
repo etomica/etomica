@@ -78,12 +78,12 @@ public class P2SquareWellBonding extends Potential2HardSpherical {
         double r2 = dr.squared();
         double bij = dr.dot(dv);
         double eps = 1.0e-10;
-        double rm0 = ((IAtom)atom0).getType().rm();
-        double rm1 = ((IAtom)atom1).getType().rm();
+        double rm0 = atom0.getType().rm();
+        double rm1 = atom1.getType().rm();
         double reduced_m = 1.0/(rm0+rm1);
         double nudge = 0;
-        CatalysisAgent agent0 = (CatalysisAgent)agentManager.getAgent((IAtom)atom0);
-        CatalysisAgent agent1 = (CatalysisAgent)agentManager.getAgent((IAtom)atom1);
+        CatalysisAgent agent0 = (CatalysisAgent)agentManager.getAgent(atom0);
+        CatalysisAgent agent1 = (CatalysisAgent)agentManager.getAgent(atom1);
 
         if(2*r2 < (coreDiameterSquared+wellDiameterSquared)) {   // Hard-core collision
             lastCollisionVirial = 2.0*reduced_m*bij;
@@ -157,16 +157,16 @@ public class P2SquareWellBonding extends Potential2HardSpherical {
                     lastEnergyChange = de;
                     if (isBondEvent) {
                         if (agent0.bondedAtom1 == null) {
-                            agent0.bondedAtom1 = (IAtom)atom1;
+                            agent0.bondedAtom1 = atom1;
                         }
                         else {
-                            agent0.bondedAtom2 = (IAtom)atom1;
+                            agent0.bondedAtom2 = atom1;
                         }
                         if (agent1.bondedAtom1 == null) {
-                            agent1.bondedAtom1 = (IAtom)atom0;
+                            agent1.bondedAtom1 = atom0;
                         }
                         else {
-                            agent1.bondedAtom2 = (IAtom)atom0;
+                            agent1.bondedAtom2 = atom0;
                         }
                         agent0.isRadical = false;
                         agent1.isRadical = false;

@@ -29,7 +29,7 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
         if (translationVectors == null) {
             translationVectors = new IVector[box.getLeafList().getAtomCount()-1];
             for (int i=0; i<translationVectors.length; i++) {
-                translationVectors[i] = (IVector)space.makeVector();
+                translationVectors[i] = space.makeVector();
             }
         }
     }

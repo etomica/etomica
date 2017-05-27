@@ -145,7 +145,7 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         lengths[0] = nCellsRef[0]*primitiveLength;
         lengths[1] = nCellsRef[1]*primitiveLength;
         lengths[2] = nCellsRef[2]*primitiveLength;
-        ((Vector3D)edges).E(lengths);
+        edges.E(lengths);
         bdryRef.setBoxSize(edges);
         boxRef.setBoundary(bdryRef);
         primitive = new PrimitiveOrthorhombic(space, lengths[0], lengths[1],
@@ -226,7 +226,7 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         lengths[0] = nCellsTarget[0]*primitiveLength;
         lengths[1] = nCellsTarget[1]*primitiveLength;
         lengths[2] = nCellsTarget[2]*primitiveLength;
-        ((Vector3D)edges).E(lengths);
+        edges.E(lengths);
         bdryTarget.setBoxSize(edges);
         boxTarget.setBoundary(bdryTarget);
         primitive = new PrimitiveOrthorhombic(space, lengths[0], lengths[1],

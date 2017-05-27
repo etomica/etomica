@@ -215,37 +215,37 @@ public class WertheimGCPM3PtThreeSite {
         targetCluster.setTemperature(temperature);
 		final SimulationVirialOverlap sim = new SimulationVirialOverlap(space, new SpeciesFactoryWaterGCPM(), temperature,refCluster,targetCluster);
 		//ConfigurationClusterMove configuration = new ConfigurationClusterMove(space, sim.getRandom());
-		ConfigurationClusterWertheimGCPM configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(),(PNWaterGCPMThreeSite)pAC );
+		ConfigurationClusterWertheimGCPM configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(), pAC);
 		if (numDiagram == 3 || numDiagram == 4 ) {
 			configuration.initializeCoordinates(sim.box[1]);
 		}
 		if (numDiagram ==5 &&diagramIndex==1){//diagram 5-1
-				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA,(PNWaterGCPMThreeSite)pCA );
+				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(), pCA, pCA);
 				configuration.initializeCoordinates3(sim.box[0]);	
 				configuration.initializeCoordinates3(sim.box[1]);	
 			}
 			if (numDiagram ==5 &&diagramIndex==2){//diagram 5-2
-				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA ,(PNWaterGCPMThreeSite)pBC );
+				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(), pCA, pBC);
 				configuration.initializeCoordinates3(sim.box[0]);	
 				configuration.initializeCoordinates3(sim.box[1]);	
 			}
 			if (numDiagram ==6 &&diagramIndex==2){//diagram 6-2
-				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA ,(PNWaterGCPMThreeSite)pAC );
+				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(), pCA, pAC);
 				configuration.initializeCoordinates3(sim.box[0]);	
 				configuration.initializeCoordinates3(sim.box[1]);	
 			}
 			if (numDiagram ==6 &&diagramIndex==1){//diagram 6-1
-				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(),(PNWaterGCPMThreeSite)pAC ,(PNWaterGCPMThreeSite)pCA );
+				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(), pAC, pCA);
 				configuration.initializeCoordinates3(sim.box[0]);	
 				configuration.initializeCoordinates3(sim.box[1]);	
 			}
 			if (numDiagram ==7 &&diagramIndex==1){//diagram 7-1
-				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA ,(PNWaterGCPMThreeSite)pCA,(PNWaterGCPMThreeSite)pCA );
+				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(), pCA, pCA, pCA);
 				configuration.initializeCoordinates3(sim.box[0]);	
 				configuration.initializeCoordinates5(sim.box[1]);	
 			}
 			if (numDiagram ==7 &&diagramIndex==2){//diagram 7-2
-				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA ,(PNWaterGCPMThreeSite)pAC,(PNWaterGCPMThreeSite)pCA);
+				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(), pCA, pAC, pCA);
 				configuration.initializeCoordinates3(sim.box[0]);	
 				configuration.initializeCoordinates5(sim.box[1]);		
 		}	

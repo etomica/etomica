@@ -209,7 +209,7 @@ public class DisplayPolytope extends Display implements IAction {
      * @param obj ignored by this method.
      */
     public Component graphic(Object obj) {
-        return (Component)canvas;
+        return canvas;
     }
 
     protected void computeImageParameters() {

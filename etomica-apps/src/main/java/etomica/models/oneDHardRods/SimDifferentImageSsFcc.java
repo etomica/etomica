@@ -152,7 +152,7 @@ public class SimDifferentImageSsFcc extends Simulation {
             lengths[0] = nCellsRef[0]*primitiveLength;
             lengths[1] = nCellsRef[1]*primitiveLength;
             lengths[2] = nCellsRef[2]*primitiveLength;
-            ((Vector3D)edges).E(lengths);
+            edges.E(lengths);
             bdryRef.setBoxSize(edges);
         }
         boxRef.setBoundary(bdryRef);
@@ -274,7 +274,7 @@ public class SimDifferentImageSsFcc extends Simulation {
             lengths[0] = nCellsTarget[0]*primitiveLength;
             lengths[1] = nCellsTarget[1]*primitiveLength;
             lengths[2] = nCellsTarget[2]*primitiveLength;
-            ((Vector3D)edges).E(lengths);
+            edges.E(lengths);
             bdryTarget.setBoxSize(edges);
         }
         boxTarget.setBoundary(bdryTarget);
@@ -342,7 +342,7 @@ public class SimDifferentImageSsFcc extends Simulation {
         
 //JOINT
         //measuring potential of target in reference system
-        meterTargInRef = new MeterDifferentImageAdd((Simulation)this, space,
+        meterTargInRef = new MeterDifferentImageAdd(this, space,
                 temperature, cDefRef, nmRef, cDefTarget, potentialMaster, 
                 nCellsTarget, nmTarg, tIn);
         MeterOverlapSameGaussian meterOverlapInRef = new 
@@ -510,14 +510,14 @@ public class SimDifferentImageSsFcc extends Simulation {
         
         for (int i=0; i<2; i++) {
             if (integrators[i] instanceof IntegratorMC) {
-                ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(true);
+                integrators[i].getMoveManager().setEquilibrating(true);
             }
         }
         getController().actionPerformed();
         getController().reset();
         for (int i=0; i<2; i++) {
             if (integrators[i] instanceof IntegratorMC) {
-                ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(false);
+                integrators[i].getMoveManager().setEquilibrating(false);
             }
         }
         
@@ -622,8 +622,8 @@ public class SimDifferentImageSsFcc extends Simulation {
         }
         
         //Divide out all the steps, so that the subpieces have the proper # of steps
-        runNumSteps /= (int)subBlockSize;
-        eqNumSteps /= (int)subBlockSize;
+        runNumSteps /= subBlockSize;
+        eqNumSteps /= subBlockSize;
         benNumSteps /= subBlockSize;
         
         System.out.println("run " + runNumSteps);
@@ -661,7 +661,7 @@ public class SimDifferentImageSsFcc extends Simulation {
         }
         
         // start simulation
-        sim.setAccumulatorBlockSize((int)runBlockSize);
+        sim.setAccumulatorBlockSize(runBlockSize);
         sim.integratorSim.getMoveManager().setEquilibrating(false);
         sim.activityIntegrate.setMaxSteps(runNumSteps);
         

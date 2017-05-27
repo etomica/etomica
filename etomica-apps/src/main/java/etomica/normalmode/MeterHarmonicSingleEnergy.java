@@ -93,7 +93,7 @@ public class MeterHarmonicSingleEnergy implements IEtomicaDataSource {
     }
     
     public void setEigenvectors(double[][][] eigenVectors) {
-        this.eigenvectors = (double[][][])eigenVectors.clone();
+        this.eigenvectors = eigenVectors.clone();
     }
     
     public void setOmegaSquared(double[][] omega2) {

@@ -55,7 +55,7 @@ public class BoxScaleMomenta implements IAction {
             //set net momentum to 0
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-                double rm = ((IAtom)a).getType().rm();
+                double rm = a.getType().rm();
                 if (rm != 0) {
                     a.getVelocity().PEa1Tv1(-rm,momentum);
                 }
@@ -64,7 +64,7 @@ public class BoxScaleMomenta implements IAction {
                 momentum.E(0);
                 for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                     IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-                    double mass = ((IAtom)a).getType().getMass();
+                    double mass = a.getType().getMass();
                     if (mass != Double.POSITIVE_INFINITY) {
                         momentum.PEa1Tv1(mass,a.getVelocity());
                     }
@@ -83,7 +83,7 @@ public class BoxScaleMomenta implements IAction {
             double sum = 0.0;
             for (int iAtom = 0; iAtom<nLeaf; iAtom++) {
                 IAtomKinetic atom = (IAtomKinetic)leafList.getAtom(iAtom);
-                double mass = ((IAtom)atom).getType().getMass();
+                double mass = atom.getType().getMass();
                 if(mass == Double.POSITIVE_INFINITY) continue;
                 double v = atom.getVelocity().getX(i);
                 sum += mass*v*v;

@@ -64,7 +64,7 @@ public class MCMoveSmer extends MCMoveBoxStep {
         atomSource = new AtomSourceRandomDimer();
         ((AtomSourceRandomDimer)atomSource).setRandomNumberGenerator(random);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
-        translationVector = (IVector)space.makeVector();
+        translationVector = space.makeVector();
         setStepSizeMax(stepSizeMax);
         setStepSizeMin(0.0);
         setStepSize(stepSize);

@@ -239,8 +239,8 @@ public class SimulationGammaNitrogenModel extends Simulation{
 		//sim.getController().actionPerformed();
 
 		
-		double averageEnergy = ((DataGroup)energyAverage.getData()).getValue(energyAverage.AVERAGE.index);
-		double errorEnergy = ((DataGroup)energyAverage.getData()).getValue(energyAverage.ERROR.index);
+		double averageEnergy = energyAverage.getData().getValue(energyAverage.AVERAGE.index);
+		double errorEnergy = energyAverage.getData().getValue(energyAverage.ERROR.index);
 	
 		System.out.println("Average energy (per molecule): "   + Kelvin.UNIT.fromSim(averageEnergy)/numMolecule  + " ;error: " + Kelvin.UNIT.fromSim(errorEnergy)/numMolecule);
 	    

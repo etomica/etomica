@@ -89,7 +89,7 @@ public class DataSourceFunction implements IEtomicaDataSource, DataSourceIndepen
      */
     protected void setupData(String label, Dimension dimension) {
         boolean needUpdate = false;
-        if (xData != (DataDoubleArray)xSource.getData()) {
+        if (xData != xSource.getData()) {
             xData = (DataDoubleArray)xSource.getData();
             needUpdate = true;
         }

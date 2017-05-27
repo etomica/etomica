@@ -77,7 +77,7 @@ public class DirectSamplingTargetQCArReferenceAzizAr {
         Space space = Space3D.getInstance();
         P2ArgonAziz1993 p2 = new P2ArgonAziz1993(space);
         B2ForSphericallySymmetricUByTrapezoidRule b2ref = new B2ForSphericallySymmetricUByTrapezoidRule();
-        double[] results = b2ref.getResults((Potential2SoftSpherical)p2, 10, 100, temperature, false);
+        double[] results = b2ref.getResults(p2, 10, 100, temperature, false);
         double ref = results[0];
         double refError = results[1];
         

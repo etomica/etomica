@@ -217,7 +217,7 @@ public class ConfigurationClusterAceticAcid extends ConfigurationCluster {
 	public void translationRandom(IMolecule mol, Box box){
 		BoxCluster clusterBox =(BoxCluster) box; 
 		while (true){
-			IVector positionAceticAcid = (IVector)space.makeVector();
+			IVector positionAceticAcid = space.makeVector();
 			positionAceticAcid.setRandomInSphere(random);
 			positionAceticAcid.TE(8.0);//place acetic acid molecule within a sphere with r = 8A
 			MoleculeActionTranslateTo translation = new MoleculeActionTranslateTo(space);
@@ -236,7 +236,7 @@ public class ConfigurationClusterAceticAcid extends ConfigurationCluster {
 		IVector r0 = space.makeVector();
 		IAtomPositionDefinition positionDefinition = new AtomPositionGeometricCenter(space); 
 		while (true){
-			IVector positionAceticAcid = (IVector)space.makeVector();
+			IVector positionAceticAcid = space.makeVector();
 			positionAceticAcid.setRandomInSphere(random);
 			positionAceticAcid.TE(8.0);//place acetic acid molecule within a sphere with r = 8A
 			positionAceticAcid.PE(positionDefinition.position(pair.atom0));

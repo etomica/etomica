@@ -227,8 +227,8 @@ public class SwmdGraphic extends SimulationGraphic {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 if(evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) return; 
                 setPotential((String)evt.getItem());
-                if((String)evt.getItem() == idealGas ||
-                   (String)evt.getItem() == repulsionOnly) {
+                if(evt.getItem() == idealGas ||
+                   evt.getItem() == repulsionOnly) {
                     epsBox.setEditable(false);
                     lamBox.setEditable(false);
                 }
@@ -312,7 +312,7 @@ public class SwmdGraphic extends SimulationGraphic {
 		DataSourceUniform mbX = mbSource.getXSource();
 		mbX.setTypeMax(LimitType.HALF_STEP);
 		mbX.setTypeMin(LimitType.HALF_STEP);
-		mbX.setNValues(((DataInfoFunction)meterVelocity.getDataInfo()).getLength());
+		mbX.setNValues(meterVelocity.getDataInfo().getLength());
 		mbX.setXMin(vMin);
 		mbX.setXMax(vMax);
 		mbSource.update();

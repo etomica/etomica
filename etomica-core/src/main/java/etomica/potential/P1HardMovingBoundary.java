@@ -149,7 +149,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         double a = -force/wallMass;   // atom acceleration - wall acceleration
         dv += a*falseTime;
         dr += 0.5*a*falseTime*falseTime;
-        if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet((IAtom)atom))) {
+        if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(atom))) {
             System.out.println(dr+" "+dv+" "+falseTime+" "+atom);
             System.out.println(atom.getVelocity().getX(wallD));
             System.out.println(atom.getPosition().getX(wallD));
@@ -186,7 +186,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
             }
         }
         if (ignoreOverlap && t<0.0) t = 0.0;
-        if (Debug.ON && (t<0.0 || Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet((IAtom)atom)))) {
+        if (Debug.ON && (t<0.0 || Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(atom)))) {
             System.out.println(atom+" "+a+" "+dr+" "+dv+" "+discr+" "+t+" "+(t+falseTime)+" "+(atom.getPosition().getX(wallD)+atom.getVelocity().getX(wallD)*(t+falseTime))+" "+(wallPosition+wallVelocity*(t+falseTime)-0.5*a*(t+falseTime)*(t+falseTime)));
             if (t<0) throw new RuntimeException("foo");
         }
@@ -220,10 +220,10 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
                 throw new RuntimeException("bork!");
             }
         }
-        double dp = 2.0/(1/wallMass + ((IAtom)atom).getType().rm())*(trueWallVelocity-v.getX(wallD));
+        double dp = 2.0/(1/wallMass + atom.getType().rm())*(trueWallVelocity-v.getX(wallD));
         virialSum += dp;
-        v.setX(wallD,v.getX(wallD)+dp*((IAtom)atom).getType().rm());
-        atom.getPosition().setX(wallD,r-dp*((IAtom)atom).getType().rm()*falseTime);
+        v.setX(wallD,v.getX(wallD)+dp* atom.getType().rm());
+        atom.getPosition().setX(wallD,r-dp* atom.getType().rm()*falseTime);
         wallVelocity -= dp/wallMass;
         wallPosition += dp/wallMass*falseTime;
         

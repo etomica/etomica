@@ -31,7 +31,7 @@ public class Rectangle extends Polygon implements Rectangular {
      */
     public Rectangle(Space embeddedSpace, double xLength, double yLength) {
         super(embeddedSpace, 4);
-        setEdgeLengths(((Space)embeddedSpace).makeVector(new double[]{xLength, yLength}));
+        setEdgeLengths(embeddedSpace.makeVector(new double[]{xLength, yLength}));
     }
 
     /**

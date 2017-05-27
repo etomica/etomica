@@ -254,7 +254,7 @@ public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryLi
      * cell's atom list.
      */
     public Object makeAgent(IMolecule molecule) {
-        IVector position = (IVector)moleculeSite.position(molecule);
+        IVector position = moleculeSite.position(molecule);
         v.E(position);
         if (doApplyPBC) {
             v.PE(box.getBoundary().centralImage(position));
@@ -309,7 +309,7 @@ public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryLi
             IBoundary boundary = box.getBoundary();
             CellMolecular cell = neighborCellManager.getCell(molecule);
             cell.removeMolecule(molecule);
-            boundary.nearestImage((IVector)moleculePosition.position(molecule));
+            boundary.nearestImage(moleculePosition.position(molecule));
             neighborCellManager.assignCell(molecule);
         }
         

@@ -370,7 +370,7 @@ public class VirialHePI_PotentialCorrection {
 
        
         AtomActionTranslateBy translator = new AtomActionTranslateBy(space);
-        IVector groupTranslationVector = (IVector)translator.getTranslationVector();
+        IVector groupTranslationVector = translator.getTranslationVector();
         MoleculeChildAtomAction moveMoleculeAction = new MoleculeChildAtomAction(translator);
         IMoleculeList molecules = sim.box[1].getMoleculeList();
         double r = 4;

@@ -16,7 +16,7 @@ public class MCMoveClusterPolyhedraChain extends MCMoveAtom {
     public MCMoveClusterPolyhedraChain(IRandom random, Space _space, double sigma, IPotentialAtomic p2, double[][] uValues) {
         super(random, null, _space);
         this.sigma = sigma;
-        dr = (IVector)space.makeVector();
+        dr = space.makeVector();
         this.p2 = p2;
         pair = new AtomPair();
         this.uValues = uValues;
@@ -60,7 +60,7 @@ public class MCMoveClusterPolyhedraChain extends MCMoveAtom {
         for (int i=1; i<n; i++) {
             pair.atom0 = leafAtoms.getAtom(seq[i-1]);
             pair.atom1 = leafAtoms.getAtom(seq[i]);
-            IVector pos = (IVector)leafAtoms.getAtom(seq[i]).getPosition();
+            IVector pos = leafAtoms.getAtom(seq[i]).getPosition();
             IVector q = ((AtomOrientedQuaternion)leafAtoms.getAtom(seq[i])).getQuaternion();
 
             while (true) {

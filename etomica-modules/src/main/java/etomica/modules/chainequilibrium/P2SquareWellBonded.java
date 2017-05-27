@@ -223,7 +223,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 
 			double r2 = dr.squared();
 			double bij = dr.dot(dv);
-			boolean areBonded = areBonded((IAtom)atom0, (IAtom)atom1);
+			boolean areBonded = areBonded(atom0, atom1);
 			//inside well but not mutually bonded; collide now if approaching
             if (!areBonded && r2 < wellDiameterSquared) {
                 return (bij < 0) ? falseTime : Double.POSITIVE_INFINITY;
@@ -253,14 +253,14 @@ public class P2SquareWellBonded extends P2SquareWell {
 		
 		// ke is kinetic energy due to components of velocity
 		
-		double rm0 = ((IAtom)atom0).getType().rm();
-		double rm1 = ((IAtom)atom1).getType().rm();
+		double rm0 = atom0.getType().rm();
+		double rm1 = atom1.getType().rm();
 		
 		double reduced_m = 2.0 /  + (rm0 + rm1);
 		double ke = bij * bij * reduced_m / (4.0 * r2);
 		
-		IAtom atomLeaf0 = (IAtom)atom0;
-        IAtom atomLeaf1 = (IAtom)atom1;
+		IAtom atomLeaf0 = atom0;
+        IAtom atomLeaf1 = atom1;
 		if (areBonded(atomLeaf0,atomLeaf1)) {		//atoms are bonded to each
 			if (2 * r2 < (coreDiameterSquared + wellDiameterSquared)) { // Hard-core collision															
 				lastCollisionVirial = reduced_m * bij;
@@ -316,7 +316,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 			else {
 			    //neither is taken; bond to each other
                 lastCollisionVirial = 0.5* reduced_m* (bij + Math.sqrt(bij * bij + 4.0 * r2 * epsilon*solventThermoFrac/ reduced_m));
-				bond((IAtom)atom0,(IAtom)atom1);
+				bond(atom0, atom1);
 				nudge = -eps;
 			}
 		} 

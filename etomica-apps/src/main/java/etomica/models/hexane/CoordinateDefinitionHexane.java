@@ -320,8 +320,8 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         
         //now we rotate everything about the axis.
         for(int i = 1; i < 6; i++){
-            temp.E(((Atom)childlist.getAtom(i)).getPosition());
-            temp.ME(((Atom)childlist.getAtom(i-1)).getPosition());
+            temp.E(childlist.getAtom(i).getPosition());
+            temp.ME(childlist.getAtom(i-1).getPosition());
             rotor.transform(temp);
         }
         
@@ -371,8 +371,8 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         });
         
         for(int i = 1; i < 6; i++){
-             temp.E(((Atom)childlist.getAtom(i)).getPosition());
-             temp.ME(((Atom)childlist.getAtom(i-1)).getPosition());
+             temp.E(childlist.getAtom(i).getPosition());
+             temp.ME(childlist.getAtom(i-1).getPosition());
              rotor.transform(temp);
         }
         
@@ -384,10 +384,10 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
             // get a normal vector to the a-b vector and the b-c vector
             // This vector is, by definition, perpendicular to the a-b vector, which
             // makes it a radius of a circle centered on that axis.
-            vex.E(((Atom)childlist.getAtom(i+2)).getPosition());
-            vex.ME(((Atom)childlist.getAtom(i+1)).getPosition());
-            temp.E(((Atom)childlist.getAtom(i+1)).getPosition());
-            temp.ME(((Atom)childlist.getAtom(i)).getPosition());
+            vex.E(childlist.getAtom(i+2).getPosition());
+            vex.ME(childlist.getAtom(i+1).getPosition());
+            temp.E(childlist.getAtom(i+1).getPosition());
+            temp.ME(childlist.getAtom(i).getPosition());
 
             // Create the rotation matrix for an arbitrary unit vector
             vex.normalize();
@@ -410,8 +410,8 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
             temp.normalize();
             temp.TE(length);
 
-            ((Atom)childlist.getAtom(i+3)).getPosition().E(temp);
-            ((Atom)childlist.getAtom(i+3)).getPosition().PE(((Atom)childlist.getAtom(i+2)).getPosition());
+            childlist.getAtom(i+3).getPosition().E(temp);
+            childlist.getAtom(i+3).getPosition().PE(childlist.getAtom(i+2).getPosition());
         }
         //Translate the molecule to its proper place.
         //Uses center of mass/ geometric center.

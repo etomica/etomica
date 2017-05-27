@@ -159,11 +159,11 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
                     AtomAgent agent = leafAgentManager.getAgent(a);
                     IVector r = a.getPosition();
                     IVector v = a.getVelocity();
-                    KE += v.squared()*((Atom)a).getType().getMass();
+                    KE += v.squared()* a.getType().getMass();
                     if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
                         System.out.println("first "+a+" r="+r+", v="+v+", f="+agent.force);
                     }
-                    v.PEa1Tv1(0.5*timeStep*((Atom)a).getType().rm(),agent.force);  // p += f(old)*dt/2
+                    v.PEa1Tv1(0.5*timeStep* a.getType().rm(),agent.force);  // p += f(old)*dt/2
                     r.PEa1Tv1(timeStep,v);         // r += p*dt/m
                 }
                 continue;
@@ -311,9 +311,9 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
                     workTensor.TE(a.getType().getMass());
                     pressureTensor.PE(workTensor);
                     if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
-                        System.out.println("second "+a+" v="+velocity+", f="+((AtomAgent)leafAgentManager.getAgent(a)).force);
+                        System.out.println("second "+a+" v="+velocity+", f="+ leafAgentManager.getAgent(a).force);
                     }
-                    velocity.PEa1Tv1(0.5*timeStep*((Atom)a).getType().rm(),((AtomAgent)leafAgentManager.getAgent(a)).force);  //p += f(new)*dt/2
+                    velocity.PEa1Tv1(0.5*timeStep* a.getType().rm(), leafAgentManager.getAgent(a).force);  //p += f(new)*dt/2
                 }
                 
                 continue;
@@ -326,7 +326,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             IVector moleculePosition = ((IMoleculePositioned)molecule).getPosition();
             for (int i=0; i<children.getAtomCount(); i++) {
                 IAtomKinetic atom = (IAtomKinetic)children.getAtom(i);
-                IVector atomForce = ((AtomAgent)leafAgentManager.getAgent(atom)).force;
+                IVector atomForce = leafAgentManager.getAgent(atom).force;
                 agent.force.PE(atomForce);
 
                 xWork.Ev1Mv2(atom.getPosition(), moleculePosition);

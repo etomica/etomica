@@ -266,7 +266,7 @@ public class SimDifferentImage1D extends Simulation {
         
         
 //JOINT
-        meterTargInRef = new MeterDifferentImageAdd((Simulation)this, space,
+        meterTargInRef = new MeterDifferentImageAdd(this, space,
                 temperature, cDefRef, nmRef, cDefTarget, 
                 potentialMasterTarget, new int[targAtoms], nmTarg);
         MeterOverlapSameGaussian meterOverlapInRef = new 
@@ -428,14 +428,14 @@ public class SimDifferentImage1D extends Simulation {
         
         for (int i=0; i<2; i++) {
             if (integrators[i] instanceof IntegratorMC) {
-                ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(true);
+                integrators[i].getMoveManager().setEquilibrating(true);
             }
         }
         getController().actionPerformed();
         getController().reset();
         for (int i=0; i<2; i++) {
             if (integrators[i] instanceof IntegratorMC) {
-                ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(false);
+                integrators[i].getMoveManager().setEquilibrating(false);
             }
         }
         
@@ -509,8 +509,8 @@ public class SimDifferentImage1D extends Simulation {
         System.out.println("output data to " + filename);System.out.println("instantiated");
         
         //Divide out all the steps, so that the subpieces have the proper # of steps
-        runNumSteps /= (int)subBlockSize;
-        eqNumSteps /= (int)subBlockSize;
+        runNumSteps /= subBlockSize;
+        eqNumSteps /= subBlockSize;
         benNumSteps /= subBlockSize;
         
         //start simulation & equilibrate
@@ -536,7 +536,7 @@ public class SimDifferentImage1D extends Simulation {
         System.out.println("equilibration finished.");
         
         // start simulation
-        sim.setAccumulatorBlockSize((int)runBlockSize);
+        sim.setAccumulatorBlockSize(runBlockSize);
         sim.integratorSim.getMoveManager().setEquilibrating(false);
         sim.activityIntegrate.setMaxSteps(runNumSteps);
         sim.getController().actionPerformed();

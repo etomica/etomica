@@ -182,13 +182,13 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
             if (calcer == null) {
                 for (int iLeaf=0; iLeaf<children.getAtomCount(); iLeaf++) {
                     IAtomKinetic a = (IAtomKinetic)children.getAtom(iLeaf);
-                    MyAgent agent = (MyAgent)leafAgentManager.getAgent(a);
+                    MyAgent agent = leafAgentManager.getAgent(a);
                     IVector r = a.getPosition();
                     IVector v = a.getVelocity();
                     if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
                         System.out.println("first "+a+" r="+r+", v="+v+", f="+agent.force);
                     }
-                    v.PEa1Tv1(0.5*timeStep*((IAtom)a).getType().rm(),agent.force);  // p += f(old)*dt/2
+                    v.PEa1Tv1(0.5*timeStep* a.getType().rm(),agent.force);  // p += f(old)*dt/2
                     r.PEa1Tv1(timeStep,v);         // r += p*dt/m
                 }
                 continue;
@@ -296,7 +296,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         for (int iMolecule = 0; iMolecule<nMolecules; iMolecule++) {
             IMolecule molecule = moleculeList.getMolecule(iMolecule);
             IAtomList children = molecule.getChildList();
-            if ((OrientationCalc)typeAgentManager.getAgent(molecule.getType()) == null) {
+            if (typeAgentManager.getAgent(molecule.getType()) == null) {
                 // unimolecular or at least not rigid
                 //Finish integration step
                 for (int iLeaf=0; iLeaf<children.getAtomCount(); iLeaf++) {
@@ -304,13 +304,13 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
 //                    System.out.println("force: "+((MyAgent)a.ia).force.toString());
                     IVector velocity = a.getVelocity();
                     workTensor.Ev1v2(velocity,velocity);
-                    workTensor.TE(((IAtom)a).getType().getMass());
+                    workTensor.TE(a.getType().getMass());
                     pressureTensor.PE(workTensor);
                     if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
                         System.out.println("second "+a+" v="+velocity+", f="+leafAgentManager.getAgent(a).force);
                     }
-                    velocity.PEa1Tv1(0.5*timeStep*((IAtom)a).getType().rm(),leafAgentManager.getAgent(a).force);  //p += f(new)*dt/2
-                    currentKineticEnergy += velocity.squared()*((IAtom)a).getType().getMass();
+                    velocity.PEa1Tv1(0.5*timeStep* a.getType().rm(),leafAgentManager.getAgent(a).force);  //p += f(new)*dt/2
+                    currentKineticEnergy += velocity.squared()* a.getType().getMass();
                 }
                 // skip the rotational stuff
                 continue;
@@ -399,7 +399,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
             if (typeAgentManager.getAgent(molecule.getType()) == null) {
                 for (int iLeaf=0; iLeaf<children.getAtomCount(); iLeaf++) {
                     IAtomKinetic a = (IAtomKinetic)children.getAtom(iLeaf);
-                    double mass = ((IAtom)a).getType().getMass();
+                    double mass = a.getType().getMass();
                     momentum.PEa1Tv1(mass, a.getVelocity());
                     totalMass += mass;
                 }
@@ -422,7 +422,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
 //                    System.out.println("force: "+((MyAgent)a.ia).force.toString());
                     IVector velocity = a.getVelocity();
                     velocity.ME(momentum);
-                    KE += velocity.squared() * ((IAtom)a).getType().getMass();
+                    KE += velocity.squared() * a.getType().getMass();
                     D += 3;
                 }
                 continue;

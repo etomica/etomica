@@ -358,7 +358,7 @@ public class ClathrateHarmonicFE extends Simulation{
 				        IAtom atomj = atoms.getAtom(j);	
 
 			            IVector fndx = space.makeVector();
-			            fndx.E(((IntegratorVelocityVerlet.MyAgent)atomAgentManager.getAgent(atomj)).force);
+			            fndx.E(atomAgentManager.getAgent(atomj).force);
 //			            System.out.println(fndx);
 			            f4dx.PE(fndx);
 	            		dr.Ev1Mv2(atomj.getPosition(), atoms.getAtom(2).getPosition());

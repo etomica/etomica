@@ -34,7 +34,7 @@ public class WaveVectorFactorySuperBox extends WaveVectorFactorySimple {
 		
 		IVector boxDimension = space.makeVector();
 		boxDimension.E(box.getBoundary().getBoxSize());
-		double fraction = (double)(1.0/2);
+		double fraction = 1.0/2;
 		boxDimension.TE(fraction);
 		box.getBoundary().setBoxSize(boxDimension);
 		

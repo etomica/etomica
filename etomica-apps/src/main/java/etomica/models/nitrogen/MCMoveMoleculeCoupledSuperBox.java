@@ -58,7 +58,7 @@ public class MCMoveMoleculeCoupledSuperBox extends MCMoveBoxStep implements MCMo
         affectedMoleculeList = new MoleculeArrayList();
         
         singleAction = new AtomActionTranslateBy(_space);
-        groupTransVect = (IVector)singleAction.getTranslationVector();
+        groupTransVect = singleAction.getTranslationVector();
         
         moveMoleculeAction = new MoleculeChildAtomAction(singleAction);
         

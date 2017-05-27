@@ -72,7 +72,7 @@ public class P1MagicWall extends Potential1 implements PotentialHard {
             // ideal gas trying to become a SQW atom
             if (de < Double.POSITIVE_INFINITY) {
                 double v0 = v.getX(0);
-                double m = ((IAtom)atom).getType().getMass();
+                double m = atom.getType().getMass();
                 double ke = 0.5 * m * v0*v0;
                 if (ke > de) {
                     // we have enough kinetic energy to go through the wall
@@ -97,7 +97,7 @@ public class P1MagicWall extends Potential1 implements PotentialHard {
             de = -de;
             // SQW trying to become an ideal gas atom
             double v0 = v.getX(0);
-            double m = ((IAtom)atom).getType().getMass();
+            double m = atom.getType().getMass();
             double ke = 0.5 * m * v0*v0;
             if (ke > de) {
                 // we have enough kinetic energy to go through the wall
@@ -121,9 +121,9 @@ public class P1MagicWall extends Potential1 implements PotentialHard {
     protected double getDeltaU(IAtomKinetic atom, double falseTime, boolean isIG2SQW, boolean countHigh) {
         IVector v = atom.getVelocity();
         IVector p = atom.getPosition();
-        IAtomList[] upList = neighborManager.getUpList((IAtom)atom);
-        IAtomList[] downList = neighborManager.getDownList((IAtom)atom);
-        PotentialArray potentialArray = potentialMaster.getRangedPotentials(((IAtom)atom).getType());
+        IAtomList[] upList = neighborManager.getUpList(atom);
+        IAtomList[] downList = neighborManager.getDownList(atom);
+        PotentialArray potentialArray = potentialMaster.getRangedPotentials(atom.getType());
         IPotential[] potentials = potentialArray.getPotentials();
         double de = 0;
         for (int ip=0; ip<upList.length; ip++) {

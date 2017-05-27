@@ -75,7 +75,7 @@ public class DataHistogram extends DataProcessor {
      */
     protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
         binnedDataInfo = inputDataInfo;
-        nData = ((DataInfoDoubleArray)inputDataInfo).getLength();
+        nData = inputDataInfo.getLength();
         setupData();
         return dataInfo;
     }

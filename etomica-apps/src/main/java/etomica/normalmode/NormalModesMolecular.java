@@ -71,7 +71,7 @@ public class NormalModesMolecular implements NormalModes {
         	for(int j=0;j<space.D();j++){ // 4 NOT 3 but that is fine as the mass of M = 0
             	Inertia[i][i].setComponent(j, j,massH2O);        		
         	}
-        	IVector comPos = (IVector)comi.position(moleculei);
+        	IVector comPos = comi.position(moleculei);
         	inertiaTensor.E(0);
         	for(int j=0; j<moleculei.getChildList().getAtomCount(); j++){
         		drk.Ev1Mv2(moleculei.getChildList().getAtom(j).getPosition(),comPos);

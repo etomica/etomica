@@ -63,7 +63,7 @@ public class MCMoveMolecule extends MCMoveBoxStep implements MCMoveMolecular {
         energyMeter.setIncludeLrc(false);
 
         AtomActionTranslateBy translator = new AtomActionTranslateBy(_space);
-        groupTranslationVector = (IVector)translator.getTranslationVector();
+        groupTranslationVector = translator.getTranslationVector();
         moveMoleculeAction = new MoleculeChildAtomAction(translator);
         
         //set directive to exclude intramolecular contributions to the energy

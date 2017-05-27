@@ -318,7 +318,7 @@ public class Colix {
     if (obj == null)
       return INHERIT_ALL;
     if (obj instanceof EnumPalette)
-      return (((EnumPalette) obj) == EnumPalette.NONE ? INHERIT_ALL
+      return (obj == EnumPalette.NONE ? INHERIT_ALL
           : USE_PALETTE);
     if (obj instanceof Integer)
       return getColix(((Integer) obj).intValue());

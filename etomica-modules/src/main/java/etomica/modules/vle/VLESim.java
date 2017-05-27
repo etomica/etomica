@@ -154,8 +154,8 @@ public class VLESim extends Simulation {
         getController().addAction(activityIntegrate);
 
         if (doNBR) {
-            ((NeighborCellManager)((PotentialMasterCell)potentialMaster).getCellAgentManager().getAgent(boxLiquid)).assignCellAll();
-            ((NeighborCellManager)((PotentialMasterCell)potentialMaster).getCellAgentManager().getAgent(boxVapor)).assignCellAll();
+            ((PotentialMasterCell)potentialMaster).getCellAgentManager().getAgent(boxLiquid).assignCellAll();
+            ((PotentialMasterCell)potentialMaster).getCellAgentManager().getAgent(boxVapor).assignCellAll();
             integratorLiquid.getMoveEventManager().addListener(((NeighborCellManager)((PotentialMasterCell)potentialMaster).getCellAgentManager().getAgent(boxLiquid)).makeMCMoveListener());
             integratorVapor.getMoveEventManager().addListener(((NeighborCellManager)((PotentialMasterCell)potentialMaster).getCellAgentManager().getAgent(boxVapor)).makeMCMoveListener());
         }

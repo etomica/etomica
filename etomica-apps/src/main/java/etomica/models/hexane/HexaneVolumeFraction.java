@@ -139,9 +139,9 @@ public class HexaneVolumeFraction extends Simulation {
             System.out.println("data collection:  " + time2);
             System.out.println("overlaps:  " + overlaps);
             System.out.println("total tries:  " + numberOfTests);
-            double td = (double)overlaps/(double)numberOfTests;
+            double td = (double)overlaps/ numberOfTests;
             System.out.println("percentage in molecule:  " + td);
-            double vol = ((BoundaryRectangularPeriodic)sim.bdry).volume();
+            double vol = sim.bdry.volume();
             System.out.println("volume of box:  " + vol);
             double another = td * vol;
             System.out.println("volume of molecule:  " + another);

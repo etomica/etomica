@@ -130,9 +130,9 @@ public class LatticeSumMolecularCrystal {
     	IVector Xk = space.makeVector();
     	IVector Xkp = space.makeVector();
     	AtomPositionCOM com_0 = new AtomPositionCOM(space);
-    	IVector com0 = (IVector) com_0.position(mol0);
+    	IVector com0 = com_0.position(mol0);
     	AtomPositionCOM com_1 = new AtomPositionCOM(space);
-    	IVector com1 = (IVector) com_1.position(mol1);
+    	IVector com1 = com_1.position(mol1);
 
 //    	com0.E(mol0.getChildList().getAtom(2).getPosition()); // O (-5.970371160466783, 5.978273273935142, -2.996126942837739)
 //    	com1.E(mol1.getChildList().getAtom(2).getPosition()); // O (-6.016203213551466, 6.025148464416224, -2.996521341193713)

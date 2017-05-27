@@ -547,8 +547,8 @@ public class SimulationBetaNitrogenModelTest extends Simulation{
 		sim.getController().actionPerformed();
 		
 		
-		double averageEnergy = ((DataGroup)energyAverage.getData()).getValue(energyAverage.AVERAGE.index);
-		double errorEnergy = ((DataGroup)energyAverage.getData()).getValue(energyAverage.ERROR.index);
+		double averageEnergy = energyAverage.getData().getValue(energyAverage.AVERAGE.index);
+		double errorEnergy = energyAverage.getData().getValue(energyAverage.ERROR.index);
 		
 //		double averagePressure = ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
 //		double errorPressure = ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);

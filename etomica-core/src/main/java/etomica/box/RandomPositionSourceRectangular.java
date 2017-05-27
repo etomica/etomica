@@ -11,7 +11,7 @@ import etomica.space.Space;
 public class RandomPositionSourceRectangular implements RandomPositionSource {
     
     public RandomPositionSourceRectangular(Space space, IRandom random) {
-        p = (IVector)space.makeVector();
+        p = space.makeVector();
         this.random = random;
     }
 

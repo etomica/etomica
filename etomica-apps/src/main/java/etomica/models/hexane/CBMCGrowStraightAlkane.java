@@ -50,7 +50,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
         ISpecies[] sp = new ISpecies[1];
         sp[0] = species;
 
-        vex = (IVector) _space.makeVector();
+        vex = _space.makeVector();
         temp = _space.makeVector();
         a = new double[numTrial];
         b = new double[chainlength]; // used to store old rosenbluth factors
@@ -369,8 +369,8 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
             // bail! (continue)
 
             temp.E(vex);
-            ((Vector3D) temp).XE((Vector3D) tempCloser);
-            ((Vector3D) tempCloser).XE((Vector3D) tempFarther);
+            temp.XE(tempCloser);
+            tempCloser.XE(tempFarther);
             theta = temp.dot(tempCloser);
 
             // nan pass all info to this method or calcBTE depends on theta only

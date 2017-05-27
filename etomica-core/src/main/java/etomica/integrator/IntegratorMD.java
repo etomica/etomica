@@ -364,7 +364,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
                 if (atomCount > 0) {
                     int index = random.nextInt(atomList.getAtomCount());
                     IAtomKinetic a = (IAtomKinetic)atomList.getAtom(index);
-                    double m = ((IAtom)a).getType().getMass();
+                    double m = a.getType().getMass();
                     if (m == Double.POSITIVE_INFINITY) return;
                     currentKineticEnergy -= 0.5*m*a.getVelocity().squared();
                     randomizeMomentum(a);
@@ -392,7 +392,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
         double totalMass = 0;
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic atom = (IAtomKinetic)leafList.getAtom(iLeaf);
-            double mass = ((IAtom)atom).getType().getMass();
+            double mass = atom.getType().getMass();
             if(mass == Double.POSITIVE_INFINITY || mass == 0) nSkipped--;
             else totalMass += mass;
         }
@@ -477,7 +477,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
             //set net momentum to 0
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-                double rm = ((IAtom)a).getType().rm();
+                double rm = a.getType().rm();
                 if (rm != 0 && rm != Double.POSITIVE_INFINITY) {
                     a.getVelocity().ME(momentum);
                 }
@@ -486,7 +486,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
                 momentum.E(0);
                 for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                     IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-                    double mass = ((IAtom)a).getType().getMass();
+                    double mass = a.getType().getMass();
                     if (mass != Double.POSITIVE_INFINITY) {
                         momentum.PEa1Tv1(mass,a.getVelocity());
                     }
@@ -523,7 +523,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
             int nLeafNotFixed = 0;
             for (int iAtom = 0; iAtom<nLeaf; iAtom++) {
                 IAtomKinetic atom = (IAtomKinetic)leafList.getAtom(iAtom);
-                double mass = ((IAtom)atom).getType().getMass();
+                double mass = atom.getType().getMass();
                 if(mass == Double.POSITIVE_INFINITY) continue;
                 double v = atom.getVelocity().getX(i);
                 sum += mass*v*v;

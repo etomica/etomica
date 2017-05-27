@@ -110,7 +110,7 @@ public class OrientationFull3D implements IOrientationFull3D, Serializable {
         double tempSq = 0;
         do {
             // first get a random unit vector
-            ((IVector)v2).setRandomSphere(random);
+            v2.setRandomSphere(random);
             // find the component of the unit vector perpendicular to our direction
             v2.PEa1Tv1(-v2.dot(direction), direction);
             // if the random unit vector was nearly parallel (or anti-parallel)

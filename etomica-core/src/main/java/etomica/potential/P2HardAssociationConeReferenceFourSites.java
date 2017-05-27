@@ -74,7 +74,7 @@ public class P2HardAssociationConeReferenceFourSites extends Potential2 {
             IVector e1AaY = ((IOrientationFull3D) atom0.getOrientation()).getSecondaryDirection();//Perpendicular direction of e1A
             IVector e1AaZ = space.makeVector();
             e1AaZ.E(e1A);
-            ((IVector) e1AaZ).XE(e1AaY);//crossproduct
+            e1AaZ.XE(e1AaY);//crossproduct
             IVector e1Ab = space.makeVector();
             e1Ab.Ea1Tv1(cosAngle1, e1A);
             e1Ab.PEa1Tv1(sinAngle1, e1AaY);
@@ -94,7 +94,7 @@ public class P2HardAssociationConeReferenceFourSites extends Potential2 {
             IVector e2AaY = ((IOrientationFull3D) atom1.getOrientation()).getSecondaryDirection();//Perpendicular direction of e2A         
             IVector e2AaZ = space.makeVector();
             e2AaZ.E(e2A);
-            ((IVector) e2AaZ).XE(e2AaY);//crossproduct
+            e2AaZ.XE(e2AaY);//crossproduct
             IVector e2Ab = space.makeVector();
             e2Ab.Ea1Tv1(cosAngle1, e2A);
             e2Ab.PEa1Tv1(sinAngle1, e2AaY);

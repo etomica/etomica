@@ -50,7 +50,7 @@ public class MeterPressureHardTensor implements IEtomicaDataSource, IntegratorHa
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             v.Ev1v2(a.getVelocity(), a.getVelocity());
-            v.TE((((IAtom)a).getType().rm()));
+            v.TE((a.getType().rm()));
             data.x.PE(v);
         }
 

@@ -186,7 +186,7 @@ public class ConfigurationClusterWertheimGCPMDirectSampling extends Configuratio
 
 		
         while (true){
-	        IVector positionWater = (IVector)space.makeVector();
+	        IVector positionWater = space.makeVector();
 	        positionWater.setRandomInSphere(random);
 	        positionWater.TE(4.0);//place water molecule within a sphere with r = 4A
 	        MoleculeActionTranslateTo translation = new MoleculeActionTranslateTo(space);
@@ -225,7 +225,7 @@ public class ConfigurationClusterWertheimGCPMDirectSampling extends Configuratio
 		pair.atom1 = water;
 	
         while (true){
-        	IVector positionWater = (IVector)space.makeVector();
+        	IVector positionWater = space.makeVector();
 	        positionWater.setRandomInSphere(random);
 	        positionWater.TE(4.0);//place water molecule within a sphere with r = 8A
 	        positionWater.PE(pair.atom0.getChildList().getAtom(0).getPosition());
@@ -265,7 +265,7 @@ public class ConfigurationClusterWertheimGCPMDirectSampling extends Configuratio
 		pair.atom1 = water;
 	
         while (true){
-        	IVector positionWater = (IVector)space.makeVector();
+        	IVector positionWater = space.makeVector();
 	        positionWater.setRandomInSphere(random);
 	        positionWater.TE(4.0);//place water molecule within a sphere with r = 8A
 	        positionWater.PE(pair.atom0.getChildList().getAtom(0).getPosition());
@@ -305,7 +305,7 @@ public class ConfigurationClusterWertheimGCPMDirectSampling extends Configuratio
 		pair.atom1 = water;
 	
         while (true){
-        	IVector positionWater = (IVector)space.makeVector();
+        	IVector positionWater = space.makeVector();
 	        positionWater.setRandomInSphere(random);
 	        positionWater.TE(4.0);//place water molecule within a sphere with r = 8A
 	        positionWater.PE(pair.atom0.getChildList().getAtom(0).getPosition());

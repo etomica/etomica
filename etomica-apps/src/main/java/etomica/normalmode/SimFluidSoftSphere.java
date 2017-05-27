@@ -224,7 +224,7 @@ public class SimFluidSoftSphere extends Simulation {
         IAction pressureCheck = new IAction(){
         	public void actionPerformed(){
         		System.out.println("Var[density/sqrt(2)]: "+ d/(Math.sqrt(2)*Math.pow(temp, 3.0/(double)n))+ " ,Z: "
-                		+((DataGroup)pressureAverage.getData()).getValue(pressureAverage.AVERAGE.index)/(d*temp));
+                		+ pressureAverage.getData().getValue(pressureAverage.AVERAGE.index)/(d*temp));
                 
         	}
         };
@@ -319,14 +319,14 @@ public class SimFluidSoftSphere extends Simulation {
         
         sim.writeConfiguration(filename);
         
-        System.out.println("Average Energy: "+ ((DataGroup)energyAverage.getData()).getValue(energyAverage.AVERAGE.index)
-        					+ " ,Error Energy: "+ ((DataGroup)energyAverage.getData()).getValue(energyAverage.ERROR.index));
-        System.out.println("Average Pressure: "+ ((DataGroup)pressureAverage.getData()).getValue(pressureAverage.AVERAGE.index)
-        					+ " ,Error Pressure: "+ ((DataGroup)pressureAverage.getData()).getValue(pressureAverage.ERROR.index));
+        System.out.println("Average Energy: "+ energyAverage.getData().getValue(energyAverage.AVERAGE.index)
+        					+ " ,Error Energy: "+ energyAverage.getData().getValue(energyAverage.ERROR.index));
+        System.out.println("Average Pressure: "+ pressureAverage.getData().getValue(pressureAverage.AVERAGE.index)
+        					+ " ,Error Pressure: "+ pressureAverage.getData().getValue(pressureAverage.ERROR.index));
         System.out.println(" ");
         
         System.out.println("Var[density/sqrt(2)]: "+ density/(Math.sqrt(2)*Math.pow(temperature, 3/(double)exponent))+ " ,Z: "
-        		+((DataGroup)pressureAverage.getData()).getValue(pressureAverage.AVERAGE.index)/(density*temperature));
+        		+ pressureAverage.getData().getValue(pressureAverage.AVERAGE.index)/(density*temperature));
 
     }
 

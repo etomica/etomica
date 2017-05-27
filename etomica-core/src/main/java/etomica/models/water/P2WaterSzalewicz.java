@@ -1459,11 +1459,11 @@ public class P2WaterSzalewicz implements IPotentialTorque {
                         double una = p3.energy(triplet)-(p2.energy(pair12)+p2.energy(pair13)+p2.energy(pair23));
 //                        System.out.print(String.format("%10.4e  ", una));
                         utot += una;
-                        ((IVector)atom3.getOrientation().getDirection()).TE(-1);
+                        atom3.getOrientation().getDirection().TE(-1);
                     }
-                    ((IVector)atom2.getOrientation().getDirection()).TE(-1);
+                    atom2.getOrientation().getDirection().TE(-1);
                 }
-                ((IVector)atom1.getOrientation().getDirection()).TE(-1);
+                atom1.getOrientation().getDirection().TE(-1);
             }
             System.out.print(String.format("%20.15e\n", Kelvin.UNIT.fromSim(utot/8)-0*6.583231966245653e+01));
         }

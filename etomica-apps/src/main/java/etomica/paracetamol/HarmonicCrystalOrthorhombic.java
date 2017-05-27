@@ -39,7 +39,7 @@ public class HarmonicCrystalOrthorhombic {
     		     Basis basis, Box box,
     		     CoordinateDefinitionParacetamol coordinateDefinitionParacetamol,
     		     Space _space) {
-        this.nCells = (int[])nCells.clone();
+        this.nCells = nCells.clone();
         this.coordinateDefinitionParacetamol = coordinateDefinitionParacetamol;
         this.space = _space;
         potential = new P2DLPOLY(space);

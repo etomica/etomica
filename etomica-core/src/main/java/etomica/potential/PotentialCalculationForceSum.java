@@ -52,7 +52,7 @@ public class PotentialCalculationForceSum implements PotentialCalculation {
         	case 0:
         		IAtomList boxAtoms = integratorAgentManager.getBox().getLeafList();
         		for (int i=0; i<boxAtoms.getAtomCount(); i++) {
-        			((IntegratorBox.Forcible)integratorAgentManager.getAgent(boxAtoms.getAtom(i))).force().ME(f[i]);
+        			integratorAgentManager.getAgent(boxAtoms.getAtom(i)).force().ME(f[i]);
         		}
         		break;
 

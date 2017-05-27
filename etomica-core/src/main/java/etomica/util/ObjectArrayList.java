@@ -452,7 +452,7 @@ import java.util.List;
 	
 	        // Read in all elements in the proper order.
 	        for (int i=0; i<size; i++)
-	            elementData[i] = (Object)s.readObject();
+	            elementData[i] = s.readObject();
 	    }	 
 	}
 

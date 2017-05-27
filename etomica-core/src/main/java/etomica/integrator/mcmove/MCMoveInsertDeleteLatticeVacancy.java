@@ -66,7 +66,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         super(potentialMaster, random, _space, maxN-maxVacancy, maxN);
         this.space = _space;
         this.potentialMaster = potentialMaster;
-        dest = (IVector)_space.makeVector();
+        dest = _space.makeVector();
         dr = _space.makeVector();
         this.integrator = integrator;
         this.maxDistance = maxDistance;
@@ -248,7 +248,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
             int nTestNbrs = 0, nTestNbrsDeletion = 0;
             double maxInsertNbrDistance = nbrDistance + maxInsertDistance;
             double minInsertNbrDistance = nbrDistance - maxInsertDistance;
-            for (IAtom jAtom = ((AtomIterator)atomIterator).nextAtom(); jAtom != null ;jAtom = ((AtomIterator)atomIterator).nextAtom()) {
+            for (IAtom jAtom = atomIterator.nextAtom(); jAtom != null ; jAtom = atomIterator.nextAtom()) {
                 int jj = jAtom.getLeafIndex();
                 dr.Ev1Mv2(pi, jAtom.getPosition());
                 box.getBoundary().nearestImage(dr);
@@ -351,7 +351,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
             atomIterator.setAtom(iAtom);
             ((AtomsetIteratorDirectable)atomIterator).setDirection(Direction.UP);
             atomIterator.reset();
-            for (IAtom jAtom = ((AtomIterator)atomIterator).nextAtom(); jAtom != null ;jAtom = ((AtomIterator)atomIterator).nextAtom()) {
+            for (IAtom jAtom = atomIterator.nextAtom(); jAtom != null ; jAtom = atomIterator.nextAtom()) {
                 dr.Ev1Mv2(pi, jAtom.getPosition());
                 boundary.nearestImage(dr);
                 double r2 = dr.squared();
@@ -372,7 +372,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
                 atomIterator.setAtom(iAtom);
                 ((AtomsetIteratorDirectable)atomIterator).setDirection(null);
                 atomIterator.reset();
-                for (IAtom jAtom = ((AtomIterator)atomIterator).nextAtom(); jAtom != null ;jAtom = ((AtomIterator)atomIterator).nextAtom()) {
+                for (IAtom jAtom = atomIterator.nextAtom(); jAtom != null ; jAtom = atomIterator.nextAtom()) {
                     int jj = jAtom.getLeafIndex();
                     dr.Ev1Mv2(pi, jAtom.getPosition());
                     boundary.nearestImage(dr);

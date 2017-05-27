@@ -114,7 +114,7 @@ public class SimOverlapSSnxy extends Simulation {
         lengths[0] = shape[0]*primitiveLength;
         lengths[1] = shape[1]*primitiveLength;
         lengths[2] = shape[2]*primitiveLength;
-        ((Vector3D)edges).E(lengths);
+        edges.E(lengths);
         boundaryTarget.setBoxSize(edges);
         boxTarget.setBoundary(boundaryTarget);
         
@@ -196,7 +196,7 @@ public class SimOverlapSSnxy extends Simulation {
         
         if (potentialMasterTarget instanceof PotentialMasterList) {
             // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-            ((PotentialMasterList)potentialMasterTarget).
+            potentialMasterTarget.
                     getNeighborManager(boxHarmonic).reset();
         }
         

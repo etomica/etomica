@@ -57,7 +57,7 @@ public class MpiIntraspecies1ATest extends MoleculeIteratorTestAbstract {
         assertTrue(exceptionThrown);
         exceptionThrown = false;
         try {
-            new MpiIntraspecies1A((ISpecies)null);
+            new MpiIntraspecies1A(null);
         } catch(NullPointerException e) {exceptionThrown = true;}
         assertTrue(exceptionThrown);
 

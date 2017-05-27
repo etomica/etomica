@@ -50,7 +50,7 @@ public class MeterMomentumCOM implements IEtomicaDataSource, java.io.Serializabl
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            double mass = ((IAtom)a).getType().getMass();
+            double mass = a.getType().getMass();
             momentumSum.PEa1Tv1(mass,a.getVelocity());
         }
         return data;

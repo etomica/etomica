@@ -161,7 +161,7 @@ public class MolecularModel2CLJQ_SpeciesLJ implements IMolecularModel_SpeciesFac
 		setConformation();
 		simpleElement = SimpleElementForSimilarSpecies.getInstance();
 		Species co2Species = new SpeciesSpheres(2, simpleElement.getTSelement(), conformation, space);
-		return (ISpecies)co2Species;
+		return co2Species;
 	}
 	
 	public SpeciesFactory createSpeciesFactory(){

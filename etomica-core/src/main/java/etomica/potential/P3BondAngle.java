@@ -178,7 +178,7 @@ public class P3BondAngle extends Potential implements PotentialSoft {
         double U = 0;
         IVector oldGradient = space.makeVector();
         IVector gradient = space.makeVector();
-        IVector dr = (IVector)space.makeVector();
+        IVector dr = space.makeVector();
         for (int i=0; i<n+1; i++) {
             oldoldU = oldU;
             oldU = U;

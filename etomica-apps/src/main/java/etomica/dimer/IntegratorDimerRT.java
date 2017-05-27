@@ -265,10 +265,10 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Inte
         workVector3 = new IVector[movableAtoms];
         
         for(int i=0; i<movableAtoms; i++){
-            N[i] = (IVector)space.makeVector();
-            Neff[i] = (IVector)space.makeVector();
-            Nstar[i] = (IVector)space.makeVector();
-            N1[i] = (IVector)space.makeVector();
+            N[i] = space.makeVector();
+            Neff[i] = space.makeVector();
+            Nstar[i] = space.makeVector();
+            N1[i] = space.makeVector();
             THETA[i] = space.makeVector();
             THETAstar[i] = space.makeVector();
             THETAstarstar[i] = space.makeVector();

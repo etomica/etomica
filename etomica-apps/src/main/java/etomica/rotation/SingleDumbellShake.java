@@ -37,7 +37,7 @@ public class SingleDumbellShake {
         box.setDensity(0.01/18.0*Constants.AVOGADRO/1E24);
 //        new ConfigurationLattice(new LatticeCubicFcc(), space).initializeCoordinates(box);
         IMolecule molecule = box.getMoleculeList(species).getMolecule(0);
-        ((ConformationLinear)species.getConformation()).initializePositions(molecule.getChildList());
+        species.getConformation().initializePositions(molecule.getChildList());
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeStep = 2*Math.PI/100;
         int maxIterations = 20;

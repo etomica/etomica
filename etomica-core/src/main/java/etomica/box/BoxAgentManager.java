@@ -107,11 +107,11 @@ public class BoxAgentManager<E> implements ISimulationListener {
     }
     
     public void simulationBoxAdded(ISimulationBoxEvent e) {
-        addAgent(((SimulationBoxEvent)e).getBox());
+        addAgent(e.getBox());
     }
     
     public void simulationBoxRemoved(ISimulationBoxEvent e) {
-        Box box = ((SimulationBoxEvent)e).getBox();
+        Box box = e.getBox();
         // The given Box got removed.  The remaining boxes got shifted
         // down.
         int index = box.getIndex();

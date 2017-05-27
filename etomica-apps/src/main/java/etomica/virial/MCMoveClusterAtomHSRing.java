@@ -156,7 +156,7 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
                             axis0.Ev1Mv2(posNext, posPrev);
                             double r2 = axis0.squared();
                             if (r2 < 1) {
-                                randomLensPointInBox(posPrev, posNext, (IVector)pos);
+                                randomLensPointInBox(posPrev, posNext, pos);
                             }
                             else {
                                 randomLensPoint(posPrev, posNext, (Vector3D)pos, axis0, r2);
@@ -168,7 +168,7 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
                             IVector posNext = leafAtoms.getAtom(seq[nextInserted]).getPosition();
                             while (true) {
                                 numTrials[i-prevInserted]++;
-                                ((IVector)pos).setRandomInSphere(random);
+                                pos.setRandomInSphere(random);
                                 pos.PE(posPrev);
                                 double rn = Math.sqrt(pos.Mv1Squared(posNext));
                                 double pn = separationProbability(i-j,rn);

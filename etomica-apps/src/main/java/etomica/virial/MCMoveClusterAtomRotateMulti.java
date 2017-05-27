@@ -54,7 +54,7 @@ public class MCMoveClusterAtomRotateMulti extends MCMoveAtom {
         if (random.nextInt(100) == 0) {
             for(int i=0; i<nAtoms; i++) {
                 IAtomOriented a = (IAtomOriented)atoms.getAtom(i);
-                ((IVector)a.getOrientation().getDirection()).normalize();
+                a.getOrientation().getDirection().normalize();
             }
         }
 		((BoxCluster)box).trialNotify();

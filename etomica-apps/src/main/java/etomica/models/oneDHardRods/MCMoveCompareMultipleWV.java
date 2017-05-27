@@ -383,7 +383,7 @@ public class MCMoveCompareMultipleWV extends MCMoveBoxStep {
         
         if(box.getBoundary().getEdgeVector(0).getD() == 1){
             for(int i = 0; i < ats; i++){
-                System.out.println(i + "  " + ((Atom)list.getAtom(i)).getPosition().getX(0));
+                System.out.println(i + "  " + list.getAtom(i).getPosition().getX(0));
             }
         }
         
@@ -391,7 +391,7 @@ public class MCMoveCompareMultipleWV extends MCMoveBoxStep {
             for(int i = 0; i < ats; i++){
                 System.out.println("Atom " + i);
                 for(int j = 0; j < 3; j++){
-                    System.out.println(j + " " + ((Atom)list.getAtom(i)).getPosition().getX(j));
+                    System.out.println(j + " " + list.getAtom(i).getPosition().getX(j));
                 }
             }
         }

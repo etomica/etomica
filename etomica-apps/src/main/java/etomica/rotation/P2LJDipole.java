@@ -271,7 +271,7 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
         
         IVector grad1 = space.makeVector();
         IVector oldPosition = space.makeVector();
-        IVector ran = (IVector)space.makeVector();
+        IVector ran = space.makeVector();
 //        atom0.getOrientation().randomRotation(sim.getRandom(), 1);
 //        atom1.getOrientation().randomRotation(sim.getRandom(), 1);
 //        atom1.getOrientation().randomRotation(sim.getRandom(), 1);
@@ -321,7 +321,7 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
             }
             do {
                 // move the atom1 to an entirely random position within 5sigma of atom0
-                ((IVector)atom1.getPosition()).setRandomInSphere(random);
+                atom1.getPosition().setRandomInSphere(random);
                 atom1.getPosition().TE(rCut+1);
                 ran.setRandomSphere(random);
                 atom1.getOrientation().setDirection(ran);
@@ -372,7 +372,7 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
             }
             do {
                 // move the atom1 to an entirely random position within 5sigma of atom0
-                ((IVector)atom1.getPosition()).setRandomInSphere(random);
+                atom1.getPosition().setRandomInSphere(random);
                 atom1.getPosition().TE(rCut+1);
                 ran.setRandomSphere(random);
                 atom1.getOrientation().setDirection(ran);

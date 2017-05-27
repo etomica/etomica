@@ -247,7 +247,7 @@ public class OrientationCalcWater4P extends ConformationWaterTIP4P implements
     public void initializePositions(IAtomList childList) {
         super.initializePositions(childList);
         if (!initialized) {
-            com0.E(atomPositionCOM.position(((Atom)childList.getAtom(0)).getParentGroup()));
+            com0.E(atomPositionCOM.position(childList.getAtom(0).getParentGroup()));
             initialized = true;
         }
     }

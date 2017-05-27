@@ -15,7 +15,7 @@ public class MCMoveClusterAtomHSChain extends MCMoveAtom {
     public MCMoveClusterAtomHSChain(IRandom random, Space _space, double sigma) {
         super(random, null, _space);
         this.sigma = sigma;
-        dr = (IVector)space.makeVector();
+        dr = space.makeVector();
     }
     
     public boolean doTrial() {
@@ -37,7 +37,7 @@ public class MCMoveClusterAtomHSChain extends MCMoveAtom {
         leafAtoms.getAtom(seq[0]).getPosition().E(0);
 
         for (int i=1; i<n; i++) {
-            IVector pos = (IVector)leafAtoms.getAtom(seq[i]).getPosition();
+            IVector pos = leafAtoms.getAtom(seq[i]).getPosition();
 
             pos.setRandomInSphere(random);
             pos.TE(sigma);

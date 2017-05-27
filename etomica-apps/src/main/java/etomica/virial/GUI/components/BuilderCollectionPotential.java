@@ -359,14 +359,14 @@ public class BuilderCollectionPotential {
 		
 		if(simEnvironment.getLengthAlkaneChain(speciesIndex) > 2){
 			ACollectionBondedPotential bInteractions = new CollectionBondedPotentialAlkanes(simEnvironment.getLengthAlkaneChain(speciesIndex));
-			((CollectionBondedPotentialAlkanes) bInteractions).addBondedPotentialSets(collectionPotentialAtomicLike,species1DataModel.getSpace(),1);
+			bInteractions.addBondedPotentialSets(collectionPotentialAtomicLike,species1DataModel.getSpace(),1);
 			if(simEnvironment.getLengthAlkaneChain(speciesIndex) > 3){
 				collectionPotentialAtomicLike.setMCMoveClusterTorsionMulti(new MCMoveClusterTorsionMulti[2]);
 			}
 		}
 		else if(species1DataModel.getClass().getName().contains("Methanol") || species1DataModel.getClass().getName().contains("Ethanol")){
 			ACollectionBondedPotential bInteractions = new CollectionBondedPotentialAlcohols();
-			((CollectionBondedPotentialAlcohols) bInteractions).addBondedPotentialSets(collectionPotentialAtomicLike,species1DataModel.getSpace(),1);
+			bInteractions.addBondedPotentialSets(collectionPotentialAtomicLike,species1DataModel.getSpace(),1);
 		}
 		
 		pCollectionHashMap.add(collectionPotentialAtomicLike);
@@ -484,8 +484,8 @@ public class BuilderCollectionPotential {
 		
 		for(int i=0;i<sitesOnSpecies1.length;i++){
 			for(int j=0;j<sitesOnSpecies2.length;j++){
-				StringTokenizer dataString1 = new StringTokenizer((String)sitesOnSpecies1[i],"-");
-				StringTokenizer dataString2 = new StringTokenizer((String)sitesOnSpecies2[j],"-");
+				StringTokenizer dataString1 = new StringTokenizer(sitesOnSpecies1[i],"-");
+				StringTokenizer dataString2 = new StringTokenizer(sitesOnSpecies2[j],"-");
 				String potentialSite1 = dataString1.nextToken().trim();
 				String potentialSite2 = dataString2.nextToken().trim();
 				if(potentialSite1.equals(potentialSite2)){
@@ -984,7 +984,7 @@ public class BuilderCollectionPotential {
 			
 			for(int k=0;k<2;k++){
 				for(int l=0;l<Potential[k].getPotentialSites().length;l++){
-					StringTokenizer dataString1 = new StringTokenizer((String)Potential[k].getPotentialSiteAtIndex(l),"-");
+					StringTokenizer dataString1 = new StringTokenizer(Potential[k].getPotentialSiteAtIndex(l),"-");
 					String potentialSite = dataString1.nextToken().trim();
 					if(PotentialSite.equals(potentialSite)){
 						for(int m=0;m<Potential[k].getParametersArray().length;m++){
