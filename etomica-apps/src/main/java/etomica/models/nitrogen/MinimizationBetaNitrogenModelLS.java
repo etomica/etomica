@@ -119,7 +119,7 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
 		
 		this.nLayer = (int)(rC/aDim+0.5);
 		
-		FunctionData function = new FunctionData() {
+		FunctionData<Object> function = new FunctionData<Object>() {
 			public IData f(Object obj) {
 				data.x = potential.energy((IMoleculeList)obj);
 				return data;
@@ -176,7 +176,7 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
 		coordDef.setOrientationVectorBetaLatticeSum(space, density, param);
 		coordDef.initializeCoordinates(new int[]{1,1,1});
 		
-		FunctionData function = new FunctionData() {
+		FunctionData<Object> function = new FunctionData<Object>() {
 			public IData f(Object obj) {
 				data.x = potential.energy((IMoleculeList)obj);
 				return data;

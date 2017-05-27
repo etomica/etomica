@@ -82,7 +82,7 @@ public class LatticeSumCrystalMolecular{
         
     }
 
-    public DataGroup calculateSum(FunctionData function) {
+    public DataGroup calculateSum(FunctionData<Object> function) {
         IDataInfo dataInfo = function.getDataInfo();
         IData work = dataInfo.makeData();
         IData[][] sumR = new IData[basisDim][basisDim];

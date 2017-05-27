@@ -46,7 +46,7 @@ public class HarmonicCrystalMonoclinic {
     
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     public double getLatticeEnergy() {
-        FunctionData function = new FunctionData() {
+        FunctionData<Object> function = new FunctionData<Object>() {
             public IData f(Object obj) {
                 //data.x = potential.u(((Vector3D)obj).squared());
                 return data;

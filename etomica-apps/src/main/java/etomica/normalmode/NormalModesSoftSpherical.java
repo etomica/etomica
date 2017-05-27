@@ -64,7 +64,7 @@ public class NormalModesSoftSpherical implements NormalModes {
     public void calculateModes() {
         omega2 = new double[kFactory.getWaveVectors().length][lattice.D()];
         eigenvectors = new double[omega2.length][lattice.D()][lattice.D()];
-        FunctionData function = new FunctionData() {
+        FunctionData<Object> function = new FunctionData<Object>() {
             public IData f(Object obj) {
                 Vector3D r = (Vector3D)obj;
                 tensor.x.Ev1v2(r, r);

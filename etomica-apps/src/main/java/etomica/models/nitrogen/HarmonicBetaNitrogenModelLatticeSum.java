@@ -79,7 +79,7 @@ public class HarmonicBetaNitrogenModelLatticeSum extends Simulation{
 		potential.setBox(box);
 		potential.setEnablePBC(false);
 		
-		FunctionData function = new FunctionData() {
+		FunctionData<Object> function = new FunctionData<Object>() {
 			public IData f(Object obj) {
 				data.x = potential.energy((IMoleculeList)obj);
 				return data;

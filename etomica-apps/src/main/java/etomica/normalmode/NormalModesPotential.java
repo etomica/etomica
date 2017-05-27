@@ -70,7 +70,7 @@ public class NormalModesPotential implements NormalModes {
         omega2 = new double[kDim][eDim];
         eigenvectors = new double[kDim][eDim][eDim];
         //this function returns phi_{alpha,beta}, as defined in Dove Eq. 6.15
-        FunctionData function = new FunctionData() {
+        FunctionData<Object> function = new FunctionData<Object>() {
             public IData f(Object obj) {
                 IVector r = (IVector)obj;
                 tensor.x.Ev1v2(r, r);

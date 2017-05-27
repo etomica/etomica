@@ -22,7 +22,7 @@ public class LatticeSum {
         kVector = lattice.getSpace().makeVector();
     }
 
-    public DataGroup calculateSum(FunctionData function) {
+    public DataGroup calculateSum(FunctionData<Object> function) {
         IDataInfo dataInfo = function.getDataInfo();
         IData sumR = dataInfo.makeData();
         IData sumI = dataInfo.makeData();
