@@ -10,7 +10,7 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
 import etomica.api.IPotentialMolecular;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
 import etomica.space.Space;
 
@@ -28,7 +28,7 @@ public class MayerPUGeneral implements MayerFunction, java.io.Serializable {
 	private double mu;
 	private IPotentialMolecular potential;
 	private double sigmaHS;
-	private IVector dr;
+	private Vector dr;
     public MayerPUGeneral(Space space, double sigmaHS, double mu, IPotentialMolecular potential) {
     	this.mu=mu;
 		this.potential=potential;
@@ -55,8 +55,8 @@ public class MayerPUGeneral implements MayerFunction, java.io.Serializable {
         	IAtomOriented atom1 = (IAtomOriented)atomList1.getAtom(0);
         	IAtomOriented atom2 = (IAtomOriented)atomList2.getAtom(0);
         	// should have a loop to loop over all the atoms in the molecules 
-        	IVector v1 = atom1.getOrientation().getDirection();//dipole1
-        	IVector v2 = atom2.getOrientation().getDirection();//dipole2
+        	Vector v1 = atom1.getOrientation().getDirection();//dipole1
+        	Vector v2 = atom2.getOrientation().getDirection();//dipole2
         	double cos12= v1.dot(v2);//cos_D1_D2
 	
         	dr.Ev1Mv2(atom1.getPosition(), atom2.getPosition());

@@ -4,12 +4,11 @@
 
 package etomica.potential;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.graphics.Drawable;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -26,7 +25,7 @@ public class P1HardBoundary implements PotentialHard, Drawable {
     
     private static final long serialVersionUID = 1L;
     private double collisionRadius = 0.0;
-    private final IVector work;
+    private final Vector work;
     private int[] pixPosition;
     private int[] thickness;
     private int nominalThickness = 1;
@@ -64,8 +63,8 @@ public class P1HardBoundary implements PotentialHard, Drawable {
     }
 
     public double energy(IAtomList a) {
-        IVector dimensions = boundary.getBoxSize();
-        IVector pos = a.getAtom(0).getPosition();
+        Vector dimensions = boundary.getBoxSize();
+        Vector pos = a.getAtom(0).getPosition();
         for (int i=0; i<work.getD(); i++) {
             if (!isActiveDim[i][1]) {
                 continue;
@@ -84,9 +83,9 @@ public class P1HardBoundary implements PotentialHard, Drawable {
     public double collisionTime(IAtomList a, double falseTime) {
         IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
         work.E(atom.getPosition());
-        IVector v = atom.getVelocity();
+        Vector v = atom.getVelocity();
         work.PEa1Tv1(falseTime,v);
-        IVector dimensions = boundary.getBoxSize();
+        Vector dimensions = boundary.getBoxSize();
         double tmin = Double.POSITIVE_INFINITY;
         for(int i=work.getD()-1; i>=0; i--) {
             double vx = v.getX(i);
@@ -121,9 +120,9 @@ public class P1HardBoundary implements PotentialHard, Drawable {
     public void bump(IAtomList a, double falseTime) {
         IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
         work.E(atom.getPosition());
-        IVector v = atom.getVelocity();
+        Vector v = atom.getVelocity();
         work.PEa1Tv1(falseTime,v);
-        IVector dimensions = boundary.getBoxSize();
+        Vector dimensions = boundary.getBoxSize();
         double delmin = Double.MAX_VALUE;
         int imin = 0;
         //figure out which component is colliding
@@ -166,7 +165,7 @@ public class P1HardBoundary implements PotentialHard, Drawable {
 
     public double lastWallVirial() {
         double area = 1.0;
-        final IVector dimensions = boundary.getBoxSize();
+        final Vector dimensions = boundary.getBoxSize();
         for (int i=0; i<dimensions.getD(); i++) {
             if (i != lastCollisionDim) {
                 area *= (dimensions.getX(i)-collisionRadius*2.0);

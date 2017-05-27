@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.lattice.crystal;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.math.geometry.Polytope;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -19,7 +19,7 @@ public class PrimitiveFcc extends Primitive {
     //from the vectors() method, copies are scaled to size and returned.
     //default size is 1.0
     private double cubicSize;
-    private IVector[] unitVectors;
+    private Vector[] unitVectors;
     private static final double FCC_ANGLE = Math.acos(0.5);
     
     public PrimitiveFcc(Space space) {
@@ -28,7 +28,7 @@ public class PrimitiveFcc extends Primitive {
     public PrimitiveFcc(Space space, double size) {
         super(space);
         //set up orthogonal vectors of unit size
-        unitVectors = new IVector[D];
+        unitVectors = new Vector[D];
         for(int i=0; i<D; i++) {
             unitVectors[i] = space.makeVector();
             unitVectors[i].E(1.0/Math.sqrt(2.0));
@@ -85,7 +85,7 @@ public class PrimitiveFcc extends Primitive {
         setCubicSize(scale*cubicSize);
     }
 
-    public int[] latticeIndex(IVector q) {
+    public int[] latticeIndex(Vector q) {
         throw new RuntimeException("PrimitiveFcc.latticeIndex not yet implemented");
 /*        for(int i=0; i<D; i++) {
             double x = q.x(i)/size;
@@ -94,7 +94,7 @@ public class PrimitiveFcc extends Primitive {
         return idx;
 */    }
     
-    public int[] latticeIndex(IVector q, int[] dimensions) {
+    public int[] latticeIndex(Vector q, int[] dimensions) {
         throw new RuntimeException("PrimitiveFcc.latticeIndex not yet implemented");
  /*       for(int i=0; i<D; i++) {
             double x = q.x(i)/size;
@@ -115,13 +115,13 @@ public class PrimitiveFcc extends Primitive {
     public static void main(String[] args) {
         PrimitiveFcc primitive = new PrimitiveFcc(Space3D.getInstance());
         PrimitiveBcc reciprocal = (PrimitiveBcc)primitive.makeReciprocal();
-        IVector[] latticeVectors = primitive.vectors();
-        IVector a = latticeVectors[0];
-        IVector b = latticeVectors[1];
-        IVector c = latticeVectors[2];
-        IVector ar = reciprocal.vectors()[0];
-        IVector br = reciprocal.vectors()[1];
-        IVector cr = reciprocal.vectors()[2];
+        Vector[] latticeVectors = primitive.vectors();
+        Vector a = latticeVectors[0];
+        Vector b = latticeVectors[1];
+        Vector c = latticeVectors[2];
+        Vector ar = reciprocal.vectors()[0];
+        Vector br = reciprocal.vectors()[1];
+        Vector cr = reciprocal.vectors()[2];
         System.out.println("Primitive");
         System.out.println(a);
         System.out.println(b);

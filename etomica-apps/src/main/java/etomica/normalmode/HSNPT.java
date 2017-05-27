@@ -46,6 +46,7 @@ import etomica.modifier.Modifier;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardSphere;
 import etomica.simulation.Simulation;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
@@ -480,7 +481,7 @@ public class HSNPT extends Simulation {
         protected double fluctuationFactor = 1000;
         protected double nominalFluctuation = 0.0627;  // 256=>0.0607, 864=>0.0627
         protected boolean fluctuationFromAvg = true;
-        protected final IVector v, v2;
+        protected final Vector v, v2;
         protected final ActionSummer summer;
         protected double mysum;
         
@@ -568,7 +569,7 @@ public class HSNPT extends Simulation {
     public static class ActionSummer implements IAction, AgentSource<MyAgent> {
         
         protected final AtomLeafAgentManager<MyAgent> agentManager;
-        protected final IVector v;
+        protected final Vector v;
         protected int count;
         protected final Space space;
         
@@ -621,7 +622,7 @@ public class HSNPT extends Simulation {
     }
     
     public static class MyAgent {
-        public IVector pSum, pSum2;
+        public Vector pSum, pSum2;
         public MyAgent(Space space) {
             pSum = space.makeVector();
             pSum2 = space.makeVector();

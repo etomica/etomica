@@ -8,7 +8,7 @@ import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.MoleculePair;
 import etomica.box.Box;
 import etomica.data.types.DataTensor;
@@ -318,7 +318,7 @@ public class HarmonicDisorderedAlphaNitrogenModelPairMoleculeSequentialHalf2LS e
 	protected SpeciesN2 species;
 	protected AtomActionTranslateBy translateBy;
 	protected MoleculeChildAtomAction atomGroupActionTranslate;
-	protected IVector lsPosition;
+	protected Vector lsPosition;
 	protected double xVecBox, yVecBox, zVecBox, rC;
 	protected int nLayer;
 	protected boolean[][][][][] isFoundReverse;

@@ -12,6 +12,7 @@ import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialCalculationForceSum;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 public class PotentialCalculationForceSumThreaded extends PotentialCalculationForceSum implements IPotentialCalculationThreaded, AgentSource<MyAgent> {
@@ -61,7 +62,7 @@ public class PotentialCalculationForceSumThreaded extends PotentialCalculationFo
         IAtomList atomArrayList = box.getLeafList();
       
         for(int j=0; j<atomArrayList.getAtomCount(); j++){
-            IVector force = integratorAgentManager.getAgent(atomArrayList.getAtom(j)).force();
+            Vector force = integratorAgentManager.getAgent(atomArrayList.getAtom(j)).force();
       
             for(int i=0; i<pc.length; i++){
                 force.PE(((IntegratorBox.Forcible)atomAgentManager[i].getAgent(atomArrayList.getAtom(j))).force());

@@ -5,7 +5,7 @@
 package etomica.models.nitrogen;
 
 import etomica.api.IMolecule;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
@@ -51,7 +51,7 @@ public class FindBetaN2AngleFromParameter extends Simulation{
 		box.setNMolecules(species, nC*nC*nC*2);		
 		int [] nCells = new int[]{1,1,1};
 		
-		IVector[] boxDim = new IVector[3];
+		Vector[] boxDim = new Vector[3];
 		boxDim[0] = space.makeVector(new double[]{nC*a, 0, 0});
 		boxDim[1] = space.makeVector(new double[]{-nC*a*Math.cos(Degree.UNIT.toSim(60)), nC*a*Math.sin(Degree.UNIT.toSim(60)), 0});
 		boxDim[2] = space.makeVector(new double[]{0, 0, nC*c});
@@ -103,14 +103,14 @@ public class FindBetaN2AngleFromParameter extends Simulation{
 		coordinateDef.setToU(box.getMoleculeList(), newU);
 		coordinateDef.initNominalU(box.getMoleculeList());
 		
-		IVector[] aVector = new IVector[4];
-		IVector[] cVector = new IVector[4];
-		rotationAxis = new IVector[4];
-		deviationVector = new IVector[4];
+		Vector[] aVector = new Vector[4];
+		Vector[] cVector = new Vector[4];
+		rotationAxis = new Vector[4];
+		deviationVector = new Vector[4];
 		
-		IVector temp1 = space.makeVector();
-		IVector temp2 = space.makeVector();
-		IVector bVector = space.makeVector(new double[]{0.0, 0.0, 1.0});
+		Vector temp1 = space.makeVector();
+		Vector temp2 = space.makeVector();
+		Vector bVector = space.makeVector(new double[]{0.0, 0.0, 1.0});
 		
 		for (int i=0; i<aVector.length; i++){
 			aVector[i] = space.makeVector();
@@ -131,8 +131,8 @@ public class FindBetaN2AngleFromParameter extends Simulation{
 			}
 			
 			IMolecule molecule = coordinateDef.getBox().getMoleculeList().getMolecule(j);
-		  	IVector molleafPos0 = molecule.getChildList().getAtom(0).getPosition();
-		   	IVector molleafPos1 = molecule.getChildList().getAtom(1).getPosition();
+		  	Vector molleafPos0 = molecule.getChildList().getAtom(0).getPosition();
+		   	Vector molleafPos1 = molecule.getChildList().getAtom(1).getPosition();
 		   	
 			aVector[i].Ev1Mv2(molleafPos1, molleafPos0);
 		    aVector[i].normalize();
@@ -177,7 +177,7 @@ public class FindBetaN2AngleFromParameter extends Simulation{
 	 
 	}
 	
-	public IVector[] getDeviationVector() {
+	public Vector[] getDeviationVector() {
 		return deviationVector;
 	}
 
@@ -189,7 +189,7 @@ public class FindBetaN2AngleFromParameter extends Simulation{
 		return beta;
 	}
 
-	public IVector[] getRotationAxis() {
+	public Vector[] getRotationAxis() {
 		return rotationAxis;
 	}
 
@@ -205,7 +205,7 @@ public class FindBetaN2AngleFromParameter extends Simulation{
 	}
 
 	protected double[] alpha, beta;
-	protected IVector[] rotationAxis;
-	protected IVector[] deviationVector;
+	protected Vector[] rotationAxis;
+	protected Vector[] deviationVector;
 	private static final long serialVersionUID = 1L;
 }

@@ -3,7 +3,7 @@ package etomica.data.meter;
 import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
 import etomica.data.DataSourceScalar;
 import etomica.space.Space;
@@ -19,7 +19,7 @@ import etomica.units.Dipole;
 public class MeterDipoleSumSquared1site extends DataSourceScalar {
 	 
     private Box box;
-    private IVector dipoleSum;
+    private Vector dipoleSum;
     private double dipoleMagnitude;
     
 	public MeterDipoleSumSquared1site(Space space, Box box, double dipoleMagnitude) {
@@ -37,7 +37,7 @@ public class MeterDipoleSumSquared1site extends DataSourceScalar {
 		for (int i=0;i<numMolecule; i++){
 			IAtomList atomList = moleculeList.getMolecule(i).getChildList();
 			IAtomOriented atom = (IAtomOriented) atomList.getAtom(0);
-	        IVector v = atom.getOrientation().getDirection();
+	        Vector v = atom.getOrientation().getDirection();
 			dipoleSum.PE(v);
         }
         double squared = dipoleMagnitude*dipoleMagnitude*dipoleSum.squared();

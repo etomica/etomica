@@ -10,7 +10,7 @@ import java.io.IOException;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 /**
@@ -102,7 +102,7 @@ public class WriteConfiguration implements IAction {
     protected void writeAtom(FileWriter fileWriter, IAtom a) throws IOException {
         writePosition.E(a.getPosition());
         if (doApplyPBC) {
-            IVector shift = box.getBoundary().centralImage(writePosition);
+            Vector shift = box.getBoundary().centralImage(writePosition);
             if (!shift.isZero()) {
                 writePosition.PE(shift);
             }
@@ -118,6 +118,6 @@ public class WriteConfiguration implements IAction {
     protected String confName, fileName;
     protected Box box;
     protected boolean doApplyPBC;
-    protected final IVector writePosition;
+    protected final Vector writePosition;
 
 }

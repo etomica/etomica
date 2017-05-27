@@ -16,7 +16,7 @@ import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomHydrogen;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.DiameterHashByType;
@@ -206,7 +206,7 @@ public class VirialH2PIXC {
 			AtomHydrogen o = (AtomHydrogen)leafList.getAtom(i);
 			double cT = Math.cos((Math.PI*i)/leafList.getAtomCount());
 			double sT = Math.sin((Math.PI*i)/leafList.getAtomCount());
-			IVector vec = space.makeVector();
+			Vector vec = space.makeVector();
 			vec.setX(0, cT);
 			vec.setX(1, sT);
 			o.getOrientation().setDirection(vec);

@@ -12,7 +12,7 @@ import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.MoleculePair;
 import etomica.models.water.PNWaterGCPMThreeSite;
 import etomica.space.Space;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.RotationTensor;
 
 public class ConfigurationClusterWertheimGCPMDirectSampling extends ConfigurationCluster {
@@ -143,8 +143,8 @@ public class ConfigurationClusterWertheimGCPMDirectSampling extends Configuratio
 		IMoleculeList list = box.getMoleculeList();
         MoleculeActionTranslateTo translationA = new MoleculeActionTranslateTo(space);
         MoleculeActionTranslateTo translationB = new MoleculeActionTranslateTo(space);
-        IVector a = space.makeVector();
-        IVector b = space.makeVector();
+        Vector a = space.makeVector();
+        Vector b = space.makeVector();
         a.E(d);
         b.E(e);
         translationA.setDestination(a);
@@ -159,9 +159,9 @@ public class ConfigurationClusterWertheimGCPMDirectSampling extends Configuratio
         MoleculeActionTranslateTo translationA = new MoleculeActionTranslateTo(space);
         MoleculeActionTranslateTo translationB = new MoleculeActionTranslateTo(space);
         MoleculeActionTranslateTo translationC = new MoleculeActionTranslateTo(space);
-        IVector a = space.makeVector();
-        IVector b = space.makeVector();
-        IVector c = space.makeVector();
+        Vector a = space.makeVector();
+        Vector b = space.makeVector();
+        Vector c = space.makeVector();
         a.E(d);
         b.E(e);
         c.E(f);
@@ -177,7 +177,7 @@ public class ConfigurationClusterWertheimGCPMDirectSampling extends Configuratio
 	}
 	public void association(MoleculePair pair, Box box){
 		RotationTensor rotationTensor = space.makeRotationTensor();
-		IVector r0 = space.makeVector();
+		Vector r0 = space.makeVector();
 		IAtomPositionDefinition positionDefinition = new AtomPositionGeometricCenter(space);
 		IMoleculeList list = box.getMoleculeList();
 		pair.atom0 = list.getMolecule(0);
@@ -186,7 +186,7 @@ public class ConfigurationClusterWertheimGCPMDirectSampling extends Configuratio
 
 		
         while (true){
-	        IVector positionWater = space.makeVector();
+	        Vector positionWater = space.makeVector();
 	        positionWater.setRandomInSphere(random);
 	        positionWater.TE(4.0);//place water molecule within a sphere with r = 4A
 	        MoleculeActionTranslateTo translation = new MoleculeActionTranslateTo(space);
@@ -203,7 +203,7 @@ public class ConfigurationClusterWertheimGCPMDirectSampling extends Configuratio
 		    IAtomList childList = water.getChildList();
 		    for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {//free rotation until finding association
 		        IAtom a = childList.getAtom(iChild);
-		        IVector r = a.getPosition();
+		        Vector r = a.getPosition();
 		        r.ME(r0);
 		        box.getBoundary().nearestImage(r);
 		        rotationTensor.transform(r);
@@ -217,7 +217,7 @@ public class ConfigurationClusterWertheimGCPMDirectSampling extends Configuratio
 		
 	public void association2(MoleculePair pair, Box box){
 		RotationTensor rotationTensor = space.makeRotationTensor();
-		IVector r0 = space.makeVector();
+		Vector r0 = space.makeVector();
 		IAtomPositionDefinition positionDefinition = new AtomPositionGeometricCenter(space);
 		IMoleculeList list = box.getMoleculeList();
 		pair.atom0 = list.getMolecule(1);
@@ -225,7 +225,7 @@ public class ConfigurationClusterWertheimGCPMDirectSampling extends Configuratio
 		pair.atom1 = water;
 	
         while (true){
-        	IVector positionWater = space.makeVector();
+        	Vector positionWater = space.makeVector();
 	        positionWater.setRandomInSphere(random);
 	        positionWater.TE(4.0);//place water molecule within a sphere with r = 8A
 	        positionWater.PE(pair.atom0.getChildList().getAtom(0).getPosition());
@@ -244,7 +244,7 @@ public class ConfigurationClusterWertheimGCPMDirectSampling extends Configuratio
 		    IAtomList childList = water.getChildList();
 		    for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {//free rotation until finding association
 		        IAtom a = childList.getAtom(iChild);
-		        IVector r = a.getPosition();
+		        Vector r = a.getPosition();
 		        r.ME(r0);
 		        box.getBoundary().nearestImage(r);
 		        rotationTensor.transform(r);
@@ -257,7 +257,7 @@ public class ConfigurationClusterWertheimGCPMDirectSampling extends Configuratio
 	}
 	public void association3(MoleculePair pair, Box box){
 		RotationTensor rotationTensor = space.makeRotationTensor();
-		IVector r0 = space.makeVector();
+		Vector r0 = space.makeVector();
 		IAtomPositionDefinition positionDefinition = new AtomPositionGeometricCenter(space);
 		IMoleculeList list = box.getMoleculeList();
 		pair.atom0 = list.getMolecule(2);
@@ -265,7 +265,7 @@ public class ConfigurationClusterWertheimGCPMDirectSampling extends Configuratio
 		pair.atom1 = water;
 	
         while (true){
-        	IVector positionWater = space.makeVector();
+        	Vector positionWater = space.makeVector();
 	        positionWater.setRandomInSphere(random);
 	        positionWater.TE(4.0);//place water molecule within a sphere with r = 8A
 	        positionWater.PE(pair.atom0.getChildList().getAtom(0).getPosition());
@@ -284,7 +284,7 @@ public class ConfigurationClusterWertheimGCPMDirectSampling extends Configuratio
 		    IAtomList childList = water.getChildList();
 		    for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {//free rotation until finding association
 		        IAtom a = childList.getAtom(iChild);
-		        IVector r = a.getPosition();
+		        Vector r = a.getPosition();
 		        r.ME(r0);
 		        box.getBoundary().nearestImage(r);
 		        rotationTensor.transform(r);
@@ -297,7 +297,7 @@ public class ConfigurationClusterWertheimGCPMDirectSampling extends Configuratio
 	}
 	public void association4(MoleculePair pair, Box box){
 		RotationTensor rotationTensor = space.makeRotationTensor();
-		IVector r0 = space.makeVector();
+		Vector r0 = space.makeVector();
 		IAtomPositionDefinition positionDefinition = new AtomPositionGeometricCenter(space);
 		IMoleculeList list = box.getMoleculeList();
 		pair.atom0 = list.getMolecule(1);
@@ -305,7 +305,7 @@ public class ConfigurationClusterWertheimGCPMDirectSampling extends Configuratio
 		pair.atom1 = water;
 	
         while (true){
-        	IVector positionWater = space.makeVector();
+        	Vector positionWater = space.makeVector();
 	        positionWater.setRandomInSphere(random);
 	        positionWater.TE(4.0);//place water molecule within a sphere with r = 8A
 	        positionWater.PE(pair.atom0.getChildList().getAtom(0).getPosition());
@@ -324,7 +324,7 @@ public class ConfigurationClusterWertheimGCPMDirectSampling extends Configuratio
 		    IAtomList childList = water.getChildList();
 		    for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {//free rotation until finding association
 		        IAtom a = childList.getAtom(iChild);
-		        IVector r = a.getPosition();
+		        Vector r = a.getPosition();
 		        r.ME(r0);
 		        box.getBoundary().nearestImage(r);
 		        rotationTensor.transform(r);

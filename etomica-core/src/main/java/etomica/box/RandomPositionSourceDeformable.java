@@ -6,7 +6,7 @@ package etomica.box;
 
 import etomica.api.IBoundary;
 import etomica.api.IRandom;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 
@@ -25,7 +25,7 @@ public class RandomPositionSourceDeformable implements RandomPositionSource {
         this.random = random;
     }
 
-    public IVector randomPosition() {
+    public Vector randomPosition() {
         p.setRandomCube(random);
         IBoundary boundary = box.getBoundary();
         if (boundary instanceof BoundaryDeformablePeriodic) {
@@ -43,5 +43,5 @@ public class RandomPositionSourceDeformable implements RandomPositionSource {
 
     protected final IRandom random;
     protected Box box;
-    protected final IVector p;
+    protected final Vector p;
 }

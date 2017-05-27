@@ -6,7 +6,7 @@ package etomica.models.nitrogen;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.config.IConformation;
 import etomica.space.Space;
 import etomica.units.Electron;
@@ -48,7 +48,7 @@ public class ConformationNitrogen implements IConformation, java.io.Serializable
 		
 	}
 	
-	public void initializePositions(IAtomList atomList, IVector v) {
+	public void initializePositions(IAtomList atomList, Vector v) {
         
         IAtom n1 = atomList.getAtom(SpeciesN2.indexN1);
         n1.getPosition().Ea1Tv1(-bondOrigN, v);
@@ -85,7 +85,7 @@ public class ConformationNitrogen implements IConformation, java.io.Serializable
 	protected static final double bondOrigP2 = 0.847;
 	protected static final double bondOrigP1 = 1.044;
 	
-	protected IVector vector;
+	protected Vector vector;
 	
 	private static final long serialVersionUID = 1L;
 }

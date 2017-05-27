@@ -13,7 +13,7 @@ import javax.swing.JTabbedPane;
 
 import etomica.action.IAction;
 import etomica.api.IAtomList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.atom.DiameterHashByType;
 import etomica.data.AccumulatorHistory;
@@ -91,7 +91,7 @@ public class DropletGraphic extends SimulationGraphic {
                     leafList.getAtom(i).getPosition().ME(center);
                 }
             }
-            final IVector center = sim.getSpace().makeVector();
+            final Vector center = sim.getSpace().makeVector();
         };
         IntegratorListenerAction recenterActionListener = new IntegratorListenerAction(recenterAction);
         sim.integrator.getEventManager().addListener(recenterActionListener);
@@ -377,7 +377,7 @@ public class DropletGraphic extends SimulationGraphic {
         protected final Box box;
         protected final int dim;
         protected final IAction reconfig;
-        protected final IVector size;
+        protected final Vector size;
     }
 }
 

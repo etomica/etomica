@@ -10,7 +10,7 @@ import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IRandom;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomArrayList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -49,7 +49,7 @@ public class MCMoveClusterRingRegrow extends MCMoveBox {
      */
     public void setNumTrial(int newNumTrial) {
         nTrial = newNumTrial;
-        rTrial = new IVector[nTrial];
+        rTrial = new Vector[nTrial];
         for (int i=0; i<nTrial; i++) {
             rTrial[i] = space.makeVector();
         }
@@ -72,10 +72,10 @@ public class MCMoveClusterRingRegrow extends MCMoveBox {
     public void setBox(Box p) {
         super.setBox(p);
         int nMolecules = box.getMoleculeList().getMoleculeCount();
-        oldPositions = new IVector[nMolecules][0];
+        oldPositions = new Vector[nMolecules][0];
         for (int i=0; i<nMolecules; i++) {
             int nAtoms = box.getMoleculeList().getMolecule(i).getChildList().getAtomCount();
-            oldPositions[i] = new IVector[nAtoms];
+            oldPositions[i] = new Vector[nAtoms];
             for (int j=0; j<nAtoms; j++) {
                 oldPositions[i][j] = space.makeVector();
             }
@@ -137,7 +137,7 @@ public class MCMoveClusterRingRegrow extends MCMoveBox {
             // put the first atom at the origin, as a starting point
             // we'll translate everything back to the original center of mass later
             atom0.getPosition().E(0);
-            IVector prevAtomPosition = atom0.getPosition();
+            Vector prevAtomPosition = atom0.getPosition();
             double pPrev = 1;
             com0.E(0);
             IMolecule moleculei = molecules.getMolecule(i);
@@ -151,7 +151,7 @@ public class MCMoveClusterRingRegrow extends MCMoveBox {
                     moleculei = molecules.getMolecule(i);
                 }
                 IAtom kAtom = atoms.getAtom(k);
-                IVector kPosition = kAtom.getPosition();
+                Vector kPosition = kAtom.getPosition();
                 oldPositions[i][k-kStart].E(kPosition);
 
                 double k1 = fac/(nAtoms-k);
@@ -248,15 +248,15 @@ public class MCMoveClusterRingRegrow extends MCMoveBox {
     private static final long serialVersionUID = 1L;
     protected final Space space;
     protected final IRandom random;
-    protected IVector[][] oldPositions;
-    protected IVector[] rTrial;
+    protected Vector[][] oldPositions;
+    protected Vector[] rTrial;
     protected int nTrial;
     protected double[] pkl;
     // Rosenbluth weights
     protected double wOld, wNew;
     // cluster weights
     protected double weightOld, weightNew;
-    protected final IVector com, com0;
+    protected final Vector com, com0;
     protected final AtomIteratorLeafAtoms leafIterator;
     protected double fac;
     protected final int[][] tangledMolecules;

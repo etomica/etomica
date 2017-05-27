@@ -8,7 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.api.IAtom;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
 import etomica.space.IOrientation;
 import etomica.space.Space;
@@ -30,7 +30,7 @@ public class WriteConfigurationOriented extends WriteConfiguration {
         super.writeAtom(fileWriter, a);
         if (a instanceof IAtomOriented) {
             IOrientation o = ((IAtomOriented)a).getOrientation();
-            IVector direction = o.getDirection();
+            Vector direction = o.getDirection();
             for (int i=0; i<direction.getD(); i++) {
                 fileWriter.write(" "+direction.getX(i));
             }

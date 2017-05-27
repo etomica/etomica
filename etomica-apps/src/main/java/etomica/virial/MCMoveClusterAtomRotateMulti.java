@@ -7,7 +7,6 @@ package etomica.virial;
 import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IRandom;
-import etomica.api.IVector;
 import etomica.atom.IAtomOriented;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.IOrientation;

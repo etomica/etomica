@@ -8,7 +8,7 @@ import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.MoleculeArrayList;
 import etomica.models.OPLS.SpeciesAceticAcid;
 import etomica.space.Space;
@@ -34,7 +34,7 @@ public class AssociationHelperMolecule implements IAssociationHelperMolecule {
     protected int maxBonds;
     protected final IBoundary boundary;
     protected double minR2;
-    protected final IVector dr;
+    protected final Vector dr;
 
     public AssociationHelperMolecule(Space space, Box box, AssociationManagerMolecule associationManager) {
         this.associationManager = associationManager;

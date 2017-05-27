@@ -5,7 +5,7 @@
 package etomica.normalmode;
 
 import etomica.api.IRandom;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.iterator.AtomIterator;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.space.Space;
@@ -29,7 +29,7 @@ public class MCMovePhaseAngle extends MCMoveBoxStep {
     }
     
     public boolean doTrial() {
-        IVector[] waveVectors = normalModes.getWaveVectors();
+        Vector[] waveVectors = normalModes.getWaveVectors();
         double[] phaseAngles = normalModes.getPhaseAngles();
         if (phaseAngles.length != oldPhaseAngles.length) {
             init();

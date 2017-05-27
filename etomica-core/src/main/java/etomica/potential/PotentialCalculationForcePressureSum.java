@@ -6,8 +6,7 @@ package etomica.potential;
 
 import etomica.api.IAtomList;
 import etomica.api.IPotentialAtomic;
-import etomica.api.IVector;
-import etomica.integrator.IntegratorBox;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
 
@@ -44,7 +43,7 @@ public class PotentialCalculationForcePressureSum extends PotentialCalculationFo
 	    if (!(potential instanceof PotentialSoft)) return;
 		PotentialSoft potentialSoft = (PotentialSoft)potential;
 		int nBody = potential.nBody();
-		IVector[] f = potentialSoft.gradient(atoms, pressureTensor);
+		Vector[] f = potentialSoft.gradient(atoms, pressureTensor);
 		switch(nBody) {
 			case 1:
 				integratorAgentManager.getAgent(atoms.getAtom(0)).force().ME(f[0]);

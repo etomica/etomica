@@ -6,7 +6,7 @@ package etomica.modules.catalysis;
 
 import etomica.api.IAtom;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -39,7 +39,7 @@ public class DataSourceWallPressureCatalysis implements IEtomicaDataSource, Coll
      */
     public void collisionAction(IntegratorHard.Agent agent) {
         if (agent.collisionPotential instanceof P1HardBoundary) {
-            IVector p = agent.atom.getPosition();
+            Vector p = agent.atom.getPosition();
             if (p.getX(1) > 0) {
                 IAtom atom = agent.atom;
                 CatalysisAgent catalysisAgent = (CatalysisAgent)interactionAgentManager.getAgent(atom);

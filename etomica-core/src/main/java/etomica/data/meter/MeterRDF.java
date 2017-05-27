@@ -19,6 +19,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.units.Length;
 import etomica.units.Null;
@@ -201,7 +202,7 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
     private IEtomicaDataInfo dataInfo;
     protected DataDoubleArray rData;
     protected AtomsetIteratorBoxDependent iterator;
-    private final IVector dr;
+    private final Vector dr;
     private IBoundary boundary;
     protected final DataSourceUniform xDataSource;
     protected double xMax;

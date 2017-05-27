@@ -8,7 +8,7 @@ import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 import etomica.box.Box;
 import etomica.api.IPotentialMaster;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.data.DataInfo;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -87,7 +87,7 @@ public class NormalModesPotentialParacetamol implements NormalModes {
         
         LatticeSumCrystalParacetamol summer = new LatticeSumCrystalParacetamol(lattice);
         summer.setMaxLatticeShell(maxLatticeShell);
-        IVector kVector = lattice.getSpace().makeVector();
+        Vector kVector = lattice.getSpace().makeVector();
         
         //calculation of self term
         kVector.E(0.0);

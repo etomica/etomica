@@ -9,7 +9,7 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomHydrogen;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -34,7 +34,7 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
 	private final AtomIteratorLeafAtoms leafIterator;
 	private final IRandom random;
 	private final MeterPotentialEnergy mpe;
-	private final IVector utilityVec1, utilityVec2, utilityVec3;
+	private final Vector utilityVec1, utilityVec2, utilityVec3;
 	private HistogramSimple h1;
 
 	public MCMoveChangeBondLength(IPotentialMaster potentialMaster, IRandom random, Space space, double temperature) {

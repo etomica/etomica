@@ -6,6 +6,7 @@ package etomica.integrator.mcmove;
 import etomica.api.*;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.RotationTensor;
 
@@ -13,7 +14,7 @@ import etomica.space.RotationTensor;
 public class MCMoveRotateMolecule3D extends MCMoveMolecule {
     
     private static final long serialVersionUID = 2L;
-    protected transient IVector r0;
+    protected transient Vector r0;
     protected transient RotationTensor rotationTensor;
     protected IAtomPositionDefinition positionDefinition;
     
@@ -59,7 +60,7 @@ public class MCMoveRotateMolecule3D extends MCMoveMolecule {
         IAtomList childList = molecule.getChildList();
         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
             IAtom a = childList.getAtom(iChild);
-            IVector r = a.getPosition();
+            Vector r = a.getPosition();
             r.ME(r0);
             box.getBoundary().nearestImage(r);
             rotationTensor.transform(r);

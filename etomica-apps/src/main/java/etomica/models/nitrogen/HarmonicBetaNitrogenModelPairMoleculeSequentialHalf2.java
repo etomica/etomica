@@ -6,7 +6,7 @@ package etomica.models.nitrogen;
 
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.MoleculePair;
 import etomica.box.Box;
 import etomica.data.types.DataTensor;
@@ -50,7 +50,7 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2 extends Simula
 		Basis basisHCP = new BasisHcp();
 		BasisBigCell basis = new BasisBigCell(space, basisHCP, new int[]{nCell/division,nCell/division,nCell/division});
         
-		IVector[] boxDim = new IVector[3];
+		Vector[] boxDim = new Vector[3];
 		boxDim[0] = space.makeVector(new double[]{nCell*aDim, 0, 0});
 		boxDim[1] = space.makeVector(new double[]{-nCell*aDim*Math.cos(Degree.UNIT.toSim(60)), nCell*aDim*Math.sin(Degree.UNIT.toSim(60)), 0});
 		boxDim[2] = space.makeVector(new double[]{0, 0, nCell*cDim});

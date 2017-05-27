@@ -7,8 +7,7 @@ package etomica.modules.rosmosis;
 import etomica.api.IAtomList;
 import etomica.api.IPotential;
 import etomica.api.IPotentialAtomic;
-import etomica.api.IVector;
-import etomica.integrator.IntegratorBox;
+import etomica.space.Vector;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialSoft;
 
@@ -43,7 +42,7 @@ public class PotentialCalculationForceSumWallForce extends PotentialCalculationF
         int nBody = potential.nBody();
         if (potential instanceof PotentialSoft) {
             PotentialSoft potentialSoft = (PotentialSoft)potential;
-            IVector[] gradient = potentialSoft.gradient(atoms);
+            Vector[] gradient = potentialSoft.gradient(atoms);
             switch(nBody) {
                 case 1:
                     if (potential == potentialTether) {

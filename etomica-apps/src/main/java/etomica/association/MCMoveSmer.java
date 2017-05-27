@@ -16,7 +16,7 @@ import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.space.Space;
-import etomica.api.IVector;
+import etomica.space.Vector;
 
 /**
  * Standard Monte Carlo atom-displacement trial move of Trimer
@@ -28,7 +28,7 @@ public class MCMoveSmer extends MCMoveBoxStep {
     private static final long serialVersionUID = 2L;
     protected final AtomIteratorArrayListSimple affectedAtomIterator;
     protected final MeterPotentialEnergy energyMeter;
-    protected final IVector translationVector;
+    protected final Vector translationVector;
     protected IAtom atom;
     protected double uOld;
     protected double uNew = Double.NaN;
@@ -38,7 +38,7 @@ public class MCMoveSmer extends MCMoveBoxStep {
     protected Space space;
     protected final PotentialMasterCell potentialMaster;
     protected final Api1ACell neighborIterator;
-    protected final IVector dr;
+    protected final Vector dr;
     protected final IPotentialAtomic trimerPotential;
     protected final AtomArrayList smerList;
     protected final AtomArrayList newSmerList;

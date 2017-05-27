@@ -11,7 +11,7 @@ import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomHydrogen;
 import etomica.space.Space;
 import etomica.units.BohrRadius;
@@ -20,7 +20,7 @@ import etomica.units.Kelvin;
 
 public class P2HydrogenHindePatkowskiAtomic implements IPotentialAtomic {
     protected IBoundary boundary;
-    protected IVector dr,com0,com1,hh0,hh1,n0,n1;
+    protected Vector dr,com0,com1,hh0,hh1,n0,n1;
     protected P2HydrogenHindeAtomic p2Hinde;
     protected P2HydrogenPatkowskiAtomic p2Patkowski;
     protected static final double r0 = BohrRadius.UNIT.toSim(1.448736);
@@ -60,10 +60,10 @@ public class P2HydrogenHindePatkowskiAtomic implements IPotentialAtomic {
         public double energy(IAtomList atoms) {
             AtomHydrogen m0 = (AtomHydrogen) atoms.getAtom(0);
             AtomHydrogen m1 = (AtomHydrogen) atoms.getAtom(1);            
-            IVector hh0 = m0.getOrientation().getDirection();
-            IVector hh1 = m1.getOrientation().getDirection();        
-            IVector com0 = m0.getPosition();               
-            IVector com1 = m1.getPosition();        
+            Vector hh0 = m0.getOrientation().getDirection();
+            Vector hh1 = m1.getOrientation().getDirection();
+            Vector com0 = m0.getPosition();
+            Vector com1 = m1.getPosition();
             
             dr.Ev1Mv2(com1, com0);    
             boundary.nearestImage(dr);    

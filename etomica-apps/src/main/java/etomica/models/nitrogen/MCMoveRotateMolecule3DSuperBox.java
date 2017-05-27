@@ -10,7 +10,7 @@ import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IPotentialMolecular;
 import etomica.api.IRandom;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.MoleculeArrayList;
@@ -36,7 +36,7 @@ import etomica.space.RotationTensor;
 public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule implements MCMoveMolecular{
     
     private static final long serialVersionUID = 2L;
-    protected transient IVector r0;
+    protected transient Vector r0;
     protected transient RotationTensor rotationTensor;
     protected IAtomPositionDefinition positionDefinition;
     public int count;
@@ -198,11 +198,11 @@ public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule implements MC
 	   
 	}
     
-    protected void doTransform(IMolecule molecule, IVector r0) {
+    protected void doTransform(IMolecule molecule, Vector r0) {
         IAtomList childList = molecule.getChildList();
         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
             IAtom a = childList.getAtom(iChild);
-            IVector r = a.getPosition();
+            Vector r = a.getPosition();
             r.ME(r0);
             box.getBoundary().nearestImage(r);
             rotationTensor.transform(r);

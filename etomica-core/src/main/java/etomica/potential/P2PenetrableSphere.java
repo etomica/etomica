@@ -4,6 +4,7 @@
 
 package etomica.potential;
 import etomica.api.*;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
@@ -25,7 +26,7 @@ public class P2PenetrableSphere extends Potential2HardSpherical {
     protected double lastCollisionVirial, lastCollisionVirialr2;
     protected Tensor lastCollisionVirialTensor;
     protected double lastEnergyChange;
-    protected IVector dv;
+    protected Vector dv;
 
     /**
      * Constructor with default values of unity for core diameter and core energy.

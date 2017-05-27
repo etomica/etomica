@@ -4,7 +4,7 @@
 
 package etomica.modules.sam;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.math.geometry.Plane;
 import etomica.space.Space;
 
@@ -23,7 +23,7 @@ public class WallPlane extends Plane {
     }
     
     // DisplayBoxCanvasG3DSys calls this
-    public double distanceTo(IVector v) {
+    public double distanceTo(Vector v) {
         return v.getX(1) - wallPotential.getWallPosition()+2;
     }
     

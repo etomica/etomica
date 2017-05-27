@@ -5,7 +5,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IPotentialMaster;
-import etomica.api.IVector;
+import etomica.space.Vector;
  import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
@@ -23,7 +23,7 @@ import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.space.Space;
-import etomica.units.Force;
+ import etomica.units.Force;
 import etomica.units.Length;
 import etomica.util.DoubleRange;
 import etomica.util.Histogram;
@@ -38,7 +38,7 @@ public class MeterMeanForce implements IEtomicaDataSource, AgentSource<Integrato
     protected final AtomLeafAgentManager<MyAgent> forceManager;
     protected final Space space;
     protected final Potential2SoftSpherical p2;
-    protected final IVector dr, fij;
+    protected final Vector dr, fij;
     protected final DataFunction data;
     protected final DataInfoFunction dataInfo;
     protected final DataTag tag, xTag;
@@ -99,7 +99,7 @@ public class MeterMeanForce implements IEtomicaDataSource, AgentSource<Integrato
         int n = list.getAtomCount();
         for (int i=0; i<n; i++) {
             IAtom a = list.getAtom(i);
-            IVector fi = forceManager.getAgent(a).force;
+            Vector fi = forceManager.getAgent(a).force;
             for (int j=i+1; j<n; j++) {
                 IAtom b = list.getAtom(j);
                 dr.Ev1Mv2(b.getPosition(),a.getPosition());
@@ -107,7 +107,7 @@ public class MeterMeanForce implements IEtomicaDataSource, AgentSource<Integrato
                 double r2 = dr.squared();
                 double r = Math.sqrt(r2);
                 if (r > p2.getRange()) continue;
-                IVector fj = forceManager.getAgent(b).force;
+                Vector fj = forceManager.getAgent(b).force;
                 fij.Ev1Mv2(fj,fi);
                 double fdr = 0.5*fij.dot(dr)/r;
                 hist.addValue(r, fdr);

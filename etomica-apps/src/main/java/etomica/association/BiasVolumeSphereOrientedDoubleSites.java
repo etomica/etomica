@@ -8,7 +8,7 @@ import etomica.api.IAtom;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IRandom;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
 import etomica.space.Space;
 
@@ -20,8 +20,8 @@ public class BiasVolumeSphereOrientedDoubleSites extends BiasVolume {
 	private static final long serialVersionUID = 1L;
 	private double radius;
     private double innerRadius;
-    private final IVector work;
-    private final IVector direction;
+    private final Vector work;
+    private final Vector direction;
     private final IRandom random;
     private IBoundary boundary;
     private double ec2;
@@ -69,7 +69,7 @@ public class BiasVolumeSphereOrientedDoubleSites extends BiasVolume {
 				work.TE(radius);
 			}
 			//compute the orientation
-			IVector e2 = ((IAtomOriented)atom2).getOrientation().getDirection();//orientation of atom2
+			Vector e2 = ((IAtomOriented)atom2).getOrientation().getDirection();//orientation of atom2
 			er2 = e2.dot(work);
         }
         while ( er2*er2 < ec2*work.squared());
@@ -103,7 +103,7 @@ public class BiasVolumeSphereOrientedDoubleSites extends BiasVolume {
         if (r2 < innerRadius*innerRadius || r2 > radius*radius) {
         	return false;
         }
-        IVector e1 = ((IAtomOriented)atom1).getOrientation().getDirection();
+        Vector e1 = ((IAtomOriented)atom1).getOrientation().getDirection();
         double er1 = e1.dot(work);
 //        if (atom1.getLeafIndex() == 68 ||atom2.getLeafIndex() == 68 ||atom1.getLeafIndex() == 303 ||atom2.getLeafIndex() == 303){
 //	        System.out.println ("atom1 = "+atom1+ " atom2 = "+atom2);
@@ -112,7 +112,7 @@ public class BiasVolumeSphereOrientedDoubleSites extends BiasVolume {
         if ( er1*er1 < ec2*r2) {
         	return false;
         }
-        IVector e2 = ((IAtomOriented)atom2).getOrientation().getDirection();
+        Vector e2 = ((IAtomOriented)atom2).getOrientation().getDirection();
         double er2 = e2.dot(work);
 //        if (atom1.getLeafIndex() == 68 ||atom2.getLeafIndex() == 68 ||atom1.getLeafIndex() == 303 ||atom2.getLeafIndex() == 303){
 //	        System.out.println ("atom1 = "+atom1+ " atom2 = "+atom2);

@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 
 import etomica.action.IAction;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.DiameterHashByType;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
@@ -308,7 +308,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
 //                return cell.occupants().getAtomCount() / (size[0]*size[1]*size[2]);
 //            }
 //            
-//            protected final IVector v = space.makeVector();
+//            protected final Vector v = space.makeVector();
 //        };
 //        
 //        DataFork ldFork = new DataFork();
@@ -364,7 +364,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
     
     public final class DataSourceVaporDensity extends DataSourceScalar {
         private static final long serialVersionUID = 1L;
-        protected final IVector v;
+        protected final Vector v;
 
         public DataSourceVaporDensity(String label, Dimension dimension) {
             super(label, dimension);

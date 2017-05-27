@@ -4,6 +4,7 @@ import etomica.api.*;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.box.Box;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 public class FixedWall implements IIntegratorListenerMD {
@@ -37,7 +38,7 @@ public class FixedWall implements IIntegratorListenerMD {
             IAtomList atoms = molecules.getMolecule(i).getChildList();
             for (int j=0; j<atoms.getAtomCount(); j++) {
                 IAtomKinetic jAtom = (IAtomKinetic)atoms.getAtom(j);
-                IVector v = jAtom.getVelocity();
+                Vector v = jAtom.getVelocity();
                 v.E(0);
                 v.setX(2, vz);
             }
@@ -69,7 +70,7 @@ public class FixedWall implements IIntegratorListenerMD {
             IAtomList atoms = molecules.getMolecule(i).getChildList();
             for (int j=0; j<atoms.getAtomCount(); j++) {
                 IAtom jAtom = atoms.getAtom(j);
-                IVector jf = agentManager.getAgent(jAtom).force;
+                Vector jf = agentManager.getAgent(jAtom).force;
                 jf.E(0);
                 jf.setX(2, fz*jAtom.getType().getMass());
             }

@@ -11,7 +11,7 @@ import etomica.api.IBoundaryEvent;
 import etomica.api.IBoundaryListener;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtomPositionDefinition;
@@ -46,7 +46,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
     protected double range;
     protected final AtomLeafAgentManager<Cell> agentManager;
     protected boolean doApplyPBC;
-    protected final IVector v;
+    protected final Vector v;
     protected final int[] numCells;
     
     /**
@@ -147,7 +147,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
             // simulation is still being constructed, don't try to do anything useful
             return false;
         }
-        IVector dimensions = box.getBoundary().getBoxSize();
+        Vector dimensions = box.getBoundary().getBoxSize();
         lattice.setDimensions(dimensions);
         int[] oldSize = lattice.getSize();
         boolean latticeNeedsUpdate = false;
@@ -246,7 +246,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
     public Cell makeAgent(IAtom atom, Box agentBox) {
         // if we have no cells, there's no point in trying here.  cell assignment will happen later
         if (numCells[0] == 0) return null;
-        IVector position = atom.getPosition();
+        Vector position = atom.getPosition();
         v.E(position);
         v.PE(box.getBoundary().centralImage(position));
         Cell atomCell = (Cell)lattice.site(v);

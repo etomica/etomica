@@ -5,7 +5,7 @@
 package etomica.modules.droplet;
 
 import etomica.api.IAtomList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.config.Configuration;
@@ -28,7 +28,7 @@ public class ConfigurationDroplet implements Configuration {
         IAtomList leafList = box.getLeafList();
         int numAtoms = leafList.getAtomCount();
         for (int i=0; i<numAtoms; i++) {
-            IVector r = leafList.getAtom(i).getPosition();
+            Vector r = leafList.getAtom(i).getPosition();
             r.setRandomInSphere(random);
             r.TE(axis);
         }
@@ -54,5 +54,5 @@ public class ConfigurationDroplet implements Configuration {
     
     protected double deformation;
     protected final IRandom random;
-    protected final IVector axis, center;
+    protected final Vector axis, center;
 }

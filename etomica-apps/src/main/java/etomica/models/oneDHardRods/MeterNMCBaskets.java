@@ -4,7 +4,7 @@
 
 package etomica.models.oneDHardRods;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.data.DataTag;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
@@ -22,7 +22,7 @@ import etomica.units.Null;
 public class MeterNMCBaskets implements IEtomicaDataSource {
 
     private double eigenVectors[][][];
-    private IVector[] waveVectors;
+    private Vector[] waveVectors;
     private CoordinateDefinition coordinateDefinition;
     private double[] realT, imagT;
     private double[][] omegaSquared;
@@ -38,12 +38,12 @@ public class MeterNMCBaskets implements IEtomicaDataSource {
     private static final long serialVersionUID = 1L;
 
     public MeterNMCBaskets(CoordinateDefinition coordinateDefinition,
-                           IVector[] wv, int nBaskets){
+                           Vector[] wv, int nBaskets){
         this(coordinateDefinition, wv, nBaskets, true);
     }
     
     public MeterNMCBaskets(CoordinateDefinition coordinateDefinition,
-                           IVector[] wv, int nBaskets, boolean automaticBaskets){
+                           Vector[] wv, int nBaskets, boolean automaticBaskets){
         this.coordinateDefinition = coordinateDefinition;
         coordinateDim = this.coordinateDefinition.getCoordinateDim();
         this.waveVectors = wv;

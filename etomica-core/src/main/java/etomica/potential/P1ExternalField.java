@@ -2,14 +2,14 @@ package etomica.potential;
 
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.DipoleSource;
 import etomica.space.Space;
 
 public class P1ExternalField extends PotentialMolecular {
 
 	protected DipoleSource dipoleSource;
-	protected IVector externalField;
+	protected Vector externalField;
 	
 	
 	public P1ExternalField( Space space) {
@@ -20,13 +20,13 @@ public class P1ExternalField extends PotentialMolecular {
 		return Double.POSITIVE_INFINITY;
 	}
 	
-	public void setExternalField(IVector newExternalField){
+	public void setExternalField(Vector newExternalField){
 		externalField = newExternalField;
 	}
 	
 
 	public double energy(IMoleculeList molecules) {
-		IVector dr = dipoleSource.getDipole(molecules.getMolecule(0));
+		Vector dr = dipoleSource.getDipole(molecules.getMolecule(0));
 		double energy = -externalField.dot(dr);
 //		System.out.println("E = " + externalField + " dipole = " + dr );
 		return energy;

@@ -7,6 +7,7 @@ package etomica.association;
 import etomica.api.*;
 import etomica.box.Box;
 import etomica.atom.AtomArrayList;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 /**
@@ -30,7 +31,7 @@ public class AssociationHelperBranched implements IAssociationHelper {
     protected int maxBonds;
     protected final IBoundary boundary;
     protected double minR2;
-    protected final IVector dr;
+    protected final Vector dr;
 
     public AssociationHelperBranched(Space space, Box box, AssociationManager associationManager) {
         this.associationManager = associationManager;

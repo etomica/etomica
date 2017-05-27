@@ -4,7 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -60,8 +60,8 @@ public class MCMoveSingleMode extends MCMoveBoxStep{
      * 
      * @param wv
      */
-    public void setWaveVectors(IVector[] wv){
-        waveVectors = new IVector[wv.length];
+    public void setWaveVectors(Vector[] wv){
+        waveVectors = new Vector[wv.length];
         waveVectors = wv;
     }
     public void setWaveVectorCoefficients(double[] coeff){
@@ -207,7 +207,7 @@ public class MCMoveSingleMode extends MCMoveBoxStep{
     protected final MeterPotentialEnergy energyMeter;
     private double[][][] eigenVectors;
     private double[][] omega2, scaledStepSize;
-    private IVector[] waveVectors;
+    private Vector[] waveVectors;
     private double[] waveVectorCoefficients;
     int changedWV, harmonicWV;  //all wvs from the harmonic wv and up are not changed.
     protected double temperature;

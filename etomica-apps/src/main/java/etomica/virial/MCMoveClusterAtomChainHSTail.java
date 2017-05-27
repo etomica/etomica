@@ -6,7 +6,7 @@ package etomica.virial;
 
 import etomica.api.IAtomList;
 import etomica.api.IRandom;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.Space;
 
@@ -31,7 +31,7 @@ public class MCMoveClusterAtomChainHSTail extends MCMoveAtom {
         int n = leafAtoms.getAtomCount();
 
         for (int i=1; i<n; i++) {
-            IVector pos = leafAtoms.getAtom(i).getPosition();
+            Vector pos = leafAtoms.getAtom(i).getPosition();
             double rand = random.nextDouble();
             if (rand < totPCore) {
                 pos.setRandomInSphere(random);
@@ -66,7 +66,7 @@ public class MCMoveClusterAtomChainHSTail extends MCMoveAtom {
     }
 
     protected final double sigma;
-    protected final IVector dr;
+    protected final Vector dr;
     protected final double pow;
     protected final double totPCore;
 }

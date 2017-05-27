@@ -13,7 +13,7 @@ import java.io.IOException;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistogram;
 import etomica.data.DataFork;
@@ -109,7 +109,7 @@ public class SimOverlapSSnxy extends Simulation {
         primitive.scaleSize(primitiveLength);
         
         boundaryTarget = new BoundaryRectangularPeriodic(space, 1.0);
-        IVector edges = new Vector3D();
+        Vector edges = new Vector3D();
         double[] lengths = new double[3];
         lengths[0] = shape[0]*primitiveLength;
         lengths[1] = shape[1]*primitiveLength;

@@ -7,7 +7,7 @@ package etomica.models.oneDHardRods;
 import etomica.api.IAtomType;
 import etomica.box.Box;
 import etomica.api.IRandom;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.lattice.crystal.Basis;
@@ -44,7 +44,7 @@ public class MeterDifferentImageSubtract1D extends DataSourceScalar {
     private MeterPotentialEnergy meterPE;
     private CoordinateDefinition cDef, simCDef;
     private int cDim, simCDim;
-    private IVector[] waveVectors, simWaveVectors;
+    private Vector[] waveVectors, simWaveVectors;
     private double[] simRealT, simImagT;
     protected double temperature;
     private double[] newU;

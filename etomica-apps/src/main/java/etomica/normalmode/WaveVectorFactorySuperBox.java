@@ -4,7 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.lattice.crystal.Primitive;
 import etomica.space.Space;
@@ -32,7 +32,7 @@ public class WaveVectorFactorySuperBox extends WaveVectorFactorySimple {
 	
 	public void makeWaveVectors(Box box){
 		
-		IVector boxDimension = space.makeVector();
+		Vector boxDimension = space.makeVector();
 		boxDimension.E(box.getBoundary().getBoxSize());
 		double fraction = 1.0/2;
 		boxDimension.TE(fraction);

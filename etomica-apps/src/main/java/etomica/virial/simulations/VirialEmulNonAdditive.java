@@ -17,6 +17,7 @@ import etomica.graph.operations.DeleteEdge;
 import etomica.graph.operations.DeleteEdgeParameters;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -176,7 +177,7 @@ public class VirialEmulNonAdditive {
         IAtomList atoms = sim.box[1].getLeafList();
         double r = 0.4f*sigmaHSRef/Math.sin(Math.PI/nPoints);
         for (int i=1; i<nPoints; i++) {
-            IVector v = atoms.getAtom(i).getPosition();
+            Vector v = atoms.getAtom(i).getPosition();
             double t = 2*i*Math.PI/nPoints;
             v.setX(0, r*(Math.cos(t)-1));
             v.setX(1, r*Math.sin(t));

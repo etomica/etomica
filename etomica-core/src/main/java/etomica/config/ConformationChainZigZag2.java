@@ -4,7 +4,7 @@
 
 package etomica.config;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 public class ConformationChainZigZag2 extends ConformationChain {
@@ -16,7 +16,7 @@ public class ConformationChainZigZag2 extends ConformationChain {
 		v2 = space.makeVector();
 		isVectorOne = true;
 	}
-	public ConformationChainZigZag2(Space space, IVector vect1, IVector vect2){
+	public ConformationChainZigZag2(Space space, Vector vect1, Vector vect2){
 		super(space);
 		v1 = space.makeVector();
 		v2 = space.makeVector();
@@ -37,7 +37,7 @@ public class ConformationChainZigZag2 extends ConformationChain {
 	/* (non-Javadoc)
 	 * @see etomica.ConformationChain#nextVector()
 	 */
-	protected IVector nextVector() {
+	protected Vector nextVector() {
 		if(isVectorOne){
 			isVectorOne = false;
 			return v1;
@@ -46,17 +46,17 @@ public class ConformationChainZigZag2 extends ConformationChain {
 		return v2;
 	}
 	
-	public IVector getFirstVector() {
+	public Vector getFirstVector() {
 	    return v1;
 	}
 	
-	public IVector getSecondVector() {
+	public Vector getSecondVector() {
 	    return v2;
 	}
 
     private static final long serialVersionUID = 1L;
-	protected IVector v1;
-	protected IVector v2;
+	protected Vector v1;
+	protected Vector v2;
 	boolean isVectorOne;
    }
 

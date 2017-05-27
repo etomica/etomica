@@ -4,7 +4,7 @@
 
 package etomica.graphics;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polytope;
 import g3dsys.control.G3DSys;
@@ -123,7 +123,7 @@ public class DisplayPolytopeCanvasG3DSys extends DisplayCanvas {
 			LineSegment[] lines = polytope.getEdges();
 			polytopeLines = new Line[lines.length];
 			for (int i = 0; i < lines.length; i++) {
-				IVector[] vertices = lines[i].getVertices();
+				Vector[] vertices = lines[i].getVertices();
 				polytopeLines[i] = new Line(gsys, G3DSys
 						.getColix(boundaryFrameColor), Point3f.new3(
 						(float) vertices[0].getX(0), (float) vertices[0].getX(1),
@@ -135,7 +135,7 @@ public class DisplayPolytopeCanvasG3DSys extends DisplayCanvas {
 		} else {
 			LineSegment[] lines = polytope.getEdges();
 			for (int i = 0; i < lines.length; i++) {
-				IVector[] vertices = lines[i].getVertices();
+				Vector[] vertices = lines[i].getVertices();
 				polytopeLines[i].setStart((float) vertices[0].getX(0),
 						(float) vertices[0].getX(1), (float) vertices[0].getX(2));
 				polytopeLines[i].setEnd((float) vertices[1].getX(0),
@@ -143,7 +143,7 @@ public class DisplayPolytopeCanvasG3DSys extends DisplayCanvas {
 			}
 		}
 
-	    IVector bounds = displayPolytope.dimensions();
+	    Vector bounds = displayPolytope.dimensions();
         gsys.setBoundingBox((float) (-bounds.getX(0) * 0.5),
                 (float) (-bounds.getX(1) * 0.5), (float) (-bounds.getX(2) * 0.5),
                 (float) (bounds.getX(0) * 0.5), (float) (bounds.getX(1) * 0.5),

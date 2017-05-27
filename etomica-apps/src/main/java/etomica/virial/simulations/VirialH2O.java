@@ -13,7 +13,7 @@ import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
@@ -233,7 +233,7 @@ public class VirialH2O {
         // that is not overlapping for any two molecules
         IAtomList tarList = sim.box[1].getLeafList();
         for (int i=0; i<tarList.getAtomCount(); i++) {
-            IVector p = tarList.getAtom(i).getPosition();
+            Vector p = tarList.getAtom(i).getPosition();
             p.setX(i, 4.0);                
         }            
         sim.box[1].trialNotify();

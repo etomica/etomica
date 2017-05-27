@@ -8,6 +8,7 @@ import etomica.api.*;
 import etomica.simulation.Simulation;
 import etomica.atom.MoleculeArrayList;
 import etomica.integrator.mcmove.MCMoveMolecule;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 /**
@@ -19,7 +20,7 @@ public class MCMoveMoleculeSmer extends MCMoveMolecule {
 	protected AssociationManagerMolecule associationManager;
 	protected final MoleculeArrayList bondList, smerList;
 	public static boolean dodebug = true;;
-	protected final IVector dr;
+	protected final Vector dr;
 	protected int maxLength = Integer.MAX_VALUE;
 	protected IAssociationHelperMolecule associationHelper;
 	

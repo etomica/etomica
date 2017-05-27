@@ -6,7 +6,7 @@ package etomica.virial;
 
 import etomica.api.IAtomList;
 import etomica.api.IMolecule;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
 import etomica.space.IOrientation;
 import etomica.space.Space;
@@ -14,7 +14,7 @@ import etomica.space3d.OrientationFull3D;
 
 public class ClusterCoupledAtomFlipped  extends ClusterCoupledFlipped {
 
-    protected final IVector axis;
+    protected final Vector axis;
     
     public ClusterCoupledAtomFlipped(ClusterAbstract cluster, Space space) {
         this(cluster,space, 0);
@@ -45,7 +45,7 @@ public class ClusterCoupledAtomFlipped  extends ClusterCoupledFlipped {
     	    }
     	}
     	else {
-            IVector v = or.getDirection();
+            Vector v = or.getDirection();
             v.TE(-1.0);
     	}
     }

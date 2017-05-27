@@ -8,7 +8,7 @@ import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.potential.PotentialHard;
 import etomica.space.Space;
@@ -42,7 +42,7 @@ public class P1Wall implements PotentialHard {
     }
 
     public double energy(IAtomList atoms) {
-        IVector p = atoms.getAtom(0).getPosition();
+        Vector p = atoms.getAtom(0).getPosition();
         double y = Math.abs(p.getX(1));
         double Ly = boundary.getBoxSize().getX(1);
         if (y > 0.5*Ly-0.5*sigma) {
@@ -68,7 +68,7 @@ public class P1Wall implements PotentialHard {
 
     public void bump(IAtomList a, double falseTime) {
         IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
-        IVector v = atom.getVelocity();
+        Vector v = atom.getVelocity();
         double vy = v.getX(1);
         // dv = 2*NewVelocity
         double y = atom.getPosition().getX(1);
@@ -205,7 +205,7 @@ public class P1Wall implements PotentialHard {
 
     public double lastWallVirial() {
         double area = 1.0;
-        final IVector dimensions = boundary.getBoxSize();
+        final Vector dimensions = boundary.getBoxSize();
         area *= dimensions.getX(0)*dimensions.getX(2);
         double s = lastVirial / area;
         return s;

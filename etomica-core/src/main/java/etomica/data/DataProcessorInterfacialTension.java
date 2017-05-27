@@ -5,7 +5,7 @@
 package etomica.data;
 
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.space.Space;
@@ -54,7 +54,7 @@ public class DataProcessorInterfacialTension extends DataProcessor {
 
     protected IData processData(IData inputData) {
         double area = 1;
-        IVector dim = box.getBoundary().getBoxSize();
+        Vector dim = box.getBoundary().getBoxSize();
         int D = dim.getD();
         for (int i=0; i<D; i++) {
             if (i == surfaceDim) continue;

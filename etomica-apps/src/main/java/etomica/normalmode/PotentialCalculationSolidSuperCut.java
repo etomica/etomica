@@ -5,7 +5,7 @@ import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialCalculation;
 import etomica.space.Space;
@@ -17,10 +17,10 @@ import etomica.space.Space;
 public class PotentialCalculationSolidSuperCut implements PotentialCalculation {
         
     protected final CoordinateDefinition coordinateDefinition;
-    protected final IVector drSite0, drSite1, drA, dr, drB;
+    protected final Vector drSite0, drSite1, drA, dr, drB;
     protected final Space space;
-    protected IVector[] pSumXYZ1, pSumXYZ2;
-    protected final IVector pTmp1, pTmp2;
+    protected Vector[] pSumXYZ1, pSumXYZ2;
+    protected final Vector pTmp1, pTmp2;
     protected double[] sum1, virialSum;
     protected double[] energySum, dadbSum;
     protected double fac1;
@@ -48,8 +48,8 @@ public class PotentialCalculationSolidSuperCut implements PotentialCalculation {
         virialSum = new double[r2Cut.length];
         energySum = new double[r2Cut.length];
         dadbSum = new double[r2Cut.length];
-        pSumXYZ1 = new IVector[r2Cut.length];
-        pSumXYZ2 = new IVector[r2Cut.length];
+        pSumXYZ1 = new Vector[r2Cut.length];
+        pSumXYZ2 = new Vector[r2Cut.length];
         for (int i=0; i<pSumXYZ1.length; i++) {
             pSumXYZ1[i] = space.makeVector();
             pSumXYZ2[i] = space.makeVector();
@@ -70,8 +70,8 @@ public class PotentialCalculationSolidSuperCut implements PotentialCalculation {
     public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
         IAtom atom0 = atoms.getAtom(0);
         IAtom atom1 = atoms.getAtom(1);
-        IVector site0 = coordinateDefinition.getLatticePosition(atom0);
-        IVector site1 = coordinateDefinition.getLatticePosition(atom1);
+        Vector site0 = coordinateDefinition.getLatticePosition(atom0);
+        Vector site1 = coordinateDefinition.getLatticePosition(atom1);
 
         dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
         boundary.nearestImage(dr);
@@ -112,11 +112,11 @@ public class PotentialCalculationSolidSuperCut implements PotentialCalculation {
         return sum1;
     }
     
-    public IVector[] getPressure1XYZ() {
+    public Vector[] getPressure1XYZ() {
         return pSumXYZ1;
     }
     
-    public IVector[] getDADBXYZ() {
+    public Vector[] getDADBXYZ() {
         return pSumXYZ2;
     }
     

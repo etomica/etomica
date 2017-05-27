@@ -26,7 +26,7 @@ import etomica.graph.property.NumRootNodes;
 import etomica.graphics.*;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.*;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheres;
@@ -476,7 +476,7 @@ public class VirialHePIGraphic {
 
         if (doDiff || subtractHalf || !pairOnly) {
             AtomActionTranslateBy translator = new AtomActionTranslateBy(space);
-            IVector groupTranslationVector = translator.getTranslationVector();
+            Vector groupTranslationVector = translator.getTranslationVector();
             MoleculeChildAtomAction moveMoleculeAction = new MoleculeChildAtomAction(translator);
             IMoleculeList molecules = sim.box[1].getMoleculeList();
             double r = 4;
@@ -487,7 +487,7 @@ public class VirialHePIGraphic {
                 groupTranslationVector.setX(1, r*Math.sin(2*(i-1)*Math.PI/(nPoints-1)));
                 moveMoleculeAction.actionPerformed(molecules.getMolecule(i));
                 if (nBeads>1) {
-                    IVector v = molecules.getMolecule(i).getChildList().getAtom(1).getPosition();
+                    Vector v = molecules.getMolecule(i).getChildList().getAtom(1).getPosition();
                     v.TE(0.95);
                 }
             }

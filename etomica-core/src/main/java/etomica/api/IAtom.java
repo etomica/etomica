@@ -4,6 +4,8 @@
 
 package etomica.api;
 
+import etomica.space.Vector;
+
 /**
  * IAtom is an interface for atoms in the simulation.  Atoms have a type
  * (IAtomType), a position (IVectorMutable) and a parent molecule (IMolecule).
@@ -62,5 +64,5 @@ public interface IAtom {
      * @return the position of the IAtom.  Modifying the returned vector will
      * alter the IAtom's position.
      */
-    public IVector getPosition();
+    public Vector getPosition();
 }

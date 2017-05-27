@@ -4,7 +4,7 @@
 
 package etomica.modules.mu;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -32,7 +32,7 @@ public class DataSourceWallPressureMu implements IEtomicaDataSource, CollisionLi
      */
     public void collisionAction(IntegratorHard.Agent agent) {
         if (agent.collisionPotential instanceof P1HardBoundary) {
-            IVector p = agent.atom.getPosition();
+            Vector p = agent.atom.getPosition();
             if (p.getX(0) < 0) {
                 virialSumIG -= ((P1HardBoundary)agent.collisionPotential).lastWallVirial();
             }

@@ -11,7 +11,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.MoleculeAgentManager;
@@ -75,7 +75,7 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 		box.setNMolecules(species, numMolecule);		
 		int [] nCells = new int[]{1,1,1};
 		
-		IVector[] boxDim = new IVector[3];
+		Vector[] boxDim = new Vector[3];
 		boxDim[0] = space.makeVector(new double[]{nC[0]*a, 0, 0});
 		boxDim[1] = space.makeVector(new double[]{-nC[1]*a*Math.cos(Degree.UNIT.toSim(60)), nC[1]*a*Math.sin(Degree.UNIT.toSim(60)), 0});
 		boxDim[2] = space.makeVector(new double[]{0, 0, nC[2]*c});
@@ -211,15 +211,15 @@ public class MinimizationBetaNitrogenModel extends Simulation{
         MoleculeActionTranslateTo translator = new MoleculeActionTranslateTo(sim.space);
         AtomPositionGeometricCenter pos = new AtomPositionGeometricCenter(sim.space);
         translator.setAtomPositionDefinition(pos);
-        IVector p = sim.space.makeVector();
+        Vector p = sim.space.makeVector();
         int nA = 16;
         double step1 = 0;
         double[] x0 = new double[12];
         
-        IVector[] orient0 = new IVector[4];
-        IVector[] orientf = new IVector[4];
-        IVector[] torques = new IVector[4];
-        IVector[] axes = new IVector[4];
+        Vector[] orient0 = new Vector[4];
+        Vector[] orientf = new Vector[4];
+        Vector[] torques = new Vector[4];
+        Vector[] axes = new Vector[4];
         for (int i=0; i<4; i++) {
             axes[i] = sim.space.makeVector();
             torques[i] = sim.space.makeVector();
@@ -241,7 +241,7 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 		            IMolecule iMol = sim.box.getMoleculeList().getMolecule(i<2 ? i : i+(nA-2));
 		            IteratorDirective id = new IteratorDirective(null, iMol);
 		            sim.potentialMaster.calculate(sim.box, id, pcForce);
-		            IVector f = ((IntegratorRigidIterative.MoleculeAgent)molAgentManager.getAgent(iMol)).force;
+		            Vector f = ((IntegratorRigidIterative.MoleculeAgent)molAgentManager.getAgent(iMol)).force;
 		            for (int j=0; j<3; j++) {
 		                g[i*3+j] = -f.getX(j);
 		                t += g[i*3+j]*g[i*3+j];
@@ -437,10 +437,10 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 	
     protected static void doTransform(IMolecule molecule, IAtomPositionDefinition posDef, Tensor rotationTensor) {
         IAtomList childList = molecule.getChildList();
-        IVector com = posDef.position(molecule);
+        Vector com = posDef.position(molecule);
         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
             IAtom a = childList.getAtom(iChild);
-            IVector r = a.getPosition();
+            Vector r = a.getPosition();
             r.ME(com);
             rotationTensor.transform(r);
             r.PE(com);

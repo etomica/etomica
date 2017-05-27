@@ -14,7 +14,7 @@ import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.DiameterHashByType;
 import etomica.box.BoxAgentManager;
 import etomica.data.AccumulatorAverage;
@@ -122,7 +122,7 @@ public class HSDimerNPT extends Simulation {
         addBox(box);
         box.setNMolecules(species, numMolecules);
         
-        IVector[] boxDim = new IVector[3];
+        Vector[] boxDim = new Vector[3];
         
 		Basis unitBasis;
 		if (cp == 1 || cp == 2) {
@@ -142,7 +142,7 @@ public class HSDimerNPT extends Simulation {
 		box.setBoundary(boundary);
 		
         coordinateDefinition = new CoordinateDefinitionHSDimer(this, box, primitive, basis, space);
-        IVector[][] axes = new IVector[1][3];
+        Vector[][] axes = new Vector[1][3];
         int[] iaxis = new int[]{2,0,1};
         for (int i=0; i<3; i++) {
             axes[0][i] = space.makeVector();
@@ -170,7 +170,7 @@ public class HSDimerNPT extends Simulation {
         mcMove.setDoExcludeNonNeighbors(true);
         integrator.getMoveManager().addMCMove(mcMove);
 
-        IVector[] drSum = new IVector[nC[2]];
+        Vector[] drSum = new Vector[nC[2]];
         for (int i=0; i<drSum.length; i++) {
             drSum[i] = space.makeVector();
         }
@@ -263,12 +263,12 @@ public class HSDimerNPT extends Simulation {
                     integrator.getMoveEventManager().addListener(new IListener() {
                         public void actionPerformed(IEvent event) {
                             if (event instanceof MCMoveTrialCompletedEvent && ((MCMoveTrialCompletedEvent)event).isAccepted()) {
-                                IVector scaleVec = space.makeVector();
+                                Vector scaleVec = space.makeVector();
                                 MCMove move = ((MCMoveTrialCompletedEvent)event).getMCMove();
                                 if (move instanceof MCMoveVolumeMonoclinic) {
                                     for (int i=0; i<3; i++) {
-                                        IVector lbv = latticeBox.getBoundary().getEdgeVector(i);
-                                        IVector bv = box.getBoundary().getEdgeVector(i);
+                                        Vector lbv = latticeBox.getBoundary().getEdgeVector(i);
+                                        Vector bv = box.getBoundary().getEdgeVector(i);
                                         scaleVec.setX(i, bv.getX(i)/lbv.getX(i));
                                     }
                                     inflaterLat.setVectorScale(scaleVec);
@@ -356,15 +356,15 @@ public class HSDimerNPT extends Simulation {
         }
         volumeFork.addDataSink(volumeAvg);
 
-        IVector a0 = sim.box.getBoundary().getEdgeVector(0);
-        IVector b0 = sim.box.getBoundary().getEdgeVector(1);
-        IVector c0 = sim.box.getBoundary().getEdgeVector(2);
+        Vector a0 = sim.box.getBoundary().getEdgeVector(0);
+        Vector b0 = sim.box.getBoundary().getEdgeVector(1);
+        Vector c0 = sim.box.getBoundary().getEdgeVector(2);
         final double yx0 = Math.sqrt(b0.squared()/a0.squared());
         final double zx0 = Math.sqrt(c0.squared()/a0.squared());
         DataSourceScalar meterXY = new DataSourceScalar("xy", Null.DIMENSION) {
             public double getDataAsScalar() {
-                IVector a = sim.box.getBoundary().getEdgeVector(0);
-                IVector b = sim.box.getBoundary().getEdgeVector(1);
+                Vector a = sim.box.getBoundary().getEdgeVector(0);
+                Vector b = sim.box.getBoundary().getEdgeVector(1);
                 return (Math.sqrt(b.squared()/a.squared())/yx0) - 1;
             }
         };
@@ -373,8 +373,8 @@ public class HSDimerNPT extends Simulation {
         
         DataSourceScalar meterXZ = new DataSourceScalar("xy", Null.DIMENSION) {
             public double getDataAsScalar() {
-                IVector a = sim.box.getBoundary().getEdgeVector(0);
-                IVector c = sim.box.getBoundary().getEdgeVector(2);
+                Vector a = sim.box.getBoundary().getEdgeVector(0);
+                Vector c = sim.box.getBoundary().getEdgeVector(2);
                 return (Math.sqrt(c.squared()/a.squared())/zx0) - 1;
             }
         };
@@ -384,7 +384,7 @@ public class HSDimerNPT extends Simulation {
         final double cxcz0 = c0.getX(0)/c0.getX(2);
         final DataSourceScalar meterCXCZ = new DataSourceScalar("cx/cz", Null.DIMENSION) {
             public double getDataAsScalar() {
-                IVector c = sim.box.getBoundary().getEdgeVector(2);
+                Vector c = sim.box.getBoundary().getEdgeVector(2);
                 return (c.getX(0)/c.getX(2)/cxcz0) - 1;
             }
         };

@@ -8,7 +8,7 @@ import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.config.ConfigurationLatticeSimple;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.Basis;
@@ -27,7 +27,7 @@ public class BasisBigCell extends Basis {
         super(makeScaledCoordinates(space, subBasis, nSubCells));
     }
 
-    protected static IVector[] makeScaledCoordinates(Space space, Basis subBasis, int[] nSubCells) {
+    protected static Vector[] makeScaledCoordinates(Space space, Basis subBasis, int[] nSubCells) {
         // make pretend sim, species and box so we can find the appropriate coordinates
         Simulation sim = new Simulation(space);
         ISpecies species = new SpeciesSpheresMono(sim, space);
@@ -42,7 +42,7 @@ public class BasisBigCell extends Basis {
         
         Box box = new Box(boundary, space);
         sim.addBox(box);
-        IVector vector = space.makeVector(nSubCells);
+        Vector vector = space.makeVector(nSubCells);
         box.getBoundary().setBoxSize(vector);
         int numMolecules = subBasis.getScaledCoordinates().length;
         for (int i=0; i<nSubCells.length; i++) {
@@ -52,11 +52,11 @@ public class BasisBigCell extends Basis {
         ConfigurationLatticeSimple configLattice = new ConfigurationLatticeSimple(new BravaisLatticeCrystal(primitive, subBasis), space);
         configLattice.initializeCoordinates(box);
 
-        IVector boxSize = boundary.getBoxSize();
+        Vector boxSize = boundary.getBoxSize();
         
         // retrieve real coordinates and scale them
         IAtomList atomList = box.getLeafList();
-        IVector[] pos = new IVector[atomList.getAtomCount()];
+        Vector[] pos = new Vector[atomList.getAtomCount()];
         for (int i=0; i<atomList.getAtomCount(); i++) {
             pos[i] = space.makeVector();
             pos[i].E(atomList.getAtom(i).getPosition());

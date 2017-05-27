@@ -4,7 +4,7 @@
 
 package etomica.space3d;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.exception.MethodNotImplementedException;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
@@ -50,11 +50,11 @@ public class BoundaryTruncatedOctahedron extends Boundary {
         return true;
     }
 
-    public final IVector getBoxSize() {
+    public final Vector getBoxSize() {
         return dimensions;
     }
 
-    public IVector randomPosition() {
+    public Vector randomPosition() {
         throw new MethodNotImplementedException();
         //temp.setRandom(dimensions);
         //return temp;
@@ -75,10 +75,10 @@ public class BoundaryTruncatedOctahedron extends Boundary {
       private boolean hasnext;
       private int[] vals;
       private int[] retvals;
-      private IVector[] vecs;
+      private Vector[] vecs;
       int numLayers;
       
-      public IndexIteratorRectangularFiltered(int D, IVector[] v) {
+      public IndexIteratorRectangularFiltered(int D, Vector[] v) {
         iis = new IndexIteratorRectangular(D);
         vecs = v;
         hasnext = false;
@@ -164,15 +164,15 @@ public class BoundaryTruncatedOctahedron extends Boundary {
                 .getX(0));
     }
 
-    public void setBoxSize(IVector v) {
+    public void setBoxSize(Vector v) {
         dimensions.E(v);
         updateDimensions();
     }
     
-    public IVector getEdgeVector(int d) {
+    public Vector getEdgeVector(int d) {
         double x = dimensions.getX(0)*.5;
         if(vecs == null || vecs[0].getX(0) == 0) {
-          vecs = new IVector[] {
+          vecs = new Vector[] {
               space.makeVector(new double[]{-x,x,x}),
               space.makeVector(new double[]{x,-x,x}),
               space.makeVector(new double[]{x,x,-x}) };
@@ -194,7 +194,7 @@ public class BoundaryTruncatedOctahedron extends Boundary {
             double[][] origins = new double[faces.length][space.D()];
             double multiplier = ((TruncatedOctahedron)shape).getContainingCubeEdgeLength();
             for(int i=0; i<faces.length; i++) {
-                IVector[] vertices = faces[i].getVertices();
+                Vector[] vertices = faces[i].getVertices();
                 plane.setThreePoints(vertices[0], vertices[1], vertices[2]);
                 plane.setToNormalVector(normal);
                 normal.TE(multiplier);
@@ -203,7 +203,7 @@ public class BoundaryTruncatedOctahedron extends Boundary {
             return origins;
         }
         //algorithm for nShells > 1 misses many of the images (those through the hexagon faces)
-        IVector workVector = space.makeVector();
+        Vector workVector = space.makeVector();
         int shellFormula = (2 * nShells) + 1;
         int nImages = space.powerD(shellFormula) - 1;
         double[][] origins = new double[nImages][space.D()];
@@ -224,7 +224,7 @@ public class BoundaryTruncatedOctahedron extends Boundary {
         return origins;
     }
 
-    public void nearestImage(IVector dr) {
+    public void nearestImage(Vector dr) {
         dr.PEa1Tv1(0.5, dimensions);
         dr.PE(centralImage(dr));
         dr.PEa1Tv1(-0.5, dimensions);
@@ -253,7 +253,7 @@ public class BoundaryTruncatedOctahedron extends Boundary {
         //        dr.PE(intoTruncatedOctahedron);
     }
 
-    public IVector centralImage(IVector r) {
+    public Vector centralImage(Vector r) {
         double n = ((TruncatedOctahedron) shape).getContainingCubeEdgeLength();
         intoTruncatedOctahedron.Ev1Pv2(r, dimensionsHalf);
         intoTruncatedOctahedron.mod(dimensions);
@@ -278,14 +278,14 @@ public class BoundaryTruncatedOctahedron extends Boundary {
     }
     
     private static final long serialVersionUID = 1L;
-    protected final IVector intoTruncatedOctahedron;
-    protected final IVector rrounded;
-    protected final IVector dimensions;
-    protected final IVector dimensionsHalf;
+    protected final Vector intoTruncatedOctahedron;
+    protected final Vector rrounded;
+    protected final Vector dimensions;
+    protected final Vector dimensionsHalf;
     private final IndexIteratorRectangular indexIterator;
     protected final float[][] shift0 = new float[0][0];
     protected float[][] shift;
     private final Plane plane;
     private final Vector3D normal = new Vector3D();
-    private IVector[] vecs;
+    private Vector[] vecs;
 }

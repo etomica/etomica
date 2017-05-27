@@ -50,7 +50,7 @@ import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomHydrogen;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -84,7 +84,7 @@ public class P2HydrogenHinde implements IPotential {
     protected final double [][][] c8 = new double [3][3][4];
     protected final double [][] cten = new double [3][3];
     protected IBoundary boundary;
-    protected final IVector dr,com0,com1,hh0,hh1,n0,n1;
+    protected final Vector dr,com0,com1,hh0,hh1,n0,n1;
     public P2HydrogenHinde(Space space) {
         dr = space.makeVector();
         com0 = space.makeVector();
@@ -340,10 +340,10 @@ public class P2HydrogenHinde implements IPotential {
             IAtom a01 = m0.getChildList().getAtom(1);
             IAtom a10 = m1.getChildList().getAtom(0);
             IAtom a11 = m1.getChildList().getAtom(1);
-            IVector orient00 = a00.getPosition();
-            IVector orient01 = a01.getPosition();
-            IVector orient10 = a10.getPosition();
-            IVector orient11 = a11.getPosition();
+            Vector orient00 = a00.getPosition();
+            Vector orient01 = a01.getPosition();
+            Vector orient10 = a10.getPosition();
+            Vector orient11 = a11.getPosition();
 
             com0.Ev1Pv2(orient00, orient01);
             com0.TE(0.5);        
@@ -386,10 +386,10 @@ public class P2HydrogenHinde implements IPotential {
         public double energy(IAtomList atoms) {
             AtomHydrogen m0 = (AtomHydrogen) atoms.getAtom(0);
             AtomHydrogen m1 = (AtomHydrogen) atoms.getAtom(1);            
-            IVector hh0 = m0.getOrientation().getDirection();
-            IVector hh1 = m1.getOrientation().getDirection();        
-            IVector com0 = m0.getPosition();               
-            IVector com1 = m1.getPosition();        
+            Vector hh0 = m0.getOrientation().getDirection();
+            Vector hh1 = m1.getOrientation().getDirection();
+            Vector com0 = m0.getPosition();
+            Vector com1 = m1.getPosition();
 
             dr.Ev1Mv2(com1, com0);    
             boundary.nearestImage(dr);    

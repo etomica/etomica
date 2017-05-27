@@ -47,7 +47,7 @@ import etomica.potential.P3CPSNonAdditiveHeLessSimplified;
 import etomica.potential.Potential;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialGroup;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheres;
@@ -370,7 +370,7 @@ public class VirialHePI_PotentialCorrection {
 
        
         AtomActionTranslateBy translator = new AtomActionTranslateBy(space);
-        IVector groupTranslationVector = translator.getTranslationVector();
+        Vector groupTranslationVector = translator.getTranslationVector();
         MoleculeChildAtomAction moveMoleculeAction = new MoleculeChildAtomAction(translator);
         IMoleculeList molecules = sim.box[1].getMoleculeList();
         double r = 4;
@@ -381,7 +381,7 @@ public class VirialHePI_PotentialCorrection {
             groupTranslationVector.setX(1, r*Math.sin(2*(i-1)*Math.PI/(nPoints-1)));
             moveMoleculeAction.actionPerformed(molecules.getMolecule(i));
             if (nBeads>1) {
-                IVector v = molecules.getMolecule(i).getChildList().getAtom(1).getPosition();
+                Vector v = molecules.getMolecule(i).getChildList().getAtom(1).getPosition();
                 v.TE(0.95);
             }
         }

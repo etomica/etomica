@@ -7,6 +7,7 @@ import etomica.potential.Potential2;
 import etomica.potential.PotentialCalculationEnergySum;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialSoft;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
 
@@ -31,9 +32,9 @@ public class P2EAM extends Potential2 implements PotentialSoft {
     
     protected double n2, m2, eps, a, a2, Ceps, rc12, rc22;
     protected IBoundary boundary;
-    protected final IVector dr;
-    protected IVector[] gradient;
-    protected IVector rhograd;
+    protected final Vector dr;
+    protected Vector[] gradient;
+    protected Vector rhograd;
     protected double[] rho;
     protected boolean energyDisabled = false;
 
@@ -49,7 +50,7 @@ public class P2EAM extends Potential2 implements PotentialSoft {
         rc12 = rc1 * rc1;
         rc22 = rc2 * rc2;
         dr = space.makeVector();
-        gradient = new IVector[2];
+        gradient = new Vector[2];
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();
         rhograd = space.makeVector();
@@ -86,8 +87,8 @@ public class P2EAM extends Potential2 implements PotentialSoft {
     }
 
     public double energy(IAtomList atoms) {
-        IVector pos0 = atoms.getAtom(0).getPosition();
-        IVector pos1 = atoms.getAtom(1).getPosition();
+        Vector pos0 = atoms.getAtom(0).getPosition();
+        Vector pos1 = atoms.getAtom(1).getPosition();
         dr.Ev1Mv2(pos1, pos0);
         boundary.nearestImage(dr);
         double r2 = dr.squared();
@@ -123,10 +124,10 @@ public class P2EAM extends Potential2 implements PotentialSoft {
         throw new RuntimeException("implement me");
     }
 
-    public IVector[] gradient(IAtomList atoms) {
+    public Vector[] gradient(IAtomList atoms) {
 
-        IVector pos0 = atoms.getAtom(0).getPosition();
-        IVector pos1 = atoms.getAtom(1).getPosition();
+        Vector pos0 = atoms.getAtom(0).getPosition();
+        Vector pos1 = atoms.getAtom(1).getPosition();
         dr.Ev1Mv2(pos1, pos0);
         boundary.nearestImage(dr);
         double r2 = dr.squared();
@@ -155,7 +156,7 @@ public class P2EAM extends Potential2 implements PotentialSoft {
         return gradient;
     }
 
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         throw new RuntimeException("not implemented.  use gradient");
     }
     

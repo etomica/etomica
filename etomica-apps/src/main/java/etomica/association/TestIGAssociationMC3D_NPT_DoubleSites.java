@@ -31,6 +31,7 @@ import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2HardAssociationConeSW;
 import etomica.simulation.Simulation;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.util.HistoryCollapsingAverage;
@@ -182,7 +183,7 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
         final TestIGAssociationMC3D_NPT_DoubleSites sim = new TestIGAssociationMC3D_NPT_DoubleSites(numAtoms, pressure, density, wellConstant, temperature, truncationRadius,maxChainLength, useUB, numSteps);
         sim.actionIntegrator.setMaxSteps(numSteps/5);//equilibrium period
         IAction energyDiffActionEq = new IAction() {
-        	protected final IVector dr = sim.space.makeVector();;
+        	protected final Vector dr = sim.space.makeVector();;
     		
 			public void actionPerformed() {
 //				if (sim.integrator.getStepCount() > 25300){

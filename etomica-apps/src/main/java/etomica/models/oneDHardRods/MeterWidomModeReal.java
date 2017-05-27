@@ -4,7 +4,7 @@
 
 package etomica.models.oneDHardRods;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.data.DataSourceScalar;
@@ -27,7 +27,7 @@ public class MeterWidomModeReal extends DataSourceScalar {
     private CoordinateDefinition coordinateDefinition;
     private int coordinateDim;
     private double eigenVectors[][][];
-    private IVector[] waveVectors;
+    private Vector[] waveVectors;
     private double[] realT, imagT;
     private double[][] uOld, omegaSquared, oneOverOmega2;
     protected double temperature;
@@ -131,7 +131,7 @@ public class MeterWidomModeReal extends DataSourceScalar {
     public void setEigenVectors(double[][][] eigenVectors) {
         this.eigenVectors = eigenVectors;
     }
-    public void setWaveVectors(IVector[] waveVectors) {
+    public void setWaveVectors(Vector[] waveVectors) {
         this.waveVectors = waveVectors;
     }
     public void setAffectedWV(int awv) {

@@ -5,7 +5,7 @@
 package etomica.virial;
 
 import etomica.api.IAtomList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.integrator.mcmove.MCMoveAtom;
@@ -27,7 +27,7 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
     public void setBox(Box p) {
         super.setBox(p);
         if (translationVectors == null) {
-            translationVectors = new IVector[box.getLeafList().getAtomCount()-1];
+            translationVectors = new Vector[box.getLeafList().getAtomCount()-1];
             for (int i=0; i<translationVectors.length; i++) {
                 translationVectors[i] = space.makeVector();
             }
@@ -75,6 +75,6 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
     	((BoxCluster)box).acceptNotify();
     }
 
-    protected IVector[] translationVectors;
+    protected Vector[] translationVectors;
     protected int startAtom = 1;
 }

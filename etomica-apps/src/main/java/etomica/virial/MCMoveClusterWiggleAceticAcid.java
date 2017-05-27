@@ -9,6 +9,7 @@ import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space3d.Vector3D;
 import etomica.util.Debug;
@@ -80,7 +81,7 @@ public class MCMoveClusterWiggleAceticAcid extends MCMoveMolecule {
             int j = random.nextInt(3)*2;
             selectedAtoms[i] = j;//0,2,4
             IAtom selectedAtom = childList.getAtom(j);
-            IVector position = selectedAtom.getPosition();
+            Vector position = selectedAtom.getPosition();
             translationVectors[i].Ea1Tv1(-1,position);
             double oldBondLength1 = 0, oldBondLength2 = 0;
 
@@ -187,8 +188,8 @@ public class MCMoveClusterWiggleAceticAcid extends MCMoveMolecule {
     protected final MeterPotentialEnergy energyMeter;
     protected int[] selectedAtoms;
     protected int[] bondedAtoms;
-    protected final IVector work1, work2, work3;
-    protected IVector[] translationVectors;
+    protected final Vector work1, work2, work3;
+    protected Vector[] translationVectors;
     protected double wOld, wNew;
     protected final Space space;
     protected ISpecies species;

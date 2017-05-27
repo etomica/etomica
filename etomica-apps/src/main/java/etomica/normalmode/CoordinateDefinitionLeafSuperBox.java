@@ -8,7 +8,7 @@ import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.MoleculeArrayList;
 import etomica.atom.MoleculeListWrapper;
@@ -42,8 +42,8 @@ public class CoordinateDefinitionLeafSuperBox extends CoordinateDefinitionLeaf {
 
         int basisSize = lattice.getBasis().getScaledCoordinates().length;
 
-        IVector offset = lattice.getSpace().makeVector();
-        IVector[] primitiveVectors = primitive.vectors();
+        Vector offset = lattice.getSpace().makeVector();
+        Vector[] primitiveVectors = primitive.vectors();
         for (int i=0; i<primitiveVectors.length; i++) {
             offset.PEa1Tv1(nCells[i],primitiveVectors[i]);
         }
@@ -67,7 +67,7 @@ public class CoordinateDefinitionLeafSuperBox extends CoordinateDefinitionLeaf {
         // Place molecules
         atomIterator.reset();
         indexIterator.reset();
-        IVector position = lattice.getSpace().makeVector();
+        Vector position = lattice.getSpace().makeVector();
         MoleculeArrayList currentList = null;
         
         int counterSpeciesA =0;
@@ -108,7 +108,7 @@ public class CoordinateDefinitionLeafSuperBox extends CoordinateDefinitionLeaf {
         	// initialize coordinates of child atoms
         	molecule.getType().initializeConformation(molecule);
 
-            position.E((IVector)lattice.site(ii));
+            position.E((Vector)lattice.site(ii));
             position.PE(offset);
             
             atomActionTranslateTo.setDestination(position);
@@ -130,7 +130,7 @@ public class CoordinateDefinitionLeafSuperBox extends CoordinateDefinitionLeaf {
                 
         initNominalU(cells[totalCells-1].molecules);
         
-        siteManager = new AtomLeafAgentManager<IVector>(new SiteSource(space), box, IVector.class);
+        siteManager = new AtomLeafAgentManager<Vector>(new SiteSource(space), box, Vector.class);
     }
     
     public void setSpecies(ISpecies speciesA, ISpecies speciesB){

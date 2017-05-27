@@ -10,6 +10,7 @@ import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.simulation.Simulation;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
@@ -31,7 +32,7 @@ public class SimLattice extends Simulation {
         box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
-        IVector l = space.makeVector();
+        Vector l = space.makeVector();
         l.E(10);
         for (int i=0; i<=offsetDim; i++) {
             l.setX(i,20);
@@ -87,15 +88,15 @@ public class SimLattice extends Simulation {
 
         final SimLattice sim = new SimLattice(numAtoms, temperature, density, w, offsetDim);
         IBoundary boundary = sim.box.getBoundary();
-        IVector offset = sim.space.makeVector();
+        Vector offset = sim.space.makeVector();
         offset.setX(offsetDim, sim.box.getBoundary().getBoxSize().getX(offsetDim)*0.5);
         IAtomList atoms = sim.box.getLeafList();
         IAtom atom0 = atoms.getAtom(0);
         IAtom atom1 = atoms.getAtom(numAtoms/2);
-        IVector p0 = atom0.getPosition();
-        IVector p1 = atom1.getPosition();
+        Vector p0 = atom0.getPosition();
+        Vector p1 = atom1.getPosition();
 
-        IVector dr = sim.space.makeVector();
+        Vector dr = sim.space.makeVector();
         double betaw = w/temperature;
 
         double uSum = 0;

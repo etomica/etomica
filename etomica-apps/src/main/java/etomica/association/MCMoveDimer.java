@@ -9,7 +9,7 @@ import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IRandom;
 import etomica.simulation.Simulation;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSource;
 import etomica.atom.iterator.AtomIterator;
@@ -31,7 +31,7 @@ public class MCMoveDimer extends MCMoveBoxStep {
     protected final AtomIteratorArrayListSimple affectedAtomIterator;
     protected final AtomArrayList affectedAtoms;
     protected final MeterPotentialEnergy energyMeter;
-    protected final IVector translationVector;
+    protected final Vector translationVector;
     protected IAtom atom;
     protected double uOld;
     protected double uNew = Double.NaN;
@@ -41,7 +41,7 @@ public class MCMoveDimer extends MCMoveBoxStep {
     protected Space space;
     protected final PotentialMasterCell potentialMaster;
     protected final Api1ACell neighborIterator;
-    protected final IVector dr;
+    protected final Vector dr;
     protected final IPotentialAtomic dimerPotential;
     protected IAtom atom1;
     protected AssociationManager associationManager;

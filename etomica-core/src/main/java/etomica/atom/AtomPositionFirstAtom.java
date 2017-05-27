@@ -6,7 +6,7 @@ package etomica.atom;
 
 import etomica.api.IAtomList;
 import etomica.api.IMolecule;
-import etomica.api.IVector;
+import etomica.space.Vector;
 
 /**
  * Returns the position of the first child leaf atom.  Recurses to find
@@ -15,7 +15,7 @@ import etomica.api.IVector;
 
 public class AtomPositionFirstAtom implements IAtomPositionDefinition, java.io.Serializable {
 
-    public IVector position(IMolecule atom) {
+    public Vector position(IMolecule atom) {
         IAtomList childList = atom.getChildList();
         if (childList.getAtomCount() == 0) {
             return null;

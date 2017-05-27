@@ -20,6 +20,7 @@ import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.units.CompoundDimension;
 import etomica.units.Degree;
@@ -48,7 +49,7 @@ public class MeterOrientationDistribution implements IEtomicaDataSource, IAction
         }
  
         angle = new double[2];
-        axes = new IVector[3];
+        axes = new Vector[3];
         molAxis = Space3D.makeVector(3);
         temp = Space3D.makeVector(3);
         b = Space3D.makeVector(3);
@@ -92,8 +93,8 @@ public class MeterOrientationDistribution implements IEtomicaDataSource, IAction
             for (int iMol=0; iMol<numMolecules; iMol++){
             	
 	          	IMolecule molecule = molecules.getMolecule(iMol);
-	          	IVector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-		    	IVector leafPos1 = molecule.getChildList().getAtom(1).getPosition();
+	          	Vector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
+		    	Vector leafPos1 = molecule.getChildList().getAtom(1).getPosition();
 		
 		    	molAxis.Ev1Mv2(leafPos1, leafPos0);
 		       	molAxis.normalize();
@@ -182,9 +183,9 @@ public class MeterOrientationDistribution implements IEtomicaDataSource, IAction
     private HistogramExpanding[] histogramU;
     private DataDoubleArray[] uDistributions;
     private DataInfoDoubleArray[] uDistributionsInfo;
-    private IVector[] axes;
-    private IVector temp, b, c;
-    private IVector molAxis;
+    private Vector[] axes;
+    private Vector temp, b, c;
+    private Vector molAxis;
     private double[] angle;
     private int dof;
     

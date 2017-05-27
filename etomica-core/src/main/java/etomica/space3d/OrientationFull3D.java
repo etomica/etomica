@@ -7,7 +7,7 @@ package etomica.space3d;
 import java.io.Serializable;
 
 import etomica.api.IRandom;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.IOrientation;
 import etomica.space.Space;
 import etomica.util.Debug;
@@ -31,11 +31,11 @@ public class OrientationFull3D implements IOrientationFull3D, Serializable {
         setDirections(o.getDirection(), ((IOrientationFull3D)o).getSecondaryDirection());
     }
     
-    public IVector getDirection() {
+    public Vector getDirection() {
         return direction;
     }
     
-    public IVector getSecondaryDirection() {
+    public Vector getSecondaryDirection() {
         return secondaryDirection;
     }
 
@@ -43,12 +43,12 @@ public class OrientationFull3D implements IOrientationFull3D, Serializable {
      * Sets this orientation to point in the given direction.
      * @throws Exception if vector has 0 length
      */
-    public void setDirection(IVector newDirection) {
+    public void setDirection(Vector newDirection) {
         direction.E(newDirection);
         direction.normalize();
     }
     
-    public void setDirections(IVector newPrimaryDirection, IVector newSecondaryDirection) {
+    public void setDirections(Vector newPrimaryDirection, Vector newSecondaryDirection) {
         direction.E(newPrimaryDirection);
         direction.normalize();
         secondaryDirection.E(newSecondaryDirection);
@@ -60,7 +60,7 @@ public class OrientationFull3D implements IOrientationFull3D, Serializable {
      * must have unit length, but need not be perpendicular to the current
      * orientation direction.
      */
-    public void rotateBy(double dt, IVector axis) {
+    public void rotateBy(double dt, Vector axis) {
         // consider a circle on the surface of the unit sphere.  The given axis
         // passes through the center of the circle.  The circle passes through
         // the current direction vector and the vector v4 defined below.  We
@@ -161,7 +161,7 @@ public class OrientationFull3D implements IOrientationFull3D, Serializable {
     }
 
     private static final long serialVersionUID = 1L;
-    protected final IVector direction, secondaryDirection;
-    protected final IVector v2, v3;
+    protected final Vector direction, secondaryDirection;
+    protected final Vector v2, v3;
     protected final Tensor3D rotationTensor;
 }

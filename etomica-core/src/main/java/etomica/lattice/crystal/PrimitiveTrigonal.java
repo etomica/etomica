@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.lattice.crystal;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.math.geometry.Polytope;
 import etomica.space.Space;
 
@@ -89,7 +89,7 @@ public class PrimitiveTrigonal extends Primitive {
         setCubicSize(size[0] * scale);
     }        
     
-    public int[] latticeIndex(IVector q) {
+    public int[] latticeIndex(Vector q) {
         for(int i=0; i<D; i++) {
             double x = q.getX(i)/size[i];
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x
@@ -97,7 +97,7 @@ public class PrimitiveTrigonal extends Primitive {
         return idx;
     }
 
-    public int[] latticeIndex(IVector q, int[] dimensions) {
+    public int[] latticeIndex(Vector q, int[] dimensions) {
         for(int i=0; i<D; i++) {
             double x = q.getX(i)/size[i];
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x

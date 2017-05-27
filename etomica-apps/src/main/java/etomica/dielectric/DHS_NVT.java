@@ -28,6 +28,7 @@ import etomica.potential.P2HSDipole;
 import etomica.potential.P2ReactionFieldDipole;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresRotating;
@@ -64,13 +65,13 @@ public class DHS_NVT extends Simulation {
 	public Controller controller; 
 
 	public static class DipoleSourceDHS implements DipoleSource{//for potential reaction field
-		protected final IVector dipoleVector;
+		protected final Vector dipoleVector;
 		protected double dipoleStrength;
 		public DipoleSourceDHS(Space space, double dipole){
 			dipoleStrength=dipole;
 			dipoleVector=space.makeVector();
 		}
-		public IVector getDipole(IMolecule molecule) {
+		public Vector getDipole(IMolecule molecule) {
 			if(molecule.getChildList().getAtomCount()!=1){
 				throw new RuntimeException("improper number of atom in the molecule");
 			}															
@@ -98,7 +99,7 @@ public class DHS_NVT extends Simulation {
 		box.getBoundary().setBoxSize(space.makeVector(new double[]{boxSize,boxSize,boxSize}));
 
 		IAtomPositionDefinition positionDefinition = new IAtomPositionDefinition() {
-			public IVector position(IMolecule molecule) {
+			public Vector position(IMolecule molecule) {
 				return molecule.getChildList().getAtom(0).getPosition();
 			}
 		};

@@ -4,7 +4,7 @@ import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMolecular;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.space.Space;
 
@@ -79,7 +79,7 @@ public class P2MoleculeTruncated extends PotentialMolecular {
         potential.setBox(newBox);
         boundary = newBox.getBoundary();
         if (cutoffRatio > 0){
-        	IVector vectorBox = boundary.getBoxSize();
+        	Vector vectorBox = boundary.getBoxSize();
         	double minBoxSize = vectorBox.getX(0);
         	for (int i = 1;i<vectorBox.getD();i++){
         		if (vectorBox.getX(i) < minBoxSize){
@@ -97,7 +97,7 @@ public class P2MoleculeTruncated extends PotentialMolecular {
     private static final long serialVersionUID = 1L;
     protected double rCutoff, r2Cutoff;
     protected final IPotentialMolecular potential;
-    protected final IVector dr;
+    protected final Vector dr;
     protected IBoundary boundary;
     protected double cutoffRatio;
     protected final IAtomPositionDefinition positionDefinition;

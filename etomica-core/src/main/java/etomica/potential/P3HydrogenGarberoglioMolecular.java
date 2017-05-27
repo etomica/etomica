@@ -5,14 +5,14 @@
 package etomica.potential;
 
 import etomica.api.IMoleculeList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.potential.P3HydrogenManzhos.P3HydrogenManzhosMolecular;
 import etomica.space.Space;
 
 public class P3HydrogenGarberoglioMolecular extends P3HydrogenManzhosMolecular {
     protected double R0 = 5.0;
     protected double dR = 0.4;
-    protected IVector[] pos = new IVector[3];
+    protected Vector[] pos = new Vector[3];
     public P3HydrogenGarberoglioMolecular(Space space) {
         super(space);
         for (int i=0; i<3; i++) {

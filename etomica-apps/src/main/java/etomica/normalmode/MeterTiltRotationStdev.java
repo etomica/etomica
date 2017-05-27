@@ -9,7 +9,7 @@ import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -80,7 +80,7 @@ public class MeterTiltRotationStdev implements IEtomicaDataSource {
     private static final long serialVersionUID = 1L;
     protected final ISpecies species;
     protected Box box;
-    protected final IVector dr;
+    protected final Vector dr;
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
     protected final DataTag tag;

@@ -5,7 +5,7 @@
 package etomica.math.geometry;
 import java.util.LinkedList;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 
 /**
  * Representation of a mathematical polyhedron, a 3-dimensional polytope. Contains
@@ -72,7 +72,7 @@ public abstract class Polyhedron extends Polytope {
      * @param r
      * @return
      */
-    public double distanceTo(IVector r) {
+    public double distanceTo(Vector r) {
         if(!contains(r)) return Double.NaN;
         double d = Double.POSITIVE_INFINITY;
         Plane plane = new Plane(embeddedSpace);

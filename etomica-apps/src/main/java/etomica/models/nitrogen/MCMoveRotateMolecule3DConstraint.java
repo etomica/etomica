@@ -10,6 +10,7 @@ import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.paracetamol.AtomActionTransformed;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.RotationTensor;
 import etomica.space3d.RotationTensor3D;
@@ -33,13 +34,13 @@ import etomica.units.Degree;
 public class MCMoveRotateMolecule3DConstraint extends MCMoveMolecule {
     
     private static final long serialVersionUID = 2L;
-    protected transient IVector r0;
+    protected transient Vector r0;
     protected transient RotationTensor rotationTensor;
     protected IAtomPositionDefinition positionDefinition;
     protected double constraintAngle;
     protected CoordinateDefinitionNitrogen coordinateDef;
-    protected IVector[][] initMolecOrientation;
-    protected IVector molecOrientation, rotationAxis, workVector;
+    protected Vector[][] initMolecOrientation;
+    protected Vector molecOrientation, rotationAxis, workVector;
 	protected RotationTensor3D rotation;
 	protected Tensor3D tensor;
     protected final MoleculeChildAtomAction atomGroupAction;
@@ -54,7 +55,7 @@ public class MCMoveRotateMolecule3DConstraint extends MCMoveMolecule {
         this.coordinateDef = coordinateDef;
         
         int numMolec = box.getMoleculeList().getMoleculeCount();
-     	initMolecOrientation = new IVector[numMolec][3];
+     	initMolecOrientation = new Vector[numMolec][3];
      	molecOrientation = space.makeVector();
      	rotationAxis = space.makeVector();
      	workVector = space.makeVector();
@@ -87,8 +88,8 @@ public class MCMoveRotateMolecule3DConstraint extends MCMoveMolecule {
             throw new RuntimeException("Overlap in initial state");
         }
         
-        IVector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-		IVector leaftPos1 = molecule.getChildList().getAtom(1).getPosition();
+        Vector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
+		Vector leaftPos1 = molecule.getChildList().getAtom(1).getPosition();
 		
 		molecOrientation.Ev1Mv2(leaftPos1, leafPos0);
 		molecOrientation.normalize();
@@ -137,7 +138,7 @@ public class MCMoveRotateMolecule3DConstraint extends MCMoveMolecule {
         IAtomList childList = molecule.getChildList();
         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
             IAtom a = childList.getAtom(iChild);
-            IVector r = a.getPosition();
+            Vector r = a.getPosition();
             r.ME(r0);
             box.getBoundary().nearestImage(r);
             rotationTensor.transform(r);
@@ -149,7 +150,7 @@ public class MCMoveRotateMolecule3DConstraint extends MCMoveMolecule {
         IAtomList childList = molecule.getChildList();
         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
             IAtom a = childList.getAtom(iChild);
-            IVector r = a.getPosition();
+            Vector r = a.getPosition();
             r.ME(r0);
         }
         double s = (2*random.nextDouble() - 1.0);
@@ -160,7 +161,7 @@ public class MCMoveRotateMolecule3DConstraint extends MCMoveMolecule {
 		rotationAxis.PEa1Tv1(t, initMolecOrientation[iMolecule][2]);
 		rotationAxis.normalize();
 		
-		IVector vec = space.makeVector();
+		Vector vec = space.makeVector();
 		vec.E(initMolecOrientation[iMolecule][0]);
 
 		double check = vec.dot(rotationAxis);
@@ -176,7 +177,7 @@ public class MCMoveRotateMolecule3DConstraint extends MCMoveMolecule {
         
         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
             IAtom a = childList.getAtom(iChild);
-            IVector r = a.getPosition();
+            Vector r = a.getPosition();
             r.PE(r0);
         }
         
@@ -186,7 +187,7 @@ public class MCMoveRotateMolecule3DConstraint extends MCMoveMolecule {
         IAtomList childList = molecule.getChildList();
         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
             IAtom a = childList.getAtom(iChild);
-            IVector r = a.getPosition();
+            Vector r = a.getPosition();
             r.ME(r0);
         }
         
@@ -200,7 +201,7 @@ public class MCMoveRotateMolecule3DConstraint extends MCMoveMolecule {
         
         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
             IAtom a = childList.getAtom(iChild);
-            IVector r = a.getPosition();
+            Vector r = a.getPosition();
             r.PE(r0);
         }
         

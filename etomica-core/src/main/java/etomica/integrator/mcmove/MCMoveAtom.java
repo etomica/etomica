@@ -5,7 +5,7 @@
 package etomica.integrator.mcmove;
 
 import etomica.api.IAtom;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -25,7 +25,7 @@ public class MCMoveAtom extends MCMoveBoxStep {
 
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     protected final MeterPotentialEnergy energyMeter;
-    protected final IVector translationVector;
+    protected final Vector translationVector;
     protected IAtom atom;
     protected double uOld;
     protected double uNew = Double.NaN;

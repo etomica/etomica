@@ -14,6 +14,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.potential.P4BondTorsion;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 /**
@@ -360,7 +361,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
     protected void selectMolecules() {
         IMoleculeList molecules = box.getMoleculeList();
         selectedMolecules = new MoleculeArrayList();
-        oldPositions = new IVector[molecules.getMoleculeCount()][0];
+        oldPositions = new Vector[molecules.getMoleculeCount()][0];
     	int i=0;
         for (int k=0; k < molecules.getMoleculeCount();k++) {
         	IMolecule a = molecules.getMolecule(k);
@@ -368,7 +369,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
             if (numChildren<4) {
             	continue;
             }
-            oldPositions[i] = new IVector[numChildren];
+            oldPositions[i] = new Vector[numChildren];
             for (int j=0; j<numChildren; j++) {
                 oldPositions[i][j] = space.makeVector();
             }
@@ -410,10 +411,10 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
     protected final int[] probabilityReverseMap;
     protected MoleculeArrayList selectedMolecules;
     protected double bondLength;
-    protected final IVector work1, work2, work3;
-    protected final IVector dr21, dr23, dr34;
-    protected IVector[][] oldPositions;
-    protected final IVector oldCenter;
+    protected final Vector work1, work2, work3;
+    protected final Vector dr21, dr23, dr34;
+    protected Vector[][] oldPositions;
+    protected final Vector oldCenter;
     protected double wOld, wNew, bias;
     protected ISpecies species;
 

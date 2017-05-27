@@ -8,7 +8,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IRandom;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.box.RandomPositionSourceRectangular;
@@ -41,7 +41,7 @@ public class P4BondTorsionOPLS extends P4BondTorsion {
         throw new RuntimeException("Implement me");
     }
 
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         return gradient(atoms);
     }
 
@@ -67,8 +67,8 @@ public class P4BondTorsionOPLS extends P4BondTorsion {
         atoms.add(atom2);
         atoms.add(atom3);
         int n = 40;
-        IVector gradient = space.makeVector();
-        IVector dr = space.makeVector();
+        Vector gradient = space.makeVector();
+        Vector dr = space.makeVector();
         for (int i=0; i<n; i++) {
             atom0.getPosition().E(positionSource.randomPosition());
             atom1.getPosition().E(positionSource.randomPosition());

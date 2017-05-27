@@ -8,14 +8,13 @@ import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
@@ -70,7 +69,7 @@ public class SimulationBetaNitrogenModelTest extends Simulation{
 		box.setNMolecules(species, numMolecule);		
 		int [] nCells = new int[]{1,1,1};
 		
-		IVector[] boxDim = new IVector[3];
+		Vector[] boxDim = new Vector[3];
 		boxDim[0] = space.makeVector(new double[]{nC[0]*a, 0, 0});
 		boxDim[1] = space.makeVector(new double[]{-nC[1]*a*Math.cos(Degree.UNIT.toSim(60)), nC[1]*a*Math.sin(Degree.UNIT.toSim(60)), 0});
 		boxDim[2] = space.makeVector(new double[]{0, 0, nC[2]*c});

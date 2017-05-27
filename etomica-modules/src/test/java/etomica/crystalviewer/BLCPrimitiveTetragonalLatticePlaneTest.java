@@ -4,7 +4,7 @@
 
 package etomica.crystalviewer;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import junit.framework.TestCase;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
@@ -40,7 +40,7 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
 		super.tearDown();
 	}
 
-	private double[] makeArray(IVector v) {
+	private double[] makeArray(Vector v) {
 	    return new double[] {v.getX(0), v.getX(1), v.getX(2)};
 	}
 

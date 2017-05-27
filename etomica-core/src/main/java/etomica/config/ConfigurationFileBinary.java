@@ -12,6 +12,7 @@ import etomica.action.BoxInflate;
 import etomica.api.*;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 
@@ -62,7 +63,7 @@ public class ConfigurationFileBinary implements Configuration {
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtom a = leafList.getAtom(iLeaf);
-            IVector p = a.getPosition();
+            Vector p = a.getPosition();
             for (int i=0; i<x[iLeaf].length; i++) {
                 p.setX(i,x[iLeaf][i]);
             }
@@ -89,7 +90,7 @@ public class ConfigurationFileBinary implements Configuration {
         }
         box0.setNMolecules(species, numAtoms0);
         
-        IVector boundaryBox0 = space.makeVector();
+        Vector boundaryBox0 = space.makeVector();
         boundaryBox0.setX(0, box1.getBoundary().getBoxSize().getX(0)/reps[0]);
         boundaryBox0.setX(1, box1.getBoundary().getBoxSize().getX(1)/reps[1]);
         boundaryBox0.setX(2, box1.getBoundary().getBoxSize().getX(2)/reps[2]);
@@ -106,8 +107,8 @@ public class ConfigurationFileBinary implements Configuration {
                     xyzShift[2] = box0.getBoundary().getBoxSize().getX(2)*(-0.5*(reps[2]-1) + k);
                     int start1 = numAtoms0*(i*reps[2]*reps[1] + j*reps[2] + k);
                     for (int iAtom = 0; iAtom<numAtoms0; iAtom++) {
-                        IVector p0 = leafList0.getAtom(iAtom).getPosition();
-                        IVector p1 = leafList1.getAtom(start1+iAtom).getPosition();
+                        Vector p0 = leafList0.getAtom(iAtom).getPosition();
+                        Vector p1 = leafList1.getAtom(start1+iAtom).getPosition();
                         for (int l=0; l<3; l++) {
                             p1.setX(l, p0.getX(l) + xyzShift[l]);
                         }

@@ -6,11 +6,11 @@ package etomica.AlkaneEH;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.config.IConformation;
 import etomica.space.Space;
 
- /**
+/**
   *  Conformation for normal alkanes, explicit hydrogen
   *  Siepmann, TraPPE-EH
   * 
@@ -64,9 +64,9 @@ import etomica.space.Space;
 		  ////////////////////// put 3H on the beginning C0 ////////////////////////////////////
 		  
 		  double c0M = CHbondL * Math.cos(gamma);// distance between C(H3) and center of HHH plane(M point)
-		  IVector MPosition = space.makeVector();
-		  IVector rNM = space.makeVector();
-		  IVector NPosition = space.makeVector();
+		  Vector MPosition = space.makeVector();
+		  Vector rNM = space.makeVector();
+		  Vector NPosition = space.makeVector();
 		  
 		  double h01X = -CHbondL*Math.sin(beta);
 		  double h01Y = CHbondL*Math.cos(beta);
@@ -94,9 +94,9 @@ import etomica.space.Space;
 		  hEnd1.getPosition().E(new double[]{hEnd1X, hEnd1Y,0.0});
 		    
 		  double c1M1 = c0M;
-		  IVector M1Position =  space.makeVector();
-		  IVector rN1M1= space.makeVector();
-		  IVector N1Position = space.makeVector();
+		  Vector M1Position =  space.makeVector();
+		  Vector rN1M1= space.makeVector();
+		  Vector N1Position = space.makeVector();
 
 		  double M1X = cEnd.getPosition().getX(0) + c1M1 * Math.cos(theta);
 		  double M2X = cEnd.getPosition().getX(1) +Math.pow(-1, numCarbons)* c1M1 * Math.sin(theta);

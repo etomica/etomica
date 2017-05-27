@@ -18,7 +18,7 @@ import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomTypeSpheroPolyhedron;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverageFixed;
@@ -132,7 +132,7 @@ public class VirialPolyhedra {
 //        double vs = Math.PI/6;
 //        double lr = doResize ? Math.pow(vs/v0, 1.0/3.0) : 1;
 //
-//        List<IVector> verticesTO = new ArrayList<IVector>(24);
+//        List<Vector> verticesTO = new ArrayList<Vector>(24);
 //        for (int a=-1; a<=1; a+=2) {
 //            for (int b=-2; b<=2; b+=4) {
 //                IVectorMutable v = space.makeVector();
@@ -155,8 +155,8 @@ public class VirialPolyhedra {
 //                verticesTO.add(v);
 //            }
 //        }
-//        List<IVector> verticesSphere = new ArrayList<IVector>(0);
-//        List<IVector> verticesCube = new ArrayList<IVector>(8);
+//        List<Vector> verticesSphere = new ArrayList<Vector>(0);
+//        List<Vector> verticesCube = new ArrayList<Vector>(8);
         
 //        v0 = 8;
 //        lr = doResize ? Math.pow(vs/v0, 1.0/3.0) : 1;
@@ -191,7 +191,7 @@ public class VirialPolyhedra {
         SpeciesPolyhedron[] allSpecies = new SpeciesPolyhedron[shapes.length];
         double shsref = 0;
         for (int i=0; i<shapes.length; i++) {
-            List<IVector> vertices = ShapeParser.doParse("shape/"+shapes[i]+".dat", space).vertices;
+            List<Vector> vertices = ShapeParser.doParse("shape/"+shapes[i]+".dat", space).vertices;
             allSpecies[i] = new SpeciesPolyhedron(space, vertices, 0.0, new ElementSimple("P"+i));
             double s = 2*((AtomTypeSpheroPolyhedron)allSpecies[i].getAtomType(0)).getOuterRadius();
             shsref = shsref < s ? s : shsref;
@@ -402,7 +402,7 @@ public class VirialPolyhedra {
         IIntegratorListener histListener = new IIntegratorListener() {
             DataDoubleArray dataTarg = new DataDoubleArray(2);
             DataDouble dataRef = new DataDouble();
-            IVector com = Space3D.getInstance().makeVector();
+            Vector com = Space3D.getInstance().makeVector();
             public void integratorStepStarted(IIntegratorEvent e) {}
             
             public void integratorStepFinished(IIntegratorEvent e) {

@@ -7,8 +7,7 @@ package etomica.models.water;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IMolecule;
-import etomica.api.IVector;
-import etomica.atom.Atom;
+import etomica.space.Vector;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.OrientationCalc;
 import etomica.atom.OrientationCalcQuaternion;
@@ -254,18 +253,18 @@ public class OrientationCalcWater4P extends ConformationWaterTIP4P implements
     
     private static final long serialVersionUID = 1L;
 
-    protected final IVector xWork, yWork, zWork;
-    protected final IVector com0;
+    protected final Vector xWork, yWork, zWork;
+    protected final Vector com0;
     protected final RotationTensor3D rotationTensor;
     protected final AtomPositionCOM atomPositionCOM;
     protected boolean initialized;
     protected final RotationTensor previousTensor, workTensor;
     
-    protected static void doTransform(IMolecule molecule, IVector r0, RotationTensor rotationTensor) {
+    protected static void doTransform(IMolecule molecule, Vector r0, RotationTensor rotationTensor) {
         IAtomList childList = molecule.getChildList();
         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
             IAtom a = childList.getAtom(iChild);
-            IVector r = a.getPosition();
+            Vector r = a.getPosition();
             r.ME(r0);
             rotationTensor.transform(r);
             r.PE(r0);
@@ -304,7 +303,7 @@ public class OrientationCalcWater4P extends ConformationWaterTIP4P implements
         rotationTensor.invert();
         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
             IAtom a = childList.getAtom(iChild);
-            IVector r = a.getPosition();
+            Vector r = a.getPosition();
             r.ME(com0);
             rotationTensor.transform(r);
             r.PE(xWork);

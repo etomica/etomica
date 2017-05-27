@@ -9,6 +9,7 @@ import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Vector3D;
@@ -63,8 +64,8 @@ public class MCMoveClusterRotateCH3 extends MCMoveMolecule {
                 continue;
             }
             IAtomList childList = moleculeList.getMolecule(i).getChildList();
-            IVector position = space.makeVector();
-            IVector positionNeighbor = space.makeVector();
+            Vector position = space.makeVector();
+            Vector positionNeighbor = space.makeVector();
             int numChildren = childList.getAtomCount();// total atoms in the i-th molecule
             int numCarbons = (numChildren-2)/3;// number of carbons in the i-th molecule
             int j = random.nextInt(2);// 0 or 1
@@ -99,7 +100,7 @@ public class MCMoveClusterRotateCH3 extends MCMoveMolecule {
             	///// ######################################################################### ///////////////////
             	for (int s=0;s<3; s++){
             		hydrogen[s] =  childList.getAtom(numCarbons * (s+1));// [n], [2n], [3n]
-            		IVector r = hydrogen[s].getPosition();
+            		Vector r = hydrogen[s].getPosition();
             		r.ME(position);//position is position of C0
             		rotateTensor.transform(r);
             		r.PE(position);
@@ -113,7 +114,7 @@ public class MCMoveClusterRotateCH3 extends MCMoveMolecule {
             	hydrogen[1]=childList.getAtom(numCarbons*3-1);//[n-1+2n]
             	hydrogen[2]=childList.getAtom(numCarbons*3+1);//[3n+1]
             	for (int s=0;s<3; s++){
-            		IVector r = hydrogen[s].getPosition();
+            		Vector r = hydrogen[s].getPosition();
             		r.ME(position);//position is position of C[n-1]
             		rotateTensor.transform(r);
             		r.PE(position);
@@ -165,8 +166,8 @@ public class MCMoveClusterRotateCH3 extends MCMoveMolecule {
     private static final long serialVersionUID = 1L;
     protected final MeterPotentialEnergy energyMeter;
     protected IAtom[] selectedAtoms;
-    protected final IVector axis;
-    protected IVector[] translationVectors;
+    protected final Vector axis;
+    protected Vector[] translationVectors;
     protected double wOld, wNew;
     protected final Space space;
     protected ISpecies species;

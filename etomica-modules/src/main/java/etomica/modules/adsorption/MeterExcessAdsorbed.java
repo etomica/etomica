@@ -8,7 +8,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
 import etomica.units.Quantity;
 
@@ -47,7 +47,7 @@ public class MeterExcessAdsorbed extends DataSourceScalar {
         for (int i=0; i<list.getAtomCount(); i++) {
             IAtom atom = list.getAtom(i);
             if (atom.getParentGroup().getType() != species) continue;
-            IVector p = atom.getPosition();
+            Vector p = atom.getPosition();
             double x = p.getX(dim);
             if (x>xMin && x<xMax) n++;
         }

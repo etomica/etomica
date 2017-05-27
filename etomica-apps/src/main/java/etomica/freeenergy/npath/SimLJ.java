@@ -19,6 +19,7 @@ import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.CompoundUnit;
@@ -55,7 +56,7 @@ public class SimLJ extends Simulation {
         box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
-        IVector l = space.makeVector();
+        Vector l = space.makeVector();
         l.E(10);
         for (int i=0; i<=offsetDim; i++) {
             l.setX(i,20);
@@ -81,7 +82,7 @@ public class SimLJ extends Simulation {
 
         potentialMasterCell.addPotential(potentialTruncated,new IAtomType[]{leafType,leafType});
 
-        IVector offset = space.makeVector();
+        Vector offset = space.makeVector();
         offset.setX(offsetDim, box.getBoundary().getBoxSize().getX(offsetDim)*0.5);
         p1ImageHarmonic = new P1ImageHarmonic(space, offset, w, true);
         potentialMasterCell.addPotential(p1ImageHarmonic, new IAtomType[]{leafType});
@@ -93,7 +94,7 @@ public class SimLJ extends Simulation {
 //        ((MCMoveStepTracker)mcMoveAtom.getTracker()).setNoisyAdjustment(true);
 //        ((MCMoveStepTracker)mcMoveAtomCoupled.getTracker()).setNoisyAdjustment(true);
 
-        IVector boxLength = box.getBoundary().getBoxSize();
+        Vector boxLength = box.getBoundary().getBoxSize();
         double lMin = boxLength.getX(0);
         if (boxLength.getX(1) < lMin) lMin = boxLength.getX(1);
         if (boxLength.getX(2) < lMin) lMin = boxLength.getX(2);

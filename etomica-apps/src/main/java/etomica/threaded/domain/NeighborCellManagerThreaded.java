@@ -6,7 +6,7 @@ package etomica.threaded.domain;
 
 import etomica.box.Box;
 import etomica.simulation.Simulation;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.space.Space;
@@ -37,7 +37,7 @@ public class NeighborCellManagerThreaded extends NeighborCellManager {
     public void setNumCells(int totalCells){
         this.totalCells = totalCells;
         if(totalCells==0){return;}
-        IVector dimensions = box.getBoundary().getBoxSize();
+        Vector dimensions = box.getBoundary().getBoxSize();
         lattice.setDimensions(dimensions);
        
         int [] nCells = calculateLatticeDimensions(totalCells, dimensions);
@@ -55,7 +55,7 @@ public class NeighborCellManagerThreaded extends NeighborCellManager {
         
     }
     
-    protected int[] calculateLatticeDimensions(int nCells, IVector shape) {
+    protected int[] calculateLatticeDimensions(int nCells, Vector shape) {
         int dimLeft = shape.getD();
         int nCellsLeft = nCells;
         int[] latticeDimensions = new int[shape.getD()];

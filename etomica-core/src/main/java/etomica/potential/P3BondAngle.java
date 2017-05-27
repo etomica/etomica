@@ -8,7 +8,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.box.RandomPositionSourceRectangular;
@@ -32,7 +32,7 @@ public class P3BondAngle extends Potential implements PotentialSoft {
         dr12 = space.makeVector();
         dr23 = space.makeVector();
         setAngle(Math.PI);
-        gradient = new IVector[3];
+        gradient = new Vector[3];
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();
         gradient[2] = space.makeVector();
@@ -106,7 +106,7 @@ public class P3BondAngle extends Potential implements PotentialSoft {
         return Double.POSITIVE_INFINITY;
     }
 
-    public IVector[] gradient(IAtomList atoms) {
+    public Vector[] gradient(IAtomList atoms) {
         IAtom atom0 = atoms.getAtom(0);
         IAtom atom1 = atoms.getAtom(1);
         IAtom atom2 = atoms.getAtom(2);
@@ -139,7 +139,7 @@ public class P3BondAngle extends Potential implements PotentialSoft {
         return gradient;
     }
 
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         return gradient(atoms);
     }
 
@@ -147,12 +147,12 @@ public class P3BondAngle extends Potential implements PotentialSoft {
         return 0;
     }
 
-    protected final IVector dr12, dr23;
+    protected final Vector dr12, dr23;
     protected IBoundary boundary;
     protected double angle;
     protected double epsilon;
     private static final long serialVersionUID = 1L;
-    protected final IVector[] gradient;
+    protected final Vector[] gradient;
     
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
@@ -176,9 +176,9 @@ public class P3BondAngle extends Potential implements PotentialSoft {
         double oldU = 0;
         double oldoldU = 0;
         double U = 0;
-        IVector oldGradient = space.makeVector();
-        IVector gradient = space.makeVector();
-        IVector dr = space.makeVector();
+        Vector oldGradient = space.makeVector();
+        Vector gradient = space.makeVector();
+        Vector dr = space.makeVector();
         for (int i=0; i<n+1; i++) {
             oldoldU = oldU;
             oldU = U;

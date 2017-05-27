@@ -8,7 +8,7 @@ import etomica.action.IAction;
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayBox;
@@ -152,7 +152,7 @@ public class VirialH2OGCPMD {
         
         if (nonAdditive != Nonadditive.NONE) {
             MoleculeActionTranslateTo act = new MoleculeActionTranslateTo(space);
-            IVector pos = space.makeVector();
+            Vector pos = space.makeVector();
             double r = 4;
             for (int i=1; i<nPoints; i++) {
                 double theta = 2*i*Math.PI/nPoints;

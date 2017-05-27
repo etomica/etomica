@@ -3,23 +3,23 @@ package etomica.atom;
 import java.util.List;
 
 import etomica.api.IElement;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 public class AtomTypeSpheroPolyhedron extends AtomTypeLeaf {
 
     protected double outRadius, inRadius;
     protected final double sweepRadius;
-    protected final List<IVector> vertices;
+    protected final List<Vector> vertices;
     
-    public AtomTypeSpheroPolyhedron(IElement element, Space space, List<IVector> vertices, double sweepRadius) {
+    public AtomTypeSpheroPolyhedron(IElement element, Space space, List<Vector> vertices, double sweepRadius) {
         super(element);
         this.vertices = vertices;
         if (vertices.size() == 1 && sweepRadius == 0) sweepRadius = 0.5;
         this.sweepRadius = sweepRadius;
         int vertexNum = vertices.size();
-        IVector normal = space.makeVector();
-        IVector drij = space.makeVector();
+        Vector normal = space.makeVector();
+        Vector drij = space.makeVector();
         inRadius = Double.MAX_VALUE;
         
         if (vertexNum >= 3) {
@@ -79,7 +79,7 @@ public class AtomTypeSpheroPolyhedron extends AtomTypeLeaf {
         return outRadius;
     }
     
-    public List<IVector> getVertices() {
+    public List<Vector> getVertices() {
         return vertices;
     }
 }

@@ -8,7 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import etomica.action.IAction;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
@@ -101,7 +101,7 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
             	double[][] omegaSq = sim.nm.getOmegaSquared();
                 int m = omegaSq.length;
                 double[] omega2 = new double[m];
-                IVector[] wv = sim.waveVectorFactory.getWaveVectors();
+                Vector[] wv = sim.waveVectorFactory.getWaveVectors();
                 
                 int wvNumUsed = (int)waveVectorSlider.getWaveVectorNum();
                 

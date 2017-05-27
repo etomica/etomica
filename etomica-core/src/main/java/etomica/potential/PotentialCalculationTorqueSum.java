@@ -8,7 +8,7 @@ import etomica.api.IAtomList;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.MoleculeAgentManager;
 import etomica.integrator.Integrator;
@@ -80,9 +80,9 @@ public class PotentialCalculationTorqueSum implements PotentialCalculationMolecu
         if (potential instanceof IPotentialMolecularTorque) {
             // IPotentialTorque will give us gradient and torque in one call
             IPotentialMolecularTorque potentialSoft = (IPotentialMolecularTorque)potential;
-            IVector[][] gt = potentialSoft.gradientAndTorque(atoms);
-            IVector[] g = gt[0];
-            IVector[] t = gt[1];
+            Vector[][] gt = potentialSoft.gradientAndTorque(atoms);
+            Vector[] g = gt[0];
+            Vector[] t = gt[1];
             switch(nBody) {
                 case 1:
                     ((IntegratorBox.Torquable)moleculeAgentManager.getAgent(atoms.getMolecule(0))).torque().PE(t[0]);
@@ -107,7 +107,7 @@ public class PotentialCalculationTorqueSum implements PotentialCalculationMolecu
         else if (potential instanceof PotentialMolecularSoft) {
             // we can only get the gradient, but we're probably just dealing with a set of (leaf) Atoms.
             PotentialMolecularSoft potentialSoft = (PotentialMolecularSoft)potential;
-            IVector[] gradient = potentialSoft.gradient(atoms);
+            Vector[] gradient = potentialSoft.gradient(atoms);
             switch(nBody) {
                 case 1:
                     ((IntegratorBox.Forcible)moleculeAgentManager.getAgent(atoms.getMolecule(0))).force().ME(gradient[0]);
@@ -136,9 +136,9 @@ public class PotentialCalculationTorqueSum implements PotentialCalculationMolecu
 	    if (potential instanceof IPotentialTorque) {
 	        // IPotentialTorque will give us gradient and torque in one call
     		IPotentialTorque potentialSoft = (IPotentialTorque)potential;
-			IVector[][] gt = potentialSoft.gradientAndTorque(atoms);
-			IVector[] g = gt[0];
-			IVector[] t = gt[1];
+			Vector[][] gt = potentialSoft.gradientAndTorque(atoms);
+			Vector[] g = gt[0];
+			Vector[] t = gt[1];
 			switch(nBody) {
 				case 1:
 					((IntegratorBox.Torquable)leafAgentManager.getAgent(atoms.getAtom(0))).torque().PE(t[0]);
@@ -163,7 +163,7 @@ public class PotentialCalculationTorqueSum implements PotentialCalculationMolecu
 	    else if (potential instanceof PotentialSoft) {
             // we can only get the gradient, but we're probably just dealing with a set of (leaf) Atoms.
             PotentialSoft potentialSoft = (PotentialSoft)potential;
-            IVector[] gradient = potentialSoft.gradient(atoms);
+            Vector[] gradient = potentialSoft.gradient(atoms);
             switch(nBody) {
                 case 1:
                     ((IntegratorBox.Forcible)leafAgentManager.getAgent(atoms.getAtom(0))).force().ME(gradient[0]);

@@ -10,7 +10,7 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
@@ -46,11 +46,11 @@ public class ConfigurationCatalysis implements Configuration {
         conformation = new ConformationChainZigZag[4];
     }
     
-    public void setMoleculeOffset(IVector newMoleculeOffset) {
+    public void setMoleculeOffset(Vector newMoleculeOffset) {
         moleculeOffset.E(newMoleculeOffset);
     }
     
-    public IVector getMoleculeOffset() {
+    public Vector getMoleculeOffset() {
         return moleculeOffset;
     }
     
@@ -59,7 +59,7 @@ public class ConfigurationCatalysis implements Configuration {
         box.setNMolecules(speciesO, 0);
         box.setNMolecules(speciesC, 0);
         
-        IVector dim = space.makeVector();
+        Vector dim = space.makeVector();
         dim.E(box.getBoundary().getBoxSize());
         dim.setX(0, nCellsX*cellSizeX);
         dim.setX(1, 0.9*dim.getX(1));
@@ -79,7 +79,7 @@ public class ConfigurationCatalysis implements Configuration {
         box.getBoundary().setBoxSize(dim);
         
         IMoleculeList molecules = pretendBox.getMoleculeList();
-        IVector shift = space.makeVector();
+        Vector shift = space.makeVector();
         shift.setX(0, -1.901);
         while (molecules.getMoleculeCount()>0) {
             IMolecule molecule1 = molecules.getMolecule(0);
@@ -88,9 +88,9 @@ public class ConfigurationCatalysis implements Configuration {
             IMolecule molecule2 = speciesO.makeMolecule();
             box.addMolecule(molecule2);
             IAtom atom1 = molecule1.getChildList().getAtom(0);
-            IVector pos1 = atom1.getPosition();
+            Vector pos1 = atom1.getPosition();
             IAtom atom2 = molecule2.getChildList().getAtom(0);
-            IVector pos2 = atom2.getPosition();
+            Vector pos2 = atom2.getPosition();
             pos2.Ev1Mv2(pos1, shift);
             pos1.PE(shift);
             ((CatalysisAgent)agentManager.getAgent(atom1)).bondedAtom1 = atom2;
@@ -199,7 +199,7 @@ public class ConfigurationCatalysis implements Configuration {
     protected double cellSizeX, cellSizeZ;
     protected int nCellsX, nCellsZ;
     protected double yOffset;
-    protected final IVector moleculeOffset;
+    protected final Vector moleculeOffset;
     protected ConformationChainZigZag[] conformation;
     protected PotentialMasterList potentialMaster;
     
@@ -212,8 +212,8 @@ public class ConfigurationCatalysis implements Configuration {
             super(makeScaledPositions(space));
         }
         
-        private static final IVector[] makeScaledPositions(Space space) {
-            IVector[] v = new IVector[2];
+        private static final Vector[] makeScaledPositions(Space space) {
+            Vector[] v = new Vector[2];
             for (int i=0; i<2; i++) {
                 v[i] = space.makeVector();
             }

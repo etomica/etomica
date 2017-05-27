@@ -4,7 +4,7 @@
 
 package etomica.modules.pistoncylinder;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.data.IData;
 import etomica.data.meter.MeterRDF;
 import etomica.modules.pistoncylinder.ApiFilteredCylinder.AtomFilterInCylinder;
@@ -45,7 +45,7 @@ public class MeterRDFCylinder extends MeterRDF {
 
         // renormalize the RDF to account for the excluded pairs
         double pistonRatio = 1;
-        IVector dimensions = box.getBoundary().getBoxSize();
+        Vector dimensions = box.getBoundary().getBoxSize();
         double radius = pistonPotential.getCollisionRadius();
         for (int i=0; i<space.D(); i++) {
             if (i == 1) {

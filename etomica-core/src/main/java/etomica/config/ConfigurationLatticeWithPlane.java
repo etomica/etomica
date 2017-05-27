@@ -7,7 +7,7 @@ package etomica.config;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
@@ -160,7 +160,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
         }
 
         // determine scaled shape of simulation volume
-        IVector halfShape = space.makeVector();
+        Vector halfShape = space.makeVector();
         halfShape.E(box.getBoundary().getBoxSize());
 
 	    int planeDimIdx = 0;
@@ -175,7 +175,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
 	    	planeDimIdx = 2;
 	    }
 
-	    IVector entireShape = space.makeVector();
+	    Vector entireShape = space.makeVector();
 	    entireShape.E(halfShape);
 
 	    //  NOTE, JUST DIVIDING BY 2 ASSUMES PLANE DOWN CENTER
@@ -183,7 +183,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
 	    halfShape.setX(planeDimIdx, halfShape.getX(planeDimIdx) / 2);
 
 
-        IVector latticeConstantV = space.makeVector(lattice.getLatticeConstants());
+        Vector latticeConstantV = space.makeVector(lattice.getLatticeConstants());
         halfShape.DE(latticeConstantV);
 
         int[][] latticeDimensions;
@@ -203,7 +203,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
         for(int side = LEFT; side <= RIGHT; side++) {
 
 	        // determine lattice constant
-	        IVector latticeScaling = space.makeVector();
+	        Vector latticeScaling = space.makeVector();
 	        if (rescalingToFitVolume) {
                 latticeScaling.E(halfShape);
 	            latticeScaling.DE(space.makeVector(latticeDimensions[side]));
@@ -215,16 +215,16 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
             indexIterator.reset();
 
 	        // determine amount to shift lattice so it is centered in volume
-	        IVector offset = space.makeVector();
+	        Vector offset = space.makeVector();
 	        offset.E(box.getBoundary().getBoxSize());
 
-	        IVector temp3 = space.makeVector();
+	        Vector temp3 = space.makeVector();
             temp3.E(entireShape);
             temp3.TE(-0.5);
             temp3.setX(planeDimIdx, halfShape.getX(planeDimIdx) * (side-1));
             offset.E(temp3);
 
-	        IVector temp2 = space.makeVector();
+	        Vector temp2 = space.makeVector();
 	        temp2.E(latticeScaling);
 	        temp2.TE(0.5);
 	        offset.PE(temp2);
@@ -240,7 +240,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
 
 			        int[] idx = indexIterator.next();
 
-			        atomActionTranslateTo.setDestination((IVector)myLat.site(idx));
+			        atomActionTranslateTo.setDestination((Vector)myLat.site(idx));
 			        atomActionTranslateTo.actionPerformed(a);
 	
 		        }

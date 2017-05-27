@@ -27,6 +27,7 @@ import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.numerical.CalcGradientDifferentiable;
@@ -48,7 +49,7 @@ public class SimDimerLJadatom extends Simulation{
     public IntegratorDimerRT integratorDimer;
     public IntegratorDimerMin integratorDimerMin;
     public Box box;
-    public IVector[] saddle, normal;
+    public Vector[] saddle, normal;
     public SpeciesSpheresMono fixed, movable;
 //    public P2LennardJones potential;
     public ActivityIntegrate activityIntegrateMD, activityIntegrateDimer, activityIntegrateMin;
@@ -59,7 +60,7 @@ public class SimDimerLJadatom extends Simulation{
     public double [] positions;
     public double [] lambdas, frequencies;
     public IMoleculeList movableSet;
-    public IVector adAtomPos;
+    public Vector adAtomPos;
     public Boolean saddleFine, calcModes, minSearch, normalDir;
     
 
@@ -105,16 +106,16 @@ public class SimDimerLJadatom extends Simulation{
         adAtomPos.setX(0, 3.5);
         adAtomPos.setX(1, -0.30);
         adAtomPos.setX(2, -0.30);
-        IVector newBoxLength = space.makeVector();
+        Vector newBoxLength = space.makeVector();
         newBoxLength.E(box.getBoundary().getBoxSize());
         newBoxLength.setX(0, 2.0*adAtomPos.getX(0)+2.0);
         box.getBoundary().setBoxSize(newBoxLength);
 
     }
     
-    public void setMovableAtoms(double distance, IVector center){
+    public void setMovableAtoms(double distance, Vector center){
         //distance = distance*distance;
-        IVector rij = space.makeVector();
+        Vector rij = space.makeVector();
         MoleculeArrayList movableList = new MoleculeArrayList();
         IMoleculeList loopSet = box.getMoleculeList();
         for (int i=0; i<loopSet.getMoleculeCount(); i++){
@@ -136,9 +137,9 @@ public class SimDimerLJadatom extends Simulation{
 
     
     //Must be run after setMovableAtoms
-    public void removeAtoms(double distance, IVector center){
+    public void removeAtoms(double distance, Vector center){
         distance = distance*distance;
-        IVector rij = space.makeVector();
+        Vector rij = space.makeVector();
         
         IMoleculeList loopSet = box.getMoleculeList(movable);
         for (int i=0; i<loopSet.getMoleculeCount(); i++){
@@ -157,8 +158,8 @@ public class SimDimerLJadatom extends Simulation{
     
     public void generateConfigs(String fileName, double percentd){       
         
-        IVector workVector = space.makeVector();
-        IVector[] currentPos = new IVector[movableSet.getMoleculeCount()];
+        Vector workVector = space.makeVector();
+        Vector[] currentPos = new Vector[movableSet.getMoleculeCount()];
         for(int i=0; i<currentPos.length; i++){
             currentPos[i] = space.makeVector();
             currentPos[i].E(movableSet.getMolecule(i).getChildList().getAtom(0).getPosition());
@@ -171,7 +172,7 @@ public class SimDimerLJadatom extends Simulation{
             genConfig.setConfName(fileName+"_config_"+m);
             //Displaces atom's by at most +/-0.03 in each coordinate
             for(int i=0; i<movableSet.getMoleculeCount(); i++){
-                IVector atomPosition = movableSet.getMolecule(i).getChildList().getAtom(0).getPosition();
+                Vector atomPosition = movableSet.getMolecule(i).getChildList().getAtom(0).getPosition();
                 for(int j=0; j<3; j++){
                     workVector.setX(j,percentd*random.nextGaussian());
                 }
@@ -229,9 +230,9 @@ public class SimDimerLJadatom extends Simulation{
     }
     
     public void randomizePositions(){
-        IVector workVector = space.makeVector();
+        Vector workVector = space.makeVector();
         IMoleculeList loopSet3 = box.getMoleculeList(movable);
-        IVector[] currentPos = new IVector[loopSet3.getMoleculeCount()];
+        Vector[] currentPos = new Vector[loopSet3.getMoleculeCount()];
         double offset = 0;
         for(int i=0; i<currentPos.length; i++){
             currentPos[i] = space.makeVector();
@@ -248,7 +249,7 @@ public class SimDimerLJadatom extends Simulation{
     public static void main(String[] args) {
        
         final SimDimerLJadatom sim = new SimDimerLJadatom();
-        IVector vect = sim.getSpace().makeVector();
+        Vector vect = sim.getSpace().makeVector();
         vect.setX(0, 3.5);
         vect.setX(1, 0.0);
         vect.setX(2, 0.0);

@@ -5,7 +5,7 @@
 package etomica.virial;
 
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConformationChainZigZag2;
 import etomica.space.Space;
@@ -46,9 +46,9 @@ public class SpeciesFactorySpheres2 implements SpeciesFactory, java.io.Serializa
     }
     
     public void init() {
-        IVector vector1 = space.makeVector();
+        Vector vector1 = space.makeVector();
         vector1.setX(0, bondL);
-        IVector vector2 = space.makeVector();
+        Vector vector2 = space.makeVector();
         vector2.setX(0, bondL*Math.cos(bondTheta));
         vector2.setX(1, bondL*Math.sin(bondTheta));
         conformation = new ConformationChainZigZag2(space, vector1, vector2);

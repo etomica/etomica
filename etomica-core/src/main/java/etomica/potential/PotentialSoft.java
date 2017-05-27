@@ -6,7 +6,7 @@ package etomica.potential;
 
 import etomica.api.IAtomList;
 import etomica.api.IPotentialAtomic;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.Tensor;
 
 
@@ -27,7 +27,7 @@ public interface PotentialSoft extends IPotentialAtomic {
 	 * @param atoms
 	 * @return
 	 */
-	public IVector[] gradient(IAtomList atoms);
+	public Vector[] gradient(IAtomList atoms);
     
     /**
      * Returns the same gradient as gradient(AtomSet) and also adds in the
@@ -37,6 +37,6 @@ public interface PotentialSoft extends IPotentialAtomic {
      * generally trivial once the gradient is known but often requires
      * intermediate information.
      */
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor);
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor);
 
 }

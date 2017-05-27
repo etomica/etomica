@@ -6,7 +6,7 @@ package etomica.potential;
 
 import etomica.api.IAtomList;
 import etomica.api.IPotentialAtomic;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.integrator.IntegratorBox;
 
@@ -46,7 +46,7 @@ public class PotentialCalculationForceSum implements PotentialCalculation {
     public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
         PotentialSoft potentialSoft = (PotentialSoft)potential;
         int nBody = potential.nBody();
-        IVector[] f = potentialSoft.gradient(atoms);
+        Vector[] f = potentialSoft.gradient(atoms);
         if (f==null) return;
         switch(nBody) {
         	case 0:

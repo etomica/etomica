@@ -12,6 +12,7 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.units.Angle;
 
@@ -67,7 +68,7 @@ public class MeterTilt implements IEtomicaDataSource {
     private static final long serialVersionUID = 1L;
     protected final ISpecies species;
     protected Box box;
-    protected final IVector dr, drSum;
+    protected final Vector dr, drSum;
     protected final DataTag tag;
     protected final DataGroup data;
     protected final IEtomicaDataInfo dataInfo;

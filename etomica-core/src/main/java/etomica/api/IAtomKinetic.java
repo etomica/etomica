@@ -5,6 +5,8 @@
 package etomica.api;
 
 
+import etomica.space.Vector;
+
 /**
  * Interface for an atom that holds vectors for velocity.
  */
@@ -14,6 +16,6 @@ public interface IAtomKinetic extends IAtom {
      * @return the velocity of the IAtom.  Modifying the returned vector will
      * alter the IAtom's velocity.
      */
-    public IVector getVelocity();
+    public Vector getVelocity();
  
 }

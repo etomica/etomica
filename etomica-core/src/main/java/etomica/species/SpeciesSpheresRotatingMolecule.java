@@ -7,7 +7,7 @@ package etomica.species;
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.api.IMolecule;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.Atom;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.MoleculeOriented;
@@ -28,17 +28,17 @@ public class SpeciesSpheresRotatingMolecule extends SpeciesSpheresMono implement
         this(sim, _space, makeNominalMoment(_space));
     }
 
-    protected static final IVector makeNominalMoment(Space space) {
-        IVector m = space.makeVector();
+    protected static final Vector makeNominalMoment(Space space) {
+        Vector m = space.makeVector();
         m.E(1);
         return m;
     }
 
-    public SpeciesSpheresRotatingMolecule(Simulation sim, Space _space, IVector moment) {
+    public SpeciesSpheresRotatingMolecule(Simulation sim, Space _space, Vector moment) {
         this(_space, new AtomTypeLeaf(new ElementSimple(sim)), moment);
     }
     
-    public SpeciesSpheresRotatingMolecule(Space _space, IAtomType atomType, IVector moment) {
+    public SpeciesSpheresRotatingMolecule(Space _space, IAtomType atomType, Vector moment) {
         super(_space, atomType);
         this.moment = _space.makeVector();
         this.moment.E(moment);
@@ -62,17 +62,17 @@ public class SpeciesSpheresRotatingMolecule extends SpeciesSpheresMono implement
         return leafAtomType.getMass();
     }
 
-    public IVector getMomentOfInertia() {
+    public Vector getMomentOfInertia() {
         return moment;
     }
     
     /**
      * Sets the species' moment of inertia to the given moment.
      */
-    public void setMomentOfInertia(IVector newMoment) {
+    public void setMomentOfInertia(Vector newMoment) {
         moment.E(newMoment);
     }
 
-    protected IVector moment;
+    protected Vector moment;
     private static final long serialVersionUID = 1L;
 }

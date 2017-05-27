@@ -7,6 +7,7 @@ import etomica.api.*;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.integrator.mcmove.MCMoveMolecule;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.RotationTensor;
 
@@ -22,11 +23,11 @@ import etomica.space.RotationTensor;
 public class MCMoveRotateMolecule3DN2AveCosThetaConstraint extends MCMoveMolecule {
     
     private static final long serialVersionUID = 2L;
-    protected transient IVector r0, molAxis;
+    protected transient Vector r0, molAxis;
     protected transient RotationTensor rotationTensor;
     protected IAtomPositionDefinition positionDefinition;
     protected CoordinateDefinitionNitrogen coordinateDef;
-    protected IVector[] initMolecOrientation;
+    protected Vector[] initMolecOrientation;
     protected int numMolecule;
     protected double aveCosTheta = 1.0;
     protected double newTotalCosTheta, oldTotalCosTheta;
@@ -44,7 +45,7 @@ public class MCMoveRotateMolecule3DN2AveCosThetaConstraint extends MCMoveMolecul
         
         IMoleculeList moleculeList = coordinateDef.getBox().getMoleculeList();
         numMolecule = moleculeList.getMoleculeCount();
-        initMolecOrientation = new IVector[numMolecule];
+        initMolecOrientation = new Vector[numMolecule];
         molAxis = space.makeVector();
         
         for (int i=0; i<numMolecule; i++){
@@ -65,8 +66,8 @@ public class MCMoveRotateMolecule3DN2AveCosThetaConstraint extends MCMoveMolecul
         energyMeter.setTarget(molecule);
         uOld = energyMeter.getDataAsScalar();
         
-        IVector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-    	IVector leafPos1 = molecule.getChildList().getAtom(1).getPosition();
+        Vector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
+    	Vector leafPos1 = molecule.getChildList().getAtom(1).getPosition();
 
     	molAxis.Ev1Mv2(leafPos1, leafPos0);
        	molAxis.normalize();
@@ -116,7 +117,7 @@ public class MCMoveRotateMolecule3DN2AveCosThetaConstraint extends MCMoveMolecul
         IAtomList childList = molecule.getChildList();
         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
             IAtom a = childList.getAtom(iChild);
-            IVector r = a.getPosition();
+            Vector r = a.getPosition();
             r.ME(r0);
             box.getBoundary().nearestImage(r);
             rotationTensor.transform(r);
@@ -138,8 +139,8 @@ public class MCMoveRotateMolecule3DN2AveCosThetaConstraint extends MCMoveMolecul
         for (int i=0; i<numMolecule; i++){
 		    IMolecule molec = coordinateDef.getBox().getMoleculeList().getMolecule(i);
 		        
-		    IVector leafPos0 = molec.getChildList().getAtom(0).getPosition();
-		    IVector leafPos1 = molec.getChildList().getAtom(1).getPosition();
+		    Vector leafPos0 = molec.getChildList().getAtom(0).getPosition();
+		    Vector leafPos1 = molec.getChildList().getAtom(1).getPosition();
 
 		    molAxis.Ev1Mv2(leafPos1, leafPos0);
 		    molAxis.normalize();

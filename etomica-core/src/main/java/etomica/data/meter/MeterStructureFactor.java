@@ -5,7 +5,7 @@
 package etomica.data.meter;
 
 import etomica.api.IAtomList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
@@ -29,7 +29,7 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
 	protected final Space space;
     protected Box box;
     protected double[] struct;
-    protected IVector[] waveVec;
+    protected Vector[] waveVec;
     protected IAtomList atomList;
     protected DataFunction data;
     protected DataInfoFunction dataInfo;
@@ -64,13 +64,13 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
 	protected int makeWaveVector(double cutoff) {
         int nVec = 0;
         double[] x = xData == null ? null : xData.getData();
-        IVector[] edges = new IVector[3];
+        Vector[] edges = new Vector[3];
         edges[0] = box.getBoundary().getEdgeVector(0);
         edges[1] = box.getBoundary().getEdgeVector(1);
         edges[2] = box.getBoundary().getEdgeVector(2);
         Primitive primitiveBox = new PrimitiveGeneral(space, edges);
         Primitive recip = primitiveBox.makeReciprocal();
-        IVector[] basis = recip.vectors();
+        Vector[] basis = recip.vectors();
 
         double cutoff2 = cutoff*cutoff;
 
@@ -87,7 +87,7 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
         idx[1] = 0;
         idx[2] = 1;
         while (true) {
-            IVector v = space.makeVector();
+            Vector v = space.makeVector();
             boolean success = false;
             for  (int i=idx.length-1; i>=0; i--) {
                 idx[i]++;
@@ -124,7 +124,7 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
 	    waveVec = null;
 	    int nVec = makeWaveVector(cutoff);
         struct = new double[nVec];
-	    waveVec = new IVector[nVec];
+	    waveVec = new Vector[nVec];
         resetData();
         makeWaveVector(cutoff);
 	}
@@ -132,7 +132,7 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
 	/**
 	 * @param waveVec Sets a custom wave vector array.
 	 */
-	public void setWaveVec(IVector[] waveVec){
+	public void setWaveVec(Vector[] waveVec){
 	    this.waveVec = space.makeVectorArray(waveVec.length);
 	    struct = new double[waveVec.length];
 		for(int i=0; i<waveVec.length; i++){

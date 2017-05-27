@@ -6,6 +6,7 @@ package etomica.api;
 
 
 import etomica.box.Box;
+import etomica.space.Vector;
 
 /**
  * Interface for boundary objects that describe the size and periodic nature
@@ -49,7 +50,7 @@ public interface IBoundary {
      * @return the displacement that must be applied to r to move it to its
      *         central-image location
      */
-    public IVector centralImage(IVector r);
+    public Vector centralImage(Vector r);
 
     /**
      * The nearest image is the pair of atom images that are closest when all
@@ -61,7 +62,7 @@ public interface IBoundary {
      *
      * @param dr the vector to be transformed
      */
-    public void nearestImage(IVector dr);
+    public void nearestImage(Vector dr);
 
     /**
      * Returns the length of the sides of a rectangular box oriented in the lab
@@ -75,7 +76,7 @@ public interface IBoundary {
      *
      * @return the box size
      */
-    public IVector getBoxSize();
+    public Vector getBoxSize();
 
     /**
      * Scales the boundary dimensions such that the boundary's would be
@@ -86,7 +87,7 @@ public interface IBoundary {
      *
      * @param v the box's new size
      */
-    public void setBoxSize(IVector v);
+    public void setBoxSize(Vector v);
 
     /**
      * Returns the vector that defines the edge of this boundary for the given
@@ -96,7 +97,7 @@ public interface IBoundary {
      * @param d the dimension of the desired edge vector
      * @return the edge vector
      */
-    public IVector getEdgeVector(int d);
+    public Vector getEdgeVector(int d);
 
     /**
      * Returns true if the boundary is periodic in the given direction (as
@@ -110,7 +111,7 @@ public interface IBoundary {
    /**
     * @return the center point (origin) of the boundary
     */
-   public IVector getCenter();
+   public Vector getCenter();
     
     /**
      * @return the event manager, which fires notifications about changes to

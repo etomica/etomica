@@ -5,7 +5,7 @@
 package etomica.modules.rosmosis;
 
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -38,7 +38,7 @@ public class MeterOsmoticPressure implements IEtomicaDataSource {
     }
     
     public IData getData() {
-        IVector dimensions = box.getBoundary().getBoxSize();
+        Vector dimensions = box.getBoundary().getBoxSize();
         data.x = -pc.getWallForce() / (dimensions.getX(1) * dimensions.getX(2));
         return data;
     }

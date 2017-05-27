@@ -2,7 +2,7 @@ package etomica.normalmode;
   
 import etomica.api.IAtom;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
@@ -31,7 +31,7 @@ public class MeterSolidPropsLJ implements IEtomicaDataSource, AgentSource<MyAgen
     protected final PotentialMaster potentialMaster;
     protected final AtomLeafAgentManager<MyAgent> forceManager;
     protected final IteratorDirective id;
-    protected final IVector dr;
+    protected final Vector dr;
     protected double ULat, PLat;
     protected double volume, density;
     protected int nMol, nRowsA, nColumnsA, nCells, nBasis;

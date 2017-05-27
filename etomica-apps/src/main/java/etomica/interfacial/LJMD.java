@@ -40,6 +40,7 @@ import etomica.potential.P2SoftSphericalTruncatedForceShifted;
 import etomica.potential.Potential1;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.HistogramExpanding;
@@ -370,7 +371,7 @@ public class LJMD extends Simulation {
         
         WriteConfigurationInterfacial configWriter = new WriteConfigurationInterfacial(sim.space);
         configWriter.setSpecies(sim.speciesFluid);
-        IVector unshift = sim.space.makeVector();
+        Vector unshift = sim.space.makeVector();
         unshift.Ea1Tv1(-1, sim.config.getShift());
         configWriter.setShift(unshift);
         configWriter.setBox(sim.box);

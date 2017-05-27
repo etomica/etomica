@@ -4,7 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 
 /**
@@ -29,7 +29,7 @@ public class CalcJacobian {
         for (int iVector = 0; iVector < waveVectors.length; iVector++) {
             double boxAngle = Double.NaN;
             for (int iCell = 0; iCell < cells.length; iCell++) {
-                IVector latticePosition = cells[iCell].cellPosition;
+                Vector latticePosition = cells[iCell].cellPosition;
                 double kR = waveVectors[iVector].dot(latticePosition);
                 double coskR = Math.cos(kR);
                 double sinkR = Math.sin(kR);
@@ -99,7 +99,7 @@ public class CalcJacobian {
     private static final long serialVersionUID = 1L;
     protected int coordinateDim;
     protected CoordinateDefinition coordinateDefinition;
-    protected IVector[] waveVectors;
+    protected Vector[] waveVectors;
     protected double[] waveVectorCoefficients;
     private WaveVectorFactory waveVectorFactory;
 }

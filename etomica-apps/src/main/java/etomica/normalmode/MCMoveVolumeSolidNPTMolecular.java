@@ -11,7 +11,7 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -40,8 +40,8 @@ public class MCMoveVolumeSolidNPTMolecular extends MCMoveBoxStep {
     protected IRandom random;
     protected final AtomIteratorLeafAtoms affectedAtomIterator;
     protected double temperature;
-    protected final IVector boxSize;
-    protected final IVector dest, comOld;
+    protected final Vector boxSize;
+    protected final Vector dest, comOld;
 
     protected final AtomPositionGeometricCenter moleculeCenter;
     protected final MoleculeActionTranslateTo translateTo;

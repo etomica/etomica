@@ -7,6 +7,7 @@ package etomica.normalmode;
 import etomica.api.*;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.units.Null;
 
@@ -50,6 +51,6 @@ public class MeterThetaDeviation extends DataSourceScalar {
 
     private static final long serialVersionUID = 1L;
     protected Box box;
-    protected final IVector dr;
+    protected final Vector dr;
     protected double nominalTheta;
 }

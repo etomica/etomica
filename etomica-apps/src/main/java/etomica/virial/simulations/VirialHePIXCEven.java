@@ -35,6 +35,7 @@ import etomica.potential.P2HeSimplified;
 import etomica.potential.P3CPSNonAdditiveHe;
 import etomica.potential.P3CPSNonAdditiveHeSimplified;
 import etomica.potential.Potential;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheres;
@@ -468,7 +469,7 @@ public class VirialHePIXCEven {
         double r = 2;
         IAtomList leafList = sim.box.getLeafList();
         for (int i=0; i<leafList.getAtomCount(); i++) {
-            IVector p = leafList.getAtom(i).getPosition();
+            Vector p = leafList.getAtom(i).getPosition();
             p.setX(0, r*Math.cos((2*Math.PI*i)/leafList.getAtomCount()));
             p.setX(1, r*Math.sin((2*Math.PI*i)/leafList.getAtomCount()));
         }

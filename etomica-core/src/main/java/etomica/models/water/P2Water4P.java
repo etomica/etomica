@@ -9,6 +9,7 @@ import etomica.api.*;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.box.Box;
 import etomica.potential.PotentialMolecular;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 /** 
@@ -48,8 +49,8 @@ public class P2Water4P extends PotentialMolecular {
 		IMolecule water2 = pair.getMolecule(1);
 		
 		//compute O-O distance to consider truncation	
-        IVector O1r = (water1.getChildList().getAtom(2)).getPosition();
-        IVector O2r = (water2.getChildList().getAtom(2)).getPosition();
+        Vector O1r = (water1.getChildList().getAtom(2)).getPosition();
+        Vector O2r = (water2.getChildList().getAtom(2)).getPosition();
 
 		work.Ev1Mv2(O1r, O2r);
         shift.Ea1Tv1(-1,work);
@@ -70,12 +71,12 @@ public class P2Water4P extends PotentialMolecular {
 		double s6 = s2*s2*s2;
 		double sum = epsilon4*s6*(s6 - 1.0);
 		
-        IVector H11r = water1.getChildList().getAtom(0).getPosition();
-        IVector H12r = water1.getChildList().getAtom(1).getPosition();
-        IVector H21r = water2.getChildList().getAtom(0).getPosition();
-        IVector H22r = water2.getChildList().getAtom(1).getPosition();
-        IVector M1r = water1.getChildList().getAtom(3).getPosition();
-        IVector M2r = water2.getChildList().getAtom(3).getPosition();
+        Vector H11r = water1.getChildList().getAtom(0).getPosition();
+        Vector H12r = water1.getChildList().getAtom(1).getPosition();
+        Vector H21r = water2.getChildList().getAtom(0).getPosition();
+        Vector H22r = water2.getChildList().getAtom(1).getPosition();
+        Vector M1r = water1.getChildList().getAtom(3).getPosition();
+        Vector M2r = water2.getChildList().getAtom(3).getPosition();
         		
         if (zeroShift) {
             r2 = M1r.Mv1Squared(M2r);
@@ -163,6 +164,6 @@ public class P2Water4P extends PotentialMolecular {
 	protected final double chargeM;
 	protected final double chargeMM, chargeMH, chargeHH;
 	protected final double rCut;
-	protected final IVector work, shift,com1,com2;
+	protected final Vector work, shift,com1,com2;
 	protected final IAtomPositionDefinition positionDefinition;
 }

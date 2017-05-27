@@ -7,7 +7,7 @@ package etomica.modules.entropylottery;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
 import etomica.data.IEtomicaDataSource;
 import etomica.units.Null;
@@ -25,7 +25,7 @@ public class MeterEntropy extends DataSourceScalar implements IEtomicaDataSource
     }
 
     public double getDataAsScalar() {
-        IVector dimensions = box.getBoundary().getBoxSize();
+        Vector dimensions = box.getBoundary().getBoxSize();
         if (atomCount.length != (int)Math.round(dimensions.getX(0))) {
             atomCount = new int[(int)Math.round(dimensions.getX(0))];
         }

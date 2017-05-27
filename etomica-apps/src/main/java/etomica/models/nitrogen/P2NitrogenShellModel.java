@@ -9,7 +9,7 @@ import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.potential.PotentialMolecular;
 import etomica.potential.PotentialMolecularSoft;
 import etomica.space.Space;
@@ -33,7 +33,7 @@ public class P2NitrogenShellModel extends PotentialMolecular implements Potentia
 	public P2NitrogenShellModel(Space space, double rC) {
 		super(2, space);
 		
-		gradient = new IVector[2];
+		gradient = new Vector[2];
 		gradient[0] = space.makeVector();
 		gradient[1] = space.makeVector();
 				
@@ -63,8 +63,8 @@ public class P2NitrogenShellModel extends PotentialMolecular implements Potentia
 		IMolecule nitrogenb = pair.getMolecule(1);
 		
 		// to compute the midpoint distance between the two
-		IVector com1 = (nitrogena.getChildList().getAtom(2)).getPosition();
-		IVector com2 = (nitrogenb.getChildList().getAtom(2)).getPosition();
+		Vector com1 = (nitrogena.getChildList().getAtom(2)).getPosition();
+		Vector com2 = (nitrogenb.getChildList().getAtom(2)).getPosition();
 		
 	    /*
          *  to check for the nearest image
@@ -89,17 +89,17 @@ public class P2NitrogenShellModel extends PotentialMolecular implements Potentia
 		 * refer to SpeciesN2ShellModel.java class
 		 * 
 		 */
-        IVector Pan1 = nitrogena.getChildList().getAtom(0).getPosition();
-        IVector Pan2 = nitrogena.getChildList().getAtom(1).getPosition();
-        IVector Pac  = nitrogena.getChildList().getAtom(2).getPosition();
-        IVector Pap1 = nitrogena.getChildList().getAtom(3).getPosition();
-        IVector Pap2 = nitrogena.getChildList().getAtom(4).getPosition();
+        Vector Pan1 = nitrogena.getChildList().getAtom(0).getPosition();
+        Vector Pan2 = nitrogena.getChildList().getAtom(1).getPosition();
+        Vector Pac  = nitrogena.getChildList().getAtom(2).getPosition();
+        Vector Pap1 = nitrogena.getChildList().getAtom(3).getPosition();
+        Vector Pap2 = nitrogena.getChildList().getAtom(4).getPosition();
 
-        IVector Pbn1 = nitrogenb.getChildList().getAtom(0).getPosition();
-        IVector Pbn2 = nitrogenb.getChildList().getAtom(1).getPosition();
-        IVector Pbc  = nitrogenb.getChildList().getAtom(2).getPosition();
-        IVector Pbp1 = nitrogenb.getChildList().getAtom(3).getPosition();
-        IVector Pbp2 = nitrogenb.getChildList().getAtom(4).getPosition();
+        Vector Pbn1 = nitrogenb.getChildList().getAtom(0).getPosition();
+        Vector Pbn2 = nitrogenb.getChildList().getAtom(1).getPosition();
+        Vector Pbc  = nitrogenb.getChildList().getAtom(2).getPosition();
+        Vector Pbp1 = nitrogenb.getChildList().getAtom(3).getPosition();
+        Vector Pbp2 = nitrogenb.getChildList().getAtom(4).getPosition();
 
         
         double r2QQ = 0*2.25;
@@ -117,7 +117,7 @@ public class P2NitrogenShellModel extends PotentialMolecular implements Potentia
     		 */
     		
     		for (int i=2; i<5; i++){
-    			IVector dist = (nitrogena.getChildList().getAtom(i)).getPosition();
+    			Vector dist = (nitrogena.getChildList().getAtom(i)).getPosition();
     			
     			for (int j=2; j<5; j++){
     				if (i>2 && j!=2) break;
@@ -209,7 +209,7 @@ public class P2NitrogenShellModel extends PotentialMolecular implements Potentia
     		 */
         	
     		for (int i=2; i<5; i++){
-    			IVector dist = (nitrogenb.getChildList().getAtom(i)).getPosition();
+    			Vector dist = (nitrogenb.getChildList().getAtom(i)).getPosition();
     			shift.TE(-1.0);
     			shift.PE(dist);
     			
@@ -426,13 +426,13 @@ public class P2NitrogenShellModel extends PotentialMolecular implements Potentia
 		IMolecule nitrogenb = pair.getMolecule(1);
 		
 		// to compute the midpoint distance between the two
-		IVector com1 = (nitrogena.getChildList().getAtom(2)).getPosition();
-		IVector com2 = (nitrogenb.getChildList().getAtom(2)).getPosition();
+		Vector com1 = (nitrogena.getChildList().getAtom(2)).getPosition();
+		Vector com2 = (nitrogenb.getChildList().getAtom(2)).getPosition();
 		
 		work.Ev1Mv2(com1, com2);
 		boundary.nearestImage(work);
 		
-		IVector[] grad = gradient(pair);
+		Vector[] grad = gradient(pair);
 		//System.out.println("work: " + work.toString());
 		//System.out.println("grad[0]: " + grad[0].toString());
 		//System.out.println("grad[1]: " + grad[1].toString());
@@ -448,14 +448,14 @@ public class P2NitrogenShellModel extends PotentialMolecular implements Potentia
 	 *    the atomic position 
 	 *  
 	 */
-	public IVector[] gradient(IMoleculeList pair) {
+	public Vector[] gradient(IMoleculeList pair) {
 		
 		IMolecule nitrogena = pair.getMolecule(0);
 		IMolecule nitrogenb = pair.getMolecule(1);
 		
 		// to compute the midpoint distance between the two
-		IVector com1 = (nitrogena.getChildList().getAtom(2)).getPosition();
-		IVector com2 = (nitrogenb.getChildList().getAtom(2)).getPosition();
+		Vector com1 = (nitrogena.getChildList().getAtom(2)).getPosition();
+		Vector com2 = (nitrogenb.getChildList().getAtom(2)).getPosition();
 		
 	    /*
          *  to check for the nearest image
@@ -481,17 +481,17 @@ public class P2NitrogenShellModel extends PotentialMolecular implements Potentia
 		 * refer to SpeciesN2ShellModel.java class
 		 * 
 		 */
-        IVector Pan1 = nitrogena.getChildList().getAtom(0).getPosition();
-        IVector Pan2 = nitrogena.getChildList().getAtom(1).getPosition();
-        IVector Pac  = nitrogena.getChildList().getAtom(2).getPosition();
-        IVector Pap1 = nitrogena.getChildList().getAtom(3).getPosition();
-        IVector Pap2 = nitrogena.getChildList().getAtom(4).getPosition();
+        Vector Pan1 = nitrogena.getChildList().getAtom(0).getPosition();
+        Vector Pan2 = nitrogena.getChildList().getAtom(1).getPosition();
+        Vector Pac  = nitrogena.getChildList().getAtom(2).getPosition();
+        Vector Pap1 = nitrogena.getChildList().getAtom(3).getPosition();
+        Vector Pap2 = nitrogena.getChildList().getAtom(4).getPosition();
 
-        IVector Pbn1 = nitrogenb.getChildList().getAtom(0).getPosition();
-        IVector Pbn2 = nitrogenb.getChildList().getAtom(1).getPosition();
-        IVector Pbc  = nitrogenb.getChildList().getAtom(2).getPosition();
-        IVector Pbp1 = nitrogenb.getChildList().getAtom(3).getPosition();
-        IVector Pbp2 = nitrogenb.getChildList().getAtom(4).getPosition();
+        Vector Pbn1 = nitrogenb.getChildList().getAtom(0).getPosition();
+        Vector Pbn2 = nitrogenb.getChildList().getAtom(1).getPosition();
+        Vector Pbc  = nitrogenb.getChildList().getAtom(2).getPosition();
+        Vector Pbp1 = nitrogenb.getChildList().getAtom(3).getPosition();
+        Vector Pbp2 = nitrogenb.getChildList().getAtom(4).getPosition();
 
         if (zeroShift) {
     		/*
@@ -646,7 +646,7 @@ public class P2NitrogenShellModel extends PotentialMolecular implements Potentia
     		 */
         	
     		for (int i=2; i<5; i++){
-    			IVector dist = (nitrogenb.getChildList().getAtom(i)).getPosition();
+    			Vector dist = (nitrogenb.getChildList().getAtom(i)).getPosition();
     			shift.TE(-1.0);
     			shift.PE(dist);
     			
@@ -882,7 +882,7 @@ public class P2NitrogenShellModel extends PotentialMolecular implements Potentia
 		return gradient;
 	}
 
-	public IVector[] gradient(IMoleculeList pair, Tensor pressureTensor) {
+	public Vector[] gradient(IMoleculeList pair, Tensor pressureTensor) {
 		return null;
 	}
     
@@ -931,7 +931,7 @@ public class P2NitrogenShellModel extends PotentialMolecular implements Potentia
 	protected final double delta2 = 3.457; // unit A
 	
 	protected double rC, r2;
-	protected final IVector work, shift;
-	protected final IVector[] gradient;
+	protected final Vector work, shift;
+	protected final Vector[] gradient;
 
 }

@@ -8,7 +8,7 @@ import etomica.action.MoleculeActionTranslateTo;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
@@ -56,7 +56,7 @@ public class DataSourcePositionedBoltzmannFactor implements DataSourcePositioned
         return testMolecule.getType();
     }
 
-    public IData getData(IVector a) {
+    public IData getData(Vector a) {
         atomTranslator.setDestination(a);
         atomTranslator.actionPerformed(testMolecule);
         Box box = integrator.getBox();

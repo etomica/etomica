@@ -10,6 +10,7 @@ import etomica.box.Box;
 import etomica.atom.MoleculeArrayList;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.util.DoubleRange;
 
@@ -23,7 +24,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 
     private static final long serialVersionUID = 1L;
     private double zFraction, sigma;
-    private IVector position;
+    private Vector position;
     private final MoleculeArrayList activeAtoms;
     private final AtomActionRandomizeVelocity randomizer;
     private final IntegratorBox integrator;

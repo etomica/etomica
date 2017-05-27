@@ -10,7 +10,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -79,7 +79,7 @@ public class LJMC extends Simulation {
         //construct box
 	    box = new Box(space);
         addBox(box);
-        IVector dim = space.makeVector();
+        Vector dim = space.makeVector();
         box.getBoundary().setBoxSize(dim);
         integrator.setBox(box);
         
@@ -139,8 +139,8 @@ public class LJMC extends Simulation {
         box.setNMolecules(species, numAtoms);
         IAtomList atoms = box.getLeafList();
         for (int i=0; i<numAtoms-nL; i++) {
-            IVector vx = boxV.getLeafList().getAtom(i).getPosition();
-            IVector x = atoms.getAtom(nL+i).getPosition();
+            Vector vx = boxV.getLeafList().getAtom(i).getPosition();
+            Vector x = atoms.getAtom(nL+i).getPosition();
             x.E(vx);
             if (vx.getX(0) > 0) {
                 x.setX(0, vx.getX(0) + 0.5*Lx*xL);

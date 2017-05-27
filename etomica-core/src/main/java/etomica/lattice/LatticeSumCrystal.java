@@ -4,7 +4,7 @@
 
 package etomica.lattice;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.data.FunctionData;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
@@ -25,11 +25,11 @@ public class LatticeSumCrystal {
         
         //get coordinates of basis at the origin
         basisDim = lattice.getBasis().getScaledCoordinates().length;
-        basis0 = new IVector[basisDim];
+        basis0 = new Vector[basisDim];
         for(int j=0; j<basisDim; j++) {
             siteIndex[spaceDim] = j;
             basis0[j] = lattice.getSpace().makeVector();
-            basis0[j].E((IVector)lattice.site(siteIndex));
+            basis0[j].E((Vector)lattice.site(siteIndex));
         }
         
     }
@@ -69,7 +69,7 @@ public class LatticeSumCrystal {
                 //loop over sites in lattice cell
                 for(int jp=0; jp<basisDim; jp++) {
                     siteIndex[spaceDim] = jp;
-                    IVector site = (IVector)lattice.site(siteIndex);
+                    Vector site = (Vector)lattice.site(siteIndex);
                     //loop over sites in origin cell
                     for(int j=0; j<basisDim; j++) {
                         dr.Ev1Mv2(site, basis0[j]);
@@ -94,11 +94,11 @@ public class LatticeSumCrystal {
         return new DataGroupLSC(sumR, sumI);
     }
     
-    public void setK(IVector k) {
+    public void setK(Vector k) {
         kVector.E(k);
     }
     
-    public IVector getK() {
+    public Vector getK() {
         return kVector;
     }
     
@@ -131,10 +131,10 @@ public class LatticeSumCrystal {
     private final BravaisLatticeCrystal lattice;
     private IndexIterator iterator;
     private IndexIteratorTriangular coreIterator;
-    private final IVector kVector;
-    private final IVector[] basis0;
+    private final Vector kVector;
+    private final Vector[] basis0;
     private final int[] siteIndex;
-    private final IVector dr;
+    private final Vector dr;
     private final int basisDim;
     private final int spaceDim;
     private int maxLatticeShell;

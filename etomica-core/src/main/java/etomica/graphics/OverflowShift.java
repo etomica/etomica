@@ -5,7 +5,7 @@
 package etomica.graphics;
 
 import etomica.api.IBoundary;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.BoundaryRectangular;
 import etomica.space.Space;
 import etomica.space3d.BoundaryTruncatedOctahedron;
@@ -35,11 +35,11 @@ public class OverflowShift {
 	 *         indicates each displacement, second index is the xyz translation
 	 *         needed to the overflow image
 	 */
-    public float[][] getShifts(IBoundary boundary, IVector rr, double distance) {
+    public float[][] getShifts(IBoundary boundary, Vector rr, double distance) {
     	
 		boolean needShift[] = new boolean[dim];
 		float[][] shifts = null;
-		IVector dimensions = boundary.getBoxSize();
+		Vector dimensions = boundary.getBoxSize();
 
 		//
 		// BoundaryRectangular

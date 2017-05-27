@@ -16,6 +16,7 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataVector;
 import etomica.data.types.DataVector.DataInfoVector;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
@@ -87,7 +88,7 @@ public class MeterMomentumCOM implements IEtomicaDataSource, java.io.Serializabl
 
     private static final long serialVersionUID = 1L;
     private Box box;
-    private final IVector momentumSum;
+    private final Vector momentumSum;
     private final DataVector data;    
     private final DataInfo dataInfo;
     private String name;

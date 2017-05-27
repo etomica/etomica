@@ -11,7 +11,7 @@ import etomica.api.IAtom;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.MoleculeArrayList;
 import etomica.atom.MoleculeListWrapper;
@@ -60,12 +60,12 @@ public abstract class CoordinateDefinition {
         }
 
         int basisSize = lattice.getBasis().getScaledCoordinates().length;
-        IVector minBasis = space.makeVector();
+        Vector minBasis = space.makeVector();
         minBasis.E(1e10);
-        IVector maxBasis = space.makeVector();
+        Vector maxBasis = space.makeVector();
         maxBasis.E(-1e10);
         for (int i=0; i<basisSize; i++) {
-            IVector p = lattice.getBasis().getScaledCoordinates()[i];
+            Vector p = lattice.getBasis().getScaledCoordinates()[i];
             for (int j=0; j<minBasis.getD(); j++) {
                 if (minBasis.getX(j) > p.getX(j)) {
                     minBasis.setX(j, p.getX(j));
@@ -75,14 +75,14 @@ public abstract class CoordinateDefinition {
                 }
             }
         }
-        IVector basisOffset = space.makeVector();
+        Vector basisOffset = space.makeVector();
         basisOffset.E(maxBasis);
         basisOffset.PE(minBasis);
         basisOffset.TE(-0.5);
         basisOffset.PE(0.5);
 
-        IVector offset = lattice.getSpace().makeVector();
-        IVector[] primitiveVectors = primitive.vectors();
+        Vector offset = lattice.getSpace().makeVector();
+        Vector[] primitiveVectors = primitive.vectors();
         for (int i=0; i<primitiveVectors.length; i++) {
             offset.PEa1Tv1(-0.5*nCells[i],primitiveVectors[i]);
             offset.PEa1Tv1(basisOffset.getX(i), primitiveVectors[i]);
@@ -106,7 +106,7 @@ public abstract class CoordinateDefinition {
         // Place molecules
         atomIterator.reset();
         indexIterator.reset();
-        IVector position = lattice.getSpace().makeVector();
+        Vector position = lattice.getSpace().makeVector();
         MoleculeArrayList currentList = null;
         for (int iMolecule = 0; iMolecule<moleculeList.getMoleculeCount(); iMolecule++) {
             IMolecule molecule = moleculeList.getMolecule(iMolecule);
@@ -114,7 +114,7 @@ public abstract class CoordinateDefinition {
             molecule.getType().initializeConformation(molecule);
 
             int[] ii = indexIterator.next();
-            position.E((IVector)lattice.site(ii));
+            position.E((Vector)lattice.site(ii));
             position.PE(offset);
             
             atomActionTranslateTo.setDestination(position);
@@ -135,7 +135,7 @@ public abstract class CoordinateDefinition {
         
         initNominalU(cells[totalCells-1].molecules);
         
-        siteManager = new AtomLeafAgentManager<IVector>(new SiteSource(space), box, IVector.class);
+        siteManager = new AtomLeafAgentManager<Vector>(new SiteSource(space), box, Vector.class);
     }
 
     
@@ -191,7 +191,7 @@ public abstract class CoordinateDefinition {
      *            outputs the imaginary component of the T vector
      */
     //in principle this should be returning Complex[] and not returning the values through the args
-    public void calcT(IVector k, double[] realT, double[] imaginaryT) {
+    public void calcT(Vector k, double[] realT, double[] imaginaryT) {
         for (int i = 0; i < coordinateDim; i++) {
             realT[i] = 0;
             imaginaryT[i] = 0;
@@ -203,7 +203,7 @@ public abstract class CoordinateDefinition {
             BasisCell cell = cells[iCell];
             IMoleculeList molecules = cell.molecules;
             double[] u = calcU(molecules);
-            IVector latticePosition = cell.cellPosition;
+            Vector latticePosition = cell.cellPosition;
             double kR = k.dot(latticePosition);
             double coskR = Math.cos(kR);
             double sinkR = Math.sin(kR);
@@ -225,7 +225,7 @@ public abstract class CoordinateDefinition {
         return box;
     }
 
-    public IVector getLatticePosition(IAtom atom) {
+    public Vector getLatticePosition(IAtom atom) {
         // this impl only handles leaf atoms.  subclasses might override this
         // method and handle IMolecules.
         return siteManager.getAgent(atom);
@@ -243,13 +243,13 @@ public abstract class CoordinateDefinition {
         return basis;
     }
 
-    public AtomLeafAgentManager<IVector> getSiteManager() {
+    public AtomLeafAgentManager<Vector> getSiteManager() {
         return siteManager;
     }
 
     protected final int coordinateDim;
     protected final Box box;
-    protected AtomLeafAgentManager<IVector> siteManager;
+    protected AtomLeafAgentManager<Vector> siteManager;
     protected final BravaisLatticeCrystal lattice;
     protected final Primitive primitive;
     protected final Basis basis;
@@ -257,17 +257,17 @@ public abstract class CoordinateDefinition {
     protected BasisCell[] cells;
     protected final Space space;
     
-    protected static class SiteSource implements AtomLeafAgentManager.AgentSource<IVector> {
+    protected static class SiteSource implements AtomLeafAgentManager.AgentSource<Vector> {
         
         public SiteSource(Space space) {
             this.space = space;
         }
-        public IVector makeAgent(IAtom atom, Box agentBox) {
-            IVector vector = space.makeVector();
+        public Vector makeAgent(IAtom atom, Box agentBox) {
+            Vector vector = space.makeVector();
             vector.E(atom.getPosition());
             return vector;
         }
-        public void releaseAgent(IVector agent, IAtom atom, Box agentBox) {
+        public void releaseAgent(Vector agent, IAtom atom, Box agentBox) {
             //nothing to do
         }
 
@@ -275,14 +275,14 @@ public abstract class CoordinateDefinition {
     }
     
     public static class BasisCell implements Serializable {
-        public BasisCell(IMoleculeList molecules, IVector cellPosition) {
+        public BasisCell(IMoleculeList molecules, Vector cellPosition) {
             this.molecules = molecules;
             this.cellPosition = cellPosition;
         }
         
         private static final long serialVersionUID = 1L;
         public final IMoleculeList molecules;
-        public final IVector cellPosition;
+        public final Vector cellPosition;
     }
 
 }

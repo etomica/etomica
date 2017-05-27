@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.lattice.crystal;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.math.geometry.Polytope;
 import etomica.space.Space;
 
@@ -14,7 +14,7 @@ public class PrimitiveBcc extends Primitive {
     
     private static final long serialVersionUID = 1L;
     private double cubicSize;
-    private IVector[] unitVectors;
+    private Vector[] unitVectors;
     private static final double BCC_ANGLE = Math.acos(1.0/3.0);
     
     public PrimitiveBcc(Space space) {
@@ -23,7 +23,7 @@ public class PrimitiveBcc extends Primitive {
     public PrimitiveBcc(Space space, double size) {
         super(space);
         //set up orthogonal vectors of unit size
-        unitVectors = new IVector[D];
+        unitVectors = new Vector[D];
         for(int i=0; i<D; i++) {
             unitVectors[i] = space.makeVector();
             unitVectors[i].E(1.0/Math.sqrt(3.0));
@@ -78,7 +78,7 @@ public class PrimitiveBcc extends Primitive {
         setCubicSize(scale*cubicSize);
     }
 
-    public int[] latticeIndex(IVector q) {
+    public int[] latticeIndex(Vector q) {
         throw new RuntimeException("PrimitiveFcc.latticeIndex not yet implemented");
 /*        for(int i=0; i<D; i++) {
             double x = q.x(i)/size;
@@ -87,7 +87,7 @@ public class PrimitiveBcc extends Primitive {
         return idx;
 */    }
     
-    public int[] latticeIndex(IVector q, int[] dimensions) {
+    public int[] latticeIndex(Vector q, int[] dimensions) {
         throw new RuntimeException("PrimitiveFcc.latticeIndex not yet implemented");
  /*       for(int i=0; i<D; i++) {
             double x = q.x(i)/size;

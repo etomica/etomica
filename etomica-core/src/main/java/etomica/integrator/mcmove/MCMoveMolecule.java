@@ -19,7 +19,7 @@ import etomica.atom.iterator.MoleculeIterator;
 import etomica.atom.iterator.MoleculeIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.space.Space;
-import etomica.api.IVector;
+import etomica.space.Vector;
 
 /**
  * Standard Monte Carlo molecule-displacement trial move.
@@ -38,7 +38,7 @@ public class MCMoveMolecule extends MCMoveBoxStep implements MCMoveMolecular {
     protected Space space;
 
     protected final MoleculeChildAtomAction moveMoleculeAction;
-    protected final IVector groupTranslationVector;
+    protected final Vector groupTranslationVector;
     protected MoleculeSource moleculeSource;
     protected IMolecule molecule;
 

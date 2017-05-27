@@ -16,7 +16,7 @@ import etomica.action.activity.Controller;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterCollective;
 import etomica.atom.AtomTypeOrientedSphere;
@@ -36,7 +36,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
     private int annotationHeight = 12;
     private int[] shiftOrigin = new int[2];     //work vector for drawing overflow images
     private final int[] atomOrigin;
-    private final IVector boundingBox;
+    private final Vector boundingBox;
     protected final Space space;
         
     public DisplayBoxCanvas2D(DisplayBox _box, Space _space, Controller controller) {
@@ -58,7 +58,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
     
     protected void refreshSize() {
         Dimension dim = getSize();
-        IVector boxDim = displayBox.getBox().getBoundary().getBoxSize();
+        Vector boxDim = displayBox.getBox().getBoundary().getBoxSize();
         double px = (dim.width - 1)/(boxDim.getX(0)+displayBox.getPaddingSigma());
         double py = (dim.height - 1)/(boxDim.getX(1)+displayBox.getPaddingSigma());
         if (px > py) {
@@ -96,7 +96,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
     }
        
     protected void drawAtom(Graphics g, int origin[], IAtom a) {
-        IVector r = a.getPosition();
+        Vector r = a.getPosition();
         int sigmaP, xP, yP, baseXP, baseYP;
 
         boolean drawOrientation = (a.getType() instanceof AtomTypeOrientedSphere);
@@ -118,7 +118,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
         g.fillOval(xP, yP, sigmaP, sigmaP);
         /* Draw the orientation line, if any */
         if(drawOrientation) {
-            IVector dir = ((IAtomOriented)a).getOrientation().getDirection();
+            Vector dir = ((IAtomOriented)a).getOrientation().getDirection();
             int dxy = (int)(toPixels*0.5*sigma);
             int dx = (int)(dxy*dir.getX(0));
             int dy = (int)(dxy*dir.getX(1));
@@ -128,7 +128,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
         }
     }
             
-    IVector vec2;
+    Vector vec2;
    /**
     * Method that handles the drawing of the box to the screen.
     *
@@ -156,7 +156,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
             int ox = origin[0] + (int)(toPixels*boundingBox.getX(0)*0.5);
             int oy = origin[1] + (int)(toPixels*boundingBox.getX(1)*0.5);
             for(int i=0; i<edges.length; i++) {
-                IVector[] vertices = edges[i].getVertices();
+                Vector[] vertices = edges[i].getVertices();
                 int x1 = ox + (int)(toPixels*vertices[0].getX(0));
                 int y1 = oy + (int)(toPixels*vertices[0].getX(1));
                 int x2 = ox + (int)(toPixels*vertices[1].getX(0));

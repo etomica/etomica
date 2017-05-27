@@ -16,7 +16,7 @@ import etomica.action.activity.Controller;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterCollective;
 import etomica.space.Boundary;
@@ -73,7 +73,7 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
 
     protected void refreshSize() {
         Dimension dim = getSize();
-        IVector boxDim = displayBox.getBox().getBoundary().getBoxSize();
+        Vector boxDim = displayBox.getBox().getBoundary().getBoxSize();
         double px = (dim.width - 1)/(boxDim.getX(0)+displayBox.getPaddingSigma());
         if (pixel != null && pixel.toPixels() == px) {
             return;
@@ -92,7 +92,7 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
        
     private void drawAtom(Graphics g, int origin[], IAtom a) {
         
-        IVector r = a.getPosition();
+        Vector r = a.getPosition();
         int sigmaP, xP, yP, baseXP, baseYP;
 
         g.setColor(displayBox.getColorScheme().getAtomColor(a));

@@ -7,7 +7,7 @@ package etomica.models.OPLS;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IMolecule;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.DipoleSource;
 import etomica.space.Space;
 import etomica.units.Electron;
@@ -19,7 +19,7 @@ import etomica.units.Electron;
  */
 public class DipoleSourceAceticAcid implements DipoleSource {
 
-    protected final IVector dipole;
+    protected final Vector dipole;
 
     /**
      * @param space dimension of the space
@@ -33,7 +33,7 @@ public class DipoleSourceAceticAcid implements DipoleSource {
      * @param molecule index of the molecule
      * @return Returns the dipole of the given molecule
      */
-    public IVector getDipole(IMolecule molecule) {//dipole= sum of position * charge for all sites in a molecule
+    public Vector getDipole(IMolecule molecule) {//dipole= sum of position * charge for all sites in a molecule
 
 
         IAtomList childList = molecule.getChildList();

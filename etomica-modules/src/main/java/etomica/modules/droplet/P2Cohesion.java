@@ -6,7 +6,7 @@ package etomica.modules.droplet;
 
 import etomica.api.IAtomList;
 import etomica.api.IPotentialAtomic;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomFilter;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.space.Space;
@@ -30,7 +30,7 @@ public class P2Cohesion extends Potential2SoftSpherical implements
         return super.energy(atoms);
     }
 
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         if (useSurfaceOnly && (liquidFilter.accept(atoms.getAtom(0)) || liquidFilter.accept(atoms.getAtom(1)))) {
             gradient[0].E(0);
             gradient[1].E(0);
@@ -40,7 +40,7 @@ public class P2Cohesion extends Potential2SoftSpherical implements
         return super.gradient(atoms, pressureTensor);
     }
 
-    public IVector[] gradient(IAtomList atoms) {
+    public Vector[] gradient(IAtomList atoms) {
         if (useSurfaceOnly && (liquidFilter.accept(atoms.getAtom(0)) || liquidFilter.accept(atoms.getAtom(1)))) {
             gradient[0].E(0);
             gradient[1].E(0);

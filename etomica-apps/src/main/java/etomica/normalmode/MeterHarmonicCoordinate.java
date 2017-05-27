@@ -4,7 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
 import etomica.data.IEtomicaDataInfo;
 import etomica.units.Length;
@@ -57,7 +57,7 @@ public class MeterHarmonicCoordinate extends DataSourceScalar {
         this.eigenvectors = eigenVectors;
     }
     
-    public void setWaveVector(IVector waveVector){
+    public void setWaveVector(Vector waveVector){
     	this.waveVector = waveVector;
     } 
 
@@ -67,5 +67,5 @@ public class MeterHarmonicCoordinate extends DataSourceScalar {
     protected final CoordinateDefinition coordinateDefinition;
     protected double[] eigenvectors;
     protected double[] realT, imaginaryT;
-    protected IVector waveVector;
+    protected Vector waveVector;
 }

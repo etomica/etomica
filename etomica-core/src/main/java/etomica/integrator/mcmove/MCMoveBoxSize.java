@@ -6,7 +6,7 @@ package etomica.integrator.mcmove;
 
 import etomica.action.BoxInflate;
 import etomica.action.BoxInflateDeformable;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -31,7 +31,7 @@ public class MCMoveBoxSize extends MCMoveBoxStep {
     protected final Space space;
     private IRandom random;
     protected final AtomIteratorLeafAtoms affectedAtomIterator;
-    protected final IVector boxScale;
+    protected final Vector boxScale;
 
     private transient double uOld, lScale;
     private transient int dim1, dim2;

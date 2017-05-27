@@ -11,7 +11,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.BoxAgentManager;
 import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.DataPumpListener;
@@ -81,7 +81,7 @@ public class SimLJHTTISuperHCP extends Simulation {
         //   = (4 / (sqrt(3) rho coa))^(1/3)
         double a = Math.pow(4/(Math.sqrt(3)*density*coa), 1.0/3.0);
         double c = coa*a;  // sqrt(8/3)
-        IVector[] boxDim = new IVector[3];
+        Vector[] boxDim = new Vector[3];
         boxDim[0] = space.makeVector(new double[]{2*n*a, 0, 0});
         boxDim[1] = space.makeVector(new double[]{-2*n*a*Math.cos(Degree.UNIT.toSim(60)), 2*n*a*Math.sin(Degree.UNIT.toSim(60)), 0});
         boxDim[2] = space.makeVector(new double[]{0, 0, n*c});
@@ -240,7 +240,7 @@ public class SimLJHTTISuperHCP extends Simulation {
         //start simulation
         
 
-        IVector e2 = sim.box.getBoundary().getEdgeVector(2);
+        Vector e2 = sim.box.getBoundary().getEdgeVector(2);
         double L = e2.getX(2)*Math.pow(density, 1.0/3.0);
         if (rcMax1 > 0.494*L) rcMax1 = 0.494*L;
         double delta = 0.5;

@@ -8,7 +8,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IPotential;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.potential.PotentialSoft;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -20,17 +20,17 @@ public class P1Sinusoidal implements IPotential, PotentialSoft {
         setB(1);
         this.offset = space.makeVector();
         r = space.makeVector();
-        waveVectors = new IVector[3];
+        waveVectors = new Vector[3];
         setCellSize(1,1);
-        gradient = new IVector[1];
+        gradient = new Vector[1];
         gradient[0] = space.makeVector();
     }
     
-    public void setOffset(IVector newOffset) {
+    public void setOffset(Vector newOffset) {
         offset.E(newOffset);
     }
     
-    public IVector getOffset() {
+    public Vector getOffset() {
         return offset;
     }
     
@@ -61,7 +61,7 @@ public class P1Sinusoidal implements IPotential, PotentialSoft {
         return b45 * (3.0 - sum);
     }
 
-    public IVector[] gradient(IAtomList atoms) {
+    public Vector[] gradient(IAtomList atoms) {
         IAtom a = atoms.getAtom(0);
         r.Ev1Mv2(a.getPosition(), offset);
         gradient[0].E(0);
@@ -72,7 +72,7 @@ public class P1Sinusoidal implements IPotential, PotentialSoft {
         return gradient;
     }
 
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         return gradient(atoms);
     }
 
@@ -92,8 +92,8 @@ public class P1Sinusoidal implements IPotential, PotentialSoft {
 
     protected final Space space;
     protected double b45;
-    protected final IVector offset;
-    protected final IVector r;
-    protected final IVector[] waveVectors;
-    protected final IVector[] gradient;
+    protected final Vector offset;
+    protected final Vector r;
+    protected final Vector[] waveVectors;
+    protected final Vector[] gradient;
 }

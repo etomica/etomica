@@ -5,7 +5,7 @@
 package etomica.data.meter;
 import etomica.action.IAction;
 import etomica.api.IAtom;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -70,8 +70,8 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
      */
     public void reset() {
         nAtoms = iterator.size();
-        rAccum = new IVector[nAtoms];
-        rLast = new IVector[nAtoms];
+        rAccum = new Vector[nAtoms];
+        rLast = new Vector[nAtoms];
         iterator.reset();
         int i=0;
         for (IAtom a = iterator.nextAtom(); a != null;
@@ -91,7 +91,7 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
         return sum/nAtoms;
     }
     
-    public IVector [] getDataAsArray() {
+    public Vector[] getDataAsArray() {
     	return rAccum;
     }
     
@@ -107,7 +107,7 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
             //accumulate difference from last coordinate before pbc applied
             for (IAtom a = it.nextAtom(); a != null;
                  a = it.nextAtom()) {
-                IVector r = a.getPosition();
+                Vector r = a.getPosition();
                 meter.rAccum[i].PE(r);
                 meter.rAccum[i].ME(meter.rLast[i]);
                 meter.rLast[i].E(r);
@@ -141,7 +141,7 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
     private int nAtoms = 0;
     AtomIteratorBoxDependent iterator;
     IntegratorBox integrator;
-    protected IVector[] rAccum, rLast;
+    protected Vector[] rAccum, rLast;
     private final Space space;
 
 }//end of class

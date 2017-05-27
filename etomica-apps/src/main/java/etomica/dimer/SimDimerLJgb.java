@@ -7,7 +7,7 @@ package etomica.dimer;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.api.ISpecies;
 import etomica.chem.elements.Tin;
@@ -52,7 +52,7 @@ public class SimDimerLJgb extends Simulation{
     public IntegratorVelocityVerlet integratorMD;
     public IntegratorDimerRT integratorDimer;
     public Box box;
-    public IVector[] saddle;
+    public Vector[] saddle;
     public SpeciesSpheresMono fixed, movable;
     public P2LennardJones potential;
     public ActivityIntegrate activityIntegrateMD, activityIntegrateDimer;
@@ -126,7 +126,7 @@ public class SimDimerLJgb extends Simulation{
     	
         //Set movable atoms
         /** 
-        IVector rij = space.makeVector();
+        Vector rij = space.makeVector();
         AtomArrayList movableList = new AtomArrayList();
         AtomSet loopSet = box.getMoleculeList(cu);
         

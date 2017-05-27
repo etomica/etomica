@@ -8,7 +8,6 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.space.Space;
-import etomica.api.IVector;
 
 public class ConfigurationClusterMove extends ConfigurationCluster {
 

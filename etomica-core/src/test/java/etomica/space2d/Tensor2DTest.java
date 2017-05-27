@@ -1,6 +1,6 @@
 package etomica.space2d;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.Tensor;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,12 +57,12 @@ public class Tensor2DTest {
         assertTrue(t3.equals(t1));
     }
 
-    // tests E(IVector[]) and assignTo(IVector[])
+    // tests E(Vector[]) and assignTo(Vector[])
     @Test
     public void testE() throws Exception {
         Vector2D v0 = new Vector2D(1.0,3.0);
         Vector2D v1 = new Vector2D(2.0,-4.0);
-        t2.E(new IVector[] {v0, v1});
+        t2.E(new Vector[] {v0, v1});
         assertTrue(t2.equals(t1));
 
         Vector2D[] vecs = new Vector2D[] {new Vector2D(),new Vector2D()};

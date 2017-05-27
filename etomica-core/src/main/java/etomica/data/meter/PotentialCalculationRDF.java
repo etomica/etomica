@@ -5,6 +5,7 @@ import etomica.box.Box;
 import etomica.data.DataSourceUniform;
 import etomica.data.DataSourceUniform.LimitType;
 import etomica.potential.PotentialCalculation;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.units.Length;
 
@@ -16,7 +17,7 @@ import etomica.units.Length;
 
 public class PotentialCalculationRDF implements PotentialCalculation {
 
-    protected final IVector dr;
+    protected final Vector dr;
     protected long[] gSum;
     protected IBoundary boundary;
     protected final DataSourceUniform xDataSource;

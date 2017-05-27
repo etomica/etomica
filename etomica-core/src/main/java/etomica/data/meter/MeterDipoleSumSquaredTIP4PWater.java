@@ -3,6 +3,7 @@ package etomica.data.meter;
 import etomica.api.*;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space3d.Vector3D;
 import etomica.units.CompoundDimension;
@@ -20,7 +21,7 @@ import etomica.units.Electron;
 public class MeterDipoleSumSquaredTIP4PWater extends DataSourceScalar{
 	 
     private Box box;
-    private IVector dipole, dipoleSum;
+    private Vector dipole, dipoleSum;
     
 	public MeterDipoleSumSquaredTIP4PWater(Space space, Box box) {
 		super("TIP4P water, dipoleSum^2", new CompoundDimension(new Dimension[]{Dipole.DIMENSION},new double[]{2.0}));

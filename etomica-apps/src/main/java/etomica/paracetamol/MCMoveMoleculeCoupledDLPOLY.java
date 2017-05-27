@@ -6,7 +6,7 @@ package etomica.paracetamol;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
@@ -33,7 +33,7 @@ public class MCMoveMoleculeCoupledDLPOLY extends MCMoveBoxStep {
 
     private static final long serialVersionUID = 1L;
     protected final MoleculeChildAtomAction moveMoleculeAction;
-    protected final IVector groupTransVect;
+    protected final Vector groupTransVect;
     protected IMolecule molecule0, molecule1;
     protected final MeterPotentialEnergy energyMeter;
     protected MoleculeSource moleculeSource;

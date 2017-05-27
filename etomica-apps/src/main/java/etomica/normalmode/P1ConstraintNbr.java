@@ -9,6 +9,7 @@ import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.atom.AtomArrayList;
 import etomica.box.BoxAgentManager;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 public class P1ConstraintNbr implements IPotentialAtomic{
@@ -132,7 +133,7 @@ public class P1ConstraintNbr implements IPotentialAtomic{
 	 * neighbors (but not for i as a neighbor)
 	 */
 	public double energyi(IAtom atom) {
-	    IVector posAtom = atom.getPosition();
+	    Vector posAtom = atom.getPosition();
 
 	    int atomIndex = atom.getLeafIndex();
 	    int[] list = neighborAtoms[atomIndex];
@@ -163,7 +164,7 @@ public class P1ConstraintNbr implements IPotentialAtomic{
 	 * atom opposite from j.
 	 */
 	protected double energyij(IAtom atomi, IAtom atomj) {
-	    IVector posAtom = atomi.getPosition();
+	    Vector posAtom = atomi.getPosition();
 
 	    int atomIndex = atomi.getLeafIndex();
 	    int[] list = neighborAtoms[atomIndex];
@@ -193,7 +194,7 @@ public class P1ConstraintNbr implements IPotentialAtomic{
 	}
 
 	protected int[][] neighborAtoms;
-	protected final IVector drj, drk;
+	protected final Vector drj, drk;
 	protected double neighborRadiusSq;
 	protected IBoundary boundary;
 	protected IAtomList leafList;

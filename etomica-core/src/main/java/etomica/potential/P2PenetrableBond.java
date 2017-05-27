@@ -4,10 +4,9 @@
 
 package etomica.potential;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
@@ -298,6 +297,6 @@ public class P2PenetrableBond extends Potential2HardSpherical {
     private double lastCollisionVirial = 0.0;
     private double lastCollisionVirialr2 = 0.0;
     private boolean ignoreOverlap;
-    private final IVector dv;
+    private final Vector dv;
     private final Tensor lastCollisionVirialTensor;
 }

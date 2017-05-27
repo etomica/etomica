@@ -4,7 +4,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPair;
 import etomica.atom.iterator.IteratorDirective;
@@ -32,7 +32,7 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
     protected final AtomLeafAgentManager<MyAgent> forceManager;
     protected final Space space;
     protected double beta;
-    protected final IVector dr;
+    protected final Vector dr;
     protected double c1;
     protected final double[] cumint;
     protected final AtomPair pair;
@@ -162,8 +162,8 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
         if (r>vCut) vp = 0;
         sum += r*(vp-up);
         if (r<x0) {
-            IVector fi = forceManager.getAgent(a).force;
-            IVector fj = forceManager.getAgent(b).force;
+            Vector fi = forceManager.getAgent(a).force;
+            Vector fj = forceManager.getAgent(b).force;
             double u = p2.u(r2);
             double fifj = (fi.dot(dr) - fj.dot(dr))/r;
             double xs = calcXs(r, u);

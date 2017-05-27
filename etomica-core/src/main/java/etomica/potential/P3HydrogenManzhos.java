@@ -16,6 +16,7 @@ import java.util.jar.JarFile;
 
 import etomica.api.*;
 import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.BohrRadius;
@@ -28,7 +29,7 @@ public class P3HydrogenManzhos implements IPotential{
         Space space = Space3D.getInstance();
         P3HydrogenManzhos pot1 = new P3HydrogenManzhos(space);
         double E = 0.0;
-        IVector[] v2 = new IVector[6];
+        Vector[] v2 = new Vector[6];
         int maxi = 10000;
         boolean garb = true;        
         try {
@@ -41,7 +42,7 @@ public class P3HydrogenManzhos implements IPotential{
                         v2[j] = space.makeVector();
                         v2[j].E(0);
                     }
-                    IVector hbl = space.makeVector();
+                    Vector hbl = space.makeVector();
                     hbl.Ev1Mv2(eqPos[0], eqPos[1]);
                     double hb = Math.sqrt(hbl.squared())/2.0;
                     hbl.E(0);
@@ -70,11 +71,11 @@ public class P3HydrogenManzhos implements IPotential{
                         v2[j] = space.makeVector();
                         v2[j].E(eqPos[j]);
                     }
-                    IVector com0 = space.makeVector();
-                    IVector com1 = space.makeVector();
-                    IVector com2 = space.makeVector();
-                    IVector n0 = space.makeVector();
-                    IVector hbl = space.makeVector();
+                    Vector com0 = space.makeVector();
+                    Vector com1 = space.makeVector();
+                    Vector com2 = space.makeVector();
+                    Vector n0 = space.makeVector();
+                    Vector hbl = space.makeVector();
                     hbl.Ev1Mv2(v2[4], v2[5]);
                     double hb = Math.sqrt(hbl.squared())/2.0;
                     hbl.normalize();
@@ -122,8 +123,8 @@ public class P3HydrogenManzhos implements IPotential{
     protected double xMaxt = 2854.092000;
     protected final double d0 = 0.126575;
     protected final double lambda = BohrRadius.UNIT.toSim(4.00);
-    protected static IVector[] eqPos = new IVector[6];
-    protected IVector vec;
+    protected static Vector[] eqPos = new Vector[6];
+    protected Vector vec;
     protected double[][] xPos = {{0.0374,-0.2422,0.2792},{-0.0374,0.2422,-0.2792},{-0.016,-1.2877,2.9799},{-0.0196,-2.0073,2.7949},{-0.1047,1.5911,2.54},{0.063,1.7936,3.2349}};
     protected int[][] nPerm = {{1,2,3,4,5,6,7,8,9,10,11,12},{1,2,3,4,6,5,8,7,10,9,12,11},{2,1,4,3,5,6,7,8,11,12,9,10},{3,4,1,2,7,8,5,6,9,10,11,12},{5,6,7,8,1,2,3,4,9,11,10,12},{1,3,2,4,9,10,11,12,5,6,7,8},{9,11,10,12,5,7,6,8,1,3,2,4}};
     public P3HydrogenManzhos(Space space) {
@@ -134,7 +135,7 @@ public class P3HydrogenManzhos implements IPotential{
         vec = space.makeVector();
         getData();        
     }
-    public double vH2H2H2 (IVector[] v1) { // this method is for debugging only, the energy method doesn't call this
+    public double vH2H2H2 (Vector[] v1) { // this method is for debugging only, the energy method doesn't call this
         double[] q0 = new double [D];
         double[] q = new double [D];
         double[] qScaled = new double[D];
@@ -271,7 +272,7 @@ public class P3HydrogenManzhos implements IPotential{
         return 3;
     }
     public static class P3HydrogenManzhosMolecular extends P3HydrogenManzhos implements IPotentialMolecular {
-        protected IVector[] v = new IVector[6];
+        protected Vector[] v = new Vector[6];
         public P3HydrogenManzhosMolecular(Space space) {
             super(space);     
             for (int i=0; i<6; i++) {

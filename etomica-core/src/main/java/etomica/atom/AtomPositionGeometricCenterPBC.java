@@ -9,7 +9,7 @@ import java.io.Serializable;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IMolecule;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 /**
@@ -31,11 +31,11 @@ public class AtomPositionGeometricCenterPBC implements IAtomPositionDefinition, 
         this.boundary = boundary;
     }
 
-    public IVector position(IMolecule atom) {
+    public Vector position(IMolecule atom) {
         center.E(0.0);
         IAtomList children = atom.getChildList();
         int nAtoms = children.getAtomCount();
-        IVector pos0 = children.getAtom(0).getPosition();
+        Vector pos0 = children.getAtom(0).getPosition();
         for (int i=0; i<nAtoms; i++) {
             dr.Ev1Mv2(children.getAtom(i).getPosition(), pos0);
             boundary.nearestImage(dr);
@@ -48,6 +48,6 @@ public class AtomPositionGeometricCenterPBC implements IAtomPositionDefinition, 
     }
 
     private static final long serialVersionUID = 1L;
-    protected final IVector center, dr;
+    protected final Vector center, dr;
     protected final IBoundary boundary;
 }

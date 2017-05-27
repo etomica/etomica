@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import etomica.api.*;
+import etomica.space.Vector;
 import org.json.simple.JSONObject;
 
 import etomica.atom.AtomHydrogen;
@@ -251,7 +252,7 @@ public class VirialH2PISimple {
 						AtomHydrogen o = (AtomHydrogen)atoms.getAtom(i);
 						double cT = Math.cos((Math.PI*i)/atoms.getAtomCount());
 						double sT = Math.sin((Math.PI*i)/atoms.getAtomCount());
-						IVector vec = space.makeVector();
+						Vector vec = space.makeVector();
 						vec.setX(0, cT);
 						vec.setX(1, sT);
 						o.getOrientation().setDirection(vec);
@@ -278,8 +279,8 @@ public class VirialH2PISimple {
 			@Override
 			public void integratorStepFinished(IIntegratorEvent e) {
 				IAtomList atoms = sim.box[1].getLeafList();
-				IVector a0 = ((IAtomOriented)atoms.getAtom(0)).getOrientation().getDirection();
-				IVector a1 = ((IAtomOriented)atoms.getAtom(1)).getOrientation().getDirection();
+				Vector a0 = ((IAtomOriented)atoms.getAtom(0)).getOrientation().getDirection();
+				Vector a1 = ((IAtomOriented)atoms.getAtom(1)).getOrientation().getDirection();
 				double angle = Math.acos(a0.dot(a1));
 				h1.addValue(angle);
 			}

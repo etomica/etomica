@@ -12,7 +12,7 @@ import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.simulation.Simulation;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.MoleculeAgentManager;
@@ -51,7 +51,7 @@ public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryLi
     protected double range;
     protected final MoleculeAgentManager agentManager;
     protected boolean doApplyPBC;
-    protected final IVector v;
+    protected final Vector v;
     protected final int[] numCells;
     protected IAtomPositionDefinition moleculeSite;
     protected Space space;
@@ -153,7 +153,7 @@ public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryLi
             // simulation is still being constructed, don't try to do anything useful
             return false;
         }
-        IVector dimensions = box.getBoundary().getBoxSize();
+        Vector dimensions = box.getBoundary().getBoxSize();
         lattice.setDimensions(dimensions);
         int[] oldSize = lattice.getSize();
         boolean latticeNeedsUpdate = false;
@@ -254,7 +254,7 @@ public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryLi
      * cell's atom list.
      */
     public Object makeAgent(IMolecule molecule) {
-        IVector position = moleculeSite.position(molecule);
+        Vector position = moleculeSite.position(molecule);
         v.E(position);
         if (doApplyPBC) {
             v.PE(box.getBoundary().centralImage(position));

@@ -13,7 +13,7 @@ import java.io.IOException;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
@@ -111,7 +111,7 @@ public class SimOverlapNitrogenModel extends Simulation {
 		P2Nitrogen potential = new P2Nitrogen(space, rCScale);
 		potential.setBox(boxTarget);
 		System.out.println("Box Dimension(before): " + boxTarget.getBoundary().getBoxSize().toString());
-		final IVector initBox = space.makeVector(new double[]{boxTarget.getBoundary().getBoxSize().getX(0),
+		final Vector initBox = space.makeVector(new double[]{boxTarget.getBoundary().getBoxSize().getX(0),
 															  boxTarget.getBoundary().getBoxSize().getX(1),
 															  boxTarget.getBoundary().getBoxSize().getX(2)});
 		coordDefTarget.setInitVolume(initBox);

@@ -5,7 +5,7 @@
 package etomica.virial;
 
 import etomica.api.IAtomList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.integrator.mcmove.MCMoveAtom;
@@ -95,7 +95,7 @@ public class MCMoveClusterAtomHSTree extends MCMoveAtom {
                     continue;
                 }
                 // insert nbr2 around nbr
-                IVector pos = leafAtoms.getAtom(nbr2).getPosition();
+                Vector pos = leafAtoms.getAtom(nbr2).getPosition();
 
                 pos.setRandomInSphere(random);
                 pos.TE(sigma);

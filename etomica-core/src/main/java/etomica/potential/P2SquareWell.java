@@ -4,6 +4,7 @@
 
 package etomica.potential;
 import etomica.api.*;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
@@ -34,7 +35,7 @@ public class P2SquareWell extends Potential2HardSpherical {
     protected double lastCollisionVirial, lastCollisionVirialr2;
     protected Tensor lastCollisionVirialTensor;
     protected double lastEnergyChange;
-    protected IVector dv;
+    protected Vector dv;
     protected final boolean ignoreOverlap;
 
     public P2SquareWell(Space space) {

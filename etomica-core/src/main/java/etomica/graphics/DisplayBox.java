@@ -15,7 +15,7 @@ import java.awt.event.MouseMotionListener;
 import java.util.LinkedList;
 
 import etomica.action.activity.Controller;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.atom.AtomFilter;
@@ -657,7 +657,7 @@ public class DisplayBox extends Display {
      */
     private class InputEventHandler implements MouseListener, MouseMotionListener, KeyListener {
         
-        IVector point;
+        Vector point;
         
         //not yet configured to do molecule selections
         private boolean atomSelectEnabled = false;

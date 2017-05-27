@@ -10,6 +10,7 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.util.Debug;
 
@@ -54,8 +55,8 @@ public class IntegratorImageHarmonicMD extends IntegratorVelocityVerlet {
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             MyAgent agent = agentManager.getAgent(a);
-            IVector r = a.getPosition();
-            IVector v = a.getVelocity();
+            Vector r = a.getPosition();
+            Vector v = a.getVelocity();
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
                 System.out.println("first "+a+" r="+r+", v="+v+", f="+agent.force);
             }
@@ -70,13 +71,13 @@ public class IntegratorImageHarmonicMD extends IntegratorVelocityVerlet {
             }
             IAtomKinetic atom0 = (IAtomKinetic)leafList.getAtom(iLeaf);
             IAtomKinetic atom1 = (IAtomKinetic)leafList.getAtom(iLeaf+nOffset);
-            IVector r0 = atom0.getPosition();
-            IVector r1 = atom1.getPosition();
-            IVector v0 = atom0.getVelocity();
-            IVector v1 = atom1.getVelocity();
+            Vector r0 = atom0.getPosition();
+            Vector r1 = atom1.getPosition();
+            Vector v0 = atom0.getVelocity();
+            Vector v1 = atom1.getVelocity();
             atomSetSinglet.atom = atom0;
-            IVector[] grad = p1.gradient(atomSetSinglet);
-            IVector grad0 = grad[0];
+            Vector[] grad = p1.gradient(atomSetSinglet);
+            Vector grad0 = grad[0];
             double rm0 = atom0.getType().rm();
             double rm1 = atom1.getType().rm();
             for (int i=0; i<numInnerSteps; i++) {
@@ -106,7 +107,7 @@ public class IntegratorImageHarmonicMD extends IntegratorVelocityVerlet {
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
 //            System.out.println("force: "+((MyAgent)a.ia).force.toString());
-            IVector velocity = a.getVelocity();
+            Vector velocity = a.getVelocity();
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
                 System.out.println("second "+a+" v="+velocity+", f="+agentManager.getAgent(a).force);
             }

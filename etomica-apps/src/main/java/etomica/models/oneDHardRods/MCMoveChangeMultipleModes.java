@@ -8,8 +8,7 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.IVector;
-import etomica.atom.Atom;
+import etomica.space.Vector;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -38,7 +37,7 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
     protected final MeterPotentialEnergy energyMeter;
     private double[][][] eigenVectors;
     private double[][] omega2, oneOverOmega2;
-    private IVector[] waveVectors;
+    private Vector[] waveVectors;
     private double[] waveVectorCoefficients, sqrtWVC;
     int changedWV, changedMode, numberOfModesChanged;
     int[] changeableWVs, changeableModes;  //all wvs from the harmonic wv are not changed.
@@ -89,8 +88,8 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
      * 
      * @param wv
      */
-    public void setWaveVectors(IVector[] wv){
-        waveVectors = new IVector[wv.length];
+    public void setWaveVectors(Vector[] wv){
+        waveVectors = new Vector[wv.length];
         waveVectors = wv;
     }
     public void setWaveVectorCoefficients(double[] coeff){

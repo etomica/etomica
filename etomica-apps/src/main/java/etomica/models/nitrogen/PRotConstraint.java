@@ -4,7 +4,7 @@
 
 package etomica.models.nitrogen;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -28,7 +28,7 @@ public class PRotConstraint extends PotentialMolecular{
 		int numMolec = box.getMoleculeList().getMoleculeCount();
 		
 		molecOrientation = space.makeVector();
-		initMolecOrientation = new IVector[numMolec][3];
+		initMolecOrientation = new Vector[numMolec][3];
 		/*
 		 * initializing the initial orientation of the molecule
 		 */
@@ -50,8 +50,8 @@ public class PRotConstraint extends PotentialMolecular{
 		IMolecule molecule = molecules.getMolecule(0);
 		int index = molecule.getIndex();
 				
-		IVector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-		IVector leaftPos1 = molecule.getChildList().getAtom(1).getPosition();
+		Vector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
+		Vector leaftPos1 = molecule.getChildList().getAtom(1).getPosition();
 		
 		molecOrientation.Ev1Mv2(leaftPos1, leafPos0);
 		molecOrientation.normalize();
@@ -95,8 +95,8 @@ public class PRotConstraint extends PotentialMolecular{
 	}
 	
 	
-	private IVector[][] initMolecOrientation;
-	private IVector molecOrientation;
+	private Vector[][] initMolecOrientation;
+	private Vector molecOrientation;
 	private Box box;
 	protected double constraintAngle = 90.0; //in degree
 	protected int counter=0;

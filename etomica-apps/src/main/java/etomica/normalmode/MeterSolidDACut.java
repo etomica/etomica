@@ -6,7 +6,7 @@ package etomica.normalmode;
 
 import etomica.box.Box;
 import etomica.api.IPotentialMaster;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -134,11 +134,11 @@ public class MeterSolidDACut implements IEtomicaDataSource {
     	pc.zeroSum();
         potentialMaster.calculate(box, iteratorDirective, pc);
         double[] p1 = pc.getPressure1();
-        IVector[] p1XYZ = pc.getPressure1XYZ();
+        Vector[] p1XYZ = pc.getPressure1XYZ();
         double[] virial = pc.getVirialSum();
         double[] energy = pc.getEnergySum();
         double[] dadb = pc.getDADBSum();
-        IVector[] dadbXYZ = pc.getDADBXYZ();
+        Vector[] dadbXYZ = pc.getDADBXYZ();
 
         double[] p1DADv2 = p1;
         double[] energyDADv2 = energy;

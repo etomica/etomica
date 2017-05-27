@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import etomica.api.IAtomList;
 import etomica.api.IMolecule;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomTypeLeaf;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
@@ -93,7 +93,7 @@ public class ParmedStructure {
         // LinkedHashMap keySet is guaranteed to be in insertion order
         List<String> atomTypeIndices = new ArrayList<>(atomTypes.keySet());
         List<Integer> speciesAtomTypes = new ArrayList<>();
-        List<IVector> atomPositions = new ArrayList<>();
+        List<Vector> atomPositions = new ArrayList<>();
         JsonNode speciesAtoms = root.get("residues").get(0).get("atoms");
 
         for(JsonNode atomNode : speciesAtoms) {
@@ -113,7 +113,7 @@ public class ParmedStructure {
 
         theSpecies.setConformation(atomList -> {
             for(int i = 0; i < atomList.getAtomCount(); i++) {
-                IVector atomVec = atomPositions.get(i);
+                Vector atomVec = atomPositions.get(i);
                 atomList.getAtom(i).getPosition().E(atomVec);
             }
         });

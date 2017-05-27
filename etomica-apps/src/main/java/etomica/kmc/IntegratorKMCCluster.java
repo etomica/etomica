@@ -18,7 +18,7 @@ import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.atom.iterator.AtomIteratorLeafFilteredType;
@@ -44,12 +44,12 @@ public class IntegratorKMCCluster extends IntegratorBox{
     IRandom random;
     Simulation sim;
     ISpecies [] species;
-    IVector[] minPosition, currentSaddle, previousSaddle;
+    Vector[] minPosition, currentSaddle, previousSaddle;
     double[] saddleVib;
     double[] saddleEnergies;
     double[] rates;
     double tau;
-    IVector msd;
+    Vector msd;
     double beta;
     double massSec;
     double minEnergy;
@@ -235,8 +235,8 @@ public class IntegratorKMCCluster extends IntegratorBox{
         imposePbc = new BoxImposePbc(box, space);
         rates = new double[totalSearches];
         beta = 1.0/(temperature*1.3806503E-023);
-        currentSaddle = new IVector[box.getMoleculeList().getMoleculeCount()];
-        previousSaddle = new IVector[box.getMoleculeList().getMoleculeCount()];
+        currentSaddle = new Vector[box.getMoleculeList().getMoleculeCount()];
+        previousSaddle = new Vector[box.getMoleculeList().getMoleculeCount()];
         for(int i=0; i<currentSaddle.length; i++){
             currentSaddle[i] = space.makeVector();
             previousSaddle[i] = space.makeVector();
@@ -251,7 +251,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
         minVib = vibFreq;
         
         IMoleculeList loopSet2 = box.getMoleculeList();
-        minPosition = new IVector[loopSet2.getMoleculeCount()];
+        minPosition = new Vector[loopSet2.getMoleculeCount()];
         for(int i=0; i<minPosition.length; i++){
             minPosition[i] = space.makeVector();
         }
@@ -262,9 +262,9 @@ public class IntegratorKMCCluster extends IntegratorBox{
     }
     
     public void randomizePositions(){
-        IVector workVector = space.makeVector();
+        Vector workVector = space.makeVector();
         IMoleculeList loopSet3 = box.getMoleculeList(species[0]);
-        IVector[] currentPos = new IVector[loopSet3.getMoleculeCount()];
+        Vector[] currentPos = new Vector[loopSet3.getMoleculeCount()];
         double offset = 0;
         for(int i=0; i<currentPos.length; i++){
             currentPos[i] = space.makeVector();
@@ -295,7 +295,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
     
     public void msdCalc(MeterMeanSquareDisplacement msdArray){
         double sum = 0;
-        IVector [] msdVect = msdArray.getDataAsArray();
+        Vector[] msdVect = msdArray.getDataAsArray();
         for(int i=0; i<msdVect.length; i++){
             sum = msd.getX(0);
             sum += msdVect[i].getX(0)*msdVect[i].getX(0);
@@ -366,7 +366,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
     }
     
     public boolean checkMin(){
-        IVector workVector = space.makeVector();
+        Vector workVector = space.makeVector();
         double positionDiff=0;
         for(int i=0; i<box.getMoleculeList().getMoleculeCount(); i++){
             workVector.Ev1Mv2(minPosition[i],box.getMoleculeList().getMolecule(i).getChildList().getAtom(0).getPosition());

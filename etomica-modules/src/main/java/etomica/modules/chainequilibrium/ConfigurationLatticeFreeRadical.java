@@ -9,7 +9,7 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IRandom;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.config.ConfigurationLattice;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.SpaceLattice;
@@ -51,10 +51,10 @@ public class ConfigurationLatticeFreeRadical extends ConfigurationLattice {
                 / (double) basisSize);
 
         // determine scaled shape of simulation volume
-        IVector shape = space.makeVector();
+        Vector shape = space.makeVector();
         shape.E(box.getBoundary().getBoxSize());
         shape.PE(-boundaryPadding);
-        IVector latticeConstantV = space.makeVector(lattice.getLatticeConstants());
+        Vector latticeConstantV = space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
 
         // determine number of cells in each direction
@@ -75,7 +75,7 @@ public class ConfigurationLatticeFreeRadical extends ConfigurationLattice {
         }
 
         // determine lattice constant
-        IVector latticeScaling = space.makeVector();
+        Vector latticeScaling = space.makeVector();
         if (rescalingToFitVolume) {
             // in favorable situations, this should be approximately equal
             // to 1.0
@@ -88,18 +88,18 @@ public class ConfigurationLatticeFreeRadical extends ConfigurationLattice {
         }
 
         // determine amount to shift lattice so it is centered in volume
-        IVector offset = space.makeVector();
+        Vector offset = space.makeVector();
         offset.E(box.getBoundary().getBoxSize());
-        IVector vectorOfMax = space.makeVector();
-        IVector vectorOfMin = space.makeVector();
-        IVector site = space.makeVector();
+        Vector vectorOfMax = space.makeVector();
+        Vector vectorOfMin = space.makeVector();
+        Vector site = space.makeVector();
         vectorOfMax.E(Double.NEGATIVE_INFINITY);
         vectorOfMin.E(Double.POSITIVE_INFINITY);
 
         indexIterator.reset();
 
         while (indexIterator.hasNext()) {
-            site.E((IVector) lattice.site(indexIterator.next()));
+            site.E((Vector) lattice.site(indexIterator.next()));
             site.TE(latticeScaling);
             for (int i=0; i<site.getD(); i++) {
                 vectorOfMax.setX(i, Math.max(site.getX(i),vectorOfMax.getX(i)));
@@ -147,16 +147,16 @@ public class ConfigurationLatticeFreeRadical extends ConfigurationLattice {
             IMolecule a = moleculeList.getMolecule(i);
             a.getType().initializeConformation(a);
 
-            atomActionTranslateTo.setDestination((IVector)myLat.site(ii));
+            atomActionTranslateTo.setDestination((Vector)myLat.site(ii));
             if (a.getType() == speciesInitiator) {
-                IVector dest = atomActionTranslateTo.getDestination();
+                Vector dest = atomActionTranslateTo.getDestination();
                 dest.setX(0, dest.getX(0)-0.4);
             }
             atomActionTranslateTo.actionPerformed(a);
             if (a.getType() == speciesInitiator && i<initiatorList.getMoleculeCount()-1) {
                 i++;
                 a = moleculeList.getMolecule(i);
-                IVector dest = atomActionTranslateTo.getDestination();
+                Vector dest = atomActionTranslateTo.getDestination();
                 dest.setX(0, dest.getX(0)+0.8);
                 atomActionTranslateTo.actionPerformed(a);
             }

@@ -8,7 +8,7 @@ package etomica.virial.simulations;
 import java.awt.Color;
 
 import etomica.api.IAtomList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
@@ -158,7 +158,7 @@ public class VirialCPSHeliumNonAdditive {
         
         double r = 4;
         for (int i=1; i<nPoints; i++) {
-            IVector v = atoms.getAtom(i).getPosition();
+            Vector v = atoms.getAtom(i).getPosition();
             v.setX(0, r*Math.cos(2*(i-1)*Math.PI/(nPoints-1)));
             v.setX(1, r*Math.sin(2*(i-1)*Math.PI/(nPoints-1)));
         }

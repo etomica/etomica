@@ -11,7 +11,7 @@ import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomPositionCOM;
 import etomica.lattice.crystal.Primitive;
 import etomica.models.water.SpeciesWater4P;
@@ -47,7 +47,7 @@ public class NormalModesMolecular implements NormalModes {
         kFactory.makeWaveVectors(box);
         double[] kCoefficients = kFactory.getCoefficients(); //kCoefficients=0.5 non-deg.; = 1 degenerate twice!
         
-//    	IVector[] kv = kFactory.getWaveVectors();
+//    	Vector[] kv = kFactory.getWaveVectors();
 //    	for (int i=0;i<kv.length;i++){
 //        	System.out.println(kv[i]);    		
 //    	}
@@ -63,7 +63,7 @@ public class NormalModesMolecular implements NormalModes {
         Tensor inertiaTensor = space.makeTensor();
         double massH2O = species.getOxygenType().getMass() + 2.0 * species.getHydrogenType().getMass();
     	AtomPositionCOM comi = new AtomPositionCOM(space);
-    	IVector drk = space.makeVector();
+    	Vector drk = space.makeVector();
         Tensor identity = new Tensor3D(new double[][] {{1.0,0.0,0.0}, {0.0,1.0,0.0}, {0.0,0.0,1.0}});
 
         for(int i=0; i<basisDim; i++) {
@@ -71,7 +71,7 @@ public class NormalModesMolecular implements NormalModes {
         	for(int j=0;j<space.D();j++){ // 4 NOT 3 but that is fine as the mass of M = 0
             	Inertia[i][i].setComponent(j, j,massH2O);        		
         	}
-        	IVector comPos = comi.position(moleculei);
+        	Vector comPos = comi.position(moleculei);
         	inertiaTensor.E(0);
         	for(int j=0; j<moleculei.getChildList().getAtomCount(); j++){
         		drk.Ev1Mv2(moleculei.getChildList().getAtom(j).getPosition(),comPos);

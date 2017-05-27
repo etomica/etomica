@@ -7,7 +7,7 @@ package etomica.action;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.space.Space;
 
@@ -69,14 +69,14 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
      * and boundary dimensions are all multiplied by the scale when action is 
      * performed. A zero or negative scale throws an IllegalArgumentException.
      */
-    public void setVectorScale(IVector scale) {
+    public void setVectorScale(Vector scale) {
         scaleVector.E(scale);
     }
     
     /**
      * Returns the current value of the inflation scale in each dimension.
      */
-    public IVector getVectorScale() {
+    public Vector getVectorScale() {
         return scaleVector;
     }
     
@@ -109,7 +109,7 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
         // substract 1 from each dimension so that multiplying by it yields
         // the amount each coordinate is to be translated *by* (not to).
         scaleVector.PE(-1);
-        IVector translationVector = translator.getTranslationVector();
+        Vector translationVector = translator.getTranslationVector();
 
         IMoleculeList molecules = box.getMoleculeList();
         for (int i=0; i<molecules.getMoleculeCount(); i++) {
@@ -149,7 +149,7 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
     private static final long serialVersionUID = 1L;
     protected final AtomActionTranslateBy translator;
     protected final MoleculeChildAtomAction groupScaler;
-    protected final IVector scaleVector, dimVector;
+    protected final Vector scaleVector, dimVector;
     protected final AtomPositionGeometricCenter moleculeCenter;
     
 }

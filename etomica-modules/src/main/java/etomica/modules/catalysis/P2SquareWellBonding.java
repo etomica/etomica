@@ -3,10 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.modules.catalysis;
-import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.modules.catalysis.InteractionTracker.CatalysisAgent;
 import etomica.potential.Potential2HardSpherical;
@@ -34,7 +33,7 @@ public class P2SquareWellBonding extends Potential2HardSpherical {
     protected double lastCollisionVirial, lastCollisionVirialr2;
     protected Tensor lastCollisionVirialTensor;
     protected double lastEnergyChange;
-    protected IVector dv;
+    protected Vector dv;
     protected final AtomLeafAgentManager agentManager;
 
     protected int nSurfaceSites;

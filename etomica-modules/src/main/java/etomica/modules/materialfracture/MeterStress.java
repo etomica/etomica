@@ -4,7 +4,7 @@
 
 package etomica.modules.materialfracture;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
 import etomica.units.Pressure2D;
 
@@ -30,7 +30,7 @@ public class MeterStress extends DataSourceScalar {
 
     public double getDataAsScalar(){
         double area = 1;
-        IVector dim = box.getBoundary().getBoxSize();
+        Vector dim = box.getBoundary().getBoxSize();
         for (int i=1; i<dim.getD(); i++) {
             area *= dim.getX(i);
         }

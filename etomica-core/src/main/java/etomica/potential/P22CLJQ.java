@@ -6,6 +6,7 @@ package etomica.potential;
 
 import etomica.api.*;
 import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 /**
@@ -159,10 +160,10 @@ public class P22CLJQ extends PotentialMolecular {
     private double Q2;
     private IBoundary boundary;
 
-    private final IVector com1;
-    private final IVector com2;
-    private final IVector v12;
-    private final IVector v1;
-    private final IVector v2;
-    private final IVector dr;
+    private final Vector com1;
+    private final Vector com2;
+    private final Vector v12;
+    private final Vector v1;
+    private final Vector v2;
+    private final Vector dr;
 }

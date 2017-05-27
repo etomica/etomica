@@ -21,6 +21,7 @@ import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.SpaceLattice;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space3d.Vector3D;
 
@@ -164,7 +165,7 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
             }
             // initialize coordinates of child atoms
             a.getType().initializeConformation(a);
-            IVector site = (IVector) myLatA.site(ii);
+            Vector site = (Vector) myLatA.site(ii);
             atomActionTranslateTo.setDestination(site);
             atomActionTranslateTo.actionPerformed(a);
 //            System.out.println("A  |  " +a + "  |  " + site.x(2) + "  |  " + ii[2]);
@@ -186,7 +187,7 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
             }
             // initialize coordinates of child atoms
             a.getType().initializeConformation(a);
-            IVector site = (IVector) myLatB.site(ii);
+            Vector site = (Vector) myLatB.site(ii);
             atomActionTranslateTo.setDestination(site);
             atomActionTranslateTo.actionPerformed(a);
             //System.out.println("B  |  " +a + "  |  " + site.x(2) + "  |  " + ii[2]);
@@ -217,7 +218,7 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
      */
     private static class MyLattice implements SpaceLattice {
 
-        MyLattice(SpaceLattice l, IVector offset) {
+        MyLattice(SpaceLattice l, Vector offset) {
             lattice = l;
             this.offset = offset;
             this.site = l.getSpace().makeVector();
@@ -232,10 +233,10 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
         }
 
         /**
-         * Returns the same IVector instance with each call.
+         * Returns the same Vector instance with each call.
          */
         public Object site(int[] index) {
-            site.E((IVector) lattice.site(index));
+            site.E((Vector) lattice.site(index));
             site.PE(offset);
             return site;
         }
@@ -246,8 +247,8 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
         }
 
         SpaceLattice lattice;
-        IVector offset;
-        private final IVector site;
+        Vector offset;
+        private final Vector site;
     }
 
     private final BravaisLatticeCrystal latticeA, latticeB;

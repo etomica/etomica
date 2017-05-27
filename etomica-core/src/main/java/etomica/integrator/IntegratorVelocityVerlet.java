@@ -13,6 +13,7 @@ import etomica.box.Box;
 import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.simulation.Simulation;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.util.Debug;
@@ -80,7 +81,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         if (Debug.ON && Debug.DEBUG_NOW) {
             IAtomList pair = Debug.getAtoms(box);
             if (pair != null) {
-                IVector dr = space.makeVector();
+                Vector dr = space.makeVector();
                 dr.Ev1Mv2(pair.getAtom(1).getPosition(), pair.getAtom(0).getPosition());
                 System.out.println(pair+" dr "+dr);
             }
@@ -90,8 +91,8 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             MyAgent agent = agentManager.getAgent(a);
-            IVector r = a.getPosition();
-            IVector v = a.getVelocity();
+            Vector r = a.getPosition();
+            Vector v = a.getVelocity();
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
                 System.out.println("first "+a+" r="+r+", v="+v+", f="+agent.force);
             }
@@ -115,7 +116,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
 //            System.out.println("force: "+((MyAgent)a.ia).force.toString());
-            IVector velocity = a.getVelocity();
+            Vector velocity = a.getVelocity();
             workTensor.Ev1v2(velocity,velocity);
             workTensor.TE(a.getType().getMass());
             pressureTensor.PE(workTensor);
@@ -146,7 +147,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         if (Debug.ON && Debug.DEBUG_NOW) {
             IAtomList pair = Debug.getAtoms(box);
             if (pair != null) {
-                IVector dr = space.makeVector();
+                Vector dr = space.makeVector();
                 dr.Ev1Mv2(pair.getAtom(1).getPosition(), pair.getAtom(0).getPosition());
                 System.out.println(pair+" dr "+dr);
             }
@@ -169,13 +170,13 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
     public void releaseAgent(MyAgent agent, IAtom atom, Box agentBox) {}
             
     public final static class MyAgent implements IntegratorBox.Forcible {//need public so to use with instanceof
-        public IVector force;
+        public Vector force;
 
         public MyAgent(Space space) {
             force = space.makeVector();
         }
         
-        public IVector force() {return force;}
+        public Vector force() {return force;}
     }
     
 }

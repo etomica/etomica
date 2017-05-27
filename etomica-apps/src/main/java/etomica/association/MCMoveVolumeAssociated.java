@@ -18,6 +18,7 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Dimension;
@@ -36,8 +37,8 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
     private final int D;
     private IRandom random;
     protected final AtomIteratorLeafAtoms affectedAtomIterator;
-    protected final IVector r;
-    protected final IVector dr, dr2;
+    protected final Vector r;
+    protected final Vector dr, dr2;
     private transient double uOld, hOld, vNew, vScale, hNew;
     private transient double uNew = Double.NaN;
     protected AssociationManager associationManager;

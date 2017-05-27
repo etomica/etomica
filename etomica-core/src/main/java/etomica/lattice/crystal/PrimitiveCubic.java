@@ -4,7 +4,7 @@
 
 package etomica.lattice.crystal;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.math.geometry.Cube;
 import etomica.math.geometry.Polytope;
 import etomica.math.geometry.Square;
@@ -85,7 +85,7 @@ public class PrimitiveCubic extends Primitive {
         setSizeABC(scale*aBC);
     }
 
-    public int[] latticeIndex(IVector q) {
+    public int[] latticeIndex(Vector q) {
         for(int i=0; i<D; i++) {
             double x = q.getX(i)/aBC;
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x
@@ -93,7 +93,7 @@ public class PrimitiveCubic extends Primitive {
         return idx;
     }
     
-    public int[] latticeIndex(IVector q, int[] dimensions) {
+    public int[] latticeIndex(Vector q, int[] dimensions) {
         for(int i=0; i<D; i++) {
             double x = q.getX(i)/aBC;
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x

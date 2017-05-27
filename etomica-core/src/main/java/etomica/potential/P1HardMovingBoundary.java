@@ -4,11 +4,10 @@
 
 package etomica.potential;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomSetSinglet;
 import etomica.graphics.Drawable;
 import etomica.space.Space;
@@ -137,7 +136,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         if (!isForced) {
             double area = 1.0;
             if (pressure != 0.0) {
-                final IVector dimensions = pistonBoundary.getBoxSize();
+                final Vector dimensions = pistonBoundary.getBoxSize();
                 for (int i=0; i<D; i++) {
                     if (i != wallD) {
                         area *= (dimensions.getX(i)-collisionRadius*2.0);
@@ -196,11 +195,11 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     public void bump(IAtomList atoms, double falseTime) {
         IAtomKinetic atom = (IAtomKinetic)atoms.getAtom(0);
         double r = atom.getPosition().getX(wallD);
-        IVector v = atom.getVelocity();
+        Vector v = atom.getVelocity();
         if (!isForced) {
             double area = 1.0;
             if (pressure != 0.0) {
-                final IVector dimensions = pistonBoundary.getBoxSize();
+                final Vector dimensions = pistonBoundary.getBoxSize();
                 for (int i=0; i<D; i++) {
                     if (i != wallD) {
                         area *= (dimensions.getX(i)-collisionRadius*2.0);
@@ -231,7 +230,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     
     public double lastWallVirial() {
         double area = 1.0;
-        final IVector dimensions = pistonBoundary.getBoxSize();
+        final Vector dimensions = pistonBoundary.getBoxSize();
         for (int i=0; i<D; i++) {
             if (i != wallD) {
                 area *= (dimensions.getX(i)-collisionRadius*2.0);
@@ -271,7 +270,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     public void advanceAcrossTimeStep(double tStep) {
         if (pressure >= 0.0) {
             double area = 1.0;
-            final IVector dimensions = pistonBoundary.getBoxSize();
+            final Vector dimensions = pistonBoundary.getBoxSize();
             for (int i=0; i<D; i++) {
                 if (i != wallD) {
                     area *= (dimensions.getX(i)-collisionRadius*2.0);

@@ -7,7 +7,7 @@ package etomica.normalmode;
 import etomica.api.IAtomType;
 import etomica.api.IBoundary;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.BoxAgentManager;
 import etomica.config.ConfigurationLattice;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -90,7 +90,7 @@ public class MinimizeHCP extends Simulation {
         a *=  Math.sqrt(Math.sqrt(8.0/3.0)/newC);
         //System.out.println("cf "+newC);
         int nC = (int)Math.ceil(Math.pow(box.getLeafList().getAtomCount()/2, 1.0/3.0));
-        IVector[] boxDim = new IVector[3];
+        Vector[] boxDim = new Vector[3];
         boxDim[0] = space.makeVector(new double[]{nC*a, 0, 0});
         boxDim[1] = space.makeVector(new double[]{-nC*a*Math.cos(Degree.UNIT.toSim(60)), nC*a*Math.sin(Degree.UNIT.toSim(60)), 0});
         boxDim[2] = space.makeVector(new double[]{0, 0, nC*c});

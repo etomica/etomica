@@ -5,7 +5,7 @@
 package etomica.atom;
 
 import etomica.api.IElement;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 
@@ -15,12 +15,12 @@ import etomica.space.Space;
  */
 public class AtomTypeOrientedSphere extends AtomTypeLeaf implements IAtomTypeOriented {
     
-    protected final IVector I;
+    protected final Vector I;
     public AtomTypeOrientedSphere(IElement element, Space space) {
         super(element);
         I = space.makeVector();
     }
-    public IVector getMomentOfInertia() {return I;}
+    public Vector getMomentOfInertia() {return I;}
 
     public void setMomentOfInertia(double moment) {
         I.E(moment);

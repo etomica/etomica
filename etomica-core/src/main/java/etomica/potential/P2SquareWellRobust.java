@@ -9,7 +9,7 @@ import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.box.Box;
 import etomica.api.IPotential;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.box.BoxAgentManager;
@@ -46,7 +46,7 @@ public class P2SquareWellRobust extends Potential2HardSpherical implements AtomL
     protected double lastCollisionVirial, lastCollisionVirialr2;
     protected Tensor lastCollisionVirialTensor;
     protected double lastEnergyChange;
-    protected IVector dv;
+    protected Vector dv;
     protected final boolean ignoreOverlap;
     protected final BoxAgentManager<AtomLeafAgentManager<AtomArrayList>> boxWellManager;
     protected AtomLeafAgentManager<AtomArrayList> wellManager;

@@ -4,6 +4,7 @@ package etomica.models.water;
 import etomica.api.*;
 import etomica.box.Box;
 import etomica.potential.PotentialMolecular;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 /** 
@@ -24,13 +25,13 @@ public class P2WaterTIP4PHardCore extends PotentialMolecular {
 	protected final double chargeH;
 	protected final double chargeM;
 	protected final double chargeMM, chargeMH, chargeHH;
-	private IVector P1r,P2r;//dipole position
-	private IVector O1P1r, O2P2r;
-	private IVector P1P2r;//vector between dipoles
-	private IVector mu1Normalized, mu2Normalized;
+	private Vector P1r,P2r;//dipole position
+	private Vector O1P1r, O2P2r;
+	private Vector P1P2r;//vector between dipoles
+	private Vector mu1Normalized, mu2Normalized;
 	private double mu;
-	private IVector r;
-	private IVector dipole1, dipole2;
+	private Vector r;
+	private Vector dipole1, dipole2;
 
 	public P2WaterTIP4PHardCore(Space space, double hardCore, double sigma, double epsilon, double chargeM, double chargeH) {
 		super(2, space);
@@ -66,14 +67,14 @@ public class P2WaterTIP4PHardCore extends PotentialMolecular {
 		IMolecule water1 = pair.getMolecule(0);
 		IMolecule water2 = pair.getMolecule(1);
 		
-        IVector O1r = (water1.getChildList().getAtom(2)).getPosition();//H-H-O-M, so O is the third atom
-        IVector O2r = (water2.getChildList().getAtom(2)).getPosition();
-        IVector H11r = water1.getChildList().getAtom(0).getPosition();// 1st H on water 1
-        IVector H12r = water1.getChildList().getAtom(1).getPosition();// 2nd H on water 1
-        IVector H21r = water2.getChildList().getAtom(0).getPosition();// 1st H on water 2
-        IVector H22r = water2.getChildList().getAtom(1).getPosition();// 2nd H on water 2
-        IVector M1r = water1.getChildList().getAtom(3).getPosition();
-        IVector M2r = water2.getChildList().getAtom(3).getPosition();
+        Vector O1r = (water1.getChildList().getAtom(2)).getPosition();//H-H-O-M, so O is the third atom
+        Vector O2r = (water2.getChildList().getAtom(2)).getPosition();
+        Vector H11r = water1.getChildList().getAtom(0).getPosition();// 1st H on water 1
+        Vector H12r = water1.getChildList().getAtom(1).getPosition();// 2nd H on water 1
+        Vector H21r = water2.getChildList().getAtom(0).getPosition();// 1st H on water 2
+        Vector H22r = water2.getChildList().getAtom(1).getPosition();// 2nd H on water 2
+        Vector M1r = water1.getChildList().getAtom(3).getPosition();
+        Vector M2r = water2.getChildList().getAtom(3).getPosition();
 
         r.Ev1Mv2(O1r, O2r);//distance between lj sites
         double r2 = r.squared();
@@ -134,13 +135,13 @@ public class P2WaterTIP4PHardCore extends PotentialMolecular {
         double uDipole = sum - ulj;
 		return sum;																					        
 	}
-    public IVector getDipole1(){
+    public Vector getDipole1(){
 		dipole1.E(mu1Normalized);
 		dipole1.TE(mu);
 		return dipole1;
 	}
 	
-	public IVector getDipole2(){
+	public Vector getDipole2(){
 		dipole2.E(mu2Normalized);
 		dipole2.TE(mu);
 		return dipole2;

@@ -12,7 +12,7 @@ import etomica.action.activity.ControllerEvent;
 import etomica.api.IAtom;
 import etomica.box.Box;
 import etomica.api.IIntegrator;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.listener.IntegratorListenerAction;
 import etomica.space.Space;
@@ -115,7 +115,7 @@ public class MSDCoordWriter implements IAction, IListener {
 	public void actionPerformed() {
 		afterPBCinstance.updateAtomOldCoord();
 		if (--intervalCount == 0){
-			IVector boxdim = box.getBoundary().getBoxSize();
+			Vector boxdim = box.getBoundary().getBoxSize();
 			// Gets atomPBIarray from AfterPBC subclass, through the subclass instance
 			int [][] atomPBIarray = afterPBCinstance.getAtomPBIarray();
 
@@ -124,7 +124,7 @@ public class MSDCoordWriter implements IAction, IListener {
 				int i=0;
 				for (IAtom atom = iterator.nextAtom();
                      atom != null; atom = iterator.nextAtom()) {
-					IVector atomPosition = atom.getPosition();
+					Vector atomPosition = atom.getPosition();
 					for (int j=0;j < boxdim.getD();j++){
 						double actualDistance;
 							
@@ -187,7 +187,7 @@ public class MSDCoordWriter implements IAction, IListener {
 		}
 				
 		public void setBox(Box box){
-			atomOldCoord = new IVector[box.getLeafList().getAtomCount()];
+			atomOldCoord = new Vector[box.getLeafList().getAtomCount()];
 			for (int j=0; j < atomOldCoord.length; j++){
 				atomOldCoord[j] = space.makeVector();
 			}
@@ -236,10 +236,10 @@ public class MSDCoordWriter implements IAction, IListener {
 			}
 		}
 		
-		private IVector boxDim;
+		private Vector boxDim;
 		private int [][] atomPBIarray;
-		private IVector workVector;
-		private IVector[] atomOldCoord;
+		private Vector workVector;
+		private Vector[] atomOldCoord;
 		private AtomIteratorBoxDependent iterator;
 		private final Space space;
 	}

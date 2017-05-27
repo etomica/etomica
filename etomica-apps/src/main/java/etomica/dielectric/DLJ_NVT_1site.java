@@ -30,6 +30,7 @@ import etomica.potential.P2LJDipole;
 import etomica.potential.P2ReactionFieldDipole;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresRotating;
@@ -61,14 +62,14 @@ public class DLJ_NVT_1site extends Simulation {
     public Controller controller; 
 
     public static class DipoleSourceDLJ implements DipoleSource{//for potential reaction field
-    	protected final IVector dipoleVector;
+    	protected final Vector dipoleVector;
     	protected double dipoleStrength;
     	public DipoleSourceDLJ(Space space, double s){
     		dipoleStrength=s;
     		dipoleVector=space.makeVector();
     	}
     	
-		public IVector getDipole(IMolecule molecule) {
+		public Vector getDipole(IMolecule molecule) {
 			IAtomList atomList = molecule.getChildList();
 			if(atomList.getAtomCount() !=1){
 				throw new RuntimeException("improper input of the molecule");
@@ -92,7 +93,7 @@ public class DLJ_NVT_1site extends Simulation {
 		box.getBoundary().setBoxSize(space.makeVector(new double[]{boxSize,boxSize,boxSize}));
 	
 		IAtomPositionDefinition positionDefinition = new IAtomPositionDefinition() {
-			public IVector position(IMolecule molecule) {
+			public Vector position(IMolecule molecule) {
 				return molecule.getChildList().getAtom(0).getPosition();
 			}
 		};

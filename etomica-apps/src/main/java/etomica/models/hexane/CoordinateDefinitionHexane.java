@@ -7,9 +7,9 @@ package etomica.models.hexane;
 import etomica.api.*;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
-import etomica.atom.Atom;
 import etomica.lattice.crystal.Primitive;
 import etomica.normalmode.CoordinateDefinitionMolecule;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Vector3D;
@@ -78,11 +78,11 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         // Now we play with the molecule we are measuring.
 
         // Long rotational axis of atom 1
-        IVector leafPos1 =  molecule
+        Vector leafPos1 =  molecule
                 .getChildList().getAtom(0).getPosition();
-        IVector leafPos2 =  molecule
+        Vector leafPos2 =  molecule
                 .getChildList().getAtom(1).getPosition();
-        IVector leafPos3 =  molecule
+        Vector leafPos3 =  molecule
                 .getChildList().getAtom(2).getPosition();
         axis0prime.Ev1Mv2(leafPos3, leafPos1);
         // axis0Prime goes from the 1st atom on the molecule to the 3rd atom on
@@ -258,11 +258,11 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         // molecule
         
         // Long rotational axis of atom 0
-        IVector leafPos1 = molecule
+        Vector leafPos1 = molecule
                 .getChildList().getAtom(0).getPosition();
-        IVector leafPos2 = molecule
+        Vector leafPos2 = molecule
                 .getChildList().getAtom(1).getPosition();
-        IVector leafPos3 = molecule
+        Vector leafPos3 = molecule
                 .getChildList().getAtom(2).getPosition();
         // axes[0] should point from the 0th atom on the molecule to the 2nd
         // atom on the molecule

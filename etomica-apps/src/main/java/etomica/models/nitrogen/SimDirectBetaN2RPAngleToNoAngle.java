@@ -10,13 +10,12 @@ import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.BoxAgentManager;
 import etomica.config.ConfigurationFile;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
@@ -68,7 +67,7 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
 		Basis basisHCP = new BasisHcp();
 		BasisBigCell basis = new BasisBigCell(space, basisHCP, new int[]{nC,nC,nC});
         
-		IVector[] boxDim = new IVector[3];
+		Vector[] boxDim = new Vector[3];
 		boxDim[0] = space.makeVector(new double[]{nC*aDim, 0, 0});
 		boxDim[1] = space.makeVector(new double[]{-nC*aDim*Math.cos(Degree.UNIT.toSim(60)), nC*aDim*Math.sin(Degree.UNIT.toSim(60)), 0});
 		boxDim[2] = space.makeVector(new double[]{0, 0, nC*cDim});

@@ -12,6 +12,7 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.units.Kelvin;
@@ -196,7 +197,7 @@ public class MCMoveVolumeN2 extends MCMoveBoxStep {
 		isXYZChange = true;
 	}
 	
-	private IVector rScale;
+	private Vector rScale;
 	private double[] coeff;
     private int caseNumMolec = 0;
     private ISpecies species;

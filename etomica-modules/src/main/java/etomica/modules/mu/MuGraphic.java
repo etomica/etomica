@@ -21,7 +21,7 @@ import javax.swing.event.ChangeListener;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.IAction;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.api.IFunction;
 import etomica.api.IMolecule;
@@ -315,8 +315,8 @@ public class MuGraphic extends SimulationGraphic {
         meterMuA.setResidual(true);
         meterMuA.setSpecies(sim.speciesA);
         meterMuA.setPositionSource(new RandomPositionSourceRectangular(space, sim.getRandom()) {
-            public IVector randomPosition() {
-                IVector v;
+            public Vector randomPosition() {
+                Vector v;
                 do {
                     v = super.randomPosition();
                 }
@@ -361,8 +361,8 @@ public class MuGraphic extends SimulationGraphic {
         meterMuB.setResidual(true);
         meterMuB.setSpecies(sim.speciesB);
         meterMuB.setPositionSource(new RandomPositionSourceRectangular(space, sim.getRandom()) {
-            public IVector randomPosition() {
-                IVector v;
+            public Vector randomPosition() {
+                Vector v;
                 do {
                     v = super.randomPosition();
                 }
@@ -460,7 +460,7 @@ public class MuGraphic extends SimulationGraphic {
                 else {
                     for (int i=0; i<(d-oldValue); i++) {
                         IMolecule m = species.makeMolecule();
-                        IVector p = m.getChildList().getAtom(0).getPosition();
+                        Vector p = m.getChildList().getAtom(0).getPosition();
                         p.setX(0, -7.5);
                         box.addMolecule(m);
                     }
@@ -495,7 +495,7 @@ public class MuGraphic extends SimulationGraphic {
                 else {
                     for (int i=0; i<(d-oldValue); i++) {
                         IMolecule m = species.makeMolecule();
-                        IVector p = m.getChildList().getAtom(0).getPosition();
+                        Vector p = m.getChildList().getAtom(0).getPosition();
                         p.setX(0, -7.5);
                         box.addMolecule(m);
                     }

@@ -15,7 +15,7 @@ import etomica.api.IAtom;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.MoleculeArrayList;
 import etomica.chem.elements.Argon;
 import etomica.chem.elements.Helium;
@@ -43,7 +43,7 @@ public class PotentialEmul extends PotentialMolecular {
     protected String templateName;
     public static final Unit emulEnergyUnit = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT);
     protected double r2Core;
-    protected final IVector r12Vec;
+    protected final Vector r12Vec;
     
 	public PotentialEmul(Space space, String templateName){
 	    this(space, templateName, 2.5);
@@ -184,7 +184,7 @@ public class PotentialEmul extends PotentialMolecular {
                     // the next line has the element and we add the x-y-z coordinate
                     // XXX we only handle mono-atomic molecules
                     IAtom atom = molecules.getMolecule(nAtomsWritten).getChildList().getAtom(0);
-                    IVector p = atom.getPosition();
+                    Vector p = atom.getPosition();
                     fw.write(bufReader.readLine()+" "+p.getX(0)+" "+p.getX(1)+" "+p.getX(2)+"\n");
                     nAtomsWritten++;
                 }
@@ -194,7 +194,7 @@ public class PotentialEmul extends PotentialMolecular {
                     // the following lines have the element and we add the x-y-z coordinate
                 	for (int i=0; i<molecules.getMoleculeCount(); i++) {
                         IAtom atom = molecules.getMolecule(i).getChildList().getAtom(0);
-                	    IVector p = atom.getPosition();
+                	    Vector p = atom.getPosition();
                         fw.write(bufReader.readLine()+" "+p.getX(0)+" "+p.getX(1)+" "+p.getX(2)+"\n");
                 	}
                 }

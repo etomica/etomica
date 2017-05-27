@@ -5,7 +5,7 @@
 package etomica.modules.adsorption;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
@@ -113,7 +113,7 @@ public class Adsorption extends Simulation {
 
         integratorMD.getEventManager().addListener(potentialMaster.getNeighborManager(box));
 
-        IVector dim = space.makeVector();
+        Vector dim = space.makeVector();
         dim.E(8*sigma);
         dim.setX(1, 12*sigma);
         box.getBoundary().setBoxSize(dim);

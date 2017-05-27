@@ -7,7 +7,7 @@ package etomica.potential;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
 import etomica.exception.MethodNotImplementedException;
 import etomica.space.Space;
@@ -29,7 +29,7 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
         setSigma(sigma);
         setEpsilon(epsilon);
         setQuadrupolarMomentSquare(momentSquared);
-        gradient = new IVector[2];
+        gradient = new Vector[2];
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();
         dr = space.makeVector();
@@ -71,10 +71,10 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
             dr.normalize();
 
             // v1 is the orientation of molecule 1
-            IVector v1 = atom1.getOrientation().getDirection();
+            Vector v1 = atom1.getOrientation().getDirection();
 
             // v2 is the orientation of molecule 2
-            IVector v2 = atom2.getOrientation().getDirection();
+            Vector v2 = atom2.getOrientation().getDirection();
 
             // cos1 and sin1 are the cosine and sine of the angle (theta1)
             // between v1 and dr
@@ -122,11 +122,11 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
         return Q2;
     }
     
-    public IVector[] gradient(IAtomList pair, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList pair, Tensor pressureTensor) {
         return gradient(pair);
     }
 
-    public IVector[] gradient(IAtomList pair) {
+    public Vector[] gradient(IAtomList pair) {
         IAtomOriented atom1 = (IAtomOriented)pair.getAtom(0);
         IAtomOriented atom2 = (IAtomOriented)pair.getAtom(1);
 
@@ -147,10 +147,10 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
             drunit.TE(1/r12);
 
             // v1 is the orientation of molecule 1
-            IVector v1 = atom1.getOrientation().getDirection();
+            Vector v1 = atom1.getOrientation().getDirection();
 
             // v2 is the orientation of molecule 2
-            IVector v2 = atom2.getOrientation().getDirection();
+            Vector v2 = atom2.getOrientation().getDirection();
 
             // cos1 and sin1 are the cosine and sine of the angle (theta1)
             // between v1 and dr
@@ -263,7 +263,7 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
     private double hsdiasq=1.0/Math.sqrt(2);
     private double Q2;
     private IBoundary boundary;
-    private final IVector dr, drunit, dcos1dr, dcos2dr;
-    private final IVector[] gradient;
+    private final Vector dr, drunit, dcos1dr, dcos2dr;
+    private final Vector[] gradient;
     protected double temperature;
 }

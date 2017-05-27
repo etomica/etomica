@@ -8,14 +8,14 @@ import etomica.api.IAtom;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IRandom;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 public class BiasVolumeCube extends BiasVolume {
     
     private static final long serialVersionUID = 1L;
-    private final IVector dimensions;
-    private final IVector work;
+    private final Vector dimensions;
+    private final Vector work;
     private final IRandom random;
     private IBoundary boundary;
     
@@ -27,11 +27,11 @@ public class BiasVolumeCube extends BiasVolume {
         dimensions.E(2.0);//size of the cube
     }
     
-    public void setBiasCubeDimensions(IVector dim) {
+    public void setBiasCubeDimensions(Vector dim) {
         dimensions.E(dim);
     }
     public void setBiasCubeDimensions(double d) {dimensions.E(d);}
-    public IVector getBiasCubeDimensions() {return dimensions;}
+    public Vector getBiasCubeDimensions() {return dimensions;}
     
     public void setBox(Box box) {
     	boundary = box.getBoundary();

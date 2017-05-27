@@ -7,7 +7,7 @@ package etomica.potential;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
 
@@ -145,11 +145,11 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
             return d2uCorrection(nPairs()/box.getBoundary().volume()) + duCorrection(nPairs()/box.getBoundary().volume());
         }
 
-        public IVector[] gradient(IAtomList atoms) {
+        public Vector[] gradient(IAtomList atoms) {
             return null;
         }
         
-        public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+        public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
             double virial = virial(atoms) / pressureTensor.D();
             for (int i=0; i<pressureTensor.D(); i++) {
                 pressureTensor.setComponent(i,i,pressureTensor.component(i,i)-virial);

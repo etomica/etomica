@@ -5,6 +5,7 @@
 package etomica.potential;
 
 import etomica.api.*;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.util.Debug;
@@ -31,7 +32,7 @@ public class P2HardSphere extends Potential2HardSpherical {
     protected double lastCollisionVirial = 0.0;
     protected double lastCollisionVirialr2 = 0.0;
     protected final boolean ignoreOverlap;
-    protected final IVector dv;
+    protected final Vector dv;
     protected final Tensor lastCollisionVirialTensor;
     
     public P2HardSphere(Space space) {

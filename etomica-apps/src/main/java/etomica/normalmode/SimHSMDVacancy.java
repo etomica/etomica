@@ -16,7 +16,7 @@ import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.DiameterHash;
 import etomica.data.AccumulatorAverageBlockless;
 import etomica.data.AccumulatorHistogram;
@@ -339,14 +339,14 @@ public class SimHSMDVacancy extends Simulation {
                 }
             };
             colorScheme = new ColorScheme() {
-                IVector dr = sim.space.makeVector();
+                Vector dr = sim.space.makeVector();
                 double rc = sim.mcMoveID.getMaxDistance();
                 double rc2 = rc*rc;
                 int nmax = 12;
                 public Color getAtomColor(IAtom a) {
                     if (!sim.integrator.getEventManager().firingEvent() && !sim.ai.isPaused()) return new Color(1.0f, 1.0f, 1.0f);
 
-                    IVector pi = a.getPosition();
+                    Vector pi = a.getPosition();
                     NeighborListManager nbrManager = sim.potentialMasterList.getNeighborManager(sim.box);
                     IBoundary boundary = sim.box.getBoundary();
                     IAtomList nbrs = null;
@@ -391,12 +391,12 @@ public class SimHSMDVacancy extends Simulation {
             simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
             
             DiameterHash dh = new DiameterHash() {
-                IVector dr = sim.space.makeVector();
+                Vector dr = sim.space.makeVector();
                 double rc = sim.mcMoveID.getMaxDistance();
                 double rc2 = rc*rc;
                 int nmax = 12;
                 public double getDiameter(IAtom a) {
-                    IVector pi = a.getPosition();
+                    Vector pi = a.getPosition();
                     NeighborListManager nbrManager = sim.potentialMasterList.getNeighborManager(sim.box);
                     IBoundary boundary = sim.box.getBoundary();
                     IAtomList nbrs = null;

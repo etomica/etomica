@@ -7,7 +7,7 @@ package etomica.normalmode;
 import java.io.Serializable;
 
 import etomica.api.IAtom;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.lattice.crystal.Basis;
@@ -45,8 +45,8 @@ public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
         int j = 0;
         for (int i=0; i<atoms.getMoleculeCount(); i++) {
             IAtom a = atoms.getMolecule(i).getChildList().getAtom(0);
-            IVector pos = a.getPosition();
-            IVector site = getLatticePosition(a);
+            Vector pos = a.getPosition();
+            Vector site = getLatticePosition(a);
             workVector.Ev1Mv2(pos, site);
             for (int k=0; k<workVector.getD(); k++) {
                 u[j+k] = workVector.getX(k);
@@ -67,7 +67,7 @@ public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
         int j = 0;
         for (int i=0; i<atoms.getMoleculeCount(); i++) {
             IAtom a = atoms.getMolecule(i).getChildList().getAtom(0);
-            IVector pos = a.getPosition();
+            Vector pos = a.getPosition();
             for (int k=0; k<workVector.getD(); k++) {
                 pos.setX(k, newU[j+k]);
             }
@@ -76,7 +76,7 @@ public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
         }
     }
 
-    protected final IVector workVector;
+    protected final Vector workVector;
     protected final double[] u;
     private static final long serialVersionUID = 1L;
 }

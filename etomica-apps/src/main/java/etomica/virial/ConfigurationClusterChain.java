@@ -5,7 +5,6 @@
 package etomica.virial;
 
 import etomica.api.IAtomList;
-import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.space.Space;
 

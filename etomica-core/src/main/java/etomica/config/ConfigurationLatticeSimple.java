@@ -9,7 +9,7 @@ import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
@@ -82,15 +82,15 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
                 / (double) basisSize);
 
         // determine scaled shape of simulation volume
-        IVector dim = space.makeVector();
+        Vector dim = space.makeVector();
         IBoundary boundary = box.getBoundary();
         for (int i=0; i<space.D(); i++) {
-            IVector edgeVector = boundary.getEdgeVector(i);
+            Vector edgeVector = boundary.getEdgeVector(i);
             dim.setX(i,Math.sqrt(edgeVector.squared()));
         }
-        IVector shape = space.makeVector();
+        Vector shape = space.makeVector();
         shape.E(dim);
-        IVector latticeConstantV = space.makeVector(lattice.getLatticeConstants());
+        Vector latticeConstantV = space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
 
         // determine number of cells in each direction
@@ -108,21 +108,21 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
 
         // Place molecules
         indexIterator.reset();
-        IVector offset = space.makeVector();
+        Vector offset = space.makeVector();
         offset.Ea1Tv1(-0.5, box.getBoundary().getBoxSize());
-        IVector destinationVector = atomActionTranslateTo.getDestination();
+        Vector destinationVector = atomActionTranslateTo.getDestination();
         int nMolecules = moleculeList.getMoleculeCount();
         for (int i=0; i<nMolecules; i++) {
             IMolecule a = moleculeList.getMolecule(i);
             // initialize coordinates of child atoms
             a.getType().initializeConformation(a);
 
-            destinationVector.Ev1Pv2((IVector)lattice.site(indexIterator.next()), offset);
+            destinationVector.Ev1Pv2((Vector)lattice.site(indexIterator.next()), offset);
             atomActionTranslateTo.actionPerformed(a);
         }
     }
 
-    protected int[] calculateLatticeDimensions(int nCells, IVector shape) {
+    protected int[] calculateLatticeDimensions(int nCells, Vector shape) {
         int dimLeft = shape.getD();
         int nCellsLeft = nCells;
         int[] latticeDimensions = new int[shape.getD()];

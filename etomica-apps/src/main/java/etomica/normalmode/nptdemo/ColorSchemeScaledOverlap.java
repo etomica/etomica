@@ -6,7 +6,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.graphics.ColorSchemeCollectiveAgent;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
@@ -73,7 +73,7 @@ public class ColorSchemeScaledOverlap extends ColorSchemeCollectiveAgent {
             //color blue the neighbor atoms in same group
             IAtom atom = leafList.getAtom(i);
             pi.E(atom.getPosition());
-            IVector l = coordinateDefinition.getLatticePosition(atom);
+            Vector l = coordinateDefinition.getLatticePosition(atom);
             pi.ME(l);
             pi.TE(latticeScale);
             pi.PE(l);
@@ -83,7 +83,7 @@ public class ColorSchemeScaledOverlap extends ColorSchemeCollectiveAgent {
                 IAtom jAtom = list.getAtom(j);
 
                 pj.E(jAtom.getPosition());
-                IVector lj = coordinateDefinition.getLatticePosition(jAtom);
+                Vector lj = coordinateDefinition.getLatticePosition(jAtom);
                 pj.ME(lj);
                 pj.TE(latticeScale);
                 pj.PE(lj);
@@ -105,8 +105,8 @@ public class ColorSchemeScaledOverlap extends ColorSchemeCollectiveAgent {
 
     private static final long serialVersionUID = 1L;
     private final NeighborListManager neighborManager;
-    protected final IVector dr;
-    protected final IVector pi, pj;
+    protected final Vector dr;
+    protected final Vector pi, pj;
     protected final int[] nOverlaps;
     protected double pressure, displayDensity;
     protected final CoordinateDefinition coordinateDefinition;

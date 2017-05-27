@@ -4,7 +4,7 @@
 
 package etomica.models.oneDHardRods;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisMonatomic;
@@ -42,7 +42,7 @@ public class DoubleIntegralEtas extends Simulation{
     int xN, yN, nAtomsT, nAtomsR;
     NormalModes nmT, nmR;
     protected CoordinateDefinition cDefT, cDefR;
-    private IVector[] wvT, wvR;
+    private Vector[] wvT, wvR;
     private double[] wvcT, sqrtWvcT, wvcR, sqrtWvcR;
     double[][] omega2T, oneOverOmega2T, omega2R, oneOverOmega2R;
     int[] nCellsT, nCellsR;

@@ -9,7 +9,7 @@ import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -38,17 +38,17 @@ public class P2HSDipole extends PotentialMolecular implements IPotentialMolecula
 	public P2HSDipole(Space space, double sigma, double dipole, double rCut) {
 		super(2, space);
 		setSigma(sigma);
-		gradient = new IVector[2];
+		gradient = new Vector[2];
 		gradient[0] = space.makeVector();
 		gradient[1] = space.makeVector();
-		torque = new IVector[2];
+		torque = new Vector[2];
 		torque[0] = space.makeVector();
 		torque[1] = space.makeVector();
 		secondDerivative = new Tensor[3];
 		this.secondDerivative[0] = space.makeTensor();
 		this.secondDerivative[1] = space.makeTensor();
 		this.secondDerivative[2] = space.makeTensor();
-		a = new IVector[3];
+		a = new Vector[3];
 		a[0] = space.makeVector();
 		a[1] = space.makeVector();
 		a[2] = space.makeVector();
@@ -57,7 +57,7 @@ public class P2HSDipole extends PotentialMolecular implements IPotentialMolecula
 		drunit = space.makeVector();
 		runit = space.makeVector();
 		work = space.makeVector();
-		gradientAndTorque = new IVector[][]{gradient,torque};
+		gradientAndTorque = new Vector[][]{gradient,torque};
 
 		setDipole(dipole);
 		this.rCut = rCut;
@@ -96,9 +96,9 @@ public class P2HSDipole extends PotentialMolecular implements IPotentialMolecula
 		dr.normalize();
 
 		// v1 (unit vector) is the orientation of molecule 1: dipole1 direction
-		IVector v1 = atom1.getOrientation().getDirection();
+		Vector v1 = atom1.getOrientation().getDirection();
 		// v2 (unit vector) is the orientation of molecule 2: dipole1 direction
-		IVector v2 = atom2.getOrientation().getDirection();
+		Vector v2 = atom2.getOrientation().getDirection();
 
 		// cos(dipole 1 and dipole 2)=cos(v1 and v2)
 		double cos_D1_D2 = v1.dot(v2);
@@ -123,11 +123,11 @@ public class P2HSDipole extends PotentialMolecular implements IPotentialMolecula
 		dipole=moment;
 	}
 	
-    public IVector[] gradient(IMoleculeList pair, Tensor pressureTensor) {
+    public Vector[] gradient(IMoleculeList pair, Tensor pressureTensor) {
         return gradient(pair);
     }
 
-    public IVector[] gradient(IMoleculeList pair) {
+    public Vector[] gradient(IMoleculeList pair) {
         // do extra work to calculate torque
         gradientAndTorque(pair);
         return gradient;
@@ -154,7 +154,7 @@ public class P2HSDipole extends PotentialMolecular implements IPotentialMolecula
         return gradient[1].dot(dr);
     }
 
-	public IVector[][] gradientAndTorque(IMoleculeList atoms) {
+	public Vector[][] gradientAndTorque(IMoleculeList atoms) {
     	IMolecule molecule1 = atoms.getMolecule(0);
 		IMolecule molecule2 = atoms.getMolecule(1);
 		IAtomList atomList1 = molecule1.getChildList();
@@ -184,10 +184,10 @@ public class P2HSDipole extends PotentialMolecular implements IPotentialMolecula
 			drunit.TE(s1);					
 
 			// v1 is the orientation of molecule 1
-			IVector v1 = atom1.getOrientation().getDirection();
+			Vector v1 = atom1.getOrientation().getDirection();
 
 			// v2 is the orientation of molecule 2
-			IVector v2 = atom2.getOrientation().getDirection();
+			Vector v2 = atom2.getOrientation().getDirection();
 
 			double fac = momentSq * (s2*s1 );
 			double dfac = momentSq * (3*s2*s2*s1 );
@@ -234,10 +234,10 @@ public class P2HSDipole extends PotentialMolecular implements IPotentialMolecula
 		IAtomList atomList1 = molecule1.getChildList();
 		IAtomOriented atom0 = (IAtomOriented)atomList0.getAtom(0);
 		IAtomOriented atom1 = (IAtomOriented)atomList1.getAtom(0);
-		IVector pos0 = atom1.getPosition();
-		IVector pos1 = atom0.getPosition();
-		IVector  ei =  atom0.getOrientation().getDirection();
-		IVector  ej =  atom1.getOrientation().getDirection();
+		Vector pos0 = atom1.getPosition();
+		Vector pos1 = atom0.getPosition();
+		Vector ei =  atom0.getOrientation().getDirection();
+		Vector ej =  atom1.getOrientation().getDirection();
 		
 		double exi = ei.getX(0);//ei and ej is the dipole orientation
 		double eyi = ei.getX(1);
@@ -246,12 +246,12 @@ public class P2HSDipole extends PotentialMolecular implements IPotentialMolecula
 		double eyj = ej.getX(1);
 		double ezj = ej.getX(2);
 		
-		IVector deidxi = space.makeVector();
-		IVector deidyi = space.makeVector();
-		IVector deidzi = space.makeVector();
-		IVector dejdxj = space.makeVector();
-		IVector dejdyj = space.makeVector();
-		IVector dejdzj = space.makeVector();
+		Vector deidxi = space.makeVector();
+		Vector deidyi = space.makeVector();
+		Vector deidzi = space.makeVector();
+		Vector dejdxj = space.makeVector();
+		Vector dejdyj = space.makeVector();
+		Vector dejdzj = space.makeVector();
 		
 		double [] dejdxjD = {0,-ezj,eyj};
 		double [] dejdyjD = {ezj,0,-exj};
@@ -378,13 +378,13 @@ public class P2HSDipole extends PotentialMolecular implements IPotentialMolecula
 	private static final long serialVersionUID = 1L;
 	private double sigma , sigma2;
 	private IBoundary boundary;
-	private final IVector dr,drunit,work,runit;
+	private final Vector dr,drunit,work,runit;
 	private double dipole;
 	private double rCut;
-	private final IVector[] gradient;
-	protected final IVector[] torque;
-	protected final IVector[][] gradientAndTorque;
-	protected final IVector[] a;
+	private final Vector[] gradient;
+	protected final Vector[] torque;
+	protected final Vector[][] gradientAndTorque;
+	protected final Vector[] a;
 	protected final Tensor[] secondDerivative;		
 
 }

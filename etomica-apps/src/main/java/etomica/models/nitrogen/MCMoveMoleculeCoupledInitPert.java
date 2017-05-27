@@ -20,7 +20,7 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.nbr.list.molecule.PotentialMasterListMolecular;
 import etomica.space.Space;
-import etomica.api.IVector;
+import etomica.space.Vector;
 
 /**
  * Standard Monte Carlo molecule-displacement trial move.  Two molecules are moved at a
@@ -36,7 +36,7 @@ public class MCMoveMoleculeCoupledInitPert extends MCMoveBoxStep {
 
     private static final long serialVersionUID = 1L;
     protected final MoleculeChildAtomAction moveMoleculeAction;
-    protected final IVector groupTransVect;
+    protected final Vector groupTransVect;
     protected IMolecule molecule0, molecule1;
     protected final MeterPotentialEnergy energyMeter;
     protected MoleculeSource moleculeSource;

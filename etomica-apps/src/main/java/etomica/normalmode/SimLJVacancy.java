@@ -16,7 +16,7 @@ import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.data.AccumulatorAverageBlockless;
 import etomica.data.AccumulatorHistogram;
 import etomica.data.AccumulatorHistory;
@@ -161,11 +161,11 @@ public class SimLJVacancy extends Simulation {
                     return 0;
                 }
                 
-                public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+                public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
                     return null;
                 }
                 
-                public IVector[] gradient(IAtomList atoms) {
+                public Vector[] gradient(IAtomList atoms) {
                     return null;
                 }
                 
@@ -351,7 +351,7 @@ public class SimLJVacancy extends Simulation {
                 }
             };
             colorScheme = new ColorScheme() {
-                IVector dr = sim.space.makeVector();
+                Vector dr = sim.space.makeVector();
                 double rMax = sim.mcMoveID.getMaxDistance();
                 double rc2 = rMax*rMax;
                 int nmax = 12;
@@ -359,7 +359,7 @@ public class SimLJVacancy extends Simulation {
                 public Color getAtomColor(IAtom a) {
                     if (!sim.integrator.getEventManager().firingEvent() && !sim.ai.isPaused()) return new Color(1.0f, 1.0f, 1.0f);
 
-                    IVector pi = a.getPosition();
+                    Vector pi = a.getPosition();
                     iter.setBox(sim.box);
                     iter.setDirection(null);
                     iter.setTarget(a);
@@ -876,7 +876,7 @@ public class SimLJVacancy extends Simulation {
                 }
             };
             colorScheme = new ColorScheme() {
-                IVector dr = sim.space.makeVector();
+                Vector dr = sim.space.makeVector();
                 double rMax = sim.mcMoveID.getMaxDistance();
                 double rc2 = rMax*rMax;
                 int nmax = 12;
@@ -884,7 +884,7 @@ public class SimLJVacancy extends Simulation {
                 public Color getAtomColor(IAtom a) {
                     if (!sim.integrator.getEventManager().firingEvent() && !sim.ai.isPaused()) return new Color(1.0f, 1.0f, 1.0f);
 
-                    IVector pi = a.getPosition();
+                    Vector pi = a.getPosition();
                     iter.setBox(sim.box);
                     iter.setDirection(null);
                     iter.setTarget(a);

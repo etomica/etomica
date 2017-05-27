@@ -7,7 +7,7 @@ package etomica.modules.entropylottery;
 import etomica.action.IAction;
 import etomica.api.IAtom;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -49,7 +49,7 @@ public class DataSourceProbabilityDensity implements IEtomicaDataSource, IAction
     
     public void reset() {
         totalAtomCount = box.getMoleculeList().getMoleculeCount();
-        IVector dimensions = box.getBoundary().getBoxSize();
+        Vector dimensions = box.getBoundary().getBoxSize();
         if (data.getLength() != (int)Math.round(dimensions.getX(0))) {
             int newSize = (int)Math.round(dimensions.getX(0));
             data = new DataDoubleArray(newSize);
@@ -91,7 +91,7 @@ public class DataSourceProbabilityDensity implements IEtomicaDataSource, IAction
         if (evt.type() == IntegratorNonintervalEvent.RESET) {
             box = ((IntegratorBox)evt.getSource()).getBox();
             totalAtomCount = box.getMoleculeList().getMoleculeCount();
-            IVector dimensions = box.getBoundary().getBoxSize();
+            Vector dimensions = box.getBoundary().getBoxSize();
             if (data.getLength() != (int)Math.round(dimensions.getX(0))) {
                 int newSize = (int)Math.round(dimensions.getX(0));
                 data = new DataDoubleArray(newSize);

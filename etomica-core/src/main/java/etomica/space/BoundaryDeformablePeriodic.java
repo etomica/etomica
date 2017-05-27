@@ -4,7 +4,6 @@
 
 package etomica.space;
 
-import etomica.api.IVector;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.math.geometry.Parallelepiped;
@@ -42,14 +41,14 @@ public class BoundaryDeformablePeriodic extends Boundary {
      *  @throws IllegalArgumentException if the dimension of space is not 2 or 3
      *  @throws IllegalArgumentException if the vex.length is not equal to the dimension of the space
      */
-	public BoundaryDeformablePeriodic(Space space, IVector[] vex) {
+	public BoundaryDeformablePeriodic(Space space, Vector[] vex) {
         super(space, makeShape(space, vex));
         D = space.D();
         if(D != 2 && D != 3) {
             throw new IllegalArgumentException("BoundaryDeformablePeriodic is appropriate only for 2-D or 3-D spaces");
         }
         
-        edgeVectors = new IVector[vex.length];
+        edgeVectors = new Vector[vex.length];
         for(int i=0; i<edgeVectors.length; i++) {
             edgeVectors[i] = space.makeVector();
             edgeVectors[i].E(vex[i]);
@@ -74,8 +73,8 @@ public class BoundaryDeformablePeriodic extends Boundary {
     }
     
     //used by constructor
-    private static IVector[] makeVectors(Space space, double boxSize) {
-        IVector[] vectors = new IVector[space.D()];
+    private static Vector[] makeVectors(Space space, double boxSize) {
+        Vector[] vectors = new Vector[space.D()];
         for(int i=0; i<vectors.length; i++) {
             vectors[i] = space.makeVector();
             vectors[i].setX(i, boxSize);
@@ -84,7 +83,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
     }
 	
     //used only by constructor
-    private static Polytope makeShape(Space space, IVector[] vex) {
+    private static Polytope makeShape(Space space, Vector[] vex) {
         switch(space.D()) {
             case 2: return new Parallelogram(space, vex[0], vex[1]);
             case 3: return new Parallelepiped(space, vex[0], vex[1], vex[2]);
@@ -96,8 +95,8 @@ public class BoundaryDeformablePeriodic extends Boundary {
      * Returns the length of the sides of a rectangular box oriented in the lab
      * frame and in which the boundary is inscribed.
      */
-	public IVector getBoxSize() {
-        IVector[] vertices = shape.getVertices();
+	public Vector getBoxSize() {
+        Vector[] vertices = shape.getVertices();
         temp1.E(vertices[0]);
         temp2.E(vertices[0]);
         for(int i=1; i<vertices.length; i++) {
@@ -121,7 +120,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
         return hCopy;
     }
 
-    public IVector centralImage(IVector r) {
+    public Vector centralImage(Vector r) {
         temp1.E(r);
         for(int i=0; i<edgeVectors.length; i++) {
             temp1.PEa1Tv1(0.5,edgeVectors[i]);
@@ -142,7 +141,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
         return temp1;
     }
 
-    public void nearestImage(IVector dr) {
+    public void nearestImage(Vector dr) {
         // To get out of the loop, we need to check n consecutive transformVectors
         // without applying any of them.  If we reach the end, then we wrap back around.
         for (int noTransformCount=0, i=0; noTransformCount<transformVectors.length; i++) {
@@ -194,7 +193,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
      *             if the spatial dimension of the vector is inconsistent with
      *             the dimension of the boundary
      */
-    public void setAsRectangular(IVector vector) {
+    public void setAsRectangular(Vector vector) {
         if(vector.getD() != D) {
             throw new IllegalArgumentException("Vector dimension ("+vector.getD()+") inconsistent with boundary dimension ("+D+")");
         }
@@ -219,7 +218,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
      * Scales each boundary edge so that its length equals the corresponding value
      * in the given vector.  Deformation of boundary is otherwise unchanged.
      */
-	public void setBoxSize(IVector v) {
+	public void setBoxSize(Vector v) {
         if(!isPositive(v)) {
             throw new IllegalArgumentException("edge lengths must be greater than zero; attempt to set to "+v.toString());
         }
@@ -233,7 +232,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
         update();
 	}
 
-	public void setEdgeVector(int i, IVector v){
+	public void setEdgeVector(int i, Vector v){
 	    edgeVectors[i].E(v);
         update();
 	}
@@ -260,7 +259,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
 	    return truncationRadius;
 	}
 
-    private boolean isPositive(IVector v) {
+    private boolean isPositive(Vector v) {
         for(int i=0; i<v.getD(); i++) {
             if(v.getX(i) <= 0.0) return false;
         }
@@ -277,7 +276,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
         ((Parallelotope)shape).setEdgeVectors(edgeVectors);
         volume = shape.getVolume();
 
-        transformVectors = new IVector[D];
+        transformVectors = new Vector[D];
 
         // add actual edges as transform vectors
         for (int i=0; i<D; i++) {
@@ -356,7 +355,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
      * If no vector transformed by only v would be within the truncation
      * radius, then v is not included as a new transform vector.
      */
-    protected void testTransformVector(IVector v) {
+    protected void testTransformVector(Vector v) {
         temp2.Ea1Tv1(0.5, v);
         for (int i=0; i<transformVectors.length; i++) {
             double dot = Math.abs(temp2.dot(transformVectors[i])/transformVectors[i].squared());
@@ -380,11 +379,11 @@ public class BoundaryDeformablePeriodic extends Boundary {
         }
 
         // add v to our transform vectors
-        transformVectors = (IVector[])etomica.util.Arrays.addObject(transformVectors, space.makeVector());
+        transformVectors = (Vector[])etomica.util.Arrays.addObject(transformVectors, space.makeVector());
         transformVectors[transformVectors.length-1].E(v);
     }
 
-    public IVector getEdgeVector(int d) {
+    public Vector getEdgeVector(int d) {
         return edgeVectors[d];
     }
     
@@ -427,17 +426,17 @@ public class BoundaryDeformablePeriodic extends Boundary {
     private Tensor h;
     private Tensor hCopy;
     private final Tensor hInv;
-    private final IVector[] edgeVectors;
-    private final IVector temp1;
-    private final IVector temp2;
+    private final Vector[] edgeVectors;
+    private final Vector temp1;
+    private final Vector temp2;
     private final boolean[] periodicity;
-    private final IVector unit;
-    private final IVector half;
+    private final Vector unit;
+    private final Vector half;
     private final int D;
     private final IndexIteratorRectangular indexIterator;
     private double[][] origins = new double[0][];
     private final static double halfTol = 0.50000000001;
-    protected IVector[] transformVectors;
+    protected Vector[] transformVectors;
     protected double[] tV2;
     protected double truncationRadius = Double.POSITIVE_INFINITY;
 

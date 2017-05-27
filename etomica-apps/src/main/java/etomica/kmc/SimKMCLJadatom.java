@@ -24,6 +24,7 @@ import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 
@@ -47,7 +48,7 @@ public class SimKMCLJadatom extends Simulation{
     public SpeciesSpheresMono fixed, movable;
     public ActivityIntegrate activityIntegrateKMC, activityIntegrateKMCCluster, activityIntegrateDimer;
     public IMoleculeList movableSet;
-    public IVector adAtomPos;
+    public Vector adAtomPos;
     
 
     public SimKMCLJadatom() {
@@ -89,16 +90,16 @@ public class SimKMCLJadatom extends Simulation{
         adAtomPos.setX(0, 3.5);
         adAtomPos.setX(1, -0.30);
         adAtomPos.setX(2, -0.30);
-        IVector newBoxLength = space.makeVector();
+        Vector newBoxLength = space.makeVector();
         newBoxLength.E(box.getBoundary().getBoxSize());
         newBoxLength.setX(0, 2.0*adAtomPos.getX(0)+2.0);
         box.getBoundary().setBoxSize(newBoxLength);
 
     }
     
-    public void setMovableAtoms(double distance, IVector center){
+    public void setMovableAtoms(double distance, Vector center){
         //distance = distance*distance;
-        IVector rij = space.makeVector();
+        Vector rij = space.makeVector();
         MoleculeArrayList movableList = new MoleculeArrayList();
         IMoleculeList loopSet = box.getMoleculeList();
         for (int i=0; i<loopSet.getMoleculeCount(); i++){
@@ -120,9 +121,9 @@ public class SimKMCLJadatom extends Simulation{
 
     
     //Must be run after setMovableAtoms
-    public void removeAtoms(double distance, IVector center){
+    public void removeAtoms(double distance, Vector center){
         distance = distance*distance;
-        IVector rij = space.makeVector();
+        Vector rij = space.makeVector();
         
         IMoleculeList loopSet = box.getMoleculeList(movable);
         for (int i=0; i<loopSet.getMoleculeCount(); i++){
@@ -136,9 +137,9 @@ public class SimKMCLJadatom extends Simulation{
     }
     
     public void randomizePositions(){
-        IVector workVector = space.makeVector();
+        Vector workVector = space.makeVector();
         IMoleculeList loopSet3 = box.getMoleculeList(movable);
-        IVector[] currentPos = new IVector[loopSet3.getMoleculeCount()];
+        Vector[] currentPos = new Vector[loopSet3.getMoleculeCount()];
         double offset = 0;
         for(int i=0; i<currentPos.length; i++){
             currentPos[i] = space.makeVector();
@@ -190,7 +191,7 @@ public void enableDimerSearch(String fileName, long maxSteps){
     public static void main(String[] args){
        
         final SimKMCLJadatom sim = new SimKMCLJadatom();
-        IVector vect = sim.getSpace().makeVector();
+        Vector vect = sim.getSpace().makeVector();
         vect.setX(0, 3.5);
         vect.setX(1, 0.0);
         vect.setX(2, 0.0);

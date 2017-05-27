@@ -5,7 +5,7 @@
 package etomica.virial;
 
 import etomica.api.IAtomList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.integrator.mcmove.MCMoveAtom;
@@ -31,7 +31,7 @@ public class MCMoveClusterAtomDiscrete extends MCMoveAtom {
     public void setBox(Box p) {
         super.setBox(p);
         if (translationVectors == null) {
-            translationVectors = new IVector[box.getLeafList().getAtomCount()-1];
+            translationVectors = new Vector[box.getLeafList().getAtomCount()-1];
             for (int i=0; i<translationVectors.length; i++) {
                 translationVectors[i] = space.makeVector();
             }
@@ -51,7 +51,7 @@ public class MCMoveClusterAtomDiscrete extends MCMoveAtom {
         int imax = (int)Math.ceil(stepSize / dr);
         int idr = random.nextInt(2*imax) - imax;
         if (idr >= 0) idr++;
-        IVector p1 = box.getLeafList().getAtom(1).getPosition();
+        Vector p1 = box.getLeafList().getAtom(1).getPosition();
         oldR = p1.getX(0);
         int iOldR = (int)Math.round(oldR/dr);
         newR = (iOldR + idr)*dr;
@@ -85,7 +85,7 @@ public class MCMoveClusterAtomDiscrete extends MCMoveAtom {
     }
     
     public void rejectNotify() {
-        IVector p1 = box.getLeafList().getAtom(1).getPosition();
+        Vector p1 = box.getLeafList().getAtom(1).getPosition();
         p1.setX(0, oldR);
 
         IAtomList leafAtoms = box.getLeafList();
@@ -100,6 +100,6 @@ public class MCMoveClusterAtomDiscrete extends MCMoveAtom {
     	((BoxCluster)box).acceptNotify();
     }
 
-    protected IVector[] translationVectors;
+    protected Vector[] translationVectors;
     protected double dr, oldR, newR, rPow;
 }

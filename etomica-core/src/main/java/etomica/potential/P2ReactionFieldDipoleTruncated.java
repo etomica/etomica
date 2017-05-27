@@ -6,7 +6,7 @@ import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMolecular;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.DipoleSource;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.space.Space;
@@ -20,7 +20,7 @@ public class P2ReactionFieldDipoleTruncated extends PotentialMolecular implement
         iDipole = space.makeVector();
         cavityDipole = space.makeVector();
         dr = space.makeVector();
-        gradientAndTorque = new IVector[2][2];
+        gradientAndTorque = new Vector[2][2];
         gradientAndTorque[0][0] = space.makeVector();
         gradientAndTorque[0][1] = space.makeVector();
         gradientAndTorque[1][0] = space.makeVector();
@@ -71,7 +71,7 @@ public class P2ReactionFieldDipoleTruncated extends PotentialMolecular implement
     public void setBox(Box box) {
         boundary = box.getBoundary();
         if (cutoffRatio > 0){
-        	IVector vectorBox = boundary.getBoxSize();
+        	Vector vectorBox = boundary.getBoxSize();
         	double minBoxSize = vectorBox.getX(0);
         	for (int i = 1;i<vectorBox.getD();i++){
         		if (vectorBox.getX(i) < minBoxSize){
@@ -98,7 +98,7 @@ public class P2ReactionFieldDipoleTruncated extends PotentialMolecular implement
         return -fac*idotj;
     }
     
-    public IVector[][] gradientAndTorque(IMoleculeList atoms) {
+    public Vector[][] gradientAndTorque(IMoleculeList atoms) {
         iDipole.E(dipoleSource.getDipole(atoms.getMolecule(0)));
 
         iDipole.XE(dipoleSource.getDipole(atoms.getMolecule(1)));
@@ -111,11 +111,11 @@ public class P2ReactionFieldDipoleTruncated extends PotentialMolecular implement
         return gradientAndTorque;
     }
 
-    public IVector[] gradient(IMoleculeList atoms) {
+    public Vector[] gradient(IMoleculeList atoms) {
         return gradientAndTorque[0];
     }
 
-    public IVector[] gradient(IMoleculeList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IMoleculeList atoms, Tensor pressureTensor) {
         return gradient(atoms);
     }
 
@@ -132,13 +132,13 @@ public class P2ReactionFieldDipoleTruncated extends PotentialMolecular implement
     }
 
     private static final long serialVersionUID = 1L;
-    protected final IVector iDipole, cavityDipole;
-    protected final IVector dr;
+    protected final Vector iDipole, cavityDipole;
+    protected final Vector dr;
     protected DipoleSource dipoleSource;
     protected IBoundary boundary;
     protected double cutoff2, cutoff;
     protected double epsilon;
-    protected final IVector[][] gradientAndTorque;
+    protected final Vector[][] gradientAndTorque;
     protected double fac;
     protected double cutoffRatio;
     protected final IAtomPositionDefinition positionDefinition;
@@ -156,7 +156,7 @@ public class P2ReactionFieldDipoleTruncated extends PotentialMolecular implement
         public P0ReactionField(Space space, P2ReactionFieldDipoleTruncated p) {
             super(0,space);
             this.potential = p;
-            gradient = new IVector[0];
+            gradient = new Vector[0];
         }
         
         public double energy(IMoleculeList atoms) {
@@ -166,13 +166,13 @@ public class P2ReactionFieldDipoleTruncated extends PotentialMolecular implement
             double fac = 2*(epsilon-1)/(2*epsilon+1)/(cutoff*cutoff*cutoff);
             double u = 0;
             if (targetAtom != null) {
-                IVector iDipole = dipoleSource.getDipole(targetAtom);
+                Vector iDipole = dipoleSource.getDipole(targetAtom);
                 u = -0.5 * fac * iDipole.squared();
             }
             else {
                 IMoleculeList moleculeList = box.getMoleculeList();
                 for (int i=0; i<moleculeList.getMoleculeCount(); i++) {
-                    IVector iDipole = dipoleSource.getDipole(moleculeList.getMolecule(i));
+                    Vector iDipole = dipoleSource.getDipole(moleculeList.getMolecule(i));
                     u += -0.5 * fac * iDipole.squared();
                 }
             }
@@ -199,11 +199,11 @@ public class P2ReactionFieldDipoleTruncated extends PotentialMolecular implement
             return 0;
         }
 
-        public IVector[] gradient(IMoleculeList atoms) {
+        public Vector[] gradient(IMoleculeList atoms) {
             return gradient;
         }
         
-        public IVector[] gradient(IMoleculeList atoms, Tensor pressureTensor) {
+        public Vector[] gradient(IMoleculeList atoms, Tensor pressureTensor) {
             return gradient(atoms);
         }
         
@@ -213,7 +213,7 @@ public class P2ReactionFieldDipoleTruncated extends PotentialMolecular implement
 
         private static final long serialVersionUID = 1L;
         protected final P2ReactionFieldDipoleTruncated potential;
-        protected final IVector[] gradient;
+        protected final Vector[] gradient;
         protected IMolecule targetAtom;
         protected Box box;
         

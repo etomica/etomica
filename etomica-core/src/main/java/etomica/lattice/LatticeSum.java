@@ -4,7 +4,7 @@
 
 package etomica.lattice;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.data.FunctionData;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
@@ -32,7 +32,7 @@ public class LatticeSum {
             coreIterator.setMaxElementMin(m);
             iterator.reset();
             while(iterator.hasNext()) {
-                IVector site = (IVector)lattice.site(iterator.next());
+                Vector site = (Vector)lattice.site(iterator.next());
                 IData value = function.f(site);
                 double kDotr = kVector.dot(site);
                 double ckr = Math.cos(kDotr);
@@ -51,11 +51,11 @@ public class LatticeSum {
         return new DataGroup(new IData[] {sumR, sumI});
     }
     
-    public void setK(IVector k) {
+    public void setK(Vector k) {
         kVector.E(k);
     }
     
-    public IVector getK() {
+    public Vector getK() {
         return kVector;
     }
     
@@ -127,7 +127,7 @@ public class LatticeSum {
 //            final Tensor3D identity = new Tensor3D(new double[] {1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0});
 //        };
 //
-//        IVector kVector = new Vector3D();
+//        Vector kVector = new Vector3D();
 //        kVector.E(0.0);
 //        summer.setK(kVector);
 //        System.out.println("\n k:"+kVector.toString());
@@ -154,6 +154,6 @@ public class LatticeSum {
     private SpaceLattice lattice;
     private IndexIterator iterator;
     private IndexIteratorTriangular coreIterator;
-    private final IVector kVector;
+    private final Vector kVector;
     private int maxElement;
 }

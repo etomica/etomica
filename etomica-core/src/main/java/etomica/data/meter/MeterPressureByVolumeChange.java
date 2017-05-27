@@ -7,7 +7,7 @@ package etomica.data.meter;
 import etomica.action.BoxInflate;
 import etomica.action.BoxInflateDeformable;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataSourceUniform;
 import etomica.data.DataTag;
@@ -170,7 +170,7 @@ public class MeterPressureByVolumeChange implements IEtomicaDataSource, java.io.
     private final DataTag tag;
     private double[] dataArray;
     private final BoxInflate inflater;
-    private final IVector scale;
+    private final Vector scale;
     private final boolean[] inflateDimensions;
     private final IteratorDirective iteratorDirective;
     private final PotentialCalculationEnergySum energy = new PotentialCalculationEnergySum();

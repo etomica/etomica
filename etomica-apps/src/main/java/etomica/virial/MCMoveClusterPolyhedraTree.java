@@ -8,7 +8,7 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IRandom;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomOrientedQuaternion;
 import etomica.atom.AtomPair;
 import etomica.integrator.mcmove.MCMoveAtom;
@@ -33,7 +33,7 @@ public class MCMoveClusterPolyhedraTree extends MCMoveAtom {
         bonds = new int[n*(n-1)/2][2];
     }
 
-    protected void randomOrientation(IVector q) {
+    protected void randomOrientation(Vector q) {
         double u1 = random.nextDouble();
         double u2 = 2*Math.PI*random.nextDouble();
         double u3 = 2*Math.PI*random.nextDouble();
@@ -120,8 +120,8 @@ public class MCMoveClusterPolyhedraTree extends MCMoveAtom {
                 pair.atom0 = leafAtoms.getAtom(nbr);
                 pair.atom1 = leafAtoms.getAtom(nbr2);
                 // insert nbr2 around nbr
-                IVector q = ((AtomOrientedQuaternion)leafAtoms.getAtom(nbr2)).getQuaternion();
-                IVector pos = leafAtoms.getAtom(nbr2).getPosition();
+                Vector q = ((AtomOrientedQuaternion)leafAtoms.getAtom(nbr2)).getQuaternion();
+                Vector pos = leafAtoms.getAtom(nbr2).getPosition();
 
                 while (true) {
                     pos.setRandomInSphere(random);

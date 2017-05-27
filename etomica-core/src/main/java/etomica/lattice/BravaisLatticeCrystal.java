@@ -4,13 +4,13 @@
 
 package etomica.lattice;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 
 /**
  * A lattice with sites given by the "atom" sites of a crystal. Sites of this
- * lattice are instances of IVector. The dimension of a BravaisLatticeCrystal is
+ * lattice are instances of Vector. The dimension of a BravaisLatticeCrystal is
  * one more than the dimension of the underlying Bravais lattice forming the
  * crystal; the extra index specifies the basis atom at the site referenced by
  * the other indices.
@@ -51,9 +51,9 @@ public class BravaisLatticeCrystal extends BravaisLattice {
             throw new IllegalArgumentException(
                     "index given to site method of lattice must have number of elements equal to dimension of lattice");
         System.arraycopy(index, 0, crystalIndex, 0, D - 1);
-        IVector latticePosition = (IVector) super.site(crystalIndex);
-        IVector basisCoordinate = basis.getScaledCoordinates()[index[D - 1]];
-        IVector[] primitiveVectors = primitive.vectors();
+        Vector latticePosition = (Vector) super.site(crystalIndex);
+        Vector basisCoordinate = basis.getScaledCoordinates()[index[D - 1]];
+        Vector[] primitiveVectors = primitive.vectors();
         position.E(latticePosition);
         for (int i = 0; i < basisCoordinate.getD(); i++) {
             position.PEa1Tv1(basisCoordinate.getX(i), primitiveVectors[i]);// basis is specified in the frame defined by the primitive vectors
@@ -69,5 +69,5 @@ public class BravaisLatticeCrystal extends BravaisLattice {
     protected final Basis basis;
     private final int[] crystalIndex;
     private final int D;
-    private final IVector position;
+    private final Vector position;
 }

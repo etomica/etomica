@@ -5,7 +5,7 @@
 package etomica.modules.droplet;
 
 import etomica.api.IAtomList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterStatic;
@@ -163,9 +163,9 @@ public class MeterDeformation implements IEtomicaDataSource {
     protected final DataDoubleArray.DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
     protected final double[] f;
-    protected final IVector center;
-    protected final IVector dr;
-    protected final IVector rg;
+    protected final Vector center;
+    protected final Vector dr;
+    protected final Vector rg;
     protected final Tensor moment, workTensor;
     protected AtomFilter filter;
 }

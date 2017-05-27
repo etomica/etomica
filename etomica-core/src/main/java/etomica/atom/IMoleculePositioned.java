@@ -5,14 +5,14 @@
 package etomica.atom;
 
 import etomica.api.IMolecule;
-import etomica.api.IVector;
+import etomica.space.Vector;
 
 public interface IMoleculePositioned extends IMolecule {
 
     /**
-     * Returns the position of the IMolecule.  Modifying the returned IVector
+     * Returns the position of the IMolecule.  Modifying the returned Vector
      * will alter the IMolecule's position, but not any positions of the
      * IMolecule's child IAtoms.
      */
-    public IVector getPosition();
+    public Vector getPosition();
 }

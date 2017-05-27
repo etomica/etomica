@@ -6,7 +6,7 @@ package etomica.normalmode;
 
 import etomica.action.IAction;
 import etomica.api.IAtom;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.data.DataSourceIndependent;
@@ -68,8 +68,8 @@ public class MeterAtomicDisplacement implements IEtomicaDataSource, DataSourceIn
     		for (int i=0; i< cell.molecules.getMoleculeCount(); i++){
     			workVector = space.makeVector();
     			IAtom a = molecules.getMolecule(i).getChildList().getAtom(0);
-    			IVector pos = a.getPosition();
-    			IVector site = coordinateDefinition.getLatticePosition(a);
+    			Vector pos = a.getPosition();
+    			Vector site = coordinateDefinition.getLatticePosition(a);
     			
     			workVector.Ev1Mv2(pos, site);
     			
@@ -148,7 +148,7 @@ public class MeterAtomicDisplacement implements IEtomicaDataSource, DataSourceIn
     private final DataTag tag, rTag;
     private DataInfoFunction dataInfoFunction;
     private DataInfoDoubleArray rDataInfo;
-    protected IVector workVector;
+    protected Vector workVector;
     private DataFunction data;
     private Space space;
     private HistogramExpanding histogram;

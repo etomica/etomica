@@ -5,7 +5,7 @@ import java.awt.Graphics;
 import etomica.action.activity.Controller;
 import etomica.api.IAtom;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvas2D;
 import etomica.normalmode.CoordinateDefinition;
@@ -39,7 +39,7 @@ public class DisplayBoxCanvas2DNpTScaling extends DisplayBoxCanvas2D {
     protected void drawAtom(Graphics g, int[] origin, IAtom a) {
         p.E(a.getPosition());
         
-        IVector l = coordinateDefinition.getLatticePosition(a);
+        Vector l = coordinateDefinition.getLatticePosition(a);
         p.ME(l);
 
         Box box = displayBox.getBox();
@@ -72,6 +72,6 @@ public class DisplayBoxCanvas2DNpTScaling extends DisplayBoxCanvas2D {
     }
 
     protected double pressure, displayDensity;
-    protected final IVector p;
+    protected final Vector p;
     protected final CoordinateDefinition coordinateDefinition;
 }

@@ -8,6 +8,7 @@ import etomica.api.*;
 import etomica.box.Box;
 import etomica.atom.iterator.MoleculeIteratorAllMolecules;
 import etomica.data.DataSourceScalar;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.units.Length;
 
@@ -74,11 +75,11 @@ public class MeterRadiusGyration extends DataSourceScalar {
             int nLeafAtoms = 1;
             realPos.E(firstAtom.getPosition());
             cm.E(realPos);
-            IVector prevPosition = firstAtom.getPosition();
+            Vector prevPosition = firstAtom.getPosition();
             for (int iChild = 1; iChild < childList.getAtomCount(); iChild++) {
                 IAtom a = childList.getAtom(iChild);
                 nLeafAtoms++;
-                IVector position = a.getPosition();
+                Vector position = a.getPosition();
                 dr.Ev1Mv2(position, prevPosition);
                 //molecule might be wrapped around the box.  calculate
                 //the real difference in position
@@ -94,7 +95,7 @@ public class MeterRadiusGyration extends DataSourceScalar {
             realPos.E(firstAtom.getPosition());
             for (int iChild = 1; iChild < childList.getAtomCount(); iChild++) {
                 IAtom a = childList.getAtom(iChild);
-                IVector position = a.getPosition();
+                Vector position = a.getPosition();
                 dr.Ev1Mv2(position, prevPosition);
                 //molecule might be wrapped around the box.  calculate
                 //the real difference in position
@@ -129,7 +130,7 @@ public class MeterRadiusGyration extends DataSourceScalar {
     private static final long serialVersionUID = 1L;
     private Box box;
     private MoleculeIteratorAllMolecules iterator;
-    private final IVector cm, realPos;
-    private final IVector dr;
+    private final Vector cm, realPos;
+    private final Vector dr;
 
 }

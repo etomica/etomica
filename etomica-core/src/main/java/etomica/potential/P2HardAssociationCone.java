@@ -6,7 +6,7 @@ package etomica.potential;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
 import etomica.space.Space;
 import etomica.units.Angle;
@@ -30,7 +30,7 @@ public class P2HardAssociationCone extends Potential2 {
     private double epsilon, epsilon4, wellEpsilon;
     private double cutoffLJSquared, cutoffFactor;
     private double ec2;
-    private final IVector dr;
+    private final Vector dr;
     private IBoundary boundary;
     
     public P2HardAssociationCone(Space space) {
@@ -79,11 +79,11 @@ public class P2HardAssociationCone extends Potential2 {
         }
                   
         if (r2 < wellCutoffSquared) {
-            IVector e1 = atom0.getOrientation().getDirection();
+            Vector e1 = atom0.getOrientation().getDirection();
             double er1 = e1.dot(dr);
 
             if ( er1 > 0.0 && er1*er1 > ec2*r2) {
-                IVector e2 = atom1.getOrientation().getDirection();
+                Vector e2 = atom1.getOrientation().getDirection();
                 double er2 = e2.dot(dr);
                 if(er2 < 0.0 && er2*er2 > ec2*r2) eTot -= wellEpsilon;
                 //if(er2 < 0.0 && er2*er2 > ec2*r2) {

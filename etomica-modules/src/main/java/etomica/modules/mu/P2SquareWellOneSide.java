@@ -6,7 +6,7 @@ package etomica.modules.mu;
 import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.potential.Potential2HardSpherical;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -32,7 +32,7 @@ public class P2SquareWellOneSide extends Potential2HardSpherical {
     protected double lastCollisionVirial, lastCollisionVirialr2;
     protected Tensor lastCollisionVirialTensor;
     protected double lastEnergyChange;
-    protected IVector dv;
+    protected Vector dv;
     protected final boolean ignoreOverlap;
 
     public P2SquareWellOneSide(Space space) {

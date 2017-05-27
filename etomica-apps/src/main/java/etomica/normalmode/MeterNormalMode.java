@@ -7,7 +7,7 @@ package etomica.normalmode;
 import java.io.Serializable;
 
 import etomica.action.IAction;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -93,7 +93,7 @@ public class MeterNormalMode implements IEtomicaDataSource, IAction, Serializabl
         return coordinateDefinition.getBox();
     }
     
-    public IVector[] getWaveVectors() {
+    public Vector[] getWaveVectors() {
         return waveVectors;
     }
     
@@ -157,7 +157,7 @@ public class MeterNormalMode implements IEtomicaDataSource, IAction, Serializabl
     }
     
     private static final long serialVersionUID = 1L;
-    private IVector[] waveVectors;
+    private Vector[] waveVectors;
     private WaveVectorFactory waveVectorFactory;
     protected CoordinateDefinition coordinateDefinition;
     private int numWaveVectors;

@@ -17,6 +17,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.integrator.Integrator.Forcible;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialCalculationForceSum;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.units.Null;
 
@@ -94,7 +95,7 @@ public class SurfaceTensionMapped extends DataProcessor implements AgentSource<F
         double jFac = (param[1]-param[0])/(2*L) * ((tL2-tL1)*c*L + 2*Math.log(cL1/cL2))/(tL1+tL2);
         for (int i=0; i<atoms.getAtomCount(); i++) {
             IAtom atom = atoms.getAtom(i);
-            IVector f = forceAgentManager.getAgent(atom).force();
+            Vector f = forceAgentManager.getAgent(atom).force();
             double px = atom.getPosition().getX(0);
             double t1 = Math.tanh(c * (px + param[3]));
             double t2 = Math.tanh(c * (px - param[3]));

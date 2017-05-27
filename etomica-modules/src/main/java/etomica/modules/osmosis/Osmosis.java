@@ -18,7 +18,7 @@ import javax.swing.event.ChangeListener;
 
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.config.ConfigurationLatticeWithPlane;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
@@ -159,7 +159,7 @@ public class Osmosis extends SimulationGraphic {
 
         // Right side of membrane mole fraction
         moleFractionRight = new MeterLocalMoleFraction(space, sim.box);
-        IVector dimensions = sim.box.getBoundary().getBoxSize();
+        Vector dimensions = sim.box.getBoundary().getBoxSize();
 
         if (sim.getSpace() instanceof Space2D) { // 2D
             moleFractionRight.setShape(new Rectangle(sim.getSpace(), dimensions.getX(0)*0.5, dimensions.getX(1)));

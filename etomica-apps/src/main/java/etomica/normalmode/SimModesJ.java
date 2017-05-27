@@ -12,7 +12,8 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
-import etomica.api.IVector;
+import etomica.space.*;
+import etomica.space.Vector;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.Basis;
@@ -22,10 +23,6 @@ import etomica.lattice.crystal.BasisOrthorhombicHexagonal;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.simulation.Simulation;
-import etomica.space.Boundary;
-import etomica.space.BoundaryDeformableLattice;
-import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.DoubleRange;
 import etomica.util.HistogramSimple;
@@ -72,7 +69,7 @@ public class SimModesJ extends Simulation {
         coordinateDefinition.initializeCoordinates(nCells);
         
         normalModes = new NormalModesVariable(space, space.D()*numAtoms, coordinateDefinition);
-        IVector[] waveVectors = normalModes.getWaveVectors();
+        Vector[] waveVectors = normalModes.getWaveVectors();
         double[][] eigenVectors = normalModes.getEigenVectors();
         double[] phaseAngles = normalModes.getPhaseAngles();
         WaveVectorFactory1D waveVectorFactory = new WaveVectorFactory1D();
@@ -183,7 +180,7 @@ public class SimModesJ extends Simulation {
             public void integratorStepStarted(IIntegratorEvent e) {}
             
             public void integratorStepFinished(IIntegratorEvent e) {
-                IVector[] wv = sim.normalModes.getWaveVectors();
+                Vector[] wv = sim.normalModes.getWaveVectors();
                 try {
                     FileWriter fw = new FileWriter("wv.out", true);
                     fw.write(sim.integrator.getStepCount()+" ");

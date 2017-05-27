@@ -6,7 +6,7 @@ package etomica.potential;
 
 import etomica.api.IAtomList;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
 
@@ -23,7 +23,7 @@ public class P2Ideal extends Potential2 implements Potential2Soft,
 
     public P2Ideal(Space space) {
         super(space);
-        zeroVector = new IVector[1];
+        zeroVector = new Vector[1];
         zeroVector[0] = space.makeVector();
         zeroTensor = space.makeTensor();
     }
@@ -120,17 +120,17 @@ public class P2Ideal extends Potential2 implements Potential2Soft,
     /**
      * Returns a zero vector.
      */
-    public IVector[] gradient(IAtomList atoms) {
+    public Vector[] gradient(IAtomList atoms) {
         zeroVector[0].E(0.0);
         return zeroVector;
     }
     
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         return gradient(atoms);
     }
         
 
     private static final long serialVersionUID = 1L;
-    private final IVector[] zeroVector;
+    private final Vector[] zeroVector;
     private final Tensor zeroTensor;
 }

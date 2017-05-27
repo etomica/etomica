@@ -15,7 +15,7 @@ import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IElement;
 import etomica.api.IMolecule;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Nitrogen;
@@ -166,7 +166,7 @@ public class WriteConfigurationP2DLPOLY implements IAction {
         	formatter.format("\n%10d%10d\n", new Object[]{new Integer(writeVelocity? 1:0), boundaryType});
 
         	for (int i=0; i<3; i++){
-                IVector cell = boundary.getEdgeVector(i);
+                Vector cell = boundary.getEdgeVector(i);
         		for (int j=0; j<3; j++){
         			/*
         			 * 1. times the elements in each vector by 500
@@ -217,12 +217,12 @@ public class WriteConfigurationP2DLPOLY implements IAction {
 	            			
 	            			formatter.format("%8s%10d\n", new Object[]{atomName, atomCount});
 	            			atomCount++;
-		                	IVector atomPos = atom.getPosition();
+		                	Vector atomPos = atom.getPosition();
 		                	formatter.format("%20.12f%20.12f%20.12f\n", new Object[]{atomPos.getX(0), atomPos.getX(1), atomPos.getX(2)});
 	                		                	
 		                	
 		                	if (writeVelocity){
-		                		IVector atomVelocity = ((IAtomKinetic)atom).getVelocity();
+		                		Vector atomVelocity = ((IAtomKinetic)atom).getVelocity();
 		                		formatter.format("%20f%20f%20f\n", 
 		                				new Object[]{atomVelocity.getX(0), atomVelocity.getX(1), atomVelocity.getX(2)});
 		                	}

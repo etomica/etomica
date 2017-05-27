@@ -10,7 +10,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.space.Space;
@@ -44,7 +44,7 @@ public class ColorSchemeOverlap extends ColorSchemeCollectiveAgent {
         for (int i=0; i<leafList.getAtomCount(); i++) {
             IAtom atom = leafList.getAtom(i);
             IAtomList list = neighborManager.getDownList(atom)[0];
-            IVector p = atom.getPosition();
+            Vector p = atom.getPosition();
             for (int j=0; j<list.getAtomCount(); j++) {
                 IAtom jAtom = list.getAtom(j);
                 dr.Ev1Mv2(p, jAtom.getPosition());
@@ -71,7 +71,7 @@ public class ColorSchemeOverlap extends ColorSchemeCollectiveAgent {
     protected final NeighborListManager neighborManager;
     protected final IBoundary boundary;
     protected final IAtomList leafList;
-    protected final IVector dr;
+    protected final Vector dr;
     protected double sig2;
     protected int[] nOverlaps;
     protected Color[] colors = new Color[]{Color.RED, Color.BLUE, Color.GREEN, Color.BLACK, Color.CYAN, Color.PINK, new Color(0.5f, 0.0f, 0.5f)};

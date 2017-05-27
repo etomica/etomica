@@ -8,7 +8,7 @@ import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBoundary;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
 
@@ -28,7 +28,7 @@ public class P2SoftTruncated extends Potential2
         this.wrappedPotential = potential;
         setTruncationRadius(truncationRadius);
         dr = space.makeVector();
-        gradient = new IVector[2];
+        gradient = new Vector[2];
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();
     }
@@ -71,7 +71,7 @@ public class P2SoftTruncated extends Potential2
      * Returns the derivative (r du/dr) of the wrapped potential if the separation
      * is less than the cutoff value
      */
-    public IVector[] gradient(IAtomList atoms) {
+    public Vector[] gradient(IAtomList atoms) {
         dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
@@ -82,7 +82,7 @@ public class P2SoftTruncated extends Potential2
      * Returns the derivative (r du/dr) of the wrapped potential if the separation
      * is less than the cutoff value
      */
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
@@ -175,11 +175,11 @@ public class P2SoftTruncated extends Potential2
             return d2uCorrection(nPairs()/box.getBoundary().volume()) + duCorrection(nPairs()/box.getBoundary().volume());
         }
 
-        public IVector[] gradient(IAtomList atoms) {
+        public Vector[] gradient(IAtomList atoms) {
             throw new RuntimeException("Should not be calling gradient on zero-body potential");
         }
         
-        public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+        public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
             double virial = virial(atoms) / pressureTensor.D();
             for (int i=0; i<pressureTensor.D(); i++) {
                 pressureTensor.setComponent(i,i,pressureTensor.component(i,i)-virial);
@@ -241,8 +241,8 @@ public class P2SoftTruncated extends Potential2
     
     private static final long serialVersionUID = 1L;
     protected double rCutoff, r2Cutoff;
-    protected final IVector dr;
+    protected final Vector dr;
     protected final Potential2Soft wrappedPotential;
     protected IBoundary boundary;
-    protected final IVector[] gradient;
+    protected final Vector[] gradient;
 }

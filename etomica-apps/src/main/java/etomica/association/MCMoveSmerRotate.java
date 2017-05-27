@@ -16,6 +16,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.cell.PotentialMasterCell;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.RotationTensor;
 
@@ -38,12 +39,12 @@ public class MCMoveSmerRotate extends MCMoveBoxStep {
     protected Space space;
     protected final PotentialMasterCell potentialMaster;
     protected final Api1ACell neighborIterator;
-    protected final IVector dr, dr2;
+    protected final Vector dr, dr2;
     protected final IPotentialAtomic trimerPotential;
     protected final AtomArrayList smerList;
     protected final AtomArrayList newSmerList;
     protected transient RotationTensor rotationTensor;
-    protected final IVector r0;
+    protected final Vector r0;
     protected AssociationManager associationManager;
 
     public MCMoveSmerRotate(Simulation sim, PotentialMasterCell potentialMaster, Space _space, IPotentialAtomic trimerPotential) {
@@ -229,7 +230,7 @@ public class MCMoveSmerRotate extends MCMoveBoxStep {
     	return 1;
     }
     protected void doTransform(IAtomOriented a) {
-            IVector r = a.getPosition();
+            Vector r = a.getPosition();
             r.ME(r0);
             box.getBoundary().nearestImage(r);
             rotationTensor.transform(r);

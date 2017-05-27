@@ -6,6 +6,7 @@ package etomica.modules.rheology;
 
 import etomica.api.*;
 import etomica.integrator.IntegratorMD;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 /**
@@ -22,9 +23,9 @@ public class IntegratorPolymer extends IntegratorMD {
         drPrev = _space.makeVector();
         dr = _space.makeVector();
         ds = _space.makeVector();
-        s = new IVector[0];
-        r = new IVector[0];
-        W = new IVector[0];
+        s = new Vector[0];
+        r = new Vector[0];
+        W = new Vector[0];
         fQ = new double[0];
     }
 
@@ -50,9 +51,9 @@ public class IntegratorPolymer extends IntegratorMD {
             IMolecule molecule = molecules.getMolecule(i);
             IAtomList atoms = molecule.getChildList();
             if (s.length != atoms.getAtomCount()) {
-                s = new IVector[atoms.getAtomCount()];
-                r = new IVector[atoms.getAtomCount()];
-                W = new IVector[atoms.getAtomCount()];
+                s = new Vector[atoms.getAtomCount()];
+                r = new Vector[atoms.getAtomCount()];
+                W = new Vector[atoms.getAtomCount()];
                 for (int j=0; j<atoms.getAtomCount(); j++) {
                     s[j] = space.makeVector();
                     r[j] = space.makeVector();
@@ -99,7 +100,7 @@ public class IntegratorPolymer extends IntegratorMD {
             // corrector step
             double fR = 0;
             for (int j=0; j<atoms.getAtomCount(); j++) {
-                IVector q = atoms.getAtom(j).getPosition();
+                Vector q = atoms.getAtom(j).getPosition();
                 if (a < 0) {
                     q.setX(0, srdt2*(s[j].getX(1)+r[j].getX(1)));
                     q.setX(1, a*srdt2*(s[j].getX(0)+r[j].getX(0)));
@@ -177,11 +178,11 @@ public class IntegratorPolymer extends IntegratorMD {
     }
 
     private static final long serialVersionUID = 1L;
-    protected final IVector drPrev, dr, ds, center;
+    protected final Vector drPrev, dr, ds, center;
     protected double omdth, sqdt;
     protected double shearRate;
     protected double a, b;
-    protected IVector[] W;
-    protected IVector[] s, r;
+    protected Vector[] W;
+    protected Vector[] s, r;
     protected double[] fQ;
 }

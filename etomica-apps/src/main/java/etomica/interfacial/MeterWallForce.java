@@ -8,7 +8,7 @@ import etomica.api.IMoleculeList;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataSourceScalar;
 import etomica.potential.PotentialCalculation;
@@ -79,7 +79,7 @@ public class MeterWallForce extends DataSourceScalar {
         public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
             if (atoms.getAtomCount()==1) return;
             PotentialSoft potentialSoft = (PotentialSoft)potential;
-            IVector[] f = potentialSoft.gradient(atoms);
+            Vector[] f = potentialSoft.gradient(atoms);
             if (atoms.getAtom(0).getType() == atomType) {
                 sum -= f[0].getX(2);
             }

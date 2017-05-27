@@ -6,7 +6,7 @@ package etomica.normalmode;
 
 import etomica.box.Box;
 import etomica.api.IPotentialMaster;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -85,7 +85,7 @@ public class MeterSolidDA implements IEtomicaDataSource {
     	pc.zeroSum();
         potentialMaster.calculate(box, iteratorDirective, pc);
         double p1 = pc.getPressureSum();
-        IVector pXYZ = pc.getPressureSumXYZ();
+        Vector pXYZ = pc.getPressureSumXYZ();
         System.out.println(p1+" "+pXYZ);
         double[] x = data.getData();
         double V = box.getBoundary().volume();
@@ -122,5 +122,5 @@ public class MeterSolidDA implements IEtomicaDataSource {
     protected double pRes;
     protected final boolean doD2;
     protected final CoordinateDefinition coordinteDefinition;
-    protected final IVector dr;
+    protected final Vector dr;
 }

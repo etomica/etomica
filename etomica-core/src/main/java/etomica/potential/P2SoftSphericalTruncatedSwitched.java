@@ -7,8 +7,7 @@ package etomica.potential;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
-import etomica.api.IVector;
-import etomica.atom.MoleculeOrientedDynamic;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Space3D;
@@ -25,7 +24,7 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
         super(_space);
         this.potential = potential;
         setTruncationRadius(truncationRadius);
-        gradient = new IVector[2];
+        gradient = new Vector[2];
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();
         dr = space.makeVector();
@@ -69,12 +68,12 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
         return rCutoff;
     }
 
-    public IVector[] gradient(IAtomList atoms) {
+    public Vector[] gradient(IAtomList atoms) {
         dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
         if (r2 < r2Cutoff) {
-            IVector[] unswitchedGradient = potential.gradient(atoms);
+            Vector[] unswitchedGradient = potential.gradient(atoms);
             gradient[0].E(unswitchedGradient[0]);
             gradient[1].E(unswitchedGradient[1]);
             if (r2 > r2Switch) {
@@ -135,7 +134,7 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
         }
     }
     
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         return gradient(atoms);
     }
     
@@ -175,9 +174,9 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
     private static final long serialVersionUID = 1L;
     protected double rCutoff, r2Cutoff;
     protected final Potential2SoftSpherical potential;
-    protected final IVector dr;
+    protected final Vector dr;
     protected IBoundary boundary;
-    protected final IVector[] gradient;
+    protected final Vector[] gradient;
     protected int taperOrder = 3;
     protected double switchFac, r2Switch;
 }

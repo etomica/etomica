@@ -13,7 +13,7 @@ import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.DipoleSource;
@@ -76,11 +76,11 @@ public class TIP4P_NVT extends Simulation {
 
      //************************************* for reaction field ********************************************//
      public static class DipoleSourceTIP4PWater implements DipoleSource{//for potential reaction field
-    	 protected final IVector dipole;
+    	 protected final Vector dipole;
          public DipoleSourceTIP4PWater(Space space){
               dipole=space.makeVector();
          }
-         public IVector getDipole(IMolecule molecule) {// dipole = sum of position * charge on the site
+         public Vector getDipole(IMolecule molecule) {// dipole = sum of position * charge on the site
              IAtomList childList = molecule.getChildList();
              IAtom atomH1 = childList.getAtom(0);
              IAtom atomH2 = childList.getAtom(1);

@@ -4,7 +4,7 @@
 
 package etomica.math.geometry;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.exception.MethodNotImplementedException;
 import etomica.space.Space;
 
@@ -49,7 +49,7 @@ public class PolygonGeneral extends Polygon {
      * Returns true if the given point lies inside or on an edge of the polygon
      */
     //must override in subclass (until a general algorithm is implemented)
-    public boolean contains(IVector vector) {
+    public boolean contains(Vector vector) {
         throw new MethodNotImplementedException(
                 "General formula for 'contains' not implemented");
     }

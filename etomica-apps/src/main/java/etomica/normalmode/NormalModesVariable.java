@@ -4,14 +4,14 @@
 
 package etomica.normalmode;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 public class NormalModesVariable {
 
     public NormalModesVariable(Space space, int nModes, CoordinateDefinition coordinateDefinition) {
         eigenVectors = new double[nModes][coordinateDefinition.getCoordinateDim()];
-        waveVectors = new IVector[nModes];
+        waveVectors = new Vector[nModes];
         for (int i=0; i<nModes; i++) {
             waveVectors[i] = space.makeVector();
         }
@@ -22,7 +22,7 @@ public class NormalModesVariable {
         return eigenVectors;
     }
 
-    public IVector[] getWaveVectors() {
+    public Vector[] getWaveVectors() {
         return waveVectors;
     }
     
@@ -30,7 +30,7 @@ public class NormalModesVariable {
         return phaseAngles;
     }
 
-    protected IVector[] waveVectors;
+    protected Vector[] waveVectors;
     protected double[][] eigenVectors;
     protected double[] phaseAngles;
 }

@@ -8,7 +8,7 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.data.DataTag;
@@ -30,7 +30,7 @@ public class MeterPlaneSlip implements IEtomicaDataSource {
     public MeterPlaneSlip(Space space, ISpecies species, int nPlanes, int nx, int ny) {
         this.species = species;
         pos = new AtomPositionGeometricCenter(space);
-        drSum = new IVector[nPlanes][2];
+        drSum = new Vector[nPlanes][2];
         for (int i=0; i<nPlanes; i++) {
             drSum[i][0] = space.makeVector();
             drSum[i][1] = space.makeVector();
@@ -62,11 +62,11 @@ public class MeterPlaneSlip implements IEtomicaDataSource {
             drSum[iPlane][1].PE(atomList.getAtom(1).getPosition());
         }
         int nMoleculesPerPlane = nMolecules/nPlanes;
-        IVector ba = box.getBoundary().getEdgeVector(0);
+        Vector ba = box.getBoundary().getEdgeVector(0);
         double a0 = ba.getX(0) / nx;
-        IVector bb = box.getBoundary().getEdgeVector(1);
+        Vector bb = box.getBoundary().getEdgeVector(1);
         double b0 = bb.getX(1) / ny;
-        IVector bc = box.getBoundary().getEdgeVector(2);
+        Vector bc = box.getBoundary().getEdgeVector(2);
         
         for (int i=0; i<nPlanes; i++) {
             drSum[i][0].TE(1.0/nMoleculesPerPlane);
@@ -99,11 +99,11 @@ public class MeterPlaneSlip implements IEtomicaDataSource {
             drSum[iPlane][1].PE(atomList.getAtom(1).getPosition());
         }
         int nMoleculesPerPlane = nMolecules/nPlanes;
-        IVector ba = box.getBoundary().getEdgeVector(0);
+        Vector ba = box.getBoundary().getEdgeVector(0);
         double a = ba.getX(0) / nx;
-        IVector bb = box.getBoundary().getEdgeVector(1);
+        Vector bb = box.getBoundary().getEdgeVector(1);
         double b = bb.getX(1) / ny;
-        IVector bc = box.getBoundary().getEdgeVector(2);
+        Vector bc = box.getBoundary().getEdgeVector(2);
         
         for (int i=0; i<nPlanes; i++) {
             drSum[i][0].TE(1.0/nMoleculesPerPlane);
@@ -133,7 +133,7 @@ public class MeterPlaneSlip implements IEtomicaDataSource {
 
     protected final ISpecies species;
     protected Box box;
-    protected final IVector[][] drSum;
+    protected final Vector[][] drSum;
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
     protected final DataTag tag;

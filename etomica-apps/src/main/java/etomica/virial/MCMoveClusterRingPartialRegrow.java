@@ -10,7 +10,7 @@ import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomArrayList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -47,7 +47,7 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
     
     public void setNumTrial(int newNumTrial) {
         nTrial = newNumTrial;
-        rTrial = new IVector[nTrial];
+        rTrial = new Vector[nTrial];
         for (int i=0; i<nTrial; i++) {
             rTrial[i] = space.makeVector();
         }
@@ -64,7 +64,7 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
     
     public void setNumBeads(int newNumBeads) {
         maxNumBeads = newNumBeads;
-        oldPositions = new IVector[maxNumBeads];
+        oldPositions = new Vector[maxNumBeads];
         for (int i=0; i<maxNumBeads; i++) {
             oldPositions[i] = space.makeVector();
         }
@@ -135,10 +135,10 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
             kStart = random.nextInt(nAtoms);
 
             IAtom atom0 = atoms.getAtom(kStart);
-            IVector prevAtomPosition = atom0.getPosition();
+            Vector prevAtomPosition = atom0.getPosition();
             int kEnd = (kStart + numBeads + 1) % nAtoms;
             IAtom atomN = atoms.getAtom(kEnd);
-            IVector lastAtomPosition = atomN.getPosition();
+            Vector lastAtomPosition = atomN.getPosition();
 
             double pPrev = 1;
             int k = kStart;
@@ -176,7 +176,7 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
                     k = 0;
                 }
                 IAtom kAtom = atoms.getAtom(k);
-                IVector kPosition = kAtom.getPosition();
+                Vector kPosition = kAtom.getPosition();
                 dcom.ME(kPosition);
                 oldPositions[m].E(kPosition);
 
@@ -282,15 +282,15 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
     protected IAtomList atoms;
     protected final Space space;
     protected final IRandom random;
-    protected IVector[] oldPositions;
-    protected IVector[] rTrial;
+    protected Vector[] oldPositions;
+    protected Vector[] rTrial;
     protected int nTrial;
     protected double[] pkl;
     // Rosenbluth weights
     protected double wOld, wNew;
     // cluster weights
     protected double weightOld, weightNew, uOld, uNew;
-    protected final IVector dcom;
+    protected final Vector dcom;
     protected final AtomIteratorLeafAtoms leafIterator;
     protected double fac;
     public HistogramExpanding[][] hist;

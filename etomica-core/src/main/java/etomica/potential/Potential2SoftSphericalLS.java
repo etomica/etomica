@@ -7,7 +7,7 @@ package etomica.potential;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
 
@@ -23,7 +23,7 @@ public class Potential2SoftSphericalLS extends Potential2 implements PotentialSo
    
     public Potential2SoftSphericalLS(Space space, double rCut, double[] a0, Potential2Soft p2Soft) {
          super(space);
-        gradient = new IVector[2];
+        gradient = new Vector[2];
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();
         dr = space.makeVector();
@@ -83,7 +83,7 @@ public class Potential2SoftSphericalLS extends Potential2 implements PotentialSo
     /**
      * Gradient of the pair potential as given by the du(double) method.
      */
-    public IVector[] gradient(IAtomList atoms) {
+    public Vector[] gradient(IAtomList atoms) {
     	boolean isSelf = (atoms.getAtom(1) == atoms.getAtom(0));
         dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
         boundary.nearestImage(dr);
@@ -108,7 +108,7 @@ public class Potential2SoftSphericalLS extends Potential2 implements PotentialSo
         return gradient;
     }
     
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         gradient(atoms);
         pressureTensor.PEv1v2(gradient[0],dr);
         return gradient;
@@ -127,14 +127,14 @@ public class Potential2SoftSphericalLS extends Potential2 implements PotentialSo
         p2Soft.setBox(box);
     }
 
-    protected final IVector[] gradient;
+    protected final Vector[] gradient;
     protected IBoundary boundary;
     protected final int[] nShells;
     protected final double[] a0;
     protected final Potential2Soft p2Soft;
-    protected final IVector Lxyz;
-    protected final IVector dr;
-    protected final IVector drtmp;
+    protected final Vector Lxyz;
+    protected final Vector dr;
+    protected final Vector drtmp;
     protected final double rCut2;
     
 

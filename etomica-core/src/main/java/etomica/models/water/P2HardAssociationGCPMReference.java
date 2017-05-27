@@ -6,7 +6,7 @@ package etomica.models.water;
 
 import etomica.api.IAtomList;
 import etomica.api.IMoleculeList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 public class P2HardAssociationGCPMReference extends PNWaterGCPM {
@@ -25,8 +25,8 @@ public class P2HardAssociationGCPMReference extends PNWaterGCPM {
         IAtomList water1Atoms = atoms.getMolecule(0).getChildList();
         IAtomList water2Atoms = atoms.getMolecule(1).getChildList();
 
-        IVector O1r = water1Atoms.getAtom(SpeciesWater4P.indexO).getPosition();
-        IVector O2r = water2Atoms.getAtom(SpeciesWater4P.indexO).getPosition();
+        Vector O1r = water1Atoms.getAtom(SpeciesWater4P.indexO).getPosition();
+        Vector O2r = water2Atoms.getAtom(SpeciesWater4P.indexO).getPosition();
         
         work.Ev1Mv2(O1r, O2r);
         
@@ -35,30 +35,30 @@ public class P2HardAssociationGCPMReference extends PNWaterGCPM {
       
         work.normalize();
 
-        IVector H11r = water1Atoms.getAtom(SpeciesWater4P.indexH1).getPosition();
-        IVector H12r = water1Atoms.getAtom(SpeciesWater4P.indexH2).getPosition();
-        IVector H21r = water2Atoms.getAtom(SpeciesWater4P.indexH1).getPosition();
-        IVector H22r = water2Atoms.getAtom(SpeciesWater4P.indexH2).getPosition();
+        Vector H11r = water1Atoms.getAtom(SpeciesWater4P.indexH1).getPosition();
+        Vector H12r = water1Atoms.getAtom(SpeciesWater4P.indexH2).getPosition();
+        Vector H21r = water2Atoms.getAtom(SpeciesWater4P.indexH1).getPosition();
+        Vector H22r = water2Atoms.getAtom(SpeciesWater4P.indexH2).getPosition();
 
-        IVector M1r = water1Atoms.getAtom(SpeciesWater4P.indexM).getPosition();
-        IVector M2r = water2Atoms.getAtom(SpeciesWater4P.indexM).getPosition();
+        Vector M1r = water1Atoms.getAtom(SpeciesWater4P.indexM).getPosition();
+        Vector M2r = water2Atoms.getAtom(SpeciesWater4P.indexM).getPosition();
         
-        IVector rH11O2 = space.makeVector();
+        Vector rH11O2 = space.makeVector();
 		rH11O2.E(H11r);
 		rH11O2.ME(O2r);
 		double distanceH11O2 = Math.sqrt(rH11O2.squared());
 		
-		IVector rH12O2 = space.makeVector();
+		Vector rH12O2 = space.makeVector();
 		rH12O2.E(H12r);
 		rH12O2.ME(O2r);
 		double distanceH12O2 = Math.sqrt(rH12O2.squared());
 		
-		IVector rO1H21 = space.makeVector();
+		Vector rO1H21 = space.makeVector();
 		rO1H21.E(O1r);
 		rO1H21.ME(H21r);
 		double distanceO1H21 = Math.sqrt(rO1H21.squared());
 		
-		IVector rO1H22 = space.makeVector();
+		Vector rO1H22 = space.makeVector();
 		rO1H22.E(O1r);
 		rO1H22.ME(H22r);
 		double distanceO1H22 = Math.sqrt(rO1H22.squared());

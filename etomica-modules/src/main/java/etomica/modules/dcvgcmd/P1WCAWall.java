@@ -5,7 +5,7 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.api.IAtomList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
 import etomica.space.Space;
@@ -18,7 +18,7 @@ import etomica.space.Tensor;
 public class P1WCAWall extends Potential1 implements PotentialSoft {
 
     private static final long serialVersionUID = 1L;
-    protected final IVector[] gradient;
+    protected final Vector[] gradient;
     protected double sigma;
     protected double epsilon;
     protected double cutoff;
@@ -33,7 +33,7 @@ public class P1WCAWall extends Potential1 implements PotentialSoft {
         setSigma(sigma);
         setEpsilon(epsilon);
         setWallDim(wallDim);
-        gradient = new IVector[1];
+        gradient = new Vector[1];
         gradient[0] = space.makeVector();
     }
 
@@ -42,7 +42,7 @@ public class P1WCAWall extends Potential1 implements PotentialSoft {
     }
 
     public double energy(IAtomList atom) {
-        IVector dimensions = boundary.getBoxSize();
+        Vector dimensions = boundary.getBoxSize();
         double rz = atom.getAtom(0).getPosition().getX(wallDim);
         double dzHalf = 0.5 * dimensions.getX(wallDim);
         return energy(dzHalf + rz) + energy(dzHalf - rz);
@@ -68,8 +68,8 @@ public class P1WCAWall extends Potential1 implements PotentialSoft {
         return -48 * epsilon * r6 * (r6 - 0.5);
     }
 
-    public IVector[] gradient(IAtomList atom) {
-        IVector dimensions = boundary.getBoxSize();
+    public Vector[] gradient(IAtomList atom) {
+        Vector dimensions = boundary.getBoxSize();
         double rz = atom.getAtom(0).getPosition().getX(wallDim);
         double dzHalf = 0.5 * dimensions.getX(wallDim);
         double gradz = gradient(rz + dzHalf) - gradient(dzHalf - rz);
@@ -77,7 +77,7 @@ public class P1WCAWall extends Potential1 implements PotentialSoft {
         return gradient;
     }
     
-    public IVector[] gradient(IAtomList atom, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList atom, Tensor pressureTensor) {
         return gradient(atom);
     }
     

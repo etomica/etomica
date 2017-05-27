@@ -18,7 +18,7 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.space.Space;
-import etomica.api.IVector;
+import etomica.space.Vector;
 
 /**
  * Standard Monte Carlo atom-displacement trial move.  Two atoms are moved at a
@@ -31,7 +31,7 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
     protected final AtomIteratorArrayListSimple affectedAtomIterator;
     protected final AtomArrayList affectedAtomList;
     protected final MeterPotentialEnergy energyMeter;
-    protected final IVector translationVector;
+    protected final Vector translationVector;
     protected IAtom atom0, atom1;
     protected double uOld;
     protected double uNew;

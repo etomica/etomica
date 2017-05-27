@@ -9,7 +9,7 @@ import java.io.Serializable;
 import etomica.api.IAtomList;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 /**
@@ -30,7 +30,7 @@ public class AtomPositionGeometricCenterAlkaneEH implements IAtomPositionDefinit
         this.speciesAlkane =speciesAlkane; 
     }
 
-    public IVector position(IMolecule atom) {
+    public Vector position(IMolecule atom) {
         center.E(0.0);
         IAtomList children = atom.getChildList();
         int nAtoms = children.getAtomCount();
@@ -44,6 +44,6 @@ public class AtomPositionGeometricCenterAlkaneEH implements IAtomPositionDefinit
     }
 
     private static final long serialVersionUID = 1L;
-    private final IVector center;
+    private final Vector center;
     private final ISpecies speciesAlkane;
 }

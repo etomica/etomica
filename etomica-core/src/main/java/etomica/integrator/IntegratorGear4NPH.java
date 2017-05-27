@@ -15,7 +15,7 @@ import etomica.api.IPotential;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.simulation.Simulation;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -280,8 +280,8 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
         double x; //hypervirial sum
         double rvx; 
         double vf;
-        private final IVector dr;
-        private final IVector dv;
+        private final Vector dr;
+        private final Vector dv;
         private IBoundary nearestImageTransformer;
 
         public ForceSumNPH(Space space) {
@@ -309,7 +309,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
             double hv = potentialSoft.hyperVirial(pair);
             x += hv;
             rvx += hv * dr.dot(dv)/r2;
-            IVector[] f = potentialSoft.gradient(pair);
+            Vector[] f = potentialSoft.gradient(pair);
             vf += dv.dot(f[0]); //maybe should be (-)?
             integratorAgentManager.getAgent((IAtom)atom0).force().ME(f[0]);
             integratorAgentManager.getAgent((IAtom)atom1).force().ME(f[1]);

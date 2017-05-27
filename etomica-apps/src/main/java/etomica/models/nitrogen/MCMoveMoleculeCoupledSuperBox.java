@@ -21,7 +21,7 @@ import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.integrator.mcmove.MCMoveMolecular;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.space.Space;
-import etomica.api.IVector;
+import etomica.space.Vector;
 
 /**
  * Standard Monte Carlo molecule-displacement trial move for superbox. Two molecules are 
@@ -270,7 +270,7 @@ public class MCMoveMoleculeCoupledSuperBox extends MCMoveBoxStep implements MCMo
     
     private static final long serialVersionUID = 1L;
     protected final MoleculeChildAtomAction moveMoleculeAction;
-    protected final IVector groupTransVect;
+    protected final Vector groupTransVect;
     protected IMolecule molecule0, molecule1;
     protected final MeterPotentialEnergy energyMeter;
     protected MoleculeSource moleculeSource;

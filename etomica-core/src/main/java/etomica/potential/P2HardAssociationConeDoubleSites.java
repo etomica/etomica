@@ -6,7 +6,7 @@ package etomica.potential;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -32,7 +32,7 @@ public class P2HardAssociationConeDoubleSites extends Potential2 implements Pote
     private double epsilon, epsilon4, wellEpsilon;
     private double cutoffLJSquared, cutoffFactor;
     private double ec2;
-    private final IVector dr;
+    private final Vector dr;
     private IBoundary boundary;
     
     public P2HardAssociationConeDoubleSites(Space space, double sigma, double epsilon, double cutoffFactorLJ, double wellConstant) {
@@ -77,10 +77,10 @@ public class P2HardAssociationConeDoubleSites extends Potential2 implements Pote
         }
                   
         if (r2 < wellCutoffSquared) {
-        	IVector e1A = atom0.getOrientation().getDirection();
+        	Vector e1A = atom0.getOrientation().getDirection();
             double er1A = e1A.dot(dr);//vector of site A on atom0
             double er1B = -1*er1A;//vector of site B on atom0
-            IVector e2A = atom1.getOrientation().getDirection();
+            Vector e2A = atom1.getOrientation().getDirection();
             double er2A = e2A.dot(dr);//vector of site A on atom1
             double er2B = -1*er2A;//vector of site B on atom1
             if (er1A*er2A < 0.0){
@@ -203,12 +203,12 @@ public class P2HardAssociationConeDoubleSites extends Potential2 implements Pote
 	    return 0;
 	}
 
-	public IVector[] gradient(IAtomList atoms) {
+	public Vector[] gradient(IAtomList atoms) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+	public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
 		// TODO Auto-generated method stub
 		return null;
 	}

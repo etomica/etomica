@@ -6,8 +6,7 @@ package etomica.modules.sam;
 
 import etomica.api.IAtomList;
 import etomica.api.IPotentialAtomic;
-import etomica.api.IVector;
-import etomica.integrator.IntegratorBox;
+import etomica.space.Vector;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialSoft;
 
@@ -34,7 +33,7 @@ public class PotentialCalculationForceSumWall extends
     public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
         PotentialSoft potentialSoft = (PotentialSoft)potential;
         int nBody = potential.nBody();
-        IVector[] f = potentialSoft.gradient(atoms);
+        Vector[] f = potentialSoft.gradient(atoms);
         switch(nBody) {
             case 1:
                 if (f[0].squared() > 2.5e9) {

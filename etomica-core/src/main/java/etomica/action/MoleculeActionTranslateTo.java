@@ -8,7 +8,7 @@ package etomica.action;
 import java.io.Serializable;
 
 import etomica.api.IMolecule;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.space.Space;
@@ -21,10 +21,10 @@ import etomica.space.Space;
 public class MoleculeActionTranslateTo implements MoleculeAction, Serializable {
     
     private static final long serialVersionUID = 1L;
-    private final IVector destination;
+    private final Vector destination;
     private IAtomPositionDefinition atomPositionDefinition;
     private MoleculeChildAtomAction atomTranslator;
-    private final IVector translationVector;
+    private final Vector translationVector;
 
     /**
      * Creates new action with atom position defined by its
@@ -39,7 +39,7 @@ public class MoleculeActionTranslateTo implements MoleculeAction, Serializable {
     }
     
     public void actionPerformed(IMolecule atom) {
-        IVector currentPosition = atomPositionDefinition.position(atom);
+        Vector currentPosition = atomPositionDefinition.position(atom);
         translationVector.Ev1Mv2(destination, currentPosition);
         atomTranslator.actionPerformed(atom);
     }
@@ -48,14 +48,14 @@ public class MoleculeActionTranslateTo implements MoleculeAction, Serializable {
      * @return Returns the destination, the position that the
      * atom will be moved to by this action.
      */
-    public IVector getDestination() {
+    public Vector getDestination() {
         return destination;
     }
     /**
      * @param newDestination The destination to set.  A local copy
      * is made of the given vector.
      */
-    public void setDestination(IVector newDestination) {
+    public void setDestination(Vector newDestination) {
         destination.E(newDestination);
     }
     /**
@@ -77,7 +77,7 @@ public class MoleculeActionTranslateTo implements MoleculeAction, Serializable {
      * This vector can be used to reverse the translation by multiplying it by -1 and 
      * performing an atomActionTranslateBy with it.
      */
-    public IVector getTranslationVector() {
+    public Vector getTranslationVector() {
         return translationVector;
     }
 }

@@ -21,6 +21,7 @@ import etomica.box.RandomPositionSourceRectangular;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 /**
@@ -40,7 +41,7 @@ public class MCMoveMoleculeExchange extends MCMove {
     private final AtomIteratorArrayListSimple affectedAtomIterator = new AtomIteratorArrayListSimple();
     private final MoleculeActionTranslateTo moleculeTranslator;
     private final MoleculeChildAtomAction moleculeReplacer;
-    private final IVector translationVector;
+    private final Vector translationVector;
     private final IRandom random;
     private MoleculeSource moleculeSource;
     protected RandomPositionSource positionSource;

@@ -11,6 +11,7 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 /**
@@ -30,7 +31,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource<
     private static final long serialVersionUID = 1L;
     public final PotentialCalculationForceSum forceSum;
     private final IteratorDirective allAtoms;
-    IVector work, work1, work2, work3, work4;
+    Vector work, work1, work2, work3, work4;
     double halfTime, mass;
 
     protected AtomLeafAgentManager<Agent> agentManager;
@@ -97,7 +98,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource<
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            IVector v = a.getVelocity();
+            Vector v = a.getVelocity();
 
             work1.E(v); //work1 = v
             work2.E(agentManager.getAgent(a).force);	//work2=F
@@ -113,7 +114,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource<
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             Agent agent = agentManager.getAgent(a);
-            IVector v = a.getVelocity();
+            Vector v = a.getVelocity();
 
             double scale = (2.0*chi-1.0); 
             work3.Ea1Tv1(scale,v); 
@@ -125,8 +126,8 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource<
 
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            IVector r = a.getPosition();
-            IVector v = a.getVelocity();
+            Vector r = a.getPosition();
+            Vector v = a.getVelocity();
 
             work.Ea1Tv1(timeStep,v);
             work.PE(r);
@@ -142,13 +143,13 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource<
     public void releaseAgent(Agent agent, IAtom atom, Box agentBox) {}
             
 	public final static class Agent implements IntegratorBox.Forcible {  //need public so to use with instanceof
-        public IVector force;
+        public Vector force;
 
         public Agent(Space space) {
             force = space.makeVector();
         }
         
-        public IVector force() {return force;}
+        public Vector force() {return force;}
     }
     
 }

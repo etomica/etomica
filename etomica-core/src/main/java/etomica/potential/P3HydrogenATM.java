@@ -13,7 +13,7 @@ import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IPotential;
 import etomica.api.IPotentialAtomic;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
 import etomica.space.Space;
 
@@ -35,7 +35,7 @@ public class P3HydrogenATM implements IPotential{
     }        
     protected IBoundary boundary;
     protected static final double E0 = 49400; //(K Angstorm^9)
-    protected IVector dr,r1,r2,r3;
+    protected Vector dr,r1,r2,r3;
 
     public P3HydrogenATM(Space space) {
         dr = space.makeVector();
@@ -63,12 +63,12 @@ public class P3HydrogenATM implements IPotential{
             IAtom a0 = atoms.getAtom(0);
             IAtom a1 = atoms.getAtom(1);        
             IAtom a2 = atoms.getAtom(2);                    
-            IVector com0 = a0.getPosition();               
-            IVector com1 = a1.getPosition();
-            IVector com2 = a2.getPosition();
-            IVector hh0 = ((IAtomOriented)a0).getOrientation().getDirection();
-            IVector hh1 = ((IAtomOriented)a1).getOrientation().getDirection();
-            IVector hh2 = ((IAtomOriented)a2).getOrientation().getDirection();
+            Vector com0 = a0.getPosition();
+            Vector com1 = a1.getPosition();
+            Vector com2 = a2.getPosition();
+            Vector hh0 = ((IAtomOriented)a0).getOrientation().getDirection();
+            Vector hh1 = ((IAtomOriented)a1).getOrientation().getDirection();
+            Vector hh2 = ((IAtomOriented)a2).getOrientation().getDirection();
             dr.Ev1Mv2(com0, com1);
             double r12 = dr.squared()*Math.sqrt(dr.squared());            
             dr.Ev1Mv2(com1, com2);

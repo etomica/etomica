@@ -10,7 +10,7 @@ import java.io.IOException;
 import etomica.action.WriteConfiguration;
 import etomica.api.IAtom;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 /**
@@ -22,7 +22,7 @@ import etomica.space.Space;
 public class WriteConfigurationInterfacial extends WriteConfiguration {
 
     protected ISpecies species;
-    protected IVector shift;
+    protected Vector shift;
     
 	public WriteConfigurationInterfacial(Space space) {
 	    super(space);
@@ -32,7 +32,7 @@ public class WriteConfigurationInterfacial extends WriteConfiguration {
 	    this.species = species;
 	}
 
-	public void setShift(IVector shift) {
+	public void setShift(Vector shift) {
 	    this.shift = shift;
 	}
 

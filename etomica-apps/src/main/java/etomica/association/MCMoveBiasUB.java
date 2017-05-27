@@ -13,7 +13,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.space.Space;
-import etomica.api.IVector;
+import etomica.space.Vector;
 
 public class MCMoveBiasUB extends MCMoveBox {
     
@@ -28,15 +28,15 @@ public class MCMoveBiasUB extends MCMoveBox {
     private int ni, Nai;
     private int maxLength = Integer.MAX_VALUE;
     private IAtom atomA;
-    private IVector orientation;
+    private Vector orientation;
     private boolean isbonding;
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     private double uOld;
     private double uNew;
-    private IVector oldPosition;
-    private IVector oldDirection;
+    private Vector oldPosition;
+    private Vector oldDirection;
     protected final AtomArrayList smerList;
-    protected final IVector dr;
+    protected final Vector dr;
 
     public MCMoveBiasUB(PotentialMasterCell potentialMaster, BiasVolume bv, IRandom random, Space space) {
         super(potentialMaster);//variable

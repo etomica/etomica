@@ -8,7 +8,7 @@ import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.simulation.Simulation;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.nbr.list.PotentialMasterList;
@@ -38,7 +38,7 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
     protected MeterPotentialEnergy meterPE;
     protected CoordinateDefinition cDef, simCDef;
     protected int cDim, simCDim;
-    protected IVector[] waveVectors, simWaveVectors;
+    protected Vector[] waveVectors, simWaveVectors;
     protected double[] simRealT, simImagT;
     protected double temperature;
     protected double[] newU;
@@ -102,7 +102,7 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
             bdry = new BoundaryRectangularPeriodic(space, numAtoms/ density);
         } else {
             bdry = new BoundaryRectangularPeriodic(space, 1.0);
-            IVector edges = otherCD.getBox().getBoundary().getBoxSize();
+            Vector edges = otherCD.getBox().getBoundary().getBoxSize();
             bdry.setBoxSize(edges);
         }
         box.setBoundary(bdry);

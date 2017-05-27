@@ -13,7 +13,7 @@ import etomica.action.IAction;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 
 /**
  * Action that opens a new window and dumps the velocities into the window.
@@ -35,7 +35,7 @@ public class ActionVelocityWindow implements IAction {
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            IVector vel = a.getVelocity();
+            Vector vel = a.getVelocity();
             String str = Double.toString(vel.getX(0));
             for (int i=1; i<vel.getD(); i++) {
                 str += " "+Double.toString(vel.getX(i));

@@ -15,7 +15,7 @@ import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -112,7 +112,7 @@ public class P2HydrogenPatkowski implements IPotential {
     protected final double [] elong = new double[20];
     protected IBoundary boundary;
     protected static final double rMin = 1.4;
-    protected final IVector dr,com0,com1,hh0,hh1,n0,n1;
+    protected final Vector dr,com0,com1,hh0,hh1,n0,n1;
     protected static double[][] xPos = {{0.0374,-0.2422,0.2792},{-0.0374,0.2422,-0.2792},{-0.016,-1.2877,2.9799},{-0.0196,-2.0073,2.7949},{-0.1047,1.5911,2.54},{0.063,1.7936,3.2349}};
     protected boolean print = false;
     public FileWriter file = null;
@@ -573,10 +573,10 @@ public class P2HydrogenPatkowski implements IPotential {
             IAtom a01 = m0.getChildList().getAtom(1);
             IAtom a10 = m1.getChildList().getAtom(0);
             IAtom a11 = m1.getChildList().getAtom(1);
-            IVector orient00 = a00.getPosition();
-            IVector orient01 = a01.getPosition();
-            IVector orient10 = a10.getPosition();
-            IVector orient11 = a11.getPosition();
+            Vector orient00 = a00.getPosition();
+            Vector orient01 = a01.getPosition();
+            Vector orient10 = a10.getPosition();
+            Vector orient11 = a11.getPosition();
 
             com0.Ev1Pv2(orient00, orient01);
             com0.TE(0.5);        
@@ -618,10 +618,10 @@ public class P2HydrogenPatkowski implements IPotential {
         public double energy(IAtomList atoms) {
             IAtom m0 = atoms.getAtom(0);
             IAtom m1 = atoms.getAtom(1);        
-            IVector hh0 = ((IAtomOriented)m0).getOrientation().getDirection();
-            IVector hh1 = ((IAtomOriented)m1).getOrientation().getDirection();        
-            IVector com0 = m0.getPosition();               
-            IVector com1 = m1.getPosition();        
+            Vector hh0 = ((IAtomOriented)m0).getOrientation().getDirection();
+            Vector hh1 = ((IAtomOriented)m1).getOrientation().getDirection();
+            Vector com0 = m0.getPosition();
+            Vector com1 = m1.getPosition();
 
             dr.Ev1Mv2(com1, com0);    
             boundary.nearestImage(dr);    

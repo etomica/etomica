@@ -18,7 +18,7 @@ import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.potential.Potential2;
 import etomica.space.Space;
-import etomica.api.IVector;
+import etomica.space.Vector;
 
 /**
  * Standard Monte Carlo atom-displacement trial move. Two atoms are moved at a
@@ -348,7 +348,7 @@ public class MCMoveAtomSuperBox extends MCMoveBoxStep {
     protected final AtomIteratorArrayListSimple affectedAtomIterator;
     protected final AtomArrayList affectedAtomList;
     protected final MeterPotentialEnergy energyMeter;
-    protected final IVector translationVector;
+    protected final Vector translationVector;
     protected IAtom atom0, atom1, atomSpeciesA, atomSpeciesB;
     protected double uOld;
     protected double uNew;

@@ -4,7 +4,7 @@
 
 package etomica.math.geometry;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 
 
 /**
@@ -22,10 +22,10 @@ public interface Rectangular {
      * of the polytope.  The given vector should be for a D-dimensional
      * space, and its values will be used to set the corresponding edge lengths.
      */
-    public void setEdgeLengths(IVector v);
+    public void setEdgeLengths(Vector v);
     
     /**
      * @return the D edge lengths as the elements of the vector.
      */
-    public IVector getEdgeLengths();
+    public Vector getEdgeLengths();
 }

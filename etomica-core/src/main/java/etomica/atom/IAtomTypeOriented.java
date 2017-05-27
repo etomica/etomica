@@ -5,7 +5,7 @@
 package etomica.atom;
 
 import etomica.api.IAtomType;
-import etomica.api.IVector;
+import etomica.space.Vector;
 
 public interface IAtomTypeOriented extends IAtomType {
 
@@ -14,5 +14,5 @@ public interface IAtomTypeOriented extends IAtomType {
      * atom within the body-fixed frame.  Do NOT modify the returned moment
      * of inertia returned.
      */
-    public IVector getMomentOfInertia();
+    public Vector getMomentOfInertia();
 }

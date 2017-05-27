@@ -9,7 +9,7 @@ import etomica.atom.AtomOrientedQuaternion;
 import etomica.atom.AtomPair;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.Space;
-import etomica.api.IVector;
+import etomica.space.Vector;
 
 public class MCMoveClusterPolyhedraChain extends MCMoveAtom {
 
@@ -22,7 +22,7 @@ public class MCMoveClusterPolyhedraChain extends MCMoveAtom {
         this.uValues = uValues;
     }
 
-    protected void randomOrientation(IVector q) {
+    protected void randomOrientation(Vector q) {
         double u1 = random.nextDouble();
         double u2 = 2*Math.PI*random.nextDouble();
         double u3 = 2*Math.PI*random.nextDouble();
@@ -60,8 +60,8 @@ public class MCMoveClusterPolyhedraChain extends MCMoveAtom {
         for (int i=1; i<n; i++) {
             pair.atom0 = leafAtoms.getAtom(seq[i-1]);
             pair.atom1 = leafAtoms.getAtom(seq[i]);
-            IVector pos = leafAtoms.getAtom(seq[i]).getPosition();
-            IVector q = ((AtomOrientedQuaternion)leafAtoms.getAtom(seq[i])).getQuaternion();
+            Vector pos = leafAtoms.getAtom(seq[i]).getPosition();
+            Vector q = ((AtomOrientedQuaternion)leafAtoms.getAtom(seq[i])).getQuaternion();
 
             while (true) {
                 pos.setRandomInSphere(random);
@@ -95,7 +95,7 @@ public class MCMoveClusterPolyhedraChain extends MCMoveAtom {
     }
 
     protected final double sigma;
-    protected final IVector dr;
+    protected final Vector dr;
     protected int[] seq;
     protected IPotentialAtomic p2;
     protected final AtomPair pair;

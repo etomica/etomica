@@ -7,7 +7,7 @@ package etomica.modules.mu;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
@@ -27,7 +27,7 @@ public class MeterDensitySides extends DataSourceScalar {
         IMoleculeList moleculeList = box.getMoleculeList(species);
         int n = 0;
         for (int i=0; i<moleculeList.getMoleculeCount(); i++) {
-            IVector p = moleculeList.getMolecule(i).getChildList().getAtom(0).getPosition();
+            Vector p = moleculeList.getMolecule(i).getChildList().getAtom(0).getPosition();
             if (p.getX(0) < 0 == ig) {
                 n++;
             }

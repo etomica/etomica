@@ -5,7 +5,7 @@
 package etomica.normalmode;
 
 import etomica.action.BoxInflate;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -29,7 +29,7 @@ public class MCMoveVolumeMonoclinic extends MCMoveBoxStep {
     private MeterPotentialEnergy energyMeter;
     protected BoxInflate inflate;
     private IRandom random;
-    protected final IVector scaleVector;
+    protected final Vector scaleVector;
     protected final AtomIteratorLeafAtoms affectedAtomIterator;
 
     private transient double uOld;

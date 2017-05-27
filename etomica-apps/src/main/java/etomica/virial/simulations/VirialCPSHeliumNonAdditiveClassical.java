@@ -8,7 +8,7 @@ package etomica.virial.simulations;
 import java.awt.Color;
 
 import etomica.api.IAtomList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.chem.elements.ElementSimple;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
@@ -41,8 +41,8 @@ import etomica.virial.cluster.VirialDiagrams;
 
 public class VirialCPSHeliumNonAdditiveClassical {
 	
-	protected static IVector r0, r1, r2;
-	protected static IVector r01Vec, r12Vec, r02Vec;
+	protected static Vector r0, r1, r2;
+	protected static Vector r01Vec, r12Vec, r02Vec;
 	
 	public VirialCPSHeliumNonAdditiveClassical(Space space) {
         r0 = space.makeVector();

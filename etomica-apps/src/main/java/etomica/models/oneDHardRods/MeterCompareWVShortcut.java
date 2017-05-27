@@ -6,7 +6,7 @@ package etomica.models.oneDHardRods;
 
 import etomica.api.IPotential;
 import etomica.api.IPotentialMaster;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.normalmode.CoordinateDefinition;
@@ -27,7 +27,7 @@ public class MeterCompareWVShortcut extends DataSourceScalar {
     MeterPotentialEnergy meterPE;
     
     private double eigenVectors[][][];
-    private IVector[] waveVectors;
+    private Vector[] waveVectors;
     int comparedWV;
     protected double temperature;
     private double[] waveVectorCoefficients, sqrtWVC;
@@ -122,7 +122,7 @@ public class MeterCompareWVShortcut extends DataSourceScalar {
     public void setEigenVectors(double[][][] eigenVectors) {
         this.eigenVectors = eigenVectors;
     }
-    public void setWaveVectors(IVector[] waveVectors) {
+    public void setWaveVectors(Vector[] waveVectors) {
         this.waveVectors = waveVectors;
     }
     public void setComparedWV(int comparedWV) {

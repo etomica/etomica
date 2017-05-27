@@ -4,14 +4,13 @@
 
 package etomica.data.meter;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.simulation.Simulation;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.IMoleculeKinetic;
 import etomica.atom.IMoleculeOrientedKinetic;
 import etomica.data.DataSourceScalar;
@@ -65,7 +64,7 @@ public class MeterKineticEnergyRigid extends DataSourceScalar {
                         continue;
                     }
                     ke += 0.5*mass*((IMoleculeKinetic)molecule0).getVelocity().squared();
-                    IVector moment = ((ISpeciesOriented)molecule0.getType()).getMomentOfInertia();
+                    Vector moment = ((ISpeciesOriented)molecule0.getType()).getMomentOfInertia();
         
                     angularVelocity.E(moleculeOrientedKinetic.getAngularVelocity());
                     rotationTensor.setOrientation((IOrientationFull3D)moleculeOrientedKinetic.getOrientation());
@@ -86,7 +85,7 @@ public class MeterKineticEnergyRigid extends DataSourceScalar {
                         double mass = a.getType().getMass();
                         if(mass == Double.POSITIVE_INFINITY) continue;
         //                    System.out.println("force: "+((MyAgent)a.ia).force.toString());
-                        IVector velocity = a.getVelocity();
+                        Vector velocity = a.getVelocity();
                         ke += velocity.squared() * mass;
                     }
                 }
@@ -113,6 +112,6 @@ public class MeterKineticEnergyRigid extends DataSourceScalar {
     private static final long serialVersionUID = 1L;
     protected final Simulation sim;
     protected Box box;
-    protected final IVector angularVelocity;
+    protected final Vector angularVelocity;
     protected final RotationTensor3D rotationTensor;
  }

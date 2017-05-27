@@ -11,7 +11,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 import etomica.action.IAction;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.math.geometry.Cuboid;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Parallelepiped;
@@ -75,7 +75,7 @@ public class DisplayPolytope extends Display implements IAction {
     private double toPixels;
         
     protected Polytope polytope;
-    private final IVector dimensions, maxCoord, minCoord;
+    private final Vector dimensions, maxCoord, minCoord;
   
     public DisplayPolytope(Polytope polytope) {
         super();
@@ -108,10 +108,10 @@ public class DisplayPolytope extends Display implements IAction {
      * returns dimensions of polytope as the (max - min) value in
      * each dimension for all the vertices.
      */
-    public IVector dimensions() {
+    public Vector dimensions() {
         minCoord.E(Double.MAX_VALUE);
         maxCoord.E(-Double.MAX_VALUE);
-        final IVector[] vertices = polytope.getVertices();
+        final Vector[] vertices = polytope.getVertices();
         for (int i=0; i<vertices.length; i++) {
             for (int j=0; j<dimensions.getD(); j++) {
                 if (maxCoord.getX(j) < vertices[i].getX(j)) {

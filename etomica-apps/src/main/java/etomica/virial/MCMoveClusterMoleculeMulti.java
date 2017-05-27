@@ -4,7 +4,7 @@
 
 package etomica.virial;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
@@ -22,7 +22,7 @@ import etomica.space.Space;
  */
 public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
 
-    protected IVector[] translationVectors;
+    protected Vector[] translationVectors;
     protected int[] constraintMap;
     protected int startMolecule;
 
@@ -45,7 +45,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
 
     public void setBox(Box p) {
         super.setBox(p);
-        translationVectors = new IVector[box.getMoleculeList().getMoleculeCount()];
+        translationVectors = new Vector[box.getMoleculeList().getMoleculeCount()];
         for (int i=0; i<box.getMoleculeList().getMoleculeCount(); i++) {
             translationVectors[i] = space.makeVector();
         }

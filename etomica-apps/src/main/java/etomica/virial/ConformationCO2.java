@@ -6,7 +6,7 @@ package etomica.virial;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.config.IConformation;
 import etomica.space.Space;
 import etomica.units.Electron;
@@ -55,7 +55,7 @@ public class ConformationCO2 implements IConformation, java.io.Serializable{
 	protected static final double bondlength = 1.16;
 
 	
-	protected IVector vector;
+	protected Vector vector;
 	
 	private static final long serialVersionUID = 1L;
 }

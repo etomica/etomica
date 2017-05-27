@@ -5,7 +5,7 @@
 package etomica.modules.interfacial;
 
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.IData;
@@ -62,7 +62,7 @@ public class DataProcessorInterfacialTensionProfile extends DataProcessor {
         }
 
         double area = 1;
-        IVector dim = box.getBoundary().getBoxSize();
+        Vector dim = box.getBoundary().getBoxSize();
         for (int i=0; i<dim.getD(); i++) {
             if (i == profileDim) continue;
             area *= dim.getX(i);

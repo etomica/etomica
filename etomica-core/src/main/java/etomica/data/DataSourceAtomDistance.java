@@ -5,7 +5,7 @@
 package etomica.data;
 
 import etomica.api.IAtom;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.units.Length;
 
@@ -37,7 +37,7 @@ public class DataSourceAtomDistance extends DataSourceScalar {
 
     private static final long serialVersionUID = 1L;
 	protected final Space space;
-	protected final IVector vector;
+	protected final Vector vector;
 	protected IAtom atom1;
 	protected IAtom atom2;
 }

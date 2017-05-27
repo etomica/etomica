@@ -12,7 +12,7 @@ import javax.swing.JFrame;
 import etomica.action.IAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 
 /**
@@ -35,7 +35,7 @@ public class ActionConfigWindow implements IAction {
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtom a = leafList.getAtom(iLeaf);
-            IVector pos = a.getPosition();
+            Vector pos = a.getPosition();
             String str = Double.toString(pos.getX(0));
             for (int i=1; i<pos.getD(); i++) {
                 str += " "+Double.toString(pos.getX(i));

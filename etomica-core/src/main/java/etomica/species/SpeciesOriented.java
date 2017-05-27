@@ -7,7 +7,7 @@ package etomica.species;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IMolecule;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomPositionCOM;
 import etomica.space.Space;
 
@@ -32,11 +32,11 @@ public abstract class SpeciesOriented extends Species implements ISpeciesOriente
         IMolecule molecule = makeMolecule();
         IAtomList children = molecule.getChildList();
         conformation.initializePositions(children);
-        IVector com = space.makeVector();
+        Vector com = space.makeVector();
         AtomPositionCOM positionCOM = new AtomPositionCOM(space);
         com.E(positionCOM.position(molecule));
         double[] I = new double[3];
-        IVector xWork = space.makeVector();
+        Vector xWork = space.makeVector();
         mass = 0;
         for (int i=0; i<children.getAtomCount(); i++) {
             IAtom atom = children.getAtom(i);
@@ -56,7 +56,7 @@ public abstract class SpeciesOriented extends Species implements ISpeciesOriente
     /* (non-Javadoc)
      * @see etomica.atom.ISpeciesOriented#getMomentOfInertia()
      */
-    public IVector getMomentOfInertia() {
+    public Vector getMomentOfInertia() {
         return moment;
     }
     
@@ -68,7 +68,7 @@ public abstract class SpeciesOriented extends Species implements ISpeciesOriente
     }
 
     private static final long serialVersionUID = 1L;
-    protected final IVector moment;
+    protected final Vector moment;
     protected double mass;
     protected final Space space;
 }

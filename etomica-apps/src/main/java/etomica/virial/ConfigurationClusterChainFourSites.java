@@ -5,7 +5,7 @@
 package etomica.virial;
 
 import etomica.api.IAtomList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.atom.IAtomOriented;
 import etomica.space.Space;
@@ -35,8 +35,8 @@ public class ConfigurationClusterChainFourSites extends ConfigurationCluster {
 		super.initializeCoordinates(box);
 		BoxCluster clusterBox =(BoxCluster) box;
 		IAtomList list = box.getLeafList();
-        IVector direction = space.makeVector();
-        IVector secondaryDirection = space.makeVector();
+        Vector direction = space.makeVector();
+        Vector secondaryDirection = space.makeVector();
 		for (int i=1;i<list.getAtomCount();i++){
 			list.getAtom(i).getPosition().setX(0, 0.9*i);
 			if (list.getAtom(i) instanceof IAtomOriented){

@@ -13,6 +13,7 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 /**
@@ -85,11 +86,11 @@ public class MCMoveClusterAngleBendAceticAcid extends MCMoveBoxStep {
         int numChildren = childList.getAtomCount();
         if (numChildren != 3) return;
         
-        IVector pos0 = childList.getAtom(3).getPosition();//SBO
-        IVector pos1 = childList.getAtom(1).getPosition();//C
-        IVector pos2 = childList.getAtom(2).getPosition();//DBO
-        IVector pos3 = childList.getAtom(4).getPosition();//H
-        IVector pos4 = childList.getAtom(0).getPosition();//CH3
+        Vector pos0 = childList.getAtom(3).getPosition();//SBO
+        Vector pos1 = childList.getAtom(1).getPosition();//C
+        Vector pos2 = childList.getAtom(2).getPosition();//DBO
+        Vector pos3 = childList.getAtom(4).getPosition();//H
+        Vector pos4 = childList.getAtom(0).getPosition();//CH3
         
         work1.Ev1Mv2(pos0, pos1);
         double bondLength01 = Math.sqrt(work1.squared());
@@ -191,7 +192,7 @@ public class MCMoveClusterAngleBendAceticAcid extends MCMoveBoxStep {
     private static final long serialVersionUID = 1L;
     protected final AtomIteratorArrayListSimple affectedAtomIterator = new AtomIteratorArrayListSimple();
     protected final MeterPotentialEnergy energyMeter;
-    protected final IVector work1, work2, work3;
+    protected final Vector work1, work2, work3;
     protected double[] dTheta;
     protected double wOld, wNew;
     protected final Space space;

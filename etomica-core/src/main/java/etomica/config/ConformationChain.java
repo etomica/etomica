@@ -6,7 +6,7 @@ package etomica.config;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 /**
@@ -33,7 +33,7 @@ public abstract class ConformationChain implements IConformation, java.io.Serial
 	 * @return the instructions to get to the location of the next molecule from
 	 * the current one.
 	 */
-	protected abstract IVector nextVector();
+	protected abstract Vector nextVector();
 	
 	/**
 	 * Places a set of atoms in a linearly connected fashion.
@@ -48,7 +48,7 @@ public abstract class ConformationChain implements IConformation, java.io.Serial
     	reset();
 	
     	//space.makeVector() zeroes the made Vector automatically
-    	IVector currentPosition = space.makeVector();
+    	Vector currentPosition = space.makeVector();
     
     	//Zero the first atom.
         atomlist.getAtom(0).getPosition().E(0);

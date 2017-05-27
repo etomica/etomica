@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 import etomica.action.IAction;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -76,8 +76,8 @@ public class MeterRotationDistributionGroup implements IEtomicaDataSource, IActi
             for (int iMol=0; iMol<numMolecules; iMol++){
             	
 	          	IMolecule molecule = molecules.getMolecule(iMol);
-	          	IVector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-		    	IVector leafPos1 = molecule.getChildList().getAtom(1).getPosition();
+	          	Vector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
+		    	Vector leafPos1 = molecule.getChildList().getAtom(1).getPosition();
 		
 		    	molAxis.Ev1Mv2(leafPos1, leafPos0);
 		       	molAxis.normalize();
@@ -176,8 +176,8 @@ public class MeterRotationDistributionGroup implements IEtomicaDataSource, IActi
     
     private DataDoubleArray[] uDistributions;
     private DataInfoDoubleArray[] uDistributionsInfo;
-    private IVector initOrient;
-    private IVector molAxis;
+    private Vector initOrient;
+    private Vector molAxis;
     private double angle;
     
 }

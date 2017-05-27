@@ -7,7 +7,7 @@ package etomica.normalmode;
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -161,8 +161,8 @@ public class LJVacancyMin extends Simulation {
             double dSum = 0;
             for (int j=0; j<numAtoms-1; j++) {
                 IAtom jAtom = sim.box.getLeafList().getAtom(j);
-                IVector fj = forceManager.getAgent(jAtom).f;
-                IVector pj = jAtom.getPosition();
+                Vector fj = forceManager.getAgent(jAtom).f;
+                Vector pj = jAtom.getPosition();
                 for (int k=0; k<pj.getD(); k++) {
                     d[3*j+k] = fj.getX(k);
                     dSum += d[3*j+k]*d[3*j+k];
@@ -180,7 +180,7 @@ public class LJVacancyMin extends Simulation {
             // take a small step
             for (int j=0; j<numAtoms-1; j++) {
                 IAtom jAtom = sim.box.getLeafList().getAtom(j);
-                IVector pj = jAtom.getPosition();
+                Vector pj = jAtom.getPosition();
                 for (int k=0; k<pj.getD(); k++) {
                     pj.setX(k, pj.getX(k)+step0*dir[3*j+k]);
                 }
@@ -191,8 +191,8 @@ public class LJVacancyMin extends Simulation {
             dSum = 0;
             for (int j=0; j<numAtoms-1; j++) {
                 IAtom jAtom = sim.box.getLeafList().getAtom(j);
-                IVector fj = forceManager.getAgent(jAtom).f;
-                IVector pj = jAtom.getPosition();
+                Vector fj = forceManager.getAgent(jAtom).f;
+                Vector pj = jAtom.getPosition();
                 for (int k=0; k<pj.getD(); k++) {
                     d[3*j+k] = fj.getX(k);
                     dSum += d[3*j+k]*d[3*j+k];
@@ -207,7 +207,7 @@ public class LJVacancyMin extends Simulation {
             if (verbose) System.out.print(String.format("  %10.4e\n", step1));
             for (int j=0; j<numAtoms-1; j++) {
                 IAtom jAtom = sim.box.getLeafList().getAtom(j);
-                IVector pj = jAtom.getPosition();
+                Vector pj = jAtom.getPosition();
                 for (int k=0; k<pj.getD(); k++) {
                     pj.setX(k, pj.getX(k)+step1*dir[3*j+k]);
                 }
@@ -223,13 +223,13 @@ public class LJVacancyMin extends Simulation {
     }
     
     public static class VectorForce implements Forcible {
-        public final IVector f;
+        public final Vector f;
         
         public VectorForce(Space space) {
             f = space.makeVector();
         }
 
-        public IVector force() {
+        public Vector force() {
             return f;
         }
     }

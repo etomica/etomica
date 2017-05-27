@@ -9,7 +9,7 @@ import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.IAtomOriented;
 import etomica.space.Space;
@@ -67,7 +67,7 @@ public class P2SemiclassicalAtomic implements IPotentialAtomic {
     public double energy(IAtomList molecules) {
         double uC = p2Classy.energy(molecules);
         if (uC/temperature > 100) return Double.POSITIVE_INFINITY;
-        IVector[][] gradAndTorque = p2Classy.gradientAndTorque(molecules);
+        Vector[][] gradAndTorque = p2Classy.gradientAndTorque(molecules);
         double sum = 0;
         for (int i=0; i<2; i++) {
             IAtom iMol = molecules.getAtom(i);
@@ -78,11 +78,11 @@ public class P2SemiclassicalAtomic implements IPotentialAtomic {
                 if (atomInfo == null) {
                     throw new RuntimeException("You must provide AtomInfo for oriented atoms");
                 }
-                IVector[] momentAndAxes = atomInfo.getMomentAndAxes((IAtomOriented)iMol);
-                IVector moment = momentAndAxes[0];
+                Vector[] momentAndAxes = atomInfo.getMomentAndAxes((IAtomOriented)iMol);
+                Vector moment = momentAndAxes[0];
                 for (int j=0; j<3; j++) {
                     if (moment.getX(j) < 1e-10) continue;
-                    IVector axis = momentAndAxes[j+1];
+                    Vector axis = momentAndAxes[j+1];
                     double torque = gradAndTorque[1][i].dot(axis);
                     sum += torque*torque/moment.getX(j);
                 }
@@ -100,6 +100,6 @@ public class P2SemiclassicalAtomic implements IPotentialAtomic {
          * and also the principle axes.  The 0 element is the moment of inertia
          * vector while elements 1, 2 and 3 are the principle axes.
          */
-        public IVector[] getMomentAndAxes(IAtomOriented molecule);
+        public Vector[] getMomentAndAxes(IAtomOriented molecule);
     }
 }

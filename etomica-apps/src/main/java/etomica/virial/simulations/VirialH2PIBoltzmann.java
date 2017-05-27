@@ -30,6 +30,7 @@ import etomica.graphics.SimulationPanel;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P1HydrogenMielke.P2HydrogenMielkeAtomic;
 import etomica.potential.PotentialGroup;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheres;
@@ -180,7 +181,7 @@ public class VirialH2PIBoltzmann {
         IAtomList leafList = sim.box.getLeafList();
         int half = leafList.getAtomCount()/2;
         for (int i=half; i<leafList.getAtomCount(); i++) {
-            IVector p = leafList.getAtom(i).getPosition();
+            Vector p = leafList.getAtom(i).getPosition();
             p.setX(2, r0);
         }
         sim.box.trialNotify();

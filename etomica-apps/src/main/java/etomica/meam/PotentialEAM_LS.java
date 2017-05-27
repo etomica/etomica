@@ -5,6 +5,7 @@ import etomica.box.Box;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.potential.PotentialN;
 import etomica.potential.PotentialSoft;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
 
@@ -17,17 +18,17 @@ public class PotentialEAM_LS extends PotentialN implements PotentialSoft{
 
     protected double n, m, eps, a, c, rC1, rC2;
     protected IBoundary boundary; 
-    protected final IVector dr, dR;
-    protected IVector[] gradient;
-    protected IVector[] rhograd;
+    protected final Vector dr, dR;
+    protected Vector[] gradient;
+    protected Vector[] rhograd;
     protected double [][] secondder;
-    protected final IVector Lxyz, drtmp, dRtmp, R1,R2,R3;
+    protected final Vector Lxyz, drtmp, dRtmp, R1,R2,R3;
     protected final int[] nShells;
-    protected final IVector[] a0;
+    protected final Vector[] a0;
     protected final CoordinateDefinition coordinateDefinition;
 
     
-    public PotentialEAM_LS(CoordinateDefinition coordinateDefinition, Space space, double n, double m, double eps, double a, double c, double rC, IVector[] a0) {
+    public PotentialEAM_LS(CoordinateDefinition coordinateDefinition, Space space, double n, double m, double eps, double a, double c, double rC, Vector[] a0) {
         super(space);
         
         this.n = n;
@@ -40,8 +41,8 @@ public class PotentialEAM_LS extends PotentialN implements PotentialSoft{
         rC2 = rC1;
         dr=space.makeVector();
         dR=space.makeVector();
-        gradient=new IVector[0];
-        rhograd=new IVector[0];
+        gradient=new Vector[0];
+        rhograd=new Vector[0];
 		dRtmp = space.makeVector();
 		drtmp = space.makeVector();
         R1 = space.makeVector();
@@ -66,14 +67,14 @@ public class PotentialEAM_LS extends PotentialN implements PotentialSoft{
       double sumV=0;
       double rhoi=0;
       double rij, Rij, Lij;
-      IVector ipos=atoms.getAtom(0).getPosition();
-      IVector Ri = coordinateDefinition.getLatticePosition(atoms.getAtom(0));
-      IVector shiftR = space.makeVector();
+      Vector ipos=atoms.getAtom(0).getPosition();
+      Vector Ri = coordinateDefinition.getLatticePosition(atoms.getAtom(0));
+      Vector shiftR = space.makeVector();
 
       
       for(int j=1;j<atoms.getAtomCount();j++){
-        IVector jpos=atoms.getAtom(j).getPosition();
-        IVector Rj = coordinateDefinition.getLatticePosition(atoms.getAtom(j));
+        Vector jpos=atoms.getAtom(j).getPosition();
+        Vector Rj = coordinateDefinition.getLatticePosition(atoms.getAtom(j));
         dr.Ev1Mv2(ipos, jpos);
         dR.Ev1Mv2(Ri, Rj);
         shiftR.E(dR);
@@ -122,11 +123,11 @@ public class PotentialEAM_LS extends PotentialN implements PotentialSoft{
     }
 
     public double virial(IAtomList atoms) {
-      IVector ipos=atoms.getAtom(0).getPosition();
-      IVector Ri = coordinateDefinition.getLatticePosition(atoms.getAtom(0));
-      IVector gij2b = space.makeVector();
-      IVector gijnb = space.makeVector();
-      IVector shiftR = space.makeVector();
+      Vector ipos=atoms.getAtom(0).getPosition();
+      Vector Ri = coordinateDefinition.getLatticePosition(atoms.getAtom(0));
+      Vector gij2b = space.makeVector();
+      Vector gijnb = space.makeVector();
+      Vector shiftR = space.makeVector();
 
       double rhoi = 0;
       double vir2b = 0;
@@ -136,8 +137,8 @@ public class PotentialEAM_LS extends PotentialN implements PotentialSoft{
       double drhodr;
 
       for(int j=1;j<atoms.getAtomCount();j++){
-        IVector jpos =atoms.getAtom(j).getPosition();
-        IVector Rj = coordinateDefinition.getLatticePosition(atoms.getAtom(j));
+        Vector jpos =atoms.getAtom(j).getPosition();
+        Vector Rj = coordinateDefinition.getLatticePosition(atoms.getAtom(j));
         dr.Ev1Mv2(ipos, jpos);
         dR.Ev1Mv2(Ri, Rj);
         shiftR.E(dR);
@@ -194,19 +195,19 @@ public class PotentialEAM_LS extends PotentialN implements PotentialSoft{
 
     
     
-    public IVector[] gradient(IAtomList atoms) {
+    public Vector[] gradient(IAtomList atoms) {
       if(gradient.length<atoms.getAtomCount()){
-        rhograd=new IVector[atoms.getAtomCount()];
-        gradient=new IVector[atoms.getAtomCount()];
+        rhograd=new Vector[atoms.getAtomCount()];
+        gradient=new Vector[atoms.getAtomCount()];
         for(int j=0;j<atoms.getAtomCount();j++){
           gradient[j]=space.makeVector();
           rhograd[j]=space.makeVector();
         }
       }
       gradient[0].E(0);
-      IVector ipos=atoms.getAtom(0).getPosition();
-      IVector Ri = coordinateDefinition.getLatticePosition(atoms.getAtom(0));
-        IVector shiftR = space.makeVector();
+      Vector ipos=atoms.getAtom(0).getPosition();
+      Vector Ri = coordinateDefinition.getLatticePosition(atoms.getAtom(0));
+        Vector shiftR = space.makeVector();
         double rhoi=0;
     	double dvdr;
         double rij, Rij, Lij;
@@ -215,8 +216,8 @@ public class PotentialEAM_LS extends PotentialN implements PotentialSoft{
         for(int j=1;j<atoms.getAtomCount();j++){
           gradient[j].E(0);
           rhograd[j].E(0);
-          IVector jpos=atoms.getAtom(j).getPosition();
-          IVector Rj = coordinateDefinition.getLatticePosition(atoms.getAtom(j));
+          Vector jpos=atoms.getAtom(j).getPosition();
+          Vector Rj = coordinateDefinition.getLatticePosition(atoms.getAtom(j));
           dr.Ev1Mv2(ipos, jpos);
           dR.Ev1Mv2(Ri, Rj);
           shiftR.E(dR);
@@ -264,7 +265,7 @@ public class PotentialEAM_LS extends PotentialN implements PotentialSoft{
         return gradient;
     }
 
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         return gradient(atoms);
     }
  }

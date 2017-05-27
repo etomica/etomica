@@ -16,7 +16,7 @@ import etomica.api.IIntegratorListener;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMolecular;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.Oxygen;
@@ -204,8 +204,8 @@ public class VirialCO2H2OGCPMX {
         paramsManager.setAgent(speciesWater.getCOMType(), new GCPMAgent(1.0,0,0.610,12.75,0,1.444,1.444,0));
         double qC = Electron.UNIT.toSim(0.6642);
         paramsManager.setAgent(speciesCO2.getAtomType(0), new GCPMAgent(3.193,Kelvin.UNIT.toSim(71.34),0.61/1.0483,15.5,qC,4.05,1.95,16.0/9.0*Kelvin.UNIT.toSim(2.52e4)) {
-            protected final IVector r = space.makeVector();
-            public IVector getParallelAxis(IMolecule mol) {
+            protected final Vector r = space.makeVector();
+            public Vector getParallelAxis(IMolecule mol) {
                 IAtomList atoms = mol.getChildList();
                 r.Ev1Mv2(atoms.getAtom(2).getPosition(),atoms.getAtom(1).getPosition());
                 r.normalize();
@@ -217,7 +217,7 @@ public class VirialCO2H2OGCPMX {
         
         if (nonAdditive != Nonadditive.NONE) {
             MoleculeActionTranslateTo act = new MoleculeActionTranslateTo(space);
-            IVector pos = space.makeVector();
+            Vector pos = space.makeVector();
             double r = 4;
             for (int i=1; i<nPoints; i++) {
                 double theta = 2*i*Math.PI/nPoints;

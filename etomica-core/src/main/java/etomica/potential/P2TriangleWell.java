@@ -8,7 +8,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 /**
@@ -54,7 +54,7 @@ public class P2TriangleWell extends Potential2 {
  
 
     // what could call this?
-    public IVector force(IAtomList pair){
+    public Vector force(IAtomList pair){
         
         IAtom atom0 = pair.getAtom(0);
         IAtom atom1 = pair.getAtom(1);
@@ -119,8 +119,8 @@ public class P2TriangleWell extends Potential2 {
     private double lambda; //wellDiameter = coreDiameter * lambda ;lambda is well width
     private double epsilon;
     private double constant;
-    private final IVector force;
-    private final IVector dr;
+    private final Vector force;
+    private final Vector dr;
     private IBoundary boundary;
 }
 

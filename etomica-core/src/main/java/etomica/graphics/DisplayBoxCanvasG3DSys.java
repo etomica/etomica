@@ -11,6 +11,7 @@ import java.awt.Panel;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import org.jmol.util.Colix;
 import org.jmol.util.Point3f;
 
@@ -18,7 +19,6 @@ import etomica.action.activity.Controller;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IVector;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterCollective;
 import etomica.atom.AtomLeafAgentManager;
@@ -64,13 +64,13 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
     private Triangle[][] planeTriangles;
     protected LineSegment[] lines;
     protected Line[] lineFigures;
-    private IVector[] planeIntersections;
-    private IVector work, work2, work3;
+    private Vector[] planeIntersections;
+    private Vector work, work2, work3;
     private double[] planeAngles;
     private final Space space;
     protected AtomLeafAgentManager<Ball[]> aamOriented;
     protected final AtomTypeAgentManager atomTypeOrientedManager;
-    protected IVector rMin, rMax;
+    protected Vector rMin, rMax;
 
     public DisplayBoxCanvasG3DSys(Simulation sim, DisplayBox _box, Space _space, Controller controller) {
         super(controller);
@@ -103,7 +103,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 
         planes = new Plane[0];
         planeTriangles = new Triangle[0][0];
-        planeIntersections = new IVector[0];
+        planeIntersections = new Vector[0];
         lines = new LineSegment[0];
         lineFigures = new Line[0];
         planeAngles = new double[0];
@@ -122,7 +122,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 	 * Sets the display bounding box.  Atoms outside the box are not draw.  The
 	 * boundary lines are snapped inside the bounding box if they are outside.
 	 */
-    public void setBoundingBox(IVector rMin, IVector rMax) {
+    public void setBoundingBox(Vector rMin, Vector rMax) {
         this.rMin = rMin;
         this.rMax = rMax;
     }
@@ -350,8 +350,8 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		            aamOriented.setAgent(a, ballSites);
 			    }
 			    IOrientation orientation = ((IAtomOriented)a).getOrientation();
-			    IVector direction1 = orientation.getDirection();
-			    IVector direction2 = null;
+			    Vector direction1 = orientation.getDirection();
+			    Vector direction2 = null;
 			    if (orientation instanceof IOrientationFull3D) {
 			        direction2 = ((IOrientationFull3D)orientation).getSecondaryDirection();
 	                work2.E(direction1);
@@ -402,7 +402,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 				LineSegment[] boundaryLines = polytope.getEdges();
 				polytopeLines = new Line[boundaryLines.length];
 				for (int i = 0; i < boundaryLines.length; i++) {
-					IVector[] vertices = boundaryLines[i].getVertices();
+					Vector[] vertices = boundaryLines[i].getVertices();
                     float v0x = (float)rBound(vertices[0].getX(0), 0);
                     float v0y = (float)rBound(vertices[0].getX(1), 1);
                     float v0z = (float)rBound(vertices[0].getX(2), 2);
@@ -419,7 +419,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 			} else {
 				LineSegment[] boundaryLines = polytope.getEdges();
 				for (int i = 0; i < boundaryLines.length; i++) {
-					IVector[] vertices = boundaryLines[i].getVertices();
+					Vector[] vertices = boundaryLines[i].getVertices();
 
                     float v0x = (float)rBound(vertices[0].getX(0), 0);
                     float v0y = (float)rBound(vertices[0].getX(1), 1);
@@ -459,7 +459,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 															// 3-dimensional vectors
 			int j = 0;
 			for (int i = 0; i < space.D(); i++) {
-			    IVector v = boundary.getEdgeVector(i);
+			    Vector v = boundary.getEdgeVector(i);
 			    if (!boundary.getPeriodicity(i)) {
 			        continue;
 			    }
@@ -471,7 +471,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 			gsys.setBoundaryVectors(dvecs);
 		}
 		
-		IVector bounds = boundary.getBoxSize();
+		Vector bounds = boundary.getBoxSize();
 		gsys.setBoundingBox((float) (-bounds.getX(0) * 0.5),
 				(float) (-bounds.getX(1) * 0.5), (float) (-bounds.getX(2) * 0.5),
 				(float) (bounds.getX(0) * 0.5), (float) (bounds.getX(1) * 0.5),
@@ -488,7 +488,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 
     public void addLine(LineSegment newLine) {
         lines = (LineSegment[])Arrays.addObject(lines, newLine);
-        IVector[] endpoints = newLine.getVertices();
+        Vector[] endpoints = newLine.getVertices();
         Point3f s = new Point3f();
         s.x = (float)endpoints[0].getX(0);
         s.y = (float)endpoints[0].getX(1);
@@ -514,7 +514,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
     }
 
     protected synchronized void updateLine(int iLine) {
-        IVector[] endpoints = lines[iLine].getVertices();
+        Vector[] endpoints = lines[iLine].getVertices();
         Line myLine = lineFigures[iLine];
         Point3f s = myLine.getStart();
         s.x = (float)endpoints[0].getX(0);
@@ -555,16 +555,16 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
         LineSegment[] boundaryLines = polytope.getEdges();
         int intersectionCount = 0;
         for (int i = 0; i < boundaryLines.length; i++) {
-            IVector[] vertices = boundaryLines[i].getVertices();
+            Vector[] vertices = boundaryLines[i].getVertices();
             work.Ev1Mv2(vertices[1], vertices[0]);
             // this happens to do what we want
             double alpha = -plane.distanceTo(vertices[0]) / 
                             (plane.distanceTo(work) - plane.getD());
             if (alpha >= 0 && alpha <= 1) {
-                IVector newIntersection;
+                Vector newIntersection;
                 if (planeIntersections.length == intersectionCount) {
                     newIntersection = space.makeVector();
-                    planeIntersections = (IVector[])Arrays.addObject(planeIntersections, newIntersection);
+                    planeIntersections = (Vector[])Arrays.addObject(planeIntersections, newIntersection);
                 }
                 else {
                     newIntersection = planeIntersections[intersectionCount];
@@ -622,7 +622,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
             for (int j=1; j<i; j++) {
                 if (angle < planeAngles[j-1]) {
                     // insert the i point at position j, shift existing points
-                    IVector intersection = planeIntersections[i];
+                    Vector intersection = planeIntersections[i];
                     for (int k=i; k>j; k--) {
                         planeAngles[k-1] = planeAngles[k-2];
                         planeIntersections[k] = planeIntersections[k-1];
@@ -718,7 +718,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 	
 	public static class OrientedFullSite extends OrientedSite {
 	    public final double coord2, coord3;
-	    public OrientedFullSite(IVector coord, Color color, double diameter) {
+	    public OrientedFullSite(Vector coord, Color color, double diameter) {
 	        super(coord.getX(0), color, diameter);
 	        coord2 = coord.getX(1);
             coord3 = coord.getX(2);

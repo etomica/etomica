@@ -4,7 +4,6 @@
 
 package etomica.space;
 
-import etomica.api.IVector;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 
@@ -78,7 +77,7 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
         }
     }
 
-    public void nearestImage(IVector dr) {
+    public void nearestImage(Vector dr) {
         double x = dr.getX(sDim);
         dr.PE(dimensionsHalf);
         dr.mod(dimensions);
@@ -86,7 +85,7 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
         dr.setX(sDim,x);
     }
     
-    public IVector centralImage(IVector r) {
+    public Vector centralImage(Vector r) {
         tempImage.E(r);
         nearestImage(tempImage);
         tempImage.ME(r);
@@ -103,6 +102,6 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
 
     private int sDim;
     private static final long serialVersionUID = 1L;
-    protected final IVector dimensionsHalf;
-    protected final IVector tempImage;
+    protected final Vector dimensionsHalf;
+    protected final Vector tempImage;
 }

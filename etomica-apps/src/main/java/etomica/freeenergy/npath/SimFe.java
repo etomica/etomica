@@ -37,6 +37,7 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformableLattice;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.*;
@@ -72,7 +73,7 @@ public class SimFe extends Simulation {
         box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
-        IVector l = space.makeVector();
+        Vector l = space.makeVector();
         l.E(10);
         for (int i=0; i<=offsetDim; i++) {
             l.setX(i,20);
@@ -107,7 +108,7 @@ public class SimFe extends Simulation {
             double coa = Math.sqrt(8.0/3.0);
             double ac = Math.pow(4/(Math.sqrt(3)*density*coa), 1.0/3.0);
             double cc = coa*ac;
-            IVector[] boxDim = new IVector[3];
+            Vector[] boxDim = new Vector[3];
             boxDim[0] = space.makeVector(new double[]{2*nc*ac, 0, 0});
             boxDim[1] = space.makeVector(new double[]{-2*nc*ac*Math.cos(Degree.UNIT.toSim(60)), 2*nc*ac*Math.sin(Degree.UNIT.toSim(60)), 0});
             boxDim[2] = space.makeVector(new double[]{0, 0, nc*cc});
@@ -117,11 +118,11 @@ public class SimFe extends Simulation {
             BoundaryDeformableLattice boundary = new BoundaryDeformableLattice(primitive, nCells);
             boundary.setTruncationRadius(rc);
             System.out.println(Arrays.toString(nCells));
-            IVector edge0 = boundary.getEdgeVector(0);
+            Vector edge0 = boundary.getEdgeVector(0);
             System.out.println(Math.sqrt(edge0.squared())+" "+edge0);
-            IVector edge1 = boundary.getEdgeVector(1);
+            Vector edge1 = boundary.getEdgeVector(1);
             System.out.println(Math.sqrt(edge0.squared())+" "+edge1);
-            IVector edge2 = boundary.getEdgeVector(2);
+            Vector edge2 = boundary.getEdgeVector(2);
             System.out.println(Math.sqrt(edge2.squared())+" "+edge2);
     
             box.setBoundary(boundary);
@@ -164,7 +165,7 @@ public class SimFe extends Simulation {
 
         potentialMaster.addPotential(potential,new IAtomType[]{leafType,leafType});
 
-        IVector offset = space.makeVector();
+        Vector offset = space.makeVector();
         offset.setX(offsetDim, box.getBoundary().getBoxSize().getX(offsetDim)*0.5);
         p1ImageHarmonic = new P1ImageHarmonic(space, offset, w, true);
         potentialMaster.addPotential(p1ImageHarmonic, new IAtomType[]{leafType});
@@ -200,7 +201,7 @@ public class SimFe extends Simulation {
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         potentialMaster.getNeighborManager(box).reset();
     
-        IVector boxLength = box.getBoundary().getBoxSize();
+        Vector boxLength = box.getBoundary().getBoxSize();
         double lMin = boxLength.getX(0);
         if (boxLength.getX(1) < lMin) lMin = boxLength.getX(1);
         if (boxLength.getX(2) < lMin) lMin = boxLength.getX(2);

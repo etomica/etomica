@@ -10,7 +10,7 @@ import java.io.IOException;
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.data.DataInfo;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
@@ -71,7 +71,7 @@ public class NormalModesPotential implements NormalModes {
         //this function returns phi_{alpha,beta}, as defined in Dove Eq. 6.15
         FunctionData<Object> function = new FunctionData<Object>() {
             public IData f(Object obj) {
-                IVector r = (IVector)obj;
+                Vector r = (Vector)obj;
                 tensor.x.Ev1v2(r, r);
                 double r2 = r.squared();
                 double dW = potential.du(r2);
@@ -90,7 +90,7 @@ public class NormalModesPotential implements NormalModes {
         
         LatticeSumCrystal summer = new LatticeSumCrystal(lattice);
         summer.setMaxLatticeShell(maxLatticeShell);
-        IVector kVector = lattice.getSpace().makeVector();
+        Vector kVector = lattice.getSpace().makeVector();
         
         
         

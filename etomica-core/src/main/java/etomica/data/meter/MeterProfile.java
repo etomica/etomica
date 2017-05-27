@@ -6,7 +6,7 @@ package etomica.data.meter;
 
 import etomica.box.Box;
 import etomica.api.IRandom;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.RandomPositionSource;
 import etomica.box.RandomPositionSourceRectangular;
 import etomica.data.DataSourceIndependent;
@@ -101,7 +101,7 @@ public class MeterProfile implements IEtomicaDataSource, DataSourceIndependent, 
         
         for (int i=0; i<y.length; i++) {
             double x = xData.getValue(i);
-            IVector pos = positionSource.randomPosition();
+            Vector pos = positionSource.randomPosition();
             pos.setX(profileDim, x);
             y[i] = meter.getData(pos).getValue(0);
         }

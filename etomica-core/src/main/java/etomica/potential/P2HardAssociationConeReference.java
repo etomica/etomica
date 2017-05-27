@@ -6,7 +6,7 @@ package etomica.potential;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
 import etomica.space.Space;
 import etomica.units.Angle;
@@ -25,7 +25,7 @@ public class P2HardAssociationConeReference extends Potential2 {
     public static boolean FLAG = false;
     private double sigma, sigmaSquared;
     private double ec2;
-    private final IVector dr;
+    private final Vector dr;
     private IBoundary boundary;
     
     public P2HardAssociationConeReference(Space space, double sigma) {
@@ -57,10 +57,10 @@ public class P2HardAssociationConeReference extends Potential2 {
                 
                   
         if (r2 < sigmaSquared) {
-        	IVector e1A = atom0.getOrientation().getDirection();
+        	Vector e1A = atom0.getOrientation().getDirection();
             double er1A = e1A.dot(dr);//vector of site A on atom0
             double er1B = -1*er1A;//vector of site B on atom0
-            IVector e2A = atom1.getOrientation().getDirection();
+            Vector e2A = atom1.getOrientation().getDirection();
             double er2A = e2A.dot(dr);//vector of site A on atom1
             double er2B = -1*er2A;//vector of site B on atom1
             if(er1A*er2B < 0.0 && er1A*er1A > ec2*r2 && er2B*er2B > ec2*r2) eTot = Double.POSITIVE_INFINITY;

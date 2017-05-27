@@ -5,7 +5,7 @@
 package etomica.modules.interfacial;
 import java.util.Arrays;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.data.DataSourceIndependent;
 import etomica.data.DataSourceTensorVirialHard;
 import etomica.data.DataTag;
@@ -52,7 +52,7 @@ public class DataSourceTensorVirialHardProfile extends DataSourceTensorVirialHar
         double elapsedTime = currentTime - lastProfileTime;
         lastProfileTime = currentTime;
         
-        IVector boxDim = integratorHard.getBox().getBoundary().getBoxSize();
+        Vector boxDim = integratorHard.getBox().getBoundary().getBoxSize();
         if (L != boxDim.getX(0)) {
             // the data we collected is bogus.  reset and return NaN.
             setupProfileData();
@@ -159,7 +159,7 @@ public class DataSourceTensorVirialHardProfile extends DataSourceTensorVirialHar
     }
 
     protected void setupProfileData() {
-        IVector boxDim = integratorHard.getBox().getBoundary().getBoxSize();
+        Vector boxDim = integratorHard.getBox().getBoundary().getBoxSize();
         L = boxDim.getX(0);
         Li = 1.0/L;
         halfL = 0.5*L;

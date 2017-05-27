@@ -13,7 +13,7 @@ import etomica.api.IAtomType;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.association.AssociationHelperMolecule;
 import etomica.association.AssociationManagerMolecule;
 import etomica.association.BiasVolumeAceticAcid;
@@ -104,7 +104,7 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
         PotentialMaster potentialMaster = new PotentialMaster();
         //setRandom(new RandomNumberGenerator(3));
         IAtomPositionDefinition positionDefinition = new IAtomPositionDefinition() {//anonymous class
-			public IVector position(IMolecule molecule) {
+			public Vector position(IMolecule molecule) {
 				return molecule.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition();
 			}
 		};

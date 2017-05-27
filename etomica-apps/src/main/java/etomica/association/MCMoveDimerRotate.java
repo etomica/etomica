@@ -15,6 +15,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.cell.PotentialMasterCell;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.RotationTensor;
 
@@ -38,11 +39,11 @@ public class MCMoveDimerRotate extends MCMoveBoxStep {
     protected Space space;
     protected final PotentialMasterCell potentialMaster;
     protected final Api1ACell neighborIterator;
-    protected final IVector dr;
+    protected final Vector dr;
     protected final IPotentialAtomic dimerPotential;
     protected IAtom atom1;
     protected transient RotationTensor rotationTensor;
-    protected final IVector r0;
+    protected final Vector r0;
     protected AssociationManager associationManager;
 
     public MCMoveDimerRotate(Simulation sim, PotentialMasterCell potentialMaster, Space _space, IPotentialAtomic dimerPotential) {
@@ -108,7 +109,7 @@ public class MCMoveDimerRotate extends MCMoveBoxStep {
         return true;
     }//end of doTrial
     protected void doTransform(IAtom a) {
-            IVector r = a.getPosition();
+            Vector r = a.getPosition();
             r.ME(r0);
             box.getBoundary().nearestImage(r);
             rotationTensor.transform(r);

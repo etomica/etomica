@@ -5,7 +5,7 @@
 package etomica.modules.mu;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
@@ -96,7 +96,7 @@ public class Mu extends Simulation {
         //construct box
 	    box = new Box(new BoundaryRectangularSlit(0, space), space);
         addBox(box);
-        IVector dim = space.makeVector();
+        Vector dim = space.makeVector();
         double xdim = space.D() == 3 ? 30 : 50;
         dim.E(0.5*xdim);
         dim.setX(0, xdim);

@@ -10,7 +10,7 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -39,8 +39,8 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
     protected final AtomIteratorLeafAtoms affectedAtomIterator;
     protected double temperature;
     protected final CoordinateDefinition coordinateDefinition;
-    protected final IVector dr;
-    protected final IVector nominalBoxSize;
+    protected final Vector dr;
+    protected final Vector nominalBoxSize;
 
     private transient double uOld, vOld, vNew, vScale;
     private transient double uNew = Double.NaN, latticeScale;
@@ -139,10 +139,10 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
         latticeScale = Math.exp((pressure*(vNew-vOld)+(uLatNew-uLatOld))/((nAtoms)*temperature*D))/rScale;
 //        System.out.println("ls "+latticeScale);
 
-        IVector boxSize = box.getBoundary().getBoxSize();
+        Vector boxSize = box.getBoundary().getBoxSize();
         for (int i=0; i<leafList.getAtomCount(); i++) {
             IAtom atomi = leafList.getAtom(i);
-            IVector site = coordinateDefinition.getLatticePosition(atomi);
+            Vector site = coordinateDefinition.getLatticePosition(atomi);
 //            if (i==0) {
 //                System.out.println("lattice 0 "+site);
 //            }
@@ -181,11 +181,11 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
     
     public void rejectNotify() {
         IAtomList leafList = box.getLeafList();
-        IVector boxSize = box.getBoundary().getBoxSize();
+        Vector boxSize = box.getBoundary().getBoxSize();
         latticeScale = 1.0 / latticeScale;
         for (int i=0; i<leafList.getAtomCount(); i++) {
             IAtom atomi = leafList.getAtom(i);
-            IVector site = coordinateDefinition.getLatticePosition(atomi);
+            Vector site = coordinateDefinition.getLatticePosition(atomi);
             dr.E(site);
             dr.TE(boxSize);
             dr.DE(nominalBoxSize);

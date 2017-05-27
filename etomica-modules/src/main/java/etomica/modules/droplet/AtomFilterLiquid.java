@@ -6,7 +6,7 @@ package etomica.modules.droplet;
 
 import etomica.api.IAtom;
 import etomica.api.IMolecule;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomFilterCollective;
 import etomica.data.IDataSource;
 import etomica.space.Space;
@@ -36,7 +36,7 @@ public class AtomFilterLiquid implements AtomFilterCollective {
     }
     
     public boolean accept(IAtom a) {
-        IVector p = a.getPosition();
+        Vector p = a.getPosition();
         work.E(p);
         work.DE(axis);
         double r2 = work.squared();
@@ -50,6 +50,6 @@ public class AtomFilterLiquid implements AtomFilterCollective {
     private static final long serialVersionUID = 1L;
     protected double cutoff, cutoffSq;
     protected final IDataSource meter;
-    protected final IVector axis;
-    protected final IVector work;
+    protected final Vector axis;
+    protected final Vector work;
 }

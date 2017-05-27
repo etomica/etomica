@@ -8,6 +8,7 @@ package etomica.models.nitrogen;
 import etomica.api.*;
 import etomica.box.Box;
 import etomica.potential.PotentialMolecular;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.units.Kelvin;
 
@@ -29,8 +30,8 @@ public class P2NitrogenAnisotropic extends PotentialMolecular {
 		com1 = space.makeVector();
 		com2 = space.makeVector();
 		
-		zk = new IVector[2];
-		zl = new IVector[2];
+		zk = new Vector[2];
+		zl = new Vector[2];
 		
 		for(int i=0; i<2; i++){
 			zk[i] = space.makeVector();
@@ -65,14 +66,14 @@ public class P2NitrogenAnisotropic extends PotentialMolecular {
 		IMolecule nitrogenb = pair.getMolecule(1);
 		
 		// to compute the midpoint distance between the two
-		IVector pos1 = (nitrogena.getChildList().getAtom(1)).getPosition();
-		IVector pos2 = (nitrogenb.getChildList().getAtom(1)).getPosition();
+		Vector pos1 = (nitrogena.getChildList().getAtom(1)).getPosition();
+		Vector pos2 = (nitrogenb.getChildList().getAtom(1)).getPosition();
 		
 		com1.E(pos1);
 		com2.E(pos2);
 		
-		IVector diff1 = space.makeVector();
-		IVector diff2 = space.makeVector();
+		Vector diff1 = space.makeVector();
+		Vector diff2 = space.makeVector();
 		
 		diff1.Ev1Mv2(com1, nitrogena.getChildList().getAtom(0).getPosition());
 		diff2.Ev1Mv2(com2, nitrogenb.getChildList().getAtom(0).getPosition());
@@ -103,15 +104,15 @@ public class P2NitrogenAnisotropic extends PotentialMolecular {
 		 * refer to SpeciesN2.java class
 		 * 
 		 */
-        IVector Pa1l = nitrogena.getChildList().getAtom(2).getPosition();
-        IVector Pa2l = nitrogena.getChildList().getAtom(3).getPosition();
-        IVector Pa1r = nitrogena.getChildList().getAtom(4).getPosition();
-        IVector Pa2r = nitrogena.getChildList().getAtom(5).getPosition();
+        Vector Pa1l = nitrogena.getChildList().getAtom(2).getPosition();
+        Vector Pa2l = nitrogena.getChildList().getAtom(3).getPosition();
+        Vector Pa1r = nitrogena.getChildList().getAtom(4).getPosition();
+        Vector Pa2r = nitrogena.getChildList().getAtom(5).getPosition();
         
-        IVector Pb1l = nitrogenb.getChildList().getAtom(2).getPosition();
-        IVector Pb2l = nitrogenb.getChildList().getAtom(3).getPosition();
-        IVector Pb1r = nitrogenb.getChildList().getAtom(4).getPosition();
-        IVector Pb2r = nitrogenb.getChildList().getAtom(5).getPosition();
+        Vector Pb1l = nitrogenb.getChildList().getAtom(2).getPosition();
+        Vector Pb2l = nitrogenb.getChildList().getAtom(3).getPosition();
+        Vector Pb1r = nitrogenb.getChildList().getAtom(4).getPosition();
+        Vector Pb2r = nitrogenb.getChildList().getAtom(5).getPosition();
         
         double r2QQ = 0*2.25;
         
@@ -131,7 +132,7 @@ public class P2NitrogenAnisotropic extends PotentialMolecular {
         	zl[1].Ea1Tv1(-1.0, zl[0]);
         	
     		for (int i=0; i<2; i++){
-    			IVector dist = (nitrogenb.getChildList().getAtom(i)).getPosition();
+    			Vector dist = (nitrogenb.getChildList().getAtom(i)).getPosition();
     			  			
     			for (int j=0; j<2; j++){
     				
@@ -227,7 +228,7 @@ public class P2NitrogenAnisotropic extends PotentialMolecular {
         	zl[1].Ea1Tv1(-1.0, zl[0]);
         	
     		for (int i=0; i<2; i++){
-    			IVector dist = (nitrogenb.getChildList().getAtom(i)).getPosition();
+    			Vector dist = (nitrogenb.getChildList().getAtom(i)).getPosition();
     			shift.TE(-1.0);
     			shift.PE(dist);
     			
@@ -403,7 +404,7 @@ public class P2NitrogenAnisotropic extends PotentialMolecular {
     	
     }
     
-    private double calcAnisotropicRho(IVector zk, IVector zl, IVector rkl){
+    private double calcAnisotropicRho(Vector zk, Vector zl, Vector rkl){
     	/*
     	 * rho1 and rho2 are from Refenrence 2.
     	 */
@@ -442,9 +443,9 @@ public class P2NitrogenAnisotropic extends PotentialMolecular {
 	
 	protected double[] C;
 	
-	protected final IVector work, shift;
-	protected final IVector com1, com2;
-	protected final IVector[] zk, zl;
-	protected final IVector rkl;
+	protected final Vector work, shift;
+	protected final Vector com1, com2;
+	protected final Vector[] zk, zl;
+	protected final Vector rkl;
 	public double rC =1.0;
 }

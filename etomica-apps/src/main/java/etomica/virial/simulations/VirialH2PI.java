@@ -55,7 +55,7 @@ import etomica.potential.P2HydrogenPatkowskiIso;
 import etomica.potential.P3CPSNonAdditiveHe;
 import etomica.potential.P3CPSNonAdditiveHeSimplified;
 import etomica.potential.PotentialGroup;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresHetero;
@@ -635,7 +635,7 @@ public class VirialH2PI {
 
 			if ((subtractWhat != subOptions.none) || !pairOnly) {
 				AtomActionTranslateBy translator = new AtomActionTranslateBy(space);
-				IVector groupTranslationVector = translator.getTranslationVector();
+				Vector groupTranslationVector = translator.getTranslationVector();
 				MoleculeChildAtomAction moveMoleculeAction = new MoleculeChildAtomAction(translator);
 				IMoleculeList molecules = sim.box[1].getMoleculeList();
 				double r = 4;
@@ -646,7 +646,7 @@ public class VirialH2PI {
 					groupTranslationVector.setX(1, r*Math.sin(2*(i-1)*Math.PI/(nPoints-1)));
 					moveMoleculeAction.actionPerformed(molecules.getMolecule(i));
 					if (nBeads>1) {
-						IVector v = molecules.getMolecule(i).getChildList().getAtom(1).getPosition();
+						Vector v = molecules.getMolecule(i).getChildList().getAtom(1).getPosition();
 						v.TE(0.95);
 					}
 				}

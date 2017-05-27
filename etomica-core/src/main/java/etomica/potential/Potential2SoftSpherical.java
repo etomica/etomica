@@ -7,7 +7,7 @@ package etomica.potential;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
 
@@ -23,7 +23,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
    
     public Potential2SoftSpherical(Space space) {
         super(space);
-        gradient = new IVector[2];
+        gradient = new Vector[2];
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();
         dr = space.makeVector();
@@ -81,7 +81,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
     /**
      * Gradient of the pair potential as given by the du(double) method.
      */
-    public IVector[] gradient(IAtomList atoms) {
+    public Vector[] gradient(IAtomList atoms) {
         dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
@@ -95,7 +95,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
         return gradient;
     }
     
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         gradient(atoms);
         pressureTensor.PEv1v2(gradient[0],dr);
         return gradient;
@@ -119,8 +119,8 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
         boundary = box.getBoundary();
     }
 
-    protected final IVector[] gradient;
+    protected final Vector[] gradient;
     protected IBoundary boundary;
-    protected final IVector dr;
+    protected final Vector dr;
     
 }//end of Potential2SoftSpherical

@@ -9,6 +9,7 @@ import etomica.api.*;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.potential.IPotentialMolecularSecondDerivative;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.RotationTensor3D;
@@ -23,13 +24,13 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
     public P2Water4PSoft(final Space space, double sigma, double epsilon,
                          double chargeH, double rCut, IAtomPositionDefinition positionDefinition) {
         super(space, sigma, epsilon, chargeH,rCut, positionDefinition);
-        gradient = new IVector[2];
+        gradient = new Vector[2];
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();
-		torque = new IVector[2];
+		torque = new Vector[2];
 		torque[0] = space.makeVector();
 		torque[1] = space.makeVector();
-		tau = new IVector[2];
+		tau = new Vector[2];
 		tau[0] = space.makeVector();
 		tau[1] = space.makeVector();
 		secondDerivative = new Tensor[3];
@@ -55,11 +56,11 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 		dr1 = space.makeVector();
 		dr0 = space.makeVector();
 		dr = space.makeVector();
-		gradientAndTorque = new IVector[][]{gradient,torque};
+		gradientAndTorque = new Vector[][]{gradient,torque};
 		epsilon48 = epsilon*48.0;
 		
 		//debug only
-		a = new IVector[2][4];
+		a = new Vector[2][4];
 		for(int i=0;i<2;i++){
 			for(int j=0;j<4;j++){
 			a[i][j] = space.makeVector();
@@ -68,13 +69,13 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 		centerMass = space.makeVector();//debug only
     }
 
-    public IVector[][] gradientAndTorque(IMoleculeList pair){
+    public Vector[][] gradientAndTorque(IMoleculeList pair){
         IMolecule water1 = pair.getMolecule(0);
         IMolecule water2 = pair.getMolecule(1);
 
         //compute O-O distance to consider truncation	
-        IVector O1r = (water1.getChildList().getAtom(2)).getPosition();
-        IVector O2r = (water2.getChildList().getAtom(2)).getPosition();
+        Vector O1r = (water1.getChildList().getAtom(2)).getPosition();
+        Vector O2r = (water2.getChildList().getAtom(2)).getPosition();
 
         work.Ev1Mv2(O1r, O2r);
         shift.Ea1Tv1(-1,work);
@@ -111,12 +112,12 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
         work.XE(gradient[0]);
         torque[0].E(work);
         
-		IVector H11r = water1.getChildList().getAtom(0).getPosition();
-		IVector H12r = water1.getChildList().getAtom(1).getPosition();
-		IVector H21r = water2.getChildList().getAtom(0).getPosition();
-		IVector H22r = water2.getChildList().getAtom(1).getPosition();
-        IVector M1r = water1.getChildList().getAtom(3).getPosition();
-        IVector M2r = water2.getChildList().getAtom(3).getPosition();
+		Vector H11r = water1.getChildList().getAtom(0).getPosition();
+		Vector H12r = water1.getChildList().getAtom(1).getPosition();
+		Vector H21r = water2.getChildList().getAtom(0).getPosition();
+		Vector H22r = water2.getChildList().getAtom(1).getPosition();
+        Vector M1r = water1.getChildList().getAtom(3).getPosition();
+        Vector M2r = water2.getChildList().getAtom(3).getPosition();
         
         // M1-M2
         work.Ev1Mv2(M1r, M2r);
@@ -246,8 +247,8 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 	   secondDerivative[2].E(0);
 	   IMolecule water1 = pair.getMolecule(0);
 	   IMolecule water2 = pair.getMolecule(1);
-	   IVector O1 = water1.getChildList().getAtom(2).getPosition();
-	   IVector O2 = water2.getChildList().getAtom(2).getPosition();
+	   Vector O1 = water1.getChildList().getAtom(2).getPosition();
+	   Vector O2 = water2.getChildList().getAtom(2).getPosition();
 	   
 	   work.Ev1Mv2(O1, O2);
 	   shift.Ea1Tv1(-1,work);
@@ -293,8 +294,8 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 	   //debug only TODO
 	   double prec = 1E-4;
 	   if(false){//dtau finite test
-	   IVector tau0 = space.makeVector();
-	   IVector taui = space.makeVector();
+	   Vector tau0 = space.makeVector();
+	   Vector taui = space.makeVector();
 	   for(int i=0;i<3;i++){
 	   tau0.E(gradientAndTorque(pair)[1][0]);
 	   doRotation(i,water1,1,prec);
@@ -308,8 +309,8 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 	   }
 	   
 	   if(false){//dtau finite test
-	   IVector tau0 = space.makeVector();
-	   IVector taui = space.makeVector();
+	   Vector tau0 = space.makeVector();
+	   Vector taui = space.makeVector();
 	   for(int i=0;i<3;i++){
 	   tau0.E(gradientAndTorque(pair)[1][1]);
 	   doRotation(i,water2,1,prec);
@@ -336,20 +337,20 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 	   Tensor3D Rk_ = new Tensor3D();
 	   Tensor3D Rkp = new Tensor3D(); 
 	   Tensor3D Rkp_ = new Tensor3D();
-	   IVector Xk = space.makeVector();
-	   IVector Xkp = space.makeVector();
+	   Vector Xk = space.makeVector();
+	   Vector Xkp = space.makeVector();
 	   AtomPositionCOM com_0 = new AtomPositionCOM(space);
-	   IVector comk = com_0.position(mol0);
+	   Vector comk = com_0.position(mol0);
 	   AtomPositionCOM com_1 = new AtomPositionCOM(space);
-	   IVector comkp = com_1.position(mol1);
+	   Vector comkp = com_1.position(mol1);
 	   int numSites0 = mol0.getChildList().getAtomCount();
 	   int numSites1 = mol1.getChildList().getAtomCount();
-	   IVector f0 = space.makeVector();
-	   IVector f1 = space.makeVector();
+	   Vector f0 = space.makeVector();
+	   Vector f1 = space.makeVector();
 //	   IVectorMutable torque0 = space.makeVector();
 //	   IVectorMutable torque1 = space.makeVector();
-	   IVector fkp = space.makeVector();
-	   IVector fk = space.makeVector();
+	   Vector fkp = space.makeVector();
+	   Vector fk = space.makeVector();
 	   
 	   D3rr.E(0);
 	   D3rri.E(0);
@@ -361,7 +362,7 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 	   for (int atomk=0; atomk < numSites0; atomk++){ 
 		   fk.E(0);//force on atomk
 		   IAtom atom0 = mol0.getChildList().getAtom(atomk);
-		   IVector posk = atom0.getPosition();
+		   Vector posk = atom0.getPosition();
 		   Xk.Ev1Mv2(posk, comk);
 		   boundary.nearestImage(Xk);
 		   Rk.setComponent(0,0,0.0); Rk.setComponent(1,1,0.0);	Rk.setComponent(2,2,0.0);
@@ -371,7 +372,7 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 		   
    			for (int atomkp=0; atomkp < numSites1; atomkp++){  
    			IAtom atom1 = mol1.getChildList().getAtom(atomkp);
-   			IVector poskp = atom1.getPosition();
+   			Vector poskp = atom1.getPosition();
    			Xkp.Ev1Mv2(poskp, comkp);
    			boundary.nearestImage(Xkp);
 
@@ -453,8 +454,8 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
   			D3ES.E(0);
   			IMolecule water1 = atom0.getParentGroup();
   			IMolecule water2 = atom1.getParentGroup();
-  			IVector O1 = (water1.getChildList().getAtom(2)).getPosition();
-  			IVector O2 = (water2.getChildList().getAtom(2)).getPosition();
+  			Vector O1 = (water1.getChildList().getAtom(2)).getPosition();
+  			Vector O2 = (water2.getChildList().getAtom(2)).getPosition();
 
   			work.Ev1Mv2(O1, O2);
   			shift.Ea1Tv1(-1,work);
@@ -511,12 +512,12 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
   	}; 
   	
   	
-  	public IVector pairForce(IAtom atom0, IAtom atom1 ){
+  	public Vector pairForce(IAtom atom0, IAtom atom1 ){
   		fWork.E(0);
   		IMolecule water1 = atom0.getParentGroup();
   		IMolecule water2 = atom1.getParentGroup();
-  		IVector O1 = (water1.getChildList().getAtom(2)).getPosition();
-  		IVector O2 = (water2.getChildList().getAtom(2)).getPosition();
+  		Vector O1 = (water1.getChildList().getAtom(2)).getPosition();
+  		Vector O2 = (water2.getChildList().getAtom(2)).getPosition();
 
   		work.Ev1Mv2(O1, O2);
   		shift.Ea1Tv1(-1,work);
@@ -553,13 +554,13 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
   				
   	}
     
-    public IVector[] gradient(IMoleculeList atoms) {
+    public Vector[] gradient(IMoleculeList atoms) {
         // do extra work to calculate torque
         gradientAndTorque(atoms);
         return gradient;
     }
     
-    public IVector[] gradient(IMoleculeList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IMoleculeList atoms, Tensor pressureTensor) {
         gradientAndTorque(atoms);
         //FIXME  
         //pressureTensor.PEv1v2(gradient[0],dr);
@@ -589,7 +590,7 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
     	IAtomList childList =  molecule.getChildList();
             for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
                 IAtom atom = childList.getAtom(iChild);
-                IVector r = atom.getPosition();
+                Vector r = atom.getPosition();
                 r.ME(centerMass);
                 boundary.nearestImage(r);
                 rotationTensor3D.transform(r);
@@ -607,11 +608,11 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 	//debug only  TODO
 	
     private static final long serialVersionUID = 1L;
-	protected final IVector[] gradient, torque,tau;
-	protected final IVector[][] gradientAndTorque;
+	protected final Vector[] gradient, torque,tau;
+	protected final Vector[][] gradientAndTorque;
 	protected final Tensor[] secondDerivative, tmpSecondD ;	
 	protected double epsilon48;
-	protected final IVector fWork,dr,dr0,dr1;
+	protected final Vector fWork,dr,dr0,dr1;
 	protected  final Tensor tmpDrr;
 	protected final Tensor[] tmpTensor;
 	
@@ -619,8 +620,8 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 	
 	
 	protected transient RotationTensor3D rotationTensor3D;//debug only
-	protected IVector centerMass;//debug only
-	protected final IVector[][] a;//debug only
+	protected Vector centerMass;//debug only
+	protected final Vector[][] a;//debug only
 	
 //	protected AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> atomAgentManager;
 	

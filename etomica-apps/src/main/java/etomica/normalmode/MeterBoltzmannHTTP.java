@@ -15,6 +15,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.units.Null;
 import etomica.util.HistogramCollapsing;
@@ -84,7 +85,7 @@ public class MeterBoltzmannHTTP implements IEtomicaDataSource {
         
         for (int j=0; j<atoms.getAtomCount(); j++) {
             IAtom jRealAtom = atoms.getAtom(j);
-            IVector pos = pretendAtoms.getAtom(j).getPosition();
+            Vector pos = pretendAtoms.getAtom(j).getPosition();
             pos.Ea1Tv1(1-fac, coordinateDefinition.getLatticePosition(jRealAtom));
             pos.PEa1Tv1(+fac, jRealAtom.getPosition());
         }
@@ -168,7 +169,7 @@ public class MeterBoltzmannHTTP implements IEtomicaDataSource {
         IAtomList pretendAtoms = pretendBox.getLeafList();
         for (int j=0; j<atoms.getAtomCount(); j++) {
             IAtom jRealAtom = atoms.getAtom(j);
-            IVector pos = pretendAtoms.getAtom(j).getPosition();
+            Vector pos = pretendAtoms.getAtom(j).getPosition();
             pos.E(coordinateDefinition.getLatticePosition(jRealAtom));
         }
 

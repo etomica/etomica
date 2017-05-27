@@ -13,7 +13,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.space.Space;
@@ -35,7 +35,7 @@ public class P3CPSNonAdditiveHeSimplified extends Potential implements Potential
         drAB = space.makeVector();
         drBC = space.makeVector();
         drAC = space.makeVector();
-        gradient = new IVector[3];
+        gradient = new Vector[3];
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();
         gradient[2] = space.makeVector();
@@ -217,11 +217,11 @@ public class P3CPSNonAdditiveHeSimplified extends Potential implements Potential
         return Double.POSITIVE_INFINITY;
     }
 
-    public IVector[] gradient(IAtomList atoms) {
+    public Vector[] gradient(IAtomList atoms) {
        throw new RuntimeException("Sorry, no gradient available yet");
     }
 
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         return gradient(atoms);
     }
 
@@ -247,7 +247,7 @@ public class P3CPSNonAdditiveHeSimplified extends Potential implements Potential
         atoms.add(atom1);
         atoms.add(atom2);
         
-        double a; double U; IVector r0; IVector r1; IVector r2;
+        double a; double U; Vector r0; Vector r1; Vector r2;
         boolean test = true;
         if (test) {
 	        
@@ -387,9 +387,9 @@ System.out.println();
        
     }
     
-    protected final IVector drAB, drAC, drBC;
+    protected final Vector drAB, drAC, drBC;
     protected IBoundary boundary;
-    protected final IVector[] gradient;
+    protected final Vector[] gradient;
     public static boolean bigAngle;
     
     

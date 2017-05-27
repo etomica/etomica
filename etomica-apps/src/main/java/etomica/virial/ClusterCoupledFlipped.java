@@ -7,7 +7,7 @@ package etomica.virial;
 import etomica.api.IAtomList;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.space.Space;
@@ -119,7 +119,7 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
     }
     
     protected void flip(IMolecule flippedMolecule) {
-        IVector COM = positionDefinition.position(flippedMolecule);
+        Vector COM = positionDefinition.position(flippedMolecule);
 		IAtomList childAtoms = flippedMolecule.getChildList();
 		for (int i = 0; i < childAtoms.getAtomCount(); i++) {
 		    childAtomVector.Ea1Tv1(2,COM);
@@ -137,7 +137,7 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
     protected long cPairID = -1, lastCPairID = -1;
     protected double value, lastValue;
     protected final boolean[] flippedAtoms;
-    private IVector childAtomVector;
+    private Vector childAtomVector;
     protected IAtomPositionDefinition positionDefinition;
     protected final double minFlipDistance;
 }

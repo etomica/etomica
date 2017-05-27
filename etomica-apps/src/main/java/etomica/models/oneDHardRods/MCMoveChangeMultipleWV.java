@@ -6,13 +6,13 @@ package etomica.models.oneDHardRods;
 
 import etomica.api.*;
 import etomica.box.Box;
-import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
+import etomica.space.Vector;
 
 /**
  * A Monte Carlo move which selects a wave vector, and changes the normal modes
@@ -35,7 +35,7 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
     protected final MeterPotentialEnergy energyMeter;
     private double[][][] eigenVectors;
     private double[][] omega2, oneOverOmega2;
-    private IVector[] waveVectors;
+    private Vector[] waveVectors;
     private double[] waveVectorCoefficients, sqrtWVC;
     int changedWV;
     int[] changeableWV;  //all wvs from this are changed.
@@ -105,8 +105,8 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
      * 
      * @param wv
      */
-    public void setWaveVectors(IVector[] wv){
-        waveVectors = new IVector[wv.length];
+    public void setWaveVectors(Vector[] wv){
+        waveVectors = new Vector[wv.length];
         waveVectors = wv;
     }
     public void setWaveVectorCoefficients(double[] coeff){

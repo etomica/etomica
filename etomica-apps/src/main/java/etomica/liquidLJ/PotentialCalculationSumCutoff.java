@@ -4,6 +4,7 @@ import etomica.api.*;
 import etomica.box.Box;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialCalculation;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 /**
@@ -76,7 +77,7 @@ public class PotentialCalculationSumCutoff implements PotentialCalculation {
 
 	
 	protected double[] uSums, vSums, r2Cuts;
-	protected final IVector dr;
+	protected final Vector dr;
 	protected Box box;
 	protected IBoundary boundary;
 }

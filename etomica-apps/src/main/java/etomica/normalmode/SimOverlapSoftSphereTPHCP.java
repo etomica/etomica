@@ -10,7 +10,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.BoxAgentManager;
 import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.AccumulatorAverageFixed;
@@ -81,7 +81,7 @@ public class SimOverlapSoftSphereTPHCP extends Simulation {
         double c = Math.sqrt(8.0/3.0)*a;
         int nC = (int)Math.ceil(Math.pow(numAtoms/2, 1.0/3.0));
         System.out.println("nC: " + nC);
-		IVector[] boxDim = new IVector[3];
+		Vector[] boxDim = new Vector[3];
 		boxDim[0] = space.makeVector(new double[]{nC*a, 0, 0});
 		boxDim[1] = space.makeVector(new double[]{-nC*a*Math.cos(Degree.UNIT.toSim(60)), nC*a*Math.sin(Degree.UNIT.toSim(60)), 0});
 		boxDim[2] = space.makeVector(new double[]{0, 0, nC*c});

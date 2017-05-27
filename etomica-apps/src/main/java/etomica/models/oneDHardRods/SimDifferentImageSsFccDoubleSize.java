@@ -15,7 +15,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.data.DataPump;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -141,7 +141,7 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
         
         double primitiveLength = Math.pow(4.0 / density, 1.0 / 3.0);
         bdryRef = new BoundaryRectangularPeriodic(space, 1.0);
-        IVector edges = new Vector3D();
+        Vector edges = new Vector3D();
         double[] lengths = new double[3];
         lengths[0] = nCellsRef[0]*primitiveLength;
         lengths[1] = nCellsRef[1]*primitiveLength;

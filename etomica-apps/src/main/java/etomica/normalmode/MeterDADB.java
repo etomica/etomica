@@ -7,7 +7,7 @@ package etomica.normalmode;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
@@ -37,7 +37,7 @@ public class MeterDADB implements IEtomicaDataSource, AgentSource<MyAgent> {
     protected final PotentialMaster potentialMaster;
     protected final AtomLeafAgentManager<MyAgent> forceManager;
     protected final IteratorDirective id;
-    protected final IVector dr;
+    protected final Vector dr;
     protected double latticeEnergy;
     protected final double temperature;
     public static boolean justDADB = true;
@@ -80,10 +80,10 @@ public class MeterDADB implements IEtomicaDataSource, AgentSource<MyAgent> {
         double sum = 0;
         for (int i=0; i<atoms.getAtomCount(); i++) {
             IAtom atom = atoms.getAtom(i);
-            IVector lPos = coordinateDefinition.getLatticePosition(atom);
-            IVector pos = atom.getPosition();
+            Vector lPos = coordinateDefinition.getLatticePosition(atom);
+            Vector pos = atom.getPosition();
             dr.Ev1Mv2(pos, lPos);
-            IVector force = forceManager.getAgent(atom).force;
+            Vector force = forceManager.getAgent(atom).force;
             sum += force.dot(dr);
         }
         if (justDADB) {
@@ -100,7 +100,7 @@ public class MeterDADB implements IEtomicaDataSource, AgentSource<MyAgent> {
 //                for (int j=0; j<99; j++) {
 //                    for (int i=0; i<atoms.getAtomCount(); i++) {
 //                        IAtom atom = atoms.getAtom(i);
-//                        IVector lPos = coordinateDefinition.getLatticePosition(atom);
+//                        Vector lPos = coordinateDefinition.getLatticePosition(atom);
 //                        IVectorMutable pos = atom.getPosition();
 //                        dr.Ev1Mv2(pos, lPos);
 //                        pos.PEa1Tv1(-1.0/(100-j), dr);

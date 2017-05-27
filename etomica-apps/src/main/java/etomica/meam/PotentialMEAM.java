@@ -9,7 +9,7 @@ import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBoundary;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.potential.PotentialN;
 import etomica.potential.PotentialSoft;
 import etomica.space.Space;
@@ -321,12 +321,12 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		return calcVirial(atoms, null);
 	}
 
-    public IVector[] gradient(IAtomList atoms) {
+    public Vector[] gradient(IAtomList atoms) {
         calcVirial(atoms, null);
         return gnEi;
     }
 
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         calcVirial(atoms, pressureTensor);
         return gnEi;
     }

@@ -10,7 +10,7 @@ import etomica.action.MoleculeChildAtomAction;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.MoleculePair;
 import etomica.space.Space;
@@ -94,7 +94,7 @@ public class CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen{
 		pair.atom0 = moleculeList.getMolecule(moleculei[0]);
 		
 		IMolecule molecule1;
-		IVector[][] gradTorq;
+		Vector[][] gradTorq;
 		int firstRowMol = (int)Math.pow(numMolecule/1.99999, 1.0/3.0)*2;
 		
 		for (int i=0; i<numMolecule; i++){
@@ -365,7 +365,7 @@ public class CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen{
 	protected P2Nitrogen potential;
 	protected AtomActionTranslateBy translateBy;
 	protected MoleculeChildAtomAction atomGroupActionTranslate;
-	protected IVector lsPosition, destination, workVec;
+	protected Vector lsPosition, destination, workVec;
 	protected double errt, fac, xVecBox, yVecBox, zVecBox, rC;
 	protected double deltaU;
 	protected double [][] a;

@@ -4,7 +4,7 @@
 
 package etomica.models.oneDHardRods;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.api.IPotential;
 import etomica.api.IPotentialMaster;
@@ -27,7 +27,7 @@ public class MeterCompareMultipleWVBrute extends DataSourceScalar {
     IPotential potentialTarget, potentialHarmonic;
     MeterPotentialEnergy meterPE;
     private double eigenVectors[][][];
-    private IVector[] waveVectors;
+    private Vector[] waveVectors;
     int[] comparedWVs;
     protected double temperature;
     private double[] waveVectorCoefficients, sqrtWVC;
@@ -179,7 +179,7 @@ public class MeterCompareMultipleWVBrute extends DataSourceScalar {
     public void setEigenVectors(double[][][] eigenVectors) {
         this.eigenVectors = eigenVectors;
     }
-    public void setWaveVectors(IVector[] waveVectors) {
+    public void setWaveVectors(Vector[] waveVectors) {
         this.waveVectors = waveVectors;
     }
     public void setComparedWV(int[] cwvs) {

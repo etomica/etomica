@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.lattice.crystal;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.math.geometry.Polytope;
 import etomica.space.Space;
 
@@ -61,7 +61,7 @@ public class PrimitiveHexagonal2D extends Primitive {
         setSizeAB(scale*ab);
     }
 
-    public int[] latticeIndex(IVector q) {
+    public int[] latticeIndex(Vector q) {
         throw new RuntimeException("latticeIndex method not implemented yet in primitive");
    /*     for(int i=0; i<D; i++) {
             double x = q.x(i)/size;
@@ -70,7 +70,7 @@ public class PrimitiveHexagonal2D extends Primitive {
         return idx;
    */ }
     
-    public int[] latticeIndex(IVector q, int[] dimensions) {
+    public int[] latticeIndex(Vector q, int[] dimensions) {
         throw new RuntimeException("latticeIndex method not implemented yet in primitive");
    /*     for(int i=0; i<D; i++) {
             double x = q.x(i)/size;

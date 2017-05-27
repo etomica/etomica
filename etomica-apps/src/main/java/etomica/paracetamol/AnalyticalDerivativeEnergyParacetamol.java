@@ -9,8 +9,8 @@ import java.io.Serializable;
 import etomica.api.*;
 import etomica.box.Box;
 import etomica.conjugategradient.DerivativeEnergyFunction;
-import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialMaster;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunction implements Serializable{
@@ -22,9 +22,9 @@ public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunct
 		aProj  = space.makeVector();
 		v      = space.makeVector();
 		deltaV = space.makeVector();
-		distance = new IVector[20];
-		torque   = new IVector[20];
-		torqueF  = new IVector[20];
+		distance = new Vector[20];
+		torque   = new Vector[20];
+		torqueF  = new Vector[20];
 		for (int i=0; i<20; i++){
 			distance[i] = space.makeVector();
 			torque  [i] = space.makeVector();
@@ -96,8 +96,8 @@ public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunct
 			
 				 //leafPos0 is atom C1 in Paracetamol
 				 //leafPos5 is atom C4 in Paracetamol
-				IVector leafPos0 = molecule.getAtom(0).getPosition();
-				IVector leafPos5 = molecule.getAtom(5).getPosition();
+				Vector leafPos0 = molecule.getAtom(0).getPosition();
+				Vector leafPos5 = molecule.getAtom(5).getPosition();
 				
 				v.Ev1Mv2(leafPos5, leafPos0);
 				v.normalize();
@@ -223,11 +223,11 @@ public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunct
 	
 	
 	
-	protected final IVector rotationAxis;
-	protected final IVector a, aProj;
-	protected final IVector v, deltaV;
-	protected final IVector[] distance, torque, torqueF;
-	protected final IVector torqueSum;
+	protected final Vector rotationAxis;
+	protected final Vector a, aProj;
+	protected final Vector v, deltaV;
+	protected final Vector[] distance, torque, torqueF;
+	protected final Vector torqueSum;
 	protected double[] fPrimeRotation;
 	private static final long serialVersionUID = 1L;
 }

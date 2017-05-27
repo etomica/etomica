@@ -7,7 +7,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.box.Box;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.config.ConfigurationLattice;
 import etomica.config.ConformationLinear;
@@ -103,7 +103,7 @@ public class InterfacialSW extends Simulation {
         //construct box
 	    box = new Box(space);
         addBox(box);
-        IVector dim = space.makeVector();
+        Vector dim = space.makeVector();
         if (space.D() == 2) {
             dim.E(new double[]{30,15});
         }

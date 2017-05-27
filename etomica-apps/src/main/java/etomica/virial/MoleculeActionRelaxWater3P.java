@@ -10,7 +10,7 @@ package etomica.virial;
 import etomica.action.MoleculeAction;
 import etomica.api.IAtom;
 import etomica.api.IMolecule;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.models.water.SpeciesWater3P;
 import etomica.space.Space;
 
@@ -27,10 +27,10 @@ public class MoleculeActionRelaxWater3P implements MoleculeAction {
         IAtom H1 = molecule.getChildList().getAtom(SpeciesWater3P.indexH1);
         IAtom H2 = molecule.getChildList().getAtom(SpeciesWater3P.indexH2);
         // normalize OH1
-        IVector p1 = H1.getPosition();
+        Vector p1 = H1.getPosition();
         p1.ME(O.getPosition());
         p1.TE(1/Math.sqrt(p1.squared()));
-        IVector p2 = H2.getPosition();
+        Vector p2 = H2.getPosition();
         p2.ME(O.getPosition());
         p2.TE(1/Math.sqrt(p2.squared()));
         // move H2 to fix bond angle
@@ -47,6 +47,6 @@ public class MoleculeActionRelaxWater3P implements MoleculeAction {
     }
 
     private static final long serialVersionUID = 1L;
-    private final IVector work;
+    private final Vector work;
     private final double sinAngle, cosAngle, distance;
 }

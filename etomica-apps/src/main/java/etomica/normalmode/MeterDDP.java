@@ -17,6 +17,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.units.Null;
 import etomica.util.Function;
@@ -46,7 +47,7 @@ public class MeterDDP implements IEtomicaDataSource {
     protected boolean linPSpan;
     protected int numP = 1;
     protected P1ConstraintNbr p1;
-    protected final IVector work;
+    protected final Vector work;
     protected Function uLatFunction = uLat0;
     protected FileWriter fw;
     
@@ -123,7 +124,7 @@ public class MeterDDP implements IEtomicaDataSource {
 //                System.out.println(i+" "+k+" "+p[i][k]+" "+rScale+" "+fac+" "+((p[i][k]*(vi-v0) + (uLatRhoi-uLatRho0))/(numAtoms*temperature*D)));
                 for (int j=0; j<numAtoms; j++) {
                     IAtom jRealAtom = atoms.getAtom(j);
-                    IVector pos = pretendAtoms.getAtom(j).getPosition();
+                    Vector pos = pretendAtoms.getAtom(j).getPosition();
 //                    if (j==25) System.out.println("hi "+coordinateDefinition.getLatticePosition(jRealAtom)+" "+jRealAtom.getPosition());
                     pos.Ea1Tv1(rScale-fac, coordinateDefinition.getLatticePosition(jRealAtom));
                     pos.PEa1Tv1(+fac, jRealAtom.getPosition());
@@ -260,7 +261,7 @@ public class MeterDDP implements IEtomicaDataSource {
         IAtomList pretendAtoms = pretendBox.getLeafList();
         for (int j=0; j<atoms.getAtomCount(); j++) {
             IAtom jRealAtom = atoms.getAtom(j);
-            IVector pos = pretendAtoms.getAtom(j).getPosition();
+            Vector pos = pretendAtoms.getAtom(j).getPosition();
             pos.E(coordinateDefinition.getLatticePosition(jRealAtom));
         }
 

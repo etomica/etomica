@@ -12,6 +12,7 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.units.Angle;
 
@@ -25,7 +26,7 @@ public class MeterTilt implements IEtomicaDataSource {
     public MeterTilt(Space space, ISpecies species, int nPlanes) {
         this.species = species;
         dr = space.makeVector();
-        drSum = new IVector[nPlanes+1];
+        drSum = new Vector[nPlanes+1];
         for (int i=0; i<nPlanes+1; i++) {
             drSum[i] = space.makeVector();
         }
@@ -73,8 +74,8 @@ public class MeterTilt implements IEtomicaDataSource {
     private static final long serialVersionUID = 1L;
     protected final ISpecies species;
     protected Box box;
-    protected final IVector dr;
-    protected final IVector[] drSum;
+    protected final Vector dr;
+    protected final Vector[] drSum;
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
     protected final DataTag tag;

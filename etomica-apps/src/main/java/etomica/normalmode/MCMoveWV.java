@@ -4,7 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.atom.iterator.AtomIterator;
@@ -25,7 +25,7 @@ public class MCMoveWV extends MCMoveBoxStep {
 
     protected void init() {
         oldEigenVectors = new double[normalModes.getEigenVectors().length][coordinateDefinition.getCoordinateDim()];
-        oldWaveVectors = new IVector[normalModes.getWaveVectors().length];
+        oldWaveVectors = new Vector[normalModes.getWaveVectors().length];
         for (int i=0; i<oldWaveVectors.length; i++) {
             oldWaveVectors[i] = space.makeVector();
         }
@@ -42,7 +42,7 @@ public class MCMoveWV extends MCMoveBoxStep {
     }
 
     public boolean doTrial() {
-        IVector[] waveVectors = normalModes.getWaveVectors();
+        Vector[] waveVectors = normalModes.getWaveVectors();
         double[][] eigenVectors = normalModes.getEigenVectors();
         if (waveVectors.length != oldWaveVectors.length) {
             init();
@@ -102,7 +102,7 @@ public class MCMoveWV extends MCMoveBoxStep {
 
     public void rejectNotify() {
 //        System.out.println("rejected");
-        IVector[] waveVectors = normalModes.getWaveVectors();
+        Vector[] waveVectors = normalModes.getWaveVectors();
         double[][] eigenVectors = normalModes.getEigenVectors();
         for (int i=0; i<waveVectors.length; i++) {
             waveVectors[i].E(oldWaveVectors[i]);
@@ -122,7 +122,7 @@ public class MCMoveWV extends MCMoveBoxStep {
 
     protected final Space space;
     protected final NormalModesVariable normalModes;
-    protected IVector[] oldWaveVectors;
+    protected Vector[] oldWaveVectors;
     protected double[][] oldEigenVectors;
     protected final CoordinateDefinition coordinateDefinition;
     protected final IRandom random;

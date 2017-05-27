@@ -15,7 +15,7 @@ import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.simulation.Simulation;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
 import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
@@ -47,8 +47,8 @@ public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements Mol
     private IRandom random;
     protected final AtomIteratorLeafAtoms affectedAtomIterator;
     protected final MoleculeIteratorAllMolecules moleculeIterator;
-    protected final IVector r;
-    protected final IVector dr, dr2;
+    protected final Vector r;
+    protected final Vector dr, dr2;
     private transient double uOld, hOld, vNew, vScale, hNew;
     private transient double uNew = Double.NaN;
     protected AssociationManagerMolecule associationManager;
@@ -59,7 +59,7 @@ public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements Mol
     public static boolean dodebug;
     protected FileWriter fileWriter;
     protected IAssociationHelperMolecule associationHelper;
-    protected IVector groupTranslationVector;
+    protected Vector groupTranslationVector;
     protected MoleculeChildAtomAction moveMoleculeAction;
     protected final Simulation sim;
 
@@ -325,7 +325,7 @@ public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements Mol
         return affectedAtomIterator;
     }
     
-    public IVector positionDefinition(IMolecule molecule){
+    public Vector positionDefinition(IMolecule molecule){
     	return molecule.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition();
     }
 

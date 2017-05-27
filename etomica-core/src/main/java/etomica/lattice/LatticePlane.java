@@ -6,7 +6,7 @@ package etomica.lattice;
 
 import etomica.api.IAtom;
 import etomica.api.IMolecule;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.AtomFilter;
 import etomica.lattice.crystal.Primitive;
 import etomica.math.geometry.Plane;
@@ -22,10 +22,10 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
     private static final long serialVersionUID = 1L;
     private final Plane plane;
     private Primitive primitive;
-    private IVector normal, delta;
+    private Vector normal, delta;
     private Space space;
     private int[] millerIndices;
-    private IVector origin;
+    private Vector origin;
     
     public LatticePlane(Primitive primitive, int[] h) {
         this.primitive = primitive;
@@ -68,7 +68,7 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
         if(h.length != space.D()) throw new IllegalArgumentException("Error: number of miller indices passed to LatticePlane.setMillerIndices inconsistent with spatial dimension");
         double currentPosition = getPosition();
         normal.E(0.0);
-        IVector[] b = primitive.makeReciprocal().vectors();
+        Vector[] b = primitive.makeReciprocal().vectors();
         for(int i=0; i<h.length; i++) {
             normal.PEa1Tv1(h[i],b[i]);
             millerIndices[i] = h[i];
@@ -137,14 +137,14 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
      * plane toward which the normal vector points.  The direction
      * of the normal vector can be inverted using the invert method.
      */
-    public boolean isPositiveSide(IVector p) {
+    public boolean isPositiveSide(Vector p) {
         return plane.isPositiveSide(p);
     }
     
     /**
      * Returns true if the given point is inside the plane (within some small tolerance).
      */
-    public boolean inPlane(IVector p) {
+    public boolean inPlane(Vector p) {
         return plane.inPlane(p);
     }
     
@@ -155,10 +155,10 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
     /**
      * Sets the origin from which the position of the atom is measured.
      */
-    public void setOrigin(IVector origin) {
+    public void setOrigin(Vector origin) {
         this.origin.E(origin);
     }
-    public IVector getOrigin() {return origin;}
+    public Vector getOrigin() {return origin;}
     
     /**
      * Changes the direction of the normal vector so that it points

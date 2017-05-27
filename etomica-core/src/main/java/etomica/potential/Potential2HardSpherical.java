@@ -6,6 +6,7 @@ package etomica.potential;
 
 import etomica.api.*;
 import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 /**
@@ -45,6 +46,6 @@ public abstract class Potential2HardSpherical extends Potential2 implements Pote
         boundary = box.getBoundary();
     }
 
-    protected final IVector dr;
+    protected final Vector dr;
     protected IBoundary boundary;
 }

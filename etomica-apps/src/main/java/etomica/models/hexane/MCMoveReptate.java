@@ -13,7 +13,7 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.space.Space;
-import etomica.api.IVector;
+import etomica.space.Vector;
 
 public class MCMoveReptate extends MCMoveBoxStep {
     
@@ -88,10 +88,10 @@ public class MCMoveReptate extends MCMoveBoxStep {
        int numChildren = childlist.getAtomCount();
        
        if(forward){
-           IVector position = childlist.getAtom(numChildren-1).getPosition();
+           Vector position = childlist.getAtom(numChildren-1).getPosition();
            positionOld.E(position);
            for (int j = numChildren - 1; j > 0; j--) {
-               IVector position2 = childlist.getAtom(j-1).getPosition();
+               Vector position2 = childlist.getAtom(j-1).getPosition();
                position.E(position2);
                position = position2;
            }
@@ -100,10 +100,10 @@ public class MCMoveReptate extends MCMoveBoxStep {
            childlist.getAtom(0).getPosition().PE(tempV);
        }
        else {
-           IVector position = childlist.getAtom(0).getPosition();
+           Vector position = childlist.getAtom(0).getPosition();
            positionOld.E(position);
            for(int j = 0; j < numChildren-1; j++){
-               IVector position2 = childlist.getAtom(j+1).getPosition();
+               Vector position2 = childlist.getAtom(j+1).getPosition();
                position.E(position2);
                position = position2;
            }
@@ -134,18 +134,18 @@ public class MCMoveReptate extends MCMoveBoxStep {
         IAtomList childlist = atom.getChildList();
         int numChildren = childlist.getAtomCount();
         if (!forward) {
-            IVector position = childlist.getAtom(numChildren-1).getPosition();
+            Vector position = childlist.getAtom(numChildren-1).getPosition();
             for (int j=numChildren-1; j>0; j--) {
-                IVector position2 = childlist.getAtom(j-1).getPosition();
+                Vector position2 = childlist.getAtom(j-1).getPosition();
                 position.E(position2);
                 position = position2;
             }
             childlist.getAtom(0).getPosition().E(positionOld);
         }
         else {
-            IVector position = childlist.getAtom(0).getPosition();
+            Vector position = childlist.getAtom(0).getPosition();
             for (int j=0; j<numChildren-1; j++) {
-                IVector position2 = childlist.getAtom(j+1).getPosition();
+                Vector position2 = childlist.getAtom(j+1).getPosition();
                 position.E(position2);
                 position = position2;
             }
@@ -195,8 +195,8 @@ public class MCMoveReptate extends MCMoveBoxStep {
     protected double uNew = Double.NaN;
     protected MoleculeSource atomSource;
     protected boolean fixOverlap;
-    private IVector tempV;
-    private IVector positionOld;
+    private Vector tempV;
+    private Vector positionOld;
     private boolean forward;
     private double bondLength;
     protected final IRandom random;

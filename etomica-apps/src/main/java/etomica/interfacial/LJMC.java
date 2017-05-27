@@ -9,7 +9,7 @@ import java.util.List;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.atom.AtomSourceRandomSpecies;
 import etomica.atom.DiameterHashByType;
@@ -252,7 +252,7 @@ public class LJMC extends Simulation {
         
         WriteConfigurationInterfacial configWriter = new WriteConfigurationInterfacial(sim.space);
         configWriter.setSpecies(sim.speciesFluid);
-        IVector unshift = sim.space.makeVector();
+        Vector unshift = sim.space.makeVector();
         unshift.Ea1Tv1(-1, sim.config.getShift());
         configWriter.setShift(unshift);
         configWriter.setBox(sim.box);

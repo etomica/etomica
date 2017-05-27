@@ -4,7 +4,7 @@
 
 package etomica.action;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -50,7 +50,7 @@ public class BoxInflateAnisotropic extends BoxInflate{
         double slope = deltacx/cz;
         
         IMoleculeList molecules = box.getMoleculeList();
-        IVector comVector = Space3D.makeVector(3);
+        Vector comVector = Space3D.makeVector(3);
         for(int i=0; i<molecules.getMoleculeCount(); i++) {
             IMolecule molecule = molecules.getMolecule(i);
             comVector.E(moleculeCenter.position(molecule));
@@ -83,11 +83,11 @@ public class BoxInflateAnisotropic extends BoxInflate{
         ((BoundaryDeformablePeriodic)box.getBoundary()).setEdgeVector(2, cVectorOld);
     }
         
-    public void setCVector(IVector cVec){
+    public void setCVector(Vector cVec){
     	cVector = cVec;
     }
     
-    protected IVector cVector, cVectorOld, translationVector;
+    protected Vector cVector, cVectorOld, translationVector;
     protected double[] deltaX;
 	private static final long serialVersionUID = 1L;
 }

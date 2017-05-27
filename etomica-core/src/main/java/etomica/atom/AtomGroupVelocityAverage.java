@@ -10,7 +10,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IMolecule;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 /**
@@ -31,7 +31,7 @@ public class AtomGroupVelocityAverage implements Serializable {
      * Returns the mass-average velocity of the given Atom and 
      * all its children.
      */
-    public IVector getVelocityAverage(IMolecule molecule) {
+    public Vector getVelocityAverage(IMolecule molecule) {
         vectorSum.E(0.0);
         double massSum = 0;
         IAtomList children = molecule.getChildList();
@@ -46,5 +46,5 @@ public class AtomGroupVelocityAverage implements Serializable {
     }
 
     private static final long serialVersionUID = 1L;
-    private final IVector vectorSum;
+    private final Vector vectorSum;
 }

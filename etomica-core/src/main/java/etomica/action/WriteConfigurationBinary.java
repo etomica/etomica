@@ -11,7 +11,7 @@ import java.io.ObjectOutputStream;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 /**
@@ -89,7 +89,7 @@ public class WriteConfigurationBinary implements IAction {
             IAtom a = leafList.getAtom(iLeaf);
             writePosition.E(a.getPosition());
             if (doApplyPBC) {
-                IVector shift = box.getBoundary().centralImage(writePosition);
+                Vector shift = box.getBoundary().centralImage(writePosition);
                 if (!shift.isZero()) {
                     writePosition.PE(shift);
                 }
@@ -114,6 +114,6 @@ public class WriteConfigurationBinary implements IAction {
     private String confName, fileName;
     private Box box;
     private boolean doApplyPBC;
-    protected final IVector writePosition;
+    protected final Vector writePosition;
 
 }

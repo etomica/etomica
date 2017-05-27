@@ -4,7 +4,7 @@
 
 package etomica.models.nitrogen;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.atom.MoleculePair;
 import etomica.data.types.DataTensor;
@@ -43,15 +43,15 @@ public class CalcAnalytical2ndDerivativeNitrogen{
 		
 		workVec = space.makeVector();
 		
-		secDerXr = new IVector[2][3];
+		secDerXr = new Vector[2][3];
 		for(int i=0; i<secDerXr.length; i++){
 			for(int j=0; j<secDerXr[0].length; j++){
 				secDerXr[i][j] = space.makeVector(); 
 			}	
 		}
 		
-		dUdRotA = new IVector[2];
-		dUdRotB = new IVector[2];
+		dUdRotA = new Vector[2];
+		dUdRotB = new Vector[2];
 		
 		for(int i=0; i<dUdRotA.length; i++){
 			dUdRotA[i] = space.makeVector();
@@ -59,7 +59,7 @@ public class CalcAnalytical2ndDerivativeNitrogen{
 		}	
 		
 		int numMolec = coordinateDefinition.getBox().getMoleculeList().getMoleculeCount();
-		initMolecOrientation = new IVector[numMolec][3];
+		initMolecOrientation = new Vector[numMolec][3];
 		
 		for (int i=0; i<numMolec; i++){
 			initMolecOrientation[i] = space.makeVectorArray(3);
@@ -123,14 +123,14 @@ public class CalcAnalytical2ndDerivativeNitrogen{
 		return d2r;
 	}
 	
-	protected IVector[][] initMolecOrientation;
-	protected IVector[][] secDerXr;
-	protected IVector[] dUdRotA, dUdRotB;
+	protected Vector[][] initMolecOrientation;
+	protected Vector[][] secDerXr;
+	protected Vector[] dUdRotA, dUdRotB;
 	protected Box box;
 	protected Space space;
 	protected CoordinateDefinitionNitrogen coordinateDefinition;
 	protected P2Nitrogen potential;
-	protected IVector workVec;
+	protected Vector workVec;
 	protected boolean doLatticeSum = false;
     protected double [][] d2r = new double[5][5];
     protected MoleculePair pair = new MoleculePair();

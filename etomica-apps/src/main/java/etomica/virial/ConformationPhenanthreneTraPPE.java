@@ -6,7 +6,7 @@ package etomica.virial;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.config.IConformation;
 import etomica.space.Space;
 
@@ -88,7 +88,7 @@ public class ConformationPhenanthreneTraPPE implements IConformation, java.io.Se
 	protected static final double foursqrt3a = sqrt3a * 4 ;
 
 
-	protected IVector vector;
+	protected Vector vector;
 	
 	private static final long serialVersionUID = 1L;
 }

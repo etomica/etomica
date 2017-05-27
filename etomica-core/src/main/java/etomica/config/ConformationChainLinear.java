@@ -5,7 +5,7 @@
 package etomica.config;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.units.Length;
@@ -56,9 +56,9 @@ public class ConformationChainLinear implements IConformation {
         }
     }
     public double getAngle(int i) {return angle[i];}
-    public void setOrientation(IVector e) {orientation.E(e);}
+    public void setOrientation(Vector e) {orientation.E(e);}
     
-    public void setOffset(IVector v) {
+    public void setOffset(Vector v) {
         orientation.E(v);
         bondLength = Math.sqrt(v.squared());
         orientation.TE(1.0/bondLength);
@@ -79,7 +79,7 @@ public class ConformationChainLinear implements IConformation {
 
     private static final long serialVersionUID = 1L;
     private double bondLength;
-    private IVector orientation;
+    private Vector orientation;
     private double[] angle;
     protected final Space space;
 }

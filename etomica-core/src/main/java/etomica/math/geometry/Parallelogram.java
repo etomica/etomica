@@ -8,7 +8,7 @@
  */
 package etomica.math.geometry;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.exception.MethodNotImplementedException;
 import etomica.space.Space;
 
@@ -30,11 +30,11 @@ public class Parallelogram extends Polygon implements Parallelotope {
     /**
      * Constructs a parallelogram with the given edge vectors.
      */
-    public Parallelogram(Space embeddedSpace, IVector a, IVector b) {
+    public Parallelogram(Space embeddedSpace, Vector a, Vector b) {
         super(embeddedSpace, 4);
         this.a = embeddedSpace.makeVector();
         this.b = embeddedSpace.makeVector();
-        setEdgeVectors(new IVector[] {a, b});
+        setEdgeVectors(new Vector[] {a, b});
     }
 
     public double getArea() {
@@ -63,7 +63,7 @@ public class Parallelogram extends Polygon implements Parallelotope {
      * surface of) this cell, <code>false</code> otherwise.
      */
     //TODO implement contains method in Parallelogram
-    public boolean contains(IVector v) {
+    public boolean contains(Vector v) {
         throw new MethodNotImplementedException();
 //        double x = v.x(0)-position.x(0);
 //        double y = v.x(1)-position.x(1);
@@ -76,12 +76,12 @@ public class Parallelogram extends Polygon implements Parallelotope {
      * Sets the lengths and directions of all edges of the parellelepiped.
      * Given instances are copied to an internal representation.
      */
-    public void setEdgeVectors(IVector[] edgeVectors) {
+    public void setEdgeVectors(Vector[] edgeVectors) {
         a.Ea1Tv1(0.5, edgeVectors[0]);
         b.Ea1Tv1(0.5, edgeVectors[1]);
         updateVertices();
     }
 
-    private final IVector a, b;
+    private final Vector a, b;
     private static final long serialVersionUID = 1L;
 }

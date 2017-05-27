@@ -4,7 +4,7 @@
 
 package etomica.math.geometry;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 /**
@@ -19,7 +19,7 @@ public class Point extends Polytope {
         this(embeddedSpace, embeddedSpace.makeVector());
     }
 
-    public Point(Space embeddedSpace, IVector vectorRandom) {
+    public Point(Space embeddedSpace, Vector vectorRandom) {
         super(embeddedSpace, vectorRandom);
     }
 
@@ -45,7 +45,7 @@ public class Point extends Polytope {
      * Returns true if this point is at exactly the same location as the point
      * defined by the given vector.
      */
-    public boolean contains(IVector v) {
+    public boolean contains(Vector v) {
         return vertices[0].equals(v);
     }
     

@@ -8,7 +8,7 @@ import etomica.api.IAtomType;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.BoxAgentManager;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
@@ -77,7 +77,7 @@ public class SimEinStep2HCP extends Simulation {
         
         double a = Math.pow(4/(Math.sqrt(3)*density*coa), 1.0/3.0);
         double c = coa*a;  // sqrt(8/3)
-        IVector[] boxDim = new IVector[3];
+        Vector[] boxDim = new Vector[3];
         boxDim[0] = space.makeVector(new double[]{2*n*a, 0, 0});
         boxDim[1] = space.makeVector(new double[]{-2*n*a*Math.cos(Degree.UNIT.toSim(60)), 2*n*a*Math.sin(Degree.UNIT.toSim(60)), 0});
         boxDim[2] = space.makeVector(new double[]{0, 0, n*c});

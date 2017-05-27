@@ -10,7 +10,7 @@ import java.io.IOException;
 import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IRandom;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.Space;
 import etomica.space3d.Vector3D;
@@ -145,13 +145,13 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
                             j = prevInserted+1;
                         }
                         inserted[j] = true;
-                        IVector pos = leafAtoms.getAtom(seq[j]).getPosition();
+                        Vector pos = leafAtoms.getAtom(seq[j]).getPosition();
                         // insert j (between prevInserted and nextInserted)
                         if (i-prevInserted == 2) {
 
                             // insertion into a lens
-                            IVector posPrev = leafAtoms.getAtom(seq[prevInserted]).getPosition();
-                            IVector posNext = leafAtoms.getAtom(seq[nextInserted]).getPosition();
+                            Vector posPrev = leafAtoms.getAtom(seq[prevInserted]).getPosition();
+                            Vector posNext = leafAtoms.getAtom(seq[nextInserted]).getPosition();
                             
                             axis0.Ev1Mv2(posNext, posPrev);
                             double r2 = axis0.squared();
@@ -164,8 +164,8 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
                         }
                         else if (j-prevInserted==1) {
                             // odd gap.  even it up  n = 1 + (n-1)
-                            IVector posPrev = leafAtoms.getAtom(seq[prevInserted]).getPosition();
-                            IVector posNext = leafAtoms.getAtom(seq[nextInserted]).getPosition();
+                            Vector posPrev = leafAtoms.getAtom(seq[prevInserted]).getPosition();
+                            Vector posNext = leafAtoms.getAtom(seq[nextInserted]).getPosition();
                             while (true) {
                                 numTrials[i-prevInserted]++;
                                 pos.setRandomInSphere(random);
@@ -197,8 +197,8 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
                             if (j-prevInserted != i-j) {
                                 throw new RuntimeException("maxBias has only been computed for symmetric insertion");
                             }
-                            IVector posPrev = leafAtoms.getAtom(seq[prevInserted]).getPosition();
-                            IVector posNext = leafAtoms.getAtom(seq[nextInserted]).getPosition();
+                            Vector posPrev = leafAtoms.getAtom(seq[prevInserted]).getPosition();
+                            Vector posNext = leafAtoms.getAtom(seq[nextInserted]).getPosition();
                             double rpn = Math.sqrt(posNext.Mv1Squared(posPrev));
                             while (true) {
                                 numTrials[i-prevInserted]++;
@@ -289,7 +289,7 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
      * @param point (output) random position selected in overlap of the given spheres
      * @throws IllegalArgumentException if given spheres do not overlap
      */
-    protected void randomLensPoint(IVector r1, IVector r2, Vector3D point, IVector r12, double rSquared) {
+    protected void randomLensPoint(Vector r1, Vector r2, Vector3D point, Vector r12, double rSquared) {
         double d = Math.sqrt(rSquared); //distance between spheres
         randomLensPoint(d, standardLensPoint); //select point for two spheres in standard configuration and separated by this amount
         r12.TE(1./d);//normalize
@@ -303,7 +303,7 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
         point.PEa1Tv1(standardLensPoint.getX(2),normalVector);
     }
 
-    protected void randomLensPointInBox(IVector r0, IVector r1, IVector point) {
+    protected void randomLensPointInBox(Vector r0, Vector r1, Vector point) {
         double minX = r0.getX(0) - 1;
         double a = r1.getX(0) - 1;
         double maxX = 0;
@@ -721,7 +721,7 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
     }
 
     protected final double sigma;
-    protected final IVector axis0;
+    protected final Vector axis0;
     protected final double[] normalWidth;
     protected boolean[] inserted;
     protected long[] numInserts, numTrials;

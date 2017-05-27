@@ -6,7 +6,7 @@ package etomica.virial;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.config.IConformation;
 import etomica.space.Space;
 
@@ -42,7 +42,7 @@ public class ConformationAnthracene3site implements IConformation, java.io.Seria
 	protected static final double bondlength = 2.42;//converst nm to angstrom
 
 	
-	protected IVector vector;
+	protected Vector vector;
 	
 	private static final long serialVersionUID = 1L;
 }

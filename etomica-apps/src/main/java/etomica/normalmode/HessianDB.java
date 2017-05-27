@@ -12,7 +12,7 @@ import Jama.Matrix;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
@@ -79,9 +79,9 @@ public class HessianDB extends Simulation {
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(new int[]{1,1,1});
         
-        IVector pos1 = space.makeVector();
-        IVector pos2 = space.makeVector();
-        IVector r = space.makeVector();
+        Vector pos1 = space.makeVector();
+        Vector pos2 = space.makeVector();
+        Vector r = space.makeVector();
         
         
         try{
@@ -213,7 +213,7 @@ public class HessianDB extends Simulation {
         }
     }
 	
-	public Tensor3D derivative2nd(IVector r, Potential2SoftSpherical potential){
+	public Tensor3D derivative2nd(Vector r, Potential2SoftSpherical potential){
 		
 		tensor.Ev1v2(r, r);
 		double r2 = r.squared();

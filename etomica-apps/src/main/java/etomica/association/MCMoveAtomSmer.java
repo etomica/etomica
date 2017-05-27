@@ -8,13 +8,14 @@ import etomica.api.*;
 import etomica.simulation.Simulation;
 import etomica.atom.AtomArrayList;
 import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 public class MCMoveAtomSmer extends MCMoveAtom {
 	protected AssociationManager associationManager;
 	protected final AtomArrayList bondList, smerList;
 	public static boolean dodebug;
-	protected final IVector dr;
+	protected final Vector dr;
 	protected int maxLength = Integer.MAX_VALUE;
 	
 	

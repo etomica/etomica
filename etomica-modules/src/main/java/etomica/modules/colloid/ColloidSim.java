@@ -21,6 +21,7 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardSphere;
 import etomica.potential.P2HardWrapper;
 import etomica.simulation.Simulation;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -90,7 +91,7 @@ public class ColloidSim extends Simulation {
         addBox(box);
         ((NeighborListManagerColloid)potentialMaster.getNeighborManager(box)).setSpeciesColloid(speciesColloid);
         ((NeighborListManagerColloid)potentialMaster.getNeighborManager(box)).setSpeciesMonomer(species);
-        IVector dim = space.makeVector();
+        Vector dim = space.makeVector();
         dim.E(boxSize);
         box.getBoundary().setBoxSize(dim);
         box.setNMolecules(speciesColloid, nColloid);
@@ -157,7 +158,7 @@ public class ColloidSim extends Simulation {
             double minr2 = Double.POSITIVE_INFINITY;
             for (int j=chainLength; j<box.getMoleculeList(species).getMoleculeCount(); j+=chainLength) {
                 IAtom atom2 = box.getMoleculeList(species).getMolecule(j).getChildList().getAtom(0);
-                IVector dr = space.makeVector();
+                Vector dr = space.makeVector();
                 dr.Ev1Mv2(atom1.getPosition(), atom2.getPosition());
                 box.getBoundary().nearestImage(dr);
                 double r2 = dr.squared();
@@ -189,7 +190,7 @@ public class ColloidSim extends Simulation {
             double minr2 = Double.POSITIVE_INFINITY;
             for (int j=chainLength; j<box.getMoleculeList(species).getMoleculeCount(); j+=chainLength) {
                 IAtom atom2 = box.getMoleculeList(species).getMolecule(j).getChildList().getAtom(0);
-                IVector dr = space.makeVector();
+                Vector dr = space.makeVector();
                 dr.Ev1Mv2(atom1.getPosition(), atom2.getPosition());
                 box.getBoundary().nearestImage(dr);
                 double r2 = dr.squared();

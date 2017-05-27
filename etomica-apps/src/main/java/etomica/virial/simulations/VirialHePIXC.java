@@ -30,6 +30,7 @@ import etomica.integrator.mcmove.MCMoveBox;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2HePCKLJS;
 import etomica.potential.PotentialGroup;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheres;
@@ -168,7 +169,7 @@ public class VirialHePIXC {
         double r = 2;
         IAtomList leafList = sim.box.getLeafList();
         for (int i=0; i<leafList.getAtomCount(); i++) {
-            IVector p = leafList.getAtom(i).getPosition();
+            Vector p = leafList.getAtom(i).getPosition();
             p.setX(0, r*Math.cos((2*Math.PI*i)/leafList.getAtomCount()));
             p.setX(1, r*Math.sin((2*Math.PI*i)/leafList.getAtomCount()));
         }

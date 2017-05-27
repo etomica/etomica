@@ -5,7 +5,7 @@
 package etomica.atom;
 
 import etomica.api.IMolecule;
-import etomica.api.IVector;
+import etomica.space.Vector;
 
 
 
@@ -21,5 +21,5 @@ public interface IAtomPositionDefinition {
      * Returns the defined position for the given atom, which 
      * may be an atom group.
      */
-    public IVector position(IMolecule atom);
+    public Vector position(IMolecule atom);
 }

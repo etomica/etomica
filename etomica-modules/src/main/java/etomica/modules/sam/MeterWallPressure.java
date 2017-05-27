@@ -5,7 +5,7 @@
 package etomica.modules.sam;
 
 import etomica.box.Box;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
 import etomica.units.Pressure;
 
@@ -23,7 +23,7 @@ public class MeterWallPressure extends DataSourceScalar {
     
     public double getDataAsScalar() {
         double f = pc.getWallForce();
-        IVector dimensions = box.getBoundary().getBoxSize();
+        Vector dimensions = box.getBoundary().getBoxSize();
         double A = 1;
         for (int i=0; i<dimensions.getD(); i++) {
             if (i == pc.getWallPotential().getWallDim()) {

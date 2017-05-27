@@ -18,6 +18,7 @@ import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveInsertDeleteLatticeVacancy;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 /**
@@ -35,7 +36,7 @@ public class MCMoveAtomSwap extends MCMoveBox {
     protected AtomIteratorAtomDependent atomIterator;
     protected double nbrDistance;
     protected final AtomArrayList nbrList;
-    protected final IVector dr;
+    protected final Vector dr;
     protected final P1ImageHarmonic p1;
     protected final AtomSetSinglet singlet;
 
@@ -72,7 +73,7 @@ public class MCMoveAtomSwap extends MCMoveBox {
         ((AtomsetIteratorDirectable)atomIterator).setDirection(null);
         atomIterator.reset();
         nbrList.clear();
-        IVector pi = atom.getPosition();
+        Vector pi = atom.getPosition();
         for (IAtom jAtom = atomIterator.nextAtom(); jAtom != null; jAtom = atomIterator.nextAtom()) {
             dr.Ev1Mv2(pi, jAtom.getPosition());
             box.getBoundary().nearestImage(dr);

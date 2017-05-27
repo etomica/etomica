@@ -13,7 +13,7 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMolecular;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.SpeciesAgentManager;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -69,7 +69,7 @@ public class P2SemiclassicalMolecular implements IPotentialMolecular {
 
     public double energy(IMoleculeList molecules) {
         double uC = p2Classy.energy(molecules);
-        IVector[][] gradAndTorque = p2Classy.gradientAndTorque(molecules);
+        Vector[][] gradAndTorque = p2Classy.gradientAndTorque(molecules);
         double sum = 0;
         for (int i=0; i<2; i++) {
             IMolecule iMol = molecules.getMolecule(i);
@@ -80,11 +80,11 @@ public class P2SemiclassicalMolecular implements IPotentialMolecular {
             }
             double mi = molInfo.getMass(iMol);
             sum -= gradAndTorque[i][0].squared()/mi;
-            IVector[] momentAndAxes = molInfo.getMomentAndAxes(iMol);
-            IVector moment = momentAndAxes[0];
+            Vector[] momentAndAxes = molInfo.getMomentAndAxes(iMol);
+            Vector moment = momentAndAxes[0];
             for (int j=0; j<3; j++) {
                 if (moment.getX(j) < 1e-10) continue;
-                IVector axis = momentAndAxes[j+1];
+                Vector axis = momentAndAxes[j+1];
                 double torque = gradAndTorque[i][1].dot(axis);
                 sum += torque*torque/moment.getX(j);
             }
@@ -104,13 +104,13 @@ public class P2SemiclassicalMolecular implements IPotentialMolecular {
          * and also the principle axes.  The 0 element is the moment of inertia
          * vector while elements 1, 2 and 3 are the principle axes.
          */
-        public IVector[] getMomentAndAxes(IMolecule molecule);
+        public Vector[] getMomentAndAxes(IMolecule molecule);
     }
     
     public static class MoleculeInfoBrute implements MoleculeInfo {
-        protected final IVector cm, rj;
+        protected final Vector cm, rj;
         protected final Tensor id, moment, momentj, rjrj;
-        protected final IVector[] rv;
+        protected final Vector[] rv;
         
         public MoleculeInfoBrute(Space space) {
             moment = space.makeTensor();
@@ -122,7 +122,7 @@ public class P2SemiclassicalMolecular implements IPotentialMolecular {
             id.setComponent(0,0,1);
             id.setComponent(1,1,1);
             id.setComponent(2,2,1);
-            rv = new IVector[4];
+            rv = new Vector[4];
             for (int i=0; i<4; i++) {
                 rv[i] = space.makeVector();
             }
@@ -140,7 +140,7 @@ public class P2SemiclassicalMolecular implements IPotentialMolecular {
             return m;
         }
         
-        public IVector[] getMomentAndAxes(IMolecule molecule) {
+        public Vector[] getMomentAndAxes(IMolecule molecule) {
             double m = 0;
             moment.E(0);
             IAtomList atoms = molecule.getChildList();

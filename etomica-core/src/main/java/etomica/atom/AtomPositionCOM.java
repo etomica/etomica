@@ -9,7 +9,7 @@ import java.io.Serializable;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IMolecule;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 /**
@@ -33,7 +33,7 @@ public class AtomPositionCOM implements IAtomPositionDefinition, Serializable {
         center = space.makeVector();
     }
     
-    public IVector position(IMolecule atom) {
+    public Vector position(IMolecule atom) {
         double massSum = 0;
         center.E(0.0);
         IAtomList children = atom.getChildList();
@@ -49,5 +49,5 @@ public class AtomPositionCOM implements IAtomPositionDefinition, Serializable {
     }
 
     private static final long serialVersionUID = 1L;
-    private final IVector center;
+    private final Vector center;
 }

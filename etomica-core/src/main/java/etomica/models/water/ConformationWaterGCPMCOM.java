@@ -5,7 +5,7 @@
 package etomica.models.water;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
 import etomica.space.Space;
@@ -29,7 +29,7 @@ public class ConformationWaterGCPMCOM extends ConformationWaterGCPM {
                 
         IAtom h2 = list.getAtom(SpeciesWater4PCOM.indexH2);
         
-        IVector cr = list.getAtom(SpeciesWater4PCOM.indexC).getPosition();
+        Vector cr = list.getAtom(SpeciesWater4PCOM.indexC).getPosition();
         cr.Ea1Tv1(Oxygen.INSTANCE.getMass(), o.getPosition());
         cr.PEa1Tv1(Hydrogen.INSTANCE.getMass(), h1.getPosition());
         cr.PEa1Tv1(Hydrogen.INSTANCE.getMass(), h2.getPosition());

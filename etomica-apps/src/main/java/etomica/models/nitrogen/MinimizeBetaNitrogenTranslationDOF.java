@@ -10,7 +10,7 @@ import java.io.IOException;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
@@ -67,7 +67,7 @@ public class MinimizeBetaNitrogenTranslationDOF extends Simulation {
 		addBox(box);
 		box.setNMolecules(species, numMolecule);
 		
-		boxDim = new IVector[3];
+		boxDim = new Vector[3];
 		boxDim[0] = space.makeVector(new double[]{nC[0]*aDim, 0, 0});
 		boxDim[1] = space.makeVector(new double[]{-nC[1]*aDim*Math.cos(Degree.UNIT.toSim(60)), nC[1]*aDim*Math.sin(Degree.UNIT.toSim(60)), 0});
 		boxDim[2] = space.makeVector(new double[]{0, 0, nC[2]*cDim});
@@ -394,7 +394,7 @@ public class MinimizeBetaNitrogenTranslationDOF extends Simulation {
 	protected Space space;
 	protected Primitive primitive;
 	protected Boundary boundary;
-	protected IVector[] boxDim; 
+	protected Vector[] boxDim;
 	protected double aDim, cDim;
 	protected double [] parameters;  
 	protected int[] nC;

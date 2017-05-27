@@ -14,7 +14,7 @@ import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.space.Space;
-import etomica.api.IVector;
+import etomica.space.Vector;
 
 /**
  * Created by andrew on 4/11/17.
@@ -22,7 +22,7 @@ import etomica.api.IVector;
 public class MCMoveAtomCoupled extends MCMoveBoxStep {
     protected final AtomIteratorArrayListSimple affectedAtomIterator;
     protected final MeterPotentialEnergy energyMeter;
-    protected final IVector translationVector;
+    protected final Vector translationVector;
     protected IAtom atom, atom2;
     protected double uOld;
     protected double uNew = Double.NaN;

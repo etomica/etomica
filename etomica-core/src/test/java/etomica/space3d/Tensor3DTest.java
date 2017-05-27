@@ -1,6 +1,6 @@
 package etomica.space3d;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.Tensor;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,13 +58,13 @@ public class Tensor3DTest {
         assertTrue(t3.equals(t1));
     }
 
-    // tests E(IVector[]) and assignTo(IVector[])
+    // tests E(Vector[]) and assignTo(Vector[])
     @Test
     public void testE() throws Exception {
         Vector3D v0 = new Vector3D(1.0,4.0,7.0);
         Vector3D v1 = new Vector3D(2.0,-5.0,8.0);
         Vector3D v2 = new Vector3D(3.0,6.0,9.0);
-        t2.E(new IVector[] {v0, v1, v2});
+        t2.E(new Vector[] {v0, v1, v2});
         assertTrue(t2.equals(t1));
 
         Vector3D[] vecs = new Vector3D[] {new Vector3D(),new Vector3D(), new Vector3D()};

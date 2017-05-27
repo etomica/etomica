@@ -6,7 +6,7 @@ package etomica.normalmode;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2HardSpherical;
@@ -27,7 +27,7 @@ import etomica.space.Tensor;
 public class P2XOrder extends Potential2 implements Potential2Spherical, PotentialHard {
     
     private static final long serialVersionUID = 1L;
-    protected final IVector dr;
+    protected final Vector dr;
     protected Box box;
     protected Potential2HardSpherical wrappedPotential;
     protected boolean hasPBC;

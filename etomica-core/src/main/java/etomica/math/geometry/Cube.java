@@ -8,7 +8,7 @@
  */
 package etomica.math.geometry;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space3d.Vector3D;
 
@@ -62,7 +62,7 @@ public class Cube extends Hexahedron {
      * Returns <code>true</code> if the given vector lies inside (or on the surface of)
      * this cell, <code>false</code> otherwise.
      */
-    public boolean contains(IVector v) {
+    public boolean contains(Vector v) {
         double x = v.getX(0)-position.getX(0);
         double y = v.getX(1)-position.getX(1);
         double z = v.getX(2)-position.getX(2);
