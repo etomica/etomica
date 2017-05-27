@@ -12,23 +12,4 @@ import etomica.api.IVectorMutable;
  */
 public interface IVectorRandom extends IVectorMutable {
 
-    /**
-     * Assigns this vector to equal a point chosen randomly on the 
-     * surface of a unit sphere.
-     * @param random the random number generator used to perform the operation
-     */
-    void setRandomSphere(IRandom random);
-
-    /**
-     * Assigns each component to (its own) random value between -0.5 and + 0.5.
-     * @param random the random number generator used to perform the operation
-     */
-    void setRandomCube(IRandom random);
-
-    /**
-     * Assigns this vector to equal a point chosen randomly in the volume
-     * of a unit sphere.
-     * @param random the random number generator used to perform the operation
-     */
-    void setRandomInSphere(IRandom random);
 }

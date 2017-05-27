@@ -62,4 +62,126 @@ public interface IVector {
      * from this one.  Neither vector is changed by this operation.
      */
     public double Mv1Squared(IVector v1);
+
+    /**
+     * Sets the i-th component of the vector to the given value d. If index
+     * exceeds dimension of vector, no error is given and the last element of
+     * the vector is assigned.
+     */
+    void setX(int i, double d);
+
+    /**
+     * Sets the components of this vector equal to those of the given vector.
+     */
+    void E(IVector u);
+
+    /**
+     * Sets all components of this vector equal to the given value.
+     */
+    void E(double a);
+
+    /**
+     * Sets the components of this vector equal to the corresponding elements of
+     * the given array. Inverse of the assignTo method.
+     */
+    void E(double[] a);
+
+    /**
+     * Plus-equals (+=) operation. Increments each component of this vector by
+     * the corresponding value in the given vector.
+     */
+    void PE(IVector u);
+
+    /**
+     * Plus-equals (+=) operation, causing a constant value to be added to all
+     * components of this vector.
+     */
+    void PE(double a);
+
+    /**
+     * Minus-equals (-=) operation. Decrements each component of this vector by
+     * the corresponding value in the given vector.
+     */
+    void ME(IVector u);
+
+    /**
+     * Times-equals (*=) operation. Multiplies each component of this vector by
+     * the corresponding value in the given vector.
+     */
+    void TE(IVector u);
+
+    /**
+     * Divide-equals (/=) operation. Divides each component of this vector by
+     * the corresponding value in the given vector.
+     */
+    void DE(IVector u);
+
+    /**
+     * Multiplies all components by a constant.
+     */
+    void TE(double a);
+
+    /**
+     * Operation (= a1 * v1); sets the components of this to those of the given
+     * vector multiplied by the given constant.
+     */
+    void Ea1Tv1(double a, IVector v1);
+
+    /**
+     * Increments (+=) components by (a1 * v1)
+     */
+    void PEa1Tv1(double a, IVector v1);
+
+    /**
+     * Sets the components of this vector equal to (v1 + v2)
+     */
+    void Ev1Pv2(IVector v1, IVector v2);
+
+    /**
+     * Sets the components of this vector equal to (v1 - v2)
+     */
+    void Ev1Mv2(IVector v1, IVector v2);
+
+    /**
+     * Replaces each component of this vector with its value modulo
+     * the corresponding component in u
+     */
+    void mod(IVector u);
+
+    /**
+     * Normalizes this vector, so this.squared() == 1.  Divides all
+     * components by Math.sqrt(this.squared()).
+     */
+    void normalize();
+
+    /**
+     * Applies the given function to each element of the vector.
+     */
+    void map(IFunction f);
+
+    /**
+     * Sets this vector equal to the cross product of this vector with the
+     * given vector (only works for 3D vectors).
+     */
+    void XE(IVector u);
+
+    /**
+     * Assigns this vector to equal a point chosen randomly on the
+     * surface of a unit sphere.
+     * @param random the random number generator used to perform the operation
+     */
+    void setRandomSphere(IRandom random);
+
+    /**
+     * Assigns each component to (its own) random value between -0.5 and + 0.5.
+     * @param random the random number generator used to perform the operation
+     */
+    void setRandomCube(IRandom random);
+
+    /**
+     * Assigns this vector to equal a point chosen randomly in the volume
+     * of a unit sphere.
+     * @param random the random number generator used to perform the operation
+     */
+    void setRandomInSphere(IRandom random);
 }
