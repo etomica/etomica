@@ -1,11 +1,7 @@
 package etomica.data.meter;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IVectorMutable;
 import etomica.data.DataSourceUniform;
 import etomica.data.DataSourceUniform.LimitType;
 import etomica.potential.PotentialCalculation;
@@ -20,7 +16,7 @@ import etomica.units.Length;
 
 public class PotentialCalculationRDF implements PotentialCalculation {
 
-    protected final IVectorMutable dr;
+    protected final IVector dr;
     protected long[] gSum;
     protected IBoundary boundary;
     protected final DataSourceUniform xDataSource;

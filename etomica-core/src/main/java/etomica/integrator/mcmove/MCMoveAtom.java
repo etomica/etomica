@@ -5,6 +5,7 @@
 package etomica.integrator.mcmove;
 
 import etomica.api.IAtom;
+import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -14,7 +15,6 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.space.Space;
-import etomica.space.IVectorRandom;
 
 /**
  * Standard Monte Carlo atom-displacement trial move.
@@ -25,7 +25,7 @@ public class MCMoveAtom extends MCMoveBoxStep {
 
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     protected final MeterPotentialEnergy energyMeter;
-    protected final IVectorRandom translationVector;
+    protected final IVector translationVector;
     protected IAtom atom;
     protected double uOld;
     protected double uNew = Double.NaN;
@@ -54,7 +54,7 @@ public class MCMoveAtom extends MCMoveBoxStep {
         atomSource = new AtomSourceRandomLeaf();
         ((AtomSourceRandomLeaf)atomSource).setRandomNumberGenerator(random);
         this.energyMeter = meterPE;
-        translationVector = (IVectorRandom)space.makeVector();
+        translationVector = (IVector)space.makeVector();
         setStepSizeMax(stepSizeMax);
         setStepSizeMin(0.0);
         setStepSize(stepSize);

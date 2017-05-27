@@ -18,7 +18,7 @@ import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.potential.Potential2;
 import etomica.space.Space;
-import etomica.space.IVectorRandom;
+import etomica.api.IVector;
 
 /**
  * Standard Monte Carlo atom-displacement trial move. Two atoms are moved at a
@@ -41,7 +41,7 @@ public class MCMoveAtomSuperBox extends MCMoveBoxStep {
         cells = coordinateDefinition.getBasisCells();
         
         energyMeter = new MeterPotentialEnergy(potentialMaster);
-        translationVector = (IVectorRandom)_space.makeVector();
+        translationVector = (IVector)_space.makeVector();
         setStepSizeMax(0.5);
         setStepSizeMin(0.0);
         setStepSize(0.1);
@@ -348,7 +348,7 @@ public class MCMoveAtomSuperBox extends MCMoveBoxStep {
     protected final AtomIteratorArrayListSimple affectedAtomIterator;
     protected final AtomArrayList affectedAtomList;
     protected final MeterPotentialEnergy energyMeter;
-    protected final IVectorRandom translationVector;
+    protected final IVector translationVector;
     protected IAtom atom0, atom1, atomSpeciesA, atomSpeciesB;
     protected double uOld;
     protected double uNew;

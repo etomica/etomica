@@ -9,7 +9,6 @@ import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.simulation.Simulation;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.nbr.list.PotentialMasterList;
@@ -39,7 +38,7 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
     protected MeterPotentialEnergy meterPE;
     protected CoordinateDefinition cDef, simCDef;
     protected int cDim, simCDim;
-    protected IVectorMutable[] waveVectors, simWaveVectors;
+    protected IVector[] waveVectors, simWaveVectors;
     protected double[] simRealT, simImagT;
     protected double temperature;
     protected double[] newU;

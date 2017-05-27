@@ -8,9 +8,9 @@ import java.io.IOException;
 import java.util.Formatter;
 
 import etomica.api.IAtom;
+import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorBox;
@@ -38,7 +38,7 @@ public class IntegratorEnergyMap extends IntegratorBox implements AgentSource{
         try {
            
             Formatter formatter = new Formatter("energy-"+fileTail);
-            IVectorMutable pos = adatom.getPosition();
+            IVector pos = adatom.getPosition();
             // Move atom along Y-axis, steps by 0.1
             for(int i=0; i<292; i++){ //292
                 

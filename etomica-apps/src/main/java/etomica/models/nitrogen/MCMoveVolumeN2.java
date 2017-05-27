@@ -5,12 +5,9 @@
 package etomica.models.nitrogen;
 
 import etomica.action.BoxInflate;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
 import etomica.simulation.Simulation;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -199,7 +196,7 @@ public class MCMoveVolumeN2 extends MCMoveBoxStep {
 		isXYZChange = true;
 	}
 	
-	private IVectorMutable rScale;
+	private IVector rScale;
 	private double[] coeff;
     private int caseNumMolec = 0;
     private ISpecies species;

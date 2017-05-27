@@ -6,7 +6,7 @@ package etomica.virial;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.config.IConformation;
 import etomica.space.Space;
 
@@ -81,7 +81,7 @@ public class ConformationAnthraceneTraPPE implements IConformation, java.io.Seri
 	protected static final double threesqrt3a = sqrt3a * 3 ;
 	protected static final double foursqrt3a = sqrt3a * 4 ;
 
-	protected IVectorMutable vector;
+	protected IVector vector;
 	
 	private static final long serialVersionUID = 1L;
 }

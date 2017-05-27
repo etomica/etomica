@@ -8,7 +8,6 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IRandom;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.iterator.AtomIterator;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.space.Space;
@@ -66,7 +65,7 @@ public class MCMoveEinsteinCrystal extends MCMoveBox {
         }
         for (int i=0; i<end; i++) {
             IAtom a = atomList.getAtom(i);
-            IVectorMutable p = a.getPosition();
+            IVector p = a.getPosition();
             IVector site = coordinateDefinition.getLatticePosition(a);
             for (int k=0; k<p.getD(); k++) {
                 p.setX(k, einFac * random.nextGaussian() );
@@ -80,7 +79,7 @@ public class MCMoveEinsteinCrystal extends MCMoveBox {
             dr.TE(-1.0/end);
             for (int i=0; i<end; i++) {
                 IAtom a = atomList.getAtom(i);
-                IVectorMutable p = a.getPosition();
+                IVector p = a.getPosition();
                 p.PE(dr);
             }
         }
@@ -104,5 +103,5 @@ public class MCMoveEinsteinCrystal extends MCMoveBox {
     protected final IRandom random;
     protected CoordinateDefinition coordinateDefinition;
     protected boolean fixedCOM;
-    protected final IVectorMutable dr;
+    protected final IVector dr;
 }

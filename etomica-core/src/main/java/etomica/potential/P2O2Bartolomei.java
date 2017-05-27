@@ -7,11 +7,8 @@ package etomica.potential;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
 import etomica.space.Space;
 import etomica.units.BohrRadius;
@@ -143,12 +140,12 @@ public class P2O2Bartolomei implements IPotentialAtomic {
         double th1 = 0;
         double th2 = 0;
         double phi = 0;
-        IVectorMutable ex = space.makeVector();
-        IVectorMutable ey = space.makeVector();
-        IVectorMutable ez = space.makeVector();
-        IVectorMutable dr = space.makeVector();
-        IVectorMutable a0 = space.makeVector();
-        IVectorMutable a1 = space.makeVector();        
+        IVector ex = space.makeVector();
+        IVector ey = space.makeVector();
+        IVector ez = space.makeVector();
+        IVector dr = space.makeVector();
+        IVector a0 = space.makeVector();
+        IVector a1 = space.makeVector();
         
         ex.E(0);
         ex.setX(0, 1);
@@ -170,8 +167,8 @@ public class P2O2Bartolomei implements IPotentialAtomic {
         if (cth2 > 1.0) cth2 = 1.0;
         if (cth2 < -1.0) cth2 = -1.0;
         th2 = Math.acos(cth2);
-        IVectorMutable n0 = space.makeVector();
-        IVectorMutable n1 = space.makeVector();
+        IVector n0 = space.makeVector();
+        IVector n1 = space.makeVector();
         n0.E(a0);
         n0.PEa1Tv1(-cth1, ex);
         if (n0.isZero())  n0.E(ey);
@@ -746,7 +743,7 @@ public class P2O2Bartolomei implements IPotentialAtomic {
         protected final double temperature;
         protected final double mass = 4.002602;
         protected final double fac;
-        protected final IVectorMutable dr;
+        protected final IVector dr;
 
         public P2O2TI(double temperature) {
             dr = space.makeVector();

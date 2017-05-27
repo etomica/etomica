@@ -10,11 +10,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Formatter;
 
-import etomica.api.IBoundary;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
 import etomica.space.Space;
 
 /** 
@@ -45,10 +42,10 @@ public class P2QChem extends PotentialMolecular {
     	IMolecule molecule1 = atoms.getMolecule(0);
     	IMolecule molecule2 = atoms.getMolecule(1);
     	
-    	IVectorMutable atomPos1 = molecule1.getChildList().getAtom(0).getPosition();
-    	IVectorMutable atomPos2  = molecule2.getChildList().getAtom(0).getPosition();
+    	IVector atomPos1 = molecule1.getChildList().getAtom(0).getPosition();
+    	IVector atomPos2  = molecule2.getChildList().getAtom(0).getPosition();
       
-    	IVectorMutable r12Vec = space.makeVector();
+    	IVector r12Vec = space.makeVector();
     	r12Vec.Ev1Mv2(atomPos1, atomPos2);
     	
     	double r12Mag = Math.sqrt(r12Vec.squared());
@@ -140,7 +137,7 @@ public class P2QChem extends PotentialMolecular {
 		
 	}
 	
-	public void makeInputFile(IVectorMutable atomPos1, IVectorMutable atomPos2) {
+	public void makeInputFile(IVector atomPos1, IVector atomPos2) {
 		
 		String fileName = "argon.in";
 		

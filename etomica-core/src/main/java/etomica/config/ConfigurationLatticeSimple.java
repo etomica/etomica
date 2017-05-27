@@ -10,7 +10,6 @@ import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
@@ -83,15 +82,15 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
                 / (double) basisSize);
 
         // determine scaled shape of simulation volume
-        IVectorMutable dim = space.makeVector();
+        IVector dim = space.makeVector();
         IBoundary boundary = box.getBoundary();
         for (int i=0; i<space.D(); i++) {
             IVector edgeVector = boundary.getEdgeVector(i);
             dim.setX(i,Math.sqrt(edgeVector.squared()));
         }
-        IVectorMutable shape = space.makeVector();
+        IVector shape = space.makeVector();
         shape.E(dim);
-        IVectorMutable latticeConstantV = space.makeVector(lattice.getLatticeConstants());
+        IVector latticeConstantV = space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
 
         // determine number of cells in each direction
@@ -109,9 +108,9 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
 
         // Place molecules
         indexIterator.reset();
-        IVectorMutable offset = space.makeVector();
+        IVector offset = space.makeVector();
         offset.Ea1Tv1(-0.5, box.getBoundary().getBoxSize());
-        IVectorMutable destinationVector = atomActionTranslateTo.getDestination();
+        IVector destinationVector = atomActionTranslateTo.getDestination();
         int nMolecules = moleculeList.getMoleculeCount();
         for (int i=0; i<nMolecules; i++) {
             IMolecule a = moleculeList.getMolecule(i);

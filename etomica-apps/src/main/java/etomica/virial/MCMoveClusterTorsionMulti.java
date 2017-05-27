@@ -4,16 +4,9 @@
 
 package etomica.virial;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
 import etomica.simulation.Simulation;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.MoleculeArrayList;
@@ -367,7 +360,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
     protected void selectMolecules() {
         IMoleculeList molecules = box.getMoleculeList();
         selectedMolecules = new MoleculeArrayList();
-        oldPositions = new IVectorMutable[molecules.getMoleculeCount()][0];
+        oldPositions = new IVector[molecules.getMoleculeCount()][0];
     	int i=0;
         for (int k=0; k < molecules.getMoleculeCount();k++) {
         	IMolecule a = molecules.getMolecule(k);
@@ -375,7 +368,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
             if (numChildren<4) {
             	continue;
             }
-            oldPositions[i] = new IVectorMutable[numChildren];
+            oldPositions[i] = new IVector[numChildren];
             for (int j=0; j<numChildren; j++) {
                 oldPositions[i][j] = space.makeVector();
             }
@@ -417,10 +410,10 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
     protected final int[] probabilityReverseMap;
     protected MoleculeArrayList selectedMolecules;
     protected double bondLength;
-    protected final IVectorMutable work1, work2, work3;
-    protected final IVectorMutable dr21, dr23, dr34;
-    protected IVectorMutable[][] oldPositions;
-    protected final IVectorMutable oldCenter;
+    protected final IVector work1, work2, work3;
+    protected final IVector dr21, dr23, dr34;
+    protected IVector[][] oldPositions;
+    protected final IVector oldCenter;
     protected double wOld, wNew, bias;
     protected ISpecies species;
 

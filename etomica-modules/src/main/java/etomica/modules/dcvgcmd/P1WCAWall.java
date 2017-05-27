@@ -6,7 +6,6 @@ package etomica.modules.dcvgcmd;
 
 import etomica.api.IAtomList;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
 import etomica.space.Space;
@@ -19,7 +18,7 @@ import etomica.space.Tensor;
 public class P1WCAWall extends Potential1 implements PotentialSoft {
 
     private static final long serialVersionUID = 1L;
-    protected final IVectorMutable[] gradient;
+    protected final IVector[] gradient;
     protected double sigma;
     protected double epsilon;
     protected double cutoff;
@@ -34,7 +33,7 @@ public class P1WCAWall extends Potential1 implements PotentialSoft {
         setSigma(sigma);
         setEpsilon(epsilon);
         setWallDim(wallDim);
-        gradient = new IVectorMutable[1];
+        gradient = new IVector[1];
         gradient[0] = space.makeVector();
     }
 

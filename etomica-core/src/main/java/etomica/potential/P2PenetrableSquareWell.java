@@ -6,7 +6,7 @@ package etomica.potential;
 import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
@@ -32,7 +32,7 @@ public class P2PenetrableSquareWell extends Potential2HardSpherical {
     protected double lastCollisionVirial, lastCollisionVirialr2;
     protected Tensor lastCollisionVirialTensor;
     protected double lastEnergyChange;
-    protected IVectorMutable dv;
+    protected IVector dv;
     protected final boolean ignoreOverlap;
 
     public P2PenetrableSquareWell(Space space) {

@@ -4,13 +4,9 @@
 
 package etomica.normalmode;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IPotentialAtomic;
 import etomica.simulation.Simulation;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
 import etomica.box.BoxAgentManager;
 import etomica.space.Space;
@@ -136,7 +132,7 @@ public class P1ConstraintNbr implements IPotentialAtomic{
 	 * neighbors (but not for i as a neighbor)
 	 */
 	public double energyi(IAtom atom) {
-	    IVectorMutable posAtom = atom.getPosition();
+	    IVector posAtom = atom.getPosition();
 
 	    int atomIndex = atom.getLeafIndex();
 	    int[] list = neighborAtoms[atomIndex];
@@ -167,7 +163,7 @@ public class P1ConstraintNbr implements IPotentialAtomic{
 	 * atom opposite from j.
 	 */
 	protected double energyij(IAtom atomi, IAtom atomj) {
-	    IVectorMutable posAtom = atomi.getPosition();
+	    IVector posAtom = atomi.getPosition();
 
 	    int atomIndex = atomi.getLeafIndex();
 	    int[] list = neighborAtoms[atomIndex];
@@ -197,7 +193,7 @@ public class P1ConstraintNbr implements IPotentialAtomic{
 	}
 
 	protected int[][] neighborAtoms;
-	protected final IVectorMutable drj, drk;
+	protected final IVector drj, drk;
 	protected double neighborRadiusSq;
 	protected IBoundary boundary;
 	protected IAtomList leafList;

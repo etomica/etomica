@@ -5,11 +5,8 @@
 
 package etomica.models.water;
 
-import etomica.api.IBoundary;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
 import etomica.potential.PotentialMolecular;
 import etomica.space.Space;
 
@@ -48,8 +45,8 @@ public class P2Water3P extends PotentialMolecular {
 		IMolecule water2 = pair.getMolecule(1);
 		
 		//compute O-O distance to consider truncation	
-        IVectorMutable O1r = (water1.getChildList().getAtom(2)).getPosition();
-        IVectorMutable O2r = (water2.getChildList().getAtom(2)).getPosition();
+        IVector O1r = (water1.getChildList().getAtom(2)).getPosition();
+        IVector O2r = (water2.getChildList().getAtom(2)).getPosition();
 
 		work.Ev1Mv2(O1r, O2r);
         shift.Ea1Tv1(-1,work);
@@ -65,10 +62,10 @@ public class P2Water3P extends PotentialMolecular {
 		double s6 = s2*s2*s2;
 		sum += epsilon4*s6*(s6 - 1.0);
 		
-        IVectorMutable H11r = (water1.getChildList().getAtom(0)).getPosition();
-        IVectorMutable H12r = (water1.getChildList().getAtom(1)).getPosition();
-        IVectorMutable H21r = (water2.getChildList().getAtom(0)).getPosition();
-        IVectorMutable H22r = (water2.getChildList().getAtom(1)).getPosition();
+        IVector H11r = (water1.getChildList().getAtom(0)).getPosition();
+        IVector H12r = (water1.getChildList().getAtom(1)).getPosition();
+        IVector H21r = (water2.getChildList().getAtom(0)).getPosition();
+        IVector H22r = (water2.getChildList().getAtom(1)).getPosition();
         		
         if (zeroShift) {
             r2 = O1r.Mv1Squared(H21r);
@@ -147,5 +144,5 @@ public class P2Water3P extends PotentialMolecular {
 	protected final double chargeH;
 	protected final double chargeO;
 	protected final double chargeOO, chargeOH, chargeHH;
-	protected final IVectorMutable work, shift;
+	protected final IVector work, shift;
 }

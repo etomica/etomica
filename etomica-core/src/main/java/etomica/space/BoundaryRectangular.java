@@ -5,7 +5,6 @@
 package etomica.space;
 
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.math.geometry.*;
 
@@ -16,9 +15,9 @@ import etomica.math.geometry.*;
 public abstract class BoundaryRectangular extends Boundary {
 
     private static final long serialVersionUID = 1L;
-    protected final IVectorMutable dimensions;
+    protected final IVector dimensions;
     protected final float[][] shift0 = new float[0][0];
-    protected final IVectorMutable[] edgeVectors;
+    protected final IVector[] edgeVectors;
     private final IndexIteratorRectangular indexIterator;
 
     /**
@@ -46,7 +45,7 @@ public abstract class BoundaryRectangular extends Boundary {
         dimensions.E(boxSize);
 
         indexIterator = new IndexIteratorRectangular(space.D());
-        edgeVectors = new IVectorMutable[space.D()];
+        edgeVectors = new IVector[space.D()];
         for (int i = 0; i < space.D(); i++) {
             edgeVectors[i] = space.makeVector();
         }
@@ -121,7 +120,7 @@ public abstract class BoundaryRectangular extends Boundary {
      * is the dimension of the space.
      */
     public double[][] imageOrigins(int nShells) {
-        IVectorMutable workVector = space.makeVector();
+        IVector workVector = space.makeVector();
         int shellFormula = (2 * nShells) + 1;
         int nImages = space.powerD(shellFormula) - 1;
         double[][] origins = new double[nImages][space.D()];

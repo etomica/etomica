@@ -5,7 +5,7 @@
 package etomica.modules.entropylottery;
 
 import etomica.box.Box;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.modifier.Modifier;
 import etomica.space.Space;
 import etomica.units.Dimension;
@@ -40,5 +40,5 @@ public class ModifierDimensions implements Modifier {
     }
 
     private final Box box;
-    protected final IVectorMutable boxDim;
+    protected final IVector boxDim;
 }

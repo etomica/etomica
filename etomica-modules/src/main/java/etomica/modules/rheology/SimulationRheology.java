@@ -6,7 +6,7 @@ package etomica.modules.rheology;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.graphics.SimulationGraphic;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
@@ -30,7 +30,7 @@ public class SimulationRheology extends Simulation {
     public SimulationRheology(Space space) {
         super(space);
         box = new Box(new BoundaryRectangularNonperiodic(space), space);
-        IVectorMutable d = space.makeVector();
+        IVector d = space.makeVector();
         d.E(20);
         box.getBoundary().setBoxSize(d);
         addBox(box);

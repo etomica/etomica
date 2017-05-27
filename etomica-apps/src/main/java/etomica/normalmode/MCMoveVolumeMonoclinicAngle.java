@@ -8,7 +8,7 @@ import etomica.action.BoxInflateAnisotropic;
 import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -33,7 +33,7 @@ public class MCMoveVolumeMonoclinicAngle extends MCMoveBoxStep {
 
     private transient double uOld;
     private transient double uNew = Double.NaN;
-    protected final IVectorMutable cVec;
+    protected final IVector cVec;
 
     /**
      * @param potentialMaster an appropriate PotentialMaster instance for calculating energies

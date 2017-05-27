@@ -19,7 +19,6 @@ import etomica.api.IRandom;
 import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.atom.iterator.AtomIteratorLeafFilteredType;
@@ -45,12 +44,12 @@ public class IntegratorKMCCluster extends IntegratorBox{
     IRandom random;
     Simulation sim;
     ISpecies [] species;
-    IVectorMutable [] minPosition, currentSaddle, previousSaddle;
+    IVector[] minPosition, currentSaddle, previousSaddle;
     double[] saddleVib;
     double[] saddleEnergies;
     double[] rates;
     double tau;
-    IVectorMutable msd;
+    IVector msd;
     double beta;
     double massSec;
     double minEnergy;
@@ -236,8 +235,8 @@ public class IntegratorKMCCluster extends IntegratorBox{
         imposePbc = new BoxImposePbc(box, space);
         rates = new double[totalSearches];
         beta = 1.0/(temperature*1.3806503E-023);
-        currentSaddle = new IVectorMutable[box.getMoleculeList().getMoleculeCount()];
-        previousSaddle = new IVectorMutable[box.getMoleculeList().getMoleculeCount()];
+        currentSaddle = new IVector[box.getMoleculeList().getMoleculeCount()];
+        previousSaddle = new IVector[box.getMoleculeList().getMoleculeCount()];
         for(int i=0; i<currentSaddle.length; i++){
             currentSaddle[i] = space.makeVector();
             previousSaddle[i] = space.makeVector();
@@ -252,7 +251,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
         minVib = vibFreq;
         
         IMoleculeList loopSet2 = box.getMoleculeList();
-        minPosition = new IVectorMutable[loopSet2.getMoleculeCount()];
+        minPosition = new IVector[loopSet2.getMoleculeCount()];
         for(int i=0; i<minPosition.length; i++){
             minPosition[i] = space.makeVector();
         }
@@ -263,9 +262,9 @@ public class IntegratorKMCCluster extends IntegratorBox{
     }
     
     public void randomizePositions(){
-        IVectorMutable workVector = space.makeVector();
+        IVector workVector = space.makeVector();
         IMoleculeList loopSet3 = box.getMoleculeList(species[0]);
-        IVectorMutable [] currentPos = new IVectorMutable [loopSet3.getMoleculeCount()];
+        IVector[] currentPos = new IVector[loopSet3.getMoleculeCount()];
         double offset = 0;
         for(int i=0; i<currentPos.length; i++){
             currentPos[i] = space.makeVector();
@@ -367,7 +366,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
     }
     
     public boolean checkMin(){
-        IVectorMutable workVector = space.makeVector();
+        IVector workVector = space.makeVector();
         double positionDiff=0;
         for(int i=0; i<box.getMoleculeList().getMoleculeCount(); i++){
             workVector.Ev1Mv2(minPosition[i],box.getMoleculeList().getMolecule(i).getChildList().getAtom(0).getPosition());

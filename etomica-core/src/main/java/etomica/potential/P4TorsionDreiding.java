@@ -9,7 +9,6 @@ import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Vector3D;
@@ -43,7 +42,7 @@ public class P4TorsionDreiding extends Potential implements PotentialSoft {
 		setBeta(beta);
 		setN(n);
 		
-		gradient = new IVectorMutable[4];
+		gradient = new IVector[4];
 		gradient[0] = space.makeVector();
 		gradient[1] = space.makeVector();
 		gradient[2] = space.makeVector();
@@ -291,7 +290,7 @@ public class P4TorsionDreiding extends Potential implements PotentialSoft {
     }
 	
     protected final Vector3D dr12, dr23, dr34, dra, drb, drbxa;
-    protected final IVectorMutable[] gradient;
+    protected final IVector[] gradient;
     protected double phiEq, beta;
     protected int n;
     protected IBoundary boundary;

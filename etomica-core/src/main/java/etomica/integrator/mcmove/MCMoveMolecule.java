@@ -19,7 +19,7 @@ import etomica.atom.iterator.MoleculeIterator;
 import etomica.atom.iterator.MoleculeIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.space.Space;
-import etomica.space.IVectorRandom;
+import etomica.api.IVector;
 
 /**
  * Standard Monte Carlo molecule-displacement trial move.
@@ -38,7 +38,7 @@ public class MCMoveMolecule extends MCMoveBoxStep implements MCMoveMolecular {
     protected Space space;
 
     protected final MoleculeChildAtomAction moveMoleculeAction;
-    protected final IVectorRandom groupTranslationVector;
+    protected final IVector groupTranslationVector;
     protected MoleculeSource moleculeSource;
     protected IMolecule molecule;
 
@@ -63,7 +63,7 @@ public class MCMoveMolecule extends MCMoveBoxStep implements MCMoveMolecular {
         energyMeter.setIncludeLrc(false);
 
         AtomActionTranslateBy translator = new AtomActionTranslateBy(_space);
-        groupTranslationVector = (IVectorRandom)translator.getTranslationVector();
+        groupTranslationVector = (IVector)translator.getTranslationVector();
         moveMoleculeAction = new MoleculeChildAtomAction(translator);
         
         //set directive to exclude intramolecular contributions to the energy

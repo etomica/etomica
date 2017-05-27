@@ -3,7 +3,6 @@ package etomica.integrator.mcmove;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.space.Space;
 
 /**
@@ -16,7 +15,7 @@ public class MCMoveAtomInRegion extends MCMoveAtom {
 
     protected int nAttempts;
     protected double xMin, xMax;
-    protected IVectorMutable oldPosition;
+    protected IVector oldPosition;
     
     public MCMoveAtomInRegion(IRandom random, IPotentialMaster potentialMaster,
             Space _space) {

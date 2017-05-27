@@ -7,7 +7,7 @@
  */
 package etomica.models.hexane;
 
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.config.ConformationChainZigZag;
 import etomica.space.Space;
 
@@ -43,11 +43,11 @@ public class ConformationHexane extends ConformationChainZigZag {
 //		 v2.setX(2, 3.87292503317033);
 	}
     
-	public IVectorMutable getV1(){
+	public IVector getV1(){
 	    return v1;
     }
 
-    public IVectorMutable getV2(){
+    public IVector getV2(){
         return v2;
     }
 }

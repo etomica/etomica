@@ -16,7 +16,6 @@ import etomica.box.Box;
 import etomica.api.IElement;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Nitrogen;
@@ -218,12 +217,12 @@ public class WriteConfigurationP2DLPOLY implements IAction {
 	            			
 	            			formatter.format("%8s%10d\n", new Object[]{atomName, atomCount});
 	            			atomCount++;
-		                	IVectorMutable atomPos = atom.getPosition();
+		                	IVector atomPos = atom.getPosition();
 		                	formatter.format("%20.12f%20.12f%20.12f\n", new Object[]{atomPos.getX(0), atomPos.getX(1), atomPos.getX(2)});
 	                		                	
 		                	
 		                	if (writeVelocity){
-		                		IVectorMutable atomVelocity = ((IAtomKinetic)atom).getVelocity();
+		                		IVector atomVelocity = ((IAtomKinetic)atom).getVelocity();
 		                		formatter.format("%20f%20f%20f\n", 
 		                				new Object[]{atomVelocity.getX(0), atomVelocity.getX(1), atomVelocity.getX(2)});
 		                	}

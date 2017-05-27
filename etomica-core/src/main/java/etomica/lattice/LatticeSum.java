@@ -5,7 +5,6 @@
 package etomica.lattice;
 
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.data.FunctionData;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
@@ -33,7 +32,7 @@ public class LatticeSum {
             coreIterator.setMaxElementMin(m);
             iterator.reset();
             while(iterator.hasNext()) {
-                IVectorMutable site = (IVectorMutable)lattice.site(iterator.next());
+                IVector site = (IVector)lattice.site(iterator.next());
                 IData value = function.f(site);
                 double kDotr = kVector.dot(site);
                 double ckr = Math.cos(kDotr);
@@ -155,6 +154,6 @@ public class LatticeSum {
     private SpaceLattice lattice;
     private IndexIterator iterator;
     private IndexIteratorTriangular coreIterator;
-    private final IVectorMutable kVector;
+    private final IVector kVector;
     private int maxElement;
 }

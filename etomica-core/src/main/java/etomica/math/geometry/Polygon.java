@@ -4,7 +4,7 @@
 
 package etomica.math.geometry;
 
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.space.Space;
 
 /**
@@ -33,7 +33,7 @@ public abstract class Polygon extends Polytope {
     }
     
     private static LineSegment[] makeEdges(Space embeddedSpace, int nSides) {
-        IVectorMutable[] vertices = embeddedSpace.makeVectorArray(nSides);
+        IVector[] vertices = embeddedSpace.makeVectorArray(nSides);
         LineSegment[] edges = new LineSegment[nSides];
         for (int i = 1; i < nSides; i++) {
             edges[i] = new LineSegment(embeddedSpace,

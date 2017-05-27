@@ -6,13 +6,9 @@ package etomica.normalmode;
 
 import java.io.FileWriter;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -50,7 +46,7 @@ public class MeterDDP implements IEtomicaDataSource {
     protected boolean linPSpan;
     protected int numP = 1;
     protected P1ConstraintNbr p1;
-    protected final IVectorMutable work;
+    protected final IVector work;
     protected Function uLatFunction = uLat0;
     protected FileWriter fw;
     
@@ -127,7 +123,7 @@ public class MeterDDP implements IEtomicaDataSource {
 //                System.out.println(i+" "+k+" "+p[i][k]+" "+rScale+" "+fac+" "+((p[i][k]*(vi-v0) + (uLatRhoi-uLatRho0))/(numAtoms*temperature*D)));
                 for (int j=0; j<numAtoms; j++) {
                     IAtom jRealAtom = atoms.getAtom(j);
-                    IVectorMutable pos = pretendAtoms.getAtom(j).getPosition();
+                    IVector pos = pretendAtoms.getAtom(j).getPosition();
 //                    if (j==25) System.out.println("hi "+coordinateDefinition.getLatticePosition(jRealAtom)+" "+jRealAtom.getPosition());
                     pos.Ea1Tv1(rScale-fac, coordinateDefinition.getLatticePosition(jRealAtom));
                     pos.PEa1Tv1(+fac, jRealAtom.getPosition());
@@ -264,7 +260,7 @@ public class MeterDDP implements IEtomicaDataSource {
         IAtomList pretendAtoms = pretendBox.getLeafList();
         for (int j=0; j<atoms.getAtomCount(); j++) {
             IAtom jRealAtom = atoms.getAtom(j);
-            IVectorMutable pos = pretendAtoms.getAtom(j).getPosition();
+            IVector pos = pretendAtoms.getAtom(j).getPosition();
             pos.E(coordinateDefinition.getLatticePosition(jRealAtom));
         }
 

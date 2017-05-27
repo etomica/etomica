@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 
 import etomica.action.IAction;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.atom.AtomPair;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPumpListener;
@@ -219,8 +219,8 @@ public class RheologyGraphic extends SimulationGraphic {
         // now construct new flowlines
         double a = sliderA.getValue();
         double sr = shearBox.getModifier().getValue();
-        IVectorMutable s = space.makeVector();
-        IVectorMutable v = space.makeVector();
+        IVector s = space.makeVector();
+        IVector v = space.makeVector();
         // flow doesn't vary with z, so we can put our flowlines in the z=0 plane
         for (int ix = -10; ix < 11; ix+=5) {
             s.setX(0, ix);

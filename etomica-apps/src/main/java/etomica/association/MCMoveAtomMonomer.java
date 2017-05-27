@@ -4,12 +4,8 @@
 
 package etomica.association;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
+import etomica.api.*;
 import etomica.simulation.Simulation;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.Space;
@@ -17,7 +13,7 @@ import etomica.space.Space;
 public class MCMoveAtomMonomer extends MCMoveAtom {
 	protected AssociationManager associationManager;
 	protected final AtomArrayList smerList;
-	protected final IVectorMutable dr;
+	protected final IVector dr;
 	protected int maxLength = Integer.MAX_VALUE;
 	
 	

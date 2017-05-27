@@ -9,7 +9,6 @@ import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomSetSinglet;
 import etomica.graphics.Drawable;
 import etomica.space.Space;
@@ -197,7 +196,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     public void bump(IAtomList atoms, double falseTime) {
         IAtomKinetic atom = (IAtomKinetic)atoms.getAtom(0);
         double r = atom.getPosition().getX(wallD);
-        IVectorMutable v = atom.getVelocity();
+        IVector v = atom.getVelocity();
         if (!isForced) {
             double area = 1.0;
             if (pressure != 0.0) {

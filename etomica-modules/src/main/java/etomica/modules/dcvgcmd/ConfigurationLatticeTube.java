@@ -5,10 +5,10 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.action.MoleculeActionTranslateTo;
+import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.config.ConfigurationLattice;
 import etomica.lattice.BravaisLatticeCrystal;
@@ -59,10 +59,10 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         int nCells = (int)Math.ceil((double)spheresLists[0].getMoleculeCount()/(double)basisSize);
         
         //determine scaled shape of simulation volume
-        IVectorMutable shape = space.makeVector();
+        IVector shape = space.makeVector();
         shape.E(box.getBoundary().getBoxSize());
         shape.setX(2,shape.getX(2)*length);
-        IVectorMutable latticeConstantV = space.makeVector(lattice.getLatticeConstants());
+        IVector latticeConstantV = space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
 
         // determine number of cells in each direction
@@ -79,7 +79,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         }
     
         // determine lattice constant
-        IVectorMutable latticeScaling = space.makeVector();
+        IVector latticeScaling = space.makeVector();
         if (rescalingToFitVolume) {
             // in favorable situations, this should be approximately equal
             // to 1.0
@@ -90,10 +90,10 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         }
 
         // determine amount to shift lattice so it is centered in volume
-        IVectorMutable offset = space.makeVector();
+        IVector offset = space.makeVector();
         offset.E(box.getBoundary().getBoxSize());
-        IVectorMutable vectorOfMax = space.makeVector();
-        IVectorMutable vectorOfMin = space.makeVector();
+        IVector vectorOfMax = space.makeVector();
+        IVector vectorOfMin = space.makeVector();
         vectorOfMax.E(Double.NEGATIVE_INFINITY);
         vectorOfMin.E(Double.POSITIVE_INFINITY);
 
@@ -102,7 +102,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         // non-periodic boundaries
         indexIterator.reset();
         while (indexIterator.hasNext()) {
-            IVectorMutable site = (IVectorMutable) lattice.site(indexIterator.next());
+            IVector site = (IVector) lattice.site(indexIterator.next());
             site.TE(latticeScaling);
             for (int i=0; i<site.getD(); i++) {
                 vectorOfMax.setX(i, Math.max(site.getX(i),vectorOfMax.getX(i)));
@@ -125,7 +125,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
             IMolecule a = spheresLists[0].getMolecule(i);
             
             int[] ii = indexIterator.next();
-            IVectorMutable site = (IVectorMutable) myLat.site(ii);
+            IVector site = (IVector) myLat.site(ii);
             atomActionTranslateTo.setDestination(site);
             atomActionTranslateTo.actionPerformed(a);
         }
@@ -141,7 +141,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
             IMolecule a = spheresLists[1].getMolecule(i);
             
             int[] ii = indexIterator.next();
-            IVectorMutable site = (IVectorMutable) myLat.site(ii);
+            IVector site = (IVector) myLat.site(ii);
             atomActionTranslateTo.setDestination(site);
             atomActionTranslateTo.actionPerformed(a);
         }

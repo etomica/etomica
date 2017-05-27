@@ -11,7 +11,6 @@ import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.space.Space;
@@ -72,7 +71,7 @@ public class ColorSchemeOverlap extends ColorSchemeCollectiveAgent {
     protected final NeighborListManager neighborManager;
     protected final IBoundary boundary;
     protected final IAtomList leafList;
-    protected final IVectorMutable dr;
+    protected final IVector dr;
     protected double sig2;
     protected int[] nOverlaps;
     protected Color[] colors = new Color[]{Color.RED, Color.BLUE, Color.GREEN, Color.BLACK, Color.CYAN, Color.PINK, new Color(0.5f, 0.0f, 0.5f)};

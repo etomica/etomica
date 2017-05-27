@@ -31,9 +31,9 @@ public class P2EAM extends Potential2 implements PotentialSoft {
     
     protected double n2, m2, eps, a, a2, Ceps, rc12, rc22;
     protected IBoundary boundary;
-    protected final IVectorMutable dr;
-    protected IVectorMutable[] gradient;
-    protected IVectorMutable rhograd;
+    protected final IVector dr;
+    protected IVector[] gradient;
+    protected IVector rhograd;
     protected double[] rho;
     protected boolean energyDisabled = false;
 
@@ -49,7 +49,7 @@ public class P2EAM extends Potential2 implements PotentialSoft {
         rc12 = rc1 * rc1;
         rc22 = rc2 * rc2;
         dr = space.makeVector();
-        gradient = new IVectorMutable[2];
+        gradient = new IVector[2];
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();
         rhograd = space.makeVector();

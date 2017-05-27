@@ -8,7 +8,6 @@ import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.Atom;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.MoleculeOriented;
@@ -29,8 +28,8 @@ public class SpeciesSpheresRotatingMolecule extends SpeciesSpheresMono implement
         this(sim, _space, makeNominalMoment(_space));
     }
 
-    protected static final IVectorMutable makeNominalMoment(Space space) {
-        IVectorMutable m = space.makeVector();
+    protected static final IVector makeNominalMoment(Space space) {
+        IVector m = space.makeVector();
         m.E(1);
         return m;
     }
@@ -74,6 +73,6 @@ public class SpeciesSpheresRotatingMolecule extends SpeciesSpheresMono implement
         moment.E(newMoment);
     }
 
-    protected IVectorMutable moment;
+    protected IVector moment;
     private static final long serialVersionUID = 1L;
 }

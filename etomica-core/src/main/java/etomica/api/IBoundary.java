@@ -61,7 +61,7 @@ public interface IBoundary {
      *
      * @param dr the vector to be transformed
      */
-    public void nearestImage(IVectorMutable dr);
+    public void nearestImage(IVector dr);
 
     /**
      * Returns the length of the sides of a rectangular box oriented in the lab

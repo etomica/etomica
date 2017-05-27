@@ -7,7 +7,7 @@ import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.box.Box;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorHard;
@@ -73,7 +73,7 @@ public class Swmd extends Simulation {
         //construct box
 	    box = new Box(space);
         addBox(box);
-        IVectorMutable dim = space.makeVector();
+        IVector dim = space.makeVector();
         dim.E(space.D() == 3 ? 30 : 50);
         box.getBoundary().setBoxSize(dim);
         box.setNMolecules(species, N);

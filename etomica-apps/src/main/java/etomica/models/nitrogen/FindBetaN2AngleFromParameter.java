@@ -6,7 +6,6 @@ package etomica.models.nitrogen;
 
 import etomica.api.IMolecule;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.box.Box;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
@@ -104,14 +103,14 @@ public class FindBetaN2AngleFromParameter extends Simulation{
 		coordinateDef.setToU(box.getMoleculeList(), newU);
 		coordinateDef.initNominalU(box.getMoleculeList());
 		
-		IVectorMutable[] aVector = new IVectorMutable[4];
-		IVectorMutable[] cVector = new IVectorMutable[4];
-		rotationAxis = new IVectorMutable[4];
-		deviationVector = new IVectorMutable[4];
+		IVector[] aVector = new IVector[4];
+		IVector[] cVector = new IVector[4];
+		rotationAxis = new IVector[4];
+		deviationVector = new IVector[4];
 		
-		IVectorMutable temp1 = space.makeVector();	
-		IVectorMutable temp2 = space.makeVector();
-		IVectorMutable bVector = space.makeVector(new double[]{0.0, 0.0, 1.0});
+		IVector temp1 = space.makeVector();
+		IVector temp2 = space.makeVector();
+		IVector bVector = space.makeVector(new double[]{0.0, 0.0, 1.0});
 		
 		for (int i=0; i<aVector.length; i++){
 			aVector[i] = space.makeVector();
@@ -132,8 +131,8 @@ public class FindBetaN2AngleFromParameter extends Simulation{
 			}
 			
 			IMolecule molecule = coordinateDef.getBox().getMoleculeList().getMolecule(j);
-		  	IVectorMutable molleafPos0 = molecule.getChildList().getAtom(0).getPosition();
-		   	IVectorMutable molleafPos1 = molecule.getChildList().getAtom(1).getPosition();
+		  	IVector molleafPos0 = molecule.getChildList().getAtom(0).getPosition();
+		   	IVector molleafPos1 = molecule.getChildList().getAtom(1).getPosition();
 		   	
 			aVector[i].Ev1Mv2(molleafPos1, molleafPos0);
 		    aVector[i].normalize();
@@ -178,7 +177,7 @@ public class FindBetaN2AngleFromParameter extends Simulation{
 	 
 	}
 	
-	public IVectorMutable[] getDeviationVector() {
+	public IVector[] getDeviationVector() {
 		return deviationVector;
 	}
 
@@ -190,7 +189,7 @@ public class FindBetaN2AngleFromParameter extends Simulation{
 		return beta;
 	}
 
-	public IVectorMutable[] getRotationAxis() {
+	public IVector[] getRotationAxis() {
 		return rotationAxis;
 	}
 
@@ -206,7 +205,7 @@ public class FindBetaN2AngleFromParameter extends Simulation{
 	}
 
 	protected double[] alpha, beta;
-	protected IVectorMutable[] rotationAxis;
-	protected IVectorMutable[] deviationVector;
+	protected IVector[] rotationAxis;
+	protected IVector[] deviationVector;
 	private static final long serialVersionUID = 1L;
 }

@@ -4,10 +4,7 @@
 
 package etomica.potential;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
+import etomica.api.*;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
@@ -186,5 +183,5 @@ public class P2HardAssociation extends Potential2HardSpherical {
     private double lastCollisionVirial, lastCollisionVirialr2;
     private final Tensor lastCollisionVirialTensor;
     private double lastEnergyChange;
-    private final IVectorMutable dv;
+    private final IVector dv;
 }

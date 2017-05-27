@@ -20,8 +20,8 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
     protected IBoundary boundary;
     protected IAtomList allAtoms;
     protected final IVector offset;
-    protected final IVectorMutable dr;
-    protected final IVectorMutable[] gradient;
+    protected final IVector dr;
+    protected final IVector[] gradient;
     protected int nOffset;
     protected boolean zeroF = true;
     protected boolean do21;
@@ -32,7 +32,7 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
         this.w = w;
         this.do21 = do21;
         dr = space.makeVector();
-        gradient = new IVectorMutable[1];
+        gradient = new IVector[1];
         gradient[0] = space.makeVector();
     }
     

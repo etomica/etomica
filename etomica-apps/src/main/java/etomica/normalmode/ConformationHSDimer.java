@@ -7,7 +7,6 @@ package etomica.normalmode;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.config.IConformationOriented;
 import etomica.space.IOrientation;
 import etomica.space.Space;
@@ -24,7 +23,7 @@ public class ConformationHSDimer implements IConformationOriented, java.io.Seria
 		this.space = space;
 		this.L = L;
         orientationX = space.makeOrientation();
-        IVectorMutable vectorX = space.makeVector();
+        IVector vectorX = space.makeVector();
         vectorX.setX(0, 1);
         orientationX.setDirection(vectorX);
 	}

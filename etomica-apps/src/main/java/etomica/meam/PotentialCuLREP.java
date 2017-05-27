@@ -8,7 +8,6 @@ import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.potential.PotentialN;
 import etomica.potential.PotentialSoft;
 import etomica.space.Space;
@@ -19,10 +18,10 @@ public class PotentialCuLREP extends PotentialN implements PotentialSoft{
 
     protected double c0, c1, c2, c3, c4, mLREP, nLREP;
     protected double A, rC1, rC2, B, r0;
-    protected IVectorMutable dr, drij, drik, drjk;
+    protected IVector dr, drij, drik, drjk;
     protected IBoundary boundary; 
-    protected IVectorMutable[] gradient; 
-    protected IVectorMutable[] rhograd;
+    protected IVector[] gradient;
+    protected IVector[] rhograd;
     protected double [][] secondder;
     protected int test = 1;
     
@@ -48,8 +47,8 @@ public class PotentialCuLREP extends PotentialN implements PotentialSoft{
         drij=space.makeVector();
         drik=space.makeVector();
         drjk=space.makeVector();
-        gradient=new IVectorMutable[0];
-        rhograd=new IVectorMutable[0];
+        gradient=new IVector[0];
+        rhograd=new IVector[0];
     }
     
     public double getRange() {
@@ -116,8 +115,8 @@ public class PotentialCuLREP extends PotentialN implements PotentialSoft{
         double v1, v2, dv1, dv2, dvdr, drhodr, dudrho, rij, rij_c, rij_d;
         int ng = atoms.getAtomCount();
         if(gradient.length<ng){
-            rhograd=new IVectorMutable[ng];
-            gradient=new IVectorMutable[ng];
+            rhograd=new IVector[ng];
+            gradient=new IVector[ng];
             
             for(int j=0;j<ng;j++){
                 gradient[j]=space.makeVector();

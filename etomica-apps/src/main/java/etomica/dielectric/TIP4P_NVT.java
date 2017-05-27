@@ -14,7 +14,6 @@ import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.DipoleSource;
@@ -77,7 +76,7 @@ public class TIP4P_NVT extends Simulation {
 
      //************************************* for reaction field ********************************************//
      public static class DipoleSourceTIP4PWater implements DipoleSource{//for potential reaction field
-    	 protected final IVectorMutable dipole;
+    	 protected final IVector dipole;
          public DipoleSourceTIP4PWater(Space space){
               dipole=space.makeVector();
          }

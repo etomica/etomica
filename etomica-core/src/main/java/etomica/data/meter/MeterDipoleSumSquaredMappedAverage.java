@@ -6,7 +6,7 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.DipoleSource;
 import etomica.atom.MoleculeAgentManager;
@@ -43,7 +43,7 @@ public class MeterDipoleSumSquaredMappedAverage implements IEtomicaDataSource,Mo
 	protected PotentialCalculationPhiSum secondDerivativeSum;
 	protected final Space space;
 	private Box box;
-	private IVectorMutable vectorSum;
+	private IVector vectorSum;
 //	private IVectorMutable r;
 //	private IVectorMutable [] a;
 	private double dipoleMagnitude;
@@ -51,8 +51,8 @@ public class MeterDipoleSumSquaredMappedAverage implements IEtomicaDataSource,Mo
 	private double temperature;
     protected final IPotentialMaster potentialMaster;
     private final IteratorDirective allAtoms;
-    protected IVectorMutable dr;
-    protected IVectorMutable work;
+    protected IVector dr;
+    protected IVector work;
     protected MoleculeAgentManager moleculeAgentManager;
     protected DipoleSource dipoleSource;
     protected AtomLeafAgentManager atomAgentManager;

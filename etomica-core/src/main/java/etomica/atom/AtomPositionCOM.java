@@ -10,7 +10,6 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.space.Space;
 
 /**
@@ -50,5 +49,5 @@ public class AtomPositionCOM implements IAtomPositionDefinition, Serializable {
     }
 
     private static final long serialVersionUID = 1L;
-    private final IVectorMutable center;
+    private final IVector center;
 }

@@ -9,15 +9,13 @@ import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.space.Space;
-import etomica.space.IVectorRandom;
 
 public class BiasVolumeCube extends BiasVolume {
     
     private static final long serialVersionUID = 1L;
-    private final IVectorMutable dimensions;
-    private final IVectorRandom work;
+    private final IVector dimensions;
+    private final IVector work;
     private final IRandom random;
     private IBoundary boundary;
     
@@ -25,7 +23,7 @@ public class BiasVolumeCube extends BiasVolume {
         super(space);
         this.random = random;
         dimensions = space.makeVector();
-        work = (IVectorRandom)space.makeVector();
+        work = (IVector)space.makeVector();
         dimensions.E(2.0);//size of the cube
     }
     

@@ -8,7 +8,6 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.integrator.mcmove.MCMoveBox;
@@ -54,7 +53,7 @@ public class MCMoveMultiHarmonic extends MCMoveBox {
         uNew = 0;
         double sqrtS = Math.sqrt(s);
         for (int i=0; i<atoms.getAtomCount(); i++) {
-            IVectorMutable p = atoms.getAtom(i).getPosition();
+            IVector p = atoms.getAtom(i).getPosition();
             for (int j=0; j<p.getD(); j++) {
                 double r = random.nextGaussian()/sqrtS;
                 uNew += 0.5*r*r*s;

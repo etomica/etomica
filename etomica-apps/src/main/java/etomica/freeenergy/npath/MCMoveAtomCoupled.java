@@ -14,7 +14,7 @@ import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.space.Space;
-import etomica.space.IVectorRandom;
+import etomica.api.IVector;
 
 /**
  * Created by andrew on 4/11/17.
@@ -22,7 +22,7 @@ import etomica.space.IVectorRandom;
 public class MCMoveAtomCoupled extends MCMoveBoxStep {
     protected final AtomIteratorArrayListSimple affectedAtomIterator;
     protected final MeterPotentialEnergy energyMeter;
-    protected final IVectorRandom translationVector;
+    protected final IVector translationVector;
     protected IAtom atom, atom2;
     protected double uOld;
     protected double uNew = Double.NaN;
@@ -53,7 +53,7 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         atomSource = new AtomSourceRandomLeaf();
         ((AtomSourceRandomLeaf)atomSource).setRandomNumberGenerator(random);
         this.energyMeter = meterPE;
-        translationVector = (IVectorRandom)space.makeVector();
+        translationVector = (IVector)space.makeVector();
         setStepSizeMax(stepSizeMax);
         setStepSizeMin(0.0);
         setStepSize(stepSize);

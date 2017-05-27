@@ -7,7 +7,6 @@ package etomica.models.water;
 
 import etomica.api.IMoleculeList;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.MoleculeOrientedDynamic;
 import etomica.potential.IPotentialMolecularTorque;
 import etomica.space.Space;
@@ -22,14 +21,14 @@ public class P2Water3PSoft extends P2Water3P implements IPotentialMolecularTorqu
 	public P2Water3PSoft(Space space, double sigma, double epsilon,
                          double chargeO, double chargeH) {
 		super(space, sigma, epsilon, chargeO, chargeH);
-		gradient = new IVectorMutable[2];
+		gradient = new IVector[2];
 		gradient[0] = space.makeVector();
 		gradient[1] = space.makeVector();
-        torque = new IVectorMutable[2];
+        torque = new IVector[2];
         torque[0] = space.makeVector();
         torque[1] = space.makeVector();
         fWork = space.makeVector();
-        gradientAndTorque = new IVectorMutable[][]{gradient,torque};
+        gradientAndTorque = new IVector[][]{gradient,torque};
         epsilon48 = epsilon*48.0;
 	}
 
@@ -38,8 +37,8 @@ public class P2Water3PSoft extends P2Water3P implements IPotentialMolecularTorqu
 		MoleculeOrientedDynamic water2 = (MoleculeOrientedDynamic)pair.getMolecule(1);
 		
 		//compute O-O distance to consider truncation	
-		IVectorMutable O1r = (water1.getChildList().getAtom(2)).getPosition();
-		IVectorMutable O2r = (water2.getChildList().getAtom(2)).getPosition();
+		IVector O1r = (water1.getChildList().getAtom(2)).getPosition();
+		IVector O2r = (water2.getChildList().getAtom(2)).getPosition();
 
 		work.Ev1Mv2(O1r, O2r);
         shift.Ea1Tv1(-1,work);
@@ -59,17 +58,17 @@ public class P2Water3PSoft extends P2Water3P implements IPotentialMolecularTorqu
 	
         gradient[0].Ea1Tv1(du/r2,work);
 
-        IVectorMutable com1 = water1.getPosition();
-        IVectorMutable com2 = water2.getPosition();
+        IVector com1 = water1.getPosition();
+        IVector com2 = water2.getPosition();
 
         work.Ev1Mv2(O2r, com2);
         work.XE(gradient[0]);
         torque[1].E(work);
         
-		IVectorMutable H11r = water1.getChildList().getAtom(0).getPosition();
-		IVectorMutable H12r = water1.getChildList().getAtom(1).getPosition();
-		IVectorMutable H21r = water2.getChildList().getAtom(0).getPosition();
-		IVectorMutable H22r = water2.getChildList().getAtom(1).getPosition();
+		IVector H11r = water1.getChildList().getAtom(0).getPosition();
+		IVector H12r = water1.getChildList().getAtom(1).getPosition();
+		IVector H21r = water2.getChildList().getAtom(0).getPosition();
+		IVector H22r = water2.getChildList().getAtom(1).getPosition();
 
         // O1-H21
         work.Ev1Mv2(O1r, H21r);
@@ -207,8 +206,8 @@ public class P2Water3PSoft extends P2Water3P implements IPotentialMolecularTorqu
 	public double getEpsilon() {return epsilon;}
 	
     private static final long serialVersionUID = 1L;
-	protected final IVectorMutable[] gradient, torque;
-	protected final IVectorMutable[][] gradientAndTorque;
+	protected final IVector[] gradient, torque;
+	protected final IVector[][] gradientAndTorque;
 	protected double epsilon48;
-	protected final IVectorMutable fWork;
+	protected final IVector fWork;
 }

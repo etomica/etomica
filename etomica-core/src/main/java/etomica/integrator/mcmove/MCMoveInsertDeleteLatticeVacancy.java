@@ -20,7 +20,7 @@ import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.space.Space;
-import etomica.space.IVectorRandom;
+import etomica.api.IVector;
 import etomica.util.IEvent;
 import etomica.util.IListener;
 
@@ -41,8 +41,8 @@ import java.util.List;
  */
 public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased implements IListener {
 
-    protected final IVectorRandom dest;
-    protected final IVectorMutable dr;
+    protected final IVector dest;
+    protected final IVector dr;
     protected IIntegrator integrator;
     protected long lastStepCount;
     protected boolean dirty;
@@ -55,8 +55,8 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
     protected int numNewDeleteCandidates;
     protected int forced = 0;
     protected double oldLnA, oldB, newLnA;
-    protected final IVectorMutable oldPosition;
-    protected IVectorMutable[] nbrVectors;
+    protected final IVector oldPosition;
+    protected IVector[] nbrVectors;
     protected final Space space;
     protected double oldBoxSize;
     protected AtomIteratorAtomDependent atomIterator;
@@ -66,7 +66,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         super(potentialMaster, random, _space, maxN-maxVacancy, maxN);
         this.space = _space;
         this.potentialMaster = potentialMaster;
-        dest = (IVectorRandom)_space.makeVector();
+        dest = (IVector)_space.makeVector();
         dr = _space.makeVector();
         this.integrator = integrator;
         this.maxDistance = maxDistance;
@@ -112,7 +112,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         if (maxInsertNbrDistance > maxDistance) {
             throw new RuntimeException("nbrDistance must be greater than maxInsert distance");
         }
-        nbrVectors = new IVectorMutable[12];
+        nbrVectors = new IVector[12];
         double s = nbrDistance/Math.sqrt(2);
         for (int i=0; i<12; i++) {
             nbrVectors[i] = space.makeVector();
@@ -139,7 +139,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         if (maxInsertNbrDistance > maxDistance) {
             throw new RuntimeException("nbrDistance must be greater than maxInsert distance");
         }
-        nbrVectors = new IVectorMutable[12];
+        nbrVectors = new IVector[12];
         double s = nbrDistance;
 
         for (int i=0; i<12; i++) {

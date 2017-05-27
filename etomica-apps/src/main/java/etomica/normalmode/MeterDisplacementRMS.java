@@ -6,7 +6,6 @@ package etomica.normalmode;
 
 import etomica.api.IAtomList;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.data.DataSourceScalar;
 import etomica.space.Space;
 import etomica.units.Length;
@@ -14,7 +13,7 @@ import etomica.units.Length;
 public class MeterDisplacementRMS extends DataSourceScalar {
 
     protected final CoordinateDefinition coordinateDefinition;
-    protected final IVectorMutable dr, boxSize0;
+    protected final IVector dr, boxSize0;
     
     public MeterDisplacementRMS(Space space, CoordinateDefinition coordinateDefinition) {
         super("displacement", Length.DIMENSION);

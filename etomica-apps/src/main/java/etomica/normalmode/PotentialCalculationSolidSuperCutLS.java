@@ -2,7 +2,7 @@ package etomica.normalmode;
 
 import etomica.api.IAtomList;
 import etomica.api.IPotentialAtomic;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.liquidLJ.Potential2SoftSphericalLSMultiLat;
 import etomica.liquidLJ.Potential2SoftSphericalLSMultiLat.ReturnValue;
 import etomica.space.Space;
@@ -31,8 +31,8 @@ public class PotentialCalculationSolidSuperCutLS extends PotentialCalculationSol
             virialSum = new double[n];
             sum1 = new double[n];
             dadbSum = new double[n];
-            pSumXYZ1 = new IVectorMutable[n];
-            pSumXYZ2 = new IVectorMutable[n];
+            pSumXYZ1 = new IVector[n];
+            pSumXYZ2 = new IVector[n];
             for (int i=0; i<n; i++) {
                 pSumXYZ1[i] = space.makeVector();
                 pSumXYZ2[i] = space.makeVector();

@@ -6,12 +6,8 @@ package etomica.models.clathrates;
 
 import java.awt.Color;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPair;
 import etomica.atom.DiameterHashByType;
@@ -211,9 +207,9 @@ public class ClathrateHarmonicFE extends Simulation{
 		//They enable you to declare and instantiate a class at the same time! :)
 		AtomicTensorAtomicPair atomicTensorAtomicPair = new AtomicTensorAtomicPair() {
 	        final Tensor identity = new Tensor3D(new double[][] {{1.0,0.0,0.0}, {0.0,1.0,0.0}, {0.0,0.0,1.0}});
-        	IVectorMutable Lxyz = space.makeVector();
-			IVectorMutable dr = space.makeVector();
-        	IVectorMutable drTmp = space.makeVector();
+        	IVector Lxyz = space.makeVector();
+			IVector dr = space.makeVector();
+        	IVector drTmp = space.makeVector();
 			Tensor D3ESLJ = space.makeTensor();
 			Tensor tmpD3LJ = space.makeTensor();
 
@@ -291,10 +287,10 @@ public class ClathrateHarmonicFE extends Simulation{
 	        id.includeLrc = false;
 	        sim.potentialMaster.calculate(sim.box, id, pcForce);
 	        
-	        IVectorMutable fn  = sim.space.makeVector();
-	        IVectorMutable f4  = sim.space.makeVector();
-	        IVectorMutable dr = sim.space.makeVector();
-	        IVectorMutable torque = sim.space.makeVector();
+	        IVector fn  = sim.space.makeVector();
+	        IVector f4  = sim.space.makeVector();
+	        IVector dr = sim.space.makeVector();
+	        IVector torque = sim.space.makeVector();
 //
 //	        for (int m = 0; m < 46; m++){
 //		        IMolecule iMol = sim.box.getMoleculeList().getMolecule(m);
@@ -316,8 +312,8 @@ public class ClathrateHarmonicFE extends Simulation{
 //	        System.out.println("++++++");
 	        
 	        RotationTensor3D rTensor = new RotationTensor3D();
-	        IVectorMutable f4dx  = sim.space.makeVector();
-	        IVectorMutable dx = space.makeVector();
+	        IVector f4dx  = sim.space.makeVector();
+	        IVector dx = space.makeVector();
 	        dx.setX(0, 0.0001);        dx.setX(1, 0.0);        dx.setX(2, 0.0);
 	        for (int m = 0; m < 46; m++){
 		        IMolecule iMol = sim.box.getMoleculeList().getMolecule(m);
@@ -340,7 +336,7 @@ public class ClathrateHarmonicFE extends Simulation{
 //				        atoms.getAtom(j).getPosition().PE(dx);
 //			        	System.out.println(atoms.getAtom(j).getPosition());
 //			        }
-			        IVectorMutable axes = sim.space.makeVector();
+			        IVector axes = sim.space.makeVector();
 			        axes.E(new double [] {1.0, 0.0, 0.0});
 //			        axes.E(new double [] {0.0, 1.0, 0.0});
 //			        axes.E(new double [] {0.0, 0.0, 1.0});
@@ -361,7 +357,7 @@ public class ClathrateHarmonicFE extends Simulation{
 			        for(int j=0;j<4;j++){
 				        IAtom atomj = atoms.getAtom(j);	
 
-			            IVectorMutable fndx = space.makeVector();
+			            IVector fndx = space.makeVector();
 			            fndx.E(((IntegratorVelocityVerlet.MyAgent)atomAgentManager.getAgent(atomj)).force);
 //			            System.out.println(fndx);
 			            f4dx.PE(fndx);

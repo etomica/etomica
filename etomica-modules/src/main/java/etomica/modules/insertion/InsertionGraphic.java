@@ -21,7 +21,7 @@ import etomica.action.IAction;
 import etomica.action.SimulationRestart;
 import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
@@ -430,7 +430,7 @@ public class InsertionGraphic extends SimulationGraphic {
         protected double sum;
         protected int currentWells, currentCores;
         public HistogramNotSoSimple hist;
-        protected final IVectorMutable dr, dv;
+        protected final IVector dr, dv;
         
         public MeterWidom() {
             super("widom", Null.DIMENSION);

@@ -8,7 +8,7 @@ import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.data.DataSourceIndependent;
@@ -203,7 +203,7 @@ public class MeterProfileByVolume implements IEtomicaDataSource, DataSourceIndep
      * For example, (1,0) is along the x-axis.
      */
     protected int profileDim;
-    protected final IVectorMutable position;
+    protected final IVector position;
     /**
      * Meter that defines the property being profiled.
      */

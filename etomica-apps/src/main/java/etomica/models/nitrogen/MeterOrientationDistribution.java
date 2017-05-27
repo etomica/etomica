@@ -9,11 +9,8 @@ import java.io.IOException;
 import java.io.Serializable;
 
 import etomica.action.IAction;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -51,7 +48,7 @@ public class MeterOrientationDistribution implements IEtomicaDataSource, IAction
         }
  
         angle = new double[2];
-        axes = new IVectorMutable[3];
+        axes = new IVector[3];
         molAxis = Space3D.makeVector(3);
         temp = Space3D.makeVector(3);
         b = Space3D.makeVector(3);
@@ -95,8 +92,8 @@ public class MeterOrientationDistribution implements IEtomicaDataSource, IAction
             for (int iMol=0; iMol<numMolecules; iMol++){
             	
 	          	IMolecule molecule = molecules.getMolecule(iMol);
-	          	IVectorMutable leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-		    	IVectorMutable leafPos1 = molecule.getChildList().getAtom(1).getPosition();
+	          	IVector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
+		    	IVector leafPos1 = molecule.getChildList().getAtom(1).getPosition();
 		
 		    	molAxis.Ev1Mv2(leafPos1, leafPos0);
 		       	molAxis.normalize();
@@ -185,9 +182,9 @@ public class MeterOrientationDistribution implements IEtomicaDataSource, IAction
     private HistogramExpanding[] histogramU;
     private DataDoubleArray[] uDistributions;
     private DataInfoDoubleArray[] uDistributionsInfo;
-    private IVectorMutable[] axes;
-    private IVectorMutable temp, b, c;
-    private IVectorMutable molAxis;
+    private IVector[] axes;
+    private IVector temp, b, c;
+    private IVector molAxis;
     private double[] angle;
     private int dof;
     

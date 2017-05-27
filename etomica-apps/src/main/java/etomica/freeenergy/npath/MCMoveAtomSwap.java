@@ -35,7 +35,7 @@ public class MCMoveAtomSwap extends MCMoveBox {
     protected AtomIteratorAtomDependent atomIterator;
     protected double nbrDistance;
     protected final AtomArrayList nbrList;
-    protected final IVectorMutable dr;
+    protected final IVector dr;
     protected final P1ImageHarmonic p1;
     protected final AtomSetSinglet singlet;
 

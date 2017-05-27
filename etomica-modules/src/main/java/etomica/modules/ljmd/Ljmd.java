@@ -6,7 +6,7 @@ package etomica.modules.ljmd;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.box.Box;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.integrator.IntegratorVelocityVerlet;
@@ -58,7 +58,7 @@ public class Ljmd extends Simulation {
         //construct box
 	    box = new Box(space);
         addBox(box);
-        IVectorMutable dim = space.makeVector();
+        IVector dim = space.makeVector();
         dim.E(15);
         box.getBoundary().setBoxSize(dim);
         box.setNMolecules(species, N);

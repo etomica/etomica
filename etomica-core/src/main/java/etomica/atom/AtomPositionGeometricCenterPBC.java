@@ -10,7 +10,6 @@ import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.space.Space;
 
 /**
@@ -49,6 +48,6 @@ public class AtomPositionGeometricCenterPBC implements IAtomPositionDefinition, 
     }
 
     private static final long serialVersionUID = 1L;
-    protected final IVectorMutable center, dr;
+    protected final IVector center, dr;
     protected final IBoundary boundary;
 }

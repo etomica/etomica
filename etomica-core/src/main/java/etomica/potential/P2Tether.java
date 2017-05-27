@@ -3,10 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.potential;
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
+import etomica.api.*;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
@@ -123,7 +120,7 @@ public class P2Tether extends Potential2HardSpherical {
     private double tetherLength, tetherLengthSquared;
     private double lastCollisionVirial = 0.0;
     private double lastCollisionVirialr2 = 0.0;
-    private final IVectorMutable dv;
+    private final IVector dv;
     private final Tensor lastCollisionVirialTensor;
     private final boolean ignoreOverlap;
    

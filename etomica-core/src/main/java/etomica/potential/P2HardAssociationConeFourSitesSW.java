@@ -7,7 +7,6 @@ import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
 import etomica.space.Space;
 import etomica.space3d.IOrientationFull3D;
@@ -33,7 +32,7 @@ public class P2HardAssociationConeFourSitesSW extends Potential2 {
     private double epsilon, epsilon4, wellEpsilon;
     private double cutoffLJSquared, cutoffFactor;
     private double ec1, ec2;
-    private final IVectorMutable dr;
+    private final IVector dr;
     private IBoundary boundary;
     
     public P2HardAssociationConeFourSitesSW(Space space, double sigma, double epsilon, double cutoffFactorLJ, double wellConstant) {
@@ -89,19 +88,19 @@ public class P2HardAssociationConeFourSitesSW extends Potential2 {
         	IVector e1A = atom0.getOrientation().getDirection();
             double er1Aa = e1A.dot(dr);//vector of site Aa on atom0  
             IVector e1AaY = ((IOrientationFull3D) atom0.getOrientation()).getSecondaryDirection();//Perpendicular(second) direction of e1A
-            IVectorMutable e1AaZ = space.makeVector();//third direction of e1A
+            IVector e1AaZ = space.makeVector();//third direction of e1A
             e1AaZ.E(e1A);
-            ((IVectorMutable) e1AaZ).XE(e1AaY);//crossproduct of e1A and e1AaY
-            IVectorMutable e1Ab = space.makeVector();
+            ((IVector) e1AaZ).XE(e1AaY);//crossproduct of e1A and e1AaY
+            IVector e1Ab = space.makeVector();
             e1Ab.Ea1Tv1(cosAngle1, e1A);
             e1Ab.PEa1Tv1(sinAngle1, e1AaY);
             double er1Ab = e1Ab.dot(dr);//vector of site Ab on atom0
-            IVectorMutable e1Ba = space.makeVector();
+            IVector e1Ba = space.makeVector();
             e1Ba.Ea1Tv1(coordX, e1A);
             e1Ba.PEa1Tv1(coordY, e1AaY);
             e1Ba.PEa1Tv1(coordZ, e1AaZ);
             double er1Ba = e1Ba.dot(dr);//vector of site Ba on atom0
-            IVectorMutable e1Bb = space.makeVector();
+            IVector e1Bb = space.makeVector();
             e1Bb.Ea1Tv1(coordX, e1A);
             e1Bb.PEa1Tv1(coordY, e1AaY);
             e1Bb.PEa1Tv1(-coordZ, e1AaZ);
@@ -109,19 +108,19 @@ public class P2HardAssociationConeFourSitesSW extends Potential2 {
             IVector e2A = atom1.getOrientation().getDirection();
             double er2Aa = e2A.dot(dr);//vector of site Aa on atom1
             IVector e2AaY = ((IOrientationFull3D) atom1.getOrientation()).getSecondaryDirection();//Perpendicular direction of e2A 
-            IVectorMutable e2AaZ = space.makeVector();
+            IVector e2AaZ = space.makeVector();
             e2AaZ.E(e2A);
-            ((IVectorMutable) e2AaZ).XE(e2AaY);//crossproduct
-            IVectorMutable e2Ab = space.makeVector();
+            ((IVector) e2AaZ).XE(e2AaY);//crossproduct
+            IVector e2Ab = space.makeVector();
             e2Ab.Ea1Tv1(cosAngle1, e2A);
             e2Ab.PEa1Tv1(sinAngle1, e2AaY);
             double er2Ab = e2Ab.dot(dr);//vector of site Ab on atom1
-            IVectorMutable e2Ba = space.makeVector();
+            IVector e2Ba = space.makeVector();
             e2Ba.Ea1Tv1(coordX, e2A);
             e2Ba.PEa1Tv1(coordY, e2AaY);
             e2Ba.PEa1Tv1(coordZ, e2AaZ);
             double er2Ba = e2Ba.dot(dr);//vector of site Ba on atom1
-            IVectorMutable e2Bb = space.makeVector();
+            IVector e2Bb = space.makeVector();
             e2Bb.Ea1Tv1(coordX, e2A);
             e2Bb.PEa1Tv1(coordY, e2AaY);
             e2Bb.PEa1Tv1(-coordZ, e2AaZ);

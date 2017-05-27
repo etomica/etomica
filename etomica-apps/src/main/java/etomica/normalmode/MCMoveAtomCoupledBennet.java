@@ -18,7 +18,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.space.Space;
-import etomica.space.IVectorRandom;
+import etomica.api.IVector;
 
 /**
  * Standard Monte Carlo atom-displacement trial move.  Two atoms are moved at a
@@ -35,7 +35,7 @@ public class MCMoveAtomCoupledBennet extends MCMoveBoxStep {
     protected final AtomArrayList affectedAtomList;
     protected final MeterPotentialEnergy energyMeter;
     protected final MeterHarmonicEnergy harmonicEnergyMeter;
-    protected final IVectorRandom translationVector;
+    protected final IVector translationVector;
     protected IAtom atom0, atom1;
     protected double uOld, uNew;
     protected double gamma_Old, gamma_New;
@@ -63,7 +63,7 @@ public class MCMoveAtomCoupledBennet extends MCMoveBoxStep {
         setNormalModes(normalMode);
         harmonicEnergyMeter = new MeterHarmonicEnergy(coordinateDefinition, normalModes);
         
-        translationVector = (IVectorRandom)_space.makeVector();
+        translationVector = (IVector)_space.makeVector();
         setStepSizeMax(0.5);
         setStepSizeMin(0.0);
         setStepSize(0.1);

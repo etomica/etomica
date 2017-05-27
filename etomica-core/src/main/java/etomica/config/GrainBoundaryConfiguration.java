@@ -14,11 +14,8 @@
 package etomica.config;
 
 import etomica.action.MoleculeActionTranslateTo;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionFirstAtom;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
@@ -167,7 +164,7 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
             }
             // initialize coordinates of child atoms
             a.getType().initializeConformation(a);
-            IVectorMutable site = (IVectorMutable) myLatA.site(ii);
+            IVector site = (IVector) myLatA.site(ii);
             atomActionTranslateTo.setDestination(site);
             atomActionTranslateTo.actionPerformed(a);
 //            System.out.println("A  |  " +a + "  |  " + site.x(2) + "  |  " + ii[2]);
@@ -189,7 +186,7 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
             }
             // initialize coordinates of child atoms
             a.getType().initializeConformation(a);
-            IVectorMutable site = (IVectorMutable) myLatB.site(ii);
+            IVector site = (IVector) myLatB.site(ii);
             atomActionTranslateTo.setDestination(site);
             atomActionTranslateTo.actionPerformed(a);
             //System.out.println("B  |  " +a + "  |  " + site.x(2) + "  |  " + ii[2]);
@@ -220,7 +217,7 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
      */
     private static class MyLattice implements SpaceLattice {
 
-        MyLattice(SpaceLattice l, IVectorMutable offset) {
+        MyLattice(SpaceLattice l, IVector offset) {
             lattice = l;
             this.offset = offset;
             this.site = l.getSpace().makeVector();
@@ -238,7 +235,7 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
          * Returns the same IVector instance with each call.
          */
         public Object site(int[] index) {
-            site.E((IVectorMutable) lattice.site(index));
+            site.E((IVector) lattice.site(index));
             site.PE(offset);
             return site;
         }
@@ -249,8 +246,8 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
         }
 
         SpaceLattice lattice;
-        IVectorMutable offset;
-        private final IVectorMutable site;
+        IVector offset;
+        private final IVector site;
     }
 
     private final BravaisLatticeCrystal latticeA, latticeB;

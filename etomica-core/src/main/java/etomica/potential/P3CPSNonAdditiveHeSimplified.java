@@ -14,7 +14,6 @@ import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.space.Space;
@@ -36,7 +35,7 @@ public class P3CPSNonAdditiveHeSimplified extends Potential implements Potential
         drAB = space.makeVector();
         drBC = space.makeVector();
         drAC = space.makeVector();
-        gradient = new IVectorMutable[3];
+        gradient = new IVector[3];
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();
         gradient[2] = space.makeVector();
@@ -388,9 +387,9 @@ System.out.println();
        
     }
     
-    protected final IVectorMutable drAB, drAC, drBC;
+    protected final IVector drAB, drAC, drBC;
     protected IBoundary boundary;
-    protected final IVectorMutable[] gradient;
+    protected final IVector[] gradient;
     public static boolean bigAngle;
     
     

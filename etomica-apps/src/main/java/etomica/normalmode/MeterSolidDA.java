@@ -7,7 +7,6 @@ package etomica.normalmode;
 import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -123,5 +122,5 @@ public class MeterSolidDA implements IEtomicaDataSource {
     protected double pRes;
     protected final boolean doD2;
     protected final CoordinateDefinition coordinteDefinition;
-    protected final IVectorMutable dr;
+    protected final IVector dr;
 }

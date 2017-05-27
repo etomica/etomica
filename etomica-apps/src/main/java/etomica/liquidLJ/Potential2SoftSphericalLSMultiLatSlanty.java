@@ -5,8 +5,8 @@
 package etomica.liquidLJ;
 
 import etomica.api.IAtomList;
+import etomica.api.IVector;
 import etomica.box.Box;
-import etomica.api.IVectorMutable;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.potential.Potential2Soft;
 import etomica.space.Space;
@@ -107,6 +107,6 @@ public class Potential2SoftSphericalLSMultiLatSlanty extends Potential2SoftSpher
         zLat.E(boundary.getEdgeVector(2));
     }
 
-    protected final IVectorMutable xLxyz, yLxyz, zLxyz;
-    protected final IVectorMutable xLat, yLat, zLat;
+    protected final IVector xLxyz, yLxyz, zLxyz;
+    protected final IVector xLat, yLat, zLat;
 }//end of Potential2SoftSpherical

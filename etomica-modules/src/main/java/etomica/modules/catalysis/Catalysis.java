@@ -6,7 +6,7 @@ package etomica.modules.catalysis;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.box.Box;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Oxygen;
@@ -127,7 +127,7 @@ public class Catalysis extends Simulation {
         
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
 
-        IVectorMutable dim = space.makeVector();
+        IVector dim = space.makeVector();
         dim.E(100);
         dim.setX(1, 60);
         box.getBoundary().setBoxSize(dim);

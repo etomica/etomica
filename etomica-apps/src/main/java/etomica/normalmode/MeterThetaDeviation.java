@@ -4,11 +4,8 @@
 
 package etomica.normalmode;
 
-import etomica.api.IAtomList;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
 import etomica.data.DataSourceScalar;
 import etomica.space.Space;
 import etomica.units.Null;
@@ -53,6 +50,6 @@ public class MeterThetaDeviation extends DataSourceScalar {
 
     private static final long serialVersionUID = 1L;
     protected Box box;
-    protected final IVectorMutable dr;
+    protected final IVector dr;
     protected double nominalTheta;
 }

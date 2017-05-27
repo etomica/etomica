@@ -6,7 +6,7 @@ package etomica.spin;
 
 import etomica.api.IAtom;
 import etomica.box.Box;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataSourceScalar;
 import etomica.data.IEtomicaDataSource;
@@ -64,5 +64,5 @@ public class MeterSpin extends DataSourceScalar implements IEtomicaDataSource {
     private static final long serialVersionUID = 1L;
     private Box box;
     private final AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
-    private final IVectorMutable sum;
+    private final IVector sum;
 }

@@ -12,7 +12,7 @@ import etomica.api.IAtomList;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
@@ -236,7 +236,7 @@ public class VirialHeNonAdditive {
         IAtomList atoms = sim.box[1].getLeafList();
         double r = 4;
         for (int i=1; i<nPoints; i++) {
-            IVectorMutable v = atoms.getAtom(i).getPosition();
+            IVector v = atoms.getAtom(i).getPosition();
             v.setX(0, r*Math.cos(2*(i-1)*Math.PI/(nPoints-1)));
             v.setX(1, r*Math.sin(2*(i-1)*Math.PI/(nPoints-1)));
         }

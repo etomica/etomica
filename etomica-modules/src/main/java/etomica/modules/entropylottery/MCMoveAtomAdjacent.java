@@ -8,7 +8,6 @@ import etomica.api.IAtom;
 import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomLeaf;
 import etomica.atom.iterator.AtomIterator;
@@ -25,7 +24,7 @@ import etomica.space.Space;
 public class MCMoveAtomAdjacent extends MCMoveBox {
     
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
-    protected IVectorMutable translationVector;
+    protected IVector translationVector;
     protected IAtom atom;
     protected AtomSource atomSource;
     protected final IRandom random;
@@ -61,7 +60,7 @@ public class MCMoveAtomAdjacent extends MCMoveBox {
      * doTrial.
      */
     public double getB() {
-        IVectorMutable position = atom.getPosition();
+        IVector position = atom.getPosition();
         IVector dimensions = box.getBoundary().getBoxSize();
         for (int i=0; i<position.getD(); i++) {
             // if we're non-periodic, ensure we didn't try to jump over the boundary

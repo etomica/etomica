@@ -4,13 +4,9 @@
 
 package etomica.association;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IRandom;
 import etomica.simulation.Simulation;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSource;
 import etomica.atom.iterator.AtomIterator;
@@ -20,7 +16,7 @@ import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.space.Space;
-import etomica.space.IVectorRandom;
+import etomica.api.IVector;
 
 /**
  * Standard Monte Carlo atom-displacement trial move of Trimer
@@ -32,7 +28,7 @@ public class MCMoveSmer extends MCMoveBoxStep {
     private static final long serialVersionUID = 2L;
     protected final AtomIteratorArrayListSimple affectedAtomIterator;
     protected final MeterPotentialEnergy energyMeter;
-    protected final IVectorRandom translationVector;
+    protected final IVector translationVector;
     protected IAtom atom;
     protected double uOld;
     protected double uNew = Double.NaN;
@@ -42,7 +38,7 @@ public class MCMoveSmer extends MCMoveBoxStep {
     protected Space space;
     protected final PotentialMasterCell potentialMaster;
     protected final Api1ACell neighborIterator;
-    protected final IVectorMutable dr;
+    protected final IVector dr;
     protected final IPotentialAtomic trimerPotential;
     protected final AtomArrayList smerList;
     protected final AtomArrayList newSmerList;
@@ -68,7 +64,7 @@ public class MCMoveSmer extends MCMoveBoxStep {
         atomSource = new AtomSourceRandomDimer();
         ((AtomSourceRandomDimer)atomSource).setRandomNumberGenerator(random);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
-        translationVector = (IVectorRandom)space.makeVector();
+        translationVector = (IVector)space.makeVector();
         setStepSizeMax(stepSizeMax);
         setStepSizeMin(0.0);
         setStepSize(stepSize);

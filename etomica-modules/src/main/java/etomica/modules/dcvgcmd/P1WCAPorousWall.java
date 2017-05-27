@@ -6,7 +6,6 @@ package etomica.modules.dcvgcmd;
 
 import etomica.api.IAtomList;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
 import etomica.space.Space;
@@ -21,12 +20,12 @@ import etomica.space.Tensor;
 public class P1WCAPorousWall extends Potential1 implements PotentialSoft {
 
     private static final long serialVersionUID = 1L;
-    private final IVectorMutable[] gradient;
+    private final IVector[] gradient;
     private double sigma, sigma2;
     private double epsilon;
     private double cutoff, cutoff2;
     private double poreRadius, poreRadius2;
-    private IVectorMutable[] poreCenters;
+    private IVector[] poreCenters;
     private double z;
 
     public P1WCAPorousWall(Space space) {
@@ -37,7 +36,7 @@ public class P1WCAPorousWall extends Potential1 implements PotentialSoft {
         super(space);
         setSigma(sigma);
         setEpsilon(epsilon);
-        gradient = new IVectorMutable[1];
+        gradient = new IVector[1];
         gradient[0] = space.makeVector();
     }
 
@@ -46,7 +45,7 @@ public class P1WCAPorousWall extends Potential1 implements PotentialSoft {
     }
 
     public double energy(IAtomList atom) {
-        IVectorMutable r = atom.getAtom(0).getPosition();
+        IVector r = atom.getAtom(0).getPosition();
         double rz = r.getX(2);
         double dz2 = (z - rz);
         dz2 *= dz2;
@@ -64,7 +63,7 @@ public class P1WCAPorousWall extends Potential1 implements PotentialSoft {
         return 0.0;
     }
     
-    private boolean inPore(IVectorMutable r) {
+    private boolean inPore(IVector r) {
         for(int i=0; i<poreCenters.length; i++) {
             double dx = r.getX(0) - poreCenters[i].getX(0);
             double dy = r.getX(1) - poreCenters[i].getX(1);
@@ -81,7 +80,7 @@ public class P1WCAPorousWall extends Potential1 implements PotentialSoft {
     }
 
     public IVector[] gradient(IAtomList atom) {
-        IVectorMutable r = atom.getAtom(0).getPosition();
+        IVector r = atom.getAtom(0).getPosition();
         double rz = r.getX(2);
         double dz2 = (z - rz);
         dz2 *= dz2;
@@ -168,13 +167,13 @@ public class P1WCAPorousWall extends Potential1 implements PotentialSoft {
     /**
      * @return Returns the poreCenters.
      */
-    public IVectorMutable[] getPoreCenters() {
+    public IVector[] getPoreCenters() {
         return poreCenters;
     }
     /**
      * @param poreCenters The poreCenters to set.
      */
-    public void setPoreCenters(IVectorMutable[] poreCenters) {
+    public void setPoreCenters(IVector[] poreCenters) {
         this.poreCenters = poreCenters;
     }
 }

@@ -12,7 +12,6 @@ import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.IAtomOriented;
 import etomica.chem.elements.Carbon;
@@ -226,14 +225,14 @@ public class VirialCO2H2OSC {
                 IVector[] qSiteCO2 = new IVector[7];
                 for (int i=0; i<7; i++) {
                     qCO2[i] = p2cCO2.getQ(i);
-                    IVectorMutable r = space.makeVector();
+                    IVector r = space.makeVector();
                     r.setX(0, p2cCO2.getPos(i));
                     qSiteCO2[i] = r;
                 }
 
                 P3Induction.MyAgent agentCO2 = new P3Induction.MyAgent(new double[]{alphaCO2}, new IVector[]{polCO2}, qCO2, qSiteCO2);
 
-                IVectorMutable polH2O = space.makeVector();
+                IVector polH2O = space.makeVector();
                 double[] qH2O = P2WaterSzalewicz.getQ();
                 IVector[] qSiteH2O = P2WaterSzalewicz.getSites(space);
                 polH2O.E(qSiteH2O[0]);
@@ -248,7 +247,7 @@ public class VirialCO2H2OSC {
 
         if (level == Level.SEMICLASSICAL_TI && false) {
             if (true) throw new RuntimeException("implement me for anything other than CO2-CO2");
-            final IVectorMutable[] rv = new IVectorMutable[4];
+            final IVector[] rv = new IVector[4];
             for (int i=0; i<4; i++) {
                 rv[i] = space.makeVector();
             }
@@ -286,7 +285,7 @@ public class VirialCO2H2OSC {
             double r = 3;
             IAtomList atoms = sim.box[1].getLeafList();
             for (int i=1; i<nPoints; i++) {
-                IVectorMutable pos = atoms.getAtom(i).getPosition();
+                IVector pos = atoms.getAtom(i).getPosition();
                 double theta = 2*i*Math.PI/nPoints;
                 pos.setX(0, r*(1-Math.cos(theta)));
                 pos.setX(1, r*Math.sin(theta));

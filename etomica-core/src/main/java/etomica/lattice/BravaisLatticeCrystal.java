@@ -5,7 +5,6 @@
 package etomica.lattice;
 
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 
@@ -52,7 +51,7 @@ public class BravaisLatticeCrystal extends BravaisLattice {
             throw new IllegalArgumentException(
                     "index given to site method of lattice must have number of elements equal to dimension of lattice");
         System.arraycopy(index, 0, crystalIndex, 0, D - 1);
-        IVectorMutable latticePosition = (IVectorMutable) super.site(crystalIndex);
+        IVector latticePosition = (IVector) super.site(crystalIndex);
         IVector basisCoordinate = basis.getScaledCoordinates()[index[D - 1]];
         IVector[] primitiveVectors = primitive.vectors();
         position.E(latticePosition);
@@ -70,5 +69,5 @@ public class BravaisLatticeCrystal extends BravaisLattice {
     protected final Basis basis;
     private final int[] crystalIndex;
     private final int D;
-    private final IVectorMutable position;
+    private final IVector position;
 }

@@ -12,8 +12,8 @@ import javax.swing.JFrame;
 import etomica.action.IAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
+import etomica.api.IVector;
 import etomica.box.Box;
-import etomica.api.IVectorMutable;
 
 /**
  * Action that opens a new window and dumps the coordinates into the window.
@@ -35,7 +35,7 @@ public class ActionConfigWindow implements IAction {
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtom a = leafList.getAtom(iLeaf);
-            IVectorMutable pos = a.getPosition();
+            IVector pos = a.getPosition();
             String str = Double.toString(pos.getX(0));
             for (int i=1; i<pos.getD(); i++) {
                 str += " "+Double.toString(pos.getX(i));

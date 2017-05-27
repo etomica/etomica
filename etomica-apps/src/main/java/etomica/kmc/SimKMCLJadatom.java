@@ -6,12 +6,8 @@ package etomica.kmc;
 
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.atom.MoleculeArrayList;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.Configuration;
@@ -51,7 +47,7 @@ public class SimKMCLJadatom extends Simulation{
     public SpeciesSpheresMono fixed, movable;
     public ActivityIntegrate activityIntegrateKMC, activityIntegrateKMCCluster, activityIntegrateDimer;
     public IMoleculeList movableSet;
-    public IVectorMutable adAtomPos;
+    public IVector adAtomPos;
     
 
     public SimKMCLJadatom() {
@@ -93,16 +89,16 @@ public class SimKMCLJadatom extends Simulation{
         adAtomPos.setX(0, 3.5);
         adAtomPos.setX(1, -0.30);
         adAtomPos.setX(2, -0.30);
-        IVectorMutable newBoxLength = space.makeVector();
+        IVector newBoxLength = space.makeVector();
         newBoxLength.E(box.getBoundary().getBoxSize());
         newBoxLength.setX(0, 2.0*adAtomPos.getX(0)+2.0);
         box.getBoundary().setBoxSize(newBoxLength);
 
     }
     
-    public void setMovableAtoms(double distance, IVectorMutable center){
+    public void setMovableAtoms(double distance, IVector center){
         //distance = distance*distance;
-        IVectorMutable rij = space.makeVector();
+        IVector rij = space.makeVector();
         MoleculeArrayList movableList = new MoleculeArrayList();
         IMoleculeList loopSet = box.getMoleculeList();
         for (int i=0; i<loopSet.getMoleculeCount(); i++){
@@ -124,9 +120,9 @@ public class SimKMCLJadatom extends Simulation{
 
     
     //Must be run after setMovableAtoms
-    public void removeAtoms(double distance, IVectorMutable center){
+    public void removeAtoms(double distance, IVector center){
         distance = distance*distance;
-        IVectorMutable rij = space.makeVector();
+        IVector rij = space.makeVector();
         
         IMoleculeList loopSet = box.getMoleculeList(movable);
         for (int i=0; i<loopSet.getMoleculeCount(); i++){
@@ -140,9 +136,9 @@ public class SimKMCLJadatom extends Simulation{
     }
     
     public void randomizePositions(){
-        IVectorMutable workVector = space.makeVector();
+        IVector workVector = space.makeVector();
         IMoleculeList loopSet3 = box.getMoleculeList(movable);
-        IVectorMutable [] currentPos = new IVectorMutable [loopSet3.getMoleculeCount()];
+        IVector[] currentPos = new IVector[loopSet3.getMoleculeCount()];
         double offset = 0;
         for(int i=0; i<currentPos.length; i++){
             currentPos[i] = space.makeVector();
@@ -194,7 +190,7 @@ public void enableDimerSearch(String fileName, long maxSteps){
     public static void main(String[] args){
        
         final SimKMCLJadatom sim = new SimKMCLJadatom();
-        IVectorMutable vect = sim.getSpace().makeVector();
+        IVector vect = sim.getSpace().makeVector();
         vect.setX(0, 3.5);
         vect.setX(1, 0.0);
         vect.setX(2, 0.0);

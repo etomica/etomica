@@ -6,7 +6,7 @@ package etomica.virial;
 
 import etomica.api.IAtomType;
 import etomica.api.IMolecule;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.atom.Molecule;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
@@ -26,9 +26,9 @@ public class SpeciesAlkane extends SpeciesSpheresHetero {
     }
     
     public void setConformationParameters(double bondL, double bondTheta) {
-        IVectorMutable vector1 = space.makeVector();
+        IVector vector1 = space.makeVector();
         vector1.setX(0, bondL);
-        IVectorMutable vector2 = space.makeVector();
+        IVector vector2 = space.makeVector();
         vector2.setX(0, -bondL*Math.cos(bondTheta));
         vector2.setX(1, bondL*Math.sin(bondTheta));
         conformation = new ConformationChainZigZag2(space, vector1, vector2);

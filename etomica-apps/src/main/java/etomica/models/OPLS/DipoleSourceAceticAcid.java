@@ -8,7 +8,6 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.DipoleSource;
 import etomica.space.Space;
 import etomica.units.Electron;
@@ -20,7 +19,7 @@ import etomica.units.Electron;
  */
 public class DipoleSourceAceticAcid implements DipoleSource {
 
-    protected final IVectorMutable dipole;
+    protected final IVector dipole;
 
     /**
      * @param space dimension of the space

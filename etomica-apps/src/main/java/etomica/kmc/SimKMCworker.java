@@ -4,7 +4,7 @@
 
 package etomica.kmc;
 
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 
@@ -24,7 +24,7 @@ public class SimKMCworker extends Simulation{
         final String APP_NAME = "SimKMCworker";
 
         final SimKMCMEAMadatom sim = new SimKMCMEAMadatom();
-        IVectorMutable vect = sim.getSpace().makeVector();
+        IVector vect = sim.getSpace().makeVector();
         vect.setX(0, 9.8);
         vect.setX(1, -0.2);
         vect.setX(2, -0.2);

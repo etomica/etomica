@@ -9,7 +9,7 @@ import java.awt.Color;
 
 import etomica.action.IAction;
 import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
@@ -45,8 +45,8 @@ import etomica.virial.cluster.Standard;
 
 public class VirialCPSHeliumNonAdditiveClassical_Correction {
 	
-	protected static IVectorMutable r0, r1, r2;
-	protected static IVectorMutable r01Vec, r12Vec, r02Vec;
+	protected static IVector r0, r1, r2;
+	protected static IVector r01Vec, r12Vec, r02Vec;
 	
 	public VirialCPSHeliumNonAdditiveClassical_Correction(Space space) {
         r0 = space.makeVector();

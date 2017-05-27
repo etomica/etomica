@@ -6,8 +6,8 @@ package etomica.potential;
 
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
+import etomica.api.IVector;
 import etomica.box.Box;
-import etomica.api.IVectorMutable;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Hartree;
@@ -28,7 +28,7 @@ import etomica.util.Constants;
 public class P2EffectiveFeynmanHibbs implements Potential2Spherical {
 
     protected final Potential2SoftSpherical p2Classy;
-    protected final IVectorMutable dr;
+    protected final IVector dr;
     protected IBoundary boundary;
     protected double temperature;
     protected double mass;

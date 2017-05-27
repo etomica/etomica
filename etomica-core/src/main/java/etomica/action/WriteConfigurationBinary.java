@@ -12,7 +12,6 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.space.Space;
 
 /**
@@ -115,6 +114,6 @@ public class WriteConfigurationBinary implements IAction {
     private String confName, fileName;
     private Box box;
     private boolean doApplyPBC;
-    protected final IVectorMutable writePosition;
+    protected final IVector writePosition;
 
 }

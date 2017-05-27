@@ -12,7 +12,7 @@ import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.atom.AtomPositionGeometricCenterAlkaneEH;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.MoleculeArrayList;
@@ -204,11 +204,11 @@ public class MCMoveClusterTorsionAlkaneEH extends MCMoveMolecule {
             IAtom atom1 = childList.getAtom(j+1);
             IAtom atom2 = childList.getAtom(j+2);
             IAtom atom3 = childList.getAtom(j+3);
-            IVectorMutable atom1Position = atom1.getPosition();// use for rotation tensor, the "fixed point" on the rotating axis
+            IVector atom1Position = atom1.getPosition();// use for rotation tensor, the "fixed point" on the rotating axis
 
             // axis: (j+2)-(j+1)
             RotationTensor3D rotationTensor = (RotationTensor3D)(space.makeRotationTensor());
-            IVectorMutable axis = space.makeVector();
+            IVector axis = space.makeVector();
             axis.Ev1Mv2(atom2.getPosition(), atom1Position);//r(j+2)-r(j+1)
             axis.normalize();
             dr21.Ev1Mv2(atom0.getPosition(), atom1.getPosition());
@@ -274,7 +274,7 @@ public class MCMoveClusterTorsionAlkaneEH extends MCMoveMolecule {
   //          	System.out.println("deltaphi value is : " + deltaphi);
             	
             	 IAtom atom = childList.getAtom(k);
-                 IVectorMutable atomPosition = atom.getPosition();
+                 IVector atomPosition = atom.getPosition();
                  oldPositions[i][k].E(atomPosition);
                  
                 if ( (k==(j+1)) ||  (k==(j+2)) ){//1
@@ -333,7 +333,7 @@ public class MCMoveClusterTorsionAlkaneEH extends MCMoveMolecule {
     protected void selectMolecules() {
         IMoleculeList molecules = box.getMoleculeList();
         selectedMolecules = new MoleculeArrayList();
-        oldPositions = new IVectorMutable[molecules.getMoleculeCount()][0];
+        oldPositions = new IVector[molecules.getMoleculeCount()][0];
         int i=0;
         for (int k=0; k < molecules.getMoleculeCount();k++) {
             IMolecule a = molecules.getMolecule(k);
@@ -341,7 +341,7 @@ public class MCMoveClusterTorsionAlkaneEH extends MCMoveMolecule {
             if (numChildren<14) { //at least C4H10, total atoms:14
                 continue;
             }
-            oldPositions[i] = new IVectorMutable[numChildren];
+            oldPositions[i] = new IVector[numChildren];
             for (int j=0; j<numChildren; j++) {
                 oldPositions[i][j] = space.makeVector();
             }
@@ -382,10 +382,10 @@ public class MCMoveClusterTorsionAlkaneEH extends MCMoveMolecule {
     protected final int[] probabilityReverseMap;
     protected MoleculeArrayList selectedMolecules;
     protected double bondLength;
-    protected final IVectorMutable work1, work2, work3;
-    protected final IVectorMutable dr21, dr23, dr34;
-    protected IVectorMutable[][] oldPositions;
-    protected final IVectorMutable oldCenter;
+    protected final IVector work1, work2, work3;
+    protected final IVector dr21, dr23, dr34;
+    protected IVector[][] oldPositions;
+    protected final IVector oldCenter;
     protected double wOld, wNew, bias;
     protected ISpecies species;
 

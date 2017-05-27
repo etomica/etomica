@@ -1,10 +1,7 @@
 package etomica.liquidLJ;
 
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IVectorMutable;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialCalculation;
 import etomica.space.Space;
@@ -67,7 +64,7 @@ public class PotentialCalculationEnergySumCutoff implements PotentialCalculation
     }
 	
 	protected double[] sums, r2Cuts;
-	protected final IVectorMutable dr;
+	protected final IVector dr;
 	protected Box box;
 	protected IBoundary boundary;
 }

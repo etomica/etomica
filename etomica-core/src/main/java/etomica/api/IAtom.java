@@ -62,5 +62,5 @@ public interface IAtom {
      * @return the position of the IAtom.  Modifying the returned vector will
      * alter the IAtom's position.
      */
-    public IVectorMutable getPosition();
+    public IVector getPosition();
 }

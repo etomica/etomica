@@ -5,7 +5,7 @@
 package etomica.models.nitrogen;
 
 import etomica.api.IMolecule;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.space.Space;
@@ -72,7 +72,7 @@ public class FindPairMoleculeIndexBetaN2 {
 		int ySites = 4*nCell+1;
 		int zSites = 2*nCell+1;
 		siteDisplacement = new double[xSites][ySites][zSites];
-		orientation = new IVectorMutable[4];
+		orientation = new IVector[4];
 		
 		for (int i=0; i<orientation.length; i++){
 			orientation[i] = space.makeVector();
@@ -101,8 +101,8 @@ public class FindPairMoleculeIndexBetaN2 {
 		// Molecule A
 		molAVec.E(positionDefinition.position(moleculeA));
 			
-		IVectorMutable molAleafPos0 = moleculeA.getChildList().getAtom(0).getPosition();
-    	IVectorMutable molAleafPos1 = moleculeA.getChildList().getAtom(1).getPosition();
+		IVector molAleafPos0 = moleculeA.getChildList().getAtom(0).getPosition();
+    	IVector molAleafPos1 = moleculeA.getChildList().getAtom(1).getPosition();
     	 
 		tempOrientA.Ev1Mv2(molAleafPos1, molAleafPos0);
 		tempOrientA.normalize();
@@ -112,8 +112,8 @@ public class FindPairMoleculeIndexBetaN2 {
 		// Molecule B
 		molBVec.E(positionDefinition.position(moleculeB));
 
-		IVectorMutable molBleafPos0 = moleculeB.getChildList().getAtom(0).getPosition();
-	    IVectorMutable molBleafPos1 = moleculeB.getChildList().getAtom(1).getPosition();
+		IVector molBleafPos0 = moleculeB.getChildList().getAtom(0).getPosition();
+	    IVector molBleafPos1 = moleculeB.getChildList().getAtom(1).getPosition();
 	    	 
 		tempOrientB. Ev1Mv2(molBleafPos1, molBleafPos0);
 		tempOrientB.normalize();		
@@ -147,7 +147,7 @@ public class FindPairMoleculeIndexBetaN2 {
 		return index;
 	}
 		
-	public int[] getSiteDisplacementIndex(IVectorMutable siteDisplacement){
+	public int[] getSiteDisplacementIndex(IVector siteDisplacement){
 		int[] index = new int[3];
 		index[0] = (int)Math.round(tempVec.getX(0)/lengthX) +  nCell;
 		index[1] = (int)Math.round(tempVec.getX(1)/lengthY) + (nCell*2);
@@ -175,7 +175,7 @@ public class FindPairMoleculeIndexBetaN2 {
 		}
 	}
 	
-	public int getOrientationIndex(IVectorMutable orientation){
+	public int getOrientationIndex(IVector orientation){
 		double x = orientation.getX(0);
 		double y = orientation.getX(1);
 		double z = orientation.getX(2);
@@ -202,8 +202,8 @@ public class FindPairMoleculeIndexBetaN2 {
 	protected int[] index;
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected IAtomPositionDefinition positionDefinition;
-	protected IVectorMutable tempVec, tempOrientA, tempOrientB, molAVec, molBVec;
-	protected IVectorMutable[] orientation, latticeOffset;
+	protected IVector tempVec, tempOrientA, tempOrientB, molAVec, molBVec;
+	protected IVector[] orientation, latticeOffset;
 	protected double lengthX, lengthY, lengthZ;
 	protected double[][][] siteDisplacement;
 	protected boolean[][][][][] isNewPair;

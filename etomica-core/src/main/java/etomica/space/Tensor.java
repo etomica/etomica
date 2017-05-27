@@ -6,7 +6,6 @@ package etomica.space;
 
 import etomica.api.IFunction;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 
 /**
  * Interface for a second-order tensor. Implementations differ depending on the dimension of
@@ -78,7 +77,7 @@ public interface Tensor extends Cloneable {
      * of vectors must equal the dimension of the tensor, and the vector
      * dimensions must equal the tensor dimension.
      */
-    void assignTo(IVectorMutable[] v);
+    void assignTo(IVector[] v);
     
     /**
      * Sets this tensor equal to the dyadic or outer product of the given vectors.
@@ -205,7 +204,7 @@ public interface Tensor extends Cloneable {
      * elements with the transformed values. This operation is equivalent to a matrix
      * multiplication.
      */
-    void transform(IVectorMutable x);
+    void transform(IVector x);
 
     /**
      * Fills the given array with the elements of this tensor.

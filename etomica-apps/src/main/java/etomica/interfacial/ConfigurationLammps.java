@@ -10,7 +10,6 @@ import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.config.Configuration;
 import etomica.space.Space;
 
@@ -18,7 +17,7 @@ public class ConfigurationLammps implements Configuration {
     protected final Space space;
     protected final String filename;
     protected final ISpecies[] species;
-    protected IVectorMutable shift;
+    protected IVector shift;
     protected double Lxy;
     protected double topPadding;
     protected double zMax;
@@ -35,10 +34,10 @@ public class ConfigurationLammps implements Configuration {
     }
     
     public void initializeCoordinates(Box box) {
-        List<IVectorMutable>[] coords = new List[3];
-        coords[0] = new ArrayList<IVectorMutable>();
-        coords[1] = new ArrayList<IVectorMutable>();
-        coords[2] = new ArrayList<IVectorMutable>();
+        List<IVector>[] coords = new List[3];
+        coords[0] = new ArrayList<IVector>();
+        coords[1] = new ArrayList<IVector>();
+        coords[2] = new ArrayList<IVector>();
         double zMin = Double.POSITIVE_INFINITY;
         zMax = -Double.POSITIVE_INFINITY;
         boolean readCoords = false;
@@ -59,7 +58,7 @@ public class ConfigurationLammps implements Configuration {
                 
                 if (!readCoords || bits.length < 5) continue;
                 int aType = Integer.parseInt(bits[1]);
-                IVectorMutable xyz = space.makeVector();
+                IVector xyz = space.makeVector();
                 for (int i=0; i<3; i++) {
                     xyz.setX(i, Double.parseDouble(bits[2+i]));
                 }
@@ -83,7 +82,7 @@ public class ConfigurationLammps implements Configuration {
             box.setNMolecules(species[i], coords[i].size());
             IMoleculeList m = box.getMoleculeList(species[i]);
             for (int j=0; j<coords[i].size(); j++) {
-                IVectorMutable p = m.getMolecule(j).getChildList().getAtom(0).getPosition();
+                IVector p = m.getMolecule(j).getChildList().getAtom(0).getPosition();
                 p.Ev1Pv2(coords[i].get(j), shift);
             }
         }

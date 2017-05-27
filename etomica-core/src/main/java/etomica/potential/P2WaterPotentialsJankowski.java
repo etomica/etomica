@@ -13,11 +13,9 @@ import etomica.api.IMolecule;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IRandom;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
 import etomica.space.IOrientation;
 import etomica.space.Space;
-import etomica.space.IVectorRandom;
 import etomica.space3d.IOrientationFull3D;
 import etomica.space3d.OrientationFull3D;
 import etomica.space3d.Space3D;
@@ -45,14 +43,14 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
     protected static final int naamax = 14, nbbmax = 14;
     protected static final int ntypemax = 6;    
     protected static final int maxpar1 = 18, maxpar2 = 84;
-    protected static IVectorMutable[] set_sites_sitea, sa, sb, alignedV1, alignedV2, bisectorVec, posVec; 
-    protected static IVectorMutable[][] siteat, sitebt; 
-    protected static IVectorMutable set_sites_sa;
+    protected static IVector[] set_sites_sitea, sa, sb, alignedV1, alignedV2, bisectorVec, posVec;
+    protected static IVector[][] siteat, sitebt;
+    protected static IVector set_sites_sa;
     protected static IVector[] cartA, cartB;
     protected static int[] set_sites_itypea = new int[nsitemax];
     protected static final double[] c = new double[1000], values = new double[100];
     protected static int[] numtm = new int[2];
-    protected static IVectorMutable tttprod;
+    protected static IVector tttprod;
     protected static final double [][] param = new double [maxpar1][ntypemax];
     protected static final double [][][] parab = new double [maxpar2][ntypemax][ntypemax];
     protected static int[][][] itypus = new int[ntypemax][ntypemax][2];
@@ -75,8 +73,8 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         set_sites_sitea = space.makeVectorArray(nsitemax);
         sa = space.makeVectorArray(naamax+2);
         sb = space.makeVectorArray(nbbmax+2);
-        siteat = new IVectorMutable[nsitemax][naamax+2];
-        sitebt = new IVectorMutable[nsitemax][nbbmax+2];
+        siteat = new IVector[nsitemax][naamax+2];
+        sitebt = new IVector[nsitemax][nbbmax+2];
         alignedV1 = space.makeVectorArray(3);
         alignedV2 = space.makeVectorArray(3);
         posVec = space.makeVectorArray(3);
@@ -269,12 +267,12 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         if (iMonomer == 1) {
             eMon = pots(bl[0],bl[1],angles[0]) + pots(bl[2],bl[3],angles[1]);
         }
-        IVectorMutable[] rigidPosVec = space.makeVectorArray(3);
+        IVector[] rigidPosVec = space.makeVectorArray(3);
         rigidPosVec[0].E(new double[] {0.00000000000000, 0.0000000, 0.1255334885});
         rigidPosVec[1].E(new double[] {-1.45365196228170, 0.0000000,-0.9961538357});
         rigidPosVec[2].E(new double[] {1.45365196228170, 0.0000000,-0.9961538357});
-        IVectorMutable x1 = space.makeVector();
-        IVectorMutable y1 = space.makeVector();
+        IVector x1 = space.makeVector();
+        IVector y1 = space.makeVector();
         x1.Ev1Mv2(rigidPosVec[1],rigidPosVec[0]);
         y1.Ev1Mv2(rigidPosVec[2],rigidPosVec[0]);
         double bl1 = Math.sqrt(x1.squared())*a0;
@@ -524,8 +522,8 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
 //            System.out.println(carta[i]);
 //        }
 //        System.exit(1);
-        IVectorMutable v1 = space.makeVector(), vn1 = space.makeVector(), v2 = space.makeVector(), vn2 = space.makeVector(), vsm = space.makeVector();
-        IVectorMutable vb = space.makeVector(), vp = space.makeVector(), vd1a = space.makeVector(), vd1b = space.makeVector(), vd2a = space.makeVector(), vd2b = space.makeVector();
+        IVector v1 = space.makeVector(), vn1 = space.makeVector(), v2 = space.makeVector(), vn2 = space.makeVector(), vsm = space.makeVector();
+        IVector vb = space.makeVector(), vp = space.makeVector(), vd1a = space.makeVector(), vd1b = space.makeVector(), vd2a = space.makeVector(), vd2b = space.makeVector();
         // In this procedure positions of sites are established on the base of
         // the cartesian coordinates of atoms.
         // Written on the base of data from the subroutine getgeo
@@ -661,7 +659,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         set_sites_itypea[7] = 5;
     }
     
-    public static IVectorMutable TTTprod(IVectorMutable Ri, IVectorMutable Rj, IVectorMutable u, double rij) {        
+    public static IVector TTTprod(IVector Ri, IVector Rj, IVector u, double rij) {
         //
         // Calculate the vector V resulting from the action
         // of the dipole propagator tensor T_ij on U
@@ -686,7 +684,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         //
 
         // dimension dma_unrot[3], dmb_unrot[3], dma[3], dmb[3], u[3];
-        IVectorMutable dma = space.makeVector(), dmb = space.makeVector(), u;
+        IVector dma = space.makeVector(), dmb = space.makeVector(), u;
         
 
         // calculate static dipole moments of a and b in these orientations and;
@@ -803,7 +801,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         // calculate the distance between the os (pol centers);
         //;
         
-        IVectorMutable pom = space.makeVector();
+        IVector pom = space.makeVector();
         pom.Ev1Mv2(sitebt[0][ibb-1],siteat[0][iaa-1]);
         double dlen = Math.sqrt(pom.squared());
 //        System.out.println("dlen = "+dlen);
@@ -1808,8 +1806,8 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         int iaa = 1;
         int ibb = 1;
         set_sites(cartA);
-        IVectorMutable[] sitex = set_sites_sitea;
-        IVectorMutable sx = set_sites_sa;
+        IVector[] sitex = set_sites_sitea;
+        IVector sx = set_sites_sa;
 
         int[] itypea = set_sites_itypea;
         sa[iaa-1].E(sx);        
@@ -1943,17 +1941,17 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         return val;
     }
     
-    public static double align_on_z_axis(IVectorMutable[] carta, IVectorMutable[] cartb) {
+    public static double align_on_z_axis(IVector[] carta, IVector[] cartb) {
         Space space = Space3D.getInstance();
         double thr = 1E-09;
-        IVectorMutable coma = space.makeVector();
-        IVectorMutable comb = space.makeVector();
-        IVectorMutable[] xyza = space.makeVectorArray(3);
-        IVectorMutable[] xyzb = space.makeVectorArray(3);
-        IVectorMutable[] xyzaa = space.makeVectorArray(3);
-        IVectorMutable[] xyzbb = space.makeVectorArray(3);
-        IVectorMutable[] xyzaaa = space.makeVectorArray(3);
-        IVectorMutable[] xyzbbb = space.makeVectorArray(3);
+        IVector coma = space.makeVector();
+        IVector comb = space.makeVector();
+        IVector[] xyza = space.makeVectorArray(3);
+        IVector[] xyzb = space.makeVectorArray(3);
+        IVector[] xyzaa = space.makeVectorArray(3);
+        IVector[] xyzbb = space.makeVectorArray(3);
+        IVector[] xyzaaa = space.makeVectorArray(3);
+        IVector[] xyzbbb = space.makeVectorArray(3);
         for (int i=0; i<carta.length; i++) {
             if (carta.length != cartb.length || carta.length != 3) throw new RuntimeException("Mismatching vector lengths!!!");
             xyza[i].E(carta[i]);
@@ -2058,14 +2056,14 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
 //        System.exit(1);
     }
     
-    public void radau_f1_tst(IVectorMutable[] rPos) {
+    public void radau_f1_tst(IVector[] rPos) {
         //;
         // I assume that the molecule is already shifted to fit COM to (0,0,0) ;
         // ;        
-        IVectorMutable q1 = space.makeVector(),q2 = space.makeVector(),bv = space.makeVector();
-        IVectorMutable br0 = space.makeVector();
-        IVectorMutable pom1 = space.makeVector(),pom2 = space.makeVector();
-        IVectorMutable temp1 = space.makeVector(),temp2 = space.makeVector();
+        IVector q1 = space.makeVector(),q2 = space.makeVector(),bv = space.makeVector();
+        IVector br0 = space.makeVector();
+        IVector pom1 = space.makeVector(),pom2 = space.makeVector();
+        IVector temp1 = space.makeVector(),temp2 = space.makeVector();
         //      data xmO /15.994915d0/, xmH /1.007825d0/;
         
 //        double xq1e=0.951118220;
@@ -2112,15 +2110,15 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         bisectorVec[1].TE(-1);        
     }
     
-    public void eck_rad_tst(IVectorMutable[] rPos) {
+    public void eck_rad_tst(IVector[] rPos) {
         //;
         // I assume that the molecule is already shifted to fit COM to (0,0,0) ;
         // ;
 
-        IVectorMutable q1 = space.makeVector(),q2 = space.makeVector(),bv = space.makeVector();
-        IVectorMutable br0 = space.makeVector();
-        IVectorMutable pom1 = space.makeVector(),pom2 = space.makeVector();
-        IVectorMutable temp1 = space.makeVector(),temp2 = space.makeVector();
+        IVector q1 = space.makeVector(),q2 = space.makeVector(),bv = space.makeVector();
+        IVector br0 = space.makeVector();
+        IVector pom1 = space.makeVector(),pom2 = space.makeVector();
+        IVector temp1 = space.makeVector(),temp2 = space.makeVector();
         //      data xmO /15.994915d0/, xmH /1.007825d0/;
        
         double xq1e=0.951118220;
@@ -2198,7 +2196,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         // vi1 - the bisection vector of the reference water is put in this direction;
         // vi2 - it is perpendicular to vi1 and lies in the plane of the molecule;
         //;
-        IVectorMutable vshift = space.makeVector();
+        IVector vshift = space.makeVector();
         double ds=0.791703581105605350;
         double dc=0.610905426121392430;
         double rOHref=0.971625700277173540;
@@ -2237,11 +2235,11 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         return angles;
     }
     
-    public double getEnergy(IVectorMutable[] carta, IVectorMutable[] cartb) {
+    public double getEnergy(IVector[] carta, IVector[] cartb) {
         double rCom = align_on_z_axis(carta,cartb);
 //        System.out.println("dummy rCom = "+rCom);
-        IVectorMutable[] cartaa = space.makeVectorArray(3);
-        IVectorMutable[] cartbb = space.makeVectorArray(3);
+        IVector[] cartaa = space.makeVectorArray(3);
+        IVector[] cartbb = space.makeVectorArray(3);
         // make embedding for molecule A
         if (iEmbed == 1) {
             eck_rad_tst(carta);
@@ -2295,10 +2293,10 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         double eTot = 0;//poten(carta,cartb);
         
         if (iMonomer == 1) {
-            IVectorMutable oh1 = space.makeVector();
+            IVector oh1 = space.makeVector();
             oh1.Ev1Mv2(carta[1],carta[0]);
             double rA1 = Math.sqrt(oh1.squared());
-            IVectorMutable oh2 = space.makeVector();
+            IVector oh2 = space.makeVector();
             oh2.Ev1Mv2(carta[2],carta[0]);
             double rA2 = Math.sqrt(oh2.squared());
             double thA = Math.acos(oh1.dot(oh2)/(rA1*rA2));
@@ -2318,17 +2316,17 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         return eTot;        
     }
     
-    public static IAtomList posVecToAtoms(IVectorMutable[] a1, IVectorMutable[] b1) {
+    public static IAtomList posVecToAtoms(IVector[] a1, IVector[] b1) {
         // Returns atoms whose orientation vectors' order corresponds to the order used in
         // P2WaterSzalewicz.java
         Space space = Space3D.getInstance();
-        final IVectorMutable comA = space.makeVector();
-        final IVectorMutable comB = space.makeVector();
+        final IVector comA = space.makeVector();
+        final IVector comB = space.makeVector();
         final IOrientationFull3D orA = (IOrientationFull3D)space.makeOrientation();
         final IOrientationFull3D orB = (IOrientationFull3D)space.makeOrientation();
-        IVectorMutable q1 = space.makeVector();
-        IVectorMutable q2 = space.makeVector();
-        IVectorMutable q3 = space.makeVector();
+        IVector q1 = space.makeVector();
+        IVector q2 = space.makeVector();
+        IVector q3 = space.makeVector();
         comA.Ea1Tv1(mO,a1[0]);
         comA.PEa1Tv1(mH,a1[1]);
         comA.PEa1Tv1(mH,a1[2]);
@@ -2366,7 +2364,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
                 return null;
             }
             
-            public IVectorMutable getPosition() {
+            public IVector getPosition() {
                 return comA;
             }
 
@@ -2417,7 +2415,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         if (comHack) {
             int[] seeds = new int[] {1300602402,1236700976,-450785077,-1529402919};
             IRandom random = new RandomMersenneTwister(seeds);
-            IVectorRandom rV1 = (IVectorRandom)space.makeVector();            
+            IVector rV1 = (IVector)space.makeVector();
             rV1.setRandomSphere(random);
             comB.PEa1Tv1(comHackDist,rV1);
         }        
@@ -2437,7 +2435,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
                 return null;
             }
             
-            public IVectorMutable getPosition() {
+            public IVector getPosition() {
                 return comB;
             }
             
@@ -2481,8 +2479,8 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         double sth0 = Math.sin(angles[ind]);
         
 //        System.out.println();        
-        IVectorMutable com = space.makeVector();
-        IVectorMutable[] v = space.makeVectorArray(2);
+        IVector com = space.makeVector();
+        IVector[] v = space.makeVectorArray(2);
         
         IAtomOriented atom0 = (IAtomOriented) atomi;
         com.E(atom0.getPosition());
@@ -2509,7 +2507,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
     
     public static void processAtoms (IAtomList atomL) {
         Space space = Space3D.getInstance();
-        IVectorMutable[] carta = space.makeVectorArray(3), cartb = space.makeVectorArray(3);
+        IVector[] carta = space.makeVectorArray(3), cartb = space.makeVectorArray(3);
         atomToPosVec(atomL.getAtom(0));
         for (int i=0; i<3; i++) {
             carta[i].E(posVec[i]);

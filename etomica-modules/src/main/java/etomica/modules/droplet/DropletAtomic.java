@@ -9,7 +9,6 @@ import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.box.Box;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.MoleculeArrayList;
 import etomica.chem.elements.Argon;
 import etomica.config.ConfigurationLattice;
@@ -105,7 +104,7 @@ public class DropletAtomic extends Simulation {
         config.initializeCoordinates(box);
         
         IAtomList leafList = box.getLeafList();
-        IVectorMutable v = space.makeVector();
+        IVector v = space.makeVector();
         IVector dim = box.getBoundary().getBoxSize();
         double dropRadiusSq = 0.25*dropRadius*dropRadius*dim.getX(0)*dim.getX(0);
         int ambientCount = 0;

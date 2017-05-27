@@ -17,11 +17,11 @@ public class PotentialEAM_LS extends PotentialN implements PotentialSoft{
 
     protected double n, m, eps, a, c, rC1, rC2;
     protected IBoundary boundary; 
-    protected final IVectorMutable dr, dR;
-    protected IVectorMutable[] gradient; 
-    protected IVectorMutable[] rhograd;
+    protected final IVector dr, dR;
+    protected IVector[] gradient;
+    protected IVector[] rhograd;
     protected double [][] secondder;
-    protected final IVectorMutable Lxyz, drtmp, dRtmp, R1,R2,R3;
+    protected final IVector Lxyz, drtmp, dRtmp, R1,R2,R3;
     protected final int[] nShells;
     protected final IVector[] a0;
     protected final CoordinateDefinition coordinateDefinition;
@@ -40,8 +40,8 @@ public class PotentialEAM_LS extends PotentialN implements PotentialSoft{
         rC2 = rC1;
         dr=space.makeVector();
         dR=space.makeVector();
-        gradient=new IVectorMutable[0];
-        rhograd=new IVectorMutable[0];
+        gradient=new IVector[0];
+        rhograd=new IVector[0];
 		dRtmp = space.makeVector();
 		drtmp = space.makeVector();
         R1 = space.makeVector();
@@ -68,7 +68,7 @@ public class PotentialEAM_LS extends PotentialN implements PotentialSoft{
       double rij, Rij, Lij;
       IVector ipos=atoms.getAtom(0).getPosition();
       IVector Ri = coordinateDefinition.getLatticePosition(atoms.getAtom(0));
-      IVectorMutable shiftR = space.makeVector();
+      IVector shiftR = space.makeVector();
 
       
       for(int j=1;j<atoms.getAtomCount();j++){
@@ -124,9 +124,9 @@ public class PotentialEAM_LS extends PotentialN implements PotentialSoft{
     public double virial(IAtomList atoms) {
       IVector ipos=atoms.getAtom(0).getPosition();
       IVector Ri = coordinateDefinition.getLatticePosition(atoms.getAtom(0));
-      IVectorMutable gij2b = space.makeVector();
-      IVectorMutable gijnb = space.makeVector();
-      IVectorMutable shiftR = space.makeVector();
+      IVector gij2b = space.makeVector();
+      IVector gijnb = space.makeVector();
+      IVector shiftR = space.makeVector();
 
       double rhoi = 0;
       double vir2b = 0;
@@ -196,8 +196,8 @@ public class PotentialEAM_LS extends PotentialN implements PotentialSoft{
     
     public IVector[] gradient(IAtomList atoms) {
       if(gradient.length<atoms.getAtomCount()){
-        rhograd=new IVectorMutable[atoms.getAtomCount()];
-        gradient=new IVectorMutable[atoms.getAtomCount()];
+        rhograd=new IVector[atoms.getAtomCount()];
+        gradient=new IVector[atoms.getAtomCount()];
         for(int j=0;j<atoms.getAtomCount();j++){
           gradient[j]=space.makeVector();
           rhograd[j]=space.makeVector();
@@ -206,7 +206,7 @@ public class PotentialEAM_LS extends PotentialN implements PotentialSoft{
       gradient[0].E(0);
       IVector ipos=atoms.getAtom(0).getPosition();
       IVector Ri = coordinateDefinition.getLatticePosition(atoms.getAtom(0));
-        IVectorMutable shiftR = space.makeVector();
+        IVector shiftR = space.makeVector();
         double rhoi=0;
     	double dvdr;
         double rij, Rij, Lij;

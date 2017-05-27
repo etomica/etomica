@@ -18,7 +18,6 @@ import etomica.api.IIntegratorListener;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomHydrogen;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.IAtomOriented;
@@ -169,7 +168,7 @@ public class VirialN2PI {
         //        sim.init();
         sim.integratorOS.setNumSubSteps(1000);
         steps /= 1000;
-        final IVectorMutable[] rv = space.makeVectorArray(4);
+        final IVector[] rv = space.makeVectorArray(4);
         rv[0].setX(0, massN*blN2*blN2*0.25);
         rv[0].setX(1, massN*blN2*blN2*0.25);
         p2PISC.setAtomInfo(speciesN2.getAtomType(0), new AtomInfo() {
@@ -250,7 +249,7 @@ public class VirialN2PI {
             for (int i=0; i<nBeads; i++) {
                 for (int j=0; j<3; j++) {
                     int k = j*nBeads + i;
-                    IVectorMutable p = tarList.getAtom(k).getPosition();
+                    IVector p = tarList.getAtom(k).getPosition();
                     p.setX(j, 4.0);
                 }
             }

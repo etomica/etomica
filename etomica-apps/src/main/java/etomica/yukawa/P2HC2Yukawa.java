@@ -6,8 +6,8 @@ package etomica.yukawa;
 
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
+import etomica.api.IVector;
 import etomica.box.Box;
-import etomica.api.IVectorMutable;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.space.Space;
 
@@ -133,6 +133,6 @@ public final class P2HC2Yukawa extends Potential2SoftSpherical {
 	private double z2;
 	private double expZ1;
 	private double expZ2; 
-	private final IVectorMutable dr;
+	private final IVector dr;
 	private IBoundary nearestImageTransformer;
 }	

@@ -4,10 +4,7 @@
 
 package etomica.atom;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomType;
-import etomica.api.IMolecule;
-import etomica.api.IVectorMutable;
+import etomica.api.*;
 import etomica.space.Space;
 import etomica.util.Debug;
 
@@ -85,7 +82,7 @@ public class Atom implements IAtom, java.io.Serializable {
         return parent;
     }
     
-    public IVectorMutable getPosition() {
+    public IVector getPosition() {
         return position;
     }
     
@@ -108,7 +105,7 @@ public class Atom implements IAtom, java.io.Serializable {
     private static final long serialVersionUID = 3L;
     protected final IAtomType type;
     protected int index;
-    protected final IVectorMutable position;
+    protected final IVector position;
     protected IMolecule parent;
     protected int leafIndex;
 }

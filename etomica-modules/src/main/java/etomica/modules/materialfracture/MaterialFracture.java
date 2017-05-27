@@ -7,8 +7,8 @@ package etomica.modules.materialfracture;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
+import etomica.api.IVector;
 import etomica.box.Box;
-import etomica.api.IVectorMutable;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorMD;
@@ -67,10 +67,10 @@ public class MaterialFracture extends Simulation {
         potentialMaster.addPotential(pt, new IAtomType[]{species.getLeafType(), species.getLeafType()});
         potentialMaster.addPotential(p1Tension, new IAtomType[]{species.getLeafType()});
 
-        PrimitiveGeneral primitive = new PrimitiveGeneral(space, new IVectorMutable[]{space.makeVector(new double[]{Math.sqrt(3),0}), space.makeVector(new double[]{0,1})});
+        PrimitiveGeneral primitive = new PrimitiveGeneral(space, new IVector[]{space.makeVector(new double[]{Math.sqrt(3),0}), space.makeVector(new double[]{0,1})});
         config = new ConfigurationLattice(new BravaisLatticeCrystal(primitive, new BasisOrthorhombicHexagonal()), space) {
             public void initializeCoordinates(Box aBox) {
-                IVectorMutable d = space.makeVector();
+                IVector d = space.makeVector();
                 d.E(aBox.getBoundary().getBoxSize());
                 d.setX(0, 64.7);
                 aBox.getBoundary().setBoxSize(d);

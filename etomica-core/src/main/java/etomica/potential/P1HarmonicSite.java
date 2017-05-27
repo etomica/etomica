@@ -7,7 +7,6 @@ package etomica.potential;
 import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.box.BoxAgentManager;
 import etomica.space.Space;
@@ -28,13 +27,13 @@ import etomica.units.Length;
 public class P1HarmonicSite extends Potential1 implements PotentialSoft {
     
     private double w = 100.0;
-    private final IVectorMutable[] force;
+    private final IVector[] force;
     protected final BoxAgentManager<AtomLeafAgentManager<? extends IVector>> boxAgentManager;
     protected AtomLeafAgentManager<? extends IVector> atomAgentManager;
     
     public P1HarmonicSite(Space space) {
         super(space);
-        force = new IVectorMutable[]{space.makeVector()};
+        force = new IVector[]{space.makeVector()};
         boxAgentManager = new BoxAgentManager<AtomLeafAgentManager<? extends IVector>>(null, AtomLeafAgentManager.class);
     }
 
@@ -68,7 +67,7 @@ public class P1HarmonicSite extends Potential1 implements PotentialSoft {
     }
 
     public IVector[] gradient(IAtomList a){
-        IVectorMutable r = a.getAtom(0).getPosition();
+        IVector r = a.getAtom(0).getPosition();
         IVector x0 = atomAgentManager.getAgent(a.getAtom(0));
         force[0].Ev1Mv2(r,x0);
         force[0].TE(2*w);

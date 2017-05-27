@@ -10,7 +10,6 @@ import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.AtomSetSinglet;
@@ -27,7 +26,7 @@ import etomica.util.Debug;
  * @author andrew
  *
  */
-public class CriterionSimple implements NeighborCriterion, AgentSource<IVectorMutable> {
+public class CriterionSimple implements NeighborCriterion, AgentSource<IVector> {
 
 	public CriterionSimple(Simulation sim, Space _space, double interactionRange, double neighborRadius) {
 		super();
@@ -36,8 +35,8 @@ public class CriterionSimple implements NeighborCriterion, AgentSource<IVectorMu
 		this.interactionRange = interactionRange;
         neighborRadius2 = neighborRadius * neighborRadius;
         setSafetyFactor(0.4);
-        BoxAgentSourceAtomManager<IVectorMutable> basam = new BoxAgentSourceAtomManager<IVectorMutable>(this, IVectorMutable.class);
-        boxAgentManager = new BoxAgentManager<AtomLeafAgentManager<IVectorMutable>>(basam,AtomLeafAgentManager.class,sim);
+        BoxAgentSourceAtomManager<IVector> basam = new BoxAgentSourceAtomManager<IVector>(this, IVector.class);
+        boxAgentManager = new BoxAgentManager<AtomLeafAgentManager<IVector>>(basam,AtomLeafAgentManager.class,sim);
 	}
 	
 	public void setSafetyFactor(double f) {
@@ -130,22 +129,22 @@ public class CriterionSimple implements NeighborCriterion, AgentSource<IVectorMu
         agentManager.getAgent(atom).E(atom.getPosition());
 	}
 
-    public IVectorMutable makeAgent(IAtom atom, Box agentBox) {
-        IVectorMutable v = space.makeVector();
+    public IVector makeAgent(IAtom atom, Box agentBox) {
+        IVector v = space.makeVector();
         // atom isn't necessarily in the position.  but if atom-adding code is smart,
         // it will be in the appropriate position.
         v.E(atom.getPosition());
         return v;
     }
     
-    public void releaseAgent(IVectorMutable agent, IAtom atom, Box agentBox) {}
+    public void releaseAgent(IVector agent, IAtom atom, Box agentBox) {}
 
     protected final Space space;
     protected double interactionRange, displacementLimit2, neighborRadius2;
-	protected final IVectorMutable dr;
+	protected final IVector dr;
     protected IBoundary boundary;
 	protected double safetyFactor;
 	protected double r2, r2MaxSafe;
-    protected AtomLeafAgentManager<IVectorMutable> agentManager;
-    protected final BoxAgentManager<AtomLeafAgentManager<IVectorMutable>> boxAgentManager;
+    protected AtomLeafAgentManager<IVector> agentManager;
+    protected final BoxAgentManager<AtomLeafAgentManager<IVector>> boxAgentManager;
 }

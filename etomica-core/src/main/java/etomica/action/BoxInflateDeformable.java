@@ -7,7 +7,7 @@ package etomica.action;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -51,7 +51,7 @@ public class BoxInflateDeformable extends BoxInflate{
          * into coordinates based on the edge vectors, scale, 
          * convert back, and scale the molecule
          */
-        IVectorMutable translationVector = translator.getTranslationVector();
+        IVector translationVector = translator.getTranslationVector();
         // substract 1 from each dimension so that multiplying by it yields
         // the amount each coordinate is to be translated *by* (not to).
         scaleVector.PE(-1.0);

@@ -8,7 +8,6 @@ import etomica.api.IAtomList;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.space.Space;
@@ -129,7 +128,7 @@ public class ClusterCoupledFlippedPartial implements ClusterAbstract {
     protected long cPairID = -1, lastCPairID = -1;
     protected double value, lastValue;
     protected final boolean[] flippedAtoms;
-    private IVectorMutable childAtomVector;
+    private IVector childAtomVector;
     protected IAtomPositionDefinition positionDefinition;
     protected final int[][] flipList;
     protected final int[] actualFlipList;

@@ -10,7 +10,6 @@ import etomica.action.MoleculeChildAtomAction;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.MoleculePair;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
@@ -64,13 +63,13 @@ public class LatticeSumCrystalMolecular{
         
         //get coordinates of basis at the origin
         basisDim = lattice.getBasis().getScaledCoordinates().length;
-        basis0 = new IVectorMutable[basisDim];
+        basis0 = new IVector[basisDim];
         moleculeCell0 = new IMolecule[basisDim];
                 
         for(int j=0; j<basisDim; j++) {
             siteIndex[spaceDim] = j;
             basis0[j] = lattice.getSpace().makeVector();
-            basis0[j].E((IVectorMutable)lattice.site(siteIndex));
+            basis0[j].E((IVector)lattice.site(siteIndex));
             moleculeCell0[j] = coordinateDef.getBasisCells()[0].molecules.getMolecule(j);
    
         }
@@ -130,7 +129,7 @@ public class LatticeSumCrystalMolecular{
 	                atomGroupAction.actionPerformed(ghostMol);
                     
 	                //Putting the molecule to its lattice site
-                    IVectorMutable site = (IVectorMutable)lattice.site(siteIndex);
+                    IVector site = (IVector)lattice.site(siteIndex);
                     position.E(site);
                 
                     atomActionTranslateTo.setDestination(position);
@@ -207,15 +206,15 @@ public class LatticeSumCrystalMolecular{
     private final BravaisLatticeCrystal lattice;
     private IndexIterator iterator;
     private IndexIteratorTriangular coreIterator;
-    private final IVectorMutable kVector;
-    private final IVectorMutable[] basis0;
+    private final IVector kVector;
+    private final IVector[] basis0;
     private final int[] siteIndex;
-    private final IVectorMutable dr;
+    private final IVector dr;
     private final int basisDim;
     private final int spaceDim;
     private int maxLatticeShell;
     protected final IMolecule[] moleculeCell0;
-    protected IVectorMutable offset, position;
+    protected IVector offset, position;
     protected final MoleculeActionTranslateTo atomActionTranslateTo;
     protected final AtomActionTranslateBy translateBy;
     protected MoleculeChildAtomAction atomGroupActionTranslate;
@@ -223,7 +222,7 @@ public class LatticeSumCrystalMolecular{
     protected Box ghostBox;
     protected Tensor[] xzOrientationTensor, yOrientationTensor;
     protected MoleculeChildAtomAction atomGroupAction;
-    protected IVectorMutable[] positionVector;
+    protected IVector[] positionVector;
     
     /**
      * Helper class that encapsulates the complex basis-basis data in a manner that

@@ -7,7 +7,6 @@ package etomica.spaceNd;
 import Jama.Matrix;
 import etomica.api.IFunction;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.space.Tensor;
 
 /**
@@ -100,7 +99,7 @@ public class TensorND implements Tensor {
         }
     }
 
-    public void assignTo(IVectorMutable[] v) {
+    public void assignTo(IVector[] v) {
         for(int i=0; i<dim; i++){
             for(int j=0; j<dim; j++){
                 ((VectorND)v[i]).x[j] = x[j][i];
@@ -287,7 +286,7 @@ public class TensorND implements Tensor {
         }
     }
 
-    public void transform(IVectorMutable A) {
+    public void transform(IVector A) {
         VectorND tmp = new VectorND(dim);
         VectorND B = (VectorND)A;
         for(int i=0; i<dim; i++){

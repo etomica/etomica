@@ -14,7 +14,6 @@ import etomica.box.Box;
 import etomica.api.IPotential;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
 import etomica.space.Space;
 
@@ -36,7 +35,7 @@ public class P3HydrogenATM implements IPotential{
     }        
     protected IBoundary boundary;
     protected static final double E0 = 49400; //(K Angstorm^9)
-    protected IVectorMutable dr,r1,r2,r3;
+    protected IVector dr,r1,r2,r3;
 
     public P3HydrogenATM(Space space) {
         dr = space.makeVector();

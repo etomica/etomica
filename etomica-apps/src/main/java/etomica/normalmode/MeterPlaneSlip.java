@@ -9,7 +9,6 @@ import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.data.DataTag;
@@ -31,7 +30,7 @@ public class MeterPlaneSlip implements IEtomicaDataSource {
     public MeterPlaneSlip(Space space, ISpecies species, int nPlanes, int nx, int ny) {
         this.species = species;
         pos = new AtomPositionGeometricCenter(space);
-        drSum = new IVectorMutable[nPlanes][2];
+        drSum = new IVector[nPlanes][2];
         for (int i=0; i<nPlanes; i++) {
             drSum[i][0] = space.makeVector();
             drSum[i][1] = space.makeVector();
@@ -134,7 +133,7 @@ public class MeterPlaneSlip implements IEtomicaDataSource {
 
     protected final ISpecies species;
     protected Box box;
-    protected final IVectorMutable[][] drSum;
+    protected final IVector[][] drSum;
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
     protected final DataTag tag;

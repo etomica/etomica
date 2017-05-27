@@ -7,7 +7,6 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMolecular;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.DipoleSource;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.space.Space;
@@ -21,7 +20,7 @@ public class P2ReactionFieldDipoleTruncated extends PotentialMolecular implement
         iDipole = space.makeVector();
         cavityDipole = space.makeVector();
         dr = space.makeVector();
-        gradientAndTorque = new IVectorMutable[2][2];
+        gradientAndTorque = new IVector[2][2];
         gradientAndTorque[0][0] = space.makeVector();
         gradientAndTorque[0][1] = space.makeVector();
         gradientAndTorque[1][0] = space.makeVector();
@@ -133,13 +132,13 @@ public class P2ReactionFieldDipoleTruncated extends PotentialMolecular implement
     }
 
     private static final long serialVersionUID = 1L;
-    protected final IVectorMutable iDipole, cavityDipole;
-    protected final IVectorMutable dr;
+    protected final IVector iDipole, cavityDipole;
+    protected final IVector dr;
     protected DipoleSource dipoleSource;
     protected IBoundary boundary;
     protected double cutoff2, cutoff;
     protected double epsilon;
-    protected final IVectorMutable[][] gradientAndTorque;
+    protected final IVector[][] gradientAndTorque;
     protected double fac;
     protected double cutoffRatio;
     protected final IAtomPositionDefinition positionDefinition;
@@ -157,7 +156,7 @@ public class P2ReactionFieldDipoleTruncated extends PotentialMolecular implement
         public P0ReactionField(Space space, P2ReactionFieldDipoleTruncated p) {
             super(0,space);
             this.potential = p;
-            gradient = new IVectorMutable[0];
+            gradient = new IVector[0];
         }
         
         public double energy(IMoleculeList atoms) {
@@ -214,7 +213,7 @@ public class P2ReactionFieldDipoleTruncated extends PotentialMolecular implement
 
         private static final long serialVersionUID = 1L;
         protected final P2ReactionFieldDipoleTruncated potential;
-        protected final IVectorMutable[] gradient;
+        protected final IVector[] gradient;
         protected IMolecule targetAtom;
         protected Box box;
         

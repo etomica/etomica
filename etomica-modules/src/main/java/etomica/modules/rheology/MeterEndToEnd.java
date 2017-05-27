@@ -5,9 +5,9 @@
 package etomica.modules.rheology;
 
 import etomica.api.IAtomList;
+import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
 import etomica.data.DataSourceScalar;
 import etomica.space.Space;
 import etomica.units.CompoundDimension;
@@ -44,5 +44,5 @@ public class MeterEndToEnd extends DataSourceScalar {
     }
 
     protected Box box;
-    protected final IVectorMutable dr;
+    protected final IVector dr;
 }

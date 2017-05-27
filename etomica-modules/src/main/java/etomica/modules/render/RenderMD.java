@@ -17,7 +17,7 @@ import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.box.Box;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.atom.AtomPair;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorHard;
@@ -123,7 +123,7 @@ public class RenderMD extends Simulation {
         IAtomList leafList = box.getLeafList();
         for (int iLeaf=0; iLeaf<numAtoms; iLeaf++) {
             IAtom a = leafList.getAtom(iLeaf);
-            IVectorMutable pos = a.getPosition();
+            IVector pos = a.getPosition();
             pos.E(parser.vertices.get(iLeaf));
         }
         

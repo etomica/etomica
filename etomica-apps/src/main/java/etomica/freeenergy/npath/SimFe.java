@@ -72,7 +72,7 @@ public class SimFe extends Simulation {
         box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
-        IVectorMutable l = space.makeVector();
+        IVector l = space.makeVector();
         l.E(10);
         for (int i=0; i<=offsetDim; i++) {
             l.setX(i,20);
@@ -164,7 +164,7 @@ public class SimFe extends Simulation {
 
         potentialMaster.addPotential(potential,new IAtomType[]{leafType,leafType});
 
-        IVectorMutable offset = space.makeVector();
+        IVector offset = space.makeVector();
         offset.setX(offsetDim, box.getBoundary().getBoxSize().getX(offsetDim)*0.5);
         p1ImageHarmonic = new P1ImageHarmonic(space, offset, w, true);
         potentialMaster.addPotential(p1ImageHarmonic, new IAtomType[]{leafType});

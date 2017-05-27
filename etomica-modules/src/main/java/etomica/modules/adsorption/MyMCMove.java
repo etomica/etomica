@@ -5,11 +5,8 @@
 package etomica.modules.adsorption;
 
 import etomica.action.AtomActionRandomizeVelocity;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IRandom;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.atom.MoleculeArrayList;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
@@ -26,7 +23,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 
     private static final long serialVersionUID = 1L;
     private double zFraction, sigma;
-    private IVectorMutable position;
+    private IVector position;
     private final MoleculeArrayList activeAtoms;
     private final AtomActionRandomizeVelocity randomizer;
     private final IntegratorBox integrator;

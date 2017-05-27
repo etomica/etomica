@@ -5,12 +5,8 @@
 package etomica.normalmode;
 
 import etomica.action.IAction;
-import etomica.api.IAtomList;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.data.DataSourceIndependentSimple;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -37,7 +33,7 @@ public class MeterTiltRotationHistogram implements IAction, IEtomicaDataSource {
         this.species = species;
         int nData = 360;
         dr = space.makeVector();
-        drSum = new IVectorMutable[nPlanes];
+        drSum = new IVector[nPlanes];
         for (int i=0; i<nPlanes; i++) {
             drSum[i] = space.makeVector();
         }
@@ -122,8 +118,8 @@ public class MeterTiltRotationHistogram implements IAction, IEtomicaDataSource {
     private static final long serialVersionUID = 1L;
     protected final ISpecies species;
     protected Box box;
-    protected final IVectorMutable dr;
-    protected final IVectorMutable[] drSum;
+    protected final IVector dr;
+    protected final IVector[] drSum;
     protected final DataGroup dataGroup;
     protected final DataInfoGroup dataInfoGroup;
     protected final DataFunction[] data;

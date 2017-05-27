@@ -6,7 +6,7 @@ package etomica.models.nitrogen;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.config.IConformation;
 import etomica.space.Space;
 import etomica.units.Electron;
@@ -61,7 +61,7 @@ public class ConformationNitrogenShellModel implements IConformation, java.io.Se
 	protected static final double bondOrigN = 0.5485;
 	protected static final double bondOrigP = 0.81; // 0.83519;
 	
-	protected IVectorMutable vector;
+	protected IVector vector;
 	
 	private static final long serialVersionUID = 1L;
 }

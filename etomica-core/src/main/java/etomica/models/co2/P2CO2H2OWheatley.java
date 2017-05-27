@@ -13,7 +13,6 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.ElementSimple;
@@ -201,18 +200,18 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
     
     protected static final double sitesCO2L = 2.2114;
     protected static final double sitesOH = 1.12169, sitesHH = 1.45365;
-    protected final IVectorMutable[][] sitePos;
+    protected final IVector[][] sitePos;
     protected final Space space;
     protected final Tensor rot0, rot1;
-    protected final IVectorMutable or01, or02, orH2O3;
+    protected final IVector or01, or02, orH2O3;
     protected final IVector[] allOr0, allOr1;
-    protected final IVectorMutable[][] gradientAndTorque;
-    protected final IVectorMutable drij, torque;
+    protected final IVector[][] gradientAndTorque;
+    protected final IVector drij, torque;
     protected final double mass1;
     
     public P2CO2H2OWheatley(Space space) {
         this.space = space;
-        sitePos = new IVectorMutable[2][3];
+        sitePos = new IVector[2][3];
         for (int i=0; i<2; i++) {
             for (int j=0; j<3; j++) {
                 sitePos[i][j] = space.makeVector();
@@ -221,11 +220,11 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         or01 = space.makeVector();
         or02 = space.makeVector();
         orH2O3 = space.makeVector();
-        allOr0 = new IVectorMutable[]{null, or01, or02};
-        allOr1 = new IVectorMutable[]{null, null, orH2O3};
+        allOr0 = new IVector[]{null, or01, or02};
+        allOr1 = new IVector[]{null, null, orH2O3};
         rot0 = space.makeTensor();
         rot1 = space.makeTensor();
-        gradientAndTorque = new IVectorMutable[2][2];
+        gradientAndTorque = new IVector[2][2];
         for (int i=0; i<2; i++) {
             for (int j=0; j<2; j++) {
                 gradientAndTorque[i][j] = space.makeVector();
@@ -236,7 +235,7 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         mass1 = Oxygen.INSTANCE.getMass() + 2*Hydrogen.INSTANCE.getMass();
     }
 
-    protected void getPerp(IVector or, IVectorMutable perp1, IVectorMutable perp2) {
+    protected void getPerp(IVector or, IVector perp1, IVector perp2) {
         int max = 0;
         if (Math.abs(or.getX(1)) > Math.abs(or.getX(0))) max=1;
         if (Math.abs(or.getX(2)) > Math.abs(or.getX(max))) max=2;
@@ -338,7 +337,7 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
 //            System.out.println((i+1)+" "+Hartree.UNIT.fromSim(energy));
         }
         if (false && checkme && !debugging && energy < 1000) {
-            IVectorMutable mine = space.makeVector();
+            IVector mine = space.makeVector();
             debugging = true;
             mine.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
             System.out.println("** close attraction in CO2-H2O "+energy +" "+minR+" "+Math.sqrt(mine.squared())*bohrConv);
@@ -470,11 +469,11 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         protected final Tensor ijRTensor;
         protected final double mass0;
         protected final double moment0;
-        protected final IVectorMutable moment1;
+        protected final IVector moment1;
         protected final double fac;
-        protected final IVectorMutable d2, r2a, r2ab, r2b, ga, gb;
-        protected final IVectorMutable drijRot;
-        protected final IVectorMutable bdrij;
+        protected final IVector d2, r2a, r2ab, r2b, ga, gb;
+        protected final IVector drijRot;
+        protected final IVector bdrij;
 
         public P2CO2H2OSC(double temperature) {
             ijTensor = space.makeTensor();
@@ -832,20 +831,20 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
 
     public class P2CO2H2OSCTI implements IPotentialAtomic {
 
-        protected final IVectorMutable[] gi, ti;
+        protected final IVector[] gi, ti;
         protected final double mass0;
         protected final double moment0;
-        protected final IVectorMutable moment1;
+        protected final IVector moment1;
         protected final double temperature, fac;
-        protected final IVectorMutable ga, gb, ta, tb, tTmp;
-        protected final IVectorMutable drijRot;
-        protected final IVectorMutable bdrij;
+        protected final IVector ga, gb, ta, tb, tTmp;
+        protected final IVector drijRot;
+        protected final IVector bdrij;
 
         public P2CO2H2OSCTI(double temperature) {
-            gi = new IVectorMutable[2];
+            gi = new IVector[2];
             gi[0] = space.makeVector();
             gi[1] = space.makeVector();
-            ti = new IVectorMutable[2];
+            ti = new IVector[2];
             ti[0] = space.makeVector();
             ti[1] = space.makeVector();
             drijRot = space.makeVector();
@@ -1132,13 +1131,13 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         FileReader fReader = new FileReader("geometry.txt");
         BufferedReader bufReader = new BufferedReader(fReader);
         String line = null;
-        IVectorMutable x = space.makeVector(new double[]{1,0,0});
-        IVectorMutable y = space.makeVector(new double[]{0,1,0});
-        IVectorMutable zm = space.makeVector(new double[]{0,0,-1});
-        IVectorMutable z = space.makeVector(new double[]{0,0,1});
+        IVector x = space.makeVector(new double[]{1,0,0});
+        IVector y = space.makeVector(new double[]{0,1,0});
+        IVector zm = space.makeVector(new double[]{0,0,-1});
+        IVector z = space.makeVector(new double[]{0,0,1});
         atom0.getOrientation().setDirection(z);
-        IVectorMutable axis = space.makeVector();
-        IVectorMutable p = space.makeVector();
+        IVector axis = space.makeVector();
+        IVector p = space.makeVector();
         double cmx = 2*Hydrogen.INSTANCE.getMass()*BohrRadius.UNIT.toSim(sitesOH)/p2.mass1;
         int iline = 1;
         while ((line = bufReader.readLine()) != null) {
@@ -1223,8 +1222,8 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         IAtomOriented atom0 = (IAtomOriented)pair.getAtom(0);
         IAtomOriented atom1 = (IAtomOriented)pair.getAtom(1);
 //        ((IAtomOriented)pair.getAtom(0)).getOrientation().setDirection(space.makeVector(new double[]{Math.cos(22.5/180.0*Math.PI), Math.sin(22.5/180.0*Math.PI),0}));
-        IVectorMutable o1 = space.makeVector(new double[]{0,0,-1});
-        IVectorMutable o2 = space.makeVector(new double[]{1,0,0});
+        IVector o1 = space.makeVector(new double[]{0,0,-1});
+        IVector o2 = space.makeVector(new double[]{1,0,0});
 //        ((OrientationFull3D)atom1.getOrientation()).setDirections(o1, o2);
         P2CO2H2OWheatley p2 = new P2CO2H2OWheatley(space);
         P2CO2H2OSC p2SC = p2.makeSemiclassical(temperature);
@@ -1232,13 +1231,13 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         double lu = 0, lg = 0;
         double dx = 0.0001;
         IVector x = null;
-        IVectorMutable y = space.makeVector(new double[]{0,1,0});
-        IVectorMutable z = space.makeVector(new double[]{0,0,1});
+        IVector y = space.makeVector(new double[]{0,1,0});
+        IVector z = space.makeVector(new double[]{0,0,1});
         atom1.getPosition().setX(0, 5);
         double cmx = 2*Hydrogen.INSTANCE.getMass()*sitesOH/p2.mass1;
 //        ((OrientationFull3D)atom1.getOrientation()).rotateBy(-Math.atan2(p2.sitesHH*0.5,p2.sitesOH-cmx), z);
 //        ((OrientationFull3D)atom1.getOrientation()).rotateBy(Math.PI/2, y);
-        IVectorMutable vdx = space.makeVector();
+        IVector vdx = space.makeVector();
 //        ((OrientationFull3D)atom1.getOrientation()).rotateBy(0.28, z);
 
         RandomMersenneTwister random = new RandomMersenneTwister(RandomNumberGeneratorUnix.getRandSeedArray());
@@ -1328,7 +1327,7 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         IAtomList pair = box.getLeafList();
         IAtomOriented atom0 = (IAtomOriented)pair.getAtom(0);
         IAtomOriented atom1 = (IAtomOriented)pair.getAtom(1);
-        IVectorMutable p1 = atom1.getPosition();
+        IVector p1 = atom1.getPosition();
         IOrientation or0 = atom0.getOrientation();
         OrientationFull3D or1 = (OrientationFull3D)atom1.getOrientation();
         P2CO2H2OWheatley p2 = new P2CO2H2OWheatley(space);
@@ -1386,8 +1385,8 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         IAtomList pair = box.getLeafList();
         IAtomOriented atom0 = (IAtomOriented)pair.getAtom(0);
         IAtomOriented atom1 = (IAtomOriented)pair.getAtom(1);
-        IVectorMutable p0 = atom1.getPosition();
-        IVectorMutable p1 = atom1.getPosition();
+        IVector p0 = atom1.getPosition();
+        IVector p1 = atom1.getPosition();
         IOrientation or0 = atom0.getOrientation();
         OrientationFull3D or1 = (OrientationFull3D)atom1.getOrientation();
         P2CO2H2OWheatley p2 = new P2CO2H2OWheatley(space);

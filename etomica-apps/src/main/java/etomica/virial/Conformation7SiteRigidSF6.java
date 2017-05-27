@@ -6,7 +6,7 @@ package etomica.virial;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.config.IConformation;
 import etomica.space.Space;
 
@@ -22,7 +22,7 @@ public class Conformation7SiteRigidSF6 implements IConformation, java.io.Seriali
 
 	protected final Space space;
 	protected final double bondL = 1.565;
-	protected IVectorMutable vector;
+	protected IVector vector;
 	private static final long serialVersionUID = 1L;
 	
 	public Conformation7SiteRigidSF6(Space space){

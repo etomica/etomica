@@ -14,6 +14,6 @@ public interface IAtomKinetic extends IAtom {
      * @return the velocity of the IAtom.  Modifying the returned vector will
      * alter the IAtom's velocity.
      */
-    public IVectorMutable getVelocity();
+    public IVector getVelocity();
  
 }

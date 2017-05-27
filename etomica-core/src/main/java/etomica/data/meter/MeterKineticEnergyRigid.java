@@ -12,7 +12,6 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.simulation.Simulation;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.IMoleculeKinetic;
 import etomica.atom.IMoleculeOrientedKinetic;
 import etomica.data.DataSourceScalar;
@@ -87,7 +86,7 @@ public class MeterKineticEnergyRigid extends DataSourceScalar {
                         double mass = ((IAtom)a).getType().getMass();
                         if(mass == Double.POSITIVE_INFINITY) continue;
         //                    System.out.println("force: "+((MyAgent)a.ia).force.toString());
-                        IVectorMutable velocity = a.getVelocity();
+                        IVector velocity = a.getVelocity();
                         ke += velocity.squared() * mass;
                     }
                 }
@@ -114,6 +113,6 @@ public class MeterKineticEnergyRigid extends DataSourceScalar {
     private static final long serialVersionUID = 1L;
     protected final Simulation sim;
     protected Box box;
-    protected final IVectorMutable angularVelocity;
+    protected final IVector angularVelocity;
     protected final RotationTensor3D rotationTensor;
  }

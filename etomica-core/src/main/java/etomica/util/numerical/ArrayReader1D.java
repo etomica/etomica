@@ -9,7 +9,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.space.Space;
 
 
@@ -22,8 +22,8 @@ import etomica.space.Space;
  */
 public class ArrayReader1D {
     
-    public static IVectorMutable[] getVectorsFromFile(String fn) {
-        return (IVectorMutable[])getFromFile(fn, true);
+    public static IVector[] getVectorsFromFile(String fn) {
+        return (IVector[])getFromFile(fn, true);
     }
     
     public static double[][] getFromFile(String fn){
@@ -66,7 +66,7 @@ public class ArrayReader1D {
             
             Object[] q = null;
             if (useVectors) {
-                q = new IVectorMutable[allQ.size()];
+                q = new IVector[allQ.size()];
             }
             else {
                 q = new double[allQ.size()][];

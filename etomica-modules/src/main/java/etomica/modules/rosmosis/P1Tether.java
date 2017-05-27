@@ -9,7 +9,6 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.potential.Potential1;
@@ -25,14 +24,14 @@ import etomica.space.Tensor;
  * 
  * @author Andrew Schultz
  */
-public class P1Tether extends Potential1 implements AgentSource<IVectorMutable>, PotentialSoft {
+public class P1Tether extends Potential1 implements AgentSource<IVector>, PotentialSoft {
 
     public P1Tether(Box box, ISpecies species, Space _space) {
         super(_space);
         this.species = species;
-        agentManager = new AtomLeafAgentManager<IVectorMutable>(this, box, IVectorMutable.class);
+        agentManager = new AtomLeafAgentManager<IVector>(this, box, IVector.class);
         work = _space.makeVector();
-        gradient = new IVectorMutable[]{work};
+        gradient = new IVector[]{work};
     }
     
     public void setEpsilon(double newEpsilon) {
@@ -65,22 +64,22 @@ public class P1Tether extends Potential1 implements AgentSource<IVectorMutable>,
     public double virial(IAtomList atoms) {
         return 0;
     }
-    public IVectorMutable makeAgent(IAtom a, Box agentBox) {
+    public IVector makeAgent(IAtom a, Box agentBox) {
         if (a.getType().getSpecies() == species) {
-            IVectorMutable vec = space.makeVector();
+            IVector vec = space.makeVector();
             vec.E(a.getPosition());
             return vec;
         }
         return null;
     }
 
-    public void releaseAgent(IVectorMutable agent, IAtom atom, Box agentBox) {
+    public void releaseAgent(IVector agent, IAtom atom, Box agentBox) {
         /* do nothing */
     }
 
-    protected final AtomLeafAgentManager<IVectorMutable> agentManager;
+    protected final AtomLeafAgentManager<IVector> agentManager;
     protected final ISpecies species;
-    protected final IVectorMutable work;
-    protected final IVectorMutable[] gradient;
+    protected final IVector work;
+    protected final IVector[] gradient;
     protected double epsilon;
 }

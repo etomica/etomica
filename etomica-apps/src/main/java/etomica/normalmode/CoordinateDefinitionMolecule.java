@@ -12,7 +12,6 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.simulation.Simulation;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.MoleculeAgentManager;
@@ -64,7 +63,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
         for (int i=0; i<molecules.getMoleculeCount(); i++) {
             IMolecule molecule = molecules.getMolecule(i);
             IVector pos = positionDefinition.position(molecule);
-            IVectorMutable site = getLatticePosition(molecule);
+            IVector site = getLatticePosition(molecule);
             
             work1.Ev1Mv2(pos, site);
                
@@ -91,7 +90,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
         int j = 0;
         for (int i=0; i<molecules.getMoleculeCount(); i++) {
             IMolecule molecule = molecules.getMolecule(i);
-            IVectorMutable site = getLatticePosition(molecule);
+            IVector site = getLatticePosition(molecule);
             for (int k = 0; k < site.getD(); k++) {
                 work1.setX(k, site.getX(k) + newU[j+k]);
             }
@@ -104,8 +103,8 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
         }
     }
     
-    public IVectorMutable getLatticePosition(IMolecule molecule) {
-        return (IVectorMutable)moleculeSiteManager.getAgent(molecule);
+    public IVector getLatticePosition(IMolecule molecule) {
+        return (IVector)moleculeSiteManager.getAgent(molecule);
     }
     
     public void setPositionDefinition(IAtomPositionDefinition positionDefinition) {
@@ -124,7 +123,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
     private static final long serialVersionUID = 1L;
     protected final Simulation sim;
     protected MoleculeAgentManager moleculeSiteManager;
-    protected final IVectorMutable work1;
+    protected final IVector work1;
     protected final double[] u;
     protected IAtomPositionDefinition positionDefinition;
     protected double rScale;
@@ -138,10 +137,10 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
             this.positionDefinition = positionDefinition;
         }
         public Class getMoleculeAgentClass() {
-            return IVectorMutable.class;
+            return IVector.class;
         }
         public Object makeAgent(IMolecule molecule) {
-            IVectorMutable vector = space.makeVector();
+            IVector vector = space.makeVector();
             vector.E(positionDefinition.position(molecule));
             return vector;
         }

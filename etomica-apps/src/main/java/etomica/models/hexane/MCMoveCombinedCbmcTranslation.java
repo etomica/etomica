@@ -6,11 +6,8 @@ package etomica.models.hexane;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.MoleculeSourceRandomMolecule;
 import etomica.atom.iterator.AtomIterator;
@@ -35,7 +32,7 @@ public class MCMoveCombinedCbmcTranslation extends MCMoveBox {
     protected MoleculeSourceRandomMolecule moleculeSource;
     private AtomIteratorArrayListSimple affectedAtomIterator;
     protected MoleculeChildAtomAction moveAction;
-    protected IVectorMutable oldGeo, newGeo, temp, transVect;
+    protected IVector oldGeo, newGeo, temp, transVect;
     protected AtomPositionGeometricCenter centerer;
     protected MeterPotentialEnergy energyMeter;
     protected final IRandom random;

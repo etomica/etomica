@@ -10,7 +10,7 @@ import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IRandom;
 import etomica.simulation.Simulation;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomLeaf;
@@ -20,7 +20,6 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.space.Space;
-import etomica.space.IVectorRandom;
 import etomica.space.RotationTensor;
 
 /**
@@ -34,7 +33,7 @@ public class MCMoveDimerRotate extends MCMoveBoxStep {
     protected final AtomIteratorArrayListSimple affectedAtomIterator;
     protected final AtomArrayList affectedAtoms;
     protected final MeterPotentialEnergy energyMeter;
-    protected final IVectorRandom translationVector;
+    protected final IVector translationVector;
     protected IAtom atom;
     protected double uOld;
     protected double uNew = Double.NaN;
@@ -44,11 +43,11 @@ public class MCMoveDimerRotate extends MCMoveBoxStep {
     protected Space space;
     protected final PotentialMasterCell potentialMaster;
     protected final Api1ACell neighborIterator;
-    protected final IVectorMutable dr;
+    protected final IVector dr;
     protected final IPotentialAtomic dimerPotential;
     protected IAtom atom1;
     protected transient RotationTensor rotationTensor;
-    protected final IVectorMutable r0;
+    protected final IVector r0;
 
     public MCMoveDimerRotate(Simulation sim, PotentialMasterCell potentialMaster, Space _space, IPotentialAtomic dimerPotential) {
         this(potentialMaster, sim.getRandom(), _space, 1.0, 15.0, false, dimerPotential);
@@ -71,7 +70,7 @@ public class MCMoveDimerRotate extends MCMoveBoxStep {
         atomSource = new AtomSourceRandomLeaf();
         ((AtomSourceRandomLeaf)atomSource).setRandomNumberGenerator(random);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
-        translationVector = (IVectorRandom)space.makeVector();
+        translationVector = (IVector)space.makeVector();
         setStepSizeMax(stepSizeMax);
         setStepSizeMin(0.0);
         setStepSize(stepSize);
@@ -126,7 +125,7 @@ public class MCMoveDimerRotate extends MCMoveBoxStep {
         return true;
     }//end of doTrial
     protected void doTransform(IAtom a) {
-            IVectorMutable r = a.getPosition();
+            IVector r = a.getPosition();
             r.ME(r0);
             box.getBoundary().nearestImage(r);
             rotationTensor.transform(r);

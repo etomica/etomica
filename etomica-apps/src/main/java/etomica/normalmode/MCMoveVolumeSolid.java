@@ -11,7 +11,6 @@ import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -40,8 +39,8 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
     protected final AtomIteratorLeafAtoms affectedAtomIterator;
     protected double temperature;
     protected final CoordinateDefinition coordinateDefinition;
-    protected final IVectorMutable dr;
-    protected final IVectorMutable nominalBoxSize;
+    protected final IVector dr;
+    protected final IVector nominalBoxSize;
 
     private transient double uOld, vOld, vNew, vScale;
     private transient double uNew = Double.NaN, latticeScale;

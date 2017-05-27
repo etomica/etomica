@@ -4,15 +4,9 @@
 
 package etomica.virial;
 
-import etomica.api.IAtomList;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
 import etomica.simulation.Simulation;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.atom.MoleculeSource;
 import etomica.atom.MoleculeSourceRandomMolecule;
 import etomica.atom.iterator.AtomIterator;
@@ -91,9 +85,9 @@ public class MCMoveClusterAngleBend extends MCMoveBoxStep {
         int numChildren = childList.getAtomCount();
         if (numChildren != 3) return;
         
-        IVectorMutable pos0 = childList.getAtom(0).getPosition();
-        IVectorMutable pos1 = childList.getAtom(1).getPosition();
-        IVectorMutable pos2 = childList.getAtom(2).getPosition();
+        IVector pos0 = childList.getAtom(0).getPosition();
+        IVector pos1 = childList.getAtom(1).getPosition();
+        IVector pos2 = childList.getAtom(2).getPosition();
         
         work1.Ev1Mv2(pos0, pos1);
         double bondLength01 = Math.sqrt(work1.squared());
@@ -181,7 +175,7 @@ public class MCMoveClusterAngleBend extends MCMoveBoxStep {
     private static final long serialVersionUID = 1L;
     protected final AtomIteratorArrayListSimple affectedAtomIterator = new AtomIteratorArrayListSimple();
     protected final MeterPotentialEnergy energyMeter;
-    protected final IVectorMutable work1, work2, work3;
+    protected final IVector work1, work2, work3;
     protected double[] dTheta;
     protected double wOld, wNew;
     protected final Space space;

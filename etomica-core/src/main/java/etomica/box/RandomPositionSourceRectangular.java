@@ -5,18 +5,17 @@
 package etomica.box;
 
 import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.space.Space;
-import etomica.space.IVectorRandom;
 
 public class RandomPositionSourceRectangular implements RandomPositionSource {
     
     public RandomPositionSourceRectangular(Space space, IRandom random) {
-        p = (IVectorRandom)space.makeVector();
+        p = (IVector)space.makeVector();
         this.random = random;
     }
 
-    public IVectorMutable randomPosition() {
+    public IVector randomPosition() {
         p.setRandomCube(random);
         p.TE(box.getBoundary().getBoxSize());
         return p;
@@ -28,5 +27,5 @@ public class RandomPositionSourceRectangular implements RandomPositionSource {
 
     protected final IRandom random;
     protected Box box;
-    protected final IVectorRandom p;
+    protected final IVector p;
 }

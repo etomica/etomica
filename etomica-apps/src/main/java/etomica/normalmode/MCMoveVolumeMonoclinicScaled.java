@@ -13,7 +13,7 @@ import etomica.api.IMoleculeList;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -44,10 +44,10 @@ public class MCMoveVolumeMonoclinicScaled extends MCMoveBoxStep {
     protected IRandom random;
     protected final AtomIteratorLeafAtoms affectedAtomIterator;
     protected double temperature;
-    protected final IVectorMutable boxSize;
-    protected final IVectorMutable dest, comOld;
-    protected final IVectorMutable scaleVector;
-    protected final IVectorMutable latticeScale;
+    protected final IVector boxSize;
+    protected final IVector dest, comOld;
+    protected final IVector scaleVector;
+    protected final IVector latticeScale;
 
     protected final AtomPositionGeometricCenter moleculeCenter;
     protected final MoleculeActionTranslateTo translateTo;

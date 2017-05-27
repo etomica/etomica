@@ -156,8 +156,8 @@ public class IntegratorHard extends IntegratorMD
                 System.out.println("previous time: "+oldTime+" current time: "+collisionTimeStep);
                 System.out.println("collision for "+atoms+" potential "+colliderAgent.collisionPotential.getClass());
                 if (atoms instanceof AtomPair) {
-                    IVectorMutable dr = space.makeVector();
-                    IVectorMutable dv = space.makeVector();
+                    IVector dr = space.makeVector();
+                    IVector dv = space.makeVector();
 
                     IAtomKinetic atom0 = (IAtomKinetic)pair.atom0;
                     IAtomKinetic atom1 = (IAtomKinetic)pair.atom1;
@@ -190,8 +190,8 @@ public class IntegratorHard extends IntegratorMD
                     }
                 }
                 if (debugPair.atom0 != null && debugPair.atom1 != null && !(debugPair.atom0 instanceof IMolecule && debugPair.atom1 instanceof IMolecule)) {
-                    IVectorMutable dr = space.makeVector();
-                    IVectorMutable dv = space.makeVector();
+                    IVector dr = space.makeVector();
+                    IVector dv = space.makeVector();
 
                     IAtomKinetic atom0 = (IAtomKinetic)debugPair.atom0;
                     IAtomKinetic atom1 = (IAtomKinetic)debugPair.atom1;

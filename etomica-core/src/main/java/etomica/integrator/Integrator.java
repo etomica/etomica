@@ -6,7 +6,7 @@ package etomica.integrator;
 
 import etomica.api.IIntegrator;
 import etomica.api.IIntegratorEventManager;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 
 /**
  * Integrator implements the algorithm used to move the atoms around and
@@ -118,13 +118,13 @@ public abstract class Integrator implements IIntegrator {
      * could be under the influence of a force.
      */
     public interface Forcible {
-        public IVectorMutable force();
+        public IVector force();
     }
 
     /**
      * Integrator agent that holds a torque vector.
      */
     public interface Torquable {
-        public IVectorMutable torque();
+        public IVector torque();
     }
 }

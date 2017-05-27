@@ -7,7 +7,6 @@ package etomica.modules.colloid;
 import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.data.DataSourceScalar;
 import etomica.space.Space;
 import etomica.units.CompoundDimension;
@@ -24,7 +23,7 @@ public class MeterEnd2End extends DataSourceScalar {
 
     protected Box box;
     protected int chainLength;
-    protected IVectorMutable dr, drTot;
+    protected IVector dr, drTot;
     
     public MeterEnd2End(Space space) {
         super("End2End", new CompoundDimension(new Dimension[]{Length.DIMENSION}, new double[]{2}));

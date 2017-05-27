@@ -4,11 +4,8 @@
 
 package etomica.potential;
 
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.space.Space;
 
@@ -22,7 +19,7 @@ public class P3AxilrodTeller implements IPotentialAtomic {
 
     protected final AtomTypeAgentManager paramsManager;
     protected final Space space;
-    protected final IVectorMutable dr1, dr2;
+    protected final IVector dr1, dr2;
     protected IBoundary boundary;
     
     public P3AxilrodTeller(Space space, AtomTypeAgentManager paramsManager) {

@@ -7,7 +7,6 @@ import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
 import etomica.space.Space;
 import etomica.units.Angle;
@@ -26,7 +25,7 @@ public class P2HardAssociationConeReference extends Potential2 {
     public static boolean FLAG = false;
     private double sigma, sigmaSquared;
     private double ec2;
-    private final IVectorMutable dr;
+    private final IVector dr;
     private IBoundary boundary;
     
     public P2HardAssociationConeReference(Space space, double sigma) {

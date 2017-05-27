@@ -10,10 +10,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import etomica.action.IAction;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
+import etomica.api.*;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ApiIntergroupCoupled;
@@ -30,7 +27,6 @@ import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
-import etomica.integrator.mcmove.MCMoveBox;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P1HydrogenMielke.P2HydrogenMielkeAtomic;
 import etomica.potential.PotentialGroup;
@@ -53,10 +49,7 @@ import etomica.virial.ClusterBonds;
 import etomica.virial.ClusterSum;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ClusterWeightAbs;
-import etomica.virial.MCMoveClusterRingPartialRegrow;
 import etomica.virial.MCMoveClusterRingRegrow;
-import etomica.virial.MCMoveClusterRingScale;
-import etomica.virial.MayerEGeneral;
 import etomica.virial.MayerENonGeneral;
 import etomica.virial.MayerFunction;
 
@@ -187,7 +180,7 @@ public class VirialH2PIBoltzmann {
         IAtomList leafList = sim.box.getLeafList();
         int half = leafList.getAtomCount()/2;
         for (int i=half; i<leafList.getAtomCount(); i++) {
-            IVectorMutable p = leafList.getAtom(i).getPosition();            
+            IVector p = leafList.getAtom(i).getPosition();
             p.setX(2, r0);
         }
         sim.box.trialNotify();

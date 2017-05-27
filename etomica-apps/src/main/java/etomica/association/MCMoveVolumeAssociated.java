@@ -8,13 +8,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.WriteConfiguration;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
 import etomica.simulation.Simulation;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtomOriented;
@@ -40,8 +36,8 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
     private final int D;
     private IRandom random;
     protected final AtomIteratorLeafAtoms affectedAtomIterator;
-    protected final IVectorMutable r;
-    protected final IVectorMutable dr, dr2;
+    protected final IVector r;
+    protected final IVector dr, dr2;
     private transient double uOld, hOld, vNew, vScale, hNew;
     private transient double uNew = Double.NaN;
     protected AssociationManager associationManager;

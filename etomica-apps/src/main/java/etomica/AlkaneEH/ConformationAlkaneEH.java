@@ -6,7 +6,7 @@ package etomica.AlkaneEH;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.config.IConformation;
 import etomica.space.Space;
 
@@ -64,9 +64,9 @@ import etomica.space.Space;
 		  ////////////////////// put 3H on the beginning C0 ////////////////////////////////////
 		  
 		  double c0M = CHbondL * Math.cos(gamma);// distance between C(H3) and center of HHH plane(M point)
-		  IVectorMutable MPosition = space.makeVector();
-		  IVectorMutable rNM = space.makeVector();
-		  IVectorMutable NPosition = space.makeVector();
+		  IVector MPosition = space.makeVector();
+		  IVector rNM = space.makeVector();
+		  IVector NPosition = space.makeVector();
 		  
 		  double h01X = -CHbondL*Math.sin(beta);
 		  double h01Y = CHbondL*Math.cos(beta);
@@ -94,9 +94,9 @@ import etomica.space.Space;
 		  hEnd1.getPosition().E(new double[]{hEnd1X, hEnd1Y,0.0});
 		    
 		  double c1M1 = c0M;
-		  IVectorMutable M1Position =  space.makeVector();
-		  IVectorMutable rN1M1= space.makeVector();
-		  IVectorMutable N1Position = space.makeVector();
+		  IVector M1Position =  space.makeVector();
+		  IVector rN1M1= space.makeVector();
+		  IVector N1Position = space.makeVector();
 
 		  double M1X = cEnd.getPosition().getX(0) + c1M1 * Math.cos(theta);
 		  double M2X = cEnd.getPosition().getX(1) +Math.pow(-1, numCarbons)* c1M1 * Math.sin(theta);

@@ -8,7 +8,7 @@ import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IMolecule;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.data.DataSourceMolecular;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -57,6 +57,6 @@ public class MeterOrientation implements DataSourceMolecular {
     protected final DataInfoDouble dataInfo;
     protected final DataDouble data;
     protected final DataTag tag;
-    protected final IVectorMutable dr;
+    protected final IVector dr;
     protected IBoundary boundary;
 }

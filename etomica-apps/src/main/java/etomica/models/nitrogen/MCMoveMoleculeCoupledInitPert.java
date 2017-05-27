@@ -6,12 +6,8 @@ package etomica.models.nitrogen;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IPotentialMolecular;
-import etomica.api.IRandom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.MoleculeArrayList;
 import etomica.atom.MoleculePair;
@@ -24,7 +20,7 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.nbr.list.molecule.PotentialMasterListMolecular;
 import etomica.space.Space;
-import etomica.space.IVectorRandom;
+import etomica.api.IVector;
 
 /**
  * Standard Monte Carlo molecule-displacement trial move.  Two molecules are moved at a
@@ -40,7 +36,7 @@ public class MCMoveMoleculeCoupledInitPert extends MCMoveBoxStep {
 
     private static final long serialVersionUID = 1L;
     protected final MoleculeChildAtomAction moveMoleculeAction;
-    protected final IVectorRandom groupTransVect;
+    protected final IVector groupTransVect;
     protected IMolecule molecule0, molecule1;
     protected final MeterPotentialEnergy energyMeter;
     protected MoleculeSource moleculeSource;
@@ -67,7 +63,7 @@ public class MCMoveMoleculeCoupledInitPert extends MCMoveBoxStep {
         affectedMoleculeIterator = new AtomIteratorArrayListSimple(affectedMoleculeList);
         
         singleAction = new AtomActionTranslateBy(_space);
-        groupTransVect = (IVectorRandom)singleAction.getTranslationVector();
+        groupTransVect = (IVector)singleAction.getTranslationVector();
         
         moveMoleculeAction = new MoleculeChildAtomAction(singleAction);
         

@@ -8,7 +8,6 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.Atom;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.OrientationCalc;
@@ -255,8 +254,8 @@ public class OrientationCalcWater3P extends ConformationWater3P implements
     
     private static final long serialVersionUID = 1L;
 
-    protected final IVectorMutable xWork, yWork, zWork;
-    protected final IVectorMutable com0;
+    protected final IVector xWork, yWork, zWork;
+    protected final IVector com0;
     protected final RotationTensor3D rotationTensor;
     protected final AtomPositionCOM atomPositionCOM;
     protected boolean initialized;
@@ -266,7 +265,7 @@ public class OrientationCalcWater3P extends ConformationWater3P implements
         IAtomList childList = molecule.getChildList();
         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
             IAtom a = childList.getAtom(iChild);
-            IVectorMutable r = a.getPosition();
+            IVector r = a.getPosition();
             r.ME(r0);
             rotationTensor.transform(r);
             r.PE(r0);
@@ -305,7 +304,7 @@ public class OrientationCalcWater3P extends ConformationWater3P implements
         rotationTensor.invert();
         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
             IAtom a = childList.getAtom(iChild);
-            IVectorMutable r = a.getPosition();
+            IVector r = a.getPosition();
             r.ME(com0);
             rotationTensor.transform(r);
             r.PE(xWork);

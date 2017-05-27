@@ -4,12 +4,7 @@
 
 package etomica.modules.rheology;
 
-import etomica.api.IAtomList;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
+import etomica.api.*;
 import etomica.integrator.IntegratorMD;
 import etomica.space.Space;
 
@@ -27,9 +22,9 @@ public class IntegratorPolymer extends IntegratorMD {
         drPrev = _space.makeVector();
         dr = _space.makeVector();
         ds = _space.makeVector();
-        s = new IVectorMutable[0];
-        r = new IVectorMutable[0];
-        W = new IVectorMutable[0];
+        s = new IVector[0];
+        r = new IVector[0];
+        W = new IVector[0];
         fQ = new double[0];
     }
 
@@ -55,9 +50,9 @@ public class IntegratorPolymer extends IntegratorMD {
             IMolecule molecule = molecules.getMolecule(i);
             IAtomList atoms = molecule.getChildList();
             if (s.length != atoms.getAtomCount()) {
-                s = new IVectorMutable[atoms.getAtomCount()];
-                r = new IVectorMutable[atoms.getAtomCount()];
-                W = new IVectorMutable[atoms.getAtomCount()];
+                s = new IVector[atoms.getAtomCount()];
+                r = new IVector[atoms.getAtomCount()];
+                W = new IVector[atoms.getAtomCount()];
                 for (int j=0; j<atoms.getAtomCount(); j++) {
                     s[j] = space.makeVector();
                     r[j] = space.makeVector();
@@ -104,7 +99,7 @@ public class IntegratorPolymer extends IntegratorMD {
             // corrector step
             double fR = 0;
             for (int j=0; j<atoms.getAtomCount(); j++) {
-                IVectorMutable q = atoms.getAtom(j).getPosition();
+                IVector q = atoms.getAtom(j).getPosition();
                 if (a < 0) {
                     q.setX(0, srdt2*(s[j].getX(1)+r[j].getX(1)));
                     q.setX(1, a*srdt2*(s[j].getX(0)+r[j].getX(0)));
@@ -182,11 +177,11 @@ public class IntegratorPolymer extends IntegratorMD {
     }
 
     private static final long serialVersionUID = 1L;
-    protected final IVectorMutable drPrev, dr, ds, center;
+    protected final IVector drPrev, dr, ds, center;
     protected double omdth, sqdt;
     protected double shearRate;
     protected double a, b;
-    protected IVectorMutable[] W;
-    protected IVectorMutable[] s, r;
+    protected IVector[] W;
+    protected IVector[] s, r;
     protected double[] fQ;
 }

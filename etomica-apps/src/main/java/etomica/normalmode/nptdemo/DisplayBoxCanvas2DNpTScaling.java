@@ -6,7 +6,6 @@ import etomica.action.activity.Controller;
 import etomica.api.IAtom;
 import etomica.box.Box;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvas2D;
 import etomica.normalmode.CoordinateDefinition;
@@ -73,6 +72,6 @@ public class DisplayBoxCanvas2DNpTScaling extends DisplayBoxCanvas2D {
     }
 
     protected double pressure, displayDensity;
-    protected final IVectorMutable p;
+    protected final IVector p;
     protected final CoordinateDefinition coordinateDefinition;
 }

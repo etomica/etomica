@@ -8,7 +8,6 @@ import junit.framework.TestCase;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.Atom;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
@@ -93,7 +92,7 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
     public IVector bruteForceNearestImage(IVector dr) {
         double dr2Min = Double.MAX_VALUE;
         imageIndexIterator.reset();
-        IVectorMutable drMin = space.makeVector();
+        IVector drMin = space.makeVector();
         drMin.E(dr);
         while(imageIndexIterator.hasNext()) {
             int[] idx = imageIndexIterator.next();
@@ -153,8 +152,8 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
     Space space;
     IndexIteratorRectangular positionIndexIterator, imageIndexIterator;
     int iMax;
-    IVectorMutable dr, dr1, dr2, drStep;
-    IVectorMutable[] edgeVectors;
+    IVector dr, dr1, dr2, drStep;
+    IVector[] edgeVectors;
     Simulation sim;
     SimulationGraphic simGraphic;
     DisplayBox display;

@@ -11,7 +11,6 @@ import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -48,7 +47,7 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
     
     public void setNumTrial(int newNumTrial) {
         nTrial = newNumTrial;
-        rTrial = new IVectorMutable[nTrial];
+        rTrial = new IVector[nTrial];
         for (int i=0; i<nTrial; i++) {
             rTrial[i] = space.makeVector();
         }
@@ -65,7 +64,7 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
     
     public void setNumBeads(int newNumBeads) {
         maxNumBeads = newNumBeads;
-        oldPositions = new IVectorMutable[maxNumBeads];
+        oldPositions = new IVector[maxNumBeads];
         for (int i=0; i<maxNumBeads; i++) {
             oldPositions[i] = space.makeVector();
         }
@@ -177,7 +176,7 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
                     k = 0;
                 }
                 IAtom kAtom = atoms.getAtom(k);
-                IVectorMutable kPosition = kAtom.getPosition();
+                IVector kPosition = kAtom.getPosition();
                 dcom.ME(kPosition);
                 oldPositions[m].E(kPosition);
 
@@ -283,15 +282,15 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
     protected IAtomList atoms;
     protected final Space space;
     protected final IRandom random;
-    protected IVectorMutable[] oldPositions;
-    protected IVectorMutable[] rTrial;
+    protected IVector[] oldPositions;
+    protected IVector[] rTrial;
     protected int nTrial;
     protected double[] pkl;
     // Rosenbluth weights
     protected double wOld, wNew;
     // cluster weights
     protected double weightOld, weightNew, uOld, uNew;
-    protected final IVectorMutable dcom;
+    protected final IVector dcom;
     protected final AtomIteratorLeafAtoms leafIterator;
     protected double fac;
     public HistogramExpanding[][] hist;

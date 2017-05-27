@@ -8,12 +8,11 @@ import etomica.api.IFunction;
 import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.exception.MethodNotImplementedException;
-import etomica.space.IVectorRandom;
 
 /**
  * Implementation of the Vector class for a 2-dimensional space.
  */
-public class Vector2D implements IVectorRandom, java.io.Serializable {
+public class Vector2D implements IVector, java.io.Serializable {
 
     double x, y;
     private static final long serialVersionUID = 1L;

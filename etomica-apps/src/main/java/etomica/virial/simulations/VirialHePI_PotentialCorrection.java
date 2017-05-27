@@ -5,7 +5,6 @@
 package etomica.virial.simulations;
 
 import java.awt.Color;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -15,12 +14,7 @@ import javax.swing.JPanel;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.IAction;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IAtomType;
-import etomica.api.IIntegratorEvent;
-import etomica.api.IIntegratorListener;
-import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
+import etomica.api.*;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ANIntergroupCoupled;
@@ -45,8 +39,6 @@ import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.listener.IntegratorListenerAction;
-import etomica.potential.IPotentialAtomicMultibody;
-import etomica.potential.P2EffectiveFeynmanHibbs;
 import etomica.potential.P2Harmonic;
 import etomica.potential.P2HePCKLJS;
 import etomica.potential.P2HeSimplified;
@@ -55,7 +47,7 @@ import etomica.potential.P3CPSNonAdditiveHeLessSimplified;
 import etomica.potential.Potential;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialGroup;
-import etomica.space.IVectorRandom;
+import etomica.api.IVector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheres;
@@ -91,16 +83,12 @@ import etomica.virial.MCMoveClusterRingRegrow;
 import etomica.virial.MayerFunction;
 import etomica.virial.MayerFunctionMolecularThreeBody;
 import etomica.virial.MayerFunctionNonAdditive;
-import etomica.virial.MayerFunctionSphericalThreeBody;
 import etomica.virial.MayerFunctionThreeBody;
 import etomica.virial.MayerGeneral;
-import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.MeterVirial;
 import etomica.virial.PotentialGroup3PI;
-import etomica.virial.PotentialGroup3PI.PotentialGroup3PISkip;
 import etomica.virial.PotentialGroupPI;
-import etomica.virial.PotentialGroupPI.PotentialGroupPISkip;
 import etomica.virial.cluster.Standard;
 import etomica.virial.cluster.VirialDiagrams;
 
@@ -382,7 +370,7 @@ public class VirialHePI_PotentialCorrection {
 
        
         AtomActionTranslateBy translator = new AtomActionTranslateBy(space);
-        IVectorRandom groupTranslationVector = (IVectorRandom)translator.getTranslationVector();
+        IVector groupTranslationVector = (IVector)translator.getTranslationVector();
         MoleculeChildAtomAction moveMoleculeAction = new MoleculeChildAtomAction(translator);
         IMoleculeList molecules = sim.box[1].getMoleculeList();
         double r = 4;
@@ -393,7 +381,7 @@ public class VirialHePI_PotentialCorrection {
             groupTranslationVector.setX(1, r*Math.sin(2*(i-1)*Math.PI/(nPoints-1)));
             moveMoleculeAction.actionPerformed(molecules.getMolecule(i));
             if (nBeads>1) {
-                IVectorMutable v = molecules.getMolecule(i).getChildList().getAtom(1).getPosition();
+                IVector v = molecules.getMolecule(i).getChildList().getAtom(1).getPosition();
                 v.TE(0.95);
             }
         }

@@ -10,10 +10,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import etomica.action.IAction;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
+import etomica.api.*;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ApiIntergroupCoupled;
@@ -171,7 +168,7 @@ public class VirialHePIXC {
         double r = 2;
         IAtomList leafList = sim.box.getLeafList();
         for (int i=0; i<leafList.getAtomCount(); i++) {
-            IVectorMutable p = leafList.getAtom(i).getPosition();
+            IVector p = leafList.getAtom(i).getPosition();
             p.setX(0, r*Math.cos((2*Math.PI*i)/leafList.getAtomCount()));
             p.setX(1, r*Math.sin((2*Math.PI*i)/leafList.getAtomCount()));
         }

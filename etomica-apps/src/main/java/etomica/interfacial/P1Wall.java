@@ -2,7 +2,6 @@ package etomica.interfacial;
 
 import etomica.api.IAtomList;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
 import etomica.space.Space;
@@ -12,14 +11,14 @@ public class P1Wall extends Potential1 implements PotentialSoft {
 
     protected final double spring, springPosition;
     protected final double gSat;
-    protected final IVectorMutable[] grad;
+    protected final IVector[] grad;
     
     public P1Wall(Space space, double spring, double springPosition, double gSat) {
         super(space);
         this.spring = spring;
         this.springPosition = springPosition;
         this.gSat = gSat;
-        grad = new IVectorMutable[]{space.makeVector()};
+        grad = new IVector[]{space.makeVector()};
     }
 
     public double energy(IAtomList atoms) {

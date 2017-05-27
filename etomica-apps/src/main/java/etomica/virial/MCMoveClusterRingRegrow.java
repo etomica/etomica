@@ -11,7 +11,6 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IRandom;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -50,7 +49,7 @@ public class MCMoveClusterRingRegrow extends MCMoveBox {
      */
     public void setNumTrial(int newNumTrial) {
         nTrial = newNumTrial;
-        rTrial = new IVectorMutable[nTrial];
+        rTrial = new IVector[nTrial];
         for (int i=0; i<nTrial; i++) {
             rTrial[i] = space.makeVector();
         }
@@ -73,10 +72,10 @@ public class MCMoveClusterRingRegrow extends MCMoveBox {
     public void setBox(Box p) {
         super.setBox(p);
         int nMolecules = box.getMoleculeList().getMoleculeCount();
-        oldPositions = new IVectorMutable[nMolecules][0];
+        oldPositions = new IVector[nMolecules][0];
         for (int i=0; i<nMolecules; i++) {
             int nAtoms = box.getMoleculeList().getMolecule(i).getChildList().getAtomCount();
-            oldPositions[i] = new IVectorMutable[nAtoms];
+            oldPositions[i] = new IVector[nAtoms];
             for (int j=0; j<nAtoms; j++) {
                 oldPositions[i][j] = space.makeVector();
             }
@@ -152,7 +151,7 @@ public class MCMoveClusterRingRegrow extends MCMoveBox {
                     moleculei = molecules.getMolecule(i);
                 }
                 IAtom kAtom = atoms.getAtom(k);
-                IVectorMutable kPosition = kAtom.getPosition();
+                IVector kPosition = kAtom.getPosition();
                 oldPositions[i][k-kStart].E(kPosition);
 
                 double k1 = fac/(nAtoms-k);
@@ -249,15 +248,15 @@ public class MCMoveClusterRingRegrow extends MCMoveBox {
     private static final long serialVersionUID = 1L;
     protected final Space space;
     protected final IRandom random;
-    protected IVectorMutable[][] oldPositions;
-    protected IVectorMutable[] rTrial;
+    protected IVector[][] oldPositions;
+    protected IVector[] rTrial;
     protected int nTrial;
     protected double[] pkl;
     // Rosenbluth weights
     protected double wOld, wNew;
     // cluster weights
     protected double weightOld, weightNew;
-    protected final IVectorMutable com, com0;
+    protected final IVector com, com0;
     protected final AtomIteratorLeafAtoms leafIterator;
     protected double fac;
     protected final int[][] tangledMolecules;

@@ -10,11 +10,8 @@ import java.io.IOException;
 
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.DiameterHashByType;
@@ -483,7 +480,7 @@ public class HSNPT extends Simulation {
         protected double fluctuationFactor = 1000;
         protected double nominalFluctuation = 0.0627;  // 256=>0.0607, 864=>0.0627
         protected boolean fluctuationFromAvg = true;
-        protected final IVectorMutable v, v2;
+        protected final IVector v, v2;
         protected final ActionSummer summer;
         protected double mysum;
         
@@ -571,7 +568,7 @@ public class HSNPT extends Simulation {
     public static class ActionSummer implements IAction, AgentSource<MyAgent> {
         
         protected final AtomLeafAgentManager<MyAgent> agentManager;
-        protected final IVectorMutable v;
+        protected final IVector v;
         protected int count;
         protected final Space space;
         
@@ -624,7 +621,7 @@ public class HSNPT extends Simulation {
     }
     
     public static class MyAgent {
-        public IVectorMutable pSum, pSum2;
+        public IVector pSum, pSum2;
         public MyAgent(Space space) {
             pSum = space.makeVector();
             pSum2 = space.makeVector();

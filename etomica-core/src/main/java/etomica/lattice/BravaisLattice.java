@@ -5,7 +5,6 @@
 package etomica.lattice;
 
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.lattice.crystal.Primitive;
 import etomica.space.Space;
 
@@ -70,6 +69,6 @@ public class BravaisLattice implements SpaceLattice, java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
     protected Primitive primitive;
-    private final IVectorMutable latticeVector;
+    private final IVector latticeVector;
     
 }

@@ -8,7 +8,6 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
@@ -38,7 +37,7 @@ public class MeterDADB implements IEtomicaDataSource, AgentSource<MyAgent> {
     protected final PotentialMaster potentialMaster;
     protected final AtomLeafAgentManager<MyAgent> forceManager;
     protected final IteratorDirective id;
-    protected final IVectorMutable dr;
+    protected final IVector dr;
     protected double latticeEnergy;
     protected final double temperature;
     public static boolean justDADB = true;

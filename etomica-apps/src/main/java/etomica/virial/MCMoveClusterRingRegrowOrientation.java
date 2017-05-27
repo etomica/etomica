@@ -14,7 +14,6 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IRandom;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomHydrogen;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.IAtomOriented;
@@ -27,7 +26,6 @@ import etomica.integrator.mcmove.MCMoveBox;
 import etomica.math.Quaternion;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
-import etomica.space.IVectorRandom;
 import etomica.space3d.IOrientation3D;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresHetero;
@@ -53,7 +51,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 	private boolean firstMove = true;
 	private boolean[] doExchange;
 	private double [] newAlpha;
-	private final IVectorMutable utilityVec1,utilityVec2, utilityVec3;
+	private final IVector utilityVec1,utilityVec2, utilityVec3;
 
 	public MCMoveClusterRingRegrowOrientation(IRandom random, Space _space, int P) {
 		super(null);
@@ -98,9 +96,9 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 	@Override
 	public boolean doTrial() {
 		weightOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
-		IVectorRandom axis = (IVectorRandom) space.makeVector();
-		IVectorMutable oldCenter = space.makeVector();
-		IVectorMutable newCenter = space.makeVector();
+		IVector axis = (IVector) space.makeVector();
+		IVector oldCenter = space.makeVector();
+		IVector newCenter = space.makeVector();
 		IMoleculeList molecules = box.getMoleculeList();
 		IOrientation3D [][] newOrientations = new IOrientation3D[molecules.getMoleculeCount()][P+1];
 		double [] oldAlpha = new double [P];
@@ -111,8 +109,8 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 		double uOld = 0;
 		double uNew = 0;
 		double pGenRatio = 1.00;
-		IVectorMutable pVecOld = space.makeVector();
-		IVectorMutable pVecNew = space.makeVector();
+		IVector pVecOld = space.makeVector();
+		IVector pVecNew = space.makeVector();
 		int nMolecules = molecules.getMoleculeCount();
 		molIndexUntouched = random.nextInt(nMolecules);
 		for (int i=0; i<nMolecules; i++) {
@@ -127,7 +125,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 				uOld += kHarmonic*dist(jAtom,jPrev, i);
 			}
 			oldOrientations[i][0].setDirection(((IAtomOriented) atoms.getAtom(0)).getOrientation().getDirection());
-			IVectorRandom rV1 = (IVectorRandom)space.makeVector();
+			IVector rV1 = (IVector)space.makeVector();
 			rV1.setRandomSphere(random);
 			newOrientations[i][0] = (IOrientation3D)((IAtomOriented) atoms.getAtom(0)).getOrientation();
 			newOrientations[i][0].setDirection(rV1);
@@ -231,7 +229,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 					}
 					if (imageIndex == P/2) {
 						newOrientations[i][imageIndex].setDirection(rV1);
-						IVectorMutable rV2 = space.makeVector();
+						IVector rV2 = space.makeVector();
 						if (Math.abs(rV1.getX(0)) > 0.5) {
 							rV2.setX(1,1);
 						}
@@ -244,11 +242,11 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 						rotateVectorV(dummyAlpha, rV1, rV2);
 
 						if (!doExchange[i]) {
-							rotateVectorV(newAlpha[imageIndex],rV2,(IVectorMutable)newOrientations[i][imageIndex].getDirection());
+							rotateVectorV(newAlpha[imageIndex],rV2,(IVector)newOrientations[i][imageIndex].getDirection());
 						}
 						else {
 							double angle = 2*Math.PI*random.nextDouble();
-							rotateVectorV(angle,rV2,(IVectorMutable)newOrientations[i][imageIndex].getDirection());
+							rotateVectorV(angle,rV2,(IVector)newOrientations[i][imageIndex].getDirection());
 						}
 						theta[imageIndex] = 0; // without the loss of generality
 					}
@@ -267,7 +265,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 						axis.PEa1Tv1(-axis.dot(newCenter), newCenter);
 						axis.normalize();
 
-						rotateVectorV(newAlpha[imageIndex], axis,(IVectorMutable)newOrientations[i][imageIndex].getDirection());
+						rotateVectorV(newAlpha[imageIndex], axis,(IVector)newOrientations[i][imageIndex].getDirection());
 						theta[imageIndex] = random.nextDouble()*2*Math.PI;
 						newOrientations[i][imageIndex].rotateBy(theta[imageIndex], newCenter);
 					}
@@ -396,10 +394,10 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 		return r2;
 	}
 
-	private void rotateVectorV(double angle, IVector axis, IVectorMutable v) {
+	private void rotateVectorV(double angle, IVector axis, IVector v) {
 		double q0 = Math.cos(angle/2.0);
 		double sth2 = Math.sin(angle/2.0);
-		IVectorMutable a1 = space.makeVector();
+		IVector a1 = space.makeVector();
 		a1.E(axis);
 		a1.TE(sth2);
 		double q1 = a1.getX(0);

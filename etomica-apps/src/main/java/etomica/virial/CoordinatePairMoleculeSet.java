@@ -7,7 +7,6 @@ package etomica.virial;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.space.Space;
@@ -93,8 +92,8 @@ public class CoordinatePairMoleculeSet implements CoordinatePairSet {
     protected final double[] r2;
     protected final IMolecule[] atoms;
     protected final int numAtoms;
-    protected final IVectorMutable dr;
-    protected final IVectorMutable iPosition;
+    protected final IVector dr;
+    protected final IVector iPosition;
     protected long ID;
     protected IAtomPositionDefinition positionDefinition;
 }

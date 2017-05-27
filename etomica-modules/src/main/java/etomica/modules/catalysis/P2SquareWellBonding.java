@@ -6,7 +6,7 @@ package etomica.modules.catalysis;
 import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.modules.catalysis.InteractionTracker.CatalysisAgent;
 import etomica.potential.Potential2HardSpherical;
@@ -34,7 +34,7 @@ public class P2SquareWellBonding extends Potential2HardSpherical {
     protected double lastCollisionVirial, lastCollisionVirialr2;
     protected Tensor lastCollisionVirialTensor;
     protected double lastEnergyChange;
-    protected IVectorMutable dv;
+    protected IVector dv;
     protected final AtomLeafAgentManager agentManager;
 
     protected int nSurfaceSites;

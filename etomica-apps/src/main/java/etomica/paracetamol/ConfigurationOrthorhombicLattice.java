@@ -6,10 +6,10 @@ package etomica.paracetamol;
 
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.action.MoleculeChildAtomAction;
+import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
 import etomica.config.Configuration;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
@@ -87,9 +87,9 @@ public class ConfigurationOrthorhombicLattice implements Configuration, java.io.
                 / (double) basisSize);
 
         // determine scaled shape of simulation volume
-        IVectorMutable shape = space.makeVector();
+        IVector shape = space.makeVector();
         shape.E(box.getBoundary().getBoxSize());
-        IVectorMutable latticeConstantV = space.makeVector(lattice.getLatticeConstants());
+        IVector latticeConstantV = space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
 
         // determine number of cells in each direction
@@ -106,7 +106,7 @@ public class ConfigurationOrthorhombicLattice implements Configuration, java.io.
         }
 
         // determine lattice constant
-        IVectorMutable latticeScaling = space.makeVector();
+        IVector latticeScaling = space.makeVector();
         if (rescalingToFitVolume) {
             // in favorable situations, this should be approximately equal
             // to 1.0
@@ -118,11 +118,11 @@ public class ConfigurationOrthorhombicLattice implements Configuration, java.io.
         }
 
         // determine amount to shift lattice so it is centered in volume
-        IVectorMutable offset = space.makeVector();
+        IVector offset = space.makeVector();
         offset.E(box.getBoundary().getBoxSize());
-        IVectorMutable vectorOfMax = space.makeVector();
-        IVectorMutable vectorOfMin = space.makeVector();
-        IVectorMutable site = space.makeVector();
+        IVector vectorOfMax = space.makeVector();
+        IVector vectorOfMin = space.makeVector();
+        IVector site = space.makeVector();
         vectorOfMax.E(Double.NEGATIVE_INFINITY);
         vectorOfMin.E(Double.POSITIVE_INFINITY);
 
@@ -132,7 +132,7 @@ public class ConfigurationOrthorhombicLattice implements Configuration, java.io.
         indexIterator.reset();
 
         while (indexIterator.hasNext()) {
-            site.E((IVectorMutable) lattice.site(indexIterator.next()));
+            site.E((IVector) lattice.site(indexIterator.next()));
             site.TE(latticeScaling);
             for (int i=0; i<site.getD(); i++) {
                 vectorOfMax.setX(i, Math.max(site.getX(i),vectorOfMax.getX(i)));
@@ -149,7 +149,7 @@ public class ConfigurationOrthorhombicLattice implements Configuration, java.io.
         indexIterator.reset();
 
     	ConformationParacetamolOrthorhombic regConfig = new ConformationParacetamolOrthorhombic(lattice.getSpace());
-    	IVectorMutable cellPosition = null;
+    	IVector cellPosition = null;
     	Tensor t = lattice.getSpace().makeTensor();
 
     	for (int iMolecule = 0; iMolecule<moleculeList.getMoleculeCount(); iMolecule++) {
@@ -206,12 +206,12 @@ public class ConfigurationOrthorhombicLattice implements Configuration, java.io.
           atomGroupAction.actionPerformed(molecule);
              
           
-            atomActionTranslateTo.setDestination((IVectorMutable)myLat.site(ii));
+            atomActionTranslateTo.setDestination((IVector)myLat.site(ii));
             atomActionTranslateTo.actionPerformed(molecule);
             
             if (ii[3] == 0){
             	cellPosition = space.makeVector();
-            	cellPosition.E((IVectorMutable)myLat.site(ii));
+            	cellPosition.E((IVector)myLat.site(ii));
             	
             	
             	//remember the coordinate of the cell
@@ -221,7 +221,7 @@ public class ConfigurationOrthorhombicLattice implements Configuration, java.io.
         }
     }
 
-    protected int[] calculateLatticeDimensions(int nCells, IVectorMutable shape) {
+    protected int[] calculateLatticeDimensions(int nCells, IVector shape) {
         int dimLeft = shape.getD();
         int nCellsLeft = nCells;
         int[] latticeDimensions = new int[shape.getD()];
@@ -303,7 +303,7 @@ public class ConfigurationOrthorhombicLattice implements Configuration, java.io.
      */
     public static class MyLattice implements SpaceLattice {
 
-        public MyLattice(SpaceLattice l, IVectorMutable latticeScaling, IVectorMutable offset) {
+        public MyLattice(SpaceLattice l, IVector latticeScaling, IVector offset) {
             lattice = l;
             this.latticeScaling = latticeScaling;
             this.offset = offset;
@@ -322,7 +322,7 @@ public class ConfigurationOrthorhombicLattice implements Configuration, java.io.
          * Returns the same instance of IVector with each call.
          */
         public Object site(int[] index) {
-            site.E((IVectorMutable) lattice.site(index));
+            site.E((IVector) lattice.site(index));
             site.TE(latticeScaling);
             site.PE(offset);
 
@@ -338,9 +338,9 @@ public class ConfigurationOrthorhombicLattice implements Configuration, java.io.
         }
 
         final SpaceLattice lattice;
-        final public IVectorMutable latticeScaling;
-        final IVectorMutable offset;
-        final IVectorMutable site;
+        final public IVector latticeScaling;
+        final IVector offset;
+        final IVector site;
 
     }
 

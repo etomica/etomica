@@ -13,7 +13,6 @@ import org.json.simple.JSONObject;
 import etomica.api.IAtomList;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Nitrogen;
@@ -138,7 +137,7 @@ public class VirialN2 {
         // sim.init();
         sim.integratorOS.setNumSubSteps(1000);
         steps /= 1000;
-        final IVectorMutable[] rv = space.makeVectorArray(4);
+        final IVector[] rv = space.makeVectorArray(4);
         rv[0].setX(0, massN*blN2*blN2*0.25);
         rv[0].setX(1, massN*blN2*blN2*0.25);
         p2SCTI.setAtomInfo(speciesN2.getAtomType(0), new AtomInfo() {
@@ -192,7 +191,7 @@ public class VirialN2 {
         if (nPoints == 3 && nonAdditive) {
             IAtomList tarList = sim.box[1].getLeafList();
             for (int i=0; i<tarList.getAtomCount(); i++) {
-                IVectorMutable p = tarList.getAtom(i).getPosition();
+                IVector p = tarList.getAtom(i).getPosition();
                 p.setX(i, 4.0);
             }
             sim.box[1].trialNotify();

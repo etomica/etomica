@@ -7,8 +7,8 @@ package etomica.normalmode;
 import etomica.action.PDBWriter;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
+import etomica.api.IVector;
 import etomica.box.Box;
-import etomica.api.IVectorMutable;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
@@ -65,7 +65,7 @@ public class SimCalcSSoftSphere2D extends Simulation {
         // activityIntegrate.setMaxSteps(nSteps);
 
         primitive = new PrimitiveOrthorhombicHexagonal(space, 1);
-        IVectorMutable[] dimension = space.makeVectorArray(2);
+        IVector[] dimension = space.makeVectorArray(2);
         for(int i=0; i<space.D(); i++){
         	dimension[i].Ea1Tv1(nCells[i], primitive.vectors()[i]);	
         }

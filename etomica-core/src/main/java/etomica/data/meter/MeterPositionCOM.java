@@ -9,8 +9,8 @@ package etomica.data.meter;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
+import etomica.api.IVector;
 import etomica.box.Box;
-import etomica.api.IVectorMutable;
 import etomica.data.DataInfo;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -86,7 +86,7 @@ public class MeterPositionCOM implements IEtomicaDataSource, java.io.Serializabl
 
     private static final long serialVersionUID = 1L;
     private Box box;
-    private final IVectorMutable positionSum;
+    private final IVector positionSum;
     private final DataVector data;    
     private final DataInfo dataInfo;
     private String name;

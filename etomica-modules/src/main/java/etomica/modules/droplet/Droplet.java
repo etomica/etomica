@@ -5,8 +5,8 @@
 package etomica.modules.droplet;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
+import etomica.api.IVector;
 import etomica.box.Box;
-import etomica.api.IVectorMutable;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
@@ -63,7 +63,7 @@ public class Droplet extends Simulation {
         //construct box
 	    box = new Box(new BoundaryRectangularNonperiodic(space), space);
         addBox(box);
-        IVectorMutable dim = space.makeVector();
+        IVector dim = space.makeVector();
         dim.E(new double[]{4,4,4});
         box.getBoundary().setBoxSize(dim);
         box.setNMolecules(species, numAtoms);

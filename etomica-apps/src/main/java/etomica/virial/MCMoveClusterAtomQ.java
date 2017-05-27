@@ -1,9 +1,9 @@
 package etomica.virial;
 
 import etomica.api.IAtomList;
+import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomOrientedQuaternion;
 import etomica.atom.AtomSource;
 import etomica.atom.iterator.AtomIterator;
@@ -30,7 +30,7 @@ public class MCMoveClusterAtomQ extends MCMoveAtom {
             double u3 = 2*Math.PI*random.nextDouble();
             double s1 = Math.sqrt(u1);
             double s2 = Math.sqrt(1-u1);
-            IVectorMutable q = ((AtomOrientedQuaternion)leafAtoms.getAtom(i)).getQuaternion();
+            IVector q = ((AtomOrientedQuaternion)leafAtoms.getAtom(i)).getQuaternion();
             q.setX(0, s1*Math.sin(u2));
             q.setX(1, s1*Math.cos(u2));
             q.setX(2, s2*Math.sin(u3));

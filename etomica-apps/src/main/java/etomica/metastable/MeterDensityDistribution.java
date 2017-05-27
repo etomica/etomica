@@ -3,7 +3,6 @@ package etomica.metastable;
 import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.data.AccumulatorHistogram;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -23,8 +22,8 @@ public class MeterDensityDistribution implements IEtomicaDataSource {
     protected AccumulatorHistogram histogram; 
     protected final Box box;
     protected final int[][][] counts;
-    protected final IVectorMutable p2;
-    protected final IVectorMutable subBox, shift;
+    protected final IVector p2;
+    protected final IVector subBox, shift;
     protected final DataDouble subData;
     
     public MeterDensityDistribution(Space space, Box box, int nSubBoxes) {

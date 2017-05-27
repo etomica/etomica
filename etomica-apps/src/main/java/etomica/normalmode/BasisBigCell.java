@@ -9,7 +9,6 @@ import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.config.ConfigurationLatticeSimple;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.Basis;
@@ -57,7 +56,7 @@ public class BasisBigCell extends Basis {
         
         // retrieve real coordinates and scale them
         IAtomList atomList = box.getLeafList();
-        IVectorMutable[] pos = new IVectorMutable[atomList.getAtomCount()];
+        IVector[] pos = new IVector[atomList.getAtomCount()];
         for (int i=0; i<atomList.getAtomCount(); i++) {
             pos[i] = space.makeVector();
             pos[i].E(atomList.getAtom(i).getPosition());

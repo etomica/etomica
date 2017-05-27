@@ -8,7 +8,7 @@
  */
 package etomica.math.geometry;
 
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.space.Space;
 
 /**
@@ -33,7 +33,7 @@ public abstract class Hexahedron extends Polyhedron {
     }
     
     private static Polygon[] makeFaces(Space embeddedSpace) {
-        IVectorMutable[] vertices = embeddedSpace.makeVectorArray(8);
+        IVector[] vertices = embeddedSpace.makeVectorArray(8);
         LineSegment[] edges = new LineSegment[12];
         Polygon[] faces = new Polygon[6];
         //note that it is important that the vertices get used in order, 0, 1, 2, etc.

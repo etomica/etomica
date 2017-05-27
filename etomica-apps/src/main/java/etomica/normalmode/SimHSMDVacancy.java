@@ -17,7 +17,6 @@ import etomica.box.Box;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.DiameterHash;
 import etomica.data.AccumulatorAverageBlockless;
 import etomica.data.AccumulatorHistogram;
@@ -340,7 +339,7 @@ public class SimHSMDVacancy extends Simulation {
                 }
             };
             colorScheme = new ColorScheme() {
-                IVectorMutable dr = sim.space.makeVector();
+                IVector dr = sim.space.makeVector();
                 double rc = sim.mcMoveID.getMaxDistance();
                 double rc2 = rc*rc;
                 int nmax = 12;
@@ -392,7 +391,7 @@ public class SimHSMDVacancy extends Simulation {
             simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
             
             DiameterHash dh = new DiameterHash() {
-                IVectorMutable dr = sim.space.makeVector();
+                IVector dr = sim.space.makeVector();
                 double rc = sim.mcMoveID.getMaxDistance();
                 double rc2 = rc*rc;
                 int nmax = 12;

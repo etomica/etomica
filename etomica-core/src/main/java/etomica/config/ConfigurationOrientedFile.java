@@ -5,7 +5,7 @@
 package etomica.config;
 
 import etomica.api.IAtom;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.atom.IAtomOriented;
 import etomica.space.IOrientation;
 import etomica.space.Space;
@@ -48,5 +48,5 @@ public class ConfigurationOrientedFile extends ConfigurationFile {
     }
     
     private static final long serialVersionUID = 2L;
-    protected final IVectorMutable direction, secondaryDirection;
+    protected final IVector direction, secondaryDirection;
 }

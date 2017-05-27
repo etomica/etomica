@@ -11,7 +11,7 @@ import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.atom.MoleculePair;
 import etomica.box.Box;
 import etomica.lattice.crystal.Basis;
@@ -443,7 +443,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialLS extends Simulati
 	protected FindPairMoleculeIndex findPair;
 	protected AtomActionTranslateBy translateBy;
 	protected MoleculeChildAtomAction atomGroupActionTranslate;
-	protected IVectorMutable lsPosition;
+	protected IVector lsPosition;
 	protected double xVecBox, yVecBox, zVecBox, rC;
 	protected int nLayer;
 	protected boolean[][][][][] isFoundReverse;

@@ -8,7 +8,6 @@ import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.MoleculeOrientedDynamic;
 import etomica.models.water.P2WaterSPCSoft;
 import etomica.space.Space;
@@ -26,7 +25,7 @@ public class P2MoleculeSoftTruncatedSwitched extends PotentialMolecular implemen
         super(2, _space);
         this.potential = potential;
         setTruncationRadius(truncationRadius);
-        gradientAndTorque = new IVectorMutable[2][2];
+        gradientAndTorque = new IVector[2][2];
         for (int i=0; i<2; i++) {
             gradientAndTorque[0][i] = space.makeVector();
             gradientAndTorque[1][i] = space.makeVector();
@@ -197,9 +196,9 @@ public class P2MoleculeSoftTruncatedSwitched extends PotentialMolecular implemen
     private static final long serialVersionUID = 1L;
     protected double rCutoff, r2Cutoff;
     protected final IPotentialMolecularTorque potential;
-    protected final IVectorMutable dr;
+    protected final IVector dr;
     protected IBoundary boundary;
-    protected final IVectorMutable[][] gradientAndTorque;
+    protected final IVector[][] gradientAndTorque;
     protected int taperOrder = 3;
     protected double switchFac, r2Switch;
 }

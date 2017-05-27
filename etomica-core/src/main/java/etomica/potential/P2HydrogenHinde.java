@@ -51,7 +51,6 @@ import etomica.api.IPotential;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomHydrogen;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -85,7 +84,7 @@ public class P2HydrogenHinde implements IPotential {
     protected final double [][][] c8 = new double [3][3][4];
     protected final double [][] cten = new double [3][3];
     protected IBoundary boundary;
-    protected final IVectorMutable dr,com0,com1,hh0,hh1,n0,n1;
+    protected final IVector dr,com0,com1,hh0,hh1,n0,n1;
     public P2HydrogenHinde(Space space) {
         dr = space.makeVector();
         com0 = space.makeVector();

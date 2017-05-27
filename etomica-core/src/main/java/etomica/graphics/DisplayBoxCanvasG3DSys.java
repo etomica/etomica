@@ -19,7 +19,6 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterCollective;
 import etomica.atom.AtomLeafAgentManager;
@@ -65,8 +64,8 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
     private Triangle[][] planeTriangles;
     protected LineSegment[] lines;
     protected Line[] lineFigures;
-    private IVectorMutable[] planeIntersections;
-    private IVectorMutable work, work2, work3;
+    private IVector[] planeIntersections;
+    private IVector work, work2, work3;
     private double[] planeAngles;
     private final Space space;
     protected AtomLeafAgentManager<Ball[]> aamOriented;
@@ -104,7 +103,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 
         planes = new Plane[0];
         planeTriangles = new Triangle[0][0];
-        planeIntersections = new IVectorMutable[0];
+        planeIntersections = new IVector[0];
         lines = new LineSegment[0];
         lineFigures = new Line[0];
         planeAngles = new double[0];
@@ -562,10 +561,10 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
             double alpha = -plane.distanceTo(vertices[0]) / 
                             (plane.distanceTo(work) - plane.getD());
             if (alpha >= 0 && alpha <= 1) {
-                IVectorMutable newIntersection;
+                IVector newIntersection;
                 if (planeIntersections.length == intersectionCount) {
                     newIntersection = space.makeVector();
-                    planeIntersections = (IVectorMutable[])Arrays.addObject(planeIntersections, newIntersection);
+                    planeIntersections = (IVector[])Arrays.addObject(planeIntersections, newIntersection);
                 }
                 else {
                     newIntersection = planeIntersections[intersectionCount];
@@ -623,7 +622,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
             for (int j=1; j<i; j++) {
                 if (angle < planeAngles[j-1]) {
                     // insert the i point at position j, shift existing points
-                    IVectorMutable intersection = planeIntersections[i];
+                    IVector intersection = planeIntersections[i];
                     for (int k=i; k>j; k--) {
                         planeAngles[k-1] = planeAngles[k-2];
                         planeIntersections[k] = planeIntersections[k-1];

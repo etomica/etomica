@@ -14,7 +14,6 @@ import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.space.Space;
@@ -36,7 +35,7 @@ public class P3CPSNonAdditiveHeLessSimplified extends Potential implements Poten
         drAB = space.makeVector();
         drBC = space.makeVector();
         drAC = space.makeVector();
-        gradient = new IVectorMutable[3];
+        gradient = new IVector[3];
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();
         gradient[2] = space.makeVector();
@@ -715,10 +714,10 @@ public class P3CPSNonAdditiveHeLessSimplified extends Potential implements Poten
     }
     Integer parameters = 0;
     public  double[] params = new double[21];
-    protected final IVectorMutable drAB, drAC, drBC;
+    protected final IVector drAB, drAC, drBC;
     protected IBoundary boundary;
     private static final long serialVersionUID = 1L;
-    protected final IVectorMutable[] gradient;
+    protected final IVector[] gradient;
     public static boolean bigAngle;
     protected final double[][][] alpha = new double [5][5][5];
     protected final double[][][] A = new double [5][5][5];

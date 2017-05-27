@@ -12,7 +12,6 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IRandom;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.MoleculeArrayList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
@@ -24,7 +23,6 @@ import etomica.integrator.mcmove.MCMoveMolecular;
 import etomica.models.OPLS.SpeciesAceticAcid;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
-import etomica.space.IVectorRandom;
 import etomica.space3d.RotationTensor3D;
 
 public class MCMoveBiasUBMolecule extends MCMoveBox implements MCMoveMolecular{
@@ -47,11 +45,11 @@ public class MCMoveBiasUBMolecule extends MCMoveBox implements MCMoveMolecular{
     protected final MoleculeIteratorSinglet affectedMoleculeIterator = new MoleculeIteratorSinglet();
     private double uOld;
     private double uNew;
-    private IVectorMutable[] oldPosition;
+    private IVector[] oldPosition;
     protected final MoleculeArrayList smerList;
     protected final Space space;
     protected final RotationTensor3D rotationTensor;
-    protected IVectorRandom groupTranslationVector;
+    protected IVector groupTranslationVector;
     protected MoleculeChildAtomAction moveMoleculeAction;
     
     public MCMoveBiasUBMolecule(PotentialMaster potentialMaster, BiasVolumeMolecule bv, IRandom random, Space space) {
@@ -63,10 +61,10 @@ public class MCMoveBiasUBMolecule extends MCMoveBox implements MCMoveMolecular{
         meterPotentialEnergy = new MeterPotentialEnergy(potentialMaster);
         rotationTensor = (RotationTensor3D)(space.makeRotationTensor());
         AtomActionTranslateBy translator = new AtomActionTranslateBy(space);
-        groupTranslationVector = (IVectorRandom)translator.getTranslationVector();
+        groupTranslationVector = (IVector)translator.getTranslationVector();
         moveMoleculeAction = new MoleculeChildAtomAction(translator);
         perParticleFrequency = true;// the frequency of the move is increasing with the system size
-        oldPosition = new IVectorMutable[0];
+        oldPosition = new IVector[0];
     }
     
     public void setBox(Box box){
@@ -93,7 +91,7 @@ public class MCMoveBiasUBMolecule extends MCMoveBox implements MCMoveMolecular{
             moleculeA = molecules.getMolecule(random.nextInt(molecules.getMoleculeCount()));
             IAtomList atoms = moleculeA.getChildList();
             if (oldPosition.length < atoms.getAtomCount()){
-            	oldPosition = new IVectorMutable[atoms.getAtomCount()];
+            	oldPosition = new IVector[atoms.getAtomCount()];
                 for (int i = 0; i<atoms.getAtomCount();i+=1){
                 	oldPosition[i] = space.makeVector();
                 }
@@ -117,7 +115,7 @@ public class MCMoveBiasUBMolecule extends MCMoveBox implements MCMoveMolecular{
             moleculeA = molecules.getMolecule(random.nextInt(molecules.getMoleculeCount()));
             IAtomList atoms = moleculeA.getChildList();
             if (oldPosition.length < atoms.getAtomCount()){
-            	oldPosition = new IVectorMutable[atoms.getAtomCount()];
+            	oldPosition = new IVector[atoms.getAtomCount()];
                 for (int i = 0; i<atoms.getAtomCount();i+=1){
                 	oldPosition[i] = space.makeVector();
                 }
@@ -166,7 +164,7 @@ public class MCMoveBiasUBMolecule extends MCMoveBox implements MCMoveMolecular{
         rotationTensor.setAxial(random.nextInt(3), random.nextDouble()*2*Math.PI);//axis for rotation is x, y or z, and the amount of rotation is up to 2pi
         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
             IAtom a = childList.getAtom(iChild);
-            IVectorMutable r = a.getPosition();
+            IVector r = a.getPosition();
             r.ME(r0);
             rotationTensor.transform(r);
             r.PE(r0);

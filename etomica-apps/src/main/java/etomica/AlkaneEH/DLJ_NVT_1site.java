@@ -11,7 +11,6 @@ import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.DipoleSource;
 import etomica.atom.IAtomOriented;
@@ -70,7 +69,7 @@ public class DLJ_NVT_1site extends Simulation {
     public Controller controller; 
 
     public static class DipoleSourceDLJ implements DipoleSource{//for potential reaction field
-    	protected final IVectorMutable dipoleVector;
+    	protected final IVector dipoleVector;
     	protected double dipoleStrength;
     	public DipoleSourceDLJ(Space space, double s){
     		dipoleStrength=s;

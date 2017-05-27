@@ -4,7 +4,6 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialCalculation;
 import etomica.space.Space;
@@ -141,13 +140,13 @@ public class PotentialCalculationLJSP implements PotentialCalculation {
 	protected double volume , temperature;
 	protected double dP,  f1, fe, fee;
 	protected int nMol;
-    protected final IVectorMutable rij;
-    protected final IVectorMutable Rij;
-    protected final IVectorMutable drj;
-    protected final IVectorMutable dri ;
-    protected final IVectorMutable drij;
-    protected final IVectorMutable drj_tmp;
-    protected final IVectorMutable T1ij, T2ij, T3ij;
+    protected final IVector rij;
+    protected final IVector Rij;
+    protected final IVector drj;
+    protected final IVector dri ;
+    protected final IVector drij;
+    protected final IVector drj_tmp;
+    protected final IVector T1ij, T2ij, T3ij;
 
     
 

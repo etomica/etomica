@@ -4,12 +4,8 @@
 
 package etomica.normalmode;
 
-import etomica.api.IAtomList;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -29,7 +25,7 @@ public class MeterTilt implements IEtomicaDataSource {
     public MeterTilt(Space space, ISpecies species, int nPlanes) {
         this.species = species;
         dr = space.makeVector();
-        drSum = new IVectorMutable[nPlanes+1];
+        drSum = new IVector[nPlanes+1];
         for (int i=0; i<nPlanes+1; i++) {
             drSum[i] = space.makeVector();
         }
@@ -77,8 +73,8 @@ public class MeterTilt implements IEtomicaDataSource {
     private static final long serialVersionUID = 1L;
     protected final ISpecies species;
     protected Box box;
-    protected final IVectorMutable dr;
-    protected final IVectorMutable[] drSum;
+    protected final IVector dr;
+    protected final IVector[] drSum;
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
     protected final DataTag tag;

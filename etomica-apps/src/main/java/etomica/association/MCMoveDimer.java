@@ -9,7 +9,7 @@ import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IRandom;
 import etomica.simulation.Simulation;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSource;
 import etomica.atom.iterator.AtomIterator;
@@ -19,7 +19,6 @@ import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.space.Space;
-import etomica.space.IVectorRandom;
 
 /**
  * Standard Monte Carlo atom-displacement trial move of dimer
@@ -32,7 +31,7 @@ public class MCMoveDimer extends MCMoveBoxStep {
     protected final AtomIteratorArrayListSimple affectedAtomIterator;
     protected final AtomArrayList affectedAtoms;
     protected final MeterPotentialEnergy energyMeter;
-    protected final IVectorRandom translationVector;
+    protected final IVector translationVector;
     protected IAtom atom;
     protected double uOld;
     protected double uNew = Double.NaN;
@@ -42,7 +41,7 @@ public class MCMoveDimer extends MCMoveBoxStep {
     protected Space space;
     protected final PotentialMasterCell potentialMaster;
     protected final Api1ACell neighborIterator;
-    protected final IVectorMutable dr;
+    protected final IVector dr;
     protected final IPotentialAtomic dimerPotential;
     protected IAtom atom1;
     protected AssociationManager associationManager;
@@ -66,7 +65,7 @@ public class MCMoveDimer extends MCMoveBoxStep {
         atomSource = new AtomSourceRandomDimer();
         ((AtomSourceRandomDimer)atomSource).setRandomNumberGenerator(random);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
-        translationVector = (IVectorRandom)space.makeVector();
+        translationVector = (IVector)space.makeVector();
         setStepSizeMax(stepSizeMax);
         setStepSizeMin(0.0);
         setStepSize(stepSize);

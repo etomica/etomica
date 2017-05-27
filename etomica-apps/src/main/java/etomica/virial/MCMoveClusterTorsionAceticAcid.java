@@ -4,12 +4,7 @@
 
 package etomica.virial;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
+import etomica.api.*;
 import etomica.atom.MoleculeArrayList;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveStepTracker;
@@ -61,8 +56,8 @@ public class MCMoveClusterTorsionAceticAcid extends MCMoveMolecule {
             vOH.Ev1Mv2(h.getPosition(), sBO.getPosition());//vector OH
             double lengthdr13 = vCO.squared();
             
-            IVectorMutable project = space.makeVector();
-            IVectorMutable secondaryDirection = space.makeVector();
+            IVector project = space.makeVector();
+            IVector secondaryDirection = space.makeVector();
             project.E(vCO);
             project.TE(vCO.dot(vOH)/lengthdr13);
             secondaryDirection.Ev1Mv2(project,vOH);
@@ -93,8 +88,8 @@ public class MCMoveClusterTorsionAceticAcid extends MCMoveMolecule {
             vOH.Ev1Mv2(h.getPosition(), sBO.getPosition());//vector OH
             double lengthdr13 = vCO.squared();
             
-            IVectorMutable project = space.makeVector();
-            IVectorMutable secondaryDirection = space.makeVector();
+            IVector project = space.makeVector();
+            IVector secondaryDirection = space.makeVector();
             project.E(vCO);
             project.TE(vCO.dot(vOH)/lengthdr13);
             secondaryDirection.Ev1Mv2(project,vOH);
@@ -121,7 +116,7 @@ public class MCMoveClusterTorsionAceticAcid extends MCMoveMolecule {
     }
 	
     private static final long serialVersionUID = 1L;
-    protected final IVectorMutable vCO,vOH;
+    protected final IVector vCO,vOH;
     protected double wOld, wNew;
     protected final MoleculeArrayList selectedMolecules;
 }

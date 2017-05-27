@@ -11,7 +11,6 @@ import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.IMoleculePositioned;
@@ -57,7 +56,7 @@ public class BoxImposePbc extends BoxActionAdapter {
                 IMolecule molecule = molecules.getMolecule(i);
                 IVector shift;
                 if (molecule instanceof IMoleculePositioned) {
-                    IVectorMutable position = ((IMoleculePositioned)molecule).getPosition();
+                    IVector position = ((IMoleculePositioned)molecule).getPosition();
                     shift = boundary.centralImage(position);
                     position.PE(shift);
                 }

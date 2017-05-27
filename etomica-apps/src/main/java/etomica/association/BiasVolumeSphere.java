@@ -6,24 +6,24 @@ package etomica.association;
 
 import etomica.api.IAtom;
 import etomica.api.IBoundary;
+import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.space.Space;
-import etomica.space.IVectorRandom;
 
 public class BiasVolumeSphere extends BiasVolume {
     
     private static final long serialVersionUID = 1L;
     private double radius;
     private double innerRadius;
-    private final IVectorRandom work;
+    private final IVector work;
     private final IRandom random;
     private IBoundary boundary;
     
     public BiasVolumeSphere(Space space, IRandom random){
         super(space);
         this.random = random;
-        work = (IVectorRandom)space.makeVector();
+        work = (IVector)space.makeVector();
         radius = 1.0;//size of the sphere
         innerRadius = 0.9;
     }

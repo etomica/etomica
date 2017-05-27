@@ -6,9 +6,9 @@ package etomica.modules.pistoncylinder;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
+import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.api.IPotentialMaster;
-import etomica.api.IVectorMutable;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorMD.ThermostatType;
@@ -55,7 +55,7 @@ public class PistonCylinder extends Simulation {
         box = new Box(new BoundaryPistonCylinder(space), space);
         addBox(box);
         box.setNMolecules(species, INIT_NUM_MOLECULES);
-        IVectorMutable newDim;
+        IVector newDim;
         if (space.D() == 2) {
             config = new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space);
             newDim = new Vector2D(80,150);

@@ -8,17 +8,15 @@ import java.io.Serializable;
 
 import etomica.api.IRandom;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.space.IOrientation;
 import etomica.space.Space;
-import etomica.space.IVectorRandom;
 import etomica.util.Debug;
 
 public class Orientation3D implements IOrientation3D, Serializable {
 
     private static final long serialVersionUID = 1L;
-    protected final IVectorMutable direction;
-    protected final IVectorMutable temp, temp2;
+    protected final IVector direction;
+    protected final IVector temp, temp2;
     
     /**
      * Default constructor sets orientation to point in the X direction.
@@ -89,7 +87,7 @@ public class Orientation3D implements IOrientation3D, Serializable {
         double tempSq = 0;
         do {
             // first get a random unit vector
-            ((IVectorRandom)temp).setRandomSphere(random);
+            ((IVector)temp).setRandomSphere(random);
             // find the component of the unit vector perpendicular to our direction
             temp.PEa1Tv1(-temp.dot(direction), direction);
             // if the random unit vector was nearly parallel (or anti-parallel)

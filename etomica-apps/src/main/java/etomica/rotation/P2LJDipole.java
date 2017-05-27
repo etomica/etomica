@@ -7,7 +7,6 @@ package etomica.rotation;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.atom.IAtomOriented;
 import etomica.potential.IPotentialMolecularTorque;
@@ -15,7 +14,6 @@ import etomica.potential.PotentialMolecular;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
-import etomica.space.IVectorRandom;
 import etomica.space.Tensor;
 import etomica.space3d.IOrientation3D;
 import etomica.space3d.Space3D;
@@ -40,16 +38,16 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
         setSigma(sigma);
         setEpsilon(epsilon);
         setDipoleMomentSquare(momentSquared);
-        gradient = new IVectorMutable[2];
+        gradient = new IVector[2];
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();
-        torque = new IVectorMutable[2];
+        torque = new IVector[2];
         torque[0] = space.makeVector();
         torque[1] = space.makeVector();
         dr = space.makeVector();
         drunit = space.makeVector();
         work = space.makeVector();
-        gradientAndTorque = new IVectorMutable[][]{gradient,torque};
+        gradientAndTorque = new IVector[][]{gradient,torque};
     }
 
     public void setHardCoreDiamterSq(double val){
@@ -238,10 +236,10 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
     private double hsdiasq=1.0/Math.sqrt(2);
     private double momentSq;
     private IBoundary boundary;
-    private final IVectorMutable dr, drunit, work;
-    private final IVectorMutable[] gradient;
-    protected final IVectorMutable[] torque;
-    protected final IVectorMutable[][] gradientAndTorque;
+    private final IVector dr, drunit, work;
+    private final IVector[] gradient;
+    protected final IVector[] torque;
+    protected final IVector[][] gradientAndTorque;
     protected double cutoff2;
     protected double dipoleFShift, dipoleUShift;
     protected double fShift, uShift;
@@ -271,9 +269,9 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
         IAtomOriented atom1 = (IAtomOriented)leafAtoms.getMolecule(1);
         potential.setBox(box);
         
-        IVectorMutable grad1 = space.makeVector();
-        IVectorMutable oldPosition = space.makeVector();
-        IVectorRandom ran = (IVectorRandom)space.makeVector();
+        IVector grad1 = space.makeVector();
+        IVector oldPosition = space.makeVector();
+        IVector ran = (IVector)space.makeVector();
 //        atom0.getOrientation().randomRotation(sim.getRandom(), 1);
 //        atom1.getOrientation().randomRotation(sim.getRandom(), 1);
 //        atom1.getOrientation().randomRotation(sim.getRandom(), 1);
@@ -323,7 +321,7 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
             }
             do {
                 // move the atom1 to an entirely random position within 5sigma of atom0
-                ((IVectorRandom)atom1.getPosition()).setRandomInSphere(random);
+                ((IVector)atom1.getPosition()).setRandomInSphere(random);
                 atom1.getPosition().TE(rCut+1);
                 ran.setRandomSphere(random);
                 atom1.getOrientation().setDirection(ran);
@@ -332,8 +330,8 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
             while (Double.isInfinite(potential.energy(leafAtoms)));
         }
         
-        IVectorMutable torque1 = space.makeVector();
-        IVectorMutable work = space.makeVector();
+        IVector torque1 = space.makeVector();
+        IVector work = space.makeVector();
         atom1.getPosition().E(0);
         atom1.getPosition().setX(0, 2);
         atom1.getOrientation().setDirection(new Vector3D(0,1,0));
@@ -374,7 +372,7 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
             }
             do {
                 // move the atom1 to an entirely random position within 5sigma of atom0
-                ((IVectorRandom)atom1.getPosition()).setRandomInSphere(random);
+                ((IVector)atom1.getPosition()).setRandomInSphere(random);
                 atom1.getPosition().TE(rCut+1);
                 ran.setRandomSphere(random);
                 atom1.getOrientation().setDirection(ran);

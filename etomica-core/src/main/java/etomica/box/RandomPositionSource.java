@@ -4,7 +4,7 @@
 
 package etomica.box;
 
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 
 /**
  * Interface for an object which returns random positions within a box's
@@ -23,5 +23,5 @@ public interface RandomPositionSource {
     /**
      * Returns a random position with the previously set box's boundary.
      */
-    public IVectorMutable randomPosition();
+    public IVector randomPosition();
 }

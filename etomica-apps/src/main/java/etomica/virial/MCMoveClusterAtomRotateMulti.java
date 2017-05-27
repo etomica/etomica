@@ -7,7 +7,7 @@ package etomica.virial;
 import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.atom.IAtomOriented;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.IOrientation;
@@ -54,7 +54,7 @@ public class MCMoveClusterAtomRotateMulti extends MCMoveAtom {
         if (random.nextInt(100) == 0) {
             for(int i=0; i<nAtoms; i++) {
                 IAtomOriented a = (IAtomOriented)atoms.getAtom(i);
-                ((IVectorMutable)a.getOrientation().getDirection()).normalize();
+                ((IVector)a.getOrientation().getDirection()).normalize();
             }
         }
 		((BoxCluster)box).trialNotify();

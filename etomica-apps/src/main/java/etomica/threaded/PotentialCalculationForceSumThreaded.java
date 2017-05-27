@@ -4,11 +4,8 @@
 
 package etomica.threaded;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.integrator.IntegratorBox;
@@ -64,7 +61,7 @@ public class PotentialCalculationForceSumThreaded extends PotentialCalculationFo
         IAtomList atomArrayList = box.getLeafList();
       
         for(int j=0; j<atomArrayList.getAtomCount(); j++){
-            IVectorMutable force = integratorAgentManager.getAgent(atomArrayList.getAtom(j)).force();
+            IVector force = integratorAgentManager.getAgent(atomArrayList.getAtom(j)).force();
       
             for(int i=0; i<pc.length; i++){
                 force.PE(((IntegratorBox.Forcible)atomAgentManager[i].getAgent(atomArrayList.getAtom(j))).force());

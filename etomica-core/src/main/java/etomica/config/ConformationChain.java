@@ -7,7 +7,6 @@ package etomica.config;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.space.Space;
 
 /**
@@ -49,7 +48,7 @@ public abstract class ConformationChain implements IConformation, java.io.Serial
     	reset();
 	
     	//space.makeVector() zeroes the made Vector automatically
-    	IVectorMutable currentPosition = space.makeVector();
+    	IVector currentPosition = space.makeVector();
     
     	//Zero the first atom.
         atomlist.getAtom(0).getPosition().E(0);

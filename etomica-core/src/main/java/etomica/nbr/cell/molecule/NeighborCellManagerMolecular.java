@@ -13,7 +13,6 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.simulation.Simulation;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.MoleculeAgentManager;
@@ -52,7 +51,7 @@ public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryLi
     protected double range;
     protected final MoleculeAgentManager agentManager;
     protected boolean doApplyPBC;
-    protected final IVectorMutable v;
+    protected final IVector v;
     protected final int[] numCells;
     protected IAtomPositionDefinition moleculeSite;
     protected Space space;
@@ -255,7 +254,7 @@ public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryLi
      * cell's atom list.
      */
     public Object makeAgent(IMolecule molecule) {
-        IVectorMutable position = (IVectorMutable)moleculeSite.position(molecule);
+        IVector position = (IVector)moleculeSite.position(molecule);
         v.E(position);
         if (doApplyPBC) {
             v.PE(box.getBoundary().centralImage(position));
@@ -310,7 +309,7 @@ public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryLi
             IBoundary boundary = box.getBoundary();
             CellMolecular cell = neighborCellManager.getCell(molecule);
             cell.removeMolecule(molecule);
-            boundary.nearestImage((IVectorMutable)moleculePosition.position(molecule));
+            boundary.nearestImage((IVector)moleculePosition.position(molecule));
             neighborCellManager.assignCell(molecule);
         }
         

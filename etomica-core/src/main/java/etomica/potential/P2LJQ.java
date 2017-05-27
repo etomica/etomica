@@ -8,7 +8,6 @@ import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
 import etomica.exception.MethodNotImplementedException;
 import etomica.space.Space;
@@ -30,7 +29,7 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
         setSigma(sigma);
         setEpsilon(epsilon);
         setQuadrupolarMomentSquare(momentSquared);
-        gradient = new IVectorMutable[2];
+        gradient = new IVector[2];
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();
         dr = space.makeVector();
@@ -264,7 +263,7 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
     private double hsdiasq=1.0/Math.sqrt(2);
     private double Q2;
     private IBoundary boundary;
-    private final IVectorMutable dr, drunit, dcos1dr, dcos2dr;
-    private final IVectorMutable[] gradient;
+    private final IVector dr, drunit, dcos1dr, dcos2dr;
+    private final IVector[] gradient;
     protected double temperature;
 }

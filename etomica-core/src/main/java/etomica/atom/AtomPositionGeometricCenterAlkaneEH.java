@@ -10,7 +10,6 @@ import etomica.api.IAtomList;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.space.Space;
 
 /**
@@ -45,6 +44,6 @@ public class AtomPositionGeometricCenterAlkaneEH implements IAtomPositionDefinit
     }
 
     private static final long serialVersionUID = 1L;
-    private final IVectorMutable center;
+    private final IVector center;
     private final ISpecies speciesAlkane;
 }

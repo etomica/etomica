@@ -10,7 +10,7 @@ import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.data.DataSourceIndependent;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -105,7 +105,7 @@ public class MeterTiltHistogram implements IAction, IEtomicaDataSource, DataSour
     private static final long serialVersionUID = 1L;
     protected final ISpecies species;
     protected Box box;
-    protected final IVectorMutable dr;
+    protected final IVector dr;
     protected final DataFunction data;
     protected final DataInfoFunction dataInfo;
     protected final DataDoubleArray xData;

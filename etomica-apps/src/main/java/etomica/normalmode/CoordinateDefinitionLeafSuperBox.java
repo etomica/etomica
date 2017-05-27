@@ -9,7 +9,6 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.MoleculeArrayList;
 import etomica.atom.MoleculeListWrapper;
@@ -43,7 +42,7 @@ public class CoordinateDefinitionLeafSuperBox extends CoordinateDefinitionLeaf {
 
         int basisSize = lattice.getBasis().getScaledCoordinates().length;
 
-        IVectorMutable offset = lattice.getSpace().makeVector();
+        IVector offset = lattice.getSpace().makeVector();
         IVector[] primitiveVectors = primitive.vectors();
         for (int i=0; i<primitiveVectors.length; i++) {
             offset.PEa1Tv1(nCells[i],primitiveVectors[i]);
@@ -68,7 +67,7 @@ public class CoordinateDefinitionLeafSuperBox extends CoordinateDefinitionLeaf {
         // Place molecules
         atomIterator.reset();
         indexIterator.reset();
-        IVectorMutable position = lattice.getSpace().makeVector();
+        IVector position = lattice.getSpace().makeVector();
         MoleculeArrayList currentList = null;
         
         int counterSpeciesA =0;
@@ -131,7 +130,7 @@ public class CoordinateDefinitionLeafSuperBox extends CoordinateDefinitionLeaf {
                 
         initNominalU(cells[totalCells-1].molecules);
         
-        siteManager = new AtomLeafAgentManager<IVectorMutable>(new SiteSource(space), box, IVectorMutable.class);
+        siteManager = new AtomLeafAgentManager<IVector>(new SiteSource(space), box, IVector.class);
     }
     
     public void setSpecies(ISpecies speciesA, ISpecies speciesB){

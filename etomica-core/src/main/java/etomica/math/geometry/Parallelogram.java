@@ -9,7 +9,6 @@
 package etomica.math.geometry;
 
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.exception.MethodNotImplementedException;
 import etomica.space.Space;
 
@@ -83,6 +82,6 @@ public class Parallelogram extends Polygon implements Parallelotope {
         updateVertices();
     }
 
-    private final IVectorMutable a, b;
+    private final IVector a, b;
     private static final long serialVersionUID = 1L;
 }

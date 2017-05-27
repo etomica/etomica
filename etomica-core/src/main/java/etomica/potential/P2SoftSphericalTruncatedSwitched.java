@@ -8,7 +8,6 @@ import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.MoleculeOrientedDynamic;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -26,7 +25,7 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
         super(_space);
         this.potential = potential;
         setTruncationRadius(truncationRadius);
-        gradient = new IVectorMutable[2];
+        gradient = new IVector[2];
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();
         dr = space.makeVector();
@@ -176,9 +175,9 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
     private static final long serialVersionUID = 1L;
     protected double rCutoff, r2Cutoff;
     protected final Potential2SoftSpherical potential;
-    protected final IVectorMutable dr;
+    protected final IVector dr;
     protected IBoundary boundary;
-    protected final IVectorMutable[] gradient;
+    protected final IVector[] gradient;
     protected int taperOrder = 3;
     protected double switchFac, r2Switch;
 }

@@ -4,12 +4,8 @@
 
 package etomica.normalmode;
 
-import etomica.api.IAtomList;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
@@ -17,15 +13,15 @@ import etomica.space.Space;
 
 public class MCMoveRotateMoleculePhiTheta extends MCMoveRotateMolecule3D {
 
-    protected final IVectorMutable[] drSum;
+    protected final IVector[] drSum;
     protected double maxAngle;
     protected boolean rotatePhi;
-    protected final IVectorMutable dr, com;
+    protected final IVector dr, com;
     protected IAtomPositionDefinition pos;
     protected double delta;
     
     public MCMoveRotateMoleculePhiTheta(IPotentialMaster potentialMaster,
-                                        IRandom random, Space _space, IVectorMutable[] drSum, boolean doPhi) {
+                                        IRandom random, Space _space, IVector[] drSum, boolean doPhi) {
         super(potentialMaster, random, _space);
         this.drSum = drSum;
         dr = _space.makeVector();
@@ -72,7 +68,7 @@ public class MCMoveRotateMoleculePhiTheta extends MCMoveRotateMolecule3D {
         
         int nPlanes = drSum.length;
         int iPlane = (molecule.getIndex()/2)%nPlanes;
-        IVectorMutable drSumi = drSum[iPlane];
+        IVector drSumi = drSum[iPlane];
         IAtomList atoms = molecule.getChildList();
         // subtract the original orientation
         double planePhi = Math.atan2(drSumi.getX(1), drSumi.getX(0));
@@ -134,7 +130,7 @@ public class MCMoveRotateMoleculePhiTheta extends MCMoveRotateMolecule3D {
         com.E(pos.position(molecule));
         IAtomList childList = molecule.getChildList();
         for (int i=0; i<childList.getAtomCount(); i++) {
-            IVectorMutable p = childList.getAtom(i).getPosition();
+            IVector p = childList.getAtom(i).getPosition();
             p.ME(com);
             double l = Math.sqrt(p.squared());
             if (p.getX(2) < 0) l = -l;
@@ -148,7 +144,7 @@ public class MCMoveRotateMoleculePhiTheta extends MCMoveRotateMolecule3D {
     public double getA() {
         int nPlanes = drSum.length;
         int iPlane = (molecule.getIndex()/2)%nPlanes;
-        IVectorMutable drSumi = drSum[iPlane];
+        IVector drSumi = drSum[iPlane];
         IAtomList atoms = molecule.getChildList();
         // add the trial orientation
         drSumi.PE(atoms.getAtom(1).getPosition());
@@ -167,7 +163,7 @@ public class MCMoveRotateMoleculePhiTheta extends MCMoveRotateMolecule3D {
     public void rejectNotify() {
         int nPlanes = drSum.length;
         int iPlane = (molecule.getIndex()/2)%nPlanes;
-        IVectorMutable drSumi = drSum[iPlane];
+        IVector drSumi = drSum[iPlane];
         IAtomList atoms = molecule.getChildList();
         // subtract the trial orientation
         drSumi.ME(atoms.getAtom(1).getPosition());

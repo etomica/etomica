@@ -37,7 +37,7 @@ public class FixedWall implements IIntegratorListenerMD {
             IAtomList atoms = molecules.getMolecule(i).getChildList();
             for (int j=0; j<atoms.getAtomCount(); j++) {
                 IAtomKinetic jAtom = (IAtomKinetic)atoms.getAtom(j);
-                IVectorMutable v = jAtom.getVelocity();
+                IVector v = jAtom.getVelocity();
                 v.E(0);
                 v.setX(2, vz);
             }
@@ -69,7 +69,7 @@ public class FixedWall implements IIntegratorListenerMD {
             IAtomList atoms = molecules.getMolecule(i).getChildList();
             for (int j=0; j<atoms.getAtomCount(); j++) {
                 IAtom jAtom = atoms.getAtom(j);
-                IVectorMutable jf = agentManager.getAgent(jAtom).force;
+                IVector jf = agentManager.getAgent(jAtom).force;
                 jf.E(0);
                 jf.setX(2, fz*jAtom.getType().getMass());
             }

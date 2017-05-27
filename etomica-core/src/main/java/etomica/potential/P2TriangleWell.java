@@ -9,7 +9,6 @@ import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.space.Space;
 
 /**
@@ -120,8 +119,8 @@ public class P2TriangleWell extends Potential2 {
     private double lambda; //wellDiameter = coreDiameter * lambda ;lambda is well width
     private double epsilon;
     private double constant;
-    private final IVectorMutable force;
-    private final IVectorMutable dr;
+    private final IVector force;
+    private final IVector dr;
     private IBoundary boundary;
 }
 

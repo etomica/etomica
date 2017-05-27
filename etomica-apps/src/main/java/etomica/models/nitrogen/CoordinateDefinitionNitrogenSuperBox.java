@@ -14,7 +14,6 @@ import etomica.api.IRandom;
 import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
@@ -71,7 +70,7 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
 
         int basisSize = lattice.getBasis().getScaledCoordinates().length;
 
-        IVectorMutable offset = lattice.getSpace().makeVector();
+        IVector offset = lattice.getSpace().makeVector();
         IVector[] primitiveVectors = primitive.vectors();
         for (int i=0; i<primitiveVectors.length; i++) {
             offset.PEa1Tv1(nCells[i],primitiveVectors[i]);
@@ -94,7 +93,7 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
         int iCell = -1;
         // Place molecules
         indexIterator.reset();
-        IVectorMutable position = lattice.getSpace().makeVector();
+        IVector position = lattice.getSpace().makeVector();
         MoleculeArrayList currentList = null;
 		
         if (configuration != null){
@@ -198,7 +197,7 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
             
         	//System.out.println(ii[0] +" " + ii[1] + " " + ii[2] + " " + ii[3] );
             
-            position.E((IVectorMutable)lattice.site(ii));
+            position.E((IVector)lattice.site(ii));
             position.PE(offset);
             if (configuration == null) {
                 atomActionTranslateTo.setDestination(position);
@@ -221,15 +220,15 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
         initNominalU(cells[totalCells-1].molecules);
 
         moleculeSiteManager = new MoleculeAgentManager(sim, box, new MoleculeSiteSource(space, positionDefinition));
-        siteManager = new AtomLeafAgentManager<IVectorMutable>(new SiteSource(space), box, IVectorMutable.class);
+        siteManager = new AtomLeafAgentManager<IVector>(new SiteSource(space), box, IVector.class);
     }
     
     public void setGammaPositionAndOrientation(IMoleculeList molecules){
     	
     	for (int i=0; i < molecules.getMoleculeCount() ; i++){
     		
-    		IVectorMutable[] orientation = new IVectorMutable[3]; 
-    		IVectorMutable orientationMol2 = space.makeVector();
+    		IVector[] orientation = new IVector[3];
+    		IVector orientationMol2 = space.makeVector();
     		
     		orientation[0] = space.makeVector();
     		orientation[1] = space.makeVector();
@@ -246,11 +245,11 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
         			
     		}
     		
-    	   	IVectorMutable molleafPos0 = molecule.getChildList().getAtom(0).getPosition();
-    	   	IVectorMutable molleafPos1 = molecule.getChildList().getAtom(1).getPosition();
+    	   	IVector molleafPos0 = molecule.getChildList().getAtom(0).getPosition();
+    	   	IVector molleafPos1 = molecule.getChildList().getAtom(1).getPosition();
     	 
-    	  	IVectorMutable mol2leafPos0 = molecule2.getChildList().getAtom(0).getPosition();
-    	   	IVectorMutable mol2leafPos1 = molecule2.getChildList().getAtom(1).getPosition();
+    	  	IVector mol2leafPos0 = molecule2.getChildList().getAtom(0).getPosition();
+    	   	IVector mol2leafPos1 = molecule2.getChildList().getAtom(1).getPosition();
     	   	
     	   	orientation[0].Ev1Mv2(molleafPos1, molleafPos0);
     	    orientation[0].normalize();
@@ -280,7 +279,7 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
     	}
     	
     	moleculeSiteManager = new MoleculeAgentManager(sim, box, new MoleculeSiteSource(space, positionDefinition));
-        siteManager = new AtomLeafAgentManager<IVectorMutable>(new SiteSource(space), box, IVectorMutable.class);
+        siteManager = new AtomLeafAgentManager<IVector>(new SiteSource(space), box, IVector.class);
 
     }
     
@@ -349,14 +348,14 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
         
         for (int i=0; i < molecules.getMoleculeCount() ; i++){
         	IMolecule molecule = molecules.getMolecule(i);
-        	IVectorMutable [] siteOrientation = (IVectorMutable [])orientationManager.getAgent(molecule);
+        	IVector[] siteOrientation = (IVector[])orientationManager.getAgent(molecule);
         	
 	    	/*
 	    	 * Determine the Orientation of Each Molecule
 	    	 */
 	    	
-	    	IVectorMutable leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-	    	IVectorMutable leafPos1 = molecule.getChildList().getAtom(1).getPosition();
+	    	IVector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
+	    	IVector leafPos1 = molecule.getChildList().getAtom(1).getPosition();
 	    	
 	    	/*
 	    	 * Determine u3 and u4 by using Vector Projection
@@ -430,7 +429,7 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
     	
     	for (int i=0; i < molecules.getMoleculeCount() ; i++){
     		
-    		IVectorMutable[] orientation = new IVectorMutable[3]; 
+    		IVector[] orientation = new IVector[3];
     			
     		orientation[0] = space.makeVector();
     		orientation[1] = space.makeVector();
@@ -441,8 +440,8 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
     	   	 * Determine the Orientation of Each Molecule Within a basis cell
     	   	 */
     	    	
-    	   	IVectorMutable leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-    	   	IVectorMutable leafPos1 = molecule.getChildList().getAtom(1).getPosition();
+    	   	IVector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
+    	   	IVector leafPos1 = molecule.getChildList().getAtom(1).getPosition();
     	 
     	   	orientation[0].Ev1Mv2(leafPos1, leafPos0);
     	    orientation[0].normalize();
@@ -493,11 +492,11 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
     	isAlpha = true;
     }
 
-    public IVectorMutable[] getMoleculeOrientation(IMolecule molecule) {
+    public IVector[] getMoleculeOrientation(IMolecule molecule) {
        /*
         * return the initial Orientation of the molecule
         */
-        return (IVectorMutable[])orientationManager.getAgent(molecule);
+        return (IVector[])orientationManager.getAgent(molecule);
     }
     
     public void setToU(IMoleculeList molecules, double[] newU) {
@@ -526,9 +525,9 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
         for (int i=0; i < molecules.getMoleculeCount() ; i++){
         	
         	IMolecule molecule = molecules.getMolecule(i);
-            IVectorMutable[] siteOrientation = (IVectorMutable[])orientationManager.getAgent(molecule);
+            IVector[] siteOrientation = (IVector[])orientationManager.getAgent(molecule);
 	    	
-            IVectorMutable rotationAxis = space.makeVector();
+            IVector rotationAxis = space.makeVector();
 	    	RotationTensor3D rotation = new RotationTensor3D();
 	    	rotation.E(tensor);
             /*
@@ -541,8 +540,8 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
 	    	 * c. Use RotationTensor3D to rotate the molecule back to its initial position
 	    	 */
          
-	    	IVectorMutable leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-	    	IVectorMutable leafPos1 = molecule.getChildList().getAtom(1).getPosition();
+	    	IVector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
+	    	IVector leafPos1 = molecule.getChildList().getAtom(1).getPosition();
 	    	
 	        /*
 	         * a.
@@ -685,7 +684,7 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
     protected final Tensor[] xzOrientationTensor;
     protected final Tensor[] yOrientationTensor;
 	protected final Tensor3D tensor = new Tensor3D(new double [][]{{1.0, 0.0, 0.0},{0.0, 1.0, 0.0},{0.0, 0.0, 1.0}});
-    protected final IVectorMutable axis;
+    protected final IVector axis;
     protected Configuration configuration;
     protected MoleculeAgentManager orientationManager; 
     protected final MoleculeChildAtomAction atomGroupAction;
@@ -701,7 +700,7 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
         public OrientationAgentSource() {
         }
         public Class getMoleculeAgentClass() {
-            return IVectorMutable [].class;
+            return IVector[].class;
         }
         public Object makeAgent(IMolecule atom) {
             return null;

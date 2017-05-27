@@ -4,12 +4,8 @@
 
 package etomica.data.meter;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IVectorMutable;
 import etomica.atom.iterator.MoleculeIteratorAllMolecules;
 import etomica.data.DataSourceScalar;
 import etomica.space.Space;
@@ -78,11 +74,11 @@ public class MeterRadiusGyration extends DataSourceScalar {
             int nLeafAtoms = 1;
             realPos.E(firstAtom.getPosition());
             cm.E(realPos);
-            IVectorMutable prevPosition = firstAtom.getPosition();
+            IVector prevPosition = firstAtom.getPosition();
             for (int iChild = 1; iChild < childList.getAtomCount(); iChild++) {
                 IAtom a = childList.getAtom(iChild);
                 nLeafAtoms++;
-                IVectorMutable position = a.getPosition();
+                IVector position = a.getPosition();
                 dr.Ev1Mv2(position, prevPosition);
                 //molecule might be wrapped around the box.  calculate
                 //the real difference in position
@@ -98,7 +94,7 @@ public class MeterRadiusGyration extends DataSourceScalar {
             realPos.E(firstAtom.getPosition());
             for (int iChild = 1; iChild < childList.getAtomCount(); iChild++) {
                 IAtom a = childList.getAtom(iChild);
-                IVectorMutable position = a.getPosition();
+                IVector position = a.getPosition();
                 dr.Ev1Mv2(position, prevPosition);
                 //molecule might be wrapped around the box.  calculate
                 //the real difference in position
@@ -133,7 +129,7 @@ public class MeterRadiusGyration extends DataSourceScalar {
     private static final long serialVersionUID = 1L;
     private Box box;
     private MoleculeIteratorAllMolecules iterator;
-    private final IVectorMutable cm, realPos;
-    private final IVectorMutable dr;
+    private final IVector cm, realPos;
+    private final IVector dr;
 
 }

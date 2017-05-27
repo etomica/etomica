@@ -171,7 +171,7 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
     protected long cPairID = -1, lastCPairID = -1;
     protected double value[], lastValue[];
     protected final boolean[] flippedAtoms;
-    private IVectorMutable childAtomVector;
+    private IVector childAtomVector;
     protected IAtomPositionDefinition positionDefinition;
     protected final double minFlipDistance;
     protected final int nDer;

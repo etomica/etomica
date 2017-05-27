@@ -6,7 +6,6 @@ package etomica.data.meter;
 
 import etomica.api.IAtomList;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
@@ -30,7 +29,7 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
 	protected final Space space;
     protected Box box;
     protected double[] struct;
-    protected IVectorMutable [] waveVec;
+    protected IVector[] waveVec;
     protected IAtomList atomList;
     protected DataFunction data;
     protected DataInfoFunction dataInfo;
@@ -88,7 +87,7 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
         idx[1] = 0;
         idx[2] = 1;
         while (true) {
-            IVectorMutable v = space.makeVector();
+            IVector v = space.makeVector();
             boolean success = false;
             for  (int i=idx.length-1; i>=0; i--) {
                 idx[i]++;
@@ -125,7 +124,7 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
 	    waveVec = null;
 	    int nVec = makeWaveVector(cutoff);
         struct = new double[nVec];
-	    waveVec = new IVectorMutable[nVec];
+	    waveVec = new IVector[nVec];
         resetData();
         makeWaveVector(cutoff);
 	}
@@ -133,7 +132,7 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
 	/**
 	 * @param waveVec Sets a custom wave vector array.
 	 */
-	public void setWaveVec(IVectorMutable [] waveVec){
+	public void setWaveVec(IVector[] waveVec){
 	    this.waveVec = space.makeVectorArray(waveVec.length);
 	    struct = new double[waveVec.length];
 		for(int i=0; i<waveVec.length; i++){

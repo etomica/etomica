@@ -4,9 +4,7 @@
 
 package etomica.virial;
 
-import etomica.api.IAtomList;
 import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
 import etomica.atom.MoleculeArrayList;
 import etomica.math.SpecialFunctions;
 

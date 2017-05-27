@@ -4,10 +4,10 @@
 
 package etomica.crystalviewer;
 
+import etomica.api.IVector;
 import junit.framework.TestCase;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
 import etomica.lattice.crystal.PrimitiveTetragonal;
 
 public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
@@ -40,7 +40,7 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
 		super.tearDown();
 	}
 
-	private double[] makeArray(IVectorMutable v) {
+	private double[] makeArray(IVector v) {
 	    return new double[] {v.getX(0), v.getX(1), v.getX(2)};
 	}
 

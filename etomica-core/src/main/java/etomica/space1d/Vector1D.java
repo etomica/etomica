@@ -8,13 +8,12 @@ import etomica.api.IFunction;
 import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.exception.MethodNotImplementedException;
-import etomica.space.IVectorRandom;
 
 /**
  * Implementation of the Vector class for a 1-dimensional space. In this case the vector
  * is a trivial object formed from just one element.
  */
-public final class Vector1D implements IVectorRandom, java.io.Serializable { 
+public final class Vector1D implements IVector, java.io.Serializable {
     
     double x;
     private static final long serialVersionUID = 1L;

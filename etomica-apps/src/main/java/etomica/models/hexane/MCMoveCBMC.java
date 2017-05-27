@@ -4,12 +4,8 @@
 
 package etomica.models.hexane;
 
-import etomica.api.IAtomList;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
 import etomica.atom.MoleculeSource;
 import etomica.atom.MoleculeSourceRandomMolecule;
@@ -44,7 +40,7 @@ public abstract class MCMoveCBMC extends MCMoveBox {
         ((MoleculeSourceRandomMolecule) moleculeSource).setRandomNumberGenerator(random);
         setMoleculeSource(moleculeSource);
 
-        positionOld = new IVectorMutable[maxAtomsPerMolecule];
+        positionOld = new IVector[maxAtomsPerMolecule];
         for (int i = 0; i < maxAtomsPerMolecule; i++) {
             positionOld[i] = _space.makeVector();
         }
@@ -176,7 +172,7 @@ public abstract class MCMoveCBMC extends MCMoveBox {
 
     protected double uNew = Double.NaN;
 
-    protected IVectorMutable[] positionOld; // Used to store the position of the
+    protected IVector[] positionOld; // Used to store the position of the
                                         // molecule before mofing it.
 
     protected IAtomList atomList;

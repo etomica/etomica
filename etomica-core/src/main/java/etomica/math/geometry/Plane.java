@@ -7,7 +7,6 @@
 package etomica.math.geometry;
 
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 
@@ -25,9 +24,9 @@ public class Plane implements java.io.Serializable {
     //coefficients defining plane, ax + by + cz + d = 0
     //such that a^2 + b^c + c^2 = 1
     private double a, b, c, d;
-    private IVectorMutable[] inPlane; //work vectors used by inPlaneSquare method
-    private IVectorMutable work0; //work vector used by inPlaneSquare method (no-x0 version)
-    private IVectorMutable work1; //work vector used by inPlaneSquare method (no-x0 version)
+    private IVector[] inPlane; //work vectors used by inPlaneSquare method
+    private IVector work0; //work vector used by inPlaneSquare method (no-x0 version)
+    private IVector work1; //work vector used by inPlaneSquare method (no-x0 version)
     private final Space space;
     
     /**
@@ -137,7 +136,7 @@ public class Plane implements java.io.Serializable {
      * Sets the given vector to be a unit normal vector to the plane and returns it.  
      * If argument is null, creates a new 3D Vector to return.
      */
-    public void setToNormalVector(IVectorMutable normal) {
+    public void setToNormalVector(IVector normal) {
         normal.setX(0, a);
         normal.setX(1, b);
         normal.setX(2, c);
@@ -152,9 +151,9 @@ public class Plane implements java.io.Serializable {
      * second vector is (uniquely) defined as perpendicular to both the normal and the first
      * in-plane vector.
      */
-    public void setToInPlaneVectors(IVectorMutable[] p) {
-        IVectorMutable p1 = p[0];
-        IVectorMutable p2 = p[1];
+    public void setToInPlaneVectors(IVector[] p) {
+        IVector p1 = p[0];
+        IVector p2 = p[1];
         work1.E(0);
         if(a == 0 && b == 0) {//parallel to xy plane
             work1.setX(0,1);
@@ -231,7 +230,7 @@ public class Plane implements java.io.Serializable {
      * Sets the given vector to be the point in the plane closest to the origin.
      * If vector is null, makes a new Vector and returns it.
      */
-    public void setToCenter(IVectorMutable v) {
+    public void setToCenter(IVector v) {
         v.setX(0,-d*a);
         v.setX(1,-d*b);
         v.setX(2,-d*c);
@@ -242,7 +241,7 @@ public class Plane implements java.io.Serializable {
      * Uses second vector to hold result that is returned; if second vector is 
      * null, creates a new Vector instance.
      */
-    public void setToNearestPoint(IVector x0, IVectorMutable point) {
+    public void setToNearestPoint(IVector x0, IVector point) {
         double factor = distanceTo(x0);
         point.setX(0,x0.getX(0)-factor*a);
         point.setX(1,x0.getX(1)-factor*b);
@@ -267,7 +266,7 @@ public class Plane implements java.io.Serializable {
      * Dihedral angle between this plane and the given plane.
      */
     public double dihedralAngle(Plane p) {
-        IVectorMutable n = space.makeVector();
+        IVector n = space.makeVector();
         p.setToNormalVector(n);
         return a*n.getX(0) + b*n.getX(1) + c*n.getX(2);
     }
@@ -317,10 +316,10 @@ public class Plane implements java.io.Serializable {
      * the given array of vectors.  Square is aligned so that its vertices
      * fall on the lines defined by the inPlaneVectors result.
      */
-    public void setToInPlaneSquare(IVector x0, double size, IVectorMutable[] s) {
+    public void setToInPlaneSquare(IVector x0, double size, IVector[] s) {
         setToInPlaneVectors(inPlane);
-        IVectorMutable p1 = inPlane[0];
-        IVectorMutable p2 = inPlane[1];
+        IVector p1 = inPlane[0];
+        IVector p2 = inPlane[1];
       //  System.out.println("work: "+x0.toString());
       //  System.out.println("p1 : "+p1.toString());
       //  System.out.println("p2 : "+p2.toString());
@@ -334,7 +333,7 @@ public class Plane implements java.io.Serializable {
     /**
      * inPlaneSquare with square centered on point in plane closest to origin.
      */
-    public void setToInPlaneSquare(double size, IVectorMutable[] s) {
+    public void setToInPlaneSquare(double size, IVector[] s) {
         setToCenter(work0);
         setToInPlaneSquare(work0, size, s);
     }
@@ -353,9 +352,9 @@ public class Plane implements java.io.Serializable {
         Space space = Space3D.getInstance();
         Plane plane = new Plane(space, 2.8, 7.5, -2.1, 293.8);
     //    Plane plane = new Plane(5.0, 0.0, 0.0, 293.8);
-        IVectorMutable[] p = new IVectorMutable[]{space.makeVector(),space.makeVector()};
+        IVector[] p = new IVector[]{space.makeVector(),space.makeVector()};
         plane.setToInPlaneVectors(p);
-        IVectorMutable n = space.makeVector();
+        IVector n = space.makeVector();
         plane.setToNormalVector(n);
         System.out.println("Normal: "+n.toString());
         System.out.println("plane1: "+p[0].toString());

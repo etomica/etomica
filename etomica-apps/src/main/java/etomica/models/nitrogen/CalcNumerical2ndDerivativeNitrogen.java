@@ -10,7 +10,7 @@ import etomica.action.MoleculeChildAtomAction;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.MoleculePair;
 import etomica.space3d.Space3D;
@@ -338,7 +338,7 @@ public class CalcNumerical2ndDerivativeNitrogen{
 	protected P2Nitrogen potential;
 	protected AtomActionTranslateBy translateBy;
 	protected MoleculeChildAtomAction atomGroupActionTranslate;
-	protected IVectorMutable lsPosition, destination;
+	protected IVector lsPosition, destination;
 	protected double errt, fac, xVecBox, yVecBox, zVecBox, rC;
 	protected double[] deltaU = new double[2];
 	protected double [][] a, generalizedCoord;

@@ -19,7 +19,6 @@ import etomica.api.IIntegratorListener;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomTypeSpheroPolyhedron;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverageFixed;
@@ -403,7 +402,7 @@ public class VirialPolyhedra {
         IIntegratorListener histListener = new IIntegratorListener() {
             DataDoubleArray dataTarg = new DataDoubleArray(2);
             DataDouble dataRef = new DataDouble();
-            IVectorMutable com = Space3D.getInstance().makeVector();
+            IVector com = Space3D.getInstance().makeVector();
             public void integratorStepStarted(IIntegratorEvent e) {}
             
             public void integratorStepFinished(IIntegratorEvent e) {

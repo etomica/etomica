@@ -6,7 +6,7 @@ package etomica.virial.simulations;
 
 import java.util.Set;
 
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
 import etomica.data.IData;
@@ -150,7 +150,7 @@ public class VirialH2PYCorrection {
         // Such configurations will not be visited later, precisely because pi is zero.
         double r = 4;
         for (int i=1; i<nPoints; i++) {
-            IVectorMutable v = sim.box[1].getLeafList().getAtom(i).getPosition();
+            IVector v = sim.box[1].getLeafList().getAtom(i).getPosition();
             v.setX(0, r*Math.cos(2*(i-1)*Math.PI/(nPoints-1)));
             v.setX(1, r*Math.sin(2*(i-1)*Math.PI/(nPoints-1)));
         }

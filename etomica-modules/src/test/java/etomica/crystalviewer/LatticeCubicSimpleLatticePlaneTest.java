@@ -7,7 +7,7 @@ package etomica.crystalviewer;
 import junit.framework.TestCase;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.PrimitiveCubic;
 
@@ -48,7 +48,7 @@ public class LatticeCubicSimpleLatticePlaneTest extends TestCase {
 		super.tearDown();
 	}
 
-	private double[] makeArray(IVectorMutable v) {
+	private double[] makeArray(IVector v) {
 	    return new double[] {v.getX(0), v.getX(1), v.getX(2)};
 	}
 

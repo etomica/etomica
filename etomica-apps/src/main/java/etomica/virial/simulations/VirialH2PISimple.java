@@ -8,17 +8,9 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import etomica.api.*;
 import org.json.simple.JSONObject;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.api.IIntegratorEvent;
-import etomica.api.IIntegratorListener;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialAtomic;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomHydrogen;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.IAtomOriented;
@@ -259,7 +251,7 @@ public class VirialH2PISimple {
 						AtomHydrogen o = (AtomHydrogen)atoms.getAtom(i);
 						double cT = Math.cos((Math.PI*i)/atoms.getAtomCount());
 						double sT = Math.sin((Math.PI*i)/atoms.getAtomCount());
-						IVectorMutable vec = space.makeVector();
+						IVector vec = space.makeVector();
 						vec.setX(0, cT);
 						vec.setX(1, sT);
 						o.getOrientation().setDirection(vec);
@@ -286,8 +278,8 @@ public class VirialH2PISimple {
 			@Override
 			public void integratorStepFinished(IIntegratorEvent e) {
 				IAtomList atoms = sim.box[1].getLeafList();
-				IVectorMutable a0 = (IVectorMutable) ((IAtomOriented)atoms.getAtom(0)).getOrientation().getDirection();
-				IVectorMutable a1 = (IVectorMutable) ((IAtomOriented)atoms.getAtom(1)).getOrientation().getDirection();
+				IVector a0 = (IVector) ((IAtomOriented)atoms.getAtom(0)).getOrientation().getDirection();
+				IVector a1 = (IVector) ((IAtomOriented)atoms.getAtom(1)).getOrientation().getDirection();
 				double angle = Math.acos(a0.dot(a1));
 				h1.addValue(angle);
 			}

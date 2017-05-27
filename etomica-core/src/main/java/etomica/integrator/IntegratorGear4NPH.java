@@ -16,7 +16,6 @@ import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.simulation.Simulation;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -281,8 +280,8 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
         double x; //hypervirial sum
         double rvx; 
         double vf;
-        private final IVectorMutable dr;
-        private final IVectorMutable dv;
+        private final IVector dr;
+        private final IVector dv;
         private IBoundary nearestImageTransformer;
 
         public ForceSumNPH(Space space) {

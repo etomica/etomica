@@ -14,7 +14,6 @@ import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
@@ -56,7 +55,7 @@ public class SimLJ extends Simulation {
         box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
-        IVectorMutable l = space.makeVector();
+        IVector l = space.makeVector();
         l.E(10);
         for (int i=0; i<=offsetDim; i++) {
             l.setX(i,20);
@@ -82,7 +81,7 @@ public class SimLJ extends Simulation {
 
         potentialMasterCell.addPotential(potentialTruncated,new IAtomType[]{leafType,leafType});
 
-        IVectorMutable offset = space.makeVector();
+        IVector offset = space.makeVector();
         offset.setX(offsetDim, box.getBoundary().getBoxSize().getX(offsetDim)*0.5);
         p1ImageHarmonic = new P1ImageHarmonic(space, offset, w, true);
         potentialMasterCell.addPotential(p1ImageHarmonic, new IAtomType[]{leafType});

@@ -10,7 +10,6 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IPotential;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.Potential1;
@@ -27,7 +26,7 @@ public class P1MagicWall extends Potential1 implements PotentialHard {
     private static final long serialVersionUID = 1L;
     protected final PotentialMasterList potentialMaster;
     protected NeighborListManager neighborManager;
-    protected final IVectorMutable dr, dv;
+    protected final IVector dr, dv;
     protected double lastDeltaU;
     
     public P1MagicWall(Space space, PotentialMasterList potentialMaster) {
@@ -51,8 +50,8 @@ public class P1MagicWall extends Potential1 implements PotentialHard {
      
     public double collisionTime(IAtomList a, double falseTime) {
         IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
-        IVectorMutable r = atom.getPosition();
-        IVectorMutable v = atom.getVelocity();
+        IVector r = atom.getPosition();
+        IVector v = atom.getVelocity();
         double vx = v.getX(0);
         double rx = r.getX(0) + vx * falseTime;
         double t = - rx / vx;
@@ -65,8 +64,8 @@ public class P1MagicWall extends Potential1 implements PotentialHard {
 
     public void bump(IAtomList a, double falseTime) {
         IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
-        IVectorMutable v = atom.getVelocity();
-        IVectorMutable p = atom.getPosition();
+        IVector v = atom.getVelocity();
+        IVector p = atom.getPosition();
         double x = p.getX(0);
         double de = getDeltaU(atom, falseTime, x<0, true);
         if (x<0) {
@@ -120,8 +119,8 @@ public class P1MagicWall extends Potential1 implements PotentialHard {
     }
 
     protected double getDeltaU(IAtomKinetic atom, double falseTime, boolean isIG2SQW, boolean countHigh) {
-        IVectorMutable v = atom.getVelocity();
-        IVectorMutable p = atom.getPosition();
+        IVector v = atom.getVelocity();
+        IVector p = atom.getPosition();
         IAtomList[] upList = neighborManager.getUpList((IAtom)atom);
         IAtomList[] downList = neighborManager.getDownList((IAtom)atom);
         PotentialArray potentialArray = potentialMaster.getRangedPotentials(((IAtom)atom).getType());

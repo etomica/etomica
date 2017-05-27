@@ -6,11 +6,8 @@ package etomica.association;
 import etomica.action.BoxInflate;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
 import etomica.atom.IAtomOriented;
 import etomica.config.ConfigurationLattice;
@@ -185,7 +182,7 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
         final TestIGAssociationMC3D_NPT_DoubleSites sim = new TestIGAssociationMC3D_NPT_DoubleSites(numAtoms, pressure, density, wellConstant, temperature, truncationRadius,maxChainLength, useUB, numSteps);
         sim.actionIntegrator.setMaxSteps(numSteps/5);//equilibrium period
         IAction energyDiffActionEq = new IAction() {
-        	protected final IVectorMutable dr = sim.space.makeVector();;
+        	protected final IVector dr = sim.space.makeVector();;
     		
 			public void actionPerformed() {
 //				if (sim.integrator.getStepCount() > 25300){

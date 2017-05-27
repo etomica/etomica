@@ -10,7 +10,6 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomPositionGeometricCenterPBC;
@@ -63,9 +62,9 @@ public class LatticeSumMolecularCrystal {
     	IVector[] kv = kFactory.getWaveVectors();
 //    	System.out.println(Arrays.toString(kv));
     	IMoleculeList molList = box.getMoleculeList();
-    	IVectorMutable posl0 = space.makeVector();
-    	IVectorMutable poslp = space.makeVector();
-    	IVectorMutable dRpR0 = space.makeVector();
+    	IVector posl0 = space.makeVector();
+    	IVector poslp = space.makeVector();
+    	IVector dRpR0 = space.makeVector();
 
     	Tensor[][][] sumR = new Tensor[basisDim][basisDim][kv.length];
     	Tensor[][][] sumI = new Tensor[basisDim][basisDim][kv.length];
@@ -128,12 +127,12 @@ public class LatticeSumMolecularCrystal {
     	Tensor3D D3tt_ = new Tensor3D(); Tensor3D D3tr_ = new Tensor3D();
     	Tensor3D Rk = new Tensor3D();  Tensor3D Rk_ = new Tensor3D();
     	Tensor3D Rkp = new Tensor3D(); 
-    	IVectorMutable Xk = space.makeVector();
-    	IVectorMutable Xkp = space.makeVector();
+    	IVector Xk = space.makeVector();
+    	IVector Xkp = space.makeVector();
     	AtomPositionCOM com_0 = new AtomPositionCOM(space);
-    	IVectorMutable com0 = (IVectorMutable) com_0.position(mol0);
+    	IVector com0 = (IVector) com_0.position(mol0);
     	AtomPositionCOM com_1 = new AtomPositionCOM(space);
-    	IVectorMutable com1 = (IVectorMutable) com_1.position(mol1);
+    	IVector com1 = (IVector) com_1.position(mol1);
 
 //    	com0.E(mol0.getChildList().getAtom(2).getPosition()); // O (-5.970371160466783, 5.978273273935142, -2.996126942837739)
 //    	com1.E(mol1.getChildList().getAtom(2).getPosition()); // O (-6.016203213551466, 6.025148464416224, -2.996521341193713)
@@ -142,7 +141,7 @@ public class LatticeSumMolecularCrystal {
 		int numSites0 = mol0.getChildList().getAtomCount();
 		int numSites1 = mol1.getChildList().getAtomCount();
     	for (int atomk=0; atomk < numSites0; atomk++){
-    		IVectorMutable posk = mol0.getChildList().getAtom(atomk).getPosition();
+    		IVector posk = mol0.getChildList().getAtom(atomk).getPosition();
     		Xk.Ev1Mv2(posk, com0);
     		box.getBoundary().nearestImage(Xk);
     		Rk.setComponent(0,0,0.0); Rk.setComponent(1,1,0.0);	Rk.setComponent(2,2,0.0);
@@ -151,7 +150,7 @@ public class LatticeSumMolecularCrystal {
     		Rk.setComponent(1,2, Xk.getX(0));  Rk.setComponent(2,1,-Xk.getX(0));
     		for (int atomkp=0; atomkp < numSites1; atomkp++){
     			if(atomk == atomkp && mol0 == mol1) continue;//ADDED:: Non-self
-        		IVectorMutable poskp = mol1.getChildList().getAtom(atomkp).getPosition();
+        		IVector poskp = mol1.getChildList().getAtom(atomkp).getPosition();
         		Xkp.Ev1Mv2(poskp, com1);
         		box.getBoundary().nearestImage(Xkp);
         		Rkp.setComponent(0,0,0.0); Rkp.setComponent(1,1,0.0);	Rkp.setComponent(2,2,0.0);
@@ -187,7 +186,7 @@ public class LatticeSumMolecularCrystal {
                 Tensor3D tmpDrr2 = new Tensor3D();
 	        	IAtom atom = mol0.getChildList().getAtom(atomk);
 	        	
-	        	IVectorMutable fk = ((IntegratorVelocityVerlet.MyAgent)atomAgentManager.getAgent(atom)).force;//gradient NOT fk
+	        	IVector fk = ((IntegratorVelocityVerlet.MyAgent)atomAgentManager.getAgent(atom)).force;//gradient NOT fk
 	        	Xk.TE(-1);
 	            tmpDrr1.Ev1v2(Xk, fk);
 	            if(true){ //Symmetrize? SUM_over_atoms{tmpDrr1} should = ZERO; i.e. torque=0
@@ -221,7 +220,7 @@ public class LatticeSumMolecularCrystal {
     protected final Box box;
     protected final Space space;
     protected IAtomPositionDefinition atomPosDef;
-    protected final IVectorMutable com0, com1;
+    protected final IVector com0, com1;
     protected WaveVectorFactorySimple kFactory;
     protected final Tensor[] tmpAtomicTensor3;//46X4=184 atoms dimentional array of 3dim Tensor
 	protected IPotentialMaster potentialMaster;

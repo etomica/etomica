@@ -31,7 +31,7 @@ public class SimLattice extends Simulation {
         box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
-        IVectorMutable l = space.makeVector();
+        IVector l = space.makeVector();
         l.E(10);
         for (int i=0; i<=offsetDim; i++) {
             l.setX(i,20);
@@ -87,15 +87,15 @@ public class SimLattice extends Simulation {
 
         final SimLattice sim = new SimLattice(numAtoms, temperature, density, w, offsetDim);
         IBoundary boundary = sim.box.getBoundary();
-        IVectorMutable offset = sim.space.makeVector();
+        IVector offset = sim.space.makeVector();
         offset.setX(offsetDim, sim.box.getBoundary().getBoxSize().getX(offsetDim)*0.5);
         IAtomList atoms = sim.box.getLeafList();
         IAtom atom0 = atoms.getAtom(0);
         IAtom atom1 = atoms.getAtom(numAtoms/2);
-        IVectorMutable p0 = atom0.getPosition();
-        IVectorMutable p1 = atom1.getPosition();
+        IVector p0 = atom0.getPosition();
+        IVector p1 = atom1.getPosition();
 
-        IVectorMutable dr = sim.space.makeVector();
+        IVector dr = sim.space.makeVector();
         double betaw = w/temperature;
 
         double uSum = 0;

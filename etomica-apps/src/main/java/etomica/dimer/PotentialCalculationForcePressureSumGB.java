@@ -9,7 +9,6 @@ import etomica.box.Box;
 import etomica.api.IPotential;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.integrator.IntegratorBox;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialSoft;
@@ -55,11 +54,11 @@ public class PotentialCalculationForcePressureSumGB extends PotentialCalculation
 		PotentialSoft potentialSoft = (PotentialSoft)potential;
 		int nBody = potential.nBody();
 		
-		IVectorMutable forceTop = space.makeVector();
-		IVectorMutable forceBottom = space.makeVector();
+		IVector forceTop = space.makeVector();
+		IVector forceBottom = space.makeVector();
 		
 		IVector[] f = potentialSoft.gradient(atoms, pressureTensor);
-		IVectorMutable rij = space.makeVector();
+		IVector rij = space.makeVector();
 		switch(nBody) {
 			case 1:
 				((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().ME(f[0]);

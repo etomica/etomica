@@ -9,7 +9,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
@@ -39,7 +39,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 	protected Activity activity;
 	protected CoordinateDefinition coordinateDefinition;
 	protected double[] fPrime;
-	protected IVectorMutable moleculeForce;
+	protected IVector moleculeForce;
 	protected FunctionMultiDimensionalDifferentiable fFunction;
 	
 	public DerivativeEnergyFunction(Box box, PotentialMaster potentialMaster, Space space){

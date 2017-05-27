@@ -4,13 +4,9 @@
 
 package etomica.association;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IRandom;
 import etomica.simulation.Simulation;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSource;
 import etomica.atom.IAtomOriented;
@@ -42,12 +38,12 @@ public class MCMoveSmerRotate extends MCMoveBoxStep {
     protected Space space;
     protected final PotentialMasterCell potentialMaster;
     protected final Api1ACell neighborIterator;
-    protected final IVectorMutable dr, dr2;
+    protected final IVector dr, dr2;
     protected final IPotentialAtomic trimerPotential;
     protected final AtomArrayList smerList;
     protected final AtomArrayList newSmerList;
     protected transient RotationTensor rotationTensor;
-    protected final IVectorMutable r0;
+    protected final IVector r0;
     protected AssociationManager associationManager;
 
     public MCMoveSmerRotate(Simulation sim, PotentialMasterCell potentialMaster, Space _space, IPotentialAtomic trimerPotential) {
@@ -233,7 +229,7 @@ public class MCMoveSmerRotate extends MCMoveBoxStep {
     	return 1;
     }
     protected void doTransform(IAtomOriented a) {
-            IVectorMutable r = a.getPosition();
+            IVector r = a.getPosition();
             r.ME(r0);
             box.getBoundary().nearestImage(r);
             rotationTensor.transform(r);

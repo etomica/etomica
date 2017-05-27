@@ -6,7 +6,6 @@ package etomica.config;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.units.Length;
@@ -92,6 +91,6 @@ public class ConformationLinear implements IConformation, java.io.Serializable {
     private static final long serialVersionUID = 1L;
     protected final Space space;
     protected double bondLength;
-    private IVectorMutable orientation;
+    private IVector orientation;
     private double[] angle;
 }

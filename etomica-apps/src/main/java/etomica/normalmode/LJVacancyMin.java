@@ -8,7 +8,6 @@ import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.box.Box;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -181,7 +180,7 @@ public class LJVacancyMin extends Simulation {
             // take a small step
             for (int j=0; j<numAtoms-1; j++) {
                 IAtom jAtom = sim.box.getLeafList().getAtom(j);
-                IVectorMutable pj = jAtom.getPosition();
+                IVector pj = jAtom.getPosition();
                 for (int k=0; k<pj.getD(); k++) {
                     pj.setX(k, pj.getX(k)+step0*dir[3*j+k]);
                 }
@@ -208,7 +207,7 @@ public class LJVacancyMin extends Simulation {
             if (verbose) System.out.print(String.format("  %10.4e\n", step1));
             for (int j=0; j<numAtoms-1; j++) {
                 IAtom jAtom = sim.box.getLeafList().getAtom(j);
-                IVectorMutable pj = jAtom.getPosition();
+                IVector pj = jAtom.getPosition();
                 for (int k=0; k<pj.getD(); k++) {
                     pj.setX(k, pj.getX(k)+step1*dir[3*j+k]);
                 }
@@ -224,13 +223,13 @@ public class LJVacancyMin extends Simulation {
     }
     
     public static class VectorForce implements Forcible {
-        public final IVectorMutable f;
+        public final IVector f;
         
         public VectorForce(Space space) {
             f = space.makeVector();
         }
 
-        public IVectorMutable force() {
+        public IVector force() {
             return f;
         }
     }

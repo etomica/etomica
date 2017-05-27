@@ -6,8 +6,7 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomLeafAgentManager;
+ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
  import etomica.data.DataSourceIndependent;
@@ -39,7 +38,7 @@ public class MeterMeanForce implements IEtomicaDataSource, AgentSource<Integrato
     protected final AtomLeafAgentManager<MyAgent> forceManager;
     protected final Space space;
     protected final Potential2SoftSpherical p2;
-    protected final IVectorMutable dr, fij;
+    protected final IVector dr, fij;
     protected final DataFunction data;
     protected final DataInfoFunction dataInfo;
     protected final DataTag tag, xTag;

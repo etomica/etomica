@@ -4,28 +4,25 @@
 
 package etomica.virial;
 
-import etomica.api.IAtomList;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
+import etomica.api.*;
 import etomica.atom.AtomOrientedQuaternion;
 import etomica.atom.AtomPair;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.Space;
-import etomica.space.IVectorRandom;
+import etomica.api.IVector;
 
 public class MCMoveClusterPolyhedraChain extends MCMoveAtom {
 
     public MCMoveClusterPolyhedraChain(IRandom random, Space _space, double sigma, IPotentialAtomic p2, double[][] uValues) {
         super(random, null, _space);
         this.sigma = sigma;
-        dr = (IVectorRandom)space.makeVector();
+        dr = (IVector)space.makeVector();
         this.p2 = p2;
         pair = new AtomPair();
         this.uValues = uValues;
     }
 
-    protected void randomOrientation(IVectorMutable q) {
+    protected void randomOrientation(IVector q) {
         double u1 = random.nextDouble();
         double u2 = 2*Math.PI*random.nextDouble();
         double u3 = 2*Math.PI*random.nextDouble();
@@ -63,8 +60,8 @@ public class MCMoveClusterPolyhedraChain extends MCMoveAtom {
         for (int i=1; i<n; i++) {
             pair.atom0 = leafAtoms.getAtom(seq[i-1]);
             pair.atom1 = leafAtoms.getAtom(seq[i]);
-            IVectorRandom pos = (IVectorRandom)leafAtoms.getAtom(seq[i]).getPosition();
-            IVectorMutable q = ((AtomOrientedQuaternion)leafAtoms.getAtom(seq[i])).getQuaternion();
+            IVector pos = (IVector)leafAtoms.getAtom(seq[i]).getPosition();
+            IVector q = ((AtomOrientedQuaternion)leafAtoms.getAtom(seq[i])).getQuaternion();
 
             while (true) {
                 pos.setRandomInSphere(random);
@@ -98,7 +95,7 @@ public class MCMoveClusterPolyhedraChain extends MCMoveAtom {
     }
 
     protected final double sigma;
-    protected final IVectorRandom dr;
+    protected final IVector dr;
     protected int[] seq;
     protected IPotentialAtomic p2;
     protected final AtomPair pair;

@@ -7,12 +7,11 @@ package etomica.space3d;
 import etomica.api.IFunction;
 import etomica.api.IRandom;
 import etomica.api.IVector;
-import etomica.space.IVectorRandom;
 
 /**
  * Implementation of the Vector class for a 3-dimensional space.
  */
-public final class Vector3D implements IVectorRandom, java.io.Serializable {
+public final class Vector3D implements IVector, java.io.Serializable {
 
     protected double x, y, z;
     private static final long serialVersionUID = 1L;

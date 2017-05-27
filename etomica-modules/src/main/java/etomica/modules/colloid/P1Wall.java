@@ -9,7 +9,6 @@ import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.potential.PotentialHard;
 import etomica.space.Space;
@@ -69,7 +68,7 @@ public class P1Wall implements PotentialHard {
 
     public void bump(IAtomList a, double falseTime) {
         IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
-        IVectorMutable v = atom.getVelocity();
+        IVector v = atom.getVelocity();
         double vy = v.getX(1);
         // dv = 2*NewVelocity
         double y = atom.getPosition().getX(1);

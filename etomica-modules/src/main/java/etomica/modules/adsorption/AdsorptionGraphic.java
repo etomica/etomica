@@ -12,7 +12,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
 
 import etomica.action.IAction;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.atom.DiameterHashByType;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverage.StatType;
@@ -83,8 +83,8 @@ public class AdsorptionGraphic extends SimulationGraphic {
         getDisplayBox(sim.box).setPixelUnit(new Pixel(40/sim.box.getBoundary().getBoxSize().getX(1)));
         ((DisplayBoxCanvasG3DSys)getDisplayBox(sim.box).canvas).addPlane(new Plane(space, 0, 1, 0, sim.box.getBoundary().getBoxSize().getX(1)/2-0.00001));
         ((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.speciesA.getLeafType(), sim.p2AA.getCoreDiameter());
-        IVectorMutable rMin = space.makeVector();
-        IVectorMutable rMax = space.makeVector();
+        IVector rMin = space.makeVector();
+        IVector rMax = space.makeVector();
         double Ly = sim.box.getBoundary().getBoxSize().getX(1);
         double yMin = -0.5*Ly+0.5*sim.p1WallA.getSigma();
         double yMax = (0.5-0*sim.mcMoveIDA.getZFraction())*Ly - sim.p1WallA.getSigma();

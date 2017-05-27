@@ -54,8 +54,8 @@ public class IntegratorImageHarmonicMD extends IntegratorVelocityVerlet {
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             MyAgent agent = agentManager.getAgent(a);
-            IVectorMutable r = a.getPosition();
-            IVectorMutable v = a.getVelocity();
+            IVector r = a.getPosition();
+            IVector v = a.getVelocity();
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
                 System.out.println("first "+a+" r="+r+", v="+v+", f="+agent.force);
             }
@@ -70,10 +70,10 @@ public class IntegratorImageHarmonicMD extends IntegratorVelocityVerlet {
             }
             IAtomKinetic atom0 = (IAtomKinetic)leafList.getAtom(iLeaf);
             IAtomKinetic atom1 = (IAtomKinetic)leafList.getAtom(iLeaf+nOffset);
-            IVectorMutable r0 = atom0.getPosition();
-            IVectorMutable r1 = atom1.getPosition();
-            IVectorMutable v0 = atom0.getVelocity();
-            IVectorMutable v1 = atom1.getVelocity();
+            IVector r0 = atom0.getPosition();
+            IVector r1 = atom1.getPosition();
+            IVector v0 = atom0.getVelocity();
+            IVector v1 = atom1.getVelocity();
             atomSetSinglet.atom = atom0;
             IVector[] grad = p1.gradient(atomSetSinglet);
             IVector grad0 = grad[0];
@@ -106,7 +106,7 @@ public class IntegratorImageHarmonicMD extends IntegratorVelocityVerlet {
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
 //            System.out.println("force: "+((MyAgent)a.ia).force.toString());
-            IVectorMutable velocity = a.getVelocity();
+            IVector velocity = a.getVelocity();
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
                 System.out.println("second "+a+" v="+velocity+", f="+agentManager.getAgent(a).force);
             }

@@ -1,24 +1,19 @@
 package etomica.potential;
 
-import etomica.api.IAtomList;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IPotentialMolecular;
-import etomica.api.IVectorMutable;
+import etomica.api.*;
 import etomica.atom.DipoleSource;
 import etomica.space.Space;
 import etomica.space.Tensor;
 
 public class PotentialCalculationPhiSum implements PotentialCalculationMolecular {
-	 protected IVectorMutable fieldE;
-	 protected final IVectorMutable ei,ej;
-	 protected IVectorMutable Ai;
-	 protected IVectorMutable Aj;
-	 protected IVectorMutable dr;
+	 protected IVector fieldE;
+	 protected final IVector ei,ej;
+	 protected IVector Ai;
+	 protected IVector Aj;
+	 protected IVector dr;
 	 protected double secondDerivativeSum= 0;
 	 protected DipoleSource dipoleSource;
-	 protected final IVectorMutable [] a;
+	 protected final IVector[] a;
 	 protected final Tensor iT;
 	 
 	public PotentialCalculationPhiSum(Space space) {
@@ -28,7 +23,7 @@ public class PotentialCalculationPhiSum implements PotentialCalculationMolecular
 	    dr = space.makeVector();
 	    ei = space.makeVector();
 	    ej = space.makeVector();
-	    a = new IVectorMutable[3];
+	    a = new IVector[3];
 		a[0] = space.makeVector();
 		a[1] = space.makeVector();
 		a[2] = space.makeVector();

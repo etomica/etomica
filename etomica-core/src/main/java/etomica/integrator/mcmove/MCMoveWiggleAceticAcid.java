@@ -4,12 +4,8 @@
 
 package etomica.integrator.mcmove;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
+import etomica.api.*;
 import etomica.simulation.Simulation;
-import etomica.api.IVectorMutable;
 import etomica.space.Space;
 import etomica.util.Debug;
 
@@ -47,7 +43,7 @@ public class MCMoveWiggleAceticAcid extends MCMoveMolecule {
         int j = random.nextInt(3)*2;
         selectedAtoms = j;//0,2,4
         IAtom selectedAtom = childList.getAtom(j);
-        IVectorMutable position = selectedAtom.getPosition();
+        IVector position = selectedAtom.getPosition();
         translationVectors.Ea1Tv1(-1,position);
         double oldBondLength1 = 0, oldBondLength2 = 0;
 
@@ -137,7 +133,7 @@ public class MCMoveWiggleAceticAcid extends MCMoveMolecule {
     private static final long serialVersionUID = 1L;
     protected int selectedAtoms;
     protected int[] bondedAtoms;
-    protected final IVectorMutable work1, work2, work3;
-    protected final IVectorMutable translationVectors;
+    protected final IVector work1, work2, work3;
+    protected final IVector translationVectors;
     protected final Space space;
 }

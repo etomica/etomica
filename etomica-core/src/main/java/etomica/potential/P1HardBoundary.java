@@ -10,7 +10,6 @@ import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.graphics.Drawable;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -27,7 +26,7 @@ public class P1HardBoundary implements PotentialHard, Drawable {
     
     private static final long serialVersionUID = 1L;
     private double collisionRadius = 0.0;
-    private final IVectorMutable work;
+    private final IVector work;
     private int[] pixPosition;
     private int[] thickness;
     private int nominalThickness = 1;
@@ -66,7 +65,7 @@ public class P1HardBoundary implements PotentialHard, Drawable {
 
     public double energy(IAtomList a) {
         IVector dimensions = boundary.getBoxSize();
-        IVectorMutable pos = a.getAtom(0).getPosition();
+        IVector pos = a.getAtom(0).getPosition();
         for (int i=0; i<work.getD(); i++) {
             if (!isActiveDim[i][1]) {
                 continue;
@@ -85,7 +84,7 @@ public class P1HardBoundary implements PotentialHard, Drawable {
     public double collisionTime(IAtomList a, double falseTime) {
         IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
         work.E(atom.getPosition());
-        IVectorMutable v = atom.getVelocity();
+        IVector v = atom.getVelocity();
         work.PEa1Tv1(falseTime,v);
         IVector dimensions = boundary.getBoxSize();
         double tmin = Double.POSITIVE_INFINITY;
@@ -122,7 +121,7 @@ public class P1HardBoundary implements PotentialHard, Drawable {
     public void bump(IAtomList a, double falseTime) {
         IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
         work.E(atom.getPosition());
-        IVectorMutable v = atom.getVelocity();
+        IVector v = atom.getVelocity();
         work.PEa1Tv1(falseTime,v);
         IVector dimensions = boundary.getBoxSize();
         double delmin = Double.MAX_VALUE;

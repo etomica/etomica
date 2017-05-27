@@ -8,12 +8,7 @@ package etomica.virial.simulations;
 import java.awt.Color;
 import java.util.Set;
 
-import etomica.api.IAtomList;
-import etomica.api.IIntegratorEvent;
-import etomica.api.IIntegratorListener;
-import etomica.api.IPotentialMolecular;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
+import etomica.api.*;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
@@ -181,7 +176,7 @@ public class VirialEmulNonAdditive {
         IAtomList atoms = sim.box[1].getLeafList();
         double r = 0.4f*sigmaHSRef/Math.sin(Math.PI/nPoints);
         for (int i=1; i<nPoints; i++) {
-            IVectorMutable v = atoms.getAtom(i).getPosition();
+            IVector v = atoms.getAtom(i).getPosition();
             double t = 2*i*Math.PI/nPoints;
             v.setX(0, r*(Math.cos(t)-1));
             v.setX(1, r*Math.sin(t));

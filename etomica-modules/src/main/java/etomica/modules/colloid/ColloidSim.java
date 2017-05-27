@@ -4,11 +4,8 @@
 
 package etomica.modules.colloid;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -93,7 +90,7 @@ public class ColloidSim extends Simulation {
         addBox(box);
         ((NeighborListManagerColloid)potentialMaster.getNeighborManager(box)).setSpeciesColloid(speciesColloid);
         ((NeighborListManagerColloid)potentialMaster.getNeighborManager(box)).setSpeciesMonomer(species);
-        IVectorMutable dim = space.makeVector();
+        IVector dim = space.makeVector();
         dim.E(boxSize);
         box.getBoundary().setBoxSize(dim);
         box.setNMolecules(speciesColloid, nColloid);
@@ -160,7 +157,7 @@ public class ColloidSim extends Simulation {
             double minr2 = Double.POSITIVE_INFINITY;
             for (int j=chainLength; j<box.getMoleculeList(species).getMoleculeCount(); j+=chainLength) {
                 IAtom atom2 = box.getMoleculeList(species).getMolecule(j).getChildList().getAtom(0);
-                IVectorMutable dr = space.makeVector();
+                IVector dr = space.makeVector();
                 dr.Ev1Mv2(atom1.getPosition(), atom2.getPosition());
                 box.getBoundary().nearestImage(dr);
                 double r2 = dr.squared();
@@ -192,7 +189,7 @@ public class ColloidSim extends Simulation {
             double minr2 = Double.POSITIVE_INFINITY;
             for (int j=chainLength; j<box.getMoleculeList(species).getMoleculeCount(); j+=chainLength) {
                 IAtom atom2 = box.getMoleculeList(species).getMolecule(j).getChildList().getAtom(0);
-                IVectorMutable dr = space.makeVector();
+                IVector dr = space.makeVector();
                 dr.Ev1Mv2(atom1.getPosition(), atom2.getPosition());
                 box.getBoundary().nearestImage(dr);
                 double r2 = dr.squared();

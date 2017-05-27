@@ -5,7 +5,7 @@
 package etomica.atom;
 
 import etomica.api.IMolecule;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 
 public interface IMoleculePositioned extends IMolecule {
 
@@ -14,5 +14,5 @@ public interface IMoleculePositioned extends IMolecule {
      * will alter the IMolecule's position, but not any positions of the
      * IMolecule's child IAtoms.
      */
-    public IVectorMutable getPosition();
+    public IVector getPosition();
 }

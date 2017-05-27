@@ -8,7 +8,6 @@ import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2Soft;
@@ -28,7 +27,7 @@ public class Potential2SoftSphericalLSMultiLat extends Potential2 implements Pot
    
     public Potential2SoftSphericalLSMultiLat(Space space, double[] rCut, Potential2Soft p2Soft, CoordinateDefinition coordinateDefinition) {
         super(space);
-        gradient = new IVectorMutable[2];
+        gradient = new IVector[2];
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();
         dr = space.makeVector();
@@ -160,14 +159,14 @@ public class Potential2SoftSphericalLSMultiLat extends Potential2 implements Pot
 
     }
 
-    protected final IVectorMutable[] gradient;
+    protected final IVector[] gradient;
     protected IBoundary boundary;
     protected final int[] nShells;
     protected final double[] a0;
     protected final Potential2Soft p2Soft;
-    protected final IVectorMutable Lxyz;
-    protected final IVectorMutable dr, drTmp, drLat, drA, drLatTmp;
-    protected final IVectorMutable pTmp1, pTmp2;
+    protected final IVector Lxyz;
+    protected final IVector dr, drTmp, drLat, drA, drLatTmp;
+    protected final IVector pTmp1, pTmp2;
     protected final double[] rCut2;
     protected final double rCutMax;
     protected final CoordinateDefinition coordinateDefinition;
@@ -175,14 +174,14 @@ public class Potential2SoftSphericalLSMultiLat extends Potential2 implements Pot
 
     public class ReturnValue {
         public double[] energySum, virialSum, sum1, dadbSum;
-        public IVectorMutable[] pSumXYZ1, pSumXYZ2;
+        public IVector[] pSumXYZ1, pSumXYZ2;
         public ReturnValue(int n, Space space) {
             energySum = new double[n];
             virialSum = new double[n];
             sum1 = new double[n];
             dadbSum = new double[n];
-            pSumXYZ1 = new IVectorMutable[n];
-            pSumXYZ2 = new IVectorMutable[n];
+            pSumXYZ1 = new IVector[n];
+            pSumXYZ2 = new IVector[n];
             for (int i=0; i<n; i++) {
                 pSumXYZ1[i] = space.makeVector();
                 pSumXYZ2[i] = space.makeVector();

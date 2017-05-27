@@ -6,11 +6,11 @@ package etomica.integrator.mcmove;
 
 import etomica.action.BoxInflate;
 import etomica.action.BoxInflateDeformable;
+import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.simulation.Simulation;
-import etomica.api.IVectorMutable;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -31,7 +31,7 @@ public class MCMoveBoxSize extends MCMoveBoxStep {
     protected final Space space;
     private IRandom random;
     protected final AtomIteratorLeafAtoms affectedAtomIterator;
-    protected final IVectorMutable boxScale;
+    protected final IVector boxScale;
 
     private transient double uOld, lScale;
     private transient int dim1, dim2;

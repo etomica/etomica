@@ -6,7 +6,7 @@ package etomica.models.nitrogen;
 
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.data.DataSourceScalar;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.space3d.Space3D;
@@ -41,8 +41,8 @@ public class MeterOrientationOrderParameter extends DataSourceScalar {
 	            for (int iMol=0; iMol<numMol; iMol++){
 	            	
 		          	IMolecule molecule = molecules.getMolecule(iMol);
-		          	IVectorMutable leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-			    	IVectorMutable leafPos1 = molecule.getChildList().getAtom(1).getPosition();
+		          	IVector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
+			    	IVector leafPos1 = molecule.getChildList().getAtom(1).getPosition();
 			
 			    	molAxis.Ev1Mv2(leafPos1, leafPos0);
 			       	molAxis.normalize();
@@ -60,8 +60,8 @@ public class MeterOrientationOrderParameter extends DataSourceScalar {
 	}
 	
 	private static final long serialVersionUID = 1L;
-	private IVectorMutable initOrient;
-	private IVectorMutable molAxis;
+	private IVector initOrient;
+	private IVector molAxis;
 	protected CoordinateDefinitionNitrogen coordinateDefinition;
 	protected int numMol;
 

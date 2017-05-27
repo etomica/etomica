@@ -11,7 +11,6 @@ import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.space.Space;
 
 /**
@@ -47,5 +46,5 @@ public class AtomGroupVelocityAverage implements Serializable {
     }
 
     private static final long serialVersionUID = 1L;
-    private final IVectorMutable vectorSum;
+    private final IVector vectorSum;
 }

@@ -5,7 +5,7 @@
 package etomica.atom;
 
 import etomica.api.IMolecule;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 
 
 /**
@@ -13,6 +13,6 @@ import etomica.api.IVectorMutable;
  */
 public interface IMoleculeKinetic extends IMolecule {
 
-    public IVectorMutable getVelocity();
+    public IVector getVelocity();
  
 }

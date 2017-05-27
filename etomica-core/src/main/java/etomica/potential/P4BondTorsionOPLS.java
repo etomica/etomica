@@ -9,13 +9,11 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.box.RandomPositionSourceRectangular;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
-import etomica.space.IVectorRandom;
 import etomica.space.Tensor;
 import etomica.space3d.Space3D;
 import etomica.util.RandomNumberGenerator;
@@ -69,8 +67,8 @@ public class P4BondTorsionOPLS extends P4BondTorsion {
         atoms.add(atom2);
         atoms.add(atom3);
         int n = 40;
-        IVectorMutable gradient = space.makeVector();
-        IVectorRandom dr = (IVectorRandom)space.makeVector();
+        IVector gradient = space.makeVector();
+        IVector dr = (IVector)space.makeVector();
         for (int i=0; i<n; i++) {
             atom0.getPosition().E(positionSource.randomPosition());
             atom1.getPosition().E(positionSource.randomPosition());

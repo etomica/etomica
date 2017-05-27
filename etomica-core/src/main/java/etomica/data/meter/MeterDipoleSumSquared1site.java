@@ -4,7 +4,6 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
 import etomica.data.DataSourceScalar;
 import etomica.space.Space;
@@ -20,7 +19,7 @@ import etomica.units.Dipole;
 public class MeterDipoleSumSquared1site extends DataSourceScalar {
 	 
     private Box box;
-    private IVectorMutable dipoleSum;
+    private IVector dipoleSum;
     private double dipoleMagnitude;
     
 	public MeterDipoleSumSquared1site(Space space, Box box, double dipoleMagnitude) {

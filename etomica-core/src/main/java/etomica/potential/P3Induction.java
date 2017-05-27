@@ -11,7 +11,6 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.IAtomOriented;
@@ -46,10 +45,10 @@ public class P3Induction implements IPotentialAtomic {
     protected final Space space;
     protected final double[] I = new double[3];
     protected final double[] alpha = new double[3];
-    protected final IVectorMutable dr1, dr2;
-    protected final IVectorMutable ri, rj, rk;
-    protected final IVectorMutable rij, rik;
-    protected final IVectorMutable or3;
+    protected final IVector dr1, dr2;
+    protected final IVector ri, rj, rk;
+    protected final IVector rij, rik;
+    protected final IVector or3;
     protected IBoundary boundary;
 
     public P3Induction(Space space, AtomTypeAgentManager paramsManager) {
@@ -195,7 +194,7 @@ public class P3Induction implements IPotentialAtomic {
         p3i.setBox(box);
         double alphaH2O = 1.444;
 
-        IVectorMutable polH2O = space.makeVector();
+        IVector polH2O = space.makeVector();
         double[] qH2O = P2WaterSzalewicz.getQ();
         IVector[] qSiteH2O = P2WaterSzalewicz.getSites(space);
         polH2O.E(qSiteH2O[0]);
@@ -207,8 +206,8 @@ public class P3Induction implements IPotentialAtomic {
         pGCPM.setBox(box2);
         
         double r = 5;
-        IVectorMutable dr1 = space.makeVector();
-        IVectorMutable dr2 = space.makeVector();
+        IVector dr1 = space.makeVector();
+        IVector dr2 = space.makeVector();
         for (int i=0; i<10; i++) {
             r *= 2;
             atom2.getPosition().setX(0, r);

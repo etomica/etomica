@@ -4,15 +4,9 @@
 
 package etomica.virial;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
 import etomica.simulation.Simulation;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.space.Space;
@@ -86,7 +80,7 @@ public class MCMoveClusterWiggleAceticAcid extends MCMoveMolecule {
             int j = random.nextInt(3)*2;
             selectedAtoms[i] = j;//0,2,4
             IAtom selectedAtom = childList.getAtom(j);
-            IVectorMutable position = selectedAtom.getPosition();
+            IVector position = selectedAtom.getPosition();
             translationVectors[i].Ea1Tv1(-1,position);
             double oldBondLength1 = 0, oldBondLength2 = 0;
 
@@ -193,8 +187,8 @@ public class MCMoveClusterWiggleAceticAcid extends MCMoveMolecule {
     protected final MeterPotentialEnergy energyMeter;
     protected int[] selectedAtoms;
     protected int[] bondedAtoms;
-    protected final IVectorMutable work1, work2, work3;
-    protected IVectorMutable[] translationVectors;
+    protected final IVector work1, work2, work3;
+    protected IVector[] translationVectors;
     protected double wOld, wNew;
     protected final Space space;
     protected ISpecies species;

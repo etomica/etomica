@@ -8,7 +8,6 @@ import etomica.api.IAtom;
 import etomica.box.Box;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataSourceScalar;
@@ -135,5 +134,5 @@ public class MeterLocalMoleFraction extends DataSourceScalar {
     private AtomIteratorBoxDependent iterator = new AtomIteratorLeafAtoms();
     private Polytope shape;
     private IVector shapeOrigin;
-    private IVectorMutable tempVec;
+    private IVector tempVec;
 }

@@ -7,7 +7,7 @@ package etomica.potential;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
@@ -30,7 +30,7 @@ import etomica.util.Constants;
 public class P2DiscreteFeynmanHibbs implements Potential2Spherical {
 
     protected final Potential2Spherical p2Classy;
-    protected final IVectorMutable dr;
+    protected final IVector dr;
     protected IBoundary boundary;
     protected double temperature;
     protected double mass;

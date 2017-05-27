@@ -13,11 +13,8 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import etomica.action.IAction;
-import etomica.api.IAtomList;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenterPBC;
 import etomica.atom.DiameterHashByType;
 import etomica.config.ConfigurationLattice;
@@ -144,7 +141,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                         deltaX = -deltaX;
                     }
                     for (int j=0; j<2; j++) {
-                        IVectorMutable pos = surfactant.getChildList().getAtom(j).getPosition();
+                        IVector pos = surfactant.getChildList().getAtom(j).getPosition();
                         pos.setX(0, pos.getX(0) + deltaX);
                     }
                     sim.box.addMolecule(surfactant);
@@ -171,7 +168,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 
                 isExpanded = true;
             }
-            IVectorMutable dim = space.makeVector();
+            IVector dim = space.makeVector();
             ConfigurationLattice configLattice = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         };
         expandButton.setAction(expandAction);
@@ -184,7 +181,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
             public void actionPerformed() {
                 oldPreAction.actionPerformed();
                 if (!isExpanded) return;
-                IVectorMutable dim = space.makeVector();
+                IVector dim = space.makeVector();
                 dim.E(sim.box.getBoundary().getBoxSize());
                 dim.setX(0, dim.getX(0) / expansionFac);
                 sim.box.setNMolecules(sim.surfactant, 0);
@@ -233,7 +230,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 double sumCos = 0, sumSin = 0;
                 double q = 2*Math.PI/L;
                 for (int i=0; i<nTot; i++) {
-                    IVectorMutable pos = leafAtoms.getAtom(i).getPosition();
+                    IVector pos = leafAtoms.getAtom(i).getPosition();
                     double sinx = Math.sin(q*pos.getX(0));
                     double cosx = Math.cos(q*pos.getX(0));
                     sumCos += cosx;
@@ -256,7 +253,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                     center = -1;
                 }
                 for (int i=0; i<nTot; i++) {
-                    IVectorMutable pos = leafAtoms.getAtom(i).getPosition();
+                    IVector pos = leafAtoms.getAtom(i).getPosition();
                     pos.setX(0, pos.getX(0) - center);
                 }
                 ((PotentialMasterList)sim.integrator.getPotentialMaster()).getNeighborManager(sim.box).reset();
@@ -885,7 +882,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         protected final Box box;
         protected final int dim;
         protected final IAction reconfig;
-        protected final IVectorMutable size;
+        protected final IVector size;
     }
 }
 

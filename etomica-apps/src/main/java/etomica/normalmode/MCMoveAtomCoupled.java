@@ -4,12 +4,8 @@
 
 package etomica.normalmode;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSetSinglet;
@@ -22,7 +18,7 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.space.Space;
-import etomica.space.IVectorRandom;
+import etomica.api.IVector;
 
 /**
  * Standard Monte Carlo atom-displacement trial move.  Two atoms are moved at a
@@ -35,7 +31,7 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
     protected final AtomIteratorArrayListSimple affectedAtomIterator;
     protected final AtomArrayList affectedAtomList;
     protected final MeterPotentialEnergy energyMeter;
-    protected final IVectorRandom translationVector;
+    protected final IVector translationVector;
     protected IAtom atom0, atom1;
     protected double uOld;
     protected double uNew;
@@ -55,7 +51,7 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         atomSource = new AtomSourceRandomLeaf();
         ((AtomSourceRandomLeaf)atomSource).setRandomNumberGenerator(random);
         this.energyMeter = energyMeter;
-        translationVector = (IVectorRandom)_space.makeVector();
+        translationVector = (IVector)_space.makeVector();
         setStepSizeMax(0.5);
         setStepSizeMin(0.0);
         setStepSize(0.1);

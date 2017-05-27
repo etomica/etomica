@@ -17,9 +17,9 @@ public class PotentialEAM extends PotentialN implements PotentialSoft{
 
     protected double n , m , eps , a , C , rC1, rC2;
     protected IBoundary boundary; 
-    protected final IVectorMutable dr, drij, drik, drjk;
-    protected IVectorMutable[] gradient; 
-    protected IVectorMutable[] rhograd;
+    protected final IVector dr, drij, drik, drjk;
+    protected IVector[] gradient;
+    protected IVector[] rhograd;
     protected double [][] secondder;
     
     public PotentialEAM(Space space, double n , double  m , double  eps , double  a , double  C, double rC) {
@@ -36,8 +36,8 @@ public class PotentialEAM extends PotentialN implements PotentialSoft{
         drij=space.makeVector();
         drik=space.makeVector();
         drjk=space.makeVector();
-        gradient=new IVectorMutable[0];
-        rhograd=new IVectorMutable[0];
+        gradient=new IVector[0];
+        rhograd=new IVector[0];
     }
     
     public double getRange() {
@@ -93,8 +93,8 @@ public class PotentialEAM extends PotentialN implements PotentialSoft{
     public IVector[] gradient(IAtomList atoms) {
         
         if(gradient.length<atoms.getAtomCount()){
-            rhograd=new IVectorMutable[atoms.getAtomCount()];
-            gradient=new IVectorMutable[atoms.getAtomCount()];
+            rhograd=new IVector[atoms.getAtomCount()];
+            gradient=new IVector[atoms.getAtomCount()];
             
             for(int j=0;j<atoms.getAtomCount();j++){
                 rhograd[j] = space.makeVector();

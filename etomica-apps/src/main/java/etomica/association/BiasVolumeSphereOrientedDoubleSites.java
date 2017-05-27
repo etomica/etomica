@@ -11,7 +11,6 @@ import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.atom.IAtomOriented;
 import etomica.space.Space;
-import etomica.space.IVectorRandom;
 
 public class BiasVolumeSphereOrientedDoubleSites extends BiasVolume {
     
@@ -21,8 +20,8 @@ public class BiasVolumeSphereOrientedDoubleSites extends BiasVolume {
 	private static final long serialVersionUID = 1L;
 	private double radius;
     private double innerRadius;
-    private final IVectorRandom work;
-    private final IVectorRandom direction;
+    private final IVector work;
+    private final IVector direction;
     private final IRandom random;
     private IBoundary boundary;
     private double ec2;
@@ -31,8 +30,8 @@ public class BiasVolumeSphereOrientedDoubleSites extends BiasVolume {
     public BiasVolumeSphereOrientedDoubleSites(Space space, IRandom random){
         super(space);
         this.random = random;
-        work = (IVectorRandom)space.makeVector();
-        direction = (IVectorRandom)space.makeVector();
+        work = (IVector)space.makeVector();
+        direction = (IVector)space.makeVector();
         radius = 1.0;//size of the sphere
         innerRadius = 0.8;
     }

@@ -64,7 +64,7 @@ public class DHS_NVT extends Simulation {
 	public Controller controller; 
 
 	public static class DipoleSourceDHS implements DipoleSource{//for potential reaction field
-		protected final IVectorMutable dipoleVector;
+		protected final IVector dipoleVector;
 		protected double dipoleStrength;
 		public DipoleSourceDHS(Space space, double dipole){
 			dipoleStrength=dipole;

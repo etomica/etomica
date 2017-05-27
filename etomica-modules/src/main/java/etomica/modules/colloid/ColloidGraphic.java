@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 
 import etomica.action.IAction;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.atom.DiameterHashByType;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverage.StatType;
@@ -164,7 +164,7 @@ public class ColloidGraphic extends SimulationGraphic {
                 if (newValue < sim.getColloidSigma() + 1 || newValue < 12) {
                     throw new IllegalArgumentException("box size too small");
                 }
-                IVectorMutable v = space.makeVector();
+                IVector v = space.makeVector();
                 v.E(sim.box.getBoundary().getBoxSize());
                 v.setX(1, newValue);
                 sim.box.setNMolecules(sim.species, 0);

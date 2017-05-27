@@ -14,7 +14,6 @@ import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMolecular;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.SpeciesAgentManager;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -109,9 +108,9 @@ public class P2SemiclassicalMolecular implements IPotentialMolecular {
     }
     
     public static class MoleculeInfoBrute implements MoleculeInfo {
-        protected final IVectorMutable cm, rj;
+        protected final IVector cm, rj;
         protected final Tensor id, moment, momentj, rjrj;
-        protected final IVectorMutable[] rv;
+        protected final IVector[] rv;
         
         public MoleculeInfoBrute(Space space) {
             moment = space.makeTensor();
@@ -123,7 +122,7 @@ public class P2SemiclassicalMolecular implements IPotentialMolecular {
             id.setComponent(0,0,1);
             id.setComponent(1,1,1);
             id.setComponent(2,2,1);
-            rv = new IVectorMutable[4];
+            rv = new IVector[4];
             for (int i=0; i<4; i++) {
                 rv[i] = space.makeVector();
             }

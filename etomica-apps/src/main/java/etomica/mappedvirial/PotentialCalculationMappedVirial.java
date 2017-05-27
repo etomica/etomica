@@ -5,7 +5,6 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPair;
 import etomica.atom.iterator.IteratorDirective;
@@ -33,7 +32,7 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
     protected final AtomLeafAgentManager<MyAgent> forceManager;
     protected final Space space;
     protected double beta;
-    protected final IVectorMutable dr;
+    protected final IVector dr;
     protected double c1;
     protected final double[] cumint;
     protected final AtomPair pair;

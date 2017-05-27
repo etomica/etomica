@@ -5,7 +5,7 @@
 package etomica.space3d;
 
 import etomica.api.IBoundary;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.space.RotationTensor;
 import etomica.space.Space;
 
@@ -64,7 +64,7 @@ public final class Space3D extends Space {
         return (Math.PI * 4 * r * r);
     }
 
-    public IVectorMutable makeVector() {
+    public IVector makeVector() {
         return new Vector3D();
     }
 

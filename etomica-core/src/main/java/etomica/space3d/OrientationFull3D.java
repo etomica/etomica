@@ -8,10 +8,8 @@ import java.io.Serializable;
 
 import etomica.api.IRandom;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.space.IOrientation;
 import etomica.space.Space;
-import etomica.space.IVectorRandom;
 import etomica.util.Debug;
 
 public class OrientationFull3D implements IOrientationFull3D, Serializable {
@@ -112,7 +110,7 @@ public class OrientationFull3D implements IOrientationFull3D, Serializable {
         double tempSq = 0;
         do {
             // first get a random unit vector
-            ((IVectorRandom)v2).setRandomSphere(random);
+            ((IVector)v2).setRandomSphere(random);
             // find the component of the unit vector perpendicular to our direction
             v2.PEa1Tv1(-v2.dot(direction), direction);
             // if the random unit vector was nearly parallel (or anti-parallel)
@@ -163,7 +161,7 @@ public class OrientationFull3D implements IOrientationFull3D, Serializable {
     }
 
     private static final long serialVersionUID = 1L;
-    protected final IVectorMutable direction, secondaryDirection;
-    protected final IVectorMutable v2, v3;
+    protected final IVector direction, secondaryDirection;
+    protected final IVector v2, v3;
     protected final Tensor3D rotationTensor;
 }

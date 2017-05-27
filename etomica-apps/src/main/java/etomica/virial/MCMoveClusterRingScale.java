@@ -9,7 +9,7 @@ import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.atom.AtomArrayList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -94,7 +94,7 @@ public class MCMoveClusterRingScale extends MCMoveBox {
         scale = scaleUp ? 1.001 : 1.0/1.001;
         double uOld = 0;
         for (int j=0; j<nAtoms; j++) {
-            IVectorMutable p = atoms.getAtom(j).getPosition();
+            IVector p = atoms.getAtom(j).getPosition();
             double uj = 0;
             if (j==0) {
                 uj += p.Mv1Squared(atoms.getAtom(nAtoms-1).getPosition());
@@ -132,7 +132,7 @@ public class MCMoveClusterRingScale extends MCMoveBox {
     public void rejectNotify() {
         int nAtoms = atoms.getAtomCount();
         for (int j=0; j<nAtoms; j++) {
-            IVectorMutable p = atoms.getAtom(j).getPosition();
+            IVector p = atoms.getAtom(j).getPosition();
             double uj = 0;
             if (j==0) {
                 uj += p.Mv1Squared(atoms.getAtom(nAtoms-1).getPosition());
@@ -166,7 +166,7 @@ public class MCMoveClusterRingScale extends MCMoveBox {
     protected final Space space;
     protected final IRandom random;
     protected double weightOld, weightNew, uOld, uNew;
-    protected final IVectorMutable com;
+    protected final IVector com;
     protected final AtomIteratorLeafAtoms leafIterator;
     protected double fac;
     protected final int[][] tangledMolecules;

@@ -17,7 +17,6 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterCollective;
 import etomica.space.Boundary;
@@ -93,7 +92,7 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
        
     private void drawAtom(Graphics g, int origin[], IAtom a) {
         
-        IVectorMutable r = a.getPosition();
+        IVector r = a.getPosition();
         int sigmaP, xP, yP, baseXP, baseYP;
 
         g.setColor(displayBox.getColorScheme().getAtomColor(a));

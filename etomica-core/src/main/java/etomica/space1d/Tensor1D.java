@@ -6,7 +6,6 @@ package etomica.space1d;
 
 import etomica.api.IFunction;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.space.Tensor;
 
 /**
@@ -76,7 +75,7 @@ public class Tensor1D implements etomica.space.Tensor, java.io.Serializable {
         xx = ((Vector1D)v).x;
     }
     
-    public void assignTo(IVectorMutable[] v) {
+    public void assignTo(IVector[] v) {
         if(v.length != 1) {
             throw new IllegalArgumentException("Tensor requires 1 vector to set its values");
         }
@@ -166,7 +165,7 @@ public class Tensor1D implements etomica.space.Tensor, java.io.Serializable {
         xx = f.f(xx);
     }
     
-    public void transform(IVectorMutable v) {
+    public void transform(IVector v) {
         ((Vector1D)v).TE(xx);
     }
 

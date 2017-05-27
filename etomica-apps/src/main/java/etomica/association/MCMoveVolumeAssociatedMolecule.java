@@ -16,7 +16,6 @@ import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.simulation.Simulation;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
 import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
@@ -48,8 +47,8 @@ public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements Mol
     private IRandom random;
     protected final AtomIteratorLeafAtoms affectedAtomIterator;
     protected final MoleculeIteratorAllMolecules moleculeIterator;
-    protected final IVectorMutable r;
-    protected final IVectorMutable dr, dr2;
+    protected final IVector r;
+    protected final IVector dr, dr2;
     private transient double uOld, hOld, vNew, vScale, hNew;
     private transient double uNew = Double.NaN;
     protected AssociationManagerMolecule associationManager;
@@ -60,7 +59,7 @@ public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements Mol
     public static boolean dodebug;
     protected FileWriter fileWriter;
     protected IAssociationHelperMolecule associationHelper;
-    protected IVectorMutable groupTranslationVector;
+    protected IVector groupTranslationVector;
     protected MoleculeChildAtomAction moveMoleculeAction;
     protected final Simulation sim;
 

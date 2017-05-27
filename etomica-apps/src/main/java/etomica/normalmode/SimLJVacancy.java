@@ -17,7 +17,6 @@ import etomica.box.Box;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.data.AccumulatorAverageBlockless;
 import etomica.data.AccumulatorHistogram;
 import etomica.data.AccumulatorHistory;
@@ -352,7 +351,7 @@ public class SimLJVacancy extends Simulation {
                 }
             };
             colorScheme = new ColorScheme() {
-                IVectorMutable dr = sim.space.makeVector();
+                IVector dr = sim.space.makeVector();
                 double rMax = sim.mcMoveID.getMaxDistance();
                 double rc2 = rMax*rMax;
                 int nmax = 12;
@@ -877,7 +876,7 @@ public class SimLJVacancy extends Simulation {
                 }
             };
             colorScheme = new ColorScheme() {
-                IVectorMutable dr = sim.space.makeVector();
+                IVector dr = sim.space.makeVector();
                 double rMax = sim.mcMoveID.getMaxDistance();
                 double rc2 = rMax*rMax;
                 int nmax = 12;

@@ -13,7 +13,7 @@ import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.box.Box;
 import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
@@ -174,7 +174,7 @@ public class TestSetToUHexane extends Simulation {
         //Store old positions
         IAtomList aal = box.getMoleculeList().getMolecule(0).getChildList();
 
-        IVectorMutable site = cdHex.getLatticePosition(box.getMoleculeList().getMolecule(0));
+        IVector site = cdHex.getLatticePosition(box.getMoleculeList().getMolecule(0));
         
         for(int i = 0; i < chainLength; i++){
             oldX[i].E(aal.getAtom(i).getPosition());

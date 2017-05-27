@@ -6,7 +6,6 @@ package etomica.config;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.units.Length;
@@ -80,7 +79,7 @@ public class ConformationChainLinear implements IConformation {
 
     private static final long serialVersionUID = 1L;
     private double bondLength;
-    private IVectorMutable orientation;
+    private IVector orientation;
     private double[] angle;
     protected final Space space;
 }

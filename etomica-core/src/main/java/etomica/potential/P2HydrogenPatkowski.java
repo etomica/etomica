@@ -16,7 +16,6 @@ import etomica.api.IPotential;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -113,7 +112,7 @@ public class P2HydrogenPatkowski implements IPotential {
     protected final double [] elong = new double[20];
     protected IBoundary boundary;
     protected static final double rMin = 1.4;
-    protected final IVectorMutable dr,com0,com1,hh0,hh1,n0,n1;
+    protected final IVector dr,com0,com1,hh0,hh1,n0,n1;
     protected static double[][] xPos = {{0.0374,-0.2422,0.2792},{-0.0374,0.2422,-0.2792},{-0.016,-1.2877,2.9799},{-0.0196,-2.0073,2.7949},{-0.1047,1.5911,2.54},{0.063,1.7936,3.2349}};
     protected boolean print = false;
     public FileWriter file = null;

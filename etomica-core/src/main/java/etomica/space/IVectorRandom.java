@@ -4,12 +4,11 @@
 
 package etomica.space;
 
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 
 /**
  * Vector interface for vectors having random number methods 
  */
-public interface IVectorRandom extends IVectorMutable {
+public interface IVectorRandom extends IVector {
 
 }

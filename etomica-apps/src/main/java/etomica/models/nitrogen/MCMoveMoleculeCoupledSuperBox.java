@@ -6,11 +6,8 @@ package etomica.models.nitrogen;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IPotentialMaster;
-import etomica.api.IPotentialMolecular;
-import etomica.api.IRandom;
 import etomica.atom.MoleculeArrayList;
 import etomica.atom.MoleculePair;
 import etomica.atom.MoleculeSource;
@@ -24,7 +21,7 @@ import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.integrator.mcmove.MCMoveMolecular;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.space.Space;
-import etomica.space.IVectorRandom;
+import etomica.api.IVector;
 
 /**
  * Standard Monte Carlo molecule-displacement trial move for superbox. Two molecules are 
@@ -61,7 +58,7 @@ public class MCMoveMoleculeCoupledSuperBox extends MCMoveBoxStep implements MCMo
         affectedMoleculeList = new MoleculeArrayList();
         
         singleAction = new AtomActionTranslateBy(_space);
-        groupTransVect = (IVectorRandom)singleAction.getTranslationVector();
+        groupTransVect = (IVector)singleAction.getTranslationVector();
         
         moveMoleculeAction = new MoleculeChildAtomAction(singleAction);
         
@@ -273,7 +270,7 @@ public class MCMoveMoleculeCoupledSuperBox extends MCMoveBoxStep implements MCMo
     
     private static final long serialVersionUID = 1L;
     protected final MoleculeChildAtomAction moveMoleculeAction;
-    protected final IVectorRandom groupTransVect;
+    protected final IVector groupTransVect;
     protected IMolecule molecule0, molecule1;
     protected final MeterPotentialEnergy energyMeter;
     protected MoleculeSource moleculeSource;

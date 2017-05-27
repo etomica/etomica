@@ -10,13 +10,11 @@ import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.box.RandomPositionSourceRectangular;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
-import etomica.space.IVectorRandom;
 import etomica.space.Tensor;
 import etomica.space3d.Space3D;
 import etomica.util.RandomNumberGenerator;
@@ -44,7 +42,7 @@ public class P4BondTorsion extends Potential implements PotentialSoft {
 
         gtmp = space.makeVector();
 
-        gradient = new IVectorMutable[4];
+        gradient = new IVector[4];
         for (int i=0; i<4; i++) {
             gradient[i] = space.makeVector();
         }
@@ -180,12 +178,12 @@ public class P4BondTorsion extends Potential implements PotentialSoft {
     }
 
     private static final long serialVersionUID = 1L;
-    protected final IVectorMutable dr21, dr23, dr34;
-    protected final IVectorMutable v1, v2;
-    protected final IVectorMutable gtmp;
+    protected final IVector dr21, dr23, dr34;
+    protected final IVector v1, v2;
+    protected final IVector gtmp;
     protected IBoundary boundary;
     protected double a0, a1, a2, a3;
-    protected final IVectorMutable[] gradient;
+    protected final IVector[] gradient;
     
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
@@ -205,8 +203,8 @@ public class P4BondTorsion extends Potential implements PotentialSoft {
         atoms.add(atom2);
         atoms.add(atom3);
         int n = 40;
-        IVectorMutable gradient = space.makeVector();
-        IVectorRandom dr = (IVectorRandom)space.makeVector();
+        IVector gradient = space.makeVector();
+        IVector dr = (IVector)space.makeVector();
         for (int i=0; i<n; i++) {
             atom0.getPosition().E(positionSource.randomPosition());
             atom1.getPosition().E(positionSource.randomPosition());

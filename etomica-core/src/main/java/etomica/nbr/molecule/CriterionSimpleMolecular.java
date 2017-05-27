@@ -4,12 +4,9 @@
 
 package etomica.nbr.molecule;
 
-import etomica.api.IBoundary;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
 import etomica.simulation.Simulation;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.MoleculeAgentManager;
@@ -94,7 +91,7 @@ public class CriterionSimpleMolecular implements NeighborCriterionMolecular, Mol
 //        }
         
         
-		r2 = moleculeSite.position(molecule).Mv1Squared((IVectorMutable)agentManager.getAgent(molecule));
+		r2 = moleculeSite.position(molecule).Mv1Squared((IVector)agentManager.getAgent(molecule));
 		
 //        if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.allAtoms(new AtomSetSinglet(atom))) {
 //            System.out.println("atom "+atom+" displacement "+r2+" "+atom.getPosition());
@@ -142,7 +139,7 @@ public class CriterionSimpleMolecular implements NeighborCriterionMolecular, Mol
 	}
 	
 	public void reset(IMolecule molecule) {
-		((IVectorMutable)agentManager.getAgent(molecule)).E(moleculeSite.position(molecule));
+		((IVector)agentManager.getAgent(molecule)).E(moleculeSite.position(molecule));
 	}
 
     public Class getMoleculeAgentClass() {
@@ -157,7 +154,7 @@ public class CriterionSimpleMolecular implements NeighborCriterionMolecular, Mol
 
     protected final Space space;
     protected double interactionRange, displacementLimit2, neighborRadius2;
-	protected final IVectorMutable dr;
+	protected final IVector dr;
     protected IBoundary boundary;
 	protected double safetyFactor;
 	protected double r2, r2MaxSafe;

@@ -8,7 +8,6 @@ import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.space.Space;
 
@@ -110,7 +109,7 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
         // substract 1 from each dimension so that multiplying by it yields
         // the amount each coordinate is to be translated *by* (not to).
         scaleVector.PE(-1);
-        IVectorMutable translationVector = translator.getTranslationVector();
+        IVector translationVector = translator.getTranslationVector();
 
         IMoleculeList molecules = box.getMoleculeList();
         for (int i=0; i<molecules.getMoleculeCount(); i++) {
@@ -150,7 +149,7 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
     private static final long serialVersionUID = 1L;
     protected final AtomActionTranslateBy translator;
     protected final MoleculeChildAtomAction groupScaler;
-    protected final IVectorMutable scaleVector, dimVector;
+    protected final IVector scaleVector, dimVector;
     protected final AtomPositionGeometricCenter moleculeCenter;
     
 }

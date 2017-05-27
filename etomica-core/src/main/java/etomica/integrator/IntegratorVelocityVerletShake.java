@@ -4,18 +4,9 @@
 
 package etomica.integrator;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
 import etomica.simulation.Simulation;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.SpeciesAgentManager;
@@ -40,12 +31,12 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
     protected final IteratorDirective allAtoms;
     protected final SpeciesAgentManager shakeAgentManager;
     protected AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> agentManager;
-    protected final IVectorMutable dr;
+    protected final IVector dr;
     protected double shakeTol;
     protected int maxIterations;
     protected boolean[][] moved;
-    protected IVectorMutable[] drOld;
-    protected final IVectorMutable temp;
+    protected IVector[] drOld;
+    protected final IVector temp;
     public int printInterval = 0;
 
     public IntegratorVelocityVerletShake(Simulation sim, IPotentialMaster potentialMaster, Space _space) {
@@ -70,7 +61,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
         setShakeTolerance(1e-14);
         setMaxIterations(20);
         moved = new boolean[2][0];
-        drOld = new IVectorMutable[0];
+        drOld = new IVector[0];
         temp = space.makeVector();
     }
     
@@ -134,7 +125,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
                 IBoundary boundary = box.getBoundary();
 
                 if (drOld.length < bondConstraints.bondedAtoms.length) {
-                    IVectorMutable[] newDrOld = new IVectorMutable[bondConstraints.bondedAtoms.length];
+                    IVector[] newDrOld = new IVector[bondConstraints.bondedAtoms.length];
                     System.arraycopy(drOld, 0, newDrOld, 0, drOld.length);
                     for (int j=drOld.length; j<newDrOld.length; j++) {
                         newDrOld[j] = space.makeVector();
@@ -155,8 +146,8 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
                 MyAgent agent = agentManager.getAgent(a);
-                IVectorMutable r = a.getPosition();
-                IVectorMutable v = a.getVelocity();
+                IVector r = a.getPosition();
+                IVector v = a.getVelocity();
                 if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
                     System.out.println("first "+a+" r="+r+", v="+v+", f="+agent.force);
                 }
@@ -262,7 +253,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
 //            System.out.println("shook "+iLeaf+" "+a.getPosition());
 //            System.out.println("force: "+((MyAgent)a.ia).force.toString());
-            IVectorMutable velocity = a.getVelocity();
+            IVector velocity = a.getVelocity();
             // v(t+dt) = (r(t+dt) - r(t))/dt + 0.5 * f(t+dt) / m
             velocity.PE(a.getPosition());
             velocity.TE(1.0/timeStep);

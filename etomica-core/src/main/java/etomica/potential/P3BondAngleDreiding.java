@@ -9,7 +9,6 @@ import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.space.Space;
 import etomica.space.Tensor;
 
@@ -34,7 +33,7 @@ public class P3BondAngleDreiding extends Potential implements PotentialSoft {
 		dr23 = space.makeVector();
 		setAngle(thetaEq);
 		setGamma(gamma);
-		gradient = new IVectorMutable[3];
+		gradient = new IVector[3];
 		gradient[0] = space.makeVector();
 		gradient[1] = space.makeVector();
 		gradient[2] = space.makeVector();
@@ -221,8 +220,8 @@ public class P3BondAngleDreiding extends Potential implements PotentialSoft {
         return Double.POSITIVE_INFINITY;
     }
 	
-    protected final IVectorMutable dr12, dr23;
-    protected final IVectorMutable[] gradient;
+    protected final IVector dr12, dr23;
+    protected final IVector[] gradient;
     protected IBoundary boundary;
     private double gamma;
     private double thetaEq;

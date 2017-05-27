@@ -10,7 +10,6 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomPair;
 import etomica.atom.IAtomOriented;
 import etomica.chem.elements.ElementSimple;
@@ -74,9 +73,9 @@ public class P2WaterSzalewicz implements IPotentialTorque {
         {-1.48,  0.26,  -0.62}, //! N5
         { 1.48, -0.26,  -0.62}, //! N5
         {-1.48, -0.26,  -0.62} };  //   ! N5
-    protected static final IVectorMutable[] sites;
+    protected static final IVector[] sites;
     static {
-        sites = new IVectorMutable[siteDoubles.length];
+        sites = new IVector[siteDoubles.length];
         for (int i=0; i<sites.length; i++) {
             sites[i] = Space3D.getInstance().makeVector(siteDoubles[i]);
         }
@@ -269,7 +268,7 @@ public class P2WaterSzalewicz implements IPotentialTorque {
     }
     
     public static IVector[] getSites(Space space) {
-        IVectorMutable[] siteV = new IVectorMutable[siteDoubles.length];
+        IVector[] siteV = new IVector[siteDoubles.length];
         double bohrConv = BohrRadius.UNIT.toSim(1);
         for (int i=0; i<siteV.length; i++) {
             siteV[i] = space.makeVector(siteDoubles[i]);
@@ -288,14 +287,14 @@ public class P2WaterSzalewicz implements IPotentialTorque {
     }
     
     protected static final double gamma=20, R0=1.4;
-    protected final IVectorMutable[][] sitePos;
-    protected final IVectorMutable[] com0;
-    protected final IVectorMutable rTmp;
-    protected final IVectorMutable or2;
+    protected final IVector[][] sitePos;
+    protected final IVector[] com0;
+    protected final IVector rTmp;
+    protected final IVector or2;
     protected final IVector[] allOr;
     protected static final int npol = 3;
-    protected final IVectorMutable[][] E0;
-    protected final IVectorMutable E1, polE1;
+    protected final IVector[][] E0;
+    protected final IVector E1, polE1;
     protected final int[][][][][][] ind_lin;
     public enum Component {
         ALL, INDUCTION, TWO_BODY, NON_PAIR, THREE_BODY
@@ -307,8 +306,8 @@ public class P2WaterSzalewicz implements IPotentialTorque {
     
     public P2WaterSzalewicz(Space space, int nBody) {
         this.space = space;
-        sitePos = new IVectorMutable[nBody][sites.length];
-        com0 = new IVectorMutable[nBody];
+        sitePos = new IVector[nBody][sites.length];
+        com0 = new IVector[nBody];
         for (int j=0; j<nBody; j++) {
             com0[j] = space.makeVector();
             for (int i=0; i<sites.length; i++) {
@@ -320,13 +319,13 @@ public class P2WaterSzalewicz implements IPotentialTorque {
         rTmp = space.makeVector();
         or2 = space.makeVector();
         allOr = new IVector[]{null,null,or2};
-        Rpol = new IVectorMutable[nBody*npol];
-        Gpol = new IVectorMutable[nBody*npol];
+        Rpol = new IVector[nBody*npol];
+        Gpol = new IVector[nBody*npol];
         for (int i=0; i<nBody*npol; i++) {
             Rpol[i] = space.makeVector();
             Gpol[i] = space.makeVector();
         }
-        E0 = new IVectorMutable[nBody][npol];
+        E0 = new IVector[nBody][npol];
         for (int i=0; i<nBody; i++) {
             for (int j=0; j<npol; j++) {
                 E0[i][j] = space.makeVector();
@@ -628,14 +627,14 @@ public class P2WaterSzalewicz implements IPotentialTorque {
         return damp;
     }
     
-    protected final IVectorMutable[] Rpol, Gpol;
-    protected final IVectorMutable epom;
+    protected final IVector[] Rpol, Gpol;
+    protected final IVector epom;
     protected final double[][] distPol;
     protected final double[][] dmptab;
     protected static final double[] pol = new double[]{6.5186, 1.5507, 1.5507};
     protected static final double[] H1pol = new double[]{0,1,0};
     protected static final double[] H2pol = new double[]{0,0,1};
-    protected final IVectorMutable H1O, H2O;
+    protected final IVector H1O, H2O;
     protected final IVector[] com3;
     protected final IVector[][] sitePos3;
     
@@ -747,7 +746,7 @@ public class P2WaterSzalewicz implements IPotentialTorque {
         return energy;
     }
 
-    protected final IVectorMutable sep;
+    protected final IVector sep;
 
     /**
      * Calculate the contribution of molecule b to the field on a
@@ -858,7 +857,7 @@ public class P2WaterSzalewicz implements IPotentialTorque {
     protected static final int nsite3 = 17;
     protected final int[] ijk = new int[]{0,1,2,-1};
     protected static final double[] chrg3 = new double[]{0.258504607653328389,0.564050362569283648,-0.693302666395947953}; // SAPT-5s_1
-    protected final IVectorMutable S2, S3;
+    protected final IVector S2, S3;
     protected double S2fit(double AOOex, double AHHex, double AOHex, double betaOO, double betaHH, double betaOH, double exqpos) {
         double energy = 0;
         for (int iijk=0; iijk<3; iijk++) {
@@ -966,17 +965,17 @@ public class P2WaterSzalewicz implements IPotentialTorque {
     public class P2H2OSC implements IPotentialAtomic {
         
         protected final double[] drvDamp;
-        protected final IVectorMutable[][] gi;
+        protected final IVector[][] gi;
         protected final Tensor tt0Tensor, tt1Tensor, rr0Tensor, rr1Tensor;
         protected final Tensor ijTensor, rTensor0, rTensor1, identity;
         protected final Tensor ijRTensor;
         protected final Tensor[] rot;
-        protected final IVectorMutable drijRot;
+        protected final IVector drijRot;
         public double[][] d2tot;
         protected final double temperature, fac;
-        protected final IVectorMutable drij;
-        protected final IVectorMutable moment;
-        protected final IVectorMutable ri, rj;
+        protected final IVector drij;
+        protected final IVector moment;
+        protected final IVector ri, rj;
         
         public P2H2OSC(double temperature) {
             drvDamp = new double[6];
@@ -991,7 +990,7 @@ public class P2WaterSzalewicz implements IPotentialTorque {
             rTensor1 = space.makeTensor();
             ijRTensor = space.makeTensor();
             identity.E(new double[][]{{1,0,0},{0,1,0},{0,0,1}});
-            gi = new IVectorMutable[2][sites.length];
+            gi = new IVector[2][sites.length];
             for (int i=0; i<sites.length; i++) {
                 gi[0][i] = space.makeVector();
                 gi[1][i] = space.makeVector();
@@ -1393,8 +1392,8 @@ public class P2WaterSzalewicz implements IPotentialTorque {
 
         System.out.println("or0: "+((IAtomOriented)pair.getAtom(0)).getOrientation().getDirection()+" "+((OrientationFull3D)((IAtomOriented)pair.getAtom(0)).getOrientation()).getSecondaryDirection());
         System.out.println("or1: "+atom1.getOrientation().getDirection()+" "+((OrientationFull3D)atom1.getOrientation()).getSecondaryDirection());
-        IVectorMutable d1 = space.makeVector(new double[]{2.9073039245633998, 0.0000000000000000, 0.0000000000000000});
-        IVectorMutable d2 = space.makeVector(new double[]{0.0000000000000000, 0.41344259999999999, 0.0000000000000000});
+        IVector d1 = space.makeVector(new double[]{2.9073039245633998, 0.0000000000000000, 0.0000000000000000});
+        IVector d2 = space.makeVector(new double[]{0.0000000000000000, 0.41344259999999999, 0.0000000000000000});
         d1.normalize();
         d2.normalize();
         d1.E(new double[]{1.1732683191861213, 2.4157477549321920, -1.1135620079348942});
@@ -1460,11 +1459,11 @@ public class P2WaterSzalewicz implements IPotentialTorque {
                         double una = p3.energy(triplet)-(p2.energy(pair12)+p2.energy(pair13)+p2.energy(pair23));
 //                        System.out.print(String.format("%10.4e  ", una));
                         utot += una;
-                        ((IVectorMutable)atom3.getOrientation().getDirection()).TE(-1);
+                        ((IVector)atom3.getOrientation().getDirection()).TE(-1);
                     }
-                    ((IVectorMutable)atom2.getOrientation().getDirection()).TE(-1);
+                    ((IVector)atom2.getOrientation().getDirection()).TE(-1);
                 }
-                ((IVectorMutable)atom1.getOrientation().getDirection()).TE(-1);
+                ((IVector)atom1.getOrientation().getDirection()).TE(-1);
             }
             System.out.print(String.format("%20.15e\n", Kelvin.UNIT.fromSim(utot/8)-0*6.583231966245653e+01));
         }
@@ -1493,7 +1492,7 @@ public class P2WaterSzalewicz implements IPotentialTorque {
         IAtomOriented atom0 = (IAtomOriented)pair.getAtom(0);
         IAtomOriented atom1 = (IAtomOriented)pair.getAtom(1);
 //        ((IAtomOriented)pair.getAtom(0)).getOrientation().setDirection(space.makeVector(new double[]{Math.cos(22.5/180.0*Math.PI), Math.sin(22.5/180.0*Math.PI),0}));
-        IVectorMutable o1 = space.makeVector(new double[]{-1,0,0});
+        IVector o1 = space.makeVector(new double[]{-1,0,0});
         atom0.getOrientation().setDirection(o1);
         atom1.getOrientation().setDirection(o1);
         P2WaterSzalewicz p2 = new P2WaterSzalewicz(space, 2);
@@ -1504,11 +1503,11 @@ public class P2WaterSzalewicz implements IPotentialTorque {
         double dx = 0.0001;
         IVector x = null;
         IVector y = null;
-        IVectorMutable z = space.makeVector(new double[]{0,0,1});
+        IVector z = space.makeVector(new double[]{0,0,1});
         atom1.getPosition().setX(0, 5);
 //        ((OrientationFull3D)atom1.getOrientation()).rotateBy(-Math.atan2(p2.sitesHH*0.5,p2.sitesOH-cmx), z);
 //        ((OrientationFull3D)atom1.getOrientation()).rotateBy(Math.PI/2, y);
-        IVectorMutable vdx = space.makeVector();
+        IVector vdx = space.makeVector();
 //        ((OrientationFull3D)atom1.getOrientation()).rotateBy(0.28, z);
 
         RandomMersenneTwister random = new RandomMersenneTwister(RandomNumberGeneratorUnix.getRandSeedArray());
@@ -1588,7 +1587,7 @@ public class P2WaterSzalewicz implements IPotentialTorque {
         }
         double[] q = P2WaterSzalewicz.getQ();
         IVector[] sp = P2WaterSzalewicz.getSites(Space3D.getInstance());
-        IVectorMutable d = Space3D.getInstance().makeVector();
+        IVector d = Space3D.getInstance().makeVector();
         for (int i=0; i<q.length; i++) {
             d.PEa1Tv1(q[i], sp[i]);
         }
@@ -1608,7 +1607,7 @@ public class P2WaterSzalewicz implements IPotentialTorque {
         IAtomList pair = box.getLeafList();
         IAtomOriented atom0 = (IAtomOriented)pair.getAtom(0);
         IAtomOriented atom1 = (IAtomOriented)pair.getAtom(1);
-        IVectorMutable p1 = atom1.getPosition();
+        IVector p1 = atom1.getPosition();
         IOrientation or0 = atom0.getOrientation();
         OrientationFull3D or1 = (OrientationFull3D)atom1.getOrientation();
         P2WaterSzalewicz p2 = new P2WaterSzalewicz(space, 2);

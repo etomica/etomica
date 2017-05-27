@@ -6,6 +6,7 @@ package etomica.paracetamol;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
+import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
@@ -20,7 +21,6 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;
-import etomica.space.IVectorRandom;
 
 
 /**
@@ -33,7 +33,7 @@ public class MCMoveMoleculeCoupledDLPOLY extends MCMoveBoxStep {
 
     private static final long serialVersionUID = 1L;
     protected final MoleculeChildAtomAction moveMoleculeAction;
-    protected final IVectorRandom groupTransVect;
+    protected final IVector groupTransVect;
     protected IMolecule molecule0, molecule1;
     protected final MeterPotentialEnergy energyMeter;
     protected MoleculeSource moleculeSource;
@@ -56,7 +56,7 @@ public class MCMoveMoleculeCoupledDLPOLY extends MCMoveBoxStep {
         affectedMoleculeIterator = new AtomIteratorArrayListSimple(affectedMoleculeList);
         
         singleAction = new AtomActionTranslateBy(_space);
-        groupTransVect = (IVectorRandom)singleAction.getTranslationVector();
+        groupTransVect = (IVector)singleAction.getTranslationVector();
         
         moveMoleculeAction = new MoleculeChildAtomAction(singleAction);
         

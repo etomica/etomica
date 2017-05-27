@@ -3,11 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.integrator.mcmove;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
+import etomica.api.*;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.space.Space;
@@ -17,7 +13,7 @@ import etomica.space.RotationTensor;
 public class MCMoveRotateMolecule3D extends MCMoveMolecule {
     
     private static final long serialVersionUID = 2L;
-    protected transient IVectorMutable r0;
+    protected transient IVector r0;
     protected transient RotationTensor rotationTensor;
     protected IAtomPositionDefinition positionDefinition;
     
@@ -63,7 +59,7 @@ public class MCMoveRotateMolecule3D extends MCMoveMolecule {
         IAtomList childList = molecule.getChildList();
         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
             IAtom a = childList.getAtom(iChild);
-            IVectorMutable r = a.getPosition();
+            IVector r = a.getPosition();
             r.ME(r0);
             box.getBoundary().nearestImage(r);
             rotationTensor.transform(r);

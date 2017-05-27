@@ -17,7 +17,6 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterCollective;
 import etomica.atom.AtomTypeOrientedSphere;
@@ -37,7 +36,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
     private int annotationHeight = 12;
     private int[] shiftOrigin = new int[2];     //work vector for drawing overflow images
     private final int[] atomOrigin;
-    private final IVectorMutable boundingBox;
+    private final IVector boundingBox;
     protected final Space space;
         
     public DisplayBoxCanvas2D(DisplayBox _box, Space _space, Controller controller) {
@@ -97,7 +96,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
     }
        
     protected void drawAtom(Graphics g, int origin[], IAtom a) {
-        IVectorMutable r = a.getPosition();
+        IVector r = a.getPosition();
         int sigmaP, xP, yP, baseXP, baseYP;
 
         boolean drawOrientation = (a.getType() instanceof AtomTypeOrientedSphere);
@@ -129,7 +128,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
         }
     }
             
-    IVectorMutable vec2;  
+    IVector vec2;
    /**
     * Method that handles the drawing of the box to the screen.
     *

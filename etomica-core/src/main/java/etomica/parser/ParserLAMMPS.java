@@ -9,7 +9,7 @@ import java.util.List;
 import etomica.api.IAtomType;
 import etomica.api.IPotentialAtomic;
 import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
@@ -47,7 +47,7 @@ public class ParserLAMMPS {
         int[] atomCounts = null;
         int[] atomTypeId = null;
         double[] charges = null;
-        IVectorMutable[] coords = null;
+        IVector[] coords = null;
         List<int[]>[] bondedPairs = null;
         List<int[]>[] bondedTriplets = null;
         List<int[]>[] bondedQuads = null;
@@ -65,7 +65,7 @@ public class ParserLAMMPS {
     				int n = Integer.parseInt(fields[0]);
     				atomTypeId = new int[n];
     				charges = new double[n+1];
-    				coords = new IVectorMutable[n];
+    				coords = new IVector[n];
     				continue;
     			}
     			if (line.matches("^[0-9]* atom types")) {

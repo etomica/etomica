@@ -6,7 +6,6 @@ import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialCalculation;
 import etomica.space.Space;
@@ -18,10 +17,10 @@ import etomica.space.Space;
 public class PotentialCalculationSolidSuper implements PotentialCalculation {
         
     protected final CoordinateDefinition coordinateDefinition;
-    protected final IVectorMutable drSite0, drSite1, drA, dr, drB;
+    protected final IVector drSite0, drSite1, drA, dr, drB;
     protected final Space space;
     protected double pSum, virialSum;
-    protected final IVectorMutable pSumXYZ, pTmp;
+    protected final IVector pSumXYZ, pTmp;
     protected double energySum, dadbSum;
     protected double fac1, fac2;
     protected Box box;

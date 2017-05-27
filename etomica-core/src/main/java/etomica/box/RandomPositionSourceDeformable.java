@@ -6,10 +6,9 @@ package etomica.box;
 
 import etomica.api.IBoundary;
 import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
-import etomica.space.IVectorRandom;
 
 /**
  * Implementation of RandomPositionSource that can handle
@@ -22,11 +21,11 @@ import etomica.space.IVectorRandom;
 public class RandomPositionSourceDeformable implements RandomPositionSource {
     
     public RandomPositionSourceDeformable(Space space, IRandom random) {
-        p = (IVectorRandom)space.makeVector();
+        p = (IVector)space.makeVector();
         this.random = random;
     }
 
-    public IVectorMutable randomPosition() {
+    public IVector randomPosition() {
         p.setRandomCube(random);
         IBoundary boundary = box.getBoundary();
         if (boundary instanceof BoundaryDeformablePeriodic) {
@@ -44,5 +43,5 @@ public class RandomPositionSourceDeformable implements RandomPositionSource {
 
     protected final IRandom random;
     protected Box box;
-    protected final IVectorRandom p;
+    protected final IVector p;
 }

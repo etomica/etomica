@@ -10,7 +10,7 @@ import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.space.Space;
 import etomica.space3d.Vector3D;
@@ -65,9 +65,9 @@ public class ConfigurationZincblende extends ConfigurationLattice {
         int nCells = (int) Math.ceil(lists[0].getMoleculeCount() / 4.0);
 
         // determine scaled shape of simulation volume
-        IVectorMutable shape = space.makeVector();
+        IVector shape = space.makeVector();
         shape.E(box.getBoundary().getBoxSize());
-        IVectorMutable latticeConstantV = space.makeVector(lattice.getLatticeConstants());
+        IVector latticeConstantV = space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
 
         // determine number of cells in each direction
@@ -97,7 +97,7 @@ public class ConfigurationZincblende extends ConfigurationLattice {
         int i = 0;
         while (indexIterator.hasNext()) {
             int[] ii = indexIterator.next();
-            IVectorMutable site = (IVectorMutable) lattice.site(ii);
+            IVector site = (IVector) lattice.site(ii);
             atomActionTranslateTo.setDestination(site);
 
             IMolecule a0 = lists[0].getMolecule(i);

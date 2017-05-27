@@ -11,10 +11,8 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.Space;
-import etomica.space.IVectorRandom;
 import etomica.space3d.Vector3D;
 import etomica.util.RandomMersenneTwister;
 import etomica.util.RandomNumberGeneratorUnix;
@@ -147,18 +145,18 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
                             j = prevInserted+1;
                         }
                         inserted[j] = true;
-                        IVectorMutable pos = leafAtoms.getAtom(seq[j]).getPosition();
+                        IVector pos = leafAtoms.getAtom(seq[j]).getPosition();
                         // insert j (between prevInserted and nextInserted)
                         if (i-prevInserted == 2) {
 
                             // insertion into a lens
                             IVector posPrev = leafAtoms.getAtom(seq[prevInserted]).getPosition();
-                            IVectorMutable posNext = leafAtoms.getAtom(seq[nextInserted]).getPosition();
+                            IVector posNext = leafAtoms.getAtom(seq[nextInserted]).getPosition();
                             
                             axis0.Ev1Mv2(posNext, posPrev);
                             double r2 = axis0.squared();
                             if (r2 < 1) {
-                                randomLensPointInBox(posPrev, posNext, (IVectorRandom)pos);
+                                randomLensPointInBox(posPrev, posNext, (IVector)pos);
                             }
                             else {
                                 randomLensPoint(posPrev, posNext, (Vector3D)pos, axis0, r2);
@@ -170,7 +168,7 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
                             IVector posNext = leafAtoms.getAtom(seq[nextInserted]).getPosition();
                             while (true) {
                                 numTrials[i-prevInserted]++;
-                                ((IVectorRandom)pos).setRandomInSphere(random);
+                                ((IVector)pos).setRandomInSphere(random);
                                 pos.PE(posPrev);
                                 double rn = Math.sqrt(pos.Mv1Squared(posNext));
                                 double pn = separationProbability(i-j,rn);
@@ -291,7 +289,7 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
      * @param point (output) random position selected in overlap of the given spheres
      * @throws IllegalArgumentException if given spheres do not overlap
      */
-    protected void randomLensPoint(IVector r1, IVector r2, Vector3D point, IVectorMutable r12, double rSquared) {
+    protected void randomLensPoint(IVector r1, IVector r2, Vector3D point, IVector r12, double rSquared) {
         double d = Math.sqrt(rSquared); //distance between spheres
         randomLensPoint(d, standardLensPoint); //select point for two spheres in standard configuration and separated by this amount
         r12.TE(1./d);//normalize
@@ -305,7 +303,7 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
         point.PEa1Tv1(standardLensPoint.getX(2),normalVector);
     }
 
-    protected void randomLensPointInBox(IVector r0, IVector r1, IVectorRandom point) {
+    protected void randomLensPointInBox(IVector r0, IVector r1, IVector point) {
         double minX = r0.getX(0) - 1;
         double a = r1.getX(0) - 1;
         double maxX = 0;
@@ -723,7 +721,7 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
     }
 
     protected final double sigma;
-    protected final IVectorMutable axis0;
+    protected final IVector axis0;
     protected final double[] normalWidth;
     protected boolean[] inserted;
     protected long[] numInserts, numTrials;

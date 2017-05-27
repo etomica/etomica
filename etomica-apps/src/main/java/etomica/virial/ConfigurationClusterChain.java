@@ -5,8 +5,8 @@
 package etomica.virial;
 
 import etomica.api.IAtomList;
+import etomica.api.IVector;
 import etomica.box.Box;
-import etomica.api.IVectorMutable;
 import etomica.space.Space;
 
 public class ConfigurationClusterChain extends ConfigurationCluster {
@@ -20,7 +20,7 @@ public class ConfigurationClusterChain extends ConfigurationCluster {
 		BoxCluster clusterBox =(BoxCluster) box;
 		IAtomList list = box.getLeafList();
 		for (int i=1;i<list.getAtomCount();i++){
-			((IVectorMutable)list.getAtom(i).getPosition()).setX(0, 0.9*i);
+			((IVector)list.getAtom(i).getPosition()).setX(0, 0.9*i);
 		 }
 		 clusterBox.trialNotify();
 		 clusterBox.acceptNotify();

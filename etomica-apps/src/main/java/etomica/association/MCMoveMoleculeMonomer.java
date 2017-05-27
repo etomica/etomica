@@ -7,7 +7,7 @@ package etomica.association;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.simulation.Simulation;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.atom.MoleculeArrayList;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.space.Space;
@@ -20,7 +20,7 @@ import etomica.space.Space;
 public class MCMoveMoleculeMonomer extends MCMoveMolecule {
 	protected AssociationManagerMolecule associationManager;
 	protected final MoleculeArrayList smerList;
-	protected final IVectorMutable dr;
+	protected final IVector dr;
 	protected int maxLength = Integer.MAX_VALUE;
 	protected IAssociationHelperMolecule associationHelper;
 	

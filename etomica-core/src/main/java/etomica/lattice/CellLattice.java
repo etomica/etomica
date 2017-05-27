@@ -5,7 +5,6 @@
 package etomica.lattice;
 
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.space.Space;
 
 /**
@@ -80,7 +79,7 @@ public class CellLattice extends RectangularLattice {
     
     private static final long serialVersionUID = 1L;
     private final double[] cellSize;
-    private final IVectorMutable dimensions;
+    private final IVector dimensions;
 
     /**
      * Extends the SimpleLattice neighbor iterator to provide methods that
@@ -157,7 +156,7 @@ public class CellLattice extends RectangularLattice {
         
         private static final long serialVersionUID = 1L;
         private final int[] idx;//a work array
-        private final IVectorMutable previousDimensions;
+        private final IVector previousDimensions;
         private double neighborDistance;
     }//end of NeighborIterator
 }

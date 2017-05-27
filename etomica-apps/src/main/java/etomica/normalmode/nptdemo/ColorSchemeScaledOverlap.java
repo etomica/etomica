@@ -7,7 +7,6 @@ import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.graphics.ColorSchemeCollectiveAgent;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
@@ -106,8 +105,8 @@ public class ColorSchemeScaledOverlap extends ColorSchemeCollectiveAgent {
 
     private static final long serialVersionUID = 1L;
     private final NeighborListManager neighborManager;
-    protected final IVectorMutable dr;
-    protected final IVectorMutable pi, pj;
+    protected final IVector dr;
+    protected final IVector pi, pj;
     protected final int[] nOverlaps;
     protected double pressure, displayDensity;
     protected final CoordinateDefinition coordinateDefinition;

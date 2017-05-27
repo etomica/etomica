@@ -4,12 +4,7 @@
 
 package etomica.virial.simulations;
 
-import etomica.api.IAtomList;
-import etomica.api.IIntegratorEvent;
-import etomica.api.IIntegratorListener;
-import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
+import etomica.api.*;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.iterator.ANIntergroupExchange;
 import etomica.atom.iterator.ANIntragroupExchange;
@@ -19,7 +14,6 @@ import etomica.chem.elements.ElementChemical;
 import etomica.config.ConformationLinear;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
-import etomica.integrator.mcmove.MCMoveBox;
 import etomica.potential.P2Harmonic;
 import etomica.potential.P2HePCKLJS;
 import etomica.potential.P2HeSimplified;
@@ -467,13 +461,13 @@ public class VirialHePIXCOdd {
         for (int j=0;j<nRings;j++) {
         	IAtomList leafList = sim.box[0].getMoleculeList(species[j]).getMolecule(0).getChildList();
             for (int i=0; i<leafList.getAtomCount(); i++) {
-                IVectorMutable p = leafList.getAtom(i).getPosition();
+                IVector p = leafList.getAtom(i).getPosition();
                 p.setX(0, r*Math.cos((2*Math.PI*i)/leafList.getAtomCount()));
                 p.setX(1, r*Math.sin((2*Math.PI*i)/leafList.getAtomCount()));
             }
             IAtomList leafList1 = sim.box[1].getMoleculeList(species[j]).getMolecule(0).getChildList();
             for (int i=0; i<leafList1.getAtomCount(); i++) {
-                IVectorMutable p = leafList1.getAtom(i).getPosition();
+                IVector p = leafList1.getAtom(i).getPosition();
                 p.setX(0, j*10+r*Math.cos((2*Math.PI*i)/leafList1.getAtomCount()));
                 p.setX(1, r*Math.sin((2*Math.PI*i)/leafList1.getAtomCount()));
             }

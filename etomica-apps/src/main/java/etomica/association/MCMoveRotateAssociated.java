@@ -8,7 +8,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.atom.AtomArrayList;
 import etomica.atom.IAtomOriented;
 import etomica.integrator.mcmove.MCMoveAtom;
@@ -24,7 +24,7 @@ public class MCMoveRotateAssociated extends MCMoveAtom {
     private final IOrientation oldOrientation;
     protected AssociationManager associationManager;
     protected final AtomArrayList smerList;
-    protected final IVectorMutable dr;
+    protected final IVector dr;
 	protected int maxLength = Integer.MAX_VALUE;
 
     private transient IOrientation iOrientation;

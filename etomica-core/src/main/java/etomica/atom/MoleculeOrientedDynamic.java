@@ -5,7 +5,7 @@
 package etomica.atom;
 
 import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.space.Space;
 
 /**
@@ -23,15 +23,15 @@ public class MoleculeOrientedDynamic extends MoleculeOriented implements IMolecu
         velocity = space.makeVector();
     }
 
-    public IVectorMutable getAngularVelocity() {
+    public IVector getAngularVelocity() {
         return angularMomentum;
     }
 
-    public IVectorMutable getVelocity() {
+    public IVector getVelocity() {
         return velocity;
     }
 
     private static final long serialVersionUID = 1L;
-    protected final IVectorMutable angularMomentum;
-    protected final IVectorMutable velocity;
+    protected final IVector angularMomentum;
+    protected final IVector velocity;
 }

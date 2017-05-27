@@ -4,12 +4,8 @@
 
 package etomica.potential;
 
-import etomica.api.IAtom;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMolecular;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.math.Complex;
 import etomica.math.SpecialFunctions;
@@ -88,14 +84,14 @@ public class EwaldSumMolecules implements IPotentialMolecular {
 		double rCutSquared = rCut * rCut; // criteria for spherical cutoff
 		double uReal = 0.0;
 		
-		IVectorMutable rAB = space.makeVector();// vector between site A @ molecule i & site B @ molecule j
+		IVector rAB = space.makeVector();// vector between site A @ molecule i & site B @ molecule j
 		for (int i=0; i < numMolecules; i++){
 			IMolecule molecule_i = moleculeList.getMolecule(i); // get i-th molecule
 			int numSites = molecule_i.getChildList().getAtomCount();
 			
 			for (int a=0; a < numSites; a++){
 				IAtom siteA = molecule_i.getChildList().getAtom(a);// get siteA from i-th molecule
-				IVectorMutable positionA = siteA.getPosition();
+				IVector positionA = siteA.getPosition();
 				double chargeA = ((MyCharge)atomAgentManager.getAgent(siteA)).charge;
 				
 				// given i-th molecule, get j-th molecule starting from (i+1)-th molecule
@@ -106,7 +102,7 @@ public class EwaldSumMolecules implements IPotentialMolecular {
 					for (int b=0; b < numSites ; b++){
 						
 						IAtom siteB = molecule_j.getChildList().getAtom(b);
-						IVectorMutable positionB = siteB.getPosition();
+						IVector positionB = siteB.getPosition();
 						double chargeB = ((MyCharge)atomAgentManager.getAgent(siteB)).charge;
 						
 						rAB.Ev1Mv2(positionA, positionB);// get vector rAB
@@ -152,8 +148,8 @@ public class EwaldSumMolecules implements IPotentialMolecular {
 		boolean useComplex = true;
 		double uFourier = 0.0;
 		double uFourier_ = 0.0; //>>>>>>>>>>>>>> calculated from cos*cos + sin*sin
-		IVectorMutable kVector = space.makeVector();// fourier space vector
-		IVectorMutable r = space.makeVector();
+		IVector kVector = space.makeVector();// fourier space vector
+		IVector r = space.makeVector();
 		
 		if (true){
 			System.out.println("basis vector is :" + basis); 
@@ -198,7 +194,7 @@ public class EwaldSumMolecules implements IPotentialMolecular {
 						// get the interaction site from molecule_i
 						for (int a=0; a< numSites ; a++){
 							IAtom site = molecule_i.getChildList().getAtom(a);
-							IVectorMutable position = site.getPosition();
+							IVector position = site.getPosition();
 							double charge = ((MyCharge)atomAgentManager.getAgent(site)).charge;
 							r.E(position);
 							double k_r_dot = kVector.dot(r);

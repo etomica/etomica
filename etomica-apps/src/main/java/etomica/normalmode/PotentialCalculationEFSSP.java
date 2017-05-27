@@ -101,12 +101,12 @@ public class PotentialCalculationEFSSP implements PotentialCalculation {
 	protected double volume , temperature;
 	protected double f1;
 	protected int nMol;
-    protected final IVectorMutable rij;
-    protected final IVectorMutable Rij;
-    protected final IVectorMutable drj;
-    protected final IVectorMutable dri;
-    protected final IVectorMutable drij;
-    protected final IVectorMutable T1ij, T1ik;
+    protected final IVector rij;
+    protected final IVector Rij;
+    protected final IVector drj;
+    protected final IVector dri;
+    protected final IVector drij;
+    protected final IVector T1ij, T1ik;
 
     protected final boolean isLS;
 

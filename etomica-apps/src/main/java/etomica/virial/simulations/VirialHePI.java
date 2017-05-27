@@ -19,7 +19,7 @@ import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ANIntergroupCoupled;
@@ -51,7 +51,6 @@ import etomica.potential.P3CPSNonAdditiveHeSimplified;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.Potential2Spherical;
 import etomica.potential.PotentialGroup;
-import etomica.space.IVectorRandom;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheres;
@@ -562,7 +561,7 @@ public class VirialHePI {
 
         if (doDiff || subtractHalf || !pairOnly) {
             AtomActionTranslateBy translator = new AtomActionTranslateBy(space);
-            IVectorRandom groupTranslationVector = (IVectorRandom)translator.getTranslationVector();
+            IVector groupTranslationVector = (IVector)translator.getTranslationVector();
             MoleculeChildAtomAction moveMoleculeAction = new MoleculeChildAtomAction(translator);
             IMoleculeList molecules = sim.box[1].getMoleculeList();
             double r = 4;
@@ -573,7 +572,7 @@ public class VirialHePI {
                 groupTranslationVector.setX(1, r*Math.sin(2*(i-1)*Math.PI/(nPoints-1)));
                 moveMoleculeAction.actionPerformed(molecules.getMolecule(i));
                 if (nBeads>1) {
-                    IVectorMutable v = molecules.getMolecule(i).getChildList().getAtom(1).getPosition();
+                    IVector v = molecules.getMolecule(i).getChildList().getAtom(1).getPosition();
                     v.TE(0.95);
                 }
             }

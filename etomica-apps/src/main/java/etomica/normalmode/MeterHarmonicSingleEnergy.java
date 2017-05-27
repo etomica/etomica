@@ -4,8 +4,8 @@
 
 package etomica.normalmode;
 
+import etomica.api.IVector;
 import etomica.box.Box;
-import etomica.api.IVectorMutable;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -87,7 +87,7 @@ public class MeterHarmonicSingleEnergy implements IEtomicaDataSource {
         imaginaryT = new double[coordinateDim];
     }
     
-    public void setWaveVectors(IVectorMutable[] newWaveVectors, double[] coefficients) {
+    public void setWaveVectors(IVector[] newWaveVectors, double[] coefficients) {
         waveVectors = newWaveVectors;
         waveVectorCoefficients = coefficients;
     }
@@ -120,7 +120,7 @@ public class MeterHarmonicSingleEnergy implements IEtomicaDataSource {
     protected DataDoubleArray data;
     private final DataTag tag;
     protected double[] realT, imaginaryT;
-    protected IVectorMutable[] waveVectors;
+    protected IVector[] waveVectors;
     protected double[] waveVectorCoefficients;
     protected double[][][] eigenvectors;
     protected double[][] omegaSquared;

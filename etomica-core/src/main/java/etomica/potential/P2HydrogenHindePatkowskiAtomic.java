@@ -12,7 +12,6 @@ import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomHydrogen;
 import etomica.space.Space;
 import etomica.units.BohrRadius;
@@ -21,7 +20,7 @@ import etomica.units.Kelvin;
 
 public class P2HydrogenHindePatkowskiAtomic implements IPotentialAtomic {
     protected IBoundary boundary;
-    protected IVectorMutable dr,com0,com1,hh0,hh1,n0,n1;
+    protected IVector dr,com0,com1,hh0,hh1,n0,n1;
     protected P2HydrogenHindeAtomic p2Hinde;
     protected P2HydrogenPatkowskiAtomic p2Patkowski;
     protected static final double r0 = BohrRadius.UNIT.toSim(1.448736);

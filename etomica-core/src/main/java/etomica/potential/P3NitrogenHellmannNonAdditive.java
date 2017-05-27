@@ -9,7 +9,6 @@ import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
 import etomica.space.Space;
 import etomica.units.BohrRadius;
@@ -86,9 +85,9 @@ public class P3NitrogenHellmannNonAdditive implements IPotentialAtomic{
         IVector or1 = atom1.getOrientation().getDirection();
         IVector or2 = atom2.getOrientation().getDirection();
 
-        IVectorMutable r0 = space.makeVector();
-        IVectorMutable r1 = space.makeVector();
-        IVectorMutable r2 = space.makeVector();
+        IVector r0 = space.makeVector();
+        IVector r1 = space.makeVector();
+        IVector r2 = space.makeVector();
         
         double vDisp = 0;
         for (int i=5; i<7; i++){
@@ -101,9 +100,9 @@ public class P3NitrogenHellmannNonAdditive implements IPotentialAtomic{
                     r2.E(cm2);
                     r2.PEa1Tv1(pos[k], or2);
                     
-                    IVectorMutable dr01 = space.makeVector();
-                    IVectorMutable dr12 = space.makeVector();
-                    IVectorMutable dr02 = space.makeVector();
+                    IVector dr01 = space.makeVector();
+                    IVector dr12 = space.makeVector();
+                    IVector dr02 = space.makeVector();
                     
                     dr01.Ev1Mv2(r1, r0);
                     dr12.Ev1Mv2(r2, r1);
@@ -146,8 +145,8 @@ public class P3NitrogenHellmannNonAdditive implements IPotentialAtomic{
         for (int i=5; i<7; i++) {
             r0.E(cm0);
             r0.PEa1Tv1(pos[i], or0);
-            IVectorMutable dr01 = space.makeVector();
-            IVectorMutable dr02 = space.makeVector();
+            IVector dr01 = space.makeVector();
+            IVector dr02 = space.makeVector();
             dr01.E(0);
             dr02.E(0);
             for (int j=0; j<5; j++){
@@ -176,8 +175,8 @@ public class P3NitrogenHellmannNonAdditive implements IPotentialAtomic{
         for (int i=5; i<7; i++) {            
             r1.E(cm1);
             r1.PEa1Tv1(pos[i], or1);
-            IVectorMutable dr11 = space.makeVector();
-            IVectorMutable dr12 = space.makeVector();
+            IVector dr11 = space.makeVector();
+            IVector dr12 = space.makeVector();
             dr11.E(0);
             dr12.E(0);
             for (int j=0; j<5; j++){
@@ -206,8 +205,8 @@ public class P3NitrogenHellmannNonAdditive implements IPotentialAtomic{
         for (int i=5; i<7; i++) {
             r2.E(cm2);
             r2.PEa1Tv1(pos[i], or2);
-            IVectorMutable dr21 = space.makeVector();
-            IVectorMutable dr22 = space.makeVector();            
+            IVector dr21 = space.makeVector();
+            IVector dr22 = space.makeVector();
             dr21.E(0);
             dr22.E(0);
             for (int j=0; j<5; j++){

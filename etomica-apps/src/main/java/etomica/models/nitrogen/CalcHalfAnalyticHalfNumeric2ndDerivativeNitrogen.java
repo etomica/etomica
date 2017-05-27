@@ -11,7 +11,6 @@ import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.MoleculePair;
 import etomica.space.Space;
@@ -366,7 +365,7 @@ public class CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen{
 	protected P2Nitrogen potential;
 	protected AtomActionTranslateBy translateBy;
 	protected MoleculeChildAtomAction atomGroupActionTranslate;
-	protected IVectorMutable lsPosition, destination, workVec;
+	protected IVector lsPosition, destination, workVec;
 	protected double errt, fac, xVecBox, yVecBox, zVecBox, rC;
 	protected double deltaU;
 	protected double [][] a;

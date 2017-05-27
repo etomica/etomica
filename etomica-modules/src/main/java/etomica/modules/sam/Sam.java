@@ -4,15 +4,8 @@
 
 package etomica.modules.sam;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.api.IBoundary;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
@@ -108,7 +101,7 @@ public class Sam extends Simulation {
         //construct box
 	    box = new Box(new BoundaryRectangularSlit(1, space), space);
         addBox(box);
-        IVectorMutable dim = space.makeVector();
+        IVector dim = space.makeVector();
         dim.E(new double[]{sizeCellX*numXCells, chainLength*2.4, sizeCellZ*numZCells});
         box.getBoundary().setBoxSize(dim);
 
@@ -127,8 +120,8 @@ public class Sam extends Simulation {
         chainPhi = new double[4];
 
         config = new ConfigurationSAM(this, space, species, speciesSurface, potentialMaster);
-        Basis alkaneBasis = new Basis(new IVectorMutable[]{space.makeVector(new double[]{1.0/6.0,0,1.0/6.0}), ((Space)space).makeVector(new double[]{2.0/3.0, 0, 2.0/3.0})});
-        Basis surfaceBasis = new Basis(new IVectorMutable[]{
+        Basis alkaneBasis = new Basis(new IVector[]{space.makeVector(new double[]{1.0/6.0,0,1.0/6.0}), ((Space)space).makeVector(new double[]{2.0/3.0, 0, 2.0/3.0})});
+        Basis surfaceBasis = new Basis(new IVector[]{
                 space.makeVector(new double[]{2.0/6.0, 0, 0}),
                 space.makeVector(new double[]{5.0/6.0, 0, 1.0/6.0}),
                 space.makeVector(new double[]{2.0/6.0, 0, 2.0/6.0}),
@@ -276,21 +269,21 @@ public class Sam extends Simulation {
 
     protected void updateConformation(int iChain) {
         double bondTheta0 = chainTheta + .5*(Math.PI - bondTheta);
-        IVectorMutable vector1 = config.getConformation(iChain).getFirstVector();
+        IVector vector1 = config.getConformation(iChain).getFirstVector();
         vector1.setX(0, Math.cos(chainPsi)*Math.sin(bondTheta0)*bondL_CC);
         vector1.setX(1, Math.cos(bondTheta0)*bondL_CC);
         vector1.setX(2, Math.sin(chainPsi)*Math.sin(bondTheta0)*bondL_CC);
         double bondTheta2 = bondTheta0 - (Math.PI - bondTheta);
-        IVectorMutable vector2 = config.getConformation(iChain).getSecondVector();
+        IVector vector2 = config.getConformation(iChain).getSecondVector();
         vector2.setX(0, Math.cos(chainPsi)*(Math.sin(bondTheta2))*bondL_CC);
         vector2.setX(1, Math.cos(bondTheta2)*bondL_CC);
         vector2.setX(2, Math.sin(chainPsi)*(Math.sin(bondTheta2))*bondL_CC);
         
-        IVectorMutable vector0 = space.makeVector();
+        IVector vector0 = space.makeVector();
         vector0.Ev1Pv2(vector1, vector2);
         IOrientation3D orientation = (IOrientation3D)space.makeOrientation();
         orientation.setDirection(vector1);
-        IVectorMutable vector0Axis = space.makeVector();
+        IVector vector0Axis = space.makeVector();
         vector0Axis.Ea1Tv1(1.0/Math.sqrt(vector0.squared()), vector0);
         orientation.rotateBy(chainPhi[iChain], vector0Axis);
         vector1.Ea1Tv1(Math.sqrt(vector1.squared()), orientation.getDirection());
@@ -298,9 +291,9 @@ public class Sam extends Simulation {
 
         if (iChain == 0) {
             IMolecule molecule = species.makeMolecule();
-            IVectorMutable moleculePos = space.makeVector();
+            IVector moleculePos = space.makeVector();
             moleculePos.E(positionDefinition.position(molecule));
-            IVectorMutable sulfurPosition = molecule.getChildList().getAtom(0).getPosition();
+            IVector sulfurPosition = molecule.getChildList().getAtom(0).getPosition();
             sulfurPosition.ME(moleculePos);
             molecule = null;
             sulfurPosition.TE(-1);
@@ -348,7 +341,7 @@ public class Sam extends Simulation {
         IMoleculeList surfaceMolecules = box.getMoleculeList(speciesSurface);
         int nMolecules = polymerMolecules.getMoleculeCount();
         double maxDistance = 3.5*3.5;
-        IVectorMutable dr = space.makeVector();
+        IVector dr = space.makeVector();
         IBoundary boundary = box.getBoundary();
         for (int i=0; i<nMolecules; i++) {
             AtomArrayList bondedSurfaceAtoms = new AtomArrayList(3);
@@ -374,7 +367,7 @@ public class Sam extends Simulation {
         }
         boolean increase = newNumZCells > numZCells;
         numZCells = newNumZCells;
-        IVectorMutable dim = space.makeVector();
+        IVector dim = space.makeVector();
         double zShift = box.getBoundary().getBoxSize().getX(2);
         dim.E(new double[]{sizeCellX*numXCells, chainLength*2.5, sizeCellZ*numZCells});
         box.getBoundary().setBoxSize(dim);
@@ -431,7 +424,7 @@ public class Sam extends Simulation {
         int oldNumXCells = numXCells;
         numXCells = newNumXCells;
         double xShift = box.getBoundary().getBoxSize().getX(0);
-        IVectorMutable dim = space.makeVector();
+        IVector dim = space.makeVector();
         dim.E(new double[]{sizeCellX*numXCells, chainLength*2.5, sizeCellZ*numZCells});
         box.getBoundary().setBoxSize(dim);
         config.setNCellsX(numXCells);

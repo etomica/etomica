@@ -5,12 +5,11 @@
 package etomica.virial;
 
 import etomica.api.IAtomList;
+import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.Space;
-import etomica.space.IVectorRandom;
 
 /**
  * Extension of MCMoveClusterAtom that moves only the second atom and only
@@ -32,9 +31,9 @@ public class MCMoveClusterAtomDiscrete extends MCMoveAtom {
     public void setBox(Box p) {
         super.setBox(p);
         if (translationVectors == null) {
-            translationVectors = new IVectorRandom[box.getLeafList().getAtomCount()-1];
+            translationVectors = new IVector[box.getLeafList().getAtomCount()-1];
             for (int i=0; i<translationVectors.length; i++) {
-                translationVectors[i] = (IVectorRandom)space.makeVector();
+                translationVectors[i] = (IVector)space.makeVector();
             }
         }
     }
@@ -52,7 +51,7 @@ public class MCMoveClusterAtomDiscrete extends MCMoveAtom {
         int imax = (int)Math.ceil(stepSize / dr);
         int idr = random.nextInt(2*imax) - imax;
         if (idr >= 0) idr++;
-        IVectorMutable p1 = box.getLeafList().getAtom(1).getPosition();
+        IVector p1 = box.getLeafList().getAtom(1).getPosition();
         oldR = p1.getX(0);
         int iOldR = (int)Math.round(oldR/dr);
         newR = (iOldR + idr)*dr;
@@ -86,7 +85,7 @@ public class MCMoveClusterAtomDiscrete extends MCMoveAtom {
     }
     
     public void rejectNotify() {
-        IVectorMutable p1 = box.getLeafList().getAtom(1).getPosition();
+        IVector p1 = box.getLeafList().getAtom(1).getPosition();
         p1.setX(0, oldR);
 
         IAtomList leafAtoms = box.getLeafList();
@@ -101,6 +100,6 @@ public class MCMoveClusterAtomDiscrete extends MCMoveAtom {
     	((BoxCluster)box).acceptNotify();
     }
 
-    protected IVectorRandom[] translationVectors;
+    protected IVector[] translationVectors;
     protected double dr, oldR, newR, rPow;
 }

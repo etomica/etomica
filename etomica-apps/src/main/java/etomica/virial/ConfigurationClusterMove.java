@@ -8,7 +8,7 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.space.Space;
-import etomica.space.IVectorRandom;
+import etomica.api.IVector;
 
 public class ConfigurationClusterMove extends ConfigurationCluster {
 
@@ -28,7 +28,7 @@ public class ConfigurationClusterMove extends ConfigurationCluster {
 		while (clusterBox.getSampleCluster().value(clusterBox) == 0) {
     		IAtomList list = box.getLeafList();
     		for (int i=1;i<list.getAtomCount();i++){
-    			((IVectorRandom)list.getAtom(i).getPosition()).setRandomInSphere(random);
+    			((IVector)list.getAtom(i).getPosition()).setRandomInSphere(random);
     			list.getAtom(i).getPosition().TE(distance);
     		}
             clusterBox.trialNotify();

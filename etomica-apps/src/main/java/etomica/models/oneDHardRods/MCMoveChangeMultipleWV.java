@@ -4,11 +4,8 @@
 
 package etomica.models.oneDHardRods;
 
-import etomica.api.IAtomList;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -38,7 +35,7 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
     protected final MeterPotentialEnergy energyMeter;
     private double[][][] eigenVectors;
     private double[][] omega2, oneOverOmega2;
-    private IVectorMutable[] waveVectors;
+    private IVector[] waveVectors;
     private double[] waveVectorCoefficients, sqrtWVC;
     int changedWV;
     int[] changeableWV;  //all wvs from this are changed.
@@ -108,8 +105,8 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
      * 
      * @param wv
      */
-    public void setWaveVectors(IVectorMutable[] wv){
-        waveVectors = new IVectorMutable[wv.length];
+    public void setWaveVectors(IVector[] wv){
+        waveVectors = new IVector[wv.length];
         waveVectors = wv;
     }
     public void setWaveVectorCoefficients(double[] coeff){

@@ -7,7 +7,7 @@ package etomica.normalmode;
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 import etomica.box.Box;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.data.DataInfo;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
@@ -85,7 +85,7 @@ public class NormalModesSoftSpherical implements NormalModes {
         
         LatticeSum summer = new LatticeSum(lattice);
         summer.setMaxElement(49);
-        IVectorMutable kVector = new Vector3D();
+        IVector kVector = new Vector3D();
         kVector.E(0.0);
         summer.setK(kVector);
         System.out.println("\n k:"+kVector.toString()+"   in NormalModeSoftSpherical");

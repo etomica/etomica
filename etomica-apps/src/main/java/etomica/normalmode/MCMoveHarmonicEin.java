@@ -8,7 +8,6 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IRandom;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 
 /**
  * MC move whose purpose in life is to sample a system whose energy is a
@@ -58,7 +57,7 @@ public class MCMoveHarmonicEin extends MCMoveHarmonic {
         lastU = 0;
         for (int i=0; i<atomList.getAtomCount(); i++) {
             IAtom a = atomList.getAtom(i);
-            IVectorMutable p = a.getPosition();
+            IVector p = a.getPosition();
             IVector site = coordinateDefinition.getLatticePosition(a);
             p.ME(site);
             for (int k=0; k<p.getD(); k++) {

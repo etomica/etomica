@@ -6,7 +6,6 @@ package etomica.modules.materialfracture;
 import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.potential.PotentialSoft;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -16,12 +15,12 @@ public class P1Tension implements PotentialSoft {
     
     protected final Space space;
     protected double w;
-    protected final IVectorMutable[] force;
+    protected final IVector[] force;
     protected Box box;
     
     public P1Tension(Space space) {
         this.space = space;
-        force = new IVectorMutable[1];
+        force = new IVector[1];
         force[0] = space.makeVector();
         setSpringConstant(0.0);
     }
@@ -50,7 +49,7 @@ public class P1Tension implements PotentialSoft {
     }
 
     public double energy(IAtomList a) {
-        IVectorMutable r = a.getAtom(0).getPosition();
+        IVector r = a.getAtom(0).getPosition();
         double aSum = 0.0;
         double x = r.getX(0);
         aSum += x*x;
@@ -62,7 +61,7 @@ public class P1Tension implements PotentialSoft {
     }
     
     public IVector[] gradient(IAtomList a) {
-        IVectorMutable r = a.getAtom(0).getPosition();
+        IVector r = a.getAtom(0).getPosition();
         force[0].setX(1, 0);
         double x = r.getX(0);
         force[0].setX(0,-w*x);

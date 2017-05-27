@@ -13,7 +13,6 @@ import etomica.box.Box;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.Basis;
@@ -73,7 +72,7 @@ public class SimModesJ extends Simulation {
         coordinateDefinition.initializeCoordinates(nCells);
         
         normalModes = new NormalModesVariable(space, space.D()*numAtoms, coordinateDefinition);
-        IVectorMutable[] waveVectors = normalModes.getWaveVectors();
+        IVector[] waveVectors = normalModes.getWaveVectors();
         double[][] eigenVectors = normalModes.getEigenVectors();
         double[] phaseAngles = normalModes.getPhaseAngles();
         WaveVectorFactory1D waveVectorFactory = new WaveVectorFactory1D();

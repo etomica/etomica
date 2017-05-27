@@ -8,7 +8,6 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.potential.PotentialSoft;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -19,7 +18,7 @@ import etomica.space.Tensor;
 public class P1Smash implements PotentialSoft {
 
     public P1Smash(Space space) {
-        gradient = new IVectorMutable[1];
+        gradient = new IVector[1];
         gradient[0] = space.makeVector();
         g = 1;
     }
@@ -66,6 +65,6 @@ public class P1Smash implements PotentialSoft {
         return Double.POSITIVE_INFINITY;
     }
     
-    protected final IVectorMutable[] gradient;
+    protected final IVector[] gradient;
     protected double g;
 }

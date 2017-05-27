@@ -6,7 +6,7 @@ package etomica.virial;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.config.IConformation;
 import etomica.space.Space;
 
@@ -70,7 +70,7 @@ public class ConformationNaphthaleneTraPPE implements IConformation, java.io.Ser
 
 	protected static final double sqrt3ofhalfofthebondlength = halfofthebondlength * Math.sqrt(3);
 	protected static final double twicesqrt3ofhalfofthebondlength = sqrt3ofhalfofthebondlength * 2;
-	protected IVectorMutable vector;
+	protected IVector vector;
 	
 	private static final long serialVersionUID = 1L;
 }

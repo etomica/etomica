@@ -5,7 +5,6 @@
 package etomica.space;
 
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 
@@ -51,7 +50,7 @@ public class BoundaryRectangularPeriodic extends BoundaryRectangular {
         }
     }
     
-    public void nearestImage(IVectorMutable dr) {
+    public void nearestImage(IVector dr) {
         dr.PE(dimensionsHalf);
         dr.mod(dimensions);
         dr.ME(dimensionsHalf);
@@ -74,6 +73,6 @@ public class BoundaryRectangularPeriodic extends BoundaryRectangular {
     }
 
     private static final long serialVersionUID = 1L;
-    protected final IVectorMutable dimensionsHalf;
-    protected final IVectorMutable tempImage;
+    protected final IVector dimensionsHalf;
+    protected final IVector tempImage;
 }

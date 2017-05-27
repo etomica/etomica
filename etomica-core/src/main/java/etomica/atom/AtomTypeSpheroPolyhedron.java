@@ -4,7 +4,6 @@ import java.util.List;
 
 import etomica.api.IElement;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.space.Space;
 
 public class AtomTypeSpheroPolyhedron extends AtomTypeLeaf {
@@ -19,8 +18,8 @@ public class AtomTypeSpheroPolyhedron extends AtomTypeLeaf {
         if (vertices.size() == 1 && sweepRadius == 0) sweepRadius = 0.5;
         this.sweepRadius = sweepRadius;
         int vertexNum = vertices.size();
-        IVectorMutable normal = space.makeVector();
-        IVectorMutable drij = space.makeVector();
+        IVector normal = space.makeVector();
+        IVector drij = space.makeVector();
         inRadius = Double.MAX_VALUE;
         
         if (vertexNum >= 3) {

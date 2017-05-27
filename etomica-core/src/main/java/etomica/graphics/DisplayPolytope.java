@@ -12,7 +12,6 @@ import java.awt.event.MouseMotionListener;
 
 import etomica.action.IAction;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.math.geometry.Cuboid;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Parallelepiped;
@@ -76,7 +75,7 @@ public class DisplayPolytope extends Display implements IAction {
     private double toPixels;
         
     protected Polytope polytope;
-    private final IVectorMutable dimensions, maxCoord, minCoord;
+    private final IVector dimensions, maxCoord, minCoord;
   
     public DisplayPolytope(Polytope polytope) {
         super();

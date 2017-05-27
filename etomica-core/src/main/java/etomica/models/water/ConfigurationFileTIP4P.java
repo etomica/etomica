@@ -10,8 +10,8 @@ import java.io.IOException;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
+import etomica.api.IVector;
 import etomica.box.Box;
-import etomica.api.IVectorMutable;
 import etomica.config.ConfigurationFile;
 import etomica.space.Space;
 import etomica.units.Degree;
@@ -41,8 +41,8 @@ public class ConfigurationFileTIP4P extends ConfigurationFile {
         try {
             BufferedReader bufReader = new BufferedReader(fileReader);
             int nLeaf = leafList.getAtomCount();
-            IVectorMutable tmp = space.makeVector();
-            IVectorMutable tmp2 = space.makeVector();
+            IVector tmp = space.makeVector();
+            IVector tmp2 = space.makeVector();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtom a = leafList.getAtom(iLeaf);
                 if(a.getLeafIndex() % 4 != 3 ){// skip M (order is HHOM)
@@ -53,9 +53,9 @@ public class ConfigurationFileTIP4P extends ConfigurationFile {
 //                	a.getPosition().PE(0.001);
                 }else{ // =3
                     //~ Define M positions
-                	IVectorMutable h1 = leafList.getAtom(iLeaf - 3).getPosition();//0 H1
-                	IVectorMutable h2 = leafList.getAtom(iLeaf - 2).getPosition();//1 H2
-                	IVectorMutable o = leafList.getAtom(iLeaf - 1).getPosition();//2 O
+                	IVector h1 = leafList.getAtom(iLeaf - 3).getPosition();//0 H1
+                	IVector h2 = leafList.getAtom(iLeaf - 2).getPosition();//1 H2
+                	IVector o = leafList.getAtom(iLeaf - 1).getPosition();//2 O
                 	
 					if(true){
 	                	//Sice I/P xyz has ONLY 6 digits we do this reconstruction :)
@@ -78,7 +78,7 @@ public class ConfigurationFileTIP4P extends ConfigurationFile {
 	                	h2.PEa1Tv1(1-Math.cos(Degree.UNIT.toSim(104.52)), o);
 					}
                 	
-                	IVectorMutable m = a.getPosition();
+                	IVector m = a.getPosition();
                 	m.E(h1);
                 	m.PE(h2);
                 	m.PEa1Tv1(-2, o);

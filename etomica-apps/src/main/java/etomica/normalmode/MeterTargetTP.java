@@ -7,13 +7,9 @@ package etomica.normalmode;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -92,7 +88,7 @@ public class MeterTargetTP implements IEtomicaDataSource {
             
             for (int j=0; j<atoms.getAtomCount(); j++) {
                 IAtom jRealAtom = atoms.getAtom(j);
-                IVectorMutable pos = pretendAtoms.getAtom(j).getPosition();
+                IVector pos = pretendAtoms.getAtom(j).getPosition();
                 pos.Ea1Tv1(1-fac, coordinateDefinition.getLatticePosition(jRealAtom));
                 pos.PEa1Tv1(+fac, jRealAtom.getPosition());
             }
@@ -252,7 +248,7 @@ public class MeterTargetTP implements IEtomicaDataSource {
         IAtomList pretendAtoms = pretendBox.getLeafList();
         for (int j=0; j<atoms.getAtomCount(); j++) {
             IAtom jRealAtom = atoms.getAtom(j);
-            IVectorMutable pos = pretendAtoms.getAtom(j).getPosition();
+            IVector pos = pretendAtoms.getAtom(j).getPosition();
             pos.E(coordinateDefinition.getLatticePosition(jRealAtom));
         }
 

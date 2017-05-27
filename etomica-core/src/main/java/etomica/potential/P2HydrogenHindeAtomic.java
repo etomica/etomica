@@ -45,7 +45,6 @@ import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomHydrogen;
 import etomica.space.Space;
 import etomica.units.BohrRadius;
@@ -76,7 +75,7 @@ public class P2HydrogenHindeAtomic implements IPotentialAtomic {
     protected final double [][][] c8 = new double [3][3][4];
     protected final double [][] cten = new double [3][3];
     protected IBoundary boundary;
-    protected final IVectorMutable dr,com0,com1,hh0,hh1,n0,n1;
+    protected final IVector dr,com0,com1,hh0,hh1,n0,n1;
     public P2HydrogenHindeAtomic(Space space) {
         dr = space.makeVector();
         com0 = space.makeVector();

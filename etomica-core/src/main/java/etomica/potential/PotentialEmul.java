@@ -16,7 +16,6 @@ import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.MoleculeArrayList;
 import etomica.chem.elements.Argon;
 import etomica.chem.elements.Helium;
@@ -44,7 +43,7 @@ public class PotentialEmul extends PotentialMolecular {
     protected String templateName;
     public static final Unit emulEnergyUnit = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT);
     protected double r2Core;
-    protected final IVectorMutable r12Vec;
+    protected final IVector r12Vec;
     
 	public PotentialEmul(Space space, String templateName){
 	    this(space, templateName, 2.5);

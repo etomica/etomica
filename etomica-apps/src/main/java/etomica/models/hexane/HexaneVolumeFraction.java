@@ -10,8 +10,8 @@ package etomica.models.hexane;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
+import etomica.api.IVector;
 import etomica.box.Box;
-import etomica.api.IVectorMutable;
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.RandomPositionSource;
@@ -85,8 +85,8 @@ public class HexaneVolumeFraction extends Simulation {
             long time1;
             long time2;
 
-            IVectorMutable temp = sim.space.makeVector();
-            IVectorMutable rand = sim.space.makeVector();
+            IVector temp = sim.space.makeVector();
+            IVector rand = sim.space.makeVector();
             AtomIteratorLeafAtoms ail = new AtomIteratorLeafAtoms(sim.box);
             ail.reset();
             IAtom atom = new Atom(sim.getSpace());

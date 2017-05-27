@@ -4,11 +4,8 @@
 
 package etomica.potential;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IVectorMutable;
 import etomica.space.Space;
 
 /**
@@ -48,6 +45,6 @@ public abstract class Potential2HardSpherical extends Potential2 implements Pote
         boundary = box.getBoundary();
     }
 
-    protected final IVectorMutable dr;
+    protected final IVector dr;
     protected IBoundary boundary;
 }

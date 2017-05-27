@@ -1,7 +1,7 @@
 package etomica.atom;
 
 import etomica.api.IAtomType;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.space.Space;
 import etomica.spaceNd.VectorND;
 
@@ -15,7 +15,7 @@ public class AtomOrientedQuaternion extends Atom {
         quaternion.setX(0, 1);
     }
 
-    public IVectorMutable getQuaternion() {
+    public IVector getQuaternion() {
         return quaternion;
     }
 }

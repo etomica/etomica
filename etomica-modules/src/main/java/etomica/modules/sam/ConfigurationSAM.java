@@ -6,12 +6,9 @@ package etomica.modules.sam;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
 import etomica.simulation.Simulation;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLatticeSimple;
 import etomica.config.ConformationChainZigZag;
@@ -44,11 +41,11 @@ public class ConfigurationSAM implements Configuration {
         conformation[iChain] = newConformation;
     }
     
-    public void setMoleculeOffset(IVectorMutable newMoleculeOffset) {
+    public void setMoleculeOffset(IVector newMoleculeOffset) {
         moleculeOffset.E(newMoleculeOffset);
     }
     
-    public IVectorMutable getMoleculeOffset() {
+    public IVector getMoleculeOffset() {
         return moleculeOffset;
     }
     
@@ -62,7 +59,7 @@ public class ConfigurationSAM implements Configuration {
         int nMolecules = nCellsX*nCellsZ*basisMolecules.getScaledCoordinates().length;
         pretendBox.setNMolecules(speciesMolecules, nMolecules);
         
-        IVectorMutable dim = space.makeVector();
+        IVector dim = space.makeVector();
         dim.E(box.getBoundary().getBoxSize());
         dim.setX(0, nCellsX*cellSizeX);
         dim.setX(2, nCellsZ*cellSizeZ);
@@ -78,7 +75,7 @@ public class ConfigurationSAM implements Configuration {
         translator.getTranslationVector().E(moleculeOffset);
         MoleculeChildAtomAction groupTranslator = new MoleculeChildAtomAction(translator);
         
-        IVectorMutable offset = space.makeVector();
+        IVector offset = space.makeVector();
 
         IMoleculeList molecules = pretendBox.getMoleculeList(speciesMolecules);
         double y0 = molecules.getMolecule(0).getChildList().getAtom(0).getPosition().getX(1) + moleculeOffset.getX(1);
@@ -127,7 +124,7 @@ public class ConfigurationSAM implements Configuration {
             IMolecule molecule = molecules.getMolecule(0);
             pretendBox.removeMolecule(molecule);
             box.addMolecule(molecule);
-            IVectorMutable pos = molecule.getChildList().getAtom(0).getPosition();
+            IVector pos = molecule.getChildList().getAtom(0).getPosition();
             pos.setX(1, y0-yOffset);
         }
         sim.removeBox(pretendBox);
@@ -209,7 +206,7 @@ public class ConfigurationSAM implements Configuration {
     protected Basis basisMolecules;
     protected Basis basisSurface;
     protected double yOffset;
-    protected final IVectorMutable moleculeOffset;
+    protected final IVector moleculeOffset;
     protected ConformationChainZigZag[] conformation;
     protected PotentialMasterList potentialMaster;
 }

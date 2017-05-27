@@ -4,14 +4,9 @@
 
 package etomica.integrator;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
 import etomica.simulation.Simulation;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
@@ -28,7 +23,7 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource<
     protected final Tensor pressureTensor;
     protected final Tensor workTensor;
 
-    IVectorMutable work;
+    IVector work;
 
     protected AtomLeafAgentManager<Agent> agentManager;
 
@@ -83,13 +78,13 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource<
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             pressureTensor.E(forceSum.getPressureTensor());
-            IVectorMutable v = a.getVelocity();
+            IVector v = a.getVelocity();
             workTensor.Ev1v2(v,v);
             workTensor.TE(((IAtom)a).getType().getMass());
             pressureTensor.PE(workTensor);
             
             Agent agent = agentManager.getAgent(a);
-            IVectorMutable r = a.getPosition();
+            IVector r = a.getPosition();
             work.E(r);
             r.PE(agent.rMrLast);
             agent.force.TE(((IAtom)a).getType().rm()*t2);
@@ -150,15 +145,15 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource<
     public void releaseAgent(Agent agent, IAtom atom, Box agentBox) {}
             
 	public final static class Agent implements IntegratorBox.Forcible {  //need public so to use with instanceof
-        public IVectorMutable force;
-        public IVectorMutable rMrLast;  //r - rLast
+        public IVector force;
+        public IVector rMrLast;  //r - rLast
 
         public Agent(Space space) {
             force = space.makeVector();
             rMrLast = space.makeVector();
         }
         
-        public IVectorMutable force() {return force;}
+        public IVector force() {return force;}
     }//end of Agent
     
 }//end of IntegratorVerlet

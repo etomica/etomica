@@ -5,7 +5,7 @@
 package etomica.normalmode;
 
 import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.data.DataSourceScalar;
@@ -15,7 +15,7 @@ import etomica.units.Length;
 public class MeterDisplacementMoleculeRMS extends DataSourceScalar {
 
     protected final CoordinateDefinitionMolecule coordinateDefinition;
-    protected final IVectorMutable dr;
+    protected final IVector dr;
     protected IAtomPositionDefinition position;
     
     public MeterDisplacementMoleculeRMS(Space space, CoordinateDefinitionMolecule coordinateDefinition) {

@@ -6,7 +6,6 @@ import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialCalculation;
 import etomica.space.Space;
@@ -18,10 +17,10 @@ import etomica.space.Space;
 public class PotentialCalculationSolidSuperCut implements PotentialCalculation {
         
     protected final CoordinateDefinition coordinateDefinition;
-    protected final IVectorMutable drSite0, drSite1, drA, dr, drB;
+    protected final IVector drSite0, drSite1, drA, dr, drB;
     protected final Space space;
-    protected IVectorMutable[] pSumXYZ1, pSumXYZ2;
-    protected final IVectorMutable pTmp1, pTmp2;
+    protected IVector[] pSumXYZ1, pSumXYZ2;
+    protected final IVector pTmp1, pTmp2;
     protected double[] sum1, virialSum;
     protected double[] energySum, dadbSum;
     protected double fac1;
@@ -49,8 +48,8 @@ public class PotentialCalculationSolidSuperCut implements PotentialCalculation {
         virialSum = new double[r2Cut.length];
         energySum = new double[r2Cut.length];
         dadbSum = new double[r2Cut.length];
-        pSumXYZ1 = new IVectorMutable[r2Cut.length];
-        pSumXYZ2 = new IVectorMutable[r2Cut.length];
+        pSumXYZ1 = new IVector[r2Cut.length];
+        pSumXYZ2 = new IVector[r2Cut.length];
         for (int i=0; i<pSumXYZ1.length; i++) {
             pSumXYZ1[i] = space.makeVector();
             pSumXYZ2[i] = space.makeVector();

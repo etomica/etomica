@@ -15,7 +15,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.box.Box;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.DiameterHashByType;
 import etomica.box.BoxAgentManager;
 import etomica.data.AccumulatorAverage;
@@ -123,7 +122,7 @@ public class HSDimerNPT extends Simulation {
         addBox(box);
         box.setNMolecules(species, numMolecules);
         
-        IVectorMutable[] boxDim = new IVectorMutable[3];
+        IVector[] boxDim = new IVector[3];
         
 		Basis unitBasis;
 		if (cp == 1 || cp == 2) {
@@ -143,7 +142,7 @@ public class HSDimerNPT extends Simulation {
 		box.setBoundary(boundary);
 		
         coordinateDefinition = new CoordinateDefinitionHSDimer(this, box, primitive, basis, space);
-        IVectorMutable[][] axes = new IVectorMutable[1][3];
+        IVector[][] axes = new IVector[1][3];
         int[] iaxis = new int[]{2,0,1};
         for (int i=0; i<3; i++) {
             axes[0][i] = space.makeVector();
@@ -171,7 +170,7 @@ public class HSDimerNPT extends Simulation {
         mcMove.setDoExcludeNonNeighbors(true);
         integrator.getMoveManager().addMCMove(mcMove);
 
-        IVectorMutable[] drSum = new IVectorMutable[nC[2]];
+        IVector[] drSum = new IVector[nC[2]];
         for (int i=0; i<drSum.length; i++) {
             drSum[i] = space.makeVector();
         }
@@ -264,7 +263,7 @@ public class HSDimerNPT extends Simulation {
                     integrator.getMoveEventManager().addListener(new IListener() {
                         public void actionPerformed(IEvent event) {
                             if (event instanceof MCMoveTrialCompletedEvent && ((MCMoveTrialCompletedEvent)event).isAccepted()) {
-                                IVectorMutable scaleVec = space.makeVector();
+                                IVector scaleVec = space.makeVector();
                                 MCMove move = ((MCMoveTrialCompletedEvent)event).getMCMove();
                                 if (move instanceof MCMoveVolumeMonoclinic) {
                                     for (int i=0; i<3; i++) {

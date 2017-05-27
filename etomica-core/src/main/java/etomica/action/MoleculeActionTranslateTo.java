@@ -9,7 +9,6 @@ import java.io.Serializable;
 
 import etomica.api.IMolecule;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.space.Space;
@@ -22,10 +21,10 @@ import etomica.space.Space;
 public class MoleculeActionTranslateTo implements MoleculeAction, Serializable {
     
     private static final long serialVersionUID = 1L;
-    private final IVectorMutable destination;
+    private final IVector destination;
     private IAtomPositionDefinition atomPositionDefinition;
     private MoleculeChildAtomAction atomTranslator;
-    private final IVectorMutable translationVector;
+    private final IVector translationVector;
 
     /**
      * Creates new action with atom position defined by its
@@ -49,7 +48,7 @@ public class MoleculeActionTranslateTo implements MoleculeAction, Serializable {
      * @return Returns the destination, the position that the
      * atom will be moved to by this action.
      */
-    public IVectorMutable getDestination() {
+    public IVector getDestination() {
         return destination;
     }
     /**

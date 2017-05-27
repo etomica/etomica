@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 
 import etomica.action.IAction;
-import etomica.api.IVectorMutable;
+import etomica.api.IVector;
 import etomica.atom.DiameterHashByType;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
@@ -364,7 +364,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
     
     public final class DataSourceVaporDensity extends DataSourceScalar {
         private static final long serialVersionUID = 1L;
-        protected final IVectorMutable v;
+        protected final IVector v;
 
         public DataSourceVaporDensity(String label, Dimension dimension) {
             super(label, dimension);

@@ -5,8 +5,8 @@
 package etomica.modules.mu;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
+import etomica.api.IVector;
 import etomica.box.Box;
-import etomica.api.IVectorMutable;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
@@ -96,7 +96,7 @@ public class Mu extends Simulation {
         //construct box
 	    box = new Box(new BoundaryRectangularSlit(0, space), space);
         addBox(box);
-        IVectorMutable dim = space.makeVector();
+        IVector dim = space.makeVector();
         double xdim = space.D() == 3 ? 30 : 50;
         dim.E(0.5*xdim);
         dim.setX(0, xdim);

@@ -8,7 +8,6 @@ import etomica.api.IAtomList;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.space.Space;
@@ -23,13 +22,13 @@ import etomica.space.Tensor;
 public class PotentialGroupSoft extends PotentialGroup implements PotentialMolecularSoft {
 
 	private static final long serialVersionUID = 1L;
-	protected final IVectorMutable[] gradients;
+	protected final IVector[] gradients;
 	protected final IAtomPositionDefinition positionDefinition;
 	protected double truncation;
 
 	public PotentialGroupSoft(int nBody, Space space, double truncation) {
 		super(nBody,space);
-		gradients = new IVectorMutable[2];
+		gradients = new IVector[2];
         gradients[0] = space.makeVector();
         gradients[1] = space.makeVector();
 		// TODO Auto-generated constructor stub
@@ -48,11 +47,11 @@ public class PotentialGroupSoft extends PotentialGroup implements PotentialMolec
 		// TODO Auto-generated method stub
 		IMolecule molecule_a = pair.getMolecule(0);//1st molecule in the pair
 		IMolecule molecule_b = pair.getMolecule(1);//2nd molecule in the pair
-		IVectorMutable r_a = space.makeVector();
-		IVectorMutable r_b = space.makeVector();
+		IVector r_a = space.makeVector();
+		IVector r_b = space.makeVector();
 		r_a.E(positionDefinition.position(molecule_a));
 		r_b.E(positionDefinition.position(molecule_b));
-		IVectorMutable vector = space.makeVector();
+		IVector vector = space.makeVector();
 		vector.Ev1Mv2(r_b, r_a);
 		box.getBoundary().nearestImage(vector);
 		double distance2 = vector.squared();
@@ -68,11 +67,11 @@ public class PotentialGroupSoft extends PotentialGroup implements PotentialMolec
 		// COM from atompositiondefinition 
 		IMolecule molecule_a = pair.getMolecule(0);//1st molecule in the pair
 		IMolecule molecule_b = pair.getMolecule(1);//2nd molecule in the pair
-		IVectorMutable r_a = space.makeVector();
-		IVectorMutable r_b = space.makeVector();
+		IVector r_a = space.makeVector();
+		IVector r_b = space.makeVector();
 		r_a.E(positionDefinition.position(molecule_a));
 		r_b.E(positionDefinition.position(molecule_b));
-		IVectorMutable vector = space.makeVector();
+		IVector vector = space.makeVector();
 		vector.Ev1Mv2(r_b, r_a);
 		box.getBoundary().nearestImage(vector);
 		double distance2 = vector.squared();

@@ -9,7 +9,6 @@
 package etomica.config;
 
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.space.Space;
 
 /**
@@ -58,16 +57,16 @@ public class ConformationChainZigZag extends ConformationChain {
 		return v2;
 	}
 	
-	public IVectorMutable getFirstVector() {
+	public IVector getFirstVector() {
 	    return v1;
 	}
 	
-	public IVectorMutable getSecondVector() {
+	public IVector getSecondVector() {
 	    return v2;
 	}
 
     private static final long serialVersionUID = 1L;
-	protected IVectorMutable v1;
-	protected IVectorMutable v2;
+	protected IVector v1;
+	protected IVector v2;
 	boolean isVectorOne;
 }

@@ -6,8 +6,8 @@ package etomica.virial;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
+import etomica.api.IVector;
 import etomica.simulation.Simulation;
-import etomica.api.IVectorMutable;
 import etomica.space.Space;
 
 /**
@@ -22,7 +22,7 @@ import etomica.space.Space;
  */
 public class MCMoveClusterMoleculeLayerMove extends MCMoveClusterMolecule {
     private static final long serialVersionUID = 1L;
-    protected final IVectorMutable vector1 , vector2 , crossVector; //crossVector = vector1 * vector2
+    protected final IVector vector1 , vector2 , crossVector; //crossVector = vector1 * vector2
     public MCMoveClusterMoleculeLayerMove(Simulation sim, Space _space) {
     	super (sim.getRandom(), _space, 1.0); //superclass parameter stepsize
     	
@@ -51,9 +51,9 @@ public class MCMoveClusterMoleculeLayerMove extends MCMoveClusterMolecule {
         IAtom atom1 = atoms.getAtom(1);
         IAtom atom2 = atoms.getAtom(2);
       //public IVectorMutable getPosition();
-        IVectorMutable position0 = atom0.getPosition();
-        IVectorMutable position1 = atom1.getPosition();
-        IVectorMutable position2 = atom2.getPosition();
+        IVector position0 = atom0.getPosition();
+        IVector position1 = atom1.getPosition();
+        IVector position2 = atom2.getPosition();
         vector1.Ev1Mv2(position1, position0);
         vector2.Ev1Mv2(position2, position1);
         crossVector.E(vector1);

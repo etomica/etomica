@@ -4,15 +4,9 @@
 
 package etomica.virial;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.api.*;
 import etomica.box.Box;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
 import etomica.simulation.Simulation;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.space.Space;
@@ -69,8 +63,8 @@ public class MCMoveClusterRotateCH3 extends MCMoveMolecule {
                 continue;
             }
             IAtomList childList = moleculeList.getMolecule(i).getChildList();
-            IVectorMutable position = space.makeVector();
-            IVectorMutable positionNeighbor = space.makeVector();
+            IVector position = space.makeVector();
+            IVector positionNeighbor = space.makeVector();
             int numChildren = childList.getAtomCount();// total atoms in the i-th molecule
             int numCarbons = (numChildren-2)/3;// number of carbons in the i-th molecule
             int j = random.nextInt(2);// 0 or 1
@@ -105,7 +99,7 @@ public class MCMoveClusterRotateCH3 extends MCMoveMolecule {
             	///// ######################################################################### ///////////////////
             	for (int s=0;s<3; s++){
             		hydrogen[s] =  childList.getAtom(numCarbons * (s+1));// [n], [2n], [3n]
-            		IVectorMutable r = hydrogen[s].getPosition();
+            		IVector r = hydrogen[s].getPosition();
             		r.ME(position);//position is position of C0
             		rotateTensor.transform(r);
             		r.PE(position);
@@ -119,7 +113,7 @@ public class MCMoveClusterRotateCH3 extends MCMoveMolecule {
             	hydrogen[1]=childList.getAtom(numCarbons*3-1);//[n-1+2n]
             	hydrogen[2]=childList.getAtom(numCarbons*3+1);//[3n+1]
             	for (int s=0;s<3; s++){
-            		IVectorMutable  r = hydrogen[s].getPosition();
+            		IVector r = hydrogen[s].getPosition();
             		r.ME(position);//position is position of C[n-1]
             		rotateTensor.transform(r);
             		r.PE(position);
@@ -171,8 +165,8 @@ public class MCMoveClusterRotateCH3 extends MCMoveMolecule {
     private static final long serialVersionUID = 1L;
     protected final MeterPotentialEnergy energyMeter;
     protected IAtom[] selectedAtoms;
-    protected final IVectorMutable axis;
-    protected IVectorMutable[] translationVectors;
+    protected final IVector axis;
+    protected IVector[] translationVectors;
     protected double wOld, wNew;
     protected final Space space;
     protected ISpecies species;
