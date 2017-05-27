@@ -26,7 +26,7 @@ import etomica.space3d.Vector3D;
 import etomica.units.Dimension;
 import etomica.util.Arrays;
 import etomica.util.Function;
-import etomica.util.FunctionGeneral;
+import etomica.data.FunctionData;
 
 /**
  * Computes the normal modes for a Bravais lattice occupied by atoms that interact
@@ -64,7 +64,7 @@ public class NormalModesSoftSpherical implements NormalModes {
     public void calculateModes() {
         omega2 = new double[kFactory.getWaveVectors().length][lattice.D()];
         eigenvectors = new double[omega2.length][lattice.D()][lattice.D()];
-        FunctionGeneral function = new FunctionGeneral() {
+        FunctionData function = new FunctionData() {
             public IData f(Object obj) {
                 Vector3D r = (Vector3D)obj;
                 tensor.x.Ev1v2(r, r);

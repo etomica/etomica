@@ -27,7 +27,7 @@ import etomica.space3d.Tensor3D;
 import etomica.units.Dimension;
 import etomica.util.Arrays;
 import etomica.util.Function;
-import etomica.util.FunctionGeneral;
+import etomica.data.FunctionData;
 
 /**
  * Uses analysis of 2nd derivatives to compute the normal modes for a Bravais lattice with a basis, 
@@ -70,7 +70,7 @@ public class NormalModesPotential implements NormalModes {
         omega2 = new double[kDim][eDim];
         eigenvectors = new double[kDim][eDim][eDim];
         //this function returns phi_{alpha,beta}, as defined in Dove Eq. 6.15
-        FunctionGeneral function = new FunctionGeneral() {
+        FunctionData function = new FunctionData() {
             public IData f(Object obj) {
                 IVector r = (IVector)obj;
                 tensor.x.Ev1v2(r, r);

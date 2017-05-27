@@ -38,7 +38,7 @@ import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
 import etomica.units.Degree;
 import etomica.units.Energy;
-import etomica.util.FunctionGeneral;
+import etomica.data.FunctionData;
 
 
 
@@ -119,7 +119,7 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
 		
 		this.nLayer = (int)(rC/aDim+0.5);
 		
-		FunctionGeneral function = new FunctionGeneral() {
+		FunctionData function = new FunctionData() {
 			public IData f(Object obj) {
 				data.x = potential.energy((IMoleculeList)obj);
 				return data;
@@ -176,7 +176,7 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
 		coordDef.setOrientationVectorBetaLatticeSum(space, density, param);
 		coordDef.initializeCoordinates(new int[]{1,1,1});
 		
-		FunctionGeneral function = new FunctionGeneral() {
+		FunctionData function = new FunctionData() {
 			public IData f(Object obj) {
 				data.x = potential.energy((IMoleculeList)obj);
 				return data;

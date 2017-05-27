@@ -6,10 +6,10 @@ package etomica.lattice;
 
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
+import etomica.data.FunctionData;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataGroup;
-import etomica.util.FunctionGeneral;
 
 public class LatticeSumCrystal {
 
@@ -35,7 +35,7 @@ public class LatticeSumCrystal {
         
     }
 
-    public DataGroup calculateSum(FunctionGeneral function) {
+    public DataGroup calculateSum(FunctionData function) {
         IDataInfo dataInfo = function.getDataInfo();
         IData work = dataInfo.makeData();
         IData[][] sumR = new IData[basisDim][basisDim];

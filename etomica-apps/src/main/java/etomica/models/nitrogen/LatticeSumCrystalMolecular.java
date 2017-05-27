@@ -23,7 +23,7 @@ import etomica.lattice.IndexIteratorTriangularPermutations;
 import etomica.lattice.SpaceLattice;
 import etomica.paracetamol.AtomActionTransformed;
 import etomica.space.Tensor;
-import etomica.util.FunctionGeneral;
+import etomica.data.FunctionData;
 
 /**
  * Lattice sum crystal for molecular model
@@ -82,7 +82,7 @@ public class LatticeSumCrystalMolecular{
         
     }
 
-    public DataGroup calculateSum(FunctionGeneral function) {
+    public DataGroup calculateSum(FunctionData function) {
         IDataInfo dataInfo = function.getDataInfo();
         IData work = dataInfo.makeData();
         IData[][] sumR = new IData[basisDim][basisDim];

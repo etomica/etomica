@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.util;
+package etomica.data;
 
 import etomica.data.IData;
 import etomica.data.IDataInfo;
@@ -11,7 +11,7 @@ import etomica.data.IDataInfo;
  * Interface for the basic features of a general function that maps an object
  * into Data.
  */
-public interface FunctionGeneral {
+public interface FunctionData {
 
     /**
      * Method that performs the mapping defined by the function.

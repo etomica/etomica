@@ -7,6 +7,7 @@ package etomica.paracetamol;
 import etomica.action.WriteConfigurationDLPOLY;
 import etomica.box.Box;
 import etomica.data.DataInfo;
+import etomica.data.FunctionData;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
@@ -22,7 +23,6 @@ import etomica.space3d.Space3D;
 import etomica.units.Energy;
 import etomica.units.Kelvin;
 import etomica.util.Arrays;
-import etomica.util.FunctionGeneral;
 
 /**
  * Properties of a system of monatomic molecules occupying a lattice and interacting according
@@ -46,7 +46,7 @@ public class HarmonicCrystalMonoclinic {
     
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     public double getLatticeEnergy() {
-        FunctionGeneral function = new FunctionGeneral() {
+        FunctionData function = new FunctionData() {
             public IData f(Object obj) {
                 //data.x = potential.u(((Vector3D)obj).squared());
                 return data;

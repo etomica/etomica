@@ -22,7 +22,7 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.units.Energy;
-import etomica.util.FunctionGeneral;
+import etomica.data.FunctionData;
 import etomica.util.ParameterBase;
 
 /**
@@ -52,7 +52,7 @@ public class HarmonicCrystalSsFccNxy {
     }
 
     public double getLatticeEnergy() {
-        FunctionGeneral function = new FunctionGeneral() {
+        FunctionData function = new FunctionData() {
             public IData f(Object obj) {
                 data.x = potential.u(((Vector3D)obj).squared());
                 return data;

@@ -10,6 +10,7 @@ import java.io.IOException;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.data.DataInfo;
+import etomica.data.FunctionData;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
@@ -23,7 +24,6 @@ import etomica.normalmode.BasisBigCell;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.units.Energy;
-import etomica.util.FunctionGeneral;
 
 /**
  * 
@@ -98,7 +98,7 @@ public class MinimizeBetaNitrogenLatticeParameterLSFromFile extends Simulation {
 		
 		this.nLayer = (int)(rC/aDim+0.5);
 		
-		FunctionGeneral function = new FunctionGeneral() {
+		FunctionData function = new FunctionData() {
 			public IData f(Object obj) {
 				data.x = potential.energy((IMoleculeList)obj);
 				return data;
@@ -143,7 +143,7 @@ public class MinimizeBetaNitrogenLatticeParameterLSFromFile extends Simulation {
 		coordDef.setOrientationVectorBetaLatticeSum(space, density, param);
 		coordDef.initializeCoordinates(new int[]{1,1,1});
 		
-		FunctionGeneral function = new FunctionGeneral() {
+		FunctionData function = new FunctionData() {
 			public IData f(Object obj) {
 				data.x = potential.energy((IMoleculeList)obj);
 				return data;

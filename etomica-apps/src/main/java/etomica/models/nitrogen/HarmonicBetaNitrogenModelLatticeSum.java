@@ -7,6 +7,7 @@ package etomica.models.nitrogen;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.data.DataInfo;
+import etomica.data.FunctionData;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
@@ -22,8 +23,6 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Energy;
 import etomica.units.Joule;
-import etomica.util.FunctionGeneral;
-
 
 
 /**
@@ -80,7 +79,7 @@ public class HarmonicBetaNitrogenModelLatticeSum extends Simulation{
 		potential.setBox(box);
 		potential.setEnablePBC(false);
 		
-		FunctionGeneral function = new FunctionGeneral() {
+		FunctionData function = new FunctionData() {
 			public IData f(Object obj) {
 				data.x = potential.energy((IMoleculeList)obj);
 				return data;

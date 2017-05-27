@@ -5,6 +5,7 @@
 package etomica.normalmode;
 
 import etomica.data.DataInfo;
+import etomica.data.FunctionData;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
@@ -22,7 +23,6 @@ import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.statmech.LennardJones;
 import etomica.units.Energy;
-import etomica.util.FunctionGeneral;
 
 /**
  * Properties of a system of monatomic molecules occupying a lattice and interacting according
@@ -47,7 +47,7 @@ public class HarmonicCrystal {
     }
 
     public double getLatticeEnergy() {
-        FunctionGeneral function = new FunctionGeneral() {
+        FunctionData function = new FunctionData() {
             public IData f(Object obj) {
                 data.x = potential.u(((Vector3D)obj).squared());
                 return data;

@@ -6,10 +6,10 @@ package etomica.lattice;
 
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
+import etomica.data.FunctionData;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataGroup;
-import etomica.util.FunctionGeneral;
 
 public class LatticeSum {
 
@@ -22,7 +22,7 @@ public class LatticeSum {
         kVector = lattice.getSpace().makeVector();
     }
 
-    public DataGroup calculateSum(FunctionGeneral function) {
+    public DataGroup calculateSum(FunctionData function) {
         IDataInfo dataInfo = function.getDataInfo();
         IData sumR = dataInfo.makeData();
         IData sumI = dataInfo.makeData();
@@ -109,7 +109,7 @@ public class LatticeSum {
 //        System.out.println("Number of wave vectors: "+kFactory.getWaveVectors().length);
 //        LatticeSum summer = new LatticeSum(lattice);
 //        final Potential2SoftSpherical potential = new P2LennardJones(Space3D.getInstance(), 1.0, 1.0);
-//        FunctionGeneral function = new FunctionGeneral() {
+//        FunctionData function = new FunctionData() {
 //            public Data f(Object obj) {
 //                Vector3D r = (Vector3D)obj;
 //                tensor.x.Ev1v2(r, r);
