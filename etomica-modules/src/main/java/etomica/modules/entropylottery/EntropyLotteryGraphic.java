@@ -28,7 +28,7 @@ import etomica.listener.IntegratorListenerAction;
 import etomica.space.Space;
 import etomica.space1d.Space1D;
 import etomica.units.Pixel;
-import etomica.util.HistoryCollapsingDiscard;
+import etomica.data.history.HistoryCollapsingDiscard;
 
 public class EntropyLotteryGraphic extends SimulationGraphic {
 

@@ -64,7 +64,7 @@ import etomica.units.Null;
 import etomica.units.Pixel;
 import etomica.util.DoubleRange;
 import etomica.data.histogram.HistogramNotSoSimple;
-import etomica.util.HistoryCollapsingDiscard;
+import etomica.data.history.HistoryCollapsingDiscard;
 
 public class InsertionGraphic extends SimulationGraphic {
 

@@ -60,8 +60,8 @@ import etomica.units.Null;
 import etomica.units.Pixel;
 import etomica.util.DoubleRange;
 import etomica.data.histogram.HistogramNotSoSimple;
-import etomica.util.HistoryCollapsingAverage;
-import etomica.util.HistoryScrolling;
+import etomica.data.history.HistoryCollapsingAverage;
+import etomica.data.history.HistoryScrolling;
 
 public class SamGraphic extends SimulationGraphic {
     

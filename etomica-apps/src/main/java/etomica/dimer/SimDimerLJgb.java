@@ -34,7 +34,7 @@ import etomica.space.BoundaryRectangularSlit;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.HistoryCollapsingAverage;
+import etomica.data.history.HistoryCollapsingAverage;
 
 /**
  * Simulation using Henkelman's Dimer method to find a saddle point for

@@ -4,7 +4,7 @@
 
 package etomica.data;
 
-import etomica.util.HistoryCollapsingDiscard;
+import etomica.data.history.HistoryCollapsingDiscard;
 
 /**
  * Works with an instance of HistoryCollapsingDiscard to only retrieve new data

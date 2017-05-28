@@ -26,7 +26,7 @@ import etomica.units.CompoundUnit;
 import etomica.units.Null;
 import etomica.units.SimpleUnit;
 import etomica.units.Unit;
-import etomica.util.HistoryCollapsingAverage;
+import etomica.data.history.HistoryCollapsingAverage;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 

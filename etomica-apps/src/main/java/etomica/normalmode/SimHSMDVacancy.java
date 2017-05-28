@@ -61,8 +61,8 @@ import etomica.statmech.HardSphereSolid;
 import etomica.units.Dimension;
 import etomica.units.Null;
 import etomica.data.histogram.HistogramDiscrete;
-import etomica.util.HistoryCollapsingAverage;
-import etomica.util.HistoryCollapsingDiscard;
+import etomica.data.history.HistoryCollapsingAverage;
+import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 

@@ -51,7 +51,7 @@ import etomica.units.Length;
 import etomica.units.Pixel;
 import etomica.units.Quantity;
 import etomica.util.Function;
-import etomica.util.HistoryCollapsingDiscard;
+import etomica.data.history.HistoryCollapsingDiscard;
 
 /**
  * Colloid module app.  Design by Alberto Striolo.

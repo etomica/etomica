@@ -53,8 +53,8 @@ import etomica.units.Quantity;
 import etomica.units.Unit;
 import etomica.units.UnitRatio;
 import etomica.units.Volume;
-import etomica.util.HistoryCollapsingDiscard;
-import etomica.util.HistoryCollapsingAverage;
+import etomica.data.history.HistoryCollapsingDiscard;
+import etomica.data.history.HistoryCollapsingAverage;
 
 /**
  * Catalysis graphical app.

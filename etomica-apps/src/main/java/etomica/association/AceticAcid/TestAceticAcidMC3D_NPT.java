@@ -68,7 +68,7 @@ import etomica.units.Kelvin;
 import etomica.units.Liter;
 import etomica.units.Mole;
 import etomica.units.Unit;
-import etomica.util.HistoryCollapsingAverage;
+import etomica.data.history.HistoryCollapsingAverage;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 

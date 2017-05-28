@@ -50,7 +50,7 @@ import etomica.units.PrefixedUnit;
 import etomica.units.Quantity;
 import etomica.units.UnitRatio;
 import etomica.util.Constants.CompassDirection;
-import etomica.util.HistoryCollapsingAverage;
+import etomica.data.history.HistoryCollapsingAverage;
 
 /**
  * Module for chain reaction (polymerization) using ChainEquilibriumSim as the

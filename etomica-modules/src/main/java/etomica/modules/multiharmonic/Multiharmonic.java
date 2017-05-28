@@ -27,7 +27,7 @@ import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space1d.Space1D;
 import etomica.space1d.Vector1D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.HistoryCollapsingDiscard;
+import etomica.data.history.HistoryCollapsingDiscard;
 
 
 /**

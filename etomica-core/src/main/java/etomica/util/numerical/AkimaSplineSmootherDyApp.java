@@ -44,7 +44,7 @@ import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.ModifierGeneral;
 import etomica.units.Null;
 import etomica.util.Constants.CompassDirection;
-import etomica.util.HistoryScrolling;
+import etomica.data.history.HistoryScrolling;
 import etomica.util.RandomMersenneTwister;
 import etomica.util.RandomNumberGeneratorUnix;
 

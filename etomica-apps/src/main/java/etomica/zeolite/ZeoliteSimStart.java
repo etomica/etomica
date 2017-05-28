@@ -14,7 +14,7 @@ import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMD;
 import etomica.listener.IntegratorListenerAction;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.HistoryCollapsingDiscard;
+import etomica.data.history.HistoryCollapsingDiscard;
 
 public class ZeoliteSimStart extends IntegratorActionAdapter{
 

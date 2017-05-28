@@ -67,7 +67,7 @@ import etomica.units.Temperature;
 import etomica.units.Unit;
 import etomica.units.UnitRatio;
 import etomica.units.systems.MKS;
-import etomica.util.HistoryScrolling;
+import etomica.data.history.HistoryScrolling;
 
 /**
  * Joule Thomson Experiment

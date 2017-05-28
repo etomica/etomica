@@ -36,7 +36,6 @@ import etomica.meam.DataProcessorCvMD;
 import etomica.meam.ParameterSetMEAM;
 import etomica.meam.PotentialMEAM;
 import etomica.nbr.CriterionSimple;
-import etomica.nbr.list.PotentialMasterList;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
@@ -48,7 +47,7 @@ import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.units.Mole;
 import etomica.units.Unit;
-import etomica.util.HistoryCollapsingAverage;
+import etomica.data.history.HistoryCollapsingAverage;
 
 /**
  * Molecular-Dynamics Simulation Using the Modified Embedded-Atom Method 

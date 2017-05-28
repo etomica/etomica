@@ -80,8 +80,8 @@ import etomica.units.Pixel;
 import etomica.units.Quantity;
 import etomica.util.Function;
 import etomica.data.histogram.HistogramExpanding;
-import etomica.util.HistoryCollapsingDiscard;
-import etomica.util.HistoryComplete;
+import etomica.data.history.HistoryCollapsingDiscard;
+import etomica.data.history.HistoryComplete;
 import etomica.util.numerical.AkimaSpline;
 
 public class MultiharmonicGraphicMC extends SimulationGraphic {

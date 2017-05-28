@@ -38,7 +38,7 @@ import etomica.units.Prefix;
 import etomica.units.PrefixedUnit;
 import etomica.units.Unit;
 import etomica.units.UnitRatio;
-import etomica.util.HistoryCollapsingAverage;
+import etomica.data.history.HistoryCollapsingAverage;
 
 public class VLE extends SimulationGraphic {
 

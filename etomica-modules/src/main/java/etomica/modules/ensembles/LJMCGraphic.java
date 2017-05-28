@@ -40,7 +40,7 @@ import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
 import etomica.util.DoubleRange;
 import etomica.data.histogram.HistogramCollapsing;
-import etomica.util.HistoryCollapsingAverage;
+import etomica.data.history.HistoryCollapsingAverage;
 
 public class LJMCGraphic extends SimulationGraphic {
 

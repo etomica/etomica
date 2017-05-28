@@ -65,8 +65,8 @@ import etomica.units.Energy;
 import etomica.units.Null;
 import etomica.units.SimpleUnit;
 import etomica.util.Function;
-import etomica.util.HistoryCollapsingAverage;
-import etomica.util.HistoryCollapsingDiscard;
+import etomica.data.history.HistoryCollapsingAverage;
+import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 

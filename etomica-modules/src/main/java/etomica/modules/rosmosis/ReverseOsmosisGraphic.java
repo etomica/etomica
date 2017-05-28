@@ -75,7 +75,7 @@ import etomica.units.Unit;
 import etomica.units.UnitRatio;
 import etomica.units.systems.MKS;
 import etomica.util.Constants.CompassDirection;
-import etomica.util.HistoryCollapsingAverage;
+import etomica.data.history.HistoryCollapsingAverage;
 
 /**
  * Graphical and data collection bits for reverse osmosis simulation.

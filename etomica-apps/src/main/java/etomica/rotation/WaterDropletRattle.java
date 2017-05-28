@@ -36,7 +36,7 @@ import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.Constants;
-import etomica.util.HistoryCollapsingAverage;
+import etomica.data.history.HistoryCollapsingAverage;
 
 public class WaterDropletRattle {
 

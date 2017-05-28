@@ -76,7 +76,7 @@ import etomica.units.Length;
 import etomica.units.Null;
 import etomica.units.Pixel;
 import etomica.data.histogram.HistogramDiscrete;
-import etomica.util.HistoryCollapsingAverage;
+import etomica.data.history.HistoryCollapsingAverage;
 
 public class MuGraphic extends SimulationGraphic {
 

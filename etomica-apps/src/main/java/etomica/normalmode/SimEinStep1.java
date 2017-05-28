@@ -44,7 +44,7 @@ import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Null;
-import etomica.util.HistoryCollapsingDiscard;
+import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 

@@ -42,7 +42,7 @@ import etomica.units.Dimension;
 import etomica.units.Kelvin;
 import etomica.units.Null;
 import etomica.units.Pixel;
-import etomica.util.HistoryCollapsingAverage;
+import etomica.data.history.HistoryCollapsingAverage;
 
 /**
  * Graphic UI for Droplet module.  Design by Ludwig Nitsche.

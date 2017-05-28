@@ -5,7 +5,7 @@
 package etomica.action;
 
 import etomica.data.AccumulatorHistory;
-import etomica.util.HistoryScrolling;
+import etomica.data.history.HistoryScrolling;
 
 public class ResetAccumulatorsAveraged extends ResetAccumulators {
 

@@ -36,7 +36,7 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Energy;
 import etomica.units.SimpleUnit;
-import etomica.util.HistoryCollapsingAverage;
+import etomica.data.history.HistoryCollapsingAverage;
 import etomica.util.ParameterBase;
 
 /**

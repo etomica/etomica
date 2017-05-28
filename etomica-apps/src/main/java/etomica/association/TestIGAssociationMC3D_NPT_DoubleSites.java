@@ -34,7 +34,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresRotating;
-import etomica.util.HistoryCollapsingAverage;
+import etomica.data.history.HistoryCollapsingAverage;
 import etomica.util.ParameterBase;
 
 /**

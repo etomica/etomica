@@ -54,7 +54,7 @@ import etomica.species.SpeciesSpheresMono;
 import etomica.units.Dimension;
 import etomica.units.Length;
 import etomica.units.Null;
-import etomica.util.HistoryCollapsingAverage;
+import etomica.data.history.HistoryCollapsingAverage;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 

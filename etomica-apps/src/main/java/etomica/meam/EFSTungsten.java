@@ -51,8 +51,8 @@ import etomica.units.Mole;
 import etomica.units.Pascal;
 import etomica.units.SimpleUnit;
 import etomica.units.Unit;
-import etomica.util.History;
-import etomica.util.HistoryCollapsingAverage;
+import etomica.data.history.History;
+import etomica.data.history.HistoryCollapsingAverage;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 

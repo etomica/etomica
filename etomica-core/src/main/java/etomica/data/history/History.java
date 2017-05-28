@@ -6,7 +6,7 @@
  * History
  * Created on Aug 9, 2004 by kofke
  */
-package etomica.util;
+package etomica.data.history;
 
 
 /**

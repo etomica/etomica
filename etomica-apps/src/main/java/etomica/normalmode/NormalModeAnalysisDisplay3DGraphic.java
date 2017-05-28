@@ -38,7 +38,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.units.Energy;
 import etomica.units.Null;
-import etomica.util.HistoryScrolling;
+import etomica.data.history.HistoryScrolling;
 
 /**
  * Harmonic Oscillator 3D

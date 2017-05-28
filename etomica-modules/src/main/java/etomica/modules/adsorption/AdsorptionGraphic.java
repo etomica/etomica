@@ -43,7 +43,7 @@ import etomica.space.Space;
 import etomica.units.Null;
 import etomica.units.Pixel;
 import etomica.units.Unit;
-import etomica.util.HistoryCollapsingAverage;
+import etomica.data.history.HistoryCollapsingAverage;
 
 /**
  * Catalysis graphical app.

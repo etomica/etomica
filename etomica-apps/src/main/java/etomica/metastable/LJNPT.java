@@ -41,7 +41,7 @@ import etomica.species.SpeciesSpheresMono;
 import etomica.units.Energy;
 import etomica.units.Pixel;
 import etomica.units.SimpleUnit;
-import etomica.util.HistoryCollapsingAverage;
+import etomica.data.history.HistoryCollapsingAverage;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.RandomMersenneTwister;

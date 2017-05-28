@@ -46,7 +46,7 @@ import etomica.units.Length;
 import etomica.units.Pixel;
 import etomica.units.SimpleUnit;
 import etomica.units.Time;
-import etomica.util.HistoryCollapsingDiscard;
+import etomica.data.history.HistoryCollapsingDiscard;
 import g3dsys.images.Ellipse;
 
 /**
