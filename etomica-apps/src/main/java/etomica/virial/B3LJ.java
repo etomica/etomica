@@ -7,7 +7,7 @@ package etomica.virial;
 import etomica.potential.P2LennardJones;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.util.SineTransform;
+import etomica.util.numerical.SineTransform;
 
 /**
  * This is a main method to compute B3 and dB3/dT for Lennard-Jones via FFT

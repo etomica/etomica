@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.util;
+package etomica.util.numerical;
 
 /**
  * 3D Fourier transforms of a function, f, simplify to 1D sine transforms of the auxiliary function F(r) = r*f(r) 

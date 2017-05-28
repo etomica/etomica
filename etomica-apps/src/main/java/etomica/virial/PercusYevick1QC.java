@@ -4,7 +4,7 @@
 
 package etomica.virial;
 
-import etomica.util.SineTransform;
+import etomica.util.numerical.SineTransform;
 
 /**
  * 

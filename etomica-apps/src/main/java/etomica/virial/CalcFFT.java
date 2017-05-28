@@ -36,7 +36,7 @@ import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.util.Arrays;
-import etomica.util.SineTransform;
+import etomica.util.numerical.SineTransform;
 
 /**
  * CalcFFT can calculate distribution functions using FFT.
