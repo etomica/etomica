@@ -108,7 +108,12 @@ public final class Constants {
         CompassDirection(String label) {
             this.label = label;
         }
-   }
+
+        @Override
+        public String toString() {
+            return label;
+        }
+    }
 
 }
     
