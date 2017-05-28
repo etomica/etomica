@@ -60,13 +60,6 @@ public abstract class Species implements ISpecies, java.io.Serializable {
             childTypes[i].setChildIndex(i);
         }
     }
-    
-    /**
-     * @return Returns the species.
-     */
-    public ISpecies getSpecies() {
-        return this;
-    }
 
     public IAtomType getAtomType(int index) {
     	return childTypes[index];
