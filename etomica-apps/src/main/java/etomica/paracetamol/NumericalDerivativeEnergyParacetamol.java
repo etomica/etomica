@@ -10,7 +10,7 @@ import etomica.api.IPotentialMaster;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.util.FunctionMultiDimensionalDifferentiable;
-import etomica.util.numerical.FiniteDifferenceDerivative;
+import etomica.math.numerical.FiniteDifferenceDerivative;
 
 
 public class NumericalDerivativeEnergyParacetamol implements FunctionMultiDimensionalDifferentiable{

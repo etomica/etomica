@@ -24,7 +24,7 @@ import etomica.units.Hartree;
 import etomica.units.Kelvin;
 import etomica.units.Mole;
 import etomica.util.RandomMersenneTwister;
-import etomica.util.numerical.AkimaSpline;
+import etomica.math.numerical.AkimaSpline;
 
 public class P2WaterPotentialsJankowski implements IPotentialAtomic {
     

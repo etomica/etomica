@@ -14,7 +14,7 @@ import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.space.Space;
-import etomica.util.numerical.CalcGradientDifferentiable;
+import etomica.math.numerical.CalcGradientDifferentiable;
 
 /**
  * Calculates the eigenvalues of an NxN matrix.  Assumes these are actually changes in

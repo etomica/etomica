@@ -7,7 +7,7 @@ package etomica.integrator.mcmove;
 import etomica.box.Box;
 import etomica.util.IEvent;
 import etomica.util.IListener;
-import etomica.util.numerical.AkimaSpline;
+import etomica.math.numerical.AkimaSpline;
 
 public class MCMoveOverlapListener implements IListener {
 

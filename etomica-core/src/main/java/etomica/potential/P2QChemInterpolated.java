@@ -11,7 +11,7 @@ import Jama.Matrix;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.util.ParameterBase;
-import etomica.util.numerical.AkimaSpline;
+import etomica.math.numerical.AkimaSpline;
 
 /**
  * Pair potential for argon interpolated from Q-Chem results.  

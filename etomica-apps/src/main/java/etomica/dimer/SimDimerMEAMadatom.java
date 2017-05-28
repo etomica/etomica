@@ -41,7 +41,7 @@ import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 import etomica.data.history.HistoryCollapsingAverage;
-import etomica.util.numerical.CalcGradientDifferentiable;
+import etomica.math.numerical.CalcGradientDifferentiable;
 
 /**
  * Simulation using Henkelman's Dimer method to find a saddle point for

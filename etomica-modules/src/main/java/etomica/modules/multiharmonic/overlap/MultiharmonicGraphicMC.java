@@ -82,7 +82,7 @@ import etomica.util.Function;
 import etomica.data.histogram.HistogramExpanding;
 import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.history.HistoryComplete;
-import etomica.util.numerical.AkimaSpline;
+import etomica.math.numerical.AkimaSpline;
 
 public class MultiharmonicGraphicMC extends SimulationGraphic {
 

@@ -6,7 +6,7 @@ package etomica.virial.cluster;
 
 import java.util.Arrays;
 
-import etomica.util.Rational;
+import etomica.math.Rational;
 
 /**
  * Holds information about a cluster diagram, including the bonds, root points,

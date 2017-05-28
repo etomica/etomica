@@ -8,7 +8,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.overlap.IntegratorOverlap.ReferenceFracSource;
 import etomica.util.Debug;
-import etomica.util.numerical.AkimaSpline;
+import etomica.math.numerical.AkimaSpline;
 
 /**
  * Measures ratio of two cluster integrals using overlap sampling.  The resulting ratio is 

@@ -23,7 +23,7 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.units.Degree;
-import etomica.util.numerical.ArrayReader1D;
+import etomica.math.numerical.ArrayReader1D;
 
 /**
  * 

@@ -4,7 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.util.numerical.AkimaSpline;
+import etomica.math.numerical.AkimaSpline;
 
 /**
  * 

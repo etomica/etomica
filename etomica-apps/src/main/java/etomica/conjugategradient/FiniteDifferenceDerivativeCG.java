@@ -16,7 +16,7 @@ import etomica.paracetamol.AnalyticalDerivativeEnergyParacetamol;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
-import etomica.util.numerical.FiniteDifferenceDerivative;
+import etomica.math.numerical.FiniteDifferenceDerivative;
 
 public class FiniteDifferenceDerivativeCG {
 	

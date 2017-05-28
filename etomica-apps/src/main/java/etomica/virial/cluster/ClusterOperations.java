@@ -11,7 +11,7 @@ import java.util.LinkedList;
 import etomica.math.SpecialFunctions;
 import etomica.math.discrete.FixedSumIterator;
 import etomica.util.Arrays;
-import etomica.util.Rational;
+import etomica.math.Rational;
 
 public class ClusterOperations {
 

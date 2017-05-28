@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import etomica.math.SpecialFunctions;
 import etomica.potential.Potential;
 import etomica.util.Arrays;
-import etomica.util.Rational;
+import etomica.math.Rational;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterBonds;
 import etomica.virial.ClusterSum;

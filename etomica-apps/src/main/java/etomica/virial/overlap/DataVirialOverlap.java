@@ -11,7 +11,7 @@ import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.overlap.AlphaSource;
 import etomica.overlap.IntegratorOverlap.ReferenceFracSource;
 import etomica.util.Debug;
-import etomica.util.numerical.AkimaSpline;
+import etomica.math.numerical.AkimaSpline;
 
 /**
  * Convenience class that analyzes data from the reference and target system,

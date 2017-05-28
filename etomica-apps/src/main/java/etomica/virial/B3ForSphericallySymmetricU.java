@@ -9,7 +9,7 @@ import etomica.potential.Potential2SoftSpherical;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.util.ParameterBase;
-import etomica.util.numerical.SineTransform;
+import etomica.math.numerical.SineTransform;
 
 
 /**

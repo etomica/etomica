@@ -27,7 +27,7 @@ import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.util.Arrays;
 import etomica.util.Function;
-import etomica.util.numerical.FiniteDifferenceDerivative;
+import etomica.math.numerical.FiniteDifferenceDerivative;
 
 /**
  * Uses analysis of 2nd derivatives to compute the normal modes for a Bravais lattice with a basis, 
