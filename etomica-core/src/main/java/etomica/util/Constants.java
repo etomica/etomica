@@ -100,33 +100,16 @@ public final class Constants {
      * Enumerated type for the compass directions NORTH, SOUTH, EAST, WEST.
      * Used to express the orientation of an object.
      */
-    public static class CompassDirection extends EnumeratedType {
-        private CompassDirection(String label) {super(label);}
-        public static final CompassDirection NORTH = new CompassDirection("North");
-        public static final CompassDirection SOUTH = new CompassDirection("South");
-        public static final CompassDirection WEST = new CompassDirection("West");
-        public static final CompassDirection EAST = new CompassDirection("East");
-        public static CompassDirection[] choices() {
-            return new CompassDirection[] {NORTH,SOUTH,WEST,EAST};
+   public enum CompassDirection {
+        NORTH("North"), SOUTH("South"), WEST("West"), EAST("East");
+
+        private final String label;
+
+        CompassDirection(String label) {
+            this.label = label;
         }
-        private static final long serialVersionUID = 1L;
    }
-    /**
-     * Enumerated type for specifying HORIZONTAL/VERTICAL alignment.
-     */
-    public static class Alignment extends EnumeratedType {
-        private Alignment(String label) {super(label);}
 
-        public static final Alignment HORIZONTAL = new Alignment("Horizontal (X Plane)");
-        public static final Alignment VERTICAL = new Alignment("Vertical (Y Plane)");
-        public static final Alignment WIDTH = new Alignment("Width (Z Plane)");
-
-        public static Alignment[] choices() {
-            return new Alignment[] {HORIZONTAL,VERTICAL,WIDTH};
-        }
-        private static final long serialVersionUID = 1L;
-    }
-    
 }
     
     
