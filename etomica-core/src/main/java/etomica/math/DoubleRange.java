@@ -6,25 +6,25 @@
  * History
  * Created on Jul 25, 2004 by kofke
  */
-package etomica.util;
+package etomica.math;
 
 /**
  * @author kofke
  *
- * Data construct that can be used to define an integer range.  Holds a
- * minimum and maximum value and can test if a given integer is within
+ * Data construct that can be used to define a double range.  Holds a
+ * minimum and maximum value and can test if a given double is within
  * the range.  Each instance is immutable.
  */
-public final class IntegerRange implements java.io.Serializable {
+public final class DoubleRange implements java.io.Serializable {
 
-	private final int min;
-	private final int max;
+	private final double min;
+	private final double max;
 	/**
 	 * Constructs the range defined by given values.  Minimum of range
 	 * will be given by smaller of two values (if they differ) and
 	 * maximum by larger.
 	 */
-	public IntegerRange(int bound1, int bound2) {
+	public DoubleRange(double bound1, double bound2) {
 		if(bound1 < bound2) {
 			min = bound1;
 			max = bound2;
@@ -38,13 +38,13 @@ public final class IntegerRange implements java.io.Serializable {
 	 * The minimium defined by this range.
 	 * @return the value of the minimum
 	 */
-	public int minimum() {return min;}
+	public double minimum() {return min;}
 	
 	/**
 	 * The maximum defined by this range.
 	 * @return the value of the maximum.
 	 */
-	public int maximum() {return max;}
+	public double maximum() {return max;}
 	
 	/**
 	 * Indicates if a value falls within the range of this instance. 
@@ -52,7 +52,7 @@ public final class IntegerRange implements java.io.Serializable {
 	 * @return true if the given value between the range's 
 	 * minimum and maximum values, inclusive.
 	 */
-	public boolean contains(int k) {
+	public boolean contains(double k) {
 		return (k >= min) && (k <=max);
 	}
 	
@@ -62,7 +62,7 @@ public final class IntegerRange implements java.io.Serializable {
 	 * @param range
 	 * @return true if minimum and maximum match.
 	 */
-	public boolean equals(IntegerRange range) {
+	public boolean equals(DoubleRange range) {
 		return (min==range.min && max==range.max);
 	}
 	

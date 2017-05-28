@@ -5,7 +5,7 @@
 package etomica.data.histogram;
 
 
-import etomica.util.DoubleRange;
+import etomica.math.DoubleRange;
 
 /**
  * Histogram implementation with a static x range and number of bins.

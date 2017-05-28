@@ -24,7 +24,7 @@ import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.simulation.Simulation;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.DoubleRange;
+import etomica.math.DoubleRange;
 import etomica.data.histogram.HistogramSimple;
 
 /**

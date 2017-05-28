@@ -62,7 +62,7 @@ import etomica.units.Time;
 import etomica.units.Unit;
 import etomica.units.systems.LJ;
 import etomica.util.Constants.CompassDirection;
-import etomica.util.DoubleRange;
+import etomica.math.DoubleRange;
 import etomica.data.histogram.HistogramSimple;
 
 public class LjmdGraphic extends SimulationGraphic {

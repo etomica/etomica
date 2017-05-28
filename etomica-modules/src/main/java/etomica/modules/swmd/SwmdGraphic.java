@@ -96,7 +96,7 @@ import etomica.units.Unit;
 import etomica.units.UnitRatio;
 import etomica.units.systems.MKS;
 import etomica.util.Constants.CompassDirection;
-import etomica.util.DoubleRange;
+import etomica.math.DoubleRange;
 import etomica.data.histogram.HistogramSimple;
 
 public class SwmdGraphic extends SimulationGraphic {

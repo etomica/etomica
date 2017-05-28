@@ -31,7 +31,7 @@ import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space1d.Space1D;
 import etomica.space1d.Vector1D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.DoubleRange;
+import etomica.math.DoubleRange;
 import etomica.data.histogram.HistogramSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;

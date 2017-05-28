@@ -68,7 +68,7 @@ import etomica.units.UnitRatio;
 import etomica.units.Volume;
 import etomica.util.Constants;
 import etomica.util.Constants.CompassDirection;
-import etomica.util.DoubleRange;
+import etomica.math.DoubleRange;
 import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;

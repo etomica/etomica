@@ -4,7 +4,7 @@
 
 package etomica.data.histogram;
 
-import etomica.util.DoubleRange;
+import etomica.math.DoubleRange;
 
 /**
  * Histogram class capable of keeping track of how many times each discrete

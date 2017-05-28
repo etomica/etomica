@@ -25,7 +25,7 @@ import etomica.potential.PotentialCalculationForceSum;
 import etomica.space.Space;
  import etomica.units.Force;
 import etomica.units.Length;
-import etomica.util.DoubleRange;
+import etomica.math.DoubleRange;
 import etomica.data.histogram.Histogram;
 import etomica.data.histogram.HistogramNotSoSimple;
 

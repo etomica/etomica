@@ -58,7 +58,7 @@ import etomica.units.Kelvin;
 import etomica.units.Length;
 import etomica.units.Null;
 import etomica.units.Pixel;
-import etomica.util.DoubleRange;
+import etomica.math.DoubleRange;
 import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.history.HistoryScrolling;

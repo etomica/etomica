@@ -28,7 +28,7 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheres;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
-import etomica.util.DoubleRange;
+import etomica.math.DoubleRange;
 import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;

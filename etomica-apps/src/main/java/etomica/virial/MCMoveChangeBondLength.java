@@ -19,7 +19,7 @@ import etomica.potential.P1IntraMolecular;
 import etomica.space.Space;
 import etomica.units.BohrRadius;
 import etomica.util.Constants;
-import etomica.util.DoubleRange;
+import etomica.math.DoubleRange;
 import etomica.data.histogram.HistogramSimple;
 
 public class MCMoveChangeBondLength extends MCMoveBoxStep {

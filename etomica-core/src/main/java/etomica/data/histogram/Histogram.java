@@ -4,7 +4,7 @@
 
 package etomica.data.histogram;
 
-import etomica.util.DoubleRange;
+import etomica.math.DoubleRange;
 
 /**
  * Interface for a class that can tabulate a one-dimensional histogram 

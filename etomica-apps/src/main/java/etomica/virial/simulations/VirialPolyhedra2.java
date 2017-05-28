@@ -46,7 +46,7 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesPolyhedron;
 import etomica.units.Null;
-import etomica.util.DoubleRange;
+import etomica.math.DoubleRange;
 import etomica.data.histogram.HistogramReweightedData;
 import etomica.data.histogram.HistogramSimple;
 import etomica.util.ParameterBase;

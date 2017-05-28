@@ -12,7 +12,7 @@ import etomica.integrator.IntegratorBox;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
 import etomica.space.Vector;
 import etomica.space.Space;
-import etomica.util.DoubleRange;
+import etomica.math.DoubleRange;
 
 /**
  * @author kofke

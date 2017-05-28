@@ -24,7 +24,7 @@ import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.space3d.Space3D;
 import etomica.units.Null;
-import etomica.util.DoubleRange;
+import etomica.math.DoubleRange;
 import etomica.data.histogram.HistogramExpanding;
 import etomica.data.histogram.HistogramNotSoSimple;
 

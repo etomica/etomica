@@ -62,7 +62,7 @@ import etomica.units.Dimension;
 import etomica.units.Length;
 import etomica.units.Null;
 import etomica.units.Pixel;
-import etomica.util.DoubleRange;
+import etomica.math.DoubleRange;
 import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.history.HistoryCollapsingDiscard;
 

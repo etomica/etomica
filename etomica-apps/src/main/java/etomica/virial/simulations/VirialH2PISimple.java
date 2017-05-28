@@ -35,7 +35,7 @@ import etomica.units.BohrRadius;
 import etomica.units.Kelvin;
 import etomica.util.Arrays;
 import etomica.util.Constants;
-import etomica.util.DoubleRange;
+import etomica.math.DoubleRange;
 import etomica.data.histogram.HistogramSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;

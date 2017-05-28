@@ -11,7 +11,7 @@ package etomica.data.histogram;
  * 08/04/04 (DAK,AJS,NRC) deleted DataSource.X methods; de-implemented DataSource.X.  Dimension-related material removed
  */
 
-import etomica.util.DoubleRange;
+import etomica.math.DoubleRange;
 
 /**
  * Histogram implementation with a static x range and number of bins for reweighted data.
