@@ -26,7 +26,7 @@ import etomica.space.BoundaryDeformableLattice;
 import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.util.Arrays;
-import etomica.util.Function;
+import etomica.math.function.Function;
 import etomica.math.numerical.FiniteDifferenceDerivative;
 
 /**

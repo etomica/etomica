@@ -62,7 +62,7 @@ import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
 import etomica.util.Debug;
-import etomica.util.Function;
+import etomica.math.function.Function;
 
 public class IntegratorRigidIterative extends IntegratorMD implements AgentSource<IntegratorVelocityVerlet.MyAgent>, SpeciesAgentManager.AgentSource, MoleculeAgentSource {
 

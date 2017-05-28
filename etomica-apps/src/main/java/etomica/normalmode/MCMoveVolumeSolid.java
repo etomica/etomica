@@ -18,7 +18,7 @@ import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.units.Pressure;
-import etomica.util.Function;
+import etomica.math.function.Function;
 
 /**
  * Monte Carlo volume-change move for simulations of crystalline solids in the

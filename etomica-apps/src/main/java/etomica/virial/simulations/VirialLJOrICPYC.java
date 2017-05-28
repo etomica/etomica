@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import etomica.box.Box;
-import etomica.api.IFunction;
+import etomica.math.function.IFunction;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
 import etomica.chem.elements.ElementSimple;

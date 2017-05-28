@@ -15,7 +15,7 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.space.Space;
-import etomica.util.FunctionMultiDimensionalDifferentiable;
+import etomica.math.function.FunctionMultiDimensionalDifferentiable;
 
 /**
  * Uses finite difference methods to determine the second order differential of the potential (i.e. dF/dx).

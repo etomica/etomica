@@ -25,7 +25,7 @@ import etomica.space3d.Tensor3D;
 import etomica.space3d.Vector3D;
 import etomica.units.Dimension;
 import etomica.util.Arrays;
-import etomica.util.Function;
+import etomica.math.function.Function;
 import etomica.data.FunctionData;
 
 /**

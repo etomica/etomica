@@ -2,7 +2,7 @@ package etomica.liquidLJ;
 
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.box.Box;
-import etomica.api.IFunction;
+import etomica.math.function.IFunction;
 import etomica.api.IMolecule;
 import etomica.api.IRandom;
 import etomica.api.ISpecies;

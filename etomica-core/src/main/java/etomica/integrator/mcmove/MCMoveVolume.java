@@ -6,7 +6,7 @@ package etomica.integrator.mcmove;
 
 import etomica.action.BoxInflate;
 import etomica.box.Box;
-import etomica.api.IFunction;
+import etomica.math.function.IFunction;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.simulation.Simulation;
@@ -16,7 +16,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.units.Pressure;
-import etomica.util.Function;
+import etomica.math.function.Function;
 
 /**
  * Standard Monte Carlo volume-change move for simulations in the NPT ensemble.

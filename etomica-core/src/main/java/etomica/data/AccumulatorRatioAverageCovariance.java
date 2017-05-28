@@ -7,7 +7,7 @@ package etomica.data;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroupFactory;
 import etomica.util.Arrays;
-import etomica.util.Function;
+import etomica.math.function.Function;
 
 /**
  * Accumulator for calculating ratio between sums.  The ratios calculated are

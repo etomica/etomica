@@ -5,7 +5,7 @@
 package etomica.space;
 
 
-import etomica.api.IFunction;
+import etomica.math.function.IFunction;
 import etomica.api.IRandom;
 
 /**

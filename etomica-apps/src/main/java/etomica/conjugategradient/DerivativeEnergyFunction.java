@@ -19,7 +19,7 @@ import etomica.normalmode.CoordinateDefinition;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
-import etomica.util.FunctionMultiDimensionalDifferentiable;
+import etomica.math.function.FunctionMultiDimensionalDifferentiable;
 
 public class DerivativeEnergyFunction implements FunctionMultiDimensionalDifferentiable{
 

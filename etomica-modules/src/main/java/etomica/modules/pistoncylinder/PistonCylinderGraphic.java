@@ -25,6 +25,7 @@ import etomica.action.IntegratorReset;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomList;
+import etomica.math.function.Function;
 import etomica.space.Vector;
 import etomica.atom.DiameterHashByElementType;
 import etomica.chem.elements.ElementSimple;
@@ -412,7 +413,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         if (pc.getSpace().D() == 2) {
             scaleSliderPanel = new JPanel();
     	    ModifierFunctionWrapper scaleModulator = new ModifierFunctionWrapper(displayBox, "scale");
-    	    scaleModulator.setFunction(new etomica.util.Function.Linear(0.01, 0.0));
+    	    scaleModulator.setFunction(new Function.Linear(0.01, 0.0));
     	    scaleSlider = new DeviceSlider(null, scaleModulator);
     	    scaleSlider.setShowValues(false);
     	    scaleSliderPanel.setBorder(new TitledBorder(null, "Graphic Size", TitledBorder.CENTER, TitledBorder.TOP));

@@ -13,7 +13,7 @@ import javax.swing.JPanel;
 import etomica.action.IAction;
 import etomica.api.IAtom;
 import etomica.box.Box;
-import etomica.api.IFunction;
+import etomica.math.function.IFunction;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.IMoleculeList;

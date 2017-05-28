@@ -13,7 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import etomica.action.IAction;
-import etomica.api.IFunction;
+import etomica.math.function.IFunction;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.atom.DiameterHashByType;
@@ -78,7 +78,7 @@ import etomica.units.Length;
 import etomica.units.Null;
 import etomica.units.Pixel;
 import etomica.units.Quantity;
-import etomica.util.Function;
+import etomica.math.function.Function;
 import etomica.data.histogram.HistogramExpanding;
 import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.history.HistoryComplete;

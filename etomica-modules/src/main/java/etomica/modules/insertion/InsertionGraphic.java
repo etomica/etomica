@@ -21,6 +21,7 @@ import etomica.action.IAction;
 import etomica.action.SimulationRestart;
 import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
+import etomica.math.function.Function;
 import etomica.space.Vector;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -314,7 +315,7 @@ public class InsertionGraphic extends SimulationGraphic {
         widomBoxes.setPrecision(6);
         getPanel().controlPanel.add(widomBoxes.graphic(), vertGBC);
         
-        DataProcessor dpMu = new DataProcessorFunction(new etomica.util.Function() {
+        DataProcessor dpMu = new DataProcessorFunction(new Function() {
             
             public double f(double x) {
                 if (x==0) return Double.NaN;

@@ -50,7 +50,7 @@ import etomica.units.Energy;
 import etomica.units.Length;
 import etomica.units.Pixel;
 import etomica.units.Quantity;
-import etomica.util.Function;
+import etomica.math.function.Function;
 import etomica.data.history.HistoryCollapsingDiscard;
 
 /**

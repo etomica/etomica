@@ -14,7 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import etomica.api.IFunction;
+import etomica.math.function.IFunction;
 import etomica.graph.iterators.StoredIterator;
 import etomica.graph.iterators.filters.PropertyFilter;
 import etomica.graph.model.Graph;

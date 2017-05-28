@@ -9,7 +9,7 @@ import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.normalmode.CoordinateDefinition;
-import etomica.util.FunctionMultiDimensionalDifferentiable;
+import etomica.math.function.FunctionMultiDimensionalDifferentiable;
 import etomica.math.numerical.FiniteDifferenceDerivative;
 
 

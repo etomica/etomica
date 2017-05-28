@@ -17,6 +17,7 @@ import etomica.action.BoxInflate;
 import etomica.action.SimulationRestart;
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
+import etomica.math.function.Function;
 import etomica.space.Vector;
 import etomica.atom.DiameterHashByType;
 import etomica.chem.elements.ElementSimple;
@@ -124,7 +125,7 @@ public class JouleThomson extends SimulationGraphic {
             getDisplayBox(sim.box).setColorScheme(colorScheme);
         }
         ModifierFunctionWrapper scaleModifier = new ModifierFunctionWrapper(getDisplayBox(sim.box), "scale");
-        scaleModifier.setFunction(new etomica.util.Function.Linear(0.01, 0.0));
+        scaleModifier.setFunction(new Function.Linear(0.01, 0.0));
         scaleSlider = new DeviceSlider(sim.getController());
         scaleSlider.setModifier(scaleModifier);
 

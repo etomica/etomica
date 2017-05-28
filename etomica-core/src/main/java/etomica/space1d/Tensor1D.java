@@ -4,7 +4,7 @@
 
 package etomica.space1d;
 
-import etomica.api.IFunction;
+import etomica.math.function.IFunction;
 import etomica.space.Vector;
 import etomica.space.Tensor;
 

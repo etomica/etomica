@@ -20,7 +20,7 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.units.Null;
-import etomica.util.Function;
+import etomica.math.function.Function;
 
 /**
  * Meter that measures the overlap averages for perturbing from a solid at one

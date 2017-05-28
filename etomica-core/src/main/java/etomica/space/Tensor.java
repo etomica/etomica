@@ -4,7 +4,7 @@
 
 package etomica.space;
 
-import etomica.api.IFunction;
+import etomica.math.function.IFunction;
 
 /**
  * Interface for a second-order tensor. Implementations differ depending on the dimension of

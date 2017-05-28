@@ -4,7 +4,7 @@
 
 package etomica.data.types;
 
-import etomica.api.IFunction;
+import etomica.math.function.IFunction;
 import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
 import etomica.data.DataTag;

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.statmech;
+import etomica.math.function.Function;
 import etomica.space.Space;
 import etomica.units.Mass;
 
@@ -19,7 +20,7 @@ public final class MaxwellBoltzmann {
     /**
      * Function giving the Maxwell-Boltzmann distribution of speeds.
      */
-    public static class Distribution implements etomica.util.Function, java.io.Serializable {
+    public static class Distribution implements Function, java.io.Serializable {
         private double temperature;
         private double mass;
         private Space space;

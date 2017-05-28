@@ -5,7 +5,7 @@
 package etomica.math.numerical;
 
 import Jama.Matrix;
-import etomica.util.FunctionMultiDimensionalDifferentiable;
+import etomica.math.function.FunctionMultiDimensionalDifferentiable;
 
 public class NewtonMinimization {
 

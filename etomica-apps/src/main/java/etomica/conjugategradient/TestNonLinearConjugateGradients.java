@@ -4,7 +4,7 @@
 
 package etomica.conjugategradient;
 
-import etomica.util.FunctionMultiDimensionalDifferentiable;
+import etomica.math.function.FunctionMultiDimensionalDifferentiable;
 import etomica.math.numerical.FiniteDifferenceDerivative;
 
 public class TestNonLinearConjugateGradients implements FunctionMultiDimensionalDifferentiable{

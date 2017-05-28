@@ -4,8 +4,8 @@
 
 package etomica.math.numerical;
 
-import etomica.util.FunctionMultiDimensional;
-import etomica.util.FunctionMultiDimensionalDifferentiable;
+import etomica.math.function.FunctionMultiDimensional;
+import etomica.math.function.FunctionMultiDimensionalDifferentiable;
 
 public class FiniteDifferenceDerivative implements FunctionMultiDimensionalDifferentiable {
 	

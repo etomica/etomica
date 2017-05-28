@@ -4,7 +4,7 @@
 
 package etomica.conjugategradient;
 
-import etomica.util.FunctionMultiDimensional;
+import etomica.math.function.FunctionMultiDimensional;
 import etomica.math.numerical.FiniteDifferenceDerivative;
 
 

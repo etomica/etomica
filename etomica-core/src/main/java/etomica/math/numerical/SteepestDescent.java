@@ -4,7 +4,7 @@
 
 package etomica.math.numerical;
 
-import etomica.util.FunctionMultiDimensionalDifferentiable;
+import etomica.math.function.FunctionMultiDimensionalDifferentiable;
 
 public class SteepestDescent {
 

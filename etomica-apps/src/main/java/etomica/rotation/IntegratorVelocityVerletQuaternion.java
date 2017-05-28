@@ -62,7 +62,7 @@ import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
 import etomica.util.Debug;
-import etomica.util.Function;
+import etomica.math.function.Function;
 
 public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements AgentSource<IntegratorVelocityVerletQuaternion.AtomAgent>, SpeciesAgentManager.AgentSource, MoleculeAgentSource {
 

@@ -46,7 +46,7 @@ import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
 import etomica.util.Debug;
-import etomica.util.Function;
+import etomica.math.function.Function;
 
 /**
  * Integrator implementation of Omelyan's leapfrog integrator for rotational
