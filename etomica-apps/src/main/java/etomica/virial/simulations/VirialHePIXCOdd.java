@@ -29,7 +29,7 @@ import etomica.species.SpeciesSpheres;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
 import etomica.util.DoubleRange;
-import etomica.util.HistogramNotSoSimple;
+import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.ClusterAbstract;

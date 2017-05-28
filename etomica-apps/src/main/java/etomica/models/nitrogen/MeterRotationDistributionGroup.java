@@ -25,8 +25,8 @@ import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.space3d.Space3D;
 import etomica.units.Null;
 import etomica.util.DoubleRange;
-import etomica.util.HistogramExpanding;
-import etomica.util.HistogramNotSoSimple;
+import etomica.data.histogram.HistogramExpanding;
+import etomica.data.histogram.HistogramNotSoSimple;
 
 /**
  * Meter that measures the spherical coordinate angles

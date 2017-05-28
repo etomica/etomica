@@ -27,7 +27,7 @@ import etomica.units.Degree;
 import etomica.units.Dimension;
 import etomica.units.Length;
 import etomica.units.Null;
-import etomica.util.HistogramExpanding;
+import etomica.data.histogram.HistogramExpanding;
 
 /**
  * Meter that measures the spherical coordinate angles

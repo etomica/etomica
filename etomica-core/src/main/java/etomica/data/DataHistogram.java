@@ -10,8 +10,8 @@ import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.units.Null;
 import etomica.util.DoubleRange;
-import etomica.util.Histogram;
-import etomica.util.HistogramSimple;
+import etomica.data.histogram.Histogram;
+import etomica.data.histogram.HistogramSimple;
 
 /**
  * DataProcessor that creates a histogram from each piece of data that comes in.

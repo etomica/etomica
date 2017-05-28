@@ -9,6 +9,7 @@ import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.IData;
+import etomica.data.histogram.HistogramSimple;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeRandomByMolecule;
 import etomica.graphics.DisplayBox;

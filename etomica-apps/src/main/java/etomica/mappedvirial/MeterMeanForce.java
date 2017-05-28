@@ -26,8 +26,8 @@ import etomica.space.Space;
  import etomica.units.Force;
 import etomica.units.Length;
 import etomica.util.DoubleRange;
-import etomica.util.Histogram;
-import etomica.util.HistogramNotSoSimple;
+import etomica.data.histogram.Histogram;
+import etomica.data.histogram.HistogramNotSoSimple;
 
 public class MeterMeanForce implements IEtomicaDataSource, AgentSource<IntegratorVelocityVerlet.MyAgent>, DataSourceIndependent, IAction {
 

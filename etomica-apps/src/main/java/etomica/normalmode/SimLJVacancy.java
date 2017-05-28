@@ -66,7 +66,7 @@ import etomica.species.SpeciesSpheresMono;
 import etomica.statmech.LennardJones;
 import etomica.units.Dimension;
 import etomica.units.Null;
-import etomica.util.HistogramDiscrete;
+import etomica.data.histogram.HistogramDiscrete;
 import etomica.util.HistoryCollapsingAverage;
 import etomica.util.HistoryCollapsingDiscard;
 import etomica.util.ParameterBase;

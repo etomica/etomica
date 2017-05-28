@@ -15,7 +15,7 @@ import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
 import etomica.units.Quantity;
 import etomica.units.Volume;
-import etomica.util.HistogramDiscrete;
+import etomica.data.histogram.HistogramDiscrete;
 
 public class MeterDensityDistribution implements IEtomicaDataSource {
 

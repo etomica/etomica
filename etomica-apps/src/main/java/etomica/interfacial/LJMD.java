@@ -43,7 +43,7 @@ import etomica.space.BoundaryRectangularSlit;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.HistogramExpanding;
+import etomica.data.histogram.HistogramExpanding;
 import etomica.util.HistoryCollapsingAverage;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;

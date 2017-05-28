@@ -49,7 +49,6 @@ import etomica.data.meter.MeterPressureHard;
 import etomica.data.meter.MeterRDF;
 import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDouble;
-import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ActionConfigWindow;
 import etomica.graphics.ActionVelocityWindow;
@@ -98,7 +97,7 @@ import etomica.units.UnitRatio;
 import etomica.units.systems.MKS;
 import etomica.util.Constants.CompassDirection;
 import etomica.util.DoubleRange;
-import etomica.util.HistogramSimple;
+import etomica.data.histogram.HistogramSimple;
 
 public class SwmdGraphic extends SimulationGraphic {
 

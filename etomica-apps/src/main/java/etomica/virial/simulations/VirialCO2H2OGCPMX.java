@@ -36,7 +36,7 @@ import etomica.species.SpeciesSpheresHetero;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.util.DoubleRange;
-import etomica.util.HistogramNotSoSimple;
+import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.ClusterAbstract;

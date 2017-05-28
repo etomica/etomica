@@ -63,7 +63,7 @@ import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Null;
-import etomica.util.HistogramExpanding;
+import etomica.data.histogram.HistogramExpanding;
 import etomica.util.HistoryCollapsingAverage;
 import etomica.util.HistoryCollapsingDiscard;
 import etomica.util.IEvent;

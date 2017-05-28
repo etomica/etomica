@@ -25,7 +25,7 @@ import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.simulation.Simulation;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.DoubleRange;
-import etomica.util.HistogramSimple;
+import etomica.data.histogram.HistogramSimple;
 
 /**
  * Simulation class of hard spheres in 1D or 3D that calculates the dq/dx

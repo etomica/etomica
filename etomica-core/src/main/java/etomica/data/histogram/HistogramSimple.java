@@ -2,30 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.util;
+package etomica.data.histogram;
 
 
-
-/* History
- * 09/08/02 (DAK) added set/get methods for xMin, xMax, nBins
- * 08/04/04 (DAK,AJS,NRC) deleted DataSource.X methods; de-implemented DataSource.X.  Dimension-related material removed
- */
+import etomica.util.DoubleRange;
 
 /**
- * Histogram implementation with a static x range and number of bins for reweighted data.
+ * Simple Histogram implementation with a static x range and number of bins.
  * If an x value is given that falls outside the histogram's x range, the 
  * value is dropped.  The x range and number of bins can be changed explicitly,
  * but doing so will reset the histogram (losing all previously collected data).
- * 
- * e.g. sum [x * w]/ sum [ w ]
- * 		x : measurements
- * 		w : weight
  */
-public class HistogramReweightedData implements Histogram, java.io.Serializable {
-	protected double deltaX;
-	private long sum;
-	protected double weightSum;
-	protected double[] sums;
+public class HistogramSimple implements Histogram, java.io.Serializable {
+
+    private static final long serialVersionUID = 1L;
+    protected double deltaX;
+	protected long sum;
+	protected long[] counts;
 	protected double[] histogram;
     protected double xValues[];
     protected double xMin;
@@ -36,7 +29,7 @@ public class HistogramReweightedData implements Histogram, java.io.Serializable 
      * Makes a new histogram instance, with the range of x values given by
      * xRange.
      */
-    public HistogramReweightedData(DoubleRange xRange) {
+    public HistogramSimple(DoubleRange xRange) {
         this(100, xRange);
 	}
 	
@@ -44,9 +37,9 @@ public class HistogramReweightedData implements Histogram, java.io.Serializable 
      * Makes a new histogram instance, with the range of x values given by
      * xRange and n bins.
      */
-    public HistogramReweightedData(int n, DoubleRange xRange) {
+    public HistogramSimple(int n, DoubleRange xRange) {
         nBins = n;
-        sums = new double[n];
+        counts = new long[n];
         histogram = new double[n];
         xValues = new double[n];
         setXRange(xRange);
@@ -56,26 +49,19 @@ public class HistogramReweightedData implements Histogram, java.io.Serializable 
         //resets all histogram values and counts to zero
 	    sum = 0;
 	    for(int i=0; i<nBins; i++) {
-	        sums[i] = 0;
+	        counts[i] = 0;
             xValues[i] = xMin + deltaX * (i+0.5);
 	    }
 	}
 	
-    public void addValue(double x, double y) {
+    public void addValue(double x) {
         //takes new value and updates histogram
         if(x >= xMin && x <= xMax) {
 	        int i = (int)Math.floor(((x-xMin)/deltaX));
 	        if(i == nBins){i--;}
-            sums[i] += y;
+            counts[i]++;
 	    }
-        sum++;
-	    weightSum+=y;
-    }
-    
-    public void addValue(double x) {
-    	// This is just to trick Histogram!!! 
-    	// Using this method will not cause class to behave like HistogramSimple!
-    	addValue(x,1);
+	    sum++;
     }
     
     public void setXRange(DoubleRange xRange) {
@@ -95,6 +81,7 @@ public class HistogramReweightedData implements Histogram, java.io.Serializable 
     
     public void setNBins(int n) {
         this.nBins = n;
+        counts = new long[n];
         histogram = new double[n];
         xValues = new double[n];
         deltaX = (xMax-xMin)/nBins;
@@ -105,7 +92,7 @@ public class HistogramReweightedData implements Histogram, java.io.Serializable 
         //returns an array representing the present histogram
         if (sum != 0) {
 		    for(int i=0; i<nBins; i++) {
-		        histogram[i] = sums[i] /(weightSum*deltaX);
+		        histogram[i] = counts[i]/(sum*deltaX);
 		    }
         }
 	    return histogram;
@@ -118,5 +105,7 @@ public class HistogramReweightedData implements Histogram, java.io.Serializable 
     public double[] xValues() {
         return xValues;
     }
-
+    public long[] getBinCounts(){
+    	return counts;
+    }
 }

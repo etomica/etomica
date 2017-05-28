@@ -22,7 +22,7 @@ import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.space.Space;
 import etomica.units.Length;
 import etomica.units.Null;
-import etomica.util.HistogramExpanding;
+import etomica.data.histogram.HistogramExpanding;
 
 /**
  * Calculates the average atomic displacement from their lattice sites

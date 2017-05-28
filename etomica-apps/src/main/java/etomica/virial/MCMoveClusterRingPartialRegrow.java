@@ -17,7 +17,7 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.space.Space;
-import etomica.util.HistogramExpanding;
+import etomica.data.histogram.HistogramExpanding;
 
 /**
  * MCMove that partially regrows the beads of a ring polymer, accepting or

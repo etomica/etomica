@@ -27,7 +27,7 @@ import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.HistogramExpanding;
+import etomica.data.histogram.HistogramExpanding;
 import etomica.yukawa.P2Yukawa;
 
 /**

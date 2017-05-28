@@ -8,6 +8,8 @@ import etomica.action.IAction;
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
+import etomica.data.histogram.HistogramNotSoSimple;
+import etomica.data.histogram.HistogramSimple;
 import etomica.space.Vector;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;

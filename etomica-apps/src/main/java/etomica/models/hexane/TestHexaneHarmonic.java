@@ -47,7 +47,7 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Null;
 import etomica.util.DoubleRange;
-import etomica.util.HistogramSimple;
+import etomica.data.histogram.HistogramSimple;
 /**
  * @author nancycribbin
  *  

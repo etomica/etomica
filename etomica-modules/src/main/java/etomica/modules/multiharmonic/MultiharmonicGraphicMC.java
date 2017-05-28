@@ -42,7 +42,7 @@ import etomica.units.Length;
 import etomica.units.Null;
 import etomica.units.Pixel;
 import etomica.util.Function;
-import etomica.util.HistogramCollapsing;
+import etomica.data.histogram.HistogramCollapsing;
 import etomica.util.HistoryCollapsingDiscard;
 
 public class MultiharmonicGraphicMC extends SimulationGraphic {

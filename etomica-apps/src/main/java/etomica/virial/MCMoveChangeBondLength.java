@@ -20,7 +20,7 @@ import etomica.space.Space;
 import etomica.units.BohrRadius;
 import etomica.util.Constants;
 import etomica.util.DoubleRange;
-import etomica.util.HistogramSimple;
+import etomica.data.histogram.HistogramSimple;
 
 public class MCMoveChangeBondLength extends MCMoveBoxStep {
 

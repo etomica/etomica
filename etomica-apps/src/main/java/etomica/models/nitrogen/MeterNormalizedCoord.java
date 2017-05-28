@@ -24,7 +24,7 @@ import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
 import etomica.units.Length;
 import etomica.units.Null;
-import etomica.util.HistogramExpanding;
+import etomica.data.histogram.HistogramExpanding;
 
 /**
  * Sample the distribution of the normalized coordinate for the atoms/ molecules

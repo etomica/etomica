@@ -19,8 +19,8 @@ import etomica.potential.PotentialMaster;
 import etomica.units.Energy;
 import etomica.units.Null;
 import etomica.util.DoubleRange;
-import etomica.util.HistogramReweightedData;
-import etomica.util.HistogramSimple;
+import etomica.data.histogram.HistogramReweightedData;
+import etomica.data.histogram.HistogramSimple;
 
 /**
  * Meter used for overlap sampling in the harmonic-sampled system.  The meter

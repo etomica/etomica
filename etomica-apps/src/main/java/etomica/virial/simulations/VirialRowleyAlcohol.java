@@ -37,7 +37,7 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
 import etomica.util.DoubleRange;
-import etomica.util.HistogramNotSoSimple;
+import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.util.ParameterBase;
 import etomica.virial.BoxCluster;
 import etomica.virial.ClusterAbstract;

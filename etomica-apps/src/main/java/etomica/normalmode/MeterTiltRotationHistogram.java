@@ -21,7 +21,7 @@ import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.units.Angle;
 import etomica.util.DoubleRange;
-import etomica.util.HistogramSimple;
+import etomica.data.histogram.HistogramSimple;
 
 /**
  * Meter that measures the average tilt angle (not the angle of average tilt!)

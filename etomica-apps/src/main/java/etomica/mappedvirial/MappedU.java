@@ -30,7 +30,7 @@ import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.Histogram;
+import etomica.data.histogram.Histogram;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 

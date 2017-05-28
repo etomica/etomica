@@ -19,8 +19,8 @@ import etomica.units.DimensionRatio;
 import etomica.units.Length;
 import etomica.units.Null;
 import etomica.units.Time;
-import etomica.util.Histogram;
-import etomica.util.HistogramCollapsing;
+import etomica.data.histogram.Histogram;
+import etomica.data.histogram.HistogramCollapsing;
 
 /**
  * Meter for the root-mean-square velocity of a set of atoms. Useful to obtain

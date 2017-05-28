@@ -18,7 +18,7 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.units.Null;
-import etomica.util.HistogramCollapsing;
+import etomica.data.histogram.HistogramCollapsing;
 
 /**
  * Same as TargetTP class but is used by MethodBoltzmannHTTP

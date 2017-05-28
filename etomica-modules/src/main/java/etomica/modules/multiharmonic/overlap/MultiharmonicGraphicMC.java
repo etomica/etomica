@@ -79,7 +79,7 @@ import etomica.units.Null;
 import etomica.units.Pixel;
 import etomica.units.Quantity;
 import etomica.util.Function;
-import etomica.util.HistogramExpanding;
+import etomica.data.histogram.HistogramExpanding;
 import etomica.util.HistoryCollapsingDiscard;
 import etomica.util.HistoryComplete;
 import etomica.util.numerical.AkimaSpline;

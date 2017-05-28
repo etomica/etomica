@@ -59,7 +59,7 @@ import etomica.units.Length;
 import etomica.units.Null;
 import etomica.units.Pixel;
 import etomica.util.DoubleRange;
-import etomica.util.HistogramNotSoSimple;
+import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.util.HistoryCollapsingAverage;
 import etomica.util.HistoryScrolling;
 

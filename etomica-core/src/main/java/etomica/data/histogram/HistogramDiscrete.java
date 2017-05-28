@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.util;
+package etomica.data.histogram;
+
+import etomica.util.DoubleRange;
 
 /**
  * Histogram class capable of keeping track of how many times each discrete
