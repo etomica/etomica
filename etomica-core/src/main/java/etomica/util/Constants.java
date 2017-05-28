@@ -95,25 +95,7 @@ public final class Constants {
         System.out.println("unit toSim: "+etomica.units.Volt.UNIT.toSim(1.0));
         System.out.println("symbol: "+new LJ(1,1,1,false).viscosity().symbol());
     }
-    /**
-     * Enumerated type for the directions TOP, BOTTOM, LEFT, RIGHT, FRONT, BACK.
-     * Used to express the orientation of an object.
-     */
-     //maybe should rename this "Position", and use UP, DOWN, etc. for Direction
-    public static class Direction extends EnumeratedType {
-        private Direction(String label) {super(label);}
-        public static final Direction TOP = new Direction("Top");
-        public static final Direction BOTTOM = new Direction("Bottom");
-        public static final Direction LEFT = new Direction("Left");
-        public static final Direction RIGHT = new Direction("Right");
-        public static final Direction FRONT = new Direction("Front");
-        public static final Direction BACK = new Direction("Back");
-        public static Direction[] choices () {
-            return new Direction[] {TOP,BOTTOM,LEFT,RIGHT,FRONT,BACK};
-        }
-        private static final long serialVersionUID = 1L;
-    }
-    
+
     /**
      * Enumerated type for the compass directions NORTH, SOUTH, EAST, WEST.
      * Used to express the orientation of an object.
