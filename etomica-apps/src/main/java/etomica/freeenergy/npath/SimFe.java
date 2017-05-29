@@ -22,10 +22,10 @@ import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD;
-import etomica.lattice.LatticeCubicBcc;
-import etomica.lattice.LatticeCubicFcc;
-import etomica.lattice.LatticeHcp;
+import etomica.lattice.*;
 import etomica.lattice.crystal.Primitive;
+import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.lattice.crystal.PrimitiveHCP4;
 import etomica.lattice.crystal.PrimitiveHexagonal;
 import etomica.meam.P2EAM;
 import etomica.meam.PotentialCalculationEnergySumEAM;
@@ -73,19 +73,22 @@ public class SimFe extends Simulation {
         box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
+        Primitive primitive = (crystal == HCP) ? new PrimitiveHCP4(space) : new PrimitiveCubic(space);
         Vector l = space.makeVector();
-        l.E(10);
-        for (int i=0; i<=offsetDim; i++) {
-            l.setX(i,20);
+        double[] primitiveSize = primitive.getSize();
+        int[] f = new int[]{10,10,10};
+        if (crystal == HCP) f = new int[]{6,4,4};
+        for (int i=0; i<3; i++) {
+            double x = f[i]*primitiveSize[i];
+            if (i<=offsetDim) x *= 2;
+            l.setX(i,x);
         }
         box.getBoundary().setBoxSize(l);
         
-        if (crystal != HCP) {
-            BoxInflate inflater = new BoxInflate(box, space);
-            inflater.setTargetDensity(density);
-            inflater.actionPerformed();
-        }
-    
+        BoxInflate inflater = new BoxInflate(box, space);
+        inflater.setTargetDensity(density);
+        inflater.actionPerformed();
+
         double n = 8.7932;
         double m = 8.14475;
         double eps = ElectronVolt.UNIT.toSim(0.0220225);
@@ -93,53 +96,8 @@ public class SimFe extends Simulation {
         double C = 28.8474;
         double rc = 6;
         potential = new P2EAM(space, n, m, eps, a, C, rc, rc);
-        if (crystal == HCP) {
-            int nc = (int)Math.round(Math.pow(numAtoms/8, 1.0/3.0));
-            if (8*nc*nc*nc != numAtoms) {
-                throw new RuntimeException("Not compatible with HCP");
-            }
-            // V = nc
-            // v = 2/density = (2^.5/rho)sqrt(8/3)*f
-            //               = 4f/(rho sqrt(3))
-            // f = sqrt(3)/2
-            // v = sqrt(3)/2 a^3 coa
-            // a = (2 v / (sqrt(3) coa))^(1/3)
-            //   = (4 / (sqrt(3) rho coa))^(1/3)
-            double coa = Math.sqrt(8.0/3.0);
-            double ac = Math.pow(4/(Math.sqrt(3)*density*coa), 1.0/3.0);
-            double cc = coa*ac;
-            Vector[] boxDim = new Vector[3];
-            boxDim[0] = space.makeVector(new double[]{2*nc*ac, 0, 0});
-            boxDim[1] = space.makeVector(new double[]{-2*nc*ac*Math.cos(Degree.UNIT.toSim(60)), 2*nc*ac*Math.sin(Degree.UNIT.toSim(60)), 0});
-            boxDim[2] = space.makeVector(new double[]{0, 0, nc*cc});
-            System.out.println("a: "+ac+" c: "+cc+" nc: "+nc);
-            Primitive primitive = new PrimitiveHexagonal(space, ac, cc);
-            int[] nCells = new int[]{2*nc,2*nc,nc};
-            BoundaryDeformableLattice boundary = new BoundaryDeformableLattice(primitive, nCells);
-            boundary.setTruncationRadius(rc);
-            System.out.println(Arrays.toString(nCells));
-            Vector edge0 = boundary.getEdgeVector(0);
-            System.out.println(Math.sqrt(edge0.squared())+" "+edge0);
-            Vector edge1 = boundary.getEdgeVector(1);
-            System.out.println(Math.sqrt(edge0.squared())+" "+edge1);
-            Vector edge2 = boundary.getEdgeVector(2);
-            System.out.println(Math.sqrt(edge2.squared())+" "+edge2);
-    
-            box.setBoundary(boundary);
-    
-            ConfigurationLattice config = new ConfigurationLattice(new LatticeHcp(space, ac),space);
-            config.setBoundaryPadding(0);
-            config.initializeCoordinates(box);
-        }
-    
-        if (crystal == HCP) {
-            BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, space);
-            BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class);
-            potentialMaster = new PotentialMasterList(this, 1.2 * rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc, space), space);
-        }
-        else {
-            potentialMaster = new PotentialMasterList(this, 1.2*rc, space);
-        }
+
+        potentialMaster = new PotentialMasterList(this, 1.2*rc, space);
         potentialMaster.setCellRange(2);
         double sigma = 1.0;
         if (numInnerSteps==0) {
@@ -181,20 +139,21 @@ public class SimFe extends Simulation {
         }
         p1ImageHarmonic.setZeroForce(false);
 
-        ConfigurationLattice config = null;
+        SpaceLattice lat = null;
         if (crystal == Crystal.FCC) {
-            config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
+            lat = new LatticeCubicFcc(space);
         }
         else if (crystal == Crystal.BCC) {
-            config = new ConfigurationLattice(new LatticeCubicBcc(space), space);
+            lat = new LatticeCubicBcc(space);
         }
         else if (crystal == HCP) {
-            // do nothing -- already done
+            lat = new LatticeHcp4(space);
         }
         else {
             throw new RuntimeException("Don't know how to do "+crystal);
         }
-        if (config != null) config.initializeCoordinates(box);
+        ConfigurationLattice config = new ConfigurationLattice(lat, space);
+        config.initializeCoordinates(box);
     
         p1ImageHarmonic.findNOffset(box);
     
