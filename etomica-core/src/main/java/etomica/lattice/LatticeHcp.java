@@ -24,20 +24,12 @@ public class LatticeHcp extends BravaisLatticeCrystal {
     }
     
     public LatticeHcp(Space space, double latticeConstant) {
-        this(new PrimitiveHexagonal(space, latticeConstant, Math.sqrt(8.0/3.0)*latticeConstant));
+        super(new PrimitiveHexagonal(space, latticeConstant, Math.sqrt(8.0/3.0)*latticeConstant), new BasisHcp());
         if(space.D() != 3) {
             throw new IllegalArgumentException("LatticeCubicHcp requires a 3-D space");
         }
     }
 
-    /**
-     * Auxiliary constructor needed to be able to pass new PrimitiveCubic and
-     * new BasisCubicBcc (which needs the new primitive) to super.
-     */ 
-    private LatticeHcp(PrimitiveHexagonal primitive) {
-        super(primitive, new BasisHcp());
-    }
-    
     /**
      * Rescales the lattice by the given factor. Multiplies the lattice constants
      * by the given value.
@@ -47,6 +39,4 @@ public class LatticeHcp extends BravaisLatticeCrystal {
     }
 
     public String toString() {return "Hcp";}
-
-    private static final long serialVersionUID = 1L;
 }

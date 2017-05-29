@@ -27,20 +27,12 @@ public class LatticeHcp4 extends BravaisLatticeCrystal {
     }
 
     public LatticeHcp4(Space space, double latticeConstant) {
-        this(new PrimitiveHCP4(space, latticeConstant));
+        super(new PrimitiveHCP4(space, latticeConstant), new BasisHcp4());
         if(space.D() != 3) {
             throw new IllegalArgumentException("LatticeCubicHcp requires a 3-D space");
         }
     }
 
-    /**
-     * Auxiliary constructor needed to be able to pass new PrimitiveCubic and
-     * new BasisCubicBcc (which needs the new primitive) to super.
-     */
-    private LatticeHcp4(PrimitiveHCP4 primitive) {
-        super(primitive, new BasisHcp4());
-    }
-    
     /**
      * Rescales the lattice by the given factor. Multiplies the lattice constants
      * by the given value.
