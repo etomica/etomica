@@ -12,7 +12,7 @@ import etomica.exception.MethodNotImplementedException;
 /**
  * Implementation of the Vector class for a 2-dimensional space.
  */
-public class Vector2D implements Vector, java.io.Serializable {
+public final class Vector2D implements Vector, java.io.Serializable {
 
     double x, y;
     private static final long serialVersionUID = 1L;
