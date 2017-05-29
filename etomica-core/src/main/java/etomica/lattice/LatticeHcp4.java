@@ -4,27 +4,30 @@
 
 package etomica.lattice;
 import etomica.lattice.crystal.BasisHcp;
+import etomica.lattice.crystal.BasisHcp4;
+import etomica.lattice.crystal.PrimitiveHCP4;
 import etomica.lattice.crystal.PrimitiveHexagonal;
 import etomica.space.Space;
 
 /**
- * 3D Hexagonal primitive with a 2-site hcp basis.
+ * Hexagonal primitive with a 4-site hcp basis.
  */
-public class LatticeHcp extends BravaisLatticeCrystal {
-    
+
+public class LatticeHcp4 extends BravaisLatticeCrystal {
+
     /**
-     * Hexagonal hcp crystal with a lattice constant that gives a
-     * maximum-density structure for spheres of unit. 
+     * Cubic hcp crystal with a lattice constant that gives a
+     * maximum-density structure for spheres of unit.
      * <p>
      * Use scaleBy method if desired to make lattice constant give
      * maximum density for another sphere size.
      */
-    public LatticeHcp(Space space) {
+    public LatticeHcp4(Space space) {
         this(space, 1.0);
     }
-    
-    public LatticeHcp(Space space, double latticeConstant) {
-        this(new PrimitiveHexagonal(space, latticeConstant, Math.sqrt(8.0/3.0)*latticeConstant));
+
+    public LatticeHcp4(Space space, double latticeConstant) {
+        this(new PrimitiveHCP4(space, latticeConstant));
         if(space.D() != 3) {
             throw new IllegalArgumentException("LatticeCubicHcp requires a 3-D space");
         }
@@ -33,9 +36,9 @@ public class LatticeHcp extends BravaisLatticeCrystal {
     /**
      * Auxiliary constructor needed to be able to pass new PrimitiveCubic and
      * new BasisCubicBcc (which needs the new primitive) to super.
-     */ 
-    private LatticeHcp(PrimitiveHexagonal primitive) {
-        super(primitive, new BasisHcp());
+     */
+    private LatticeHcp4(PrimitiveHCP4 primitive) {
+        super(primitive, new BasisHcp4());
     }
     
     /**
@@ -47,6 +50,4 @@ public class LatticeHcp extends BravaisLatticeCrystal {
     }
 
     public String toString() {return "Hcp";}
-
-    private static final long serialVersionUID = 1L;
 }
