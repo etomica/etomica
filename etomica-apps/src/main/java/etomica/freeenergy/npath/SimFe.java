@@ -98,6 +98,7 @@ public class SimFe extends Simulation {
         potential = new P2EAM(space, n, m, eps, a, C, rc, rc);
 
         potentialMaster = new PotentialMasterList(this, 1.2*rc, space);
+        potentialMaster.getNbrCellManager(box).setSuppressBoxLengthWarning(true);
         potentialMaster.setCellRange(2);
         double sigma = 1.0;
         if (numInnerSteps==0) {

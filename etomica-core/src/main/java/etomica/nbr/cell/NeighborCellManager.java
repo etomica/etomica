@@ -48,6 +48,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
     protected boolean doApplyPBC;
     protected final Vector v;
     protected final int[] numCells;
+    protected boolean suppressBoxLengthWarning;
     
     /**
      * Constructs manager for neighbor cells in the given box.  The number of
@@ -76,6 +77,15 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
         v = space.makeVector();
         agentManager = new AtomLeafAgentManager<Cell>(this,box,Cell.class);
         doApplyPBC = false;
+    }
+
+    /**
+     * @param doSuppress warnings about box length being too small.  This is
+     *                   useful if the potential range is short enough, but the
+     *                   neighbor listing padding does not fit in the box.
+     */
+    public void setSuppressBoxLengthWarning(boolean doSuppress) {
+        suppressBoxLengthWarning = doSuppress;
     }
     
     public void setDoApplyPBC(boolean newDoApplyPBC) {
@@ -171,7 +181,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
                 // and use 1 cell.
                 if (Debug.ON) System.err.println("bumping number of cells in direction "+i+" from "+numCells[i]+" to "+(cellRange*2+1));
                 numCells[i] = cellRange*2+1;
-                if (range > dimensions.getX(i)/2) {
+                if (range > dimensions.getX(i)/2 && !suppressBoxLengthWarning) {
                     // box was too small for the potentials too.  doh.
                     // Perhaps the direction is not periodic or we're in the middle
                     // of multiple changes which will (in the end) be happy.
