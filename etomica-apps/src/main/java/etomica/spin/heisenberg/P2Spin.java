@@ -164,12 +164,12 @@ public class P2Spin extends Potential2 implements IPotentialTorque,IPotentialAto
 	public Tensor[] secondDerivative(IAtomList atoms){
 		IAtomOriented atom1 = (IAtomOriented)atoms.getAtom(0);
     	IAtomOriented atom2 = (IAtomOriented)atoms.getAtom(1);
-    	double Cos = atom1.getOrientation().getDirection().dot(atom2.getOrientation().getDirection());
+    	double JCos = coupling*atom1.getOrientation().getDirection().dot(atom2.getOrientation().getDirection());
     	
     	
-    	secondDerivative[0].E(-Cos);//ij
-    	secondDerivative[1].E(Cos);//ii
-    	secondDerivative[2].E(Cos);//jj
+    	secondDerivative[0].E(-JCos);//ij
+    	secondDerivative[1].E(JCos);//ii
+    	secondDerivative[2].E(JCos);//jj
     	
 //    	System.out.println(secondDerivative[0].component(0, 0));
 //    	System.out.println(secondDerivative[1].component(0, 0));
