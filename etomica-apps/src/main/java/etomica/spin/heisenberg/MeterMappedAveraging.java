@@ -101,7 +101,8 @@ public class MeterMappedAveraging implements IEtomicaDataSource ,AgentSource<Met
 		 double A = 0;
 		 dr.E(0);
 
-//		 for (int i = 0;i < nM; i++){ torque square sum is zero so don't need it here.
+		 //torque square sum is zero so don't need it here.
+//		 for (int i = 0;i < nM; i++){
 //			 MoleculeAgent torqueAgent = (MoleculeAgent) leafAgentManager.getAgent(leafList.getAtom(i));
 //			 dr.PE(torqueAgent.torque);
 ////            System.out.println(torqueAgent.torque);
@@ -113,8 +114,7 @@ public class MeterMappedAveraging implements IEtomicaDataSource ,AgentSource<Met
 ////			 torqueSum.PEa1Tv1((ex+ey),torqueAgent.torque);
 //		 }//i loop
 
-        //dr.s
-//		x[0] = -nM*bt2*mu2 - 0.25*bt2*bt2*mu2*dr.squared()+ secondDerivativeSum.getSum();
+//		x[0] = -nM*bt2*mu2 - 0.25*bt2*bt2*mu2*dr.squared()+ 0.25*J*bt*bt2*mu2*secondDerivativeSum.getSum();
         x[0] = -nM*bt2*mu2 + 0.25*J*bt*bt2*mu2*secondDerivativeSum.getSum();
 
 //		test for <f(1-x^2)>  the result is zero!!!!!
