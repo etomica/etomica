@@ -271,12 +271,10 @@ public class Heisenberg extends Simulation {
     	public boolean isGraphic = false;
     	public boolean mSquare = true;
     	public boolean aEE = true; 
-    	public double temperature = 20;// Kelvin
-    	public int nCells = 50;//number of atoms is nCells*nCells
+    	public double temperature = 10;// Kelvin
+    	public int nCells = 20;//number of atoms is nCells*nCells
     	public double interactionS = 1;
     	public double dipoleMagnitude = 1;
-    	public int steps = 10000000;
+    	public int steps = 1000000;
     }
-    
-    
 }
