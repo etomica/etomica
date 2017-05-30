@@ -1,4 +1,4 @@
-package etomica.simulation.prototypes.simulation;
+package etomica.simulation;
 
 import etomica.config.Configuration;
 import etomica.config.ConfigurationResourceFile;
@@ -21,7 +21,7 @@ public class BenchSimSWChain {
     @Param({"500", "4000"})
     public int numMolecules;
 
-    @Param({"100000"})
+    @Param({"100000", "300000"})
     public int numSteps;
 
     private TestSWChain sim;
