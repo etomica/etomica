@@ -182,13 +182,14 @@ public class Heisenberg extends Simulation {
     		simGraphic.getController().getReinitButton().setPostAction(repaintAction);
     		simGraphic.makeAndDisplayFrame(APP_NAME);
     	}//Graphics
-    	
+
+		sim.activityIntegrate.setMaxSteps(steps/5);//TODO
+		sim.getController().actionPerformed();
+		sim.getController().reset();
     	int blockNumber = 100;
 		int sampleAtInterval = numberMolecules;
 		int samplePerBlock = steps/sampleAtInterval/blockNumber;
-    	sim.activityIntegrate.setMaxSteps(steps/5);
-		sim.getController().actionPerformed();		
-		sim.getController().reset();
+
 		
 		System.out.println("equilibration finished");
         long equilibrationTime = System.currentTimeMillis();
