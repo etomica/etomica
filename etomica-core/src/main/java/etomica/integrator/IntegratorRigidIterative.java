@@ -17,7 +17,7 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.space.*;
@@ -51,7 +51,6 @@ import etomica.models.water.SpeciesWater3POriented;
 import etomica.potential.P2MoleculeSoftTruncatedSwitched;
 import etomica.potential.P2ReactionFieldDipole;
 import etomica.potential.PotentialCalculationTorqueSum;
-import etomica.potential.PotentialMaster;
 import etomica.space3d.IOrientationFull3D;
 import etomica.space3d.OrientationFull3D;
 import etomica.space3d.RotationTensor3D;
@@ -89,11 +88,11 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
     protected AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> leafAgentManager;
     protected MoleculeAgentManager moleculeAgentManager;
 
-    public IntegratorRigidIterative(Simulation sim, IPotentialMaster potentialMaster, Space _space) {
+    public IntegratorRigidIterative(Simulation sim, PotentialMaster potentialMaster, Space _space) {
         this(sim, potentialMaster, 0.05, 1.0, _space);
     }
     
-    public IntegratorRigidIterative(Simulation sim, IPotentialMaster potentialMaster,
+    public IntegratorRigidIterative(Simulation sim, PotentialMaster potentialMaster,
                                     double timeStep, double temperature, Space _space) {
         super(potentialMaster,sim.getRandom(),timeStep,temperature, _space);
         this.sim = sim;

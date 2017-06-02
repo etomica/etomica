@@ -8,7 +8,7 @@ import etomica.action.BoxInflate;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.space.Vector;
 import etomica.atom.iterator.AtomIterator;
@@ -53,7 +53,7 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
      * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
      * @param space the governing space for the simulation
      */
-    public MCMoveVolumeSolid(IPotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, IRandom random,
+    public MCMoveVolumeSolid(PotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, IRandom random,
                              Space _space, double pressure) {
         super(potentialMaster);
 //        System.out.println("do Corti? "+doCorti);

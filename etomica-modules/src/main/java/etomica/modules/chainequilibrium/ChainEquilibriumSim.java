@@ -11,7 +11,7 @@ import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.box.Box;
 import etomica.api.IMolecule;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.data.meter.MeterTemperature;
@@ -41,7 +41,7 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource<IAtom
 	public P2SquareWellBonded ABbonded; //, ACbonded;
     public ActivityIntegrate activityIntegrate;
     public AtomLeafAgentManager<IAtom[]> agentManager = null;
-    public final IPotentialMaster potentialMaster;
+    public final PotentialMaster potentialMaster;
     public final ConfigurationLatticeRandom config;
     public int nCrossLinkersAcid;
     public int nDiol, nDiAcid;

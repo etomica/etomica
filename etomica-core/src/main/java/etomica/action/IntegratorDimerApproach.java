@@ -8,7 +8,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.integrator.IntegratorBox;
 import etomica.space.Space;
@@ -24,7 +24,7 @@ import etomica.space.Space;
 
 public class IntegratorDimerApproach extends IntegratorBox {
 	
-	public IntegratorDimerApproach(IPotentialMaster potentialMaster, Space space) {
+	public IntegratorDimerApproach(PotentialMaster potentialMaster, Space space) {
 		
 		super(potentialMaster, 0);
 		

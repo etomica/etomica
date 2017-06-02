@@ -9,6 +9,7 @@ import etomica.box.Box;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
+import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.space.Space;
 
@@ -21,7 +22,7 @@ public class MCMoveRotateMoleculePhiTheta extends MCMoveRotateMolecule3D {
     protected IAtomPositionDefinition pos;
     protected double delta;
     
-    public MCMoveRotateMoleculePhiTheta(IPotentialMaster potentialMaster,
+    public MCMoveRotateMoleculePhiTheta(PotentialMaster potentialMaster,
                                         IRandom random, Space _space, Vector[] drSum, boolean doPhi) {
         super(potentialMaster, random, _space);
         this.drSum = drSum;

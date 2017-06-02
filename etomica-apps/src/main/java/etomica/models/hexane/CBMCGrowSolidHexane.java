@@ -7,6 +7,7 @@ package etomica.models.hexane;
 import etomica.api.*;
 import etomica.box.Box;
 import etomica.integrator.IntegratorMC;
+import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -24,7 +25,7 @@ import etomica.space.Tensor;
  */
 public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
 
-    public CBMCGrowSolidHexane(IPotentialMaster p, IRandom random,
+    public CBMCGrowSolidHexane(PotentialMaster p, IRandom random,
                                Space _space,
                                IntegratorMC integrator, Box phs, ISpecies species, int NTrials) {
         super(p, random, integrator, phs, species, _space, 6, NTrials);

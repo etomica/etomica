@@ -6,6 +6,7 @@ package etomica.virial;
 
 import etomica.api.*;
 import etomica.box.Box;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.atom.iterator.AtomIterator;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -27,7 +28,7 @@ public class MCMoveClusterReptateMulti extends MCMoveBox {
     private final MeterPotentialEnergy energyMeter;
     protected final IRandom random;
 
-    public MCMoveClusterReptateMulti(Simulation sim, IPotentialMaster potentialMaster, int nAtoms) {
+    public MCMoveClusterReptateMulti(Simulation sim, PotentialMaster potentialMaster, int nAtoms) {
     	this(potentialMaster, sim.getRandom(), nAtoms);
         setBondLength(1.0);
     }
@@ -39,7 +40,7 @@ public class MCMoveClusterReptateMulti extends MCMoveBox {
      * box should be at least one greater than this value (greater
      * because first atom is never moved)
      */
-    public MCMoveClusterReptateMulti(IPotentialMaster potentialMaster, IRandom random, int nAtoms) {
+    public MCMoveClusterReptateMulti(PotentialMaster potentialMaster, IRandom random, int nAtoms) {
         super(potentialMaster);
         this.random = random;
         this.nAtoms = nAtoms;

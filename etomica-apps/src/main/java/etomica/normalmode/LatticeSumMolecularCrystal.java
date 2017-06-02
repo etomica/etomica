@@ -8,7 +8,7 @@ import etomica.api.IAtom;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPositionCOM;
@@ -25,7 +25,7 @@ import etomica.spaceNd.TensorND;
 
 public class LatticeSumMolecularCrystal {
 
-    public LatticeSumMolecularCrystal(IPotentialMaster potentialMaster, Box box, final Space space, int basisDim, Primitive primitive) {
+    public LatticeSumMolecularCrystal(PotentialMaster potentialMaster, Box box, final Space space, int basisDim, Primitive primitive) {
 
     	this.potentialMaster = potentialMaster;
     	this.box = box;
@@ -223,7 +223,7 @@ public class LatticeSumMolecularCrystal {
     protected final Vector com0, com1;
     protected WaveVectorFactorySimple kFactory;
     protected final Tensor[] tmpAtomicTensor3;//46X4=184 atoms dimentional array of 3dim Tensor
-	protected IPotentialMaster potentialMaster;
+	protected PotentialMaster potentialMaster;
 	protected AtomLeafAgentManager atomAgentManager;
 	protected   Tensor tmpDrr1;
 

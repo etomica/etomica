@@ -5,7 +5,7 @@
 package etomica.data.meter;
 
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.data.DataSourceScalar;
 import etomica.units.Energy;
 
@@ -20,7 +20,7 @@ public final class MeterEnergy extends DataSourceScalar {
     protected DataSourceScalar kinetic;
     protected DataSourceScalar potential;
     
-    public MeterEnergy(IPotentialMaster potentialMaster, Box box) {
+    public MeterEnergy(PotentialMaster potentialMaster, Box box) {
     	super("Energy",Energy.DIMENSION);
         kinetic = new MeterKineticEnergy();
         ((MeterKineticEnergy)kinetic).setBox(box);

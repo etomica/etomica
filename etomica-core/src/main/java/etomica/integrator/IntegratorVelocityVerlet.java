@@ -12,6 +12,7 @@ import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
 import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialCalculationForceSum;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.space.Space;
@@ -27,12 +28,12 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
 
     protected AtomLeafAgentManager<MyAgent> agentManager;
 
-    public IntegratorVelocityVerlet(Simulation sim, IPotentialMaster potentialMaster, Space _space) {
+    public IntegratorVelocityVerlet(Simulation sim, PotentialMaster potentialMaster, Space _space) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
     }
 
-    public IntegratorVelocityVerlet(IPotentialMaster potentialMaster, IRandom random,
-            double timeStep, double temperature, Space _space) {
+    public IntegratorVelocityVerlet(PotentialMaster potentialMaster, IRandom random,
+                                    double timeStep, double temperature, Space _space) {
         super(potentialMaster,random,timeStep,temperature, _space);
         // if you're motivated to throw away information earlier, you can use 
         // PotentialCalculationForceSum instead.

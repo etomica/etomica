@@ -17,6 +17,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space.Vector;
 
@@ -44,7 +45,7 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
     protected int pairPotentialIndex;
     protected IPotentialAtomic constraintPotential;
 
-    public MCMoveAtomCoupled(IPotentialMaster potentialMaster, MeterPotentialEnergy energyMeter,
+    public MCMoveAtomCoupled(PotentialMaster potentialMaster, MeterPotentialEnergy energyMeter,
                              IRandom random, Space _space) {
         super(potentialMaster);
         this.random = random;

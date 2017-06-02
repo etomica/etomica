@@ -12,7 +12,7 @@ import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IPotential;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
@@ -57,12 +57,12 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
     protected int D;
     protected MeterTemperature meterTemperature;
     
-    public IntegratorGear4NPH(Simulation sim, IPotentialMaster potentialMaster, Space _space) {
+    public IntegratorGear4NPH(Simulation sim, PotentialMaster potentialMaster, Space _space) {
         this(potentialMaster, sim.getRandom(),0.05, 1.0, _space);
     }
     
-    public IntegratorGear4NPH(IPotentialMaster potentialMaster, IRandom random, 
-            double timeStep, double temperature, Space _space) {
+    public IntegratorGear4NPH(PotentialMaster potentialMaster, IRandom random,
+                              double timeStep, double temperature, Space _space) {
         super(potentialMaster, random, timeStep, temperature, _space);
         kp = 1.0/rrp/getTimeStep();
         kh = 1.0/rrh/getTimeStep();

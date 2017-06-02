@@ -59,7 +59,7 @@ public class MeterDifferentImageSubtract1D extends DataSourceScalar {
     private NormalModes nm;
     WaveVectorFactory waveVectorFactory;
     
-    public MeterDifferentImageSubtract1D(String string, /*IPotentialMaster potentialMaster,*/ 
+    public MeterDifferentImageSubtract1D(String string,
             int numSimAtoms, double density, Simulation sim,
             Primitive simPrimitive, Basis simBasis, CoordinateDefinition simCD,
             NormalModes simNM, double temp){

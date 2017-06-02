@@ -12,7 +12,7 @@ import etomica.action.WriteConfiguration;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
@@ -63,7 +63,7 @@ public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements Mol
     protected MoleculeChildAtomAction moveMoleculeAction;
     protected final Simulation sim;
 
-    public MCMoveVolumeAssociatedMolecule(Simulation sim, IPotentialMaster potentialMaster,
+    public MCMoveVolumeAssociatedMolecule(Simulation sim, PotentialMaster potentialMaster,
                                           Space _space) {
         this(sim, potentialMaster, sim.getRandom(), _space, 1.0);
     }
@@ -72,7 +72,7 @@ public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements Mol
      * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
      * @param space the governing space for the simulation
      */
-    public MCMoveVolumeAssociatedMolecule(Simulation sim, IPotentialMaster potentialMaster, IRandom random,
+    public MCMoveVolumeAssociatedMolecule(Simulation sim, PotentialMaster potentialMaster, IRandom random,
                                           Space _space, double pressure) {
         super(potentialMaster);
         this.random = random;

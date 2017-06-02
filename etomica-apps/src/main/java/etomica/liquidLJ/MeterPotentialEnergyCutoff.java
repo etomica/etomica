@@ -1,6 +1,6 @@
 package etomica.liquidLJ;
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -21,7 +21,7 @@ import etomica.units.Energy;
  
 public class MeterPotentialEnergyCutoff implements IEtomicaDataSource {
     
-    public MeterPotentialEnergyCutoff(IPotentialMaster potentialMaster, Space space, double[] cutoffs) {
+    public MeterPotentialEnergyCutoff(PotentialMaster potentialMaster, Space space, double[] cutoffs) {
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("energy", Energy.DIMENSION, new int[]{cutoffs.length});
         tag = new DataTag();
         data = new DataDoubleArray(cutoffs.length);
@@ -71,5 +71,5 @@ public class MeterPotentialEnergyCutoff implements IEtomicaDataSource {
     protected final DataDoubleArray data;
     protected final IteratorDirective iteratorDirective = new IteratorDirective();
     protected final PotentialCalculationEnergySumCutoff energy;
-    protected final IPotentialMaster potential;
+    protected final PotentialMaster potential;
 }

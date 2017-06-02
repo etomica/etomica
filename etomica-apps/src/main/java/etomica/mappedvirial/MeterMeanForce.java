@@ -4,7 +4,7 @@ package etomica.mappedvirial;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
  import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -31,7 +31,7 @@ import etomica.data.histogram.HistogramNotSoSimple;
 
 public class MeterMeanForce implements IEtomicaDataSource, AgentSource<IntegratorVelocityVerlet.MyAgent>, DataSourceIndependent, IAction {
 
-    protected final IPotentialMaster potentialMaster;
+    protected final PotentialMaster potentialMaster;
     protected final PotentialCalculationForceSum pcForce;
     protected final Box box;
     protected final IteratorDirective allAtoms;
@@ -46,7 +46,7 @@ public class MeterMeanForce implements IEtomicaDataSource, AgentSource<Integrato
     protected final DataDoubleArray xData;
     protected final DataInfoDoubleArray xDataInfo;
     
-    public MeterMeanForce(Space space, IPotentialMaster potentialMaster, Potential2SoftSpherical p2, Box box, int nbins) {
+    public MeterMeanForce(Space space, PotentialMaster potentialMaster, Potential2SoftSpherical p2, Box box, int nbins) {
         this.space = space;
         this.p2 = p2;
         this.box = box;

@@ -6,6 +6,7 @@ package etomica.integrator.mcmove;
 import etomica.api.*;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
+import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.RotationTensor;
@@ -18,8 +19,8 @@ public class MCMoveRotateMolecule3D extends MCMoveMolecule {
     protected transient RotationTensor rotationTensor;
     protected IAtomPositionDefinition positionDefinition;
     
-    public MCMoveRotateMolecule3D(IPotentialMaster potentialMaster, IRandom random,
-    		                      Space _space) {
+    public MCMoveRotateMolecule3D(PotentialMaster potentialMaster, IRandom random,
+                                  Space _space) {
         super(potentialMaster, random, _space, Math.PI/2, Math.PI);
         rotationTensor = _space.makeRotationTensor();
         r0 = _space.makeVector();

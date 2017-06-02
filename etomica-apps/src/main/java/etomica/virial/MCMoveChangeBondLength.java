@@ -7,7 +7,7 @@ package etomica.virial;
 import Jama.EigenvalueDecomposition;
 import etomica.api.IAtomList;
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.space.Vector;
 import etomica.atom.AtomHydrogen;
@@ -37,7 +37,7 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
 	private final Vector utilityVec1, utilityVec2, utilityVec3;
 	private HistogramSimple h1;
 
-	public MCMoveChangeBondLength(IPotentialMaster potentialMaster, IRandom random, Space space, double temperature) {
+	public MCMoveChangeBondLength(PotentialMaster potentialMaster, IRandom random, Space space, double temperature) {
 		super(potentialMaster);
 		leafIterator = new AtomIteratorLeafAtoms();
 		this.random = random;

@@ -14,7 +14,7 @@ import etomica.action.BoxImposePbc;
 import etomica.action.WriteConfiguration;
 import etomica.action.XYZWriter;
 import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
@@ -38,7 +38,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
 
     private static final long serialVersionUID = 1L;
     IntegratorDimerMin integratorMin1, integratorMin2;
-    IPotentialMaster potentialMaster;
+    PotentialMaster potentialMaster;
     double temperature;
     private final Space space;
     IRandom random;
@@ -68,7 +68,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
     BufferedReader buffReader;
     FileWriter writer;
     
-    public IntegratorKMCCluster(Simulation _sim, IPotentialMaster _potentialMaster, double _temperature, int _totalSearches, IRandom _random, ISpecies [] _species, Space _space){
+    public IntegratorKMCCluster(Simulation _sim, PotentialMaster _potentialMaster, double _temperature, int _totalSearches, IRandom _random, ISpecies [] _species, Space _space){
         super(_potentialMaster, _temperature);
         
         this.potentialMaster = _potentialMaster;

@@ -12,6 +12,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
+import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 
 /**
@@ -49,7 +50,7 @@ public class MCMoveCompareMultipleWV extends MCMoveBoxStep {
     int changedWV, howManyChangesToHardRodModes;
     int[] comparedWVs, changeableWVs;
     
-    public MCMoveCompareMultipleWV(IPotentialMaster potentialMaster,
+    public MCMoveCompareMultipleWV(PotentialMaster potentialMaster,
             IRandom random) {
         super(potentialMaster);
         this.random = random;

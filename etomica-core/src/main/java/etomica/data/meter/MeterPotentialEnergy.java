@@ -6,7 +6,7 @@ package etomica.data.meter;
 import etomica.api.IAtom;
 import etomica.box.Box;
 import etomica.api.IMolecule;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataSourceScalar;
 import etomica.potential.PotentialCalculationEnergySum;
@@ -22,7 +22,7 @@ import etomica.units.Energy;
  
 public class MeterPotentialEnergy extends DataSourceScalar {
     
-    public MeterPotentialEnergy(IPotentialMaster potentialMaster) {
+    public MeterPotentialEnergy(PotentialMaster potentialMaster) {
         super("Potential Energy",Energy.DIMENSION);
         iteratorDirective.includeLrc = true;
         potential = potentialMaster;
@@ -84,5 +84,5 @@ public class MeterPotentialEnergy extends DataSourceScalar {
     protected Box box;
     protected final IteratorDirective iteratorDirective = new IteratorDirective();
     protected PotentialCalculationEnergySum energy = new PotentialCalculationEnergySum();
-    protected final IPotentialMaster potential;
+    protected final PotentialMaster potential;
 }

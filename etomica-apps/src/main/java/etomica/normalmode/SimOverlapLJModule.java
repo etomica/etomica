@@ -8,7 +8,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBoundary;
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataPump;
 import etomica.data.DataSourceScalar;
@@ -29,7 +29,6 @@ import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialCalculationEnergySum;
-import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
@@ -311,7 +310,7 @@ public class SimOverlapLJModule {
     
     public static class APIPotentialTarget implements IAPIPotential {
 
-        public APIPotentialTarget(IPotentialMaster wrappedPotentialMaster) {
+        public APIPotentialTarget(PotentialMaster wrappedPotentialMaster) {
             this.wrappedPotentialMaster = wrappedPotentialMaster;
         }
 
@@ -329,7 +328,7 @@ public class SimOverlapLJModule {
             return latticeEnergy;
         }
 
-        protected final IPotentialMaster wrappedPotentialMaster;
+        protected final PotentialMaster wrappedPotentialMaster;
         private final IteratorDirective id = new IteratorDirective();
         private final PotentialCalculationEnergySum pc = new PotentialCalculationEnergySum();
         protected double latticeEnergy;

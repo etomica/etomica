@@ -21,6 +21,7 @@ import etomica.box.RandomPositionSourceRectangular;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
+import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.space.Space;
 
@@ -52,8 +53,8 @@ public class MCMoveMoleculeExchange extends MCMove {
     private transient double uNew = Double.NaN;
     
 
-    public MCMoveMoleculeExchange(IPotentialMaster potentialMaster, IRandom random,
-    		                      Space _space,
+    public MCMoveMoleculeExchange(PotentialMaster potentialMaster, IRandom random,
+                                  Space _space,
                                   IntegratorBox integrator1,
                                   IntegratorBox integrator2) {
         super(potentialMaster);

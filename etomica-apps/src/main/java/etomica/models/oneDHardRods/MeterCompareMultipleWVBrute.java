@@ -4,10 +4,10 @@
 
 package etomica.models.oneDHardRods;
 
+import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.api.IPotential;
-import etomica.api.IPotentialMaster;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.normalmode.CoordinateDefinition;
@@ -40,12 +40,12 @@ public class MeterCompareMultipleWVBrute extends DataSourceScalar {
     private static final long serialVersionUID = 1L;
     public boolean isOnlyHardRod;
     
-    public MeterCompareMultipleWVBrute(IPotentialMaster potentialMaster, 
+    public MeterCompareMultipleWVBrute(PotentialMaster potentialMaster,
             CoordinateDefinition cd, Box box){
         this("meterCompareMultipleModes", potentialMaster, cd, box);
     }
     
-    public MeterCompareMultipleWVBrute(String string, IPotentialMaster
+    public MeterCompareMultipleWVBrute(String string, PotentialMaster
             potentialMaster, CoordinateDefinition cd, Box box){
         super(string, Null.DIMENSION);
         setCoordinateDefinition(cd);

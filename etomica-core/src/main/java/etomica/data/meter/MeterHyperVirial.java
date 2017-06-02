@@ -4,7 +4,7 @@
 
 package etomica.data.meter;
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -29,7 +29,7 @@ public class MeterHyperVirial implements IEtomicaDataSource {
     protected final DataTag tag;
     protected final IteratorDirective iteratorDirective;
     protected final PotentialCalculationHyperVirialSum hyperVirial;
-    protected IPotentialMaster potentialMaster;
+    protected PotentialMaster potentialMaster;
     protected Box box;
 
     private final PotentialCalculationVirialSum virial;
@@ -79,7 +79,7 @@ public class MeterHyperVirial implements IEtomicaDataSource {
         return tag;
     }
 
-    public void setPotentialMaster(IPotentialMaster newPotentialMaster) {
+    public void setPotentialMaster(PotentialMaster newPotentialMaster) {
         potentialMaster = newPotentialMaster;
     }
     

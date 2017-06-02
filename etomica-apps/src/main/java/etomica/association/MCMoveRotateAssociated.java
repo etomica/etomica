@@ -6,7 +6,7 @@ package etomica.association;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.space.Vector;
 import etomica.atom.AtomArrayList;
@@ -29,8 +29,8 @@ public class MCMoveRotateAssociated extends MCMoveAtom {
 
     private transient IOrientation iOrientation;
 
-    public MCMoveRotateAssociated(IPotentialMaster potentialMaster, IRandom random,
-    		            Space _space) {
+    public MCMoveRotateAssociated(PotentialMaster potentialMaster, IRandom random,
+                                  Space _space) {
         super(potentialMaster, random, _space, Math.PI/2, Math.PI, false);
         oldOrientation = _space.makeOrientation();
         this.smerList = new AtomArrayList();

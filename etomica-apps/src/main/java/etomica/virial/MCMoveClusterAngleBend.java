@@ -6,6 +6,7 @@ package etomica.virial;
 
 import etomica.api.*;
 import etomica.box.Box;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.atom.MoleculeSource;
 import etomica.atom.MoleculeSourceRandomMolecule;
@@ -25,11 +26,11 @@ import etomica.space.Space;
  */
 public class MCMoveClusterAngleBend extends MCMoveBoxStep {
 
-    public MCMoveClusterAngleBend(Simulation sim, IPotentialMaster potentialMaster, Space _space) {
+    public MCMoveClusterAngleBend(Simulation sim, PotentialMaster potentialMaster, Space _space) {
     	this(potentialMaster,sim.getRandom(), 1.0, _space);
     }
     
-    public MCMoveClusterAngleBend(IPotentialMaster potentialMaster, 
+    public MCMoveClusterAngleBend(PotentialMaster potentialMaster,
             IRandom random, double stepSize, Space _space) {
         super(potentialMaster);
         this.space = _space;

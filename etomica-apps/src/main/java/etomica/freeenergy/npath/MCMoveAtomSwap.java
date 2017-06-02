@@ -18,6 +18,7 @@ import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveInsertDeleteLatticeVacancy;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.space.Space;
 
@@ -40,7 +41,7 @@ public class MCMoveAtomSwap extends MCMoveBox {
     protected final P1ImageHarmonic p1;
     protected final AtomSetSinglet singlet;
 
-    public MCMoveAtomSwap(IRandom random, IPotentialMaster potentialMaster, Space _space, P1ImageHarmonic p1) {
+    public MCMoveAtomSwap(IRandom random, PotentialMaster potentialMaster, Space _space, P1ImageHarmonic p1) {
         super(potentialMaster);
         this.random = random;
         this.space = _space;

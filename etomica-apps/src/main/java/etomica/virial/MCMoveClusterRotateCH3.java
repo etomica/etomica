@@ -6,6 +6,7 @@ package etomica.virial;
 
 import etomica.api.*;
 import etomica.box.Box;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
@@ -24,11 +25,11 @@ import etomica.space3d.Vector3D;
  */
 public class MCMoveClusterRotateCH3 extends MCMoveMolecule {
 
-    public MCMoveClusterRotateCH3(Simulation sim, IPotentialMaster potentialMaster, int nAtoms, Space _space) {
+    public MCMoveClusterRotateCH3(Simulation sim, PotentialMaster potentialMaster, int nAtoms, Space _space) {
     	this(potentialMaster,sim.getRandom(), 1.0, nAtoms, _space);
     }
     
-    public MCMoveClusterRotateCH3(IPotentialMaster potentialMaster, 
+    public MCMoveClusterRotateCH3(PotentialMaster potentialMaster,
     		IRandom random, double stepSize, int nAtoms, Space _space) {
         super(potentialMaster,random,_space, stepSize,Double.POSITIVE_INFINITY);
         this.space = _space;

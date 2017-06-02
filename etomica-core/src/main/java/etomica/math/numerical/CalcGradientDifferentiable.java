@@ -7,7 +7,7 @@ package etomica.math.numerical;
 import etomica.api.IAtom;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
@@ -30,7 +30,7 @@ import etomica.math.function.FunctionMultiDimensionalDifferentiable;
 public class CalcGradientDifferentiable implements FunctionMultiDimensionalDifferentiable, AgentSource<IntegratorVelocityVerlet.MyAgent> {
 
     public Box box;
-    public IPotentialMaster potentialMaster;
+    public PotentialMaster potentialMaster;
     public double forceConstant;
     int  derivativeOrder;
     FiniteDifferenceDerivative finiteDifferenceDerivative;
@@ -42,7 +42,7 @@ public class CalcGradientDifferentiable implements FunctionMultiDimensionalDiffe
     private final Space space;
     
     
-    public CalcGradientDifferentiable(Box aBox, IPotentialMaster aPotentialMaster, IMoleculeList movableSet, Space _space){
+    public CalcGradientDifferentiable(Box aBox, PotentialMaster aPotentialMaster, IMoleculeList movableSet, Space _space){
         this.box = aBox;
         this.potentialMaster = aPotentialMaster;
         this.movableSet = movableSet;

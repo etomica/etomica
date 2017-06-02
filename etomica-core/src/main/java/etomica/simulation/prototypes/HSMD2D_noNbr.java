@@ -8,7 +8,7 @@ import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -53,7 +53,7 @@ public class HSMD2D_noNbr extends Simulation {
     
     public HSMD2D_noNbr(Space _space) {
         super(_space);
-        IPotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         integrator = new IntegratorHard(this, potentialMaster, space);
         integrator.setIsothermal(false);
         activityIntegrate = new ActivityIntegrate(integrator);

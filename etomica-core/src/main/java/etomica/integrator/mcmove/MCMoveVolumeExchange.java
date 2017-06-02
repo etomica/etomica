@@ -6,7 +6,7 @@ package etomica.integrator.mcmove;
 
 import etomica.action.BoxInflate;
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -43,8 +43,8 @@ public class MCMoveVolumeExchange extends MCMoveStep {
     
     private transient double hOld, v1Scale, v2Scale;
 
-    public MCMoveVolumeExchange(IPotentialMaster potentialMaster, IRandom random,
-    		                    Space _space,
+    public MCMoveVolumeExchange(PotentialMaster potentialMaster, IRandom random,
+                                Space _space,
                                 IntegratorBox integrator1,
                                 IntegratorBox integrator2) {
         super(potentialMaster, new MCMoveStepTracker());

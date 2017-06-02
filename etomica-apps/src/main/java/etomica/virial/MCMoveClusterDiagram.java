@@ -5,7 +5,7 @@
 package etomica.virial;
 
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 
 import etomica.atom.iterator.AtomIterator;
 import etomica.integrator.mcmove.MCMoveBox;
@@ -15,7 +15,7 @@ import etomica.integrator.mcmove.MCMoveBox;
  */
 public class MCMoveClusterDiagram extends MCMoveBox {
 
-    public MCMoveClusterDiagram(IPotentialMaster potentialMaster) {
+    public MCMoveClusterDiagram(PotentialMaster potentialMaster) {
         super(potentialMaster);
     }
     

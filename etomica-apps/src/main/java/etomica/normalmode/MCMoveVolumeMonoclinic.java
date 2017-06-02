@@ -7,7 +7,7 @@ package etomica.normalmode;
 import etomica.action.BoxInflate;
 import etomica.space.Vector;
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -39,8 +39,8 @@ public class MCMoveVolumeMonoclinic extends MCMoveBoxStep {
      * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
      * @param space the governing space for the simulation
      */
-    public MCMoveVolumeMonoclinic(IPotentialMaster potentialMaster, IRandom random,
-    		            Space _space) {
+    public MCMoveVolumeMonoclinic(PotentialMaster potentialMaster, IRandom random,
+                                  Space _space) {
         super(potentialMaster);
         this.random = random;
         inflate = new BoxInflate(_space);

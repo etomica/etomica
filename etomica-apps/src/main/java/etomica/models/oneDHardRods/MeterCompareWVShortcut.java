@@ -5,7 +5,7 @@
 package etomica.models.oneDHardRods;
 
 import etomica.api.IPotential;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -44,7 +44,7 @@ public class MeterCompareWVShortcut extends DataSourceScalar {
     private static final long serialVersionUID = 1L;
     MCMoveCompareMultipleWV mcmove;
     
-    public MeterCompareWVShortcut(IPotentialMaster potentialMaster, 
+    public MeterCompareWVShortcut(PotentialMaster potentialMaster,
             MCMoveCompareMultipleWV mcmove){
         super("meterComapreMode", Null.DIMENSION);
         realT = new double[coordinateDim];

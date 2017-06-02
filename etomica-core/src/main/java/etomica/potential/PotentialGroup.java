@@ -13,7 +13,6 @@ import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
 import etomica.api.IPotentialAtomic;
-import etomica.api.IPotentialMaster;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.AtomIteratorBasisFilteredType;
 import etomica.atom.iterator.AtomsetIteratorAllLeafAtoms;
@@ -50,7 +49,7 @@ public class PotentialGroup extends PotentialMolecular {
         super(nBody, space);
     }
     
-    public void setPotentialMaster(IPotentialMaster newPotentialMaster) {
+    public void setPotentialMaster(PotentialMaster newPotentialMaster) {
         potentialMaster = newPotentialMaster;
         for(PotentialLinker link=first; link!=null; link=link.next) {
             if (link.potential instanceof PotentialGroup) {
@@ -288,7 +287,7 @@ public class PotentialGroup extends PotentialMolecular {
     
     protected PotentialLinker first;
     protected Box box;
-    protected IPotentialMaster potentialMaster;
+    protected PotentialMaster potentialMaster;
     protected NeighborCriterion criterion = new CriterionAll();
 
     protected static class PotentialLinker implements java.io.Serializable {

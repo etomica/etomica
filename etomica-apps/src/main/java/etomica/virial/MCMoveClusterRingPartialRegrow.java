@@ -8,7 +8,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.space.Vector;
 import etomica.atom.AtomArrayList;
@@ -29,11 +29,11 @@ import etomica.data.histogram.HistogramExpanding;
  */
 public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
 
-    public MCMoveClusterRingPartialRegrow(IPotentialMaster potentialMaster, IRandom random, Space _space) {
+    public MCMoveClusterRingPartialRegrow(PotentialMaster potentialMaster, IRandom random, Space _space) {
         this(potentialMaster, random, _space, new int[0][0]);
     }
     
-    public MCMoveClusterRingPartialRegrow(IPotentialMaster potentialMaster, IRandom random, Space _space, int[][] tangledMolecules) {
+    public MCMoveClusterRingPartialRegrow(PotentialMaster potentialMaster, IRandom random, Space _space, int[][] tangledMolecules) {
         super(potentialMaster);
         this.space = _space;
         this.random = random;

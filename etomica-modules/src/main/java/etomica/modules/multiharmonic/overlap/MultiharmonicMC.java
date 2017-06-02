@@ -8,7 +8,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.box.Box;
 import etomica.api.IIntegrator;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.integrator.IntegratorMC;
 import etomica.modules.multiharmonic.MCMoveMultiHarmonic;
 import etomica.overlap.IntegratorOverlap;
@@ -70,7 +70,7 @@ public class MultiharmonicMC extends Simulation {
     private static final long serialVersionUID = 1L;
     protected final SpeciesSpheresMono species;
     protected final Box boxA, boxB;
-    protected final IPotentialMaster potentialMasterA, potentialMasterB;
+    protected final PotentialMaster potentialMasterA, potentialMasterB;
     protected final P1Harmonic potentialA, potentialB;
     protected final IntegratorMC integratorA, integratorB;
     protected final IntegratorOverlap integratorOS;

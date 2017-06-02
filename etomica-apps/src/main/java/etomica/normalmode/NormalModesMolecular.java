@@ -10,7 +10,7 @@ import java.io.PrintWriter;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.atom.AtomPositionCOM;
 import etomica.lattice.crystal.Primitive;
@@ -28,7 +28,7 @@ import etomica.spaceNd.TensorND;
 
 public class NormalModesMolecular implements NormalModes {
 
-    public NormalModesMolecular(SpeciesWater4P species, boolean waveVectorMethod , IPotentialMaster potentialMaster, Box box, int[] nUniyCellsInSupBox, Primitive primitive, int basisDim, AtomicTensorAtomicPair atomicTensorAtomicPair, Space space) {
+    public NormalModesMolecular(SpeciesWater4P species, boolean waveVectorMethod , PotentialMaster potentialMaster, Box box, int[] nUniyCellsInSupBox, Primitive primitive, int basisDim, AtomicTensorAtomicPair atomicTensorAtomicPair, Space space) {
     	this.waveVectorMethod = waveVectorMethod;
         this.space = space;
         this.potentialMaster = potentialMaster;
@@ -220,7 +220,7 @@ public class NormalModesMolecular implements NormalModes {
     protected final AtomicTensorAtomicPair atomicTensorAtomicPair;
     protected final Primitive primitive;
 	protected LatticeSumMolecularCrystal summer;
-	protected IPotentialMaster potentialMaster;
+	protected PotentialMaster potentialMaster;
 	protected final boolean waveVectorMethod;
 	protected SpeciesWater4P species;
 	protected int[] nC;

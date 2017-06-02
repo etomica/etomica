@@ -9,6 +9,7 @@ import java.io.IOException;
 
 import etomica.api.*;
 import etomica.box.Box;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -37,7 +38,7 @@ import etomica.units.Null;
 public class MeterTargetTP implements IEtomicaDataSource {
 
     protected final MeterPotentialEnergy meterPotential;
-    protected final IPotentialMaster potentialMaster;
+    protected final PotentialMaster potentialMaster;
     protected double latticeEnergy;
     protected double temperature;
     protected double[] otherTemperatures;
@@ -54,7 +55,7 @@ public class MeterTargetTP implements IEtomicaDataSource {
     protected FileWriter fw;
     protected P1ConstraintNbr p1;
     
-    public MeterTargetTP(IPotentialMaster potentialMaster, ISpecies species, Space space, Simulation sim) {
+    public MeterTargetTP(PotentialMaster potentialMaster, ISpecies species, Space space, Simulation sim) {
         this.potentialMaster = potentialMaster;
         meterPotential = new MeterPotentialEnergy(potentialMaster);
         this.species = species;

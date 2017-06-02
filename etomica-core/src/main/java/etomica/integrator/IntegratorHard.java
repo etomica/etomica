@@ -15,6 +15,7 @@ import etomica.nbr.list.INeighborListListener;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialHard;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.space.Space;
@@ -61,11 +62,11 @@ public class IntegratorHard extends IntegratorMD
     protected final AtomTypeAgentManager nullPotentialManager;
     protected int handlingEvent;
 
-    public IntegratorHard(Simulation sim, IPotentialMaster potentialMaster, Space _space) {
+    public IntegratorHard(Simulation sim, PotentialMaster potentialMaster, Space _space) {
         this(sim, potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
     }
 
-    public IntegratorHard(Simulation sim, IPotentialMaster potentialMaster, IRandom random,
+    public IntegratorHard(Simulation sim, PotentialMaster potentialMaster, IRandom random,
                           double timeStep, double temperature, Space _space) {
         super(potentialMaster,random,timeStep,temperature, _space);
         pair = new AtomPair();

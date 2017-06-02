@@ -8,6 +8,7 @@ import java.io.FileWriter;
 
 import etomica.api.*;
 import etomica.box.Box;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -32,7 +33,7 @@ import etomica.math.function.Function;
 public class MeterDDP implements IEtomicaDataSource {
 
     protected final MeterPotentialEnergy meterPotential;
-    protected final IPotentialMaster potentialMaster;
+    protected final PotentialMaster potentialMaster;
     protected double temperature;
     protected double[] otherDensities;
     protected DataInfoDoubleArray dataInfo;
@@ -51,7 +52,7 @@ public class MeterDDP implements IEtomicaDataSource {
     protected Function uLatFunction = uLat0;
     protected FileWriter fw;
     
-    public MeterDDP(IPotentialMaster potentialMaster, ISpecies species, Space space, Simulation sim) {
+    public MeterDDP(PotentialMaster potentialMaster, ISpecies species, Space space, Simulation sim) {
         this.potentialMaster = potentialMaster;
         meterPotential = new MeterPotentialEnergy(potentialMaster);
         this.species = species;

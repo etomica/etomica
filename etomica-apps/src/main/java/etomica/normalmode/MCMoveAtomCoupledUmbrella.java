@@ -6,7 +6,7 @@ package etomica.normalmode;
 
 import etomica.api.IAtom;
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPair;
@@ -51,8 +51,8 @@ public class MCMoveAtomCoupledUmbrella extends MCMoveBoxStep {
 
 
 
-	public MCMoveAtomCoupledUmbrella(IPotentialMaster potentialMaster, IRandom random, 
-    		CoordinateDefinition coordinateDef, NormalModes normalMode, double refpref, Space _space) {
+	public MCMoveAtomCoupledUmbrella(PotentialMaster potentialMaster, IRandom random,
+                                     CoordinateDefinition coordinateDef, NormalModes normalMode, double refpref, Space _space) {
         super(potentialMaster);
         this.random = random;
         this.refPref = refpref;

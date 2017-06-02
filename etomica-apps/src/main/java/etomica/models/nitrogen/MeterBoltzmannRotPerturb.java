@@ -5,7 +5,7 @@
 package etomica.models.nitrogen;
 
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.data.DataTag;
@@ -29,7 +29,7 @@ import etomica.units.Null;
  */
 public class MeterBoltzmannRotPerturb implements IEtomicaDataSource {
     
-    public MeterBoltzmannRotPerturb(IntegratorMC integrator, IPotentialMaster potentialMaster, ISpecies species,
+    public MeterBoltzmannRotPerturb(IntegratorMC integrator, PotentialMaster potentialMaster, ISpecies species,
                                     Space space, Simulation sim, CoordinateDefinitionNitrogen coordinateDef) {
         this.primaryCoordDef = coordinateDef;
         

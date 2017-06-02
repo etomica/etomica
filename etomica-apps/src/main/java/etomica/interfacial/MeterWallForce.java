@@ -6,7 +6,7 @@ import etomica.api.IAtomType;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialAtomic;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.api.ISpecies;
 import etomica.space.Vector;
 import etomica.atom.iterator.IteratorDirective;
@@ -18,14 +18,14 @@ import etomica.units.Force;
 
 public class MeterWallForce extends DataSourceScalar {
 
-    protected final IPotentialMaster potentialMaster;
+    protected final PotentialMaster potentialMaster;
     protected final ISpecies topWall;
     protected final PotentialCalculationWallForce pc;
     protected final Space space;
     protected final Box box;
     protected final IteratorDirective id;
     
-    public MeterWallForce(Space space, IPotentialMaster potentialMaster, Box box, ISpecies topWall) {
+    public MeterWallForce(Space space, PotentialMaster potentialMaster, Box box, ISpecies topWall) {
         super("Force", Force.DIMENSION);
         this.space = space;
         this.box = box;

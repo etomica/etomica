@@ -11,6 +11,7 @@ import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.*;
 import etomica.box.Box;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
@@ -75,13 +76,13 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource<Int
 	public CalcVibrationalModes vib;
 	
 	
-	public IntegratorDimerMin(Simulation sim, IPotentialMaster potentialMaster,
+	public IntegratorDimerMin(Simulation sim, PotentialMaster potentialMaster,
                               ISpecies[] species,
                               Boolean normalDir, Space _space) {
 		this(sim, potentialMaster, 1.0, species, normalDir, _space);
 	}
 	
-	public IntegratorDimerMin(Simulation aSim, IPotentialMaster potentialMaster,
+	public IntegratorDimerMin(Simulation aSim, PotentialMaster potentialMaster,
                               double temperature,
                               ISpecies[] aspecies, Boolean normalDir, Space _space) {
 		super(potentialMaster, temperature);

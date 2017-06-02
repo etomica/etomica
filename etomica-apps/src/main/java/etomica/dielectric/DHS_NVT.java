@@ -54,7 +54,7 @@ import java.util.Calendar;
 public class DHS_NVT extends Simulation {
 //	private static final long serialVersionUID = 1L;
 	protected final SpeciesSpheresRotating species; 
-	protected final IPotentialMaster potentialMaster;
+	protected final PotentialMaster potentialMaster;
 	protected final IntegratorMC integrator;
 	protected final MCMoveMolecule moveMolecule;//translation mc move
 	protected final MCMoveRotate rotateMolecule;//atomic rotation mc move

@@ -12,7 +12,7 @@ import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.math.numerical.CalcGradientDifferentiable;
 
@@ -51,7 +51,7 @@ public class CalcVibrationalModes implements IAction, Serializable {
        
         }
 
-    public void setup(Box aBox, IPotentialMaster aPotentialMaster, IMoleculeList movableSet, Space _space){
+    public void setup(Box aBox, PotentialMaster aPotentialMaster, IMoleculeList movableSet, Space _space){
         ms = movableSet; 
         mass = ms.getMolecule(0).getType().getAtomType(0).getMass();
         cgd = new CalcGradientDifferentiable(aBox, aPotentialMaster, ms, _space);

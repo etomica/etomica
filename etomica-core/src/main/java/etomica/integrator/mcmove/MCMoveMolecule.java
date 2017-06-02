@@ -8,7 +8,7 @@ import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.box.Box;
 import etomica.api.IMolecule;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.simulation.Simulation;
 import etomica.atom.MoleculeSource;
@@ -42,12 +42,12 @@ public class MCMoveMolecule extends MCMoveBoxStep implements MCMoveMolecular {
     protected MoleculeSource moleculeSource;
     protected IMolecule molecule;
 
-    public MCMoveMolecule(Simulation sim, IPotentialMaster potentialMaster,
+    public MCMoveMolecule(Simulation sim, PotentialMaster potentialMaster,
                           Space _space) {
         this(potentialMaster, sim.getRandom(), _space, 1.0, 15.0);
     }
     
-    public MCMoveMolecule(IPotentialMaster potentialMaster, IRandom random,
+    public MCMoveMolecule(PotentialMaster potentialMaster, IRandom random,
                           Space _space, double stepSize,
                           double stepSizeMax) {
         super(potentialMaster);

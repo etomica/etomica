@@ -7,7 +7,7 @@ package etomica.virial;
 import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.simulation.Simulation;
 import etomica.integrator.mcmove.MCMoveMolecule;
@@ -37,7 +37,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
      * box should be at least one greater than this value (greater
      * because first atom is never moved)
      */
-    public MCMoveClusterMoleculeMulti(IPotentialMaster potentialMaster,
+    public MCMoveClusterMoleculeMulti(PotentialMaster potentialMaster,
                                       IRandom random, Space _space, double stepSize) {
         super(potentialMaster, random, _space, stepSize, Double.POSITIVE_INFINITY);
         setStartMolecule(1);

@@ -10,6 +10,7 @@ import java.io.IOException;
 import etomica.action.WriteConfiguration;
 import etomica.api.*;
 import etomica.box.Box;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
@@ -49,7 +50,7 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
     public static boolean dodebug;
     protected FileWriter fileWriter;
 
-    public MCMoveVolumeAssociated(Simulation sim, IPotentialMaster potentialMaster,
+    public MCMoveVolumeAssociated(Simulation sim, PotentialMaster potentialMaster,
                                   Space _space) {
         this(potentialMaster, sim.getRandom(), _space, 1.0);
     }
@@ -58,7 +59,7 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
      * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
      * @param space the governing space for the simulation
      */
-    public MCMoveVolumeAssociated(IPotentialMaster potentialMaster, IRandom random,
+    public MCMoveVolumeAssociated(PotentialMaster potentialMaster, IRandom random,
                                   Space _space, double pressure) {
         super(potentialMaster);
         this.random = random;

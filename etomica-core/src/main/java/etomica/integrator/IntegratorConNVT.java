@@ -6,6 +6,7 @@ package etomica.integrator;
 
 import etomica.api.*;
 import etomica.box.Box;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -36,12 +37,12 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource<
 
     protected AtomLeafAgentManager<Agent> agentManager;
 
-    public IntegratorConNVT(Simulation sim, IPotentialMaster potentialMaster, Space space) {
+    public IntegratorConNVT(Simulation sim, PotentialMaster potentialMaster, Space space) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, space);
     }
     
-    public IntegratorConNVT(IPotentialMaster potentialMaster, IRandom random, 
-            double timeStep, double temperature, Space space) {
+    public IntegratorConNVT(PotentialMaster potentialMaster, IRandom random,
+                            double timeStep, double temperature, Space space) {
         super(potentialMaster,random,timeStep,temperature, space);
         forceSum = new PotentialCalculationForceSum();
         allAtoms = new IteratorDirective();

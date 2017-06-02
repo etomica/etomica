@@ -12,7 +12,7 @@ import etomica.action.activity.Controller;
 import etomica.api.IAtomType;
 import etomica.box.Box;
 import etomica.api.IIntegrator;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
@@ -49,7 +49,7 @@ public class LjMc3D extends Simulation {
 
     public LjMc3D() {
         super(Space3D.getInstance());
-        IPotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         double sigma = 1.0;
         integrator = new IntegratorMC(this, potentialMaster);
         MCMoveAtom move = new MCMoveAtom(random, potentialMaster, space);

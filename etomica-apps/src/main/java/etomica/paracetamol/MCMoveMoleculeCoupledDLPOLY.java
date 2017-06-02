@@ -6,10 +6,10 @@ package etomica.paracetamol;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
+import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.api.IMolecule;
-import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.MoleculeSource;
@@ -44,8 +44,8 @@ public class MCMoveMoleculeCoupledDLPOLY extends MCMoveBoxStep {
     protected final AtomActionTranslateBy singleAction;
     protected PotentialGroup potential;
     
-    public MCMoveMoleculeCoupledDLPOLY(IPotentialMaster potentialMaster, IRandom nRandom,
-    		                           Space _space){
+    public MCMoveMoleculeCoupledDLPOLY(PotentialMaster potentialMaster, IRandom nRandom,
+                                       Space _space){
         super(potentialMaster);
         this.random = nRandom;
         moleculeSource = new MoleculeSourceRandomMolecule();

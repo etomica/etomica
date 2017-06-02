@@ -10,7 +10,7 @@ import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.DiameterHashByType;
 import etomica.config.ConfigurationLattice;
@@ -31,7 +31,6 @@ import etomica.nbr.CriterionAll;
 import etomica.potential.EwaldSummation;
 import etomica.potential.EwaldSummation.MyCharge;
 import etomica.potential.P2LennardJones;
-import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
@@ -150,7 +149,7 @@ public class TestEwaldTIP4PWater extends Simulation {
 
 	}
 	
-	protected final IPotentialMaster potentialMaster;
+	protected final PotentialMaster potentialMaster;
 	protected final Box box;
 	protected final SpeciesWater4P species;
 	protected final IntegratorMC integrator;

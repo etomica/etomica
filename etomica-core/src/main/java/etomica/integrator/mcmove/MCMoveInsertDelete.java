@@ -8,7 +8,7 @@ import etomica.action.MoleculeActionTranslateTo;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISpecies;
 import etomica.atom.MoleculeArrayList;
@@ -47,8 +47,8 @@ public class MCMoveInsertDelete extends MCMoveBox {
     protected IRandom random;
     protected RandomPositionSource positionSource;
 
-    public MCMoveInsertDelete(IPotentialMaster potentialMaster, IRandom random,
-    		                  Space _space) {
+    public MCMoveInsertDelete(PotentialMaster potentialMaster, IRandom random,
+                              Space _space) {
         super(potentialMaster);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         setMu(0.0);

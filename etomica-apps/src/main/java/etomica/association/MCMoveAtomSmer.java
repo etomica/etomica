@@ -5,6 +5,7 @@
 package etomica.association;
 
 import etomica.api.*;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.atom.AtomArrayList;
 import etomica.integrator.mcmove.MCMoveAtom;
@@ -20,13 +21,13 @@ public class MCMoveAtomSmer extends MCMoveAtom {
 	
 	
 
-	public MCMoveAtomSmer(Simulation sim, IPotentialMaster potentialMaster,
+	public MCMoveAtomSmer(Simulation sim, PotentialMaster potentialMaster,
                           Space _space) {
 		this(potentialMaster, sim.getRandom(), _space, 1.0, 15.0, false);
 	}
 
 
-	public MCMoveAtomSmer(IPotentialMaster potentialMaster, IRandom random,
+	public MCMoveAtomSmer(PotentialMaster potentialMaster, IRandom random,
                           Space _space, double stepSize, double stepSizeMax,
                           boolean fixOverlap) {
 		super(potentialMaster, random, _space, stepSize, stepSizeMax,

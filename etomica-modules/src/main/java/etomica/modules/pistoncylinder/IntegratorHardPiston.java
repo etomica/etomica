@@ -6,7 +6,7 @@ package etomica.modules.pistoncylinder;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.atom.AtomSetSinglet;
 import etomica.integrator.IntegratorHard;
@@ -25,7 +25,7 @@ public class IntegratorHardPiston extends IntegratorHard {
      * @param potentialMaster Potential between piston and every atom in the box
      */
     public IntegratorHardPiston(Simulation sim,
-    		           IPotentialMaster potentialMaster,
+    		           PotentialMaster potentialMaster,
     		           P1HardMovingBoundary potentialWrapper, Space _space) {
         super(sim, potentialMaster, _space);
         setTimeStep(1.0);

@@ -5,7 +5,7 @@
 package etomica.data.meter;
 
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataInfo;
 import etomica.data.DataTag;
@@ -26,7 +26,7 @@ import etomica.units.Pressure;
  */
 public class MeterPressureTensor implements IEtomicaDataSource {
     
-    public MeterPressureTensor(IPotentialMaster potentialMaster, Space space) {
+    public MeterPressureTensor(PotentialMaster potentialMaster, Space space) {
     	super();
         this.potentialMaster = potentialMaster;
         data = new DataTensor(space);
@@ -104,7 +104,7 @@ public class MeterPressureTensor implements IEtomicaDataSource {
     protected final DataTag tag;
     protected final DataTensor data;
     protected final DataInfo dataInfo;
-    protected final IPotentialMaster potentialMaster;
+    protected final PotentialMaster potentialMaster;
     protected Box box;
     protected IteratorDirective iteratorDirective;
     protected final PotentialCalculationPressureTensor pc;

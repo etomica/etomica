@@ -5,6 +5,7 @@
 package etomica.integrator.mcmove;
 
 import etomica.api.*;
+import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.space.Space;
 
@@ -19,8 +20,8 @@ import etomica.space.Space;
  */
 public class MCMoveTorsionAceticAcid extends MCMoveMolecule {
    
-    public MCMoveTorsionAceticAcid(IPotentialMaster potentialMaster, Space space,
-            IRandom random) {
+    public MCMoveTorsionAceticAcid(PotentialMaster potentialMaster, Space space,
+                                   IRandom random) {
         super(potentialMaster,random,space,1,Double.POSITIVE_INFINITY);//we don't need stepsize-> put 1
         ((MCMoveStepTracker)getTracker()).setTunable(false);
         vCO = space.makeVector();

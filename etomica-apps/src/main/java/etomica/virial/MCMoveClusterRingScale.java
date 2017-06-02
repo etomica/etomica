@@ -7,7 +7,7 @@ package etomica.virial;
 import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.space.Vector;
 import etomica.atom.AtomArrayList;
@@ -23,11 +23,11 @@ import etomica.space.Space;
  */
 public class MCMoveClusterRingScale extends MCMoveBox {
 
-    public MCMoveClusterRingScale(IPotentialMaster potentialMaster, IRandom random, Space _space) {
+    public MCMoveClusterRingScale(PotentialMaster potentialMaster, IRandom random, Space _space) {
         this(potentialMaster, random, _space, new int[0][0]);
     }
     
-    public MCMoveClusterRingScale(IPotentialMaster potentialMaster, IRandom random, Space _space, int[][] tangledMolecules) {
+    public MCMoveClusterRingScale(PotentialMaster potentialMaster, IRandom random, Space _space, int[][] tangledMolecules) {
         super(potentialMaster);
         this.space = _space;
         this.random = random;

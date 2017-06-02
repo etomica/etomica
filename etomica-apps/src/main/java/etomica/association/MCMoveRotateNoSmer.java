@@ -4,15 +4,15 @@
 
 package etomica.association;
 
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.integrator.mcmove.MCMoveRotate;
 import etomica.space.Space;
 
 public class MCMoveRotateNoSmer extends MCMoveRotate {
 
-	public MCMoveRotateNoSmer(IPotentialMaster potentialMaster, IRandom random,
-			Space _space) {
+	public MCMoveRotateNoSmer(PotentialMaster potentialMaster, IRandom random,
+                              Space _space) {
 		super(potentialMaster, random, _space);
 	}
 	public void setAssociationManager(AssociationManager associationManager){

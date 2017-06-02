@@ -6,6 +6,7 @@ package etomica.models.hexane;
 
 import etomica.api.*;
 import etomica.box.Box;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.atom.MoleculeSource;
 import etomica.atom.MoleculeSourceRandomMolecule;
@@ -17,12 +18,12 @@ import etomica.space.Vector;
 
 public class MCMoveReptate extends MCMoveBoxStep {
     
-    public MCMoveReptate(Simulation sim, IPotentialMaster potentialMaster, Space _space){
+    public MCMoveReptate(Simulation sim, PotentialMaster potentialMaster, Space _space){
         this(potentialMaster, sim.getRandom(), 1.0, 15.0, false, _space);
     }
     
-    public MCMoveReptate(IPotentialMaster potentialMaster, IRandom random, 
-            double stepSize, double stepSizeMax, boolean fixOverlap, Space _space){
+    public MCMoveReptate(PotentialMaster potentialMaster, IRandom random,
+                         double stepSize, double stepSizeMax, boolean fixOverlap, Space _space){
         super(potentialMaster);
         this.space = _space;
         this.random = random;

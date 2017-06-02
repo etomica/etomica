@@ -14,13 +14,14 @@ import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBox;
+import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.util.Constants;
 
 public abstract class MCMoveCBMC extends MCMoveBox {
 
-    public MCMoveCBMC(IPotentialMaster potentialMaster, IRandom random,
+    public MCMoveCBMC(PotentialMaster potentialMaster, IRandom random,
                       Space _space, IntegratorMC integrator, Box p, int maxAtomsPerMolecule,
                       int NTrial) {
         super(potentialMaster);

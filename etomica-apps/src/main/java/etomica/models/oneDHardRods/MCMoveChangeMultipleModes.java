@@ -6,7 +6,7 @@ package etomica.models.oneDHardRods;
 
 import etomica.api.IAtomList;
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.space.Vector;
 import etomica.atom.iterator.AtomIterator;
@@ -43,7 +43,7 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
     int[] changeableWVs, changeableModes;  //all wvs from the harmonic wv are not changed.
     
     
-    public MCMoveChangeMultipleModes(IPotentialMaster potentialMaster, IRandom random) {
+    public MCMoveChangeMultipleModes(PotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         
         this.random = random;

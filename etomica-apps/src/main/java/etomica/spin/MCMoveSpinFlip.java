@@ -7,7 +7,7 @@ package etomica.spin;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
@@ -28,7 +28,7 @@ public class MCMoveSpinFlip extends MCMoveBox {
      * @param potentialMaster
      * @param nBoxs
      */
-    public MCMoveSpinFlip(IPotentialMaster potentialMaster, IRandom random) {
+    public MCMoveSpinFlip(PotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         this.random = random;
         energyMeter = new MeterPotentialEnergy(potentialMaster);

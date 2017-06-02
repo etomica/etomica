@@ -7,7 +7,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IMolecule;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.api.IPotentialMolecular;
 import etomica.api.IRandom;
 import etomica.space.Vector;
@@ -57,7 +57,7 @@ public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule implements MC
     protected double uOldPE, uNewPE;
     protected double uCorrect;
     
-    public MCMoveRotateMolecule3DSuperBox(IPotentialMaster potentialMaster, IRandom random,
+    public MCMoveRotateMolecule3DSuperBox(PotentialMaster potentialMaster, IRandom random,
                                           Space _space, int nC, int basis, CoordinateDefinitionNitrogenSuperBox coordinateDef) {
         super(potentialMaster, random, _space, Math.PI/2, Math.PI);
         this.basisCell = coordinateDef.getBasisCells();

@@ -6,6 +6,7 @@ package etomica.modules.rheology;
 
 import etomica.api.*;
 import etomica.integrator.IntegratorMD;
+import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.space.Space;
 
@@ -16,8 +17,8 @@ import etomica.space.Space;
  */
 public class IntegratorPolymer extends IntegratorMD {
 
-    public IntegratorPolymer(IPotentialMaster potentialMaster, IRandom random,
-            double timeStep, double temperature, Space _space) {
+    public IntegratorPolymer(PotentialMaster potentialMaster, IRandom random,
+                             double timeStep, double temperature, Space _space) {
         super(potentialMaster, random, timeStep, temperature, _space);
         center = _space.makeVector();
         drPrev = _space.makeVector();

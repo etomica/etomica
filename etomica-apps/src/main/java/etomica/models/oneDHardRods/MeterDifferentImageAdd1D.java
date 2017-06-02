@@ -66,7 +66,7 @@ public class MeterDifferentImageAdd1D extends DataSourceScalar {
     
     
     
-    public MeterDifferentImageAdd1D(String string, /*IPotentialMaster potentialMaster,*/ 
+    public MeterDifferentImageAdd1D(String string,
             int numSimAtoms, double density, Simulation sim,
             Primitive simPrimitive, Basis simBasis, CoordinateDefinition simCD,
             NormalModes simNM, double temp){

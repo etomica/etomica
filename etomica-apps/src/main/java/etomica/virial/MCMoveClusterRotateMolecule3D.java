@@ -7,7 +7,7 @@ package etomica.virial;
 import etomica.action.MoleculeAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.space.Space;
@@ -17,7 +17,7 @@ import etomica.space.Space;
  */
 public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
 
-    public MCMoveClusterRotateMolecule3D(IPotentialMaster potentialMaster,
+    public MCMoveClusterRotateMolecule3D(PotentialMaster potentialMaster,
             IRandom random, Space _space) {
         super(potentialMaster, random, _space);
     }

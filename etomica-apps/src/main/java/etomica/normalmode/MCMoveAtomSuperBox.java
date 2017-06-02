@@ -6,7 +6,7 @@
 
 import etomica.api.IAtom;
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPair;
@@ -32,7 +32,7 @@ import etomica.space.Vector;
 public class MCMoveAtomSuperBox extends MCMoveBoxStep {
 
 
-    public MCMoveAtomSuperBox(IPotentialMaster potentialMaster, IRandom random,
+    public MCMoveAtomSuperBox(PotentialMaster potentialMaster, IRandom random,
                               Space _space, CoordinateDefinitionLeafSuperBox coordinateDefinition) {
         super(potentialMaster);
         this.random = random;

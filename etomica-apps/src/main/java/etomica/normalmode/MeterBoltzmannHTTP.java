@@ -6,6 +6,7 @@ package etomica.normalmode;
 
 import etomica.api.*;
 import etomica.box.Box;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -31,7 +32,7 @@ import etomica.data.histogram.HistogramCollapsing;
 public class MeterBoltzmannHTTP implements IEtomicaDataSource {
 
     protected final MeterPotentialEnergy meterPotential;
-    protected final IPotentialMaster potentialMaster;
+    protected final PotentialMaster potentialMaster;
     protected double latticeEnergy;
     protected double temperature;
     protected double otherTemperature;
@@ -46,7 +47,7 @@ public class MeterBoltzmannHTTP implements IEtomicaDataSource {
     protected P1ConstraintNbr p1;
     protected HistogramCollapsing[] histogram;
     
-    public MeterBoltzmannHTTP(IPotentialMaster potentialMaster, ISpecies species, Space space, Simulation sim) {
+    public MeterBoltzmannHTTP(PotentialMaster potentialMaster, ISpecies species, Space space, Simulation sim) {
         this.potentialMaster = potentialMaster;
         meterPotential = new MeterPotentialEnergy(potentialMaster);
         this.species = species;

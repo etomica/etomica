@@ -8,6 +8,7 @@ package etomica.integrator;
 
 import etomica.api.*;
 import etomica.box.Box;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -40,12 +41,12 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource<Integra
 
     protected AtomLeafAgentManager<IntegratorGear4.Agent> agentManager;
 
-    public IntegratorGear4(Simulation sim, IPotentialMaster potentialMaster, Space _space) {
+    public IntegratorGear4(Simulation sim, PotentialMaster potentialMaster, Space _space) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
     }
     
-    public IntegratorGear4(IPotentialMaster potentialMaster, IRandom random, 
-            double timeStep, double temperature, Space _space) {
+    public IntegratorGear4(PotentialMaster potentialMaster, IRandom random,
+                           double timeStep, double temperature, Space _space) {
         super(potentialMaster,random,timeStep,temperature, _space);
         forceSum = new PotentialCalculationForceSum();
         allAtoms = new IteratorDirective();

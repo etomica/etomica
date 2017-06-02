@@ -6,6 +6,7 @@ package etomica.virial;
 
 import etomica.api.*;
 import etomica.box.Box;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
@@ -30,7 +31,7 @@ import etomica.space.Space;
  */
 public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
 
-    public MCMoveClusterTorsionMulti(Simulation sim, IPotentialMaster potentialMaster, Space space,
+    public MCMoveClusterTorsionMulti(Simulation sim, PotentialMaster potentialMaster, Space space,
                                      P4BondTorsion torsionPotential) {
     	this(potentialMaster, space, sim.getRandom(), 1.0,torsionPotential, 20);
         setBondLength(1.0);
@@ -43,8 +44,8 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
      * box should be at least one greater than this value (greater
      * because first atom is never moved)
      */
-    public MCMoveClusterTorsionMulti(IPotentialMaster potentialMaster, Space space,
-            IRandom random, double stepSize, P4BondTorsion torsionPotential, int nBins) {
+    public MCMoveClusterTorsionMulti(PotentialMaster potentialMaster, Space space,
+                                     IRandom random, double stepSize, P4BondTorsion torsionPotential, int nBins) {
         super(potentialMaster,random,space,stepSize,Double.POSITIVE_INFINITY);
         ((MCMoveStepTracker)getTracker()).setTunable(false);
         positionDefinition = new AtomPositionGeometricCenter(space);

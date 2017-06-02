@@ -6,6 +6,7 @@ package etomica.integrator;
 
 import etomica.api.*;
 import etomica.box.Box;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -28,12 +29,12 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource<
 
     protected AtomLeafAgentManager<Agent> agentManager;
 
-    public IntegratorVerlet(Simulation sim, IPotentialMaster potentialMaster, Space _space) {
+    public IntegratorVerlet(Simulation sim, PotentialMaster potentialMaster, Space _space) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
     }
     
-    public IntegratorVerlet(IPotentialMaster potentialMaster, IRandom random, 
-            double timeStep, double temperature, Space _space) {
+    public IntegratorVerlet(PotentialMaster potentialMaster, IRandom random,
+                            double timeStep, double temperature, Space _space) {
         super(potentialMaster,random,timeStep,temperature, _space);
         // if you're motivated to throw away information earlier, you can use 
         // PotentialCalculationForceSum instead.

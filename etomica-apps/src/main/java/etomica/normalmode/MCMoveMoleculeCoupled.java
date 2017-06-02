@@ -19,6 +19,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.nbr.list.molecule.PotentialMasterListMolecular;
+import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space.Vector;
 
@@ -46,8 +47,8 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
     protected IPotentialMolecular pairPotential;
     protected boolean doExcludeNonNeighbors, doIncludePair;
     
-    public MCMoveMoleculeCoupled(IPotentialMaster potentialMaster, IRandom nRandom,
-    		                     Space _space){
+    public MCMoveMoleculeCoupled(PotentialMaster potentialMaster, IRandom nRandom,
+                                 Space _space){
         super(potentialMaster);
         this.random = nRandom;
         moleculeSource = new MoleculeSourceRandomMolecule();

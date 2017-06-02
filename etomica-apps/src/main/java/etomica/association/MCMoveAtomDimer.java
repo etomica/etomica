@@ -5,7 +5,7 @@
 package etomica.association;
 
 import etomica.api.IAtom;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.simulation.Simulation;
 import etomica.integrator.mcmove.MCMoveAtom;
@@ -16,13 +16,13 @@ public class MCMoveAtomDimer extends MCMoveAtom {
 	
 	
 
-	public MCMoveAtomDimer(Simulation sim, IPotentialMaster potentialMaster,
+	public MCMoveAtomDimer(Simulation sim, PotentialMaster potentialMaster,
                            Space _space) {
 		this(potentialMaster, sim.getRandom(), _space, 1.0, 15.0, false);
 	}
 
 
-	public MCMoveAtomDimer(IPotentialMaster potentialMaster, IRandom random,
+	public MCMoveAtomDimer(PotentialMaster potentialMaster, IRandom random,
                            Space _space, double stepSize, double stepSizeMax,
                            boolean fixOverlap) {
 		super(potentialMaster, random, _space, stepSize, stepSizeMax,

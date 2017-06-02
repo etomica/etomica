@@ -11,7 +11,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IMolecule;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.api.ISpecies;
 import etomica.space.Vector;
 import etomica.atom.AtomPositionCOM;
@@ -40,7 +40,6 @@ import etomica.listener.IntegratorListenerAction;
 import etomica.models.water.P2WaterTIP4PSoft;
 import etomica.models.water.SpeciesWater4P;
 import etomica.potential.P2ReactionFieldDipole;
-import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -59,7 +58,7 @@ import etomica.util.ParseArgs;
  */
 public class TIP4P_NVT extends Simulation {
      private static final long serialVersionUID = 1L;
-     protected final IPotentialMaster potentialMaster;
+     protected final PotentialMaster potentialMaster;
      protected final IntegratorMC integrator;
      protected final MCMoveMolecule moveMolecule;//translation
      protected final MCMoveRotateMolecule3D rotateMolecule;//rotation

@@ -6,19 +6,15 @@ package etomica.modules.pistoncylinder;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
+import etomica.potential.*;
 import etomica.space.Vector;
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.potential.P1HardBoundary;
-import etomica.potential.P1HardMovingBoundary;
-import etomica.potential.P2HardWrapper;
-import etomica.potential.P2SquareWell;
-import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space2d.Vector2D;
@@ -45,7 +41,7 @@ public class PistonCylinder extends Simulation {
 
     public PistonCylinder(int D) {
         super(Space.getInstance(D));
-        IPotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         lambda = 2.0;
         double sigma = 4.0;
         species = new SpeciesSpheresMono(this, space);

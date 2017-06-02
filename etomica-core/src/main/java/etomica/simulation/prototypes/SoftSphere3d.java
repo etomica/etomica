@@ -9,7 +9,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.api.IAtomType;
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
@@ -42,7 +42,7 @@ public class SoftSphere3d extends Simulation {
     public SpeciesSpheresMono species, species2;
     public Box box;
     public P2SoftSphere potential;
-    public IPotentialMaster potentialMaster;
+    public PotentialMaster potentialMaster;
     public Controller controller;
     public DataSourceCountSteps meterCycles;
     

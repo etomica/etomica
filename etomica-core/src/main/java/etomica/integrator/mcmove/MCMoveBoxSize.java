@@ -6,9 +6,9 @@ package etomica.integrator.mcmove;
 
 import etomica.action.BoxInflate;
 import etomica.action.BoxInflateDeformable;
+import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.simulation.Simulation;
 import etomica.atom.iterator.AtomIterator;
@@ -37,7 +37,7 @@ public class MCMoveBoxSize extends MCMoveBoxStep {
     private transient int dim1, dim2;
     private transient double uNew = Double.NaN;
 
-    public MCMoveBoxSize(Simulation sim, IPotentialMaster potentialMaster,
+    public MCMoveBoxSize(Simulation sim, PotentialMaster potentialMaster,
                          Space _space) {
         this(potentialMaster, sim.getRandom(), _space);
     }
@@ -46,8 +46,8 @@ public class MCMoveBoxSize extends MCMoveBoxStep {
      * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
      * @param space the governing space for the simulation
      */
-    public MCMoveBoxSize(IPotentialMaster potentialMaster, IRandom random,
-    		            Space space) {
+    public MCMoveBoxSize(PotentialMaster potentialMaster, IRandom random,
+                         Space space) {
         super(potentialMaster);
         this.space = space;
         this.random = random;

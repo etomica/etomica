@@ -4,7 +4,7 @@
 
 package etomica.liquidLJ;
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -31,7 +31,7 @@ public class MeterPUCutLS implements IEtomicaDataSource {
     protected final DataTag tag;
     protected IteratorDirective iteratorDirective;
     protected final PotentialCalculationSumCutoffLS pc, pcDADv2;
-    protected IPotentialMaster potentialMaster, potentialMasterDADv2;
+    protected PotentialMaster potentialMaster, potentialMasterDADv2;
     protected double temperature;
     protected Box box;
     private final int dim;
@@ -48,11 +48,11 @@ public class MeterPUCutLS implements IEtomicaDataSource {
         pcDADv2 = new PotentialCalculationSumCutoffLS();
     }
 
-    public void setPotentialMaster(IPotentialMaster newPotentialMaster) {
+    public void setPotentialMaster(PotentialMaster newPotentialMaster) {
         potentialMaster = newPotentialMaster;
     }
 
-    public void setPotentialMasterDADv2(IPotentialMaster newPotentialMasterDADv2) {
+    public void setPotentialMasterDADv2(PotentialMaster newPotentialMasterDADv2) {
         this.potentialMasterDADv2 = newPotentialMasterDADv2;
     }
 

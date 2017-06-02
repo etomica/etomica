@@ -8,6 +8,7 @@ import etomica.api.*;
 import etomica.atom.MoleculeArrayList;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveStepTracker;
+import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.space.Space;
 
@@ -29,8 +30,8 @@ public class MCMoveClusterTorsionAceticAcid extends MCMoveMolecule {
      * box should be at least one greater than this value (greater
      * because first atom is never moved)
      */
-    public MCMoveClusterTorsionAceticAcid(IPotentialMaster potentialMaster, Space space,
-            IRandom random) {
+    public MCMoveClusterTorsionAceticAcid(PotentialMaster potentialMaster, Space space,
+                                          IRandom random) {
         super(potentialMaster,random,space,1,Double.POSITIVE_INFINITY);//we don't need stepsize-> put 1
         ((MCMoveStepTracker)getTracker()).setTunable(false);
         vCO = space.makeVector();

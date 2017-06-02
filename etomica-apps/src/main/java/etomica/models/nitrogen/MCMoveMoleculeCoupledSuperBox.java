@@ -20,6 +20,7 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.integrator.mcmove.MCMoveMolecular;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
+import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space.Vector;
 
@@ -38,7 +39,7 @@ import etomica.space.Vector;
 public class MCMoveMoleculeCoupledSuperBox extends MCMoveBoxStep implements MCMoveMolecular{
 
     
-    public MCMoveMoleculeCoupledSuperBox(IPotentialMaster potentialMaster, IRandom nRandom,
+    public MCMoveMoleculeCoupledSuperBox(PotentialMaster potentialMaster, IRandom nRandom,
                                          Space _space, Box box, int nC, int basis, CoordinateDefinitionNitrogenSuperBox coordinateDef){
         super(potentialMaster);
         this.random = nRandom;

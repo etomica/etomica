@@ -7,7 +7,7 @@ package etomica.paracetamol;
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.data.DataInfo;
 import etomica.data.DataTag;
@@ -199,7 +199,7 @@ public class NormalModesPotentialParacetamol implements NormalModes {
     	return coordinateDefinitionParacetamol;
     }
     
-	public void setPotentialMaster(IPotentialMaster potentialMaster) {
+	public void setPotentialMaster(PotentialMaster potentialMaster) {
 		this.potentialMaster = potentialMaster;
 	}
     
@@ -211,7 +211,7 @@ public class NormalModesPotentialParacetamol implements NormalModes {
 		this.box = box;
 	}
     
-	public IPotentialMaster getPotentialMaster() {
+	public PotentialMaster getPotentialMaster() {
 		return potentialMaster;
 	}
 	
@@ -293,7 +293,7 @@ public class NormalModesPotentialParacetamol implements NormalModes {
 
 	
     private CoordinateDefinitionParacetamol coordinateDefinitionParacetamol;
-    private IPotentialMaster potentialMaster;
+    private PotentialMaster potentialMaster;
     private Box box;
     private final BravaisLatticeCrystal lattice;
     private WaveVectorFactory kFactory;

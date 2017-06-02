@@ -5,7 +5,7 @@
 package etomica.models.nitrogen;
 
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.data.DataSourceScalar;
@@ -32,7 +32,7 @@ public class MeterRotPerturbMolecule extends DataSourceScalar {
     protected double latticeEnergy;
     protected CoordinateDefinitionNitrogen primaryCoordDef, secondaryCoordDef;
     
-    public MeterRotPerturbMolecule(IntegratorMC integrator, IPotentialMaster potentialMaster, ISpecies species, Space space, Simulation sim, CoordinateDefinitionNitrogen coordinateDef) {
+    public MeterRotPerturbMolecule(IntegratorMC integrator, PotentialMaster potentialMaster, ISpecies species, Space space, Simulation sim, CoordinateDefinitionNitrogen coordinateDef) {
         super("Scaled Energy unit", Null.DIMENSION);
         this.primaryCoordDef = coordinateDef;
         

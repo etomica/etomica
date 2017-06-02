@@ -8,7 +8,7 @@ import etomica.action.MoleculeActionTranslateTo;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISpecies;
 import etomica.atom.AtomPositionCOM;
@@ -47,8 +47,8 @@ public class MCMoveSemigrand extends MCMoveBox {
     private transient double uNew = Double.NaN;
     private transient int iInsert, iDelete;
 
-    public MCMoveSemigrand(IPotentialMaster potentialMaster, IRandom random,
-    		               Space _space) {
+    public MCMoveSemigrand(PotentialMaster potentialMaster, IRandom random,
+                           Space _space) {
         super(potentialMaster);
         this.random = random;
         energyMeter = new MeterPotentialEnergy(potentialMaster);

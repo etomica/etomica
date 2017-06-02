@@ -6,6 +6,7 @@ package etomica.integrator;
 
 import etomica.api.*;
 import etomica.box.Box;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSetSinglet;
@@ -40,11 +41,11 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
     protected final Vector temp;
     public int printInterval = 0;
 
-    public IntegratorVelocityVerletShake(Simulation sim, IPotentialMaster potentialMaster, Space _space) {
+    public IntegratorVelocityVerletShake(Simulation sim, PotentialMaster potentialMaster, Space _space) {
         this(sim, potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
     }
     
-    public IntegratorVelocityVerletShake(Simulation sim, IPotentialMaster potentialMaster, IRandom random,
+    public IntegratorVelocityVerletShake(Simulation sim, PotentialMaster potentialMaster, IRandom random,
                                          double timeStep, double temperature, Space _space) {
         super(potentialMaster,random,timeStep,temperature, _space);
         // if you're motivated to throw away information earlier, you can use 

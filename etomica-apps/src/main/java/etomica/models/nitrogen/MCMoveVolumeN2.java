@@ -7,6 +7,7 @@ package etomica.models.nitrogen;
 import etomica.action.BoxInflate;
 import etomica.api.*;
 import etomica.box.Box;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -27,7 +28,7 @@ import etomica.units.Pressure;
  */
 public class MCMoveVolumeN2 extends MCMoveBoxStep {
 
-    public MCMoveVolumeN2(Simulation sim, IPotentialMaster potentialMaster,
+    public MCMoveVolumeN2(Simulation sim, PotentialMaster potentialMaster,
                           Space _space) {
         this(potentialMaster, sim.getRandom(), _space, 1.0);
     }
@@ -36,7 +37,7 @@ public class MCMoveVolumeN2 extends MCMoveBoxStep {
      * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
      * @param space the governing space for the simulation
      */
-    public MCMoveVolumeN2(IPotentialMaster potentialMaster, IRandom random,
+    public MCMoveVolumeN2(PotentialMaster potentialMaster, IRandom random,
                           Space _space, double pressure) {
         super(potentialMaster);
         this.random = random;

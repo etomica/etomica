@@ -8,6 +8,7 @@ import java.io.Serializable;
 
 import etomica.api.*;
 import etomica.box.Box;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -37,12 +38,12 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
 
     protected AtomLeafAgentManager<MyAgent> agentManager;
 
-    public IntegratorDroplet(Simulation sim, IPotentialMaster potentialMaster, Space _space) {
+    public IntegratorDroplet(Simulation sim, PotentialMaster potentialMaster, Space _space) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
     }
 
-    public IntegratorDroplet(IPotentialMaster potentialMaster, IRandom random,
-            double timeStep, double temperature, Space _space) {
+    public IntegratorDroplet(PotentialMaster potentialMaster, IRandom random,
+                             double timeStep, double temperature, Space _space) {
         super(potentialMaster,random,timeStep,temperature, _space);
         // if you're motivated to throw away information earlier, you can use 
         // PotentialCalculationForceSum instead.

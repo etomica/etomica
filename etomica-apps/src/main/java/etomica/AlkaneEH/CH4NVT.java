@@ -9,7 +9,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.api.IAtomType;
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.api.ISpecies;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ApiBuilder;
@@ -30,7 +30,6 @@ import etomica.lattice.LatticeCubicBcc;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialGroupSoft;
-import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -51,7 +50,7 @@ public class CH4NVT extends Simulation {
 
 	private static final long serialVersionUID = 1L;
 	protected final SpeciesMethane speciesCH4; 
-	protected final IPotentialMaster potentialMaster;
+	protected final PotentialMaster potentialMaster;
 	protected final IntegratorMC integrator;
 	protected final MCMoveMolecule moveMolecule;//translation mc move
 	protected final MCMoveRotateMolecule3D rotateMolecule;//rotation mc move

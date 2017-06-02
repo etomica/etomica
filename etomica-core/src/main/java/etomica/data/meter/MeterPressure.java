@@ -4,7 +4,7 @@
 
 package etomica.data.meter;
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorBox;
@@ -41,7 +41,7 @@ public class MeterPressure extends DataSourceScalar {
         integrator = newIntegrator;
     }
 
-    public void setPotentialMaster(IPotentialMaster newPotentialMaster) {
+    public void setPotentialMaster(PotentialMaster newPotentialMaster) {
         potentialMaster = newPotentialMaster;
     }
     
@@ -105,7 +105,7 @@ public class MeterPressure extends DataSourceScalar {
     private IntegratorBox integrator;
     private IteratorDirective iteratorDirective;
     private final PotentialCalculationVirialSum virial;
-    protected IPotentialMaster potentialMaster;
+    protected PotentialMaster potentialMaster;
     protected double temperature;
     protected Box box;
     private final int dim;

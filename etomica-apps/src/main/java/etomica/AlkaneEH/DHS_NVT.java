@@ -8,7 +8,7 @@ import etomica.action.activity.Controller;
 import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IMolecule;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.api.ISpecies;
 import etomica.space.Vector;
 import etomica.atom.DiameterHashByType;
@@ -38,7 +38,6 @@ import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2HSDipole;
 import etomica.potential.P2MoleculeTruncated;
 import etomica.potential.P2ReactionFieldDipole;
-import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -58,7 +57,7 @@ import etomica.util.ParseArgs;
 public class DHS_NVT extends Simulation {
 	private static final long serialVersionUID = 1L;
 	protected final SpeciesSpheresRotating species; 
-	protected final IPotentialMaster potentialMaster;
+	protected final PotentialMaster potentialMaster;
 	protected final IntegratorMC integrator;
 	protected final MCMoveMolecule moveMolecule;//translation mc move
 	protected final MCMoveRotate rotateMolecule;//atomic rotation mc move

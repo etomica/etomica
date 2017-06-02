@@ -5,7 +5,7 @@
 package etomica.modules.vle;
 
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataSourceScalar;
 import etomica.potential.PotentialCalculationVirialSum;
@@ -36,7 +36,7 @@ public class MeterPressure2 extends DataSourceScalar {
      * calculated for the box the integrator acts on and integrator's 
      * temperature is used for the ideal gas contribution.
      */
-    public void setPotentialMaster(IPotentialMaster newPotentialMaster) {
+    public void setPotentialMaster(PotentialMaster newPotentialMaster) {
         potentialMaster = newPotentialMaster;
     }
     
@@ -45,7 +45,7 @@ public class MeterPressure2 extends DataSourceScalar {
      * calculated for the box the integrator acts on and integrator's 
      * temperature is used for the ideal gas contribution.
      */
-    public IPotentialMaster getPotentialMaster() {
+    public PotentialMaster getPotentialMaster() {
         return potentialMaster;
     }
     
@@ -85,7 +85,7 @@ public class MeterPressure2 extends DataSourceScalar {
     }
 
     private static final long serialVersionUID = 1L;
-    protected IPotentialMaster potentialMaster;
+    protected PotentialMaster potentialMaster;
     protected Box box;
     private IteratorDirective iteratorDirective;
     private final PotentialCalculationVirialSum virial;

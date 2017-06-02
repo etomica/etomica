@@ -50,7 +50,7 @@ import java.awt.*;
 public class DLJ_NVT_1site extends Simulation {
 
 	private static final long serialVersionUID = 1L;
-	protected final IPotentialMaster potentialMaster;
+	protected final PotentialMaster potentialMaster;
 	protected final IntegratorMC integrator;
 	protected final MCMoveMolecule moveMolecule;//translation
 	protected final MCMoveRotate rotateMolecule;//rotation, atomic

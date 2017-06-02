@@ -8,7 +8,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
@@ -33,7 +33,7 @@ import etomica.util.Debug;
  */
 public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
 
-    public MCMoveClusterWiggleMulti(Simulation sim, IPotentialMaster potentialMaster, int nAtoms, Space _space) {
+    public MCMoveClusterWiggleMulti(Simulation sim, PotentialMaster potentialMaster, int nAtoms, Space _space) {
     	this(potentialMaster,sim.getRandom(), 1.0, nAtoms, _space);
     }
     
@@ -44,7 +44,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
      * box should be at least one greater than this value (greater
      * because first atom is never moved)
      */
-    public MCMoveClusterWiggleMulti(IPotentialMaster potentialMaster, 
+    public MCMoveClusterWiggleMulti(PotentialMaster potentialMaster,
             IRandom random, double stepSize, int nAtoms, Space _space) {
         super(potentialMaster,random,_space, stepSize,Double.POSITIVE_INFINITY);
         this.space = _space;

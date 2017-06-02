@@ -5,7 +5,7 @@
 package etomica.integrator;
 
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
@@ -30,9 +30,9 @@ public abstract class IntegratorBox extends Integrator {
     protected boolean isothermal = false;
     protected DataSourceScalar meterPE;
     protected double currentPotentialEnergy;
-    protected final IPotentialMaster potentialMaster;
+    protected final PotentialMaster potentialMaster;
 
-    public IntegratorBox(IPotentialMaster potentialMaster, double temperature) {
+    public IntegratorBox(PotentialMaster potentialMaster, double temperature) {
         super();
         this.potentialMaster = potentialMaster;
         if (potentialMaster != null) {
@@ -44,7 +44,7 @@ public abstract class IntegratorBox extends Integrator {
     /**
      * @return Returns the PotentialMaster.
      */
-    public IPotentialMaster getPotentialMaster() {
+    public PotentialMaster getPotentialMaster() {
         return potentialMaster;
     }
 

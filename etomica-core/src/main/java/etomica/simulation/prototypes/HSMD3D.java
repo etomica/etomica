@@ -10,7 +10,7 @@ import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPumpListener;
@@ -72,7 +72,7 @@ public class HSMD3D extends Simulation {
      */
     public final P2HardSphere potential;
     
-    public final IPotentialMaster potentialMaster;
+    public final PotentialMaster potentialMaster;
     
     /**
      * Sole public constructor, makes a simulation using a 3D space.

@@ -6,6 +6,7 @@ package etomica.virial;
 
 import etomica.api.*;
 import etomica.box.Box;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
@@ -28,7 +29,7 @@ import etomica.util.Debug;
  */
 public class MCMoveClusterWiggleAceticAcid extends MCMoveMolecule {
 
-    public MCMoveClusterWiggleAceticAcid(Simulation sim, IPotentialMaster potentialMaster, Space _space) {
+    public MCMoveClusterWiggleAceticAcid(Simulation sim, PotentialMaster potentialMaster, Space _space) {
     	this(potentialMaster,sim.getRandom(), 0.1, _space);//0.1 rad wiggle move
     }
     
@@ -39,7 +40,7 @@ public class MCMoveClusterWiggleAceticAcid extends MCMoveMolecule {
      * box should be at least one greater than this value (greater
      * because first atom is never moved)
      */
-    public MCMoveClusterWiggleAceticAcid(IPotentialMaster potentialMaster, 
+    public MCMoveClusterWiggleAceticAcid(PotentialMaster potentialMaster,
             IRandom random, double stepSize, Space _space) {
         super(potentialMaster,random,_space, stepSize,Double.POSITIVE_INFINITY);
         this.space = _space;

@@ -12,6 +12,7 @@ import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.*;
 import etomica.box.Box;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
@@ -78,12 +79,12 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Inte
 	private final Space space;
 	
 	
-	public IntegratorDimerRT(Simulation sim, IPotentialMaster potentialMaster,
+	public IntegratorDimerRT(Simulation sim, PotentialMaster potentialMaster,
                              ISpecies[] species, Space _space) {
 		this(sim, potentialMaster, sim.getRandom(), 1.0, species, _space);
 	}
 	
-	public IntegratorDimerRT(Simulation aSim, IPotentialMaster potentialMaster,
+	public IntegratorDimerRT(Simulation aSim, PotentialMaster potentialMaster,
                              IRandom random, double temperature,
                              ISpecies[] aspecies, Space _space) {
 		super(potentialMaster, temperature);

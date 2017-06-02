@@ -1,6 +1,6 @@
 package etomica.integrator.mcmove;
 
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.space.Vector;
 import etomica.space.Space;
@@ -17,7 +17,7 @@ public class MCMoveAtomInRegion extends MCMoveAtom {
     protected double xMin, xMax;
     protected Vector oldPosition;
     
-    public MCMoveAtomInRegion(IRandom random, IPotentialMaster potentialMaster,
+    public MCMoveAtomInRegion(IRandom random, PotentialMaster potentialMaster,
             Space _space) {
         super(random, potentialMaster, _space);
         oldPosition = _space.makeVector();

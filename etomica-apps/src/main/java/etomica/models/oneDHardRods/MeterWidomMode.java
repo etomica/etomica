@@ -4,9 +4,9 @@
 
 package etomica.models.oneDHardRods;
 
+import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.normalmode.CoordinateDefinition;
@@ -35,7 +35,7 @@ public class MeterWidomMode extends DataSourceScalar {
     private double[] sqrtWVC;
     
     
-    public MeterWidomMode(String string, IPotentialMaster 
+    public MeterWidomMode(String string, PotentialMaster
             potentialMaster, CoordinateDefinition cd, Box box, int awv){
         super(string, Null.DIMENSION);
         setCoordinateDefinition(cd);

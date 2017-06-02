@@ -14,6 +14,7 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBox;
+import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.space.Space;
 
@@ -39,8 +40,8 @@ public class MCMoveCombinedCbmcTranslation extends MCMoveBox {
     protected final IRandom random;
     private Space space;
     
-    public MCMoveCombinedCbmcTranslation(IPotentialMaster pm, MCMoveCBMC mv,
-            IRandom nRandom, Space _space){
+    public MCMoveCombinedCbmcTranslation(PotentialMaster pm, MCMoveCBMC mv,
+                                         IRandom nRandom, Space _space){
         super(pm);
         this.cbmcMove = mv;
         this.random = nRandom;
@@ -62,7 +63,7 @@ public class MCMoveCombinedCbmcTranslation extends MCMoveBox {
         temp = space.makeVector();
     }
     
-    public MCMoveCombinedCbmcTranslation(IPotentialMaster pm, MCMoveCBMC mv,
+    public MCMoveCombinedCbmcTranslation(PotentialMaster pm, MCMoveCBMC mv,
                                          IRandom nRandom, Box ph, Space _space){
         this(pm, mv, nRandom, _space);
         setBox(ph);

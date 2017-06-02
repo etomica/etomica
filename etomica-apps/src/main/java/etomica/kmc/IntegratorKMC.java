@@ -8,6 +8,7 @@ import etomica.action.BoxImposePbc;
 import etomica.action.WriteConfiguration;
 import etomica.action.XYZWriter;
 import etomica.api.*;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.config.ConfigurationFile;
 import etomica.dimer.IntegratorDimerMin;
@@ -24,7 +25,7 @@ public class IntegratorKMC extends IntegratorBox{
     private static final long serialVersionUID = 1L;
     IntegratorDimerRT integratorDimer;
     IntegratorDimerMin integratorMin1, integratorMin2;
-    IPotentialMaster potentialMaster;
+    PotentialMaster potentialMaster;
     double temperature;
     private final Space space;
     IRandom random;
@@ -48,7 +49,7 @@ public class IntegratorKMC extends IntegratorBox{
     XYZWriter xyzfile;
     BoxImposePbc imposePbc;
     
-    public IntegratorKMC(Simulation _sim, IPotentialMaster _potentialMaster, double _temperature, IRandom _random, ISpecies [] _species, Space _space){
+    public IntegratorKMC(Simulation _sim, PotentialMaster _potentialMaster, double _temperature, IRandom _random, ISpecies [] _species, Space _space){
         super(_potentialMaster, _temperature);
         this.potentialMaster = _potentialMaster;
         this.temperature = _temperature;

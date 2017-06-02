@@ -5,7 +5,7 @@
 package etomica.data.meter;
 import etomica.action.IAction;
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataSourceIndependent;
 import etomica.data.DataSourceUniform;
@@ -36,7 +36,7 @@ public class MeterRDFPC implements IAction, IEtomicaDataSource, DataSourceIndepe
 	 * Creates meter with default to compute pair correlation for all
 	 * leaf atoms in a box.
 	 */
-    public MeterRDFPC(Space space, IPotentialMaster potentialMaster, Box box) {
+    public MeterRDFPC(Space space, PotentialMaster potentialMaster, Box box) {
 	    this.space = space;
 	    
 	    this.potentialMaster = potentialMaster;
@@ -171,6 +171,6 @@ public class MeterRDFPC implements IAction, IEtomicaDataSource, DataSourceIndepe
     private String name;
     protected final DataTag tag;
     protected long callCount;
-    protected final IPotentialMaster potentialMaster;
+    protected final PotentialMaster potentialMaster;
     protected final PotentialCalculationRDF pc;
 }

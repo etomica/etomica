@@ -5,9 +5,9 @@
 package etomica.integrator.mcmove;
 
 import etomica.api.IAtom;
+import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomLeaf;
@@ -34,18 +34,18 @@ public class MCMoveAtom extends MCMoveBoxStep {
     protected final IRandom random;
     protected Space space;
 
-    public MCMoveAtom(IRandom random, IPotentialMaster potentialMaster, Space _space) {
+    public MCMoveAtom(IRandom random, PotentialMaster potentialMaster, Space _space) {
         this(potentialMaster, random, _space, 1.0, 15.0, false);
     }
 
-    public MCMoveAtom(IPotentialMaster potentialMaster, IRandom random,
+    public MCMoveAtom(PotentialMaster potentialMaster, IRandom random,
                       Space _space, double stepSize, double stepSizeMax,
                       boolean fixOverlap) {
         this(potentialMaster, new MeterPotentialEnergy(potentialMaster), random, _space,
                 stepSize, stepSizeMax, fixOverlap);
     }
 
-    public MCMoveAtom(IPotentialMaster potentialMaster, MeterPotentialEnergy meterPE, IRandom random,
+    public MCMoveAtom(PotentialMaster potentialMaster, MeterPotentialEnergy meterPE, IRandom random,
                       Space _space, double stepSize, double stepSizeMax,
                       boolean fixOverlap) {
         super(potentialMaster);

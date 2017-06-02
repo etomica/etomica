@@ -9,7 +9,7 @@ import etomica.action.MoleculeActionTranslateTo;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.space.Vector;
 import etomica.atom.AtomPositionGeometricCenter;
@@ -57,12 +57,12 @@ public class MCMoveVolumeSolidNPTMolecular extends MCMoveBoxStep {
      * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
      * @param space the governing space for the simulation
      */
-    public MCMoveVolumeSolidNPTMolecular(IPotentialMaster potentialMaster, IRandom random,
+    public MCMoveVolumeSolidNPTMolecular(PotentialMaster potentialMaster, IRandom random,
                                          Space space, double pressure) {
         this(potentialMaster, random, space, pressure, space.D());
     }
     
-    public MCMoveVolumeSolidNPTMolecular(IPotentialMaster potentialMaster, IRandom random,
+    public MCMoveVolumeSolidNPTMolecular(PotentialMaster potentialMaster, IRandom random,
                                          Space space, double pressure, int D) {
         super(potentialMaster);
         this.random = random;

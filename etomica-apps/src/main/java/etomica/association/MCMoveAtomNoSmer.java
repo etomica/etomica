@@ -4,14 +4,14 @@
 
 package etomica.association;
 
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.Space;
 
 public class MCMoveAtomNoSmer extends MCMoveAtom {
 
-	public MCMoveAtomNoSmer(IRandom random, IPotentialMaster potentialMaster,
+	public MCMoveAtomNoSmer(IRandom random, PotentialMaster potentialMaster,
 			Space _space) {
 		super(random, potentialMaster, _space);
 	}

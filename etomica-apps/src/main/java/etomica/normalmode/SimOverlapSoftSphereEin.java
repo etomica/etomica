@@ -11,7 +11,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.box.Box;
 import etomica.api.IMolecule;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.box.BoxAgentManager;
 import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.AccumulatorAverageFixed;
@@ -381,7 +381,7 @@ public class SimOverlapSoftSphereEin extends Simulation {
     
     protected static class MeterPotentialEnergyComposite extends
             MeterPotentialEnergy {
-        protected MeterPotentialEnergyComposite(IPotentialMaster potentialMaster1, IPotentialMaster potentialMaster2, double latticeEnergy) {
+        protected MeterPotentialEnergyComposite(PotentialMaster potentialMaster1, PotentialMaster potentialMaster2, double latticeEnergy) {
             super(null);
             meterPE1 = new MeterPotentialEnergy(potentialMaster1);
             meterPE2 = new MeterPotentialEnergy(potentialMaster2);

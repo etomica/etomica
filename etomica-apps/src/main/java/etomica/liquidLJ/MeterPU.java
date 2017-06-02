@@ -4,7 +4,7 @@
 
 package etomica.liquidLJ;
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -34,7 +34,7 @@ public class MeterPU implements IEtomicaDataSource {
     protected IteratorDirective iteratorDirective;
     protected final PotentialCalculationVirialSum virial;
     protected final PotentialCalculationEnergySum energy;
-    protected IPotentialMaster potentialMaster;
+    protected PotentialMaster potentialMaster;
     protected double temperature;
     protected Box box;
     private final int dim;
@@ -51,7 +51,7 @@ public class MeterPU implements IEtomicaDataSource {
         energy = new PotentialCalculationEnergySum();
     }
 
-    public void setPotentialMaster(IPotentialMaster newPotentialMaster) {
+    public void setPotentialMaster(PotentialMaster newPotentialMaster) {
         potentialMaster = newPotentialMaster;
     }
     

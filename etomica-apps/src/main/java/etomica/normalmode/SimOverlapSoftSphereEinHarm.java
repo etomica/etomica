@@ -11,7 +11,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.box.Box;
 import etomica.api.IMolecule;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.box.BoxAgentManager;
 import etomica.data.DataPump;
 import etomica.data.IData;
@@ -33,11 +33,7 @@ import etomica.nbr.list.BoxAgentSourceCellManagerList;
 import etomica.nbr.list.NeighborListManagerSlanty;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.overlap.IntegratorOverlap;
-import etomica.potential.P1HarmonicSite;
-import etomica.potential.P2SoftSphere;
-import etomica.potential.P2SoftSphericalTruncated;
-import etomica.potential.Potential2SoftSpherical;
-import etomica.potential.PotentialMasterMonatomic;
+import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
@@ -435,7 +431,7 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
     public int numAlpha;
     
     protected static class MeterPotentialEnergyComposite extends MeterPotentialEnergy {
-        protected MeterPotentialEnergyComposite(IPotentialMaster potentialMaster1, IPotentialMaster potentialMaster2, double latticeEnergy) {
+        protected MeterPotentialEnergyComposite(PotentialMaster potentialMaster1, PotentialMaster potentialMaster2, double latticeEnergy) {
             super(null);
             meterPE1 = new MeterPotentialEnergy(potentialMaster1);
             meterPE2 = new MeterPotentialEnergy(potentialMaster2);

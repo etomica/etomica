@@ -5,6 +5,7 @@
 package etomica.association;
 
 import etomica.api.*;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.atom.MoleculeArrayList;
 import etomica.integrator.mcmove.MCMoveMolecule;
@@ -25,13 +26,13 @@ public class MCMoveMoleculeSmer extends MCMoveMolecule {
 	protected IAssociationHelperMolecule associationHelper;
 	
 
-	public MCMoveMoleculeSmer(Simulation sim, IPotentialMaster potentialMaster,
+	public MCMoveMoleculeSmer(Simulation sim, PotentialMaster potentialMaster,
                               Space _space) {
 		this(potentialMaster, sim.getRandom(), _space, 1.0, 15.0);
 	}
 
 
-	public MCMoveMoleculeSmer(IPotentialMaster potentialMaster, IRandom random,
+	public MCMoveMoleculeSmer(PotentialMaster potentialMaster, IRandom random,
                               Space _space, double stepSize, double stepSizeMax) {
 		super(potentialMaster, random, _space, stepSize, stepSizeMax);
 		this.smerList = new MoleculeArrayList();

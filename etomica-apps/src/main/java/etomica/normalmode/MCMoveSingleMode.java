@@ -6,7 +6,7 @@ package etomica.normalmode;
 
 import etomica.space.Vector;
 import etomica.box.Box;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -23,7 +23,7 @@ import etomica.normalmode.CoordinateDefinition.BasisCell;
  */
 public class MCMoveSingleMode extends MCMoveBoxStep{
 
-    public MCMoveSingleMode(IPotentialMaster potentialMaster, IRandom random) {
+    public MCMoveSingleMode(PotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         
         this.random = random;

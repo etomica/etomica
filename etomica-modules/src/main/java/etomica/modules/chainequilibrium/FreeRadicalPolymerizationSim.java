@@ -10,7 +10,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.integrator.IntegratorHard;
@@ -37,7 +37,7 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
 	public P2SquareWellRadical p2AB, p2BB;
     public ActivityIntegrate activityIntegrate;
     public AtomLeafAgentManager<IAtom[]> agentManager = null;
-    public final IPotentialMaster potentialMaster;
+    public final PotentialMaster potentialMaster;
     public final ConfigurationLatticeFreeRadical config;
 
     public FreeRadicalPolymerizationSim() {
