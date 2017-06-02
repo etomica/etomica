@@ -43,6 +43,7 @@ import etomica.species.SpeciesSpheresRotating;
 import etomica.units.systems.LJ;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+import etomica.util.RandomNumberGenerator;
 
 
 /**
@@ -68,6 +69,10 @@ public class Heisenberg extends Simulation {
      */
     public Heisenberg(Space space, int nCells, double temperature, double interactionS, double dipoleMagnitude) {
 		super(Space2D.getInstance());
+		setRandom(new RandomNumberGenerator(1)); //debug only TODO
+
+
+
         potentialMaster = new PotentialMasterSite(this, nCells, space);
         box = new Box(space);
         addBox(box);
