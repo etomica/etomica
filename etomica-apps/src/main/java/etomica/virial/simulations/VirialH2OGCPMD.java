@@ -35,12 +35,7 @@ import java.awt.*;
 import java.util.Arrays;
 
 /**
- * Computes CO2-H2O mixture virial coefficients using ab-initio potentials
- * for both components.  Classical and semiclassical coefficients can be
- * computed.
- * 
- * 3-body dispersion for water (and water-CO2) can be used if Ewater is set.
- * CO2-H2O combining rules can be adjusted via k parameters.
+ * Computes virial coefficients and its temperature derivatives for GCPM Water
  * 
  * @author Andrew Schultz
  */
