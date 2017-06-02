@@ -54,10 +54,6 @@ public class PotentialCalculationPhiSum implements PotentialCalculationMolecular
 		ei.E(atom1.getOrientation().getDirection());
 		ej.E(atom2.getOrientation().getDirection());
 
-		double c1 = ei.getX(0);//cost1
-		double c2 = ej.getX(0);//cost2
-		double s1 = ei.getX(1);//sint1
-		double s2 = ej.getX(1);//sint2
 
 		double traceij = t[0].trace();
 		double traceii = t[1].trace();
@@ -147,10 +143,7 @@ public class PotentialCalculationPhiSum implements PotentialCalculationMolecular
 		
 	}
 	
-	 public void setDipoleSource(DipoleSource newDipoleSource) {
-	        dipoleSource = newDipoleSource;
-	    }
-	
+
 	public void zeroSum() {
 		secondDerivativeSum = 0.0;
 	}
