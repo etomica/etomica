@@ -1,31 +1,34 @@
 
 package etomica.mappedRdf;
 
-import java.io.IOException;
-
+import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IBox;
 import etomica.api.IAtomType;
+import etomica.api.IBox;
+import etomica.box.Box;
+import etomica.config.ConfigurationLattice;
+import etomica.data.DataPump;
 import etomica.data.IData;
 import etomica.data.meter.MeterRDF;
+import etomica.graphics.DisplayPlot;
+import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.lattice.LatticeCubicFcc;
 import etomica.listener.IntegratorListenerAction;
-
+import etomica.nbr.cell.PotentialMasterCell;
+import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
 import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
-import etomica.nbr.cell.PotentialMasterCell;
-import etomica.potential.P2LennardJones;
-import etomica.config.ConfigurationLattice;
-
-import etomica.box.Box;
-import etomica.action.BoxInflate;
-import etomica.lattice.LatticeCubicFcc;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+
+
+import java.io.IOException;
+import java.util.Random;
 
 /**
  * Created by aksharag on 5/15/17.
@@ -90,7 +93,7 @@ public class MappedRdf extends Simulation {
         else {
             params.temperature = 2.0;
             params.density = 0.01;
-            params.numSteps = 10000000;
+            params.numSteps = 1000000;
             params.rc = 2.5;
             params.numAtoms = 1000;
 
@@ -101,37 +104,64 @@ public class MappedRdf extends Simulation {
         double density = params.density;
         long numSteps = params.numSteps;
         double rc = params.rc;
+        boolean graphics = false;
 
         int nBlocks = params.nBlocks;
-        double halfBoxlength = 0;
+
 
         ISpace space = Space.getInstance(3);
 
         MappedRdf sim = new MappedRdf(space, numAtoms, temperature, density, rc);
+
         MeterRDF meterRDF = null;
+        MeterMappedRdf meterMappedRdf = null;
 
-        sim.activityIntegrate.setMaxSteps(numSteps/10);
-        sim.getController().actionPerformed();
-        sim.getController().reset();
-        sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.integrator.getMoveManager().setEquilibrating(false);
-
-        halfBoxlength = sim.box.getBoundary().getBoxSize().getX(0) /2;
-
+        double halfBoxlength = sim.box.getBoundary().getBoxSize().getX(0) /2;
         int nbins = (int) Math.floor(halfBoxlength / 0.01);
         double eqncutoff = nbins * 0.01;
+
+
+        if(graphics)
+        {
+            meterRDF = new MeterRDF(space);
+            meterRDF.setBox(sim.box);
+            meterRDF.getXDataSource().setNValues(nbins);
+            meterRDF.getXDataSource().setXMax(eqncutoff);
+
+            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, numAtoms));
+
+            DisplayPlot rdfPlot = new DisplayPlot();
+            DataPump rdfPump = new DataPump(meterRDF,rdfPlot.getDataSet().makeDataSink());
+            IntegratorListenerAction rdfPumpListener = new IntegratorListenerAction(rdfPump);
+            sim.integrator.getEventManager().addListener(rdfPumpListener);
+            rdfPumpListener.setInterval(10*numAtoms);
+
+            SimulationGraphic gsim = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE,space,sim.getController());
+
+            rdfPlot.setDoLegend(false);
+            rdfPlot.getPlot().setTitle("Radial Distribution Function");
+            rdfPlot.setLabel("RDF");
+
+            gsim.add(rdfPlot);
+            gsim.makeAndDisplayFrame();
+
+            return;
+
+        }
+
+        sim.activityIntegrate.setMaxSteps(numSteps/10);
+        sim.activityIntegrate.actionPerformed();
+        sim.activityIntegrate.setMaxSteps(numSteps);
+
+        sim.integrator.getMoveManager().setEquilibrating(false);
 
         meterRDF = new MeterRDF(space);
         meterRDF.setBox(sim.box);
         meterRDF.getXDataSource().setNValues(nbins);
         meterRDF.getXDataSource().setXMax(eqncutoff);
 
-
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, numAtoms));
-
-       // sim.getController().actionPerformed();
-
-
+        sim.activityIntegrate.actionPerformed();
 
         IData rdata = meterRDF.getIndependentData(0);
         IData gdata = meterRDF.getData();
@@ -141,8 +171,28 @@ public class MappedRdf extends Simulation {
         {
             double r = rdata.getValue(i);
             double g = gdata.getValue(i);
-            double e = Math.exp(-sim.p2Truncated.u(r * r) / temperature);
+           // double e = Math.exp(-sim.p2Truncated.u(r * r) / temperature);
             System.out.println("r "+r+" g "+g);
+        }
+
+        meterMappedRdf = new MeterMappedRdf(space);
+        meterMappedRdf.setBox(sim.box);
+        meterMappedRdf.getXDataSource().setNValues(nbins);
+        meterMappedRdf.getXDataSource().setXMax(eqncutoff);
+
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterMappedRdf,numAtoms));
+        sim.activityIntegrate.actionPerformed();
+
+        IData rmdata = meterMappedRdf.getIndependentData(0);
+        IData gmdata = meterMappedRdf.getData();
+
+        for (int i = 0; i < rmdata.getLength(); i++)
+
+        {
+            double rm = rmdata.getValue(i);
+            double gm = gmdata.getValue(i);
+            // double e = Math.exp(-sim.p2Truncated.u(r * r) / temperature);
+            System.out.println("rm "+rm+" gm "+gm);
         }
 
     }
