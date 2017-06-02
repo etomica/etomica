@@ -4,7 +4,6 @@ package etomica.mappedRdf;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.DataPump;
@@ -20,15 +19,12 @@ import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
-
 import java.io.IOException;
-import java.util.Random;
 
 /**
  * Created by aksharag on 5/15/17.
@@ -36,14 +32,14 @@ import java.util.Random;
 public class MappedRdf extends Simulation {
 
     public SpeciesSpheresMono species;
-    public IBox box;
+    public Box box;
     public IntegratorMC integrator;
     public MCMoveAtom move;
     public ActivityIntegrate activityIntegrate;
     public P2SoftSphericalTruncated p2Truncated;
 
 
-    public MappedRdf(ISpace _space, int numAtoms, double temperature, double density, double rc) {
+    public MappedRdf(Space _space, int numAtoms, double temperature, double density, double rc) {
         super(_space);
 
         //species and potentials
@@ -109,7 +105,7 @@ public class MappedRdf extends Simulation {
         int nBlocks = params.nBlocks;
 
 
-        ISpace space = Space.getInstance(3);
+        Space space = Space.getInstance(3);
 
         MappedRdf sim = new MappedRdf(space, numAtoms, temperature, density, rc);
 

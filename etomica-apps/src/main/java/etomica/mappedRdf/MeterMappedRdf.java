@@ -1,13 +1,17 @@
 package etomica.mappedRdf;
 
 import etomica.action.IAction;
-import etomica.api.*;
+import etomica.api.IAtomList;
+import etomica.api.IAtomType;
+import etomica.api.IBoundary;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorBoxDependent;
+import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Length;
 import etomica.units.Null;
 
@@ -16,7 +20,7 @@ import etomica.units.Null;
  */
 public class MeterMappedRdf implements IAction, IEtomicaDataSource, DataSourceIndependent, java.io.Serializable {
 
-    public MeterMappedRdf(ISpace space) {
+    public MeterMappedRdf(Space space) {
         this.space = space;
 
         xDataSource = new DataSourceUniform("r", Length.DIMENSION);
@@ -156,13 +160,13 @@ public class MeterMappedRdf implements IAction, IEtomicaDataSource, DataSourceIn
     /**
      * @return Returns the box.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     /**
      * @param box The box to set.
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
         boundary = box.getBoundary();
     }
@@ -176,14 +180,14 @@ public class MeterMappedRdf implements IAction, IEtomicaDataSource, DataSourceIn
     }
 
     private static final long serialVersionUID = 1L;
-    protected IBox box;
-    protected final ISpace space;
+    protected Box box;
+    protected final Space space;
     protected long[] gSum;
     protected DataFunction data;
     private IEtomicaDataInfo dataInfo;
     protected DataDoubleArray rData;
     protected AtomsetIteratorBoxDependent iterator;
-    private final IVectorMutable dr;
+    private final Vector dr;
     private IBoundary boundary;
     protected final DataSourceUniform xDataSource;
     protected double xMax;

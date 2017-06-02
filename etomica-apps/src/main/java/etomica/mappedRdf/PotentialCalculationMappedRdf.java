@@ -1,6 +1,8 @@
 package etomica.mappedRdf;
 
-import etomica.api.*;
+import etomica.api.IAtom;
+import etomica.api.IAtomList;
+import etomica.api.IPotentialAtomic;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPair;
 import etomica.atom.iterator.IteratorDirective;
@@ -11,7 +13,8 @@ import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialCalculation;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 
 import java.io.IOException;
@@ -20,12 +23,12 @@ import java.io.IOException;
  * Created by aksharag on 5/16/17.
  */
 public class PotentialCalculationMappedRdf implements PotentialCalculation{
-    protected final IBox box;
+    protected final Box box;
     protected final IteratorDirective allAtoms;
     protected final AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> forceManager;
-    protected final ISpace space;
+    protected final Space space;
     protected double beta;
-    protected final IVectorMutable dr;
+    protected final Vector dr;
     protected double c1;
     protected final double[] cumint;
     protected final AtomPair pair;
@@ -40,7 +43,7 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
     protected double vShift;
     protected double R;
 
-    public PotentialCalculationMappedRdf(ISpace space, IBox box, int nbins, AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> forceManager) {
+    public PotentialCalculationMappedRdf(Space space, Box box, int nbins, AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> forceManager) {
         this.space = space;
         this.box = box;
         this.nbins = nbins;
@@ -55,7 +58,7 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
 
     public static void main (String[] args) throws IOException {
         Simulation sim = new Simulation(Space3D.getInstance());
-        IBox box = new Box(sim.getSpace());
+        Box box = new Box(sim.getSpace());
 
         PotentialCalculationMappedRdf pc = new PotentialCalculationMappedRdf(sim.getSpace(),box, 1000000, null);
         P2LennardJones potential = new P2LennardJones(sim.getSpace());
@@ -198,8 +201,8 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
         sum += v-u;
 
         if (r<x0) {
-            IVector fi = forceManager.getAgent(a).force;
-            IVector fj = forceManager.getAgent(b).force;
+            Vector fi = forceManager.getAgent(a).force;
+            Vector fj = forceManager.getAgent(b).force;
             //  System.out.println(u+" "+r);
             double fifj = (fi.dot(dr) - fj.dot(dr))/r;
             double xs = calcXu(r, u);
