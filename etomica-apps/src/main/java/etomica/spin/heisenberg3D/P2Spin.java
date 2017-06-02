@@ -49,6 +49,11 @@ public class P2Spin extends Potential2 implements IPotentialTorque,IPotentialAto
 		this.secondDerivative[1] = space.makeTensor();
 		this.secondDerivative[2] = space.makeTensor();
         gradientAndTorque = new IVectorMutable[][]{gradient,torque};
+		a = new IVectorMutable[3];
+		a[0] = space.makeVector();
+		a[1] = space.makeVector();
+		a[2] = space.makeVector();
+		dr = space.makeVector();
     }
     
     
@@ -104,11 +109,11 @@ public class P2Spin extends Potential2 implements IPotentialTorque,IPotentialAto
     private double coupling;
     
     protected IVectorMutable dr;
-    protected IVectorMutable dr2;
     private  final IVectorMutable [][] gradientAndTorque;
 	private final IVectorMutable[] gradient;
 	protected final IVectorMutable[] torque;
 	protected final Tensor[] secondDerivative;
+	protected final IVectorMutable [] a;
 
 	/**
 	 * no virial is use here
@@ -130,20 +135,16 @@ public class P2Spin extends Potential2 implements IPotentialTorque,IPotentialAto
 		
 		IAtomOriented atom1 = (IAtomOriented)atoms.getAtom(0);
     	IAtomOriented atom2 = (IAtomOriented)atoms.getAtom(1);
-		
-		double x1 = atom1.getOrientation().getDirection().getX(0);//cost1
-		double y1 = atom1.getOrientation().getDirection().getX(1);//sint1
-		double x2 = atom2.getOrientation().getDirection().getX(0);//cost2
-		double y2 = atom2.getOrientation().getDirection().getX(1);//sint2
 
-		//u=-J*cos(t1-t2) and  du/dt1 = J*sin(t1-t2) = J*(sint1*cost2- cost1*sint2 =y1*x2-x1*y2)
-		double JSin = coupling*(y1*x2-x1*y2);
+		IVector ei = atom1.getOrientation().getDirection();
+		IVector ej = atom2.getOrientation().getDirection();
 
-
-		torque[0].E(0);
-		torque[0].setX(2,-JSin);
-		torque[1].E(0);
-		torque[1].setX(2,JSin);
+		//torque_ij = j ei cross ej
+		torque[0].E(ei);
+		torque[0].XE(ej);
+		torque[0].TE(coupling);
+		torque[1].Ea1Tv1(-1,torque[0]);
+//		System.out.println("torque1 = "  + torque[0]);
 		return gradientAndTorque;
 	}
 
@@ -164,19 +165,90 @@ public class P2Spin extends Potential2 implements IPotentialTorque,IPotentialAto
 	public Tensor[] secondDerivative(IAtomList atoms){
 		IAtomOriented atom1 = (IAtomOriented)atoms.getAtom(0);
     	IAtomOriented atom2 = (IAtomOriented)atoms.getAtom(1);
-    	double JCos = coupling*atom1.getOrientation().getDirection().dot(atom2.getOrientation().getDirection());
 
 
+		IVector  ei =  atom1.getOrientation().getDirection();
+		IVector  ej =  atom2.getOrientation().getDirection();
+
+
+		double exi = ei.getX(0);//ei and ej is the dipole orientation
+		double eyi = ei.getX(1);
+		double ezi = ei.getX(2);
+		double exj = ej.getX(0);
+		double eyj = ej.getX(1);
+		double ezj = ej.getX(2);
+
+
+
+		IVectorMutable deidxi = space.makeVector();
+		IVectorMutable deidyi = space.makeVector();
+		IVectorMutable deidzi = space.makeVector();
+		IVectorMutable dejdxj = space.makeVector();
+		IVectorMutable dejdyj = space.makeVector();
+		IVectorMutable dejdzj = space.makeVector();
+		double [] dejdxjD = {0,-ezj,eyj};
+		double [] dejdyjD = {ezj,0,-exj};
+		double [] dejdzjD = {-eyj,exj,0};
+		dejdxj.E(dejdxjD);
+		dejdyj.E(dejdyjD);
+		dejdzj.E(dejdzjD);
 		secondDerivative[0].E(0);//ij
 		secondDerivative[1].E(0);//ii
 		secondDerivative[2].E(0);//jj
 
-		secondDerivative[0].setComponent(2,2,-JCos);
-		secondDerivative[1].setComponent(2,2,JCos);
-		secondDerivative[2].setComponent(2,2,JCos);
+		//dTau/dxj= coupling* ei cross dejdxj with xj the angle rotate around x axis
+		a[0].E(ei);
+		a[0].XE(dejdxj);
 
-    	System.out.println("tensor in p2spin = " + secondDerivative[0]);
-    	System.exit(2);
+		a[1].E(ei);
+		a[1].XE(dejdyj);
+
+		a[2].E(ei);
+		a[2].XE(dejdzj);
+		secondDerivative[0].E(a);
+		secondDerivative[0].TE(coupling);//ij
+
+		double [] deidxiD = {0,-ezi,eyi};
+		double [] deidyiD = {ezi,0,-exi};
+		double [] deidziD = {-eyi,exi,0};
+		deidxi.E(deidxiD);
+		deidyi.E(deidyiD);
+		deidzi.E(deidziD);
+		//dtau/dxi = J*deidxi cross ej
+		a[0].E(deidxi);
+		a[0].XE(ej);
+
+		a[1].E(deidyi);
+		a[1].XE(ej);
+
+		a[2].E(deidzi);
+		a[2].XE(ej);
+		secondDerivative[1].E(a);
+		secondDerivative[1].TE(coupling);//ii
+
+
+		//dtaujidxj = J*dejdxj cross ei
+		a[0].E(dejdxj);
+		a[0].XE(ei);
+
+		a[1].E(dejdyj);
+		a[1].XE(ei);
+
+		a[2].E(dejdzj);
+		a[2].XE(ei);
+		secondDerivative[2].E(a);
+		secondDerivative[2].TE(coupling);//jj
+
+//		System.out.println("out=====================debug in p2Spin3D==========================");
+//		System.out.println("=====================compare with mathematica==========================");
+//		System.out.println("ei = " + ei);
+//		//TODO I notice that one component of ei or ej would be close to one!!!!
+//		System.out.println("ej = " + ej);
+//		System.out.println("Tij = "	+ secondDerivative[0]);
+//		System.out.println("Tii = "	+ secondDerivative[1]);
+//		System.out.println("Tjj = "	+ secondDerivative[2]);
+//		System.exit(2);
+
 		return secondDerivative;
 	}
 
