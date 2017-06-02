@@ -10,25 +10,20 @@ import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.*;
-import etomica.data.meter.MeterDipoleSumSquaredMappedAverage;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.mcmove.MCMoveRotate;
 import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.site.PotentialMasterSite;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
-import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.species.SpeciesSpheresRotating;
-import etomica.spin.heisenberg.MeterMappedAveraging;
 import etomica.spin.heisenberg.MeterSpinMSquare;
-import etomica.spin.heisenberg.P1MagneticField;
-import etomica.spin.heisenberg.P2Spin;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+import etomica.util.RandomNumberGenerator;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -58,6 +53,9 @@ public class Heisenberg3D extends Simulation {
      */
     public Heisenberg3D(Space space, int nCells, double temperature, double interactionS, double dipoleMagnitude) {
 		super(Space3D.getInstance());
+		setRandom(new RandomNumberGenerator(1)); //debug only TODO
+
+
         potentialMaster = new PotentialMasterSite(this, nCells, space);
         box = new Box(space);
         addBox(box);
@@ -81,7 +79,6 @@ public class Heisenberg3D extends Simulation {
     public IBox box;
     public SpeciesSpheresMono spins;
     public P2Spin potential;
-    public P1MagneticField field;
     private IntegratorMC integrator;
     public MCMoveRotate mcMove;
     public final ActivityIntegrate activityIntegrate;
@@ -127,11 +124,13 @@ public class Heisenberg3D extends Simulation {
         long equilibrationTime = System.currentTimeMillis();
 		 System.out.println("equilibrationTime: " + (equilibrationTime - startTime)/(1000.0*60.0));
 		
-		//mSquare
+		//mSquare //TODO!!!!
 		MeterDipoleSumSquared1site meterMSquare = null;
+//		MeterSpinMSquare meterMSquare = null;
 		AccumulatorAverage dipoleSumSquaredAccumulator = null;
 		if(mSquare){
 			meterMSquare   = new MeterDipoleSumSquared1site(sim.space,sim.box,dipoleMagnitude);
+//			meterMSquare   = new MeterSpinMSquare(sim.space,sim.box,dipoleMagnitude);
 			dipoleSumSquaredAccumulator = new AccumulatorAverageFixed(samplePerBlock);
 			DataPump dipolePump = new DataPump(meterMSquare,dipoleSumSquaredAccumulator);
 			IntegratorListenerAction dipoleListener = new IntegratorListenerAction(dipolePump);
@@ -202,9 +201,8 @@ public class Heisenberg3D extends Simulation {
     
     // ******************* parameters **********************//
     public static class Param extends ParameterBase {
-    	public boolean isGraphic = false;
     	public boolean mSquare = true;
-    	public boolean aEE = true; 
+    	public boolean aEE = true;
     	public double temperature = 10;// Kelvin
     	public int nCells = 20;//number of atoms is nCells*nCells
     	public double interactionS = 1;
