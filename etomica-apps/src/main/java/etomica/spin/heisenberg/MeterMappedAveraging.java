@@ -47,13 +47,11 @@ public class MeterMappedAveraging implements IEtomicaDataSource ,AgentSource<Met
 	protected double mu;
 	protected double bt;
 
-	public double QValue = 0;
 	protected final IPotentialMaster potentialMaster;
 	protected final IteratorDirective allAtoms;
 	protected IVectorMutable dr;
 	protected IVectorMutable work;
 	protected AtomLeafAgentManager leafAgentManager;
-	protected DipoleSource dipoleSource;
 
 	
 	public MeterMappedAveraging(final ISpace space, IBox box, ISimulation sim, double temperature, double interactionS, double dipoleMagnitude, IPotentialMaster potentialMaster) {
