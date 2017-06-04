@@ -4,6 +4,8 @@
 
 package etomica.api;
 
+import etomica.space.BoundaryEvent;
+
 /**
  * Listener for boundary events.  The listener methods will be called when the
  * boundary changes.
@@ -15,6 +17,6 @@ public interface IBoundaryListener {
      *
      * @param e event, which can be used to determine the boundary that changed.
      */
-    public void boundaryInflate(IBoundaryEvent e);
+    public void boundaryInflate(BoundaryEvent e);
     
 }

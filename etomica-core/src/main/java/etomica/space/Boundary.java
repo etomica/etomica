@@ -4,7 +4,6 @@
 
 package etomica.space;
 
-import etomica.api.IBoundaryEvent;
 import etomica.api.IBoundaryEventManager;
 import etomica.box.Box;
 import etomica.lattice.IndexIteratorSizable;
@@ -26,7 +25,7 @@ public abstract class Boundary {
     protected final Space space;
     private final Vector center;
     protected Box box;
-    protected IBoundaryEvent inflateEvent;
+    protected BoundaryEvent inflateEvent;
     protected BoundaryEventManager eventManager;
 
     /**

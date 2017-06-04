@@ -6,7 +6,7 @@ package etomica.nbr.cell.molecule;
 
 import etomica.atom.*;
 import etomica.space.Boundary;
-import etomica.api.IBoundaryEvent;
+import etomica.space.BoundaryEvent;
 import etomica.api.IBoundaryListener;
 import etomica.box.Box;
 import etomica.api.IMolecule;
@@ -132,7 +132,7 @@ public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryLi
         checkDimensions();
     }
 
-    public void boundaryInflate(IBoundaryEvent e) {
+    public void boundaryInflate(BoundaryEvent e) {
         checkDimensions();
         // we need to reassign cells even if checkDimensions didn't resize
         // the lattice.  If the box size changed, the cell size changed,
