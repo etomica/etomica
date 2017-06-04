@@ -31,8 +31,9 @@ public class AtomTypeOriented extends AtomType {
 
     /**
      * Returns the principal components of the moment of inertia of the
-     * atom within the body-fixed frame.  Do NOT modify the returned moment
+     * atom within the body-fixed frame. Do NOT modify the returned moment
      * of inertia returned.
+     * @return the moment of inertia
      */
     public Vector getMomentOfInertia() {
         return momentOfIntertia;

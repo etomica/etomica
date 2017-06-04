@@ -57,20 +57,18 @@ import java.io.IOException;
  */
 public class HSDimerNPT extends Simulation {
 
-
+    public static boolean doFancyMonoclinic = false;
+    public static boolean doFancyOriented = true;
+    public static boolean doRot = true;
+    public static boolean doShape = true;
+    public static boolean doGraphics = true;
     public final PotentialMasterList potentialMaster;
     public final IntegratorMC integrator;
     public final SpeciesHSDimer species;
     public final Box box, latticeBox;
-    tic cl
     public final ActivityIntegrate activityIntegrate;
-    bo
     public final CoordinateDefinitionHSDimer coordinateDefinition;
-    olean doFancyMonoclinic = false;
-    public static bo
     public final double theta;
-    olean doFancyOriented = true;
-    public static bo
 
     public HSDimerNPT(final Space space, int numMolecules, boolean fancyMove, double pSet, double rho, int[] nC, int cp, double L, double thetaFrac, double targetAcc) {
         super(space);
@@ -80,19 +78,19 @@ public class HSDimerNPT extends Simulation {
         potentialMaster = new PotentialMasterList(this, 2, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(2, space), space);
 
         double tol = 1e-8;
-        double a = Math.sqrt(3.0)+tol;
-        double b = 1.0+tol;
-        double cx = (cp == 1 ? (L*L+1)/Math.sqrt(3) : (L*L-1)/Math.sqrt(3)) + tol;
-        double cz = L*Math.sqrt(1-L*L/3.0)+Math.sqrt(2.0/3.0)+tol;
-        double c = Math.sqrt(cx*cx+cz*cz);
+        double a = Math.sqrt(3.0) + tol;
+        double b = 1.0 + tol;
+        double cx = (cp == 1 ? (L * L + 1) / Math.sqrt(3) : (L * L - 1) / Math.sqrt(3)) + tol;
+        double cz = L * Math.sqrt(1 - L * L / 3.0) + Math.sqrt(2.0 / 3.0) + tol;
+        double c = Math.sqrt(cx * cx + cz * cz);
         double boxAngle = Math.atan2(cz, cx);
 
         System.out.println("a: " + a);
         System.out.println("b: " + b);
-        System.out.println("c: " + c+" ("+cx+",0,"+cz+")");
+        System.out.println("c: " + c + " (" + cx + ",0," + cz + ")");
 
-        theta =  Math.asin(L/Math.sqrt(3.0));
-        System.out.println("close-packed theta: "+theta);
+        theta = Math.asin(L / Math.sqrt(3.0));
+        System.out.println("close-packed theta: " + theta);
 
         double sigma = 1.0;
         integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0);
@@ -111,35 +109,36 @@ public class HSDimerNPT extends Simulation {
 
         Vector[] boxDim = new Vector[3];
 
-		Basis unitBasis;
-		if (cp == 1 || cp == 2) {
-            boxDim[0] = space.makeVector(new double[]{nC[0]*a, 0.0, 0.0});
-            boxDim[1] = space.makeVector(new double[]{0.0, nC[1]*b, 0.0});
-            boxDim[2] = space.makeVector(new double[]{nC[2]*cx, 0.0, nC[2]*cz});
+        Basis unitBasis;
+        if (cp == 1 || cp == 2) {
+            boxDim[0] = space.makeVector(new double[]{nC[0] * a, 0.0, 0.0});
+            boxDim[1] = space.makeVector(new double[]{0.0, nC[1] * b, 0.0});
+            boxDim[2] = space.makeVector(new double[]{nC[2] * cx, 0.0, nC[2] * cz});
             unitBasis = new BasisHcpBaseCentered();
-		}
-		else {
-		    throw new RuntimeException("not yet");
-		}
+        } else {
+            throw new RuntimeException("not yet");
+        }
         Primitive primitive = new PrimitiveMonoclinic(space, nC[0] * a, nC[1] * b, nC[2] * c,
                 boxAngle);
 
         Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
         Basis basis = new BasisBigCell(space, unitBasis, new int[]{nC[0], nC[1], nC[2]});
-		box.setBoundary(boundary);
+        box.setBoundary(boundary);
 
         coordinateDefinition = new CoordinateDefinitionHSDimer(this, box, primitive, basis, space);
         Vector[][] axes = new Vector[1][3];
-        int[] iaxis = new int[]{2,0,1};
-        for (int i=0; i<3; i++) {
+        int[] iaxis = new int[]{2, 0, 1};
+        for (int i = 0; i < 3; i++) {
             axes[0][i] = space.makeVector();
             axes[0][i].setX(iaxis[i], 1);
         }
         IntegerFunction selector = new IntegerFunction() {
-            public int f(int i) {return 0;}
+            public int f(int i) {
+                return 0;
+            }
         };
         coordinateDefinition.setOrientations(axes, new double[]{theta}, selector);
-        coordinateDefinition.initializeCoordinates(new int[]{1,1,1});
+        coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
         integrator.setBox(box);
 
         latticeBox = new Box(space);
@@ -148,20 +147,20 @@ public class HSDimerNPT extends Simulation {
         latticeBox.setBoundary(new BoundaryDeformablePeriodic(space, boxDim));
         CoordinateDefinitionHSDimer coordinateDefinitionLattice = new CoordinateDefinitionHSDimer(this, latticeBox, primitive, basis, space);
         coordinateDefinitionLattice.setOrientations(axes, new double[]{theta}, selector);
-        coordinateDefinitionLattice.initializeCoordinates(new int[]{1,1,1});
+        coordinateDefinitionLattice.initializeCoordinates(new int[]{1, 1, 1});
 
         potentialMaster.getNeighborManager(box).reset();
 
-        MCMoveMoleculeCoupled mcMove = new MCMoveMoleculeCoupled(potentialMaster,getRandom(),space);
+        MCMoveMoleculeCoupled mcMove = new MCMoveMoleculeCoupled(potentialMaster, getRandom(), space);
         mcMove.setBox(box);
         mcMove.setDoExcludeNonNeighbors(true);
         integrator.getMoveManager().addMCMove(mcMove);
 
         Vector[] drSum = new Vector[nC[2]];
-        for (int i=0; i<drSum.length; i++) {
+        for (int i = 0; i < drSum.length; i++) {
             drSum[i] = space.makeVector();
         }
-        double maxPhi = Math.PI/6;
+        double maxPhi = Math.PI / 6;
         if (doRot) {
             MCMoveRotateMolecule3D rotate = new MCMoveRotateMolecule3D(potentialMaster, getRandom(), space);
             rotate.setBox(box);
@@ -178,11 +177,11 @@ public class HSDimerNPT extends Simulation {
 //            ((MCMoveStepTracker)rotatePhi.getTracker()).setNoisyAdjustment(true);
         }
 
-        double d3 = 1.0 + L*(1.5 - 0.5*L*L); //1.792 for L=0.6;
-        System.out.println("d3 "+d3);
+        double d3 = 1.0 + L * (1.5 - 0.5 * L * L); //1.792 for L=0.6;
+        System.out.println("d3 " + d3);
 
         if (rho != 0) {
-            double initRho = Math.abs(rho)/d3;
+            double initRho = Math.abs(rho) / d3;
             BoxInflateDeformable inflater = new BoxInflateDeformable(box, space);
             inflater.setTargetDensity(initRho);
             inflater.actionPerformed();
@@ -203,27 +202,25 @@ public class HSDimerNPT extends Simulation {
 //            ((MCMoveStepTracker)mcMoveVolMonoclinicAngle.getTracker()).setNoisyAdjustment(true);
 //            integrator.getMoveManager().addMCMove(mcMoveVolMonoclinicAngle);
 
-        }
-        else {
-            double p = pSet/d3;
+        } else {
+            double p = pSet / d3;
             final BoxInflateDeformable inflater = new BoxInflateDeformable(box, space);
             final BoxInflateDeformable inflaterLat = new BoxInflateDeformable(latticeBox, space);
             MCMoveBoxStep mcMoveVolume;
             if (fancyMove) {
-            	// fancy move
+                // fancy move
                 if (false) {
                     mcMoveVolume = new MCMoveVolumeSolidNPTMolecular(potentialMaster, getRandom(), space, p);
-                }
-                else {
+                } else {
                     if (!doRot) throw new RuntimeException("oops");
                     mcMoveVolume = new MCMoveVolumeSolidNPTMolecularOriented(potentialMaster, getRandom(), space, p, drSum);
-                    ((MCMoveVolumeSolidNPTMolecularOriented)mcMoveVolume).setNominalTheta(theta);
-                    ((MCMoveVolumeSolidNPTMolecularOriented)mcMoveVolume).setMaxPhi(maxPhi);
-                    ((MCMoveVolumeSolidNPTMolecularOriented)mcMoveVolume).setThetaFrac(thetaFrac);
+                    ((MCMoveVolumeSolidNPTMolecularOriented) mcMoveVolume).setNominalTheta(theta);
+                    ((MCMoveVolumeSolidNPTMolecularOriented) mcMoveVolume).setMaxPhi(maxPhi);
+                    ((MCMoveVolumeSolidNPTMolecularOriented) mcMoveVolume).setThetaFrac(thetaFrac);
                 }
-                ((MCMoveVolumeSolidNPTMolecular)mcMoveVolume).setTemperature(1.0);
-                ((MCMoveVolumeSolidNPTMolecular)mcMoveVolume).setInflater(inflaterLat);
-                ((MCMoveVolumeSolidNPTMolecular)mcMoveVolume).setLatticeBox(latticeBox);
+                ((MCMoveVolumeSolidNPTMolecular) mcMoveVolume).setTemperature(1.0);
+                ((MCMoveVolumeSolidNPTMolecular) mcMoveVolume).setInflater(inflaterLat);
+                ((MCMoveVolumeSolidNPTMolecular) mcMoveVolume).setLatticeBox(latticeBox);
 
                 if (doShape) {
                     if (doFancyMonoclinic) {
@@ -233,14 +230,13 @@ public class HSDimerNPT extends Simulation {
                         mcMoveVolMonoclinic.setInflater(inflaterLat);
                         mcMoveVolMonoclinic.setLatticeBox(latticeBox);
                         mcMoveVolMonoclinic.setStepSize(0.001);
-                        ((MCMoveStepTracker)mcMoveVolMonoclinic.getTracker()).setNoisyAdjustment(true);
+                        ((MCMoveStepTracker) mcMoveVolMonoclinic.getTracker()).setNoisyAdjustment(true);
                         integrator.getMoveManager().addMCMove(mcMoveVolMonoclinic);
-                    }
-                    else {
+                    } else {
                         MCMoveVolumeMonoclinic mcMoveVolMonoclinic = new MCMoveVolumeMonoclinic(potentialMaster, getRandom(), space);
                         mcMoveVolMonoclinic.setInflater(inflater);
                         mcMoveVolMonoclinic.setStepSize(0.001);
-                        ((MCMoveStepTracker)mcMoveVolMonoclinic.getTracker()).setNoisyAdjustment(true);
+                        ((MCMoveStepTracker) mcMoveVolMonoclinic.getTracker()).setNoisyAdjustment(true);
                         integrator.getMoveManager().addMCMove(mcMoveVolMonoclinic);
                     }
 
@@ -248,19 +244,18 @@ public class HSDimerNPT extends Simulation {
                     final BoxInflateAnisotropic inflateAngle = new BoxInflateAnisotropic(latticeBox, space);
                     integrator.getMoveEventManager().addListener(new IListener() {
                         public void actionPerformed(IEvent event) {
-                            if (event instanceof MCMoveTrialCompletedEvent && ((MCMoveTrialCompletedEvent)event).isAccepted()) {
+                            if (event instanceof MCMoveTrialCompletedEvent && ((MCMoveTrialCompletedEvent) event).isAccepted()) {
                                 Vector scaleVec = space.makeVector();
-                                MCMove move = ((MCMoveTrialCompletedEvent)event).getMCMove();
+                                MCMove move = ((MCMoveTrialCompletedEvent) event).getMCMove();
                                 if (move instanceof MCMoveVolumeMonoclinic) {
-                                    for (int i=0; i<3; i++) {
+                                    for (int i = 0; i < 3; i++) {
                                         Vector lbv = latticeBox.getBoundary().getEdgeVector(i);
                                         Vector bv = box.getBoundary().getEdgeVector(i);
-                                        scaleVec.setX(i, bv.getX(i)/lbv.getX(i));
+                                        scaleVec.setX(i, bv.getX(i) / lbv.getX(i));
                                     }
                                     inflaterLat.setVectorScale(scaleVec);
                                     inflaterLat.actionPerformed();
-                                }
-                                else if (move instanceof MCMoveVolumeMonoclinicAngle) {
+                                } else if (move instanceof MCMoveVolumeMonoclinicAngle) {
                                     scaleVec.E(box.getBoundary().getEdgeVector(2));
                                     inflateAngle.setCVector(scaleVec);
                                     inflateAngle.actionPerformed();
@@ -270,29 +265,28 @@ public class HSDimerNPT extends Simulation {
                     });
                 }
 
-            }
-            else {
+            } else {
                 // standard move
                 mcMoveVolume = new MCMoveVolume(potentialMaster, getRandom(), space, p);
                 mcMoveVolume.setStepSize(1e-4);
-                ((MCMoveVolume)mcMoveVolume).setInflater(inflater);
+                ((MCMoveVolume) mcMoveVolume).setInflater(inflater);
 
                 MCMoveVolumeMonoclinic mcMoveVolMonoclinic = new MCMoveVolumeMonoclinic(potentialMaster, getRandom(), space);
                 mcMoveVolMonoclinic.setInflater(inflater);
                 mcMoveVolMonoclinic.setStepSize(0.0001);
-                ((MCMoveStepTracker)mcMoveVolMonoclinic.getTracker()).setNoisyAdjustment(true);
+                ((MCMoveStepTracker) mcMoveVolMonoclinic.getTracker()).setNoisyAdjustment(true);
                 if (doShape) {
                     integrator.getMoveManager().addMCMove(mcMoveVolMonoclinic);
                 }
             }
-            ((MCMoveStepTracker)mcMoveVolume.getTracker()).setAcceptanceTarget(targetAcc);
-            ((MCMoveStepTracker)mcMoveVolume.getTracker()).setNoisyAdjustment(true);
+            ((MCMoveStepTracker) mcMoveVolume.getTracker()).setAcceptanceTarget(targetAcc);
+            ((MCMoveStepTracker) mcMoveVolume.getTracker()).setNoisyAdjustment(true);
             integrator.getMoveManager().addMCMove(mcMoveVolume);
 
             MCMoveVolumeMonoclinicAngle mcMoveVolMonoclinicAngle = new MCMoveVolumeMonoclinicAngle(potentialMaster, getRandom(), space, box);
             mcMoveVolMonoclinicAngle.setBox(box);
             mcMoveVolMonoclinicAngle.setStepSize(0.001);
-            ((MCMoveStepTracker)mcMoveVolMonoclinicAngle.getTracker()).setNoisyAdjustment(true);
+            ((MCMoveStepTracker) mcMoveVolMonoclinicAngle.getTracker()).setNoisyAdjustment(true);
             if (doShape) {
                 integrator.getMoveManager().addMCMove(mcMoveVolMonoclinicAngle);
             }
@@ -300,8 +294,6 @@ public class HSDimerNPT extends Simulation {
 
     }
 
-    olean doRot = true;
-    public static bo
     /**
      * Demonstrates how this class is implemented.
      */
@@ -313,20 +305,18 @@ public class HSDimerNPT extends Simulation {
         }
 
         int[] nC = params.nC;
-        int numMolecules = nC[0]*nC[1]*nC[2]*2;
+        int numMolecules = nC[0] * nC[1] * nC[2] * 2;
         double rho0 = params.rho;
-        if (params.pressure > 0) System.out.println("pressure: "+params.pressure);
+        if (params.pressure > 0) System.out.println("pressure: " + params.pressure);
         if (rho0 < 0) {
             if (params.pressure == 45) {
                 rho0 = -1.3;
-            }
-            else if (params.pressure == 100) {
+            } else if (params.pressure == 100) {
                 rho0 = -1.4;
             }
-            System.out.println("initial density: "+(-rho0));
-        }
-        else {
-            System.out.println("density: "+rho0);
+            System.out.println("initial density: " + (-rho0));
+        } else {
+            System.out.println("density: " + rho0);
         }
         final HSDimerNPT sim = new HSDimerNPT(Space3D.getInstance(), numMolecules, params.fancyMove,
                 params.pressure, rho0, params.nC, params.cp, params.L, params.thetaFrac, params.targetAcc);
@@ -336,8 +326,8 @@ public class HSDimerNPT extends Simulation {
         DataFork volumeFork = new DataFork();
         DataPumpListener volumePump = new DataPumpListener(meterVolume, volumeFork, numMolecules);
         sim.integrator.getEventManager().addListener(volumePump);
-        long nData = params.numSteps/numMolecules;
-        long blockSize = (nData+99)/100;
+        long nData = params.numSteps / numMolecules;
+        long blockSize = (nData + 99) / 100;
         final AccumulatorAverage volumeAvg = doGraphics ? new AccumulatorAverageCollapsing() : new AccumulatorAverageFixed(blockSize);
         if (doGraphics) {
             volumeAvg.setDoIncludeACInError(true);
@@ -347,13 +337,13 @@ public class HSDimerNPT extends Simulation {
         Vector a0 = sim.box.getBoundary().getEdgeVector(0);
         Vector b0 = sim.box.getBoundary().getEdgeVector(1);
         Vector c0 = sim.box.getBoundary().getEdgeVector(2);
-        final double yx0 = Math.sqrt(b0.squared()/a0.squared());
-        final double zx0 = Math.sqrt(c0.squared()/a0.squared());
+        final double yx0 = Math.sqrt(b0.squared() / a0.squared());
+        final double zx0 = Math.sqrt(c0.squared() / a0.squared());
         DataSourceScalar meterXY = new DataSourceScalar("xy", Null.DIMENSION) {
             public double getDataAsScalar() {
                 Vector a = sim.box.getBoundary().getEdgeVector(0);
                 Vector b = sim.box.getBoundary().getEdgeVector(1);
-                return (Math.sqrt(b.squared()/a.squared())/yx0) - 1;
+                return (Math.sqrt(b.squared() / a.squared()) / yx0) - 1;
             }
         };
         DataPumpListener xyPump = new DataPumpListener(meterXY, null, numMolecules);
@@ -363,17 +353,17 @@ public class HSDimerNPT extends Simulation {
             public double getDataAsScalar() {
                 Vector a = sim.box.getBoundary().getEdgeVector(0);
                 Vector c = sim.box.getBoundary().getEdgeVector(2);
-                return (Math.sqrt(c.squared()/a.squared())/zx0) - 1;
+                return (Math.sqrt(c.squared() / a.squared()) / zx0) - 1;
             }
         };
         DataPumpListener xzPump = new DataPumpListener(meterXZ, null, numMolecules);
         sim.integrator.getEventManager().addListener(xzPump);
 
-        final double cxcz0 = c0.getX(0)/c0.getX(2);
+        final double cxcz0 = c0.getX(0) / c0.getX(2);
         final DataSourceScalar meterCXCZ = new DataSourceScalar("cx/cz", Null.DIMENSION) {
             public double getDataAsScalar() {
                 Vector c = sim.box.getBoundary().getEdgeVector(2);
-                return (c.getX(0)/c.getX(2)/cxcz0) - 1;
+                return (c.getX(0) / c.getX(2) / cxcz0) - 1;
             }
         };
         DataPumpListener cxczPump = new DataPumpListener(meterCXCZ, null, numMolecules);
@@ -448,7 +438,7 @@ public class HSDimerNPT extends Simulation {
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRotationHistogram, numMolecules));
             meterRotationHistogram.setBox(sim.box);
             DataFork tiltRotationHistogramFork = new DataFork();
-            DataPumpListener tiltRotationHistogramPump = new DataPumpListener(meterRotationHistogram, tiltRotationHistogramFork, 100*numMolecules);
+            DataPumpListener tiltRotationHistogramPump = new DataPumpListener(meterRotationHistogram, tiltRotationHistogramFork, 100 * numMolecules);
             sim.integrator.getEventManager().addListener(tiltRotationHistogramPump);
 
             MeterTiltRotationStdev meterTiltRotationStdev = new MeterTiltRotationStdev(sim.space, sim.species, nC[2]);
@@ -484,14 +474,13 @@ public class HSDimerNPT extends Simulation {
                             double cxcz = meterCXCZ.getDataAsScalar();
                             IData planeRot = meterTiltRotation.getData();
                             long step = sim.integrator.getStepCount();
-                            fw.write(step+"  "+v+"  "+cxcz+" ");
-                            for (int i=0; i<planeRot.getLength(); i++) {
-                                fw.write(" "+planeRot.getValue(i));
+                            fw.write(step + "  " + v + "  " + cxcz + " ");
+                            for (int i = 0; i < planeRot.getLength(); i++) {
+                                fw.write(" " + planeRot.getValue(i));
                             }
                             fw.write("\n");
                             fw.close();
-                        }
-                        catch (IOException ex) {
+                        } catch (IOException ex) {
                             throw new RuntimeException(ex);
                         }
                     }
@@ -507,15 +496,15 @@ public class HSDimerNPT extends Simulation {
 
 
             SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.getSpace(), sim.getController());
-			DiameterHashByType diameter = new DiameterHashByType(sim);
-			diameter.setDiameter(sim.species.getDimerAtomType(), 1.0);
-			graphic.getDisplayBox(sim.box).setDiameterHash(diameter);
+            DiameterHashByType diameter = new DiameterHashByType(sim);
+            diameter.setDiameter(sim.species.getDimerAtomType(), 1.0);
+            graphic.getDisplayBox(sim.box).setDiameterHash(diameter);
 
 //			ColorSchemeNeighbor colorScheme = new ColorSchemeNeighbor(sim, sim.potentialMaster, sim.box);
 //			colorScheme.setAtom(sim.box.getLeafList().getAtom(122));
 //			graphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
 
-			DataSourceCountSteps stepCounter = new DataSourceCountSteps(sim.integrator);
+            DataSourceCountSteps stepCounter = new DataSourceCountSteps(sim.integrator);
 
             AccumulatorHistory volumeHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
             volumeHistory.setPushInterval(100);
@@ -548,9 +537,13 @@ public class HSDimerNPT extends Simulation {
                     DataInfoDouble dataInfo = new DataInfoDouble("foo", Null.DIMENSION);
                     DataDouble data = new DataDouble();
 
-                    public DataPipe getDataCaster(IEtomicaDataInfo dataInfo) {return null;}
+                    public DataPipe getDataCaster(IEtomicaDataInfo dataInfo) {
+                        return null;
+                    }
 
-                    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {return dataInfo;}
+                    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+                        return dataInfo;
+                    }
 
                     protected IData processData(IData inputData) {
                         data.x = inputData.getValue(0) + inputData.getValue(1);
@@ -575,13 +568,13 @@ public class HSDimerNPT extends Simulation {
             DataSplitter tiltSplitter = new DataSplitter();
             tiltFork.addDataSink(tiltSplitter);
             DisplayPlot tiltPlot = new DisplayPlot();
-            for (int i=0; i<nC[2]+1; i++) {
+            for (int i = 0; i < nC[2] + 1; i++) {
                 AccumulatorHistory tiltHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
                 tiltHistory.setPushInterval(100);
                 tiltHistory.setTimeDataSource(stepCounter);
                 tiltSplitter.setDataSink(i, tiltHistory);
                 tiltHistory.setDataSink(tiltPlot.getDataSet().makeDataSink());
-                tiltPlot.setLegend(new DataTag[]{tiltHistory.getTag()}, (i==0 ? "total" : ""+(i-1)));
+                tiltPlot.setLegend(new DataTag[]{tiltHistory.getTag()}, (i == 0 ? "total" : "" + (i - 1)));
             }
             tiltPlot.setLabel("tilt");
             graphic.add(tiltPlot);
@@ -596,13 +589,13 @@ public class HSDimerNPT extends Simulation {
             DataSplitter tiltRotationSplitter = new DataSplitter();
             tiltRotationFork.addDataSink(tiltRotationSplitter);
             DisplayPlot tiltRotationPlot = new DisplayPlot();
-            for (int i=0; i<nC[2]+1; i++) {
+            for (int i = 0; i < nC[2] + 1; i++) {
                 AccumulatorHistory tiltRotationHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
                 tiltRotationHistory.setPushInterval(100);
                 tiltRotationHistory.setTimeDataSource(stepCounter);
                 tiltRotationSplitter.setDataSink(i, tiltRotationHistory);
                 tiltRotationHistory.setDataSink(tiltRotationPlot.getDataSet().makeDataSink());
-                tiltRotationPlot.setLegend(new DataTag[]{tiltRotationHistory.getTag()}, (i==0 ? "total" : ""+(i-1)));
+                tiltRotationPlot.setLegend(new DataTag[]{tiltRotationHistory.getTag()}, (i == 0 ? "total" : "" + (i - 1)));
             }
             tiltRotationPlot.setLabel("rotation");
             graphic.add(tiltRotationPlot);
@@ -610,13 +603,13 @@ public class HSDimerNPT extends Simulation {
             DataSplitter tiltRotationStdevSplitter = new DataSplitter();
             tiltRotationStdevFork.addDataSink(tiltRotationStdevSplitter);
             DisplayPlot tiltRotationStdevPlot = new DisplayPlot();
-            for (int i=0; i<nC[2]+1; i++) {
+            for (int i = 0; i < nC[2] + 1; i++) {
                 AccumulatorHistory tiltRotationStdevHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
                 tiltRotationStdevHistory.setPushInterval(1000);
                 tiltRotationStdevHistory.setTimeDataSource(stepCounter);
                 tiltRotationStdevSplitter.setDataSink(i, tiltRotationStdevHistory);
                 tiltRotationStdevHistory.setDataSink(tiltRotationStdevPlot.getDataSet().makeDataSink());
-                tiltRotationStdevPlot.setLegend(new DataTag[]{tiltRotationStdevHistory.getTag()}, (i==0 ? "total" : ""+(i-1)));
+                tiltRotationStdevPlot.setLegend(new DataTag[]{tiltRotationStdevHistory.getTag()}, (i == 0 ? "total" : "" + (i - 1)));
             }
             tiltRotationStdevPlot.setLabel("rot stdev");
             graphic.add(tiltRotationStdevPlot);
@@ -648,9 +641,9 @@ public class HSDimerNPT extends Simulation {
             DisplayPlot rotationHistogramPlot = new DisplayPlot();
             DataGroupSplitter histogramSplitter = new DataGroupSplitter();
             tiltRotationHistogramFork.addDataSink(histogramSplitter);
-            for (int i=0; i<2; i++) {
+            for (int i = 0; i < 2; i++) {
                 histogramSplitter.setDataSink(i, rotationHistogramPlot.getDataSet().makeDataSink());
-                rotationHistogramPlot.setLegend(new DataTag[]{meterRotationHistogram.getTag(i)}, i==0 ? "total" : "plane");
+                rotationHistogramPlot.setLegend(new DataTag[]{meterRotationHistogram.getTag(i)}, i == 0 ? "total" : "plane");
             }
             rotationHistogramPlot.setLabel("rot histogram");
             graphic.add(rotationHistogramPlot);
@@ -658,20 +651,20 @@ public class HSDimerNPT extends Simulation {
             DataSplitter planeSlipSplitter = new DataSplitter();
             planeSlipFork.addDataSink(planeSlipSplitter);
             DisplayPlot planeSlipPlot = new DisplayPlot();
-            for (int i=0; i<nC[2]+1; i++) {
+            for (int i = 0; i < nC[2] + 1; i++) {
                 AccumulatorHistory tiltRotationStdevHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
                 tiltRotationStdevHistory.setTimeDataSource(stepCounter);
                 tiltRotationStdevSplitter.setDataSink(i, tiltRotationStdevHistory);
                 tiltRotationStdevHistory.setDataSink(tiltRotationStdevPlot.getDataSet().makeDataSink());
-                tiltRotationStdevPlot.setLegend(new DataTag[]{tiltRotationStdevHistory.getTag()}, (i==0 ? "total" : ""+(i-1)));
+                tiltRotationStdevPlot.setLegend(new DataTag[]{tiltRotationStdevHistory.getTag()}, (i == 0 ? "total" : "" + (i - 1)));
             }
-            for (int i=0; i<nC[2]*2; i++) {
+            for (int i = 0; i < nC[2] * 2; i++) {
                 AccumulatorHistory planeSlipHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
                 planeSlipHistory.setPushInterval(100);
                 planeSlipHistory.setTimeDataSource(stepCounter);
                 planeSlipSplitter.setDataSink(i, planeSlipHistory);
                 planeSlipHistory.setDataSink(planeSlipPlot.getDataSet().makeDataSink());
-                planeSlipPlot.setLegend(new DataTag[]{planeSlipHistory.getTag()}, ((i%2==0) ? "x" : "y")+(i/2));
+                planeSlipPlot.setLegend(new DataTag[]{planeSlipHistory.getTag()}, ((i % 2 == 0) ? "x" : "y") + (i / 2));
             }
             planeSlipPlot.setLabel("slip");
             graphic.add(planeSlipPlot);
@@ -689,7 +682,7 @@ public class HSDimerNPT extends Simulation {
 
             return;
         }
-        sim.activityIntegrate.setMaxSteps(params.numSteps/10);
+        sim.activityIntegrate.setMaxSteps(params.numSteps / 10);
         sim.activityIntegrate.actionPerformed();
         volumeAvg.reset();
         displacementAvg.reset();
@@ -705,33 +698,28 @@ public class HSDimerNPT extends Simulation {
             double verr = volumeAvg.getData().getValue(AccumulatorAverage.ERROR.index);
             double vstdev = volumeAvg.getData().getValue(AccumulatorAverage.STANDARD_DEVIATION.index);
             double vcorr = volumeAvg.getData().getValue(AccumulatorAverage.BLOCK_CORRELATION.index);
-            System.out.println("avg volume "+vavg+"  err "+verr+"  stdev "+vstdev+"  correlation "+vcorr);
-            System.out.println("avg density "+numMolecules/vavg+" "+numMolecules/(vavg*vavg)*verr);
-        }
-        else {
+            System.out.println("avg volume " + vavg + "  err " + verr + "  stdev " + vstdev + "  correlation " + vcorr);
+            System.out.println("avg density " + numMolecules / vavg + " " + numMolecules / (vavg * vavg) * verr);
+        } else {
             double davg = displacementAvg.getData().getValue(AccumulatorAverage.AVERAGE.index);
             double dstdev = displacementAvg.getData().getValue(AccumulatorAverage.STANDARD_DEVIATION.index);
             double derr = displacementAvg.getData().getValue(AccumulatorAverage.ERROR.index);
-            System.out.println("displacement avg "+davg+" stdev "+dstdev+" err "+derr);
+            System.out.println("displacement avg " + davg + " stdev " + dstdev + " err " + derr);
 
             double thetaavg = thetaDeviationAvg.getData().getValue(AccumulatorAverage.AVERAGE.index);
             double thetastdev = thetaDeviationAvg.getData().getValue(AccumulatorAverage.STANDARD_DEVIATION.index);
             double thetaerr = thetaDeviationAvg.getData().getValue(AccumulatorAverage.ERROR.index);
-            System.out.println("cos theta avg "+thetaavg+" stdev "+thetastdev+" err "+thetaerr);
+            System.out.println("cos theta avg " + thetaavg + " stdev " + thetastdev + " err " + thetaerr);
 
             double phiavg = phiDeviationAvg.getData().getValue(AccumulatorAverage.AVERAGE.index);
             double phistdev = phiDeviationAvg.getData().getValue(AccumulatorAverage.STANDARD_DEVIATION.index);
             double phierr = phiDeviationAvg.getData().getValue(AccumulatorAverage.ERROR.index);
-            System.out.println("phi/sintheta avg "+phiavg+" stdev "+phistdev+" err "+phierr);
+            System.out.println("phi/sintheta avg " + phiavg + " stdev " + phistdev + " err " + phierr);
         }
     }
 
-    public staolean doShape = true;
-    public static bo
-    ass HSMD3DParameters extends ParameterBase
-
-    {
-        public int[] nC = new int[]{3,6,4};
+    public static class HSMD3DParameters extends ParameterBase {
+        public int[] nC = new int[]{3, 6, 4};
         public long numSteps = 10000000;
         public double pressure = 45;
         public int cp = 2;
@@ -741,6 +729,4 @@ public class HSDimerNPT extends Simulation {
         public double thetaFrac = 1.0;
         public double targetAcc = 0.5;
     }
-
-    public static olean doGraphics = true;
 }

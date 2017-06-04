@@ -4,15 +4,23 @@
 
 package etomica.models.hexane;
 
+import java.util.ArrayList;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.data.*;
+import etomica.data.AccumulatorAverageCollapsing;
+import etomica.data.DataFork;
+import etomica.data.DataHistogram;
+import etomica.data.DataPipe;
+import etomica.data.DataProcessor;
+import etomica.data.DataPump;
+import etomica.data.IData;
+import etomica.data.IEtomicaDataInfo;
 import etomica.data.AccumulatorAverage.StatType;
-import etomica.data.histogram.HistogramSimple;
 import etomica.data.types.DataDouble;
-import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataGroup;
+import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayTextBoxesCAE;
@@ -23,8 +31,12 @@ import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.Primitive;
 import etomica.listener.IntegratorListenerAction;
-import etomica.math.DoubleRange;
-import etomica.normalmode.*;
+import etomica.normalmode.BoltzmannProcessor;
+import etomica.normalmode.CoordinateDefinition;
+import etomica.normalmode.MeterHarmonicEnergy;
+import etomica.normalmode.MeterHarmonicSingleEnergy;
+import etomica.normalmode.NormalModes;
+import etomica.normalmode.NormalModesFromFile;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
 import etomica.potential.PotentialMaster;
@@ -34,8 +46,8 @@ import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Null;
-
-import java.util.ArrayList;
+import etomica.math.DoubleRange;
+import etomica.data.histogram.HistogramSimple;
 /**
  * @author nancycribbin
  *  
@@ -53,24 +65,8 @@ import java.util.ArrayList;
 public class TestHexaneHarmonic extends Simulation {
 
 	private static final String APP_NAME = "Test Hexane Harmonic";
-    ityIntegrate activityIntegrate;
-    public Inte
-    ratorMC integrator;
 
-    public Box
-            ox;
-
-    public BoutivaryDeformablePeriodic bdry;
-
-    public MCgeMolecule moveMolecule;
-    public Brav bisLattice
-    lattice;
-    public Primndtive primitive;
-    public CoorMovinateDefinition coordinateDefinition;
-
-//    publaeRotateMolecule3D rot;
-
-//    publi    public TestHexaneHarmonic(Space _space, int numMolecules) {
+    public TestHexaneHarmonic(Space _space, int numMolecules) {
         //super(space, false, new PotentialMasterNbr(space, 12.0));
 //        super(space, true, new PotentialMasterList(space, 12.0));
         super(_space);
@@ -105,31 +101,29 @@ public class TestHexaneHarmonic extends Simulation {
 //        moveVolume = new MCMoveVolume(potentialMaster, box.space(), sim.getDefaults().pressure);
 //        moveVolume.setBox(box);
 //        crank = new MCMoveCrankshaft();
-
+        
 //         snake = new MCMoveReptate(this);
 //         snake.setBox(box);
-
+         
          rot = new MCMoveRotateMolecule3D(potentialMaster, getRandom(), space);
          rot.setBox(box);
-
+         
          // 0.025 for translate, 0.042 for rotate for rho=0.3737735
          moveMolecule.setStepSize(0.024);
          rot.setStepSize(0.042);
 
         //nan we're going to need some stuff in there to set the step sizes and other stuff like that.
-
+        
         integrator.getMoveManager().addMCMove(moveMolecule);
 //        integrator.getMoveManager().addMCMove(snake);
-        integrator.getMoveManager().
-
-    addMCMove(rot);
+        integrator.getMoveManager().addMCMove(rot); 
 //        integrator.getMoveManager().addMCMove(moveVolume);
-
+        
         integrator.setIsothermal(true);
         activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setMaxSteps(2000000);
         getController().addAction(activityIntegrate);
-
+            
         //nan The box size we want is 5.72906360610622 by 11.21417818673970 by
         // 7.30591061708510
         //nan this is where the squared, unsquared box stuff comes in.
@@ -146,7 +140,7 @@ public class TestHexaneHarmonic extends Simulation {
         // different molecules. We use the class "Potential" because we are
         // reusing the instance as we define each potential.
         Potential potential = new P2HardSphere(space);
-
+        
         //here, we add the species to the PotentialMaster, using types.
         //The PotentialMaster generates a group potential and automatically
         // does a lot of the stuff which we have to do for the intramolecular
@@ -154,12 +148,9 @@ public class TestHexaneHarmonic extends Simulation {
         AtomType sphereType = species.getLeafType();
 
         //Add the Potential to the PotentialMaster
-        potentialMaster.addPotential(potential,new AtomType[]
-
-    {
-        sphereType,
+        potentialMaster.addPotential(potential, new AtomType[] { sphereType,
                 sphereType });
-
+        
 //         //INTRAMOLECULAR POTENTIAL STUFF
 //
 //        //This PotentialGroup will hold all the intramolecular potentials.
@@ -178,9 +169,9 @@ public class TestHexaneHarmonic extends Simulation {
 //        //This potential uses hard sphere interactions to model the bonded
 //        // interactions of the atoms of the molecule.
 //        //We make the bonding length 0.4 * sigma per Malanoski 1999.
-//        potential = new P2HardSphere(space, defaults.atomSize * bondFactor,
+//        potential = new P2HardSphere(space, defaults.atomSize * bondFactor, 
 //                defaults.ignoreOverlap);
-//
+//        
 //        //We will need an atom pair iterator (Api) that runs through the atoms
 //        // on a single molecule.
 //        //The atom pair iterator (Api) runs through the atoms on a single
@@ -190,17 +181,17 @@ public class TestHexaneHarmonic extends Simulation {
 //        //We add the Potential and its Iterator to the PotentialGroup, in one
 //        // fell swoop. Yay us!
 //        potentialChainIntra.addPotential(potential, bonded);
-//
+//        
 //            //NONBONDED INTERACTIONS
 //        //This potential describes the basic hard sphere interactions between
 //        // 2 atoms of a molecule.
-//
+//        
 //        //Only the atoms next to each other interact, so we have two criteria:
 //        //		The atoms must be on the same molecule- CriterionMolecular
 //        //		The atoms must be separated by 3 bonds, or 2 other atoms.
 //        ApiIntragroup nonbonded = ApiBuilder.makeNonAdjacentPairIterator(2);
 //        potentialChainIntra.addPotential(potential, nonbonded);
-//
+//        
 //        potentialMaster.addPotential(potentialChainIntra, new AtomType[] { species.getMoleculeType() } );
 
         //Initialize the positions of the atoms.
@@ -208,10 +199,11 @@ public class TestHexaneHarmonic extends Simulation {
         coordinateDefinition.initializeCoordinates(nCells);
 
         integrator.setBox(box);
-
+        
         //nan this will need to be changed
 //        pri = new PairIndexerMolecule(box, new PrimitiveHexane(space));
-}d
+    }
+
     public static void main(String[] args) {
         int numMolecules = 144; //144
         boolean graphic = true;
@@ -224,9 +216,9 @@ public class TestHexaneHarmonic extends Simulation {
         if (args.length > 0) {
             filename = args[0];
         }
-
+        
         NormalModes normalModes = new NormalModesFromFile(filename, 3);
-
+        
         MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy(sim.coordinateDefinition, normalModes);
         DataFork harmonicFork = new DataFork();
         AccumulatorAverageCollapsing harmonicAvg = new AccumulatorAverageCollapsing();
@@ -241,8 +233,8 @@ public class TestHexaneHarmonic extends Simulation {
         AccumulatorAverageCollapsing harmonicBoltzAvg = new AccumulatorAverageCollapsing();
         boltz.setDataSink(harmonicBoltzAvg);
         DataProcessorFoo fooer = new DataProcessorFoo();
-        harmonicBoltzAvg.addDataSink(fooer,new StatType[]{AccumulatorAverage.AVERAGE});
-
+        harmonicBoltzAvg.addDataSink(fooer, new StatType[]{harmonicBoltzAvg.AVERAGE});
+        
         MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy(sim.coordinateDefinition, normalModes);
         harmonicSingleEnergy.setBox(sim.box);
 //        DataProcessorFunction harmonicLog = new DataProcessorFunction(new Function.Log());
@@ -254,20 +246,20 @@ public class TestHexaneHarmonic extends Simulation {
         boltz.setDataSink(harmonicSingleAvg);
 //        harmonicLog.setDataSink(harmonicSingleHistogram);
 //        harmonicSingleHistogram.setDataSink(harmonicSingleAvg);
-        harmonicSingleAvg.addDataSink(harmonicSingleHistogram,new StatType[]{AccumulatorAverage.AVERAGE});
+        harmonicSingleAvg.addDataSink(harmonicSingleHistogram, new StatType[]{harmonicSingleAvg.AVERAGE});
         IntegratorListenerAction singlePumpListener = new IntegratorListenerAction(pumpSingle);
         singlePumpListener.setInterval(100);
         sim.integrator.getEventManager().addListener(singlePumpListener);
         DataProcessorFoo fooerSingle = new DataProcessorFoo();
-        harmonicSingleAvg.addDataSink(fooerSingle,new StatType[]{AccumulatorAverage.AVERAGE});
+        harmonicSingleAvg.addDataSink(fooerSingle, new StatType[]{harmonicSingleAvg.AVERAGE});
 
         if (graphic) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sim.space, sim.getController());
             ArrayList dataStreamPumps = simGraphic.getController().getDataStreamPumps();
             dataStreamPumps.add(pump);
             dataStreamPumps.add(pumpSingle);
-
-        DisplayTextBoxesCAE harmonicBoxes = new DisplayTextBoxesCAE();
+            
+            DisplayTextBoxesCAE harmonicBoxes = new DisplayTextBoxesCAE();
             harmonicBoxes.setAccumulator(harmonicAvg);
             simGraphic.add(harmonicBoxes);
 
@@ -277,8 +269,8 @@ public class TestHexaneHarmonic extends Simulation {
             harmonicPlot.setDoLegend(false);
             harmonicSingleHistogram.setDataSink(harmonicPlot.getDataSet().makeDataSink());
             simGraphic.add(harmonicPlot);
-
-        DisplayTextBox diffSingleA = new DisplayTextBox();
+            
+            DisplayTextBox diffSingleA = new DisplayTextBox();
             diffSingleA.setLabel("deltaA, independent approx");
             fooerSingle.setDataSink(diffSingleA);
             simGraphic.add(diffSingleA);
@@ -287,44 +279,39 @@ public class TestHexaneHarmonic extends Simulation {
             diffA.setLabel("deltaA");
             fooer.setDataSink(diffA);
             simGraphic.add(diffA);
-
-        simGraphic.makeAndDisplayFrame(APP_NAME);
+            
+            simGraphic.makeAndDisplayFrame(APP_NAME);
         }
         else {
             long nSteps = 10000;
 
             sim.activityIntegrate.setMaxSteps(nSteps);
+            
+            sim.getController().actionPerformed();
 
-        sim.getController().actionPerformed();
-
-        double avgHarmonicEnergy=((DataDouble)((DataGroup)harmonicAvg.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
-        double errorHarmonicEnergy=((DataDouble)((DataGroup)harmonicAvg.getData()).getData(AccumulatorAverage.ERROR.index)).x;
+            double avgHarmonicEnergy = ((DataDouble)((DataGroup)harmonicAvg.getData()).getData(harmonicAvg.AVERAGE.index)).x;
+            double errorHarmonicEnergy = ((DataDouble)((DataGroup)harmonicAvg.getData()).getData(harmonicAvg.ERROR.index)).x;
             System.out.println("avg harmonic energy: "+avgHarmonicEnergy+" +/- "+errorHarmonicEnergy);
         }
 
-        }ic MCMoveVolume moveVolume;
-//    public MCMoveCrankshaft crank; 
-//    public MCMoveReptate snake;
-
-public MCMov
+    }
+    
     /**
      * DataProcessor that sums up the logs of all incoming values
      */
     public static class DataProcessorFoo extends DataProcessor {
 
-        private static final long serialVersionUID = 1L;
-        private DataDouble data;
-
         public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
             return null;
         }
-
+        
         public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo incomingDataInfo) {
             dataInfo = new DataInfoDouble("free energy difference", Null.DIMENSION);
             data = new DataDouble();
             return dataInfo;
         }
-
+            
+        
         public IData processData(IData incomingData) {
             data.x = 0;
             int nData = incomingData.getLength();
@@ -333,9 +320,30 @@ public MCMov
             }
             return data;
         }
+        
+        private static final long serialVersionUID = 1L;
+        private DataDouble data;
     }
 
 
-        public Acic PairIndexerMolecule pri;
+    public ActivityIntegrate activityIntegrate;
+    public IntegratorMC integrator;
+
+    public Box box;
+
+    public BoundaryDeformablePeriodic bdry;
+ 
+    public MCMoveMolecule moveMolecule;
+    public BravaisLattice lattice;
+    public Primitive primitive;
+    public CoordinateDefinition coordinateDefinition;
+    
+//    public MCMoveVolume moveVolume;
+//    public MCMoveCrankshaft crank; 
+//    public MCMoveReptate snake;
+    
+    public MCMoveRotateMolecule3D rot;
+    
+//    public PairIndexerMolecule pri;
 
 }

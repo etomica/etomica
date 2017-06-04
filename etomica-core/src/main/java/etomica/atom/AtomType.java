@@ -10,19 +10,14 @@ import etomica.units.Dimension;
 import etomica.units.Mass;
 
 /**
- * Type for an atom that is a leaf in the species hierarchy. An atom of this
- * type is typically representing a physical atom, rather than a group of other
- * atoms.
- * 
- * @author andrew
+ * Identifies a set of atoms and defines properties of those atoms.
+ * Properties include indices used for tracking, mass and element.
  */
+public class AtomType {
 
-public class AtomType implements Comparable<AtomType> {
-
-    private static final long serialVersionUID = 1L;
     protected final IElement element;
     protected int index;
-    protected ISpecies parentType;
+    protected ISpecies species;
     protected int childIndex;
 
     public AtomType(IElement element) {
@@ -31,85 +26,82 @@ public class AtomType implements Comparable<AtomType> {
         index = -1;
     }
 
-    /* (non-Javadoc)
-     * @see etomica.atom.IAtomType#getIndex()
+    /**
+     * @return the index for this IAtomType, within the context of an
+     * ISimulation.  The index is the IAtomType's position in the list of
+     * atom types in the simulation.
      */
     public int getIndex() {
         return index;
     }
 
-    /* (non-Javadoc)
-     * @see etomica.atom.IAtomType#setIndex(int)
+    /**
+     * Informs the IAtomType what its index should be.  This should only be
+     * called by the species.
+     *
+     * @param newIndex the atom type's new index
      */
     public void setIndex(int newIndex) {
         index = newIndex;
     }
 
-    /* (non-Javadoc)
-     * @see etomica.atom.IAtomTypeLeaf#getParentType()
-     */
-    public ISpecies getParentType() {
-        return parentType;
-    }
-
-    /* (non-Javadoc)
-     * @see etomica.atom.IAtomTypeLeaf#getChildIndex()
+    /**
+     * @return the child index.  This is the index of the atom type within the
+     * species.
      */
     public int getChildIndex() {
         return childIndex;
     }
 
-    /* (non-Javadoc)
-     * @see etomica.atom.IAtomTypeLeaf#setChildIndex(int)
+    /**
+     * Informs the atom type what its child index is.  This should only be called
+     * by the species.
+     *
+     * @param newChildIndex the atom type's new child index
      */
     public void setChildIndex(int newChildIndex) {
         childIndex = newChildIndex;
     }
-    
-    /* (non-Javadoc)
-     * @see etomica.atom.IAtomTypeLeaf#getSpecies()
+
+    /**
+     * @return the species that contains the atom type
      */
     public ISpecies getSpecies() {
-        return parentType;
+        return species;
     }
 
-    /* (non-Javadoc)
-     * @see etomica.atom.IAtomTypeLeaf#setParentType(etomica.atom.AtomTypeMolecule)
+    /**
+     * Informs the atom type what species contains the atom types.  This should
+     * only be called by the species.
+     *
+     * @param newSpecies the atom type's new species
      */
-    public void setSpecies(ISpecies newParent) {
-        parentType = newParent;
+    public void setSpecies(ISpecies newSpecies) {
+        species = newSpecies;
     }
 
-    /* (non-Javadoc)
-     * @see etomica.atom.IAtomTypeLeaf#getMass()
+    /**
+     * @return the value of the mass.
      */
     public final double getMass() {
         return element.getMass();
     }
 
-    /* (non-Javadoc)
-     * @see etomica.atom.IAtomTypeLeaf#rm()
+    /**
+     * @return the reciprocal of the mass, 1.0/mass
      */
     public final double rm() {
         return element.rm();
     }
 
-    /* (non-Javadoc)
-     * @see etomica.atom.IAtomTypeLeaf#getMassDimension()
-     */
     public final Dimension getMassDimension() {
         return Mass.DIMENSION;
     }
 
-    /* (non-Javadoc)
-     * @see etomica.atom.IAtomTypeLeaf#getElement()
+    /**
+     * @return the element for this atom type
      */
     public final IElement getElement() {
         return element;
-    }
-
-    public int compareTo(AtomType otherAtomType) {
-        int otherIndex = otherAtomType.getIndex();
-        return otherIndex > index ? -1 : (otherIndex == index ? 0 : 1);
     }
 }
