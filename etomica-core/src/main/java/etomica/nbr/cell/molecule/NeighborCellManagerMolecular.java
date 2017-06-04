@@ -7,7 +7,7 @@ package etomica.nbr.cell.molecule;
 import etomica.atom.*;
 import etomica.space.Boundary;
 import etomica.space.BoundaryEvent;
-import etomica.api.IBoundaryListener;
+import etomica.space.BoundaryEventListener;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -39,7 +39,7 @@ import etomica.util.IListener;
 //no need for index when assigning cell
 //different iterator needed
 
-public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryListener, MoleculeAgentManager.MoleculeAgentSource, java.io.Serializable {
+public class NeighborCellManagerMolecular implements BoxCellManager, BoundaryEventListener, MoleculeAgentManager.MoleculeAgentSource, java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
     protected final Simulation sim;

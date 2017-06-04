@@ -8,7 +8,7 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.space.Boundary;
 import etomica.space.BoundaryEvent;
-import etomica.api.IBoundaryListener;
+import etomica.space.BoundaryEventListener;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
@@ -36,7 +36,7 @@ import etomica.util.IListener;
 //no need for index when assigning cell
 //different iterator needed
 
-public class NeighborCellManager implements BoxCellManager, IBoundaryListener, AtomLeafAgentManager.AgentSource<Cell> {
+public class NeighborCellManager implements BoxCellManager, BoundaryEventListener, AtomLeafAgentManager.AgentSource<Cell> {
 
     protected final Simulation sim;
     protected final CellLattice lattice;

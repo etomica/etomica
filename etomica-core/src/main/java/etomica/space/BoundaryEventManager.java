@@ -5,10 +5,7 @@
 package etomica.space;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-
-import etomica.api.IBoundaryListener;
 
 /**
  * Manager of listeners for boundary events. This object maintains a list of listeners
@@ -16,14 +13,14 @@ import etomica.api.IBoundaryListener;
  */
 public class BoundaryEventManager {
 
-    private final List<IBoundaryListener> boundaryListeners = new ArrayList<>();
+    private final List<BoundaryEventListener> boundaryListeners = new ArrayList<>();
 
     /**
      * Adds the given listener to this event manager.
      *
      * @param newListener the listener to be added
      */
-    public synchronized void addListener(IBoundaryListener newListener) {
+    public synchronized void addListener(BoundaryEventListener newListener) {
         if(newListener == null) throw new NullPointerException("Cannot add null as a listener to Box");
         if (boundaryListeners.contains(newListener)) {
             throw new RuntimeException(newListener+" is already an interval action");
@@ -37,13 +34,13 @@ public class BoundaryEventManager {
      *
      * @param listener the listener to be removed
      */
-    public synchronized void removeListener(IBoundaryListener listener) {
+    public synchronized void removeListener(BoundaryEventListener listener) {
         boundaryListeners.remove(listener);
     }
 
     public void inflate(Boundary boundary) {
         BoundaryEvent event = new BoundaryEvent(boundary);
-        for (IBoundaryListener boundaryListener : boundaryListeners) {
+        for (BoundaryEventListener boundaryListener : boundaryListeners) {
             boundaryListener.boundaryInflate(event);
         }
     }
