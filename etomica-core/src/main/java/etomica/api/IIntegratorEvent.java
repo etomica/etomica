@@ -4,8 +4,10 @@
 
 package etomica.api;
 
+import etomica.integrator.Integrator;
+
 public interface IIntegratorEvent {
 
-    public IIntegrator getIntegrator();
+    public Integrator getIntegrator();
     
 }

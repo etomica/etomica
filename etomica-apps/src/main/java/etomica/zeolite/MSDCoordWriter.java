@@ -11,7 +11,7 @@ import etomica.action.IAction;
 import etomica.action.activity.ControllerEvent;
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.api.IIntegrator;
+import etomica.integrator.Integrator;
 import etomica.space.Vector;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.listener.IntegratorListenerAction;
@@ -75,7 +75,7 @@ public class MSDCoordWriter implements IAction, IListener {
         afterPBCinstance.setIterator(iterator);
     }
 	
-	public void setIntegrator(IIntegrator integrator){
+	public void setIntegrator(Integrator integrator){
 		integrator.getEventManager().addListener(new IntegratorListenerAction(this));
 //        integrator.setIntervalActionPriority(this, 50);
 		integrator.getEventManager().addListener(new IntegratorListenerAction(afterPBCinstance));

@@ -11,6 +11,7 @@ import etomica.action.activity.Controller;
 import etomica.api.*;
 import etomica.atom.AtomType;
 import etomica.box.Box;
+import etomica.integrator.Integrator;
 import etomica.space.Space;
 import etomica.util.Arrays;
 import etomica.util.RandomMersenneTwister;
@@ -295,8 +296,8 @@ public class Simulation {
      * method assumes the controller holds an ActivityIntegrate or an
      * ActionIntegrate.
      */
-    public IIntegrator getIntegrator() {
-        IIntegrator integrator = null;
+    public Integrator getIntegrator() {
+        Integrator integrator = null;
         IAction[] controllerActions = controller.getAllActions();
         for (int i = 0; i < controllerActions.length; i++) {
             if (controllerActions[i] instanceof ActivityIntegrate) {

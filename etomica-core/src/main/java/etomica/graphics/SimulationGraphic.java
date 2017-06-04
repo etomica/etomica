@@ -21,7 +21,7 @@ import etomica.action.IAction;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.Controller;
 import etomica.box.Box;
-import etomica.api.IIntegrator;
+import etomica.integrator.Integrator;
 import etomica.simulation.Simulation;
 import etomica.graphics.DisplayPlot.PopupListener;
 import etomica.integrator.IntegratorBox;
@@ -147,7 +147,7 @@ public class SimulationGraphic implements SimulationContainer {
 	  * a box handled by an Integrator is in BoxList, a new DisplayBox is
 	  * not created.
 	  */
-	private void setupDisplayBox(IIntegrator integrator, LinkedList<Box> boxList) {
+	private void setupDisplayBox(Integrator integrator, LinkedList<Box> boxList) {
 	    if (integrator instanceof IntegratorBox) {
 	        Box box = ((IntegratorBox)integrator).getBox();
 	        if (boxList.contains(box)) return;
@@ -175,7 +175,7 @@ public class SimulationGraphic implements SimulationContainer {
 	        repaintActions.put(box, repaintAction);
 	    }
 	    else if (integrator instanceof IntegratorManagerMC) {
-	        IIntegrator[] subIntegrators = ((IntegratorManagerMC)integrator).getIntegrators();
+	        Integrator[] subIntegrators = ((IntegratorManagerMC)integrator).getIntegrators();
 	        for (int i=0; i<subIntegrators.length; i++) {
 	            setupDisplayBox(subIntegrators[i], boxList);
 	        }

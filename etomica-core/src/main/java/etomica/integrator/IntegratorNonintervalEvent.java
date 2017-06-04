@@ -4,8 +4,6 @@
 
 package etomica.integrator;
 
-import etomica.api.IIntegrator;
-
 
 /**
  * Event thrown by integrator when it announces reaching special points in the 
@@ -18,7 +16,7 @@ public class IntegratorNonintervalEvent extends IntegratorEvent {
 
     private static final long serialVersionUID = 1L;
 
-    public IntegratorNonintervalEvent(IIntegrator source, NonintervalEventType type) {
+    public IntegratorNonintervalEvent(Integrator source, NonintervalEventType type) {
         super(source, type);
     }
 

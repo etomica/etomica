@@ -6,7 +6,7 @@ package etomica.action;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.IController;
-import etomica.api.IIntegrator;
+import etomica.integrator.Integrator;
 import etomica.simulation.Simulation;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
@@ -85,7 +85,7 @@ public final class SimulationRestart extends SimulationActionAdapter {
             }
         }
         if (myAction instanceof ActivityIntegrate) {
-            IIntegrator integrator = ((ActivityIntegrate)myAction).getIntegrator();
+            Integrator integrator = ((ActivityIntegrate)myAction).getIntegrator();
             if(integrator.getStepCount() > 0) {
                 integrator.resetStepCount();
                 try {

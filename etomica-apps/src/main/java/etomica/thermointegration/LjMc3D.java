@@ -9,7 +9,7 @@ import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.IIntegrator;
+import etomica.integrator.Integrator;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -104,7 +104,7 @@ public class LjMc3D extends Simulation {
         simGraphic.add(display);
     }
 
-    public IIntegrator getIntegrator() {
+    public Integrator getIntegrator() {
         return integrator;
     }
 

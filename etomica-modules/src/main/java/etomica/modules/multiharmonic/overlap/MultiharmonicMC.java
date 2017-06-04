@@ -5,7 +5,7 @@
 package etomica.modules.multiharmonic.overlap;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IIntegrator;
+import etomica.integrator.Integrator;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.integrator.IntegratorMC;
@@ -66,7 +66,7 @@ public class MultiharmonicMC extends Simulation {
         integratorB.getMoveManager().addMCMove(new MCMoveMultiHarmonic(potentialB, random));
         potentialMasterB.addPotential(potentialB, new AtomType[]{species.getLeafType()});
 
-        integratorOS = new IntegratorOverlap(new IIntegrator[]{integratorA, integratorB});
+        integratorOS = new IntegratorOverlap(new Integrator[]{integratorA, integratorB});
 
         integratorOS.setAdjustStepFraction(false);
         integratorOS.setRefStepFraction(0.5);

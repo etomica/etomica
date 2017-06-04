@@ -4,17 +4,19 @@
 
 package etomica.integrator;
 
-import etomica.api.IIntegratorEventManager;
 import etomica.api.IIntegratorListener;
 import etomica.api.IIntegratorListenerMD;
 
 import java.util.ArrayList;
 
-public class IntegratorEventManager implements IIntegratorEventManager {
+public class IntegratorEventManager {
 
     protected final ArrayList<IIntegratorListener> intervalListeners = new ArrayList<IIntegratorListener>();
     protected boolean eventing;
 
+    /**
+     * Adds the given listener to this event manager.
+     */
     public synchronized void addListener(IIntegratorListener newListener) {
         if(newListener == null) throw new NullPointerException("Cannot add null as a listener to Integrator");
         if (intervalListeners.contains(newListener)) {
@@ -23,10 +25,16 @@ public class IntegratorEventManager implements IIntegratorEventManager {
         intervalListeners.add(newListener);
     }
 
+    /**
+     * Removes the given listener from this event manager.
+     */
     public synchronized void removeListener(IIntegratorListener listener) {
         intervalListeners.remove(listener);
     }
 
+    /**
+     * Returns true if the event manager is currently firing events.
+     */
     public boolean firingEvent() {
         return eventing;
     }

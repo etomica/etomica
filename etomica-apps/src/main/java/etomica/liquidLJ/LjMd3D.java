@@ -7,7 +7,7 @@ package etomica.liquidLJ;
 import etomica.action.BoxInflate;
 import etomica.action.WriteConfigurationBinary;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IIntegrator;
+import etomica.integrator.Integrator;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationFileBinary;
@@ -1035,10 +1035,10 @@ public class LjMd3D extends Simulation {
 
     public static class ValueCache {
         protected final DataSourceScalar dss;
-        protected final IIntegrator integrator;
+        protected final Integrator integrator;
         protected long lastStep = -1;
         protected double lastValue;
-        public ValueCache(DataSourceScalar dss, IIntegrator integrator) {
+        public ValueCache(DataSourceScalar dss, Integrator integrator) {
             this.dss = dss;
             this.integrator = integrator;
         }

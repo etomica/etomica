@@ -16,6 +16,7 @@ import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxCellManager;
+import etomica.integrator.Integrator;
 import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.NeighborListManager;
@@ -46,7 +47,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
 
     protected final Vector dest;
     protected final Vector dr;
-    protected IIntegrator integrator;
+    protected Integrator integrator;
     protected long lastStepCount;
     protected boolean dirty;
     protected double maxDistance, maxInsertDistance;
@@ -65,7 +66,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
     protected AtomIteratorAtomDependent atomIterator;
 
     public MCMoveInsertDeleteLatticeVacancy(PotentialMaster potentialMaster,
-                                            IRandom random, Space _space, IIntegrator integrator, double maxDistance, int maxN, int maxVacancy) {
+                                            IRandom random, Space _space, Integrator integrator, double maxDistance, int maxN, int maxVacancy) {
         super(potentialMaster, random, _space, maxN-maxVacancy, maxN);
         this.space = _space;
         this.potentialMaster = potentialMaster;

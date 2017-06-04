@@ -6,10 +6,9 @@ package etomica.thermointegration;
 import java.util.ArrayList;
 
 import etomica.action.ResetAccumulators;
-import etomica.api.IIntegrator;
+import etomica.integrator.Integrator;
 import etomica.data.DataPump;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.integrator.Integrator;
 
 
 /**
@@ -27,7 +26,7 @@ public abstract class IntegratorThermodynamic extends Integrator {
      * sub integrator, which is responsible for exploring configruations at any
      * given state point.
      */
-    public IntegratorThermodynamic(IIntegrator subIntegrator) {
+    public IntegratorThermodynamic(Integrator subIntegrator) {
         super();
         dataPumps = new ArrayList<DataPump>();
         this.subIntegrator = subIntegrator;
@@ -68,7 +67,7 @@ public abstract class IntegratorThermodynamic extends Integrator {
      * Returns the subIntegrator, responsible for actually walking through
      * configurational space.
      */
-    public IIntegrator getSubIntegrator() {
+    public Integrator getSubIntegrator() {
         return subIntegrator;
     }
 
@@ -137,7 +136,7 @@ public abstract class IntegratorThermodynamic extends Integrator {
     }
     
     private static final long serialVersionUID = 1L;
-    protected IIntegrator subIntegrator;
+    protected Integrator subIntegrator;
     protected int numSubsteps;
     protected int iSubstep;
     protected int numEquilibrationSubsteps;

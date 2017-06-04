@@ -4,7 +4,6 @@
 
 package etomica.integrator;
 
-import etomica.api.IIntegrator;
 import etomica.util.EnumeratedType;
 
 /**
@@ -21,12 +20,12 @@ public class IntegratorEvent {
     // announcing
     
     protected final Type type;
-    protected IIntegrator source;
+    protected Integrator source;
 
     /**
      * 
      */
-    public IntegratorEvent(IIntegrator source, Type type) {
+    public IntegratorEvent(Integrator source, Type type) {
         this.source = source;
         this.type = type;
     }
@@ -35,7 +34,7 @@ public class IntegratorEvent {
         return type;
     }
     
-    public IIntegrator getSource() {
+    public Integrator getSource() {
         return source;
     }
 
