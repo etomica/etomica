@@ -140,17 +140,12 @@ public class PotentialMaster {
      * The given types should not include any type which is the descendent of
      * another.  Potential group hierarchy will be constructed as needed above
      * the level of the given atom types.
-     * <p>
-     * The order of the elements in the atomTypes array is not relevant, and is
-     * subject to rearrangement by the method -- the array is sorted (using the compareTo
-     * method of AtomType) before doing anything else.
      */
     public void addPotential(IPotentialAtomic potential, AtomType[] atomTypes) {
         if (potential.nBody() != Integer.MAX_VALUE && potential.nBody() != atomTypes.length) {
             throw new IllegalArgumentException("nBody of potential must match number of atom types");
         }
 
-        Arrays.sort(atomTypes);
         // depth of molecules
         ISpecies[] parentAtomTypes = new ISpecies[atomTypes.length];
         for (int i = 0; i < atomTypes.length; i++) {

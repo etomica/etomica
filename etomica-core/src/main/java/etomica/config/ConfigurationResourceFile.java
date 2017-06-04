@@ -1,6 +1,6 @@
 package etomica.config;
 
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.space.Vector;
 
@@ -27,6 +27,12 @@ public class ConfigurationResourceFile implements Configuration {
         this.callingClass = callingClass;
     }
 
+    private static double[] parseLine(String line) {
+        return Arrays.stream(line.split("\\s+"))
+                .mapToDouble(Double::valueOf)
+                .toArray();
+    }
+
     @Override
     public void initializeCoordinates(Box box) {
         IAtomList leafList = box.getLeafList();
@@ -41,11 +47,5 @@ public class ConfigurationResourceFile implements Configuration {
             e.printStackTrace();
         }
 
-    }
-
-    private static double[] parseLine(String line) {
-        return Arrays.stream(line.split("\\s+"))
-                .mapToDouble(Double::valueOf)
-                .toArray();
     }
 }

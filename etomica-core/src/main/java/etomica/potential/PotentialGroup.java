@@ -18,8 +18,6 @@ import etomica.potential.PotentialMaster.AtomIterator0;
 import etomica.space.Space;
 import etomica.util.Debug;
 
-import java.util.Arrays;
-
 /**
  * Collection of potentials that act between the atoms contained in
  * one or more groups of atoms.  This group iterates over all such atom-groups
@@ -85,7 +83,6 @@ public class PotentialGroup extends PotentialMolecular {
      */
     public void addPotential(IPotentialAtomic potential, AtomType[] types) {
         if(this.nBody() != Integer.MAX_VALUE && this.nBody() > types.length) throw new IllegalArgumentException("Order of potential cannot exceed length of types array.");
-        Arrays.sort(types);
         if (this.nBody() == Integer.MAX_VALUE){addPotential(potential, new AtomsetIteratorAllLeafAtoms(), types);} else {
             switch(types.length) {
         		case 0:
