@@ -4,7 +4,7 @@
 
 package etomica.AlkaneEH;
 
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.api.IMolecule;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;

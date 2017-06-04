@@ -10,8 +10,8 @@ import java.util.Set;
 
 import etomica.AlkaneEH.SpeciesMethane;
 import etomica.action.IAction;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
+import etomica.atom.IAtomList;
+import etomica.atom.IAtomType;
 import etomica.api.IElement;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;

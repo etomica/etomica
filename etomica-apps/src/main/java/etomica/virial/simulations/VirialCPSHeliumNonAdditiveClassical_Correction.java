@@ -8,7 +8,7 @@ package etomica.virial.simulations;
 import java.awt.Color;
 
 import etomica.action.IAction;
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.space.Vector;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;

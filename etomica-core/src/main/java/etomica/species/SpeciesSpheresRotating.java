@@ -4,7 +4,7 @@
 
 package etomica.species;
 
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.api.IElement;
 import etomica.atom.AtomOriented;
 import etomica.atom.AtomOrientedDynamic;

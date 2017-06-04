@@ -7,7 +7,7 @@ package etomica.models.hexane;
 import etomica.action.PDBWriter;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.api.ISpecies;

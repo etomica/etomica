@@ -4,7 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
 import etomica.space.Space;

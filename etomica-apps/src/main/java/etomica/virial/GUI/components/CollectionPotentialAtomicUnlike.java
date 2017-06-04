@@ -10,12 +10,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.api.IPotential;
-import etomica.api.IPotentialAtomic;
-import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.potential.PotentialGroup;
-import etomica.virial.MCMoveClusterTorsionMulti;
 
 
 public class CollectionPotentialAtomicUnlike implements ICollectionPotential {

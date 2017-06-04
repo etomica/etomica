@@ -6,7 +6,7 @@ package etomica.liquidLJ;
 
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.box.Box;
 import etomica.atom.AtomPair;
 import etomica.config.ConfigurationLattice;

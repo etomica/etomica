@@ -4,7 +4,7 @@
 
 package etomica.paracetamol;
 
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.box.Box;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.potential.P2SoftSphericalTruncated;

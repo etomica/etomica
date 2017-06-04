@@ -4,7 +4,7 @@
 
 package etomica.nbr.list;
 
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.atom.IAtomPositionDefinition;

@@ -7,7 +7,8 @@
  */
 package etomica.data.meter;
 
-import etomica.api.*;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.DataInfo;
 import etomica.data.DataTag;

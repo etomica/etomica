@@ -4,7 +4,7 @@
 
 package etomica.data.meter;
 import etomica.action.IAction;
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.api.IBoundary;
 import etomica.space.Vector;
 import etomica.box.Box;

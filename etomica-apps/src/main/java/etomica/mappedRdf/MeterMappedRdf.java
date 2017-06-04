@@ -1,8 +1,8 @@
 package etomica.mappedRdf;
 
 import etomica.action.IAction;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
+import etomica.atom.IAtomList;
+import etomica.atom.IAtomType;
 import etomica.api.IBoundary;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorBoxDependent;

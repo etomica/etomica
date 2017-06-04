@@ -7,6 +7,8 @@ package etomica.models.water;
 
 import etomica.api.*;
 import etomica.atom.AtomPositionCOM;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.potential.IPotentialMolecularSecondDerivative;
 import etomica.space.Vector;

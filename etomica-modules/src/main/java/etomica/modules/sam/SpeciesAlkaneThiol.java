@@ -4,7 +4,7 @@
 
 package etomica.modules.sam;
 
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Sulfur;

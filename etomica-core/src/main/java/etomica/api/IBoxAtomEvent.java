@@ -4,6 +4,8 @@
 
 package etomica.api;
 
+import etomica.atom.IAtom;
+
 /**
  * A box event that is somehow related to an atom.  The atom might have been
  * added or removed, or may have a new index.  Details may be determined from

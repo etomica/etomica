@@ -6,8 +6,8 @@ package etomica.potential;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IPotentialAtomic;

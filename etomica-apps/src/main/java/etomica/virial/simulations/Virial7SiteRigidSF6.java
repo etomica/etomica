@@ -7,13 +7,11 @@ package etomica.virial.simulations;
 import java.awt.Color;
 
 import etomica.action.IAction;
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ApiBuilder;
-import etomica.data.IData;
-import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.potential.P2LennardJones;
@@ -30,7 +28,6 @@ import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.Species7SiteRigidSF6;
-import etomica.virial.SpeciesTraPPENaphthalene;
 import etomica.virial.cluster.Standard;
 
 /**

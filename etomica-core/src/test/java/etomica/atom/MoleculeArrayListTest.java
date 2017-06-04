@@ -5,11 +5,8 @@
 package etomica.atom;
 
 import junit.framework.TestCase;
-import etomica.api.IAtomType;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
-import etomica.atom.Molecule;
-import etomica.atom.MoleculeArrayList;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.util.Debug;

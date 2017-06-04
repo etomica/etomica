@@ -6,6 +6,7 @@ package etomica.virial.simulations;
 
 import etomica.api.*;
 import etomica.atom.AtomTypeLeaf;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.ANIntergroupExchange;
 import etomica.atom.iterator.ANIntragroupExchange;
 import etomica.atom.iterator.ApiIndexList;

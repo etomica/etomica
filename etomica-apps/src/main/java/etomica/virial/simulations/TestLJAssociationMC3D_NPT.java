@@ -5,7 +5,7 @@
 package etomica.virial.simulations;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.box.Box;
 import etomica.association.AssociationManager;
 import etomica.association.BiasVolumeSphereOriented;

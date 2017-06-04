@@ -5,6 +5,7 @@
 package etomica.normalmode;
 
 import etomica.api.*;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;

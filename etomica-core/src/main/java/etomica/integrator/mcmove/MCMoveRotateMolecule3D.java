@@ -5,6 +5,8 @@
 package etomica.integrator.mcmove;
 import etomica.api.*;
 import etomica.atom.AtomPositionGeometricCenter;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.potential.PotentialMaster;
 import etomica.space.Vector;

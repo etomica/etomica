@@ -4,7 +4,7 @@
 
 package etomica.box;
 
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.api.IBoxAtomEvent;
 
 /**

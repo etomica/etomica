@@ -10,11 +10,9 @@ import java.io.IOException;
 
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.*;
+import etomica.atom.*;
 import etomica.box.Box;
-import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.DiameterHashByType;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;

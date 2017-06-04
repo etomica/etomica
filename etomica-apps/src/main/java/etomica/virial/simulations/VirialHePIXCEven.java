@@ -11,9 +11,7 @@ import javax.swing.JPanel;
 
 import etomica.action.IAction;
 import etomica.api.*;
-import etomica.atom.AtomPair;
-import etomica.atom.AtomTypeLeaf;
-import etomica.atom.DiameterHashByType;
+import etomica.atom.*;
 import etomica.atom.iterator.ANIntergroupCoupled;
 import etomica.atom.iterator.ApiIntergroupCoupled;
 import etomica.chem.elements.ElementChemical;

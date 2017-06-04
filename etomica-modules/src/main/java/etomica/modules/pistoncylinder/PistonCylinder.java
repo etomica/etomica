@@ -5,7 +5,7 @@
 package etomica.modules.pistoncylinder;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.potential.*;
 import etomica.space.Vector;
 import etomica.box.Box;

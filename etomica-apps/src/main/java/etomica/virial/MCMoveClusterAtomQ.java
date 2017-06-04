@@ -1,6 +1,6 @@
 package etomica.virial;
 
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.api.IRandom;

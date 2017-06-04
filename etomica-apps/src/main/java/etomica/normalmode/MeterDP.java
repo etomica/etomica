@@ -6,8 +6,8 @@ package etomica.normalmode;
 
 import java.io.FileWriter;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;

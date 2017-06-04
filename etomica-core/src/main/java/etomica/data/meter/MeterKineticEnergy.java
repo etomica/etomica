@@ -4,8 +4,7 @@
 
 package etomica.data.meter;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
+import etomica.atom.IAtomKinetic;
 import etomica.box.Box;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;

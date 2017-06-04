@@ -7,7 +7,6 @@ package etomica.atom;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 
-import etomica.api.IAtomType;
 import etomica.simulation.Simulation;
 import etomica.api.ISimulationAtomTypeIndexEvent;
 import etomica.api.ISimulationBoxEvent;

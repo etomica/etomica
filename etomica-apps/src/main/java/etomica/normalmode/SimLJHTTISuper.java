@@ -5,8 +5,8 @@
 package etomica.normalmode;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtom;
-import etomica.api.IAtomType;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomType;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.DataPumpListener;

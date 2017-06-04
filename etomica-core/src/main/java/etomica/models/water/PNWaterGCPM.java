@@ -6,6 +6,7 @@ package etomica.models.water;
 
 import Jama.Matrix;
 import etomica.api.*;
+import etomica.atom.IAtomList;
 import etomica.atom.MoleculePair;
 import etomica.box.Box;
 import etomica.chem.elements.Hydrogen;

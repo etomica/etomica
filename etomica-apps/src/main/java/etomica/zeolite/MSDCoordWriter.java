@@ -9,7 +9,7 @@ import java.io.IOException;
 
 import etomica.action.IAction;
 import etomica.action.activity.ControllerEvent;
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.api.IIntegrator;
 import etomica.space.Vector;

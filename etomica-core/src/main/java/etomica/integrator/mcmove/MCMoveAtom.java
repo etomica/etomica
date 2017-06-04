@@ -4,7 +4,7 @@
 
 package etomica.integrator.mcmove;
 
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.box.Box;

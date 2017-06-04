@@ -1,6 +1,6 @@
 package etomica.normalmode;
   
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.atom.AtomLeafAgentManager;

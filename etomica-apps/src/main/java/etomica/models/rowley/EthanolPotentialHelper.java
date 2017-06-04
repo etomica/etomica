@@ -4,7 +4,7 @@
 
 package etomica.models.rowley;
 
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.api.IPotentialAtomic;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.potential.P2ModifiedMorse;

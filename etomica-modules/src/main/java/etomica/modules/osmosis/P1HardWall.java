@@ -4,8 +4,8 @@
 
 package etomica.modules.osmosis;
 
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
 import etomica.space.Vector;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialHard;

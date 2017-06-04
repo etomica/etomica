@@ -8,7 +8,7 @@
 package etomica.virial;
 
 import etomica.action.MoleculeAction;
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.api.IMolecule;
 import etomica.space.Vector;
 import etomica.models.water.SpeciesWater3P;

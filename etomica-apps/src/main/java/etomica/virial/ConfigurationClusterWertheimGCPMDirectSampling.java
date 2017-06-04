@@ -6,10 +6,8 @@ package etomica.virial;
 
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.*;
+import etomica.atom.*;
 import etomica.box.Box;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.atom.MoleculePair;
 import etomica.models.water.PNWaterGCPMThreeSite;
 import etomica.space.Space;
 import etomica.space.Vector;

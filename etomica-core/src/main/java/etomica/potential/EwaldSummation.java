@@ -8,8 +8,8 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import org.apache.commons.math3.special.Erf;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;

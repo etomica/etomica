@@ -7,7 +7,7 @@ package etomica.rotation;
 import java.awt.Color;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.api.ISpecies;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.box.Box;

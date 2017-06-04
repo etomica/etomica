@@ -4,7 +4,7 @@
 
 package etomica.dimer;
 
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.space.Vector;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;

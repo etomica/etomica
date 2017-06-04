@@ -4,7 +4,6 @@
 
 package etomica.atom;
 
-import etomica.api.IAtomType;
 import etomica.api.IElement;
 import etomica.api.ISpecies;
 import etomica.units.Dimension;

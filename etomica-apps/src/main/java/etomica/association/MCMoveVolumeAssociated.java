@@ -9,12 +9,10 @@ import java.io.IOException;
 
 import etomica.action.WriteConfiguration;
 import etomica.api.*;
+import etomica.atom.*;
 import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.IAtomOriented;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;

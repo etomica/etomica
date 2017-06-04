@@ -13,6 +13,8 @@ import etomica.action.IAction;
 import etomica.api.*;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.DiameterHashByType;
+import etomica.atom.IAtomList;
+import etomica.atom.IAtomType;
 import etomica.atom.iterator.ApiIntergroupCoupled;
 import etomica.chem.elements.ElementChemical;
 import etomica.config.ConformationLinear;

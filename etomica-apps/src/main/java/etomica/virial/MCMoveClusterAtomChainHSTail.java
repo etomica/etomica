@@ -4,7 +4,7 @@
 
 package etomica.virial;
 
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.api.IRandom;
 import etomica.space.Vector;
 import etomica.integrator.mcmove.MCMoveAtom;

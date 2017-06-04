@@ -7,8 +7,8 @@ package etomica.virial.simulations;
 import java.awt.Color;
 
 import etomica.action.IAction;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
+import etomica.atom.IAtomList;
+import etomica.atom.IAtomType;
 import etomica.api.IElement;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;

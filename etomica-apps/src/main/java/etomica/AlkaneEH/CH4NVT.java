@@ -7,7 +7,7 @@ package etomica.AlkaneEH;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.api.ISpecies;

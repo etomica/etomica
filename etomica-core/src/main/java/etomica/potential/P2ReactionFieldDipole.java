@@ -4,7 +4,7 @@
 
 package etomica.potential;
 
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IMolecule;

@@ -9,6 +9,7 @@ import java.awt.Color;
 import java.util.Set;
 
 import etomica.api.*;
+import etomica.atom.IAtomList;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;

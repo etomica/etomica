@@ -9,7 +9,7 @@ import java.io.File;
 
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.api.ISpecies;
 import etomica.config.ConfigurationFile;

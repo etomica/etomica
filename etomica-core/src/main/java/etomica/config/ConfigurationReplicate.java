@@ -5,7 +5,7 @@
 package etomica.config;
 
 import etomica.action.BoxInflate;
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.api.ISpecies;
 import etomica.space.Vector;

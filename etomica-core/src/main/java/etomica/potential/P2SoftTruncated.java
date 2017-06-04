@@ -4,8 +4,8 @@
 
 package etomica.potential;
 
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
+import etomica.atom.IAtomList;
+import etomica.atom.IAtomType;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.space.Vector;

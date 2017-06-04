@@ -5,6 +5,8 @@
 package etomica.models.nitrogen;
 import etomica.api.*;
 import etomica.atom.AtomPositionGeometricCenter;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.potential.PotentialMaster;

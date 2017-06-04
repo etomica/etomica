@@ -5,9 +5,8 @@
 package etomica.integrator;
 
 import etomica.api.*;
-import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.*;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.AtomSetSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
 import etomica.potential.PotentialCalculationForcePressureSum;

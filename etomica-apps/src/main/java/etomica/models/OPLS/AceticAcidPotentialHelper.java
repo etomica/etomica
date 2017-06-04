@@ -4,7 +4,7 @@
 
 package etomica.models.OPLS;
 
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.potential.P2ElectrostaticWithHardCore;
 import etomica.potential.P2LennardJones;

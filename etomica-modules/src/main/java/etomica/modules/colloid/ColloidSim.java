@@ -4,10 +4,8 @@
 
 package etomica.modules.colloid;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.*;
+import etomica.atom.*;
 import etomica.box.Box;
-import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.BoxAgentManager;
 import etomica.exception.ConfigurationOverlapException;

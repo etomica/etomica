@@ -4,7 +4,7 @@
 
 package etomica.virial;
 
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.atom.AtomArrayList;
 import etomica.potential.Potential;
 

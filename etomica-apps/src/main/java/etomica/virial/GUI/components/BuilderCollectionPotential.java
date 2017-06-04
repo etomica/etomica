@@ -8,7 +8,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.api.IPotential;
 import etomica.api.IPotentialMolecular;
 import etomica.api.ISpecies;

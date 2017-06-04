@@ -9,8 +9,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IIntegrator;
 import etomica.potential.PotentialMaster;

@@ -8,8 +8,8 @@ import java.awt.Color;
 
 import etomica.action.IntegratorDimerApproach;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtom;
-import etomica.api.IAtomType;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomType;
 import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.data.AccumulatorHistory;

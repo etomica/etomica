@@ -5,12 +5,8 @@
 package etomica.normalmode;
 
 import etomica.api.*;
+import etomica.atom.*;
 import etomica.box.Box;
-import etomica.atom.AtomArrayList;
-import etomica.atom.AtomPair;
-import etomica.atom.AtomSetSinglet;
-import etomica.atom.AtomSource;
-import etomica.atom.AtomSourceRandomLeaf;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.data.meter.MeterPotentialEnergy;

@@ -4,7 +4,6 @@
 
 package etomica.atom;
 
-import etomica.api.IAtomType;
 import etomica.space.Vector;
 
 public interface IAtomTypeOriented extends IAtomType {

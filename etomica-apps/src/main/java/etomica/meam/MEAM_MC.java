@@ -6,7 +6,7 @@ package etomica.meam;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.box.Box;
 import etomica.chem.elements.Copper;
 import etomica.chem.elements.Silver;

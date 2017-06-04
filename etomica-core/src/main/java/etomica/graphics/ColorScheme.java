@@ -7,7 +7,7 @@ import java.awt.Color;
 
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.modifier.ModifierGeneral;
 import etomica.nbr.list.PotentialMasterList;
 

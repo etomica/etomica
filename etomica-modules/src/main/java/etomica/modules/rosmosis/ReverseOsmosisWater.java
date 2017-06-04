@@ -5,7 +5,7 @@
 package etomica.modules.rosmosis;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.api.ISpecies;
 import etomica.space.Vector;
 import etomica.box.Box;

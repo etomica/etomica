@@ -4,7 +4,7 @@
 
 package etomica.atom.iterator;
 
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 
 /**
  * Provides static methods for construction of some useful pair iterators.

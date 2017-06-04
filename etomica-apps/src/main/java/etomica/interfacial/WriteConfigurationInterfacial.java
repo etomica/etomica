@@ -8,7 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.WriteConfiguration;
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.api.ISpecies;
 import etomica.space.Vector;
 import etomica.space.Space;

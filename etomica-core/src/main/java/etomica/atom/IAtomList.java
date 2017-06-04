@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.api;
+package etomica.atom;
 
 /**
  * Interface for a list of IAtoms.  The IAtomList might contain 0, 1, 2 or many
@@ -18,10 +18,10 @@ public interface IAtomList {
      *          if i is greater than count-1, throws an IllegalArgumentException.
      * @return the requested atom
      */
-    public IAtom getAtom(int i);
+    IAtom getAtom(int i);
 
     /**
      * @return the number of atoms in the list
      */
-    public int getAtomCount();
+    int getAtomCount();
 }

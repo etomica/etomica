@@ -4,8 +4,6 @@
 
 package etomica.atom;
 
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomType;
 import etomica.space.Vector;
 import etomica.space.Space;
 

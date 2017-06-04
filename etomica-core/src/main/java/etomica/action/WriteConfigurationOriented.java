@@ -7,7 +7,7 @@ package etomica.action;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
 import etomica.space.IOrientation;

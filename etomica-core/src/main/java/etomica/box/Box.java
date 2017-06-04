@@ -7,6 +7,8 @@ package etomica.box;
 import etomica.action.BoxInflate;
 import etomica.api.*;
 import etomica.atom.AtomArrayList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.atom.MoleculeArrayList;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;

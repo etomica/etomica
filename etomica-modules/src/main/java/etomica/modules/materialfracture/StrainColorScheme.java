@@ -5,7 +5,7 @@
 package etomica.modules.materialfracture;
 import java.awt.Color;
 
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.graphics.ColorScheme;
 

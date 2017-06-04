@@ -5,6 +5,7 @@
 package etomica.models.hexane;
 
 import etomica.api.*;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;

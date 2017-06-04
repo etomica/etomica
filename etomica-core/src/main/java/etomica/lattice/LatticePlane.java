@@ -4,7 +4,7 @@
 
 package etomica.lattice;
 
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.api.IMolecule;
 import etomica.space.Vector;
 import etomica.atom.AtomFilter;

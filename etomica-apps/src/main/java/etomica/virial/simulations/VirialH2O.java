@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import org.json.simple.JSONObject;
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.IPotentialAtomic;

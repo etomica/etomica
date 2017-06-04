@@ -2,7 +2,7 @@ package etomica.species;
 
 import java.util.List;
 
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.api.IElement;
 import etomica.space.Vector;
 import etomica.atom.AtomOrientedQuaternion;

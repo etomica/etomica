@@ -6,9 +6,9 @@ package etomica.potential;
 
 import java.util.Arrays;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.atom.IAtomType;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;

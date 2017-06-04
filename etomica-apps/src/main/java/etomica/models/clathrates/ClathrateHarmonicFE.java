@@ -7,10 +7,8 @@ package etomica.models.clathrates;
 import java.awt.Color;
 
 import etomica.api.*;
+import etomica.atom.*;
 import etomica.box.Box;
-import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomPair;
-import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationFileBinary;

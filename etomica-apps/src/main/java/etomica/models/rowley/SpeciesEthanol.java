@@ -5,7 +5,7 @@
 package etomica.models.rowley;
 
 
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.api.IMolecule;
 import etomica.atom.Atom;
 import etomica.atom.AtomTypeLeaf;

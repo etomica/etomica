@@ -6,8 +6,8 @@ package etomica.modules.chainequilibrium;
 
 import java.awt.Color;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomType;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomType;
 import etomica.simulation.Simulation;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomTypeAgentManager;

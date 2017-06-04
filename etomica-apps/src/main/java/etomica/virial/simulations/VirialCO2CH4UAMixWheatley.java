@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.util.Arrays;
 
 import etomica.action.IAction;
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.ISpecies;
@@ -26,7 +26,6 @@ import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.RandomMersenneTwister;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ClusterWeightAbs;

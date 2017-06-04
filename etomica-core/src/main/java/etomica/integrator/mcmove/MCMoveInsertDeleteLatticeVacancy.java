@@ -7,6 +7,8 @@ package etomica.integrator.mcmove;
 import etomica.api.*;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSetSinglet;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomIteratorAtomDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.IteratorDirective;

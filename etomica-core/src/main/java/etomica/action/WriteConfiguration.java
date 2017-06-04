@@ -7,8 +7,8 @@ package etomica.action;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.space.Space;

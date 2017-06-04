@@ -6,6 +6,9 @@ package etomica.modules.sam;
 
 import etomica.api.*;
 import etomica.atom.AtomSetSinglet;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
+import etomica.atom.IAtomType;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialMaster;

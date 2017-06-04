@@ -5,7 +5,7 @@
 package etomica.normalmode;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -13,7 +13,6 @@ import etomica.data.DataLogger;
 import etomica.data.DataPump;
 import etomica.data.DataTableWriter;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeRandom;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;

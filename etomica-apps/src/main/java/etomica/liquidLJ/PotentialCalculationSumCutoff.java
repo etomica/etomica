@@ -1,6 +1,7 @@
 package etomica.liquidLJ;
 
 import etomica.api.*;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialCalculation;

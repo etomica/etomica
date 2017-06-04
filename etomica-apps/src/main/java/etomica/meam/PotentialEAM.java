@@ -1,6 +1,7 @@
 package etomica.meam;
 
 import etomica.api.*;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.potential.PotentialN;
 import etomica.potential.PotentialSoft;

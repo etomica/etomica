@@ -4,7 +4,6 @@
 
 package etomica.atom;
 
-import etomica.api.IAtomType;
 import etomica.space.IOrientation;
 import etomica.space.Space;
 import etomica.space3d.Orientation3D;

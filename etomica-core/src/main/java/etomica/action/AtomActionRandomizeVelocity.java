@@ -7,6 +7,8 @@ package etomica.action;
 import java.io.Serializable;
 
 import etomica.api.*;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
 import etomica.space.Vector;
 
 

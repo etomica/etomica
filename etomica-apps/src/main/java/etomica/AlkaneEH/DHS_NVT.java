@@ -5,7 +5,7 @@ import java.awt.Color;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.potential.PotentialMaster;

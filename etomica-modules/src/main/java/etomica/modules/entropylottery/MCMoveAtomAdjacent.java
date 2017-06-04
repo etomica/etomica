@@ -4,7 +4,7 @@
 
 package etomica.modules.entropylottery;
 
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.space.Vector;

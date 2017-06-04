@@ -12,7 +12,7 @@ import java.util.Set;
 
 import etomica.action.IAction;
 
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 
 import etomica.api.ISpecies;
 

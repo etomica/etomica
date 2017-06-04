@@ -1,7 +1,7 @@
 package etomica.surfacetension;
 
 import etomica.action.IAction;
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.space.Vector;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.nbr.cell.PotentialMasterCell;

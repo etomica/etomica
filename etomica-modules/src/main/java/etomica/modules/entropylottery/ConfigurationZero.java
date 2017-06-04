@@ -5,7 +5,7 @@
 package etomica.modules.entropylottery;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.config.Configuration;

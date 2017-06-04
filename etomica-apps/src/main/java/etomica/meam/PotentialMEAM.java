@@ -4,9 +4,9 @@
 
 package etomica.meam;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.atom.IAtomType;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.space.Vector;

@@ -11,7 +11,7 @@ import java.util.Set;
 import etomica.AlkaneEH.SpeciesAlkaneEH;
 import etomica.AlkaneEH.SpeciesMethane;
 import etomica.action.IAction;
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.ISpecies;

@@ -4,8 +4,8 @@
 
 package etomica.models.OPLS;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.api.IMolecule;
 import etomica.space.Vector;
 import etomica.atom.DipoleSource;

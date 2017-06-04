@@ -6,7 +6,7 @@ package etomica.zeolite;
 
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.box.Box;
 import etomica.atom.DiameterHashByType;
 import etomica.chem.elements.ElementSimple;

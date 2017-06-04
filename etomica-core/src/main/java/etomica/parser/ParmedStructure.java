@@ -4,7 +4,7 @@ package etomica.parser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.api.IMolecule;
 import etomica.space.Vector;
 import etomica.atom.AtomTypeLeaf;

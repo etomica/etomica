@@ -9,13 +9,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import etomica.api.*;
+import etomica.atom.*;
 import etomica.space.Vector;
 import org.json.simple.JSONObject;
 
-import etomica.atom.AtomHydrogen;
-import etomica.atom.AtomTypeOrientedSphere;
-import etomica.atom.IAtomOriented;
-import etomica.atom.IAtomTypeOriented;
 import etomica.atom.iterator.ANIntragroupExchange;
 import etomica.atom.iterator.ApiIntergroupCoupled;
 import etomica.chem.elements.Hydrogen;

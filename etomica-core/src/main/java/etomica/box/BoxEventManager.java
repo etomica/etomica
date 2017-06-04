@@ -5,6 +5,7 @@
 package etomica.box;
 
 import etomica.api.*;
+import etomica.atom.IAtom;
 
 import java.io.IOException;
 import java.util.ArrayList;

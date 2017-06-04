@@ -40,7 +40,7 @@ package etomica.potential;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IPotentialAtomic;

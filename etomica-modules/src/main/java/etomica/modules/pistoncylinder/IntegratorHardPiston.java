@@ -4,8 +4,8 @@
 
 package etomica.modules.pistoncylinder;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.atom.AtomSetSinglet;

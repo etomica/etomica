@@ -10,7 +10,7 @@ import java.io.IOException;
 
 import etomica.space.Vector;
 import etomica.box.Box;
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.config.Configuration;
 import etomica.space.Space;

@@ -6,8 +6,8 @@ package etomica.atom.iterator;
 
 import java.io.Serializable;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.api.IMoleculeList;
 
 /**

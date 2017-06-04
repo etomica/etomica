@@ -4,6 +4,8 @@
 
 package etomica.association;
 import etomica.api.*;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.atom.AtomArrayList;
 import etomica.atom.IAtomOriented;

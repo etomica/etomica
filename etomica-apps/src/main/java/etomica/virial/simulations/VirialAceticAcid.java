@@ -7,7 +7,7 @@ package etomica.virial.simulations;
 import java.awt.Color;
 
 import etomica.action.IAction;
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.box.Box;
 import etomica.api.ISpecies;
 import etomica.atom.DiameterHashByType;

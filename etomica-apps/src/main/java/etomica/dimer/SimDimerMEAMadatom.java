@@ -8,6 +8,7 @@ import etomica.action.CalcVibrationalModes;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.*;
+import etomica.atom.IAtomType;
 import etomica.box.Box;
 import etomica.atom.MoleculeArrayList;
 import etomica.chem.elements.Tin;

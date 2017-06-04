@@ -5,8 +5,8 @@
 package etomica.modules.droplet;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
+import etomica.atom.IAtomList;
+import etomica.atom.IAtomType;
 import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.atom.MoleculeArrayList;

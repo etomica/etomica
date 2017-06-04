@@ -6,7 +6,8 @@ package etomica.freeenergy.npath;
 
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.*;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.*;

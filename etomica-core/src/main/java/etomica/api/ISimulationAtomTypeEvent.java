@@ -4,6 +4,8 @@
 
 package etomica.api;
 
+import etomica.atom.IAtomType;
+
 public interface ISimulationAtomTypeEvent extends ISimulationEvent {
 
     public IAtomType getAtomType();

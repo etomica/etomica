@@ -13,8 +13,8 @@ import java.awt.event.ComponentListener;
 import java.util.Iterator;
 
 import etomica.action.activity.Controller;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.api.IBoundary;
 import etomica.space.Vector;
 import etomica.atom.AtomFilter;

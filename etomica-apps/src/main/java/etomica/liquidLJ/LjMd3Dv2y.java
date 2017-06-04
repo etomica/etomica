@@ -7,7 +7,7 @@ package etomica.liquidLJ;
 import java.io.File;
 
 import etomica.action.WriteConfigurationBinary;
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.atom.AtomPair;
 import etomica.config.ConfigurationFileBinary;
 import etomica.data.AccumulatorAverageCovariance;

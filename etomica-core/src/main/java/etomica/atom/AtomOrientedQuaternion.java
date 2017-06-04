@@ -1,6 +1,5 @@
 package etomica.atom;
 
-import etomica.api.IAtomType;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.spaceNd.VectorND;

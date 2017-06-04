@@ -6,6 +6,9 @@ package etomica.nbr.site;
 
 import etomica.api.*;
 import etomica.atom.AtomSetSinglet;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.atom.IAtomType;
 import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;

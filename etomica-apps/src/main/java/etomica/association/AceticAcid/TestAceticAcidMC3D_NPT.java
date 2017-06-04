@@ -9,7 +9,7 @@ import java.io.File;
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;

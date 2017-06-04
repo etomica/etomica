@@ -1,6 +1,6 @@
 package etomica.models.co2;
 
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.space.Space;
 

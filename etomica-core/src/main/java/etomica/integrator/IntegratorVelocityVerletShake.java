@@ -5,12 +5,10 @@
 package etomica.integrator;
 
 import etomica.api.*;
+import etomica.atom.*;
 import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomSetSinglet;
-import etomica.atom.SpeciesAgentManager;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.potential.PotentialCalculationForceSum;

@@ -6,7 +6,7 @@ package etomica.atom.iterator;
 
 import java.util.LinkedList;
 
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;

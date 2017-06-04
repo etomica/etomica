@@ -4,7 +4,7 @@
 
 package etomica.modules.mu;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.graphics.SimulationGraphic;

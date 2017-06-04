@@ -6,6 +6,8 @@ package etomica.freeenergy.npath;
 
 import etomica.action.BoxInflate;
 import etomica.api.*;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.lattice.LatticeCubicFcc;

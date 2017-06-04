@@ -7,7 +7,7 @@ package etomica.modules.multiharmonic;
 import etomica.action.SimulationDataAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.IController;
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;

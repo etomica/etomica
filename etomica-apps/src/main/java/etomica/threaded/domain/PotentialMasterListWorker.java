@@ -4,8 +4,8 @@
 
 package etomica.threaded.domain;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.api.IPotential;
 import etomica.api.IPotentialAtomic;
 import etomica.atom.AtomArrayList;

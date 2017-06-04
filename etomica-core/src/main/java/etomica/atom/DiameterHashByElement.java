@@ -6,7 +6,6 @@ package etomica.atom;
 
 import java.util.HashMap;
 
-import etomica.api.IAtom;
 import etomica.api.IElement;
 
 /**

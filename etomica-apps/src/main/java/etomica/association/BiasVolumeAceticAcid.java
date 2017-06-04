@@ -6,8 +6,8 @@ package etomica.association;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IMolecule;

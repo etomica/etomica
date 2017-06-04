@@ -5,21 +5,15 @@
 package etomica.virial.simulations;
 
 import java.awt.Color;
-import java.util.Map;
-import java.util.Set;
 
 import etomica.AlkaneEH.SpeciesMethane;
 import etomica.action.IAction;
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.ISpecies;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ApiBuilder;
-import etomica.graph.model.Graph;
-import etomica.graph.model.Node;
-import etomica.graph.operations.DeleteEdge;
-import etomica.graph.operations.DeleteEdgeParameters;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;

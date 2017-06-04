@@ -7,7 +7,7 @@ package etomica.virial.simulations;
 
 import java.awt.Color;
 
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;

@@ -4,7 +4,7 @@
 
 package etomica.modules.pistoncylinder;
 
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.api.IBoundary;
 import etomica.space.Vector;
 import etomica.atom.iterator.ApiLeafAtoms;

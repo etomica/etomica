@@ -6,7 +6,7 @@ package etomica.tests;
 import etomica.action.ActionIntegrate;
 import etomica.action.BoxInflate;
 import etomica.action.activity.Controller;
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.data.AccumulatorAverage;

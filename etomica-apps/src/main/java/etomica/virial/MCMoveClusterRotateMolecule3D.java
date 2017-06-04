@@ -5,8 +5,8 @@
 package etomica.virial;
 
 import etomica.action.MoleculeAction;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;

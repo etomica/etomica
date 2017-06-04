@@ -5,8 +5,8 @@
 
 package etomica.nbr;
 
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
+import etomica.atom.IAtomList;
+import etomica.atom.IAtomType;
 
 /**
  * Filters AtomSets to match a given set of AtomTypes.  CriterionType and

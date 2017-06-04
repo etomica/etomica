@@ -16,8 +16,8 @@ import org.jmol.util.Colix;
 import org.jmol.util.Point3f;
 
 import etomica.action.activity.Controller;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.api.IBoundary;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterCollective;

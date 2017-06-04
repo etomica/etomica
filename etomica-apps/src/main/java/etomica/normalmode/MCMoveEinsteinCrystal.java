@@ -4,8 +4,8 @@
 
 package etomica.normalmode;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.api.IRandom;
 import etomica.space.Vector;
 import etomica.atom.iterator.AtomIterator;

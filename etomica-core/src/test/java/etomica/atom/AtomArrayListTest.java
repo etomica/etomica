@@ -5,7 +5,6 @@
 package etomica.atom;
 
 import junit.framework.TestCase;
-import etomica.api.IAtom;
 import etomica.space.Space;
 import etomica.util.Debug;
 

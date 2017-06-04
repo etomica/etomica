@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.api.IPotentialAtomic;
 import etomica.api.ISpecies;
 import etomica.space.Vector;

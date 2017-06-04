@@ -7,8 +7,8 @@ package etomica.models.nitrogen;
 import java.util.Arrays;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.space.Vector;

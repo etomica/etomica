@@ -7,7 +7,7 @@ package etomica.simulation;
 import java.io.IOException;
 import java.util.LinkedList;
 
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.box.Box;
 import etomica.api.ISimulationAtomTypeIndexEvent;
 import etomica.api.ISimulationBoxEvent;

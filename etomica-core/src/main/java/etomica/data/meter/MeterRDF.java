@@ -5,6 +5,8 @@
 package etomica.data.meter;
 import etomica.action.IAction;
 import etomica.api.*;
+import etomica.atom.IAtomList;
+import etomica.atom.IAtomType;
 import etomica.box.Box;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorBoxDependent;

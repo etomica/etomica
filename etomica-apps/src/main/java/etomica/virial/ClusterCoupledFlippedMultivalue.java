@@ -6,6 +6,7 @@ package etomica.virial;
 
 import etomica.api.*;
 import etomica.atom.AtomPositionGeometricCenter;
+import etomica.atom.IAtomList;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.space.Vector;
 import etomica.space.Space;

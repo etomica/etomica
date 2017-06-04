@@ -4,8 +4,8 @@
 
 package etomica.potential;
 
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
 import etomica.api.IBoundary;
 import etomica.space.Vector;
 import etomica.atom.AtomSetSinglet;

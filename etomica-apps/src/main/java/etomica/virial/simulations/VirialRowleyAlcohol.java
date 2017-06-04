@@ -7,9 +7,9 @@ package etomica.virial.simulations;
 import java.awt.Color;
 
 import etomica.action.IAction;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.atom.IAtomType;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.data.AccumulatorHistogram;

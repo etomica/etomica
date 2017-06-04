@@ -4,7 +4,7 @@
 
 package etomica.species;
 
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.config.IConformation;

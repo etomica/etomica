@@ -17,6 +17,7 @@ import etomica.action.MoleculeChildAtomAction;
 import etomica.api.*;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.DiameterHashByType;
+import etomica.atom.IAtomType;
 import etomica.atom.iterator.ANIntergroupCoupled;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.ApiIntergroupCoupled;

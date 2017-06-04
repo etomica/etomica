@@ -4,7 +4,7 @@
 
 package etomica.nbr.cell.molecule;
 
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.api.IBoundary;
 import etomica.api.IBoundaryEvent;
 import etomica.api.IBoundaryListener;

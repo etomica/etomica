@@ -4,7 +4,7 @@
 
 package etomica.simulation;
 
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.api.ISimulationAtomTypeIndexEvent;
 
 public class SimulationAtomTypeIndexEvent extends SimulationAtomTypeEvent

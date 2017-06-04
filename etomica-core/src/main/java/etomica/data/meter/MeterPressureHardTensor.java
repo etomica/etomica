@@ -3,9 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.data.meter;
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;

@@ -7,8 +7,8 @@ package etomica.normalmode;
 import java.awt.Color;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtom;
-import etomica.api.IAtomType;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomType;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.data.AccumulatorAverageCovariance;

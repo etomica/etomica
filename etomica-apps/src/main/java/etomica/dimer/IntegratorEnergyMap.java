@@ -7,7 +7,7 @@ package etomica.dimer;
 import java.io.IOException;
 import java.util.Formatter;
 
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.simulation.Simulation;

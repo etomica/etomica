@@ -5,7 +5,7 @@
 package etomica.modules.multiharmonic.mbar;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.box.Box;
 import etomica.api.IIntegrator;
 import etomica.data.DataSourceScalar;

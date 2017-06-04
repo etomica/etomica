@@ -11,10 +11,7 @@ import etomica.action.AtomActionTranslateBy;
 import etomica.action.IAction;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.api.*;
-import etomica.atom.AtomHydrogen;
-import etomica.atom.AtomTypeOrientedSphere;
-import etomica.atom.DiameterHashByType;
-import etomica.atom.IAtomTypeOriented;
+import etomica.atom.*;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.ApiIntergroupCoupled;
 import etomica.chem.elements.Carbon;
@@ -355,7 +352,7 @@ public class VirialCO2PI {
         System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");        
         IAtomTypeOriented atype = new AtomTypeOrientedSphere(new ElementSimple("CO2", Carbon.INSTANCE.getMass()+2*Oxygen.INSTANCE.getMass()), space);        
         SpeciesSpheresHetero species = new SpeciesSpheresHetero(space,new IAtomTypeOriented [] {atype}) {
-            protected IAtom makeLeafAtom(IAtomType leafType) {            	
+            protected IAtom makeLeafAtom(IAtomType leafType) {
                 double bl = 2*p2c.getPos(5);
                 return new AtomHydrogen(space,(IAtomTypeOriented)leafType,bl);
             }

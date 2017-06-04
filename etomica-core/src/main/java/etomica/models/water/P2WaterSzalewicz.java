@@ -6,7 +6,7 @@ package etomica.models.water;
 
 import java.util.Arrays;
 
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.space.Vector;

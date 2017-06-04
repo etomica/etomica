@@ -4,8 +4,6 @@
 
 package etomica.atom;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomType;
 import etomica.simulation.Simulation;
 
 /**

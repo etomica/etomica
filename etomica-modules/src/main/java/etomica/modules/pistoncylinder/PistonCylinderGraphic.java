@@ -24,7 +24,7 @@ import etomica.action.IAction;
 import etomica.action.IntegratorReset;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.math.function.Function;
 import etomica.space.Vector;
 import etomica.atom.DiameterHashByElementType;

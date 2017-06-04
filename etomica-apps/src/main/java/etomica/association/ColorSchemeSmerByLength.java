@@ -7,7 +7,7 @@ package etomica.association;
 import java.awt.Color;
 import java.util.ArrayList;
 
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.api.IRandom;
 import etomica.atom.AtomArrayList;
 import etomica.graphics.ColorScheme;

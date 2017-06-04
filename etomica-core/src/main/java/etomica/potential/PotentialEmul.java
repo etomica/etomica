@@ -11,7 +11,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;

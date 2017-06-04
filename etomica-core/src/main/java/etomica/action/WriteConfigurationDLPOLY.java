@@ -9,8 +9,8 @@ import java.io.IOException;
 import java.util.Formatter;
 import java.util.HashMap;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IElement;

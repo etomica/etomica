@@ -7,11 +7,9 @@ package etomica.virial.simulations;
 import java.awt.Color;
 
 import etomica.action.IAction;
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtomTypeOriented;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayBox;

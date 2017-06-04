@@ -7,7 +7,7 @@ import java.awt.Color;
 import java.util.Map;
 import java.util.Set;
 import etomica.action.IAction;
-import etomica.api.IAtomType;
+import etomica.atom.IAtomType;
 import etomica.api.ISpecies;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ApiBuilder;

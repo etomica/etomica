@@ -5,6 +5,7 @@
 package etomica.potential;
 
 import etomica.api.*;
+import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.math.Complex;

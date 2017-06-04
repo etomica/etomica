@@ -5,9 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.api.IAtomType;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorRatioAverageCovariance;
+import etomica.atom.IAtomType;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;

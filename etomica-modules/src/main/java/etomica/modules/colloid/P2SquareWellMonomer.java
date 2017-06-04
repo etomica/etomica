@@ -4,9 +4,9 @@
 
 package etomica.modules.colloid;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.potential.P2SquareWell;
 import etomica.space.Space;

@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 import etomica.action.IAction;
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.api.IElement;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;

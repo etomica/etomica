@@ -11,7 +11,7 @@ import javax.swing.border.TitledBorder;
 
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;

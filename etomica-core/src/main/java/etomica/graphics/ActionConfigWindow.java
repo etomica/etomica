@@ -10,8 +10,8 @@ import java.awt.TextArea;
 import javax.swing.JFrame;
 
 import etomica.action.IAction;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.space.Vector;
 import etomica.box.Box;
 

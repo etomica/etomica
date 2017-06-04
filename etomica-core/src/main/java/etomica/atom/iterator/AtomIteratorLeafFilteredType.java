@@ -4,9 +4,9 @@
 
 package etomica.atom.iterator;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.atom.IAtomType;
 import etomica.box.Box;
 
 public class AtomIteratorLeafFilteredType extends AtomIteratorLeafAtoms {
