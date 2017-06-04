@@ -1,7 +1,7 @@
 package etomica.potential;
 
 import etomica.atom.IAtom;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.atom.IMoleculePositionDefinition;
 import etomica.box.Box;
 import etomica.api.IMolecule;
@@ -135,7 +135,7 @@ public class P2ReactionFieldDipoleTruncated extends PotentialMolecular implement
     protected final Vector iDipole, cavityDipole;
     protected final Vector dr;
     protected DipoleSource dipoleSource;
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected double cutoff2, cutoff;
     protected double epsilon;
     protected final Vector[][] gradientAndTorque;

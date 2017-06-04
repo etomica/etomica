@@ -7,7 +7,7 @@ package etomica.normalmode;
 import etomica.action.BoxInflate;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.atom.AtomType;
@@ -81,7 +81,7 @@ public class SimHSMDVacancy extends Simulation {
         int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
         PrimitiveCubic primitive = new PrimitiveCubic(space, n*L);
         int[] nCells = new int[]{n,n,n};
-        IBoundary boundary = new BoundaryRectangularPeriodic(space, n * L);
+        Boundary boundary = new BoundaryRectangularPeriodic(space, n * L);
         Basis basisFCC = new BasisCubicFcc();
         BasisBigCell basis = new BasisBigCell(space, basisFCC, nCells);
         
@@ -333,7 +333,7 @@ public class SimHSMDVacancy extends Simulation {
 
                     Vector pi = a.getPosition();
                     NeighborListManager nbrManager = sim.potentialMasterList.getNeighborManager(sim.box);
-                    IBoundary boundary = sim.box.getBoundary();
+                    Boundary boundary = sim.box.getBoundary();
                     IAtomList nbrs = null;
                     try {
                         IAtomList[] nbrsArray = nbrManager.getUpList(a);
@@ -383,7 +383,7 @@ public class SimHSMDVacancy extends Simulation {
                 public double getDiameter(IAtom a) {
                     Vector pi = a.getPosition();
                     NeighborListManager nbrManager = sim.potentialMasterList.getNeighborManager(sim.box);
-                    IBoundary boundary = sim.box.getBoundary();
+                    Boundary boundary = sim.box.getBoundary();
                     IAtomList nbrs = null;
                     try {
                         IAtomList[] nbrsArray = nbrManager.getUpList(a);

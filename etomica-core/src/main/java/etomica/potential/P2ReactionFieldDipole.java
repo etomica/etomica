@@ -5,7 +5,7 @@
 package etomica.potential;
 
 import etomica.atom.IAtom;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.atom.IMoleculePositionDefinition;
 import etomica.box.Box;
 import etomica.api.IMolecule;
@@ -235,7 +235,7 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
     protected final Vector iDipole, cavityDipole;
     protected final Vector dr ,dr1;
     protected DipoleSource dipoleSource;
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected double cutoff2, cutoff;
     protected double epsilon;
     protected final Vector[][] gradientAndTorque;

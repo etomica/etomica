@@ -6,7 +6,7 @@ package etomica.potential;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.atom.Atom;
@@ -716,7 +716,7 @@ public class P3CPSNonAdditiveHeOrig extends Potential implements PotentialSoft {
     }
 
     protected final Vector drAB, drAC, drBC;
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected double angle;
     protected double epsilon;
     private static final long serialVersionUID = 1L;

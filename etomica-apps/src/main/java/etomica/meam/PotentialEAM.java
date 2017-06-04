@@ -1,10 +1,10 @@
 package etomica.meam;
 
-import etomica.api.*;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.potential.PotentialN;
 import etomica.potential.PotentialSoft;
+import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -18,7 +18,7 @@ import etomica.space.Tensor;
 public class PotentialEAM extends PotentialN implements PotentialSoft{
 
     protected double n , m , eps , a , C , rC1, rC2;
-    protected IBoundary boundary; 
+    protected Boundary boundary;
     protected final Vector dr, drij, drik, drjk;
     protected Vector[] gradient;
     protected Vector[] rhograd;

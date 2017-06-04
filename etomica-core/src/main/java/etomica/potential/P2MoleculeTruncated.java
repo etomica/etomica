@@ -1,6 +1,6 @@
 package etomica.potential;
 
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.atom.IMoleculePositionDefinition;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
@@ -98,7 +98,7 @@ public class P2MoleculeTruncated extends PotentialMolecular {
     protected double rCutoff, r2Cutoff;
     protected final IPotentialMolecular potential;
     protected final Vector dr;
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected double cutoffRatio;
     protected final IMoleculePositionDefinition positionDefinition;
 }

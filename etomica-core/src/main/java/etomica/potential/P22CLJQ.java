@@ -8,6 +8,7 @@ import etomica.api.*;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.space.Space;
 
@@ -160,7 +161,7 @@ public class P22CLJQ extends PotentialMolecular {
     private double epsilon, epsilon4;
     private double hsdiasq=1.0/Math.sqrt(2);
     private double Q2;
-    private IBoundary boundary;
+    private Boundary boundary;
 
     private final Vector com1;
     private final Vector com2;

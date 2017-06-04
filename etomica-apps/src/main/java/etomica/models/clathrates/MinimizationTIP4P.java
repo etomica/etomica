@@ -6,7 +6,7 @@ package etomica.models.clathrates;
 
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.action.WriteConfiguration;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.api.IMolecule;
 import etomica.atom.*;
 import etomica.atom.iterator.IteratorDirective;
@@ -383,7 +383,7 @@ public class MinimizationTIP4P extends Simulation{
 
 	}//end main
 	
-    protected static void doTransform(IMolecule molecule, IBoundary boundary, Tensor rotationTensor) {
+    protected static void doTransform(IMolecule molecule, Boundary boundary, Tensor rotationTensor) {
         IAtomList childList = molecule.getChildList();
         Vector O = childList.getAtom(2).getPosition();//O
         O.PE(boundary.centralImage(O));// to wrap all O inside the BOX; next steps will move Hs and M with O to keep the conformation.

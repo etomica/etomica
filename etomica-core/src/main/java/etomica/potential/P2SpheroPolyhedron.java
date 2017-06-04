@@ -3,7 +3,7 @@ package etomica.potential;
 import java.util.List;
 
 import etomica.atom.IAtomList;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.atom.AtomOrientedQuaternion;
@@ -13,7 +13,7 @@ import etomica.spaceNd.VectorND;
 
 public class P2SpheroPolyhedron extends Potential2 {
 
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected final Vector dr;
     protected final Vector v, w;
     protected final Vector W0, W1, W2;

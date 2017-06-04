@@ -9,7 +9,7 @@ import etomica.action.BoxInflate;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.api.IPotential;
 import etomica.potential.PotentialMaster;
@@ -282,7 +282,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
         double vf;
         private final Vector dr;
         private final Vector dv;
-        private IBoundary nearestImageTransformer;
+        private Boundary nearestImageTransformer;
 
         public ForceSumNPH(Space space) {
             dr = space.makeVector();

@@ -1,7 +1,7 @@
 package etomica.potential;
 
 import etomica.atom.IAtomList;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -382,7 +382,7 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
     private double sigma, sigma2;
     private double epsilon, epsilon4;
     private double dipole;
-    private IBoundary boundary;
+    private Boundary boundary;
     private final Vector dr,drunit,work,runit;
     protected double temperature;
     private double rCut;

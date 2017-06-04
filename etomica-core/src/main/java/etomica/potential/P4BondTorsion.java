@@ -6,16 +6,13 @@ package etomica.potential;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.api.IRandom;
-import etomica.space.Vector;
+import etomica.space.*;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.box.RandomPositionSourceRectangular;
-import etomica.space.BoundaryRectangularNonperiodic;
-import etomica.space.Space;
-import etomica.space.Tensor;
 import etomica.space3d.Space3D;
 import etomica.util.RandomNumberGenerator;
 
@@ -181,7 +178,7 @@ public class P4BondTorsion extends Potential implements PotentialSoft {
     protected final Vector dr21, dr23, dr34;
     protected final Vector v1, v2;
     protected final Vector gtmp;
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected double a0, a1, a2, a3;
     protected final Vector[] gradient;
     

@@ -6,7 +6,7 @@ package etomica.nbr.cell;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.api.IBoundaryEvent;
 import etomica.api.IBoundaryListener;
 import etomica.box.Box;
@@ -299,7 +299,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
         }
 
         private void updateCell(IAtom atom) {
-            IBoundary boundary = box.getBoundary();
+            Boundary boundary = box.getBoundary();
             Cell cell = neighborCellManager.getCell(atom);
             cell.removeAtom(atom);
             atom.getPosition().PE(boundary.centralImage(atom.getPosition()));

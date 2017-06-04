@@ -8,7 +8,7 @@ import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IRandom;
@@ -28,7 +28,7 @@ public class BiasVolumeAceticAcid extends BiasVolumeMolecule {
 	private double radius;
     private double innerRadius;
     private final IRandom random;
-    private IBoundary boundary;
+    private Boundary boundary;
     private double maxCosTheta,maxCosPhi;
     protected final MoleculePair pair;
     protected final Vector H1O2, H2O1, C1CH31, C2CH32, OO1, OO2, C2C1, secondAxis, thirdAxis, newPositionC, work1, work2, C1SBO1, C1DBO1, C2SBO2, C2DBO2,dv;

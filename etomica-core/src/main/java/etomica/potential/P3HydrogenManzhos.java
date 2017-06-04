@@ -16,6 +16,7 @@ import java.util.jar.JarFile;
 
 import etomica.api.*;
 import etomica.box.Box;
+import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -106,7 +107,7 @@ public class P3HydrogenManzhos implements IPotential{
             throw new RuntimeException("caught IOException: " + e.getMessage());            
         }
     }
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected final static int D = 12;
     protected final static int d = 9;
     protected final static int L = 1;

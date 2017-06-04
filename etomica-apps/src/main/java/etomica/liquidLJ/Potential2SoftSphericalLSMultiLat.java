@@ -5,7 +5,7 @@
 package etomica.liquidLJ;
 
 import etomica.atom.IAtomList;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.normalmode.CoordinateDefinition;
@@ -160,7 +160,7 @@ public class Potential2SoftSphericalLSMultiLat extends Potential2 implements Pot
     }
 
     protected final Vector[] gradient;
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected final int[] nShells;
     protected final double[] a0;
     protected final Potential2Soft p2Soft;

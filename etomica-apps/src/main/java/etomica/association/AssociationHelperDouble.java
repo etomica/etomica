@@ -6,7 +6,7 @@ package etomica.association;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.atom.AtomArrayList;
@@ -27,7 +27,7 @@ import etomica.space.Space;
 public class AssociationHelperDouble implements IAssociationHelper {
     
     protected final AssociationManager associationManager;
-    protected final IBoundary boundary;
+    protected final Boundary boundary;
     protected double minR2;
     protected final Vector dr;
 

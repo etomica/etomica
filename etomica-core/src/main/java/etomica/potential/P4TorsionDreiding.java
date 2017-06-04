@@ -6,7 +6,7 @@ package etomica.potential;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.space.Space;
@@ -293,6 +293,6 @@ public class P4TorsionDreiding extends Potential implements PotentialSoft {
     protected final Vector[] gradient;
     protected double phiEq, beta;
     protected int n;
-    protected IBoundary boundary;
+    protected Boundary boundary;
     private static final long serialVersionUID = 1L;
 }

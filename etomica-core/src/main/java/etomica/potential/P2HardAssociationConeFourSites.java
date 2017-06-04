@@ -4,7 +4,7 @@
 
 package etomica.potential;
 import etomica.atom.IAtomList;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
@@ -34,7 +34,7 @@ public class P2HardAssociationConeFourSites extends Potential2 implements Potent
     private double cutoffLJSquared, cutoffFactor;
     private double ec1, ec2;
     private final Vector dr;
-    private IBoundary boundary;
+    private Boundary boundary;
     
     public P2HardAssociationConeFourSites(Space space, double sigma, double epsilon, double cutoffFactorLJ, double wellConstant) {
         super(space);

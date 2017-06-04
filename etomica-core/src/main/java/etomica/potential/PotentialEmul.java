@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import etomica.atom.IAtom;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.space.Vector;
@@ -255,7 +255,7 @@ public class PotentialEmul extends PotentialMolecular {
         this.boundary = box.getBoundary();
     }
 	
-	protected IBoundary boundary;
+	protected Boundary boundary;
 	
 	public static void main(String[] args) {
 	    Space space = Space3D.getInstance();

@@ -10,7 +10,7 @@ import etomica.action.AtomActionTranslateBy;
 import etomica.action.IAction;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.atom.*;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -666,7 +666,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
         }
         public void actionPerformed() {
             IMoleculeList molecules = box.getMoleculeList();
-            IBoundary boundary = box.getBoundary();
+            Boundary boundary = box.getBoundary();
             for (int i=0; i<molecules.getMoleculeCount(); i++) {
                 IMolecule molecule = molecules.getMolecule(i);
                 if (molecule instanceof MoleculeOrientedDynamic) {

@@ -10,6 +10,7 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.atom.iterator.MoleculeIteratorAllMolecules;
 import etomica.data.DataSourceScalar;
+import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.units.Length;
@@ -56,7 +57,7 @@ public class MeterRadiusGyration extends DataSourceScalar {
         if (box == null)
             throw new IllegalStateException(
                     "must call setBox before using meter");
-        IBoundary boundary = box.getBoundary();
+        Boundary boundary = box.getBoundary();
         iterator.setBox(box);
         iterator.reset();
         int nLeafAtomsTot = 0;

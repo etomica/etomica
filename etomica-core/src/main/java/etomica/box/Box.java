@@ -62,7 +62,7 @@ public class Box implements java.io.Serializable {
     private final BoxEventManager eventManager;
     private final Space space;
     protected MoleculeArrayList[] moleculeLists;
-    private IBoundary boundary;
+    private Boundary boundary;
     private int index;
 
     /**
@@ -75,7 +75,7 @@ public class Box implements java.io.Serializable {
     /**
      * Constructs box with the given boundary
      */
-    public Box(IBoundary boundary, Space space) {
+    public Box(Boundary boundary, Space space) {
     	this.space = space;
         eventManager = new BoxEventManager(this);
         setBoundary(boundary);
@@ -273,14 +273,14 @@ public class Box implements java.io.Serializable {
     /**
      * @return the box's boundary.
      */
-    public final IBoundary getBoundary() {return boundary;}
+    public final Boundary getBoundary() {return boundary;}
 
     /**
      * Sets the box's boundary to the given IBoundary.
      *
      * @param b the new boundary
      */
-    public void setBoundary(IBoundary b) {
+    public void setBoundary(Boundary b) {
         boundary = b;
         boundary.setBox(this);
      }

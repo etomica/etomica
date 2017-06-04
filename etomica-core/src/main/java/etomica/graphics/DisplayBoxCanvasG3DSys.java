@@ -5,7 +5,7 @@
 package etomica.graphics;
 
 import etomica.action.activity.Controller;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.atom.*;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.Box;
@@ -13,7 +13,6 @@ import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Plane;
 import etomica.math.geometry.Polytope;
 import etomica.simulation.Simulation;
-import etomica.space.Boundary;
 import etomica.space.IOrientation;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -367,7 +366,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
             updatePlane(i);
         }
 
-		IBoundary boundary = displayBox.getBox().getBoundary();
+		Boundary boundary = displayBox.getBox().getBoundary();
 
 		// Do not draw bounding box around figure if the boundary
 		// is not an etomica.space.Boundary
@@ -528,7 +527,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
     }
     
     protected synchronized void updatePlane(int iPlane) {
-        IBoundary boundary = displayBox.getBox().getBoundary();
+        Boundary boundary = displayBox.getBox().getBoundary();
     	if(!(boundary instanceof Boundary)) {
     		throw new RuntimeException("Unable to drawPlane for a Boundary not a subclass of etomica.space.Boundary");
     	}

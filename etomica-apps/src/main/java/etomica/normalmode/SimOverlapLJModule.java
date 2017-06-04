@@ -5,7 +5,7 @@
 package etomica.normalmode;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
@@ -22,7 +22,6 @@ import etomica.overlap.DataOverlap;
 import etomica.overlap.IntegratorOverlap;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
-import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -104,7 +103,7 @@ public class SimOverlapLJModule {
         WaveVectorFactory waveVectorFactory = normalModes.getWaveVectorFactory();
 
         // HARMONIC
-        IBoundary boundaryHarmonic = new BoundaryRectangularPeriodic(space);
+        Boundary boundaryHarmonic = new BoundaryRectangularPeriodic(space);
         Box boxHarmonic = new Box(boundaryHarmonic, space);
         sim.addBox(boxHarmonic);
         boxHarmonic.setNMolecules(species, numMolecules);
@@ -163,7 +162,7 @@ public class SimOverlapLJModule {
 
         integrators[1] = integratorTarget;
 
-        IBoundary boundaryTarget;
+        Boundary boundaryTarget;
         if (space.D() == 1) {
             boundaryTarget = new BoundaryRectangularPeriodic(space, numMolecules / density);
         } else {

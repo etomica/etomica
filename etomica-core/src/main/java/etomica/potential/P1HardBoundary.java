@@ -6,7 +6,7 @@ package etomica.potential;
 
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.graphics.Drawable;
@@ -33,7 +33,7 @@ public class P1HardBoundary implements PotentialHard, Drawable {
     private double lastVirial;
     private int lastCollisionDim;
     private final Tensor lastVirialTensor;
-    protected IBoundary boundary;
+    protected Boundary boundary;
     
     public P1HardBoundary(Space space) {
         this(space, false);

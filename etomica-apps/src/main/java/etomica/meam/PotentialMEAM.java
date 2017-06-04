@@ -4,7 +4,7 @@
 
 package etomica.meam;
 
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
@@ -257,7 +257,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     private final Vector3D giGamma = (Vector3D) space.makeVector();
     private final Vector3D giRhoi = (Vector3D) space.makeVector();
     private final Vector3D giF = (Vector3D) space.makeVector();
-    protected IBoundary boundary;
+    protected Boundary boundary;
     double jcut = 6.0; //this may not be ideal cutoff for FCC Cu system
     double kcut = jcut * 1.14;
     double[] sum = new double[25];

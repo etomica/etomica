@@ -5,7 +5,7 @@
 package etomica.data.meter;
 
 import etomica.action.IAction;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.atom.iterator.ApiLeafAtoms;
@@ -45,7 +45,7 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
     protected long callCount;
     protected AtomType type1, type2;
     private IEtomicaDataInfo dataInfo;
-    private IBoundary boundary;
+    private Boundary boundary;
     private String name;
 
 	/**

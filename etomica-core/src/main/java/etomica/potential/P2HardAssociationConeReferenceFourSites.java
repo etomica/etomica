@@ -4,7 +4,7 @@
 
 package etomica.potential;
 import etomica.atom.IAtomList;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
@@ -28,7 +28,7 @@ public class P2HardAssociationConeReferenceFourSites extends Potential2 {
     private double sigma, sigmaSquared;
     private double ec1, ec2;
     private final Vector dr;
-    private IBoundary boundary;
+    private Boundary boundary;
     
     public P2HardAssociationConeReferenceFourSites(Space space, double sigma) {
         super(space);

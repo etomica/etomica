@@ -6,7 +6,7 @@ package etomica.atom;
 
 import java.io.Serializable;
 
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.api.IMolecule;
 import etomica.space.Vector;
 import etomica.space.Space;
@@ -24,7 +24,7 @@ import etomica.space.Space;
  */
 public class MoleculePositionGeometricCenterPBC implements IMoleculePositionDefinition, Serializable {
 
-    public MoleculePositionGeometricCenterPBC(Space space, IBoundary boundary) {
+    public MoleculePositionGeometricCenterPBC(Space space, Boundary boundary) {
         center = space.makeVector();
         dr = space.makeVector();
         this.boundary = boundary;
@@ -48,5 +48,5 @@ public class MoleculePositionGeometricCenterPBC implements IMoleculePositionDefi
 
     private static final long serialVersionUID = 1L;
     protected final Vector center, dr;
-    protected final IBoundary boundary;
+    protected final Boundary boundary;
 }

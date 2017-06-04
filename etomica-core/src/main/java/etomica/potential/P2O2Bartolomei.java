@@ -11,6 +11,7 @@ import etomica.api.*;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.atom.IAtomOriented;
+import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.units.BohrRadius;
@@ -67,7 +68,7 @@ public class P2O2Bartolomei implements IPotentialAtomic {
 
 }
 
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected final Space space;
     public static int s = -1;    
     protected static boolean isPT2 = false;

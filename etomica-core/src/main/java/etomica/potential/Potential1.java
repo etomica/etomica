@@ -4,7 +4,7 @@
 
 package etomica.potential; 
 
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.space.Space;
 
@@ -15,7 +15,7 @@ import etomica.space.Space;
  */
 public abstract class Potential1 extends Potential {
       
-	protected IBoundary boundary;
+	protected Boundary boundary;
 	
     public Potential1(Space space) {
         super(1, space);

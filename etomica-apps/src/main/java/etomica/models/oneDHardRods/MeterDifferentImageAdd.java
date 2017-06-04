@@ -4,7 +4,7 @@
 
 package etomica.models.oneDHardRods;
 
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.simulation.Simulation;
@@ -50,7 +50,7 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
     protected final IRandom random;
     public Box box;
     protected int numAtoms;
-    protected IBoundary bdry;
+    protected Boundary bdry;
     protected NormalModes nm;
     WaveVectorFactory waveVectorFactory;
     protected double etas[];

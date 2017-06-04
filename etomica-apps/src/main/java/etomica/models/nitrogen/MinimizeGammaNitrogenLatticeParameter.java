@@ -4,7 +4,7 @@
 
 package etomica.models.nitrogen;
 
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -58,7 +58,7 @@ public class MinimizeGammaNitrogenLatticeParameter extends Simulation{
 		box.setNMolecules(species, numMolecule);		
 		int [] nCells = new int[]{1,1,1};
 				
-		IBoundary boundary = new BoundaryRectangularPeriodic(space, new double[]{nCell*a, nCell*a, nCell*c});
+		Boundary boundary = new BoundaryRectangularPeriodic(space, new double[]{nCell*a, nCell*a, nCell*c});
 		Primitive primitive = new PrimitiveTetragonal(space, nCell*a, nCell*c);
 		
 		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
@@ -83,7 +83,7 @@ public class MinimizeGammaNitrogenLatticeParameter extends Simulation{
 		
 		int [] nCells = new int[]{1,1,1};
 		
-		IBoundary boundary = new BoundaryRectangularPeriodic(space, new double[]{nCell*a, nCell*a, nCell*c});
+		Boundary boundary = new BoundaryRectangularPeriodic(space, new double[]{nCell*a, nCell*a, nCell*c});
 		Primitive primitive = new PrimitiveTetragonal(space, nCell*a, nCell*c);
 		box.setBoundary(boundary);
 		

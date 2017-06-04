@@ -4,7 +4,7 @@
 
 package etomica.potential;
 
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IRandom;
@@ -54,7 +54,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
     protected static int[][][] itypus = new int[ntypemax][ntypemax][2];
     protected static double comHackDist = 0.0;
     protected static boolean flag = true, comHack = false, flip = false;
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected Space space;
     protected int iSurf, iEmbed;
     protected int icc;

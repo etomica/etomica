@@ -1,7 +1,7 @@
 package etomica.mappedRdf;
 
 import etomica.action.IAction;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.atom.iterator.ApiLeafAtoms;
@@ -34,7 +34,7 @@ public class MeterMappedRdf implements IAction, IEtomicaDataSource, DataSourceIn
     protected long callCount;
     protected AtomType type1, type2;
     private IEtomicaDataInfo dataInfo;
-    private IBoundary boundary;
+    private Boundary boundary;
     private String name;
 
     public MeterMappedRdf(Space space) {

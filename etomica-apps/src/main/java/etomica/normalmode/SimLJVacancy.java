@@ -7,7 +7,7 @@ package etomica.normalmode;
 import etomica.action.BoxInflate;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.atom.AtomType;
@@ -78,7 +78,7 @@ public class SimLJVacancy extends Simulation {
         int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
         PrimitiveCubic primitive = new PrimitiveCubic(space, n*L);
         int[] nCells = new int[]{n,n,n};
-        IBoundary boundary = new BoundaryRectangularPeriodic(space, n * L);
+        Boundary boundary = new BoundaryRectangularPeriodic(space, n * L);
         Basis basisFCC = new BasisCubicFcc();
         BasisBigCell basis = new BasisBigCell(space, basisFCC, nCells);
         
@@ -340,7 +340,7 @@ public class SimLJVacancy extends Simulation {
                     iter.setDirection(null);
                     iter.setTarget(a);
                     iter.reset();
-                    IBoundary boundary = sim.box.getBoundary();
+                    Boundary boundary = sim.box.getBoundary();
                     int n = 0;
                     for (IAtomList pair = iter.next(); pair!=null; pair=iter.next()) {
                         IAtom nbrj = pair.getAtom(0);
@@ -865,7 +865,7 @@ public class SimLJVacancy extends Simulation {
                     iter.setDirection(null);
                     iter.setTarget(a);
                     iter.reset();
-                    IBoundary boundary = sim.box.getBoundary();
+                    Boundary boundary = sim.box.getBoundary();
                     int n = 0;
                     for (IAtomList pair = iter.next(); pair!=null; pair=iter.next()) {
                         IAtom nbrj = pair.getAtom(0);

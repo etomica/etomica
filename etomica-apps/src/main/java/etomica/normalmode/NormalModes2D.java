@@ -4,7 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.space.Space;
@@ -17,7 +17,7 @@ public class NormalModes2D implements NormalModes {
 
     /**
      */
-    public NormalModes2D(Space _space, IBoundary boundary, Primitive primitive, Basis basis) {
+    public NormalModes2D(Space _space, Boundary boundary, Primitive primitive, Basis basis) {
     	
     	this.space = _space;
     	this.boundary = boundary;
@@ -116,6 +116,6 @@ public class NormalModes2D implements NormalModes {
     protected Primitive primitive;
     protected Space space;
     protected Basis basis;
-    protected IBoundary boundary;
+    protected Boundary boundary;
 
 }

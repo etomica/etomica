@@ -4,6 +4,7 @@ package etomica.models.water;
 import etomica.api.*;
 import etomica.box.Box;
 import etomica.potential.PotentialMolecular;
+import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.space.Space;
 
@@ -21,7 +22,7 @@ public class P2WaterTIP4PHardCore extends PotentialMolecular {
 	public double sigma , sigma2;
 	protected double epsilon, epsilon4;
 	public double hardCore;
-	protected IBoundary boundary;
+	protected Boundary boundary;
 	protected final double chargeH;
 	protected final double chargeM;
 	protected final double chargeMM, chargeMH, chargeHH;

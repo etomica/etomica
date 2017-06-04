@@ -5,7 +5,7 @@
 
 package etomica.models.nitrogen;
 
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -779,7 +779,7 @@ public class P2NitrogenAB extends PotentialMolecular implements PotentialMolecul
     private static final long serialVersionUID = 1L;
     
     protected Vector[] gradient;
-	protected IBoundary boundary;
+	protected Boundary boundary;
 	protected final double chargeP1 = ConformationNitrogen.Echarge[SpeciesN2.indexP1left];
 	protected final double chargeP2 = ConformationNitrogen.Echarge[SpeciesN2.indexP2left];
 	protected final double chargeP1P1, chargeP1P2, chargeP2P2;

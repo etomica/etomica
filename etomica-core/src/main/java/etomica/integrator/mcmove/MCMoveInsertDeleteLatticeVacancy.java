@@ -21,6 +21,7 @@ import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialMaster;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.IEvent;
@@ -333,7 +334,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
             oldBoxSize = newBoxSize;
         }
         
-        IBoundary boundary = box.getBoundary();
+        Boundary boundary = box.getBoundary();
         int numAtoms = box.getLeafList().getAtomCount();
         if (numNeighbors.length < numAtoms) {
             numNeighbors = new int[numAtoms];

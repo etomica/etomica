@@ -8,6 +8,7 @@ import etomica.potential.Potential2;
 import etomica.potential.PotentialCalculationEnergySum;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialSoft;
+import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -32,7 +33,7 @@ import etomica.space.Tensor;
 public class P2EAM extends Potential2 implements PotentialSoft {
     
     protected double n2, m2, eps, a, a2, Ceps, rc12, rc22;
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected final Vector dr;
     protected Vector[] gradient;
     protected Vector rhograd;

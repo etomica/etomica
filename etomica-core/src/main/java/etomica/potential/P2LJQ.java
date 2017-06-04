@@ -5,7 +5,7 @@
 package etomica.potential;
 
 import etomica.atom.IAtomList;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
@@ -262,7 +262,7 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
     private double epsilon, epsilon4, epsilon48;
     private double hsdiasq=1.0/Math.sqrt(2);
     private double Q2;
-    private IBoundary boundary;
+    private Boundary boundary;
     private final Vector dr, drunit, dcos1dr, dcos2dr;
     private final Vector[] gradient;
     protected double temperature;

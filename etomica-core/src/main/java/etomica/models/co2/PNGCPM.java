@@ -20,6 +20,7 @@ import etomica.models.water.SpeciesWater4PCOM;
 import etomica.potential.PotentialMolecular;
 import etomica.potential.PotentialPolarizable;
 import etomica.simulation.Simulation;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
@@ -49,7 +50,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
     protected final int nAtomTypes;
     protected final GCPMAgent[][] pairAgents;
     protected boolean oops = false;
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected Vector[][] Eq, Ep, mu;
     protected Vector oldMu;
     protected Component component;

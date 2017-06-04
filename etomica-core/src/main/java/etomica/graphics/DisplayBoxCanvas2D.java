@@ -5,11 +5,10 @@
 package etomica.graphics;
 
 import etomica.action.activity.Controller;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.atom.*;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polygon;
-import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Pixel;
@@ -201,7 +200,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
             
         //Draw overflow images if so indicated
         if(displayBox.getDrawOverflow()) {
-            IBoundary boundary = displayBox.getBox().getBoundary();
+            Boundary boundary = displayBox.getBox().getBoundary();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtom a = leafList.getAtom(iLeaf);
                 OverflowShift overflow = new OverflowShift(space);

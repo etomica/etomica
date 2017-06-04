@@ -6,7 +6,7 @@ package etomica.normalmode;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
@@ -34,7 +34,7 @@ public class MeterMaxExpansion extends DataSourceScalar {
     }
     
     public double getDataAsScalar() {
-        IBoundary boundary = box.getBoundary();
+        Boundary boundary = box.getBoundary();
         IAtomList leafList = box.getLeafList();
         double min = 1e10;
         for (int i=0; i<leafList.getAtomCount(); i++) {

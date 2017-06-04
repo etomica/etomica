@@ -13,6 +13,7 @@ import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentSourceMoleculeManager;
+import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.units.Dimension;
@@ -156,7 +157,7 @@ public class CriterionSimpleMolecular implements NeighborCriterionMolecular, Mol
     protected final Space space;
     protected double interactionRange, displacementLimit2, neighborRadius2;
 	protected final Vector dr;
-    protected IBoundary boundary;
+    protected Boundary boundary;
 	protected double safetyFactor;
 	protected double r2, r2MaxSafe;
     protected MoleculeAgentManager agentManager;

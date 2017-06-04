@@ -5,7 +5,7 @@
 package etomica.modules.pistoncylinder;
 
 import etomica.atom.IAtomList;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorBoxDependent;
@@ -47,7 +47,7 @@ public class ApiFilteredCylinder extends ApiLeafAtoms implements AtomsetIterator
      * wall. 
      */
     public static class AtomFilterInCylinder {
-        public AtomFilterInCylinder(IBoundary boundary, P1HardMovingBoundary pistonPotential, double padding) {
+        public AtomFilterInCylinder(Boundary boundary, P1HardMovingBoundary pistonPotential, double padding) {
             dimensions = boundary.getBoxSize();
             this.pistonPotential = pistonPotential;
             this.padding = padding;

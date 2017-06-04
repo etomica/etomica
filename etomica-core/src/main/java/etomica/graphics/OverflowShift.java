@@ -4,7 +4,7 @@
 
 package etomica.graphics;
 
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.space.BoundaryRectangular;
 import etomica.space.Space;
@@ -35,7 +35,7 @@ public class OverflowShift {
 	 *         indicates each displacement, second index is the xyz translation
 	 *         needed to the overflow image
 	 */
-    public float[][] getShifts(IBoundary boundary, Vector rr, double distance) {
+    public float[][] getShifts(Boundary boundary, Vector rr, double distance) {
     	
 		boolean needShift[] = new boolean[dim];
 		float[][] shifts = null;

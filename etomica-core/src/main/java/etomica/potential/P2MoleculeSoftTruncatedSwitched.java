@@ -4,7 +4,7 @@
 
 package etomica.potential;
 
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.space.Vector;
@@ -197,7 +197,7 @@ public class P2MoleculeSoftTruncatedSwitched extends PotentialMolecular implemen
     protected double rCutoff, r2Cutoff;
     protected final IPotentialMolecularTorque potential;
     protected final Vector dr;
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected final Vector[][] gradientAndTorque;
     protected int taperOrder = 3;
     protected double switchFac, r2Switch;

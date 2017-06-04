@@ -5,7 +5,7 @@
 package etomica.models.co2;
 
 import etomica.atom.IAtomList;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.api.IElement;
 import etomica.api.IMolecule;
@@ -471,7 +471,7 @@ for (int iter=0; iter<maxIter; iter++) {
     }
 
     protected final MoleculePair pair;
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected final double sigmaC, sigmaO;
     protected final double[][] sigmaAll, epsilonAll;
     protected final double epsilonC, epsilonO, gamma;

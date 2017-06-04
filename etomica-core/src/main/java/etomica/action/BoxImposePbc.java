@@ -6,7 +6,7 @@ package etomica.action;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -48,7 +48,7 @@ public class BoxImposePbc extends BoxActionAdapter {
 	}
 
 	public void actionPerformed() {
-		IBoundary boundary = box.getBoundary();
+		Boundary boundary = box.getBoundary();
         if (applyToMolecules) {
             IMoleculeList molecules = box.getMoleculeList();
             

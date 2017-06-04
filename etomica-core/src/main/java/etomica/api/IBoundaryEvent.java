@@ -4,6 +4,8 @@
 
 package etomica.api;
 
+import etomica.space.Boundary;
+
 /**
  * Event that informs a listener about some change to a boundary.
  */
@@ -12,5 +14,5 @@ public interface IBoundaryEvent {
     /**
      * @return the boundary which has changed.
      */
-    public IBoundary getBoundary();
+    public Boundary getBoundary();
 }

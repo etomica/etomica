@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-import etomica.api.IBoundary;
 import etomica.api.IBoundaryEvent;
 import etomica.api.IBoundaryEventManager;
 import etomica.api.IBoundaryListener;
@@ -32,7 +31,7 @@ public class BoundaryEventManager implements IBoundaryEventManager, java.io.Seri
         intervalListeners.remove(listener);
     }
 
-    public void inflate(IBoundary boundary) {
+    public void inflate(Boundary boundary) {
         IBoundaryEvent event = new BoundaryEvent(boundary);
         for(int i = 0; i < intervalListeners.size(); i++) {
             intervalListeners.get(i).boundaryInflate(event);

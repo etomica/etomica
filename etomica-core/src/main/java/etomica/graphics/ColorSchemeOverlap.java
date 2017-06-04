@@ -8,7 +8,7 @@ import java.awt.Color;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.nbr.list.NeighborListManager;
@@ -69,7 +69,7 @@ public class ColorSchemeOverlap extends ColorSchemeCollectiveAgent {
 
     private static final long serialVersionUID = 1L;
     protected final NeighborListManager neighborManager;
-    protected final IBoundary boundary;
+    protected final Boundary boundary;
     protected final IAtomList leafList;
     protected final Vector dr;
     protected double sig2;

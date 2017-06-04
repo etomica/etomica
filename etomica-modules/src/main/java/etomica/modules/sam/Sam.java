@@ -5,7 +5,7 @@
 package etomica.modules.sam;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
@@ -347,7 +347,7 @@ public class Sam extends Simulation {
         int nMolecules = polymerMolecules.getMoleculeCount();
         double maxDistance = 3.5*3.5;
         Vector dr = space.makeVector();
-        IBoundary boundary = box.getBoundary();
+        Boundary boundary = box.getBoundary();
         for (int i=0; i<nMolecules; i++) {
             AtomArrayList bondedSurfaceAtoms = new AtomArrayList(3);
             IAtom sulfur = polymerMolecules.getMolecule(i).getChildList().getAtom(0);

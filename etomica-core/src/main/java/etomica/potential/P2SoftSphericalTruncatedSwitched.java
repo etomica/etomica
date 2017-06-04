@@ -5,7 +5,7 @@
 package etomica.potential;
 
 import etomica.atom.IAtomList;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.space.Space;
@@ -175,7 +175,7 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
     protected double rCutoff, r2Cutoff;
     protected final Potential2SoftSpherical potential;
     protected final Vector dr;
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected final Vector[] gradient;
     protected int taperOrder = 3;
     protected double switchFac, r2Switch;

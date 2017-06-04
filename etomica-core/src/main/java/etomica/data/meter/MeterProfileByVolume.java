@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.data.meter;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.atom.IMoleculePositionDefinition;
 import etomica.box.Box;
 import etomica.api.IMolecule;
@@ -101,7 +101,7 @@ public class MeterProfileByVolume implements IEtomicaDataSource, DataSourceIndep
      * Returns the profile for the current configuration.
      */
     public IData getData() {
-        IBoundary boundary = box.getBoundary();
+        Boundary boundary = box.getBoundary();
         data.E(0);
         double[] y = data.getData();
         IMoleculeList moleculeList = box.getMoleculeList();
@@ -162,7 +162,7 @@ public class MeterProfileByVolume implements IEtomicaDataSource, DataSourceIndep
     public void reset() {
         if (box == null) return;
         
-        IBoundary boundary = box.getBoundary();
+        Boundary boundary = box.getBoundary();
         double halfBox = 0.5*boundary.getBoxSize().getX(profileDim);
         xDataSource.setXMin(-halfBox);
         xDataSource.setXMax(halfBox);

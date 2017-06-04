@@ -5,7 +5,7 @@
 package etomica.nbr.cell.molecule;
 
 import etomica.atom.*;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.api.IBoundaryEvent;
 import etomica.api.IBoundaryListener;
 import etomica.box.Box;
@@ -305,7 +305,7 @@ public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryLi
         }
 
         private void updateCell(IMolecule molecule) {
-            IBoundary boundary = box.getBoundary();
+            Boundary boundary = box.getBoundary();
             CellMolecular cell = neighborCellManager.getCell(molecule);
             cell.removeMolecule(molecule);
             boundary.nearestImage(moleculePosition.position(molecule));

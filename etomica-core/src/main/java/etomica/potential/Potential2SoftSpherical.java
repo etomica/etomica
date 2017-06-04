@@ -5,7 +5,7 @@
 package etomica.potential;
 
 import etomica.atom.IAtomList;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.space.Space;
@@ -120,7 +120,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
     }
 
     protected final Vector[] gradient;
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected final Vector dr;
     
 }//end of Potential2SoftSpherical

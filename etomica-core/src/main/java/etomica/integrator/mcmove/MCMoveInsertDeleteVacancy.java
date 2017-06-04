@@ -11,7 +11,7 @@ import java.util.Set;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.api.IIntegrator;
 import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
@@ -237,7 +237,7 @@ public class MCMoveInsertDeleteVacancy extends MCMoveInsertDeleteBiased implemen
     
     protected void findCandidates() {
         NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
-        IBoundary boundary = box.getBoundary();
+        Boundary boundary = box.getBoundary();
         int numAtoms = box.getLeafList().getAtomCount();
         numNeighbors = new int[numAtoms];
         numNeighborCandidatesOnDelete = new int[numAtoms];

@@ -15,11 +15,10 @@ import java.util.Iterator;
 import etomica.action.activity.Controller;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterCollective;
-import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.units.Pixel;
 
@@ -115,7 +114,7 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
         g.fillRect(xP, yP, sigmaP, drawingHeight);
     }
             
-    protected boolean computeShiftOrigin(IAtom a, IBoundary b) {
+    protected boolean computeShiftOrigin(IAtom a, Boundary b) {
         OverflowShift overflow = new OverflowShift(space);
         double sigma = displayBox.getDiameterHash().getDiameter(a);
         if (sigma == -1) sigma = 1;

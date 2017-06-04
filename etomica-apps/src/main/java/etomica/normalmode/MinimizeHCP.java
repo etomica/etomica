@@ -4,7 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
@@ -135,7 +135,7 @@ public class MinimizeHCP extends Simulation {
 
         Primitive primitive = new PrimitiveHexagonal(space, nC*a, nC*c);
 
-        IBoundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
+        Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
         Basis basisHCP = new BasisHcp();
 
         box.setBoundary(boundary);

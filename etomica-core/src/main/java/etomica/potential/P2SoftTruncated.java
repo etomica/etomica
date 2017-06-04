@@ -4,7 +4,7 @@
 
 package etomica.potential;
 
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
@@ -28,7 +28,7 @@ public class P2SoftTruncated extends Potential2
     protected final Potential2Soft wrappedPotential;
     protected final Vector[] gradient;
     protected double rCutoff, r2Cutoff;
-    protected IBoundary boundary;
+    protected Boundary boundary;
 
     public P2SoftTruncated(Potential2Soft potential, double truncationRadius, Space _space) {
         super(_space);

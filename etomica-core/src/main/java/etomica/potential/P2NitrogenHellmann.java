@@ -47,7 +47,7 @@ import java.io.IOException;
 //
 
 import etomica.atom.IAtomList;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.space.Vector;
@@ -98,7 +98,7 @@ public class P2NitrogenHellmann implements IPotentialAtomic, IPotentialTorque {
         }
     }
     
-    protected IBoundary boundary;    
+    protected Boundary boundary;
     protected final double[][] A,alpha,b,c6;
     protected static final int [] siteID = {0,1,2,1,0};
     protected double[] q, pos;

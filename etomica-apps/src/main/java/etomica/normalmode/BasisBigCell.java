@@ -5,7 +5,7 @@
 package etomica.normalmode;
 
 import etomica.atom.IAtomList;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.api.ISpecies;
 import etomica.space.Vector;
@@ -37,7 +37,7 @@ public class BasisBigCell extends Basis {
         // change what our result should be.  so just pretend that it's rectangular.
         
         
-        IBoundary boundary = new BoundaryRectangularPeriodic(space);
+        Boundary boundary = new BoundaryRectangularPeriodic(space);
         Primitive primitive = new PrimitiveCubic(space);
         
         Box box = new Box(boundary, space);

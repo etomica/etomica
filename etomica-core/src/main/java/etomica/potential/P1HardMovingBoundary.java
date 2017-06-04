@@ -6,7 +6,7 @@ package etomica.potential;
 
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.atom.AtomSetSinglet;
 import etomica.graphics.Drawable;
@@ -33,7 +33,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
      * @param space
      * @param wallDimension dimension which the wall is perpendicular to
      */
-    public P1HardMovingBoundary(Space space, IBoundary boundary, int wallDimension, double mass,
+    public P1HardMovingBoundary(Space space, Boundary boundary, int wallDimension, double mass,
                                 boolean ignoreOverlap) {
         super(space);
         D = space.D();
@@ -311,7 +311,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     private double force;
     private double pressure;
     private boolean isForced;
-    private final IBoundary pistonBoundary;
+    private final Boundary pistonBoundary;
     private double thickness = 0.0;
     private double virialSum;
     private boolean ignoreOverlap;

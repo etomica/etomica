@@ -2,7 +2,7 @@ package etomica.normalmode;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.space.Vector;
@@ -24,7 +24,7 @@ public class PotentialCalculationSolidSuper implements PotentialCalculation {
     protected double energySum, dadbSum;
     protected double fac1, fac2;
     protected Box box;
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected boolean doD2;
     protected double d2sum;
     protected double pHarmonic, temperature;
