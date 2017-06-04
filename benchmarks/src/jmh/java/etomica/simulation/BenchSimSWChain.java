@@ -10,18 +10,27 @@ import etomica.data.meter.MeterPressureHard;
 import etomica.space3d.Space3D;
 import etomica.tests.TestSWChain;
 import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.profile.GCProfiler;
+import org.openjdk.jmh.profile.SafepointsProfiler;
+import org.openjdk.jmh.profile.StackProfiler;
+import org.openjdk.jmh.runner.Runner;
+import org.openjdk.jmh.runner.RunnerException;
+import org.openjdk.jmh.runner.options.Options;
+import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 import java.util.concurrent.TimeUnit;
 
 @State(Scope.Benchmark)
 @BenchmarkMode(Mode.SingleShotTime)
 @OutputTimeUnit(TimeUnit.SECONDS)
+@Warmup(iterations = 0)
+@Fork(1)
 public class BenchSimSWChain {
 
     @Param({"500", "4000"})
     public int numMolecules;
 
-    @Param({"100000", "300000"})
+    @Param({"100000", "200000"})
     public int numSteps;
 
     private TestSWChain sim;
@@ -50,5 +59,14 @@ public class BenchSimSWChain {
     public double swChain() {
         sim.getController().actionPerformed();
         return pMeter.getDataAsScalar() + sim.integrator.getTemperature();
+    }
+
+    public static void main(String[] args) throws RunnerException {
+        Options opts = new OptionsBuilder()
+                .include(BenchSimSWChain.class.getSimpleName())
+                .addProfiler(GCProfiler.class)
+                .build();
+
+        new Runner(opts).run();
     }
 }

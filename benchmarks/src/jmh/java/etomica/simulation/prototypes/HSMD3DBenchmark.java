@@ -31,4 +31,13 @@ public class HSMD3DBenchmark {
     public void hsmd3d() {
         sim.getIntegrator().doStep();
     }
+
+    public static void main(String[] args) throws RunnerException {
+        Options opts = new OptionsBuilder()
+                .include(HSMD3DBenchmark.class.getSimpleName())
+                .forks(2)
+                .build();
+
+        new Runner(opts).run();
+    }
 }
