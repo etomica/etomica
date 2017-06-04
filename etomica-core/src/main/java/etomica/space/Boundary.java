@@ -4,7 +4,6 @@
 
 package etomica.space;
 
-import etomica.api.IBoundaryEventManager;
 import etomica.box.Box;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.math.geometry.Polytope;
@@ -87,7 +86,7 @@ public abstract class Boundary {
      * @return the event manager, which fires notifications about changes to
      * this boundary to any added listener.
      */
-    public IBoundaryEventManager getEventManager() {
+    public BoundaryEventManager getEventManager() {
         return eventManager;
     }
 
