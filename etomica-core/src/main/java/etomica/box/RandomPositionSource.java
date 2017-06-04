@@ -18,10 +18,10 @@ public interface RandomPositionSource {
      * Notifies the RandomPositionSource of the box from which random positions
      * should be taken from.
      */
-    public void setBox(Box box);
-    
+    void setBox(Box box);
+
     /**
      * Returns a random position with the previously set box's boundary.
      */
-    public Vector randomPosition();
+    Vector randomPosition();
 }

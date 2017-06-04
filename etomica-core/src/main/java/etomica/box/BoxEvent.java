@@ -4,24 +4,30 @@
 
 package etomica.box;
 
-import etomica.api.IBoxEvent;
-
 /**
  * Event that conveys some happening with respect to a box or the things it contains.
  *
  * @see BoxListenerAdapter
  */
-public class BoxEvent implements java.io.Serializable, IBoxEvent {
-    
+
+/**
+ * A box event fired by the box's event manager.  The box that changed is
+ * available via getBox.  Other details can be inferred from the other
+ * interfaces implemented by the event object and/or obtained from calling
+ * methods on those interfaces.
+ */
+public abstract class BoxEvent {
+
+    protected final Box box;
+
     public BoxEvent(Box box) {
         this.box = box;
     }
-    
+
+    /**
+     * @return the box that changed and triggered the event
+     */
     public Box getBox() {
         return box;
     }
-    
-    protected Box box;
-
-    private static final long serialVersionUID = 1L;
 }

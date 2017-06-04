@@ -4,22 +4,26 @@
 
 package etomica.box;
 
-import etomica.space.Boundary;
 import etomica.api.IRandom;
-import etomica.space.Vector;
+import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * Implementation of RandomPositionSource that can handle
  * BoundaryDeformablePeriodic.  If the boundary is not
  * BoundaryDeformablePeriodic, this class falls back to assuming rectangular
  * boundary.
- * 
+ *
  * @author Andrew Schultz
  */
 public class RandomPositionSourceDeformable implements RandomPositionSource {
-    
+
+    protected final IRandom random;
+    protected final Vector p;
+    protected Box box;
+
     public RandomPositionSourceDeformable(Space space, IRandom random) {
         p = space.makeVector();
         this.random = random;
@@ -29,9 +33,8 @@ public class RandomPositionSourceDeformable implements RandomPositionSource {
         p.setRandomCube(random);
         Boundary boundary = box.getBoundary();
         if (boundary instanceof BoundaryDeformablePeriodic) {
-            ((BoundaryDeformablePeriodic)boundary).getBoundaryTensor().transform(p);
-        }
-        else {
+            ((BoundaryDeformablePeriodic) boundary).getBoundaryTensor().transform(p);
+        } else {
             p.TE(boundary.getBoxSize());
         }
         return p;
@@ -40,8 +43,4 @@ public class RandomPositionSourceDeformable implements RandomPositionSource {
     public void setBox(Box newBox) {
         box = newBox;
     }
-
-    protected final IRandom random;
-    protected Box box;
-    protected final Vector p;
 }

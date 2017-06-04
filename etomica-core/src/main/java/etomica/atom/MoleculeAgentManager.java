@@ -5,7 +5,7 @@
 package etomica.atom;
 
 import etomica.api.*;
-import etomica.box.Box;
+import etomica.box.*;
 import etomica.simulation.Simulation;
 import etomica.util.Arrays;
 
@@ -20,7 +20,7 @@ import java.lang.reflect.Array;
  * 
  * @author Andrew Schultz
  */
-public class MoleculeAgentManager implements IBoxListener, ISimulationListener, Serializable {
+public class MoleculeAgentManager implements BoxEventListener, ISimulationListener, Serializable {
 
     public MoleculeAgentManager(Simulation sim, Box box, MoleculeAgentSource source) {
         agentSource = source;
@@ -121,12 +121,12 @@ public class MoleculeAgentManager implements IBoxListener, ISimulationListener, 
         }
     }
     
-    public void boxMoleculeAdded(IBoxMoleculeEvent e) {
+    public void boxMoleculeAdded(BoxMoleculeEvent e) {
         IMolecule mole = e.getMolecule();
         addAgent(mole);
     }
     
-    public void boxMoleculeRemoved(IBoxMoleculeEvent e) {
+    public void boxMoleculeRemoved(BoxMoleculeEvent e) {
         IMolecule mole = e.getMolecule();
         int index = mole.getIndex();
         int typeIndex = mole.getType().getIndex();
@@ -138,7 +138,7 @@ public class MoleculeAgentManager implements IBoxListener, ISimulationListener, 
         }
     }
     
-    public void boxMoleculeIndexChanged(IBoxMoleculeIndexEvent e) {
+    public void boxMoleculeIndexChanged(BoxMoleculeIndexEvent e) {
         IMolecule mole = e.getMolecule();
         // the atom's index changed.  assume it would get the same agent
         int oldIndex = e.getIndex();
@@ -148,7 +148,7 @@ public class MoleculeAgentManager implements IBoxListener, ISimulationListener, 
         speciesAgents[oldIndex] = null;
     }
     
-    public void boxNumberMolecules(IBoxMoleculeCountEvent e) {
+    public void boxNumberMolecules(BoxMoleculeCountEvent e) {
         int speciesIndex = e.getSpecies().getIndex();
         int newMaxIndex = e.getCount();
         if (agents[speciesIndex].length > newMaxIndex+reservoirSize || agents[speciesIndex].length < newMaxIndex) {
@@ -160,8 +160,8 @@ public class MoleculeAgentManager implements IBoxListener, ISimulationListener, 
         }
     }
     
-    public void boxGlobalAtomLeafIndexChanged(IBoxIndexEvent e) {}
-    public void boxAtomLeafIndexChanged(IBoxAtomIndexEvent e) {}
+    public void boxGlobalAtomLeafIndexChanged(BoxIndexEvent e) {}
+    public void boxAtomLeafIndexChanged(BoxAtomIndexEvent e) {}
     
     public void simulationSpeciesAdded(ISimulationSpeciesEvent e) {
         agents = (Object[][])Arrays.resizeArray(agents, agents.length+1);

@@ -4,7 +4,7 @@
 
 package etomica.integrator;
 
-import etomica.api.IBoxMoleculeEvent;
+import etomica.box.BoxMoleculeEvent;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IRandom;
@@ -425,7 +425,7 @@ public class IntegratorHard extends IntegratorMD
         handlingEvent--;
     }
     
-    public void boxMoleculeAdded(IBoxMoleculeEvent e) {
+    public void boxMoleculeAdded(BoxMoleculeEvent e) {
         handlingEvent++;
         super.boxMoleculeAdded(e);
         handlingEvent--;

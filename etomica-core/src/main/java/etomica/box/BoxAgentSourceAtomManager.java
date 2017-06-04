@@ -10,6 +10,9 @@ import etomica.box.BoxAgentManager.BoxAgentSource;
 
 public class BoxAgentSourceAtomManager<E> implements BoxAgentSource<AtomLeafAgentManager<E>> {
 
+    protected final AgentSource<E> atomAgentSource;
+    protected final Class atomAgentClass;
+
     public BoxAgentSourceAtomManager(AgentSource<E> atomAgentSource, Class atomAgentClass) {
         super();
         this.atomAgentSource = atomAgentSource;
@@ -23,7 +26,4 @@ public class BoxAgentSourceAtomManager<E> implements BoxAgentSource<AtomLeafAgen
     public void releaseAgent(AtomLeafAgentManager<E> agent) {
         agent.dispose();
     }
-
-    protected final AgentSource<E> atomAgentSource;
-    protected final Class atomAgentClass;
 }
