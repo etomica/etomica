@@ -6,7 +6,7 @@ package etomica.freeenergy.npath;
 
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IIntegratorEvent;
+import etomica.integrator.IntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHash;
@@ -297,13 +297,13 @@ public class SimFe extends Simulation {
             sim.integrator.setTimeStep(0.0001);
             sim.integrator.getEventManager().addListener(new IIntegratorListener() {
                 @Override
-                public void integratorInitialized(IIntegratorEvent e) {}
+                public void integratorInitialized(IntegratorEvent e) {}
 
                 @Override
-                public void integratorStepStarted(IIntegratorEvent e) {}
+                public void integratorStepStarted(IntegratorEvent e) {}
 
                 @Override
-                public void integratorStepFinished(IIntegratorEvent e) {
+                public void integratorStepFinished(IntegratorEvent e) {
                     if (sim.integrator.getStepCount() > 400) {
                         sim.integrator.setTimeStep(0.001);
                     }

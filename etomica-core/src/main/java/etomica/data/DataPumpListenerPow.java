@@ -4,7 +4,7 @@
 
 package etomica.data;
 
-import etomica.api.IIntegratorEvent;
+import etomica.integrator.IntegratorEvent;
 import etomica.api.IIntegratorListener;
 
 /**
@@ -38,11 +38,11 @@ public class DataPumpListenerPow extends DataPump implements IIntegratorListener
         this.maxRatio = maxRatio;
     }
     
-    public void integratorInitialized(IIntegratorEvent e) {}
+    public void integratorInitialized(IntegratorEvent e) {}
     
-    public void integratorStepStarted(IIntegratorEvent e) {}
+    public void integratorStepStarted(IntegratorEvent e) {}
     
-    public void integratorStepFinished(IIntegratorEvent e) {
+    public void integratorStepFinished(IntegratorEvent e) {
         totalSteps++;
         if(++stepCount < interval) {
             return;

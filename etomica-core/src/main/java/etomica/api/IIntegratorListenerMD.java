@@ -4,6 +4,8 @@
 
 package etomica.api;
 
+import etomica.integrator.IntegratorEvent;
+
 public interface IIntegratorListenerMD extends IIntegratorListener {
     
     /**
@@ -11,13 +13,13 @@ public interface IIntegratorListenerMD extends IIntegratorListener {
      * in the system.
      * @param e
      */
-    public void integratorForcePrecomputed(IIntegratorEvent e);
+    public void integratorForcePrecomputed(IntegratorEvent e);
     
     /**
      * Invoked after the integrator has computed the forces on all atoms
      * in the system.
      * @param e
      */
-    public void integratorForceComputed(IIntegratorEvent e);
+    public void integratorForceComputed(IntegratorEvent e);
     
 }

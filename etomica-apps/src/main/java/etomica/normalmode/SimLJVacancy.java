@@ -7,8 +7,8 @@ package etomica.normalmode;
 import etomica.action.BoxInflate;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.integrator.IntegratorEvent;
 import etomica.space.Boundary;
-import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
@@ -253,11 +253,11 @@ public class SimLJVacancy extends Simulation {
         // collect pressure data before any insert/delete trials
         sim.integrator.getEventManager().addListener(new IIntegratorListener() {
             long countDown = numAtoms, interval = numAtoms;
-            public void integratorInitialized(IIntegratorEvent e) {}
+            public void integratorInitialized(IntegratorEvent e) {}
 
-            public void integratorStepStarted(IIntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
 
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 countDown--;
                 if (countDown==0) {
                     // everything really wants beta P
@@ -601,16 +601,16 @@ public class SimLJVacancy extends Simulation {
             // wait until 1/4 of the way through 2nd stage initialization, then start readjusting weights again
             sim.integrator.getEventManager().addListener(new IIntegratorListener() {
                 boolean reenabled = false;
-                public void integratorStepStarted(IIntegratorEvent e) {}
+                public void integratorStepStarted(IntegratorEvent e) {}
 
-                public void integratorStepFinished(IIntegratorEvent e) {
+                public void integratorStepFinished(IntegratorEvent e) {
                     if (!reenabled && sim.integrator.getStepCount() >= finalSteps/40) {
                         sim.integrator.getEventManager().addListener(mcMoveBiasListener);
                         reenabled = true;
                     }
                 }
 
-                public void integratorInitialized(IIntegratorEvent e) {}
+                public void integratorInitialized(IntegratorEvent e) {}
             });
         }
 
@@ -780,11 +780,11 @@ public class SimLJVacancy extends Simulation {
             // collect pressure data before any insert/delete trials
             sim.integrator.getEventManager().addListener(new IIntegratorListener() {
                 long countDown = numAtoms, interval = numAtoms;
-                public void integratorInitialized(IIntegratorEvent e) {}
+                public void integratorInitialized(IntegratorEvent e) {}
 
-                public void integratorStepStarted(IIntegratorEvent e) {}
+                public void integratorStepStarted(IntegratorEvent e) {}
 
-                public void integratorStepFinished(IIntegratorEvent e) {
+                public void integratorStepFinished(IntegratorEvent e) {
                     countDown--;
                     if (countDown==0) {
                         // everything really wants beta P

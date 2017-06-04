@@ -5,7 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IIntegratorEvent;
+import etomica.integrator.IntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.ISpecies;
 import etomica.data.*;
@@ -361,9 +361,9 @@ public class SimulationVirialOverlap2 extends Simulation {
     public IIntegratorListener addProgressListener(final double HSB, final boolean full) {
         IIntegratorListener progressReport = new IIntegratorListener() {
 
-            public void integratorStepStarted(IIntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
 
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 long interval = ai.getMaxSteps()/10;
                 if (integratorOS.getStepCount() % interval != 0) return;
                 System.out.print(integratorOS.getStepCount()+" steps: ");
@@ -377,7 +377,7 @@ public class SimulationVirialOverlap2 extends Simulation {
                 }
             }
             
-            public void integratorInitialized(IIntegratorEvent e) {}
+            public void integratorInitialized(IntegratorEvent e) {}
         };
         integratorOS.getEventManager().addListener(progressReport);
         return progressReport;
@@ -393,9 +393,9 @@ public class SimulationVirialOverlap2 extends Simulation {
         targHist = new HistogramSimple(90, new DoubleRange(-1, 8));
         targPiHist = new HistogramNotSoSimple(90, new DoubleRange(-1, 8));
         IIntegratorListener histListenerTarget = new IIntegratorListener() {
-            public void integratorStepStarted(IIntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
 
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 double r2Max = 0;
                 double r2Min = Double.POSITIVE_INFINITY;
                 CoordinatePairSet cPairs = box[1].getCPairSet();
@@ -420,13 +420,13 @@ public class SimulationVirialOverlap2 extends Simulation {
                 targPiHist.addValue(r, pi);
             }
 
-            public void integratorInitialized(IIntegratorEvent e) {}
+            public void integratorInitialized(IntegratorEvent e) {}
         };
 
         IIntegratorListener histReport = new IIntegratorListener() {
-            public void integratorInitialized(IIntegratorEvent e) {}
-            public void integratorStepStarted(IIntegratorEvent e) {}
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorInitialized(IntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
+            public void integratorStepFinished(IntegratorEvent e) {
                 long interval = ai.getMaxSteps()/10;
                 if (integratorOS.getStepCount() % interval != 0) return;
                 printTargetHistogram();

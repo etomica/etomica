@@ -6,7 +6,7 @@ package etomica.virial.simulations;
 
 import etomica.AlkaneEH.SpeciesMethane;
 import etomica.action.IAction;
-import etomica.api.IIntegratorEvent;
+import etomica.integrator.IntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
@@ -177,9 +177,9 @@ public class VirialMethaneEH {
 
         if (false) {
             IIntegratorListener progressReport = new IIntegratorListener() {
-                public void integratorInitialized(IIntegratorEvent e) {}
-                public void integratorStepStarted(IIntegratorEvent e) {}
-                public void integratorStepFinished(IIntegratorEvent e) {
+                public void integratorInitialized(IntegratorEvent e) {}
+                public void integratorStepStarted(IntegratorEvent e) {}
+                public void integratorStepFinished(IntegratorEvent e) {
                     if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();

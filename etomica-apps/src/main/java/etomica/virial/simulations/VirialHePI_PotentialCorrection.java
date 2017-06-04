@@ -7,7 +7,7 @@ package etomica.virial.simulations;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.IAction;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IIntegratorEvent;
+import etomica.integrator.IntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
@@ -510,9 +510,9 @@ public class VirialHePI_PotentialCorrection {
         final HistogramNotSoSimple piHist = new HistogramNotSoSimple(100, new DoubleRange(0, sigmaHSRef));
         final ClusterAbstract finalTargetCluster = targetCluster.makeCopy();
         IIntegratorListener histListenerRef = new IIntegratorListener() {
-            public void integratorStepStarted(IIntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
             
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 double r2Max = 0;
                 CoordinatePairSet cPairs = sim.box[0].getCPairSet();
                 for (int i=0; i<nPoints; i++) {
@@ -526,13 +526,13 @@ public class VirialHePI_PotentialCorrection {
                 piHist.addValue(Math.sqrt(r2Max), Math.abs(v));
             }
             
-            public void integratorInitialized(IIntegratorEvent e) {
+            public void integratorInitialized(IntegratorEvent e) {
             }
         };
         IIntegratorListener histListenerTarget = new IIntegratorListener() {
-            public void integratorStepStarted(IIntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
             
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 double r2Max = 0;
                 double r2Min = Double.POSITIVE_INFINITY;
                 CoordinatePairSet cPairs = sim.box[1].getCPairSet();
@@ -556,15 +556,15 @@ public class VirialHePI_PotentialCorrection {
                 targPiHist.addValue(r, Math.abs(v));
             }
 
-            public void integratorInitialized(IIntegratorEvent e) {}
+            public void integratorInitialized(IntegratorEvent e) {}
         };
         if (!isCommandline) {
             // if interactive, print intermediate results
             final double refIntegralF = refIntegral;
             IIntegratorListener progressReport = new IIntegratorListener() {
-                public void integratorInitialized(IIntegratorEvent e) {}
-                public void integratorStepStarted(IIntegratorEvent e) {}
-                public void integratorStepFinished(IIntegratorEvent e) {
+                public void integratorInitialized(IntegratorEvent e) {}
+                public void integratorStepStarted(IntegratorEvent e) {}
+                public void integratorStepFinished(IntegratorEvent e) {
                     if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();
@@ -579,9 +579,9 @@ public class VirialHePI_PotentialCorrection {
             sim.integratorOS.getEventManager().addListener(progressReport);
             if (params.doHist) {
                 IIntegratorListener histReport = new IIntegratorListener() {
-                    public void integratorInitialized(IIntegratorEvent e) {}
-                    public void integratorStepStarted(IIntegratorEvent e) {}
-                    public void integratorStepFinished(IIntegratorEvent e) {
+                    public void integratorInitialized(IntegratorEvent e) {}
+                    public void integratorStepStarted(IntegratorEvent e) {}
+                    public void integratorStepFinished(IntegratorEvent e) {
                         if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
                         System.out.println("**** reference ****");
                         double[] xValues = hist.xValues();

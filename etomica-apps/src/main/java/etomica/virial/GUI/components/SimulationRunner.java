@@ -14,6 +14,7 @@ import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.graphics.*;
+import etomica.integrator.IntegratorEvent;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P4BondTorsion;
@@ -120,9 +121,9 @@ public class SimulationRunner {
 		    			
 		    			
 		    			new IIntegratorListener() {
-		    		    	public void integratorInitialized(IIntegratorEvent e) {}
-		    		    	public void integratorStepStarted(IIntegratorEvent e) {}
-		    		    	public void integratorStepFinished(IIntegratorEvent e) {
+		    		    	public void integratorInitialized(IntegratorEvent e) {}
+		    		    	public void integratorStepStarted(IntegratorEvent e) {}
+		    		    	public void integratorStepFinished(IntegratorEvent e) {
 		    		    		if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
 		    		    		
 		    		    		System.out.print(sim.integratorOS.getStepCount()+" steps: ");
@@ -195,9 +196,9 @@ public class SimulationRunner {
         				ISpecies species =  speciesDataModel.getSpecies(0);
         				final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,species,temperature,refCluster,targetCluster);
         				new IIntegratorListener() {
-        			    	public void integratorInitialized(IIntegratorEvent e) {}
-        			    	public void integratorStepStarted(IIntegratorEvent e) {}
-        			    	public void integratorStepFinished(IIntegratorEvent e) {
+        			    	public void integratorInitialized(IntegratorEvent e) {}
+        			    	public void integratorStepStarted(IntegratorEvent e) {}
+        			    	public void integratorStepFinished(IntegratorEvent e) {
         			    		if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
         			    		
         			    		System.out.print(sim.integratorOS.getStepCount()+" steps: ");
@@ -251,9 +252,9 @@ public class SimulationRunner {
 					final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,species,temperature,refCluster,targetCluster);
 					
 					new IIntegratorListener() {
-				    	public void integratorInitialized(IIntegratorEvent e) {}
-				    	public void integratorStepStarted(IIntegratorEvent e) {}
-				    	public void integratorStepFinished(IIntegratorEvent e) {
+				    	public void integratorInitialized(IntegratorEvent e) {}
+				    	public void integratorStepStarted(IntegratorEvent e) {}
+				    	public void integratorStepFinished(IntegratorEvent e) {
 				    		if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
 				    		
 				    		System.out.print(sim.integratorOS.getStepCount()+" steps: ");
@@ -506,9 +507,9 @@ public class SimulationRunner {
 			  }
 			  
 			  IIntegratorListener progressReport = new IIntegratorListener() {
-  		    	public void integratorInitialized(IIntegratorEvent e) {}
-  		    	public void integratorStepStarted(IIntegratorEvent e) {}
-  		    	public void integratorStepFinished(IIntegratorEvent e) {
+  		    	public void integratorInitialized(IntegratorEvent e) {}
+  		    	public void integratorStepStarted(IntegratorEvent e) {}
+  		    	public void integratorStepFinished(IntegratorEvent e) {
   		    		if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
   		    		
   		    		System.out.print(sim.integratorOS.getStepCount()+" steps: ");

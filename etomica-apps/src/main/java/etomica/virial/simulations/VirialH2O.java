@@ -9,7 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import org.json.simple.JSONObject;
 import etomica.atom.IAtomList;
-import etomica.api.IIntegratorEvent;
+import etomica.integrator.IntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;
@@ -252,9 +252,9 @@ public class VirialH2O {
         final HistogramNotSoSimple h1 = new HistogramNotSoSimple(new DoubleRange(0,100));        
         final HistogramNotSoSimple h2 = new HistogramNotSoSimple(new DoubleRange(0,100));
         IIntegratorListener histListenerTarget = new IIntegratorListener() {
-            public void integratorInitialized(IIntegratorEvent e) {}
-            public void integratorStepStarted(IIntegratorEvent e) {}
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorInitialized(IntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
+            public void integratorStepFinished(IntegratorEvent e) {
                 IAtomList atoms = sim.box[1].getLeafList();
                 double x01 = Math.sqrt(atoms.getAtom(0).getPosition().Mv1Squared(atoms.getAtom(1).getPosition()));
                 double x02 = Math.sqrt(atoms.getAtom(0).getPosition().Mv1Squared(atoms.getAtom(2).getPosition()));

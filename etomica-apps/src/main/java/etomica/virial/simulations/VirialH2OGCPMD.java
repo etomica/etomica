@@ -6,7 +6,7 @@ package etomica.virial.simulations;
 
 import etomica.action.IAction;
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IIntegratorEvent;
+import etomica.integrator.IntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.histogram.HistogramSimple;
@@ -258,9 +258,9 @@ public class VirialH2OGCPMD {
         final HistogramNotSoSimple piHist = new HistogramNotSoSimple(nBins, new DoubleRange(dx*0.5, sigmaHSRef+dx*0.5));
         final ClusterAbstract finalTargetCluster = targetCluster.makeCopy();
         IIntegratorListener histListenerRef = new IIntegratorListener() {
-            public void integratorStepStarted(IIntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
             
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 double r2Max = 0;
                 CoordinatePairSet cPairs = sim.box[0].getCPairSet();
                 for (int i=0; i<nPoints; i++) {
@@ -274,13 +274,13 @@ public class VirialH2OGCPMD {
                 piHist.addValue(Math.sqrt(r2Max), Math.abs(v));
             }
             
-            public void integratorInitialized(IIntegratorEvent e) {
+            public void integratorInitialized(IntegratorEvent e) {
             }
         };
         IIntegratorListener histListenerTarget = new IIntegratorListener() {
-            public void integratorStepStarted(IIntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
             
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 double r2Max = 0;
                 double r2Min = Double.POSITIVE_INFINITY;
                 CoordinatePairSet cPairs = sim.box[1].getCPairSet();
@@ -309,14 +309,14 @@ public class VirialH2OGCPMD {
                 }
             }
 
-            public void integratorInitialized(IIntegratorEvent e) {}
+            public void integratorInitialized(IntegratorEvent e) {}
         };
 
         if (params.doHist) {
             IIntegratorListener histReport = new IIntegratorListener() {
-                public void integratorInitialized(IIntegratorEvent e) {}
-                public void integratorStepStarted(IIntegratorEvent e) {}
-                public void integratorStepFinished(IIntegratorEvent e) {
+                public void integratorInitialized(IntegratorEvent e) {}
+                public void integratorStepStarted(IntegratorEvent e) {}
+                public void integratorStepFinished(IntegratorEvent e) {
                     if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
                     System.out.println("**** reference ****");
                     double[] xValues = hist.xValues();

@@ -5,7 +5,7 @@
 package etomica.metastable;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IIntegratorEvent;
+import etomica.integrator.IntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -319,10 +319,10 @@ public class LJmuVT extends Simulation {
                 int count = 0;
                 int interval = numAtoms;
                 
-                public void integratorStepStarted(IIntegratorEvent e) {
+                public void integratorStepStarted(IntegratorEvent e) {
                 }
                 
-                public void integratorStepFinished(IIntegratorEvent e) {
+                public void integratorStepFinished(IntegratorEvent e) {
                     interval--;
                     if (interval > 0) return;
                     interval = numAtoms;
@@ -340,7 +340,7 @@ public class LJmuVT extends Simulation {
                     if (U<-1) sim.activityIntegrate.setMaxSteps(0);
                 }
                 
-                public void integratorInitialized(IIntegratorEvent e) {
+                public void integratorInitialized(IntegratorEvent e) {
                 }
             });
             

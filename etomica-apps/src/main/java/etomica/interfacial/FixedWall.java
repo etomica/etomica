@@ -6,6 +6,7 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.space.Vector;
 import etomica.space.Space;
@@ -22,7 +23,7 @@ public class FixedWall implements IIntegratorListenerMD {
         this.species = species;
     }
     
-    public void integratorInitialized(IIntegratorEvent e) {
+    public void integratorInitialized(IntegratorEvent e) {
         IMoleculeList molecules = box.getMoleculeList(species);
         double zTotMomentum = 0;
         double totMass = 0;
@@ -48,13 +49,13 @@ public class FixedWall implements IIntegratorListenerMD {
         }
     }
 
-    public void integratorStepStarted(IIntegratorEvent e) {}
+    public void integratorStepStarted(IntegratorEvent e) {}
 
-    public void integratorStepFinished(IIntegratorEvent e) {}
+    public void integratorStepFinished(IntegratorEvent e) {}
     
-    public void integratorForcePrecomputed(IIntegratorEvent e) {}
+    public void integratorForcePrecomputed(IntegratorEvent e) {}
     
-    public void integratorForceComputed(IIntegratorEvent e) {
+    public void integratorForceComputed(IntegratorEvent e) {
         IMoleculeList molecules = box.getMoleculeList(species);
         double fz = 0;
         double totMass = 0;

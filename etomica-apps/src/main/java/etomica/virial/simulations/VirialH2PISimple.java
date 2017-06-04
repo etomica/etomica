@@ -15,6 +15,7 @@ import etomica.data.AccumulatorRatioAverageCovarianceFull;
 import etomica.data.IData;
 import etomica.data.histogram.HistogramSimple;
 import etomica.data.types.DataGroup;
+import etomica.integrator.IntegratorEvent;
 import etomica.integrator.mcmove.MCMove;
 import etomica.math.DoubleRange;
 import etomica.potential.P1HydrogenMielke.P1HydrogenMielkeAtomic;
@@ -267,11 +268,11 @@ public class VirialH2PISimple {
 		final HistogramSimple h1 = new HistogramSimple(500, new DoubleRange(0,Math.PI));
 		IIntegratorListener histListenerTarget = new IIntegratorListener() {
 			@Override
-			public void integratorInitialized(IIntegratorEvent e) {}
+			public void integratorInitialized(IntegratorEvent e) {}
 			@Override
-			public void integratorStepStarted(IIntegratorEvent e) {}
+			public void integratorStepStarted(IntegratorEvent e) {}
 			@Override
-			public void integratorStepFinished(IIntegratorEvent e) {
+			public void integratorStepFinished(IntegratorEvent e) {
 				IAtomList atoms = sim.box[1].getLeafList();
 				Vector a0 = ((IAtomOriented)atoms.getAtom(0)).getOrientation().getDirection();
 				Vector a1 = ((IAtomOriented)atoms.getAtom(1)).getOrientation().getDirection();
@@ -293,11 +294,11 @@ public class VirialH2PISimple {
 		if (! isCommandLine) {
 			IIntegratorListener progressReport = new IIntegratorListener() {
 				@Override
-				public void integratorInitialized(IIntegratorEvent e) {}
+				public void integratorInitialized(IntegratorEvent e) {}
 				@Override
-				public void integratorStepStarted(IIntegratorEvent e) {}
+				public void integratorStepStarted(IntegratorEvent e) {}
 				@Override
-				public void integratorStepFinished(IIntegratorEvent e) {
+				public void integratorStepFinished(IntegratorEvent e) {
 					if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
 					System.out.print(sim.integratorOS.getStepCount()+" steps: ");
 					double[] ratioAndError = sim.dvo.getAverageAndError();

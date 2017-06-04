@@ -5,7 +5,7 @@
 package etomica.interfacial;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IIntegratorEvent;
+import etomica.integrator.IntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.atom.AtomSourceRandomSpecies;
 import etomica.atom.AtomType;
@@ -289,9 +289,9 @@ public class LJMD extends Simulation {
             throw new RuntimeException(ex);
         }
         sim.integrator.getEventManager().addListener(new IIntegratorListener() {
-            public void integratorStepStarted(IIntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
             
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 long step = sim.integrator.getStepCount();
                 if (step % dataInterval != 0) return;
                 writeIt();
@@ -309,7 +309,7 @@ public class LJMD extends Simulation {
                 }
             }
             
-            public void integratorInitialized(IIntegratorEvent e) {
+            public void integratorInitialized(IntegratorEvent e) {
                 writeIt();
             }
         });

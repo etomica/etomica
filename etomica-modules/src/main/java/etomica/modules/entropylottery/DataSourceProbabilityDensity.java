@@ -15,8 +15,6 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.integrator.IntegratorBox;
-import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.units.Quantity;
 
 public class DataSourceProbabilityDensity implements IEtomicaDataSource, IAction {
@@ -85,30 +83,6 @@ public class DataSourceProbabilityDensity implements IEtomicaDataSource, IAction
             newData[i] += ((oldData[i-1]+oldData[i+1])/2 - oldData[i])/totalAtomCount;
         }
         data.E(newData);
-    }
-
-    public void nonintervalAction(IntegratorNonintervalEvent evt) {
-        if (evt.type() == IntegratorNonintervalEvent.RESET) {
-            box = ((IntegratorBox)evt.getSource()).getBox();
-            totalAtomCount = box.getMoleculeList().getMoleculeCount();
-            Vector dimensions = box.getBoundary().getBoxSize();
-            if (data.getLength() != (int)Math.round(dimensions.getX(0))) {
-                int newSize = (int)Math.round(dimensions.getX(0));
-                data = new DataDoubleArray(newSize);
-                dataInfo = new DataInfoDoubleArray("probability density", Quantity.DIMENSION, new int[]{newSize});
-                dataInfo.addTag(tag);
-                newData = new double[newSize];
-            }
-            data.E(0);
-            atomIterator.setBox(box);
-            atomIterator.reset();
-            double[] atomCount = data.getData();
-            for (IAtom a = atomIterator.nextAtom(); a != null;
-                 a = atomIterator.nextAtom()) {
-                int x = (int)Math.round(a.getPosition().getX(0)+dimensions.getX(0)*0.5-0.5);
-                atomCount[x]++;
-            }
-        }
     }
 
     protected DataDoubleArray data;

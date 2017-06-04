@@ -6,7 +6,7 @@ package etomica.modules.catalysis;
 
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.api.IIntegratorEvent;
+import etomica.integrator.IntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -21,10 +21,10 @@ public class ReactionManagerCO implements IIntegratorListener {
         this.sim = sim;
     }
     
-    public void integratorInitialized(IIntegratorEvent e) {
+    public void integratorInitialized(IntegratorEvent e) {
     }
 
-    public void integratorStepFinished(IIntegratorEvent e) {
+    public void integratorStepFinished(IntegratorEvent e) {
         Box box = sim.getBox(0);
         double temperature = sim.integrator.getTemperature();
         IRandom random = sim.getRandom();
@@ -53,7 +53,7 @@ public class ReactionManagerCO implements IIntegratorListener {
         }
    }
 
-    public void integratorStepStarted(IIntegratorEvent e) {
+    public void integratorStepStarted(IntegratorEvent e) {
     }
 
     public int getnReactCO() {

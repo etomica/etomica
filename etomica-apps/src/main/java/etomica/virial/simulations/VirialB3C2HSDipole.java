@@ -5,7 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.api.IIntegratorEvent;
+import etomica.integrator.IntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.atom.AtomTypeOriented;
 import etomica.chem.elements.ElementSimple;
@@ -184,9 +184,9 @@ public class VirialB3C2HSDipole {
 
         if (false) {
             IIntegratorListener progressReport = new IIntegratorListener() {
-                public void integratorInitialized(IIntegratorEvent e) {}
-                public void integratorStepStarted(IIntegratorEvent e) {}
-                public void integratorStepFinished(IIntegratorEvent e) {
+                public void integratorInitialized(IntegratorEvent e) {}
+                public void integratorStepStarted(IntegratorEvent e) {}
+                public void integratorStepFinished(IntegratorEvent e) {
                     if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();
@@ -201,9 +201,9 @@ public class VirialB3C2HSDipole {
         final ClusterAbstract finalTargetCluster = targetCluster.makeCopy();
 
         IIntegratorListener histListenerTarget = new IIntegratorListener() {
-            public void integratorStepStarted(IIntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
             
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 double r2Max = 0;
                 double r2Min = Double.POSITIVE_INFINITY;
                 CoordinatePairSet cPairs = sim.box[1].getCPairSet();
@@ -227,7 +227,7 @@ public class VirialB3C2HSDipole {
                 targPiHist.addValue(r, Math.abs(v));
             }
 
-            public void integratorInitialized(IIntegratorEvent e) {}
+            public void integratorInitialized(IntegratorEvent e) {}
         };
         if (false) {/////
             System.out.println("collecting histograms");

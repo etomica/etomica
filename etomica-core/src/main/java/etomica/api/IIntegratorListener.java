@@ -4,24 +4,26 @@
 
 package etomica.api;
 
+import etomica.integrator.IntegratorEvent;
+
 public interface IIntegratorListener {
 
     /**
      * Invoked when integration begins.
      * @param e
      */
-    public void integratorInitialized(IIntegratorEvent e);
+    public void integratorInitialized(IntegratorEvent e);
    
     /**
      * Invoked at the beginning of each integrator step.
      * @param e
      */
-    public void integratorStepStarted(IIntegratorEvent e);
+    public void integratorStepStarted(IntegratorEvent e);
     
     /**
      * Invoked at the end of each integrator step.
      * @param e
      */
-    public void integratorStepFinished(IIntegratorEvent e);
+    public void integratorStepFinished(IntegratorEvent e);
     
 }

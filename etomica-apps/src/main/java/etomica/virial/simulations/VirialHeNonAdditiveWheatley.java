@@ -9,7 +9,7 @@ import java.awt.Color;
 
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.api.IIntegratorEvent;
+import etomica.integrator.IntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
@@ -262,9 +262,9 @@ public class VirialHeNonAdditiveWheatley {
         
         final HistogramSimple targHist = new HistogramSimple(200, new DoubleRange(-1, 6));
         IIntegratorListener histListenerTarget = new IIntegratorListener() {
-            public void integratorStepStarted(IIntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
             
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 CoordinatePairSet cPairs = sim.box[1].getCPairSet();
                 for (int i=0; i<nPoints; i++) {
                     for (int j=i+1; j<nPoints; j++) {
@@ -281,12 +281,12 @@ public class VirialHeNonAdditiveWheatley {
                 }
             }
 
-            public void integratorInitialized(IIntegratorEvent e) {}
+            public void integratorInitialized(IntegratorEvent e) {}
         };
         IIntegratorListener progressReport = new IIntegratorListener() {
-            public void integratorInitialized(IIntegratorEvent e) {}
-            public void integratorStepStarted(IIntegratorEvent e) {}
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorInitialized(IntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
+            public void integratorStepFinished(IntegratorEvent e) {
 //                if (Double.isInfinite(sim.dsvo.getOverlapAverageAndError()[0])) {
 //                    sim.dsvo.getOverlapAverageAndError();
 //                    throw new RuntimeException("oops");
@@ -305,9 +305,9 @@ public class VirialHeNonAdditiveWheatley {
             sim.integratorOS.getEventManager().addListener(progressReport);
             if (params.doHist) {
                 IIntegratorListener histReport = new IIntegratorListener() {
-                    public void integratorInitialized(IIntegratorEvent e) {}
-                    public void integratorStepStarted(IIntegratorEvent e) {}
-                    public void integratorStepFinished(IIntegratorEvent e) {
+                    public void integratorInitialized(IntegratorEvent e) {}
+                    public void integratorStepStarted(IntegratorEvent e) {}
+                    public void integratorStepFinished(IntegratorEvent e) {
                         if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
                         double[] xValues = targHist.xValues();
                         double[] h = targHist.getHistogram();

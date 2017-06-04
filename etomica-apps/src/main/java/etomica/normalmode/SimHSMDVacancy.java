@@ -8,7 +8,7 @@ import etomica.action.BoxInflate;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.space.Boundary;
-import etomica.api.IIntegratorEvent;
+import etomica.integrator.IntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHash;
@@ -693,16 +693,16 @@ public class SimHSMDVacancy extends Simulation {
         final long finalSteps = steps;
         sim.integrator.getEventManager().addListener(new IIntegratorListener() {
             boolean reenabled = false;
-            public void integratorStepStarted(IIntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
             
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 if (!reenabled && sim.integrator.getStepCount() >= finalSteps/40) {
                     sim.integratorMC.getEventManager().addListener(mcMoveBiasListener);
                     reenabled = true;
                 }
             }
             
-            public void integratorInitialized(IIntegratorEvent e) {}
+            public void integratorInitialized(IntegratorEvent e) {}
         });
 
         sim.ai.setMaxSteps(steps/10);

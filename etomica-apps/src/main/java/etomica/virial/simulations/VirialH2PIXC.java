@@ -5,7 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.api.IIntegratorEvent;
+import etomica.integrator.IntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.atom.*;
 import etomica.chem.elements.Hydrogen;
@@ -283,11 +283,11 @@ public class VirialH2PIXC {
 		if (true) {
 			IIntegratorListener progressReport = new IIntegratorListener() {
 				@Override
-				public void integratorInitialized(IIntegratorEvent e) {}
+				public void integratorInitialized(IntegratorEvent e) {}
 				@Override
-				public void integratorStepStarted(IIntegratorEvent e) {}
+				public void integratorStepStarted(IntegratorEvent e) {}
 				@Override
-				public void integratorStepFinished(IIntegratorEvent e) {
+				public void integratorStepFinished(IntegratorEvent e) {
 					if ((sim.integrator.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
 					System.out.println(temperatureK + " " + avg0.getData(AccumulatorAverage.AVERAGE).getValue(0) + " " + avg0.getData(AccumulatorAverage.ERROR).getValue(0) + " " + avg0.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0));
 				}

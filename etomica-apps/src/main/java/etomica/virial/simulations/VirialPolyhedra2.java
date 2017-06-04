@@ -12,7 +12,7 @@ import etomica.action.IAction;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.api.IIntegratorEvent;
+import etomica.integrator.IntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.IPotentialAtomic;
 import etomica.space.Vector;
@@ -241,9 +241,9 @@ public class VirialPolyhedra2 {
             DataDoubleArray dataTarg = new DataDoubleArray(2);
             DataDouble dataRef = new DataDouble();
             Vector com = Space3D.getInstance().makeVector();
-            public void integratorStepStarted(IIntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
             
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 double v = Math.abs(finalTargetCluster.value(sim.box));
 //                if (v == 0) return;
                 v /= finalRefCluster.value(sim.box);
@@ -263,16 +263,16 @@ public class VirialPolyhedra2 {
                 }
             }
 
-            public void integratorInitialized(IIntegratorEvent e) {
+            public void integratorInitialized(IntegratorEvent e) {
             }
         };
         if (doHist) sim.integrator.getEventManager().addListener(histListener);
         IIntegratorListener histListenerRingy = new IIntegratorListener() {
             DataDoubleArray dataTarg = new DataDoubleArray(2);
             DataDouble dataRef = new DataDouble();
-            public void integratorStepStarted(IIntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
             
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 double v = Math.abs(finalTargetCluster.value(sim.box));
 //                if (v == 0) return;
                 v /= finalRefCluster.value(sim.box);
@@ -287,7 +287,7 @@ public class VirialPolyhedra2 {
                 }
             }
 
-            public void integratorInitialized(IIntegratorEvent e) {
+            public void integratorInitialized(IntegratorEvent e) {
             }
         };
         if (doHist) sim.integrator.getEventManager().addListener(histListenerRingy);

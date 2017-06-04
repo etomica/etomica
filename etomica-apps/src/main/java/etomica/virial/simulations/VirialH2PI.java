@@ -25,6 +25,7 @@ import etomica.graph.operations.DeleteEdgeParameters;
 import etomica.graph.property.IsBiconnected;
 import etomica.graph.property.NumRootNodes;
 import etomica.graphics.*;
+import etomica.integrator.IntegratorEvent;
 import etomica.integrator.mcmove.MCMove;
 import etomica.listener.IntegratorListenerAction;
 import etomica.math.DoubleRange;
@@ -790,10 +791,10 @@ public class VirialH2PI {
 			final ClusterAbstract finalTargetCluster = targetCluster.makeCopy();
 			IIntegratorListener histListenerRef = new IIntegratorListener() {
 				@Override
-				public void integratorStepStarted(IIntegratorEvent e) {}
+				public void integratorStepStarted(IntegratorEvent e) {}
 
 				@Override
-				public void integratorStepFinished(IIntegratorEvent e) {
+				public void integratorStepFinished(IntegratorEvent e) {
 					double r2Max = 0;
 					CoordinatePairSet cPairs = sim.box[0].getCPairSet();
 					for (int i=0; i<nPoints; i++) {
@@ -808,15 +809,15 @@ public class VirialH2PI {
 				}
 
 				@Override
-				public void integratorInitialized(IIntegratorEvent e) {
+				public void integratorInitialized(IntegratorEvent e) {
 				}
 			};
 			IIntegratorListener histListenerTarget = new IIntegratorListener() {
 				@Override
-				public void integratorStepStarted(IIntegratorEvent e) {}
+				public void integratorStepStarted(IntegratorEvent e) {}
 
 				@Override
-				public void integratorStepFinished(IIntegratorEvent e) {
+				public void integratorStepFinished(IntegratorEvent e) {
 					double r2Max = 0;
 					double r2Min = Double.POSITIVE_INFINITY;
 					CoordinatePairSet cPairs = sim.box[1].getCPairSet();
@@ -841,18 +842,18 @@ public class VirialH2PI {
 				}
 
 				@Override
-				public void integratorInitialized(IIntegratorEvent e) {}
+				public void integratorInitialized(IntegratorEvent e) {}
 			};
 			if (!isCommandline) {
 				// if interactive, print intermediate results
 				final double refIntegralF = refIntegral;
 				IIntegratorListener progressReport = new IIntegratorListener() {
 					@Override
-					public void integratorInitialized(IIntegratorEvent e) {}
+					public void integratorInitialized(IntegratorEvent e) {}
 					@Override
-					public void integratorStepStarted(IIntegratorEvent e) {}
+					public void integratorStepStarted(IntegratorEvent e) {}
 					@Override
-					public void integratorStepFinished(IIntegratorEvent e) {
+					public void integratorStepFinished(IntegratorEvent e) {
 						if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
 						System.out.print(sim.integratorOS.getStepCount()+" steps: ");
 						double[] ratioAndError = sim.dvo.getAverageAndError();
@@ -869,11 +870,11 @@ public class VirialH2PI {
 				if (params.doHist) {
 					IIntegratorListener histReport = new IIntegratorListener() {
 						@Override
-						public void integratorInitialized(IIntegratorEvent e) {}
+						public void integratorInitialized(IntegratorEvent e) {}
 						@Override
-						public void integratorStepStarted(IIntegratorEvent e) {}
+						public void integratorStepStarted(IntegratorEvent e) {}
 						@Override
-						public void integratorStepFinished(IIntegratorEvent e) {
+						public void integratorStepFinished(IntegratorEvent e) {
 							if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
 							System.out.println("**** reference ****");
 							double[] xValues = hist.xValues();

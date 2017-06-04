@@ -5,7 +5,7 @@
 package etomica.nbr.list;
 
 import etomica.action.BoxImposePbc;
-import etomica.api.IIntegratorEvent;
+import etomica.integrator.IntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.IPotential;
 import etomica.atom.*;
@@ -96,18 +96,18 @@ public class NeighborListManager implements IIntegratorListener, AgentSource<Ato
         }
     }
 
-    public void integratorInitialized(IIntegratorEvent e) {
+    public void integratorInitialized(IntegratorEvent e) {
         reset();
     }
 
-    public void integratorStepFinished(IIntegratorEvent e) {
+    public void integratorStepFinished(IntegratorEvent e) {
         if (--iieCount == 0) {
             updateNbrsIfNeeded();
             iieCount = updateInterval;
         }
     }
 
-    public void integratorStepStarted(IIntegratorEvent e) {}
+    public void integratorStepStarted(IntegratorEvent e) {}
 
     /**
      * For each box in the array, applies central image,

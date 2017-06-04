@@ -5,7 +5,7 @@
 package etomica.listener;
 
 import etomica.action.IAction;
-import etomica.api.IIntegratorEvent;
+import etomica.integrator.IntegratorEvent;
 import etomica.api.IIntegratorListener;
 
 public class IntegratorListenerAction implements IIntegratorListener {
@@ -24,20 +24,20 @@ public class IntegratorListenerAction implements IIntegratorListener {
         intervalCount = 0;
     }
     
-    public void integratorInitialized(IIntegratorEvent e) {
+    public void integratorInitialized(IntegratorEvent e) {
         if(intervalCount >= interval) {
             
         }
     }
     
-    public void integratorStepStarted(IIntegratorEvent e) {
+    public void integratorStepStarted(IntegratorEvent e) {
         if(++intervalCount >= interval) {
             
         }
         
     }
     
-    public void integratorStepFinished(IIntegratorEvent e) {
+    public void integratorStepFinished(IntegratorEvent e) {
         if(intervalCount >= interval) {
             intervalCount = 0;
             action.actionPerformed();

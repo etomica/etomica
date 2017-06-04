@@ -10,7 +10,7 @@ import java.util.Arrays;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
-import etomica.api.IIntegratorEvent;
+import etomica.integrator.IntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.space.*;
 import etomica.space.Vector;
@@ -144,8 +144,8 @@ public class SimModesJ extends Simulation {
         }
 
         final IIntegratorListener dumpHist = new IIntegratorListener() {
-            public void integratorStepStarted(IIntegratorEvent e) {}
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepStarted(IntegratorEvent e) {}
+            public void integratorStepFinished(IntegratorEvent e) {
                 if (++count != 1000) return;
                 try {
                     FileWriter hw = new FileWriter("wv_total_histogram.dat");
@@ -170,16 +170,16 @@ public class SimModesJ extends Simulation {
                     throw new RuntimeException(ex);
                 }
             }
-            public void integratorInitialized(IIntegratorEvent e) {}
+            public void integratorInitialized(IntegratorEvent e) {}
             int count;
         };
         sim.integrator.getEventManager().addListener(dumpHist);
         
         sim.integrator.getEventManager().addListener(new IIntegratorListener() {
             
-            public void integratorStepStarted(IIntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
             
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 Vector[] wv = sim.normalModes.getWaveVectors();
                 try {
                     FileWriter fw = new FileWriter("wv.out", true);
@@ -201,7 +201,7 @@ public class SimModesJ extends Simulation {
                 }
             }
             
-            public void integratorInitialized(IIntegratorEvent e) {
+            public void integratorInitialized(IntegratorEvent e) {
                 try {
                     FileWriter fw = new FileWriter("wv.out", false);
                     fw.close();
