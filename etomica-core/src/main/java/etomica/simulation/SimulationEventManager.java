@@ -25,7 +25,7 @@ public class SimulationEventManager implements ISimulationEventManager {
      */
     public synchronized void addListener(ISimulationListener listener) {
         if(listener == null) throw new NullPointerException("Cannot add null as a listener to Box");
-//        if (intervalListeners.contains(listener)) {
+//        if (listeners.contains(listener)) {
 //            throw new RuntimeException(listener+" is already an interval action");
 //        }
         intervalListeners.add(listener);

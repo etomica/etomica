@@ -17,16 +17,16 @@ import etomica.space.Vector;
  */
 public abstract class Integrator {
 
+    protected final IntegratorEventManager eventManager;
     protected boolean initialized = false;
     protected int interval;
     protected long stepCount;
-    protected final IntegratorEventManager eventManager;
     private int iieCount;
 
     public Integrator() {
         setEventInterval(1);
         stepCount = 0;
-        eventManager = new IntegratorEventManager();
+        eventManager = new IntegratorEventManager(this);
     }
 
     /**
@@ -124,13 +124,13 @@ public abstract class Integrator {
      * could be under the influence of a force.
      */
     public interface Forcible {
-        public Vector force();
+        Vector force();
     }
 
     /**
      * Integrator agent that holds a torque vector.
      */
     public interface Torquable {
-        public Vector torque();
+        Vector torque();
     }
 }
