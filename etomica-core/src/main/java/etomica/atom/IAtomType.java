@@ -4,6 +4,9 @@
 
 package etomica.atom;
 
+import etomica.api.IElement;
+import etomica.api.ISpecies;
+
 /**
  * IAtomType identifies a set of atoms and defines properties of those atoms.
  * Properties include indices used for tracking, mass and element.
