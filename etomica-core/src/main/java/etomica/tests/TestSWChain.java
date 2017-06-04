@@ -9,6 +9,7 @@ import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.box.Box;
+import etomica.config.Configuration;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConformationLinear;
 import etomica.data.AccumulatorAverage;
@@ -43,7 +44,7 @@ public class TestSWChain extends Simulation {
     public IntegratorHard integrator;
     public Box box;
 
-    public TestSWChain(Space _space, int numMolecules, double simTime) {
+    public TestSWChain(Space _space, int numMolecules, double simTime, Configuration config) {
         super(_space);
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
         int chainLength = 10;
@@ -93,7 +94,6 @@ public class TestSWChain extends Simulation {
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
 
         integrator.setBox(box);
-        ConfigurationFile config = new ConfigurationFile("SWChain"+Integer.toString(numMolecules));
         config.initializeCoordinates(box);
     }
     
@@ -102,9 +102,10 @@ public class TestSWChain extends Simulation {
         ParseArgs.doParseArgs(params, args);
         int numMolecules = params.numAtoms;
         double simTime = params.numSteps/numMolecules;
+        ConfigurationFile config = new ConfigurationFile("SWChain"+Integer.toString(numMolecules));
 
         Space sp = Space3D.getInstance();
-        TestSWChain sim = new TestSWChain(sp, numMolecules, simTime);
+        TestSWChain sim = new TestSWChain(sp, numMolecules, simTime, config);
 
         MeterPressureHard pMeter = new MeterPressureHard(sim.space);
         pMeter.setIntegrator(sim.integrator);
