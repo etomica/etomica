@@ -17,6 +17,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 
+import java.io.FileWriter;
 import java.io.IOException;
 
 /**
@@ -38,10 +39,9 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
     protected double qp_q;
     protected final int nbins;
     protected double sum;
-    protected double[] sum_separate;
     protected double x0, vCut;
     protected double vShift;
-    protected double R;
+    protected double R, uR;
 
     public PotentialCalculationMappedRdf(Space space, Box box, int nbins, AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> forceManager) {
         this.space = space;
@@ -63,16 +63,21 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
         PotentialCalculationMappedRdf pc = new PotentialCalculationMappedRdf(sim.getSpace(),box, 1000000, null);
         P2LennardJones potential = new P2LennardJones(sim.getSpace());
         P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(sim.getSpace(), potential, 4);
-        double vol1 = pc.vol;
+
         pc.setVolume(99999.99999999997);
         pc.setTemperature(2, p2Truncated);
         double rc = p2Truncated.getRange();
         double x0 = rc;
-                for (int i=10; i<45; i++) {
+
+        FileWriter fw = new FileWriter("vu.dat");
+        for (int i=10; i<45; i++) {
             double r = i*0.1;
             if (r>=4) r = 3.99999999;
                        System.out.println(r+" "+pc.calcXu(r, p2Truncated.u(r*r))+" ");
+                       fw.write(r+" "+pc.calcXu(r, p2Truncated.u(r*r))+"\n");
                    }
+
+        fw.close();
 
           }
 
@@ -95,7 +100,8 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
     public void setTemperature(double T, Potential2SoftSpherical p2) {
         beta = 1/T;
         double rc = p2.getRange();
-        R = 1;
+        R = 3;
+        uR = p2.u(R);
         x0 = rc;
         q = 0;
         qp = 0;
@@ -117,14 +123,12 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
             double evm1 = 0;
             double v = calcV(r,u);
             evm1 = Math.exp(-beta*v);
-            qp += (D==2 ? r : r2)*evm1*v*c1*(r+1);
             q += (D==2 ? r : r2)*(evm1-1)*c1*(r+1);
 
         }
-        qp *= -1*(D==2?2:4)*Math.PI;
-        q *= (D==2?2:4)*Math.PI;
-        q += vol;
-        qp_q = qp/q;
+
+        q *= (D==2?2:4)*Math.PI*vol;
+        q += vol*vol;
 
         for (int i=1; i<=nbins; i++) {
             double r = Math.exp(c1*i)-1;
@@ -142,17 +146,21 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
 
         }
 
-        //  System.out.println("cumint "+cumint[nbins]+ " nbins "+nbins);
     }
 
     protected double calcXu(double r, double u) {
+
         double y = cumint(r);
         double v = calcV(r,u);
+        double vR = calcV(R,uR);
         double evm1 = Math.exp(-beta*v);
-        //if(r>R)
-        return y;
-       // else
-         //   return
+        double evmR = Math.exp(-beta*vR);
+
+        if(r<R)
+         return y*(evmR/evm1)*(R/r)*(R/r)*beta*4*Math.PI/q*-1;
+        else
+         return beta*(R/r)*(R/r)*(evmR/evm1)*(1-(4*Math.PI/q*y));
+
     }
 
     protected double calcV(double r,double u){
@@ -168,14 +176,6 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
         int ii = (int)i;
         double y = cumint[ii] + (cumint[ii+1]-cumint[ii])*(i-ii);
         return y;
-    }
-
-    public double getQP_Q() {
-        return qp_q;
-    }
-
-    public double getqp() {
-        return qp;
     }
 
     public void reset() {
