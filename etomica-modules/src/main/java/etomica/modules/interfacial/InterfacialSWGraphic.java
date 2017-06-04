@@ -16,7 +16,7 @@ import etomica.action.IAction;
 import etomica.api.*;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.atom.AtomPositionGeometricCenterPBC;
+import etomica.atom.MoleculePositionGeometricCenterPBC;
 import etomica.atom.DiameterHashByType;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
@@ -421,7 +421,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         profilePumpListener.setInterval(10);
         dataStreamPumps.add(profilePump);
 
-        AtomPositionGeometricCenterPBC positionDefinitionPBC = new AtomPositionGeometricCenterPBC(space, sim.box.getBoundary());
+        MoleculePositionGeometricCenterPBC positionDefinitionPBC = new MoleculePositionGeometricCenterPBC(space, sim.box.getBoundary());
         surfactantProfileMeter = new MeterProfileByVolume(space);
         surfactantProfileMeter.setBox(sim.box);
         surfactantProfileMeter.setPositionDefinition(positionDefinitionPBC);

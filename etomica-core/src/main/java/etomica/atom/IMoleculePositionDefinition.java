@@ -10,16 +10,16 @@ import etomica.space.Vector;
 
 
 /**
- * Returns a vector given an atom, thereby defining the position
- * of the atom or atom group.  Example implementations of this interface
+ * Returns a vector given a molecule, thereby defining the position
+ * of the molecule.  Example implementations of this interface
  * are based on the center of mass, or on the position of the first
- * leaf atom in the group.
+ * child atom in the molecule.
  */
-public interface IAtomPositionDefinition {
+public interface IMoleculePositionDefinition {
 
     /**
-     * Returns the defined position for the given atom, which 
-     * may be an atom group.
+     * Returns the defined position for the given molecule.
+     * @param molecule a group of atoms for which to define a position
      */
-    public Vector position(IMolecule atom);
+    Vector position(IMolecule molecule);
 }

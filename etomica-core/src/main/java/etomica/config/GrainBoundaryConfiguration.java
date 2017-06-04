@@ -16,7 +16,7 @@ package etomica.config;
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.*;
 import etomica.box.Box;
-import etomica.atom.AtomPositionFirstAtom;
+import etomica.atom.MoleculePositionFirstAtom;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
@@ -54,7 +54,7 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
             		"Dimension of index iterator and lattice are incompatible");
         }
         atomActionTranslateTo = new MoleculeActionTranslateTo(latticeA.getSpace());
-        atomActionTranslateTo.setAtomPositionDefinition(new AtomPositionFirstAtom());
+        atomActionTranslateTo.setAtomPositionDefinition(new MoleculePositionFirstAtom());
     }
 
     public void setDimensions (int nCellsAx, int nCellsAy, int nCellsAz, 

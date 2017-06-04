@@ -22,19 +22,19 @@ import etomica.space.Space;
  * @author shu
  * March 2013
  */
-public class AtomPositionGeometricCenterAlkaneEH implements IAtomPositionDefinition, Serializable {
+public class MoleculePositionGeometricCenterAlkaneEH implements IMoleculePositionDefinition, Serializable {
 
-    public AtomPositionGeometricCenterAlkaneEH(Space space, ISpecies speciesAlkane) {
+    public MoleculePositionGeometricCenterAlkaneEH(Space space, ISpecies speciesAlkane) {
         center = space.makeVector();
         this.speciesAlkane =speciesAlkane; 
     }
 
-    public Vector position(IMolecule atom) {
+    public Vector position(IMolecule molecule) {
         center.E(0.0);
-        IAtomList children = atom.getChildList();
+        IAtomList children = molecule.getChildList();
         int nAtoms = children.getAtomCount();
         // get the species info in the virial main class, if it is alkaneEH species, then use (n-2)/3, use nAtoms for CO2/N2/etc.
-        int numCarbons = atom.getType()== speciesAlkane? (nAtoms-2)/3 : nAtoms;
+        int numCarbons = molecule.getType()== speciesAlkane? (nAtoms-2)/3 : nAtoms;
         for (int i=0; i<numCarbons; i++) {// loop over all carbons ONLY
             center.PE(children.getAtom(i).getPosition());
         }

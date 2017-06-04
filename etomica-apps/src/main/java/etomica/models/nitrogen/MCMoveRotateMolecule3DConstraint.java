@@ -8,8 +8,8 @@ import etomica.api.*;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.MoleculePositionGeometricCenter;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.paracetamol.AtomActionTransformed;
 import etomica.potential.PotentialMaster;
@@ -39,7 +39,7 @@ public class MCMoveRotateMolecule3DConstraint extends MCMoveMolecule {
     private static final long serialVersionUID = 2L;
     protected transient Vector r0;
     protected transient RotationTensor rotationTensor;
-    protected IAtomPositionDefinition positionDefinition;
+    protected IMoleculePositionDefinition positionDefinition;
     protected double constraintAngle;
     protected CoordinateDefinitionNitrogen coordinateDef;
     protected Vector[][] initMolecOrientation;
@@ -53,7 +53,7 @@ public class MCMoveRotateMolecule3DConstraint extends MCMoveMolecule {
         super(potentialMaster, random, _space, 0.5*Math.PI, Math.PI);
         rotationTensor = _space.makeRotationTensor();
         r0 = _space.makeVector();
-        positionDefinition = new AtomPositionGeometricCenter(space);
+        positionDefinition = new MoleculePositionGeometricCenter(space);
         constraintAngle = angle;
         this.coordinateDef = coordinateDef;
         

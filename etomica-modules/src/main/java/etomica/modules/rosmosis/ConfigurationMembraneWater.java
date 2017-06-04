@@ -7,14 +7,14 @@ package etomica.modules.rosmosis;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.atom.IAtom;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.space.Vector;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.MoleculePositionGeometricCenter;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.lattice.BravaisLatticeCrystal;
@@ -34,7 +34,7 @@ public class ConfigurationMembraneWater implements Configuration {
         numMembraneLayers = 2;
         membraneWidth = 4;
         this.sim = sim;
-        positionDefinition = new AtomPositionGeometricCenter(_space);
+        positionDefinition = new MoleculePositionGeometricCenter(_space);
     }
 
     public void initializeCoordinates(Box box) {
@@ -299,5 +299,5 @@ public class ConfigurationMembraneWater implements Configuration {
     protected int membraneDim;
     protected final Simulation sim;
     private final Space space;
-    protected IAtomPositionDefinition positionDefinition;
+    protected IMoleculePositionDefinition positionDefinition;
 }

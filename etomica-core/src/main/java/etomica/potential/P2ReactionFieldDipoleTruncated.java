@@ -2,19 +2,19 @@ package etomica.potential;
 
 import etomica.atom.IAtom;
 import etomica.api.IBoundary;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMolecular;
 import etomica.space.Vector;
 import etomica.atom.DipoleSource;
-import etomica.atom.IAtomPositionDefinition;
 import etomica.space.Space;
 import etomica.space.Tensor;
 
 public class P2ReactionFieldDipoleTruncated extends PotentialMolecular implements PotentialMolecularSoft, IPotentialMolecularTorque {
 
-    public P2ReactionFieldDipoleTruncated(Space space, IAtomPositionDefinition positionDefinition) {
+    public P2ReactionFieldDipoleTruncated(Space space, IMoleculePositionDefinition positionDefinition) {
         super(2, space);
         this.positionDefinition = positionDefinition;
         iDipole = space.makeVector();
@@ -141,7 +141,7 @@ public class P2ReactionFieldDipoleTruncated extends PotentialMolecular implement
     protected final Vector[][] gradientAndTorque;
     protected double fac;
     protected double cutoffRatio;
-    protected final IAtomPositionDefinition positionDefinition;
+    protected final IMoleculePositionDefinition positionDefinition;
     
     /**
      * A 0-body potential that should be added along with this potential.  The

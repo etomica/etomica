@@ -4,9 +4,9 @@
 
 package etomica.nbr.cell;
 
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
-import etomica.atom.IAtomPositionDefinition;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxCellManager;
 import etomica.nbr.site.PotentialMasterSite;
@@ -36,11 +36,11 @@ public class PotentialMasterCell extends PotentialMasterSite {
      * @param range the neighbor distance.  May be changed after construction.
      */
     public PotentialMasterCell(Simulation sim, double range, Space _space) {
-        this(sim, range, (IAtomPositionDefinition)null, _space);
+        this(sim, range, (IMoleculePositionDefinition)null, _space);
     }
 
     public PotentialMasterCell(Simulation sim, double range,
-                               IAtomPositionDefinition positionDefinition, Space _space) {
+                               IMoleculePositionDefinition positionDefinition, Space _space) {
         this(sim, range, new BoxAgentSourceCellManager(sim, positionDefinition, _space), _space);
     }
     

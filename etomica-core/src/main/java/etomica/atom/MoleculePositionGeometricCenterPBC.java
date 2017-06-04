@@ -22,17 +22,17 @@ import etomica.space.Space;
  * 
  * @author David Kofke, Andrew Schultz
  */
-public class AtomPositionGeometricCenterPBC implements IAtomPositionDefinition, Serializable {
+public class MoleculePositionGeometricCenterPBC implements IMoleculePositionDefinition, Serializable {
 
-    public AtomPositionGeometricCenterPBC(Space space, IBoundary boundary) {
+    public MoleculePositionGeometricCenterPBC(Space space, IBoundary boundary) {
         center = space.makeVector();
         dr = space.makeVector();
         this.boundary = boundary;
     }
 
-    public Vector position(IMolecule atom) {
+    public Vector position(IMolecule molecule) {
         center.E(0.0);
-        IAtomList children = atom.getChildList();
+        IAtomList children = molecule.getChildList();
         int nAtoms = children.getAtomCount();
         Vector pos0 = children.getAtom(0).getPosition();
         for (int i=0; i<nAtoms; i++) {

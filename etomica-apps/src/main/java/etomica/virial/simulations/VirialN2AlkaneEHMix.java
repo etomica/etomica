@@ -16,7 +16,7 @@ import etomica.api.IElement;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.ISpecies;
-import etomica.atom.AtomPositionGeometricCenterAlkaneEH;
+import etomica.atom.MoleculePositionGeometricCenterAlkaneEH;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIndexList;
@@ -371,7 +371,7 @@ public class VirialN2AlkaneEHMix {
     	
         //*********************************** Set Geometric center *********************************//
     	// geometric center is based on all carbons, hydrogens not included
-    	AtomPositionGeometricCenterAlkaneEH center = new AtomPositionGeometricCenterAlkaneEH(space,speciesAlkaneEH);
+    	MoleculePositionGeometricCenterAlkaneEH center = new MoleculePositionGeometricCenterAlkaneEH(space,speciesAlkaneEH);
     	((MCMoveRotateMolecule3D)sim.mcMoveRotate[0]).setPositionDefinition(center);
     	((MCMoveRotateMolecule3D)sim.mcMoveRotate[1]).setPositionDefinition(center);
     	((CoordinatePairMoleculeSet)sim.box[0].getCPairSet()).setPositionDefinition(center);

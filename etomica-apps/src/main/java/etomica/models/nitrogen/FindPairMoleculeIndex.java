@@ -5,9 +5,9 @@
 package etomica.models.nitrogen;
 
 import etomica.api.IMolecule;
+import etomica.atom.MoleculePositionGeometricCenter;
 import etomica.space.Vector;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.space.Space;
 
 
@@ -33,7 +33,7 @@ import etomica.space.Space;
 public class FindPairMoleculeIndex {
 	public FindPairMoleculeIndex(Space space, CoordinateDefinitionNitrogen coordinateDefination){
 		this.coordinateDef = coordinateDefination;
-		positionDefinition = new AtomPositionGeometricCenter(space);
+		positionDefinition = new MoleculePositionGeometricCenter(space);
 		tempVec = space.makeVector();
 		tempOrientA = space.makeVector();
 		tempOrientB = space.makeVector();
@@ -161,7 +161,7 @@ public class FindPairMoleculeIndex {
 	
 	protected int[] index;
 	protected CoordinateDefinitionNitrogen coordinateDef;
-	protected IAtomPositionDefinition positionDefinition;
+	protected IMoleculePositionDefinition positionDefinition;
 	protected Vector tempVec, tempOrientA, tempOrientB, molAVec, molBVec;
 	protected double halfUnitCellLength;
 	protected double[][][] siteDisplacement;

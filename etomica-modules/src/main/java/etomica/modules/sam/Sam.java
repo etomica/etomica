@@ -50,7 +50,7 @@ public class Sam extends Simulation {
     public Box box;
     public IntegratorVelocityVerletSAM integrator;
     public ActivityIntegrate activityIntegrate;
-    public IAtomPositionDefinition positionDefinition;
+    public IMoleculePositionDefinition positionDefinition;
     public P1WCAWall wallPotential;
     public ConfigurationSAM config;
     public final P1Sinusoidal p1SurfaceBond;
@@ -78,7 +78,7 @@ public class Sam extends Simulation {
 
     public Sam() {
         super(Space.getInstance(3));
-        positionDefinition = new AtomPositionGeometricCenter(space);
+        positionDefinition = new MoleculePositionGeometricCenter(space);
         sigmaCH2 = 3.95;
         potentialMaster = new PotentialMasterList(this,2.8*sigmaCH2, space); //List(this, 2.0);
 

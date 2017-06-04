@@ -6,19 +6,19 @@ package etomica.potential;
 
 import etomica.atom.IAtom;
 import etomica.api.IBoundary;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMolecular;
 import etomica.space.Vector;
 import etomica.atom.DipoleSource;
-import etomica.atom.IAtomPositionDefinition;
 import etomica.space.Space;
 import etomica.space.Tensor;
 
 public class P2ReactionFieldDipole extends PotentialMolecular implements PotentialMolecularSoft, IPotentialMolecularSecondDerivative {
 
-    public P2ReactionFieldDipole(Space space, IAtomPositionDefinition positionDefinition) {
+    public P2ReactionFieldDipole(Space space, IMoleculePositionDefinition positionDefinition) {
         super(2, space);
         this.positionDefinition = positionDefinition;
         iDipole = space.makeVector();
@@ -231,7 +231,7 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
         return new P0ReactionField(this.space, this);
     }
 
-    protected final IAtomPositionDefinition positionDefinition;
+    protected final IMoleculePositionDefinition positionDefinition;
     protected final Vector iDipole, cavityDipole;
     protected final Vector dr ,dr1;
     protected DipoleSource dipoleSource;

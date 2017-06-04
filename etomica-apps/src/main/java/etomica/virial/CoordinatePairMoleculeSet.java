@@ -6,9 +6,9 @@ package etomica.virial;
 
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.space.Vector;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.MoleculePositionGeometricCenter;
 import etomica.space.Space;
 import etomica.util.Debug;
 
@@ -35,16 +35,16 @@ public class CoordinatePairMoleculeSet implements CoordinatePairSet {
         setAtoms(list);
         dr = space.makeVector();
         iPosition = space.makeVector();
-        positionDefinition = new AtomPositionGeometricCenter(space);
+        positionDefinition = new MoleculePositionGeometricCenter(space);
     }
     
     
-    public IAtomPositionDefinition getPositionDefinition() {
+    public IMoleculePositionDefinition getPositionDefinition() {
 		return positionDefinition;
 	}
 
 
-	public void setPositionDefinition(IAtomPositionDefinition positionDefinition) {
+	public void setPositionDefinition(IMoleculePositionDefinition positionDefinition) {
 		this.positionDefinition = positionDefinition;
 	}
 
@@ -95,5 +95,5 @@ public class CoordinatePairMoleculeSet implements CoordinatePairSet {
     protected final Vector dr;
     protected final Vector iPosition;
     protected long ID;
-    protected IAtomPositionDefinition positionDefinition;
+    protected IMoleculePositionDefinition positionDefinition;
 }

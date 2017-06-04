@@ -5,11 +5,11 @@
 package etomica.threaded.domain;
 
 import etomica.atom.IAtom;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IPotential;
 import etomica.simulation.Simulation;
-import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.BoxAgentManager;
 import etomica.lattice.CellLattice;
@@ -36,11 +36,11 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
 	}
 
 	public PotentialMasterListThreaded(Simulation sim, double range, Space _space) {
-        this(sim, range, (IAtomPositionDefinition)null, _space);
+        this(sim, range, (IMoleculePositionDefinition)null, _space);
 	}
 
 	public PotentialMasterListThreaded(Simulation sim, double range,
-                                       IAtomPositionDefinition positionDefinition, Space _space) {
+                                       IMoleculePositionDefinition positionDefinition, Space _space) {
         this(sim, range, new BoxAgentSourceCellManagerList(sim, positionDefinition, _space), _space);
 	}
 

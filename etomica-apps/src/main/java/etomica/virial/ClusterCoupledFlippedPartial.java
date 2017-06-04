@@ -7,9 +7,9 @@ package etomica.virial;
 import etomica.atom.IAtomList;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
+import etomica.atom.MoleculePositionGeometricCenter;
 import etomica.space.Vector;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.space.Space;
 
 public class ClusterCoupledFlippedPartial implements ClusterAbstract {
@@ -21,7 +21,7 @@ public class ClusterCoupledFlippedPartial implements ClusterAbstract {
         wrappedCluster = cluster;
         childAtomVector = space.makeVector();
         flippedAtoms = new boolean[flipList.length];
-        positionDefinition = new AtomPositionGeometricCenter(space);
+        positionDefinition = new MoleculePositionGeometricCenter(space);
     }
 
 	public ClusterAbstract makeCopy() {
@@ -129,7 +129,7 @@ public class ClusterCoupledFlippedPartial implements ClusterAbstract {
     protected double value, lastValue;
     protected final boolean[] flippedAtoms;
     private Vector childAtomVector;
-    protected IAtomPositionDefinition positionDefinition;
+    protected IMoleculePositionDefinition positionDefinition;
     protected final int[][] flipList;
     protected final int[] actualFlipList;
 }

@@ -5,12 +5,12 @@
 package etomica.normalmode;
 
 import etomica.atom.IAtomList;
+import etomica.atom.MoleculePositionGeometricCenter;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.space.Vector;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -29,7 +29,7 @@ public class MeterPlaneSlip implements IEtomicaDataSource {
 
     public MeterPlaneSlip(Space space, ISpecies species, int nPlanes, int nx, int ny) {
         this.species = species;
-        pos = new AtomPositionGeometricCenter(space);
+        pos = new MoleculePositionGeometricCenter(space);
         drSum = new Vector[nPlanes][2];
         for (int i=0; i<nPlanes; i++) {
             drSum[i][0] = space.makeVector();
@@ -137,7 +137,7 @@ public class MeterPlaneSlip implements IEtomicaDataSource {
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
-    protected IAtomPositionDefinition pos;
+    protected IMoleculePositionDefinition pos;
     protected final double[][] offset0;
     protected final int nx, ny;
 }

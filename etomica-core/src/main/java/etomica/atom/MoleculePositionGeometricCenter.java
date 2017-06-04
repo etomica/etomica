@@ -18,15 +18,15 @@ import etomica.space.Space;
  * 
  * @author David Kofke
  */
-public class AtomPositionGeometricCenter implements IAtomPositionDefinition, Serializable {
+public class MoleculePositionGeometricCenter implements IMoleculePositionDefinition, Serializable {
 
-    public AtomPositionGeometricCenter(Space space) {
+    public MoleculePositionGeometricCenter(Space space) {
         center = space.makeVector();
     }
 
-    public Vector position(IMolecule atom) {
+    public Vector position(IMolecule molecule) {
         center.E(0.0);
-        IAtomList children = atom.getChildList();
+        IAtomList children = molecule.getChildList();
         int nAtoms = children.getAtomCount();
         for (int i=0; i<nAtoms; i++) {
             center.PE(children.getAtom(i).getPosition());

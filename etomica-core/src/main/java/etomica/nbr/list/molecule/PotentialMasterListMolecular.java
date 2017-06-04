@@ -4,6 +4,7 @@
 
 package etomica.nbr.list.molecule;
 
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -11,7 +12,6 @@ import etomica.api.IPotential;
 import etomica.api.IPotentialMolecular;
 import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
-import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.MoleculeArrayList;
 import etomica.atom.MoleculePair;
 import etomica.atom.MoleculeSetSinglet;
@@ -54,7 +54,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
      * Constructor specifying space and range for neighbor listing; uses null AtomPositionDefinition.
      */
     public PotentialMasterListMolecular(Simulation sim, double range, Space _space) {
-        this(sim, range, (IAtomPositionDefinition)null, _space);
+        this(sim, range, (IMoleculePositionDefinition)null, _space);
     }
     
     /**
@@ -64,7 +64,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
      * @param positionDefinition
      *            if null, specifies use of atom type's position definition
      */
-    public PotentialMasterListMolecular(Simulation sim, double range, IAtomPositionDefinition positionDefinition, Space _space) {
+    public PotentialMasterListMolecular(Simulation sim, double range, IMoleculePositionDefinition positionDefinition, Space _space) {
         this(sim, range, new BoxAgentSourceCellManagerListMolecular(sim, positionDefinition, _space), _space);
     }
 

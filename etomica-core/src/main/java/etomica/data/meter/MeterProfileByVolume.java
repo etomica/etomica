@@ -4,13 +4,13 @@
 
 package etomica.data.meter;
 import etomica.api.IBoundary;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.space.Vector;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.MoleculePositionGeometricCenter;
 import etomica.data.DataSourceIndependent;
 import etomica.data.DataSourceMolecular;
 import etomica.data.DataSourceUniform;
@@ -54,7 +54,7 @@ public class MeterProfileByVolume implements IEtomicaDataSource, DataSourceIndep
         tag = new DataTag();
         xDataSource.setTypeMax(LimitType.HALF_STEP);
         xDataSource.setTypeMin(LimitType.HALF_STEP);
-        positionDefinition = new AtomPositionGeometricCenter(space);
+        positionDefinition = new MoleculePositionGeometricCenter(space);
     }
     
     public IEtomicaDataInfo getDataInfo() {
@@ -185,11 +185,11 @@ public class MeterProfileByVolume implements IEtomicaDataSource, DataSourceIndep
         return xDataSource;
     }
 
-    public void setPositionDefinition(IAtomPositionDefinition positionDefinition) {
+    public void setPositionDefinition(IMoleculePositionDefinition positionDefinition) {
         this.positionDefinition = positionDefinition;
     }
 
-    public IAtomPositionDefinition getPositionDefinition() {
+    public IMoleculePositionDefinition getPositionDefinition() {
         return positionDefinition;
     }
 
@@ -210,6 +210,6 @@ public class MeterProfileByVolume implements IEtomicaDataSource, DataSourceIndep
     protected DataSourceMolecular meter;
     protected final DataTag tag;
     protected ISpecies species;
-    protected IAtomPositionDefinition positionDefinition;
+    protected IMoleculePositionDefinition positionDefinition;
     protected double dV;
 }

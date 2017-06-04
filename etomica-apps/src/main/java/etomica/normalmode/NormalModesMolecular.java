@@ -12,7 +12,7 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
-import etomica.atom.AtomPositionCOM;
+import etomica.atom.MoleculePositionCOM;
 import etomica.lattice.crystal.Primitive;
 import etomica.models.water.SpeciesWater4P;
 import etomica.normalmode.LatticeSumMolecularCrystal.AtomicTensorAtomicPair;
@@ -62,7 +62,7 @@ public class NormalModesMolecular implements NormalModes {
         Tensor tempTensor = space.makeTensor();
         Tensor inertiaTensor = space.makeTensor();
         double massH2O = species.getOxygenType().getMass() + 2.0 * species.getHydrogenType().getMass();
-    	AtomPositionCOM comi = new AtomPositionCOM(space);
+    	MoleculePositionCOM comi = new MoleculePositionCOM(space);
     	Vector drk = space.makeVector();
         Tensor identity = new Tensor3D(new double[][] {{1.0,0.0,0.0}, {0.0,1.0,0.0}, {0.0,0.0,1.0}});
 

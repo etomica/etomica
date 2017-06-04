@@ -7,6 +7,7 @@ package etomica.normalmode;
 import etomica.action.BoxInflate;
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.atom.IAtomList;
+import etomica.atom.MoleculePositionGeometricCenter;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -14,7 +15,6 @@ import etomica.api.IPotentialAtomic;
 import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.space.Vector;
-import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.IteratorDirective;
@@ -49,7 +49,7 @@ public class MCMoveVolumeMonoclinicScaled extends MCMoveBoxStep {
     protected final Vector scaleVector;
     protected final Vector latticeScale;
 
-    protected final AtomPositionGeometricCenter moleculeCenter;
+    protected final MoleculePositionGeometricCenter moleculeCenter;
     protected final MoleculeActionTranslateTo translateTo;
     
     protected transient double uOld;
@@ -87,7 +87,7 @@ public class MCMoveVolumeMonoclinicScaled extends MCMoveBoxStep {
         boxSize = space.makeVector();
         scaleVector = space.makeVector();
         latticeScale = space.makeVector();
-        moleculeCenter = new AtomPositionGeometricCenter(space);
+        moleculeCenter = new MoleculePositionGeometricCenter(space);
         translateTo = new MoleculeActionTranslateTo(space);
     }
     

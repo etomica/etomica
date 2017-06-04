@@ -8,8 +8,8 @@ import etomica.atom.IAtomList;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.space.Vector;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.MoleculePositionGeometricCenter;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.space.Space;
 
 public class ClusterCoupledFlipped implements ClusterAbstract {
@@ -31,7 +31,7 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
         wrappedCluster = cluster;
         childAtomVector = space.makeVector();
         flippedAtoms = new boolean[cluster.pointCount()];
-        positionDefinition = new AtomPositionGeometricCenter(space);
+        positionDefinition = new MoleculePositionGeometricCenter(space);
         this.minFlipDistance = minFlipDistance;
     }
 
@@ -138,6 +138,6 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
     protected double value, lastValue;
     protected final boolean[] flippedAtoms;
     private Vector childAtomVector;
-    protected IAtomPositionDefinition positionDefinition;
+    protected IMoleculePositionDefinition positionDefinition;
     protected final double minFlipDistance;
 }

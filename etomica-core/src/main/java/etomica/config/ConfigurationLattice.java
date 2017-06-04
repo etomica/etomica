@@ -6,13 +6,13 @@ package etomica.config;
 
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.IBoundary;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.space.Vector;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.MoleculePositionGeometricCenter;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
@@ -65,7 +65,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
         this.indexIterator = indexIterator;
         this.space = space;
         atomActionTranslateTo = new MoleculeActionTranslateTo(lattice.getSpace());
-        positionDefinition = new AtomPositionGeometricCenter(space);
+        positionDefinition = new MoleculePositionGeometricCenter(space);
         atomActionTranslateTo.setAtomPositionDefinition(positionDefinition);
         setBoundaryPadding(0);
     }
@@ -256,7 +256,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
     protected MyLattice myLat;
     protected double boundaryPadding;
     protected final Space space;
-    protected IAtomPositionDefinition positionDefinition;
+    protected IMoleculePositionDefinition positionDefinition;
     private static final long serialVersionUID = 3L;
 
     /**

@@ -5,14 +5,14 @@
 package etomica.integrator.mcmove;
 
 import etomica.action.MoleculeActionTranslateTo;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISpecies;
-import etomica.atom.AtomPositionCOM;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.MoleculePositionCOM;
 import etomica.atom.MoleculeArrayList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
@@ -39,7 +39,7 @@ public class MCMoveSemigrand extends MCMoveBox {
     private final AtomIteratorArrayListSimple affectedAtomIterator; 
     private final MeterPotentialEnergy energyMeter;
     private final MoleculeActionTranslateTo moleculeTranslator;
-    private IAtomPositionDefinition atomPositionDefinition;
+    private IMoleculePositionDefinition atomPositionDefinition;
     private final IRandom random;
     
     private transient IMolecule deleteMolecule, insertMolecule;
@@ -56,7 +56,7 @@ public class MCMoveSemigrand extends MCMoveBox {
         perParticleFrequency = true;
         energyMeter.setIncludeLrc(true);
         moleculeTranslator = new MoleculeActionTranslateTo(_space);
-        setAtomPositionDefinition(new AtomPositionCOM(_space));
+        setAtomPositionDefinition(new MoleculePositionCOM(_space));
     }
     
     /**
@@ -190,14 +190,14 @@ public class MCMoveSemigrand extends MCMoveBox {
     /**
      * @return Returns the positionDefinition.
      */
-    public IAtomPositionDefinition geAtomPositionDefinition() {
+    public IMoleculePositionDefinition geAtomPositionDefinition() {
         return atomPositionDefinition;
     }
 
     /**
      * @param positionDefinition The positionDefinition to set.
      */
-    public void setAtomPositionDefinition(IAtomPositionDefinition positionDefinition) {
+    public void setAtomPositionDefinition(IMoleculePositionDefinition positionDefinition) {
         this.atomPositionDefinition = positionDefinition;
         moleculeTranslator.setAtomPositionDefinition(positionDefinition);
     }

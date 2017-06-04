@@ -7,17 +7,13 @@ import java.util.Calendar;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
+import etomica.atom.*;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.potential.PotentialMaster;
 import etomica.api.ISpecies;
 import etomica.space.Vector;
-import etomica.atom.AtomPositionCOM;
-import etomica.atom.DiameterHashByType;
-import etomica.atom.DipoleSource;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.MoleculePositionCOM;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
 import etomica.config.ConfigurationLattice;
@@ -108,7 +104,7 @@ public class TIP4P_NVT extends Simulation {
     //	 double mu=168.96979945736229;//in simulation unit
 
     	//for potential truncated
-    	 IAtomPositionDefinition positionDefinition = new AtomPositionCOM(space) ;
+    	 IMoleculePositionDefinition positionDefinition = new MoleculePositionCOM(space) ;
  	    	 
     	 pWater = new P2WaterTIP4PSoft(space,truncation,positionDefinition);
     	 

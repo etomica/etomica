@@ -168,7 +168,7 @@ public class MinimizationTIP4P extends Simulation{
 
 		pcForce.setAgentManager(atomAgentManager);
         MoleculeActionTranslateTo translator = new MoleculeActionTranslateTo(sim.space);
-        AtomPositionGeometricCenter pos = new AtomPositionGeometricCenter(sim.space);
+        MoleculePositionGeometricCenter pos = new MoleculePositionGeometricCenter(sim.space);
      
         translator.setAtomPositionDefinition(pos);
         

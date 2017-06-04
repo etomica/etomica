@@ -6,7 +6,7 @@
 package etomica.models.water;
 
 import etomica.api.*;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.box.Box;
 import etomica.potential.PotentialMolecular;
 import etomica.space.Vector;
@@ -20,7 +20,7 @@ import etomica.space.Space;
  */
 public class P2Water4P extends PotentialMolecular {
 
-	public P2Water4P(Space space, double sigma, double epsilon, double chargeH, double rCut, IAtomPositionDefinition positionDefinition) {
+	public P2Water4P(Space space, double sigma, double epsilon, double chargeH, double rCut, IMoleculePositionDefinition positionDefinition) {
 		super(2, space);
         this.sigma = sigma;
         sigma2 = sigma*sigma;
@@ -165,5 +165,5 @@ public class P2Water4P extends PotentialMolecular {
 	protected final double chargeMM, chargeMH, chargeHH;
 	protected final double rCut;
 	protected final Vector work, shift,com1,com2;
-	protected final IAtomPositionDefinition positionDefinition;
+	protected final IMoleculePositionDefinition positionDefinition;
 }

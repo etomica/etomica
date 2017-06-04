@@ -5,7 +5,7 @@
 
 package etomica.models.water;
 
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.space.Space;
 
 /** 
@@ -13,7 +13,7 @@ import etomica.space.Space;
  */
 public class P2WaterTIP4PSoft extends P2Water4PSoft {
 
-    public P2WaterTIP4PSoft(Space space, double rCut, IAtomPositionDefinition positionDefinition) {
+    public P2WaterTIP4PSoft(Space space, double rCut, IMoleculePositionDefinition positionDefinition) {
         super(space, P2WaterTIP4P.s, P2WaterTIP4P.e,
                  P2WaterTIP4P.qH,rCut,positionDefinition);
     }

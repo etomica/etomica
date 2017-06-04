@@ -5,12 +5,12 @@
 package etomica.nbr;
 
 import etomica.atom.IAtomType;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;
 import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
-import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxCellManager;
@@ -46,7 +46,7 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
      * Constructs class using given position definition for all atom cell assignments.
      * @param positionDefinition if null, specifies use of atom type's position definition
      */
-    public PotentialMasterHybrid(Simulation sim, IAtomPositionDefinition positionDefinition, double range, Space space) {
+    public PotentialMasterHybrid(Simulation sim, IMoleculePositionDefinition positionDefinition, double range, Space space) {
         this(sim, range, new BoxAgentSourceCellManagerList(sim, positionDefinition, space), space);
     }
     

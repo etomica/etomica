@@ -14,7 +14,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.atom.iterator.AtomIterator;
 import etomica.box.BoxCellManager;
 import etomica.integrator.mcmove.MCMove;
@@ -40,7 +40,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
 
     protected final Simulation sim;
     protected final CellLattice lattice;
-    protected final IAtomPositionDefinition positionDefinition;
+    protected final IMoleculePositionDefinition positionDefinition;
     protected final Box box;
     protected int cellRange = 2;
     protected double range;
@@ -66,7 +66,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
      * definition given by the atom's type is used.  Position definition is
      * declared final.
      */
-    public NeighborCellManager(Simulation sim, Box box, double potentialRange, IAtomPositionDefinition positionDefinition, Space space) {
+    public NeighborCellManager(Simulation sim, Box box, double potentialRange, IMoleculePositionDefinition positionDefinition, Space space) {
         this.positionDefinition = positionDefinition;
         this.box = box;
         this.sim = sim;

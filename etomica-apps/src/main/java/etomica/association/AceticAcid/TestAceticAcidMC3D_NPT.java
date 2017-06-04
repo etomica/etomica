@@ -10,6 +10,7 @@ import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.IAtomType;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
@@ -23,7 +24,6 @@ import etomica.association.MCMoveMoleculeRotateAssociated;
 import etomica.association.MCMoveMoleculeSmer;
 import etomica.association.MCMoveVolumeAssociatedMolecule;
 import etomica.atom.DiameterHashByType;
-import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.atom.iterator.Atomset4IteratorIndexList;
 import etomica.box.BoxAgentManager;
@@ -103,7 +103,7 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
         super(Space3D.getInstance());
         PotentialMaster potentialMaster = new PotentialMaster();
         //setRandom(new RandomNumberGenerator(3));
-        IAtomPositionDefinition positionDefinition = new IAtomPositionDefinition() {//anonymous class
+        IMoleculePositionDefinition positionDefinition = new IMoleculePositionDefinition() {//anonymous class
 			public Vector position(IMolecule molecule) {
 				return molecule.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition();
 			}

@@ -8,7 +8,7 @@ import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.api.*;
 import etomica.box.Box;
-import etomica.atom.AtomPositionGeometricCenter;
+import etomica.atom.MoleculePositionGeometricCenter;
 import etomica.atom.MoleculeSourceRandomMolecule;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
@@ -35,7 +35,7 @@ public class MCMoveCombinedCbmcTranslation extends MCMoveBox {
     private AtomIteratorArrayListSimple affectedAtomIterator;
     protected MoleculeChildAtomAction moveAction;
     protected Vector oldGeo, newGeo, temp, transVect;
-    protected AtomPositionGeometricCenter centerer;
+    protected MoleculePositionGeometricCenter centerer;
     protected MeterPotentialEnergy energyMeter;
     protected final IRandom random;
     private Space space;
@@ -56,7 +56,7 @@ public class MCMoveCombinedCbmcTranslation extends MCMoveBox {
         AtomActionTranslateBy translator = new AtomActionTranslateBy(space);
         transVect = translator.getTranslationVector();
         moveAction = new MoleculeChildAtomAction(translator);
-        centerer = new AtomPositionGeometricCenter(space);
+        centerer = new MoleculePositionGeometricCenter(space);
         
         oldGeo = space.makeVector();
         newGeo = space.makeVector();

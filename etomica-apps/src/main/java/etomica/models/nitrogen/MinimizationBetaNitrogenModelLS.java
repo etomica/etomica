@@ -9,14 +9,11 @@ import java.util.Arrays;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
+import etomica.atom.*;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.space.Vector;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.atom.MoleculePair;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.box.Box;
 import etomica.data.DataInfo;
 import etomica.data.IData;
@@ -216,7 +213,7 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
 		
         double[] d = new double[16];
         MoleculeActionTranslateTo translator = new MoleculeActionTranslateTo(sim.space);
-        AtomPositionGeometricCenter pos = new AtomPositionGeometricCenter(sim.space);
+        MoleculePositionGeometricCenter pos = new MoleculePositionGeometricCenter(sim.space);
         translator.setAtomPositionDefinition(pos);
         Vector p = sim.space.makeVector();
 
@@ -500,7 +497,7 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
 
 	}
 	
-    protected static void doTransform(IMolecule molecule, IAtomPositionDefinition posDef, Tensor rotationTensor) {
+    protected static void doTransform(IMolecule molecule, IMoleculePositionDefinition posDef, Tensor rotationTensor) {
         IAtomList childList = molecule.getChildList();
         Vector com = posDef.position(molecule);
         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {

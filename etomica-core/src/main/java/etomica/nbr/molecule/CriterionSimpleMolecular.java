@@ -5,10 +5,10 @@
 package etomica.nbr.molecule;
 
 import etomica.api.*;
+import etomica.atom.IMoleculePositionDefinition;
+import etomica.atom.MoleculePositionGeometricCenter;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.box.BoxAgentManager;
@@ -37,10 +37,10 @@ public class CriterionSimpleMolecular implements NeighborCriterionMolecular, Mol
         neighborRadius2 = neighborRadius * neighborRadius;
         setSafetyFactor(0.4);
         boxAgentManager = new BoxAgentManager<MoleculeAgentManager>(new BoxAgentSourceMoleculeManager(this, sim),MoleculeAgentManager.class, sim);
-        moleculeSite = new AtomPositionGeometricCenter(_space);
+        moleculeSite = new MoleculePositionGeometricCenter(_space);
 	}
 	
-	public void setMoleculePosition(IAtomPositionDefinition positionDefinition){
+	public void setMoleculePosition(IMoleculePositionDefinition positionDefinition){
 		moleculeSite = positionDefinition; 
 	}
 	
@@ -161,6 +161,6 @@ public class CriterionSimpleMolecular implements NeighborCriterionMolecular, Mol
 	protected double r2, r2MaxSafe;
     protected MoleculeAgentManager agentManager;
     protected final BoxAgentManager<MoleculeAgentManager> boxAgentManager;
-    protected IAtomPositionDefinition moleculeSite;
+    protected IMoleculePositionDefinition moleculeSite;
 
 }

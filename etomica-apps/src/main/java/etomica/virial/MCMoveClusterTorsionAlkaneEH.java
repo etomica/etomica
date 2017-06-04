@@ -3,8 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.virial;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
+import etomica.atom.*;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -13,9 +12,7 @@ import etomica.api.IRandom;
 import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.space.Vector;
-import etomica.atom.AtomPositionGeometricCenterAlkaneEH;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.atom.MoleculeArrayList;
+import etomica.atom.MoleculePositionGeometricCenterAlkaneEH;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveStepTracker;
@@ -175,7 +172,7 @@ public class MCMoveClusterTorsionAlkaneEH extends MCMoveMolecule {
     
     public void setSpecies(ISpecies newSpecies) {
         species = newSpecies;
-        positionDefinition = new AtomPositionGeometricCenterAlkaneEH(space,species);
+        positionDefinition = new MoleculePositionGeometricCenterAlkaneEH(space,species);
 
     }
     
@@ -376,7 +373,7 @@ public class MCMoveClusterTorsionAlkaneEH extends MCMoveMolecule {
     private static final long serialVersionUID = 1L;
     protected final MeterPotentialEnergy energyMeter;
     protected final P4BondTorsion torsionPotential;
-    protected IAtomPositionDefinition positionDefinition;
+    protected IMoleculePositionDefinition positionDefinition;
     protected final double[] probabilityBins;
     protected final double[] binSize;
     protected final int[] probabilityReverseMap;

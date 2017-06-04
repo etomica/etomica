@@ -6,11 +6,11 @@ package etomica.config;
 
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.IBoundary;
+import etomica.atom.MoleculePositionGeometricCenter;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.space.Vector;
-import etomica.atom.AtomPositionGeometricCenter;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
@@ -61,7 +61,7 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
         this.lattice = lattice;
         this.indexIterator = indexIterator;
         atomActionTranslateTo = new MoleculeActionTranslateTo(lattice.getSpace());
-        atomActionTranslateTo.setAtomPositionDefinition(new AtomPositionGeometricCenter(space));
+        atomActionTranslateTo.setAtomPositionDefinition(new MoleculePositionGeometricCenter(space));
     }
 
     /**

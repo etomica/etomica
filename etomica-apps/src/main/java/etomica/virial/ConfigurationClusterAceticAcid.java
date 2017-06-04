@@ -232,7 +232,7 @@ public class ConfigurationClusterAceticAcid extends ConfigurationCluster {
 	public void association(MayerFunction f, MoleculePair pair, Box box){
 		RotationTensor rotationTensor = space.makeRotationTensor();
 		Vector r0 = space.makeVector();
-		IAtomPositionDefinition positionDefinition = new AtomPositionGeometricCenter(space); 
+		IMoleculePositionDefinition positionDefinition = new MoleculePositionGeometricCenter(space);
 		while (true){
 			Vector positionAceticAcid = space.makeVector();
 			positionAceticAcid.setRandomInSphere(random);

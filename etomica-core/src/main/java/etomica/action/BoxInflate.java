@@ -4,11 +4,11 @@
 
 package etomica.action;
 
+import etomica.atom.MoleculePositionGeometricCenter;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.space.Vector;
-import etomica.atom.AtomPositionGeometricCenter;
 import etomica.space.Space;
 
 /**
@@ -26,7 +26,7 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
 
         translator = new AtomActionTranslateBy(space);
         groupScaler = new MoleculeChildAtomAction(translator);
-        moleculeCenter = new AtomPositionGeometricCenter(space);
+        moleculeCenter = new MoleculePositionGeometricCenter(space);
         scaleVector = space.makeVector();
         dimVector = space.makeVector();
         setScale(1.0);
@@ -150,6 +150,6 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
     protected final AtomActionTranslateBy translator;
     protected final MoleculeChildAtomAction groupScaler;
     protected final Vector scaleVector, dimVector;
-    protected final AtomPositionGeometricCenter moleculeCenter;
+    protected final MoleculePositionGeometricCenter moleculeCenter;
     
 }

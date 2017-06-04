@@ -25,16 +25,16 @@ import etomica.space.Space;
  * @author David Kofke
  */
 
-public class AtomPositionCOM implements IAtomPositionDefinition, Serializable {
+public class MoleculePositionCOM implements IMoleculePositionDefinition, Serializable {
 
-    public AtomPositionCOM(Space space) {
+    public MoleculePositionCOM(Space space) {
         center = space.makeVector();
     }
     
-    public Vector position(IMolecule atom) {
+    public Vector position(IMolecule molecule) {
         double massSum = 0;
         center.E(0.0);
-        IAtomList children = atom.getChildList();
+        IAtomList children = molecule.getChildList();
         int nAtoms = children.getAtomCount();
         for (int i=0; i<nAtoms; i++) {
             IAtom a = children.getAtom(i);

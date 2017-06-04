@@ -1,11 +1,11 @@
 package etomica.potential;
 
 import etomica.api.IBoundary;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMolecular;
 import etomica.space.Vector;
-import etomica.atom.IAtomPositionDefinition;
 import etomica.space.Space;
 
 
@@ -15,7 +15,7 @@ import etomica.space.Space;
  */
 public class P2MoleculeTruncated extends PotentialMolecular {
     
-    public P2MoleculeTruncated(IPotentialMolecular potential, double truncationRadius, Space _space, IAtomPositionDefinition positionDefinition) {
+    public P2MoleculeTruncated(IPotentialMolecular potential, double truncationRadius, Space _space, IMoleculePositionDefinition positionDefinition) {
         super(2, _space);
         this.potential = potential;
         this.positionDefinition = positionDefinition;
@@ -100,5 +100,5 @@ public class P2MoleculeTruncated extends PotentialMolecular {
     protected final Vector dr;
     protected IBoundary boundary;
     protected double cutoffRatio;
-    protected final IAtomPositionDefinition positionDefinition;
+    protected final IMoleculePositionDefinition positionDefinition;
 }

@@ -5,17 +5,13 @@ import java.awt.Color;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.atom.IAtomList;
+import etomica.atom.*;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.potential.PotentialMaster;
 import etomica.api.ISpecies;
 import etomica.space.Vector;
-import etomica.atom.DiameterHashByType;
-import etomica.atom.DipoleSource;
-import etomica.atom.IAtomOriented;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.atom.IAtomTypeOriented;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
@@ -98,7 +94,7 @@ public class DHS_NVT extends Simulation {
 		box.setNMolecules(species, numberMolecules);
 		box.getBoundary().setBoxSize(space.makeVector(new double[]{boxSize,boxSize,boxSize}));
 		
-		IAtomPositionDefinition positionDefinition = new IAtomPositionDefinition() {
+		IMoleculePositionDefinition positionDefinition = new IMoleculePositionDefinition() {
 			public Vector position(IMolecule molecule) {
 				return molecule.getChildList().getAtom(0).getPosition();
 			}

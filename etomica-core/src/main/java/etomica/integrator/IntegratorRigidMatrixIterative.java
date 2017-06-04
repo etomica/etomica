@@ -9,9 +9,7 @@ import java.io.Serializable;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.IAction;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomKinetic;
-import etomica.atom.IAtomList;
+import etomica.atom.*;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IMolecule;
@@ -19,19 +17,9 @@ import etomica.api.IMoleculeList;
 import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.space.Vector;
-import etomica.atom.Atom;
-import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.AtomPositionCOM;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.AtomSetSinglet;
-import etomica.atom.IAtomOrientedKinetic;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.atom.MoleculeAgentManager;
+import etomica.atom.MoleculePositionCOM;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
-import etomica.atom.MoleculeOrientedDynamic;
-import etomica.atom.OrientationCalc;
-import etomica.atom.SpeciesAgentManager;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.meter.MeterKineticEnergyRigid;
 import etomica.potential.PotentialCalculationTorqueSum;
@@ -65,7 +53,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
     protected final Vector xWork, yWork;
     protected final SpeciesAgentManager typeAgentManager;
     protected final Vector tempAngularVelocity;
-    protected final AtomPositionCOM atomPositionCOM;
+    protected final MoleculePositionCOM atomPositionCOM;
     protected final AtomActionTranslateBy translateBy;
     protected final MoleculeChildAtomAction translator;
     protected final OrientationFull3D tempOrientation;
@@ -102,7 +90,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
         typeAgentManager = new SpeciesAgentManager(this, sim);
         tempAngularVelocity = _space.makeVector();
         tempOrientation = new OrientationFull3D(_space);
-        atomPositionCOM = new AtomPositionCOM(_space);
+        atomPositionCOM = new MoleculePositionCOM(_space);
         translateBy = new AtomActionTranslateBy(_space);
         translator = new MoleculeChildAtomAction(translateBy);
         maxIterations = 20;
@@ -674,7 +662,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
             this.box = box;
             translateBy = new AtomActionTranslateBy(space);
             translator = new MoleculeChildAtomAction(translateBy);
-            positionDefinition = new AtomPositionGeometricCenter(space);
+            positionDefinition = new MoleculePositionGeometricCenter(space);
         }
         public void actionPerformed() {
             IMoleculeList molecules = box.getMoleculeList();
@@ -703,6 +691,6 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
         protected Box box;
         protected final AtomActionTranslateBy translateBy;
         protected final MoleculeChildAtomAction translator;
-        protected final IAtomPositionDefinition positionDefinition;
+        protected final IMoleculePositionDefinition positionDefinition;
     }
 }
