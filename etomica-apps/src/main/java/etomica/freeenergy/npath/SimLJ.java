@@ -6,11 +6,12 @@ package etomica.freeenergy.npath;
 
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.*;
+import etomica.data.history.HistoryCollapsingAverage;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
@@ -27,7 +28,6 @@ import etomica.units.CompoundUnit;
 import etomica.units.Null;
 import etomica.units.SimpleUnit;
 import etomica.units.Unit;
-import etomica.data.history.HistoryCollapsingAverage;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -78,15 +78,15 @@ public class SimLJ extends Simulation {
         getController().addAction(ai);
 
         potential = new P2LennardJones(space, sigma, 1);
-        IAtomType leafType = species.getLeafType();
+        AtomType leafType = species.getLeafType();
         P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(space, potential, rc);
 
-        potentialMasterCell.addPotential(potentialTruncated,new IAtomType[]{leafType,leafType});
+        potentialMasterCell.addPotential(potentialTruncated, new AtomType[]{leafType, leafType});
 
         Vector offset = space.makeVector();
         offset.setX(offsetDim, box.getBoundary().getBoxSize().getX(offsetDim)*0.5);
         p1ImageHarmonic = new P1ImageHarmonic(space, offset, w, true);
-        potentialMasterCell.addPotential(p1ImageHarmonic, new IAtomType[]{leafType});
+        potentialMasterCell.addPotential(p1ImageHarmonic, new AtomType[]{leafType});
 
         mcMoveAtom = new MCMoveAtomNPath(random, potentialMasterCell, space, p1ImageHarmonic);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
@@ -218,10 +218,10 @@ public class SimLJ extends Simulation {
 
         sim.getController().actionPerformed();
 
-        IData avgEnergies = accEnergies.getData(accEnergies.AVERAGE);
-        IData errEnergies = accEnergies.getData(accEnergies.ERROR);
-        IData corEnergies = accEnergies.getData(accEnergies.BLOCK_CORRELATION);
-        IData covEnergies = accEnergies.getData(accEnergies.BLOCK_COVARIANCE);
+        IData avgEnergies = accEnergies.getData(AccumulatorAverage.AVERAGE);
+        IData errEnergies = accEnergies.getData(AccumulatorAverage.ERROR);
+        IData corEnergies = accEnergies.getData(AccumulatorAverage.BLOCK_CORRELATION);
+        IData covEnergies = accEnergies.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE);
 
         System.out.println("swap acceptance: "+sim.mcMoveSwap.getTracker().acceptanceProbability());
         System.out.println("simple move step size: " + sim.mcMoveAtom.getStepSize());

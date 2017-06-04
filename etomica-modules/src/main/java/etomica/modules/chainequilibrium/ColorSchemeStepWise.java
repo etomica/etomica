@@ -4,15 +4,15 @@
 
 package etomica.modules.chainequilibrium;
 
-import java.awt.Color;
-
-import etomica.atom.IAtom;
-import etomica.atom.IAtomType;
-import etomica.simulation.Simulation;
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.AtomType;
 import etomica.atom.AtomTypeAgentManager;
+import etomica.atom.IAtom;
 import etomica.graphics.ColorScheme;
+import etomica.simulation.Simulation;
 import etomica.util.Arrays;
+
+import java.awt.*;
 
 /**
  * Color scheme for stepwise growth, based on the AtomType (alcohol vs. acid)
@@ -22,13 +22,17 @@ import etomica.util.Arrays;
  */
 public class ColorSchemeStepWise extends ColorScheme implements AtomTypeAgentManager.AgentSource {
 
+    protected final AtomLeafAgentManager bondingAgentManager;
+    protected final Simulation simulation;
+    protected AtomTypeAgentManager[] colorMaps;
+    
     public ColorSchemeStepWise(Simulation sim, AtomLeafAgentManager bondingAgentManager) {
         super();
         simulation = sim;
         colorMaps = new AtomTypeAgentManager[0];
         this.bondingAgentManager = bondingAgentManager;
     }
-    
+
     public Color getAtomColor(IAtom atom) {
         IAtom[] nbrs = (IAtom[])bondingAgentManager.getAgent(atom);
         if (nbrs != null && colorMaps.length > nbrs.length) {
@@ -41,7 +45,7 @@ public class ColorSchemeStepWise extends ColorScheme implements AtomTypeAgentMan
     /**
      * Sets atoms of the given type and number of bonds to be the given color.
      */
-    public void setColor(IAtomType type, int nBonds, Color color) {
+    public void setColor(AtomType type, int nBonds, Color color) {
         if (nBonds >= colorMaps.length) {
             int oldLength = colorMaps.length;
             colorMaps = (AtomTypeAgentManager[])Arrays.resizeArray(colorMaps, nBonds+1);
@@ -51,18 +55,15 @@ public class ColorSchemeStepWise extends ColorScheme implements AtomTypeAgentMan
         }
         colorMaps[nBonds].setAgent(type, color);
     }
-    
+
     public Class getSpeciesAgentClass() {
         return Color.class;
     }
 
-    public Object makeAgent(IAtomType type) {
+    public Object makeAgent(AtomType type) {
         return ColorScheme.DEFAULT_ATOM_COLOR;
     }
 
-    public void releaseAgent(Object agent, IAtomType type) {}
-
-    protected AtomTypeAgentManager[] colorMaps;
-    protected final AtomLeafAgentManager bondingAgentManager;
-    protected final Simulation simulation;
+    public void releaseAgent(Object agent, AtomType type) {
+    }
 }

@@ -5,30 +5,18 @@
 package etomica.normalmode;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.IAtomType;
+import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.DataLogger;
-import etomica.data.DataPump;
-import etomica.data.DataTableWriter;
+import etomica.data.*;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.ColorSchemeRandom;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
-import etomica.lattice.crystal.Basis;
-import etomica.lattice.crystal.BasisCubicFcc;
-import etomica.lattice.crystal.BasisMonatomic;
-import etomica.lattice.crystal.Primitive;
-import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.lattice.crystal.*;
 import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.potential.P2SoftSphere;
-import etomica.potential.P2SoftSphericalTruncated;
-import etomica.potential.P2SoftSphericalTruncatedShifted;
-import etomica.potential.Potential2SoftSpherical;
-import etomica.potential.PotentialMaster;
+import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -44,12 +32,24 @@ import etomica.units.Pixel;
  */
 public class SimCalcSSoftSphereFCC extends Simulation {
 
-	public SimCalcSSoftSphereFCC(Space _space, int numAtoms, double density, double temperature, int exponent) {
+    private static final long serialVersionUID = 1L;
+    public IntegratorMC integrator;
+    public ActivityIntegrate activityIntegrate;
+    public Box box;
+    public Boundary boundary;
+    public Primitive primitive, primitiveUnitCell;
+    public Basis basis;
+    public int[] nCells;
+    public P1Constraint p1Constraint;
+    public CoordinateDefinition coordinateDefinition;
+    public PotentialMaster potentialMaster;
+
+    public SimCalcSSoftSphereFCC(Space _space, int numAtoms, double density, double temperature, int exponent) {
 		super(_space);
-		
+
 		potentialMaster = new PotentialMasterList(this, space);
 		//potentialMaster = new PotentialMasterMonatomic(this);
-		
+
 		SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
 		addSpecies(species);
 
@@ -69,16 +69,16 @@ public class SimCalcSSoftSphereFCC extends Simulation {
 			int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
 			primitive = new PrimitiveCubic(space, n * L);
 			primitiveUnitCell = new PrimitiveCubic(space, L);
-			
+
 			nCells = new int[] {n, n, n};
 			boundary = new BoundaryRectangularPeriodic(space, n * L);
 			Basis basisFCC = new BasisCubicFcc();
 			basis = new BasisBigCell(space, basisFCC, nCells);
 		}
-			
+
 		Potential2SoftSpherical potential = new P2SoftSphere(space);
 		double truncationRadius = boundary.getBoxSize().getX(0) * 0.495;
-		
+
 		/*
 		 * When we consider the interaction of the neighborlist, we are safe to use <P2SoftSphereTruncated>;
 		 * if not, we will have to use <P2SoftSphereTruncatedShifted>
@@ -87,41 +87,40 @@ public class SimCalcSSoftSphereFCC extends Simulation {
 		 */
 		if(potentialMaster instanceof PotentialMasterList){
 			potential = new P2SoftSphericalTruncated(space, potential, truncationRadius);
-		
-		} else {
+
+        } else {
 			potential = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
-			
-		}
+
+        }
 		/*
 		 * this is to make sure we don't include the long-tailed correction to
 		 * our solid calculation; and it is only important for fluid simulation
 		 */
-		potentialMaster.lrcMaster().setEnabled(false); 
-		
-		IAtomType sphereType = species.getLeafType();
-		potentialMaster.addPotential(potential, new IAtomType[] {sphereType, sphereType});
-		box.setBoundary(boundary);
-		
+        potentialMaster.lrcMaster().setEnabled(false);
 
-		
-		coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
+        AtomType sphereType = species.getLeafType();
+        potentialMaster.addPotential(potential, new AtomType[]{sphereType, sphereType});
+        box.setBoundary(boundary);
+
+
+        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
 		coordinateDefinition.initializeCoordinates(new int[]{1,1,1});
 
-		MCMoveAtomCoupled move = new MCMoveAtomCoupled(potentialMaster, new MeterPotentialEnergy(potentialMaster),getRandom(), space); 
-		move.setPotential(potential);
+        MCMoveAtomCoupled move = new MCMoveAtomCoupled(potentialMaster, new MeterPotentialEnergy(potentialMaster), getRandom(), space);
+        move.setPotential(potential);
 		move.setDoExcludeNonNeighbors(true);
-		
-		integrator.getMoveManager().addMCMove(move);
+
+        integrator.getMoveManager().addMCMove(move);
 		((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
-		 
-		activityIntegrate = new ActivityIntegrate(integrator);
+
+        activityIntegrate = new ActivityIntegrate(integrator);
 
 		/*
 		 * 1-body Potential to Constraint the atom from moving too far away from
 		 * its lattice-site
 		 */
 		p1Constraint = new P1Constraint(space, primitiveUnitCell.getSize()[0], box, coordinateDefinition);
-		potentialMaster.addPotential(p1Constraint, new IAtomType[] { sphereType });
+        potentialMaster.addPotential(p1Constraint, new AtomType[]{sphereType});
 
 		if (potentialMaster instanceof PotentialMasterList) {
             double neighborRange = truncationRadius;
@@ -139,8 +138,8 @@ public class SimCalcSSoftSphereFCC extends Simulation {
             }
             ((P2SoftSphericalTruncated)potential).setTruncationRadius(0.6*boundary.getBoxSize().getX(0));
 		}
-		
-		integrator.setBox(box);
+
+        integrator.setBox(box);
 		getController().addAction(activityIntegrate);
 	}
 
@@ -190,12 +189,12 @@ public class SimCalcSSoftSphereFCC extends Simulation {
 		System.out.println(simSteps + " steps");
 		System.out.println("output data to " + filename);
 
-		
-		// construct simulation
+
+        // construct simulation
 		SimCalcSSoftSphereFCC sim = new SimCalcSSoftSphereFCC(Space.getInstance(D), nA, density, temperature, exponent);
-		
+
 		/*
-		 * Graphical Simulation 
+         * Graphical Simulation
 		 */
 		if(false){
 			SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
@@ -205,22 +204,22 @@ public class SimCalcSSoftSphereFCC extends Simulation {
 			simGraphic.makeAndDisplayFrame();
 			return;
 		}
-		
+
 		/*
 		 * Quantify the atomic displacement from its lattice site
 		 */
 		if(false){
 			MeterAtomicDisplacement meterDisplacement = new MeterAtomicDisplacement(sim.space, sim.coordinateDefinition);
 			DataTableWriter histogramSink = new DataTableWriter();
-			
-			IntegratorListenerAction meterDisplacementListener = new IntegratorListenerAction(meterDisplacement);
+
+            IntegratorListenerAction meterDisplacementListener = new IntegratorListenerAction(meterDisplacement);
 			meterDisplacementListener.setInterval(100);
 			sim.integrator.getEventManager().addListener(meterDisplacementListener);
-			
-			sim.activityIntegrate.setMaxSteps(simSteps);
+
+            sim.activityIntegrate.setMaxSteps(simSteps);
 			sim.activityIntegrate.actionPerformed();
-			
-	        DataLogger dataLogger = new DataLogger();
+
+            DataLogger dataLogger = new DataLogger();
 	        dataLogger.setFileName(filename+"hist_dist");
 	        dataLogger.setDataSink(histogramSink);
 	        histogramSink.setIncludeHeader(false);
@@ -229,11 +228,11 @@ public class SimCalcSSoftSphereFCC extends Simulation {
 	        dataLogger.putDataInfo(meterDisplacement.getDataInfo());
 	        dataLogger.putData(meterDisplacement.getData());
 	        dataLogger.closeFile();
-			
-			return;
+
+            return;
 		}
-		
-		// set up normal-mode meter
+
+        // set up normal-mode meter
 		MeterNormalMode meterNormalMode = new MeterNormalMode();
 		meterNormalMode.setCoordinateDefinition(sim.coordinateDefinition);
 		WaveVectorFactory waveVectorFactory;
@@ -250,8 +249,8 @@ public class SimCalcSSoftSphereFCC extends Simulation {
 		IntegratorListenerAction meterNormalModeListener = new IntegratorListenerAction(meterNormalMode);
 		meterNormalModeListener.setInterval(nA);
 		sim.integrator.getEventManager().addListener(meterNormalModeListener);
-		
-		MeterPotentialEnergy meterEnergy = new MeterPotentialEnergy(sim.potentialMaster);
+
+        MeterPotentialEnergy meterEnergy = new MeterPotentialEnergy(sim.potentialMaster);
 		meterEnergy.setBox(sim.box);
 		double latticeEnergy = meterEnergy.getDataAsScalar();
 		System.out.println("Lattice Energy per particle: " + (latticeEnergy /nA));
@@ -272,45 +271,33 @@ public class SimCalcSSoftSphereFCC extends Simulation {
 		System.out.println("\nStart Time: " + startTime);
 		sim.integrator.getMoveManager().setEquilibrating(false);
 		sim.getController().reset();
-		
-		meterNormalMode.reset();
-		
-		WriteS sWriter = new WriteS(sim.space);
+
+        meterNormalMode.reset();
+
+        WriteS sWriter = new WriteS(sim.space);
 		sWriter.setFilename(filename);
 		sWriter.setOverwrite(true);
 		sWriter.setMeter(meterNormalMode);
 		sWriter.setWaveVectorFactory(waveVectorFactory);
 		sWriter.setTemperature(temperature);
-		
-		IntegratorListenerAction sWriterListener = new IntegratorListenerAction(sWriter);
+
+        IntegratorListenerAction sWriterListener = new IntegratorListenerAction(sWriter);
 		sWriterListener.setInterval((int)simSteps/10);
 		sim.integrator.getEventManager().addListener(sWriterListener);
-		
-		sim.activityIntegrate.setMaxSteps(simSteps);
+
+        sim.activityIntegrate.setMaxSteps(simSteps);
 		sim.getController().actionPerformed();
-		
-		double A = sWriter.getLastA();
+
+        double A = sWriter.getLastA();
 		System.out.println("A/N: " + A/nA);
-		System.out.println("Average Energy: " + energyAverage.getData().getValue(energyAverage.AVERAGE.index)
-				+ " ,Error: "+ energyAverage.getData().getValue(energyAverage.ERROR.index));
-		System.out.println(" ");
-		
-		long endTime = System.currentTimeMillis();
+        System.out.println("Average Energy: " + energyAverage.getData().getValue(AccumulatorAverage.AVERAGE.index)
+                + " ,Error: " + energyAverage.getData().getValue(AccumulatorAverage.ERROR.index));
+        System.out.println(" ");
+
+        long endTime = System.currentTimeMillis();
 		System.out.println("End Time: " + endTime);
 		System.out.println("Time taken: " + (endTime - startTime));
 
 	}
-
-	private static final long serialVersionUID = 1L;
-	public IntegratorMC integrator;
-	public ActivityIntegrate activityIntegrate;
-	public Box box;
-	public Boundary boundary;
-	public Primitive primitive, primitiveUnitCell;
-	public Basis basis;
-	public int[] nCells;
-	public P1Constraint p1Constraint;
-	public CoordinateDefinition coordinateDefinition;
-	public PotentialMaster potentialMaster;
 
 }

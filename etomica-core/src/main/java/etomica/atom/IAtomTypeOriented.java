@@ -6,12 +6,12 @@ package etomica.atom;
 
 import etomica.space.Vector;
 
-public interface IAtomTypeOriented extends IAtomType {
+public interface IAtomTypeOriented {
 
     /**
      * Returns the principle components of the moment of inertia of the
      * atom within the body-fixed frame.  Do NOT modify the returned moment
      * of inertia returned.
      */
-    public Vector getMomentOfInertia();
+    Vector getMomentOfInertia();
 }

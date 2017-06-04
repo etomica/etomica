@@ -13,6 +13,8 @@ import etomica.simulation.Simulation;
  */
 public class DiameterHashByType implements DiameterHash, AtomTypeAgentManager.AgentSource {
 
+    protected final AtomTypeAgentManager agentManager;
+    
     public DiameterHashByType(Simulation sim) {
         agentManager = new AtomTypeAgentManager(this, sim);
     }
@@ -20,23 +22,23 @@ public class DiameterHashByType implements DiameterHash, AtomTypeAgentManager.Ag
     public double getDiameter(IAtom atom) {
         return getDiameter(atom.getType());
     }
-    
-    public double getDiameter(IAtomType atomType) {
+
+    public double getDiameter(AtomType atomType) {
         return (Double)agentManager.getAgent(atomType);
     }
-    
-    public void setDiameter(IAtomType type, double newDiameter) {
+
+    public void setDiameter(AtomType type, double newDiameter) {
         agentManager.setAgent(type, newDiameter);
     }
-
-    protected final AtomTypeAgentManager agentManager;
 
     public Class getSpeciesAgentClass() {
         return Double.class;
     }
-    public Object makeAgent(IAtomType type) {
+
+    public Object makeAgent(AtomType type) {
         return new Double(-1);
     }
-    public void releaseAgent(Object agent, IAtomType type) {
+
+    public void releaseAgent(Object agent, AtomType type) {
     }
 }

@@ -6,10 +6,11 @@ package etomica.freeenergy.npath;
 
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
+import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
 import etomica.data.IData;
@@ -76,8 +77,8 @@ public class SimIdealGas extends Simulation {
         Vector offset = space.makeVector();
         offset.setX(offsetDim, box.getBoundary().getBoxSize().getX(offsetDim)*0.5);
         p1ImageHarmonic = new P1ImageHarmonic(space, offset, w, false);
-        IAtomType leafType = species.getLeafType();
-        potentialMasterCell.addPotential(p1ImageHarmonic, new IAtomType[]{leafType});
+        AtomType leafType = species.getLeafType();
+        potentialMasterCell.addPotential(p1ImageHarmonic, new AtomType[]{leafType});
 
         mcMoveAtom = new MCMoveAtomNPath(random, potentialMasterCell, space, p1ImageHarmonic);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
@@ -180,9 +181,9 @@ public class SimIdealGas extends Simulation {
 
         sim.getController().actionPerformed();
 
-        IData avgEnergies = accEnergies.getData(accEnergies.AVERAGE);
-        IData errEnergies = accEnergies.getData(accEnergies.ERROR);
-        IData corEnergies = accEnergies.getData(accEnergies.BLOCK_CORRELATION);
+        IData avgEnergies = accEnergies.getData(AccumulatorAverage.AVERAGE);
+        IData errEnergies = accEnergies.getData(AccumulatorAverage.ERROR);
+        IData corEnergies = accEnergies.getData(AccumulatorAverage.BLOCK_CORRELATION);
 
         System.out.println("swap acceptance: "+sim.mcMoveSwap.getTracker().acceptanceProbability());
         System.out.println("simple move step size: "+((MCMoveStepTracker)sim.mcMoveAtom.getTracker()).getAdjustStepSize());

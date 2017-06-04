@@ -3,10 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.modules.colloid;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.*;
-import etomica.box.Box;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
+import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorHard;
@@ -19,8 +20,8 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardSphere;
 import etomica.potential.P2HardWrapper;
 import etomica.simulation.Simulation;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.RandomNumberGenerator;
@@ -107,11 +108,11 @@ public class ColloidSim extends Simulation {
 	    p2mm.setLambda(lambda);
 	    p2mm.setBondFac(0.85);
 	    p2mm.setEpsilon(epsMM);
-        potentialMaster.addPotential(p2mm,new IAtomType[]{species.getLeafType(), species.getLeafType()});
+        potentialMaster.addPotential(p2mm, new AtomType[]{species.getLeafType(), species.getLeafType()});
         p2mc = new P2HardSphereMC(space, colloidMonomerBondManager);
         p2mc.setCollisionDiameter(0.5*(sigma+sigmaColloid));
         p2mc.setBondFac(0.9);
-        potentialMaster.addPotential(p2mc,new IAtomType[]{species.getLeafType(), speciesColloid.getLeafType()});
+        potentialMaster.addPotential(p2mc, new AtomType[]{species.getLeafType(), speciesColloid.getLeafType()});
         potentialMaster.setCriterion(p2mc, new CriterionNone() {
             public boolean needUpdate(IAtom atom) {
                 return integrator.getStepCount() % 100 == 0;
@@ -125,7 +126,7 @@ public class ColloidSim extends Simulation {
         p1WallMonomer.setRange(2);
         p1WallMonomer.setSigma(1);
         p1WallMonomer.setEpsilon(Math.sqrt(epsMM*epsWallWall));
-        potentialMaster.addPotential(p1WallMonomer, new IAtomType[]{species.getLeafType()});
+        potentialMaster.addPotential(p1WallMonomer, new AtomType[]{species.getLeafType()});
         criterionWallMonomer = new CriterionPositionWall(this);
         criterionWallMonomer.setBoundaryWall(true);
         criterionWallMonomer.setNeighborRange(3);
@@ -137,7 +138,7 @@ public class ColloidSim extends Simulation {
         p1WallColloid.setRange(10);
         p1WallColloid.setSigma(7.5);
         p1WallColloid.setEpsilon(0.5);
-        potentialMaster.addPotential(p1WallColloid, new IAtomType[]{speciesColloid.getLeafType()});
+        potentialMaster.addPotential(p1WallColloid, new AtomType[]{speciesColloid.getLeafType()});
         
         //construct box
         configuration = new ConfigurationColloid(space, species, speciesColloid, random);
@@ -166,8 +167,8 @@ public class ColloidSim extends Simulation {
             }
             p2pseudo.setCollisionDiameter(0.9*Math.sqrt(minr2));
         }
-        
-        potentialMaster.addPotential(p2pseudo, new IAtomType[]{species.getLeafType(), species.getLeafType()});
+
+        potentialMaster.addPotential(p2pseudo, new AtomType[]{species.getLeafType(), species.getLeafType()});
         potentialMaster.setCriterion(p2pseudo, new CriterionNone());
 
         ((NeighborListManagerColloid)potentialMaster.getNeighborManager(box)).setPotentialPseudo(p2pseudo);
@@ -175,13 +176,20 @@ public class ColloidSim extends Simulation {
 
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
     }
+
+    public static void main(String[] args) {
+        Space space = Space3D.getInstance();
+
+        ColloidSim sim = new ColloidSim(space);
+        sim.getController().actionPerformed();
+    }
     
     public void setNumGraft(int newNumGraft) {
         if (nGraft == newNumGraft) return;
         configuration.setNGraft(newNumGraft);
         nGraft = newNumGraft;
         configuration.initializeCoordinates(box);
-        
+
         if (newNumGraft > 1) {
 
             IAtom atom1 = box.getMoleculeList(species).getMolecule(0).getChildList().getAtom(0);
@@ -203,6 +211,10 @@ public class ColloidSim extends Simulation {
         }
         catch (ConfigurationOverlapException e) {}
     }
+
+    public int getChainLength() {
+        return chainLength;
+    }
     
     public void setChainLength(int newChainLength) {
         if (chainLength == newChainLength) return;
@@ -210,25 +222,25 @@ public class ColloidSim extends Simulation {
         chainLength = newChainLength;
         configuration.initializeCoordinates(box);
         ((NeighborListManagerColloid)potentialMaster.getNeighborManager(box)).setChainLength(chainLength);
-        
+
         try {
             integrator.reset();
         }
         catch (ConfigurationOverlapException e) {}
     }
-    
-    public int getChainLength() {
-        return chainLength;
+
+    public double getColloidSigma() {
+        return p1WallColloid.getSigma();
     }
-    
+
     public void setColloidSigma(double newColloidSigma) {
         double oldSigma = p1WallColloid.getSigma();
         p1WallColloid.setRange(p1WallColloid.getRange()*newColloidSigma/oldSigma);
         p1WallColloid.setSigma(newColloidSigma);
-        
+
         p2mc.setCollisionDiameter(0.5*(p2mm.getCoreDiameter()+newColloidSigma));
         configuration.setSigmaColloid(newColloidSigma);
-        
+
         configuration.initializeCoordinates(box);
         if (integrator.getStepCount() > 0) {
             try {
@@ -236,17 +248,6 @@ public class ColloidSim extends Simulation {
             }
             catch (ConfigurationOverlapException e) {}
         }
-    }
-
-    public double getColloidSigma() {
-        return p1WallColloid.getSigma();
-    }
-
-    public static void main(String[] args) {
-        Space space = Space3D.getInstance();
-            
-        ColloidSim sim = new ColloidSim(space);
-        sim.getController().actionPerformed();
     }
 
     // reject everything.  we'll add them explicitly

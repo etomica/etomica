@@ -3,14 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.simulation.prototypes;
+
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.atom.IAtomType;
+import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.potential.PotentialMaster;
 import etomica.config.ConfigurationLattice;
+import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
 import etomica.data.DataSourceCountSteps;
@@ -23,6 +24,7 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
+import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
@@ -74,10 +76,10 @@ public class SoftSphere3d extends Simulation {
 	    potential = new P2SoftSphere(space,1,1,exponent);
 	    P2SoftSphericalTruncated truncated = new P2SoftSphericalTruncated(space, potential,box.getBoundary().getBoxSize().getX(0)/2);
 	   // System.out.println("Truncated radius is: " +truncated.getTruncationRadius());
-	    
-	    IAtomType type1 = species.getLeafType();
-        //AtomTypeLeaf type2 = species2.getLeafType();
-        potentialMaster.addPotential(truncated, new IAtomType[] {type1, type1});
+
+        AtomType type1 = species.getLeafType();
+        //AtomType type2 = species2.getLeafType();
+        potentialMaster.addPotential(truncated, new AtomType[]{type1, type1});
        // potentialMaster.addPotential(potential, new AtomType[] {type1, type2});
         //potentialMaster.addPotential(potential, new AtomType[] {type2, type2});
         
@@ -127,8 +129,8 @@ public class SoftSphere3d extends Simulation {
         
         
         double temp = sim.integrator.getTemperature();
-        double Cv = ((DataDouble)((DataGroup)accumulator.getData()).getData(accumulator.STANDARD_DEVIATION.index)).x;
-        double energy = ((DataDouble)((DataGroup)accumulator.getData()).getData(accumulator.AVERAGE.index)).x;
+        double Cv = ((DataDouble) ((DataGroup) accumulator.getData()).getData(AccumulatorAverage.STANDARD_DEVIATION.index)).x;
+        double energy = ((DataDouble) ((DataGroup) accumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
         Cv /= temp;
         Cv *= Cv/numAtoms;
         System.out.println("Cv/k: "+Cv);

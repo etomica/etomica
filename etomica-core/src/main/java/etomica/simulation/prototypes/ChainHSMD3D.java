@@ -5,7 +5,7 @@
 package etomica.simulation.prototypes;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.IAtomType;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.models.ModelChain;
 import etomica.config.ConfigurationLattice;
@@ -69,8 +69,8 @@ public class ChainHSMD3D extends Simulation {
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
 
         potential = new P2HardSphere(space, 1.0, true);
-        IAtomType leafType = species.getLeafType();
-        potentialMaster.addPotential(potential, new IAtomType[]{leafType,leafType});
+        AtomType leafType = species.getLeafType();
+        potentialMaster.addPotential(potential, new AtomType[]{leafType, leafType});
         CriterionBondedSimple nonBondedCriterion = new CriterionBondedSimple(new CriterionAll());
         nonBondedCriterion.setBonded(false);
         ((CriterionInterMolecular)potentialMaster.getCriterion(potential)).setIntraMolecularCriterion(nonBondedCriterion);

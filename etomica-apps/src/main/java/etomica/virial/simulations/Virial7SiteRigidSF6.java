@@ -4,12 +4,10 @@
 
 package etomica.virial.simulations;
 
-import java.awt.Color;
-
 import etomica.action.IAction;
-import etomica.atom.IAtomType;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
+import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.graphics.ColorSchemeByType;
@@ -22,13 +20,10 @@ import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.MayerEGeneral;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.Species7SiteRigidSF6;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
+
+import java.awt.*;
 
 /**
  * Virial coefficients calculation of SF6
@@ -113,14 +108,14 @@ public class Virial7SiteRigidSF6 {
         sim.box[1].getSampleCluster().value(sim.box[1]);
         sim.integratorOS.setNumSubSteps(1000);
         
-        Species7SiteRigidSF6 species = (Species7SiteRigidSF6)sim.getSpecies(0);               
-        IAtomType typeS = species.getSType();
-        IAtomType typeF = species.getFType();
-                   
-        pGroup.addPotential(p2S, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeS, typeS}));
-        pGroup.addPotential(pSF, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeS, typeF}));
-        pGroup.addPotential(p2F, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeF, typeF}));
-        pGroup.addPotential(pSF, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeF, typeS}));//switch
+        Species7SiteRigidSF6 species = (Species7SiteRigidSF6)sim.getSpecies(0);
+        AtomType typeS = species.getSType();
+        AtomType typeF = species.getFType();
+
+        pGroup.addPotential(p2S, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeS, typeS}));
+        pGroup.addPotential(pSF, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeS, typeF}));
+        pGroup.addPotential(p2F, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeF, typeF}));
+        pGroup.addPotential(pSF, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeF, typeS}));//switch
         
         
         // graphic part

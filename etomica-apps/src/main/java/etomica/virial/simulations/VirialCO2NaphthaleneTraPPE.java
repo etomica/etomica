@@ -5,11 +5,13 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.atom.IAtomType;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.ISpecies;
+import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiBuilder;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
@@ -22,17 +24,7 @@ import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterWeight;
-import etomica.virial.ClusterWeightAbs;
-import etomica.virial.MayerEGeneral;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.SpeciesFactory;
-import etomica.virial.SpeciesTraPPECO2;
-import etomica.virial.SpeciesTraPPENaphthalene;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 
 /**
@@ -163,19 +155,19 @@ public class VirialCO2NaphthaleneTraPPE {
         SpeciesTraPPECO2 speciesCO2 = (SpeciesTraPPECO2)sim.getSpecies(0);
                 sim.integratorOS.setNumSubSteps(1000);
 
-        IAtomType typeC = speciesNa.getCType();
-        IAtomType typeCH = speciesNa.getCHType();
-        IAtomType typeC_CO2 = speciesCO2.getCarbonType();
-        IAtomType typeO = speciesCO2.getOxygenType();
-        
-        pNa.addPotential(p2C, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC, typeC}));
-        pNa.addPotential(pCCH, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC, typeCH}));
-        pNa.addPotential(p2CH, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH, typeCH}));
-        pNa.addPotential(pCCH, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH, typeC}));//switch
-        pCO2Na.addPotential(pC_C, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC_CO2, typeC}));
-        pCO2Na.addPotential(pC_CH, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC_CO2, typeCH}));
-        pCO2Na.addPotential(pO_C, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeO, typeC}));
-        pCO2Na.addPotential(pO_CH, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeO, typeCH}));
+        AtomType typeC = speciesNa.getCType();
+        AtomType typeCH = speciesNa.getCHType();
+        AtomType typeC_CO2 = speciesCO2.getCarbonType();
+        AtomType typeO = speciesCO2.getOxygenType();
+
+        pNa.addPotential(p2C, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeC}));
+        pNa.addPotential(pCCH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeCH}));
+        pNa.addPotential(p2CH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH, typeCH}));
+        pNa.addPotential(pCCH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH, typeC}));//switch
+        pCO2Na.addPotential(pC_C, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC_CO2, typeC}));
+        pCO2Na.addPotential(pC_CH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC_CO2, typeCH}));
+        pCO2Na.addPotential(pO_C, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeO, typeC}));
+        pCO2Na.addPotential(pO_CH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeO, typeCH}));
 
         
         if (false) {
@@ -258,11 +250,11 @@ public class VirialCO2NaphthaleneTraPPE {
         double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
         System.out.println("ratio average: "+ratioAndError[0]+", error: "+ratioAndError[1]);
         System.out.println("abs average: "+ratioAndError[0]*HSB[nPoints]+", error: "+ratioAndError[1]*HSB[nPoints]);
-        IData ratioData = ((DataGroup)sim.accumulators[0].getData()).getData(sim.accumulators[0].RATIO.index);
-        IData ratioErrorData = ((DataGroup)sim.accumulators[0].getData()).getData(sim.accumulators[0].RATIO_ERROR.index);
-        IData averageData = ((DataGroup)sim.accumulators[0].getData()).getData(sim.accumulators[0].AVERAGE.index);
-        IData stdevData = ((DataGroup)sim.accumulators[0].getData()).getData(sim.accumulators[0].STANDARD_DEVIATION.index);
-        IData errorData = ((DataGroup)sim.accumulators[0].getData()).getData(sim.accumulators[0].ERROR.index);
+        IData ratioData = ((DataGroup) sim.accumulators[0].getData()).getData(AccumulatorRatioAverageCovariance.RATIO.index);
+        IData ratioErrorData = ((DataGroup) sim.accumulators[0].getData()).getData(AccumulatorRatioAverageCovariance.RATIO_ERROR.index);
+        IData averageData = ((DataGroup) sim.accumulators[0].getData()).getData(AccumulatorAverage.AVERAGE.index);
+        IData stdevData = ((DataGroup) sim.accumulators[0].getData()).getData(AccumulatorAverage.STANDARD_DEVIATION.index);
+        IData errorData = ((DataGroup) sim.accumulators[0].getData()).getData(AccumulatorAverage.ERROR.index);
         System.out.println("reference ratio average: "+ratioData.getValue(1)+" error: "+ratioErrorData.getValue(1));
         System.out.println("reference   average: "+averageData.getValue(0)
                           +" stdev: "+stdevData.getValue(0)
@@ -270,12 +262,12 @@ public class VirialCO2NaphthaleneTraPPE {
         System.out.println("reference overlap average: "+averageData.getValue(1)
                           +" stdev: "+stdevData.getValue(1)
                           +" error: "+errorData.getValue(1));
-        
-        ratioData = ((DataGroup)sim.accumulators[1].getData()).getData(sim.accumulators[1].RATIO.index);
-        ratioErrorData = ((DataGroup)sim.accumulators[1].getData()).getData(sim.accumulators[1].RATIO_ERROR.index);
-        averageData = ((DataGroup)sim.accumulators[1].getData()).getData(sim.accumulators[1].AVERAGE.index);
-        stdevData = ((DataGroup)sim.accumulators[1].getData()).getData(sim.accumulators[1].STANDARD_DEVIATION.index);
-        errorData = ((DataGroup)sim.accumulators[1].getData()).getData(sim.accumulators[1].ERROR.index);
+
+        ratioData = ((DataGroup) sim.accumulators[1].getData()).getData(AccumulatorRatioAverageCovariance.RATIO.index);
+        ratioErrorData = ((DataGroup) sim.accumulators[1].getData()).getData(AccumulatorRatioAverageCovariance.RATIO_ERROR.index);
+        averageData = ((DataGroup) sim.accumulators[1].getData()).getData(AccumulatorAverage.AVERAGE.index);
+        stdevData = ((DataGroup) sim.accumulators[1].getData()).getData(AccumulatorAverage.STANDARD_DEVIATION.index);
+        errorData = ((DataGroup) sim.accumulators[1].getData()).getData(AccumulatorAverage.ERROR.index);
         System.out.println("target ratio average: "+ratioData.getValue(1)+" error: "+ratioErrorData.getValue(1));
         System.out.println("target average: "+averageData.getValue(0)
                           +" stdev: "+stdevData.getValue(0)

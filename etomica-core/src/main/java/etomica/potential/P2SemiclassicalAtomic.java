@@ -4,15 +4,11 @@
 
 package etomica.potential;
 
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
-import etomica.atom.IAtomType;
-import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
-import etomica.space.Vector;
-import etomica.atom.AtomTypeAgentManager;
-import etomica.atom.IAtomOriented;
+import etomica.atom.*;
+import etomica.box.Box;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.util.Constants;
 
 /**
@@ -30,9 +26,9 @@ import etomica.util.Constants;
 public class P2SemiclassicalAtomic implements IPotentialAtomic {
 
     protected final IPotentialTorque p2Classy;
-    protected double temperature, fac;
     protected final AtomTypeAgentManager agents;
     protected final Space space;
+    protected double temperature, fac;
     
     public P2SemiclassicalAtomic(Space space, IPotentialTorque p2Classy, double temperature) {
         this.space = space;
@@ -41,8 +37,8 @@ public class P2SemiclassicalAtomic implements IPotentialAtomic {
         agents = new AtomTypeAgentManager(null);
         setTemperature(temperature);
     }
-    
-    public void setAtomInfo(IAtomType species, AtomInfo moleculeInfo) {
+
+    public void setAtomInfo(AtomType species, AtomInfo moleculeInfo) {
         agents.setAgent(species, moleculeInfo);
     }
     
@@ -100,6 +96,6 @@ public class P2SemiclassicalAtomic implements IPotentialAtomic {
          * and also the principle axes.  The 0 element is the moment of inertia
          * vector while elements 1, 2 and 3 are the principle axes.
          */
-        public Vector[] getMomentAndAxes(IAtomOriented molecule);
+        Vector[] getMomentAndAxes(IAtomOriented molecule);
     }
 }

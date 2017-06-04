@@ -4,13 +4,11 @@
 
 package etomica.virial.simulations;
 
-import java.awt.Color;
-
 import etomica.AlkaneEH.SpeciesMethane;
 import etomica.action.IAction;
-import etomica.atom.IAtomType;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
+import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.graphics.ColorSchemeByType;
@@ -23,12 +21,10 @@ import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.MayerEGeneral;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
+
+import java.awt.*;
 
 /**
  * TraPPE-EH methane, CH4  
@@ -100,14 +96,14 @@ public class VirialMethaneEH {
 
         steps /= 1000;
 
-        IAtomType typeC = species.getAtomType(0);
-        IAtomType typeH = species.getAtomType(1);
+        AtomType typeC = species.getAtomType(0);
+        AtomType typeH = species.getAtomType(1);
 
         // build methane potential
-        pTargetGroup.addPotential(p2C, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC, typeC}));//C-C
-        pTargetGroup.addPotential(p2CH, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC, typeH}));//C-H
-        pTargetGroup.addPotential(p2CH, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeH, typeC }));//H-C
-        pTargetGroup.addPotential(p2H, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeH, typeH}));//H-H
+        pTargetGroup.addPotential(p2C, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeC}));//C-C
+        pTargetGroup.addPotential(p2CH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeH}));//C-H
+        pTargetGroup.addPotential(p2CH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeH, typeC}));//H-C
+        pTargetGroup.addPotential(p2H, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeH, typeH}));//H-H
 
         if (false) {
             double size = 5.0;

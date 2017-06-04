@@ -4,46 +4,27 @@
 
 package etomica.normalmode;
 
-import java.awt.Color;
-
 import etomica.action.BoxInflate;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
-import etomica.atom.IAtomType;
 import etomica.api.IBoundary;
-import etomica.box.Box;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
-import etomica.space.Vector;
-import etomica.data.AccumulatorAverageBlockless;
-import etomica.data.AccumulatorHistogram;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataDistributer;
-import etomica.data.DataFork;
-import etomica.data.DataPumpListener;
-import etomica.data.DataSourceCountSteps;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.data.*;
 import etomica.data.DataSplitter.IDataSinkFactory;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IDataSink;
+import etomica.data.histogram.HistogramDiscrete;
+import etomica.data.history.HistoryCollapsingAverage;
+import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPressure;
-import etomica.graphics.ColorScheme;
-import etomica.graphics.DeviceBox;
-import etomica.graphics.DeviceButton;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.integrator.mcmove.MCMoveIDBiasAction;
-import etomica.integrator.mcmove.MCMoveInsertDeleteLatticeVacancy;
-import etomica.integrator.mcmove.MCMoveOverlapListener;
-import etomica.integrator.mcmove.MCMoveVolume;
+import etomica.integrator.mcmove.*;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.PrimitiveCubic;
@@ -52,25 +33,20 @@ import etomica.modifier.Modifier;
 import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.normalmode.DataSourceMuRoot.DataSourceMuRootVacancyConcentration;
-import etomica.potential.P2LennardJones;
-import etomica.potential.P2SoftSphere;
-import etomica.potential.P2SoftSphericalTruncated;
-import etomica.potential.P2SoftSphericalTruncatedShifted;
-import etomica.potential.Potential0Lrc;
-import etomica.potential.Potential2SoftSpherical;
+import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.statmech.LennardJones;
 import etomica.units.Dimension;
 import etomica.units.Null;
-import etomica.data.histogram.HistogramDiscrete;
-import etomica.data.history.HistoryCollapsingAverage;
-import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+
+import java.awt.*;
 
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 3D
@@ -140,9 +116,9 @@ public class SimLJVacancy extends Simulation {
         p2LJ = ss ? new P2SoftSphere(space, 1, 4, 12) : new P2LennardJones(space, 1, 1);
         potential = new P2SoftSphericalTruncated(space, p2LJ, rc);
         potential.setMakeLrc(false);
-        IAtomType leafType = species.getLeafType();
+        AtomType leafType = species.getLeafType();
 
-        potentialMaster.addPotential(potential,new IAtomType[]{leafType,leafType});
+        potentialMaster.addPotential(potential, new AtomType[]{leafType, leafType});
 
         potentialMaster.getNbrCellManager(box).assignCellAll();
         if (shifted) {
@@ -153,10 +129,10 @@ public class SimLJVacancy extends Simulation {
             
             potentialMaster.removePotential(potential);
             potential = new P2SoftSphericalTruncatedShifted(space, p2LJ, rc);
-            potentialMaster.addPotential(potential,new IAtomType[]{leafType,leafType});
+            potentialMaster.addPotential(potential, new AtomType[]{leafType, leafType});
             double uShifted = meterPE.getDataAsScalar();
             uShift = (uUnshifted - uShifted)/numAtoms;
-            Potential0Lrc pShift = new Potential0Lrc(space, new IAtomType[]{leafType,leafType}, potential) {
+            Potential0Lrc pShift = new Potential0Lrc(space, new AtomType[]{leafType, leafType}, potential) {
                 public double virial(IAtomList atoms) {
                     return 0;
                 }
@@ -691,7 +667,7 @@ public class SimLJVacancy extends Simulation {
             double pAvg = Double.NaN;
             if (numAtoms-n < pSplitter.getNumDataSinks()) {
                 AccumulatorAverageBlockless pAcc = (AccumulatorAverageBlockless)pSplitter.getDataSink(numAtoms-n);
-                pAvg = pAcc == null ? Double.NaN : pAcc.getData().getValue(pAcc.AVERAGE.index);
+                pAvg = pAcc == null ? Double.NaN : pAcc.getData().getValue(AccumulatorAverageBlockless.AVERAGE.index);
             }
             if (dsfeData.getLength() > i) {
                 System.out.println(String.format("%6d %20.15e %20.15e %20.15e %20.15e %20.15e", n, nHistogram[i], fenData.getValue(i), pAvg, dsfeData.getValue(i), dsfe2Data.getValue(i)));
@@ -994,6 +970,10 @@ public class SimLJVacancy extends Simulation {
             muBox.setEditable(true);
             muBox.setLabel("mu");
             muBox.setModifier(new Modifier() {
+
+                public double getValue() {
+                    return sim.mcMoveID.getMu();
+                }
                 
                 public void setValue(double newValue) {
                     sim.mcMoveID.setMu(newValue);
@@ -1001,10 +981,6 @@ public class SimLJVacancy extends Simulation {
                     feHistogramImposed.setMu(newValue);
                     avgP.setMu(newValue);
                     mcMoveBiasAction.setMu(newValue);
-                }
-                
-                public double getValue() {
-                    return sim.mcMoveID.getMu();
                 }
                 
                 public String getLabel() {

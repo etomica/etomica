@@ -4,13 +4,13 @@
 
 package etomica.potential;
 
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
-import etomica.atom.IAtomType;
-import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialAtomic;
 import etomica.api.ISpecies;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.space.Space;
 
 /**
@@ -64,13 +64,15 @@ import etomica.space.Space;
  * @author David Kofke
  */
 public abstract class Potential0Lrc extends Potential0 implements PotentialSoft, IPotential0Lrc {
-    
-    protected final IAtomType[] types;
+
+    protected final AtomType[] types;
     protected final boolean interType;
     protected final IPotentialAtomic truncatedPotential;
     protected final int[] lrcAtomsPerMolecule = new int[2];
-    
-    public Potential0Lrc(Space space, IAtomType[] types, IPotentialAtomic truncatedPotential) {
+    protected double divisor;
+    protected Box box;
+
+    public Potential0Lrc(Space space, AtomType[] types, IPotentialAtomic truncatedPotential) {
         super(space);
         this.types = types.clone();
         if(types.length != 2) {
@@ -79,10 +81,10 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft,
         interType = (types[0] != types[1]);
         this.truncatedPotential = truncatedPotential;
         divisor = 1;
-    }  
+    }
     
     /**
-     * Returns the potential whose truncation this lrcPotential exists to correct. 
+     * Returns the potential whose truncation this lrcPotential exists to correct.
      */
     public IPotentialAtomic getTruncatedPotential() {
         return truncatedPotential;
@@ -103,7 +105,7 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft,
         }
         box = b;
     }
-    
+
     public void setTargetAtom(IAtom targetAtom) {
         if (targetAtom == null) {
             divisor = 1;
@@ -123,7 +125,7 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft,
             divisor = divisor/2.0;
         }
     }
-     
+
     public void setTargetMolecule(IMolecule targetAtom) {
         if (targetAtom == null) {
             divisor = 1;
@@ -143,7 +145,7 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft,
             divisor = divisor/2.0;
         }
     }
-     
+
     /**
      * Returns the number of pairs formed from molecules of the current
      * species, in the given box.
@@ -164,8 +166,5 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft,
         }
         return Math.round(nPairs/divisor);
     }
-
-    protected double divisor;
-    protected Box box;
 
 }

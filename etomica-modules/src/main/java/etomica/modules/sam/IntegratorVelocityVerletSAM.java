@@ -4,16 +4,16 @@
 
 package etomica.modules.sam;
 
-import etomica.api.*;
+import etomica.api.IRandom;
 import etomica.atom.AtomSetSinglet;
+import etomica.atom.AtomType;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
-import etomica.atom.IAtomType;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialMaster;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.util.Debug;
 
 /**
@@ -24,12 +24,14 @@ import etomica.util.Debug;
  */
 public class IntegratorVelocityVerletSAM extends IntegratorVelocityVerlet {
 
+    protected AtomType sulfurType;
+    
     public IntegratorVelocityVerletSAM(PotentialMaster potentialMaster,
             IRandom random, double timeStep, double temperature, Space _space) {
         super(potentialMaster, random, timeStep, temperature, _space);
     }
-    
-    public void setSulfurType(IAtomType newSulfurType) {
+
+    public void setSulfurType(AtomType newSulfurType) {
         sulfurType = newSulfurType;
     }
     
@@ -64,11 +66,11 @@ public class IntegratorVelocityVerletSAM extends IntegratorVelocityVerlet {
         forceSum.reset();
         //Compute forces on each atom
         potentialMaster.calculate(box, allAtoms, forceSum);
-        
+
         if(forceSum instanceof PotentialCalculationForcePressureSum){
             pressureTensor.E(((PotentialCalculationForcePressureSum)forceSum).getPressureTensor());
         }
-        
+
         //Finish integration step
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
@@ -85,13 +87,11 @@ public class IntegratorVelocityVerletSAM extends IntegratorVelocityVerlet {
                 velocity.setX(1, 0);
             }
         }
-        
+
         pressureTensor.TE(1/box.getBoundary().volume());
 
         if(isothermal) {
             doThermostatInternal();
         }
     }
-    
-    protected IAtomType sulfurType;
 }

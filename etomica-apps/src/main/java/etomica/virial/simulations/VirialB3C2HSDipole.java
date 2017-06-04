@@ -4,39 +4,30 @@
 
 package etomica.virial.simulations;
 
-import java.awt.Color;
-
 import etomica.action.IAction;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
-import etomica.atom.IAtomTypeOriented;
+import etomica.atom.AtomTypeOriented;
 import etomica.chem.elements.ElementSimple;
+import etomica.data.histogram.HistogramNotSoSimple;
+import etomica.data.histogram.HistogramSimple;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
-import etomica.graphics.SimulationGraphic;
 import etomica.graphics.DisplayBoxCanvasG3DSys.OrientedFullSite;
+import etomica.graphics.SimulationGraphic;
+import etomica.math.DoubleRange;
 import etomica.potential.P2HSDipole;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.Pixel;
 import etomica.util.Arrays;
-import etomica.math.DoubleRange;
-import etomica.data.histogram.HistogramNotSoSimple;
-import etomica.data.histogram.HistogramSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterBonds;
-import etomica.virial.ClusterCoupledAtomFlipped;
-import etomica.virial.ClusterSum;
-import etomica.virial.CoordinatePairSet;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.MayerPUGeneral;
-import etomica.virial.MuGeneral;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
+
+import java.awt.*;
 
 /**
  * B3,C2, dielectric constant
@@ -139,9 +130,9 @@ public class VirialB3C2HSDipole {
             sites[0] = new OrientedFullSite(space.makeVector(new double[]{0.5,0,0}), Color.BLUE, 0.2);
             sites[1] = new OrientedFullSite(space.makeVector(new double[]{-0.5,0,0}), Color.YELLOW, 0.2);
             ((DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box[0]).canvas).setOrientationSites(
-                    (IAtomTypeOriented)sim.getSpecies(0).getAtomType(0), sites);
+                    (AtomTypeOriented) sim.getSpecies(0).getAtomType(0), sites);
             ((DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box[1]).canvas).setOrientationSites(
-                    (IAtomTypeOriented)sim.getSpecies(0).getAtomType(0), sites);
+                    (AtomTypeOriented) sim.getSpecies(0).getAtomType(0), sites);
             simGraphic.makeAndDisplayFrame();
 
             sim.integratorOS.setNumSubSteps(1000);

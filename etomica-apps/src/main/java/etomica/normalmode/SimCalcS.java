@@ -5,21 +5,13 @@
 package etomica.normalmode;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.IAtomType;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD;
-import etomica.lattice.crystal.Basis;
-import etomica.lattice.crystal.BasisCubicFcc;
-import etomica.lattice.crystal.BasisMonatomic;
-import etomica.lattice.crystal.Primitive;
-import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.lattice.crystal.*;
 import etomica.listener.IntegratorListenerAction;
-import etomica.potential.P1HardPeriodic;
-import etomica.potential.P2HardSphere;
-import etomica.potential.Potential;
-import etomica.potential.PotentialMaster;
-import etomica.potential.PotentialMasterMonatomic;
+import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
@@ -33,6 +25,13 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class SimCalcS extends Simulation {
 
+    private static final long serialVersionUID = 1L;
+    public IntegratorMD integrator;
+    public ActivityIntegrate activityIntegrate;
+    public Box box;
+    public Boundary bdry;
+    public Primitive primitive;
+    public CoordinateDefinition coordinateDefinition;
     public SimCalcS(Space _space, int numAtoms, double density) {
         super(_space);
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
@@ -54,8 +53,8 @@ public class SimCalcS extends Simulation {
         // activityIntegrate.setMaxSteps(nSteps);
 
         Potential potential = new P2HardSphere(space, 1.0, false);
-        IAtomType sphereType = species.getLeafType();
-        potentialMaster.addPotential(potential, new IAtomType[] { sphereType,
+        AtomType sphereType = species.getLeafType();
+        potentialMaster.addPotential(potential, new AtomType[]{sphereType,
                 sphereType });
 
         int n;
@@ -76,19 +75,19 @@ public class SimCalcS extends Simulation {
             Basis basisFCC = new BasisCubicFcc();
             basis = new BasisBigCell(space, basisFCC, nCells);
             primitive.scaleSize(n);
-            
+
         }
         box.setBoundary(bdry);
-        
+
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         if (space.D() == 1) {
             coordinateDefinition.initializeCoordinates(new int[]{n});
         }
         else {
-        	
+
             coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
         }
-        
+
         integrator.setBox(box);
     }
 
@@ -152,7 +151,7 @@ public class SimCalcS extends Simulation {
         IntegratorListenerAction meterListener = new IntegratorListenerAction(meterNormalMode);
         meterListener.setInterval(2);
         sim.integrator.getEventManager().addListener(meterListener);
-        
+
         // MeterMomentumCOM meterCOM = new MeterMomentumCOM(sim.space);
         // MeterPositionCOM meterCOM = new MeterPositionCOM(sim.space);
         // DataSinkConsole console = new DataSinkConsole();
@@ -169,7 +168,7 @@ public class SimCalcS extends Simulation {
         System.out.println("equilibration finished");
         meterNormalMode.reset();
         sim.getController().reset();
-        
+
         sim.activityIntegrate.setMaxSteps(nSteps);
         sim.getController().actionPerformed();
 
@@ -181,12 +180,4 @@ public class SimCalcS extends Simulation {
         sWriter.actionPerformed();
 
     }
-
-    private static final long serialVersionUID = 1L;
-    public IntegratorMD integrator;
-    public ActivityIntegrate activityIntegrate;
-    public Box box;
-    public Boundary bdry;
-    public Primitive primitive;
-    public CoordinateDefinition coordinateDefinition;
 }

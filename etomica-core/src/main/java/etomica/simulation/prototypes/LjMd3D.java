@@ -7,9 +7,8 @@ package etomica.simulation.prototypes;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.atom.IAtomType;
+import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.potential.PotentialMaster;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
@@ -20,6 +19,7 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
+import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
@@ -58,9 +58,9 @@ public class LjMd3D extends Simulation {
         addBox(box);
         box.setNMolecules(species, 50);
         potential = new P2LennardJones(space, sigma, 1.0);
-        IAtomType leafType = species.getLeafType();
+        AtomType leafType = species.getLeafType();
 
-        potentialMaster.addPotential(potential,new IAtomType[]{leafType,leafType});
+        potentialMaster.addPotential(potential, new AtomType[]{leafType, leafType});
         
         integrator.setBox(box);
         BoxImposePbc imposepbc = new BoxImposePbc(space);
@@ -79,11 +79,26 @@ public class LjMd3D extends Simulation {
         integrator.getEventManager().addListener(pumpListener);
     }
 
+    public static void main(String[] args) {
+        final String APP_NAME = "LjMd3D";
+        final LjMd3D sim = new LjMd3D();
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 3, sim.space, sim.getController());
+
+        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
+        simGraphic.getController().getDataStreamPumps().add(sim.pump);
+
+        simGraphic.makeAndDisplayFrame(APP_NAME);
+
+        DisplayTextBoxesCAE display = new DisplayTextBoxesCAE();
+        display.setAccumulator(sim.avgEnergy);
+        simGraphic.add(display);
+    }
+
     public static class Applet extends javax.swing.JApplet {
 
         public void init() {
             final String APP_NAME = "LjMd3D";
-            LjMd3D sim= new LjMd3D();
+            LjMd3D sim = new LjMd3D();
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, APP_NAME, 3, sim.getSpace(), sim.getController());
 
             simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
@@ -94,21 +109,6 @@ public class LjMd3D extends Simulation {
             simGraphic.add(display);
             getContentPane().add(simGraphic.getPanel());
         }
-    }
-
-    public static void main(String[] args) {
-    	final String APP_NAME = "LjMd3D";
-    	final LjMd3D sim = new LjMd3D();
-    	final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 3, sim.space, sim.getController());
-
-        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
-        simGraphic.getController().getDataStreamPumps().add(sim.pump);
-
-        simGraphic.makeAndDisplayFrame(APP_NAME);
-
-        DisplayTextBoxesCAE display = new DisplayTextBoxesCAE();
-        display.setAccumulator(sim.avgEnergy);
-        simGraphic.add(display);
     }
 
 }

@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.modules.catalysis;
+
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.IAtomType;
+import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Oxygen;
@@ -19,6 +19,7 @@ import etomica.potential.P2SquareWell;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Calorie;
@@ -87,19 +88,19 @@ public class Catalysis extends Simulation {
         int minOSites = 2, minCSites = 2;
         
 	    potentialOO = new P2SquareWellBonding(space, interactionTracker.getAgentManager(), sigmaO, 1.3, epsilonO, minOSites, Kelvin.UNIT.toSim(200), Kelvin.UNIT.toSim(400), 7.4);
-        potentialMaster.addPotential(potentialOO,new IAtomType[]{speciesO.getLeafType(), speciesO.getLeafType()});
+        potentialMaster.addPotential(potentialOO, new AtomType[]{speciesO.getLeafType(), speciesO.getLeafType()});
 
         potentialCO = new P2SquareWellBondingCO(space, interactionTracker.getAgentManager(), 0.5*(sigmaO+sigmaC), 1.1, Math.sqrt(epsilonC*epsilonO), 20, Kelvin.UNIT.toSim(400), Kelvin.UNIT.toSim(7500), 7.4);
-        potentialMaster.addPotential(potentialCO,new IAtomType[]{speciesO.getLeafType(), speciesC.getLeafType()});
+        potentialMaster.addPotential(potentialCO, new AtomType[]{speciesO.getLeafType(), speciesC.getLeafType()});
 
         potentialCC = new P2SquareWell(space, sigmaC, 1.3, epsilonC, false);
-        potentialMaster.addPotential(potentialCC,new IAtomType[]{speciesC.getLeafType(), speciesC.getLeafType()});
+        potentialMaster.addPotential(potentialCC, new AtomType[]{speciesC.getLeafType(), speciesC.getLeafType()});
 
         potentialOS = new P2SquareWellSurface(space, interactionTracker.getAgentManager(), 0.5*(sigmaO+sigmaS), 1.3, epsilonOS, minOSites);
-        potentialMaster.addPotential(potentialOS,new IAtomType[]{speciesO.getLeafType(), speciesSurface.getLeafType()});
+        potentialMaster.addPotential(potentialOS, new AtomType[]{speciesO.getLeafType(), speciesSurface.getLeafType()});
         
         potentialCS = new P2SquareWellSurface(space, interactionTracker.getAgentManager(), 0.5*(sigmaC+sigmaS), 1.3, epsilonCS, minCSites);
-        potentialMaster.addPotential(potentialCS,new IAtomType[]{speciesC.getLeafType(), speciesSurface.getLeafType()});
+        potentialMaster.addPotential(potentialCS, new AtomType[]{speciesC.getLeafType(), speciesSurface.getLeafType()});
         
         potentialCO.setCSPotential(potentialCS);
 
@@ -110,7 +111,7 @@ public class Catalysis extends Simulation {
         p1HardWallO.setActive(1, false, true);
         p1HardWallO.setActive(2, true, false);
         p1HardWallO.setActive(2, false, false);
-        potentialMaster.addPotential(p1HardWallO, new IAtomType[]{speciesO.getLeafType()});
+        potentialMaster.addPotential(p1HardWallO, new AtomType[]{speciesO.getLeafType()});
         P1HardBoundary p1HardWallC = new P1HardBoundary(space, true);
         p1HardWallC.setActive(0, true, false);
         p1HardWallC.setActive(0, false, false);
@@ -118,7 +119,7 @@ public class Catalysis extends Simulation {
         p1HardWallC.setActive(1, false, true);
         p1HardWallC.setActive(2, true, false);
         p1HardWallC.setActive(2, false, false);
-        potentialMaster.addPotential(p1HardWallC, new IAtomType[]{speciesC.getLeafType()});
+        potentialMaster.addPotential(p1HardWallC, new AtomType[]{speciesC.getLeafType()});
         
         integrator.addCollisionListener(interactionTracker);
         reactionManagerCO = new ReactionManagerCO(this);

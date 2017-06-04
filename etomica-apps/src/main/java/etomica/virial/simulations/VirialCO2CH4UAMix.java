@@ -4,13 +4,11 @@
 
 package etomica.virial.simulations;
 
-import java.awt.Color;
-
 import etomica.action.IAction;
-import etomica.atom.IAtomType;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.ISpecies;
+import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.chem.elements.ElementSimple;
@@ -28,19 +26,12 @@ import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterSum;
-import etomica.virial.ClusterSumShell;
-import etomica.virial.ClusterWeight;
-import etomica.virial.ClusterWeightAbs;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerGeneralSpherical;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.SpeciesTraPPECO2;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 import etomica.virial.cluster.VirialDiagrams;
 import etomica.virial.cluster.VirialDiagramsMix2;
+
+import java.awt.*;
 
 /**
  *   Mayer sampling simulation for CO2(rigid, TraPPE)-CH4(rigid, TraPPE-UA, single LJ site) mixture
@@ -137,14 +128,14 @@ public class VirialCO2CH4UAMix {
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
         System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
         steps /= 1000;
-        
-        IAtomType typeCH4 = speciesCH4.getAtomType(0);//C in CH4
-        IAtomType typeC_CO2 = speciesCO2.getAtomType(0);//  C in CO2
-        IAtomType typeO_CO2 = speciesCO2.getAtomType(1);// O in CO2
+
+        AtomType typeCH4 = speciesCH4.getAtomType(0);//C in CH4
+        AtomType typeC_CO2 = speciesCO2.getAtomType(0);//  C in CO2
+        AtomType typeO_CO2 = speciesCO2.getAtomType(1);// O in CO2
       
         // CO2-CH4 potential
-        pCO2CH4.addPotential(pC_CH4, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC_CO2, typeCH4}));
-        pCO2CH4.addPotential(pO_CH4, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeO_CO2, typeCH4}));
+        pCO2CH4.addPotential(pC_CH4, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC_CO2, typeCH4}));
+        pCO2CH4.addPotential(pO_CH4, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeO_CO2, typeCH4}));
                 
         sim.integratorOS.setNumSubSteps(1000);
 

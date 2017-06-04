@@ -3,23 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.metastable;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.IAtomType;
-import etomica.box.Box;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
+import etomica.atom.AtomType;
+import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
+import etomica.data.*;
 import etomica.data.AccumulatorAverage.StatType;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataDump;
-import etomica.data.DataPump;
-import etomica.data.DataPumpListener;
+import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.meter.MeterPressure;
@@ -41,10 +34,14 @@ import etomica.species.SpeciesSpheresMono;
 import etomica.units.Energy;
 import etomica.units.Pixel;
 import etomica.units.SimpleUnit;
-import etomica.data.history.HistoryCollapsingAverage;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.RandomMersenneTwister;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 public class LJNPT extends Simulation {
     
@@ -78,8 +75,8 @@ public class LJNPT extends Simulation {
         //instantiate several potentials for selection in combo-box
 	    P2LennardJones potential = new P2LennardJones(space);
         P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(space, potential, rc);
-	    potentialMaster.addPotential(p2Truncated, new IAtomType[]{species.getLeafType(), species.getLeafType()});
-	    
+        potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
+
         //construct box
 	    box = new Box(space);
         addBox(box);
@@ -169,7 +166,7 @@ public class LJNPT extends Simulation {
                 
                 
                 AccumulatorHistory historyDensity = new AccumulatorHistory(new HistoryCollapsingAverage());
-                avgDensity.addDataSink(historyDensity, new StatType[]{avgDensity.MOST_RECENT});
+                avgDensity.addDataSink(historyDensity, new StatType[]{AccumulatorAverage.MOST_RECENT});
                 DisplayPlot densityPlot = new DisplayPlot();
                 densityPlot.setLabel("density");
                 historyDensity.addDataSink(densityPlot.getDataSet().makeDataSink());

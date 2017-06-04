@@ -4,16 +4,16 @@
 
 package etomica.atom;
 
-import junit.framework.TestCase;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.util.Debug;
+import junit.framework.TestCase;
 
 public class MoleculeArrayListTest extends TestCase {
 
-    protected ISpecies species = new SpeciesSpheresHetero(Space3D.getInstance(), new IAtomType[0]);
+    protected ISpecies species = new SpeciesSpheresHetero(Space3D.getInstance(), new AtomType[0]);
     
 	/*
 	 * testTrimToSize()

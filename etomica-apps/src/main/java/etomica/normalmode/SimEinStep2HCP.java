@@ -1,20 +1,12 @@
 package etomica.normalmode;
 
-import java.awt.Color;
-
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomType;
-import etomica.box.Box;
 import etomica.api.IMolecule;
-import etomica.potential.PotentialMaster;
-import etomica.potential.*;
-import etomica.space.Vector;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
+import etomica.box.Box;
 import etomica.box.BoxAgentManager;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.DataPumpListener;
-import etomica.data.DataSourceCountSteps;
-import etomica.data.IData;
+import etomica.data.*;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorScheme;
@@ -31,13 +23,17 @@ import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.list.BoxAgentSourceCellManagerList;
 import etomica.nbr.list.NeighborListManagerSlanty;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Degree;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+
+import java.awt.*;
 
 /**
  * Simulation that samples a composite energy function (soft sphere and
@@ -48,13 +44,23 @@ import etomica.util.ParseArgs;
  */
 public class SimEinStep2HCP extends Simulation {
 
+    public final PotentialMasterList potentialMaster;
+    public final PotentialMasterMonatomic potentialMasterHarmonic;
+    public IntegratorMC integrator;
+    public ActivityIntegrate activityIntegrate;
+    public Box box;
+    public BoundaryDeformableLattice boundary;
+    public int[] nCells;
+    public Basis basis;
+    public Primitive primitive;
+    public MCMoveBoxStep atomMove;
     public SimEinStep2HCP(Space _space, int numAtoms, double density, double temperature, double lambda, int exponent, double rc, double coa) {
         super(_space);
 
         BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, space);
         BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class);
         potentialMaster = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc, space), space);
-        
+
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
@@ -64,19 +70,19 @@ public class SimEinStep2HCP extends Simulation {
         box.setNMolecules(species, numAtoms);
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
-        
+
         int n = (int)Math.round(Math.pow(numAtoms/8, 1.0/3.0));
         if (8*n*n*n != numAtoms) {
             throw new RuntimeException("Not compatible with HCP");
         }
-        
+
         double a = Math.pow(4/(Math.sqrt(3)*density*coa), 1.0/3.0);
         double c = coa*a;  // sqrt(8/3)
         Vector[] boxDim = new Vector[3];
         boxDim[0] = space.makeVector(new double[]{2*n*a, 0, 0});
         boxDim[1] = space.makeVector(new double[]{-2*n*a*Math.cos(Degree.UNIT.toSim(60)), 2*n*a*Math.sin(Degree.UNIT.toSim(60)), 0});
         boxDim[2] = space.makeVector(new double[]{0, 0, n*c});
-            
+
         primitive = new PrimitiveHexagonal(space, a, c);
         nCells = new int[]{2*n,2*n,n};
         boundary = new BoundaryDeformableLattice(primitive, nCells);
@@ -85,7 +91,7 @@ public class SimEinStep2HCP extends Simulation {
 
         box.setBoundary(boundary);
 
-            
+
         CoordinateDefinitionLeaf coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
 
@@ -97,12 +103,12 @@ public class SimEinStep2HCP extends Simulation {
             potential = new P2LennardJones(space);
         }
         potential = new P2SoftSphericalTruncated(space, potential, rc);
-        IAtomType sphereType = species.getLeafType();
-        potentialMaster.addPotential(potential, new IAtomType[] {sphereType, sphereType });
+        AtomType sphereType = species.getLeafType();
+        potentialMaster.addPotential(potential, new AtomType[]{sphereType, sphereType});
 
 
         potentialMaster.lrcMaster().setEnabled(false);
-    
+
         integrator.setBox(box);
 
         int cellRange = 7;
@@ -114,17 +120,17 @@ public class SimEinStep2HCP extends Simulation {
         if (potentialCells < cellRange*2+1) {
             throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
         }
-        
+
         final MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
         double latticeEnergy = meterPE.getDataAsScalar();
 //        System.out.println("uLat "+latticeEnergy/numAtoms);
-        
+
         P1HarmonicSite p1Harmonic = new P1HarmonicSite(space);
         p1Harmonic.setSpringConstant(1);
         p1Harmonic.setAtomAgentManager(box,coordinateDefinition.siteManager);
         potentialMasterHarmonic = new PotentialMasterMonatomic(this);
-        potentialMasterHarmonic.addPotential(p1Harmonic, new IAtomType[]{sphereType,sphereType});
+        potentialMasterHarmonic.addPotential(p1Harmonic, new AtomType[]{sphereType, sphereType});
 
         MeterPotentialEnergyComposite meterPEComposite = new MeterPotentialEnergyComposite(potentialMasterHarmonic, potentialMaster, latticeEnergy, numAtoms);
         meterPEComposite.setBox(box);
@@ -146,9 +152,9 @@ public class SimEinStep2HCP extends Simulation {
 //        meterPEComposite2.setLambda(lambda);
 //        integrator.setMeterPotentialEnergy(lambda==0 ? meterPE : meterPEComposite2);
 
-        
+
         activityIntegrate = new ActivityIntegrate(integrator);
-        
+
         getController().addAction(activityIntegrate);
 
         // extend potential range, so that atoms that move outside the truncation range will still interact
@@ -156,14 +162,7 @@ public class SimEinStep2HCP extends Simulation {
         //XXX we don't want to do this because our potential is shifted!
         ((P2SoftSphericalTruncated)potential).setTruncationRadius(0.6*boundary.getBoxSize().getX(0));
     }
-    
-    public void initialize(long initSteps) {
-        // equilibrate off the lattice to avoid anomolous contributions
-        activityIntegrate.setMaxSteps(initSteps);
-        getController().actionPerformed();
-        getController().reset();
-    }
-    
+
     /**
      * @param args filename containing simulation parameters
      * @see SimEinStep2HCP.SimOverlapParam
@@ -203,15 +202,15 @@ public class SimEinStep2HCP extends Simulation {
         System.out.println("f: "+f);
 
         final long startTime = System.currentTimeMillis();
-        
+
         double c = Math.exp(x0);
-        double xf = Math.log(spring+c); 
+        double xf = Math.log(spring + c);
         double x=x0+(xf-x0)*f;
         double lambda=(Math.exp(x)-c);
         System.out.println("lambda: "+lambda);
 //        lambda = c*(Math.pow(spring/c+1, f) - 1)
 
-        
+
         //instantiate simulation
         final SimEinStep2HCP sim = new SimEinStep2HCP(Space.getInstance(3), numMolecules, density, temperature, lambda, exponentN, rc, Math.sqrt(8.0/3.0));
         final MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
@@ -223,6 +222,8 @@ public class SimEinStep2HCP extends Simulation {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
             simGraphic.setPaintInterval(sim.box, 1000);
             ColorScheme colorScheme = new ColorScheme() {
+                protected Color[] allColors;
+
                 public Color getAtomColor(IAtom a) {
                     if (allColors==null) {
                         allColors = new Color[768];
@@ -238,16 +239,15 @@ public class SimEinStep2HCP extends Simulation {
                     }
                     return allColors[(2*a.getLeafIndex()) % 768];
                 }
-                protected Color[] allColors;
             };
             simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
-            
+
             DisplayTextBox timer = new DisplayTextBox();
             DataSourceCountSteps counter = new DataSourceCountSteps(sim.integrator);
             DataPumpListener counterPump = new DataPumpListener(counter, timer, 100);
             sim.integrator.getEventManager().addListener(counterPump);
             simGraphic.getPanel().controlPanel.add(timer.graphic());
-            
+
             simGraphic.makeAndDisplayFrame("SS");
             return;
         }
@@ -256,7 +256,7 @@ public class SimEinStep2HCP extends Simulation {
 
         sim.initialize(numMolecules*100);
         System.out.flush();
-        
+
         sim.activityIntegrate.setMaxSteps(numSteps);
 
         // potentialMasterHarmonic really just gives us sum[r^2]
@@ -276,13 +276,13 @@ public class SimEinStep2HCP extends Simulation {
 //        DataPumpListener accumulatorPEIntPump = new DataPumpListener(meterPEInt, accumulatorPEInt, interval);
 //        sim.integrator.getEventManager().addListener(accumulatorPEIntPump);
 
-        
+
         sim.getController().actionPerformed();
-        
+
         DataGroup data = (DataGroup)accumulator.getData();
-        IData dataErr = data.getData(accumulator.ERROR.index);
-        IData dataAvg = data.getData(accumulator.AVERAGE.index);
-        IData dataCorrelation = data.getData(accumulator.BLOCK_CORRELATION.index);
+        IData dataErr = data.getData(AccumulatorAverage.ERROR.index);
+        IData dataAvg = data.getData(AccumulatorAverage.AVERAGE.index);
+        IData dataCorrelation = data.getData(AccumulatorAverage.BLOCK_CORRELATION.index);
         System.out.println("msd/T  "+dataAvg.getValue(0)/(temperature*numMolecules)+" "+dataErr.getValue(0)/(temperature*numMolecules)+" "+dataCorrelation.getValue(0));
 
 //        DataGroup dataPEInt = (DataGroup)accumulatorPEInt.getData();
@@ -295,19 +295,20 @@ public class SimEinStep2HCP extends Simulation {
         System.out.println("time: " + (endTime - startTime)/1000.0);
     }
 
-    public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
-    public Box box;
-    public BoundaryDeformableLattice boundary;
-    public int[] nCells;
-    public Basis basis;
-    public Primitive primitive;
-    public MCMoveBoxStep atomMove;
-    public final PotentialMasterList potentialMaster;
-    public final PotentialMasterMonatomic potentialMasterHarmonic;
+    public void initialize(long initSteps) {
+        // equilibrate off the lattice to avoid anomolous contributions
+        activityIntegrate.setMaxSteps(initSteps);
+        getController().actionPerformed();
+        getController().reset();
+    }
     
     protected static class MeterPotentialEnergyComposite extends
             MeterPotentialEnergy {
+        protected final MeterPotentialEnergy meterPE1, meterPE2;
+        protected final int nMolecules;
+        protected double lambda, latticeEnergy;
+        protected boolean hasTarget = false;
+
         protected MeterPotentialEnergyComposite(PotentialMaster potentialMaster1, PotentialMaster potentialMaster2, double latticeEnergy, int nMolecules) {
             super(null);
             meterPE1 = new MeterPotentialEnergy(potentialMaster1);
@@ -315,21 +316,17 @@ public class SimEinStep2HCP extends Simulation {
             this.latticeEnergy = latticeEnergy;
             this.nMolecules = nMolecules;
         }
-        
-        public void setLambda(double newFrac) {
-            lambda = newFrac;
-        }
-        
+
         public double getLambda() {
             return lambda;
         }
-        
-        public Box getBox() {
-            return meterPE1.getBox();
+
+        public void setLambda(double newFrac) {
+            lambda = newFrac;
         }
 
-        public boolean isIncludeLrc() {
-            return meterPE1.isIncludeLrc();
+        public Box getBox() {
+            return meterPE1.getBox();
         }
 
         public void setBox(Box box) {
@@ -337,6 +334,10 @@ public class SimEinStep2HCP extends Simulation {
             meterPE2.setBox(box);
         }
 
+        public boolean isIncludeLrc() {
+            return meterPE1.isIncludeLrc();
+        }
+        
         public void setIncludeLrc(boolean b) {
             meterPE1.setIncludeLrc(b);
             meterPE2.setIncludeLrc(b);
@@ -355,16 +356,11 @@ public class SimEinStep2HCP extends Simulation {
         }
 
         public double getDataAsScalar() {
-            
+
 //            System.out.println(hasTarget+" "+meterPE1.getDataAsScalar()+" "+meterPE2.getDataAsScalar()+" "+(latticeEnergy/(hasTarget ? nMolecules/2 : 1)));
 //            System.out.println("hi "+(lambda * meterPE1.getDataAsScalar() + (meterPE2.getDataAsScalar() - latticeEnergy/(hasTarget ? nMolecules/2 : 1))));
             return lambda * meterPE1.getDataAsScalar() + (meterPE2.getDataAsScalar() - latticeEnergy/(hasTarget ? nMolecules/2 : 1));
         }
-        
-        protected final MeterPotentialEnergy meterPE1, meterPE2;
-        protected double lambda, latticeEnergy;
-        protected boolean hasTarget = false;
-        protected final int nMolecules;
     }
 
     /**

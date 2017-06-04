@@ -4,11 +4,10 @@
 
 package etomica.AlkaneEH;
 
-import etomica.atom.IAtomType;
 import etomica.api.IMolecule;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
-import etomica.atom.AtomTypeLeaf;
+import etomica.atom.AtomType;
 import etomica.atom.Molecule;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.ElementSimple;
@@ -23,56 +22,57 @@ import etomica.species.Species;
  */
 public class SpeciesMethane extends Species {
 
-	public SpeciesMethane(Space space) {
+    public final static int indexC = 0;
+    public final static int indexH1 = 1;
+    public final static int indexH2 = 2;
+    public final static int indexH3 = 3;
+    public final static int indexH4 = 4;
+    private static final long serialVersionUID = 1L;
+    protected final Space space;
+    protected final boolean isDynamic;
+    protected final AtomType cType, hType;
+
+    public SpeciesMethane(Space space) {
         this(space, false);
     }
-    
     public SpeciesMethane(Space space, boolean isDynamic) {
         super();
         this.space = space;
         this.isDynamic = isDynamic;
 
-        cType = new AtomTypeLeaf(Carbon.INSTANCE); 
-        hType = new AtomTypeLeaf(new ElementSimple("cH3", 1.0)); 
+        cType = new AtomType(Carbon.INSTANCE);
+        hType = new AtomType(new ElementSimple("cH3", 1.0));
         addChildType(cType);
         addChildType(hType);
-        setConformation(new ConformationMethane(space)); 
+        setConformation(new ConformationMethane(space));
      }
 
      public IMolecule makeMolecule() {
          Molecule methane = new Molecule(this, 5);
-         
+
          // The order in which the child atoms are added is important; it must match the site indices.
          methane.addChildAtom(isDynamic ? new AtomLeafDynamic(space, cType) : new Atom(space, cType));
-         
+
          methane.addChildAtom(isDynamic ? new AtomLeafDynamic(space, hType) : new Atom(space, hType));
          methane.addChildAtom(isDynamic ? new AtomLeafDynamic(space, hType) : new Atom(space, hType));
          methane.addChildAtom(isDynamic ? new AtomLeafDynamic(space, hType) : new Atom(space, hType));
          methane.addChildAtom(isDynamic ? new AtomLeafDynamic(space, hType) : new Atom(space, hType));
-         
+
          conformation.initializePositions(methane.getChildList());
-         
+
          return methane;
-     
+
      }
-     
-     public IAtomType getCType() {
+
+    public AtomType getCType() {
          return cType;
      }
-     public IAtomType getHType() {
+
+    public AtomType getHType() {
          return hType;
      }
-     public int getNumLeafAtoms() {
+
+    public int getNumLeafAtoms() {
          return 5;
      }
-     public final static int indexC  = 0;
-     public final static int indexH1  = 1;
-     public final static int indexH2  = 2;
-     public final static int indexH3  = 3;
-     public final static int indexH4  = 4;
-
-     private static final long serialVersionUID = 1L;
-     protected final Space space;
-     protected final boolean isDynamic;
-     protected final AtomTypeLeaf cType, hType;
 }

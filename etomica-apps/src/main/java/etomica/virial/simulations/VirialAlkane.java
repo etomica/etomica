@@ -4,16 +4,11 @@
 
 package etomica.virial.simulations;
 
-import java.awt.Color;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
 import etomica.action.IAction;
-import etomica.atom.IAtomType;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.ISpecies;
+import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIndexList;
@@ -21,12 +16,7 @@ import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.atom.iterator.Atomset4IteratorIndexList;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
-import etomica.graphics.ColorSchemeRandomByMolecule;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayBoxCanvasG3DSys;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P3BondAngle;
@@ -34,29 +24,16 @@ import etomica.potential.P4BondTorsion;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.units.CompoundDimension;
-import etomica.units.CompoundUnit;
+import etomica.units.*;
 import etomica.units.Dimension;
-import etomica.units.DimensionRatio;
-import etomica.units.Kelvin;
-import etomica.units.Liter;
-import etomica.units.Mole;
-import etomica.units.Pixel;
-import etomica.units.Quantity;
-import etomica.units.Unit;
-import etomica.units.UnitRatio;
-import etomica.units.Volume;
 import etomica.util.Constants.CompassDirection;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.MCMoveClusterTorsionMulti;
-import etomica.virial.MayerEGeneral;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.SpeciesAlkane;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
+
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * Mayer sampling simulation for alkanes using the TraPPE force field.
@@ -128,13 +105,13 @@ public class VirialAlkane {
             sim.integratorOS.setRefStepFraction(refFreq);
         }
 
-        IAtomType typeCH3 = species.getAtomType(0);
-        IAtomType typeCH2 = species.getAtomType(1);
-        pTargetGroup.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH2}));
+        AtomType typeCH3 = species.getAtomType(0);
+        AtomType typeCH2 = species.getAtomType(1);
+        pTargetGroup.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH2, typeCH2}));
         // CH2 on molecule1 to CH3 on molecule2
-        pTargetGroup.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH3}));
-        pTargetGroup.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeCH2}));
-        pTargetGroup.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeCH3}));
+        pTargetGroup.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH2, typeCH3}));
+        pTargetGroup.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH3, typeCH2}));
+        pTargetGroup.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH3, typeCH3}));
         
         sim.integratorOS.setNumSubSteps(1000);
 
@@ -255,6 +232,8 @@ public class VirialAlkane {
             simGraphic.getPanel().controlPanel.add(panelParentGroup, SimulationPanel.getVertGBC());
             
             IAction pushAnswer = new IAction() {
+                DataDouble data = new DataDouble();
+                
                 public void actionPerformed() {
                     double[] ratioAndError = sim.dvo.getAverageAndError();
                     double ratio = ratioAndError[0];
@@ -264,8 +243,6 @@ public class VirialAlkane {
                     data.x = error;
                     errorBox.putData(data);
                 }
-                
-                DataDouble data = new DataDouble();
             };
             IEtomicaDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, new CompoundDimension(new Dimension[]{new DimensionRatio(Volume.DIMENSION, Quantity.DIMENSION)}, new double[]{nPoints-1}));
             Unit unit = new CompoundUnit(new Unit[]{new UnitRatio(Liter.UNIT, Mole.UNIT)}, new double[]{nPoints-1});

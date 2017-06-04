@@ -1,6 +1,6 @@
 package etomica.models.co2;
 
-import etomica.atom.IAtomType;
+import etomica.atom.AtomType;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.space.Space;
 
@@ -29,7 +29,7 @@ public class PNGCPMX extends PNGCPM {
         this.kGamma = kGamma;
     }
 
-    public GCPMAgent getPairAgent(IAtomType type1, IAtomType type2) {
+    public GCPMAgent getPairAgent(AtomType type1, AtomType type2) {
         int idx1 = type1.getIndex();
         int idx2 = type2.getIndex();
         if (pairAgents[idx1][idx2] != null) return pairAgents[idx1][idx2];

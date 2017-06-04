@@ -4,15 +4,13 @@
 
 package etomica.normalmode;
 
-import java.awt.Color;
-
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomType;
-import etomica.box.Box;
 import etomica.api.IMolecule;
-import etomica.potential.PotentialMaster;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
+import etomica.box.Box;
 import etomica.box.BoxAgentManager;
+import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.DataPump;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataSource;
@@ -22,11 +20,7 @@ import etomica.graphics.ColorScheme;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
-import etomica.lattice.crystal.Basis;
-import etomica.lattice.crystal.BasisCubicFcc;
-import etomica.lattice.crystal.Primitive;
-import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.lattice.crystal.PrimitiveTriclinic;
+import etomica.lattice.crystal.*;
 import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.list.BoxAgentSourceCellManagerList;
@@ -47,6 +41,8 @@ import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
 
+import java.awt.*;
+
 /**
  * Overlap sampling simulation whose target system has a composite energy
  * function (soft sphere and Einstein crystal) and whose reference system is
@@ -56,6 +52,26 @@ import etomica.virial.overlap.DataSourceVirialOverlap;
  */
 public class SimOverlapSoftSphereEinHarm extends Simulation {
 
+    private static final long serialVersionUID = 1L;
+    public final PotentialMasterList potentialMaster;
+    public final PotentialMasterMonatomic potentialMasterHarmonic;
+    public final double latticeEnergy;
+    public final NormalModes normalModes;
+    public final IntegratorOverlap integratorOverlap;
+    public IntegratorBox[] integrators;
+    public DataSourceVirialOverlap dsvo;
+    public ActivityIntegrate activityIntegrate;
+    public Box box, boxRef;
+    public Boundary boundary, boundaryRef;
+    public int[] nCells;
+    public Basis basis;
+    public Primitive primitive;
+    public MCMoveAtomCoupled atomMove;
+    public AccumulatorVirialOverlapSingleAverage[] accumulators;
+    public DataPump[] accumulatorPumps;
+    public IEtomicaDataSource[] meters;
+    public double alphaCenter, alphaSpan;
+    public int numAlpha;
     public SimOverlapSoftSphereEinHarm(Space _space, int numAtoms, double density, boolean slanty, double temperature, double spring, double frac, int exponent, double rc) {
         super(_space);
 
@@ -67,7 +83,7 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
         else {
             potentialMaster = new PotentialMasterList(this, space);
         }
-        
+
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
@@ -86,14 +102,14 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
         if (slanty) {
             int c = (int)Math.round(Math.pow(numAtoms, 1.0/3.0));
             nCells = new int[]{c,c,c};
-            
+
             double L = Math.pow(Math.sqrt(2)/density, 1.0/3.0);
             nbrDistance = L;
             double angle = Math.PI/3;
-          
+
 //            primitive = new PrimitiveFcc(space, L*c);
             primitive = new PrimitiveTriclinic(space, L*c,L*c,L*c, angle,angle,angle);
-         
+
             boundary = new BoundaryDeformablePeriodic(space, primitive.vectors());
             ((BoundaryDeformablePeriodic)boundary).setTruncationRadius(rc);
             boundaryRef = new BoundaryDeformablePeriodic(space, primitive.vectors());
@@ -102,12 +118,12 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
             basis = new BasisBigCell(space, basisSimple, nCells);
         }
         else {
-            
+
             double L = Math.pow(4.0/density, 1.0/3.0);
             nbrDistance = L / Math.sqrt(2);
             int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
             primitive = new PrimitiveCubic(space, n*L);
-            
+
             nCells = new int[]{n,n,n};
             boundary = new BoundaryRectangularPeriodic(space, n * L);
             boundaryRef = new BoundaryRectangularPeriodic(space, n * L);
@@ -123,12 +139,12 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
 
         Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, exponent);
         potential = new P2SoftSphericalTruncated(space, potential, rc);
-        IAtomType sphereType = species.getLeafType();
-        potentialMaster.addPotential(potential, new IAtomType[] {sphereType, sphereType });
+        AtomType sphereType = species.getLeafType();
+        potentialMaster.addPotential(potential, new AtomType[]{sphereType, sphereType});
 
 
         potentialMaster.lrcMaster().setEnabled(false);
-    
+
         integrators[1].setBox(box);
 
         int cellRange = 7;
@@ -140,17 +156,17 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
         if (potentialCells < cellRange*2+1) {
             throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
         }
-        
+
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
         latticeEnergy = meterPE.getDataAsScalar();
         System.out.println("uLat "+latticeEnergy/numAtoms);
-        
+
         P1HarmonicSite p1Harmonic = new P1HarmonicSite(space);
         p1Harmonic.setSpringConstant(spring);
         p1Harmonic.setAtomAgentManager(box,coordinateDefinition.siteManager);
         potentialMasterHarmonic = new PotentialMasterMonatomic(this);
-        potentialMasterHarmonic.addPotential(p1Harmonic, new IAtomType[]{sphereType,sphereType});
+        potentialMasterHarmonic.addPotential(p1Harmonic, new AtomType[]{sphereType, sphereType});
 
         MeterPotentialEnergyComposite meterPEComposite = new MeterPotentialEnergyComposite(potentialMasterHarmonic, potentialMaster, latticeEnergy);
         meterPEComposite.setBox(box);
@@ -177,7 +193,7 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
         move.setAlphaEin(spring);
         integratorRef.getMoveManager().addMCMove(move);
         integrators[0] = integratorRef;
-        
+
         CoordinateDefinitionLeaf coordinateDefinitionRef = new CoordinateDefinitionLeaf(boxRef, primitive, basis, space);
         coordinateDefinitionRef.initializeCoordinates(new int[]{1,1,1});
 
@@ -189,7 +205,7 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
          * nuke this line if it is DB
          */
         //normalModes.setTemperature(temperature);
-        
+
         WaveVectorFactory waveVectorFactory = normalModes.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(boxRef);
         move.setOmegaSquared(normalModes.getOmegaSquared());
@@ -199,11 +215,11 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
         move.setCoordinateDefinition(coordinateDefinitionRef);
         move.setTemperature(temperature);
         move.setFrac(frac);
-        
+
         move.setBox(boxRef);
-        
+
         integratorRef.setBox(boxRef);
-        
+
         // OVERLAP
         integratorOverlap = new IntegratorOverlap(new IntegratorBox[]{integratorRef, integrators[1]});
         MeterHarmonicEnergy meterHarmonicEnergy = new MeterHarmonicEnergy(coordinateDefinition, normalModes);
@@ -212,81 +228,25 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
         meterTarget.setFrac(frac);
         meterTarget.setLatticeEnergy(latticeEnergy);
         meters[1] = meterTarget;
-        
+
         MeterBoltzmannHarmonic meterHarmonic = new MeterBoltzmannHarmonic(move, potentialMaster);
         meterHarmonic.setFrac(frac);
         meterHarmonic.setTemperature(temperature);
         meterHarmonic.setLatticeEnergy(latticeEnergy);
         meters[0] = meterHarmonic;
-        
+
         integratorOverlap.setRefStepFraction(0.5);
         integratorOverlap.setAdjustStepFraction(false);
-       
+
         activityIntegrate = new ActivityIntegrate(integratorOverlap);
-        
+
         getController().addAction(activityIntegrate);
 
         // extend potential range, so that atoms that move outside the truncation range will still interact
         // atoms that move in will not interact since they won't be neighbors
         ((P2SoftSphericalTruncated)potential).setTruncationRadius(0.6*boundary.getBoxSize().getX(0));
     }
-    
-    public void setAlphaCenter(double newAlphaCenter, double span) {
-        alphaCenter = newAlphaCenter;
-        alphaSpan = span;
-        if (accumulators[0] != null) {
-            accumulators[0].setBennetParam(alphaCenter,span);
-            accumulators[1].setBennetParam(alphaCenter,span);
-        }
-    }
 
-    public void setAccumulator(AccumulatorVirialOverlapSingleAverage newAccumulator, int iBox) {
-
-        accumulators[iBox] = newAccumulator;
-    
-        newAccumulator.setBlockSize(200); // setting the block size = 300
-        
-        if (accumulatorPumps[iBox] == null) {
-            accumulatorPumps[iBox] = new DataPump(meters[iBox],newAccumulator);
-            IntegratorListenerAction pumpListener = new IntegratorListenerAction(accumulatorPumps[iBox]);
-            integrators[iBox].getEventManager().addListener(pumpListener);
-            pumpListener.setInterval(box.getLeafList().getAtomCount());
-        }
-        else {
-            accumulatorPumps[iBox].setDataSink(newAccumulator);
-        }
-        if (integratorOverlap != null && accumulators[0] != null && accumulators[1] != null) {
-            dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
-            integratorOverlap.setReferenceFracSource(dsvo);
-        }
-    }
-
-    public void setNumAlpha(int newNumAlpha) {
-        numAlpha = newNumAlpha;
-        setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, numAlpha, false), 1);
-        setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, numAlpha, true), 0);
-        if (alphaSpan > 0 && alphaCenter > 0) {
-            setAlphaCenter(alphaCenter, alphaSpan);
-        }
-    }
-    
-    public void equilibrate(long initSteps) {
-        // run a short simulation to get reasonable MC Move step sizes and
-        // (if needed) narrow in on a reference preference
-        activityIntegrate.setMaxSteps(initSteps);
-
-        for (int i=0; i<2; i++) {
-            if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(true);
-        }
-        getController().actionPerformed();
-        getController().reset();
-        for (int i=0; i<2; i++) {
-            if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(false);
-        }
-
-        dsvo.reset();
-    }
-    
     /**
      * @param args filename containing simulation parameters
      * @see SimOverlapSoftSphereEinHarm.SimOverlapParam
@@ -321,7 +281,7 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
         double alphaCenter = params.alphaCenter;
         double rc = params.rc;
         double spring = params.spring;
-        
+
         System.out.println("Running soft sphere overlap simulation");
         System.out.println(numMolecules+" atoms at density "+density+" and temperature "+temperature);
         System.out.println("exponent N: "+ exponentN);
@@ -335,6 +295,8 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
             simGraphic.setPaintInterval(sim.box, 1000);
             ColorScheme colorScheme = new ColorScheme() {
+                protected Color[] allColors;
+
                 public Color getAtomColor(IAtom a) {
                     if (allColors==null) {
                         allColors = new Color[768];
@@ -350,10 +312,9 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
                     }
                     return allColors[(2*a.getLeafIndex()) % 768];
                 }
-                protected Color[] allColors;
             };
             simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
-            
+
             simGraphic.makeAndDisplayFrame("SS");
             return;
         }
@@ -366,15 +327,15 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
             steps = numSteps/20;
         }
         sim.equilibrate(numMolecules/5);
-        
+
         final long startTime = System.currentTimeMillis();
-       
+
         sim.activityIntegrate.setMaxSteps(numSteps);
 
         //MeterTargetTP.openFW("x"+numMolecules+".dat");
         sim.getController().actionPerformed();
         //MeterTargetTP.closeFW();
-        
+
         System.out.println("\nratio averages:\n");
         double[] lnAlphaDiff = new double[numAlpha];
         double[] lnAlpha = new double[numAlpha];
@@ -386,8 +347,8 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
             for (int j=0; j<numAlpha; j++) {
                 double jAlpha = sim.accumulators[i].getBennetBias(j);
                 DataGroup data = (DataGroup)sim.accumulators[i].getData(j);
-                IData dataErr = data.getData(sim.accumulators[i].RATIO_ERROR.index);
-                IData dataAvg = data.getData(sim.accumulators[i].RATIO.index);
+                IData dataErr = data.getData(AccumulatorRatioAverageCovariance.RATIO_ERROR.index);
+                IData dataAvg = data.getData(AccumulatorRatioAverageCovariance.RATIO.index);
                 System.out.println("  "+jAlpha+" "+dataAvg.getValue(1)
                         +" "+dataErr.getValue(1));
                 lnAlphaDiff[j] += (1-i*2)*Math.log(dataAvg.getValue(1));
@@ -402,35 +363,74 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
         }
         double[] avgerr = sim.dsvo.getOverlapAverageAndError();
         System.out.println("\nnew alpha "+avgerr[0]+" "+avgerr[1]);
-        
+
         System.out.println("delta A "+(-temperature*Math.log(avgerr[0]))+" "+temperature*avgerr[1]/avgerr[0]);
-        
+
         long endTime = System.currentTimeMillis();
         System.out.println("Time taken: " + (endTime - startTime)/1000.0);
     }
 
-    private static final long serialVersionUID = 1L;
-    public IntegratorBox[] integrators;
-    public DataSourceVirialOverlap dsvo;
-    public ActivityIntegrate activityIntegrate;
-    public Box box, boxRef;
-    public Boundary boundary, boundaryRef;
-    public int[] nCells;
-    public Basis basis;
-    public Primitive primitive;
-    public MCMoveAtomCoupled atomMove;
-    public final PotentialMasterList potentialMaster;
-    public final PotentialMasterMonatomic potentialMasterHarmonic;
-    public final double latticeEnergy;
-    public final NormalModes normalModes;
-    public final IntegratorOverlap integratorOverlap;
-    public AccumulatorVirialOverlapSingleAverage[] accumulators;
-    public DataPump[] accumulatorPumps;
-    public IEtomicaDataSource[] meters;
-    public double alphaCenter, alphaSpan;
-    public int numAlpha;
+    public void setAlphaCenter(double newAlphaCenter, double span) {
+        alphaCenter = newAlphaCenter;
+        alphaSpan = span;
+        if (accumulators[0] != null) {
+            accumulators[0].setBennetParam(alphaCenter, span);
+            accumulators[1].setBennetParam(alphaCenter, span);
+        }
+    }
+
+    public void setAccumulator(AccumulatorVirialOverlapSingleAverage newAccumulator, int iBox) {
+
+        accumulators[iBox] = newAccumulator;
+
+        newAccumulator.setBlockSize(200); // setting the block size = 300
+
+        if (accumulatorPumps[iBox] == null) {
+            accumulatorPumps[iBox] = new DataPump(meters[iBox], newAccumulator);
+            IntegratorListenerAction pumpListener = new IntegratorListenerAction(accumulatorPumps[iBox]);
+            integrators[iBox].getEventManager().addListener(pumpListener);
+            pumpListener.setInterval(box.getLeafList().getAtomCount());
+        } else {
+            accumulatorPumps[iBox].setDataSink(newAccumulator);
+        }
+        if (integratorOverlap != null && accumulators[0] != null && accumulators[1] != null) {
+            dsvo = new DataSourceVirialOverlap(accumulators[0], accumulators[1]);
+            integratorOverlap.setReferenceFracSource(dsvo);
+        }
+    }
+
+    public void setNumAlpha(int newNumAlpha) {
+        numAlpha = newNumAlpha;
+        setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, numAlpha, false), 1);
+        setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, numAlpha, true), 0);
+        if (alphaSpan > 0 && alphaCenter > 0) {
+            setAlphaCenter(alphaCenter, alphaSpan);
+        }
+    }
+
+    public void equilibrate(long initSteps) {
+        // run a short simulation to get reasonable MC Move step sizes and
+        // (if needed) narrow in on a reference preference
+        activityIntegrate.setMaxSteps(initSteps);
+
+        for (int i = 0; i < 2; i++) {
+            if (integrators[i] instanceof IntegratorMC)
+                ((IntegratorMC) integrators[i]).getMoveManager().setEquilibrating(true);
+        }
+        getController().actionPerformed();
+        getController().reset();
+        for (int i = 0; i < 2; i++) {
+            if (integrators[i] instanceof IntegratorMC)
+                ((IntegratorMC) integrators[i]).getMoveManager().setEquilibrating(false);
+        }
+
+        dsvo.reset();
+    }
     
     protected static class MeterPotentialEnergyComposite extends MeterPotentialEnergy {
+        protected final MeterPotentialEnergy meterPE1, meterPE2;
+        protected double frac, latticeEnergy;
+        
         protected MeterPotentialEnergyComposite(PotentialMaster potentialMaster1, PotentialMaster potentialMaster2, double latticeEnergy) {
             super(null);
             meterPE1 = new MeterPotentialEnergy(potentialMaster1);
@@ -438,25 +438,25 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
             this.latticeEnergy = latticeEnergy;
         }
         
-        public void setFrac(double newFrac) {
-            frac = newFrac;
-        }
-        
         public double getFrac() {
             return frac;
         }
-        
-        public Box getBox() {
-            return meterPE1.getBox();
+
+        public void setFrac(double newFrac) {
+            frac = newFrac;
         }
 
-        public boolean isIncludeLrc() {
-            return meterPE1.isIncludeLrc();
+        public Box getBox() {
+            return meterPE1.getBox();
         }
 
         public void setBox(Box box) {
             meterPE1.setBox(box);
             meterPE2.setBox(box);
+        }
+
+        public boolean isIncludeLrc() {
+            return meterPE1.isIncludeLrc();
         }
 
         public void setIncludeLrc(boolean b) {
@@ -477,9 +477,6 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
         public double getDataAsScalar() {
             return (1-frac) * meterPE1.getDataAsScalar() + frac * (meterPE2.getDataAsScalar() - latticeEnergy);
         }
-        
-        protected final MeterPotentialEnergy meterPE1, meterPE2;
-        protected double frac, latticeEnergy;
     }
 
     /**

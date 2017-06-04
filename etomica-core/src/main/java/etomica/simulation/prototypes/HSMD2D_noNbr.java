@@ -3,29 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.simulation.prototypes;
+
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.IAtomType;
+import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.potential.PotentialMaster;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataPump;
-import etomica.data.DataSourceCountTime;
+import etomica.data.*;
 import etomica.data.meter.MeterTemperature;
-import etomica.graphics.DeviceNSelector;
-import etomica.graphics.DeviceThermoSlider;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTextBoxesCAE;
-import etomica.graphics.SimulationGraphic;
+import etomica.graphics.*;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P1HardBoundary;
 import etomica.potential.P2HardSphere;
+import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
@@ -67,9 +60,9 @@ public class HSMD2D_noNbr extends Simulation {
         box.setNMolecules(species, 64);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
 	    P2HardSphere potential = new P2HardSphere(space);
-	    potentialMaster.addPotential(potential,new IAtomType[]{species.getLeafType(),species.getLeafType()});
+        potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
         P1HardBoundary potentialBoundary = new P1HardBoundary(space);
-        potentialMaster.addPotential(potentialBoundary, new IAtomType[] {species.getLeafType()});
+        potentialMaster.addPotential(potentialBoundary, new AtomType[]{species.getLeafType()});
 //        potentialBoundary.setActive(0,true,true);
 //        potentialBoundary.setActive(1,true,true);
 //        potentialBoundary.setActive(0,false,true);
@@ -99,7 +92,7 @@ public class HSMD2D_noNbr extends Simulation {
 //          new AccumulatorAverage.Type[] {AccumulatorAverage.AVERAGE}).
 //                                      addDataSink(pressureHistory);
         temperatureHistory = new AccumulatorHistory();
-        temperatureAverage.addDataSink(temperatureHistory,new AccumulatorAverage.StatType[] {temperatureAverage.AVERAGE});
+        temperatureAverage.addDataSink(temperatureHistory, new AccumulatorAverage.StatType[]{AccumulatorAverage.AVERAGE});
         DataSourceCountTime timeCounter = new DataSourceCountTime(integrator);
         temperatureHistory.setTimeDataSource(timeCounter);
     }

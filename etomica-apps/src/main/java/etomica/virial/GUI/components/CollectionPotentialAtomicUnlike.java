@@ -4,15 +4,15 @@
 
 package etomica.virial.GUI.components;
 
+import etomica.api.IPotential;
+import etomica.atom.AtomType;
+import etomica.potential.PotentialGroup;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
-
-import etomica.atom.IAtomType;
-import etomica.api.IPotential;
-import etomica.potential.PotentialGroup;
+import java.util.Set;
 
 
 public class CollectionPotentialAtomicUnlike implements ICollectionPotential {
@@ -20,8 +20,8 @@ public class CollectionPotentialAtomicUnlike implements ICollectionPotential {
 	public int[] speciesIndex;
 	
 	private PotentialGroup potentialGroupInterNonBondedUnlike;
-	
-	private	HashMap<String[],IAtomType[]> hashMapAtomTypesUnlikePairs;
+
+    private HashMap<String[], AtomType[]> hashMapAtomTypesUnlikePairs;
 
 	private	HashMapPotentialNonBonded hashmapPotentialNonBonded;
 	
@@ -31,25 +31,24 @@ public class CollectionPotentialAtomicUnlike implements ICollectionPotential {
 		speciesIndex[1] = index2;
 		setHashMapPotentialNonBonded();
 	}
-	
-	public void setHashMapAtomTypesUnlikePairs(HashMap<String[],IAtomType[]> hashMapAtomTypesUnlikePairs){
-		this.hashMapAtomTypesUnlikePairs = hashMapAtomTypesUnlikePairs;
+
+    public HashMap<String[], AtomType[]> getHashMapAtomTypesUnlikePairs() {
+        return this.hashMapAtomTypesUnlikePairs;
 	}
-	
-	public HashMap<String[],IAtomType[]> getHashMapAtomTypesUnlikePairs(){
-		return this.hashMapAtomTypesUnlikePairs;
-	}
-	
-	
-	public void setPotentialGroupInterNonBondedUnlike(PotentialGroup potentialGroupInterNonBondedUnlike){
-		this.potentialGroupInterNonBondedUnlike = potentialGroupInterNonBondedUnlike;
-	}
+
+    public void setHashMapAtomTypesUnlikePairs(HashMap<String[], AtomType[]> hashMapAtomTypesUnlikePairs) {
+        this.hashMapAtomTypesUnlikePairs = hashMapAtomTypesUnlikePairs;
+    }
 	
 	public PotentialGroup getPotentialGroupInterNonBondedUnlike(){
 		return this.potentialGroupInterNonBondedUnlike;
 	}
-		
-	public void addToHashMapPotentialNonBonded(String[] hashKey, IPotential hashValuePotential){
+
+    public void setPotentialGroupInterNonBondedUnlike(PotentialGroup potentialGroupInterNonBondedUnlike) {
+        this.potentialGroupInterNonBondedUnlike = potentialGroupInterNonBondedUnlike;
+    }
+
+    public void addToHashMapPotentialNonBonded(String[] hashKey, IPotential hashValuePotential){
 		Map<String[], IPotential> nonBondedPotentialsMap = this.hashmapPotentialNonBonded.getHashMapPotentialNonBonded();
 		Set<Entry<String[], IPotential>> nonBondedPotentialEntries = nonBondedPotentialsMap.entrySet();
 		Iterator<Entry<String[], IPotential>> nonBondedPotentialsItr = nonBondedPotentialEntries.iterator();

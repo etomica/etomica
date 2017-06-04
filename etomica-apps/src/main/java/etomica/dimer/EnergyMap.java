@@ -5,10 +5,10 @@
 package etomica.dimer;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomType;
-import etomica.box.Box;
 import etomica.api.IMolecule;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
+import etomica.box.Box;
 import etomica.chem.elements.Tin;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
@@ -101,9 +101,9 @@ public class EnergyMap extends Simulation{
         potential.setParameters(sn.getLeafType(), ParameterSetMEAM.Sn);
         potential.setParameters(snAdatom.getLeafType(), ParameterSetMEAM.Sn);
         potential.setParameters(movable.getLeafType(), ParameterSetMEAM.Sn);
-        
-        this.potentialMaster.addPotential(potential, new IAtomType[]{sn.getLeafType(), snFix.getLeafType(), snAdatom.getLeafType(), movable.getLeafType()});
-		
+
+        this.potentialMaster.addPotential(potential, new AtomType[]{sn.getLeafType(), snFix.getLeafType(), snAdatom.getLeafType(), movable.getLeafType()});
+
         /**
         // Cu
         box.setNMolecules(cuFix, 64);

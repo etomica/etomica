@@ -7,10 +7,11 @@ package etomica.models.hexane;
 import etomica.action.BoxInflateDeformable;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.IAtomType;
-import etomica.box.Box;
 import etomica.api.ISpecies;
+import etomica.atom.AtomType;
+import etomica.box.Box;
 import etomica.config.ConfigurationFile;
+import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPressureByVolumeChange;
@@ -154,10 +155,10 @@ public class TestHexaneFileConfig extends Simulation {
         //The PotentialMaster generates a group potential and automatically
         // does a lot of the stuff which we have to do for the intramolecular
         // potential manually.
-        IAtomType sphereType = species.getLeafType();
+        AtomType sphereType = species.getLeafType();
 
         //Add the Potential to the PotentialMaster
-        potentialMaster.addPotential(potential, new IAtomType[] { sphereType,
+        potentialMaster.addPotential(potential, new AtomType[]{sphereType,
                 sphereType });
         
         coupledMove.setPotential(potentialMaster.getPotential(new ISpecies[] {
@@ -296,7 +297,7 @@ public class TestHexaneFileConfig extends Simulation {
             double[] scalingFactors = new double[leng];
             double[] volumes = new double[leng];
 
-            lnXs = ((DataDoubleArray)((DataGroup)pressureAccumulator.getData()).getData(pressureAccumulator.AVERAGE.index)).getData();
+            lnXs = ((DataDoubleArray) ((DataGroup) pressureAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).getData();
             
             for(int i = 0; i < leng; i++){
                 scalingFactors[i] = meterPressure.getScalingDataSource().getData().getValue(i);
@@ -318,8 +319,8 @@ public class TestHexaneFileConfig extends Simulation {
 //            for (int i = 0; i < leng; i++){
 //                System.out.println(scalingFactors[i]);
 //            }
-            
-            avgPressure = ((DataGroup)pressureAccumulator.getData()).getData(pressureAccumulator.AVERAGE.index).getValue(0);
+
+            avgPressure = ((DataGroup) pressureAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(0);
             System.out.println("Avg Pres = "+ avgPressure);
             
 

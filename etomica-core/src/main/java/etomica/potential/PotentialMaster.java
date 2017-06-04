@@ -4,28 +4,16 @@
 
 package etomica.potential;
 
+import etomica.api.*;
+import etomica.atom.*;
+import etomica.atom.iterator.*;
+import etomica.box.Box;
+import etomica.chem.models.Model;
+import etomica.chem.models.Model.PotentialAndIterator;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
-import etomica.atom.IAtomType;
-import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IPotentialMolecular;
-import etomica.api.ISpecies;
-import etomica.atom.AtomArrayList;
-import etomica.atom.MoleculeArrayList;
-import etomica.atom.iterator.AtomsetIteratorBasisDependent;
-import etomica.atom.iterator.IteratorDirective;
-import etomica.atom.iterator.IteratorFactory;
-import etomica.atom.iterator.MoleculeIteratorAll;
-import etomica.atom.iterator.MoleculesetIteratorPDT;
-import etomica.chem.models.Model;
-import etomica.chem.models.Model.PotentialAndIterator;
 
 
 /**
@@ -157,7 +145,7 @@ public class PotentialMaster {
      * subject to rearrangement by the method -- the array is sorted (using the compareTo
      * method of AtomType) before doing anything else.
      */
-    public void addPotential(IPotentialAtomic potential, IAtomType[] atomTypes) {
+    public void addPotential(IPotentialAtomic potential, AtomType[] atomTypes) {
         if (potential.nBody() != Integer.MAX_VALUE && potential.nBody() != atomTypes.length) {
             throw new IllegalArgumentException("nBody of potential must match number of atom types");
         }

@@ -4,11 +4,10 @@
 
 package etomica.models.water;
 
-import etomica.atom.IAtomType;
 import etomica.api.IMolecule;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
-import etomica.atom.AtomTypeLeaf;
+import etomica.atom.AtomType;
 import etomica.atom.Molecule;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
@@ -21,22 +20,29 @@ import etomica.species.Species;
  */
 public class SpeciesWater4P extends Species {
 
+    public final static int indexH1 = 0;
+    public final static int indexH2 = 1;
+    public final static int indexO = 2;
+    public final static int indexM = 3;
+    private static final long serialVersionUID = 1L;
+    protected final Space space;
+    protected final boolean isDynamic;
+    protected final AtomType oType, hType, mType;
     public SpeciesWater4P(Space space) {
         this(space, false);
     }
-    
     public SpeciesWater4P(Space space, boolean isDynamic) {
         super();
         this.space = space;
         this.isDynamic = isDynamic;
-        hType = new AtomTypeLeaf(Hydrogen.INSTANCE);
-        oType = new AtomTypeLeaf(Oxygen.INSTANCE);
-        mType = new AtomTypeLeaf(new ElementSimple("M", 0.0));
+        hType = new AtomType(Hydrogen.INSTANCE);
+        oType = new AtomType(Oxygen.INSTANCE);
+        mType = new AtomType(new ElementSimple("M", 0.0));
         addChildType(hType);
         addChildType(oType);
         addChildType(mType);
 
-        setConformation(new ConformationWaterTIP4P(space)); 
+        setConformation(new ConformationWaterTIP4P(space));
      }
 
      public IMolecule makeMolecule() {
@@ -49,29 +55,19 @@ public class SpeciesWater4P extends Species {
          return water;
      }
 
-     public IAtomType getHydrogenType() {
+    public AtomType getHydrogenType() {
          return hType;
      }
 
-     public IAtomType getOxygenType() {
+    public AtomType getOxygenType() {
          return oType;
      }
 
-     public IAtomType getMType() {
+    public AtomType getMType() {
          return mType;
      }
 
      public int getNumLeafAtoms() {
          return 4;
      }
-    
-    public final static int indexH1 = 0;
-    public final static int indexH2 = 1;
-    public final static int indexO  = 2;
-    public final static int indexM  = 3;
-
-    private static final long serialVersionUID = 1L;
-    protected final Space space;
-    protected final boolean isDynamic;
-    protected final AtomTypeLeaf oType, hType, mType;
 }

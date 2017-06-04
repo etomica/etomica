@@ -4,11 +4,10 @@
 
 package etomica.virial;
 
-import etomica.atom.IAtomType;
 import etomica.api.IMolecule;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
-import etomica.atom.AtomTypeLeaf;
+import etomica.atom.AtomType;
 import etomica.atom.Molecule;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.ElementSimple;
@@ -27,32 +26,49 @@ import etomica.species.Species;
  */
 public class SpeciesTraPPEPhenanthrene extends Species {
 
+    public final static int indexC1 = 0;
+    public final static int indexC2 = 1;
+    public final static int indexC3 = 2;
+    public final static int indexC4 = 3;
+    public final static int indexCH1 = 4;
+    public final static int indexCH2 = 5;
+    public final static int indexCH3 = 6;
+    public final static int indexCH4 = 7;
+    public final static int indexCH5 = 8;
+    public final static int indexCH6 = 9;
+    public final static int indexCH7 = 10;
+    public final static int indexCH8 = 11;
+    public final static int indexCH9 = 12;
+    public final static int indexCH10 = 13;
+    private static final long serialVersionUID = 1L;
+    protected final Space space;
+    protected final boolean isDynamic;
+    protected final AtomType cType, chType;
     public SpeciesTraPPEPhenanthrene(Space space) {
         this(space, false);
     }
-    
     public SpeciesTraPPEPhenanthrene(Space space, boolean isDynamic) {
         super();
         this.space = space;
         this.isDynamic = isDynamic;
-        
-        chType = new AtomTypeLeaf(new ElementSimple("CH", 13.0107));
-        cType = new AtomTypeLeaf(Carbon.INSTANCE);
+
+        chType = new AtomType(new ElementSimple("CH", 13.0107));
+        cType = new AtomType(Carbon.INSTANCE);
         ////should change because it is not united atom!!!
         addChildType(chType);
         addChildType(cType);
 
-        setConformation(new ConformationPhenanthreneTraPPE(space)); 
+        setConformation(new ConformationPhenanthreneTraPPE(space));
      }
 
-     public IMolecule makeMolecule() {
+    public IMolecule makeMolecule() {
          Molecule Phenanthrene = new Molecule(this, 14);
          // 4 Carbon without H, 8 Carbon with H
          Phenanthrene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, cType) : new Atom(space, cType));
          Phenanthrene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, cType) : new Atom(space, cType));
          Phenanthrene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, cType) : new Atom(space, cType));
          Phenanthrene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, cType) : new Atom(space, cType));
-         
+
          Phenanthrene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, chType) : new Atom(space, chType));
          Phenanthrene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, chType) : new Atom(space, chType));
          Phenanthrene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, chType) : new Atom(space, chType));
@@ -68,37 +84,15 @@ public class SpeciesTraPPEPhenanthrene extends Species {
          return Phenanthrene;
      }
 
-     public IAtomType getCType() {
+    public AtomType getCType() {
          return cType;
      }
 
-     public IAtomType getCHType() {
+    public AtomType getCHType() {
          return chType;
      }
-
 
      public int getNumLeafAtoms() {
          return 14;
      }
-    
-    public final static int indexC1 = 0;
-    public final static int indexC2 = 1;
-    public final static int indexC3 = 2;
-    public final static int indexC4 = 3;
-    
-    public final static int indexCH1 = 4;
-    public final static int indexCH2 = 5;
-    public final static int indexCH3 = 6;
-    public final static int indexCH4 = 7;
-    public final static int indexCH5 = 8;
-    public final static int indexCH6 = 9;
-    public final static int indexCH7 = 10;
-    public final static int indexCH8 = 11;
-    public final static int indexCH9 = 12;
-    public final static int indexCH10 = 13;   
-    
-    private static final long serialVersionUID = 1L;
-    protected final Space space;
-    protected final boolean isDynamic;
-    protected final AtomTypeLeaf cType, chType;
 }

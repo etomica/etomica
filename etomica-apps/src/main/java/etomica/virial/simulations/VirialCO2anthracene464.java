@@ -5,11 +5,13 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.atom.IAtomType;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.ISpecies;
+import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiBuilder;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
@@ -22,19 +24,7 @@ import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterWeight;
-import etomica.virial.ClusterWeightAbs;
-import etomica.virial.MayerEGeneral;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerESpherical;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerGeneralSpherical;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.SpeciesAnthracene3site464;
-import etomica.virial.SpeciesFactory;
-import etomica.virial.SpeciesFactorySpheres;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 
 /**
@@ -167,21 +157,21 @@ public class VirialCO2anthracene464 {
         SpeciesSpheresMono speciesCO2 = (SpeciesSpheresMono)sim.getSpecies(0);
         SpeciesAnthracene3site464 speciesAn = (SpeciesAnthracene3site464)sim.getSpecies(1);
         sim.integratorOS.setNumSubSteps(1000);
-        
-        IAtomType typeC = speciesAn.getCType();
-        IAtomType typeCH = speciesAn.getCHType();
-        IAtomType typeCO2 = speciesCO2.getLeafType();
+
+        AtomType typeC = speciesAn.getCType();
+        AtomType typeCH = speciesAn.getCHType();
+        AtomType typeCO2 = speciesCO2.getLeafType();
 
        // interaction between one site potential to the another site potential
         //between two solutes
-        pAn.addPotential(p2C, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC, typeC}));
-        pAn.addPotential(pCCH, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC, typeCH}));
-        pAn.addPotential(p2CH, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH, typeCH}));
-        pAn.addPotential(pCCH, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH, typeC}));//switch
+        pAn.addPotential(p2C, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeC}));
+        pAn.addPotential(pCCH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeCH}));
+        pAn.addPotential(p2CH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH, typeCH}));
+        pAn.addPotential(pCCH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH, typeC}));//switch
         
         //between solute and solvent
-        pCO2An.addPotential(pC_C, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCO2, typeC}));
-        pCO2An.addPotential(pC_CH, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCO2, typeCH}));
+        pCO2An.addPotential(pC_C, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCO2, typeC}));
+        pCO2An.addPotential(pC_CH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCO2, typeCH}));
 
         //graphic part
         if (false) {
@@ -264,11 +254,11 @@ public class VirialCO2anthracene464 {
         double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
         System.out.println("ratio average: "+ratioAndError[0]+", error: "+ratioAndError[1]);
         System.out.println("abs average: "+ratioAndError[0]*HSB[nPoints]+", error: "+ratioAndError[1]*HSB[nPoints]);
-        IData ratioData = ((DataGroup)sim.accumulators[0].getData()).getData(sim.accumulators[0].RATIO.index);
-        IData ratioErrorData = ((DataGroup)sim.accumulators[0].getData()).getData(sim.accumulators[0].RATIO_ERROR.index);
-        IData averageData = ((DataGroup)sim.accumulators[0].getData()).getData(sim.accumulators[0].AVERAGE.index);
-        IData stdevData = ((DataGroup)sim.accumulators[0].getData()).getData(sim.accumulators[0].STANDARD_DEVIATION.index);
-        IData errorData = ((DataGroup)sim.accumulators[0].getData()).getData(sim.accumulators[0].ERROR.index);
+        IData ratioData = ((DataGroup) sim.accumulators[0].getData()).getData(AccumulatorRatioAverageCovariance.RATIO.index);
+        IData ratioErrorData = ((DataGroup) sim.accumulators[0].getData()).getData(AccumulatorRatioAverageCovariance.RATIO_ERROR.index);
+        IData averageData = ((DataGroup) sim.accumulators[0].getData()).getData(AccumulatorAverage.AVERAGE.index);
+        IData stdevData = ((DataGroup) sim.accumulators[0].getData()).getData(AccumulatorAverage.STANDARD_DEVIATION.index);
+        IData errorData = ((DataGroup) sim.accumulators[0].getData()).getData(AccumulatorAverage.ERROR.index);
         System.out.println("reference ratio average: "+ratioData.getValue(1)+" error: "+ratioErrorData.getValue(1));
         System.out.println("reference   average: "+averageData.getValue(0)
                           +" stdev: "+stdevData.getValue(0)
@@ -276,12 +266,12 @@ public class VirialCO2anthracene464 {
         System.out.println("reference overlap average: "+averageData.getValue(1)
                           +" stdev: "+stdevData.getValue(1)
                           +" error: "+errorData.getValue(1));
-        
-        ratioData = ((DataGroup)sim.accumulators[1].getData()).getData(sim.accumulators[1].RATIO.index);
-        ratioErrorData = ((DataGroup)sim.accumulators[1].getData()).getData(sim.accumulators[1].RATIO_ERROR.index);
-        averageData = ((DataGroup)sim.accumulators[1].getData()).getData(sim.accumulators[1].AVERAGE.index);
-        stdevData = ((DataGroup)sim.accumulators[1].getData()).getData(sim.accumulators[1].STANDARD_DEVIATION.index);
-        errorData = ((DataGroup)sim.accumulators[1].getData()).getData(sim.accumulators[1].ERROR.index);
+
+        ratioData = ((DataGroup) sim.accumulators[1].getData()).getData(AccumulatorRatioAverageCovariance.RATIO.index);
+        ratioErrorData = ((DataGroup) sim.accumulators[1].getData()).getData(AccumulatorRatioAverageCovariance.RATIO_ERROR.index);
+        averageData = ((DataGroup) sim.accumulators[1].getData()).getData(AccumulatorAverage.AVERAGE.index);
+        stdevData = ((DataGroup) sim.accumulators[1].getData()).getData(AccumulatorAverage.STANDARD_DEVIATION.index);
+        errorData = ((DataGroup) sim.accumulators[1].getData()).getData(AccumulatorAverage.ERROR.index);
         System.out.println("target ratio average: "+ratioData.getValue(1)+" error: "+ratioErrorData.getValue(1));
         System.out.println("target average: "+averageData.getValue(0)
                           +" stdev: "+stdevData.getValue(0)

@@ -4,18 +4,22 @@
 
 package etomica.modules.catalysis;
 
-import java.awt.Color;
-
-import etomica.atom.IAtom;
-import etomica.atom.IAtomType;
-import etomica.simulation.Simulation;
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.AtomType;
 import etomica.atom.AtomTypeAgentManager;
+import etomica.atom.IAtom;
 import etomica.graphics.ColorSchemeByType;
 import etomica.modules.catalysis.InteractionTracker.CatalysisAgent;
+import etomica.simulation.Simulation;
+
+import java.awt.*;
 
 public class ColorSchemeRadical extends ColorSchemeByType {
 
+    private static final long serialVersionUID = 1L;
+    protected final AtomLeafAgentManager agentManager;
+    protected final AtomTypeAgentManager radicalColorMap, fullBondColorMap;
+    
     public ColorSchemeRadical(Simulation sim, AtomLeafAgentManager agentManager) {
         super(sim);
         this.agentManager = agentManager;
@@ -36,15 +40,11 @@ public class ColorSchemeRadical extends ColorSchemeByType {
         return super.getAtomColor(atom);
     }
 
-    public void setRadicalColor(IAtomType type, Color color) {
+    public void setRadicalColor(AtomType type, Color color) {
         radicalColorMap.setAgent(type, color);
     }
-    
-    public void setFullBondColor(IAtomType type, Color color) {
+
+    public void setFullBondColor(AtomType type, Color color) {
         fullBondColorMap.setAgent(type, color);
     }
-
-    private static final long serialVersionUID = 1L;
-    protected final AtomLeafAgentManager agentManager;
-    protected final AtomTypeAgentManager radicalColorMap, fullBondColorMap;
 }

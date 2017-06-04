@@ -5,40 +5,15 @@
 package etomica.virial.GUI.components;
 
 
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
 import etomica.action.IAction;
-import etomica.atom.IAtomType;
-import etomica.api.IIntegratorEvent;
-import etomica.api.IIntegratorListener;
-import etomica.api.IPotential;
-import etomica.api.IPotentialAtomic;
-
-import etomica.api.IPotentialMolecular;
-import etomica.api.ISpecies;
-
+import etomica.api.*;
+import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIntergroup;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
-
-import etomica.graphics.ColorSchemeRandomByMolecule;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayBoxCanvasG3DSys;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
-
+import etomica.graphics.*;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P4BondTorsion;
@@ -47,32 +22,19 @@ import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
-import etomica.units.CompoundDimension;
-import etomica.units.CompoundUnit;
+import etomica.units.*;
 import etomica.units.Dimension;
-import etomica.units.DimensionRatio;
-import etomica.units.Liter;
-import etomica.units.Mole;
-import etomica.units.Quantity;
-import etomica.units.Unit;
-import etomica.units.UnitRatio;
-import etomica.units.Volume;
 import etomica.util.Constants.CompassDirection;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterWeight;
-import etomica.virial.ClusterWeightAbs;
-import etomica.virial.MCMoveClusterTorsionMulti;
-import etomica.virial.MayerEGeneral;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerESpherical;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerGeneralSpherical;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.GUI.models.ModelSimulationEnvironment;
+import etomica.virial.*;
 import etomica.virial.GUI.models.ModelSelectedSpecies;
+import etomica.virial.GUI.models.ModelSimulationEnvironment;
 import etomica.virial.cluster.Standard;
 import etomica.virial.simulations.SimulationVirialOverlap2;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.*;
+import java.util.Map.Entry;
 
 public class SimulationRunner {
 	
@@ -185,7 +147,9 @@ public class SimulationRunner {
         		        final DisplayTextBox errorBox = new DisplayTextBox();
         		        errorBox.setLabel("Error");
         			    IAction pushAnswer = new IAction() {
-        		            public void actionPerformed() {
+                            DataDouble data = new DataDouble();
+
+                            public void actionPerformed() {
         		                double[] ratioAndError = sim.dvo.getAverageAndError();
         		                double ratio = ratioAndError[0];
         		                double error = ratioAndError[1];
@@ -194,8 +158,6 @@ public class SimulationRunner {
         		                data.x = error;
         		                errorBox.putData(data);
         		            }
-        		            
-        		            DataDouble data = new DataDouble();
         		        };
 		    		    
         		        runGraphic(sim,nPoints,averageBox,errorBox,pushAnswer);
@@ -259,7 +221,9 @@ public class SimulationRunner {
         		        final DisplayTextBox errorBox = new DisplayTextBox();
         		        errorBox.setLabel("Error");
         			    IAction pushAnswer = new IAction() {
-        		            public void actionPerformed() {
+                            DataDouble data = new DataDouble();
+
+                            public void actionPerformed() {
         		                double[] ratioAndError = sim.dvo.getAverageAndError();
         		                double ratio = ratioAndError[0];
         		                double error = ratioAndError[1];
@@ -268,8 +232,6 @@ public class SimulationRunner {
         		                data.x = error;
         		                errorBox.putData(data);
         		            }
-        		            
-        		            DataDouble data = new DataDouble();
         		        };
         		        runGraphic(sim,nPoints,averageBox,errorBox,pushAnswer);
         			    //showReport(sim,progressReport);
@@ -315,7 +277,9 @@ public class SimulationRunner {
     		        final DisplayTextBox errorBox = new DisplayTextBox();
     		        errorBox.setLabel("Error");
     			    IAction pushAnswer = new IAction() {
-    		            public void actionPerformed() {
+                        DataDouble data = new DataDouble();
+
+                        public void actionPerformed() {
     		                double[] ratioAndError = sim.dvo.getAverageAndError();
     		                double ratio = ratioAndError[0];
     		                double error = ratioAndError[1];
@@ -324,8 +288,6 @@ public class SimulationRunner {
     		                data.x = error;
     		                errorBox.putData(data);
     		            }
-    		            
-    		            DataDouble data = new DataDouble();
     		        };
     		        
 				    //showReport(sim,progressReport);
@@ -571,7 +533,9 @@ public class SimulationRunner {
 	        final DisplayTextBox errorBox = new DisplayTextBox();
 	        errorBox.setLabel("Error");
 		    new IAction() {
-	            public void actionPerformed() {
+                DataDouble data = new DataDouble();
+
+                public void actionPerformed() {
 	                double[] ratioAndError = sim.dvo.getAverageAndError();
 	                double ratio = ratioAndError[0];
 	                double error = ratioAndError[1];
@@ -580,8 +544,6 @@ public class SimulationRunner {
 	                data.x = error;
 	                errorBox.putData(data);
 	            }
-	            
-	            DataDouble data = new DataDouble();
 	        };
 	        
 		    //showReport(sim,progressReport);
@@ -658,16 +620,16 @@ public class SimulationRunner {
 	}
 
 
-	private void AddPotentials(HashMap<String[], IAtomType[]> atomSet,
-			PotentialGroup interPotentialGroup, HashMap<String[], IPotential> PotentialSet) {
+    private void AddPotentials(HashMap<String[], AtomType[]> atomSet,
+                               PotentialGroup interPotentialGroup, HashMap<String[], IPotential> PotentialSet) {
 		// TODO Auto-generated method stub
-		
-		 	HashMap<String[], IAtomType[]> atomSetMap = atomSet;
-			Set<Entry<String[], IAtomType[]>> AtomEntries = atomSetMap.entrySet();
-			Iterator<Entry<String[], IAtomType[]>> AtomItr = AtomEntries.iterator();
-			
-			
-			Map<String[], IPotential> PotentialSetsMap = PotentialSet;
+
+        HashMap<String[], AtomType[]> atomSetMap = atomSet;
+        Set<Entry<String[], AtomType[]>> AtomEntries = atomSetMap.entrySet();
+        Iterator<Entry<String[], AtomType[]>> AtomItr = AtomEntries.iterator();
+
+
+        Map<String[], IPotential> PotentialSetsMap = PotentialSet;
 			Set<Entry<String[], IPotential>> PotentialEntries = PotentialSetsMap.entrySet();
 			Iterator<Entry<String[], IPotential>> PotentialItr = PotentialEntries.iterator();
 			
@@ -683,8 +645,8 @@ public class SimulationRunner {
 						
 						if(PotentialEntry.getValue() instanceof P2LennardJones){
 							interPotentialGroup.addPotential((P2LennardJones)PotentialEntry.getValue(),
-									ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{(IAtomType)AtomObjects[0],(IAtomType)AtomObjects[1]}));
-						}
+                                    ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{(AtomType) AtomObjects[0], (AtomType) AtomObjects[1]}));
+                        }
 						
 					}
 				}

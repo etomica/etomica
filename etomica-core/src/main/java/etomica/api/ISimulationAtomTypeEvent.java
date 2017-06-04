@@ -4,10 +4,10 @@
 
 package etomica.api;
 
-import etomica.atom.IAtomType;
+import etomica.atom.AtomType;
 
 public interface ISimulationAtomTypeEvent extends ISimulationEvent {
 
-    public IAtomType getAtomType();
+    AtomType getAtomType();
     
 }

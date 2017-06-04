@@ -4,19 +4,15 @@
 
 package etomica.virial.simulations;
 
-import java.awt.Color;
-import java.util.Map;
-import java.util.Set;
-
 import etomica.AlkaneEH.SpeciesMethane;
 import etomica.action.IAction;
-import etomica.atom.IAtomList;
-import etomica.atom.IAtomType;
 import etomica.api.IElement;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.ISpecies;
+import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Nitrogen;
@@ -40,17 +36,14 @@ import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterSum;
-import etomica.virial.ClusterSumShell;
-import etomica.virial.ClusterWeight;
-import etomica.virial.ClusterWeightAbs;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 import etomica.virial.cluster.VirialDiagrams;
 import etomica.virial.cluster.VirialDiagramsMix2;
+
+import java.awt.*;
+import java.util.Map;
+import java.util.Set;
 
 /**
  *   Mayer sampling simulation for N2(rigid, TraPPE)-CH4(TraPPE-EH) mixture
@@ -77,7 +70,7 @@ public class VirialN2CH4Mix {
             }
             else {
                 str += " "+gs.getStore().toNumberString();
-                if (flexDiagrams.graphHasEdgeColor(gs, flexDiagrams.eBond)) {
+                if (VirialDiagramsMix2.graphHasEdgeColor(gs, flexDiagrams.eBond)) {
                     str += "p" + edgeDeleter.apply(gs, ede).getStore().toNumberString();
                 }
             }
@@ -253,20 +246,20 @@ public class VirialN2CH4Mix {
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
         System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
         steps /= 1000;
-        
-        IAtomType typeC = speciesCH4.getAtomType(0);//C in CH4
-        IAtomType typeH = speciesCH4.getAtomType(1);//H in CH4
-        IAtomType typeA = speciesN2.getAtomType(0);// center of mass of N2
-        IAtomType typeN = speciesN2.getAtomType(1);//N in N2
+
+        AtomType typeC = speciesCH4.getAtomType(0);//C in CH4
+        AtomType typeH = speciesCH4.getAtomType(1);//H in CH4
+        AtomType typeA = speciesN2.getAtomType(0);// center of mass of N2
+        AtomType typeN = speciesN2.getAtomType(1);//N in N2
         
         // CH4 potential
-        pCH4.addPotential(p2HH, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeH, typeH}));
-        pCH4.addPotential(p2CH, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC, typeH}));// H on molecule1 --- C on molecule2
-        pCH4.addPotential(p2CH, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC, typeH}));// C on molecule1 --- H on molecule2
-        pCH4.addPotential(p2CC, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC, typeC}));
+        pCH4.addPotential(p2HH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeH, typeH}));
+        pCH4.addPotential(p2CH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeH}));// H on molecule1 --- C on molecule2
+        pCH4.addPotential(p2CH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeH}));// C on molecule1 --- H on molecule2
+        pCH4.addPotential(p2CC, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeC}));
         // N2-CH4 potential
-        pN2CH4.addPotential(pN_H, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeN, typeH}));
-        pN2CH4.addPotential(pN_C, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeN, typeC}));
+        pN2CH4.addPotential(pN_H, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeN, typeH}));
+        pN2CH4.addPotential(pN_C, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeN, typeC}));
         
         // find a proper configuration
         double pi = sim.box[1].getSampleCluster().value(sim.box[1]);

@@ -6,7 +6,7 @@ package etomica.normalmode;
 
 import etomica.action.PDBWriter;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.IAtomType;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -14,11 +14,7 @@ import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
-import etomica.lattice.crystal.Basis;
-import etomica.lattice.crystal.BasisCubicFcc;
-import etomica.lattice.crystal.BasisMonatomic;
-import etomica.lattice.crystal.Primitive;
-import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.lattice.crystal.*;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
@@ -40,6 +36,19 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class SimCalcSSoftSphereFCCSuperBox extends Simulation {
 
+    private static final long serialVersionUID = 1L;
+    public IntegratorMC integrator;
+    public ActivityIntegrate activityIntegrate;
+    public Box box;
+    public Boundary boundary;
+    public Primitive primitive;
+    public Basis basis;
+    public int[] nCells;
+    public SpeciesSpheresMono speciesA, speciesB;
+    public CoordinateDefinitionLeafSuperBox coordinateDefinition;
+    protected P2SoftSphericalTruncatedShifted pTruncatedAA;
+    protected P2SoftSphericalTruncatedShifted pTruncatedAB;
+    protected PotentialMasterMonatomic potentialMaster;
     public SimCalcSSoftSphereFCCSuperBox(Space _space, int numAtoms, double density, double temperature, int exponent) {
         super(_space);
 
@@ -50,7 +59,7 @@ public class SimCalcSSoftSphereFCCSuperBox extends Simulation {
         speciesB = new SpeciesSpheresMono(this, space);
         addSpecies(speciesA);
         addSpecies(speciesB);
-        
+
         box = new Box(space);
         addBox(box);
         box.setNMolecules(speciesA, numAtoms/8);
@@ -72,45 +81,45 @@ public class SimCalcSSoftSphereFCCSuperBox extends Simulation {
         Potential2SoftSpherical potentialAA = new P2SoftSphere(space, 1.0, 1.0, exponent);
         Potential2SoftSpherical potentialAB = new P2SoftSphere(space, 1.0, 0.5, exponent);
         //Potential2SoftSpherical potentialABafter = new P2SoftSphere(space, 1.0, 1.0, exponent);
-        
+
         double truncationRadius = boundary.getBoxSize().getX(0)* 0.495;
         pTruncatedAA = new P2SoftSphericalTruncatedShifted(space, potentialAA, truncationRadius);
         pTruncatedAB = new P2SoftSphericalTruncatedShifted(space, potentialAB, truncationRadius);
         //pTruncatedABafter = new P2SoftSphericalTruncatedShifted(space, potentialABafter, truncationRadius);
-        potentialMaster.lrcMaster().setEnabled(false); //turn off the long-range correction ::updated 7/4/2008 
-        
-        IAtomType sphereTypeA = speciesA.getLeafType();
-        IAtomType sphereTypeB = speciesB.getLeafType();
-        potentialMaster.addPotential(pTruncatedAA, new IAtomType[] {sphereTypeA, sphereTypeA});
-        potentialMaster.addPotential(pTruncatedAB, new IAtomType[] {sphereTypeA, sphereTypeB});
-        
+        potentialMaster.lrcMaster().setEnabled(false); //turn off the long-range correction ::updated 7/4/2008
+
+        AtomType sphereTypeA = speciesA.getLeafType();
+        AtomType sphereTypeB = speciesB.getLeafType();
+        potentialMaster.addPotential(pTruncatedAA, new AtomType[]{sphereTypeA, sphereTypeA});
+        potentialMaster.addPotential(pTruncatedAB, new AtomType[]{sphereTypeA, sphereTypeB});
+
         box.setBoundary(boundary);
         coordinateDefinition = new CoordinateDefinitionLeafSuperBox(box, primitive, basis, space);
         coordinateDefinition.setSpecies(speciesA, speciesB);
         coordinateDefinition.setIs256();
         coordinateDefinition.initializeCoordinates(nCells);
-        
+
         integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
         MCMoveAtomSuperBox move = new MCMoveAtomSuperBox(potentialMaster, getRandom(), space, coordinateDefinition);
         move.setStepSize(0.2);
         move.setStepSizeMax(0.5);
         integrator.getMoveManager().addMCMove(move);
         ((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
-        
+
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
-        
+
         move.setPotential(pTruncatedAA);
-        
+
         // activityIntegrate.setMaxSteps(nSteps);
-        
+
         /*
-         * 1-body Potential to Constraint the atom from moving too far 
+         * 1-body Potential to Constraint the atom from moving too far
          * 	away from its lattice-site
          */
        P1Constraint p1Constraint = new P1Constraint(space, primitive.getSize()[0], box, coordinateDefinition);
-       potentialMaster.addPotential(p1Constraint, new IAtomType[]{sphereTypeA});
-      
+        potentialMaster.addPotential(p1Constraint, new AtomType[]{sphereTypeA});
+
        integrator.setBox(box);
     }
 
@@ -165,7 +174,7 @@ public class SimCalcSSoftSphereFCCSuperBox extends Simulation {
 
         // set up initial configuration and save nominal positions
         Primitive primitive = sim.primitive;
-        
+
         // set up normal-mode meter
         MeterNormalMode meterNormalMode = new MeterNormalMode();
         meterNormalMode.setCoordinateDefinition(sim.coordinateDefinition);
@@ -188,8 +197,8 @@ public class SimCalcSSoftSphereFCCSuperBox extends Simulation {
         //meterPressure.setIntegrator(sim.integrator);
         //System.out.println("\nPressure Lattice: "+ meterPressure.getDataAsScalar());
         //System.exit(1);
-        
-        
+
+
         MeterPotentialEnergy meterEnergy = new MeterPotentialEnergy(sim.potentialMaster);
         meterEnergy.setBox(sim.box);
         System.out.println("Lattice Energy per particle: "+ meterEnergy.getDataAsScalar()/nA);
@@ -200,29 +209,29 @@ public class SimCalcSSoftSphereFCCSuperBox extends Simulation {
         /*
         AccumulatorAverage pressureAverage = new AccumulatorAverageCollapsing();
 	    DataPump pressurePump = new DataPump(meterPressure, pressureAverage);
-	    
+
 	    sim.integrator.addIntervalAction(pressurePump);
 	    sim.integrator.setActionInterval(pressurePump, 100);
 	    */
         AccumulatorAverage energyAverage = new AccumulatorAverageCollapsing();
         DataPump energyPump = new DataPump(meterEnergy, energyAverage);
-        
+
         IntegratorListenerAction energyPumpListener = new IntegratorListenerAction(energyPump);
         energyPumpListener.setInterval(100);
         sim.integrator.getEventManager().addListener(energyPumpListener);
-        
-        
+
+
         /*
         SimulationGraphic simGraphic = new SimulationGraphic(sim, Space.getInstance(3),sim.getController());
         simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(50));
-        
+
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
         colorScheme.setColor(sim.speciesA.getLeafType(), java.awt.Color.BLACK);
         colorScheme.setColor(sim.speciesB.getLeafType(), java.awt.Color.WHITE);
-            
+
         simGraphic.makeAndDisplayFrame("Sim CalcS Super Box");
         */
-        
+
         sim.activityIntegrate.setMaxSteps(simSteps/10);  //simSteps/10
         sim.getController().actionPerformed();
         System.out.println("equilibrated");
@@ -239,33 +248,19 @@ public class SimCalcSSoftSphereFCCSuperBox extends Simulation {
         IntegratorListenerAction sWriterListener = new IntegratorListenerAction(sWriter);
         sWriterListener.setInterval((int)simSteps/20);
         sim.integrator.getEventManager().addListener(sWriterListener);
-        
+
         sim.activityIntegrate.setMaxSteps(simSteps);
         sim.getController().actionPerformed();
         PDBWriter pdbWriter = new PDBWriter(sim.box);
         pdbWriter.setFileName("calcS_n"+exponent+"_T"+temperature+".pdb");
         pdbWriter.actionPerformed();
-        
-        System.out.println("Average Energy: "+ energyAverage.getData().getValue(energyAverage.AVERAGE.index)/nA);
-        System.out.println("Error Energy: "+ energyAverage.getData().getValue(energyAverage.ERROR.index)/nA);
+
+        System.out.println("Average Energy: " + energyAverage.getData().getValue(AccumulatorAverage.AVERAGE.index) / nA);
+        System.out.println("Error Energy: " + energyAverage.getData().getValue(AccumulatorAverage.ERROR.index) / nA);
         System.out.println(" ");
         /*
         System.out.println("Average Pressure: "+ ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index));
         System.out.println("Error Pressure: "+ ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index));
     	*/
     }
-
-    private static final long serialVersionUID = 1L;
-    public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
-    public Box box;
-    public Boundary boundary;
-    public Primitive primitive;
-    public Basis basis;
-    public int[] nCells;
-    public SpeciesSpheresMono speciesA, speciesB;
-    protected P2SoftSphericalTruncatedShifted pTruncatedAA;
-	protected P2SoftSphericalTruncatedShifted pTruncatedAB;
-    public CoordinateDefinitionLeafSuperBox coordinateDefinition;
-    protected PotentialMasterMonatomic potentialMaster;
 }

@@ -4,21 +4,27 @@
 
 package etomica.virial;
 
-import etomica.atom.IAtomType;
 import etomica.api.IMolecule;
-import etomica.space.Vector;
+import etomica.atom.AtomType;
 import etomica.atom.Molecule;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConformationChainZigZag2;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.species.SpeciesSpheresHetero;
 
 public class SpeciesAlkane extends SpeciesSpheresHetero {
 
+    // parameters for TraPPE
+    protected static final double nominalBondL = 1.54;
+    protected static final double nominalBondTheta = Math.PI * 114 / 180;
+    private static final long serialVersionUID = 1L;
+
     public SpeciesAlkane(Space _space, int numCarbons) {
         this(_space,numCarbons, new ElementSimple("CH3", 15), new ElementSimple("CH2", 14));
     }
+
     public SpeciesAlkane(Space _space, int numCarbons, ElementSimple CH3element, ElementSimple CH2element) {
     	super(_space, makeAtomTypes(new Element[]{CH3element, CH2element}));
         setTotalChildren(numCarbons);
@@ -47,15 +53,15 @@ public class SpeciesAlkane extends SpeciesSpheresHetero {
         conformation.initializePositions(group.getChildList());
         return group;
     }
-    
-    public IAtomType getCH3Type() {
+
+    public AtomType getCH3Type() {
         return childTypes[0];
     }
-    
-    public IAtomType getCH2Type() {
+
+    public AtomType getCH2Type() {
         return childTypes[1];
     }
-    
+
     public void setTotalChildren(int newTotalChildren) {
         if (newTotalChildren > 1) {
             childCount[0] = 2;// CH3
@@ -66,8 +72,4 @@ public class SpeciesAlkane extends SpeciesSpheresHetero {
             childCount[1] = 0;
         }
     }
-    private static final long serialVersionUID = 1L;
-    // parameters for TraPPE
-    protected static final double nominalBondL = 1.54;
-    protected static final double nominalBondTheta = Math.PI*114/180;
 }

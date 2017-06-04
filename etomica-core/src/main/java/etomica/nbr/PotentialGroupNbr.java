@@ -4,11 +4,11 @@
 
 package etomica.nbr;
 
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
-import etomica.atom.IAtomType;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialAtomic;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.atom.MoleculeSetSinglet;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
@@ -18,6 +18,10 @@ import etomica.potential.PotentialGroup;
 
 public class PotentialGroupNbr extends PotentialGroup {
 
+    private static final long serialVersionUID = 1L;
+    protected final MoleculeSetSinglet atomSetSinglet;
+    protected PotentialLinker firstRangeIndependent;
+    
     protected PotentialGroupNbr(int nBody) {
         super(nBody);
         atomSetSinglet = new MoleculeSetSinglet();
@@ -52,17 +56,17 @@ public class PotentialGroupNbr extends PotentialGroup {
             }
         }
     }
-    
-    protected void addPotential(IPotentialAtomic potential, AtomsetIteratorBasisDependent iterator, IAtomType[] types) {
+
+    protected void addPotential(IPotentialAtomic potential, AtomsetIteratorBasisDependent iterator, AtomType[] types) {
         super.addPotential(potential, iterator, types);
         if (potential.getRange() == Double.POSITIVE_INFINITY) {
             firstRangeIndependent = new PotentialLinker(potential, iterator, types, firstRangeIndependent);
         }
     }
-    
+
     public boolean removePotential(IPotentialAtomic potential) {
         super.removePotential(potential);
-        
+
         PotentialLinker previous = null;
         for(PotentialLinker link=firstRangeIndependent; link!=null; link=link.next) {
             if(link.potential == potential) {
@@ -75,8 +79,4 @@ public class PotentialGroupNbr extends PotentialGroup {
         }
         return false;
     }
-    
-    private static final long serialVersionUID = 1L;
-    protected PotentialLinker firstRangeIndependent;
-    protected final MoleculeSetSinglet atomSetSinglet;
 }

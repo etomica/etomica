@@ -4,18 +4,18 @@
 
 package etomica.virial.GUI.components;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
-
-import etomica.atom.IAtomType;
 import etomica.api.IPotential;
 import etomica.api.IPotentialAtomic;
+import etomica.atom.AtomType;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.potential.PotentialGroup;
 import etomica.virial.MCMoveClusterTorsionMulti;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 public class CollectionPotentialAtomicLike implements ICollectionPotential{
 
@@ -28,7 +28,7 @@ public class CollectionPotentialAtomicLike implements ICollectionPotential{
 	private MCMoveClusterTorsionMulti[] mcMoveClusterTorsionMulti;
 	
 	//Array of HashMap to store both like-Molecule AtomSets
-	private HashMap<String[],IAtomType[]> hashMapAtomTypesLikePairs;
+    private HashMap<String[], AtomType[]> hashMapAtomTypesLikePairs;
 
 	
 	//HashMap to store all Potentials Sets common for like & unlike interactions
@@ -46,106 +46,90 @@ public class CollectionPotentialAtomicLike implements ICollectionPotential{
 		setHashMapPotentialNonBonded();
 	}
 	
-	public void setHashMapAtomTypeLikePairs(HashMap<String[], IAtomType[]> hashMapAtomTypesLikePairs) {
-		// TODO Auto-generated method stub
-		this.hashMapAtomTypesLikePairs = hashMapAtomTypesLikePairs;
-		
-	}
-
-	
 	public void setHashMapPotentialNonBonded() {
 		// TODO Auto-generated method stub
 		this.hashmapPotentialNonBonded = HashMapPotentialNonBonded.getInstance();
 	}
 
-	
-	public void setHashMapPotentialIntraBonded(
-			HashMap<String[], IPotential> hashMapPotentialIntraBonded) {
-		this.hashmapPotentialIntraBonded = hashMapPotentialIntraBonded;
-		
-	}
-
-	
-	public void setMCMoveClusterTorsionMulti(
-			MCMoveClusterTorsionMulti[] mcMoveClusterTorsionMulti) {
-		// TODO Auto-generated method stub
-		this.mcMoveClusterTorsionMulti = mcMoveClusterTorsionMulti;
-	}
-
-	
 	public void setHashMapAtomsetIterator(
 			HashMap<String[], AtomsetIteratorBasisDependent> hashMapAtomsetIterators) {
 		// TODO Auto-generated method stub
 		this.hashMapAtomsetIterators = hashMapAtomsetIterators;
 	}
 
-	
-	public void setPotentialGroupInterNonBondedLike(PotentialGroup potentialGroupInterNonBondedLike) {
-		// TODO Auto-generated method stub
-		this.potentialGroupInterNonBondedLike = potentialGroupInterNonBondedLike;
-	}
-
-	
-	public void setPotentialGroupIntraBonded(PotentialGroup potentialGroupIntraBonded) {
-		// TODO Auto-generated method stub
-		this.potentialGroupIntraBonded = potentialGroupIntraBonded;
-	}
-
-	
-	public void setPotentialIntraBondedTorsion(
-			IPotentialAtomic potentialIntraBondedTorsion) {
-		// TODO Auto-generated method stub
-		this.potentialIntraBondedTorsion = potentialIntraBondedTorsion;
-	}
-
-
-	
 	public HashMapPotentialNonBonded getHashMapPotentialNonBonded() {
 		// TODO Auto-generated method stub
 		return this.hashmapPotentialNonBonded;
 	}
 
-	
-	public HashMap<String[], IAtomType[]> getHashMapAtomTypeLikePairs() {
-		// TODO Auto-generated method stub
+    public HashMap<String[], AtomType[]> getHashMapAtomTypeLikePairs() {
+        // TODO Auto-generated method stub
 		return this.hashMapAtomTypesLikePairs;
 	}
 
-	
+    public void setHashMapAtomTypeLikePairs(HashMap<String[], AtomType[]> hashMapAtomTypesLikePairs) {
+        // TODO Auto-generated method stub
+        this.hashMapAtomTypesLikePairs = hashMapAtomTypesLikePairs;
+
+    }
+
 	public HashMap<String[], IPotential> getHashMapPotentialIntraBonded() {
 		// TODO Auto-generated method stub
 		return this.hashmapPotentialIntraBonded;
 	}
 
-	
+    public void setHashMapPotentialIntraBonded(
+            HashMap<String[], IPotential> hashMapPotentialIntraBonded) {
+        this.hashmapPotentialIntraBonded = hashMapPotentialIntraBonded;
+
+    }
+
 	public MCMoveClusterTorsionMulti[] getMCMoveClusterTorsionMulti() {
 		// TODO Auto-generated method stub
 		return this.mcMoveClusterTorsionMulti;
 	}
 
-	
+    public void setMCMoveClusterTorsionMulti(
+            MCMoveClusterTorsionMulti[] mcMoveClusterTorsionMulti) {
+        // TODO Auto-generated method stub
+        this.mcMoveClusterTorsionMulti = mcMoveClusterTorsionMulti;
+    }
+
 	public HashMap<String[], AtomsetIteratorBasisDependent> getHashmapAtomsetIterator() {
 		// TODO Auto-generated method stub
 		return this.hashMapAtomsetIterators;
 	}
 
-	
 	public PotentialGroup getPotentialGroupInterNonBondedLike() {
 		// TODO Auto-generated method stub
 		return this.potentialGroupInterNonBondedLike;
 	}
 
-	
+    public void setPotentialGroupInterNonBondedLike(PotentialGroup potentialGroupInterNonBondedLike) {
+        // TODO Auto-generated method stub
+        this.potentialGroupInterNonBondedLike = potentialGroupInterNonBondedLike;
+    }
+
 	public PotentialGroup getPotentialGroupIntraBonded() {
 		// TODO Auto-generated method stub
 		return this.potentialGroupIntraBonded;
 	}
 
-	
+    public void setPotentialGroupIntraBonded(PotentialGroup potentialGroupIntraBonded) {
+        // TODO Auto-generated method stub
+        this.potentialGroupIntraBonded = potentialGroupIntraBonded;
+    }
+
 	public IPotentialAtomic getPotentialIntraBondedTorsion() {
 		// TODO Auto-generated method stub
 		return this.potentialIntraBondedTorsion;
 	}
+
+    public void setPotentialIntraBondedTorsion(
+            IPotentialAtomic potentialIntraBondedTorsion) {
+        // TODO Auto-generated method stub
+        this.potentialIntraBondedTorsion = potentialIntraBondedTorsion;
+    }
 
 	public void addToHashMapPotentialNonBonded(String[] hashKey, IPotential hashValuePotential){
 		Map<String[], IPotential> nonBondedPotentialsMap = this.hashmapPotentialNonBonded.getHashMapPotentialNonBonded();

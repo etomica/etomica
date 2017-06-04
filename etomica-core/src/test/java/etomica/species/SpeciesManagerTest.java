@@ -4,13 +4,13 @@
 
 package etomica.species;
 
-import junit.framework.TestCase;
 import etomica.api.IElement;
 import etomica.api.ISpecies;
-import etomica.atom.AtomTypeLeaf;
+import etomica.atom.AtomType;
 import etomica.chem.elements.ElementSimple;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import junit.framework.TestCase;
 
 public class SpeciesManagerTest extends TestCase {
 
@@ -131,8 +131,8 @@ public class SpeciesManagerTest extends TestCase {
 
 		SpeciesSpheresMono newSpecies = new SpeciesSpheresMono(space, element);
 		for(int j = 0; j < numAtomsPerSpecies-1; j++) {
-		    newSpecies.addChildType(new AtomTypeLeaf(element));
-		}
+            newSpecies.addChildType(new AtomType(element));
+        }
 		simulation.addSpecies(newSpecies);
 		numSpecies++;
 

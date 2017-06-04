@@ -4,20 +4,22 @@
 
 package etomica.modules.chainequilibrium;
 
-import java.awt.Color;
-
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
-import etomica.atom.IAtomType;
+import etomica.atom.*;
 import etomica.box.Box;
-import etomica.simulation.Simulation;
-import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomTypeAgentManager;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.ColorSchemeCollective;
+import etomica.simulation.Simulation;
+
+import java.awt.*;
 
 public class ColorSchemeRadical extends ColorSchemeByType implements ColorSchemeCollective, AtomLeafAgentManager.AgentSource<ColorSchemeRadical.LengthAgent> {
+
+    protected final AtomLeafAgentManager<IAtom[]> agentManager;
+    protected final AtomTypeAgentManager radicalColorMap, fullColorMap;
+    protected final Color[] greys;
+    protected Box box;
+    protected AtomLeafAgentManager<LengthAgent> chainLengthManager;
 
     public ColorSchemeRadical(Simulation sim, AtomLeafAgentManager<IAtom[]> agentManager) {
         super(sim);
@@ -51,11 +53,11 @@ public class ColorSchemeRadical extends ColorSchemeByType implements ColorScheme
         return (Color)radicalColorMap.getAgent(atom.getType());
     }
 
-    public void setFreeRadicalColor(IAtomType type, Color color) {
+    public void setFreeRadicalColor(AtomType type, Color color) {
         radicalColorMap.setAgent(type, color);
     }
-    
-    public void setFullColor(IAtomType type, Color color) {
+
+    public void setFullColor(AtomType type, Color color) {
         fullColorMap.setAgent(type, color);
     }
 
@@ -76,7 +78,7 @@ public class ColorSchemeRadical extends ColorSchemeByType implements ColorScheme
         int chainNumber = 0;
         for (int i=0; i<nLeaf; i++) {
             IAtom a = leafList.getAtom(i);
-            // if an Atom has a chain length, it was already counted as part of 
+            // if an Atom has a chain length, it was already counted as part of
             // another chain
             if (chainLengthManager.getAgent(a).chainNumber > 0) continue;
 
@@ -120,10 +122,4 @@ public class ColorSchemeRadical extends ColorSchemeByType implements ColorScheme
     public static class LengthAgent {
         public int chainNumber;
     }
-
-    protected Box box;
-    protected AtomLeafAgentManager<LengthAgent> chainLengthManager;
-    protected final AtomLeafAgentManager<IAtom[]> agentManager;
-    protected final AtomTypeAgentManager radicalColorMap, fullColorMap;
-    protected final Color[] greys;
 }

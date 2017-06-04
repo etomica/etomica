@@ -4,99 +4,55 @@
 
 package etomica.virial.simulations;
 
-import java.awt.Color;
-import java.util.Map;
-import java.util.Set;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.IAction;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.atom.IAtomType;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
-import etomica.space.Vector;
-import etomica.atom.AtomTypeLeaf;
+import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ANIntergroupCoupled;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.ApiIntergroupCoupled;
 import etomica.chem.elements.ElementChemical;
 import etomica.config.ConformationLinear;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
+import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.graph.model.Graph;
 import etomica.graph.operations.DeleteEdge;
 import etomica.graph.operations.DeleteEdgeParameters;
 import etomica.graph.property.NumRootNodes;
-import etomica.graphics.ColorSchemeRandomByMolecule;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayBoxCanvasG3DSys;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
 import etomica.listener.IntegratorListenerAction;
-import etomica.potential.IPotentialAtomicMultibody;
-import etomica.potential.P2Harmonic;
-import etomica.potential.P2HePCKLJS;
-import etomica.potential.P2HeSimplified;
-import etomica.potential.P3CPSNonAdditiveHe;
-import etomica.potential.P3CPSNonAdditiveHeSimplified;
-import etomica.potential.Potential2SoftSpherical;
-import etomica.potential.Potential2Spherical;
-import etomica.potential.PotentialGroup;
+import etomica.math.DoubleRange;
+import etomica.potential.*;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheres;
-import etomica.units.CompoundDimension;
-import etomica.units.CompoundUnit;
+import etomica.units.*;
 import etomica.units.Dimension;
-import etomica.units.DimensionRatio;
-import etomica.units.Kelvin;
-import etomica.units.Liter;
-import etomica.units.Mole;
-import etomica.units.Pixel;
-import etomica.units.Quantity;
-import etomica.units.Unit;
-import etomica.units.UnitRatio;
-import etomica.units.Volume;
 import etomica.util.Constants;
 import etomica.util.Constants.CompassDirection;
-import etomica.math.DoubleRange;
-import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterBonds;
-import etomica.virial.ClusterDifference;
-import etomica.virial.ClusterSum;
-import etomica.virial.ClusterSumMultibody;
-import etomica.virial.ClusterWeight;
-import etomica.virial.ClusterWeightAbs;
-import etomica.virial.CoordinatePairSet;
-import etomica.virial.MCMoveClusterMoleculeMulti;
-import etomica.virial.MCMoveClusterRingRegrow;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerFunctionMolecularThreeBody;
-import etomica.virial.MayerFunctionNonAdditive;
-import etomica.virial.MayerFunctionSphericalThreeBody;
-import etomica.virial.MayerFunctionThreeBody;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerGeneralSpherical;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.MeterVirial;
-import etomica.virial.PotentialGroup3PI;
+import etomica.virial.*;
 import etomica.virial.PotentialGroup3PI.PotentialGroup3PISkip;
-import etomica.virial.PotentialGroupPI;
 import etomica.virial.PotentialGroupPI.PotentialGroupPISkip;
 import etomica.virial.cluster.Standard;
 import etomica.virial.cluster.VirialDiagrams;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Mayer sampling simulation
@@ -129,7 +85,7 @@ public class VirialHePI {
             }
             else {
                 str += " "+gs.getStore().toNumberString();
-                if (flexDiagrams.graphHasEdgeColor(gs, flexDiagrams.eBond)) {
+                if (VirialDiagrams.graphHasEdgeColor(gs, flexDiagrams.eBond)) {
                     str += "p" + edgeDeleter.apply(gs, ede).getStore().toNumberString();
                 }
             }
@@ -444,7 +400,7 @@ public class VirialHePI {
                     fTargetDiagramNumbers[iGraph] = Integer.parseInt(gNoEM.getStore().toNumberString());
                 }
                 else {
-                    if (flexDiagrams.graphHasEdgeColor(g, flexDiagrams.eBond)) {
+                    if (VirialDiagrams.graphHasEdgeColor(g, flexDiagrams.eBond)) {
                         Graph gNoE = edgeDeleter.apply(g, ede);
                         gnStr += "p"+gNoE.getStore().toNumberString();
                         fTargetDiagramNumbers[iGraph] = Integer.parseInt(gNoE.getStore().toNumberString());
@@ -516,7 +472,7 @@ public class VirialHePI {
             throw new RuntimeException("steps should be a multiple of 1000");
         }
         System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
-        SpeciesSpheres species = new SpeciesSpheres(space, nBeads, new AtomTypeLeaf(new ElementChemical("He", heMass, 2)), new ConformationLinear(space, 0));
+        SpeciesSpheres species = new SpeciesSpheres(space, nBeads, new AtomType(new ElementChemical("He", heMass, 2)), new ConformationLinear(space, 0));
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species}, new int[]{nPoints+(doFlex?1:0)}, temperature, new ClusterAbstract[]{refCluster, targetCluster},
                  targetDiagrams, new ClusterWeight[]{refSampleCluster,targetSampleCluster}, false);
@@ -635,9 +591,9 @@ public class VirialHePI {
             displayBox1.setShowBoundary(false);
             ((DisplayBoxCanvasG3DSys)displayBox0.canvas).setBackgroundColor(Color.WHITE);
             ((DisplayBoxCanvasG3DSys)displayBox1.canvas).setBackgroundColor(Color.WHITE);
-            
-            
-            IAtomType type = species.getLeafType();
+
+
+            AtomType type = species.getLeafType();
             DiameterHashByType diameterManager = (DiameterHashByType)displayBox0.getDiameterHash();
             diameterManager.setDiameter(type, 1+1.0/nBeads);
             displayBox1.setDiameterHash(diameterManager);
@@ -677,6 +633,8 @@ public class VirialHePI {
             simGraphic.getPanel().controlPanel.add(panelParentGroup, SimulationPanel.getVertGBC());
             
             IAction pushAnswer = new IAction() {
+                DataDouble data = new DataDouble();
+                
                 public void actionPerformed() {
                     double[] ratioAndError = sim.dvo.getAverageAndError();
                     double ratio = ratioAndError[0];
@@ -686,8 +644,6 @@ public class VirialHePI {
                     data.x = error;
                     errorBox.putData(data);
                 }
-                
-                DataDouble data = new DataDouble();
             };
             IEtomicaDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, new CompoundDimension(new Dimension[]{new DimensionRatio(Volume.DIMENSION, Quantity.DIMENSION)}, new double[]{nPoints-1}));
             Unit unit = new CompoundUnit(new Unit[]{new UnitRatio(Liter.UNIT, Mole.UNIT)}, new double[]{nPoints-1});
@@ -904,9 +860,9 @@ public class VirialHePI {
         sim.printResults(refIntegral);
 
         DataGroup allData = (DataGroup)sim.accumulators[1].getData();
-        IData dataAvg = allData.getData(sim.accumulators[1].AVERAGE.index);
-        IData dataErr = allData.getData(sim.accumulators[1].ERROR.index);
-        IData dataCov = allData.getData(sim.accumulators[1].BLOCK_COVARIANCE.index);
+        IData dataAvg = allData.getData(AccumulatorAverage.AVERAGE.index);
+        IData dataErr = allData.getData(AccumulatorAverage.ERROR.index);
+        IData dataCov = allData.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
         // we'll ignore block correlation -- whatever effects are here should be in the full target results
         int nTotal = (targetDiagrams.length+2);
         double oVar = dataCov.getValue(nTotal*nTotal-1);

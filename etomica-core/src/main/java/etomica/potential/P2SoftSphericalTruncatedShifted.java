@@ -4,7 +4,7 @@
 
 package etomica.potential;
 
-import etomica.atom.IAtomType;
+import etomica.atom.AtomType;
 import etomica.space.Space;
 
 /**
@@ -15,7 +15,10 @@ import etomica.space.Space;
  * pair correlations beyond the cutoff.
  */
 public class P2SoftSphericalTruncatedShifted extends P2SoftSphericalTruncated {
-    
+
+    private static final long serialVersionUID = 1L;
+    protected double shift;
+ 
     public P2SoftSphericalTruncatedShifted(Space _space, Potential2SoftSpherical potential,
                                            double truncationRadius) {
         super(_space, potential, truncationRadius);
@@ -27,7 +30,7 @@ public class P2SoftSphericalTruncatedShifted extends P2SoftSphericalTruncated {
     public Potential2SoftSpherical getWrappedPotential() {
         return potential;
     }
- 
+
     /**
      * Returns the energy of the wrapped potential if the separation
      * is less than the cutoff value
@@ -48,10 +51,7 @@ public class P2SoftSphericalTruncatedShifted extends P2SoftSphericalTruncated {
     /**
      * Returns null because the shift can't be corrected.
      */
-    public Potential0Lrc makeLrcPotential(IAtomType[] types) {
+    public Potential0Lrc makeLrcPotential(AtomType[] types) {
         return null;
     }
-    
-    private static final long serialVersionUID = 1L;
-    protected double shift;
 }

@@ -4,20 +4,20 @@
 
 package etomica.atom;
 
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 public class AtomLeafDynamic extends Atom implements IAtomKinetic {
 
-    public AtomLeafDynamic(Space space, IAtomType type) {
+    private static final long serialVersionUID = 1L;
+    protected final Vector velocity;
+
+    public AtomLeafDynamic(Space space, AtomType type) {
         super(space, type);
         velocity = space.makeVector();
     }
-    
+
     public Vector getVelocity() {
         return velocity;
     }
-    
-    private static final long serialVersionUID = 1L;
-    protected final Vector velocity;
 }

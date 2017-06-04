@@ -8,14 +8,14 @@ package etomica.simulation.prototypes;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.IAtomType;
+import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.potential.PotentialMaster;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2HardSphere;
+import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
@@ -48,7 +48,7 @@ public class HSMD3DNoNbr extends Simulation {
         species.setIsDynamic(true);
         addSpecies(species);
         potential = new P2HardSphere(space, sigma, false);
-        potentialMaster.addPotential(potential,new IAtomType[]{species.getLeafType(),species.getLeafType()});
+        potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
         box = new Box(space);
         addBox(box);

@@ -4,14 +4,13 @@
 
 package etomica.models.clathrates;
 
-import java.awt.Color;
-
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.action.WriteConfiguration;
-import etomica.api.*;
+import etomica.api.IBoundary;
+import etomica.api.IMolecule;
 import etomica.atom.*;
-import etomica.box.Box;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationFileBinary;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -23,36 +22,30 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.models.water.ConfigurationFileTIP4P;
 import etomica.models.water.SpeciesWater4P;
 import etomica.normalmode.MeterHarmonicEnergy;
-import etomica.potential.EwaldSummation;
+import etomica.potential.*;
 import etomica.potential.EwaldSummation.MyCharge;
-import etomica.potential.P2LennardJones;
-import etomica.potential.Potential2SoftSphericalLS;
-import etomica.potential.PotentialCalculationForceSum;
-import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.*;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
-import etomica.units.Calorie;
-import etomica.units.Electron;
-import etomica.units.Joule;
-import etomica.units.Kelvin;
-import etomica.units.Mole;
+import etomica.units.*;
 import etomica.util.Constants;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+
+import java.awt.*;
 public class MinimizationTIP4P extends Simulation{
-	protected Box box;
+    private static final long serialVersionUID = 1L;
+    protected static double[] initialU;
+    protected static double selfELJ;
+    protected Box box;
 	protected Space space;
 	protected PotentialMaster potentialMaster;
 	protected SpeciesWater4P species;
 	protected MeterHarmonicEnergy meterHarm;
 	protected MeterPotentialEnergy meterPE;
-	protected static double[] initialU;
 	protected Potential2SoftSphericalLS potentialLJLS;
-	private static final long serialVersionUID = 1L;
 	protected EwaldSummation potentialES;
-	protected static double selfELJ;
 	public MinimizationTIP4P(Space space, double rCutLJ, double rCutRealES, double[] a0, int[] nC, int nBasis, boolean isIce, double kCut, String configFile, boolean includeM) {
 		super(space);
 		this.space = space;
@@ -82,9 +75,9 @@ public class MinimizationTIP4P extends Simulation{
 		
 		potentialES = new EwaldSummation(box, atomAgentManager, space, kCut, rCutRealES);
 		potentialMaster = new PotentialMaster();
-		potentialMaster.addPotential(potentialLJLS, new IAtomType[]{species.getOxygenType(), species.getOxygenType()});
-		potentialMaster.addPotential(potentialES, new IAtomType[0]);
-		potentialLJLS.setBox(box);
+        potentialMaster.addPotential(potentialLJLS, new AtomType[]{species.getOxygenType(), species.getOxygenType()});
+        potentialMaster.addPotential(potentialES, new AtomType[0]);
+        potentialLJLS.setBox(box);
 		
 		if(includeM){
 			ConfigurationFile config = new ConfigurationFile(configFile);
@@ -212,13 +205,13 @@ public class MinimizationTIP4P extends Simulation{
 		            torques[i].E(0); 
 		            IMolecule iMol = sim.box.getMoleculeList().getMolecule(i);
 		            IAtomList atoms = iMol.getChildList();
-		            Vector pO = atoms.getAtom(sim.species.indexO).getPosition();
-		            for (int j = 0; j < atoms.getAtomCount(); j++){
+                    Vector pO = atoms.getAtom(SpeciesWater4P.indexO).getPosition();
+                    for (int j = 0; j < atoms.getAtomCount(); j++){
 		            	IAtom atomj = atoms.getAtom(j);
 		            	Vector fj = atomAgentManager.getAgent(atomj).force;
 		            	f.PE(fj);
-		            	if(j != sim.species.indexO){
-		            		dr.Ev1Mv2(atomj.getPosition(), pO);
+                        if (j != SpeciesWater4P.indexO) {
+                            dr.Ev1Mv2(atomj.getPosition(), pO);
 		            		sim.box.getBoundary().nearestImage(dr);
 		            		dr.XE(fj);
 		            		torques[i].PE(dr); 
@@ -435,8 +428,6 @@ public class MinimizationTIP4P extends Simulation{
     public static class SimParams extends ParameterBase {
 		public String configFile = "config_sI"; 
 		public int nBasis = 46;//sI
-		int nX = 1;
-		public int[] nC = new int[] {nX, nX, nX};
 		public double[] a0 = new double[]{12.03, 12.03, 12.03};//sI
 		public double rCutLJ = 1.0;
 		public double rCutRealES = 1.724496;
@@ -445,5 +436,7 @@ public class MinimizationTIP4P extends Simulation{
 		public int nInner = 3;
 		public boolean isIce =  false, isGraphics = !false;
 		public boolean includeM =  false;
+        int nX = 1;
+        public int[] nC = new int[]{nX, nX, nX};
     }
 }

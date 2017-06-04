@@ -4,22 +4,11 @@
 
 package etomica.normalmode;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.IAtomType;
+import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorHistogram;
-import etomica.data.DataFork;
-import etomica.data.DataLogger;
-import etomica.data.DataPumpListener;
-import etomica.data.DataTableWriter;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
+import etomica.data.histogram.HistogramSimple;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDoubleArray;
@@ -27,11 +16,8 @@ import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
-import etomica.lattice.crystal.Basis;
-import etomica.lattice.crystal.BasisCubicFcc;
-import etomica.lattice.crystal.BasisMonatomic;
-import etomica.lattice.crystal.Primitive;
-import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.lattice.crystal.*;
+import etomica.math.DoubleRange;
 import etomica.overlap.IntegratorOverlap;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
@@ -42,12 +28,12 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
-import etomica.math.DoubleRange;
-import etomica.data.histogram.HistogramSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
+
+import java.io.*;
 
 /**
  * Simulation to run sampling with the hard sphere potential, but measuring
@@ -62,6 +48,26 @@ import etomica.virial.overlap.DataSourceVirialOverlap;
  */
 public class SimOverlapSoftSphereReweighting extends Simulation {
 
+    private static final long serialVersionUID = 1L;
+    public final double latticeEnergy;
+    public IntegratorOverlap integratorOverlap;
+    public DataSourceVirialOverlap dsvo;
+    public IntegratorBox[] integrators;
+    public ActivityIntegrate activityIntegrate;
+    public Box boxTarget, boxHarmonic;
+    public Boundary boundaryTarget, boundaryHarmonic;
+    public int[] nCells;
+    public Basis basis;
+    public NormalModes normalModes;
+    public Primitive primitive;
+    public double refPref;
+    public AccumulatorVirialOverlapSingleAverage[] accumulators;
+    public MeterHarmonicEnergy meterHarmonicEnergy;
+    public DataPumpListener[] accumulatorPumps;
+    public IEtomicaDataSource[] meters;
+    public String fname;
+    protected MCMoveHarmonic move;
+    protected PotentialMasterMonatomic potentialMasterTarget;
     public SimOverlapSoftSphereReweighting(Space _space, int numAtoms, double density, double temperature, String filename, double harmonicFudge, int exponent) {
         super(_space);
         this.fname = filename;
@@ -75,7 +81,7 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
         addSpecies(species);
 
         // TARGET
-        
+
         boxTarget = new Box(space);
         addBox(boxTarget);
         boxTarget.setNMolecules(species, numAtoms);
@@ -110,8 +116,8 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
         Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, exponent);
         double truncationRadius = boundaryTarget.getBoxSize().getX(0) * 0.495;
         P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
-        IAtomType sphereType = species.getLeafType();
-        potentialMasterTarget.addPotential(pTruncated, new IAtomType[] { sphereType, sphereType });
+        AtomType sphereType = species.getLeafType();
+        potentialMasterTarget.addPotential(pTruncated, new AtomType[]{sphereType, sphereType});
         atomMove.setPotential(pTruncated);
 
         integratorTarget.setBox(boxTarget);
@@ -119,18 +125,18 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
         /*
          *  1-body Potential to Constraint the atom from moving too far
          *  	away from its lattice-site
-         *  
+         *
          */
 
         P1Constraint p1Constraint = new P1Constraint(space, primitive.getSize()[0], boxTarget, coordinateDefinitionTarget);
-        potentialMasterTarget.addPotential(p1Constraint, new IAtomType[] {sphereType});
-        
+        potentialMasterTarget.addPotential(p1Constraint, new AtomType[]{sphereType});
+
         potentialMasterTarget.lrcMaster().setEnabled(false);
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterTarget);
         meterPE.setBox(boxTarget);
         latticeEnergy = meterPE.getDataAsScalar();
-        
-    
+
+
         // HARMONIC
         boundaryHarmonic = new BoundaryRectangularPeriodic(space);
         boxHarmonic = new Box(boundaryHarmonic, space);
@@ -142,7 +148,7 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
         move = new MCMoveHarmonic(getRandom());
         integratorHarmonic.getMoveManager().addMCMove(move);
         integrators[0] = integratorHarmonic;
-        
+
         if (space.D() == 1) {
             boundaryHarmonic = new BoundaryRectangularPeriodic(space, numAtoms/density);
         } else {
@@ -154,14 +160,14 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
 
         CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new CoordinateDefinitionLeaf(boxHarmonic, primitive, basis, space);
         coordinateDefinitionHarmonic.initializeCoordinates(nCells);
-        
+
         normalModes = new NormalModesFromFile(filename, space.D());
         normalModes.setHarmonicFudge(harmonicFudge);
         /*
          * nuke this line if it is DB
          */
         normalModes.setTemperature(temperature);
-        
+
         WaveVectorFactory waveVectorFactory = normalModes.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(boxHarmonic);
         move.setOmegaSquared(normalModes.getOmegaSquared());
@@ -170,9 +176,9 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
         move.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
         move.setCoordinateDefinition(coordinateDefinitionHarmonic);
         move.setTemperature(temperature);
-        
+
         move.setBox(boxHarmonic);
-        
+
         integratorHarmonic.setBox(boxHarmonic);
 
         // OVERLAP
@@ -183,160 +189,18 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
         meterTarget.setLatticeEnergy(latticeEnergy);
         meters[1] = meterTarget;
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, false), 1);
-        
+
         MeterBoltzmannHarmonic meterHarmonic = new MeterBoltzmannHarmonic(move, potentialMasterTarget);
         meterHarmonic.setTemperature(temperature);
         meterHarmonic.setLatticeEnergy(latticeEnergy);
         meters[0] = meterHarmonic;
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, true), 0);
-        
+
         setRefPref(1.0, 30);
-        
+
         activityIntegrate = new ActivityIntegrate(integratorOverlap);
-        
+
         getController().addAction(activityIntegrate);
-    }
-
-    public void setRefPref(double refPrefCenter, double span) {
-        refPref = refPrefCenter;
-        accumulators[0].setBennetParam(refPrefCenter,span);
-        accumulators[1].setBennetParam(refPrefCenter,span);
-
-    }
-
-    public void setAccumulator(AccumulatorVirialOverlapSingleAverage newAccumulator, int iBox) {
-
-        accumulators[iBox] = newAccumulator;
-    
-        newAccumulator.setBlockSize(200); 
-        
-        if (accumulatorPumps[iBox] == null) {
-            accumulatorPumps[iBox] = new DataPumpListener(meters[iBox],newAccumulator);
-            integrators[iBox].getEventManager().addListener(accumulatorPumps[iBox]);
-            if (iBox == 1) {
-            	if (boxTarget.getMoleculeList().getMoleculeCount()==32){
-            		accumulatorPumps[iBox].setInterval(100);
-            		
-            	} else if (boxTarget.getMoleculeList().getMoleculeCount()==108){
-                
-            		accumulatorPumps[iBox].setInterval(300);
-            	} else 
-            		accumulatorPumps[iBox].setInterval(boxTarget.getMoleculeList().getMoleculeCount());
-            }
-        }
-        else {
-            accumulatorPumps[iBox].setDataSink(newAccumulator);
-        }
-        if (integratorOverlap != null && accumulators[0] != null && accumulators[1] != null) {
-            dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
-            integratorOverlap.setReferenceFracSource(dsvo);
-        }
-    }
-    
-    public void setRefPref(double newRefPref) {
-        System.out.println("setting ref pref (explicitly) to "+newRefPref);
-        setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,true),0);
-        setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,false),1);
-        setRefPref(newRefPref,1);
-    }
-    
-    public void initRefPref(String fileName, long initSteps) {
-        // refPref = -1 indicates we are searching for an appropriate value
-        refPref = -1.0;
-        if (fileName != null) {
-            try { 
-                FileReader fileReader = new FileReader(fileName);
-                BufferedReader bufReader = new BufferedReader(fileReader);
-                String refPrefString = bufReader.readLine();
-                refPref = Double.parseDouble(refPrefString);
-                bufReader.close();
-                fileReader.close();
-                System.out.println("setting ref pref (from file) to "+refPref);
-                setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,true),0);
-                setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,false),1);
-                setRefPref(refPref,1);
-            }
-            catch (IOException e) {
-                // file not there, which is ok.
-            }
-        }
-        
-        if (refPref == -1) {
-            // equilibrate off the lattice to avoid anomolous contributions
-            activityIntegrate.setMaxSteps(initSteps/2);
-            getController().actionPerformed();
-            getController().reset();
-            System.out.println("target equilibration finished");
-
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(41,true),0);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(41,false),1);
-            setRefPref(1,200);
-            activityIntegrate.setMaxSteps(initSteps);
-            getController().actionPerformed();
-            getController().reset();
-
-            int newMinDiffLoc = dsvo.minDiffLocation();
-            refPref = accumulators[0].getBennetAverage(newMinDiffLoc)
-                /accumulators[1].getBennetAverage(newMinDiffLoc);
-            if (Double.isNaN(refPref) || refPref == 0 || Double.isInfinite(refPref)) {
-                throw new RuntimeException("Simulation failed to fiq" +
-                		"nd a valid ref pref");
-            }
-            System.out.println("setting ref pref to "+refPref);
-            
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(11,true),0);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(11,false),1);
-            setRefPref(refPref,5);
-
-            // set refPref back to -1 so that later on we know that we've been looking for
-            // the appropriate value
-            refPref = -1;
-            getController().reset();
-        }
-
-    }
-    
-    public void equilibrate(String fileName, long initSteps) {
-        // run a short simulation to get reasonable MC Move step sizes and
-        // (if needed) narrow in on a reference preference
-        activityIntegrate.setMaxSteps(initSteps);
-
-        for (int i=0; i<2; i++) {
-            if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(true);
-        }
-        getController().actionPerformed();
-        getController().reset();
-        for (int i=0; i<2; i++) {
-            if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(false);
-        }
-
-        if (refPref == -1) {
-            int newMinDiffLoc = dsvo.minDiffLocation();
-            refPref = accumulators[0].getBennetAverage(newMinDiffLoc)
-                /accumulators[1].getBennetAverage(newMinDiffLoc);
-            System.out.println("setting ref pref to "+refPref+" ("+newMinDiffLoc+")");
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,true),0);
-            
-            System.out.println("block size (equilibrate) "+accumulators[0].getBlockSize());
-            
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,false),1);
-            setRefPref(refPref,1);
-            if (fileName != null) {
-                try {
-                    FileWriter fileWriter = new FileWriter(fileName);
-                    BufferedWriter bufWriter = new BufferedWriter(fileWriter);
-                    bufWriter.write(String.valueOf(refPref)+"\n");
-                    bufWriter.close();
-                    fileWriter.close();
-                }
-                catch (IOException e) {
-                    throw new RuntimeException("couldn't write to refpref file");
-                }
-            }
-        }
-        else {
-            dsvo.reset();
-        }
     }
 
     /**
@@ -369,8 +233,8 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
         }
         //String refFileName = args.length > 0 ? filename+"_ref" : null;
         String refFileName = filename+"_ref";
-        
-        
+
+
         System.out.println("Running "+(D==1 ? "1D" : (D==3 ? "FCC" : "2D hexagonal")) +" soft sphere overlap simulation");
         System.out.println(numMolecules+" atoms at density "+density+" and temperature "+temperature);
         System.out.println("exponent N: "+ exponentN +" and harmonic fudge: "+harmonicFudge);
@@ -379,7 +243,7 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
 
         //instantiate simulation
         final SimOverlapSoftSphereReweighting sim = new SimOverlapSoftSphereReweighting(Space.getInstance(D), numMolecules, density, temperature, filename, harmonicFudge, exponentN);
-        
+
         //start simulation
         sim.integratorOverlap.setNumSubSteps(1000);
         numSteps /= 1000;
@@ -389,151 +253,151 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
             throw new RuntimeException("Simulation failed to find a valid ref pref");
         }
         System.out.flush();
-        
+
         sim.equilibrate(refFileName, numSteps/10);
         if (Double.isNaN(sim.refPref) || sim.refPref == 0 || Double.isInfinite(sim.refPref)) {
             throw new RuntimeException("Simulation failed to find a valid ref pref");
         }
-       
+
         System.out.println("equilibration finished");
         System.out.flush();
-               
+
         // Harmonic to Target Sampling
-        MeterWorkHarmonicTargetandReweighting meterWorkHarmonic = 
-        	new MeterWorkHarmonicTargetandReweighting(sim.move, sim.potentialMasterTarget, sim.refPref);
+        MeterWorkHarmonicTargetandReweighting meterWorkHarmonic =
+                new MeterWorkHarmonicTargetandReweighting(sim.move, sim.potentialMasterTarget, sim.refPref);
         meterWorkHarmonic.setLatticeEnergy(sim.latticeEnergy);
         meterWorkHarmonic.setTemperature(temperature);
-        
+
         DataFork dataForkHarmonic = new DataFork();
         DataPumpListener dataPumpHarmonic = new DataPumpListener(meterWorkHarmonic, dataForkHarmonic,1);
-        
+
         AccumulatorAverageFixed dataAverageHarmonic = new AccumulatorAverageFixed(1);
         AccumulatorHistogram histogramHarmonicTarget = new AccumulatorHistogram(new HistogramSimple(4000, new DoubleRange(-200, 200)));
         dataForkHarmonic.addDataSink(dataAverageHarmonic);
         dataForkHarmonic.addDataSink(histogramHarmonicTarget);
-        
+
         sim.integrators[0].getEventManager().addListener(dataPumpHarmonic);
-        
+
         // Target to Harmonic Sampling
-        MeterWorkTargetHarmonicandReweighting meterWorkTarget = 
-        	new MeterWorkTargetHarmonicandReweighting(sim.integrators[1], sim.meterHarmonicEnergy, sim.refPref);
+        MeterWorkTargetHarmonicandReweighting meterWorkTarget =
+                new MeterWorkTargetHarmonicandReweighting(sim.integrators[1], sim.meterHarmonicEnergy, sim.refPref);
         meterWorkTarget.setLatticeEnergy(sim.latticeEnergy);
-        
+
         DataFork dataForkTarget = new DataFork();
         DataPumpListener dataPumpTarget = new DataPumpListener(meterWorkTarget, dataForkTarget, 1000);
-        
+
         AccumulatorAverageFixed dataAverageTarget = new AccumulatorAverageFixed(1);
         AccumulatorHistogram histogramTargetHarmonic = new AccumulatorHistogram(new HistogramSimple(4000, new DoubleRange(-200, 200)));
         dataForkTarget.addDataSink(dataAverageTarget);
         dataForkTarget.addDataSink(histogramTargetHarmonic);
-        
+
         sim.integrators[1].getEventManager().addListener(dataPumpTarget);
-        
+
         int totalCells = 1;
         for (int i=0; i<D; i++) {
             totalCells *= sim.nCells[i];
         }
         int basisSize = sim.basis.getScaledCoordinates().length;
-        
+
         double  AHarmonic = CalcHarmonicA.doit(sim.normalModes, D, temperature, basisSize*totalCells);
         System.out.println("Harmonic-reference free energy, A: "+AHarmonic + " " + AHarmonic/numMolecules);
-       
+
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.getController().actionPerformed();
-               
+
         System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getIdealRefStepFraction()
         		+" (actual: "+sim.integratorOverlap.getRefStepFraction()+")");
         double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
         double ratio = ratioAndError[0];
         double error = ratioAndError[1];
         double betaFAB = -Math.log(ratio);
-        
+
         System.out.println("\nratio average: "+ratio+" ,error: "+error);
         System.out.println("free energy difference: "+(-temperature*Math.log(ratio))+" ,error: "+temperature*(error/ratio));
         System.out.println("target free energy: "+temperature*(AHarmonic-Math.log(ratio)));
         System.out.println("target free energy per particle: "+temperature*(AHarmonic-Math.log(ratio))/numMolecules);
-        
+
         DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
-        double betaFAW = -Math.log(((DataDoubleArray)allYourBase.getData(sim.accumulators[0].AVERAGE.index)).getData()[1]);
-        System.out.println("harmonic ratio average: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].AVERAGE.index)).getData()[1]
-                          +" stdev: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].STANDARD_DEVIATION.index)).getData()[1]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].ERROR.index)).getData()[1]);
-        
+        double betaFAW = -Math.log(((DataDoubleArray) allYourBase.getData(AccumulatorAverage.AVERAGE.index)).getData()[1]);
+        System.out.println("harmonic ratio average: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.AVERAGE.index)).getData()[1]
+                + " stdev: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.STANDARD_DEVIATION.index)).getData()[1]
+                + " error: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.ERROR.index)).getData()[1]);
+
         allYourBase = (DataGroup)sim.accumulators[1].getData(sim.dsvo.minDiffLocation());
-        double betaFBW = -Math.log(((DataDoubleArray)allYourBase.getData(sim.accumulators[1].AVERAGE.index)).getData()[1]);
-        System.out.println("target ratio average: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].AVERAGE.index)).getData()[1]
-                          +" stdev: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].STANDARD_DEVIATION.index)).getData()[1]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].ERROR.index)).getData()[1]);
-        
+        double betaFBW = -Math.log(((DataDoubleArray) allYourBase.getData(AccumulatorAverage.AVERAGE.index)).getData()[1]);
+        System.out.println("target ratio average: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.AVERAGE.index)).getData()[1]
+                + " stdev: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.STANDARD_DEVIATION.index)).getData()[1]
+                + " error: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.ERROR.index)).getData()[1]);
+
         /*
          * Refer Wu & Kofke JCp 123,054103(2003) Eq (6)
          */
-        double betaUAB = dataAverageHarmonic.getData().getValue(dataAverageHarmonic.AVERAGE.index);
-        double betaUBA = dataAverageTarget.getData().getValue(dataAverageTarget.AVERAGE.index);
-        
+        double betaUAB = dataAverageHarmonic.getData().getValue(AccumulatorAverage.AVERAGE.index);
+        double betaUBA = dataAverageTarget.getData().getValue(AccumulatorAverage.AVERAGE.index);
+
         double SAB = betaUAB - betaFAB;
         double SBA = betaUBA + betaFAB;
-        
+
         double betaUAWf = meterWorkHarmonic.getBetaUAWf();  // < beta*U_AW>A
         double betaUAWr = meterWorkHarmonic.getBetaUAWr();  // < beta*U_AW>W
-        
+
         double betaUBWf = meterWorkTarget.getBetaUBWf();	// < beta*U_BW>B
         double betaUBWr = meterWorkTarget.getBetaUBWr();	// < beta*U_BW>W
-        
+
         double SAW =  betaUAWf - betaFAW;
         double SWA = - betaUAWr + betaFAW;
-        
+
         double SBW = betaUBWf - betaFBW;
         double SWB = - betaUBWr + betaFBW;
-        
+
         System.out.println("");
         System.out.println("SAB: "+ SAB + " ; betaUAB: " + betaUAB + " ;betaFAB: " + betaFAB);
         System.out.println("SBA: "+ SBA + " ; betaUBA: " + betaUBA + " ;betaFAB: " + betaFAB);
-        
+
         System.out.println("");
         System.out.println("SAW: "+ SAW + " ; betaUAWf: " + betaUAWf + " ;betaFAW: " + betaFAW);
         System.out.println("SWA: "+ SWA + " ; betaUAWr: " + betaUAWr + " ;betaFAW: " + betaFAW);
-        
+
         System.out.println("");
         System.out.println("SBW: "+ SBW + " ; betaUBWf: " + betaUBWf + " ;betaFBW: " + betaFBW);
         System.out.println("SWB: "+ SWB + " ; betaUBWr: " + betaUBWr + " ;betaFBW: " + betaFBW);
-        
+
         /*
-         * Harmonic -----> Target  
+         * Harmonic -----> Target
          */
         // AB
         DataLogger dataLogger = new DataLogger();
         DataTableWriter dataTableWriter = new DataTableWriter();
         dataLogger.setFileName(filename + "_hist_HarmTarg");
         dataTableWriter.setIncludeHeader(false);
-        
+
         dataLogger.setDataSink(dataTableWriter);
-        dataLogger.putDataInfo(histogramHarmonicTarget.getDataInfo());        
+        dataLogger.putDataInfo(histogramHarmonicTarget.getDataInfo());
         dataLogger.putData(histogramHarmonicTarget.getData());
         dataLogger.closeFile();
-        
+
         // AW
         dataLogger = new DataLogger();
         dataTableWriter = new DataTableWriter();
         dataLogger.setFileName(filename + "_hist_HarmBenn");
         dataTableWriter.setIncludeHeader(false);
-        
+
         dataLogger.setDataSink(dataTableWriter);
-        dataLogger.putDataInfo(meterWorkHarmonic.getDataInfoHistogramBetaUAWf());        
+        dataLogger.putDataInfo(meterWorkHarmonic.getDataInfoHistogramBetaUAWf());
         dataLogger.putData(meterWorkHarmonic.getDataHistogramBetaUAWf());
         dataLogger.closeFile();
-        
+
         // WA
         dataLogger = new DataLogger();
         dataTableWriter = new DataTableWriter();
         dataLogger.setFileName(filename + "_hist_BennHarm");
         dataTableWriter.setIncludeHeader(false);
-        
+
         dataLogger.setDataSink(dataTableWriter);
-        dataLogger.putDataInfo(meterWorkHarmonic.getDataInfoHistogramBetaUAWr());        
+        dataLogger.putDataInfo(meterWorkHarmonic.getDataInfoHistogramBetaUAWr());
         dataLogger.putData(meterWorkHarmonic.getDataHistogramBetaUAWr());
         dataLogger.closeFile();
-        
+
         /*
          * Target -----> Harmonic
          */
@@ -542,56 +406,175 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
         dataTableWriter = new DataTableWriter();
         dataLogger.setFileName(filename + "_hist_TargHarm");
         dataTableWriter.setIncludeHeader(false);
-        
+
         dataLogger.setDataSink(dataTableWriter);
-        dataLogger.putDataInfo(histogramTargetHarmonic.getDataInfo());        
+        dataLogger.putDataInfo(histogramTargetHarmonic.getDataInfo());
         dataLogger.putData(histogramTargetHarmonic.getData());
         dataLogger.closeFile();
-        
+
         //BW
         dataLogger = new DataLogger();
         dataTableWriter = new DataTableWriter();
         dataLogger.setFileName(filename + "_hist_TargBenn");
         dataTableWriter.setIncludeHeader(false);
-        
+
         dataLogger.setDataSink(dataTableWriter);
-        dataLogger.putDataInfo(meterWorkTarget.getDataInfoHistogramBetaUBWf());        
+        dataLogger.putDataInfo(meterWorkTarget.getDataInfoHistogramBetaUBWf());
         dataLogger.putData(meterWorkTarget.getDataHistogramBetaUBWf());
         dataLogger.closeFile();
-        
+
         // WB
         dataLogger = new DataLogger();
         dataTableWriter = new DataTableWriter();
         dataLogger.setFileName(filename + "_hist_BennTarg");
         dataTableWriter.setIncludeHeader(false);
-        
+
         dataLogger.setDataSink(dataTableWriter);
-        dataLogger.putDataInfo(meterWorkTarget.getDataInfoHistogramBetaUBWr());        
+        dataLogger.putDataInfo(meterWorkTarget.getDataInfoHistogramBetaUBWr());
         dataLogger.putData(meterWorkTarget.getDataHistogramBetaUBWr());
         dataLogger.closeFile();
-        
+
     }
 
-    private static final long serialVersionUID = 1L;
-    public IntegratorOverlap integratorOverlap;
-    public DataSourceVirialOverlap dsvo;
-    public IntegratorBox[] integrators;
-    public ActivityIntegrate activityIntegrate;
-    public Box boxTarget, boxHarmonic;
-    public Boundary boundaryTarget, boundaryHarmonic;
-    public int[] nCells;
-    public Basis basis;
-    public NormalModes normalModes;
-    public Primitive primitive;
-    public double refPref;
-    public AccumulatorVirialOverlapSingleAverage[] accumulators;
-    public MeterHarmonicEnergy meterHarmonicEnergy;
-    public DataPumpListener[] accumulatorPumps;
-    public IEtomicaDataSource[] meters;
-    public String fname;
-    protected MCMoveHarmonic move;
-    protected PotentialMasterMonatomic potentialMasterTarget;
-    public final double latticeEnergy;
+    public void setRefPref(double refPrefCenter, double span) {
+        refPref = refPrefCenter;
+        accumulators[0].setBennetParam(refPrefCenter, span);
+        accumulators[1].setBennetParam(refPrefCenter, span);
+
+    }
+
+    public void setAccumulator(AccumulatorVirialOverlapSingleAverage newAccumulator, int iBox) {
+
+        accumulators[iBox] = newAccumulator;
+
+        newAccumulator.setBlockSize(200);
+
+        if (accumulatorPumps[iBox] == null) {
+            accumulatorPumps[iBox] = new DataPumpListener(meters[iBox], newAccumulator);
+            integrators[iBox].getEventManager().addListener(accumulatorPumps[iBox]);
+            if (iBox == 1) {
+                if (boxTarget.getMoleculeList().getMoleculeCount() == 32) {
+                    accumulatorPumps[iBox].setInterval(100);
+
+                } else if (boxTarget.getMoleculeList().getMoleculeCount() == 108) {
+
+                    accumulatorPumps[iBox].setInterval(300);
+                } else
+                    accumulatorPumps[iBox].setInterval(boxTarget.getMoleculeList().getMoleculeCount());
+            }
+        } else {
+            accumulatorPumps[iBox].setDataSink(newAccumulator);
+        }
+        if (integratorOverlap != null && accumulators[0] != null && accumulators[1] != null) {
+            dsvo = new DataSourceVirialOverlap(accumulators[0], accumulators[1]);
+            integratorOverlap.setReferenceFracSource(dsvo);
+        }
+    }
+
+    public void setRefPref(double newRefPref) {
+        System.out.println("setting ref pref (explicitly) to " + newRefPref);
+        setAccumulator(new AccumulatorVirialOverlapSingleAverage(1, true), 0);
+        setAccumulator(new AccumulatorVirialOverlapSingleAverage(1, false), 1);
+        setRefPref(newRefPref, 1);
+    }
+
+    public void initRefPref(String fileName, long initSteps) {
+        // refPref = -1 indicates we are searching for an appropriate value
+        refPref = -1.0;
+        if (fileName != null) {
+            try {
+                FileReader fileReader = new FileReader(fileName);
+                BufferedReader bufReader = new BufferedReader(fileReader);
+                String refPrefString = bufReader.readLine();
+                refPref = Double.parseDouble(refPrefString);
+                bufReader.close();
+                fileReader.close();
+                System.out.println("setting ref pref (from file) to " + refPref);
+                setAccumulator(new AccumulatorVirialOverlapSingleAverage(1, true), 0);
+                setAccumulator(new AccumulatorVirialOverlapSingleAverage(1, false), 1);
+                setRefPref(refPref, 1);
+            } catch (IOException e) {
+                // file not there, which is ok.
+            }
+        }
+
+        if (refPref == -1) {
+            // equilibrate off the lattice to avoid anomolous contributions
+            activityIntegrate.setMaxSteps(initSteps / 2);
+            getController().actionPerformed();
+            getController().reset();
+            System.out.println("target equilibration finished");
+
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(41, true), 0);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(41, false), 1);
+            setRefPref(1, 200);
+            activityIntegrate.setMaxSteps(initSteps);
+            getController().actionPerformed();
+            getController().reset();
+
+            int newMinDiffLoc = dsvo.minDiffLocation();
+            refPref = accumulators[0].getBennetAverage(newMinDiffLoc)
+                    / accumulators[1].getBennetAverage(newMinDiffLoc);
+            if (Double.isNaN(refPref) || refPref == 0 || Double.isInfinite(refPref)) {
+                throw new RuntimeException("Simulation failed to fiq" +
+                        "nd a valid ref pref");
+            }
+            System.out.println("setting ref pref to " + refPref);
+
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(11, true), 0);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(11, false), 1);
+            setRefPref(refPref, 5);
+
+            // set refPref back to -1 so that later on we know that we've been looking for
+            // the appropriate value
+            refPref = -1;
+            getController().reset();
+        }
+
+    }
+
+    public void equilibrate(String fileName, long initSteps) {
+        // run a short simulation to get reasonable MC Move step sizes and
+        // (if needed) narrow in on a reference preference
+        activityIntegrate.setMaxSteps(initSteps);
+
+        for (int i = 0; i < 2; i++) {
+            if (integrators[i] instanceof IntegratorMC)
+                ((IntegratorMC) integrators[i]).getMoveManager().setEquilibrating(true);
+        }
+        getController().actionPerformed();
+        getController().reset();
+        for (int i = 0; i < 2; i++) {
+            if (integrators[i] instanceof IntegratorMC)
+                ((IntegratorMC) integrators[i]).getMoveManager().setEquilibrating(false);
+        }
+
+        if (refPref == -1) {
+            int newMinDiffLoc = dsvo.minDiffLocation();
+            refPref = accumulators[0].getBennetAverage(newMinDiffLoc)
+                    / accumulators[1].getBennetAverage(newMinDiffLoc);
+            System.out.println("setting ref pref to " + refPref + " (" + newMinDiffLoc + ")");
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(1, true), 0);
+
+            System.out.println("block size (equilibrate) " + accumulators[0].getBlockSize());
+
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(1, false), 1);
+            setRefPref(refPref, 1);
+            if (fileName != null) {
+                try {
+                    FileWriter fileWriter = new FileWriter(fileName);
+                    BufferedWriter bufWriter = new BufferedWriter(fileWriter);
+                    bufWriter.write(String.valueOf(refPref) + "\n");
+                    bufWriter.close();
+                    fileWriter.close();
+                } catch (IOException e) {
+                    throw new RuntimeException("couldn't write to refpref file");
+                }
+            }
+        } else {
+            dsvo.reset();
+        }
+    }
 
     /**
      * Inner class for parameters understood by the HSMD3D constructor

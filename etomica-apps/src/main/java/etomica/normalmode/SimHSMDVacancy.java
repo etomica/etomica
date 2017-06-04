@@ -4,40 +4,25 @@
 
 package etomica.normalmode;
 
-import java.awt.Color;
-
 import etomica.action.BoxInflate;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
-import etomica.atom.IAtomType;
 import etomica.api.IBoundary;
-import etomica.box.Box;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
-import etomica.space.Vector;
+import etomica.atom.AtomType;
 import etomica.atom.DiameterHash;
-import etomica.data.AccumulatorAverageBlockless;
-import etomica.data.AccumulatorHistogram;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataDistributer;
-import etomica.data.DataFork;
-import etomica.data.DataPumpListener;
-import etomica.data.DataSourceCountTime;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.data.*;
 import etomica.data.DataSplitter.IDataSinkFactory;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IDataSink;
+import etomica.data.histogram.HistogramDiscrete;
+import etomica.data.history.HistoryCollapsingAverage;
+import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPressureHard;
-import etomica.graphics.ColorScheme;
-import etomica.graphics.DeviceBox;
-import etomica.graphics.DeviceButton;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.integrator.mcmove.MCMoveIDBiasAction;
@@ -55,16 +40,16 @@ import etomica.normalmode.DataSourceMuRoot.DataSourceMuRootVacancyConcentration;
 import etomica.potential.P2HardSphere;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.statmech.HardSphereSolid;
 import etomica.units.Dimension;
 import etomica.units.Null;
-import etomica.data.histogram.HistogramDiscrete;
-import etomica.data.history.HistoryCollapsingAverage;
-import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+
+import java.awt.*;
 
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 3D
@@ -127,9 +112,9 @@ public class SimHSMDVacancy extends Simulation {
         double y = 1.25*nbr1; //nbr1+(L-nbr1)*0.6+0.06;
 
         potential = new P2HardSphere(space, y, false);
-        IAtomType leafType = species.getLeafType();
+        AtomType leafType = species.getLeafType();
 
-        potentialMasterList.addPotential(potential,new IAtomType[]{leafType,leafType});
+        potentialMasterList.addPotential(potential, new AtomType[]{leafType, leafType});
 
         integrator.setBox(box);
         integrator.setThermostat(ThermostatType.HYBRID_MC);
@@ -549,6 +534,10 @@ public class SimHSMDVacancy extends Simulation {
             muBox.setEditable(true);
             muBox.setLabel("mu");
             muBox.setModifier(new Modifier() {
+
+                public double getValue() {
+                    return sim.mcMoveID.getMu();
+                }
                 
                 public void setValue(double newValue) {
                     sim.mcMoveID.setMu(newValue);
@@ -557,10 +546,6 @@ public class SimHSMDVacancy extends Simulation {
                     avgP.setMu(newValue);
                     pmu.setMu(newValue);
                     mcMoveBiasAction.setMu(newValue);
-                }
-                
-                public double getValue() {
-                    return sim.mcMoveID.getMu();
                 }
                 
                 public String getLabel() {
@@ -772,7 +757,7 @@ public class SimHSMDVacancy extends Simulation {
             double pAvg = Double.NaN;
             if (numAtoms-n < pSplitter.getNumDataSinks()) {
                 AccumulatorAverageBlockless pAcc = (AccumulatorAverageBlockless)pSplitter.getDataSink(numAtoms-n);
-                pAvg = pAcc == null ? Double.NaN : pAcc.getData().getValue(pAcc.AVERAGE.index);
+                pAvg = pAcc == null ? Double.NaN : pAcc.getData().getValue(AccumulatorAverageBlockless.AVERAGE.index);
             }
             if (Math.round(nData.getValue(i)) < numAtoms) {
                 System.out.println(String.format("%6d %20.15e %20.15e %20.15e %20.15e %20.15e", n, nHistogram[i], fenData.getValue(i), pAvg, dsfeData.getValue(i), dsfe2Data.getValue(i)));

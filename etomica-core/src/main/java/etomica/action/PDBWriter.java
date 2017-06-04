@@ -4,20 +4,16 @@
 
 package etomica.action;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Serializable;
+import etomica.atom.AtomType;
+import etomica.atom.DiameterHashByType;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+
+import java.io.*;
 import java.util.Formatter;
 import java.util.Iterator;
 import java.util.LinkedList;
-
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
-import etomica.atom.IAtomType;
-import etomica.box.Box;
-import etomica.atom.DiameterHashByType;
 
 /**
  * Action that dumps a box's configuration to an PDB file.  Arbitrary but 
@@ -27,9 +23,16 @@ import etomica.atom.DiameterHashByType;
  */
 public class PDBWriter implements IAction, Serializable {
 
+    private static final long serialVersionUID = 1L;
+    private static final char[] elements = new char[]{'H', 'O', 'F', 'N', 'C', 'P', 'S'};
+    private static final int[] elementNum = new int[]{1, 8, 9, 7, 6, 15, 16};
+    private final LinkedList<ElementLinker> elementAtomType = new LinkedList<ElementLinker>();
+    private File file;
+    private int elementCount = 0;
+    private IAtomList leafList;
+    
     public PDBWriter() {
     }
-
     public PDBWriter(Box aBox) {
         this();
         setBox(aBox);
@@ -38,19 +41,19 @@ public class PDBWriter implements IAction, Serializable {
     public void setBox(Box newBox) {
         leafList = newBox.getLeafList();
     }
-    
+
     /**
      * Sets the file to write to.  This method (or setFileName) must be called
-     * before calling actionPerformed and again before calling 
+     * before calling actionPerformed and again before calling
      * writeRasmolScript.
      */
     public void setFile(File newFile) {
         file = newFile;
     }
-    
+
     /**
      * Sets the file name to write to.  This method (or setFile) must be called
-     * before calling actionPerformed and again before calling 
+     * before calling actionPerformed and again before calling
      * writeRasmolScript.
      */
     public void setFileName(String fileName) {
@@ -86,8 +89,8 @@ public class PDBWriter implements IAction, Serializable {
                 elementCount++;
                 elementAtomType.add(thisElement);
             }
-            formatter.format("ATOM%7d%3s                %8.3f%8.3f%8.3f\n", new Object[]{new Integer(atomCount), new Character(elements[elementIndex]), 
-                    new Double(atom.getPosition().getX(0)), new Double(atom.getPosition().getX(1)), new Double(atom.getPosition().getX(2))});
+            formatter.format("ATOM%7d%3s                %8.3f%8.3f%8.3f\n", new Integer(atomCount), new Character(elements[elementIndex]),
+                    new Double(atom.getPosition().getX(0)), new Double(atom.getPosition().getX(1)), new Double(atom.getPosition().getX(2)));
             atomCount++;
         }
         formatter.close();
@@ -105,7 +108,7 @@ public class PDBWriter implements IAction, Serializable {
             throw new IllegalStateException("must call setFile or setFileName before writeRasmolScript");
         }
         FileWriter fileWriter;
-        try { 
+        try {
             fileWriter = new FileWriter(file);
         }catch(IOException e) {
             throw new RuntimeException(e);
@@ -123,19 +126,12 @@ public class PDBWriter implements IAction, Serializable {
         }
     }
     
-    private static final long serialVersionUID = 1L;
-    private File file;
-    private static final char[] elements = new char[] {'H', 'O', 'F', 'N', 'C', 'P', 'S'};
-    private static final int[] elementNum = new int[] {1, 8, 9, 7, 6, 15, 16};
-    private int elementCount = 0;
-    private final LinkedList<ElementLinker> elementAtomType = new LinkedList<ElementLinker>();
-    private IAtomList leafList;
-    
     private static final class ElementLinker implements Serializable {
         private static final long serialVersionUID = 1L;
         public final int elementIndex;
-        public final IAtomType type;
-        public ElementLinker(int aElementIndex, IAtomType aType) {
+        public final AtomType type;
+
+        public ElementLinker(int aElementIndex, AtomType aType) {
             elementIndex = aElementIndex;
             type = aType;
         }

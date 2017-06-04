@@ -4,16 +4,14 @@
 
 package etomica.virial.simulations;
 
-import java.awt.Color;
-
 import etomica.action.IAction;
-import etomica.atom.IAtomList;
-import etomica.atom.IAtomType;
 import etomica.api.IElement;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.ISpecies;
+import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
@@ -25,11 +23,7 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
-import etomica.potential.P2CO2EMP;
-import etomica.potential.P2LennardJones;
-import etomica.potential.P3BondAngle;
-import etomica.potential.P4BondTorsion;
-import etomica.potential.PotentialGroup;
+import etomica.potential.*;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresHetero;
@@ -38,18 +32,10 @@ import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterWeight;
-import etomica.virial.ClusterWeightAbs;
-import etomica.virial.MCMoveClusterTorsionMulti;
-import etomica.virial.MCMoveClusterWiggleMulti;
-import etomica.virial.MayerEGeneral;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.SpeciesAlkane;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
+
+import java.awt.*;
 
 /**
   * cross virial coefficients of mixture of N2 and alkanes(TraPPE-UA)
@@ -195,20 +181,20 @@ public class VirialN2AlkaneUARigid {
         
         sim.integratorOS.setNumSubSteps(1000);
         // alkane potential
-        IAtomType typeCH3 = speciesAlkane.getAtomType(0);
-        IAtomType typeCH2 = speciesAlkane.getAtomType(1);
-        IAtomType typeA = speciesN2.getAtomType(0);
-        IAtomType typeN = speciesN2.getAtomType(1);
-        pAlkane.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH2}));
+        AtomType typeCH3 = speciesAlkane.getAtomType(0);
+        AtomType typeCH2 = speciesAlkane.getAtomType(1);
+        AtomType typeA = speciesN2.getAtomType(0);
+        AtomType typeN = speciesN2.getAtomType(1);
+        pAlkane.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH2, typeCH2}));
         // CH2 on molecule1 to CH3 on molecule2
-        pAlkane.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH3}));
-        pAlkane.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeCH2}));
-        pAlkane.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeCH3}));
+        pAlkane.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH2, typeCH3}));
+        pAlkane.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH3, typeCH2}));
+        pAlkane.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH3, typeCH3}));
         // N2-alkane potential
         //pN2Alkane.addPotential(pA_CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeA, typeCH3}));
         //pN2Alkane.addPotential(pA_CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeA, typeCH2}));
-        pN2Alkane.addPotential(pN_CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeN, typeCH3}));
-        pN2Alkane.addPotential(pN_CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeN, typeCH2}));
+        pN2Alkane.addPotential(pN_CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeN, typeCH3}));
+        pN2Alkane.addPotential(pN_CH2, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeN, typeCH2}));
         
         sim.integratorOS.setNumSubSteps(1000);
 

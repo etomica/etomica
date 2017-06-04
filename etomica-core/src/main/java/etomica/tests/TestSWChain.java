@@ -5,10 +5,10 @@
 package etomica.tests;
 
 import etomica.action.ActionIntegrate;
-import etomica.atom.IAtomType;
-import etomica.box.Box;
 import etomica.api.ISpecies;
+import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiBuilder;
+import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConformationLinear;
 import etomica.data.AccumulatorAverage;
@@ -79,8 +79,8 @@ public class TestSWChain extends Simulation {
 
         P2SquareWell potential = new P2SquareWell(space,sigma,sqwLambda,0.5,false);
 
-        IAtomType sphereType = species.getLeafType();
-        potentialMaster.addPotential(potential,new IAtomType[]{sphereType,sphereType});
+        AtomType sphereType = species.getLeafType();
+        potentialMaster.addPotential(potential, new AtomType[]{sphereType, sphereType});
         CriterionInterMolecular sqwCriterion = (CriterionInterMolecular)potentialMaster.getCriterion(potential);
         CriterionBondedSimple nonBondedCriterion = new CriterionBondedSimple(new CriterionAll());
         nonBondedCriterion.setBonded(false);
@@ -117,12 +117,12 @@ public class TestSWChain extends Simulation {
         sim.getController().actionPerformed();
         
         double Z = pMeter.getDataAsScalar()*sim.box.getBoundary().volume()/(sim.box.getMoleculeList().getMoleculeCount()*sim.integrator.getTemperature());
-        double avgPE = ((DataDouble)((DataGroup)energyAccumulator.getData()).getData(energyAccumulator.AVERAGE.index)).x;
+        double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
         avgPE /= numMolecules;
         System.out.println("Z="+Z);
         System.out.println("PE/epsilon="+avgPE);
         double temp = sim.integrator.getTemperature();
-        double Cv = ((DataDouble)((DataGroup)energyAccumulator.getData()).getData(energyAccumulator.STANDARD_DEVIATION.index)).x;
+        double Cv = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(AccumulatorAverage.STANDARD_DEVIATION.index)).x;
         Cv /= temp;
         Cv *= Cv/numMolecules;
         System.out.println("Cv/k="+Cv);

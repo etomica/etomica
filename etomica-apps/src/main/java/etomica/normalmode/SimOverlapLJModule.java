@@ -5,11 +5,10 @@
 package etomica.normalmode;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.IAtomType;
 import etomica.api.IBoundary;
-import etomica.box.Box;
-import etomica.potential.PotentialMaster;
+import etomica.atom.AtomType;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.box.Box;
 import etomica.data.DataPump;
 import etomica.data.DataSourceScalar;
 import etomica.data.IEtomicaDataSource;
@@ -18,18 +17,10 @@ import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
-import etomica.lattice.crystal.Basis;
-import etomica.lattice.crystal.BasisCubicFcc;
-import etomica.lattice.crystal.BasisMonatomic;
-import etomica.lattice.crystal.Primitive;
-import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.lattice.crystal.*;
 import etomica.overlap.DataOverlap;
 import etomica.overlap.IntegratorOverlap;
-import etomica.potential.P2LennardJones;
-import etomica.potential.P2SoftSphericalTruncated;
-import etomica.potential.Potential2SoftSpherical;
-import etomica.potential.PotentialCalculationEnergySum;
-import etomica.potential.PotentialMasterMonatomic;
+import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -173,8 +164,8 @@ public class SimOverlapLJModule {
         Potential2SoftSpherical potential = new P2LennardJones(space, 1.0, 1.0);
         double truncationRadius = boundaryTarget.getBoxSize().getX(0) * 0.45;
         P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
-        IAtomType sphereType = species.getLeafType();
-        potentialMasterTarget.addPotential(pTruncated, new IAtomType[] { sphereType, sphereType });
+        AtomType sphereType = species.getLeafType();
+        potentialMasterTarget.addPotential(pTruncated, new AtomType[]{sphereType, sphereType});
         atomMove.setPotential(pTruncated);
 
         integratorTarget.setBox(boxTarget);
@@ -293,48 +284,51 @@ public class SimOverlapLJModule {
     
     public static class MeterPotentialEnergyDifference extends DataSourceScalar {
 
+        private static final long serialVersionUID = 1L;
+        protected final DataSourceScalar meter;
+        protected final double offset;
         public MeterPotentialEnergyDifference(DataSourceScalar meter, double offset) {
             super("energy", Energy.DIMENSION);
             this.meter = meter;
             this.offset = offset;
         }
-        
+
         public double getDataAsScalar() {
             return meter.getDataAsScalar() - offset;
         }
-
-        private static final long serialVersionUID = 1L;
-        protected final DataSourceScalar meter;
-        protected final double offset;
     }
-    
-    public static class APIPotentialTarget implements IAPIPotential {
 
-        public APIPotentialTarget(PotentialMaster wrappedPotentialMaster) {
+    private final IteratorDirective id = new IteratorDirective();
+
+    m();
+
+    bleprotected
+    final PotentialMaster wrappedPotentialMaster;
+    latticeEnergy;
+}
+
+    public APIPotentialTarget(PotentialMaster wrappedPotentialMaster) {
             this.wrappedPotentialMaster = wrappedPotentialMaster;
         }
 
-        public double calculateEnergy(Box box) {
+
+    public double calculateEnergy(Box box) {
             pc.zeroSum();
             wrappedPotentialMaster.calculate(box, id, pc);
             return pc.getSum() - latticeEnergy;
         }
 
-        public void setLatticeEnergy(double newLatticeEnergy) {
-            latticeEnergy = newLatticeEnergy;
-        }
 
-        public double getLatticeEnergy() {
+    public double getLatticeEnergy() {
             return latticeEnergy;
         }
 
-        protected final PotentialMaster wrappedPotentialMaster;
-        private final IteratorDirective id = new IteratorDirective();
-        private final PotentialCalculationEnergySum pc = new PotentialCalculationEnergySum();
-        protected double latticeEnergy;
+
+    public void setLatticeEnergy(double newLatticeEnergy) {
+        latticeEnergy = newLatticeEnergy;
     }
 
-    public static class APIPotentialReference implements IAPIPotential {
+public static class APIPotentialReference implements IAPIPotential {
 
         public APIPotentialReference(MeterHarmonicEnergy[] meters) {
             this.meters = meters;

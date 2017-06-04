@@ -17,19 +17,18 @@ import etomica.units.Mass;
  * @author andrew
  */
 
-public class AtomTypeLeaf implements IAtomType, Comparable<IAtomType> {
+public class AtomType implements Comparable<AtomType> {
 
-    public AtomTypeLeaf(IElement element) {
+    private static final long serialVersionUID = 1L;
+    protected final IElement element;
+    protected int index;
+    protected ISpecies parentType;
+    protected int childIndex;
+
+    public AtomType(IElement element) {
         super();
         this.element = element;
         index = -1;
-    }
-
-    /* (non-Javadoc)
-     * @see etomica.atom.IAtomType#setIndex(int)
-     */
-    public void setIndex(int newIndex) {
-        index = newIndex;
     }
 
     /* (non-Javadoc)
@@ -40,19 +39,26 @@ public class AtomTypeLeaf implements IAtomType, Comparable<IAtomType> {
     }
 
     /* (non-Javadoc)
+     * @see etomica.atom.IAtomType#setIndex(int)
+     */
+    public void setIndex(int newIndex) {
+        index = newIndex;
+    }
+
+    /* (non-Javadoc)
      * @see etomica.atom.IAtomTypeLeaf#getParentType()
      */
     public ISpecies getParentType() {
         return parentType;
     }
-    
+
     /* (non-Javadoc)
-     * @see etomica.atom.IAtomTypeLeaf#setParentType(etomica.atom.AtomTypeMolecule)
+     * @see etomica.atom.IAtomTypeLeaf#getChildIndex()
      */
-    public void setSpecies(ISpecies newParent) {
-        parentType = newParent;
+    public int getChildIndex() {
+        return childIndex;
     }
-    
+
     /* (non-Javadoc)
      * @see etomica.atom.IAtomTypeLeaf#setChildIndex(int)
      */
@@ -61,17 +67,17 @@ public class AtomTypeLeaf implements IAtomType, Comparable<IAtomType> {
     }
     
     /* (non-Javadoc)
-     * @see etomica.atom.IAtomTypeLeaf#getChildIndex()
-     */
-    public int getChildIndex() {
-        return childIndex;
-    }
-    
-    /* (non-Javadoc)
      * @see etomica.atom.IAtomTypeLeaf#getSpecies()
      */
     public ISpecies getSpecies() {
         return parentType;
+    }
+
+    /* (non-Javadoc)
+     * @see etomica.atom.IAtomTypeLeaf#setParentType(etomica.atom.AtomTypeMolecule)
+     */
+    public void setSpecies(ISpecies newParent) {
+        parentType = newParent;
     }
 
     /* (non-Javadoc)
@@ -94,22 +100,16 @@ public class AtomTypeLeaf implements IAtomType, Comparable<IAtomType> {
     public final Dimension getMassDimension() {
         return Mass.DIMENSION;
     }
-    
+
     /* (non-Javadoc)
      * @see etomica.atom.IAtomTypeLeaf#getElement()
      */
     public final IElement getElement() {
         return element;
     }
-    
-    public int compareTo(IAtomType otherAtomType) {
+
+    public int compareTo(AtomType otherAtomType) {
         int otherIndex = otherAtomType.getIndex();
         return otherIndex > index ? -1 : (otherIndex == index ? 0 : 1);
     }
-
-    private static final long serialVersionUID = 1L;
-    protected int index;
-    protected final IElement element;
-    protected ISpecies parentType;
-    protected int childIndex;
 }

@@ -1,16 +1,16 @@
 package etomica.atom;
 
+import etomica.api.IElement;
+import etomica.space.Space;
+import etomica.space.Vector;
+
 import java.util.List;
 
-import etomica.api.IElement;
-import etomica.space.Vector;
-import etomica.space.Space;
+public class AtomTypeSpheroPolyhedron extends AtomType {
 
-public class AtomTypeSpheroPolyhedron extends AtomTypeLeaf {
-
-    protected double outRadius, inRadius;
     protected final double sweepRadius;
     protected final List<Vector> vertices;
+    protected double outRadius, inRadius;
     
     public AtomTypeSpheroPolyhedron(IElement element, Space space, List<Vector> vertices, double sweepRadius) {
         super(element);

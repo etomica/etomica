@@ -29,19 +29,19 @@ public interface IAtom {
     void setIndex(int index);
 
     /**
-     * Sets the atom's global index to the give value.  This method should only
-     * be called by the Box.
-     */
-    void setLeafIndex(int newGlobalIndex);
-
-    /**
      * Returns the global index (within the Box) of this Atom.  The global
      * index is unique to the IAtom in the Box.  The IAtom's global index may
      * change over the course of a simulation due to addition or removal of
      * other IAtoms in the Box.  An BoxGlobalAtomIndexEvent is fired by
-     * the Box's event manager when an Atom's global index changes. 
+     * the Box's event manager when an Atom's global index changes.
      */
     int getLeafIndex();
+
+    /**
+     * Sets the atom's global index to the give value.  This method should only
+     * be called by the Box.
+     */
+    void setLeafIndex(int newGlobalIndex);
 
     /**
      * Informs the Atom that the given IMolecule is its parent.
@@ -59,7 +59,7 @@ public interface IAtom {
      * @return the Atom type, holding properties held in common with other 
      * atoms of the same type.
      */
-    IAtomType getType();
+    AtomType getType();
 
     /**
      * @return the position of the IAtom.  Modifying the returned vector will

@@ -3,18 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.simulation.prototypes;
+
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.atom.IAtomType;
+import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.potential.PotentialMaster;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.DisplayBox;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2SquareWell;
+import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space2d.Space2D;
@@ -47,14 +48,14 @@ public class SwMd2D extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
         addSpecies(species);
-        IAtomType leafType = species.getLeafType();
+        AtomType leafType = species.getLeafType();
         box = new Box(space);
         addBox(box);
         box.setNMolecules(species, 50);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
         potential = new P2SquareWell(space);
         potential.setCoreDiameter(sigma);
-        potentialMaster.addPotential(potential,new IAtomType[]{leafType,leafType});
+        potentialMaster.addPotential(potential, new AtomType[]{leafType, leafType});
         
         integrator.setBox(box);
         integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
