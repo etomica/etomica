@@ -9,6 +9,7 @@ import etomica.action.BoxInflate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
+import etomica.config.Configuration;
 import etomica.config.ConfigurationFile;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
@@ -48,7 +49,7 @@ public class TestLJGCMC3D extends Simulation {
     public P2LennardJones potential;
     public Controller controller;
 
-    public TestLJGCMC3D(int numAtoms, int numSteps) {
+    public TestLJGCMC3D(int numAtoms, int numSteps, Configuration config) {
         super(Space3D.getInstance());
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
         double sigma = 1.0;
@@ -86,7 +87,6 @@ public class TestLJGCMC3D extends Simulation {
         potentialMaster.addPotential(potentialTruncated, new AtomType[]{leafType, leafType});
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
 
-        ConfigurationFile config = new ConfigurationFile("LJMC3D" + Integer.toString(numAtoms));
         config.initializeCoordinates(box);
         integrator.setBox(box);
         potentialMaster.getNbrCellManager(box).assignCellAll();
@@ -96,8 +96,9 @@ public class TestLJGCMC3D extends Simulation {
         SimParams params = new SimParams();
         ParseArgs.doParseArgs(params, args);
         int numAtoms = params.numAtoms;
+        ConfigurationFile config = new ConfigurationFile("LJMC3D" + Integer.toString(numAtoms));
 
-        TestLJGCMC3D sim = new TestLJGCMC3D(numAtoms, params.numSteps);
+        TestLJGCMC3D sim = new TestLJGCMC3D(numAtoms, params.numSteps, config);
 
         MeterPressure pMeter = new MeterPressure(sim.space);
         pMeter.setIntegrator(sim.integrator);

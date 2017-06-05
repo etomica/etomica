@@ -7,6 +7,7 @@ package etomica.tests;
 import etomica.action.ActionIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
+import etomica.config.Configuration;
 import etomica.config.ConfigurationFile;
 import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
@@ -31,7 +32,7 @@ public class TestHSMD3D extends Simulation {
     public SpeciesSpheresMono species, species2;
     public Box box;
 
-    public TestHSMD3D(Space _space, int numAtoms, int numSteps) {
+    public TestHSMD3D(Space _space, int numAtoms, int numSteps, Configuration config) {
         super(_space);
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
         
@@ -73,7 +74,6 @@ public class TestHSMD3D extends Simulation {
         box.getBoundary().setBoxSize(space.makeVector(new double[]{l,l,l}));
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         integrator.setBox(box);
-        ConfigurationFile config = new ConfigurationFile("HSMD3D"+Integer.toString(numAtoms));
         config.initializeCoordinates(box);
         
 //        WriteConfiguration writeConfig = new WriteConfiguration("foo",box,1);
@@ -86,8 +86,10 @@ public class TestHSMD3D extends Simulation {
     public static void main(String[] args) {
         SimParams params = new SimParams();
         ParseArgs.doParseArgs(params, args);
+        int numAtoms = params.numAtoms;
+        ConfigurationFile config = new ConfigurationFile("HSMD3D"+Integer.toString(numAtoms));
 
-        TestHSMD3D sim = new TestHSMD3D(Space3D.getInstance(), params.numAtoms, params.numSteps/params.numAtoms);
+        TestHSMD3D sim = new TestHSMD3D(Space3D.getInstance(), numAtoms, params.numSteps / numAtoms, config);
 
         MeterPressureHard pMeter = new MeterPressureHard(sim.space);
         pMeter.setIntegrator(sim.integrator);
