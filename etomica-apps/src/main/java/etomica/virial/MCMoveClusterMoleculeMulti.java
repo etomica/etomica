@@ -8,7 +8,7 @@ import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.potential.PotentialMaster;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.simulation.Simulation;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.space.Space;

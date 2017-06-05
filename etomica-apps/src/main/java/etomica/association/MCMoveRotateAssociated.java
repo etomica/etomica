@@ -7,7 +7,7 @@ package etomica.association;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.potential.PotentialMaster;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.space.Vector;
 import etomica.atom.AtomArrayList;
 import etomica.atom.IAtomOriented;

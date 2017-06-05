@@ -6,7 +6,7 @@ package etomica.space;
 
 
 import etomica.math.function.IFunction;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 
 /**
  * Interface containing vector operations, accessor, and mutator methods.

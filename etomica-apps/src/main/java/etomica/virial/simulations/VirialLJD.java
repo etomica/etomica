@@ -21,6 +21,7 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.*;
+import etomica.util.random.RandomNumberGenerator;
 import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 

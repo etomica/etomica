@@ -6,6 +6,7 @@ package etomica.api;
 
 import etomica.box.Box;
 import etomica.integrator.Integrator;
+import etomica.util.random.IRandom;
 
 /**
  * The ISimulation is an interface for a simulation, containing boxes, species,

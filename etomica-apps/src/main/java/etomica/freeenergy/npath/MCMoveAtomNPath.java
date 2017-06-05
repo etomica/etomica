@@ -4,7 +4,7 @@
 
 package etomica.freeenergy.npath;
 
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.atom.AtomSetSinglet;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;

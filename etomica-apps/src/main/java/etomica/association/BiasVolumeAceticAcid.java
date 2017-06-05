@@ -11,7 +11,7 @@ import etomica.atom.IAtomList;
 import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.api.IMolecule;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.space.Vector;
 import etomica.atom.MoleculePair;
 import etomica.models.OPLS.SpeciesAceticAcid;

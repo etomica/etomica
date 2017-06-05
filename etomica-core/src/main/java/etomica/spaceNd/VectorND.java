@@ -5,7 +5,7 @@
 package etomica.spaceNd;
 
 import etomica.math.function.IFunction;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.space.Vector;
 
 /**

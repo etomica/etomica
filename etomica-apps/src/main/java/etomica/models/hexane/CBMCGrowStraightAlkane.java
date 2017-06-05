@@ -7,7 +7,7 @@ package etomica.models.hexane;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.potential.PotentialMaster;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.api.ISpecies;
 import etomica.space.Vector;
 import etomica.box.RandomPositionSource;

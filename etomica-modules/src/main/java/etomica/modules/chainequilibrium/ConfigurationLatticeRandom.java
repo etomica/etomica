@@ -11,6 +11,7 @@ import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.SpaceLattice;
 import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.util.random.IRandom;
 
 /**
  * Configuration that puts atoms randomly on a lattice.

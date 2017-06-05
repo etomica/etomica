@@ -10,7 +10,7 @@ import etomica.action.MoleculeChildAtomAction;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.space.Vector;
@@ -30,7 +30,7 @@ import etomica.space.Tensor;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Tensor3D;
 import etomica.units.Degree;
-import etomica.util.RandomNumberGenerator;
+import etomica.util.random.RandomNumberGenerator;
 
 /**
  * CoordinateDefinition implementation for nitrogen molecule. The class takes the first

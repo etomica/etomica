@@ -4,7 +4,6 @@
 
 package etomica.freeenergy.npath;
 
-import etomica.api.*;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
@@ -15,6 +14,7 @@ import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.util.Debug;
+import etomica.util.random.IRandom;
 
 /**
  * This integrator implements velocity Verlet algorithm and Tuckerman's

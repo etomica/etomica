@@ -8,7 +8,7 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.space.Boundary;
 import etomica.box.Box;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.space.Vector;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
@@ -17,7 +17,7 @@ import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Space3D;
-import etomica.util.RandomNumberGenerator;
+import etomica.util.random.RandomNumberGenerator;
 
 /**
  * slight modification from P4BondTorsion class(change energyAtAngle method)

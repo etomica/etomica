@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.integrator.mcmove;
-import etomica.api.*;
 import etomica.atom.MoleculePositionGeometricCenter;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
@@ -12,6 +11,7 @@ import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.RotationTensor;
+import etomica.util.random.IRandom;
 
 
 public class MCMoveRotateMolecule3D extends MCMoveMolecule {

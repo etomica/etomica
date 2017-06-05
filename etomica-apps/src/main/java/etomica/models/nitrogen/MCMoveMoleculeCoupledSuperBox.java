@@ -23,6 +23,7 @@ import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * Standard Monte Carlo molecule-displacement trial move for superbox. Two molecules are 

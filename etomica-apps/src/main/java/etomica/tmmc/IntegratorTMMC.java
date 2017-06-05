@@ -10,7 +10,7 @@ import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 
 /**
  * Integrator that implements Transition-Matrix Monte Carlo method.

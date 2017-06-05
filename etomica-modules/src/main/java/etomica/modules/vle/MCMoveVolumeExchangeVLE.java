@@ -5,7 +5,7 @@
 package etomica.modules.vle;
 
 import etomica.potential.PotentialMaster;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.data.meter.MeterDensity;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.mcmove.MCMoveVolumeExchange;

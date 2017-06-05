@@ -17,6 +17,7 @@ import etomica.nbr.cell.PotentialMasterCell;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.RotationTensor;
+import etomica.util.random.IRandom;
 
 /**
  * Standard Monte Carlo atom-displacement trial move.

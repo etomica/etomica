@@ -5,7 +5,7 @@
 package etomica.atom;
 
 import etomica.box.Box;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.util.Debug;
 
 /**

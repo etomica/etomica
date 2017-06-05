@@ -4,7 +4,6 @@
 
 package etomica.freeenergy.npath;
 
-import etomica.api.*;
 import etomica.atom.*;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
@@ -18,6 +17,7 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.util.random.IRandom;
 
 /**
  * Created by andrew on 4/11/17.

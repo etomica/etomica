@@ -6,7 +6,7 @@ package etomica.normalmode;
 
 import etomica.space.Vector;
 import etomica.box.Box;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.space.Space;

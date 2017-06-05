@@ -5,7 +5,7 @@
 package etomica.modules.rheology;
 
 import etomica.atom.IAtomList;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.space.Vector;
 import etomica.config.IConformation;
 import etomica.space.Space;

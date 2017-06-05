@@ -31,7 +31,7 @@ import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.RandomMersenneTwister;
+import etomica.util.random.RandomMersenneTwister;
 
 import java.awt.*;
 import java.util.Arrays;

@@ -10,6 +10,7 @@ import etomica.integrator.IntegratorMD;
 import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.util.random.IRandom;
 
 /**
  * Integrator for Brownian dynamics of a polymer in a flow field.

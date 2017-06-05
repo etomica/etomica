@@ -16,6 +16,7 @@ import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space3d.Vector3D;
 import etomica.util.Debug;
+import etomica.util.random.IRandom;
 
 /**
  * An MC Move for cluster simulations that "wiggles" a chain molecule.  If the 
@@ -43,7 +44,7 @@ public class MCMoveClusterWiggleAceticAcid extends MCMoveMolecule {
      * because first atom is never moved)
      */
     public MCMoveClusterWiggleAceticAcid(PotentialMaster potentialMaster,
-            IRandom random, double stepSize, Space _space) {
+                                         IRandom random, double stepSize, Space _space) {
         super(potentialMaster,random,_space, stepSize,Double.POSITIVE_INFINITY);
         this.space = _space;
         bondedAtoms = new int[]{1,-1,1,-1,3};//0(Ch3) and 2(dBO) are bonded to 1 (C), 4(H) is bonded to 3 (O)

@@ -7,7 +7,7 @@ package etomica.integrator.mcmove;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.potential.PotentialMaster;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.atom.IAtomOriented;
 import etomica.space.IOrientation;
 import etomica.space.Space;

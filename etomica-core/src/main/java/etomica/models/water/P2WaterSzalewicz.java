@@ -31,8 +31,8 @@ import etomica.units.Hartree;
 import etomica.units.Kelvin;
 import etomica.units.Unit;
 import etomica.util.Constants;
-import etomica.util.RandomMersenneTwister;
-import etomica.util.RandomNumberGeneratorUnix;
+import etomica.util.random.RandomMersenneTwister;
+import etomica.util.random.RandomNumberGeneratorUnix;
 
 /**
  * Water potential as described by

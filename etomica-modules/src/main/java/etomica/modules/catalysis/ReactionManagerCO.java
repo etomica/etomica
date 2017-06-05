@@ -10,7 +10,7 @@ import etomica.integrator.IntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.modules.catalysis.InteractionTracker.CatalysisAgent;
 import etomica.units.Kelvin;

@@ -19,6 +19,7 @@ import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.util.Constants;
+import etomica.util.random.IRandom;
 
 public abstract class MCMoveCBMC extends MCMoveBox {
 

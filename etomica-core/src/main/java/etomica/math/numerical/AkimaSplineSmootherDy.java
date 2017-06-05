@@ -4,7 +4,7 @@
 
 package etomica.math.numerical;
 
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 
 /**
  * Optimization algorithm which attempts to smooth data without moving any

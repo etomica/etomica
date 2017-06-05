@@ -6,7 +6,7 @@ package etomica.normalmode;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.space.Vector;
 
 /**

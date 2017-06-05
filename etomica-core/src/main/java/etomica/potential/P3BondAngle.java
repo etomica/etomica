@@ -19,7 +19,7 @@ import etomica.space3d.Space3D;
 import etomica.units.Angle;
 import etomica.units.Dimension;
 import etomica.units.Energy;
-import etomica.util.RandomNumberGenerator;
+import etomica.util.random.RandomNumberGenerator;
 
 /**
  * Simple 3-body soft bond-angle potential 

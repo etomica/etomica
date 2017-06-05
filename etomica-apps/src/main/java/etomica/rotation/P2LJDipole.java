@@ -19,7 +19,7 @@ import etomica.space3d.IOrientation3D;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresRotating;
-import etomica.util.RandomNumberGenerator;
+import etomica.util.random.RandomNumberGenerator;
 
 /**
  * r^-12 potential plus a point dipole, force shifted, as used in

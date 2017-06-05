@@ -1,6 +1,6 @@
 package etomica.space1d;
 
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.space.Vector;
 import etomica.space.IOrientation;
 

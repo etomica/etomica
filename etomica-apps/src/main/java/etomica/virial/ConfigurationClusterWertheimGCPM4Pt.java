@@ -9,7 +9,7 @@ import etomica.atom.*;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.space.Vector;
 import etomica.atom.IMoleculePositionDefinition;
 import etomica.models.water.PNWaterGCPMThreeSite;

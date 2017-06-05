@@ -7,7 +7,7 @@ package etomica.modules.chainequilibrium;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.api.ISpecies;
 import etomica.space.Vector;
 import etomica.config.ConfigurationLattice;

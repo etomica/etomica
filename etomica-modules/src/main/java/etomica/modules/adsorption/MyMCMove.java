@@ -13,6 +13,7 @@ import etomica.integrator.mcmove.MCMoveInsertDelete;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.math.DoubleRange;
+import etomica.util.random.IRandom;
 
 /**
  * @author kofke

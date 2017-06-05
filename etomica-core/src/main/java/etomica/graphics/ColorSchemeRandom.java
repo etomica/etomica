@@ -7,7 +7,7 @@ import java.awt.Color;
 
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 

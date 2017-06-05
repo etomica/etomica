@@ -17,6 +17,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.util.random.IRandom;
 
 /**
  * An MC Move for cluster simulations that bends the bond angle for 3-atom
@@ -32,7 +33,7 @@ public class MCMoveClusterAngleBendAceticAcid extends MCMoveBoxStep {
     }
     
     public MCMoveClusterAngleBendAceticAcid(PotentialMaster potentialMaster,
-            IRandom random, double stepSize, Space _space) {
+                                            IRandom random, double stepSize, Space _space) {
         super(potentialMaster);
         this.space = _space;
         this.random = random;

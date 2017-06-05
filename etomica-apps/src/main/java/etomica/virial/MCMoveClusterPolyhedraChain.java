@@ -11,6 +11,7 @@ import etomica.atom.IAtomList;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 public class MCMoveClusterPolyhedraChain extends MCMoveAtom {
 

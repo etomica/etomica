@@ -29,8 +29,8 @@ import etomica.space.Space;
 import etomica.space3d.OrientationFull3D;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresRotating;
-import etomica.util.RandomMersenneTwister;
-import etomica.util.RandomNumberGeneratorUnix;
+import etomica.util.random.RandomMersenneTwister;
+import etomica.util.random.RandomNumberGeneratorUnix;
 
 /**
  * 3-body induction potential based on form used by Oakley and Wheatley.

@@ -26,6 +26,7 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 
 /**

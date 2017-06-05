@@ -8,7 +8,7 @@ import etomica.atom.IAtom;
 import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.box.Box;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.space.Space;
 
 public class BiasVolumeSphere extends BiasVolume {

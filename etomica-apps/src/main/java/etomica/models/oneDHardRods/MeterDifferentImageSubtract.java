@@ -6,7 +6,7 @@ package etomica.models.oneDHardRods;
 
 import etomica.space.Boundary;
 import etomica.box.Box;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.data.DataSourceScalar;

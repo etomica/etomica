@@ -4,7 +4,7 @@
 
 package etomica.integrator;
 
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveEventManager;

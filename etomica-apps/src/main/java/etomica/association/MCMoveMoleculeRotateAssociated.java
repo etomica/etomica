@@ -5,7 +5,7 @@
 package etomica.association;
 
 import etomica.potential.PotentialMaster;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.atom.MoleculeArrayList;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.space.Space;

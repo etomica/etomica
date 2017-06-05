@@ -6,7 +6,7 @@ package etomica.virial;
 
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.atom.AtomHydrogen;
 import etomica.atom.AtomTypeOriented;
 import etomica.atom.IAtomList;

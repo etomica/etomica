@@ -14,6 +14,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
+import etomica.util.random.IRandom;
 
 /**
  * An MC move for cluster simulations which performs reptation moves on molecules.

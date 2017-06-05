@@ -4,7 +4,6 @@
 
 package etomica.integrator;
 
-import etomica.api.*;
 import etomica.atom.*;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
@@ -17,6 +16,7 @@ import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.util.Debug;
+import etomica.util.random.IRandom;
 
 public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSource<IntegratorVelocityVerlet.MyAgent> {
 

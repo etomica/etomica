@@ -19,6 +19,7 @@ import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
 import etomica.util.Debug;
+import etomica.util.random.IRandom;
 
 /**
  * Integrator implementing SHAKE algorithm.

@@ -30,7 +30,7 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.RandomMersenneTwister;
+import etomica.util.random.RandomMersenneTwister;
 
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 3D

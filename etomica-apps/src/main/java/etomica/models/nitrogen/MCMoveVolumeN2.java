@@ -18,6 +18,7 @@ import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.units.Kelvin;
 import etomica.units.Pressure;
+import etomica.util.random.IRandom;
 
 /**
  * Monte Carlo volume-change move for simulations in the NPT ensemble.

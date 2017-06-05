@@ -13,7 +13,7 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialAtomic;
 import etomica.potential.PotentialMaster;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.space.Vector;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;

@@ -4,7 +4,6 @@
 
 package etomica.models.nitrogen;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.*;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
@@ -19,6 +18,7 @@ import etomica.space.RotationTensor;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Tensor3D;
 import etomica.units.Degree;
+import etomica.util.random.IRandom;
 
 
 /**

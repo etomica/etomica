@@ -6,7 +6,7 @@ package etomica.modules.entropylottery;
 
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.space.Vector;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomLeaf;

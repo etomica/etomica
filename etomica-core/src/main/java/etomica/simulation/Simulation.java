@@ -14,8 +14,9 @@ import etomica.box.Box;
 import etomica.integrator.Integrator;
 import etomica.space.Space;
 import etomica.util.Arrays;
-import etomica.util.RandomMersenneTwister;
-import etomica.util.RandomNumberGeneratorUnix;
+import etomica.util.random.IRandom;
+import etomica.util.random.RandomMersenneTwister;
+import etomica.util.random.RandomNumberGeneratorUnix;
 
 import java.util.HashMap;
 import java.util.LinkedList;

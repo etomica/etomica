@@ -19,6 +19,7 @@ import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * Standard Monte Carlo atom-displacement trial move of Trimer

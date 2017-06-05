@@ -24,7 +24,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.RandomNumberGenerator;
+import etomica.util.random.RandomNumberGenerator;
 
 /**
  * Colloid simulation.  Design by Alberto Striolo.

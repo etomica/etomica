@@ -7,7 +7,7 @@ package etomica.potential;
 import etomica.space.Boundary;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialAtomic;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
@@ -24,7 +24,7 @@ import etomica.units.Calorie;
 import etomica.units.Hartree;
 import etomica.units.Kelvin;
 import etomica.units.Mole;
-import etomica.util.RandomMersenneTwister;
+import etomica.util.random.RandomMersenneTwister;
 
 public class P2WaterPotentialsJankowski implements IPotentialAtomic {
     

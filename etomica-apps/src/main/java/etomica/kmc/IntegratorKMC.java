@@ -19,6 +19,7 @@ import etomica.integrator.IntegratorBox;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.units.Joule;
+import etomica.util.random.IRandom;
 
 public class IntegratorKMC extends IntegratorBox{
 

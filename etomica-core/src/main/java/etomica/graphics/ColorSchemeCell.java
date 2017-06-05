@@ -9,7 +9,7 @@ import java.util.HashMap;
 
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.box.BoxAgentManager;
 import etomica.lattice.FiniteLattice;
 import etomica.nbr.PotentialMasterNbr;

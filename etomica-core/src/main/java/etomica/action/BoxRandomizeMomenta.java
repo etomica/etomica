@@ -6,7 +6,7 @@ package etomica.action;
 
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 
 /**
  * Randomizes the velocities of all the leaf atoms in a Box based on the

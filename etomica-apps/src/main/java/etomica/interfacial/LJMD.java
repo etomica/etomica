@@ -37,7 +37,7 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.RandomNumberGenerator;
+import etomica.util.random.RandomNumberGenerator;
 
 import java.io.FileWriter;
 import java.io.IOException;

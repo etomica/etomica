@@ -22,6 +22,7 @@ import etomica.nbr.list.molecule.PotentialMasterListMolecular;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * Standard Monte Carlo molecule-displacement trial move.  Two molecules are moved at a

@@ -15,6 +15,7 @@ import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.potential.P4BondTorsion;
 import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.util.random.IRandom;
 
 /**
  * An MC Move for cluster simulations that performs torsion moves on a chain

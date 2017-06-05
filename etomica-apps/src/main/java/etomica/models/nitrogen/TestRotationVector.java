@@ -4,13 +4,13 @@
 
 package etomica.models.nitrogen;
 
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Tensor3D;
 import etomica.units.Degree;
-import etomica.util.RandomNumberGenerator;
+import etomica.util.random.RandomNumberGenerator;
 
 public class TestRotationVector {
 

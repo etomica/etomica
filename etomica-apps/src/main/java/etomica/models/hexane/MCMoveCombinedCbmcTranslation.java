@@ -17,6 +17,7 @@ import etomica.integrator.mcmove.MCMoveBox;
 import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.util.random.IRandom;
 
 
 /**

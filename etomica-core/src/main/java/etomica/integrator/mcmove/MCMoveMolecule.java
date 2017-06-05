@@ -9,7 +9,7 @@ import etomica.action.MoleculeChildAtomAction;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.potential.PotentialMaster;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.simulation.Simulation;
 import etomica.atom.MoleculeSource;
 import etomica.atom.MoleculeSourceRandomMolecule;

@@ -24,7 +24,7 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.RandomMersenneTwister;
+import etomica.util.random.RandomMersenneTwister;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterChainHS;
 import etomica.virial.ClusterSinglyConnected;

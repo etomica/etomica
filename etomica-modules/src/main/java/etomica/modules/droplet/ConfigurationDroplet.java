@@ -7,7 +7,7 @@ package etomica.modules.droplet;
 import etomica.atom.IAtomList;
 import etomica.space.Vector;
 import etomica.box.Box;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.config.Configuration;
 import etomica.space.Space;
 

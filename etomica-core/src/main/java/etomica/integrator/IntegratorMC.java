@@ -6,7 +6,7 @@ package etomica.integrator;
 
 import etomica.box.Box;
 import etomica.potential.PotentialMaster;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.simulation.Simulation;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveBox;

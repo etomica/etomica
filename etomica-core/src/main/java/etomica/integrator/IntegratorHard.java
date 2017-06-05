@@ -7,7 +7,7 @@ package etomica.integrator;
 import etomica.box.BoxMoleculeEvent;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialAtomic;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.atom.*;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;

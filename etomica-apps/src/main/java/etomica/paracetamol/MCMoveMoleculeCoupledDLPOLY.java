@@ -10,7 +10,7 @@ import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.api.IMolecule;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.MoleculeSource;
 import etomica.atom.MoleculeSourceRandomMolecule;

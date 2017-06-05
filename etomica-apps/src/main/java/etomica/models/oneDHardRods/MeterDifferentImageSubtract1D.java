@@ -4,7 +4,7 @@
 
 package etomica.models.oneDHardRods;
 
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;

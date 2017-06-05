@@ -14,7 +14,7 @@ import etomica.atom.IAtomList;
 import etomica.space.Boundary;
 import etomica.integrator.Integrator;
 import etomica.potential.PotentialMaster;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.space.Vector;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;

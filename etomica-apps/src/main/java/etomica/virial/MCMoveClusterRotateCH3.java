@@ -16,6 +16,7 @@ import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Vector3D;
+import etomica.util.random.IRandom;
 
 /**
  * Monte Carlo CH3 rotation for cluster integrals(Alkane TraPPE-EH).
@@ -32,7 +33,7 @@ public class MCMoveClusterRotateCH3 extends MCMoveMolecule {
     }
     
     public MCMoveClusterRotateCH3(PotentialMaster potentialMaster,
-    		IRandom random, double stepSize, int nAtoms, Space _space) {
+                                  IRandom random, double stepSize, int nAtoms, Space _space) {
         super(potentialMaster,random,_space, stepSize,Double.POSITIVE_INFINITY);
         this.space = _space;
         setStepSizeMax(Math.PI/3);

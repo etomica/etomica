@@ -6,7 +6,6 @@ package etomica.modules.droplet;
 
 import java.io.Serializable;
 
-import etomica.api.*;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
@@ -24,6 +23,7 @@ import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.util.Debug;
+import etomica.util.random.IRandom;
 
 /**
  * Mesoscale integrator for Droplet module.

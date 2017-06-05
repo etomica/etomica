@@ -6,7 +6,7 @@ package etomica.atom;
 
 import etomica.box.Box;
 import etomica.api.IMolecule;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 
 /**
  * MoleculeSource that returns a completely random molecule.

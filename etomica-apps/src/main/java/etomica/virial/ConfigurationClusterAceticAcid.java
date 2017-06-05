@@ -11,6 +11,7 @@ import etomica.box.Box;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space.RotationTensor;
+import etomica.util.random.IRandom;
 
 public class ConfigurationClusterAceticAcid extends ConfigurationCluster {
 	 

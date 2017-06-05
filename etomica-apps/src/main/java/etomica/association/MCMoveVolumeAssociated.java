@@ -8,7 +8,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.WriteConfiguration;
-import etomica.api.*;
 import etomica.atom.*;
 import etomica.box.Box;
 import etomica.potential.PotentialMaster;
@@ -22,6 +21,7 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Dimension;
 import etomica.units.Pressure;
+import etomica.util.random.IRandom;
 
 /**
  * Standard Monte Carlo volume-change move for simulations in the NPT ensemble.

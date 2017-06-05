@@ -9,7 +9,7 @@ import etomica.action.BoxInflateDeformable;
 import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.box.Box;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.simulation.Simulation;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;

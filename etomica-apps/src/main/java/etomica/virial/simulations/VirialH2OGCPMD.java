@@ -28,6 +28,7 @@ import etomica.units.CompoundUnit;
 import etomica.units.Kelvin;
 import etomica.units.Unit;
 import etomica.util.*;
+import etomica.util.random.RandomMersenneTwister;
 import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 
@@ -128,7 +129,7 @@ public class VirialH2OGCPMD {
         System.out.println(steps+" steps (1000 IntegratorOverlap steps of "+(steps/1000)+")");
  		
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, speciesWater, nPoints, temperature, refCluster, targetCluster);
-        if(seed!=null)sim.setRandom(new RandomMersenneTwister(seed));        
+        if(seed!=null)sim.setRandom(new RandomMersenneTwister(seed));
         sim.setExtraTargetClusters(primes);
                 
         if(nPoints > 4){

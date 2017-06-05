@@ -4,7 +4,7 @@
 
 package etomica.modules.sam;
 
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomKinetic;

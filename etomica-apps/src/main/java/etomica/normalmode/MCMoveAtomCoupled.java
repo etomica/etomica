@@ -16,6 +16,7 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * Standard Monte Carlo atom-displacement trial move.  Two atoms are moved at a

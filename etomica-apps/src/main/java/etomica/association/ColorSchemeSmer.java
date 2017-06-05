@@ -9,7 +9,7 @@ import java.util.HashMap;
 
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.association.ColorSchemeSmer.ColorAgent;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;

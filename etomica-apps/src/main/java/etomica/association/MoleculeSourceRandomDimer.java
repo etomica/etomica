@@ -7,7 +7,7 @@ package etomica.association;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.atom.MoleculeSource;
 
 public class MoleculeSourceRandomDimer implements MoleculeSource {

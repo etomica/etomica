@@ -27,7 +27,8 @@ import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Tensor3D;
-import etomica.util.RandomNumberGenerator;
+import etomica.util.random.IRandom;
+import etomica.util.random.RandomNumberGenerator;
 
 /**
  * CoordinateDefinition implementation for nitrogen molecule. The class takes the first

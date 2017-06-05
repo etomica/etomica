@@ -5,7 +5,7 @@
 package etomica.space1d;
 
 import etomica.math.function.IFunction;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.space.Vector;
 import etomica.exception.MethodNotImplementedException;
 

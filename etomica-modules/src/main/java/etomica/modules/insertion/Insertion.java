@@ -21,7 +21,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.RandomMersenneTwister;
+import etomica.util.random.RandomMersenneTwister;
 
 public class Insertion extends Simulation {
     

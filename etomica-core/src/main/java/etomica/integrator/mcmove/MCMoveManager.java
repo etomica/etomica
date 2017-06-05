@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import etomica.box.Box;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 
 public class MCMoveManager {
 

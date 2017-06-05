@@ -32,7 +32,7 @@ import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
-import etomica.util.RandomNumberGenerator;
+import etomica.util.random.RandomNumberGenerator;
 
 public class SingleWater {
 

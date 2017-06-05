@@ -13,6 +13,7 @@ import etomica.models.water.SpeciesWater4P;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space.RotationTensor;
+import etomica.util.random.IRandom;
 
 public class ConfigurationClusterWertheimGCPM extends ConfigurationCluster {
 	

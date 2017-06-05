@@ -4,7 +4,7 @@
 
 package etomica.space;
 
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 
 /**
  * Interface for a class that specifies an orientation in space.

@@ -12,6 +12,7 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.config.Configuration;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 public class ConfigurationColloid implements Configuration {
 

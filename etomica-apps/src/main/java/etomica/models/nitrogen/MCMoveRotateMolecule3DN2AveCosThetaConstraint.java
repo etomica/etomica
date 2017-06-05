@@ -13,6 +13,7 @@ import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.RotationTensor;
+import etomica.util.random.IRandom;
 
 
 /**

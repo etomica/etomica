@@ -11,6 +11,7 @@ import etomica.atom.MoleculeArrayList;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.util.random.IRandom;
 
 /**
  * Monte Carlo molecule-displacement trial move for a molecule in smer

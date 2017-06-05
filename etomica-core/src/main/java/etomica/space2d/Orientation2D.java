@@ -6,7 +6,7 @@ package etomica.space2d;
 
 import java.io.Serializable;
 
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.space.Vector;
 import etomica.space.IOrientation;
 import etomica.space.Space;

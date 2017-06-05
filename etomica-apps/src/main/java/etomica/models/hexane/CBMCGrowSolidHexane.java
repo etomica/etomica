@@ -12,6 +12,7 @@ import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.util.random.IRandom;
 
 
 /**

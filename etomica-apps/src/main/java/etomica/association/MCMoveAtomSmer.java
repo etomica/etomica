@@ -4,7 +4,6 @@
 
 package etomica.association;
 
-import etomica.api.*;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.potential.PotentialMaster;
@@ -13,6 +12,7 @@ import etomica.atom.AtomArrayList;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.util.random.IRandom;
 
 public class MCMoveAtomSmer extends MCMoveAtom {
 	protected AssociationManager associationManager;

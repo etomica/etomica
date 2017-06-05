@@ -4,7 +4,6 @@
 
 package etomica.integrator.mcmove;
 
-import etomica.api.*;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.potential.PotentialMaster;
@@ -12,6 +11,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.util.Debug;
+import etomica.util.random.IRandom;
 
 /**
  * An MC Move for cluster simulations that "wiggles" for acetic acid.
@@ -25,7 +25,7 @@ public class MCMoveWiggleAceticAcid extends MCMoveMolecule {
     }
     
     public MCMoveWiggleAceticAcid(PotentialMaster potentialMaster,
-            IRandom random, double stepSize, Space _space) {
+                                  IRandom random, double stepSize, Space _space) {
         super(potentialMaster,random,_space, stepSize,Double.POSITIVE_INFINITY);
         this.space = _space;
         bondedAtoms = new int[]{1,-1,1,-1,3};//0(Ch3) and 2(dBO) are bonded to 1 (C), 4(H) is bonded to 3 (O)

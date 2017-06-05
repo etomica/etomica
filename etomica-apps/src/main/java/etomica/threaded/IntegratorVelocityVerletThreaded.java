@@ -7,7 +7,7 @@ package etomica.threaded;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.space.Space;
 
 

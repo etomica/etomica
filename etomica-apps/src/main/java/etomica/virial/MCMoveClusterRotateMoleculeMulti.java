@@ -7,7 +7,7 @@ package etomica.virial;
 import etomica.action.MoleculeAction;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.space.Space;
 

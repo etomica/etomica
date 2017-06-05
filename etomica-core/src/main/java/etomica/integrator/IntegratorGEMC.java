@@ -4,7 +4,7 @@
 
 package etomica.integrator;
 
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.integrator.mcmove.MCMoveMoleculeExchange;
 import etomica.integrator.mcmove.MCMoveVolumeExchange;
 import etomica.space.Space;

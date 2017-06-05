@@ -13,6 +13,7 @@ import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.util.random.IRandom;
 
 public class MCMoveRotateMoleculePhiTheta extends MCMoveRotateMolecule3D {
 

@@ -4,7 +4,6 @@
 
 package etomica.integrator.mcmove;
 
-import etomica.api.*;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
@@ -27,6 +26,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.IEvent;
 import etomica.util.IListener;
+import etomica.util.random.IRandom;
 
 import java.util.ArrayList;
 import java.util.List;

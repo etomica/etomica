@@ -27,7 +27,7 @@ import etomica.units.Kelvin;
 import etomica.units.Null;
 import etomica.units.Unit;
 import etomica.util.Constants;
-import etomica.util.RandomMersenneTwister;
+import etomica.util.random.RandomMersenneTwister;
 
 /**
  * Ab initio potential for CO2-CO2 developed by R. Hellmann.

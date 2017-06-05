@@ -45,8 +45,8 @@ import etomica.modifier.ModifierGeneral;
 import etomica.units.Null;
 import etomica.util.Constants.CompassDirection;
 import etomica.data.history.HistoryScrolling;
-import etomica.util.RandomMersenneTwister;
-import etomica.util.RandomNumberGeneratorUnix;
+import etomica.util.random.RandomMersenneTwister;
+import etomica.util.random.RandomNumberGeneratorUnix;
 
 /**
  * App to drive AkimaSplineSmoother

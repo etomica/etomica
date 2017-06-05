@@ -37,7 +37,7 @@ import etomica.units.Pixel;
 import etomica.units.SimpleUnit;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.RandomMersenneTwister;
+import etomica.util.random.RandomMersenneTwister;
 import etomica.virial.B3LJ;
 
 import java.io.FileWriter;

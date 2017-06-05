@@ -9,7 +9,7 @@ import etomica.atom.IAtomList;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.potential.PotentialMaster;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.RotationTensor;

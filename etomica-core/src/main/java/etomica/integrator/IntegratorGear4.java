@@ -6,7 +6,6 @@
 
 package etomica.integrator;
 
-import etomica.api.*;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
@@ -19,6 +18,7 @@ import etomica.atom.iterator.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.util.random.IRandom;
 
 /**
  * Gear 4th-order predictor-corrector integrator.

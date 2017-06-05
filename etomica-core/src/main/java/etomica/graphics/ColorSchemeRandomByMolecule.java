@@ -8,7 +8,7 @@ import java.awt.Color;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.api.IMolecule;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.simulation.Simulation;
 import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;

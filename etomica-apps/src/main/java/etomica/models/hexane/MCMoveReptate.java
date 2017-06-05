@@ -16,6 +16,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 public class MCMoveReptate extends MCMoveBoxStep {
     

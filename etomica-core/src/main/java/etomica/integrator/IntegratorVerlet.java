@@ -4,7 +4,6 @@
 
 package etomica.integrator;
 
-import etomica.api.*;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
@@ -18,6 +17,7 @@ import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.util.random.IRandom;
 
 public final class IntegratorVerlet extends IntegratorMD implements AgentSource<IntegratorVerlet.Agent> {
 

@@ -21,7 +21,7 @@ import etomica.space.Space;
 import etomica.species.SpeciesSpheres;
 import etomica.species.SpeciesSpheresMono;
 import etomica.species.SpeciesSpheresRotating;
-import etomica.util.RandomMersenneTwister;
+import etomica.util.random.RandomMersenneTwister;
 import etomica.virial.BoxCluster;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterWeight;

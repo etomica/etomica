@@ -4,7 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.space.Vector;
 import etomica.atom.iterator.AtomIterator;
 import etomica.integrator.mcmove.MCMoveBoxStep;

@@ -4,7 +4,7 @@
 
 package etomica.virial;
 
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 
 public class ClusterSumStickyEF extends ClusterSumEF {
 

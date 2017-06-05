@@ -7,7 +7,7 @@ package etomica.modules.chainequilibrium;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.potential.P2SquareWell;
 import etomica.space.Space;

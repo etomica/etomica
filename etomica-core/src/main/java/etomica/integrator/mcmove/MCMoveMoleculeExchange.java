@@ -23,6 +23,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.util.random.IRandom;
 
 /**
  * Performs a trial that results in the exchange of a molecule from one box to another.

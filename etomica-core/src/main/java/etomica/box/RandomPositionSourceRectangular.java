@@ -4,7 +4,7 @@
 
 package etomica.box;
 
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.space.Space;
 import etomica.space.Vector;
 

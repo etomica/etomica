@@ -24,7 +24,7 @@ import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
-import etomica.util.RandomNumberGenerator;
+import etomica.util.random.RandomNumberGenerator;
 
 import java.util.HashMap;
 import java.util.HashSet;

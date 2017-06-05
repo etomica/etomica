@@ -23,6 +23,7 @@ import etomica.units.Dimension;
 import etomica.units.Time;
 import etomica.util.Debug;
 import etomica.util.EnumeratedType;
+import etomica.util.random.IRandom;
 
 /**
  * Superclass of all molecular-dynamics integrators.

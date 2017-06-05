@@ -8,7 +8,7 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.potential.PotentialMaster;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.space.Vector;
 import etomica.atom.AtomArrayList;
 import etomica.atom.iterator.AtomIterator;

@@ -8,7 +8,7 @@ import etomica.action.MoleculeAction;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.potential.PotentialMaster;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.space.Space;
 

@@ -8,7 +8,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 
 import etomica.atom.IAtom;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.atom.AtomArrayList;
 import etomica.graphics.ColorScheme;
 
