@@ -113,7 +113,7 @@ public class MeterMappedAveraging implements IEtomicaDataSource ,AgentSource<Met
 //		 }//i loop
 
 //		x[0] = -nM*bt2*mu2 - 0.25*bt2*bt2*mu2*dr.squared()+ 0.25*J*bt*bt2*mu2*secondDerivativeSum.getSum();
-        x[0] = -nM*bt2*mu2 + 0.25*J*bt*bt2*mu2*secondDerivativeSum.getSum();
+        x[0] = -nM*bt2*mu2 + J*bt*bt2*mu2*secondDerivativeSum.getSum();
 
 //		test for <f(1-x^2)>  the result is zero!!!!!
 //		x[0] = dr.squared();

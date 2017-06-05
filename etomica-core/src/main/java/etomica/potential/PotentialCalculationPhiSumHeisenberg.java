@@ -34,9 +34,11 @@ public class PotentialCalculationPhiSumHeisenberg implements PotentialCalculatio
 		if(!(potential instanceof IPotentialAtomicSecondDerivative)){
 			return;
 		}
-		IPotentialAtomicSecondDerivative potentialSecondDerivative = (IPotentialAtomicSecondDerivative) potential;
 
-		Tensor[] t = potentialSecondDerivative.secondDerivative(atoms);
+		//don't need this for now
+//		IPotentialAtomicSecondDerivative potentialSecondDerivative = (IPotentialAtomicSecondDerivative) potential;
+//
+//		Tensor[] t = potentialSecondDerivative.secondDerivative(atoms);
 		
 		IAtomOriented atom1 = (IAtomOriented)atoms.getAtom(0);
     	IAtomOriented atom2 = (IAtomOriented)atoms.getAtom(1);
@@ -60,7 +62,10 @@ public class PotentialCalculationPhiSumHeisenberg implements PotentialCalculatio
 //		secondDerivativeSum += 2.0*s1*s2;
 
 		//or you could combine ij ii and jj
-		secondDerivativeSum += -2.0*(s1*s2+c1*c2-1)*s1*s2;
+//		secondDerivativeSum += -2.0*(s1*s2+c1*c2-1)*s1*s2;
+
+		double Cos = ei.dot(ej);
+		secondDerivativeSum += -2*Cos*Cos+2*Cos;
 	}
 
 	public void doCalculation(IMoleculeList molecules, IPotentialMolecular potential) {
