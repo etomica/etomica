@@ -85,6 +85,10 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
         return x0;
     }
 
+    public double getq() {
+        return q;
+    }
+
     public void setVCut(double newVCut) {
         vCut = newVCut;
     }
@@ -100,7 +104,7 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
     public void setTemperature(double T, Potential2SoftSpherical p2) {
         beta = 1/T;
         double rc = p2.getRange();
-        R = 3;
+        R = 3.5;
         uR = p2.u(R);
         x0 = rc;
         q = 0;
@@ -108,7 +112,7 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
         qp_q = 0;
 
         if (vCut==0) vCut = x0;
-        vShift = -p2.u(vCut*vCut)+0.0494908;
+        vShift = -p2.u(vCut*vCut);
         c1 = Math.log(rc+1)/nbins;
         int D = space.D();
         for (int i=1; i<=nbins; i++) {
@@ -197,17 +201,17 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
         double up = fij/r;
         double vp = up;
         double u= p2.u(r2);
-        double v = calcV(r,u);
-        sum += v-u;
+        //double v = calcV(r,u);
+        // sum += v-u;
 
         if (r<x0) {
             Vector fi = forceManager.getAgent(a).force;
             Vector fj = forceManager.getAgent(b).force;
             //  System.out.println(u+" "+r);
             double fifj = (fi.dot(dr) - fj.dot(dr))/r;
-            double xs = calcXu(r, u);
+            double xu = calcXu(r, u);
             double wp = 0.5*fifj;
-            sum += xs*beta*(vp-wp);
+            sum += xu*beta*(vp-wp);
 
         }
 

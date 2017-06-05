@@ -72,7 +72,7 @@ public class MeterMappedRdf implements IAction, IEtomicaDataSource, DataSourceIn
     /**
      * Takes the RDF for the current configuration of the given box.
      */
-    public void actionPerformed() {
+    public void actionPerformed() { //call potentialmaster cal from here
         if (rData != xDataSource.getData() ||
                 data.getLength() != rData.getLength() ||
                 xDataSource.getXMax() != xMax) {
@@ -133,8 +133,6 @@ public class MeterMappedRdf implements IAction, IEtomicaDataSource, DataSourceIn
             y[i] = gSum[i] / (norm);
         }
         return data;
-
-
     }
 
     public DataSourceUniform getXDataSource() {
