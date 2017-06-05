@@ -7,9 +7,9 @@ package etomica.potential;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.api.IPotential;
 import etomica.api.IPotentialAtomic;
@@ -33,7 +33,7 @@ public class P3HydrogenATM implements IPotential{
             throw new RuntimeException("caught IOException: " + e.getMessage());
         }
     }        
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected static final double E0 = 49400; //(K Angstorm^9)
     protected Vector dr,r1,r2,r3;
 

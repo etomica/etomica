@@ -7,14 +7,11 @@ package etomica.atom;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.box.Box;
-import etomica.api.IBoxAtomIndexEvent;
-import etomica.api.IBoxIndexEvent;
-import etomica.api.IBoxMoleculeEvent;
+import etomica.box.*;
+import etomica.box.BoxAtomIndexEvent;
+import etomica.box.BoxMoleculeEvent;
 import etomica.api.IMolecule;
-import etomica.box.BoxListenerAdapter;
+import etomica.box.BoxIndexEvent;
 import etomica.util.Arrays;
 
 /**
@@ -26,7 +23,7 @@ import etomica.util.Arrays;
  * 
  * @author Andrew Schultz
  */
-public class AtomLeafAgentManager<E> extends BoxListenerAdapter implements Serializable {
+public class AtomLeafAgentManager<E> extends BoxEventListenerAdapter implements Serializable {
     
     public AtomLeafAgentManager(AgentSource<E> source, Box box, Class agentClass) {
         agentSource = source;
@@ -131,7 +128,7 @@ public class AtomLeafAgentManager<E> extends BoxListenerAdapter implements Seria
         }
     }
     
-    public void boxMoleculeAdded(IBoxMoleculeEvent e) {
+    public void boxMoleculeAdded(BoxMoleculeEvent e) {
         IMolecule mole = e.getMolecule();
         // add all leaf atoms below this atom
         IAtomList childList = mole.getChildList();
@@ -141,7 +138,7 @@ public class AtomLeafAgentManager<E> extends BoxListenerAdapter implements Seria
         }
     }
     
-    public void boxMoleculeRemoved(IBoxMoleculeEvent e) {
+    public void boxMoleculeRemoved(BoxMoleculeEvent e) {
         IMolecule mole = e.getMolecule();
         // IAtomGroups don't have agents, but nuke all atoms below this atom
         IAtomList childList = mole.getChildList();
@@ -158,7 +155,7 @@ public class AtomLeafAgentManager<E> extends BoxListenerAdapter implements Seria
         }
     }
     
-    public void boxAtomLeafIndexChanged(IBoxAtomIndexEvent e) {
+    public void boxAtomLeafIndexChanged(BoxAtomIndexEvent e) {
         IAtom a = e.getAtom();
         // the atom's index changed.  assume it would get the same agent
         int oldIndex = e.getIndex();
@@ -166,7 +163,7 @@ public class AtomLeafAgentManager<E> extends BoxListenerAdapter implements Seria
         agents[oldIndex] = null;
     }
     
-    public void boxGlobalAtomLeafIndexChanged(IBoxIndexEvent e) {
+    public void boxGlobalAtomLeafIndexChanged(BoxIndexEvent e) {
         // don't use leafList.size() since the SpeciesMaster might be notifying
         // us that it's about to add leaf atoms
         int newMaxIndex = e.getIndex();

@@ -2,6 +2,7 @@ package etomica.potential;
 
 import etomica.api.*;
 import etomica.atom.DipoleSource;
+import etomica.atom.IAtomList;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;

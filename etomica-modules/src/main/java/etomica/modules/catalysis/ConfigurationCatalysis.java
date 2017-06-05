@@ -4,7 +4,7 @@
 
 package etomica.modules.catalysis;
 
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;

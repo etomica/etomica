@@ -4,7 +4,7 @@
 
 package etomica.modules.catalysis;
 
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.api.ISpecies;
 import etomica.space.Vector;
 import etomica.atom.AtomLeafAgentManager;

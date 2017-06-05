@@ -2,9 +2,9 @@ package etomica.normalmode.nptdemo;
 
 import java.awt.Color;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.graphics.ColorSchemeCollectiveAgent;
@@ -68,7 +68,7 @@ public class ColorSchemeScaledOverlap extends ColorSchemeCollectiveAgent {
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             nOverlaps[iLeaf] = 0;
         }
-        IBoundary boundary = box.getBoundary();
+        Boundary boundary = box.getBoundary();
         for (int i=0; i<leafList.getAtomCount(); i++) {
             //color blue the neighbor atoms in same group
             IAtom atom = leafList.getAtom(i);

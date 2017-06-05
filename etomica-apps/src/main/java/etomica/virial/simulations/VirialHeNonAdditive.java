@@ -8,8 +8,8 @@ package etomica.virial.simulations;
 import java.awt.Color;
 import java.util.Set;
 
-import etomica.api.IAtomList;
-import etomica.api.IIntegratorEvent;
+import etomica.atom.IAtomList;
+import etomica.integrator.IntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.ISpecies;
 import etomica.space.Vector;
@@ -321,9 +321,9 @@ public class VirialHeNonAdditive {
         final HistogramNotSoSimple piHist = new HistogramNotSoSimple(100, new DoubleRange(0, sigmaHSRef));
         final ClusterAbstract finalTargetCluster = targetCluster.makeCopy();
         IIntegratorListener histListener = new IIntegratorListener() {
-            public void integratorStepStarted(IIntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
             
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 double r2Max = 0;
                 CoordinatePairSet cPairs = sim.box[0].getCPairSet();
                 for (int i=0; i<nPoints; i++) {
@@ -337,12 +337,12 @@ public class VirialHeNonAdditive {
                 piHist.addValue(Math.sqrt(r2Max), Math.abs(v));
             }
             
-            public void integratorInitialized(IIntegratorEvent e) {}
+            public void integratorInitialized(IntegratorEvent e) {}
         };
         IIntegratorListener progressReport = new IIntegratorListener() {
-            public void integratorInitialized(IIntegratorEvent e) {}
-            public void integratorStepStarted(IIntegratorEvent e) {}
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorInitialized(IntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
+            public void integratorStepFinished(IntegratorEvent e) {
 //                if (Double.isInfinite(sim.dsvo.getOverlapAverageAndError()[0])) {
 //                    sim.dsvo.getOverlapAverageAndError();
 //                    throw new RuntimeException("oops");
@@ -361,9 +361,9 @@ public class VirialHeNonAdditive {
             sim.integratorOS.getEventManager().addListener(progressReport);
             if (params.doHist) {
                 IIntegratorListener histReport = new IIntegratorListener() {
-                    public void integratorInitialized(IIntegratorEvent e) {}
-                    public void integratorStepStarted(IIntegratorEvent e) {}
-                    public void integratorStepFinished(IIntegratorEvent e) {
+                    public void integratorInitialized(IntegratorEvent e) {}
+                    public void integratorStepStarted(IntegratorEvent e) {}
+                    public void integratorStepFinished(IntegratorEvent e) {
                         if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
                         double[] xValues = hist.xValues();
                         double[] h = hist.getHistogram();

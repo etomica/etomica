@@ -8,7 +8,7 @@
 package etomica.models.hexane;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.SimulationGraphic;
@@ -40,7 +40,12 @@ import etomica.space3d.Space3D;
 public class TestHexaneCBMCOnly extends Simulation {
 
 	private static final String APP_NAME = "Test Hexane CBMC Only";
-
+    public ActivityIntegrate activityIntegrate;
+    public IntegratorMC integrator;
+    public Box box;
+    public BoundaryDeformablePeriodic bdry;
+    public CBMCGrowSolidHexane growMolecule;
+    public BravaisLattice lattice;
     public TestHexaneCBMCOnly(Space _space, int numMolecules) {
         // super(space, false, new PotentialMasterNbr(space, 12.0));
         // super(space, true, new PotentialMasterList(space, 12.0));
@@ -100,11 +105,11 @@ public class TestHexaneCBMCOnly extends Simulation {
         // The PotentialMaster generates a group potential and automatically
         // does a lot of the stuff which we have to do for the intramolecular
         // potential manually.
-        IAtomType sphereType = species.getLeafType();
+        AtomType sphereType = species.getLeafType();
 
         // Add the Potential to the PotentialMaster
         potentialMaster.addPotential(potential,
-                new IAtomType[] { sphereType, sphereType });
+                new AtomType[]{sphereType, sphereType});
 
         // //INTRAMOLECULAR POTENTIAL STUFF
         //
@@ -132,7 +137,7 @@ public class TestHexaneCBMCOnly extends Simulation {
         // //We make the bonding length 0.4 * sigma per Malanoski 1999.
         // potential = new P2HardSphere(space, defaults.atomSize * bondFactor,
         // defaults.ignoreOverlap);
-        //        
+        //
         // //We will need an atom pair iterator (Api) that runs through the
         // atoms
         // // on a single molecule.
@@ -143,18 +148,18 @@ public class TestHexaneCBMCOnly extends Simulation {
         // //We add the Potential and its Iterator to the PotentialGroup, in one
         // // fell swoop. Yay us!
         // potentialChainIntra.addPotential(potential, bonded);
-        //        
+        //
         // //NONBONDED INTERACTIONS
         // //This potential describes the basic hard sphere interactions between
         // // 2 atoms of a molecule.
-        //        
+        //
         // //Only the atoms next to each other interact, so we have two
         // criteria:
         // // The atoms must be on the same molecule- CriterionMolecular
         // // The atoms must be separated by 3 bonds, or 2 other atoms.
         // ApiIntragroup nonbonded = ApiBuilder.makeNonAdjacentPairIterator(2);
         // potentialChainIntra.addPotential(potential, nonbonded);
-        //        
+        //
         // potentialMaster.addPotential(potentialChainIntra, new AtomType[] {
         // species.getMoleculeType() } );
 
@@ -217,11 +222,11 @@ public class TestHexaneCBMCOnly extends Simulation {
             sim.getController().reset();
             sim.activityIntegrate.setMaxSteps(nSteps);
 
-//             IntervalActionAdapter checkAdapter = new 
+//             IntervalActionAdapter checkAdapter = new
 //                  IntervalActionAdapter(check, sim.integrator);
 //             checkAdapter.setActionInterval(100);
 //             sim.integrator.addListener(checkAdapter);
-            //            
+            //
             // IntervalActionAdapter writeAdapter = new
             // IntervalActionAdapter(write, sim.integrator);
             // writeAdapter.setActionInterval(100);
@@ -239,10 +244,10 @@ public class TestHexaneCBMCOnly extends Simulation {
 //                  *meterNormalMode.getCallCount()));
             // int normalDim =
             // meterNormalMode.getCoordinateDefinition().getCoordinateDim();
-            //            
+            //
             // IVector[] waveVectors = waveVectorFactory.getWaveVectors();
             // double[] coefficients = waveVectorFactory.getCoefficients();
-            //            
+            //
             // try {
             // FileWriter fileWriterQ = new FileWriter(filename+".Q");
             // FileWriter fileWriterS = new FileWriter(filename+".S");
@@ -273,13 +278,6 @@ public class TestHexaneCBMCOnly extends Simulation {
         }
 
     }
-
-    public ActivityIntegrate activityIntegrate;
-    public IntegratorMC integrator;
-    public Box box;
-    public BoundaryDeformablePeriodic bdry;
-    public CBMCGrowSolidHexane growMolecule;
-    public BravaisLattice lattice;
 
 
 }

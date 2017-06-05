@@ -4,10 +4,10 @@
 
 package etomica.integrator;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.potential.PotentialMaster;
@@ -56,7 +56,7 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
             if (bondConstraints != null) {
                 numBondedMolecules++;
                 IAtomList childList = molecule.getChildList();
-                IBoundary boundary = box.getBoundary();
+                Boundary boundary = box.getBoundary();
 
                 if (drOld.length < bondConstraints.bondedAtoms.length) {
                     Vector[] newDrOld = new Vector[bondConstraints.bondedAtoms.length];
@@ -93,7 +93,7 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
 
             IAtomList childList = molecule.getChildList();
             int[][] bondedAtoms = bondConstraints.bondedAtoms;
-            IBoundary boundary = box.getBoundary();
+            Boundary boundary = box.getBoundary();
             double[] bondLengths = bondConstraints.bondLengths;
 
             if (childList.getAtomCount() > moved.length) {
@@ -213,7 +213,7 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
             
             IAtomList childList = molecule.getChildList();
             int[][] bondedAtoms = bondConstraints.bondedAtoms;
-            IBoundary boundary = box.getBoundary();
+            Boundary boundary = box.getBoundary();
             double[] bondLengths = bondConstraints.bondLengths;
 
             for (int j=0; j<childList.getAtomCount(); j++) {
@@ -293,7 +293,7 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
             
             IAtomList childList = molecule.getChildList();
             int[][] bondedAtoms = bondConstraints.bondedAtoms;
-            IBoundary boundary = box.getBoundary();
+            Boundary boundary = box.getBoundary();
             double[] bondLengths = bondConstraints.bondLengths;
 
             if (childList.getAtomCount() > moved[0].length) {

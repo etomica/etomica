@@ -4,15 +4,13 @@
 
 package etomica.virial.simulations;
 
-import java.awt.Color;
-
 import etomica.action.IAction;
-import etomica.api.IAtomType;
-import etomica.box.Box;
 import etomica.api.ISpecies;
+import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.atom.iterator.Atomset4IteratorIndexList;
+import etomica.box.Box;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
@@ -27,16 +25,10 @@ import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterCoupledFlipped;
-import etomica.virial.ClusterSum;
-import etomica.virial.MCMoveClusterTorsionAceticAcid;
-import etomica.virial.MCMoveClusterWiggleAceticAcid;
-import etomica.virial.MayerEGeneral;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
+
+import java.awt.*;
 
 /**
  * Mayer-sampling MC simulation for acetic acid using IMPROVED OPLS united-atom model
@@ -160,12 +152,12 @@ public class VirialAceticAcid {
             ColorSchemeByType colorScheme1 = (ColorSchemeByType) simGraphic.getDisplayBox(targetBox).getColorScheme();
             DiameterHashByType	diameterScheme0 = (DiameterHashByType) simGraphic.getDisplayBox(referenceBox).getDiameterHash();
             DiameterHashByType	diameterScheme1 = (DiameterHashByType) simGraphic.getDisplayBox(targetBox).getDiameterHash();
-            
-        	IAtomType typeCH3  = species.getCH3Type();
-        	IAtomType typeC  = species.getCType();
-            IAtomType typeDBO = species.getDBOType();
-            IAtomType typeSBO = species.getSBOType(); 
-            IAtomType typeH = species.getHType();
+
+            AtomType typeCH3 = species.getCH3Type();
+            AtomType typeC = species.getCType();
+            AtomType typeDBO = species.getDBOType();
+            AtomType typeSBO = species.getSBOType();
+            AtomType typeH = species.getHType();
             colorScheme0.setColor(typeCH3, Color.GREEN);
             diameterScheme0.setDiameter(typeCH3, 2*1.7);
             colorScheme0.setColor(typeC, Color.BLUE);

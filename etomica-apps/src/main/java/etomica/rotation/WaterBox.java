@@ -9,7 +9,7 @@ import java.awt.Color;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.ISpecies;
-import etomica.atom.AtomPositionCOM;
+import etomica.atom.MoleculePositionCOM;
 import etomica.box.Box;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
@@ -76,7 +76,7 @@ public class WaterBox {
 
         DipoleSourceWater dipoleSource = new DipoleSourceWater(sim.getSpace());
         dipoleSource.setDipoleStrength(2*Electron.UNIT.toSim(0.41)*Math.cos(109.5/2.0*Math.PI/180));
-        P2ReactionFieldDipole pNRF = new P2ReactionFieldDipole(sim.getSpace(),new AtomPositionCOM(space));
+        P2ReactionFieldDipole pNRF = new P2ReactionFieldDipole(sim.getSpace(),new MoleculePositionCOM(space));
         pNRF.setDipoleSource(dipoleSource);
         pNRF.setRange(boxlength*0.49);
         pNRF.setDielectric(78.4);

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.association;
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.space.Space;
 
 public abstract class BiasVolume implements AssociationDefinition, java.io.Serializable {

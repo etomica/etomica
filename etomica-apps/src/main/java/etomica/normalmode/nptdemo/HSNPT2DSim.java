@@ -1,6 +1,6 @@
 package etomica.normalmode.nptdemo;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.crystal.BasisOrthorhombicHexagonal;
@@ -51,11 +51,11 @@ public class HSNPT2DSim extends Simulation {
         getController().addAction(ai);
         species1 = new SpeciesSpheresMono(this, space);
         species1.setIsDynamic(true);
-	    IAtomType leafType1 = species1.getLeafType();
+        AtomType leafType1 = species1.getLeafType();
         addSpecies(species1);
         potential = new P2HardSphere(space, sigma, false);
-        
-        potentialMaster.addPotential(potential,new IAtomType[]{leafType1, leafType1});
+
+        potentialMaster.addPotential(potential, new AtomType[]{leafType1, leafType1});
 
         box = new Box(space);
         addBox(box);

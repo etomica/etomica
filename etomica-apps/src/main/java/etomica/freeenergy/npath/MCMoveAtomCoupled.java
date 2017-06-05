@@ -5,9 +5,7 @@
 package etomica.freeenergy.npath;
 
 import etomica.api.*;
-import etomica.atom.AtomArrayList;
-import etomica.atom.AtomSource;
-import etomica.atom.AtomSourceRandomLeaf;
+import etomica.atom.*;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.box.Box;

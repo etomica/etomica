@@ -10,7 +10,7 @@
  */
 package etomica.modules.dcvgcmd;
 
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISpecies;

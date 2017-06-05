@@ -4,10 +4,12 @@
 
 package etomica.freeenergy.npath;
 
-import etomica.api.*;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
+import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -18,7 +20,7 @@ import etomica.space.Tensor;
 public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
 
     protected double w;
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected IAtomList allAtoms;
     protected final Vector offset;
     protected final Vector dr;
@@ -40,7 +42,7 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
     public void findNOffset(Box box) {
         IAtomList atoms = box.getLeafList();
         Vector p0 = atoms.getAtom(0).getPosition();
-        IBoundary boundary = box.getBoundary();
+        Boundary boundary = box.getBoundary();
         for (int i=1; i<atoms.getAtomCount(); i++) {
             Vector p = atoms.getAtom(i).getPosition();
             dr.Ev1Mv2(p, p0);

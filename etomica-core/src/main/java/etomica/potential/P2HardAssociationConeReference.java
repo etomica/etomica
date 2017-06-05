@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.potential;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
@@ -26,7 +26,7 @@ public class P2HardAssociationConeReference extends Potential2 {
     private double sigma, sigmaSquared;
     private double ec2;
     private final Vector dr;
-    private IBoundary boundary;
+    private Boundary boundary;
     
     public P2HardAssociationConeReference(Space space, double sigma) {
         super(space);

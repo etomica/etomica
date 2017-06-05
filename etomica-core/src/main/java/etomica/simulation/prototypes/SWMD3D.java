@@ -9,7 +9,7 @@ package etomica.simulation.prototypes;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.IAtomType;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.DataPumpListener;
@@ -32,10 +32,17 @@ import etomica.species.SpeciesSpheresMono;
 
 public class SWMD3D extends Simulation {
 
+    private static final long serialVersionUID = 1L;
+    public IntegratorHard integrator;
+    public SpeciesSpheresMono species;
+    public Box box;
+    public P2SquareWell potential;
+    public Controller controller;
+    public DisplayBox display;
     public SWMD3D(Space _space) {
         super(_space);
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 2.5, space);
-	
+
         integrator = new IntegratorHard(this, potentialMaster, space);
         integrator.setTimeStep(0.01);
         integrator.setIsothermal(true);
@@ -54,7 +61,7 @@ public class SWMD3D extends Simulation {
         addSpecies(species);
         box.setNMolecules(species, 108);
 
-        potentialMaster.addPotential(potential,new IAtomType[]{species.getLeafType(),species.getLeafType()});
+        potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
         integrator.setBox(box);
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
@@ -65,14 +72,6 @@ public class SWMD3D extends Simulation {
         ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         configuration.initializeCoordinates(box);
     }
-
-    private static final long serialVersionUID = 1L;
-    public IntegratorHard integrator;
-    public SpeciesSpheresMono species;
-    public Box box;
-    public P2SquareWell potential;
-    public Controller controller;
-    public DisplayBox display;
 
     /**
      * Demonstrates how this class is implemented.

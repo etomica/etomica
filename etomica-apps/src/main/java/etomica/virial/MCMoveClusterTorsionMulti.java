@@ -5,12 +5,10 @@
 package etomica.virial;
 
 import etomica.api.*;
+import etomica.atom.*;
 import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.atom.MoleculeArrayList;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveStepTracker;
@@ -48,7 +46,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
                                      IRandom random, double stepSize, P4BondTorsion torsionPotential, int nBins) {
         super(potentialMaster,random,space,stepSize,Double.POSITIVE_INFINITY);
         ((MCMoveStepTracker)getTracker()).setTunable(false);
-        positionDefinition = new AtomPositionGeometricCenter(space);
+        positionDefinition = new MoleculePositionGeometricCenter(space);
         probabilityBins = new double[nBins+1];
         binSize = new double[nBins];
         probabilityReverseMap = new int[nBins+1];
@@ -406,7 +404,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
     private static final long serialVersionUID = 1L;
     protected final MeterPotentialEnergy energyMeter;
     protected final P4BondTorsion torsionPotential;
-    protected IAtomPositionDefinition positionDefinition;
+    protected IMoleculePositionDefinition positionDefinition;
     protected final double[] probabilityBins;
     protected final double[] binSize;
     protected final int[] probabilityReverseMap;

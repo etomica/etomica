@@ -3,20 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.potential;
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.box.Box;
+
 import etomica.api.IPotential;
-import etomica.space.Vector;
-import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.*;
+import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.units.Dimension;
 import etomica.units.Energy;
 import etomica.units.Length;
@@ -39,6 +35,8 @@ import etomica.util.Debug;
  */
 public class P2SquareWellRobust extends Potential2HardSpherical implements AtomLeafAgentManager.AgentSource<AtomArrayList> {
 
+    protected final boolean ignoreOverlap;
+    protected final BoxAgentManager<AtomLeafAgentManager<AtomArrayList>> boxWellManager;
     protected double coreDiameter, coreDiameterSquared;
     protected double wellDiameter, wellDiameterSquared;
     protected double lambda; //wellDiameter = coreDiameter * lambda
@@ -47,11 +45,9 @@ public class P2SquareWellRobust extends Potential2HardSpherical implements AtomL
     protected Tensor lastCollisionVirialTensor;
     protected double lastEnergyChange;
     protected Vector dv;
-    protected final boolean ignoreOverlap;
-    protected final BoxAgentManager<AtomLeafAgentManager<AtomArrayList>> boxWellManager;
     protected AtomLeafAgentManager<AtomArrayList> wellManager;
     protected PotentialMasterList potentialMaster;
-    protected IAtomType[] atomTypes;
+    protected AtomType[] atomTypes;
     protected boolean suppressMakeAgent = false;
 
     public P2SquareWellRobust(Space space) {
@@ -85,7 +81,7 @@ public class P2SquareWellRobust extends Potential2HardSpherical implements AtomL
      * @param potentialMaster
      * @param types
      */
-    public void setPotentialMaster(PotentialMasterList potentialMaster, IAtomType[] types) {
+    public void setPotentialMaster(PotentialMasterList potentialMaster, AtomType[] types) {
         this.potentialMaster = potentialMaster;
         this.atomTypes = types;
     }

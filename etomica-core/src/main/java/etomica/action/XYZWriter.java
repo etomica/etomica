@@ -4,20 +4,20 @@
 
 package etomica.action;
 
+import etomica.api.IElement;
+import etomica.atom.AtomType;
+import etomica.atom.DiameterHashByType;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.chem.elements.ElementChemical;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.LinkedList;
-
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.box.Box;
-import etomica.api.IElement;
-import etomica.atom.DiameterHashByType;
-import etomica.chem.elements.ElementChemical;
 
 /**
  * Action that dumps a box's configuration to an XYZ file.  Arbitrary but 
@@ -27,6 +27,14 @@ import etomica.chem.elements.ElementChemical;
  */
 public class XYZWriter implements IAction, Serializable {
 
+    private static final long serialVersionUID = 1L;
+    private static final String[] elements = new String[]{"H", "O", "F", "N", "C", "P", "S"};
+    private static final int[] elementNum = new int[]{1, 8, 9, 7, 6, 15, 16};
+    private final LinkedList<ElementLinker> elementAtomType;
+    private final IAtomList leafList;
+    private File file;
+    private int elementCount = 0;
+    private boolean doAppend;
     public XYZWriter(Box aBox) {
         leafList = aBox.getLeafList();
         elementAtomType = new LinkedList<ElementLinker>();
@@ -34,26 +42,26 @@ public class XYZWriter implements IAction, Serializable {
 
     /**
      * Sets the file to write to.  This method (or setFileName) must be called
-     * before calling actionPerformed and again before calling 
+     * before calling actionPerformed and again before calling
      * writeRasmolScript.
      */
     public void setFile(File newFile) {
         file = newFile;
     }
-    
+
     /**
      * Sets the file name to write to.  This method (or setFile) must be called
-     * before calling actionPerformed and again before calling 
+     * before calling actionPerformed and again before calling
      * writeRasmolScript.
      */
     public void setFileName(String fileName) {
         file = new File(fileName);
     }
-    
+
     public void setIsAppend(boolean newDoAppend) {
         doAppend = newDoAppend;
     }
-    
+
     public boolean isAppend() {
         return doAppend;
     }
@@ -63,7 +71,7 @@ public class XYZWriter implements IAction, Serializable {
             throw new IllegalStateException("must call setFile or setFileName before actionPerformed");
         }
         FileWriter fileWriter;
-        try { 
+        try {
             fileWriter = new FileWriter(file,doAppend);
         }catch(IOException e) {
             System.err.println("Cannot open "+file.getPath()+", caught IOException: " + e.getMessage());
@@ -115,7 +123,7 @@ public class XYZWriter implements IAction, Serializable {
             throw new IllegalStateException("must call setFile or setFileName before writeRasmolScript");
         }
         FileWriter fileWriter;
-        try { 
+        try {
             fileWriter = new FileWriter(file);
         }catch(IOException e) {
             System.err.println("Cannot open "+file.getPath()+", caught IOException: " + e.getMessage());
@@ -134,20 +142,12 @@ public class XYZWriter implements IAction, Serializable {
         }
     }
     
-    private static final long serialVersionUID = 1L;
-    private File file;
-    private static final String[] elements = new String[] {"H", "O", "F", "N", "C", "P", "S"};
-    private static final int[] elementNum = new int[] {1, 8, 9, 7, 6, 15, 16};
-    private int elementCount = 0;
-    private final LinkedList<ElementLinker> elementAtomType;
-    private final IAtomList leafList;
-    private boolean doAppend;
-    
     private static final class ElementLinker implements Serializable {
-        public final int elementIndex;
-        public final IAtomType type;
         private static final long serialVersionUID = 1L;
-        public ElementLinker(int aElementIndex, IAtomType aType) {
+        public final int elementIndex;
+        public final AtomType type;
+
+        public ElementLinker(int aElementIndex, AtomType aType) {
             elementIndex = aElementIndex;
             type = aType;
         }

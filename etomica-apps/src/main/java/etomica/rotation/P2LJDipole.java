@@ -4,7 +4,7 @@
 
 package etomica.rotation;
 
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.space.Vector;
@@ -235,7 +235,7 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
     private double epsilon, epsilon4, epsilon48;
     private double hsdiasq=1.0/Math.sqrt(2);
     private double momentSq;
-    private IBoundary boundary;
+    private Boundary boundary;
     private final Vector dr, drunit, work;
     private final Vector[] gradient;
     protected final Vector[] torque;

@@ -8,8 +8,8 @@
  */
 package etomica.nbr.site;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.atom.AtomPair;
 import etomica.atom.iterator.AtomsetIteratorPDT;

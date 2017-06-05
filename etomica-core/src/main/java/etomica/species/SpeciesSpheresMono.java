@@ -3,14 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.species;
-import etomica.api.IAtom;
-import etomica.api.IAtomType;
+
 import etomica.api.IElement;
 import etomica.api.IMolecule;
-import etomica.atom.Atom;
-import etomica.atom.AtomLeafDynamic;
-import etomica.atom.AtomTypeLeaf;
-import etomica.atom.Molecule;
+import etomica.atom.*;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConformationLinear;
 import etomica.simulation.Simulation;
@@ -28,25 +24,30 @@ import etomica.space.Space;
  */
 public class SpeciesSpheresMono extends Species {
 
+    private static final long serialVersionUID = 1L;
+    protected final Space space;
+    protected final AtomType leafAtomType;
+    protected boolean isDynamic;
+
     /**
      * Constructs instance with a default element
      */
     public SpeciesSpheresMono(Simulation sim, Space _space) {
         this(_space, new ElementSimple(sim));
     }
-    
+
     public SpeciesSpheresMono(Space _space, IElement element) {
-        this(_space, new AtomTypeLeaf(element));
+        this(_space, new AtomType(element));
     }
-    
-    public SpeciesSpheresMono(Space space, IAtomType leafAtomType) {
+
+    public SpeciesSpheresMono(Space space, AtomType leafAtomType) {
         super();
         this.space = space;
         this.leafAtomType = leafAtomType;
         addChildType(leafAtomType);
         setConformation(new ConformationLinear(space, 1));
     }
-    
+
     public void setIsDynamic(boolean newIsDynamic) {
         isDynamic = newIsDynamic;
     }
@@ -55,10 +56,10 @@ public class SpeciesSpheresMono extends Species {
         return isDynamic;
     }
 
-    public IAtomType getLeafType() {
+    public AtomType getLeafType() {
         return leafAtomType;
     }
-    
+
     /**
      * Constructs a new group.
      */
@@ -76,9 +77,4 @@ public class SpeciesSpheresMono extends Species {
      public int getNumLeafAtoms() {
          return 1;
      }
-     
-     private static final long serialVersionUID = 1L;
-     protected final Space space;
-     protected boolean isDynamic;
-     protected final IAtomType leafAtomType;
 }

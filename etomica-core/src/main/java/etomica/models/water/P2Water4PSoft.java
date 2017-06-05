@@ -6,8 +6,10 @@
 package etomica.models.water;
 
 import etomica.api.*;
-import etomica.atom.AtomPositionCOM;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.MoleculePositionCOM;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.potential.IPotentialMolecularSecondDerivative;
 import etomica.space.Vector;
 import etomica.space.Space;
@@ -22,7 +24,7 @@ import etomica.space3d.Tensor3D;
 public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecondDerivative  {
 
     public P2Water4PSoft(final Space space, double sigma, double epsilon,
-                         double chargeH, double rCut, IAtomPositionDefinition positionDefinition) {
+                         double chargeH, double rCut, IMoleculePositionDefinition positionDefinition) {
         super(space, sigma, epsilon, chargeH,rCut, positionDefinition);
         gradient = new Vector[2];
         gradient[0] = space.makeVector();
@@ -339,9 +341,9 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 	   Tensor3D Rkp_ = new Tensor3D();
 	   Vector Xk = space.makeVector();
 	   Vector Xkp = space.makeVector();
-	   AtomPositionCOM com_0 = new AtomPositionCOM(space);
+	   MoleculePositionCOM com_0 = new MoleculePositionCOM(space);
 	   Vector comk = com_0.position(mol0);
-	   AtomPositionCOM com_1 = new AtomPositionCOM(space);
+	   MoleculePositionCOM com_1 = new MoleculePositionCOM(space);
 	   Vector comkp = com_1.position(mol1);
 	   int numSites0 = mol0.getChildList().getAtomCount();
 	   int numSites1 = mol1.getChildList().getAtomCount();

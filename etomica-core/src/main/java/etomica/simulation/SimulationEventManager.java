@@ -4,19 +4,12 @@
 
 package etomica.simulation;
 
+import etomica.api.*;
+import etomica.atom.AtomType;
+import etomica.box.Box;
+
 import java.io.IOException;
 import java.util.LinkedList;
-
-import etomica.api.IAtomType;
-import etomica.box.Box;
-import etomica.api.ISimulationAtomTypeIndexEvent;
-import etomica.api.ISimulationBoxEvent;
-import etomica.api.ISimulationEventManager;
-import etomica.api.ISimulationIndexEvent;
-import etomica.api.ISimulationListener;
-import etomica.api.ISimulationSpeciesEvent;
-import etomica.api.ISimulationSpeciesIndexEvent;
-import etomica.api.ISpecies;
 
 public class SimulationEventManager implements ISimulationEventManager {
 
@@ -32,7 +25,7 @@ public class SimulationEventManager implements ISimulationEventManager {
      */
     public synchronized void addListener(ISimulationListener listener) {
         if(listener == null) throw new NullPointerException("Cannot add null as a listener to Box");
-//        if (intervalListeners.contains(listener)) {
+//        if (listeners.contains(listener)) {
 //            throw new RuntimeException(listener+" is already an interval action");
 //        }
         intervalListeners.add(listener);
@@ -79,8 +72,8 @@ public class SimulationEventManager implements ISimulationEventManager {
             intervalListeners.get(i).simulationSpeciesMaxIndexChanged(e);
         }
     }
-    
-    public synchronized void atomTypeIndexChanged(IAtomType atomType, int index) {
+
+    public synchronized void atomTypeIndexChanged(AtomType atomType, int index) {
         ISimulationAtomTypeIndexEvent e = new SimulationAtomTypeIndexEvent(simulation, atomType, index);
         for(int i = 0; i < intervalListeners.size(); i++) {
             intervalListeners.get(i).simulationAtomTypeIndexChanged(e);

@@ -4,35 +4,34 @@
 
 package etomica.box;
 
-import java.lang.reflect.Array;
-
+import etomica.api.*;
 import etomica.simulation.Simulation;
-import etomica.api.ISimulationAtomTypeIndexEvent;
-import etomica.api.ISimulationBoxEvent;
-import etomica.api.ISimulationEventManager;
-import etomica.api.ISimulationIndexEvent;
-import etomica.api.ISimulationListener;
-import etomica.api.ISimulationSpeciesEvent;
-import etomica.api.ISimulationSpeciesIndexEvent;
-import etomica.simulation.SimulationBoxEvent;
 import etomica.util.Arrays;
 
+import java.lang.reflect.Array;
+
 /**
- * BoxAgentManager acts on behalf of client classes (a BoxAgentSource) to manage 
- * agents for each Box in a simulation.  When Box instances are added or removed 
- * from the simulation, the agents array (indexed by the box's index) is updated.  
- * The client should call getAgents() at any point where a Box might have have been 
+ * BoxAgentManager acts on behalf of client classes (a BoxAgentSource) to manage
+ * agents for each Box in a simulation.  When Box instances are added or removed
+ * from the simulation, the agents array (indexed by the box's index) is updated.
+ * The client should call getAgents() at any point where a Box might have have been
  * added to (or removed from) the system because the old array would be stale at that
- * point. 
+ * point.
+ *
  * @author andrew
  */
 public class BoxAgentManager<E> implements ISimulationListener {
+
+    protected final BoxAgentSource<E> agentSource;
+    protected final Class boxAgentClass;
+    protected ISimulationEventManager simEventManager;
+    protected E[] agents;
 
     public BoxAgentManager(BoxAgentSource<E> source, Class boxAgentClass) {
         agentSource = source;
         this.boxAgentClass = boxAgentClass;
         if (source == null) {
-            agents = (E[])Array.newInstance(boxAgentClass, 0);
+            agents = (E[]) Array.newInstance(boxAgentClass, 0);
         }
     }
 
@@ -41,7 +40,7 @@ public class BoxAgentManager<E> implements ISimulationListener {
         this.boxAgentClass = boxAgentClass;
         setSimulation(sim);
     }
-    
+
     /**
      * Returns the agent associated with the given box
      */
@@ -49,12 +48,12 @@ public class BoxAgentManager<E> implements ISimulationListener {
         if (box.getIndex() >= agents.length) return null;
         return agents[box.getIndex()];
     }
-    
+
     public void setAgent(Box box, E agent) {
         int idx = box.getIndex();
         if (idx >= agents.length) {
             // no room in the array.  reallocate the array with an extra cushion.
-            agents = (E[])Arrays.resizeArray(agents,idx+1);
+            agents = (E[]) Arrays.resizeArray(agents, idx + 1);
         }
         agents[box.getIndex()] = agent;
     }
@@ -65,7 +64,7 @@ public class BoxAgentManager<E> implements ISimulationListener {
     public AgentIterator<E> makeIterator() {
         return new AgentIterator<E>(this);
     }
-    
+
     /**
      * Sets the Simulation containing Boxs to be tracked.  This method should
      * not be called if setSimulationEventManager is called.
@@ -78,17 +77,17 @@ public class BoxAgentManager<E> implements ISimulationListener {
         // hope the class returns an actual class with a null Atom and use it to construct
         // the array
         int boxCount = sim.getBoxCount();
-        agents = (E[])Array.newInstance(boxAgentClass, boxCount);
+        agents = (E[]) Array.newInstance(boxAgentClass, boxCount);
         if (agentSource == null) {
             return;
         }
-        for (int i=0; i<boxCount; i++) {
+        for (int i = 0; i < boxCount; i++) {
             addAgent(sim.getBox(i));
         }
     }
-    
+
     /**
-     * Notifies the BoxAgentManager that it should release all agents and 
+     * Notifies the BoxAgentManager that it should release all agents and
      * stop listening for events from the simulation.
      */
     public void dispose() {
@@ -97,7 +96,7 @@ public class BoxAgentManager<E> implements ISimulationListener {
             simEventManager.removeListener(this);
         }
         if (agentSource != null) {
-            for (int i=0; i<agents.length; i++) {
+            for (int i = 0; i < agents.length; i++) {
                 if (agents[i] != null) {
                     agentSource.releaseAgent(agents[i]);
                 }
@@ -105,11 +104,11 @@ public class BoxAgentManager<E> implements ISimulationListener {
         }
         agents = null;
     }
-    
+
     public void simulationBoxAdded(ISimulationBoxEvent e) {
         addAgent(e.getBox());
     }
-    
+
     public void simulationBoxRemoved(ISimulationBoxEvent e) {
         Box box = e.getBox();
         // The given Box got removed.  The remaining boxes got shifted
@@ -118,56 +117,65 @@ public class BoxAgentManager<E> implements ISimulationListener {
         if (agentSource != null) {
             agentSource.releaseAgent(agents[index]);
         }
-        for (int i=index; i<agents.length-1; i++) {
-            agents[i] = agents[i+1];
+        for (int i = index; i < agents.length - 1; i++) {
+            agents[i] = agents[i + 1];
         }
-        agents = (E[])Arrays.resizeArray(agents,agents.length-1);
+        agents = (E[]) Arrays.resizeArray(agents, agents.length - 1);
     }
-    
-    public void simulationSpeciesAdded(ISimulationSpeciesEvent e) {}
-    public void simulationSpeciesRemoved(ISimulationSpeciesEvent e) {}
-    public void simulationSpeciesIndexChanged(ISimulationSpeciesIndexEvent e) {}
-    public void simulationSpeciesMaxIndexChanged(ISimulationIndexEvent e) {}
-    public void simulationAtomTypeIndexChanged(ISimulationAtomTypeIndexEvent e) {}
-    public void simulationAtomTypeMaxIndexChanged(ISimulationIndexEvent e) {}
-    
+
+    public void simulationSpeciesAdded(ISimulationSpeciesEvent e) {
+    }
+
+    public void simulationSpeciesRemoved(ISimulationSpeciesEvent e) {
+    }
+
+    public void simulationSpeciesIndexChanged(ISimulationSpeciesIndexEvent e) {
+    }
+
+    public void simulationSpeciesMaxIndexChanged(ISimulationIndexEvent e) {
+    }
+
+    public void simulationAtomTypeIndexChanged(ISimulationAtomTypeIndexEvent e) {
+    }
+
+    public void simulationAtomTypeMaxIndexChanged(ISimulationIndexEvent e) {
+    }
+
     protected void addAgent(Box box) {
-        agents = (E[])Arrays.resizeArray(agents,box.getIndex()+1);
+        agents = (E[]) Arrays.resizeArray(agents, box.getIndex() + 1);
         if (agentSource != null) {
             agents[box.getIndex()] = agentSource.makeAgent(box);
         }
     }
-    
     /**
      * Interface for an object that makes an agent to be placed in each atom
      * upon construction.  AgentSource objects register with the AtomFactory
      * the produces the atom.
      */
     public interface BoxAgentSource<E> {
-        public E makeAgent(Box box);
-        
-        //allow any agent to be disconnected from other elements 
-        public void releaseAgent(E agent); 
+        E makeAgent(Box box);
+
+        //allow any agent to be disconnected from other elements
+        void releaseAgent(E agent);
     }
 
-    protected final BoxAgentSource<E> agentSource;
-    protected final Class boxAgentClass;
-    protected ISimulationEventManager simEventManager;
-    protected E[] agents;
-    
     /**
      * Iterator that loops over the agents, skipping null elements
      */
     public static class AgentIterator<E> {
+        private final BoxAgentManager<E> agentManager;
+        private int cursor;
+        private E[] agents;
+
         protected AgentIterator(BoxAgentManager<E> agentManager) {
             this.agentManager = agentManager;
         }
-        
+
         public void reset() {
             cursor = 0;
             agents = agentManager.agents;
         }
-        
+
         public boolean hasNext() {
             while (cursor < agents.length) {
                 if (agents[cursor] != null) {
@@ -177,20 +185,16 @@ public class BoxAgentManager<E> implements ISimulationListener {
             }
             return false;
         }
-        
+
         public E next() {
             cursor++;
-            while (cursor-1 < agents.length) {
-                if (agents[cursor-1] != null) {
-                    return agents[cursor-1];
+            while (cursor - 1 < agents.length) {
+                if (agents[cursor - 1] != null) {
+                    return agents[cursor - 1];
                 }
                 cursor++;
             }
             return null;
         }
-        
-        private final BoxAgentManager<E> agentManager;
-        private int cursor;
-        private E[] agents;
     }
 }

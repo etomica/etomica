@@ -6,18 +6,18 @@ package etomica.modules.chainequilibrium;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.IController;
-import etomica.api.IAtom;
-import etomica.api.IAtomType;
-import etomica.box.Box;
 import etomica.api.IMoleculeList;
-import etomica.potential.PotentialMaster;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
+import etomica.box.Box;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
@@ -27,7 +27,9 @@ import etomica.units.Kelvin;
 
 public class FreeRadicalPolymerizationSim extends Simulation implements AgentSource<IAtom[]> {
 
-	public IController controller1;
+    public final PotentialMaster potentialMaster;
+    public final ConfigurationLatticeFreeRadical config;
+    public IController controller1;
 	public IntegratorHard integratorHard;
 	public java.awt.Component display;
 	public Box box;
@@ -37,8 +39,6 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
 	public P2SquareWellRadical p2AB, p2BB;
     public ActivityIntegrate activityIntegrate;
     public AtomLeafAgentManager<IAtom[]> agentManager = null;
-    public final PotentialMaster potentialMaster;
-    public final ConfigurationLatticeFreeRadical config;
 
     public FreeRadicalPolymerizationSim() {
         this(Space2D.getInstance());
@@ -87,11 +87,11 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
         p2BB = new P2SquareWellRadical(space, agentManager, diameter / lambda, lambda, 0.0, random);
 
 		potentialMaster.addPotential(p2AA,
-		        new IAtomType[] { speciesA.getLeafType(), speciesA.getLeafType() });
-		potentialMaster.addPotential(p2AB,
-		        new IAtomType[] { speciesA.getLeafType(), speciesB.getLeafType() });
+                new AtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
+        potentialMaster.addPotential(p2AB,
+                new AtomType[]{speciesA.getLeafType(), speciesB.getLeafType()});
         potentialMaster.addPotential(p2BB,
-                new IAtomType[] { speciesB.getLeafType(), speciesB.getLeafType() });
+                new AtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
 
 		// **** Setting Up the thermometer Meter *****
 		

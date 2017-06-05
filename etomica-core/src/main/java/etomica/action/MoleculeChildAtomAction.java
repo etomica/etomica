@@ -6,7 +6,7 @@ package etomica.action;
 
 import java.io.Serializable;
 
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.api.IMolecule;
 
 /**

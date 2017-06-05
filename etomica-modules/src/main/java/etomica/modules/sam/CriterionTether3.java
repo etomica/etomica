@@ -4,29 +4,39 @@
 
 package etomica.modules.sam;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
+import etomica.box.Box;
 import etomica.nbr.NeighborCriterion;
+import etomica.simulation.Simulation;
 
 /**
  * Returns first leaf atom of each polymer molecule and the atom its bonded to.
  */
 public class CriterionTether3 implements NeighborCriterion, MoleculeAgentSource {
 
-    public CriterionTether3(Simulation sim, ISpecies polymerSpecies, IAtomType surfaceType) {
+    protected final Simulation sim;
+    protected final ISpecies polymerSpecies;
+    protected final AtomType surfaceType;
+    protected Box box;
+    protected IMoleculeList polymerList;
+    protected MoleculeAgentManager bondManager;
+    protected int cursor;
+    protected int surfaceCursor;
+    protected IMolecule targetMolecule;
+
+    public CriterionTether3(Simulation sim, ISpecies polymerSpecies, AtomType surfaceType) {
         this.sim = sim;
         this.polymerSpecies = polymerSpecies;
         this.surfaceType = surfaceType;
     }
-    
+
     public void setBox(Box newBox) {
         if (box != newBox) {
             if (box != null) {
@@ -89,14 +99,4 @@ public class CriterionTether3 implements NeighborCriterion, MoleculeAgentSource 
 
     public void releaseAgent(Object agent, IMolecule atom) {
     }
-
-    protected final Simulation sim;
-    protected Box box;
-    protected final ISpecies polymerSpecies;
-    protected IMoleculeList polymerList;
-    protected MoleculeAgentManager bondManager;
-    protected int cursor;
-    protected int surfaceCursor;
-    protected IMolecule targetMolecule;
-    protected final IAtomType surfaceType;
 }

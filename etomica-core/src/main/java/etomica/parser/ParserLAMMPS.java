@@ -1,47 +1,32 @@
 package etomica.parser;
 
+import etomica.api.IPotentialAtomic;
+import etomica.api.ISpecies;
+import etomica.atom.AtomType;
+import etomica.atom.iterator.ApiIndexList;
+import etomica.atom.iterator.Atomset3IteratorIndexList;
+import etomica.atom.iterator.Atomset4IteratorIndexList;
+import etomica.chem.elements.ElementSimple;
+import etomica.config.ConformationGeneric;
+import etomica.potential.*;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.space3d.Space3D;
+import etomica.species.SpeciesSpheresCustom;
+import etomica.units.*;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import etomica.api.IAtomType;
-import etomica.api.IPotentialAtomic;
-import etomica.api.ISpecies;
-import etomica.space.Vector;
-import etomica.atom.AtomTypeLeaf;
-import etomica.atom.iterator.ApiIndexList;
-import etomica.atom.iterator.Atomset3IteratorIndexList;
-import etomica.atom.iterator.Atomset4IteratorIndexList;
-import etomica.chem.elements.ElementSimple;
-import etomica.config.ConformationGeneric;
-import etomica.potential.P2Harmonic;
-import etomica.potential.P2LennardJones;
-import etomica.potential.P2SoftSphericalTruncatedForceShifted;
-import etomica.potential.P2SoftSphericalTruncatedShifted;
-import etomica.potential.P2SoftSphericalTruncatedSwitched;
-import etomica.potential.P2SoftTruncated;
-import etomica.potential.P3BondAngle;
-import etomica.potential.P4BondTorsionOPLS;
-import etomica.potential.Potential2SoftSpherical;
-import etomica.potential.PotentialGroup;
-import etomica.space.Space;
-import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresCustom;
-import etomica.units.Calorie;
-import etomica.units.Mole;
-import etomica.units.Prefix;
-import etomica.units.PrefixedUnit;
-import etomica.units.Unit;
-import etomica.units.UnitRatio;
-
 public class ParserLAMMPS {
 
 	public static Stuff makeStuffFromLines(List<String> lines, Options opts) {
         String heading = null;
-        IAtomType[] atomTypes = null;
-        P2Harmonic[] p2Bonds = null;
+		AtomType[] atomTypes = null;
+		P2Harmonic[] p2Bonds = null;
         P3BondAngle[] p3Bonds = null;
         P4BondTorsionOPLS[] p4Bonds = null;
         int[] atomCounts = null;
@@ -70,8 +55,8 @@ public class ParserLAMMPS {
     			}
     			if (line.matches("^[0-9]* atom types")) {
     				int n = Integer.parseInt(fields[0]);
-    				atomTypes = new IAtomType[n];
-    				atomCounts = new int[n];
+					atomTypes = new AtomType[n];
+					atomCounts = new int[n];
     				sigma = new double[n];
     				epsilon = new double[n];
     				continue;
@@ -102,8 +87,8 @@ public class ParserLAMMPS {
     			}
         		if (heading.matches("masses")) {
         			int idx = Integer.parseInt(fields[0]);
-        			atomTypes[idx-1] = new AtomTypeLeaf(new ElementSimple(symbol+"", Double.parseDouble(fields[1])));
-        			symbol++;
+					atomTypes[idx - 1] = new AtomType(new ElementSimple(symbol + "", Double.parseDouble(fields[1])));
+					symbol++;
         			continue;
         		}
         		if (heading.matches("pair coeffs.*")) {
@@ -180,8 +165,8 @@ public class ParserLAMMPS {
     				p = new P2SoftSphericalTruncatedSwitched(opts.space, (Potential2SoftSpherical)p, opts.rc);
     				break;
     			}
-    			pInter.addPotential(p, new IAtomType[]{atomTypes[i-1],atomTypes[j-1]});
-        	}
+				pInter.addPotential(p, new AtomType[]{atomTypes[i - 1], atomTypes[j - 1]});
+			}
         }
         
         PotentialGroup pIntra = new PotentialGroup(1, opts.space);
@@ -232,25 +217,26 @@ public class ParserLAMMPS {
         }
 	}
 
+	public static void main(String[] args) {
+		ParserLAMMPS.makeStuff("test.lammps", new Options());
+	}
+
+	public enum Truncation {NONE, TRUNCATED, SHIFTED, FORCE_SHIFTED, SWITCHED}
+
 	public static class Stuff {
+		public final PotentialGroup intraPotential;
+		public final PotentialGroup interPotential;
+		public final ISpecies species;
 		public Stuff(PotentialGroup intraPotential, PotentialGroup interPotential, ISpecies species) {
 			this.intraPotential = intraPotential;
 			this.interPotential = interPotential;
 			this.species = species;
 		}
-		public final PotentialGroup intraPotential;
-		public final PotentialGroup interPotential;
-		public final ISpecies species;
 	}
 
-	public enum Truncation {NONE, TRUNCATED, SHIFTED, FORCE_SHIFTED, SWITCHED};
 	public static class Options {
 		public Space space = Space3D.getInstance();
 		public Truncation truncation = Truncation.NONE;
 		public double rc = Double.POSITIVE_INFINITY;
-	}
-
-	public static void main(String[] args) {
-		ParserLAMMPS.makeStuff("test.lammps", new Options());
 	}
 }

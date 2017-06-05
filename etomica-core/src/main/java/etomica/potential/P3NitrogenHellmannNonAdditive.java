@@ -4,8 +4,8 @@
 
 package etomica.potential;
 
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.space.Vector;
@@ -18,7 +18,7 @@ import etomica.units.Kelvin;
 
 public class P3NitrogenHellmannNonAdditive implements IPotentialAtomic{
             
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected Space space;
     protected double[] q,pos;    
     public boolean parametersB = true; // set this to false if using parameters for V_12^A potential

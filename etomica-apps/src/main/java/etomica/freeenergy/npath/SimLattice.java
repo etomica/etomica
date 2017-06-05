@@ -5,11 +5,13 @@
 package etomica.freeenergy.npath;
 
 import etomica.action.BoxInflate;
-import etomica.api.*;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.simulation.Simulation;
+import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -87,7 +89,7 @@ public class SimLattice extends Simulation {
         }
 
         final SimLattice sim = new SimLattice(numAtoms, temperature, density, w, offsetDim);
-        IBoundary boundary = sim.box.getBoundary();
+        Boundary boundary = sim.box.getBoundary();
         Vector offset = sim.space.makeVector();
         offset.setX(offsetDim, sim.box.getBoundary().getBoxSize().getX(offsetDim)*0.5);
         IAtomList atoms = sim.box.getLeafList();

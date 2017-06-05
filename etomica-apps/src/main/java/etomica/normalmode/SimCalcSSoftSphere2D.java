@@ -6,8 +6,7 @@ package etomica.normalmode;
 
 import etomica.action.PDBWriter;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
-import etomica.space.Vector;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -29,6 +28,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.species.SpeciesSpheresMono;
 
 /**
@@ -39,6 +39,16 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class SimCalcSSoftSphere2D extends Simulation {
 
+    private static final long serialVersionUID = 1L;
+    public IntegratorMC integrator;
+    public ActivityIntegrate activityIntegrate;
+    public Box box;
+    public Boundary boundary;
+    public Primitive primitive;
+    public Basis basis;
+    public int[] nCells;
+    public CoordinateDefinition coordinateDefinition;
+    public PotentialMasterMonatomic potentialMaster;
     public SimCalcSSoftSphere2D(Space _space, int numAtoms, int[] nCells, double temperature, int exponent) {
         super(_space);
 
@@ -58,7 +68,7 @@ public class SimCalcSSoftSphere2D extends Simulation {
         move.setStepSizeMax(0.5);
         integrator.getMoveManager().addMCMove(move);
         ((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
-        
+
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         // activityIntegrate.setMaxSteps(nSteps);
@@ -66,34 +76,34 @@ public class SimCalcSSoftSphere2D extends Simulation {
         primitive = new PrimitiveOrthorhombicHexagonal(space, 1);
         Vector[] dimension = space.makeVectorArray(2);
         for(int i=0; i<space.D(); i++){
-        	dimension[i].Ea1Tv1(nCells[i], primitive.vectors()[i]);	
+            dimension[i].Ea1Tv1(nCells[i], primitive.vectors()[i]);
         }
         boundary = new BoundaryDeformablePeriodic(space, dimension);
         basis = new BasisOrthorhombicHexagonal();
-        
+
         Potential2SoftSpherical potential = new P2SoftSphere(space);
-        
+
         double truncationRadius = boundary.getBoxSize().getX(0) * 0.495;
         P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
-        //potentialMaster.lrcMaster().setEnabled(false); //turn off the long-range correction ::updated 7/4/2008 
-        
-        IAtomType sphereType = species.getLeafType();
-        potentialMaster.addPotential(pTruncated, new IAtomType[] {sphereType, sphereType});
+        //potentialMaster.lrcMaster().setEnabled(false); //turn off the long-range correction ::updated 7/4/2008
+
+        AtomType sphereType = species.getLeafType();
+        potentialMaster.addPotential(pTruncated, new AtomType[]{sphereType, sphereType});
         move.setPotential(pTruncated);
 
         box.setBoundary(boundary);
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
-        
-        
+
+
         /*
-         * 1-body Potential to Constraint the atom from moving too far 
+         * 1-body Potential to Constraint the atom from moving too far
          * 	away from its lattice-site
          */
        P1Constraint p1Constraint = new P1Constraint(space, primitive.getSize()[0], box, coordinateDefinition);
-       potentialMaster.addPotential(p1Constraint, new IAtomType[]{sphereType});
-        
+        potentialMaster.addPotential(p1Constraint, new AtomType[]{sphereType});
+
        integrator.setBox(box);
     }
 
@@ -109,7 +119,7 @@ public class SimCalcSSoftSphere2D extends Simulation {
         int nA = 2*nCells[0]*nCells[1];
         double temperature = 0.1;
         int exponent = 12 ;
-        
+
         long simSteps =100000;
 
         if (args.length > 1) {
@@ -147,7 +157,7 @@ public class SimCalcSSoftSphere2D extends Simulation {
         MeterNormalMode meterNormalMode = new MeterNormalMode();
         meterNormalMode.setCoordinateDefinition(sim.coordinateDefinition);
         WaveVectorFactory waveVectorFactory= new WaveVectorFactory2D(primitive, sim.space);
-      
+
         meterNormalMode.setWaveVectorFactory(waveVectorFactory);
         meterNormalMode.setBox(sim.box);
 
@@ -155,33 +165,33 @@ public class SimCalcSSoftSphere2D extends Simulation {
         meterNormalModeListener.setInterval(nA);
         sim.integrator.getEventManager().addListener(meterNormalModeListener);
 
-  
+
         MeterPressure meterPressure = new MeterPressure(sim.space);
         meterPressure.setIntegrator(sim.integrator);
         System.out.println("\nPressure Lattice: "+ meterPressure.getDataAsScalar());
         //System.exit(1);
-        
-        
+
+
         MeterPotentialEnergy meterEnergy = new MeterPotentialEnergy(sim.potentialMaster);
         meterEnergy.setBox(sim.box);
         System.out.println("Lattice Energy per particle: "+ meterEnergy.getDataAsScalar()/nA);
         System.out.println(" ");
         //System.exit(1);
-        
+
         AccumulatorAverage pressureAverage = new AccumulatorAverageCollapsing();
 	    DataPump pressurePump = new DataPump(meterPressure, pressureAverage);
-	    
+
         IntegratorListenerAction pressurePumpListener = new IntegratorListenerAction(pressurePump);
         pressurePumpListener.setInterval(100);
 	    sim.integrator.getEventManager().addListener(pressurePumpListener);
-	    
+
         AccumulatorAverage energyAverage = new AccumulatorAverageCollapsing();
         DataPump energyPump = new DataPump(meterEnergy, energyAverage);
-        
+
         IntegratorListenerAction energyPumpListener = new IntegratorListenerAction(energyPump);
         energyPumpListener.setInterval(100);
         sim.integrator.getEventManager().addListener(energyPumpListener);
-        
+
         sim.activityIntegrate.setMaxSteps(simSteps/10);  //simSteps/10
         sim.getController().actionPerformed();
         System.out.println("equilibrated");
@@ -198,29 +208,18 @@ public class SimCalcSSoftSphere2D extends Simulation {
         IntegratorListenerAction sWriterListener = new IntegratorListenerAction(sWriter);
         sWriterListener.setInterval((int)simSteps/10);
         sim.integrator.getEventManager().addListener(sWriterListener);
-        
+
         sim.activityIntegrate.setMaxSteps(simSteps);
         sim.getController().actionPerformed();
         PDBWriter pdbWriter = new PDBWriter(sim.box);
         pdbWriter.setFileName("calcS_nA"+nA+"_n"+exponent+"_T"+temperature+".pdb");
         pdbWriter.actionPerformed();
-        
-        System.out.println("Average Energy: "+ energyAverage.getData().getValue(energyAverage.AVERAGE.index));
-        System.out.println("Error Energy: "+ energyAverage.getData().getValue(energyAverage.ERROR.index));
-        System.out.println(" ");
-        
-        System.out.println("Average Pressure: "+ pressureAverage.getData().getValue(energyAverage.AVERAGE.index));
-        System.out.println("Error Pressure: "+ pressureAverage.getData().getValue(energyAverage.ERROR.index));
-    }
 
-    private static final long serialVersionUID = 1L;
-    public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
-    public Box box;
-    public Boundary boundary;
-    public Primitive primitive;
-    public Basis basis;
-    public int[] nCells;
-    public CoordinateDefinition coordinateDefinition;
-    public PotentialMasterMonatomic potentialMaster;
+        System.out.println("Average Energy: " + energyAverage.getData().getValue(AccumulatorAverage.AVERAGE.index));
+        System.out.println("Error Energy: " + energyAverage.getData().getValue(AccumulatorAverage.ERROR.index));
+        System.out.println(" ");
+
+        System.out.println("Average Pressure: " + pressureAverage.getData().getValue(AccumulatorAverage.AVERAGE.index));
+        System.out.println("Error Pressure: " + pressureAverage.getData().getValue(AccumulatorAverage.ERROR.index));
+    }
 }

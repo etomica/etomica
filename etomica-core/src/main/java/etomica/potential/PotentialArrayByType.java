@@ -4,8 +4,8 @@
 
 package etomica.potential;
 
-import etomica.api.IAtomType;
 import etomica.api.IPotential;
+import etomica.atom.AtomType;
 import etomica.util.Arrays;
 
 /**
@@ -20,6 +20,11 @@ import etomica.util.Arrays;
  */
 public class PotentialArrayByType implements java.io.Serializable {
 
+    private static final long serialVersionUID = 1L;
+    private IPotential[] potentials = new IPotential[0];
+    private AtomType[] types = new AtomType[0];
+    private int mostRecentIndex = -1;
+    
 	public PotentialArrayByType() {
 		super();
 	}
@@ -37,7 +42,7 @@ public class PotentialArrayByType implements java.io.Serializable {
         mostRecentIndex = -1;
         while(++mostRecentIndex < potentials.length) {
             if(potentials[mostRecentIndex]==potential) {
-                return mostRecentIndex; 
+                return mostRecentIndex;
             }
         }
         throw new IllegalArgumentException("Potential "+potential+" is unknown");
@@ -47,24 +52,24 @@ public class PotentialArrayByType implements java.io.Serializable {
      * Identifies the given potential to this type instance and returns
      * the index assigned to it.  If potential was previously added,
      * no action is taken other than to return the previously assigned
-     * index for the potential (acts same as getPotentialIndex in this 
+     * index for the potential (acts same as getPotentialIndex in this
      * case).
      * @param newPotential the potential being added
      * @return the new or previously assigned index for the potential
      */
-    public int addPotential(IPotential newPotential, IAtomType type) {
-    	for(mostRecentIndex=0; mostRecentIndex<potentials.length; mostRecentIndex++) {
+    public int addPotential(IPotential newPotential, AtomType type) {
+        for(mostRecentIndex=0; mostRecentIndex<potentials.length; mostRecentIndex++) {
     		if(potentials[mostRecentIndex] == newPotential) return mostRecentIndex;
     	}
         potentials = (IPotential[])Arrays.addObject(potentials, newPotential);
-        types = (IAtomType[])Arrays.resizeArray(types, potentials.length);
+        types = (AtomType[]) Arrays.resizeArray(types, potentials.length);
         types[types.length-1] = type;
     	return potentials.length-1;
     }
-    
+
     /**
-     * Removes the given potential and the associated criterion from the list 
-     * held by this type instance, and returns the index that was assigned to 
+     * Removes the given potential and the associated criterion from the list
+     * held by this type instance, and returns the index that was assigned to
      * it.  If the potential was not previously added to this instance, returns
      * -1.
      */
@@ -76,7 +81,7 @@ public class PotentialArrayByType implements java.io.Serializable {
     	    	System.arraycopy(potentials,i+1,newPotentials,i,potentials.length-i-1);
     	    	potentials = newPotentials;
 
-                IAtomType[] newTypes = new IAtomType[types.length-1];
+                AtomType[] newTypes = new AtomType[types.length - 1];
                 System.arraycopy(types,0,newTypes,0,i);
                 System.arraycopy(types,i+1,newTypes,i,types.length-i-1);
                 types = newTypes;
@@ -85,17 +90,12 @@ public class PotentialArrayByType implements java.io.Serializable {
     	}
     	return -1;
     }
-    
+
     public final IPotential[] getPotentials() {
     	return potentials;
     }
-    
-    public final IAtomType[] getTypes() {
+
+    public final AtomType[] getTypes() {
         return types;
     }
-    
-    private static final long serialVersionUID = 1L;
-    private IPotential[] potentials = new IPotential[0];
-    private IAtomType[] types = new IAtomType[0];
-    private int mostRecentIndex = -1;
 }

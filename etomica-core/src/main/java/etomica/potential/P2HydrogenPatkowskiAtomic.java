@@ -6,9 +6,9 @@ package etomica.potential;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.space.Vector;
@@ -104,7 +104,7 @@ public class P2HydrogenPatkowskiAtomic implements IPotentialAtomic {
     protected final double [][] p2 = new double[51][51];
     protected final double [] rr = new double[10];
     protected final double [] elong = new double[20];
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected static final double rMin = 1.4;
     protected final Vector dr,com0,com1,hh0,hh1,n0,n1;
     protected static double[][] xPos = {{0.0374,-0.2422,0.2792},{-0.0374,0.2422,-0.2792},{-0.016,-1.2877,2.9799},{-0.0196,-2.0073,2.7949},{-0.1047,1.5911,2.54},{0.063,1.7936,3.2349}};

@@ -12,6 +12,7 @@ import java.util.Formatter;
 
 import etomica.api.*;
 import etomica.box.Box;
+import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.space.Space;
 
@@ -239,7 +240,7 @@ public void runQChem() {
         this.box = box;
     }
 	
-	protected IBoundary boundary;
+	protected Boundary boundary;
 
 	private Box box;
 	

@@ -4,8 +4,10 @@
 
 package etomica.integrator.mcmove;
 import etomica.api.*;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.MoleculePositionGeometricCenter;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.space.Space;
@@ -17,21 +19,21 @@ public class MCMoveRotateMolecule3D extends MCMoveMolecule {
     private static final long serialVersionUID = 2L;
     protected transient Vector r0;
     protected transient RotationTensor rotationTensor;
-    protected IAtomPositionDefinition positionDefinition;
+    protected IMoleculePositionDefinition positionDefinition;
     
     public MCMoveRotateMolecule3D(PotentialMaster potentialMaster, IRandom random,
                                   Space _space) {
         super(potentialMaster, random, _space, Math.PI/2, Math.PI);
         rotationTensor = _space.makeRotationTensor();
         r0 = _space.makeVector();
-        positionDefinition = new AtomPositionGeometricCenter(space);
+        positionDefinition = new MoleculePositionGeometricCenter(space);
     }
      
-    public IAtomPositionDefinition getPositionDefinition() {
+    public IMoleculePositionDefinition getPositionDefinition() {
 		return positionDefinition;
     }
 
-	public void setPositionDefinition(IAtomPositionDefinition positionDefinition) {
+	public void setPositionDefinition(IMoleculePositionDefinition positionDefinition) {
 		this.positionDefinition = positionDefinition;
 	}
 

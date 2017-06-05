@@ -7,7 +7,7 @@ package etomica.potential;
 import java.math.BigDecimal;
 import java.math.MathContext;
 
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;

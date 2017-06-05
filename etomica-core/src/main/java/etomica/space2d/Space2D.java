@@ -4,11 +4,8 @@
 
 package etomica.space2d;
 
-import etomica.api.IBoundary;
-import etomica.space.Vector;
-import etomica.space.IOrientation;
-import etomica.space.RotationTensor;
-import etomica.space.Space;
+import etomica.space.Boundary;
+import etomica.space.*;
 
 /**
  * Factory and methods appropriate to a 2-dimensional space.  This is
@@ -92,7 +89,7 @@ public final class Space2D extends Space {
      * to a nearest image transformation.  This method constructs a new vector that
      * is used as the work-vector input to the other r2 method.
      */
-    public static final double r2(Vector2D u1, Vector2D u2, IBoundary b) {
+    public static final double r2(Vector2D u1, Vector2D u2, Boundary b) {
         return r2(u1, u2, b, new Vector2D());
     }
 
@@ -104,7 +101,7 @@ public final class Space2D extends Space {
      * @param b a nearest image transformation
      * @param work a work vector used for the calculation.
      */
-    public static final double r2(Vector2D u1, Vector2D u2, IBoundary b,
+    public static final double r2(Vector2D u1, Vector2D u2, Boundary b,
             Vector2D work) {
         work.Ev1Mv2(u1, u2);
         b.nearestImage(work);

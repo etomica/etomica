@@ -4,11 +4,11 @@
 
 package etomica.species;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.api.IMolecule;
+import etomica.atom.MoleculePositionCOM;
 import etomica.space.Vector;
-import etomica.atom.AtomPositionCOM;
 import etomica.space.Space;
 
 
@@ -33,7 +33,7 @@ public abstract class SpeciesOriented extends Species implements ISpeciesOriente
         IAtomList children = molecule.getChildList();
         conformation.initializePositions(children);
         Vector com = space.makeVector();
-        AtomPositionCOM positionCOM = new AtomPositionCOM(space);
+        MoleculePositionCOM positionCOM = new MoleculePositionCOM(space);
         com.E(positionCOM.position(molecule));
         double[] I = new double[3];
         Vector xWork = space.makeVector();

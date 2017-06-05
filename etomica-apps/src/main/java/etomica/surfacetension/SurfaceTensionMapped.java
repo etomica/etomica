@@ -3,6 +3,8 @@ package etomica.surfacetension;
 import etomica.api.*;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
 import etomica.data.DataPipe;

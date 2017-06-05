@@ -4,11 +4,10 @@
 
 package etomica.virial;
 
-import etomica.api.IAtomType;
 import etomica.api.IMolecule;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
-import etomica.atom.AtomTypeLeaf;
+import etomica.atom.AtomType;
 import etomica.atom.Molecule;
 import etomica.chem.elements.ElementSimple;
 import etomica.space.Space;
@@ -25,10 +24,16 @@ import etomica.species.Species;
  */
 public class SpeciesPh3site545 extends Species {
 
+    public final static int indexC1 = 0;
+    public final static int indexCH1 = 1;
+    public final static int indexCH2 = 2;
+    private static final long serialVersionUID = 1L;
+    protected final Space space;
+    protected final boolean isDynamic;
+    protected final AtomType cType, chType;
     public SpeciesPh3site545(Space space) {
         this(space, false);
     }
-    
     public SpeciesPh3site545(Space space, boolean isDynamic) {
         super();
         this.space = space;
@@ -38,32 +43,32 @@ public class SpeciesPh3site545 extends Species {
         //CHMass is the side site, including 5 carbons and 5 hydrogens
         double CMass = 4 * 12.0107;
         double CHMass = 5 * 12.0107 + 1 * 5;
-        chType = new AtomTypeLeaf(new ElementSimple("CH", CHMass));//"5" include hydrogen
-        cType = new AtomTypeLeaf(new ElementSimple("C", CMass));//"4" exclude hydrogen
-               
+        chType = new AtomType(new ElementSimple("CH", CHMass));//"5" include hydrogen
+        cType = new AtomType(new ElementSimple("C", CMass));//"4" exclude hydrogen
+
         ////should change because it is not united atom!!!
         addChildType(chType);
         addChildType(cType);
 
-        setConformation(new ConformationPh3site(space)); 
+        setConformation(new ConformationPh3site(space));
      }
 
-     public IMolecule makeMolecule() {
+    public IMolecule makeMolecule() {
          Molecule Phenanthrene = new Molecule(this, 3);
          // 2 Carbon without H, 8 Carbon with H
          Phenanthrene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, cType) : new Atom(space, cType));
-         
+
          Phenanthrene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, chType) : new Atom(space, chType));
          Phenanthrene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, chType) : new Atom(space, chType));
          conformation.initializePositions(Phenanthrene.getChildList());
          return Phenanthrene;
      }
 
-     public IAtomType getCType() {
+    public AtomType getCType() {
          return cType;
      }
 
-     public IAtomType getCHType() {
+    public AtomType getCHType() {
          return chType;
      }
 
@@ -71,14 +76,4 @@ public class SpeciesPh3site545 extends Species {
      public int getNumLeafAtoms() {
          return 3;
      }
-    
-    public final static int indexC1 = 0;
-    public final static int indexCH1 = 1;
-    public final static int indexCH2 = 2;
-   
-    
-    private static final long serialVersionUID = 1L;
-    protected final Space space;
-    protected final boolean isDynamic;
-    protected final AtomTypeLeaf cType, chType;
 }

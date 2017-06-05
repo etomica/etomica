@@ -4,9 +4,9 @@
 
 package etomica.threaded.domain;
 
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
-import etomica.atom.IAtomPositionDefinition;
 import etomica.box.BoxAgentManager.BoxAgentSource;
 import etomica.space.Space;
 
@@ -15,7 +15,7 @@ import etomica.space.Space;
  */
 public class BoxAgentSourceCellManagerThreaded implements BoxAgentSource<NeighborCellManagerThreaded> {
 
-    public BoxAgentSourceCellManagerThreaded(Simulation sim, IAtomPositionDefinition positionDefinition, Space _space) {
+    public BoxAgentSourceCellManagerThreaded(Simulation sim, IMoleculePositionDefinition positionDefinition, Space _space) {
         this.sim = sim;
         this.positionDefinition = positionDefinition;
         this.space = _space;
@@ -35,6 +35,6 @@ public class BoxAgentSourceCellManagerThreaded implements BoxAgentSource<Neighbo
     }
     
     protected final Simulation sim;
-    private final IAtomPositionDefinition positionDefinition;
+    private final IMoleculePositionDefinition positionDefinition;
     private final Space space;
 }

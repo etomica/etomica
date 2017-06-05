@@ -3,13 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.modules.droplet;
+
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.box.Box;
-import etomica.space.Vector;
+import etomica.atom.AtomType;
+import etomica.atom.IAtomList;
 import etomica.atom.MoleculeArrayList;
+import etomica.box.Box;
 import etomica.chem.elements.Argon;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorVelocityVerlet;
@@ -21,6 +21,7 @@ import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
@@ -71,17 +72,17 @@ public class DropletAtomic extends Simulation {
 	    species = new SpeciesSpheresMono(space, Argon.INSTANCE);
 	    species.setIsDynamic(true);
         addSpecies(species);
-        IAtomType leafType = species.getLeafType();
+        AtomType leafType = species.getLeafType();
         
         p2LJ = new P2LennardJones(space);
         p2LJ.setEpsilon(Kelvin.UNIT.toSim(118));
         p2LJ.setSigma(sigma);
         p2LJt = new P2SoftSphericalTruncatedForceShifted(space, p2LJ, sigma*pRange);
-        potentialMaster.addPotential(p2LJt, new IAtomType[]{leafType,leafType});
+        potentialMaster.addPotential(p2LJt, new AtomType[]{leafType, leafType});
 
         p1Smash = new P1Smash(space);
         p1Smash.setG(4);
-        potentialMaster.addPotential(p1Smash, new IAtomType[]{leafType});
+        potentialMaster.addPotential(p1Smash, new AtomType[]{leafType});
 
         //construct box
 	    box = new Box(new BoundaryRectangularPeriodic(space), space);
@@ -92,6 +93,13 @@ public class DropletAtomic extends Simulation {
         
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
     }
+
+    public static void main(String[] args) {
+        Space space = Space3D.getInstance();
+
+        DropletAtomic sim = new DropletAtomic(space);
+        sim.getController().actionPerformed();
+    }//end of main
     
     public void makeDropShape() {
         box.setNMolecules(species, nNominalAtoms);
@@ -102,7 +110,7 @@ public class DropletAtomic extends Simulation {
 
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         config.initializeCoordinates(box);
-        
+
         IAtomList leafList = box.getLeafList();
         Vector v = space.makeVector();
         Vector dim = box.getBoundary().getBoxSize();
@@ -126,12 +134,4 @@ public class DropletAtomic extends Simulation {
             box.removeMolecule(outerMolecules.getMolecule(i));
         }
     }
-    
-    
-    public static void main(String[] args) {
-        Space space = Space3D.getInstance();
-            
-        DropletAtomic sim = new DropletAtomic(space);
-        sim.getController().actionPerformed();
-    }//end of main
 }

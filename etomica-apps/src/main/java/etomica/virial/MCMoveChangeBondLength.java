@@ -5,7 +5,7 @@
 package etomica.virial;
 
 import Jama.EigenvalueDecomposition;
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;

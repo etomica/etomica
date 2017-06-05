@@ -4,25 +4,36 @@
 
 package etomica.box;
 
-import etomica.api.IBoxMoleculeCountEvent;
 import etomica.api.ISpecies;
 
-public class BoxMoleculeCountEvent extends BoxEvent implements IBoxMoleculeCountEvent {
+/**
+ * Box event that indicates the number of molecules of a particular species has
+ * changed.  This event is fired before the molecules have actually been added
+ * to the box.  The purpose of the event is then to notify listeners to prepare
+ * themselves for a different number of molecules.
+ */
+public class BoxMoleculeCountEvent extends BoxEvent {
 
-    public BoxMoleculeCountEvent(Box box, ISpecies _species, int _count) {
+    protected final int count;
+    protected final ISpecies species;
+
+    public BoxMoleculeCountEvent(Box box, ISpecies species, int count) {
         super(box);
-        this.species = _species;
-        this.count = _count;
+        this.species = species;
+        this.count = count;
     }
-    
+
+    /**
+     * @return the species whose number of molecules has changed
+     */
     public ISpecies getSpecies() {
         return species;
     }
-    
+
+    /**
+     * @return the new number of molecules
+     */
     public int getCount() {
         return count;
     }
-    
-    protected int count = -1;
-    protected ISpecies species = null;
 }

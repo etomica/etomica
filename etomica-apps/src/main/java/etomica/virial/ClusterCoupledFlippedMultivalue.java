@@ -5,8 +5,9 @@
 package etomica.virial;
 
 import etomica.api.*;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.MoleculePositionGeometricCenter;
+import etomica.atom.IAtomList;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.space.Vector;
 import etomica.space.Space;
 
@@ -29,7 +30,7 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
         wrappedCluster = cluster;
         childAtomVector = space.makeVector();
         flippedAtoms = new boolean[cluster.pointCount()];
-        positionDefinition = new AtomPositionGeometricCenter(space);
+        positionDefinition = new MoleculePositionGeometricCenter(space);
         this.minFlipDistance = minFlipDistance;
         value = new double[nDer+1];
         lastValue = new double[nDer+1];
@@ -173,7 +174,7 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
     protected double value[], lastValue[];
     protected final boolean[] flippedAtoms;
     private Vector childAtomVector;
-    protected IAtomPositionDefinition positionDefinition;
+    protected IMoleculePositionDefinition positionDefinition;
     protected final double minFlipDistance;
     protected final int nDer;
     protected final boolean countflips = true;

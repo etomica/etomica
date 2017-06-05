@@ -10,7 +10,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;

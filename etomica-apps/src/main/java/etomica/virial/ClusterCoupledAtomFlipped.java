@@ -4,7 +4,7 @@
 
 package etomica.virial;
 
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.api.IMolecule;
 import etomica.space.Vector;
 import etomica.atom.IAtomOriented;

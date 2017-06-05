@@ -4,8 +4,8 @@
 
 package etomica.models.rowley;
 
-import etomica.api.IAtomList;
-import etomica.api.IAtom;
+import etomica.atom.IAtomList;
+import etomica.atom.IAtom;
 import etomica.config.IConformation;
 import etomica.space.Space;
 

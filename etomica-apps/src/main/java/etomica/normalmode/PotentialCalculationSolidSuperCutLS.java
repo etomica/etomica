@@ -1,6 +1,6 @@
 package etomica.normalmode;
 
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.api.IPotentialAtomic;
 import etomica.space.Vector;
 import etomica.liquidLJ.Potential2SoftSphericalLSMultiLat;

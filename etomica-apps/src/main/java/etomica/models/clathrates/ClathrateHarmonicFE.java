@@ -4,14 +4,10 @@
 
 package etomica.models.clathrates;
 
-import java.awt.Color;
-
-import etomica.api.*;
-import etomica.box.Box;
-import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomPair;
-import etomica.atom.DiameterHashByType;
+import etomica.api.IMolecule;
+import etomica.atom.*;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationFileBinary;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -27,13 +23,8 @@ import etomica.models.water.ConfigurationFileTIP4P;
 import etomica.models.water.SpeciesWater4P;
 import etomica.normalmode.LatticeSumMolecularCrystal.AtomicTensorAtomicPair;
 import etomica.normalmode.NormalModesMolecular;
-import etomica.potential.EwaldSummation;
+import etomica.potential.*;
 import etomica.potential.EwaldSummation.MyCharge;
-import etomica.potential.P2LennardJones;
-import etomica.potential.Potential2SoftSpherical;
-import etomica.potential.Potential2SoftSphericalLS;
-import etomica.potential.PotentialCalculationForceSum;
-import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.*;
 import etomica.space3d.RotationTensor3D;
@@ -47,12 +38,14 @@ import etomica.util.Constants;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
+import java.awt.*;
+
 public class ClathrateHarmonicFE extends Simulation{
-	protected Box box;
+    protected static double[] initialU;
+    protected Box box;
 	protected PotentialMaster potentialMaster;
 	protected SpeciesWater4P species;
 	protected MeterPotentialEnergy meterPE;
-	protected static double[] initialU;
 	protected Potential2SoftSpherical potentialLJ;
 	protected Potential2SoftSphericalLS potentialLJLS;
 	protected EwaldSummation potentialES;
@@ -87,9 +80,9 @@ public class ClathrateHarmonicFE extends Simulation{
 		potentialES = new EwaldSummation(box, atomAgentManager, space, kCut, rCutRealES);
 //XXXX Potential Master
 		potentialMaster = new PotentialMaster();
-		potentialMaster.addPotential(potentialLJLS, new IAtomType[]{species.getOxygenType(), species.getOxygenType()});
-		potentialMaster.addPotential(potentialES, new IAtomType[0]);
-		potentialLJLS.setBox(box);
+        potentialMaster.addPotential(potentialLJLS, new AtomType[]{species.getOxygenType(), species.getOxygenType()});
+        potentialMaster.addPotential(potentialES, new AtomType[0]);
+        potentialLJLS.setBox(box);
 
 		if(includeM){
 			ConfigurationFile config = new ConfigurationFile(configFileName);////to duplicate with M point!
@@ -392,22 +385,20 @@ public class ClathrateHarmonicFE extends Simulation{
     public static class SimParams extends ParameterBase {
 //    	public String configFile = "config_from_paper_HHO_shiftedL_2_sI"; 
 		public String configFile = "finalPos"; 
-
-    	int nX = 1;
-		public int[] nC = new int[] {nX, nX, nX};
 		public double rCutLJ = 400;
 		public double rCutRealES = 14.0;
 		public double[] a0 = new double[]{12.03, 12.03, 12.03};//sI
-//		public double[] a0 = new double[]{17.31, 17.31, 17.31};//sII
-//		public double[] a0 = new double[]{12.21,21.15, 10.14};//sH
-
 		public int nBasis = 46;//sI
 //		public int nBasis = 136;//sII
 //		public int nBasis = 68;//sH
 		public double kCut = 2.6;
-		public double temperature = 0.1;   
-		public boolean waveVectorMethod = true;
+        //		public double[] a0 = new double[]{17.31, 17.31, 17.31};//sII
+//		public double[] a0 = new double[]{12.21,21.15, 10.14};//sH
+        public double temperature = 0.1;
+        public boolean waveVectorMethod = true;
 		public boolean isIce =  false;
 		public boolean includeM =  true;
+        int nX = 1;
+        public int[] nC = new int[]{nX, nX, nX};
     }
 }

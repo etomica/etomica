@@ -4,40 +4,25 @@
 
 package etomica.normalmode;
 
-import java.awt.Color;
-
 import etomica.action.BoxInflate;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.api.IBoundary;
-import etomica.box.Box;
-import etomica.api.IIntegratorEvent;
+import etomica.space.Boundary;
+import etomica.integrator.IntegratorEvent;
 import etomica.api.IIntegratorListener;
-import etomica.space.Vector;
+import etomica.atom.AtomType;
 import etomica.atom.DiameterHash;
-import etomica.data.AccumulatorAverageBlockless;
-import etomica.data.AccumulatorHistogram;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataDistributer;
-import etomica.data.DataFork;
-import etomica.data.DataPumpListener;
-import etomica.data.DataSourceCountTime;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.data.*;
 import etomica.data.DataSplitter.IDataSinkFactory;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IDataSink;
+import etomica.data.histogram.HistogramDiscrete;
+import etomica.data.history.HistoryCollapsingAverage;
+import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPressureHard;
-import etomica.graphics.ColorScheme;
-import etomica.graphics.DeviceBox;
-import etomica.graphics.DeviceButton;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.integrator.mcmove.MCMoveIDBiasAction;
@@ -55,16 +40,16 @@ import etomica.normalmode.DataSourceMuRoot.DataSourceMuRootVacancyConcentration;
 import etomica.potential.P2HardSphere;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.statmech.HardSphereSolid;
 import etomica.units.Dimension;
 import etomica.units.Null;
-import etomica.data.histogram.HistogramDiscrete;
-import etomica.data.history.HistoryCollapsingAverage;
-import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+
+import java.awt.*;
 
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 3D
@@ -96,7 +81,7 @@ public class SimHSMDVacancy extends Simulation {
         int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
         PrimitiveCubic primitive = new PrimitiveCubic(space, n*L);
         int[] nCells = new int[]{n,n,n};
-        IBoundary boundary = new BoundaryRectangularPeriodic(space, n * L);
+        Boundary boundary = new BoundaryRectangularPeriodic(space, n * L);
         Basis basisFCC = new BasisCubicFcc();
         BasisBigCell basis = new BasisBigCell(space, basisFCC, nCells);
         
@@ -127,9 +112,9 @@ public class SimHSMDVacancy extends Simulation {
         double y = 1.25*nbr1; //nbr1+(L-nbr1)*0.6+0.06;
 
         potential = new P2HardSphere(space, y, false);
-        IAtomType leafType = species.getLeafType();
+        AtomType leafType = species.getLeafType();
 
-        potentialMasterList.addPotential(potential,new IAtomType[]{leafType,leafType});
+        potentialMasterList.addPotential(potential, new AtomType[]{leafType, leafType});
 
         integrator.setBox(box);
         integrator.setThermostat(ThermostatType.HYBRID_MC);
@@ -348,7 +333,7 @@ public class SimHSMDVacancy extends Simulation {
 
                     Vector pi = a.getPosition();
                     NeighborListManager nbrManager = sim.potentialMasterList.getNeighborManager(sim.box);
-                    IBoundary boundary = sim.box.getBoundary();
+                    Boundary boundary = sim.box.getBoundary();
                     IAtomList nbrs = null;
                     try {
                         IAtomList[] nbrsArray = nbrManager.getUpList(a);
@@ -398,7 +383,7 @@ public class SimHSMDVacancy extends Simulation {
                 public double getDiameter(IAtom a) {
                     Vector pi = a.getPosition();
                     NeighborListManager nbrManager = sim.potentialMasterList.getNeighborManager(sim.box);
-                    IBoundary boundary = sim.box.getBoundary();
+                    Boundary boundary = sim.box.getBoundary();
                     IAtomList nbrs = null;
                     try {
                         IAtomList[] nbrsArray = nbrManager.getUpList(a);
@@ -549,6 +534,10 @@ public class SimHSMDVacancy extends Simulation {
             muBox.setEditable(true);
             muBox.setLabel("mu");
             muBox.setModifier(new Modifier() {
+
+                public double getValue() {
+                    return sim.mcMoveID.getMu();
+                }
                 
                 public void setValue(double newValue) {
                     sim.mcMoveID.setMu(newValue);
@@ -557,10 +546,6 @@ public class SimHSMDVacancy extends Simulation {
                     avgP.setMu(newValue);
                     pmu.setMu(newValue);
                     mcMoveBiasAction.setMu(newValue);
-                }
-                
-                public double getValue() {
-                    return sim.mcMoveID.getMu();
                 }
                 
                 public String getLabel() {
@@ -708,16 +693,16 @@ public class SimHSMDVacancy extends Simulation {
         final long finalSteps = steps;
         sim.integrator.getEventManager().addListener(new IIntegratorListener() {
             boolean reenabled = false;
-            public void integratorStepStarted(IIntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
             
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 if (!reenabled && sim.integrator.getStepCount() >= finalSteps/40) {
                     sim.integratorMC.getEventManager().addListener(mcMoveBiasListener);
                     reenabled = true;
                 }
             }
             
-            public void integratorInitialized(IIntegratorEvent e) {}
+            public void integratorInitialized(IntegratorEvent e) {}
         });
 
         sim.ai.setMaxSteps(steps/10);
@@ -772,7 +757,7 @@ public class SimHSMDVacancy extends Simulation {
             double pAvg = Double.NaN;
             if (numAtoms-n < pSplitter.getNumDataSinks()) {
                 AccumulatorAverageBlockless pAcc = (AccumulatorAverageBlockless)pSplitter.getDataSink(numAtoms-n);
-                pAvg = pAcc == null ? Double.NaN : pAcc.getData().getValue(pAcc.AVERAGE.index);
+                pAvg = pAcc == null ? Double.NaN : pAcc.getData().getValue(AccumulatorAverageBlockless.AVERAGE.index);
             }
             if (Math.round(nData.getValue(i)) < numAtoms) {
                 System.out.println(String.format("%6d %20.15e %20.15e %20.15e %20.15e %20.15e", n, nHistogram[i], fenData.getValue(i), pAvg, dsfeData.getValue(i), dsfe2Data.getValue(i)));

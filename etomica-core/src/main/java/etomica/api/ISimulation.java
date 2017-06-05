@@ -5,6 +5,7 @@
 package etomica.api;
 
 import etomica.box.Box;
+import etomica.integrator.Integrator;
 
 /**
  * The ISimulation is an interface for a simulation, containing boxes, species,
@@ -60,7 +61,7 @@ public interface ISimulation {
     /**
      * Returns the integrator for this simulation.
      */
-    public IIntegrator getIntegrator();
+    public Integrator getIntegrator();
 
     /**
      * Returns the Simulation's random number generator.

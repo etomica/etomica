@@ -5,8 +5,8 @@
 package etomica.normalmode;
 
 import etomica.action.BoxInflate;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;

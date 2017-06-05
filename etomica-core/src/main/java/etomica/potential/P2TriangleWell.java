@@ -4,9 +4,9 @@
 
 package etomica.potential;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.space.Space;
@@ -121,6 +121,6 @@ public class P2TriangleWell extends Potential2 {
     private double constant;
     private final Vector force;
     private final Vector dr;
-    private IBoundary boundary;
+    private Boundary boundary;
 }
 

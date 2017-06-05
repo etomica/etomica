@@ -4,9 +4,11 @@
 
 package etomica.association;
 
-import etomica.api.*;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.atom.AtomArrayList;
+import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.space.Space;
 
@@ -29,7 +31,7 @@ public class AssociationHelperBranched implements IAssociationHelper {
     
     protected final AssociationManager associationManager;
     protected int maxBonds;
-    protected final IBoundary boundary;
+    protected final Boundary boundary;
     protected double minR2;
     protected final Vector dr;
 

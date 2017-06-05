@@ -5,7 +5,7 @@
 package etomica.normalmode;
 
 import etomica.action.IAction;
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;

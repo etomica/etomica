@@ -5,9 +5,9 @@
 package etomica.modules.adsorption;
 
 import etomica.action.AtomActionRandomizeVelocity;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.space.Vector;
@@ -185,7 +185,7 @@ public class P1Wall implements PotentialHard {
         randomizer = new AtomActionRandomizeVelocity(integrator.getTemperature(), random);
     }
 
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected double range;
     protected double sigma;
     protected double epsilon;

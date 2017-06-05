@@ -4,11 +4,9 @@
 
 package etomica.modules.osmosis;
 
-import java.awt.Color;
-
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.ColorSchemeByType;
@@ -30,6 +28,8 @@ import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 
+import java.awt.*;
+
 /**
  * Osmosis simulation.
  * @author Jhumpa Adhikari
@@ -38,10 +38,9 @@ import etomica.species.SpeciesSpheresMono;
 
 public class OsmosisSim extends Simulation {
 
-    private static final long serialVersionUID = 1L;
     protected final static int initialSolute = 10;
     protected final static int initialSolvent = 50;
-
+    private static final long serialVersionUID = 1L;
     public IntegratorHard integrator;
     public SpeciesSpheresMono speciesSolvent,speciesSolute;
     public Box box;
@@ -66,26 +65,26 @@ public class OsmosisSim extends Simulation {
         addSpecies(speciesSolute);
 
 	    potentialAA = new P2HardSphere(space, sigma, true);
-        potentialMaster.addPotential(potentialAA, new IAtomType[]{speciesSolvent.getLeafType(), speciesSolvent.getLeafType()});
-	    potentialBB = new P2HardSphere(space, sigma, true);
-        potentialMaster.addPotential(potentialBB, new IAtomType[]{speciesSolute.getLeafType(), speciesSolute.getLeafType()});
-	    potentialAB = new P2HardSphere(space, sigma, true);
-        potentialMaster.addPotential(potentialAB, new IAtomType[]{speciesSolvent.getLeafType(), speciesSolute.getLeafType()});
+        potentialMaster.addPotential(potentialAA, new AtomType[]{speciesSolvent.getLeafType(), speciesSolvent.getLeafType()});
+        potentialBB = new P2HardSphere(space, sigma, true);
+        potentialMaster.addPotential(potentialBB, new AtomType[]{speciesSolute.getLeafType(), speciesSolute.getLeafType()});
+        potentialAB = new P2HardSphere(space, sigma, true);
+        potentialMaster.addPotential(potentialAB, new AtomType[]{speciesSolvent.getLeafType(), speciesSolute.getLeafType()});
         
 	    //Boundary potential for the solvent
         boundaryHardA = new P1HardBoundary(space, true);
-        potentialMaster.addPotential(boundaryHardA, new IAtomType[]{speciesSolvent.getLeafType()});
+        potentialMaster.addPotential(boundaryHardA, new AtomType[]{speciesSolvent.getLeafType()});
         boundaryHardA.setCollisionRadius(0.5*sigma);
         
         //Boundary potential for the solute
         boundaryHardB = new P1HardBoundary(space, true);
-        potentialMaster.addPotential(boundaryHardB, new IAtomType[]{speciesSolute.getLeafType()});
+        potentialMaster.addPotential(boundaryHardB, new AtomType[]{speciesSolute.getLeafType()});
         boundaryHardB.setCollisionRadius(0.5*sigma);
 
         //wall in the middle that only applies to the solute
 	    boundarySemiB = new P1HardWall(space, sigma);
-        potentialMaster.addPotential(boundarySemiB, new IAtomType[]{speciesSolute.getLeafType()});
-	    boundarySemiB.setCollisionRadius(0.5*sigma);
+        potentialMaster.addPotential(boundarySemiB, new AtomType[]{speciesSolute.getLeafType()});
+        boundarySemiB.setCollisionRadius(0.5*sigma);
         
         //construct box
 	    box = new Box(space);

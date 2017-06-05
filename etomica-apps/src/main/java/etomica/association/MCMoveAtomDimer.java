@@ -4,7 +4,7 @@
 
 package etomica.association;
 
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.simulation.Simulation;

@@ -4,7 +4,7 @@
 
 package etomica.modules.multiharmonic.mbar;
 
-import etomica.api.IIntegratorEvent;
+import etomica.integrator.IntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.data.DataSourceScalar;
 import etomica.data.DataTag;
@@ -121,7 +121,7 @@ public class MeterMBAR implements IEtomicaDataSource, IIntegratorListener {
         return index;
     }
 
-    public void integratorStepFinished(IIntegratorEvent e) {
+    public void integratorStepFinished(IntegratorEvent e) {
         callCount++;
         double[] sum = data.getData();
         int n = meterPE.length;
@@ -153,6 +153,6 @@ public class MeterMBAR implements IEtomicaDataSource, IIntegratorListener {
         }
     }
 
-    public void integratorInitialized(IIntegratorEvent e) {}
-    public void integratorStepStarted(IIntegratorEvent e) {}
+    public void integratorInitialized(IntegratorEvent e) {}
+    public void integratorStepStarted(IntegratorEvent e) {}
 }

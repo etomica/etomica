@@ -8,11 +8,10 @@ import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.api.*;
+import etomica.atom.*;
 import etomica.box.Box;
-import etomica.atom.AtomPositionCOM;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.atom.MoleculeSource;
-import etomica.atom.MoleculeSourceRandomMolecule;
+import etomica.atom.MoleculePositionCOM;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorNull;
@@ -64,7 +63,7 @@ public class MCMoveMoleculeExchange extends MCMove {
         moleculeReplacer = new MoleculeChildAtomAction(new AtomActionTranslateBy(_space));
         moleculeTranslator = new MoleculeActionTranslateTo(_space);
         translationVector = _space.makeVector();
-        setAtomPositionDefinition(new AtomPositionCOM(_space));
+        setAtomPositionDefinition(new MoleculePositionCOM(_space));
         this.integrator1 = integrator1;
         this.integrator2 = integrator2;
         box1 = integrator1.getBox();
@@ -198,14 +197,14 @@ public class MCMoveMoleculeExchange extends MCMove {
     /**
      * @return Returns the atomPositionDefinition.
      */
-    public IAtomPositionDefinition getAtomPositionDefinition() {
+    public IMoleculePositionDefinition getAtomPositionDefinition() {
         return moleculeTranslator.getAtomPositionDefinition();
     }
     /**
      * @param atomPositionDefinition The atomPositionDefinition to set.
      */
     public void setAtomPositionDefinition(
-            IAtomPositionDefinition atomPositionDefinition) {
+            IMoleculePositionDefinition atomPositionDefinition) {
         moleculeTranslator.setAtomPositionDefinition(atomPositionDefinition);
     }
 }//end of MCMoveMoleculeExchange

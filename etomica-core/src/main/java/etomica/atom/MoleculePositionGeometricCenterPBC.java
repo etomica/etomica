@@ -6,8 +6,7 @@ package etomica.atom;
 
 import java.io.Serializable;
 
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.api.IMolecule;
 import etomica.space.Vector;
 import etomica.space.Space;
@@ -23,17 +22,17 @@ import etomica.space.Space;
  * 
  * @author David Kofke, Andrew Schultz
  */
-public class AtomPositionGeometricCenterPBC implements IAtomPositionDefinition, Serializable {
+public class MoleculePositionGeometricCenterPBC implements IMoleculePositionDefinition, Serializable {
 
-    public AtomPositionGeometricCenterPBC(Space space, IBoundary boundary) {
+    public MoleculePositionGeometricCenterPBC(Space space, Boundary boundary) {
         center = space.makeVector();
         dr = space.makeVector();
         this.boundary = boundary;
     }
 
-    public Vector position(IMolecule atom) {
+    public Vector position(IMolecule molecule) {
         center.E(0.0);
-        IAtomList children = atom.getChildList();
+        IAtomList children = molecule.getChildList();
         int nAtoms = children.getAtomCount();
         Vector pos0 = children.getAtom(0).getPosition();
         for (int i=0; i<nAtoms; i++) {
@@ -49,5 +48,5 @@ public class AtomPositionGeometricCenterPBC implements IAtomPositionDefinition, 
 
     private static final long serialVersionUID = 1L;
     protected final Vector center, dr;
-    protected final IBoundary boundary;
+    protected final Boundary boundary;
 }

@@ -4,9 +4,9 @@
 
 package etomica.modules.colloid;
 
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.atom.AtomLeafAgentManager;
@@ -212,7 +212,7 @@ public class P1Wall implements PotentialHard {
     }
 
 
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected final AtomLeafAgentManager monomerMonomerBondManager;
     protected double range;
     protected double sigma;

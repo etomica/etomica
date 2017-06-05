@@ -8,6 +8,7 @@ package etomica.models.nitrogen;
 import etomica.api.*;
 import etomica.box.Box;
 import etomica.potential.PotentialMolecular;
+import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.units.Kelvin;
@@ -427,7 +428,7 @@ public class P2NitrogenAnisotropic extends PotentialMolecular {
     private static final long serialVersionUID = 1L;
     
     
-	protected IBoundary boundary;
+	protected Boundary boundary;
 	protected final double chargeP1 = ConformationNitrogen.Echarge[SpeciesN2.indexP1left];
 	protected final double chargeP2 = ConformationNitrogen.Echarge[SpeciesN2.indexP2left];
 	protected final double chargeP1P1, chargeP1P2, chargeP2P2;

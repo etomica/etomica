@@ -7,9 +7,9 @@ package etomica.potential;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -23,7 +23,7 @@ import etomica.units.Degree;
 import etomica.units.Kelvin;
 
 public class P2HydrogenHindePatkowski implements IPotential {
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected Vector dr,com0,com1,hh0,hh1,n0,n1;
     protected P2HydrogenHinde p2Hinde;
     protected P2HydrogenPatkowski p2Patkowski;

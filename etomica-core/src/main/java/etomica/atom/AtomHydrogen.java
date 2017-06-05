@@ -9,18 +9,12 @@ import etomica.space.Space;
 public class AtomHydrogen extends AtomOriented {    
     protected double bondLength;
 
-    public AtomHydrogen(Space space, IAtomTypeOriented atype, double bl) {
+    public AtomHydrogen(Space space, AtomTypeOriented atype, double bl) {
         super(space, atype);        
 //        bondLength = BohrRadius.UNIT.toSim(1.401065676);
         bondLength = bl;//BohrRadius.UNIT.toSim(1.448736);
     }
-    public double getBondLength() {
-        return bondLength;        
-    }
-    public void setBondLength(double x) {
-        bondLength = x;
-    }
-    
+
     public static double getAvgBondLength(double x) {
         double a0 = 0.766099;//0.0766111;
         double a1 = 6.49168e-06;//6.84704E-07;
@@ -31,6 +25,14 @@ public class AtomHydrogen extends AtomOriented {
 //        System.out.println(x+" "+y);
 //        System.exit(1);
         return y;
+    }
+
+    public double getBondLength() {
+        return bondLength;
+    }
+
+    public void setBondLength(double x) {
+        bondLength = x;
     }
 
 }

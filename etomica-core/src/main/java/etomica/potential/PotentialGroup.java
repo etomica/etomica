@@ -4,22 +4,14 @@
 
 package etomica.potential;
 
-import java.util.Arrays;
-
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
 import etomica.api.IPotentialAtomic;
-import etomica.atom.iterator.ApiBuilder;
-import etomica.atom.iterator.AtomIteratorBasisFilteredType;
-import etomica.atom.iterator.AtomsetIteratorAllLeafAtoms;
-import etomica.atom.iterator.AtomsetIteratorBasisDependent;
-import etomica.atom.iterator.AtomsetIteratorDirectable;
-import etomica.atom.iterator.IteratorDirective;
-import etomica.atom.iterator.MoleculesetIterator;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.atom.iterator.*;
+import etomica.box.Box;
 import etomica.nbr.CriterionAll;
 import etomica.nbr.NeighborCriterion;
 import etomica.potential.PotentialMaster.AtomIterator0;
@@ -34,17 +26,22 @@ import etomica.util.Debug;
  * relevant to them in the groups.
  */
 public class PotentialGroup extends PotentialMolecular {
-    
 
+
+    protected PotentialLinker first;
+    protected Box box;
+    protected PotentialMaster potentialMaster;
+    protected NeighborCriterion criterion = new CriterionAll();
+    
     /**
      * Makes a potential group defined on the position of nBody atom or atom groups.
-     * This constructor should only be called by the PotentialMaster.  Use 
+     * This constructor should only be called by the PotentialMaster.  Use
      * potentialMaster.makePotentialGroup method to create PotentialGroups.
      */
     public PotentialGroup(int nBody) {
         this(nBody, null);
     }
-    
+
     public PotentialGroup(int nBody, Space space) {
         super(nBody, space);
     }
@@ -84,12 +81,10 @@ public class PotentialGroup extends PotentialMolecular {
      * potential, pairs are formed from the first-type atoms taken from the first basis
      * atom, with the second-type atoms taken from the second basis.
      */
-    public void addPotential(IPotentialAtomic potential, IAtomType[] types) {
+    public void addPotential(IPotentialAtomic potential, AtomType[] types) {
         if(this.nBody() != Integer.MAX_VALUE && this.nBody() > types.length) throw new IllegalArgumentException("Order of potential cannot exceed length of types array.");
-        Arrays.sort(types);
-        if (this.nBody() == Integer.MAX_VALUE){addPotential(potential, new AtomsetIteratorAllLeafAtoms(), types);}
-        else { 
-        	switch(types.length) {
+        if (this.nBody() == Integer.MAX_VALUE){addPotential(potential, new AtomsetIteratorAllLeafAtoms(), types);} else {
+            switch(types.length) {
         		case 0:
         			addPotential(potential, new AtomIterator0());
         			break;
@@ -114,16 +109,16 @@ public class PotentialGroup extends PotentialMolecular {
             }
         }
     }
- 
+
     /**
      * Adds the given potential to this group, defining it to apply to the atoms
-     * provided by the given basis-dependent iterator.  
+     * provided by the given basis-dependent iterator.
      */
     public synchronized void addPotential(IPotentialAtomic potential, AtomsetIteratorBasisDependent iterator) {
         addPotential(potential,iterator,null);
     }
-    
-    protected void addPotential(IPotentialAtomic potential, AtomsetIteratorBasisDependent iterator, IAtomType[] types) {
+
+    protected void addPotential(IPotentialAtomic potential, AtomsetIteratorBasisDependent iterator, AtomType[] types) {
         //the order of the given potential should be consistent with the order of the iterator
         if(potential.nBody() != iterator.nBody()) {
             throw new RuntimeException("Error: adding to PotentialGroup a potential and iterator that are incompatible");
@@ -140,12 +135,12 @@ public class PotentialGroup extends PotentialMolecular {
     }
 
     /**
-     * Returns the AtomTypes that the given potential applies to if the given 
-     * potential is within this potential group.  If the potential is not 
-     * within this group or does not apply to specific AtomTypes, null is 
+     * Returns the AtomTypes that the given potential applies to if the given
+     * potential is within this potential group.  If the potential is not
+     * within this group or does not apply to specific AtomTypes, null is
      * returned.
      */
-    public IAtomType[] getAtomTypes(IPotential potential) {
+    public AtomType[] getAtomTypes(IPotential potential) {
         for(PotentialLinker link=first; link!=null; link=link.next) {
             if (link.potential == potential) {
                 return link.types;
@@ -160,7 +155,7 @@ public class PotentialGroup extends PotentialMolecular {
             throw new IllegalArgumentException("Error: number of atoms for energy calculation inconsistent with order of potential");
         }
         double sum = 0.0;
-        for (PotentialLinker link=first; link!= null; link=link.next) {	
+        for (PotentialLinker link = first; link != null; link = link.next) {
             if(!link.enabled) continue;
             //if(firstIterate) ((AtomsetIteratorBasisDependent)link.iterator).setDirective(id);
             link.iterator.setBasis(basisAtoms);
@@ -187,7 +182,7 @@ public class PotentialGroup extends PotentialMolecular {
         }
         return range;
     }
-	
+
     /**
      * Removes given potential from the group.  No error is generated if
      * potential is not in group.  Returns true if the given Potential was
@@ -205,7 +200,7 @@ public class PotentialGroup extends PotentialMolecular {
         }
         return false;
     }
-    
+
     /**
      * Performs the specified calculation over the iterates given by the iterator,
      * using the directive to set up the iterators for the sub-potentials of this group.
@@ -245,7 +240,7 @@ public class PotentialGroup extends PotentialMolecular {
   		    link.potential.setBox(box);
   		}
     }
-    
+
     /**
      * Indicates that the specified potential should not contribute to potential
      * calculations. If potential is not in this group, no action is taken.
@@ -258,7 +253,7 @@ public class PotentialGroup extends PotentialMolecular {
             }
         }
     }
-    
+
     /**
      * Returns true if the potential is in this group and has not been disabled
      * via a previous call to setEnabled; returns false otherwise.
@@ -284,21 +279,16 @@ public class PotentialGroup extends PotentialMolecular {
         }
         return potentials;
     }
-    
-    protected PotentialLinker first;
-    protected Box box;
-    protected PotentialMaster potentialMaster;
-    protected NeighborCriterion criterion = new CriterionAll();
 
     protected static class PotentialLinker implements java.io.Serializable {
         private static final long serialVersionUID = 1L;
         public final IPotentialAtomic potential;
         public final AtomsetIteratorBasisDependent iterator;
-        public final IAtomType[] types;
+        public final AtomType[] types;
         public PotentialLinker next;
         public boolean enabled = true;
         //Constructors
-        public PotentialLinker(IPotentialAtomic a, AtomsetIteratorBasisDependent i, IAtomType[] t, PotentialLinker l) {
+        public PotentialLinker(IPotentialAtomic a, AtomsetIteratorBasisDependent i, AtomType[] t, PotentialLinker l) {
             potential = a;
             iterator = i;
             next = l;

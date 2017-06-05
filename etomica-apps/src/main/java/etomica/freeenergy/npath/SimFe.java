@@ -6,14 +6,17 @@ package etomica.freeenergy.npath;
 
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.*;
+import etomica.integrator.IntegratorEvent;
+import etomica.api.IIntegratorListener;
+import etomica.atom.AtomType;
 import etomica.atom.DiameterHash;
 import etomica.atom.DiameterHashByType;
+import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.box.BoxAgentManager;
 import etomica.chem.elements.Iron;
 import etomica.config.ConfigurationLattice;
 import etomica.data.*;
+import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterStructureFactor;
@@ -22,26 +25,23 @@ import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD;
-import etomica.lattice.*;
+import etomica.lattice.LatticeCubicBcc;
+import etomica.lattice.LatticeCubicFcc;
+import etomica.lattice.LatticeHcp4;
+import etomica.lattice.SpaceLattice;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.lattice.crystal.PrimitiveHCP4;
-import etomica.lattice.crystal.PrimitiveHexagonal;
 import etomica.meam.P2EAM;
 import etomica.meam.PotentialCalculationEnergySumEAM;
-import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.PotentialMasterCell;
-import etomica.nbr.list.BoxAgentSourceCellManagerList;
-import etomica.nbr.list.NeighborListManagerSlanty;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.simulation.Simulation;
-import etomica.space.BoundaryDeformableLattice;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.*;
-import etomica.data.history.HistoryCollapsingAverage;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -120,14 +120,14 @@ public class SimFe extends Simulation {
         ai = new ActivityIntegrate(integrator);
         getController().addAction(ai);
 
-        IAtomType leafType = species.getLeafType();
+        AtomType leafType = species.getLeafType();
 
-        potentialMaster.addPotential(potential,new IAtomType[]{leafType,leafType});
+        potentialMaster.addPotential(potential, new AtomType[]{leafType, leafType});
 
         Vector offset = space.makeVector();
         offset.setX(offsetDim, box.getBoundary().getBoxSize().getX(offsetDim)*0.5);
         p1ImageHarmonic = new P1ImageHarmonic(space, offset, w, true);
-        potentialMaster.addPotential(p1ImageHarmonic, new IAtomType[]{leafType});
+        potentialMaster.addPotential(p1ImageHarmonic, new AtomType[]{leafType});
 
         integrator.setBox(box);
 
@@ -288,7 +288,7 @@ public class SimFe extends Simulation {
             DataPumpListener pumpSfac = new DataPumpListener(meterSfac, avgSfac, 500);
             sim.integrator.getEventManager().addListener(pumpSfac);
             DisplayPlot plotSfac = new DisplayPlot();
-            avgSfac.addDataSink(plotSfac.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{avgSfac.AVERAGE});
+            avgSfac.addDataSink(plotSfac.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{AccumulatorAverage.AVERAGE});
             plotSfac.setLabel("Structure Factor");
             plotSfac.setDoDrawLines(new DataTag[]{meterSfac.getTag()},false);
             plotSfac.getPlot().setYLog(true);
@@ -297,13 +297,13 @@ public class SimFe extends Simulation {
             sim.integrator.setTimeStep(0.0001);
             sim.integrator.getEventManager().addListener(new IIntegratorListener() {
                 @Override
-                public void integratorInitialized(IIntegratorEvent e) {}
+                public void integratorInitialized(IntegratorEvent e) {}
 
                 @Override
-                public void integratorStepStarted(IIntegratorEvent e) {}
+                public void integratorStepStarted(IntegratorEvent e) {}
 
                 @Override
-                public void integratorStepFinished(IIntegratorEvent e) {
+                public void integratorStepFinished(IntegratorEvent e) {
                     if (sim.integrator.getStepCount() > 400) {
                         sim.integrator.setTimeStep(0.001);
                     }
@@ -361,10 +361,10 @@ public class SimFe extends Simulation {
         System.out.println("swap acceptance: "+sim.mcMoveSwap.getTracker().acceptanceProbability());
         System.out.println("Hybrid MD/MC acceptance: "+sim.integrator.getHybridAcceptance());
 
-        IData avgEnergies = accEnergies.getData(accEnergies.AVERAGE);
-        IData errEnergies = accEnergies.getData(accEnergies.ERROR);
-        IData corEnergies = accEnergies.getData(accEnergies.BLOCK_CORRELATION);
-        IData covEnergies = accEnergies.getData(accEnergies.BLOCK_COVARIANCE);
+        IData avgEnergies = accEnergies.getData(AccumulatorAverage.AVERAGE);
+        IData errEnergies = accEnergies.getData(AccumulatorAverage.ERROR);
+        IData corEnergies = accEnergies.getData(AccumulatorAverage.BLOCK_CORRELATION);
+        IData covEnergies = accEnergies.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE);
 
         System.out.println("spring energy: "+avgEnergies.getValue(0)/numAtoms+"   error: "+errEnergies.getValue(0)/numAtoms+"  cor: "+corEnergies.getValue(0));
         System.out.println("Fe energy: "+avgEnergies.getValue(1)/numAtoms+"   error: "+errEnergies.getValue(1)/numAtoms+"  cor: "+corEnergies.getValue(1));

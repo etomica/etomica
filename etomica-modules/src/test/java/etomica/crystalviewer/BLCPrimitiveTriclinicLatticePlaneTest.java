@@ -5,8 +5,8 @@
 package etomica.crystalviewer;
 
 import junit.framework.TestCase;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.space.Vector;
 import etomica.lattice.crystal.PrimitiveTriclinic;
 

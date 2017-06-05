@@ -8,7 +8,7 @@ import java.awt.Color;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.ISpecies;
-import etomica.atom.AtomPositionCOM;
+import etomica.atom.MoleculePositionCOM;
 import etomica.box.Box;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPump;
@@ -63,7 +63,7 @@ public class WaterDropletMatrix {
         ActivityIntegrate ai = new ActivityIntegrate(integrator);
         sim.getController().addAction(ai);
 
-        P2WaterTIP4PSoft p2Water = new P2WaterTIP4PSoft(sim.getSpace(),Double.POSITIVE_INFINITY,new AtomPositionCOM(space));
+        P2WaterTIP4PSoft p2Water = new P2WaterTIP4PSoft(sim.getSpace(),Double.POSITIVE_INFINITY,new MoleculePositionCOM(space));
         potentialMaster.addPotential(p2Water, new ISpecies[]{species,species});
 
         if (false) {

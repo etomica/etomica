@@ -5,17 +5,12 @@
 package etomica.models.co2;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.api.IBoundary;
-import etomica.box.Box;
-import etomica.api.IElement;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMolecular;
-import etomica.space.Vector;
+import etomica.api.*;
+import etomica.atom.AtomType;
 import etomica.atom.AtomTypeAgentManager;
+import etomica.atom.IAtomList;
 import etomica.atom.MoleculePair;
+import etomica.box.Box;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.Oxygen;
 import etomica.config.IConformation;
@@ -25,7 +20,9 @@ import etomica.models.water.SpeciesWater4PCOM;
 import etomica.potential.PotentialMolecular;
 import etomica.potential.PotentialPolarizable;
 import etomica.simulation.Simulation;
+import etomica.space.Boundary;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.Electron;
@@ -43,10 +40,26 @@ import etomica.units.Kelvin;
  */
 public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
 
+    public static boolean debugme = false;
+    protected final double[][] pairPolarization;
+    protected final MoleculePair pair;
+    protected final double coreFac;
+    protected final Vector rijVector;
+    protected final Vector work, shift;
+    protected final AtomTypeAgentManager typeManager;
+    protected final int nAtomTypes;
+    protected final GCPMAgent[][] pairAgents;
+    protected boolean oops = false;
+    protected Boundary boundary;
+    protected Vector[][] Eq, Ep, mu;
+    protected Vector oldMu;
+    protected Component component;
+    private double UpolAtkins;
+    
     public PNGCPM(Space space, AtomTypeAgentManager typeManager, int nAtomTypes) {
         this(space, typeManager, nAtomTypes, Integer.MAX_VALUE);
     }
-    
+
     public PNGCPM(Space space, AtomTypeAgentManager typeManager, int nAtomTypes, int nBody) {
 	    super(nBody, space);
 	    this.typeManager = typeManager;
@@ -68,13 +81,199 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         component = Component.FULL;
         pairPolarization = new double[10][10];
     }
-    
+
+    public static void main2(String[] args) {
+        double x = 0;
+        double z = 4.;
+        final Space space = Space3D.getInstance();
+        Simulation sim = new Simulation(space);
+        SpeciesSpheresHetero speciesCO2 = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
+        speciesCO2.setChildCount(new int[]{1, 2});
+        speciesCO2.setConformation(new IConformation() {
+
+            public void initializePositions(IAtomList atomList) {
+                atomList.getAtom(0).getPosition().E(0);
+                atomList.getAtom(1).getPosition().setX(0, 1.161);
+                atomList.getAtom(2).getPosition().setX(0, -1.161);
+            }
+        });
+        sim.addSpecies(speciesCO2);
+        Box box = new etomica.box.Box(space);
+        sim.addBox(box);
+        box.setNMolecules(speciesCO2, 2);
+        box.getBoundary().setBoxSize(space.makeVector(new double[]{100, 100, 100}));
+        IMolecule mol0 = box.getMoleculeList().getMolecule(0);
+        IMolecule mol1 = box.getMoleculeList().getMolecule(1);
+
+        mol0.getChildList().getAtom(0).getPosition().E(space.makeVector(new double[]{0.000000, 0, 0.000000}));
+        mol0.getChildList().getAtom(1).getPosition().E(space.makeVector(new double[]{-1.161, 0, 0}));
+        mol0.getChildList().getAtom(2).getPosition().E(space.makeVector(new double[]{1.161, 0, 0}));
+        mol1.getChildList().getAtom(0).getPosition().E(space.makeVector(new double[]{0, 0, z}));
+        mol1.getChildList().getAtom(1).getPosition().E(space.makeVector(new double[]{-1.161, 0, z}));
+        mol1.getChildList().getAtom(2).getPosition().E(space.makeVector(new double[]{1.161, 0, z}));
+
+//        space.makeVector(new double[]{ 1.000000,-11.000000,-5.000000 })
+//        space.makeVector(new double[]{ 0.732908,-10.699688,-3.910782 })
+//        space.makeVector(new double[]{ 1.267092,-11.300312,-6.089218 })
+
+//        MoleculeActionTranslateTo translator = new MoleculeActionTranslateTo(space);
+//        translator.setDestination(space.makeVector(new double[]{x,0,z}));
+//        translator.actionPerformed(mol1);
+        AtomTypeAgentManager typeManager = new AtomTypeAgentManager(null);
+        double qC = Electron.UNIT.toSim(0.6642);
+        typeManager.setAgent(speciesCO2.getAtomType(0), new GCPMAgent(3.193, Kelvin.UNIT.toSim(71.34), 0.61 / 1.0483, 15.5, qC, 4.05, 1.95, 0.0) {
+            protected final Vector r = space.makeVector();
+
+            public Vector getParallelAxis(IMolecule mol) {
+                IAtomList atoms = mol.getChildList();
+                r.Ev1Mv2(atoms.getAtom(2).getPosition(), atoms.getAtom(1).getPosition());
+                r.normalize();
+                return r;
+            }
+        });
+        double qO = -0.5 * qC;
+        typeManager.setAgent(speciesCO2.getAtomType(1), new GCPMAgent(3.193 * 1.0483, Kelvin.UNIT.toSim(67.72), 0.61, 15.5, qO, 0, 0, 0));
+        PNGCPM p2 = new PNGCPM(space, typeManager, 2);
+        p2.setBox(box);
+//        p2.setComponent(PNGCPM.Component.INDUCTION);
+        IMoleculeList molecules = box.getMoleculeList();
+        double u = p2.energy(molecules);
+        System.out.println(u);
+
+        PNCO2GCPM p2c = new PNCO2GCPM(space);
+        p2c.setBox(box);
+//        p2c.setComponent(PNCO2GCPM.Component.INDUCTION);
+        double uc = p2c.energy(molecules);
+        System.out.println(uc);
+
+    }
+
+    public static void mainCO2(String[] args) {
+        double x = 0;
+        double z1 = 5.;
+        double y2 = 2.;
+        final Space space = Space3D.getInstance();
+        Simulation sim = new Simulation(space);
+        SpeciesSpheresHetero speciesCO2 = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
+        speciesCO2.setChildCount(new int[]{1, 2});
+        speciesCO2.setConformation(new IConformation() {
+
+            public void initializePositions(IAtomList atomList) {
+                atomList.getAtom(0).getPosition().E(0);
+                atomList.getAtom(1).getPosition().setX(0, 1.161);
+                atomList.getAtom(2).getPosition().setX(0, -1.161);
+            }
+        });
+        sim.addSpecies(speciesCO2);
+        Box box = new etomica.box.Box(space);
+        sim.addBox(box);
+        box.setNMolecules(speciesCO2, 3);
+        box.getBoundary().setBoxSize(space.makeVector(new double[]{100, 100, 100}));
+        IMolecule mol0 = box.getMoleculeList().getMolecule(0);
+        IMolecule mol1 = box.getMoleculeList().getMolecule(1);
+        IMolecule mol2 = box.getMoleculeList().getMolecule(2);
+
+        mol0.getChildList().getAtom(0).getPosition().E(space.makeVector(new double[]{0.000000, 0, 0.000000}));
+        mol0.getChildList().getAtom(1).getPosition().E(space.makeVector(new double[]{-1.161, 0, 0}));
+        mol0.getChildList().getAtom(2).getPosition().E(space.makeVector(new double[]{1.161, 0, 0}));
+        mol1.getChildList().getAtom(0).getPosition().E(space.makeVector(new double[]{0, 0, z1}));
+        mol1.getChildList().getAtom(1).getPosition().E(space.makeVector(new double[]{-1.161, 0, z1}));
+        mol1.getChildList().getAtom(2).getPosition().E(space.makeVector(new double[]{1.161, 0, z1}));
+        mol2.getChildList().getAtom(0).getPosition().E(space.makeVector(new double[]{0, y2, 0}));
+        mol2.getChildList().getAtom(1).getPosition().E(space.makeVector(new double[]{-1.161, y2, 0}));
+        mol2.getChildList().getAtom(2).getPosition().E(space.makeVector(new double[]{1.161, y2, 0}));
+
+        AtomTypeAgentManager typeManager = new AtomTypeAgentManager(null);
+        double qC = Electron.UNIT.toSim(0.6642);
+        typeManager.setAgent(speciesCO2.getAtomType(0), new GCPMAgent(3.193, Kelvin.UNIT.toSim(71.34), 0.61 / 1.0483, 15.5, qC, 4.05, 1.95, 16.0 / 9.0 * Kelvin.UNIT.toSim(2.52e4)) {
+            protected final Vector r = space.makeVector();
+
+            public Vector getParallelAxis(IMolecule mol) {
+                IAtomList atoms = mol.getChildList();
+                r.Ev1Mv2(atoms.getAtom(2).getPosition(), atoms.getAtom(1).getPosition());
+                r.normalize();
+                return r;
+            }
+        });
+        double qO = -0.5 * qC;
+        typeManager.setAgent(speciesCO2.getAtomType(1), new GCPMAgent(3.193 * 1.0483, Kelvin.UNIT.toSim(67.72), 0.61, 15.5, qO, 0, 0, 0));
+        PNGCPM p2 = new PNGCPM(space, typeManager, 2);
+        p2.setBox(box);
+        PNGCPM.P3GCPMAxilrodTeller p3 = p2.makeAxilrodTeller();
+        IMoleculeList molecules = box.getMoleculeList();
+        double u = p2.energy(molecules);
+        System.out.println(u);
+
+        PNCO2GCPM p2c = new PNCO2GCPM(space);
+        p2c.setBox(box);
+        PNCO2GCPM.P3GCPMAxilrodTeller p3c = p2c.makeAxilrodTeller();
+        double uc = p2c.energy(molecules);
+        System.out.println(uc);
+
+    }
+
+    public static void main(String[] args) {
+        double x = 0;
+        double z1 = 5.;
+        double y2 = 7.;
+        final Space space = Space3D.getInstance();
+        Simulation sim = new Simulation(space);
+        SpeciesWater4PCOM speciesWaterCOM = new SpeciesWater4PCOM(space);
+        sim.addSpecies(speciesWaterCOM);
+        Box box = new etomica.box.Box(space);
+        sim.addBox(box);
+        box.setNMolecules(speciesWaterCOM, 3);
+        box.getBoundary().setBoxSize(space.makeVector(new double[]{100, 100, 100}));
+        IMolecule mol0 = box.getMoleculeList().getMolecule(0);
+        IMolecule mol1 = box.getMoleculeList().getMolecule(1);
+        IMolecule mol2 = box.getMoleculeList().getMolecule(2);
+
+        MoleculeActionTranslateTo translator = new MoleculeActionTranslateTo(space);
+        translator.setDestination(space.makeVector(new double[]{0, 0, z1}));
+        translator.actionPerformed(mol1);
+        translator.setDestination(space.makeVector(new double[]{0, y2, 0}));
+        translator.actionPerformed(mol2);
+
+        AtomTypeAgentManager typeManager = new AtomTypeAgentManager(null);
+        typeManager.setAgent(speciesWaterCOM.getHydrogenType(), new GCPMAgent(1.0, 0, 0.455, 12.75, Electron.UNIT.toSim(0.6113), 0, 0, 0));
+        typeManager.setAgent(speciesWaterCOM.getOxygenType(), new GCPMAgent(3.69, Kelvin.UNIT.toSim(110), 0, 12.75, 0, 0, 0, 0, 0));
+        typeManager.setAgent(speciesWaterCOM.getMType(), new GCPMAgent(1.0, 0, 0.610, 12.75, Electron.UNIT.toSim(-1.2226), 0, 0, 0));
+        typeManager.setAgent(speciesWaterCOM.getCOMType(), new GCPMAgent(1.0, 0, 0.610, 12.75, 0, 1.444, 1.444, 0));
+        PNGCPM p2 = new PNGCPM(space, typeManager, 4);
+        p2.setBox(box);
+        IMoleculeList molecules = box.getMoleculeList();
+        MoleculePair pair = new MoleculePair(molecules.getMolecule(0), molecules.getMolecule(1));
+        double u = p2.energy(molecules);
+        System.out.println(u);
+
+
+        sim = new Simulation(space);
+        SpeciesWater4P speciesWater = new SpeciesWater4P(space);
+        sim.addSpecies(speciesWater);
+        box = new etomica.box.Box(space);
+        sim.addBox(box);
+        box.setNMolecules(speciesWater, 3);
+        box.getBoundary().setBoxSize(space.makeVector(new double[]{100, 100, 100}));
+        mol0 = box.getMoleculeList().getMolecule(0);
+        mol1 = box.getMoleculeList().getMolecule(1);
+        mol2 = box.getMoleculeList().getMolecule(2);
+
+        translator.setDestination(space.makeVector(new double[]{0, 0, z1}));
+        translator.actionPerformed(mol1);
+        translator.setDestination(space.makeVector(new double[]{0, y2, 0}));
+        translator.actionPerformed(mol2);
+
+        PNWaterGCPM p2c = new PNWaterGCPM(space);
+        p2c.setBox(box);
+        double uc = p2c.energy(molecules);
+        System.out.println(uc);
+
+    }
+
     public void setComponent(Component comp) {
         component = comp;
     }
 
-    protected boolean oops = false;
-    protected final double[][] pairPolarization;
     public double energy(IMoleculeList molecules){
         double sum = 0;
         if (component != Component.INDUCTION) {
@@ -111,37 +310,12 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         }
         return sum;
     }
-    
+
     public PNGCPMCached makeCachedPairPolarization() {
         return new PNGCPMCached();
     }
 
-    public class PNGCPMCached implements IPotentialMolecular {
-
-        public double energy(IMoleculeList molecules) {
-            int idx0 = molecules.getMolecule(0).getIndex();
-            int idx1 = molecules.getMolecule(1).getIndex();
-            if (idx0>idx1) {
-                return pairPolarization[idx1][idx0];
-            }
-            return pairPolarization[idx0][idx1];
-            
-        }
-
-        public double getRange() {
-            return Double.POSITIVE_INFINITY;
-        }
-
-        public void setBox(Box box) {}
-
-        public int nBody() {
-            return 2;
-        }
-    }
-    
-    public static boolean debugme = false;
-
-    public GCPMAgent getPairAgent(IAtomType type1, IAtomType type2) {
+    public GCPMAgent getPairAgent(AtomType type1, AtomType type2) {
         int idx1 = type1.getIndex();
         int idx2 = type2.getIndex();
         if (pairAgents[idx1][idx2] != null) return pairAgents[idx1][idx2];
@@ -160,7 +334,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         pairAgents[idx2][idx1] = pairAgents[idx1][idx2];
         return pairAgents[idx1][idx2];
     }
-    
+
     /**
      * This returns the pairwise-additive portion of the GCPM potential for a
      * pair of atoms (dispersion + fixed-charge electrostatics)
@@ -171,15 +345,15 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
 
         Vector C1r = atoms1.getAtom(0).getPosition();
         Vector C2r = atoms2.getAtom(0).getPosition();
-        
+
         work.Ev1Mv2(C1r, C2r);
         shift.Ea1Tv1(-1,work);
 		boundary.nearestImage(work);
         shift.PE(work);
         final boolean zeroShift = shift.squared() < 0.1;
-        
+
         double r2 = work.squared();
-        
+
         double sum =0;
         if (zeroShift) {
             for (int i=0; i<atoms1.getAtomCount(); i++) {
@@ -225,14 +399,14 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
                         r2 = atoms2.getAtom(j).getPosition().Mv1Squared(shift);
                         shift.ME(r1);
                         r = Math.sqrt(r2);
-    
+
                         double gamma = pairAgent.gamma;
-    
+
                         double rOverSigma = r/sigma;
                         double sigma2OverR2 = 1/(rOverSigma*rOverSigma);
                         if (1/sigma2OverR2 < coreFac) return Double.POSITIVE_INFINITY;
                         double sixOverGamma = 6/gamma;
-                   
+
                         sum += epsilon/(1 - sixOverGamma)*(sixOverGamma*Math.exp(gamma*(1 - rOverSigma)) - sigma2OverR2*sigma2OverR2*sigma2OverR2);//exp-6 potential(Udisp)
                     }
 
@@ -260,7 +434,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
      * number of atoms.
      */
     public double getPolarizationEnergy(IMoleculeList molecules) {
-        
+
         final int moleculeCount = molecules.getMoleculeCount();
         if (Eq.length < moleculeCount+1) {
             int oldSize = Eq.length;
@@ -320,7 +494,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
                         GCPMAgent agentij = getPairAgent(iLeafAtoms.getAtom(ii).getType(),jLeafAtoms.getAtom(jj).getType());
                         double tauij = agentij.tau;
                         rj = jLeafAtoms.getAtom(jj).getPosition();
-                
+
                         work.Ev1Mv2(ri, rj);
                         work.PE(shift);
                         double r2 = work.squared();
@@ -394,39 +568,39 @@ for (int iter=0; iter<maxIter; iter++) {
                         GCPMAgent agentij = getPairAgent(iLeafAtoms.getAtom(ii).getType(),jLeafAtoms.getAtom(jj).getType());
                         double tauij = agentij.tau;
                         rj = jLeafAtoms.getAtom(jj).getPosition();
-                
+
                         work.Ev1Mv2(ri, rj);
                         work.PE(shift);
                         double r2 = work.squared();
                         double r1 = Math.sqrt(r2);
-                
+
                         if (r2 < coreFac*agentij.sigma) {
                             return Double.NaN;
                         }
 
                         double erf = (1-org.apache.commons.math3.special.Erf.erfc(r1/(2*tauij)));
                         double exp = Math.exp(-r2/(4*tauij*tauij));
-                
+
                         double prefac = (r1/(tauij*sqrtpi))*exp;
-                
+
                         double postfac = prefac * 0.666666666666666666666 * r2 / (4*tauij*tauij);
-                
+
                         double fr = erf - prefac;
 
                         double fpr = fr - postfac;
-                
+
                         Ep[i][ii].PEa1Tv1(-fr/(r1*r2), mu[j][jj]);
-                
+
                         Ep[i][ii].PEa1Tv1(3*work.dot(mu[j][jj])*fpr/(r2*r2*r1), work);
-                
+
                         Ep[j][jj].PEa1Tv1(-fr/(r1*r2), mu[i][ii]);
                         Ep[j][jj].PEa1Tv1(3*work.dot(mu[i][ii])*fpr/(r2*r2*r1), work);
                     }
                 }
             }
         }
-        
-        if (debugme) {
+
+    if (debugme) {
             for (int i=0; i<molecules.getMoleculeCount(); i++) {
                 for (int ii=0; ii<molecules.getMolecule(i).getChildList().getAtomCount(); ii++) {
                     if (Ep[i][ii].isZero()) continue;
@@ -457,9 +631,10 @@ for (int iter=0; iter<maxIter; iter++) {
         }
         //x here represents P (almost).
         //For x to be P, the A of the Ax=b actually needs an extra factor of
-        //alphaPol.  We'll add that bit in when we calculate UpolAtkins.  
+        //alphaPol.  We'll add that bit in when we calculate UpolAtkins.
         return UpolAtkins;
     }
+
     public double getLastPolarizationEnergy() {
         return UpolAtkins;
     }
@@ -475,18 +650,6 @@ for (int iter=0; iter<maxIter; iter++) {
     public P3GCPMAxilrodTeller makeAxilrodTeller() {
         return new P3GCPMAxilrodTeller(space);
     }
-
-    protected final MoleculePair pair;
-    protected IBoundary boundary;
-    protected final double coreFac;
-    protected Vector[][] Eq, Ep, mu;
-    protected Vector oldMu;
-    protected final Vector rijVector;
-    protected final Vector work, shift;
-    protected Component component;
-    protected final AtomTypeAgentManager typeManager;
-    protected final int nAtomTypes;
-    protected final GCPMAgent[][] pairAgents;
     
     public enum Component { TWO_BODY, INDUCTION, FULL }
     
@@ -494,7 +657,7 @@ for (int iter=0; iter<maxIter; iter++) {
         public final double sigma, epsilon, tau, gamma;
         public final double charge, charge2, alphaPar, alphaPerp;
         public final double E;
-        
+
         public GCPMAgent(double sigma, double epsilon, double tau, double gamma, double charge, double alphaPar, double alphaPerp, double E) {
             this.sigma = sigma;
             this.epsilon = epsilon;
@@ -518,12 +681,36 @@ for (int iter=0; iter<maxIter; iter++) {
             this.alphaPerp = alphaPerp;
             this.E = E;
         }
-        
+
         public Vector getParallelAxis(IMolecule mol) {
             return null;
         }
     }
-    
+
+    public class PNGCPMCached implements IPotentialMolecular {
+
+        public double energy(IMoleculeList molecules) {
+            int idx0 = molecules.getMolecule(0).getIndex();
+            int idx1 = molecules.getMolecule(1).getIndex();
+            if (idx0 > idx1) {
+                return pairPolarization[idx1][idx0];
+            }
+            return pairPolarization[idx0][idx1];
+
+        }
+
+        public double getRange() {
+            return Double.POSITIVE_INFINITY;
+        }
+
+        public void setBox(Box box) {
+        }
+
+        public int nBody() {
+            return 2;
+        }
+    }
+
     public class P3GCPMAxilrodTeller implements IPotentialMolecular {
 
         protected final Vector rij, rik, rjk;
@@ -533,7 +720,7 @@ for (int iter=0; iter<maxIter; iter++) {
         protected final Vector xveci, xvecj, xveck;
         protected final Vector yveci, yvecj, yveck;
         protected final double[] xx, yy, zz;
-        
+
         public P3GCPMAxilrodTeller(Space space) {
             rij = space.makeVector();
             rik = space.makeVector();
@@ -553,13 +740,13 @@ for (int iter=0; iter<maxIter; iter++) {
             yy = new double[3];
             zz = new double[3];
         }
-        
+
         public double getRange() {
             return Double.POSITIVE_INFINITY;
         }
 
         public void setBox(Box box) {
-            
+
         }
 
         public int nBody() {
@@ -567,23 +754,23 @@ for (int iter=0; iter<maxIter; iter++) {
         }
 
         public double energy(IMoleculeList molecules) {
-            
+
             IAtomList atomsi = molecules.getMolecule(0).getChildList();
             IAtomList atomsj = molecules.getMolecule(1).getChildList();
             IAtomList atomsk = molecules.getMolecule(2).getChildList();
             double usum = 0;
-            
-for (int ii=0; ii<atomsi.getAtomCount(); ii++) {
+
+            for (int ii=0; ii<atomsi.getAtomCount(); ii++) {
     GCPMAgent agenti = (GCPMAgent)typeManager.getAgent(atomsi.getAtom(ii).getType());
     if (agenti.alphaPerp == 0 && agenti.alphaPar == 0) continue;
     double ei = agenti.E;
     Vector ri = atomsi.getAtom(0).getPosition();
-    
-    double iAlphaPerp = agenti.alphaPerp;
+
+                double iAlphaPerp = agenti.alphaPerp;
     double iAlphaAn = agenti.alphaPar - iAlphaPerp;
     if (iAlphaAn != 0) bveci.E(agenti.getParallelAxis(molecules.getMolecule(0)));
-    
-    for (int jj=0; jj<atomsj.getAtomCount(); jj++) {
+
+                for (int jj=0; jj<atomsj.getAtomCount(); jj++) {
         GCPMAgent agentj = (GCPMAgent)typeManager.getAgent(atomsj.getAtom(jj).getType());
         if (agentj.alphaPerp == 0 && agentj.alphaPar == 0) continue;
         double epij = ei * agentj.E;
@@ -592,8 +779,8 @@ for (int ii=0; ii<atomsi.getAtomCount(); ii++) {
         Vector rj = atomsj.getAtom(0).getPosition();
         double jAlphaPerp = agentj.alphaPerp;
         double jAlphaAn = agentj.alphaPar - jAlphaPerp;
-        
-        if (jAlphaAn != 0) bvecj.E(agentj.getParallelAxis(molecules.getMolecule(1)));
+
+                    if (jAlphaAn != 0) bvecj.E(agentj.getParallelAxis(molecules.getMolecule(1)));
 
         rij.Ev1Mv2(rj, ri);
         double drij2 = rij.squared();
@@ -643,7 +830,7 @@ for (int ii=0; ii<atomsi.getAtomCount(); ii++) {
             xvecj.normalize();
             yvecj.E(norm);
             yvecj.XE(xvecj);
-            
+
             xveck.Ev1Pv2(rjk, rik);
             xveck.TE(-1);
             yveck.E(norm);
@@ -657,10 +844,10 @@ for (int ii=0; ii<atomsi.getAtomCount(); ii++) {
             }
             double polix = iAlphaPerp;
             if (iAlphaAn!=0) polix += iAlphaAn * Math.abs(bveci.dot(xveci));
-            
+
             double poljx = jAlphaPerp;
             if (jAlphaAn!=0) poljx += jAlphaAn * Math.abs(bvecj.dot(xvecj));
-            
+
             double polkx = kAlphaPerp;
             if (jAlphaAn!=0) polkx += kAlphaAn * Math.abs(bveck.dot(xveck));
 
@@ -669,17 +856,17 @@ for (int ii=0; ii<atomsi.getAtomCount(); ii++) {
             double u = eadd / (drij3*drik3*drjk3);
 
             // (z, z, z) matrix element
-            // the polarizability is here the projection on the normal to the 
-            // intermolecular plane. 
+            // the polarizability is here the projection on the normal to the
+            // intermolecular plane.
             double poliz = iAlphaPerp;
             if (iAlphaAn!=0) poliz += iAlphaAn * Math.abs(bveci.dot(norm));
 
             double poljz = jAlphaPerp;
             if (jAlphaAn!=0) poljz += jAlphaAn * Math.abs(bvecj.dot(norm));
-            
+
             double polkz = kAlphaPerp;
             if (kAlphaAn!=0) polkz += kAlphaAn * Math.abs(bveck.dot(norm));
-            
+
             nufac   = polkz*poljz*poliz;
 
             u += nufac / (drij3*drik3*drjk3);
@@ -696,10 +883,10 @@ for (int ii=0; ii<atomsi.getAtomCount(); ii++) {
 
             double poliy = iAlphaPerp;
             if (iAlphaAn!=0) poliy += iAlphaAn * Math.abs(bveci.dot(yveci));
-            
+
             double poljy = jAlphaPerp;
             if (jAlphaAn!=0) poljy += jAlphaAn * Math.abs(bvecj.dot(yvecj));
-            
+
             double polky = kAlphaPerp;
             if (kAlphaAn!=0) polky += kAlphaAn * Math.abs(bveck.dot(yveck));
 
@@ -709,17 +896,17 @@ for (int ii=0; ii<atomsi.getAtomCount(); ii++) {
             // here come the mixed matrix elements. six in total. three double x's and
             // three double y's.
             // (x, x, y)
-            double eprd = (Math.sqrt((1 + cosg[1])*(1 - cosg[2])) - 
-                           Math.sqrt((1 - cosg[1])*(1 + cosg[2])) * 0.5) * 
-                         (-Math.sqrt((1 + cosg[0])*(1 - cosg[2])) + 
+            double eprd = (Math.sqrt((1 + cosg[1]) * (1 - cosg[2])) -
+                    Math.sqrt((1 - cosg[1]) * (1 + cosg[2])) * 0.5) *
+                    (-Math.sqrt((1 + cosg[0]) * (1 - cosg[2])) +
                            Math.sqrt((1 - cosg[0])*(1 + cosg[2])) * 0.5);
             nufac= polix*poljx*polky;
             eadd = xx[0]*eprd*nufac;
 
             // (x, y, x)
-            eprd = (Math.sqrt((1 + cosg[0])*(1 - cosg[1])) - 
-                    Math.sqrt((1 - cosg[0])*(1 + cosg[1])) * 0.5) * 
-                  (-Math.sqrt((1 + cosg[2])*(1 - cosg[1])) + 
+            eprd = (Math.sqrt((1 + cosg[0]) * (1 - cosg[1])) -
+                    Math.sqrt((1 - cosg[0]) * (1 + cosg[1])) * 0.5) *
+                    (-Math.sqrt((1 + cosg[2]) * (1 - cosg[1])) +
                     Math.sqrt((1 - cosg[2])*(1 + cosg[1])) * 0.5);
             nufac= polix*poljy*polkx;
             eadd += xx[2]*eprd*nufac;
@@ -759,7 +946,7 @@ for (int ii=0; ii<atomsi.getAtomCount(); ii++) {
             eadd = eadd + yy[1]*eprd*nufac;
 
             u += eadd / (drij3*drik3*drjk3);
-            
+
             if (Double.isNaN(u)) {
                 energy(molecules);
                 throw new RuntimeException("oops "+u);
@@ -772,191 +959,4 @@ for (int ii=0; ii<atomsi.getAtomCount(); ii++) {
             return usum;
         }
     }
-    
-    public static void main2(String[] args) {
-        double x = 0;
-        double z = 4.;
-        final Space space = Space3D.getInstance();
-        Simulation sim = new Simulation(space);
-        SpeciesSpheresHetero speciesCO2 = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
-        speciesCO2.setChildCount(new int[]{1,2});
-        speciesCO2.setConformation(new IConformation() {
-            
-            public void initializePositions(IAtomList atomList) {
-                atomList.getAtom(0).getPosition().E(0);
-                atomList.getAtom(1).getPosition().setX(0,1.161);
-                atomList.getAtom(2).getPosition().setX(0,-1.161);
-            }
-        });
-        sim.addSpecies(speciesCO2);
-        Box box = new etomica.box.Box(space);
-        sim.addBox(box);
-        box.setNMolecules(speciesCO2, 2);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{100,100,100}));
-        IMolecule mol0 = box.getMoleculeList().getMolecule(0);
-        IMolecule mol1 = box.getMoleculeList().getMolecule(1);
-        
-        mol0.getChildList().getAtom(0).getPosition().E(space.makeVector(new double[]{0.000000,0,0.000000 }));
-        mol0.getChildList().getAtom(1).getPosition().E(space.makeVector(new double[]{-1.161,0,0 }));
-        mol0.getChildList().getAtom(2).getPosition().E(space.makeVector(new double[]{1.161,0,0 }));
-        mol1.getChildList().getAtom(0).getPosition().E(space.makeVector(new double[]{ 0,0,z }));
-        mol1.getChildList().getAtom(1).getPosition().E(space.makeVector(new double[]{ -1.161,0,z}));
-        mol1.getChildList().getAtom(2).getPosition().E(space.makeVector(new double[]{ 1.161,0,z }));
-        
-//        space.makeVector(new double[]{ 1.000000,-11.000000,-5.000000 }) 
-//        space.makeVector(new double[]{ 0.732908,-10.699688,-3.910782 }) 
-//        space.makeVector(new double[]{ 1.267092,-11.300312,-6.089218 }) 
-        
-//        MoleculeActionTranslateTo translator = new MoleculeActionTranslateTo(space);
-//        translator.setDestination(space.makeVector(new double[]{x,0,z}));
-//        translator.actionPerformed(mol1);
-        AtomTypeAgentManager typeManager = new AtomTypeAgentManager(null);
-        double qC = Electron.UNIT.toSim(0.6642);
-        typeManager.setAgent(speciesCO2.getAtomType(0), new GCPMAgent(3.193,Kelvin.UNIT.toSim(71.34),0.61/1.0483,15.5,qC,4.05,1.95,0.0) {
-            protected final Vector r = space.makeVector();
-            public Vector getParallelAxis(IMolecule mol) {
-                IAtomList atoms = mol.getChildList();
-                r.Ev1Mv2(atoms.getAtom(2).getPosition(),atoms.getAtom(1).getPosition());
-                r.normalize();
-                return r;
-            }
-        });
-        double qO = -0.5*qC;
-        typeManager.setAgent(speciesCO2.getAtomType(1), new GCPMAgent(3.193*1.0483,Kelvin.UNIT.toSim(67.72),0.61,15.5,qO,0,0,0));
-        PNGCPM p2 = new PNGCPM(space, typeManager, 2);
-        p2.setBox(box);
-//        p2.setComponent(PNGCPM.Component.INDUCTION);
-        IMoleculeList molecules = box.getMoleculeList();
-        double u = p2.energy(molecules);
-        System.out.println(u);
-        
-        PNCO2GCPM p2c = new PNCO2GCPM(space);
-        p2c.setBox(box);
-//        p2c.setComponent(PNCO2GCPM.Component.INDUCTION);
-        double uc = p2c.energy(molecules);
-        System.out.println(uc);
-        
-    }
-    
-    public static void mainCO2(String[] args) {
-        double x = 0;
-        double z1 = 5.;
-        double y2 = 2.;
-        final Space space = Space3D.getInstance();
-        Simulation sim = new Simulation(space);
-        SpeciesSpheresHetero speciesCO2 = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
-        speciesCO2.setChildCount(new int[]{1,2});
-        speciesCO2.setConformation(new IConformation() {
-            
-            public void initializePositions(IAtomList atomList) {
-                atomList.getAtom(0).getPosition().E(0);
-                atomList.getAtom(1).getPosition().setX(0,1.161);
-                atomList.getAtom(2).getPosition().setX(0,-1.161);
-            }
-        });
-        sim.addSpecies(speciesCO2);
-        Box box = new etomica.box.Box(space);
-        sim.addBox(box);
-        box.setNMolecules(speciesCO2, 3);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{100,100,100}));
-        IMolecule mol0 = box.getMoleculeList().getMolecule(0);
-        IMolecule mol1 = box.getMoleculeList().getMolecule(1);
-        IMolecule mol2 = box.getMoleculeList().getMolecule(2);
-        
-        mol0.getChildList().getAtom(0).getPosition().E(space.makeVector(new double[]{0.000000,0,0.000000 }));
-        mol0.getChildList().getAtom(1).getPosition().E(space.makeVector(new double[]{-1.161,0,0 }));
-        mol0.getChildList().getAtom(2).getPosition().E(space.makeVector(new double[]{1.161,0,0 }));
-        mol1.getChildList().getAtom(0).getPosition().E(space.makeVector(new double[]{ 0,0,z1 }));
-        mol1.getChildList().getAtom(1).getPosition().E(space.makeVector(new double[]{ -1.161,0,z1}));
-        mol1.getChildList().getAtom(2).getPosition().E(space.makeVector(new double[]{ 1.161,0,z1 }));
-        mol2.getChildList().getAtom(0).getPosition().E(space.makeVector(new double[]{ 0,y2,0}));
-        mol2.getChildList().getAtom(1).getPosition().E(space.makeVector(new double[]{ -1.161,y2,0}));
-        mol2.getChildList().getAtom(2).getPosition().E(space.makeVector(new double[]{ 1.161,y2,0 }));
-        
-        AtomTypeAgentManager typeManager = new AtomTypeAgentManager(null);
-        double qC = Electron.UNIT.toSim(0.6642);
-        typeManager.setAgent(speciesCO2.getAtomType(0), new GCPMAgent(3.193,Kelvin.UNIT.toSim(71.34),0.61/1.0483,15.5,qC,4.05,1.95,16.0/9.0*Kelvin.UNIT.toSim(2.52e4)) {
-            protected final Vector r = space.makeVector();
-            public Vector getParallelAxis(IMolecule mol) {
-                IAtomList atoms = mol.getChildList();
-                r.Ev1Mv2(atoms.getAtom(2).getPosition(),atoms.getAtom(1).getPosition());
-                r.normalize();
-                return r;
-            }
-        });
-        double qO = -0.5*qC;
-        typeManager.setAgent(speciesCO2.getAtomType(1), new GCPMAgent(3.193*1.0483,Kelvin.UNIT.toSim(67.72),0.61,15.5,qO,0,0,0));
-        PNGCPM p2 = new PNGCPM(space, typeManager, 2);
-        p2.setBox(box);
-        PNGCPM.P3GCPMAxilrodTeller p3 = p2.makeAxilrodTeller();
-        IMoleculeList molecules = box.getMoleculeList();
-        double u = p2.energy(molecules);
-        System.out.println(u);
-        
-        PNCO2GCPM p2c = new PNCO2GCPM(space);
-        p2c.setBox(box);
-        PNCO2GCPM.P3GCPMAxilrodTeller p3c = p2c.makeAxilrodTeller();
-        double uc = p2c.energy(molecules);
-        System.out.println(uc);
-        
-    }
-
-    public static void main(String[] args) {
-        double x = 0;
-        double z1 = 5.;
-        double y2 = 7.;
-        final Space space = Space3D.getInstance();
-        Simulation sim = new Simulation(space);
-        SpeciesWater4PCOM speciesWaterCOM = new SpeciesWater4PCOM(space);
-        sim.addSpecies(speciesWaterCOM);
-        Box box = new etomica.box.Box(space);
-        sim.addBox(box);
-        box.setNMolecules(speciesWaterCOM, 3);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{100,100,100}));
-        IMolecule mol0 = box.getMoleculeList().getMolecule(0);
-        IMolecule mol1 = box.getMoleculeList().getMolecule(1);
-        IMolecule mol2 = box.getMoleculeList().getMolecule(2);
-        
-        MoleculeActionTranslateTo translator = new MoleculeActionTranslateTo(space);
-        translator.setDestination(space.makeVector(new double[]{0,0,z1}));
-        translator.actionPerformed(mol1);
-        translator.setDestination(space.makeVector(new double[]{0,y2,0}));
-        translator.actionPerformed(mol2);
-        
-        AtomTypeAgentManager typeManager = new AtomTypeAgentManager(null);
-        typeManager.setAgent(speciesWaterCOM.getHydrogenType(), new GCPMAgent(1.0,0,0.455,12.75,Electron.UNIT.toSim(0.6113),0,0,0));
-        typeManager.setAgent(speciesWaterCOM.getOxygenType(), new GCPMAgent(3.69,Kelvin.UNIT.toSim(110),0,12.75,0,0,0,0,0));
-        typeManager.setAgent(speciesWaterCOM.getMType(), new GCPMAgent(1.0,0,0.610,12.75,Electron.UNIT.toSim(-1.2226),0,0,0));
-        typeManager.setAgent(speciesWaterCOM.getCOMType(), new GCPMAgent(1.0,0,0.610,12.75,0,1.444,1.444,0));
-        PNGCPM p2 = new PNGCPM(space, typeManager, 4);
-        p2.setBox(box);
-        IMoleculeList molecules = box.getMoleculeList();
-        MoleculePair pair = new MoleculePair(molecules.getMolecule(0), molecules.getMolecule(1));
-        double u = p2.energy(molecules);
-        System.out.println(u);
-
-        
-        sim = new Simulation(space);
-        SpeciesWater4P speciesWater = new SpeciesWater4P(space);
-        sim.addSpecies(speciesWater);
-        box = new etomica.box.Box(space);
-        sim.addBox(box);
-        box.setNMolecules(speciesWater, 3);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{100,100,100}));
-        mol0 = box.getMoleculeList().getMolecule(0);
-        mol1 = box.getMoleculeList().getMolecule(1);
-        mol2 = box.getMoleculeList().getMolecule(2);
-        
-        translator.setDestination(space.makeVector(new double[]{0,0,z1}));
-        translator.actionPerformed(mol1);
-        translator.setDestination(space.makeVector(new double[]{0,y2,0}));
-        translator.actionPerformed(mol2);
-
-        PNWaterGCPM p2c = new PNWaterGCPM(space);
-        p2c.setBox(box);
-        double uc = p2c.energy(molecules);
-        System.out.println(uc);
-        
-    }
-    private double UpolAtkins;
 }

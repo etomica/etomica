@@ -4,7 +4,6 @@
 
 package etomica.atom;
 
-import etomica.api.IAtomList;
 import etomica.api.IMolecule;
 import etomica.space.Vector;
 
@@ -13,10 +12,10 @@ import etomica.space.Vector;
  * the first child leaf atom.
  */
 
-public class AtomPositionFirstAtom implements IAtomPositionDefinition, java.io.Serializable {
+public class MoleculePositionFirstAtom implements IMoleculePositionDefinition, java.io.Serializable {
 
-    public Vector position(IMolecule atom) {
-        IAtomList childList = atom.getChildList();
+    public Vector position(IMolecule molecule) {
+        IAtomList childList = molecule.getChildList();
         if (childList.getAtomCount() == 0) {
             return null;
         }

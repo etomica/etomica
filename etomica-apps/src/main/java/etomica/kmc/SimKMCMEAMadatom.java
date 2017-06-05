@@ -6,13 +6,12 @@ package etomica.kmc;
 
 import etomica.action.CalcVibrationalModes;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
-import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
-import etomica.space.Vector;
+import etomica.atom.AtomType;
 import etomica.atom.MoleculeArrayList;
+import etomica.box.Box;
 import etomica.chem.elements.Tin;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationFile;
@@ -26,16 +25,17 @@ import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisBetaSnA5;
 import etomica.lattice.crystal.PrimitiveTetragonal;
 import etomica.listener.IntegratorListenerAction;
+import etomica.math.numerical.CalcGradientDifferentiable;
 import etomica.meam.ParameterSetMEAM;
 import etomica.meam.PotentialMEAM;
 import etomica.nbr.CriterionSimple;
 import etomica.nbr.CriterionTypesCombination;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.math.numerical.CalcGradientDifferentiable;
 
 /**
  * Simulation using Henkelman's Dimer method to find a saddle point for
@@ -157,11 +157,11 @@ public class SimKMCMEAMadatom extends Simulation{
         Configuration config = new ConfigurationLattice(crystal, space);
         config.initializeCoordinates(box);
 
-        this.potentialMasterD.addPotential(potential, new IAtomType[]{movable.getLeafType(), potentialSpecies.getLeafType()});
+        this.potentialMasterD.addPotential(potential, new AtomType[]{movable.getLeafType(), potentialSpecies.getLeafType()});
         potentialMasterD.setSpecies(new ISpecies []{potentialSpecies, movable});
         potentialMasterD.setRange(potential.getRange()*1.1);
         CriterionSimple criteria2 = new CriterionSimple(this, space, potential.getRange(), potential.getRange()*1.1);
-        potentialMasterD.setCriterion(potential, new CriterionTypesCombination(criteria2, new IAtomType[] {movable.getLeafType(), potentialSpecies.getLeafType()}));
+        potentialMasterD.setCriterion(potential, new CriterionTypesCombination(criteria2, new AtomType[]{movable.getLeafType(), potentialSpecies.getLeafType()}));
         
     //ADATOM CREATION AND PLACEMENT
         // Sn
@@ -195,6 +195,38 @@ public class SimKMCMEAMadatom extends Simulation{
         iAtom).getPosition().setX(2, 1.0709520701043456);
         */
     }
+
+    public static void main(String[] args) {
+
+        final SimKMCMEAMadatom sim = new SimKMCMEAMadatom();
+        Vector vect = sim.getSpace().makeVector();
+        vect.setX(0, 9.8);
+        vect.setX(1, -0.2);
+        vect.setX(2, -0.2);
+
+        sim.setMovableAtoms(100.0, vect);
+
+        sim.setPotentialListAtoms();
+        sim.initializeConfiguration("0-MEAM_saddle");
+        sim.integratorKMCCluster(400.0, 800, 30);
+
+        //energy: -3331480.584975273    Vib: 9.561284069712113E96
+        sim.integratorKMCCluster.setInitialStateConditions(-3331480.584975273, 9.561284069712113E96);
+
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 1, sim.space, sim.getController());
+        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
+
+        //sim.integratorMD.addIntervalAction(simGraphic.getPaintAction(sim.box));
+        sim.integratorKMCCluster.getEventManager().addListener(new IntegratorListenerAction(simGraphic.getPaintAction(sim.box)));
+
+        ColorSchemeByType colorScheme = ((ColorSchemeByType) ((DisplayBox) simGraphic.displayList().getFirst()).getColorScheme());
+
+        colorScheme.setColor(sim.fixed.getLeafType(), java.awt.Color.gray);
+        colorScheme.setColor(sim.movable.getLeafType(), java.awt.Color.red);
+        colorScheme.setColor(sim.potentialSpecies.getLeafType(), java.awt.Color.PINK);
+
+        simGraphic.makeAndDisplayFrame(APP_NAME);
+    }
     
     public void setMovableAtoms(double distance, Vector center){
         //distance = distance*distance;
@@ -207,7 +239,7 @@ public class SimKMCMEAMadatom extends Simulation{
             //box.getBoundary().nearestImage(rij);
             if(rij.squared() < distance){
                movableList.add(loopSet.getMolecule(i));
-            } 
+            }
         }
         for (int i=0; i<movableList.getMoleculeCount(); i++){
             IMolecule newMolecule = movable.makeMolecule();
@@ -236,8 +268,8 @@ public class SimKMCMEAMadatom extends Simulation{
                     neighborList.add(loopSet.getMolecule(i));
                     fixedFlag = false;
                     break;
-                }               
-            
+                }
+
             }
             if(fixedFlag){
                 fixedList.add(loopSet.getMolecule(i));
@@ -255,7 +287,7 @@ public class SimKMCMEAMadatom extends Simulation{
             newMolecule.getChildList().getAtom(0).getPosition().E(fixedList.getMolecule(i).getChildList().getAtom(0).getPosition());
             box.removeMolecule(fixedList.getMolecule(i));
          }
-        
+
     }
     
     public void randomizePositions(){
@@ -279,15 +311,15 @@ public class SimKMCMEAMadatom extends Simulation{
     public void removeAtoms(double distance, Vector center){
         distance = distance*distance;
         Vector rij = space.makeVector();
-        
+
         IMoleculeList loopSet = box.getMoleculeList(movable);
         for (int i=0; i<loopSet.getMoleculeCount(); i++){
             rij.Ev1Mv2(center,loopSet.getMolecule(i).getChildList().getAtom(0).getPosition());
             box.getBoundary().nearestImage(rij);
             if(rij.squared() < distance){
                box.removeMolecule(loopSet.getMolecule(i));
-            } 
-        }   
+            }
+        }
     }
     
     public void initializeConfiguration(String fileName){
@@ -311,48 +343,16 @@ public class SimKMCMEAMadatom extends Simulation{
     }
     
 public void enableDimerSearch(String fileName, long maxSteps){
-        
-        integratorDimer = new IntegratorDimerRT(this, potentialMasterD, new ISpecies[]{movable}, space);
+
+    integratorDimer = new IntegratorDimerRT(this, potentialMasterD, new ISpecies[]{movable}, space);
         integratorDimer.setBox(box);
         integratorDimer.setOrtho(false, false);
         integratorDimer.setFileName(fileName);
-        integratorDimer.getEventManager().addListener(potentialMasterD.getNeighborManager(box));  
+    integratorDimer.getEventManager().addListener(potentialMasterD.getNeighborManager(box));
         activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
         integratorDimer.setActivityIntegrate(activityIntegrateDimer);
         getController().addAction(activityIntegrateDimer);
         activityIntegrateDimer.setMaxSteps(maxSteps);
-    }
-    
-    public static void main(String[] args){
-       
-        final SimKMCMEAMadatom sim = new SimKMCMEAMadatom();
-        Vector vect = sim.getSpace().makeVector();
-        vect.setX(0, 9.8);
-        vect.setX(1, -0.2);
-        vect.setX(2, -0.2);
-        
-        sim.setMovableAtoms(100.0, vect);
-        
-        sim.setPotentialListAtoms();
-        sim.initializeConfiguration("0-MEAM_saddle");
-        sim.integratorKMCCluster(400.0, 800, 30);
-
-        //energy: -3331480.584975273    Vib: 9.561284069712113E96
-        sim.integratorKMCCluster.setInitialStateConditions(-3331480.584975273, 9.561284069712113E96);
-        
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME,1, sim.space, sim.getController());
-        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
-        
-        //sim.integratorMD.addIntervalAction(simGraphic.getPaintAction(sim.box));
-        sim.integratorKMCCluster.getEventManager().addListener(new IntegratorListenerAction(simGraphic.getPaintAction(sim.box)));
-
-    	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
-    	
-    	colorScheme.setColor(sim.fixed.getLeafType(),java.awt.Color.gray);
-        colorScheme.setColor(sim.movable.getLeafType(),java.awt.Color.red);
-        colorScheme.setColor(sim.potentialSpecies.getLeafType(),java.awt.Color.PINK);
-
-    	simGraphic.makeAndDisplayFrame(APP_NAME);
     }
 
 }

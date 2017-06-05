@@ -1,15 +1,14 @@
 package etomica.atom;
 
-import etomica.api.IAtomType;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.spaceNd.VectorND;
 
 public class AtomOrientedQuaternion extends Atom {
 
     protected final VectorND quaternion;
-    
-    public AtomOrientedQuaternion(Space space, IAtomType type) {
+
+    public AtomOrientedQuaternion(Space space, AtomType type) {
         super(space, type);
         quaternion = new VectorND(4);
         quaternion.setX(0, 1);

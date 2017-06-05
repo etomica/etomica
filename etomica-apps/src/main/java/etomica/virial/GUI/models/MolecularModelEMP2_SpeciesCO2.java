@@ -5,7 +5,7 @@
 package etomica.virial.GUI.models;
 
 
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.api.IElement;
 import etomica.api.ISpecies;
 import etomica.chem.elements.Carbon;

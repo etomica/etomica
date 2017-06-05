@@ -5,7 +5,7 @@
 package etomica.integrator;
 
 import etomica.action.AtomAction;
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.simulation.Simulation;

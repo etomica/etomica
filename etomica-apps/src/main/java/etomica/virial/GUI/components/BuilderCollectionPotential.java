@@ -4,25 +4,25 @@
 
 package etomica.virial.GUI.components;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.StringTokenizer;
-import etomica.api.IAtomType;
 import etomica.api.IPotential;
 import etomica.api.IPotentialMolecular;
 import etomica.api.ISpecies;
+import etomica.atom.AtomType;
 import etomica.potential.P2LJQ;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialSoft;
 import etomica.space.Space;
+import etomica.virial.GUI.models.EnumSiteName;
+import etomica.virial.GUI.models.IMolecularModel_SpeciesFactory;
+import etomica.virial.GUI.models.ModelSelectedSpecies;
+import etomica.virial.GUI.models.ModelSimulationEnvironment;
+import etomica.virial.GUI.views.ViewAlertMsgBox;
 import etomica.virial.MCMoveClusterTorsionMulti;
 
-import etomica.virial.GUI.models.EnumSiteName;
-import etomica.virial.GUI.models.ModelSimulationEnvironment;
-import etomica.virial.GUI.models.ModelSelectedSpecies;
-import etomica.virial.GUI.models.IMolecularModel_SpeciesFactory;
-import etomica.virial.GUI.views.ViewAlertMsgBox;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.StringTokenizer;
 
 public class BuilderCollectionPotential {
 
@@ -678,8 +678,8 @@ public class BuilderCollectionPotential {
 
 
 	@SuppressWarnings("unchecked")
-	private HashMap<String[],IAtomType[]> getPairAtomTypes(ArrayList<String[]> unLikePairs,
-			ISpecies[] species) {
+    private HashMap<String[], AtomType[]> getPairAtomTypes(ArrayList<String[]> unLikePairs,
+                                                           ISpecies[] species) {
 
 		ISpecies species1 = species[0];		
 		ISpecies species2;
@@ -691,9 +691,9 @@ public class BuilderCollectionPotential {
 			species2 = species1;}
 		String Site1Name = "";
 		String Site2Name = "";
-		IAtomType Site1Atom;
-		IAtomType Site2Atom;
-		HashMap<String[],IAtomType[]> AtomSets = new HashMap<String[],IAtomType[]>();
+        AtomType Site1Atom;
+        AtomType Site2Atom;
+        HashMap<String[], AtomType[]> AtomSets = new HashMap<String[], AtomType[]>();
 
 		for(int i=0;i<unLikePairs.size();i++){
 			String Site1 = unLikePairs.get(i)[0];
@@ -708,8 +708,8 @@ public class BuilderCollectionPotential {
 				String[] SiteB = Site2.split("-");
 				Site2 = SiteB[0];
 			}
-			IAtomType[] SiteAtoms = new IAtomType[2];
-			for(EnumSiteName site: EnumSiteName.values()){
+            AtomType[] SiteAtoms = new AtomType[2];
+            for(EnumSiteName site: EnumSiteName.values()){
 				if(site.toString().toUpperCase().equals(Site1.toUpperCase())){
 					Site1Name = site.getSite();
 				}
@@ -722,11 +722,11 @@ public class BuilderCollectionPotential {
 			
 			
 			for(int j=0;j<MethodS1.length;j++){
-				if(MethodS1[j].getReturnType().equals(IAtomType.class)){
-					if(MethodS1[j].toString().toUpperCase().contains(Site1.toUpperCase()+"TYPE")|| MethodS1[j].toString().toUpperCase().contains(Site1Name.toUpperCase()+"TYPE")){
+                if (MethodS1[j].getReturnType().equals(AtomType.class)) {
+                    if(MethodS1[j].toString().toUpperCase().contains(Site1.toUpperCase()+"TYPE")|| MethodS1[j].toString().toUpperCase().contains(Site1Name.toUpperCase()+"TYPE")){
 						try {
-							Site1Atom = (IAtomType) MethodS1[j].invoke(species1);
-							SiteAtoms[0] = Site1Atom;
+                            Site1Atom = (AtomType) MethodS1[j].invoke(species1);
+                            SiteAtoms[0] = Site1Atom;
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -738,12 +738,12 @@ public class BuilderCollectionPotential {
 			Method[] MethodS2 = species2.getClass().getMethods();
 			
 			for(int k=0;k<MethodS2.length;k++){
-				if(MethodS2[k].getReturnType().equals(IAtomType.class)){
-					if(MethodS2[k].toString().toUpperCase().contains(Site2.toUpperCase()+"TYPE")|| MethodS2[k].toString().toUpperCase().contains(Site2Name.toUpperCase()+"TYPE")){
+                if (MethodS2[k].getReturnType().equals(AtomType.class)) {
+                    if(MethodS2[k].toString().toUpperCase().contains(Site2.toUpperCase()+"TYPE")|| MethodS2[k].toString().toUpperCase().contains(Site2Name.toUpperCase()+"TYPE")){
 						System.out.println(Site2+" "+ MethodS2[k].toString());
 						try {
-							Site2Atom = (IAtomType) MethodS2[k].invoke(species2);
-							SiteAtoms[1] = Site2Atom;
+                            Site2Atom = (AtomType) MethodS2[k].invoke(species2);
+                            SiteAtoms[1] = Site2Atom;
 						} catch (Exception e) {
 							e.printStackTrace();
 						} 
@@ -1009,14 +1009,9 @@ public class BuilderCollectionPotential {
 					ConfirmIndexFlag++;
 				}
 			}
-			
-			if(ConfirmIndexFlag == ParamCheck){
-				return true;
-			}
-			else{
-				return false;
-			}
-		}
+
+        return ConfirmIndexFlag == ParamCheck;
+    }
 	
 	public boolean hasSingleConstructorForPotential(Class PotentialClassName){
 		

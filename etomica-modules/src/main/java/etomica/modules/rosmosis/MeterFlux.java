@@ -4,14 +4,14 @@
 
 package etomica.modules.rosmosis;
 
+import etomica.atom.MoleculePositionGeometricCenter;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.space.Vector;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.data.DataTag;
@@ -52,7 +52,7 @@ public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource {
                 Quantity.DIMENSION, Time.DIMENSION, Length.DIMENSION}, new double[]{1,-1,0}));
         tag = new DataTag();
         boundaries = new double[0];
-        positionDefinition = new AtomPositionGeometricCenter(space);
+        positionDefinition = new MoleculePositionGeometricCenter(space);
     }
     
     public void setBoundaries(int newDim, double[] newBoundaries, int[] newBoundaryCoefficients) {
@@ -212,5 +212,5 @@ public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource {
     protected double oldTime;
     protected long oldStep;
     private final Space space;
-    protected IAtomPositionDefinition positionDefinition;
+    protected IMoleculePositionDefinition positionDefinition;
 }

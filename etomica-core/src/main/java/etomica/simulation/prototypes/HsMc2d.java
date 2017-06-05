@@ -3,12 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.simulation.prototypes;
+
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.IAtomType;
+import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.potential.PotentialMaster;
 import etomica.config.ConfigurationLattice;
 import etomica.data.DataSourceCountSteps;
 import etomica.integrator.IntegratorMC;
@@ -16,6 +16,7 @@ import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2HardSphere;
+import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space2d.Space2D;
@@ -55,12 +56,12 @@ public class HsMc2d extends Simulation {
         box.setNMolecules(species2, 20);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
 	    potential = new P2HardSphere(space);
-	    IAtomType type1 = species.getLeafType();
-        IAtomType type2 = species2.getLeafType();
-        potentialMaster.addPotential(potential, new IAtomType[] {type1, type1});
-        potentialMaster.addPotential(potential, new IAtomType[] {type1, type2});
-        potentialMaster.addPotential(potential, new IAtomType[] {type2, type2});
-	    meterCycles = new DataSourceCountSteps(integrator);
+        AtomType type1 = species.getLeafType();
+        AtomType type2 = species2.getLeafType();
+        potentialMaster.addPotential(potential, new AtomType[]{type1, type1});
+        potentialMaster.addPotential(potential, new AtomType[]{type1, type2});
+        potentialMaster.addPotential(potential, new AtomType[]{type2, type2});
+        meterCycles = new DataSourceCountSteps(integrator);
 
         integrator.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveAtom);

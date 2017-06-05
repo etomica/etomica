@@ -41,9 +41,9 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -83,7 +83,7 @@ public class P2HydrogenHinde implements IPotential {
     protected final double [][][] c6 = new double [3][3][4];
     protected final double [][][] c8 = new double [3][3][4];
     protected final double [][] cten = new double [3][3];
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected final Vector dr,com0,com1,hh0,hh1,n0,n1;
     public P2HydrogenHinde(Space space) {
         dr = space.makeVector();

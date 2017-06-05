@@ -4,9 +4,9 @@
 
 package etomica.nbr;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
@@ -142,7 +142,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource<Vector> {
     protected final Space space;
     protected double interactionRange, displacementLimit2, neighborRadius2;
 	protected final Vector dr;
-    protected IBoundary boundary;
+    protected Boundary boundary;
 	protected double safetyFactor;
 	protected double r2, r2MaxSafe;
     protected AtomLeafAgentManager<Vector> agentManager;

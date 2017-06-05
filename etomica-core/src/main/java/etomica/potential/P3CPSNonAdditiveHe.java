@@ -4,9 +4,9 @@
 
 package etomica.potential;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.atom.Atom;
@@ -692,7 +692,7 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPot
     }
     
     protected final Vector drAB, drAC, drBC;
-    protected IBoundary boundary;
+    protected Boundary boundary;
     private static final long serialVersionUID = 1L;
     protected final Vector[] gradient;
     public static boolean bigAngle;

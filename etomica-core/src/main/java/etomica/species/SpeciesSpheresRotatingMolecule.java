@@ -4,17 +4,12 @@
 
 package etomica.species;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomType;
 import etomica.api.IMolecule;
-import etomica.space.Vector;
-import etomica.atom.Atom;
-import etomica.atom.AtomTypeLeaf;
-import etomica.atom.MoleculeOriented;
-import etomica.atom.MoleculeOrientedDynamic;
+import etomica.atom.*;
 import etomica.chem.elements.ElementSimple;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * Species in which molecules are made of a single atom.  The molecule itself
@@ -23,25 +18,28 @@ import etomica.space.Space;
  * @author Andrew Schultz
  */
 public class SpeciesSpheresRotatingMolecule extends SpeciesSpheresMono implements ISpeciesOriented {
-    
+
+    private static final long serialVersionUID = 1L;
+    protected Vector moment;
+
     public SpeciesSpheresRotatingMolecule(Simulation sim, Space _space) {
         this(sim, _space, makeNominalMoment(_space));
+    }
+
+    public SpeciesSpheresRotatingMolecule(Simulation sim, Space _space, Vector moment) {
+        this(_space, new AtomType(new ElementSimple(sim)), moment);
+    }
+
+    public SpeciesSpheresRotatingMolecule(Space _space, AtomType atomType, Vector moment) {
+        super(_space, atomType);
+        this.moment = _space.makeVector();
+        this.moment.E(moment);
     }
 
     protected static final Vector makeNominalMoment(Space space) {
         Vector m = space.makeVector();
         m.E(1);
         return m;
-    }
-
-    public SpeciesSpheresRotatingMolecule(Simulation sim, Space _space, Vector moment) {
-        this(_space, new AtomTypeLeaf(new ElementSimple(sim)), moment);
-    }
-    
-    public SpeciesSpheresRotatingMolecule(Space _space, IAtomType atomType, Vector moment) {
-        super(_space, atomType);
-        this.moment = _space.makeVector();
-        this.moment.E(moment);
     }
 
     /**
@@ -65,14 +63,11 @@ public class SpeciesSpheresRotatingMolecule extends SpeciesSpheresMono implement
     public Vector getMomentOfInertia() {
         return moment;
     }
-    
+
     /**
      * Sets the species' moment of inertia to the given moment.
      */
     public void setMomentOfInertia(Vector newMoment) {
         moment.E(newMoment);
     }
-
-    protected Vector moment;
-    private static final long serialVersionUID = 1L;
 }

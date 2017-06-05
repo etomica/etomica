@@ -4,7 +4,6 @@
 
 package etomica.atom;
 
-import etomica.api.IAtomType;
 import etomica.space.IOrientation;
 import etomica.space.Space;
 import etomica.space3d.Orientation3D;
@@ -13,11 +12,14 @@ import etomica.space3d.OrientationFull3D;
 public class AtomOriented extends Atom implements
         IAtomOriented {
 
-    public AtomOriented(Space space, IAtomType type) {
+    private static final long serialVersionUID = 1L;
+    protected final IOrientation iOrientation;
+
+    public AtomOriented(Space space, AtomType type) {
         this(space, type, false);
     }
 
-    public AtomOriented(Space space, IAtomType type, boolean isAxisSymmetric) {
+    public AtomOriented(Space space, AtomType type, boolean isAxisSymmetric) {
         super(space, type);
         if (space.D() == 3) {
             if (isAxisSymmetric) {
@@ -35,7 +37,4 @@ public class AtomOriented extends Atom implements
     public IOrientation getOrientation() {
         return iOrientation;
     }
-
-    private static final long serialVersionUID = 1L;
-    protected final IOrientation iOrientation;
 }

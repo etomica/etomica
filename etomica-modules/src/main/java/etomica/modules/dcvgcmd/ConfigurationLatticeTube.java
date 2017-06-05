@@ -5,11 +5,11 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.action.MoleculeActionTranslateTo;
+import etomica.atom.MoleculePositionGeometricCenter;
 import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.atom.AtomPositionGeometricCenter;
 import etomica.config.ConfigurationLattice;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
@@ -149,7 +149,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         //loop for multiple tubes.
         IMoleculeList tubeList = box.getMoleculeList(speciesTube);
         int nTubes = tubeList.getMoleculeCount();
-        atomActionTranslateTo.setAtomPositionDefinition(new AtomPositionGeometricCenter(space));
+        atomActionTranslateTo.setAtomPositionDefinition(new MoleculePositionGeometricCenter(space));
         // put them all at 0.  oops
         atomActionTranslateTo.setDestination(space.makeVector());
         for (int i=0; i<nTubes; i++) {

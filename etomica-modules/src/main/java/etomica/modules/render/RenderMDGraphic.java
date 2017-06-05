@@ -14,8 +14,8 @@ import java.util.Set;
 import javax.swing.JPanel;
 
 import etomica.action.IAction;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.atom.AtomPair;
 import etomica.atom.DiameterHashByType;
 import etomica.data.AccumulatorAverage;

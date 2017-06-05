@@ -1,6 +1,6 @@
 package etomica.config;
 
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.space.Vector;
 
 public class ConformationGeneric implements IConformation {

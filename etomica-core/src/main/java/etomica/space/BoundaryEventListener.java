@@ -2,19 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.api;
+package etomica.space;
 
 /**
  * Listener for boundary events.  The listener methods will be called when the
  * boundary changes.
  */
-public interface IBoundaryListener {
-    
+public interface BoundaryEventListener {
+
     /**
      * Informs the listener that the boundary shape and/or size has changed.
      *
      * @param e event, which can be used to determine the boundary that changed.
      */
-    public void boundaryInflate(IBoundaryEvent e);
-    
+    void boundaryInflate(BoundaryEvent e);
+
 }

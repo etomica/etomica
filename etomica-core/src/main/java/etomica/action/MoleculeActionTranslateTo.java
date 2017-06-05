@@ -8,9 +8,9 @@ package etomica.action;
 import java.io.Serializable;
 
 import etomica.api.IMolecule;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.space.Vector;
-import etomica.atom.AtomPositionCOM;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.MoleculePositionCOM;
 import etomica.space.Space;
 
 /**
@@ -22,18 +22,18 @@ public class MoleculeActionTranslateTo implements MoleculeAction, Serializable {
     
     private static final long serialVersionUID = 1L;
     private final Vector destination;
-    private IAtomPositionDefinition atomPositionDefinition;
+    private IMoleculePositionDefinition atomPositionDefinition;
     private MoleculeChildAtomAction atomTranslator;
     private final Vector translationVector;
 
     /**
      * Creates new action with atom position defined by its
-     * center of mass (via AtomPositionCOM).
+     * center of mass (via MoleculePositionCOM).
      * @param space
      */
     public MoleculeActionTranslateTo(Space space) {
         destination = space.makeVector();
-        atomPositionDefinition = new AtomPositionCOM(space);
+        atomPositionDefinition = new MoleculePositionCOM(space);
         atomTranslator = new MoleculeChildAtomAction(new AtomActionTranslateBy(space));
         translationVector = ((AtomActionTranslateBy)atomTranslator.getAtomAction()).getTranslationVector();
     }
@@ -61,14 +61,14 @@ public class MoleculeActionTranslateTo implements MoleculeAction, Serializable {
     /**
      * @return Returns the atomPositionDefinition.
      */
-    public IAtomPositionDefinition getAtomPositionDefinition() {
+    public IMoleculePositionDefinition getAtomPositionDefinition() {
         return atomPositionDefinition;
     }
     /**
      * @param atomPositionDefinition The atomPositionDefinition to set.
      */
     public void setAtomPositionDefinition(
-            IAtomPositionDefinition atomPositionDefinition) {
+            IMoleculePositionDefinition atomPositionDefinition) {
         this.atomPositionDefinition = atomPositionDefinition;
     }
     

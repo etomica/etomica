@@ -4,7 +4,7 @@
 
 package etomica.association;
 
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -32,7 +32,7 @@ public class AssociationHelperMolecule implements IAssociationHelperMolecule {
     
     protected final AssociationManagerMolecule associationManager;
     protected int maxBonds;
-    protected final IBoundary boundary;
+    protected final Boundary boundary;
     protected double minR2;
     protected final Vector dr;
 

@@ -4,10 +4,8 @@
 
 package etomica.models.hexane;
 
-import java.util.ArrayList;
-
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
@@ -23,14 +21,7 @@ import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.Primitive;
 import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.normalmode.BoltzmannProcessor;
-import etomica.normalmode.CoordinateDefinition;
-import etomica.normalmode.MCMoveHarmonic;
-import etomica.normalmode.MeterHarmonicEnergy;
-import etomica.normalmode.MeterNormalMode;
-import etomica.normalmode.NormalModes;
-import etomica.normalmode.NormalModesFromFile;
-import etomica.normalmode.WaveVectorFactory;
+import etomica.normalmode.*;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
 import etomica.potential.PotentialMaster;
@@ -41,21 +32,20 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Pixel;
 
+import java.util.ArrayList;
+
 public class SimHarmonicHexane extends Simulation {
 
+    private static final String APP_NAME = "Sim Harmonic";
     public ActivityIntegrate activityIntegrate;
     public IntegratorMC integrator;
-
     public Box box;
-
     public BoundaryDeformablePeriodic bdry;
     public BravaisLattice lattice;
     public CoordinateDefinition coordinateDefinition;
     public Primitive primitive;
     public NormalModes normalModes;
     public double fudge;
-
-    private static final String APP_NAME = "Sim Harmonic";
 
     
     public SimHarmonicHexane(Space _space, double dens, int xCells, int yCells, 
@@ -174,7 +164,7 @@ public class SimHarmonicHexane extends Simulation {
         // potential is not otherwise used.
         Potential p2 = new P2HardSphere(sim.getSpace(), 1.0, true);
         PotentialMaster potentialMaster = new PotentialMaster();
-        potentialMaster.addPotential(p2, new IAtomType[]
+        potentialMaster.addPotential(p2, new AtomType[]
                {((SpeciesHexane)sim.getSpecies(0)).getLeafType(),
                 ((SpeciesHexane)sim.getSpecies(0)).getLeafType()});
         /* Yes, Andrew, I know that the above specifies only the first thing in 
@@ -250,8 +240,8 @@ public class SimHarmonicHexane extends Simulation {
             sim.getController().actionPerformed();
             
             DataGroup boltzmannData = (DataGroup)avgBoltzmann.getData();
-            double pNotOverlap = ((DataDouble)boltzmannData.getData(avgBoltzmann.AVERAGE.index)).x;
-            double pError = ((DataDouble)boltzmannData.getData(avgBoltzmann.ERROR.index)).x;
+            double pNotOverlap = ((DataDouble) boltzmannData.getData(AccumulatorAverage.AVERAGE.index)).x;
+            double pError = ((DataDouble) boltzmannData.getData(AccumulatorAverage.ERROR.index)).x;
             
             System.out.println("avg HS Boltzmann factor "
                     + pNotOverlap + " +/- " + pError);

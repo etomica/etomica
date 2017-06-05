@@ -1,32 +1,21 @@
 package etomica.virial.simulations;
 
-import java.awt.Color;
-import java.util.Map;
-import java.util.Set;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.IAction;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.*;
-import etomica.atom.AtomHydrogen;
-import etomica.atom.AtomTypeOrientedSphere;
-import etomica.atom.DiameterHashByType;
-import etomica.atom.IAtomTypeOriented;
+import etomica.integrator.IntegratorEvent;
+import etomica.api.IIntegratorListener;
+import etomica.api.IMoleculeList;
+import etomica.api.ISpecies;
+import etomica.atom.*;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.ApiIntergroupCoupled;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Oxygen;
 import etomica.config.ConformationLinear;
-import etomica.data.AccumulatorAverageCovariance;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.DataPumpListener;
-import etomica.data.DataSourceScalar;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
+import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.graph.model.Graph;
@@ -34,60 +23,34 @@ import etomica.graph.operations.DeleteEdge;
 import etomica.graph.operations.DeleteEdgeParameters;
 import etomica.graph.property.IsBiconnected;
 import etomica.graph.property.NumRootNodes;
-import etomica.graphics.ColorSchemeRandomByMolecule;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayBoxCanvasG3DSys;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
 import etomica.listener.IntegratorListenerAction;
+import etomica.math.DoubleRange;
 import etomica.models.co2.P2CO2Hellmann;
 import etomica.potential.P2Harmonic;
 import etomica.potential.PotentialGroup;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresHetero;
-import etomica.units.CompoundDimension;
-import etomica.units.CompoundUnit;
+import etomica.units.*;
 import etomica.units.Dimension;
-import etomica.units.DimensionRatio;
-import etomica.units.Kelvin;
-import etomica.units.Liter;
-import etomica.units.Mole;
-import etomica.units.Null;
-import etomica.units.Pixel;
-import etomica.units.Quantity;
-import etomica.units.Unit;
-import etomica.units.UnitRatio;
-import etomica.units.Volume;
 import etomica.util.Constants;
 import etomica.util.Constants.CompassDirection;
-import etomica.math.DoubleRange;
-import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterBonds;
-import etomica.virial.ClusterDifference;
-import etomica.virial.ClusterSum;
-import etomica.virial.ClusterSumShell;
-import etomica.virial.ClusterWeight;
-import etomica.virial.ClusterWeightAbs;
-import etomica.virial.CoordinatePairSet;
-import etomica.virial.MCMoveClusterMoleculeMulti;
-import etomica.virial.MCMoveClusterRingRegrow;
-import etomica.virial.MCMoveClusterRingRegrowOrientation;
-//import etomica.virial.MCMoveOrientationBruteForce;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.MeterVirial;
-import etomica.virial.PotentialGroupPI;
+import etomica.virial.*;
 import etomica.virial.PotentialGroupPI.PotentialGroupPISkip;
 import etomica.virial.cluster.Standard;
 import etomica.virial.cluster.VirialDiagrams;
 import etomica.virial.overlap.DataVirialOverlap.FullResult;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.Map;
+import java.util.Set;
+
+//import etomica.virial.MCMoveOrientationBruteForce;
 
 /**
  * Mayer sampling simulation for path-integral virial coefficients of CO2.
@@ -120,7 +83,7 @@ public class VirialCO2PI {
             }
             else {
                 str += " "+gs.getStore().toNumberString();
-                if (flexDiagrams.graphHasEdgeColor(gs, flexDiagrams.eBond)) {
+                if (VirialDiagrams.graphHasEdgeColor(gs, flexDiagrams.eBond)) {
                     str += "p" + edgeDeleter.apply(gs, ede).getStore().toNumberString();
                 }
             }
@@ -352,12 +315,12 @@ public class VirialCO2PI {
             throw new RuntimeException("steps should be a multiple of 1000");
         }
         
-        System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");        
-        IAtomTypeOriented atype = new AtomTypeOrientedSphere(new ElementSimple("CO2", Carbon.INSTANCE.getMass()+2*Oxygen.INSTANCE.getMass()), space);        
-        SpeciesSpheresHetero species = new SpeciesSpheresHetero(space,new IAtomTypeOriented [] {atype}) {
-            protected IAtom makeLeafAtom(IAtomType leafType) {            	
+        System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
+        AtomTypeOriented atype = new AtomTypeOriented(new ElementSimple("CO2", Carbon.INSTANCE.getMass() + 2 * Oxygen.INSTANCE.getMass()), space);
+        SpeciesSpheresHetero species = new SpeciesSpheresHetero(space, new AtomTypeOriented[]{atype}) {
+            protected IAtom makeLeafAtom(AtomType leafType) {
                 double bl = 2*p2c.getPos(5);
-                return new AtomHydrogen(space,(IAtomTypeOriented)leafType,bl);
+                return new AtomHydrogen(space, (AtomTypeOriented) leafType, bl);
             }
         };
         species.setChildCount(new int [] {nBeads});
@@ -505,9 +468,9 @@ public class VirialCO2PI {
             displayBox1.setShowBoundary(false);
             ((DisplayBoxCanvasG3DSys)displayBox0.canvas).setBackgroundColor(Color.WHITE);
             ((DisplayBoxCanvasG3DSys)displayBox1.canvas).setBackgroundColor(Color.WHITE);
-            
-            
-            IAtomType type = species.getAtomType(0);
+
+
+            AtomType type = species.getAtomType(0);
             DiameterHashByType diameterManager = (DiameterHashByType)displayBox0.getDiameterHash();
             diameterManager.setDiameter(type, 0.02+1.0/nBeads);
             displayBox1.setDiameterHash(diameterManager);
@@ -547,6 +510,8 @@ public class VirialCO2PI {
             simGraphic.getPanel().controlPanel.add(panelParentGroup, SimulationPanel.getVertGBC());
             
             IAction pushAnswer = new IAction() {
+                DataDouble data = new DataDouble();
+                
                 public void actionPerformed() {
                     double[] ratioAndError = sim.dvo.getAverageAndError();
                     double ratio = ratioAndError[0];
@@ -556,8 +521,6 @@ public class VirialCO2PI {
                     data.x = error;
                     errorBox.putData(data);
                 }
-                
-                DataDouble data = new DataDouble();
             };
             IEtomicaDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, new CompoundDimension(new Dimension[]{new DimensionRatio(Volume.DIMENSION, Quantity.DIMENSION)}, new double[]{nPoints-1}));
             Unit unit = new CompoundUnit(new Unit[]{new UnitRatio(Liter.UNIT, Mole.UNIT)}, new double[]{nPoints-1});
@@ -654,9 +617,9 @@ public class VirialCO2PI {
         final HistogramNotSoSimple piHist = new HistogramNotSoSimple(nBins, new DoubleRange(dx*0.5, sigmaHSRef+dx*0.5));
         final ClusterAbstract finalTargetCluster = targetCluster.makeCopy();
         IIntegratorListener histListenerRef = new IIntegratorListener() {
-            public void integratorStepStarted(IIntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
             
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 double r2Max = 0;
                 CoordinatePairSet cPairs = sim.box[0].getCPairSet();
                 for (int i=0; i<nPoints; i++) {
@@ -670,13 +633,13 @@ public class VirialCO2PI {
                 piHist.addValue(Math.sqrt(r2Max), Math.abs(v));
             }
             
-            public void integratorInitialized(IIntegratorEvent e) {
+            public void integratorInitialized(IntegratorEvent e) {
             }
         };
         IIntegratorListener histListenerTarget = new IIntegratorListener() {
-            public void integratorStepStarted(IIntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
             
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 double r2Max = 0;
                 double r2Min = Double.POSITIVE_INFINITY;
                 CoordinatePairSet cPairs = sim.box[1].getCPairSet();
@@ -700,15 +663,15 @@ public class VirialCO2PI {
                 targPiHist.addValue(r, Math.abs(v));
             }
 
-            public void integratorInitialized(IIntegratorEvent e) {}
+            public void integratorInitialized(IntegratorEvent e) {}
         };
         if (!isCommandline) {
             // if interactive, print intermediate results
             final double refIntegralF = refIntegral;
             IIntegratorListener progressReport = new IIntegratorListener() {
-                public void integratorInitialized(IIntegratorEvent e) {}
-                public void integratorStepStarted(IIntegratorEvent e) {}
-                public void integratorStepFinished(IIntegratorEvent e) {
+                public void integratorInitialized(IntegratorEvent e) {}
+                public void integratorStepStarted(IntegratorEvent e) {}
+                public void integratorStepFinished(IntegratorEvent e) {
                     if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();
@@ -726,9 +689,9 @@ public class VirialCO2PI {
             sim.integratorOS.getEventManager().addListener(progressReport);
             if (params.doHist) {
                 IIntegratorListener histReport = new IIntegratorListener() {
-                    public void integratorInitialized(IIntegratorEvent e) {}
-                    public void integratorStepStarted(IIntegratorEvent e) {}
-                    public void integratorStepFinished(IIntegratorEvent e) {
+                    public void integratorInitialized(IntegratorEvent e) {}
+                    public void integratorStepStarted(IntegratorEvent e) {}
+                    public void integratorStepFinished(IntegratorEvent e) {
                         if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
                         System.out.println("**** reference ****");
                         double[] xValues = hist.xValues();
@@ -789,9 +752,9 @@ public class VirialCO2PI {
         sim.printResults(refIntegral);
 
         DataGroup allData = (DataGroup)sim.accumulators[1].getData();
-        IData dataAvg = allData.getData(sim.accumulators[1].AVERAGE.index);
-        IData dataErr = allData.getData(sim.accumulators[1].ERROR.index);
-        IData dataCov = allData.getData(sim.accumulators[1].BLOCK_COVARIANCE.index);
+        IData dataAvg = allData.getData(AccumulatorAverage.AVERAGE.index);
+        IData dataErr = allData.getData(AccumulatorAverage.ERROR.index);
+        IData dataCov = allData.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
         // we'll ignore block correlation -- whatever effects are here should be in the full target results
         int nTotal = (targetDiagrams.length+2);
         double oVar = dataCov.getValue(nTotal*nTotal-1);
@@ -827,9 +790,9 @@ public class VirialCO2PI {
         
 
         DataGroup dataDisp = (DataGroup)accDisp.getData();
-        double avgDisp = dataDisp.getData(accDisp.AVERAGE.index).getValue(0);
-        double errDisp = dataDisp.getData(accDisp.ERROR.index).getValue(0);
-        double corDisp = dataDisp.getData(accDisp.BLOCK_CORRELATION.index).getValue(0);
+        double avgDisp = dataDisp.getData(AccumulatorAverage.AVERAGE.index).getValue(0);
+        double errDisp = dataDisp.getData(AccumulatorAverage.ERROR.index).getValue(0);
+        double corDisp = dataDisp.getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(0);
         
         System.out.println(String.format("position stdev: %15.9e  %10.4e  %4.2f", avgDisp, errDisp, corDisp));
 
@@ -851,7 +814,7 @@ public class VirialCO2PI {
     }
     
     enum subOptions {
-    	half, semiClassical, none;
+        half, semiClassical, none
     }
     
     /**

@@ -4,8 +4,8 @@
 
 package etomica.meam;
 
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.potential.PotentialN;
@@ -23,7 +23,7 @@ public class PotentialEFS extends PotentialN implements PotentialSoft{
     protected double rCc, c0, c1, c2, c3, c4;
     protected double A, rCd, B;
     protected Vector dr, drij, drik, drjk;
-    protected IBoundary boundary; 
+    protected Boundary boundary;
     protected Vector[] gradient;
     protected Vector[] rhograd;
     protected double [][] secondder;

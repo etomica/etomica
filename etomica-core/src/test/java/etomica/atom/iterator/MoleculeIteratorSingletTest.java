@@ -4,16 +4,16 @@
 
 package etomica.atom.iterator;
 
-import java.util.LinkedList;
-
-import etomica.api.IAtomType;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
+import etomica.atom.AtomType;
 import etomica.atom.Molecule;
 import etomica.atom.MoleculeSetSinglet;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresHetero;
+
+import java.util.LinkedList;
 
 
 /**
@@ -24,19 +24,23 @@ import etomica.species.SpeciesSpheresHetero;
  */
 public class MoleculeIteratorSingletTest extends MoleculeIteratorTestAbstract {
 
+    private MoleculeIteratorSinglet singletIterator;
+    private IMolecule testAtom1, testAtom2;
+    private LinkedList list1, list2;
+    
     public MoleculeIteratorSingletTest() {
         super();
     }
-    
+
     public void setUp() {
-        ISpecies species = new SpeciesSpheresHetero(Space3D.getInstance(), new IAtomType[0]);
+        ISpecies species = new SpeciesSpheresHetero(Space3D.getInstance(), new AtomType[0]);
         singletIterator = new MoleculeIteratorSinglet();
         testAtom1 = new Molecule(species, 0);
         testAtom2 = new Molecule(species, 0);
         list1 = makeTestList(new IMoleculeList[] {new MoleculeSetSinglet(testAtom1)});
         list2 = makeTestList(new IMoleculeList[] {new MoleculeSetSinglet(testAtom2)});
     }
-    
+
     public void testIterator() {
         print("starting");
         LinkedList<String> list = generalIteratorMethodTests(singletIterator);
@@ -57,9 +61,5 @@ public class MoleculeIteratorSingletTest extends MoleculeIteratorTestAbstract {
         assertEquals(list, list1);
         assertEquals(testAtom1, singletIterator.getMolecule());
     }
-    
-    private MoleculeIteratorSinglet singletIterator;
-    private IMolecule testAtom1, testAtom2;
-    private LinkedList list1, list2;
 
 }

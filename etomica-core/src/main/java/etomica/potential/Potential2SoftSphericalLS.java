@@ -4,8 +4,8 @@
 
 package etomica.potential;
 
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.space.Space;
@@ -128,7 +128,7 @@ public class Potential2SoftSphericalLS extends Potential2 implements PotentialSo
     }
 
     protected final Vector[] gradient;
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected final int[] nShells;
     protected final double[] a0;
     protected final Potential2Soft p2Soft;

@@ -4,18 +4,14 @@
 
 package etomica.virial.simulations;
 
-import java.awt.Color;
-import java.util.Map;
-import java.util.Set;
-
 import etomica.action.IAction;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
 import etomica.api.IElement;
-import etomica.api.IIntegratorEvent;
+import etomica.integrator.IntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.ISpecies;
+import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Nitrogen;
@@ -40,18 +36,14 @@ import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterSum;
-import etomica.virial.ClusterSumShell;
-import etomica.virial.ClusterWeight;
-import etomica.virial.ClusterWeightAbs;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.SpeciesTraPPECO2;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 import etomica.virial.cluster.VirialDiagrams;
 import etomica.virial.cluster.VirialDiagramsMix2;
+
+import java.awt.*;
+import java.util.Map;
+import java.util.Set;
 
 /**
  *   Mayer sampling simulation for CO2(rigid, TraPPE)-N2(rigid, TraPPE) mixture
@@ -78,7 +70,7 @@ public class VirialCO2N2Mix {
             }
             else {
                 str += " "+gs.getStore().toNumberString();
-                if (flexDiagrams.graphHasEdgeColor(gs, flexDiagrams.eBond)) {
+                if (VirialDiagramsMix2.graphHasEdgeColor(gs, flexDiagrams.eBond)) {
                     str += "p" + edgeDeleter.apply(gs, ede).getStore().toNumberString();
                 }
             }
@@ -244,15 +236,15 @@ public class VirialCO2N2Mix {
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
         System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
         steps /= 1000;
-        
-        IAtomType typeC = speciesCO2.getAtomType(0);//  C in CO2
-        IAtomType typeO = speciesCO2.getAtomType(1);// O in CO2
-        IAtomType typeN = speciesN2.getAtomType(1);//N in N2
+
+        AtomType typeC = speciesCO2.getAtomType(0);//  C in CO2
+        AtomType typeO = speciesCO2.getAtomType(1);// O in CO2
+        AtomType typeN = speciesN2.getAtomType(1);//N in N2
 
    
         // CO2-N2 potential
-        pCO2N2.addPotential(pC_N, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC, typeN}));
-        pCO2N2.addPotential(pO_N, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeO, typeN}));
+        pCO2N2.addPotential(pC_N, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeN}));
+        pCO2N2.addPotential(pO_N, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeO, typeN}));
                 
         sim.integratorOS.setNumSubSteps(1000);
 
@@ -348,9 +340,9 @@ public class VirialCO2N2Mix {
 
         if (false) {
             IIntegratorListener progressReport = new IIntegratorListener() {
-                public void integratorInitialized(IIntegratorEvent e) {}
-                public void integratorStepStarted(IIntegratorEvent e) {}
-                public void integratorStepFinished(IIntegratorEvent e) {
+                public void integratorInitialized(IntegratorEvent e) {}
+                public void integratorStepStarted(IntegratorEvent e) {}
+                public void integratorStepFinished(IntegratorEvent e) {
                     if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();

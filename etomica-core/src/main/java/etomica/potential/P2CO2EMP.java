@@ -7,6 +7,7 @@ package etomica.potential;
 
 import etomica.api.*;
 import etomica.box.Box;
+import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.space.Space;
 
@@ -218,7 +219,7 @@ public class P2CO2EMP extends PotentialMolecular {
     private static final long serialVersionUID = 1L;
 	public double sigmaC, sigmaC2, sigmaO, sigmaO2, sigmaCO, sigmaCO2;
 	protected double epsilonC, epsilonO, epsilonCO;
-	protected IBoundary boundary;
+	protected Boundary boundary;
 	protected final double chargeCC, chargeCO, chargeOO;
 	protected final Vector work, shift;
 }

@@ -4,24 +4,25 @@
 
 package etomica.box;
 
-import etomica.api.IAtom;
-import etomica.api.IBoxAtomIndexEvent;
+import etomica.atom.IAtom;
 
 
 /**
- * Event that conveys that the maximum global index in a Box has changed.
+ * Box event that indicates that an atom's index has changed.
  */
-public class BoxAtomIndexEvent extends BoxAtomEvent implements IBoxAtomIndexEvent {
+public class BoxAtomIndexEvent extends BoxAtomEvent {
 
-    public BoxAtomIndexEvent(Box box, IAtom atom, int _index) {
+    protected final int index;
+
+    public BoxAtomIndexEvent(Box box, IAtom atom, int index) {
         super(box, atom);
-        this.index = _index;
+        this.index = index;
     }
 
+    /**
+     * @return the index of the atom
+     */
     public int getIndex() {
         return index;
     }
-    
-    protected int index = -1;
-    private static final long serialVersionUID = 1L;
 }

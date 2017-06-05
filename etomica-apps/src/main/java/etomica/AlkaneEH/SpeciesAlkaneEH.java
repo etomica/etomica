@@ -5,13 +5,8 @@
 package etomica.AlkaneEH;
 
 
-import etomica.api.IAtom;
-import etomica.api.IAtomType;
 import etomica.api.IMolecule;
-import etomica.atom.Atom;
-import etomica.atom.AtomLeafDynamic;
-import etomica.atom.AtomTypeLeaf;
-import etomica.atom.Molecule;
+import etomica.atom.*;
 import etomica.chem.elements.ElementSimple;
 import etomica.space.Space;
 import etomica.species.Species;
@@ -26,13 +21,12 @@ import etomica.species.Species;
 	  	private static final long serialVersionUID = 1L;
 	    protected final Space space;
 	    protected final int numCarbons;
-	    public int indexC_3_1;//CH3 on the left
+    protected final int totalAtoms;
+    public int indexC_3_1;//CH3 on the left
 	    public int indexC_3_2;//CH3 on the right
 	    public int numH;
-	    public int numCH2;
-	//    protected final AtomTypeLeaf c_3Type, c_2Type, hType;
-	  
-	    protected final int totalAtoms ; 
+    //    protected final AtomType c_3Type, c_2Type, hType;
+    public int numCH2;
 	    protected boolean isDynamic;
 	    public SpeciesAlkaneEH(Space space, int numCarbons) {
 	    	super();
@@ -44,12 +38,12 @@ import etomica.species.Species;
 	        numCH2 = numCarbons -2;
 	        numH = numCarbons * 2 + 2;
 	        totalAtoms = numCarbons * 3 + 2;
-	        
-	        addChildType( new AtomTypeLeaf(new ElementSimple("c_3", 1.0)));
-	        addChildType(new AtomTypeLeaf(new ElementSimple("c_2", 1.0)));
-	        addChildType(new AtomTypeLeaf(new ElementSimple("h", 1.0)));
-	        
-	        setConformation(new ConformationAlkaneEH(space, this)); 
+
+            addChildType(new AtomType(new ElementSimple("c_3", 1.0)));
+            addChildType(new AtomType(new ElementSimple("c_2", 1.0)));
+            addChildType(new AtomType(new ElementSimple("h", 1.0)));
+
+            setConformation(new ConformationAlkaneEH(space, this));
 	     }
 	
 	    public IMolecule makeMolecule() {
@@ -70,20 +64,24 @@ import etomica.species.Species;
 	    	conformation.initializePositions(molecule.getChildList());
 			return molecule;
 	    }
-	     public IAtomType getC_3Type() { 
-	         return childTypes[0];
+
+    public AtomType getC_3Type() {
+        return childTypes[0];
 	     }
-	     public IAtomType getC_2Type() {
-	         return childTypes[1];
+
+    public AtomType getC_2Type() {
+        return childTypes[1];
 	     }
-	     public IAtomType getHType() {
-	         return childTypes[2];
+
+    public AtomType getHType() {
+        return childTypes[2];
 	     }
 	     public int getNumLeafAtoms() {
 	         return totalAtoms;
 	     }
-	     protected IAtom makeLeafAtom(IAtomType leafType) {
-	         return isDynamic ? new AtomLeafDynamic(space, leafType) : new Atom(space, leafType);
+
+    protected IAtom makeLeafAtom(AtomType leafType) {
+        return isDynamic ? new AtomLeafDynamic(space, leafType) : new Atom(space, leafType);
 	     }
 	
 	}

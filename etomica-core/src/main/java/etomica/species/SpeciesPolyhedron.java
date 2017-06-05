@@ -1,22 +1,22 @@
 package etomica.species;
 
-import java.util.List;
-
-import etomica.api.IAtom;
 import etomica.api.IElement;
-import etomica.space.Vector;
 import etomica.atom.AtomOrientedQuaternion;
-import etomica.atom.AtomTypeOrientedSphere;
+import etomica.atom.AtomTypeOriented;
 import etomica.atom.AtomTypeSpheroPolyhedron;
+import etomica.atom.IAtom;
 import etomica.chem.elements.ElementSimple;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
+
+import java.util.List;
 
 /**
  * Species in which molecules are made of a single atom of type SpheroPolyhedron
  *
  * @author Andrew Schultz
- * @see AtomTypeOrientedSphere
+ * @see AtomTypeOriented
  */
 public class SpeciesPolyhedron extends SpeciesSpheresMono {
     

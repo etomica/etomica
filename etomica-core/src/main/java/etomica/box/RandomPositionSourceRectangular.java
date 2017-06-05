@@ -5,11 +5,15 @@
 package etomica.box;
 
 import etomica.api.IRandom;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 public class RandomPositionSourceRectangular implements RandomPositionSource {
-    
+
+    protected final IRandom random;
+    protected final Vector p;
+    protected Box box;
+
     public RandomPositionSourceRectangular(Space space, IRandom random) {
         p = space.makeVector();
         this.random = random;
@@ -24,8 +28,4 @@ public class RandomPositionSourceRectangular implements RandomPositionSource {
     public void setBox(Box newBox) {
         box = newBox;
     }
-
-    protected final IRandom random;
-    protected Box box;
-    protected final Vector p;
 }

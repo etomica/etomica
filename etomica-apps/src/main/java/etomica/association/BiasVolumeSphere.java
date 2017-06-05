@@ -4,8 +4,8 @@
 
 package etomica.association;
 
-import etomica.api.IAtom;
-import etomica.api.IBoundary;
+import etomica.atom.IAtom;
+import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.api.IRandom;
@@ -18,7 +18,7 @@ public class BiasVolumeSphere extends BiasVolume {
     private double innerRadius;
     private final Vector work;
     private final IRandom random;
-    private IBoundary boundary;
+    private Boundary boundary;
     
     public BiasVolumeSphere(Space space, IRandom random){
         super(space);

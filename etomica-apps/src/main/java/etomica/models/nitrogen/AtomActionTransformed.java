@@ -4,7 +4,7 @@
 
 package etomica.models.nitrogen;
 import etomica.action.AtomAction;
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.space.Space;
 import etomica.space.Tensor;
 

@@ -4,7 +4,7 @@
 
 package etomica.freeenergy.npath;
 
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.atom.iterator.IteratorDirective;

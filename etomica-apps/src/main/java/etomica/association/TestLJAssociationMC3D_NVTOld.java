@@ -3,16 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.association;
+
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPump;
-import etomica.data.AccumulatorAverage.StatType;
+import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDouble;
@@ -28,7 +30,6 @@ import etomica.potential.P2HardAssociationCone;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresRotating;
-import etomica.data.history.HistoryCollapsingAverage;
 import etomica.util.ParameterBase;
 
 /**
@@ -46,7 +47,6 @@ public class TestLJAssociationMC3D_NVTOld extends Simulation {
     public SpeciesSpheresRotating species;
     public Box box;
     public P2HardAssociationCone potential;
-    double epsilon = 1.0;
     public MCMoveDimer mcMoveDimer;
     public MCMoveDimerRotate mcMoveDimerRotate;
     public MCMoveVolumeAssociated mcMoveVolume;
@@ -54,6 +54,7 @@ public class TestLJAssociationMC3D_NVTOld extends Simulation {
     //public MCMoveBiasUB mcMoveBiasUB;
     public AssociationManager associationManagerOriented;
     public IAssociationHelper associationHelper;
+    double epsilon = 1.0;
         
     
     public TestLJAssociationMC3D_NVTOld(int numAtoms, double pressure, double density, double wellConstant, double temperature, long numSteps) {
@@ -124,9 +125,9 @@ public class TestLJAssociationMC3D_NVTOld extends Simulation {
         mcMoveDimer.setAssociationManager(associationManagerOriented);
 	    mcMoveDimerRotate.setAssociationManager(associationManagerOriented);
         mcMoveVolume.setPressure(pressure);
-        
-        IAtomType leafType = species.getLeafType();
-        potentialMaster.addPotential(potential, new IAtomType[] {leafType, leafType});
+
+        AtomType leafType = species.getLeafType();
+        potentialMaster.addPotential(potential, new AtomType[]{leafType, leafType});
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
         integrator.getMoveManager().addMCMove(mcMoveDimer);
         integrator.getMoveManager().addMCMove(mcMoveDimerRotate);
@@ -152,7 +153,7 @@ public class TestLJAssociationMC3D_NVTOld extends Simulation {
         double temperature = params.temperature;
         long numSteps = params.numSteps;
         if (args.length > 0) {
-            numAtoms = Integer.parseInt(args[0]);;
+            numAtoms = Integer.parseInt(args[0]);
             pressure = Double.parseDouble(args[1]);
             density = Double.parseDouble(args[2]);
             wellConstant = Double.parseDouble(args[3]);
@@ -183,9 +184,9 @@ public class TestLJAssociationMC3D_NVTOld extends Simulation {
         
         if (true) {
         	SimulationGraphic graphic = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE, sim.space,sim.getController());
-        	AccumulatorHistory densityHistory = new AccumulatorHistory(new HistoryCollapsingAverage()); 
-        	rhoAccumulator.addDataSink(densityHistory, new StatType[]{rhoAccumulator.MOST_RECENT});
-        	DisplayPlot rhoPlot = new DisplayPlot();
+        	AccumulatorHistory densityHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
+            rhoAccumulator.addDataSink(densityHistory, new StatType[]{AccumulatorAverage.MOST_RECENT});
+            DisplayPlot rhoPlot = new DisplayPlot();
         	densityHistory.setDataSink(rhoPlot.getDataSet().makeDataSink());
         	graphic.add(rhoPlot);
         	ColorSchemeSmer colorScheme = new ColorSchemeSmer(sim.associationHelper,sim.box,sim.getRandom());
@@ -198,16 +199,16 @@ public class TestLJAssociationMC3D_NVTOld extends Simulation {
         sim.getController().actionPerformed();
         
         System.out.println("numAtom=" +numAtoms);
-        double avgDensity = ((DataDouble)((DataGroup)rhoAccumulator.getData()).getData(rhoAccumulator.AVERAGE.index)).x;//average density
+        double avgDensity = ((DataDouble) ((DataGroup) rhoAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;//average density
         System.out.println("average density=" +avgDensity);
         double Z = pressure/(avgDensity*sim.integrator.getTemperature());
-        double avgPE = ((DataDouble)((DataGroup)energyAccumulator.getData()).getData(energyAccumulator.AVERAGE.index)).x;
+        double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
         
         avgPE /= numAtoms;
         System.out.println("Z="+Z);
         System.out.println("PE/epsilon="+avgPE);
         double temp = sim.integrator.getTemperature();
-        double Cv = ((DataDouble)((DataGroup)energyAccumulator.getData()).getData(energyAccumulator.STANDARD_DEVIATION.index)).x;
+        double Cv = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(AccumulatorAverage.STANDARD_DEVIATION.index)).x;
         Cv /= temp;
         Cv *= Cv/numAtoms;
         System.out.println("Cv/k="+Cv);

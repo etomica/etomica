@@ -4,15 +4,15 @@
 
 package etomica.action;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.space.Vector;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.MoleculePositionGeometricCenter;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.atom.IMoleculePositioned;
 import etomica.space.Space;
 
@@ -32,7 +32,7 @@ public class BoxImposePbc extends BoxActionAdapter {
 	public BoxImposePbc(Space space) {
 		setApplyToMolecules(false);
 		this.space = space;
-		setPositionDefinition(new AtomPositionGeometricCenter(space));
+		setPositionDefinition(new MoleculePositionGeometricCenter(space));
 	}
     
     public int getPriority() {return 100;}//100-199 is priority range for classes imposing PBC
@@ -48,7 +48,7 @@ public class BoxImposePbc extends BoxActionAdapter {
 	}
 
 	public void actionPerformed() {
-		IBoundary boundary = box.getBoundary();
+		Boundary boundary = box.getBoundary();
         if (applyToMolecules) {
             IMoleculeList molecules = box.getMoleculeList();
             
@@ -110,11 +110,11 @@ public class BoxImposePbc extends BoxActionAdapter {
 		}
 	}
 
-    public void setPositionDefinition(IAtomPositionDefinition positionDefinition) {
+    public void setPositionDefinition(IMoleculePositionDefinition positionDefinition) {
         this.positionDefinition = positionDefinition;
     }
 
-    public IAtomPositionDefinition getPositionDefinition() {
+    public IMoleculePositionDefinition getPositionDefinition() {
         return positionDefinition;
     }
 
@@ -122,7 +122,7 @@ public class BoxImposePbc extends BoxActionAdapter {
     private AtomActionTranslateBy translator;
     private MoleculeChildAtomAction moleculeTranslator;
     private Space space;
-    private IAtomPositionDefinition positionDefinition;
+    private IMoleculePositionDefinition positionDefinition;
 
 	private boolean applyToMolecules;
 }

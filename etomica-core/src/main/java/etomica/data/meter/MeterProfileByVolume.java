@@ -3,14 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.data.meter;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.space.Vector;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.MoleculePositionGeometricCenter;
 import etomica.data.DataSourceIndependent;
 import etomica.data.DataSourceMolecular;
 import etomica.data.DataSourceUniform;
@@ -54,7 +54,7 @@ public class MeterProfileByVolume implements IEtomicaDataSource, DataSourceIndep
         tag = new DataTag();
         xDataSource.setTypeMax(LimitType.HALF_STEP);
         xDataSource.setTypeMin(LimitType.HALF_STEP);
-        positionDefinition = new AtomPositionGeometricCenter(space);
+        positionDefinition = new MoleculePositionGeometricCenter(space);
     }
     
     public IEtomicaDataInfo getDataInfo() {
@@ -101,7 +101,7 @@ public class MeterProfileByVolume implements IEtomicaDataSource, DataSourceIndep
      * Returns the profile for the current configuration.
      */
     public IData getData() {
-        IBoundary boundary = box.getBoundary();
+        Boundary boundary = box.getBoundary();
         data.E(0);
         double[] y = data.getData();
         IMoleculeList moleculeList = box.getMoleculeList();
@@ -162,7 +162,7 @@ public class MeterProfileByVolume implements IEtomicaDataSource, DataSourceIndep
     public void reset() {
         if (box == null) return;
         
-        IBoundary boundary = box.getBoundary();
+        Boundary boundary = box.getBoundary();
         double halfBox = 0.5*boundary.getBoxSize().getX(profileDim);
         xDataSource.setXMin(-halfBox);
         xDataSource.setXMax(halfBox);
@@ -185,11 +185,11 @@ public class MeterProfileByVolume implements IEtomicaDataSource, DataSourceIndep
         return xDataSource;
     }
 
-    public void setPositionDefinition(IAtomPositionDefinition positionDefinition) {
+    public void setPositionDefinition(IMoleculePositionDefinition positionDefinition) {
         this.positionDefinition = positionDefinition;
     }
 
-    public IAtomPositionDefinition getPositionDefinition() {
+    public IMoleculePositionDefinition getPositionDefinition() {
         return positionDefinition;
     }
 
@@ -210,6 +210,6 @@ public class MeterProfileByVolume implements IEtomicaDataSource, DataSourceIndep
     protected DataSourceMolecular meter;
     protected final DataTag tag;
     protected ISpecies species;
-    protected IAtomPositionDefinition positionDefinition;
+    protected IMoleculePositionDefinition positionDefinition;
     protected double dV;
 }

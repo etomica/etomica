@@ -4,8 +4,8 @@
 
 package etomica.potential;
 
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -377,7 +377,7 @@ public class P2HSDipole extends PotentialMolecular implements IPotentialMolecula
 
 	private static final long serialVersionUID = 1L;
 	private double sigma , sigma2;
-	private IBoundary boundary;
+	private Boundary boundary;
 	private final Vector dr,drunit,work,runit;
 	private double dipole;
 	private double rCut;

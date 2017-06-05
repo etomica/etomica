@@ -4,7 +4,7 @@
 
 package etomica.nbr.cell;
 
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.atom.AtomArrayList;
 import etomica.atom.iterator.ApiInterArrayList;

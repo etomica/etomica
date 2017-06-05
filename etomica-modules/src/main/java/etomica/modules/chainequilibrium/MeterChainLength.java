@@ -4,19 +4,13 @@
 
 package etomica.modules.chainequilibrium;
 
-import java.io.Serializable;
-
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.box.Box;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.data.DataSourceIndependent;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
@@ -24,11 +18,24 @@ import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.units.Null;
 import etomica.units.Quantity;
 
+import java.io.Serializable;
+
 /**
  * @author Matt Moynihan MoleuclarCount returns an array with the number of
  *         atoms In molecules with [1,2,3,4,5,6,7-10,10-13,13-25, <25] atoms
  */
 public class MeterChainLength implements IEtomicaDataSource, Serializable, AgentSource<MeterChainLength.AtomTag>, DataSourceIndependent {
+
+    private static final long serialVersionUID = 1L;
+    protected final DataTag tag, xTag;
+    protected Box box;
+    protected AtomLeafAgentManager<AtomTag> tagManager;
+    protected AtomLeafAgentManager<IAtom[]> agentManager;
+    protected DataFunction data;
+    protected DataDoubleArray xData;
+    protected DataInfoDoubleArray xDataInfo;
+    protected DataInfoFunction dataInfo;
+    protected AtomType ignoredAtomType;
 
     public MeterChainLength(AtomLeafAgentManager<IAtom[]> aam) {
         tag = new DataTag();
@@ -36,13 +43,13 @@ public class MeterChainLength implements IEtomicaDataSource, Serializable, Agent
         setupData(1);
         agentManager = aam;
     }
-    
+
     public DataTag getTag() {
         return tag;
     }
 
     /**
-     * Creates the data object (a DataFunction) to be returned by getData().  
+     * Creates the data object (a DataFunction) to be returned by getData().
      * data wraps the histogram's double[] so copying is not needed.
      */
     protected void setupData(int maxChainLength) {
@@ -70,14 +77,14 @@ public class MeterChainLength implements IEtomicaDataSource, Serializable, Agent
     public AtomTag makeAgent(IAtom a, Box agentBox) {
         return new AtomTag();
     }
-    
+
     // does nothing
     public void releaseAgent(AtomTag agent, IAtom atom, Box agentBox) {}
 
     //returns the number of molecules with [1,2,3,4,5,6,7-10,10-13,13-25, >25]
     // atoms
     public IData getData() {
-        
+
         double[] histogram = data.getData();
         for (int i=0; i<histogram.length; i++) {
             histogram[i] = 0;
@@ -94,12 +101,12 @@ public class MeterChainLength implements IEtomicaDataSource, Serializable, Agent
         for (int i=0; i<nLeaf; i++) {
             IAtom a = leafList.getAtom(i);
             if (a.getType() == ignoredAtomType) continue;
-            // if an Atom is tagged, it was already counted as part of 
+            // if an Atom is tagged, it was already counted as part of
             // another chain
             if (tagManager.getAgent(a).tagged) continue;
 
             int chainLength = recursiveTag(a);
-            
+
             if (chainLength > histogram.length) {
                 setupData(chainLength);
                 histogram = data.getData();
@@ -111,22 +118,22 @@ public class MeterChainLength implements IEtomicaDataSource, Serializable, Agent
         for (int i=0; i<histogram.length; i++) {
             histogram[i] /= totalAtoms;
         }
-        
+
         return data;
     }
 
     public void reset() {
         setupData(1);
     }
-    
+
     public DataInfoDoubleArray getIndependentDataInfo(int i) {
         return xDataInfo;
     }
-    
+
     public DataDoubleArray getIndependentData(int i) {
         return xData;
     }
-    
+
     public int getIndependentArrayDimension() {
         return 1;
     }
@@ -142,7 +149,7 @@ public class MeterChainLength implements IEtomicaDataSource, Serializable, Agent
         IAtom[] nbrs = agentManager.getAgent(a);
 
         int ctr = 1;
-        
+
         // count all the bonded partners
         for(int i=0; i<nbrs.length; i++) {
             if(nbrs[i] == null) continue;
@@ -155,13 +162,13 @@ public class MeterChainLength implements IEtomicaDataSource, Serializable, Agent
             ctr += recursiveTag(nbrs[i]);
         }
         return ctr;
-        
+
     }
-    
+
     public Box getBox() {
         return box;
     }
-    
+
     public void setBox(Box box) {
         this.box = box;
         if (tagManager != null) {
@@ -175,24 +182,13 @@ public class MeterChainLength implements IEtomicaDataSource, Serializable, Agent
         return dataInfo;
     }
 
-    public IAtomType getIgnoredAtomType() {
+    public AtomType getIgnoredAtomType() {
         return ignoredAtomType;
     }
 
-    public void setIgnoredAtomType(IAtomType ignoredAtomType) {
+    public void setIgnoredAtomType(AtomType ignoredAtomType) {
         this.ignoredAtomType = ignoredAtomType;
     }
-
-    private static final long serialVersionUID = 1L;
-    protected Box box;
-    protected AtomLeafAgentManager<AtomTag> tagManager;
-    protected AtomLeafAgentManager<IAtom[]> agentManager;
-    protected DataFunction data;
-    protected DataDoubleArray xData;
-    protected DataInfoDoubleArray xDataInfo;
-    protected DataInfoFunction dataInfo;
-    protected final DataTag tag, xTag;
-    protected IAtomType ignoredAtomType;
     
     public static class AtomTag {
         public boolean tagged;

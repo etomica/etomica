@@ -4,9 +4,9 @@
 
 package etomica.potential;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.api.IPotential;
 import etomica.api.IPotentialAtomic;
@@ -18,7 +18,7 @@ import etomica.units.Hartree;
 public class P1HydrogenMielke implements IPotential, P1IntraMolecular{
 //    1 Eh (hartree) = 27.2113961eV = 627.5096 kcal/mol = 219474.7 cm^-1 
 
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected final static double c6 = -6.499027;
     protected final static double c8 = -124.3991;
     protected final static double c10 = -3285.828;

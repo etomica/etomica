@@ -4,9 +4,9 @@
 
 package etomica.potential;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.space.Vector;
@@ -186,7 +186,7 @@ public class P4BondTorsionAlkaneXCCH extends Potential implements PotentialSoft 
     protected final Vector dr21, dr23, dr34;
     protected final Vector v1, v2;
     protected final Vector gtmp;
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected double a0, a1, a2, a3;
     protected final Vector[] gradient;
     

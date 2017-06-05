@@ -5,15 +5,14 @@
 package etomica.integrator;
 
 import etomica.api.*;
+import etomica.atom.*;
 import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomSetSinglet;
-import etomica.atom.SpeciesAgentManager;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.potential.PotentialCalculationForceSum;
+import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.units.Joule;
@@ -124,7 +123,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
             BondConstraints bondConstraints = (BondConstraints)shakeAgentManager.getAgent(molecule.getType());
             if (bondConstraints != null) {
                 IAtomList childList = molecule.getChildList();
-                IBoundary boundary = box.getBoundary();
+                Boundary boundary = box.getBoundary();
 
                 if (drOld.length < bondConstraints.bondedAtoms.length) {
                     Vector[] newDrOld = new Vector[bondConstraints.bondedAtoms.length];
@@ -165,7 +164,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
 
             IAtomList childList = molecule.getChildList();
             int[][] bondedAtoms = bondConstraints.bondedAtoms;
-            IBoundary boundary = box.getBoundary();
+            Boundary boundary = box.getBoundary();
             double[] bondLengths = bondConstraints.bondLengths;
 
             if (childList.getAtomCount() > moved[0].length) {

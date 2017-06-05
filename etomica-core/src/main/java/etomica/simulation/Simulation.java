@@ -4,24 +4,21 @@
 
 package etomica.simulation;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-
 import etomica.action.ActionIntegrate;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.IAtomType;
+import etomica.api.*;
+import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.api.IElement;
-import etomica.api.IIntegrator;
-import etomica.api.IRandom;
-import etomica.api.ISimulationEventManager;
-import etomica.api.ISpecies;
+import etomica.integrator.Integrator;
 import etomica.space.Space;
 import etomica.util.Arrays;
 import etomica.util.RandomMersenneTwister;
 import etomica.util.RandomNumberGeneratorUnix;
+
+import java.util.HashMap;
+import java.util.LinkedList;
 
 /**
  * The main class that organizes the elements of a molecular simulation.
@@ -33,7 +30,7 @@ public class Simulation {
     protected final Space space;
     protected final SimulationEventManager eventManager;
     private final HashMap<String, IElement> elementSymbolHash;
-    private final HashMap<IElement, LinkedList<IAtomType>> elementAtomTypeHash;
+    private final HashMap<IElement, LinkedList<AtomType>> elementAtomTypeHash;
     protected int[] seeds;
     protected IRandom random;
     private Box[] boxList;
@@ -52,7 +49,7 @@ public class Simulation {
         eventManager = new SimulationEventManager(this);
         speciesList = new ISpecies[0];
         elementSymbolHash = new HashMap<String, IElement>();
-        elementAtomTypeHash = new HashMap<IElement, LinkedList<IAtomType>>();
+        elementAtomTypeHash = new HashMap<IElement, LinkedList<AtomType>>();
     }
 
     /**
@@ -253,7 +250,7 @@ public class Simulation {
         return speciesList[index];
     }
 
-    protected void atomTypeAddedNotify(IAtomType newChildType) {
+    protected void atomTypeAddedNotify(AtomType newChildType) {
         IElement newElement = newChildType.getElement();
         IElement oldElement = elementSymbolHash.get(newElement.getSymbol());
         if (oldElement != null && oldElement != newElement) {
@@ -263,15 +260,15 @@ public class Simulation {
         }
         // remember the element so we can check for future duplication
         elementSymbolHash.put(newElement.getSymbol(), newElement);
-        LinkedList<IAtomType> atomTypeList = elementAtomTypeHash.get(newElement);
+        LinkedList<AtomType> atomTypeList = elementAtomTypeHash.get(newElement);
         if (atomTypeList == null) {
-            atomTypeList = new LinkedList<IAtomType>();
+            atomTypeList = new LinkedList<AtomType>();
             elementAtomTypeHash.put(newElement, atomTypeList);
         }
         atomTypeList.add(newChildType);
     }
 
-    protected void atomTypeRemovedNotify(IAtomType removedType) {
+    protected void atomTypeRemovedNotify(AtomType removedType) {
         // remove the type's element from our hash
         IElement oldElement = removedType.getElement();
         elementSymbolHash.remove(oldElement.getSymbol());
@@ -299,8 +296,8 @@ public class Simulation {
      * method assumes the controller holds an ActivityIntegrate or an
      * ActionIntegrate.
      */
-    public IIntegrator getIntegrator() {
-        IIntegrator integrator = null;
+    public Integrator getIntegrator() {
+        Integrator integrator = null;
         IAction[] controllerActions = controller.getAllActions();
         for (int i = 0; i < controllerActions.length; i++) {
             if (controllerActions[i] instanceof ActivityIntegrate) {

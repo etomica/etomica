@@ -7,10 +7,9 @@ package etomica.models.hexane;
 import etomica.action.PDBWriter;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
-import etomica.space.Vector;
-import etomica.box.Box;
 import etomica.api.ISpecies;
+import etomica.atom.AtomType;
+import etomica.box.Box;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
@@ -21,11 +20,7 @@ import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.Primitive;
 import etomica.listener.IntegratorListenerAction;
 import etomica.listener.IntegratorListenerGroupSeries;
-import etomica.normalmode.CoordinateDefinition;
-import etomica.normalmode.MCMoveMoleculeCoupled;
-import etomica.normalmode.MeterNormalMode;
-import etomica.normalmode.WaveVectorFactorySimple;
-import etomica.normalmode.WriteS;
+import etomica.normalmode.*;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
 import etomica.potential.PotentialMaster;
@@ -33,6 +28,7 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.virial.MCMoveClusterWiggleMulti;
 /**
@@ -165,10 +161,10 @@ public class TestHexane extends Simulation {
         //The PotentialMaster generates a group potential and automatically
         // does a lot of the stuff which we have to do for the intramolecular
         // potential manually.
-        IAtomType sphereType = species.getLeafType();
+        AtomType sphereType = species.getLeafType();
 
         //Add the Potential to the PotentialMaster
-        potentialMaster.addPotential(potential, new IAtomType[] { sphereType,
+        potentialMaster.addPotential(potential, new AtomType[]{sphereType,
                 sphereType });
         
         coupledMove.setPotential(potentialMaster.getPotential(new ISpecies[] {

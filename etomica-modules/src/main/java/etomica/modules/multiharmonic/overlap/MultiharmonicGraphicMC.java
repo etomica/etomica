@@ -13,8 +13,8 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import etomica.action.IAction;
+import etomica.integrator.IntegratorEvent;
 import etomica.math.function.IFunction;
-import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.atom.DiameterHashByType;
 import etomica.data.AccumulatorAverage;
@@ -224,10 +224,10 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
         sim.integratorOS.getEventManager().addListener(new IIntegratorListener() {
             
-            public void integratorStepStarted(IIntegratorEvent e) {}
-            public void integratorInitialized(IIntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
+            public void integratorInitialized(IntegratorEvent e) {}
             
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 long stepCount = sim.integratorOS.getStepCount();
                 if (stepCount < 100) return;
                 long oldInterval = sim.integratorOS.getAdjustInterval();
@@ -650,10 +650,10 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         
 
         sim.integratorA.getEventManager().addListener(new IIntegratorListener() {
-            public void integratorStepStarted(IIntegratorEvent e) {}
-            public void integratorInitialized(IIntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
+            public void integratorInitialized(IntegratorEvent e) {}
             
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 long stepCount = sim.integratorA.getStepCount();
                 int ls = (int)Math.round(Math.log(stepCount)/Math.log(2));
                 if (ls < 10 || stepCount != 1L<<ls) return;
@@ -687,10 +687,10 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             }
         });
         sim.integratorB.getEventManager().addListener(new IIntegratorListener() {
-            public void integratorStepStarted(IIntegratorEvent e) {}
-            public void integratorInitialized(IIntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
+            public void integratorInitialized(IntegratorEvent e) {}
             
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 long stepCount = sim.integratorB.getStepCount();
                 int ls = (int)Math.round(Math.log(stepCount)/Math.log(2));
                 if (ls < 10 || stepCount != 1L<<ls) return;

@@ -7,13 +7,13 @@ package etomica.normalmode;
 import java.io.Serializable;
 
 import etomica.action.BoxInflate;
+import etomica.atom.MoleculePositionGeometricCenter;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.lattice.crystal.Basis;
@@ -44,7 +44,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
         inflate.setBox(box);
        
         u = new double[coordinateDim];
-        setPositionDefinition(new AtomPositionGeometricCenter(space));
+        setPositionDefinition(new MoleculePositionGeometricCenter(space));
         rScale = 1.0;
     }
     
@@ -107,12 +107,12 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
         return (Vector)moleculeSiteManager.getAgent(molecule);
     }
     
-    public void setPositionDefinition(IAtomPositionDefinition positionDefinition) {
+    public void setPositionDefinition(IMoleculePositionDefinition positionDefinition) {
         this.positionDefinition = positionDefinition;
         atomActionTranslateTo.setAtomPositionDefinition(positionDefinition);
     }
 
-    public IAtomPositionDefinition getPositionDefinition() {
+    public IMoleculePositionDefinition getPositionDefinition() {
         return positionDefinition;
     }
     
@@ -125,14 +125,14 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
     protected MoleculeAgentManager moleculeSiteManager;
     protected final Vector work1;
     protected final double[] u;
-    protected IAtomPositionDefinition positionDefinition;
+    protected IMoleculePositionDefinition positionDefinition;
     protected double rScale;
     protected Vector initVolume;
     protected final BoxInflate inflate;
 
     protected static class MoleculeSiteSource implements MoleculeAgentSource, Serializable {
         
-        public MoleculeSiteSource(Space space, IAtomPositionDefinition positionDefinition) {
+        public MoleculeSiteSource(Space space, IMoleculePositionDefinition positionDefinition) {
             this.space = space;
             this.positionDefinition = positionDefinition;
         }
@@ -149,7 +149,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
         }
 
         private final Space space;
-        protected final IAtomPositionDefinition positionDefinition;
+        protected final IMoleculePositionDefinition positionDefinition;
         private static final long serialVersionUID = 1L;
     }
 }

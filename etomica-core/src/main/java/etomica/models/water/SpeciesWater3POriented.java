@@ -4,10 +4,9 @@
 
 package etomica.models.water;
 
-import etomica.api.IAtomType;
 import etomica.api.IMolecule;
 import etomica.atom.Atom;
-import etomica.atom.AtomTypeLeaf;
+import etomica.atom.AtomType;
 import etomica.atom.MoleculeOriented;
 import etomica.atom.MoleculeOrientedDynamic;
 import etomica.chem.elements.Hydrogen;
@@ -17,19 +16,26 @@ import etomica.species.SpeciesOriented;
 
 public class SpeciesWater3POriented extends SpeciesOriented {
 
+    public final static int indexH1 = 0;
+    public final static int indexH2 = 1;
+    public final static int indexO = 2;
+    private static final long serialVersionUID = 1L;
+    protected final Space space;
+    protected final AtomType oType, hType;
+    protected final boolean isDynamic;
     public SpeciesWater3POriented(Space space, boolean isDynamic) {
         super(space);
         this.isDynamic = isDynamic;
         this.space = space;
-        hType = new AtomTypeLeaf(Hydrogen.INSTANCE);
-        oType = new AtomTypeLeaf(Oxygen.INSTANCE);
+        hType = new AtomType(Hydrogen.INSTANCE);
+        oType = new AtomType(Oxygen.INSTANCE);
         addChildType(hType);
         addChildType(oType);
 
         setConformation(new ConformationWater3P(space));
         init();
     }
-    
+
     public IMolecule makeMolecule() {
         MoleculeOriented water = isDynamic ? new MoleculeOrientedDynamic(space, this, 3) :
                                              new MoleculeOriented(space, this, 3);
@@ -40,24 +46,15 @@ public class SpeciesWater3POriented extends SpeciesOriented {
         return water;
     }
 
-    public IAtomType getHydrogenType() {
+    public AtomType getHydrogenType() {
         return hType;
     }
-    
-    public IAtomType getOxygenType() {
+
+    public AtomType getOxygenType() {
         return oType;
     }
 
     public int getNumLeafAtoms() {
         return 3;
     }
-    
-    public final static int indexH1 = 0;
-    public final static int indexH2 = 1;
-    public final static int indexO  = 2;
-
-    private static final long serialVersionUID = 1L;
-    protected final Space space;
-    protected final AtomTypeLeaf oType, hType;
-    protected final boolean isDynamic;
 }

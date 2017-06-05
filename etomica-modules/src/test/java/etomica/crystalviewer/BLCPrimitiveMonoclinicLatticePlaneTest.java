@@ -6,8 +6,8 @@ package etomica.crystalviewer;
 
 import etomica.space.Vector;
 import junit.framework.TestCase;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.lattice.crystal.PrimitiveMonoclinic;
 
 public class BLCPrimitiveMonoclinicLatticePlaneTest extends TestCase {

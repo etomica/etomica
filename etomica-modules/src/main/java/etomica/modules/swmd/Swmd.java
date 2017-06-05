@@ -3,11 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.modules.swmd;
+
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
+import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorHard;
@@ -21,13 +21,10 @@ import etomica.potential.P2SquareWell;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.units.Dalton;
-import etomica.units.Joule;
-import etomica.units.Kelvin;
-import etomica.units.Mole;
-import etomica.units.UnitRatio;
+import etomica.units.*;
 
 public class Swmd extends Simulation {
     
@@ -68,8 +65,8 @@ public class Swmd extends Simulation {
         //instantiate several potentials for selection in combo-box
 	    P2SquareWell potentialSW = new P2SquareWell(space, sigma, lambda, new UnitRatio(Joule.UNIT, Mole.UNIT).toSim(space.D() == 3 ? 1000 : 1500), true);
         potentialWrapper = new P2HardWrapper(space,potentialSW);
-        potentialMaster.addPotential(potentialWrapper,new IAtomType[]{species.getLeafType(), species.getLeafType()});
-	    
+        potentialMaster.addPotential(potentialWrapper, new AtomType[]{species.getLeafType(), species.getLeafType()});
+
         //construct box
 	    box = new Box(space);
         addBox(box);

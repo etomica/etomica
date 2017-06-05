@@ -4,12 +4,12 @@
 
 package etomica.potential;
 
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
+import etomica.atom.AtomType;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 
 
 /**
@@ -21,13 +21,17 @@ import etomica.space.Tensor;
  */
 public class P2SoftSphericalTruncated extends Potential2SoftSpherical
                implements PotentialTruncated {
-    
+
+    protected final Potential2SoftSpherical potential;
+    protected double rCutoff, r2Cutoff;
+    protected boolean makeLrc = true;
+
     public P2SoftSphericalTruncated(Space _space, Potential2SoftSpherical potential, double truncationRadius) {
         super(_space);
         this.potential = potential;
         setTruncationRadius(truncationRadius);
     }
-    
+
     /**
      * Returns the wrapped potential.
      */
@@ -73,6 +77,13 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
     public double uInt(double rC) {
         return potential.uInt(rC);
     }
+
+    /**
+     * Accessor method for the radial cutoff distance.
+     */
+    public double getTruncationRadius() {
+        return rCutoff;
+    }
     
     /**
      * Mutator method for the radial cutoff distance.
@@ -81,10 +92,6 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
         rCutoff = rCut;
         r2Cutoff = rCut*rCut;
     }
-    /**
-     * Accessor method for the radial cutoff distance.
-     */
-    public double getTruncationRadius() {return rCutoff;}
     
     /**
      * Returns the truncation radius.
@@ -103,40 +110,40 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
      * energy and its derivatives from pairs that are separated by a distance
      * exceeding the truncation radius.
      */
-    public Potential0Lrc makeLrcPotential(IAtomType[] types) {
+    public Potential0Lrc makeLrcPotential(AtomType[] types) {
         if (!makeLrc) return null;
         return new P0Lrc(space, potential, this, types);
-    }
-    
-    public void setMakeLrc(boolean newMakeLrc) {
-        makeLrc = newMakeLrc;
     }
     
     public boolean getMakeLrc() {
         return makeLrc;
     }
-    
+
+    public void setMakeLrc(boolean newMakeLrc) {
+        makeLrc = newMakeLrc;
+    }
+
     /**
      * Inner class that implements the long-range correction for this truncation scheme.
      */
     public static class P0Lrc extends Potential0Lrc implements Potential2Soft {
-        
+
         private final double A;
         private final int D;
         private Potential2Soft potential;
-        
+
         public P0Lrc(Space space, Potential2Soft truncatedPotential,
-                     Potential2Soft potential, IAtomType[] types) {
+                     Potential2Soft potential, AtomType[] types) {
             super(space, types, truncatedPotential);
             this.potential = potential;
             A = space.sphereArea(1.0);  //multiplier for differential surface element
             D = space.D();              //spatial dimension
         }
- 
+
         public double energy(IAtomList atoms) {
             return uCorrection(nPairs()/box.getBoundary().volume());
         }
-        
+
         public double virial(IAtomList atoms) {
             return duCorrection(nPairs()/box.getBoundary().volume());
         }
@@ -148,7 +155,7 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
         public Vector[] gradient(IAtomList atoms) {
             return null;
         }
-        
+
         public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
             double virial = virial(atoms) / pressureTensor.D();
             for (int i=0; i<pressureTensor.D(); i++) {
@@ -158,7 +165,7 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
             // instead.  it should work about as well as throwing an exception.
             return null;
         }
-        
+
         /**
          * Uses result from integration-by-parts to evaluate integral of
          * r2 d2u/dr2 using integral of u.
@@ -182,7 +189,7 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
             double integral = ((Potential2Soft)truncatedPotential).integral(rCutoff);
             return pairDensity*integral;
         }
-        
+
         /**
          * Uses result from integration-by-parts to evaluate integral of
          * r du/dr using integral of u.
@@ -208,8 +215,4 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
             throw new RuntimeException("nope");
         }
     }//end of P0lrc
-    
-    protected double rCutoff, r2Cutoff;
-    protected boolean makeLrc = true;
-    protected final Potential2SoftSpherical potential;
 }

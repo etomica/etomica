@@ -4,7 +4,6 @@
 
 package etomica.integrator;
 
-import etomica.api.IIntegrator;
 import etomica.api.IRandom;
 import etomica.integrator.mcmove.MCMoveMoleculeExchange;
 import etomica.integrator.mcmove.MCMoveVolumeExchange;
@@ -23,7 +22,7 @@ public class IntegratorGEMC extends IntegratorManagerMC {
         _space = space;
     }
 
-    public void addIntegrator(IIntegrator newIntegrator) {
+    public void addIntegrator(Integrator newIntegrator) {
         if (!(newIntegrator instanceof IntegratorBox)) {
             throw new IllegalArgumentException("Sub integrators must be able to handle a box");
         }

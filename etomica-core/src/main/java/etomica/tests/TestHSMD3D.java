@@ -5,8 +5,9 @@
 package etomica.tests;
 
 import etomica.action.ActionIntegrate;
-import etomica.api.IAtomType;
+import etomica.atom.AtomType;
 import etomica.box.Box;
+import etomica.config.Configuration;
 import etomica.config.ConfigurationFile;
 import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
@@ -31,7 +32,7 @@ public class TestHSMD3D extends Simulation {
     public SpeciesSpheresMono species, species2;
     public Box box;
 
-    public TestHSMD3D(Space _space, int numAtoms, int numSteps) {
+    public TestHSMD3D(Space _space, int numAtoms, int numSteps, Configuration config) {
         super(_space);
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
         
@@ -57,14 +58,14 @@ public class TestHSMD3D extends Simulation {
         species2 = new SpeciesSpheresMono(this, space);
         species2.setIsDynamic(true);
         addSpecies(species2);
-        IAtomType type1 = species.getLeafType();
-        IAtomType type2 = species2.getLeafType();
+        AtomType type1 = species.getLeafType();
+        AtomType type2 = species2.getLeafType();
 
-        potentialMaster.addPotential(new P2HardSphere(space, sigma, false),new IAtomType[]{type1, type1});
+        potentialMaster.addPotential(new P2HardSphere(space, sigma, false), new AtomType[]{type1, type1});
 
-        potentialMaster.addPotential(new P2HardSphere(space, sigma, false),new IAtomType[]{type1, type2});
+        potentialMaster.addPotential(new P2HardSphere(space, sigma, false), new AtomType[]{type1, type2});
 
-        potentialMaster.addPotential(new P2HardSphere(space, sigma, false),new IAtomType[]{type2, type2});
+        potentialMaster.addPotential(new P2HardSphere(space, sigma, false), new AtomType[]{type2, type2});
         
         box = new Box(space);
         addBox(box);
@@ -73,7 +74,6 @@ public class TestHSMD3D extends Simulation {
         box.getBoundary().setBoxSize(space.makeVector(new double[]{l,l,l}));
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         integrator.setBox(box);
-        ConfigurationFile config = new ConfigurationFile("HSMD3D"+Integer.toString(numAtoms));
         config.initializeCoordinates(box);
         
 //        WriteConfiguration writeConfig = new WriteConfiguration("foo",box,1);
@@ -86,8 +86,10 @@ public class TestHSMD3D extends Simulation {
     public static void main(String[] args) {
         SimParams params = new SimParams();
         ParseArgs.doParseArgs(params, args);
+        int numAtoms = params.numAtoms;
+        ConfigurationFile config = new ConfigurationFile("HSMD3D"+Integer.toString(numAtoms));
 
-        TestHSMD3D sim = new TestHSMD3D(Space3D.getInstance(), params.numAtoms, params.numSteps/params.numAtoms);
+        TestHSMD3D sim = new TestHSMD3D(Space3D.getInstance(), numAtoms, params.numSteps / numAtoms, config);
 
         MeterPressureHard pMeter = new MeterPressureHard(sim.space);
         pMeter.setIntegrator(sim.integrator);

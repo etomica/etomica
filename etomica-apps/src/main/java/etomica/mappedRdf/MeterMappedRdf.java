@@ -1,9 +1,9 @@
 package etomica.mappedRdf;
 
 import etomica.action.IAction;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
+import etomica.atom.AtomType;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorBoxDependent;
 import etomica.box.Box;
@@ -19,6 +19,23 @@ import etomica.units.Null;
  * Created by aksharag on 5/16/17.
  */
 public class MeterMappedRdf implements IAction, IEtomicaDataSource, DataSourceIndependent, java.io.Serializable {
+
+    private static final long serialVersionUID = 1L;
+    protected final Space space;
+    protected final DataSourceUniform xDataSource;
+    protected final DataTag tag;
+    private final Vector dr;
+    protected Box box;
+    protected long[] gSum;
+    protected DataFunction data;
+    protected DataDoubleArray rData;
+    protected AtomsetIteratorBoxDependent iterator;
+    protected double xMax;
+    protected long callCount;
+    protected AtomType type1, type2;
+    private IEtomicaDataInfo dataInfo;
+    private Boundary boundary;
+    private String name;
 
     public MeterMappedRdf(Space space) {
         this.space = space;
@@ -46,12 +63,12 @@ public class MeterMappedRdf implements IAction, IEtomicaDataSource, DataSourceIn
         return tag;
     }
 
-    public void setAtomType(IAtomType type) {
+    public void setAtomType(AtomType type) {
         type1 = type;
         type2 = type;
     }
 
-    public void setAtomTypes(IAtomType type1, IAtomType type2) {
+    public void setAtomTypes(AtomType type1, AtomType type2) {
         this.type1 = type1;
         this.type2 = type2;
     }
@@ -96,7 +113,6 @@ public class MeterMappedRdf implements IAction, IEtomicaDataSource, DataSourceIn
              }
                         callCount++;
         }
-
 
     /**
      * Returns the RDF, averaged over the calls to actionPerformed since the
@@ -163,6 +179,7 @@ public class MeterMappedRdf implements IAction, IEtomicaDataSource, DataSourceIn
     public Box getBox() {
         return box;
     }
+
     /**
      * @param box The box to set.
      */
@@ -178,21 +195,4 @@ public class MeterMappedRdf implements IAction, IEtomicaDataSource, DataSourceIn
     public void setName(String name) {
         this.name = name;
     }
-
-    private static final long serialVersionUID = 1L;
-    protected Box box;
-    protected final Space space;
-    protected long[] gSum;
-    protected DataFunction data;
-    private IEtomicaDataInfo dataInfo;
-    protected DataDoubleArray rData;
-    protected AtomsetIteratorBoxDependent iterator;
-    private final Vector dr;
-    private IBoundary boundary;
-    protected final DataSourceUniform xDataSource;
-    protected double xMax;
-    private String name;
-    protected final DataTag tag;
-    protected long callCount;
-    protected IAtomType type1, type2;
 }

@@ -5,8 +5,12 @@
 package etomica.box;
 
 import etomica.action.BoxInflate;
-import etomica.api.*;
+import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
+import etomica.api.ISpecies;
 import etomica.atom.AtomArrayList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.atom.MoleculeArrayList;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -44,7 +48,7 @@ import etomica.util.Debug;
  * A simulation may involve more than one box. All Box instances should be
  * registered with the simulation via {@link etomica.simulation.Simulation#addBox(Box)} and
  * may be accessed via the simulation's getBox method.
- * 
+ *
  * @author David Kofke, Andrew Schultz
  * @see Boundary
  * @see BoxEventManager
@@ -60,7 +64,7 @@ public class Box implements java.io.Serializable {
     private final BoxEventManager eventManager;
     private final Space space;
     protected MoleculeArrayList[] moleculeLists;
-    private IBoundary boundary;
+    private Boundary boundary;
     private int index;
 
     /**
@@ -73,8 +77,8 @@ public class Box implements java.io.Serializable {
     /**
      * Constructs box with the given boundary
      */
-    public Box(IBoundary boundary, Space space) {
-    	this.space = space;
+    public Box(Boundary boundary, Space space) {
+        this.space = space;
         eventManager = new BoxEventManager(this);
         setBoundary(boundary);
 
@@ -104,15 +108,15 @@ public class Box implements java.io.Serializable {
     }
 
     /**
-     *
      * @return the String "Box" with the box index appended
      */
     public String toString() {
-        return "Box "+getIndex();
+        return "Box " + getIndex();
     }
 
     /**
      * Creates a molecule of the given species and adds it to the box
+     *
      * @param species the given species
      * @return the new molecule
      */
@@ -133,7 +137,7 @@ public class Box implements java.io.Serializable {
     public void addMolecule(IMolecule molecule) {
         int speciesIndex = molecule.getType().getIndex();
         if (Debug.ON) {
-            for (int i=0; i<moleculeLists[speciesIndex].getMoleculeCount(); i++) {
+            for (int i = 0; i < moleculeLists[speciesIndex].getMoleculeCount(); i++) {
                 if (moleculeLists[speciesIndex].getMolecule(i) == molecule) {
                     throw new RuntimeException("you bastard!");
                 }
@@ -153,9 +157,9 @@ public class Box implements java.io.Serializable {
         eventManager.moleculeAdded(molecule);
 
         if (Debug.ON) {
-            for (int i=0; i<moleculeLists[speciesIndex].getMoleculeCount(); i++) {
+            for (int i = 0; i < moleculeLists[speciesIndex].getMoleculeCount(); i++) {
                 if (moleculeLists[speciesIndex].getMolecule(i).getIndex() != i) {
-                    throw new RuntimeException("oops "+molecule+" "+moleculeLists[speciesIndex].getMolecule(i)+" "+i);
+                    throw new RuntimeException("oops " + molecule + " " + moleculeLists[speciesIndex].getMolecule(i) + " " + i);
                 }
             }
         }
@@ -171,15 +175,14 @@ public class Box implements java.io.Serializable {
         int moleculeIndex = molecule.getIndex();
         MoleculeArrayList moleculeList = moleculeLists[molecule.getType().getIndex()];
         if (Debug.ON && moleculeList.getMolecule(moleculeIndex) != molecule) {
-            throw new IllegalArgumentException("can't find "+molecule);
+            throw new IllegalArgumentException("can't find " + molecule);
         }
-        if (moleculeIndex < moleculeList.getMoleculeCount()-1) {
+        if (moleculeIndex < moleculeList.getMoleculeCount() - 1) {
             moleculeList.removeAndReplace(moleculeIndex);
             IMolecule replacingMolecule = moleculeList.getMolecule(moleculeIndex);
             replacingMolecule.setIndex(moleculeIndex);
             eventManager.moleculeIndexChanged(replacingMolecule, moleculeList.getMoleculeCount());
-        }
-        else {
+        } else {
             moleculeList.remove(moleculeIndex);
         }
         allMoleculeList.setMoleculeLists(moleculeLists);
@@ -206,7 +209,7 @@ public class Box implements java.io.Serializable {
      * number.
      *
      * @param species the species whose number of molecules should be changed
-     * @param n the desired number of molecules
+     * @param n       the desired number of molecules
      */
     public void setNMolecules(ISpecies species, int n) {
         int speciesIndex = species.getIndex();
@@ -216,29 +219,27 @@ public class Box implements java.io.Serializable {
         IMolecule newMolecule0 = null;
         if (currentNMolecules > 0) {
             moleculeLeafAtoms = moleculeList.getMolecule(0).getChildList().getAtomCount();
-        }
-        else if (n > currentNMolecules) {
+        } else if (n > currentNMolecules) {
             newMolecule0 = species.makeMolecule();
             moleculeLeafAtoms = newMolecule0.getChildList().getAtomCount();
         }
-        notifyNewMolecules(species, (n-currentNMolecules), moleculeLeafAtoms);
-        if(n < 0) {
+        notifyNewMolecules(species, (n - currentNMolecules), moleculeLeafAtoms);
+        if (n < 0) {
             throw new IllegalArgumentException("Number of molecules cannot be negative");
         }
         if (n > currentNMolecules) {
             moleculeLists[species.getIndex()].ensureCapacity(n);
-            leafList.ensureCapacity(leafList.getAtomCount()+(n-currentNMolecules)*moleculeLeafAtoms);
+            leafList.ensureCapacity(leafList.getAtomCount() + (n - currentNMolecules) * moleculeLeafAtoms);
             if (newMolecule0 != null) {
                 addMolecule(newMolecule0);
                 currentNMolecules++;
             }
-            for(int i=currentNMolecules; i<n; i++) {
+            for (int i = currentNMolecules; i < n; i++) {
                 addMolecule(species.makeMolecule());
             }
-        }
-        else {
-            for (int i=currentNMolecules; i>n; i--) {
-                removeMolecule(moleculeList.getMolecule(i-1));
+        } else {
+            for (int i = currentNMolecules; i > n; i--) {
+                removeMolecule(moleculeList.getMolecule(i - 1));
             }
         }
     }
@@ -271,36 +272,39 @@ public class Box implements java.io.Serializable {
     /**
      * @return the box's boundary.
      */
-    public final IBoundary getBoundary() {return boundary;}
+    public final Boundary getBoundary() {
+        return boundary;
+    }
 
     /**
      * Sets the box's boundary to the given IBoundary.
      *
      * @param b the new boundary
      */
-    public void setBoundary(IBoundary b) {
+    public void setBoundary(Boundary b) {
         boundary = b;
         boundary.setBox(this);
-     }
+    }
 
     /**
      * Uses BoxInflate to adjust the volume to the specified density.
      * New volume is set such that N/V = rho, where N is the number of
      * molecules in the box.
+     *
      * @param rho the specified density
      */
     public void setDensity(double rho) {
-        double vNew = getMoleculeList().getMoleculeCount()/rho;
-        double scale = Math.pow(vNew/boundary.volume(), 1.0/space.D());
+        double vNew = getMoleculeList().getMoleculeCount() / rho;
+        double scale = Math.pow(vNew / boundary.volume(), 1.0 / space.D());
         BoxInflate inflater = new BoxInflate(this, space);
         inflater.setScale(scale);
         inflater.actionPerformed();
-    };
+    }
 
     /**
      * @return the event manager for this box.
      */
-    public IBoxEventManager getEventManager() {
+    public BoxEventManager getEventManager() {
         return eventManager;
     }
 
@@ -311,7 +315,7 @@ public class Box implements java.io.Serializable {
      * @param species the added species
      */
     public void addSpeciesNotify(ISpecies species) {
-        moleculeLists = (MoleculeArrayList[])Arrays.addObject(moleculeLists, new MoleculeArrayList());
+        moleculeLists = (MoleculeArrayList[]) Arrays.addObject(moleculeLists, new MoleculeArrayList());
         allMoleculeList.setMoleculeLists(moleculeLists);
     }
 
@@ -323,7 +327,7 @@ public class Box implements java.io.Serializable {
      * @param species the removed species
      */
     public void removeSpeciesNotify(ISpecies species) {
-        moleculeLists = (MoleculeArrayList[])Arrays.removeObject(moleculeLists, moleculeLists[species.getIndex()]);
+        moleculeLists = (MoleculeArrayList[]) Arrays.removeObject(moleculeLists, moleculeLists[species.getIndex()]);
         allMoleculeList.setMoleculeLists(moleculeLists);
     }
 

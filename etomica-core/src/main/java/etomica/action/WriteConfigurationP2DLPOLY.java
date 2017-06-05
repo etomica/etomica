@@ -9,9 +9,9 @@ import java.io.IOException;
 import java.util.Formatter;
 import java.util.HashMap;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IBoundary;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.api.IElement;
 import etomica.api.IMolecule;
@@ -20,7 +20,6 @@ import etomica.chem.elements.Carbon;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Nitrogen;
 import etomica.chem.elements.Oxygen;
-import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space3d.BoundaryTruncatedOctahedron;
 
@@ -139,7 +138,7 @@ public class WriteConfigurationP2DLPOLY implements IAction {
         	
         	Formatter formatter = new Formatter(new File(fileName));
         	
-        	IBoundary boundary = box.getBoundary();
+        	Boundary boundary = box.getBoundary();
         	int boundaryType = -1;
         	if (boundary instanceof BoundaryTruncatedOctahedron){
         		boundaryType = 4;

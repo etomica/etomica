@@ -8,7 +8,10 @@ import etomica.action.AtomActionRandomizeVelocity;
 import etomica.api.*;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.box.Box;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
+import etomica.box.*;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterTemperature;
@@ -26,7 +29,7 @@ import etomica.util.EnumeratedType;
  * Extends the Integrator class by adding methods that 
  * set the time step.
  */
-public abstract class IntegratorMD extends IntegratorBox implements IBoxListener {
+public abstract class IntegratorMD extends IntegratorBox implements BoxEventListener {
 
     public IntegratorMD(PotentialMaster potentialMaster, IRandom random,
                         double timeStep, double temperature, Space _space) {
@@ -572,7 +575,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
         meterTemperature = meter;
     }
     
-    public void boxMoleculeAdded(IBoxMoleculeEvent e) {
+    public void boxMoleculeAdded(BoxMoleculeEvent e) {
 
         IMolecule mole = e.getMolecule();
         IAtomList atomList = mole.getChildList();
@@ -585,15 +588,15 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
 
     }
     
-    public void boxMoleculeRemoved(IBoxMoleculeEvent e) { }
+    public void boxMoleculeRemoved(BoxMoleculeEvent e) { }
 
-    public void boxGlobalAtomLeafIndexChanged(IBoxIndexEvent e) { }
+    public void boxGlobalAtomLeafIndexChanged(BoxIndexEvent e) { }
     
-    public void boxAtomLeafIndexChanged(IBoxAtomIndexEvent e) { }
+    public void boxAtomLeafIndexChanged(BoxAtomIndexEvent e) { }
     
-    public void boxMoleculeIndexChanged(IBoxMoleculeIndexEvent e) { }
+    public void boxMoleculeIndexChanged(BoxMoleculeIndexEvent e) { }
     
-    public void boxNumberMolecules(IBoxMoleculeCountEvent e) { }
+    public void boxNumberMolecules(BoxMoleculeCountEvent e) { }
     
     /**
      * Elementary time step for the MD simulation

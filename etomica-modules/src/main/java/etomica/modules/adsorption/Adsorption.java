@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.modules.adsorption;
+
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
-import etomica.space.Vector;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
@@ -18,6 +18,7 @@ import etomica.potential.P2SquareWell;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 
@@ -89,11 +90,11 @@ public class Adsorption extends Simulation {
 
         
         p2AA = new P2SquareWell(space, sigma, lambda, epsilon, false);
-        potentialMaster.addPotential(p2AA,new IAtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
+        potentialMaster.addPotential(p2AA, new AtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
         p2AB = new P2SquareWell(space, sigma, lambda, epsilon, false);
-        potentialMaster.addPotential(p2AB,new IAtomType[]{speciesA.getLeafType(), speciesB.getLeafType()});
+        potentialMaster.addPotential(p2AB, new AtomType[]{speciesA.getLeafType(), speciesB.getLeafType()});
         p2BB = new P2SquareWell(space, sigma, lambda, epsilon, false);
-        potentialMaster.addPotential(p2BB,new IAtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
+        potentialMaster.addPotential(p2BB, new AtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
 
 
         p1WallA = new P1Wall(space);
@@ -108,8 +109,8 @@ public class Adsorption extends Simulation {
         p1WallB.setEpsilon(epsilonWF);
         p1WallB.setThermalize(integratorMC, 0.0, random);
 
-        potentialMaster.addPotential(p1WallA, new IAtomType[]{speciesA.getLeafType()});
-        potentialMaster.addPotential(p1WallB, new IAtomType[]{speciesB.getLeafType()});
+        potentialMaster.addPotential(p1WallA, new AtomType[]{speciesA.getLeafType()});
+        potentialMaster.addPotential(p1WallB, new AtomType[]{speciesB.getLeafType()});
 
         integratorMD.getEventManager().addListener(potentialMaster.getNeighborManager(box));
 

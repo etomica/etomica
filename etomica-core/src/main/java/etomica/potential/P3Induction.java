@@ -4,8 +4,8 @@
 
 package etomica.potential;
 
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -49,7 +49,7 @@ public class P3Induction implements IPotentialAtomic {
     protected final Vector ri, rj, rk;
     protected final Vector rij, rik;
     protected final Vector or3;
-    protected IBoundary boundary;
+    protected Boundary boundary;
 
     public P3Induction(Space space, AtomTypeAgentManager paramsManager) {
         this.space = space;

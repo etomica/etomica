@@ -6,9 +6,9 @@ package etomica.association;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IRandom;
@@ -30,7 +30,7 @@ public class BiasVolume2SiteAceticAcid implements AssociationDefinitionMolecule 
     private double innerOHLength;
     private double outerOHLength;
     private final IRandom random;
-    private IBoundary boundary;
+    private Boundary boundary;
     private double maxCosTheta,maxCosPhi, maxCosOHO, maxCosHOC, minCosHOC;
     protected final MoleculePair pair;
     protected final Vector H1O2, H2O1, C1CH31, C2CH32, OO1, OO2, C2C1, secondAxis, thirdAxis, newPositionC, work1, work2;

@@ -8,7 +8,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 import etomica.action.activity.Controller;
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.lattice.RectangularLattice;
 import etomica.nbr.site.AtomSite;
 import etomica.nbr.site.NeighborSiteManager;

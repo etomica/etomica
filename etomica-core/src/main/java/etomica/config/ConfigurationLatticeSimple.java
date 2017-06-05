@@ -5,12 +5,12 @@
 package etomica.config;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
+import etomica.atom.MoleculePositionGeometricCenter;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.space.Vector;
-import etomica.atom.AtomPositionGeometricCenter;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
@@ -61,7 +61,7 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
         this.lattice = lattice;
         this.indexIterator = indexIterator;
         atomActionTranslateTo = new MoleculeActionTranslateTo(lattice.getSpace());
-        atomActionTranslateTo.setAtomPositionDefinition(new AtomPositionGeometricCenter(space));
+        atomActionTranslateTo.setAtomPositionDefinition(new MoleculePositionGeometricCenter(space));
     }
 
     /**
@@ -83,7 +83,7 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
 
         // determine scaled shape of simulation volume
         Vector dim = space.makeVector();
-        IBoundary boundary = box.getBoundary();
+        Boundary boundary = box.getBoundary();
         for (int i=0; i<space.D(); i++) {
             Vector edgeVector = boundary.getEdgeVector(i);
             dim.setX(i,Math.sqrt(edgeVector.squared()));

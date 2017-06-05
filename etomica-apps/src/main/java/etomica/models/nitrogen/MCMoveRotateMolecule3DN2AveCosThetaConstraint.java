@@ -4,8 +4,10 @@
 
 package etomica.models.nitrogen;
 import etomica.api.*;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.MoleculePositionGeometricCenter;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
@@ -26,7 +28,7 @@ public class MCMoveRotateMolecule3DN2AveCosThetaConstraint extends MCMoveMolecul
     private static final long serialVersionUID = 2L;
     protected transient Vector r0, molAxis;
     protected transient RotationTensor rotationTensor;
-    protected IAtomPositionDefinition positionDefinition;
+    protected IMoleculePositionDefinition positionDefinition;
     protected CoordinateDefinitionNitrogen coordinateDef;
     protected Vector[] initMolecOrientation;
     protected int numMolecule;
@@ -42,7 +44,7 @@ public class MCMoveRotateMolecule3DN2AveCosThetaConstraint extends MCMoveMolecul
         this.coordinateDef = coordinateDef;
         this.cosThetaConstraint = cosThetaConstraint;
         
-        positionDefinition = new AtomPositionGeometricCenter(space);
+        positionDefinition = new MoleculePositionGeometricCenter(space);
         
         IMoleculeList moleculeList = coordinateDef.getBox().getMoleculeList();
         numMolecule = moleculeList.getMoleculeCount();

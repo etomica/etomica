@@ -4,16 +4,13 @@
 
 package etomica.normalmode;
 
-import etomica.api.IAtom;
+import etomica.atom.*;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
-import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomPositionCOM;
-import etomica.atom.AtomPositionGeometricCenterPBC;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.crystal.Primitive;
@@ -31,7 +28,7 @@ public class LatticeSumMolecularCrystal {
     	this.box = box;
     	this.space = space;
     	this.basisDim = basisDim;
-    	this.atomPosDef = new AtomPositionGeometricCenterPBC(space, box.getBoundary());
+    	this.atomPosDef = new MoleculePositionGeometricCenterPBC(space, box.getBoundary());
     	this.com0 = space.makeVector();
     	this.com1 = space.makeVector();
     	int atomsPerMol = box.getLeafList().getAtomCount() / box.getMoleculeList().getMoleculeCount();   
@@ -129,9 +126,9 @@ public class LatticeSumMolecularCrystal {
     	Tensor3D Rkp = new Tensor3D(); 
     	Vector Xk = space.makeVector();
     	Vector Xkp = space.makeVector();
-    	AtomPositionCOM com_0 = new AtomPositionCOM(space);
+    	MoleculePositionCOM com_0 = new MoleculePositionCOM(space);
     	Vector com0 = com_0.position(mol0);
-    	AtomPositionCOM com_1 = new AtomPositionCOM(space);
+    	MoleculePositionCOM com_1 = new MoleculePositionCOM(space);
     	Vector com1 = com_1.position(mol1);
 
 //    	com0.E(mol0.getChildList().getAtom(2).getPosition()); // O (-5.970371160466783, 5.978273273935142, -2.996126942837739)
@@ -219,7 +216,7 @@ public class LatticeSumMolecularCrystal {
     private final int basisDim;
     protected final Box box;
     protected final Space space;
-    protected IAtomPositionDefinition atomPosDef;
+    protected IMoleculePositionDefinition atomPosDef;
     protected final Vector com0, com1;
     protected WaveVectorFactorySimple kFactory;
     protected final Tensor[] tmpAtomicTensor3;//46X4=184 atoms dimentional array of 3dim Tensor

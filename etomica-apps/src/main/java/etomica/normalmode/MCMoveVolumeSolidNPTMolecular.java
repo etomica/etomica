@@ -12,7 +12,7 @@ import etomica.api.IMoleculeList;
 import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.space.Vector;
-import etomica.atom.AtomPositionGeometricCenter;
+import etomica.atom.MoleculePositionGeometricCenter;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -43,7 +43,7 @@ public class MCMoveVolumeSolidNPTMolecular extends MCMoveBoxStep {
     protected final Vector boxSize;
     protected final Vector dest, comOld;
 
-    protected final AtomPositionGeometricCenter moleculeCenter;
+    protected final MoleculePositionGeometricCenter moleculeCenter;
     protected final MoleculeActionTranslateTo translateTo;
     
     protected transient double uOld, vOld, vNew, vScale;
@@ -79,7 +79,7 @@ public class MCMoveVolumeSolidNPTMolecular extends MCMoveBoxStep {
         dest = space.makeVector();
         comOld = space.makeVector();
         boxSize = space.makeVector();
-        moleculeCenter = new AtomPositionGeometricCenter(space);
+        moleculeCenter = new MoleculePositionGeometricCenter(space);
         translateTo = new MoleculeActionTranslateTo(space);
     }
     

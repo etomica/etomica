@@ -1,6 +1,6 @@
 package etomica.mappedvirial;
 
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.atom.AtomLeafAgentManager;

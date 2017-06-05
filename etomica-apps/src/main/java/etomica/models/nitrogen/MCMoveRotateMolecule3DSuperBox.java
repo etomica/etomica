@@ -3,18 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.models.nitrogen;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.atom.*;
 import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.potential.PotentialMaster;
 import etomica.api.IPotentialMolecular;
 import etomica.api.IRandom;
 import etomica.space.Vector;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.atom.MoleculeArrayList;
-import etomica.atom.MoleculePair;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.atom.iterator.MoleculeIterator;
 import etomica.atom.iterator.MoleculeIteratorArrayListSimple;
 import etomica.integrator.mcmove.MCMoveMolecular;
@@ -38,7 +34,7 @@ public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule implements MC
     private static final long serialVersionUID = 2L;
     protected transient Vector r0;
     protected transient RotationTensor rotationTensor;
-    protected IAtomPositionDefinition positionDefinition;
+    protected IMoleculePositionDefinition positionDefinition;
     public int count;
     public int count1;
     public boolean flag = false;
@@ -68,7 +64,7 @@ public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule implements MC
         
         affectedMoleculeIterator = new MoleculeIteratorArrayListSimple();
         affectedMoleculeList = new MoleculeArrayList();
-        positionDefinition = new AtomPositionGeometricCenter(space);
+        positionDefinition = new MoleculePositionGeometricCenter(space);
         
         rotationTensor = _space.makeRotationTensor();
         r0 = _space.makeVector();

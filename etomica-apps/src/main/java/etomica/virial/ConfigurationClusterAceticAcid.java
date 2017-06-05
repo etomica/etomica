@@ -6,10 +6,8 @@ package etomica.virial;
 
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.*;
+import etomica.atom.*;
 import etomica.box.Box;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.atom.MoleculePair;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space.RotationTensor;
@@ -234,7 +232,7 @@ public class ConfigurationClusterAceticAcid extends ConfigurationCluster {
 	public void association(MayerFunction f, MoleculePair pair, Box box){
 		RotationTensor rotationTensor = space.makeRotationTensor();
 		Vector r0 = space.makeVector();
-		IAtomPositionDefinition positionDefinition = new AtomPositionGeometricCenter(space); 
+		IMoleculePositionDefinition positionDefinition = new MoleculePositionGeometricCenter(space);
 		while (true){
 			Vector positionAceticAcid = space.makeVector();
 			positionAceticAcid.setRandomInSphere(random);

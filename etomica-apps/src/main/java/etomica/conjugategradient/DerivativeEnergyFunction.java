@@ -5,8 +5,8 @@
 package etomica.conjugategradient;
 
 import etomica.action.Activity;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.space.Vector;

@@ -3,11 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.modules.rosmosis;
+
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
 import etomica.api.ISpecies;
-import etomica.space.Vector;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.Chlorine;
 import etomica.chem.elements.ElementSimple;
@@ -17,14 +17,11 @@ import etomica.listener.IntegratorListenerAction;
 import etomica.models.water.OrientationCalcWater3P;
 import etomica.models.water.P2WaterSPCSoft;
 import etomica.models.water.SpeciesWater3POriented;
-import etomica.potential.P2Electrostatic;
-import etomica.potential.P2LennardJones;
-import etomica.potential.P2MoleculeSoftTruncatedSwitched;
-import etomica.potential.P2SoftSphericalTruncatedSwitched;
-import etomica.potential.PotentialMaster;
+import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Dalton;
@@ -107,12 +104,12 @@ public class ReverseOsmosisWater extends Simulation {
         double yzSize = 18;       // 28 originally
         double rCut = 0.49*yzSize;
         double switchFac = 0.7;
-        
-        IAtomType oType = speciesSolvent.getOxygenType();
-        IAtomType hType = speciesSolvent.getHydrogenType();
-        IAtomType naType = speciesSodium.getLeafType();
-        IAtomType clType = speciesChlorine.getLeafType();
-        IAtomType mType = speciesMembrane.getLeafType();
+
+        AtomType oType = speciesSolvent.getOxygenType();
+        AtomType hType = speciesSolvent.getHydrogenType();
+        AtomType naType = speciesSodium.getLeafType();
+        AtomType clType = speciesChlorine.getLeafType();
+        AtomType mType = speciesMembrane.getLeafType();
         
         potentialWater = new P2WaterSPCSoft(space);
         P2MoleculeSoftTruncatedSwitched pWaterTrunc = new P2MoleculeSoftTruncatedSwitched(potentialWater, rCut, space);
@@ -124,96 +121,96 @@ public class ReverseOsmosisWater extends Simulation {
         potentialLJNaNa = new P2LennardJones(space, sigSodium, epsSodium);
 	    P2SoftSphericalTruncatedSwitched pTrunc = new P2SoftSphericalTruncatedSwitched(space, potentialLJNaNa, rCut);
 	    pTrunc.setSwitchFac(switchFac);
-        potentialMaster.addPotential(pTrunc,new IAtomType[]{naType, naType});
-	    
+        potentialMaster.addPotential(pTrunc, new AtomType[]{naType, naType});
+
         potentialLJClCl = new P2LennardJones(space, sigChlorine, epsChlorine);
         pTrunc = new P2SoftSphericalTruncatedSwitched(space, potentialLJClCl, rCut);
         pTrunc.setSwitchFac(switchFac);
-        potentialMaster.addPotential(pTrunc,new IAtomType[]{clType, clType});
+        potentialMaster.addPotential(pTrunc, new AtomType[]{clType, clType});
 
         potentialLJNaCl = new P2LennardJones(space, 0.5*(sigChlorine+sigSodium), Math.sqrt(epsChlorine*epsSodium));
         pTrunc = new P2SoftSphericalTruncatedSwitched(space, potentialLJNaCl, rCut);
         pTrunc.setSwitchFac(switchFac);
-        potentialMaster.addPotential(pTrunc,new IAtomType[]{naType, clType});
+        potentialMaster.addPotential(pTrunc, new AtomType[]{naType, clType});
 
         potentialQNaNa = new P2Electrostatic(space);
         potentialQNaNa.setCharge1(chargeSodium);
         potentialQNaNa.setCharge2(chargeSodium);
         pTrunc = new P2SoftSphericalTruncatedSwitched(space, potentialQNaNa, rCut);
         pTrunc.setSwitchFac(switchFac);
-        potentialMaster.addPotential(pTrunc,new IAtomType[]{naType, naType});
+        potentialMaster.addPotential(pTrunc, new AtomType[]{naType, naType});
 
         potentialQClCl = new P2Electrostatic(space);
         potentialQClCl.setCharge1(chargeChlorine);
         potentialQClCl.setCharge2(chargeChlorine);
         pTrunc = new P2SoftSphericalTruncatedSwitched(space, potentialQClCl, rCut);
         pTrunc.setSwitchFac(switchFac);
-        potentialMaster.addPotential(pTrunc,new IAtomType[]{clType, clType});
+        potentialMaster.addPotential(pTrunc, new AtomType[]{clType, clType});
 
         potentialQNaCl = new P2Electrostatic(space);
         potentialQNaCl.setCharge1(chargeSodium);
         potentialQNaCl.setCharge2(chargeChlorine);
         pTrunc = new P2SoftSphericalTruncatedSwitched(space, potentialQNaCl, rCut);
         pTrunc.setSwitchFac(switchFac);
-        potentialMaster.addPotential(pTrunc,new IAtomType[]{naType, clType});
+        potentialMaster.addPotential(pTrunc, new AtomType[]{naType, clType});
 
         potentialLJOCl = new P2LennardJones(space, 0.5*(sigOxygen+sigChlorine), Math.sqrt(epsOxygen*epsChlorine));
         pTrunc = new P2SoftSphericalTruncatedSwitched(space, potentialLJOCl, rCut);
         pTrunc.setSwitchFac(switchFac);
-        potentialMaster.addPotential(pTrunc,new IAtomType[]{clType, oType});
+        potentialMaster.addPotential(pTrunc, new AtomType[]{clType, oType});
 
         potentialLJONa = new P2LennardJones(space, 0.5*(sigOxygen+sigSodium), Math.sqrt(epsOxygen*epsSodium));
         pTrunc = new P2SoftSphericalTruncatedSwitched(space, potentialLJONa, rCut);
         pTrunc.setSwitchFac(switchFac);
-        potentialMaster.addPotential(pTrunc,new IAtomType[]{naType, oType});
+        potentialMaster.addPotential(pTrunc, new AtomType[]{naType, oType});
 
         potentialQONa = new P2Electrostatic(space);
         potentialQONa.setCharge1(chargeOxygen);
         potentialQONa.setCharge2(chargeSodium);
         pTrunc = new P2SoftSphericalTruncatedSwitched(space, potentialQONa, rCut);
         pTrunc.setSwitchFac(switchFac);
-        potentialMaster.addPotential(pTrunc,new IAtomType[]{oType, naType});
+        potentialMaster.addPotential(pTrunc, new AtomType[]{oType, naType});
         
         potentialQOCl = new P2Electrostatic(space);
         potentialQOCl.setCharge1(chargeOxygen);
         potentialQOCl.setCharge2(chargeChlorine);
         pTrunc = new P2SoftSphericalTruncatedSwitched(space, potentialQOCl, rCut);
         pTrunc.setSwitchFac(switchFac);
-        potentialMaster.addPotential(pTrunc,new IAtomType[]{oType, clType});
+        potentialMaster.addPotential(pTrunc, new AtomType[]{oType, clType});
 
         potentialQHNa = new P2Electrostatic(space);
         potentialQHNa.setCharge1(chargeHydrogen);
         potentialQHNa.setCharge2(chargeSodium);
         pTrunc = new P2SoftSphericalTruncatedSwitched(space, potentialQHNa, rCut);
         pTrunc.setSwitchFac(switchFac);
-        potentialMaster.addPotential(pTrunc,new IAtomType[]{hType, naType});
+        potentialMaster.addPotential(pTrunc, new AtomType[]{hType, naType});
         
         potentialQHCl = new P2Electrostatic(space);
         potentialQHCl.setCharge1(chargeHydrogen);
         potentialQHCl.setCharge2(chargeChlorine);
         pTrunc = new P2SoftSphericalTruncatedSwitched(space, potentialQHCl, rCut);
         pTrunc.setSwitchFac(switchFac);
-        potentialMaster.addPotential(pTrunc,new IAtomType[]{hType, clType});
+        potentialMaster.addPotential(pTrunc, new AtomType[]{hType, clType});
 
         potentialMM = new P2LennardJones(space, sigMembrane, epsMembrane);
         pTrunc = new P2SoftSphericalTruncatedSwitched(space, potentialMM, rCut);
         pTrunc.setSwitchFac(switchFac);
-        potentialMaster.addPotential(pTrunc,new IAtomType[]{mType, mType});
+        potentialMaster.addPotential(pTrunc, new AtomType[]{mType, mType});
         
         potentialMO = new P2LennardJones(space, 0.5*(sigMembrane+sigOxygen), Math.sqrt(epsMembrane*epsOxygen));
         pTrunc = new P2SoftSphericalTruncatedSwitched(space, potentialMO, rCut);
         pTrunc.setSwitchFac(switchFac);
-        potentialMaster.addPotential(pTrunc,new IAtomType[]{mType, oType});
+        potentialMaster.addPotential(pTrunc, new AtomType[]{mType, oType});
         
         potentialMNa = new P2LennardJones(space, 0.5*(sigMembrane+sigSodium), Math.sqrt(epsMembrane*epsSodium));
         pTrunc = new P2SoftSphericalTruncatedSwitched(space, potentialMNa, rCut);
         pTrunc.setSwitchFac(switchFac);
-        potentialMaster.addPotential(pTrunc,new IAtomType[]{mType, naType});
+        potentialMaster.addPotential(pTrunc, new AtomType[]{mType, naType});
 
         potentialMCl = new P2LennardJones(space, 0.5*(sigMembrane+sigChlorine), Math.sqrt(epsMembrane*epsChlorine));
         pTrunc = new P2SoftSphericalTruncatedSwitched(space, potentialMCl, rCut);
         pTrunc.setSwitchFac(switchFac);
-        potentialMaster.addPotential(pTrunc,new IAtomType[]{mType, clType});
+        potentialMaster.addPotential(pTrunc, new AtomType[]{mType, clType});
 
         //construct box
 	    box = new Box(new BoundaryRectangularPeriodic(space, 15), space);
@@ -238,7 +235,7 @@ public class ReverseOsmosisWater extends Simulation {
 
         potentialTether = new P1Tether(box, speciesMembrane, space);
         potentialTether.setEpsilon(20000*298/125);
-        potentialMaster.addPotential(potentialTether, new IAtomType[]{speciesMembrane.getLeafType()});
+        potentialMaster.addPotential(potentialTether, new AtomType[]{speciesMembrane.getLeafType()});
         
         integrator.setBox(box);
 

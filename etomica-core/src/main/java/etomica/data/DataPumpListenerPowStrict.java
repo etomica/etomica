@@ -4,7 +4,7 @@
 
 package etomica.data;
 
-import etomica.api.IIntegratorEvent;
+import etomica.integrator.IntegratorEvent;
 import etomica.api.IIntegratorListener;
 
 /**
@@ -30,11 +30,11 @@ public class DataPumpListenerPowStrict extends DataPump implements IIntegratorLi
         reset();
     }
     
-    public void integratorInitialized(IIntegratorEvent e) {}
+    public void integratorInitialized(IntegratorEvent e) {}
     
-    public void integratorStepStarted(IIntegratorEvent e) {}
+    public void integratorStepStarted(IntegratorEvent e) {}
     
-    public void integratorStepFinished(IIntegratorEvent e) {
+    public void integratorStepFinished(IntegratorEvent e) {
         if(++intervalCount < interval) {
             return;
         }

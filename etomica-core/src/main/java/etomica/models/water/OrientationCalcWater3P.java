@@ -4,13 +4,10 @@
 
 package etomica.models.water;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.atom.*;
 import etomica.api.IMolecule;
 import etomica.space.Vector;
-import etomica.atom.AtomPositionCOM;
-import etomica.atom.OrientationCalc;
-import etomica.atom.OrientationCalcQuaternion;
+import etomica.atom.MoleculePositionCOM;
 import etomica.exception.MethodNotImplementedException;
 import etomica.space.Space;
 import etomica.space.RotationTensor;
@@ -27,7 +24,7 @@ public class OrientationCalcWater3P extends ConformationWater3P implements
         zWork = space.makeVector();
         com0 = space.makeVector();
         rotationTensor = (RotationTensor3D)space.makeRotationTensor();
-        atomPositionCOM = new AtomPositionCOM(space);
+        atomPositionCOM = new MoleculePositionCOM(space);
         initialized = false;
         previousTensor = space.makeRotationTensor();
         workTensor = space.makeRotationTensor();
@@ -256,7 +253,7 @@ public class OrientationCalcWater3P extends ConformationWater3P implements
     protected final Vector xWork, yWork, zWork;
     protected final Vector com0;
     protected final RotationTensor3D rotationTensor;
-    protected final AtomPositionCOM atomPositionCOM;
+    protected final MoleculePositionCOM atomPositionCOM;
     protected boolean initialized;
     protected final RotationTensor previousTensor, workTensor;
     

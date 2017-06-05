@@ -40,8 +40,8 @@ package etomica.potential;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.space.Vector;
@@ -74,7 +74,7 @@ public class P2HydrogenHindeAtomic implements IPotentialAtomic {
     protected final double [][][] c6 = new double [3][3][4];
     protected final double [][][] c8 = new double [3][3][4];
     protected final double [][] cten = new double [3][3];
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected final Vector dr,com0,com1,hh0,hh1,n0,n1;
     public P2HydrogenHindeAtomic(Space space) {
         dr = space.makeVector();

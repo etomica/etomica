@@ -4,67 +4,37 @@
 
 package etomica.virial.simulations;
 
-import java.awt.Color;
-import java.util.List;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
 import etomica.action.IAction;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.api.IIntegratorEvent;
+import etomica.integrator.IntegratorEvent;
 import etomica.api.IIntegratorListener;
-import etomica.space.Vector;
-import etomica.atom.AtomHydrogen;
-import etomica.atom.AtomTypeOrientedSphere;
-import etomica.atom.DiameterHashByType;
-import etomica.atom.IAtomTypeOriented;
+import etomica.atom.*;
 import etomica.chem.elements.Hydrogen;
 import etomica.config.ConformationLinear;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.DataPumpListener;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
 import etomica.data.meter.MeterAvgBondLength;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
-import etomica.graphics.ColorSchemeRandomByMolecule;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayBoxCanvasG3DSys;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
 import etomica.integrator.mcmove.MCMove;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P1HydrogenMielke.P1HydrogenMielkeAtomic;
 import etomica.potential.P1IntraMolecular;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresHetero;
-import etomica.units.BohrRadius;
-import etomica.units.CompoundDimension;
+import etomica.units.*;
 import etomica.units.Dimension;
-import etomica.units.DimensionRatio;
-import etomica.units.Kelvin;
-import etomica.units.Pixel;
-import etomica.units.Quantity;
-import etomica.units.Volume;
 import etomica.util.Constants;
 import etomica.util.Constants.CompassDirection;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterBonds;
-import etomica.virial.ClusterExchange;
-import etomica.virial.ClusterWeight;
-import etomica.virial.ClusterWeightAbs;
-import etomica.virial.MCMoveChangeBondLength;
-import etomica.virial.MCMoveClusterRingRegrow;
-import etomica.virial.MCMoveClusterRingRegrowExchange;
-import etomica.virial.MCMoveClusterRingRegrowOrientation;
-import etomica.virial.P1IntraLambda;
+import etomica.virial.*;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.List;
 
 
 public class VirialH2PIXC {
@@ -133,13 +103,13 @@ public class VirialH2PIXC {
 		//        System.out.println(hMass);
 		//        System.exit(1);
 		double lambda = Constants.PLANCK_H/Math.sqrt(2*Math.PI*hMass*temperature);
-		//        SpeciesSpheres species = new SpeciesSpheres(space, nSpheres, new AtomTypeLeaf(new ElementChemical("He", h2Mass, 2)), new ConformationLinear(space, 0));
-		IAtomTypeOriented atype = new AtomTypeOrientedSphere(Hydrogen.INSTANCE, space);
-		SpeciesSpheresHetero species = new SpeciesSpheresHetero(space,new IAtomTypeOriented [] {atype}) {
+		//        SpeciesSpheres species = new SpeciesSpheres(space, nSpheres, new AtomType(new ElementChemical("He", h2Mass, 2)), new ConformationLinear(space, 0));
+		AtomTypeOriented atype = new AtomTypeOriented(Hydrogen.INSTANCE, space);
+		SpeciesSpheresHetero species = new SpeciesSpheresHetero(space, new AtomTypeOriented[]{atype}) {
 			@Override
-			protected IAtom makeLeafAtom(IAtomType leafType) {
+			protected IAtom makeLeafAtom(AtomType leafType) {
 				double bl = BohrRadius.UNIT.toSim(1.448736);// AtomHydrogen.getAvgBondLength(temperatureK);
-				return new AtomHydrogen(space,(IAtomTypeOriented)leafType,bl);
+				return new AtomHydrogen(space, (AtomTypeOriented) leafType, bl);
 			}
 		};
 		species.setChildCount(new int [] {nSpheres});
@@ -198,7 +168,7 @@ public class VirialH2PIXC {
 		//        if (pi == 0) throw new RuntimeException("initialization failed");
 		//        sim.box.acceptNotify();
 
-		IAtomType type = species.getAtomType(0);
+		AtomType type = species.getAtomType(0);
 
 		IAtomList leafList = sim.box.getLeafList();
 		for (int i=0; i<leafList.getAtomCount(); i++) {
@@ -266,16 +236,16 @@ public class VirialH2PIXC {
 
 
 			IAction pushAnswer = new IAction() {
+				DataDouble data = new DataDouble();
+
 				@Override
 				public void actionPerformed() {
 					DataGroup allYourBase = (DataGroup)sim.accumulator.getData();
-					data.x = ((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO.index)).getData()[1];;
+					data.x = ((DataDoubleArray) allYourBase.getData(AccumulatorRatioAverageCovariance.RATIO.index)).getData()[1];
 					averageBox.putData(data);
-					data.x = ((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO_ERROR.index)).getData()[1];
+					data.x = ((DataDoubleArray) allYourBase.getData(AccumulatorRatioAverageCovariance.RATIO_ERROR.index)).getData()[1];
 					errorBox.putData(data);
 				}
-
-				DataDouble data = new DataDouble();
 			};
 			IEtomicaDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, new CompoundDimension(new Dimension[]{new DimensionRatio(Volume.DIMENSION, Quantity.DIMENSION)}, new double[]{nPoints-1}));
 			averageBox.putDataInfo(dataInfo);
@@ -313,13 +283,13 @@ public class VirialH2PIXC {
 		if (true) {
 			IIntegratorListener progressReport = new IIntegratorListener() {
 				@Override
-				public void integratorInitialized(IIntegratorEvent e) {}
+				public void integratorInitialized(IntegratorEvent e) {}
 				@Override
-				public void integratorStepStarted(IIntegratorEvent e) {}
+				public void integratorStepStarted(IntegratorEvent e) {}
 				@Override
-				public void integratorStepFinished(IIntegratorEvent e) {
+				public void integratorStepFinished(IntegratorEvent e) {
 					if ((sim.integrator.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
-					System.out.println(temperatureK+" "+avg0.getData(avg0.AVERAGE).getValue(0)+" "+avg0.getData(avg0.ERROR).getValue(0)+" "+avg0.getData(avg0.BLOCK_CORRELATION).getValue(0));
+					System.out.println(temperatureK + " " + avg0.getData(AccumulatorAverage.AVERAGE).getValue(0) + " " + avg0.getData(AccumulatorAverage.ERROR).getValue(0) + " " + avg0.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0));
 				}
 			};
 			sim.integrator.getEventManager().addListener(progressReport);
@@ -345,16 +315,16 @@ public class VirialH2PIXC {
 		//        System.out.println("Bond length acceptance "+cbl0.getTracker().acceptanceRatio());
 
 		System.out.println();
-		System.out.println("reference average: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.AVERAGE.index)).getData()[0]
-				+" stdev: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.STANDARD_DEVIATION.index)).getData()[0]
-						+" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.ERROR.index)).getData()[0]);
+		System.out.println("reference average: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.AVERAGE.index)).getData()[0]
+				+ " stdev: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.STANDARD_DEVIATION.index)).getData()[0]
+				+ " error: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.ERROR.index)).getData()[0]);
 
-		double ratio = ((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO.index)).getData()[1];
-		double error = ((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO_ERROR.index)).getData()[1];
+		double ratio = ((DataDoubleArray) allYourBase.getData(AccumulatorRatioAverageCovariance.RATIO.index)).getData()[1];
+		double error = ((DataDoubleArray) allYourBase.getData(AccumulatorRatioAverageCovariance.RATIO_ERROR.index)).getData()[1];
 
-		System.out.println("target average: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.AVERAGE.index)).getData()[1]
-				+" stdev: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.STANDARD_DEVIATION.index)).getData()[1]
-						+" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.ERROR.index)).getData()[1]);
+		System.out.println("target average: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.AVERAGE.index)).getData()[1]
+				+ " stdev: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.STANDARD_DEVIATION.index)).getData()[1]
+				+ " error: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.ERROR.index)).getData()[1]);
 
 		System.out.println();
 		System.out.println("ratio average: "+ratio+", error: "+error);

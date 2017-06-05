@@ -3,24 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.data.meter;
+
 import etomica.action.IAction;
-import etomica.api.*;
-import etomica.box.Box;
+import etomica.space.Boundary;
+import etomica.atom.AtomType;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorBoxDependent;
-import etomica.data.DataSourceIndependent;
-import etomica.data.DataSourceUniform;
+import etomica.box.Box;
+import etomica.data.*;
 import etomica.data.DataSourceUniform.LimitType;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Length;
 import etomica.units.Null;
 
@@ -32,7 +30,24 @@ import etomica.units.Null;
  * @author David Kofke
  */
 public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndependent, java.io.Serializable {
-	
+
+    private static final long serialVersionUID = 1L;
+    protected final Space space;
+    protected final DataSourceUniform xDataSource;
+    protected final DataTag tag;
+    private final Vector dr;
+    protected Box box;
+    protected long[] gSum;
+    protected DataFunction data;
+    protected DataDoubleArray rData;
+    protected AtomsetIteratorBoxDependent iterator;
+    protected double xMax;
+    protected long callCount;
+    protected AtomType type1, type2;
+    private IEtomicaDataInfo dataInfo;
+    private Boundary boundary;
+    private String name;
+
 	/**
 	 * Creates meter with default to compute pair correlation for all
 	 * leaf atoms in a box.
@@ -44,7 +59,7 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
         xDataSource = new DataSourceUniform("r", Length.DIMENSION);
         xDataSource.setTypeMax(LimitType.HALF_STEP);
         xDataSource.setTypeMin(LimitType.HALF_STEP);
-        
+
         rData = (DataDoubleArray)xDataSource.getData();
         data = new DataFunction(new int[] {rData.getLength()});
         gSum = new long[rData.getLength()];
@@ -59,21 +74,21 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
     public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
-    
+
     public DataTag getTag() {
         return tag;
     }
-    
-    public void setAtomType(IAtomType type) {
+
+    public void setAtomType(AtomType type) {
         type1 = type;
         type2 = type;
     }
-    
-    public void setAtomTypes(IAtomType type1, IAtomType type2) {
+
+    public void setAtomTypes(AtomType type1, AtomType type2) {
         this.type1 = type1;
         this.type2 = type2;
     }
-    
+
     /**
      * Zero's out the RDF sum tracked by this meter.
      */
@@ -86,7 +101,7 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
         dataInfo.addTag(tag);
         callCount = 0;
     }
-    
+
     /**
      * Takes the RDF for the current configuration of the given box.
      */
@@ -96,7 +111,7 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
             xDataSource.getXMax() != xMax) {
             reset();
         }
-        
+
         double xMaxSquared = xMax*xMax;
         iterator.setBox(box);
         iterator.reset();
@@ -114,8 +129,8 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
         }
         callCount++;
     }
-    
-	/**
+
+    /**
 	 * Returns the RDF, averaged over the calls to actionPerformed since the
      * meter was reset or had some parameter changed (xMax or # of bins).
 	 */
@@ -127,7 +142,7 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
             //that zeroed everything.  just return the zeros.
             return data;
         }
-        
+
         final double[] y = data.getData();
         long numAtomPairs = 0;
         if (type1 == null) {
@@ -151,15 +166,15 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
 	    }
 	    return data;
 	}
-    
+
     public DataSourceUniform getXDataSource() {
         return xDataSource;
     }
-	
+
     public DataDoubleArray getIndependentData(int i) {
         return (DataDoubleArray)xDataSource.getData();
     }
-    
+
     public DataInfoDoubleArray getIndependentDataInfo(int i) {
         return (DataInfoDoubleArray)xDataSource.getDataInfo();
     }
@@ -171,13 +186,14 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
     public int getIndependentArrayDimension() {
         return 1;
     }
-    
+
     /**
      * @return Returns the box.
      */
     public Box getBox() {
         return box;
     }
+
     /**
      * @param box The box to set.
      */
@@ -193,21 +209,4 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
     public void setName(String name) {
         this.name = name;
     }
-    
-    private static final long serialVersionUID = 1L;
-    protected Box box;
-    protected final Space space;
-    protected long[] gSum;
-    protected DataFunction data;
-    private IEtomicaDataInfo dataInfo;
-    protected DataDoubleArray rData;
-    protected AtomsetIteratorBoxDependent iterator;
-    private final Vector dr;
-    private IBoundary boundary;
-    protected final DataSourceUniform xDataSource;
-    protected double xMax;
-    private String name;
-    protected final DataTag tag;
-    protected long callCount;
-    protected IAtomType type1, type2;
 }

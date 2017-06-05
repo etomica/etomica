@@ -8,8 +8,8 @@ package etomica.models.hexane;
  * Class to calculate the volume of a single hexane molecule
  */
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.atom.Atom;

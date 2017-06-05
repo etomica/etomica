@@ -11,7 +11,7 @@ import java.util.List;
 import etomica.space.Vector;
 import org.json.simple.JSONObject;
 
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.api.IPotentialAtomic;
 import etomica.atom.IAtomOriented;
 import etomica.chem.elements.ElementSimple;

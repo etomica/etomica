@@ -6,7 +6,7 @@ package etomica.nbr.cell;
 
 import etomica.box.Box;
 import etomica.simulation.Simulation;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.box.BoxAgentManager.BoxAgentSource;
 import etomica.space.Space;
 
@@ -15,7 +15,7 @@ import etomica.space.Space;
  */
 public class BoxAgentSourceCellManager implements BoxAgentSource<NeighborCellManager> {
 
-    public BoxAgentSourceCellManager(Simulation sim, IAtomPositionDefinition positionDefinition, Space _space) {
+    public BoxAgentSourceCellManager(Simulation sim, IMoleculePositionDefinition positionDefinition, Space _space) {
         this.sim = sim;
         this.positionDefinition = positionDefinition;
         this.space = _space;
@@ -36,6 +36,6 @@ public class BoxAgentSourceCellManager implements BoxAgentSource<NeighborCellMan
     
     protected final Simulation sim;
     protected double range;
-    protected final IAtomPositionDefinition positionDefinition;
+    protected final IMoleculePositionDefinition positionDefinition;
     protected final Space space;
 }

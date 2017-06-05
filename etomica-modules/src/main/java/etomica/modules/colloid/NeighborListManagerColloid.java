@@ -4,7 +4,7 @@
 
 package etomica.modules.colloid;
 
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialAtomic;

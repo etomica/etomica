@@ -4,21 +4,29 @@
 
 package etomica.box;
 
-import etomica.api.IBoxMoleculeEvent;
 import etomica.api.IMolecule;
 
-public class BoxMoleculeEvent extends BoxEvent implements IBoxMoleculeEvent {
-        
-        public BoxMoleculeEvent(Box box, IMolecule mole) {
-            super(box);
-            this.molecule = mole;
-        }
-        
-        public IMolecule getMolecule() {
-            return molecule;
-        }
+/**
+ * A box event that is somehow related to a molecule.  The molecule might have
+ * been added or removed, or may have a new index.  Details may be determined
+ * from the other interfaces implemented by the event object or obtained from
+ * calling methods from those interfaces.
+ */
+public class BoxMoleculeEvent extends BoxEvent {
 
-        
-        protected IMolecule molecule = null;
-        private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
+    protected IMolecule molecule = null;
+
+
+    public BoxMoleculeEvent(Box box, IMolecule mole) {
+        super(box);
+        this.molecule = mole;
+    }
+
+    /**
+     * @return the molecule that is related to this event.
+     */
+    public IMolecule getMolecule() {
+        return molecule;
+    }
 }

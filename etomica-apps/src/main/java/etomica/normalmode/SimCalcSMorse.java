@@ -6,22 +6,14 @@ package etomica.normalmode;
 
 import etomica.action.PDBWriter;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
-import etomica.lattice.crystal.Basis;
-import etomica.lattice.crystal.BasisCubicFcc;
-import etomica.lattice.crystal.BasisMonatomic;
-import etomica.lattice.crystal.Primitive;
-import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.lattice.crystal.*;
 import etomica.listener.IntegratorListenerAction;
-import etomica.potential.P2Morse;
-import etomica.potential.P2SoftSphericalTruncatedShifted;
-import etomica.potential.Potential2SoftSpherical;
-import etomica.potential.PotentialMaster;
-import etomica.potential.PotentialMasterMonatomic;
+import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -36,6 +28,15 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class SimCalcSMorse extends Simulation {
 
+    private static final long serialVersionUID = 1L;
+    public IntegratorMC integrator;
+    public ActivityIntegrate activityIntegrate;
+    public Box box;
+    public Boundary boundary;
+    public Primitive primitive;
+    public Basis basis;
+    public int[] nCells;
+    public CoordinateDefinition coordinateDefinition;
     public SimCalcSMorse(Space _space, int numAtoms, double density, double temperature) {
         super(_space);
 
@@ -54,7 +55,7 @@ public class SimCalcSMorse extends Simulation {
         move.setStepSizeMax(0.5);
         integrator.getMoveManager().addMCMove(move);
         ((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
-        
+
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         // activityIntegrate.setMaxSteps(nSteps);
@@ -76,15 +77,15 @@ public class SimCalcSMorse extends Simulation {
         Potential2SoftSpherical potential = new P2Morse(space, 1.0, 1.0, 6.0);
         double truncationRadius = boundary.getBoxSize().getX(0) * 0.5;
         P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
-        IAtomType sphereType = species.getLeafType();
-        potentialMaster.addPotential(pTruncated, new IAtomType[] {sphereType, sphereType});
+        AtomType sphereType = species.getLeafType();
+        potentialMaster.addPotential(pTruncated, new AtomType[]{sphereType, sphereType});
         move.setPotential(pTruncated);
 
         box.setBoundary(boundary);
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
-        
+
         integrator.setBox(box);
     }
 
@@ -193,22 +194,12 @@ public class SimCalcSMorse extends Simulation {
         IntegratorListenerAction sWriterListener = new IntegratorListenerAction(sWriter);
         sWriterListener.setInterval((int)simSteps/10);
         sim.integrator.getEventManager().addListener(sWriterListener);
-        
+
         sim.activityIntegrate.setMaxSteps(simSteps);
         sim.getController().actionPerformed();
         PDBWriter pdbWriter = new PDBWriter(sim.box);
         pdbWriter.setFileName("calcS.pdb");
         pdbWriter.actionPerformed();
-        
-    }
 
-    private static final long serialVersionUID = 1L;
-    public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
-    public Box box;
-    public Boundary boundary;
-    public Primitive primitive;
-    public Basis basis;
-    public int[] nCells;
-    public CoordinateDefinition coordinateDefinition;
+    }
 }

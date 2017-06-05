@@ -7,7 +7,7 @@ package etomica.graphics;
 import java.awt.Color;
 import java.util.HashMap;
 
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.box.BoxAgentManager;

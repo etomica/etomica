@@ -4,9 +4,9 @@
 
 package etomica.potential;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.space.Space;
@@ -222,7 +222,7 @@ public class P3BondAngleDreiding extends Potential implements PotentialSoft {
 	
     protected final Vector dr12, dr23;
     protected final Vector[] gradient;
-    protected IBoundary boundary;
+    protected Boundary boundary;
     private double gamma;
     private double thetaEq;
     private static final long serialVersionUID = 1L;

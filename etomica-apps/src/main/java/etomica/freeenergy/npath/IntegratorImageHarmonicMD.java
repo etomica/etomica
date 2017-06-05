@@ -6,6 +6,8 @@ package etomica.freeenergy.npath;
 
 import etomica.api.*;
 import etomica.atom.AtomSetSinglet;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.potential.PotentialCalculationForceSum;

@@ -8,18 +8,14 @@ import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
+import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.potential.PotentialMaster;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPumpListener;
+import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DeviceNSelector;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.SimulationGraphic;
+import etomica.graphics.*;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
@@ -29,6 +25,7 @@ import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardSphere;
 import etomica.potential.P2SquareWell;
+import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -36,7 +33,6 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Energy;
 import etomica.units.SimpleUnit;
-import etomica.data.history.HistoryCollapsingAverage;
 import etomica.util.ParameterBase;
 
 /**
@@ -110,9 +106,9 @@ public class HSMD3D extends Simulation {
         species.setIsDynamic(true);
         addSpecies(species);
         potential = new P2HardSphere(space, sigma, false);
-        IAtomType leafType = species.getLeafType();
+        AtomType leafType = species.getLeafType();
 
-        potentialMaster.addPotential(potential,new IAtomType[]{leafType, leafType});
+        potentialMaster.addPotential(potential, new AtomType[]{leafType, leafType});
 
         box = new Box(space);
         addBox(box);
@@ -181,7 +177,7 @@ public class HSMD3D extends Simulation {
 
         P2SquareWell potentialSW  = new etomica.potential.P2SquareWell(sim.getSpace(), 1.0, lambda, 1.0, false);
 
-        potentialMasterSW.addPotential(potentialSW, new IAtomType[]{sim.species.getLeafType(),sim.species.getLeafType()});
+        potentialMasterSW.addPotential(potentialSW, new AtomType[]{sim.species.getLeafType(), sim.species.getLeafType()});
         MeterPotentialEnergy meterPESW = new MeterPotentialEnergy(potentialMasterSW) {
             public double getDataAsScalar() {
                 ((PotentialMasterCell)potential).getNbrCellManager(box).assignCellAll();

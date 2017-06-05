@@ -4,17 +4,17 @@
 
 package etomica.nbr.cell;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBoundaryEvent;
-import etomica.api.IBoundaryListener;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
+import etomica.space.BoundaryEvent;
+import etomica.space.BoundaryEventListener;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.atom.iterator.AtomIterator;
 import etomica.box.BoxCellManager;
 import etomica.integrator.mcmove.MCMove;
@@ -36,11 +36,11 @@ import etomica.util.IListener;
 //no need for index when assigning cell
 //different iterator needed
 
-public class NeighborCellManager implements BoxCellManager, IBoundaryListener, AtomLeafAgentManager.AgentSource<Cell> {
+public class NeighborCellManager implements BoxCellManager, BoundaryEventListener, AtomLeafAgentManager.AgentSource<Cell> {
 
     protected final Simulation sim;
     protected final CellLattice lattice;
-    protected final IAtomPositionDefinition positionDefinition;
+    protected final IMoleculePositionDefinition positionDefinition;
     protected final Box box;
     protected int cellRange = 2;
     protected double range;
@@ -66,7 +66,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
      * definition given by the atom's type is used.  Position definition is
      * declared final.
      */
-    public NeighborCellManager(Simulation sim, Box box, double potentialRange, IAtomPositionDefinition positionDefinition, Space space) {
+    public NeighborCellManager(Simulation sim, Box box, double potentialRange, IMoleculePositionDefinition positionDefinition, Space space) {
         this.positionDefinition = positionDefinition;
         this.box = box;
         this.sim = sim;
@@ -134,7 +134,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
         checkDimensions();
     }
 
-    public void boundaryInflate(IBoundaryEvent e) {
+    public void boundaryInflate(BoundaryEvent e) {
         checkDimensions();
         // we need to reassign cells even if checkDimensions didn't resize
         // the lattice.  If the box size changed, the cell size changed,
@@ -299,7 +299,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
         }
 
         private void updateCell(IAtom atom) {
-            IBoundary boundary = box.getBoundary();
+            Boundary boundary = box.getBoundary();
             Cell cell = neighborCellManager.getCell(atom);
             cell.removeAtom(atom);
             atom.getPosition().PE(boundary.centralImage(atom.getPosition()));

@@ -4,11 +4,10 @@
 
 package etomica.models.nitrogen;
 
-import etomica.api.IAtomType;
 import etomica.api.IMolecule;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
-import etomica.atom.AtomTypeLeaf;
+import etomica.atom.AtomType;
 import etomica.atom.Molecule;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Nitrogen;
@@ -28,21 +27,29 @@ import etomica.species.Species;
  */
 public class SpeciesN2ShellModel extends Species {
 
+    public final static int indexN1 = 0;
+    public final static int indexN2 = 1;
+    public final static int indexCenter = 2;
+    public final static int indexP1left = 3;
+    public final static int indexP1right = 4;
+    private static final long serialVersionUID = 1L;
+    protected final Space space;
+    protected final boolean isDynamic;
+    protected final AtomType nType, pType;
     public SpeciesN2ShellModel(Space space) {
         this(space, false);
     }
-    
     public SpeciesN2ShellModel(Space space, boolean isDynamic) {
         super();
         this.space = space;
         this.isDynamic = isDynamic;
-        
-        nType = new AtomTypeLeaf(Nitrogen.INSTANCE);
-        pType = new AtomTypeLeaf(new ElementSimple("P", 1.0));
+
+        nType = new AtomType(Nitrogen.INSTANCE);
+        pType = new AtomType(new ElementSimple("P", 1.0));
         addChildType(nType);
         addChildType(pType);
-             
-        setConformation(new ConformationNitrogenShellModel(space)); 
+
+        setConformation(new ConformationNitrogenShellModel(space));
      }
 
      public IMolecule makeMolecule() {
@@ -57,28 +64,15 @@ public class SpeciesN2ShellModel extends Species {
          return nitrogenShellModel;
      }
 
-     public IAtomType getNitrogenType() {
+    public AtomType getNitrogenType() {
          return nType;
      }
 
-     public IAtomType getPType() {
+    public AtomType getPType() {
          return pType;
      }
-
 
      public int getNumLeafAtoms() {
          return 5;
      }
-    
-     public final static int indexN1 = 0;
-     public final static int indexN2 = 1;
-     public final static int indexCenter = 2;
-     public final static int indexP1left  = 3;
-     public final static int indexP1right  = 4;
-
-
-    private static final long serialVersionUID = 1L;
-    protected final Space space;
-    protected final boolean isDynamic;
-    protected final AtomTypeLeaf nType, pType;
 }

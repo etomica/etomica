@@ -5,14 +5,14 @@
 package etomica.modules.multiharmonic.overlap;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
+import etomica.integrator.Integrator;
+import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.api.IIntegrator;
-import etomica.potential.PotentialMaster;
 import etomica.integrator.IntegratorMC;
 import etomica.modules.multiharmonic.MCMoveMultiHarmonic;
 import etomica.overlap.IntegratorOverlap;
 import etomica.potential.P1Harmonic;
+import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
@@ -28,6 +28,14 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class MultiharmonicMC extends Simulation {
 
+    private static final long serialVersionUID = 1L;
+    protected final SpeciesSpheresMono species;
+    protected final Box boxA, boxB;
+    protected final PotentialMaster potentialMasterA, potentialMasterB;
+    protected final P1Harmonic potentialA, potentialB;
+    protected final IntegratorMC integratorA, integratorB;
+    protected final IntegratorOverlap integratorOS;
+    protected final ActivityIntegrate activityIntegrate;
     public MultiharmonicMC() {
         super(Space1D.getInstance());
         potentialMasterA = new PotentialMasterMonatomic(this);
@@ -49,30 +57,21 @@ public class MultiharmonicMC extends Simulation {
         integratorA.setTemperature(1.0);
         potentialA = new P1Harmonic(space);
         integratorA.getMoveManager().addMCMove(new MCMoveMultiHarmonic(potentialA, random));
-        potentialMasterA.addPotential(potentialA, new IAtomType[] {species.getLeafType()});
-        
+        potentialMasterA.addPotential(potentialA, new AtomType[]{species.getLeafType()});
+
         integratorB = new IntegratorMC(this, potentialMasterA);
         integratorB.setBox(boxB);
         integratorB.setTemperature(1.0);
         potentialB = new P1Harmonic(space);
         integratorB.getMoveManager().addMCMove(new MCMoveMultiHarmonic(potentialB, random));
-        potentialMasterB.addPotential(potentialB, new IAtomType[] {species.getLeafType()});
-        
-        integratorOS = new IntegratorOverlap(new IIntegrator[]{integratorA, integratorB});
-        
+        potentialMasterB.addPotential(potentialB, new AtomType[]{species.getLeafType()});
+
+        integratorOS = new IntegratorOverlap(new Integrator[]{integratorA, integratorB});
+
         integratorOS.setAdjustStepFraction(false);
         integratorOS.setRefStepFraction(0.5);
-        
+
         activityIntegrate = new ActivityIntegrate(integratorOS, 1, false);
         getController().addAction(activityIntegrate);
     }
-
-    private static final long serialVersionUID = 1L;
-    protected final SpeciesSpheresMono species;
-    protected final Box boxA, boxB;
-    protected final PotentialMaster potentialMasterA, potentialMasterB;
-    protected final P1Harmonic potentialA, potentialB;
-    protected final IntegratorMC integratorA, integratorB;
-    protected final IntegratorOverlap integratorOS;
-    protected final ActivityIntegrate activityIntegrate;
 }

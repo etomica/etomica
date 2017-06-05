@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 import etomica.action.BoxImposePbc;
 import etomica.box.Box;
-import etomica.api.IIntegratorEvent;
+import etomica.integrator.IntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -87,18 +87,18 @@ public class NeighborListManagerMolecular implements IIntegratorListener, Molecu
     }
 
 
-    public void integratorInitialized(IIntegratorEvent e) {
+    public void integratorInitialized(IntegratorEvent e) {
         reset();
     }
 
-    public void integratorStepFinished(IIntegratorEvent e) {
+    public void integratorStepFinished(IntegratorEvent e) {
         if (--iieCount == 0) {
             updateNbrsIfNeeded();
             iieCount = updateInterval;
         }
     }
 
-    public void integratorStepStarted(IIntegratorEvent e) {}
+    public void integratorStepStarted(IntegratorEvent e) {}
 
     /**
      * For each box in the array, applies central image, 

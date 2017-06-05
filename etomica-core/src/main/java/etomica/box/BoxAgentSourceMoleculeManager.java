@@ -4,16 +4,18 @@
 
 package etomica.box;
 
-import etomica.simulation.Simulation;
 import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.box.BoxAgentManager.BoxAgentSource;
+import etomica.simulation.Simulation;
 
 /**
  * @author Tai Boon Tan
- *
  */
 public class BoxAgentSourceMoleculeManager implements BoxAgentSource<MoleculeAgentManager> {
+
+    private final MoleculeAgentSource moleculeAgentSource;
+    protected Simulation sim;
 
     public BoxAgentSourceMoleculeManager(MoleculeAgentSource moleculeAgentSource, Simulation sim) {
         super();
@@ -28,7 +30,4 @@ public class BoxAgentSourceMoleculeManager implements BoxAgentSource<MoleculeAge
     public void releaseAgent(MoleculeAgentManager agent) {
         agent.dispose();
     }
-
-    protected Simulation sim;
-    private final MoleculeAgentSource moleculeAgentSource;
 }

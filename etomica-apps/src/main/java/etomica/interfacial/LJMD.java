@@ -4,26 +4,18 @@
 
 package etomica.interfacial;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.List;
-
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.*;
-import etomica.box.Box;
+import etomica.integrator.IntegratorEvent;
+import etomica.api.IIntegratorListener;
 import etomica.atom.AtomSourceRandomSpecies;
+import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorHistogram;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataDump;
-import etomica.data.DataFork;
-import etomica.data.DataPump;
-import etomica.data.DataPumpListener;
-import etomica.data.DataSourceCountTime;
-import etomica.data.IData;
+import etomica.data.*;
+import etomica.data.histogram.HistogramExpanding;
+import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterProfileByVolume;
@@ -43,11 +35,13 @@ import etomica.space.BoundaryRectangularSlit;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.data.histogram.HistogramExpanding;
-import etomica.data.history.HistoryCollapsingAverage;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.RandomNumberGenerator;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 3D
@@ -97,14 +91,14 @@ public class LJMD extends Simulation {
         getController().addAction(ai);
 
         pFF = new P2SoftSphericalTruncatedForceShifted(space, new P2LennardJones(space, 1.0, 1.0), 2.5);
-        IAtomType leafType = speciesFluid.getLeafType();
-        potentialMaster.addPotential(pFF,new IAtomType[]{leafType,leafType});
+        AtomType leafType = speciesFluid.getLeafType();
+        potentialMaster.addPotential(pFF, new AtomType[]{leafType, leafType});
 
         pBW = new P2SoftSphericalTruncatedForceShifted(space, new P2LennardJones(space, 1.09985, 0.4), 5.49925);
-        potentialMaster.addPotential(pBW,new IAtomType[]{leafType,speciesBottomWall.getLeafType()});
+        potentialMaster.addPotential(pBW, new AtomType[]{leafType, speciesBottomWall.getLeafType()});
         
         pTW = new P2SoftSphericalTruncatedForceShifted(space, new P2LennardJones(space, 1.5, 0.1), 1.68);
-        potentialMaster.addPotential(pTW,new IAtomType[]{leafType,speciesTopWall.getLeafType()});
+        potentialMaster.addPotential(pTW, new AtomType[]{leafType, speciesTopWall.getLeafType()});
 
         integrator.setBox(box);
         
@@ -114,7 +108,7 @@ public class LJMD extends Simulation {
             int nWall = box.getMoleculeList(speciesTopWall).getMoleculeCount();
             double Lxy = boundary.getBoxSize().getX(0);
             P1Wall p1Wall = new P1Wall(space, spring/nWall, springPosition+config.getShift().getX(2), Psat*Lxy*Lxy/nWall);
-            potentialMaster.addPotential(p1Wall, new IAtomType[]{speciesTopWall.getLeafType()});
+            potentialMaster.addPotential(p1Wall, new AtomType[]{speciesTopWall.getLeafType()});
         }
         
         if (mcSteps > 0 && hybridInterval > 0) {
@@ -138,7 +132,7 @@ public class LJMD extends Simulation {
                     return (pz < zMin || pz > zMax) ? Double.POSITIVE_INFINITY : 0;
                 }
             };
-            potentialMaster.addPotential(p1F,new IAtomType[]{leafType});
+            potentialMaster.addPotential(p1F, new AtomType[]{leafType});
         }
 
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
@@ -217,7 +211,7 @@ public class LJMD extends Simulation {
         densityProfileAvg.setPushInterval(10);
         DataPumpListener profilePump = new DataPumpListener(densityProfileMeter, densityProfileAvg, dataInterval);
         DataDump profileDump = new DataDump();
-        densityProfileAvg.addDataSink(profileDump, new AccumulatorAverage.StatType[]{densityProfileAvg.AVERAGE});
+        densityProfileAvg.addDataSink(profileDump, new AccumulatorAverage.StatType[]{AccumulatorAverage.AVERAGE});
         sim.integrator.getEventManager().addListener(profilePump);
         densityProfileAvg.setPushInterval(1);
 
@@ -268,7 +262,7 @@ public class LJMD extends Simulation {
             }
             
             DisplayPlot profilePlot = new DisplayPlot();
-            densityProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{densityProfileAvg.AVERAGE});
+            densityProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{AccumulatorAverage.AVERAGE});
             profilePlot.setLabel("density");
             simGraphic.add(profilePlot);
 
@@ -295,9 +289,9 @@ public class LJMD extends Simulation {
             throw new RuntimeException(ex);
         }
         sim.integrator.getEventManager().addListener(new IIntegratorListener() {
-            public void integratorStepStarted(IIntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
             
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 long step = sim.integrator.getStepCount();
                 if (step % dataInterval != 0) return;
                 writeIt();
@@ -315,7 +309,7 @@ public class LJMD extends Simulation {
                 }
             }
             
-            public void integratorInitialized(IIntegratorEvent e) {
+            public void integratorInitialized(IntegratorEvent e) {
                 writeIt();
             }
         });
@@ -339,8 +333,8 @@ public class LJMD extends Simulation {
         FileWriter fwProfile;
         try {
             fwProfile = new FileWriter("density.dat");
-            IData profileAvg = densityProfileAvg.getData(densityProfileAvg.AVERAGE);
-            IData xProfile = ((DataInfoFunction)((DataInfoGroup)densityProfileAvg.getDataInfo()).getSubDataInfo(densityProfileAvg.AVERAGE.index)).getXDataSource().getIndependentData(0);
+            IData profileAvg = densityProfileAvg.getData(AccumulatorAverage.AVERAGE);
+            IData xProfile = ((DataInfoFunction) ((DataInfoGroup) densityProfileAvg.getDataInfo()).getSubDataInfo(AccumulatorAverage.AVERAGE.index)).getXDataSource().getIndependentData(0);
             for  (int i=0; i<xProfile.getLength(); i++) {
                 fwProfile.write((xProfile.getValue(i)-sim.config.getShift().getX(2))+" "+profileAvg.getValue(i)+"\n");
             }
@@ -352,12 +346,12 @@ public class LJMD extends Simulation {
         
         
         if (fixedWall) {
-            double avgPE = accPE.getData().getValue(accPE.AVERAGE.index);
-            double errPE = accPE.getData().getValue(accPE.ERROR.index);
-            double corPE = accPE.getData().getValue(accPE.BLOCK_CORRELATION.index);
-            double avgWF = accWF.getData().getValue(accPE.AVERAGE.index);
-            double errWF = accWF.getData().getValue(accPE.ERROR.index);
-            double corWF = accWF.getData().getValue(accPE.BLOCK_CORRELATION.index);
+            double avgPE = accPE.getData().getValue(AccumulatorAverage.AVERAGE.index);
+            double errPE = accPE.getData().getValue(AccumulatorAverage.ERROR.index);
+            double corPE = accPE.getData().getValue(AccumulatorAverage.BLOCK_CORRELATION.index);
+            double avgWF = accWF.getData().getValue(AccumulatorAverage.AVERAGE.index);
+            double errWF = accWF.getData().getValue(AccumulatorAverage.ERROR.index);
+            double corWF = accWF.getData().getValue(AccumulatorAverage.BLOCK_CORRELATION.index);
             
             if (steps>100*dataInterval) {
                 System.out.print(String.format("Average potential energy: %25.15e %10.4e % 5.3f\n",avgPE,errPE,corPE));

@@ -3,53 +3,48 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.virial.simulations;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.List;
-
 import etomica.api.*;
-import etomica.space.Vector;
-import org.json.simple.JSONObject;
-
-import etomica.atom.AtomHydrogen;
-import etomica.atom.AtomTypeOrientedSphere;
-import etomica.atom.IAtomOriented;
-import etomica.atom.IAtomTypeOriented;
+import etomica.atom.*;
 import etomica.atom.iterator.ANIntragroupExchange;
 import etomica.atom.iterator.ApiIntergroupCoupled;
 import etomica.chem.elements.Hydrogen;
 import etomica.config.ConformationLinear;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCovariance;
+import etomica.data.AccumulatorRatioAverageCovarianceFull;
 import etomica.data.IData;
+import etomica.data.histogram.HistogramSimple;
 import etomica.data.types.DataGroup;
+import etomica.integrator.IntegratorEvent;
 import etomica.integrator.mcmove.MCMove;
+import etomica.math.DoubleRange;
 import etomica.potential.P1HydrogenMielke.P1HydrogenMielkeAtomic;
 import etomica.potential.P2HydrogenHindePatkowskiAtomic;
 import etomica.potential.P2HydrogenPatkowskiAtomic;
 import etomica.potential.P2HydrogenPatkowskiIso;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.BohrRadius;
 import etomica.units.Kelvin;
 import etomica.util.Arrays;
 import etomica.util.Constants;
-import etomica.math.DoubleRange;
-import etomica.data.histogram.HistogramSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterWheatleyHS;
-import etomica.virial.ClusterWheatleySoft;
-import etomica.virial.MCMoveChangeBondLength;
-import etomica.virial.MCMoveClusterRingRegrow;
-import etomica.virial.MCMoveClusterRingRegrowOrientation;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.PotentialGroupPI;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
+import org.json.simple.JSONObject;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 public class VirialH2PISimple {
+	public static final double massH = Hydrogen.INSTANCE.getMass();
+
 	public static void main(String[] args) {
 		VirialH2PISimpleParam params = new VirialH2PISimpleParam();
 		boolean isCommandLine = args.length > 0;
@@ -135,23 +130,23 @@ public class VirialH2PISimple {
 		tarCluster.setTemperature(temperature);
 
 		// make species
-		IAtomTypeOriented atype = new AtomTypeOrientedSphere(Hydrogen.INSTANCE, space);
+		AtomTypeOriented atype = new AtomTypeOriented(Hydrogen.INSTANCE, space);
 		SpeciesSpheresHetero speciesH2 = null;
 		if (blOption == blOptions.FIXED_GROUND) {
-			speciesH2 = new SpeciesSpheresHetero(space,new IAtomTypeOriented [] {atype}) {
+			speciesH2 = new SpeciesSpheresHetero(space, new AtomTypeOriented[]{atype}) {
 				@Override
-				protected IAtom makeLeafAtom(IAtomType leafType) {
+				protected IAtom makeLeafAtom(AtomType leafType) {
 					double bl = BohrRadius.UNIT.toSim(1.448736);
-					return new AtomHydrogen(space,(IAtomTypeOriented)leafType,bl);
+					return new AtomHydrogen(space, (AtomTypeOriented) leafType, bl);
 				}
 			};
 		}
 		else {
-			speciesH2 = new SpeciesSpheresHetero(space,new IAtomTypeOriented [] {atype}) {
+			speciesH2 = new SpeciesSpheresHetero(space, new AtomTypeOriented[]{atype}) {
 				@Override
-				protected IAtom makeLeafAtom(IAtomType leafType) {
+				protected IAtom makeLeafAtom(AtomType leafType) {
 					double bl = AtomHydrogen.getAvgBondLength(temperatureK);
-					return new AtomHydrogen(space,(IAtomTypeOriented)leafType,bl);
+					return new AtomHydrogen(space, (AtomTypeOriented) leafType, bl);
 				}
 			};
 		}
@@ -273,11 +268,11 @@ public class VirialH2PISimple {
 		final HistogramSimple h1 = new HistogramSimple(500, new DoubleRange(0,Math.PI));
 		IIntegratorListener histListenerTarget = new IIntegratorListener() {
 			@Override
-			public void integratorInitialized(IIntegratorEvent e) {}
+			public void integratorInitialized(IntegratorEvent e) {}
 			@Override
-			public void integratorStepStarted(IIntegratorEvent e) {}
+			public void integratorStepStarted(IntegratorEvent e) {}
 			@Override
-			public void integratorStepFinished(IIntegratorEvent e) {
+			public void integratorStepFinished(IntegratorEvent e) {
 				IAtomList atoms = sim.box[1].getLeafList();
 				Vector a0 = ((IAtomOriented)atoms.getAtom(0)).getOrientation().getDirection();
 				Vector a1 = ((IAtomOriented)atoms.getAtom(1)).getOrientation().getDirection();
@@ -299,11 +294,11 @@ public class VirialH2PISimple {
 		if (! isCommandLine) {
 			IIntegratorListener progressReport = new IIntegratorListener() {
 				@Override
-				public void integratorInitialized(IIntegratorEvent e) {}
+				public void integratorInitialized(IntegratorEvent e) {}
 				@Override
-				public void integratorStepStarted(IIntegratorEvent e) {}
+				public void integratorStepStarted(IntegratorEvent e) {}
 				@Override
-				public void integratorStepFinished(IIntegratorEvent e) {
+				public void integratorStepFinished(IntegratorEvent e) {
 					if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
 					System.out.print(sim.integratorOS.getStepCount()+" steps: ");
 					double[] ratioAndError = sim.dvo.getAverageAndError();
@@ -354,13 +349,13 @@ public class VirialH2PISimple {
 		System.out.println("ratio average: "+ratio+" error: "+error);
 		System.out.println("abs average: "+bn+" error: "+bnError);
 		DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData();
-		IData ratioData = allYourBase.getData(sim.accumulators[0].RATIO.index);
-		IData ratioErrorData = allYourBase.getData(sim.accumulators[0].RATIO_ERROR.index);
-		IData averageData = allYourBase.getData(sim.accumulators[0].AVERAGE.index);
-		IData stdevData = allYourBase.getData(sim.accumulators[0].STANDARD_DEVIATION.index);
-		IData errorData = allYourBase.getData(sim.accumulators[0].ERROR.index);
-		IData correlationData = allYourBase.getData(sim.accumulators[0].BLOCK_CORRELATION.index);
-		IData covarianceData = allYourBase.getData(sim.accumulators[0].BLOCK_COVARIANCE.index);
+		IData ratioData = allYourBase.getData(AccumulatorRatioAverageCovarianceFull.RATIO.index);
+		IData ratioErrorData = allYourBase.getData(AccumulatorRatioAverageCovarianceFull.RATIO_ERROR.index);
+		IData averageData = allYourBase.getData(AccumulatorAverage.AVERAGE.index);
+		IData stdevData = allYourBase.getData(AccumulatorAverage.STANDARD_DEVIATION.index);
+		IData errorData = allYourBase.getData(AccumulatorAverage.ERROR.index);
+		IData correlationData = allYourBase.getData(AccumulatorAverage.BLOCK_CORRELATION.index);
+		IData covarianceData = allYourBase.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
 		double correlationCoef = covarianceData.getValue(1)/Math.sqrt(covarianceData.getValue(0)*covarianceData.getValue(3));
 		correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
 		double refAvg = averageData.getValue(0);
@@ -372,13 +367,13 @@ public class VirialH2PISimple {
 				averageData.getValue(1), stdevData.getValue(1), errorData.getValue(1), correlationData.getValue(1)));
 
 		allYourBase = (DataGroup)sim.accumulators[1].getData();
-		ratioData = allYourBase.getData(sim.accumulators[1].RATIO.index);
-		ratioErrorData = allYourBase.getData(sim.accumulators[1].RATIO_ERROR.index);
-		averageData = allYourBase.getData(sim.accumulators[1].AVERAGE.index);
-		stdevData = allYourBase.getData(sim.accumulators[1].STANDARD_DEVIATION.index);
-		errorData = allYourBase.getData(sim.accumulators[1].ERROR.index);
-		correlationData = allYourBase.getData(sim.accumulators[1].BLOCK_CORRELATION.index);
-		covarianceData = allYourBase.getData(sim.accumulators[1].BLOCK_COVARIANCE.index);
+		ratioData = allYourBase.getData(AccumulatorRatioAverageCovarianceFull.RATIO.index);
+		ratioErrorData = allYourBase.getData(AccumulatorRatioAverageCovarianceFull.RATIO_ERROR.index);
+		averageData = allYourBase.getData(AccumulatorAverage.AVERAGE.index);
+		stdevData = allYourBase.getData(AccumulatorAverage.STANDARD_DEVIATION.index);
+		errorData = allYourBase.getData(AccumulatorAverage.ERROR.index);
+		correlationData = allYourBase.getData(AccumulatorAverage.BLOCK_CORRELATION.index);
+		covarianceData = allYourBase.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
 		int n = sim.numExtraTargetClusters;
 		correlationCoef = covarianceData.getValue(n+1)/Math.sqrt(covarianceData.getValue(0)*covarianceData.getValue((n+2)*(n+2)-1));
 		correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
@@ -452,17 +447,15 @@ public class VirialH2PISimple {
 			System.out.println("time: "+(t2-t1)/1000.0+" secs");
 		}
 	}
-
-	public static final double massH = Hydrogen.INSTANCE.getMass();
 	enum levelOptions {
-		ISO, PATKOWSKI, HINDE_PATKOWSKI;
+		ISO, PATKOWSKI, HINDE_PATKOWSKI
 	}
 	enum blOptions {
-		FIXED_GROUND, FIXED_TEMPAVG, VARIABLE;
+		FIXED_GROUND, FIXED_TEMPAVG, VARIABLE
 	}
 	enum contribution {
 		// Boltzmann - B, Exchange - XC;
-		B, XC;
+		B, XC
 	}
 	/**
 	 * Inner class for parameters

@@ -4,54 +4,34 @@
 
 package etomica.virial.simulations;
 
-import etomica.api.*;
-import etomica.atom.AtomTypeLeaf;
+import etomica.integrator.IntegratorEvent;
+import etomica.api.IIntegratorListener;
+import etomica.api.IMoleculeList;
+import etomica.api.ISpecies;
+import etomica.atom.AtomType;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.ANIntergroupExchange;
 import etomica.atom.iterator.ANIntragroupExchange;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.ApiIntergroupExchange;
 import etomica.chem.elements.ElementChemical;
 import etomica.config.ConformationLinear;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.IData;
+import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.types.DataGroup;
-import etomica.potential.P2Harmonic;
-import etomica.potential.P2HePCKLJS;
-import etomica.potential.P2HeSimplified;
-import etomica.potential.P3CPSNonAdditiveHe;
-import etomica.potential.P3CPSNonAdditiveHeSimplified;
-import etomica.potential.Potential;
-import etomica.potential.Potential2SoftSpherical;
-import etomica.potential.PotentialGroup;
-import etomica.space.Vector;
+import etomica.math.DoubleRange;
+import etomica.potential.*;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheres;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
-import etomica.math.DoubleRange;
-import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterBonds;
-import etomica.virial.ClusterBondsNonAdditive;
-import etomica.virial.ClusterDifference;
-import etomica.virial.ClusterSum;
-import etomica.virial.ClusterSumMultibody;
-import etomica.virial.ClusterWeight;
-import etomica.virial.ClusterWeightAbs;
-import etomica.virial.CoordinatePairSet;
-import etomica.virial.MCMoveClusterRingPartialRegrow;
-import etomica.virial.MCMoveClusterRingScale;
-import etomica.virial.MayerEGeneral;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerFunctionMolecularThreeBody;
-import etomica.virial.MayerFunctionNonAdditive;
-import etomica.virial.MayerFunctionThreeBody;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.PotentialGroupPI;
+import etomica.virial.*;
 import etomica.virial.PotentialGroupPI.PotentialGroupPISkip;
 import etomica.virial.cluster.Standard;
 
@@ -391,8 +371,8 @@ public class VirialHePIXCOdd {
         SpeciesSpheres[] species = new SpeciesSpheres[nRings];
         int[] simMolecules = new int[nRings];
         for (int i=0;i<nRings;i++) {
-        	species[i] = new SpeciesSpheres(space, (rings[i]*nBeads), new AtomTypeLeaf(new ElementChemical("He"+rings[i]+i, heMass, 2)), new ConformationLinear(space, 0));
-        	simMolecules[i] = 1;
+            species[i] = new SpeciesSpheres(space, (rings[i] * nBeads), new AtomType(new ElementChemical("He" + rings[i] + i, heMass, 2)), new ConformationLinear(space, 0));
+            simMolecules[i] = 1;
         }
       
         
@@ -640,9 +620,9 @@ public class VirialHePIXCOdd {
         final HistogramNotSoSimple piHist = new HistogramNotSoSimple(100, new DoubleRange(0, sigmaHSRef));
         final ClusterAbstract finalTargetCluster = targetCluster.makeCopy();
         IIntegratorListener histListenerRef = new IIntegratorListener() {
-            public void integratorStepStarted(IIntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
             
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 double r2Max = 0;
                 CoordinatePairSet cPairs = sim.box[0].getCPairSet();
                 for (int i=0; i<2; i++) {
@@ -656,13 +636,13 @@ public class VirialHePIXCOdd {
                 piHist.addValue(Math.sqrt(r2Max), Math.abs(v));
             }
             
-            public void integratorInitialized(IIntegratorEvent e) {
+            public void integratorInitialized(IntegratorEvent e) {
             }
         };
         IIntegratorListener histListenerTarget = new IIntegratorListener() {
-            public void integratorStepStarted(IIntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
             
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 double r2Max = 0;
                 double r2Min = Double.POSITIVE_INFINITY;
                 CoordinatePairSet cPairs = sim.box[1].getCPairSet();
@@ -686,15 +666,15 @@ public class VirialHePIXCOdd {
                 targPiHist.addValue(r, Math.abs(v));
             }
 
-            public void integratorInitialized(IIntegratorEvent e) {}
+            public void integratorInitialized(IntegratorEvent e) {}
         };
         if (!isCommandline) {
             // if interactive, print intermediate results
             final double refIntegralF = refIntegral;
             IIntegratorListener progressReport = new IIntegratorListener() {
-                public void integratorInitialized(IIntegratorEvent e) {}
-                public void integratorStepStarted(IIntegratorEvent e) {}
-                public void integratorStepFinished(IIntegratorEvent e) {
+                public void integratorInitialized(IntegratorEvent e) {}
+                public void integratorStepStarted(IntegratorEvent e) {}
+                public void integratorStepFinished(IntegratorEvent e) {
                     if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();
@@ -709,9 +689,9 @@ public class VirialHePIXCOdd {
             sim.integratorOS.getEventManager().addListener(progressReport);
             if (params.doHist) {
                 IIntegratorListener histReport = new IIntegratorListener() {
-                    public void integratorInitialized(IIntegratorEvent e) {}
-                    public void integratorStepStarted(IIntegratorEvent e) {}
-                    public void integratorStepFinished(IIntegratorEvent e) {
+                    public void integratorInitialized(IntegratorEvent e) {}
+                    public void integratorStepStarted(IntegratorEvent e) {}
+                    public void integratorStepFinished(IntegratorEvent e) {
                         if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
                         System.out.println("**** reference ****");
                         double[] xValues = hist.xValues();
@@ -768,22 +748,22 @@ public class VirialHePIXCOdd {
         sim.printResults(refIntegral);
 
         DataGroup allData = (DataGroup)sim.accumulators[1].getData();
-        IData dataAvg = allData.getData(sim.accumulators[1].AVERAGE.index);
-        IData dataErr = allData.getData(sim.accumulators[1].ERROR.index);
-        IData dataCov = allData.getData(sim.accumulators[1].BLOCK_COVARIANCE.index);
+        IData dataAvg = allData.getData(AccumulatorAverage.AVERAGE.index);
+        IData dataErr = allData.getData(AccumulatorAverage.ERROR.index);
+        IData dataCov = allData.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
         // we'll ignore block correlation -- whatever effects are here should be in the full target results
         
         
         System.out.println();
 
         DataGroup allData0 = (DataGroup)sim.accumulators[0].getData();
-        IData dataAuto0 = allData0.getData(sim.accumulators[0].BLOCK_CORRELATION.index);
+        IData dataAuto0 = allData0.getData(AccumulatorAverage.BLOCK_CORRELATION.index);
         System.out.println("reference autocorrelation function: "+dataAuto0.getValue(0));
         System.out.println("reference overlap autocorrelation function: "+dataAuto0.getValue(1));
         
         System.out.println();
-        
-        IData dataAuto = allData.getData(sim.accumulators[1].BLOCK_CORRELATION.index);
+
+        IData dataAuto = allData.getData(AccumulatorAverage.BLOCK_CORRELATION.index);
         System.out.println("target autocorrelation function: "+dataAuto.getValue(0));
         System.out.println("target overlap autocorrelation function: "+dataAuto.getValue(1));
         

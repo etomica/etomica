@@ -3,22 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.virial.simulations;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.List;
-import org.json.simple.JSONObject;
-import etomica.api.IAtom;
-import etomica.api.IAtomType;
-import etomica.api.IIntegratorEvent;
+import etomica.integrator.IntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.IMoleculeList;
 import etomica.atom.AtomHydrogen;
-import etomica.atom.AtomTypeOrientedSphere;
-import etomica.atom.IAtomTypeOriented;
+import etomica.atom.AtomType;
+import etomica.atom.AtomTypeOriented;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.ApiIntergroupCoupled;
 import etomica.chem.elements.Oxygen;
 import etomica.config.ConformationLinear;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCovariance;
+import etomica.data.AccumulatorRatioAverageCovarianceFull;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.integrator.mcmove.MCMove;
@@ -31,16 +28,19 @@ import etomica.units.Kelvin;
 import etomica.util.Constants;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterWheatleyHS;
-import etomica.virial.ClusterWheatleySoft;
-import etomica.virial.MCMoveClusterRingRegrow;
-import etomica.virial.MCMoveClusterRingRegrowOrientation;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.PotentialGroupPI;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
+import org.json.simple.JSONObject;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 public class VirialO2PI {
+    public static final double blO2 = BohrRadius.UNIT.toSim(2.28);
+    public static final double massO = Oxygen.INSTANCE.getMass();
+
     public static void main(String[] args) {
         VirialO2Param params = new VirialO2Param();
         boolean isCommandLine = args.length > 0;
@@ -82,45 +82,45 @@ public class VirialO2PI {
         HSB[5] = Standard.B5HS(sigmaHSRef);
         HSB[6] = Standard.B6HS(sigmaHSRef);
         HSB[7] = Standard.B7HS(sigmaHSRef);
-        
+
         System.out.println("Overlap sampling for O2 pair potential of Bartolomei et al. (2010) at " + temperatureK + " K");
         System.out.println("Path Integral Monte Carlo (PIMC) calculation with P = "+nBeads);
         System.out.println("multiplicity: "+s+" PT2: "+isPT2);
 
-        
+
         System.out.println("Reference diagram: B"+nPoints+" for hard spheres with diameter " + sigmaHSRef + " Angstroms");
-        
+
         System.out.println("B"+nPoints+"HS: "+HSB[nPoints]);
         if (steps%1000 != 0) {
             throw new RuntimeException("steps should be a multiple of 1000");
         }
         System.out.println(steps+" steps (1000 IntegratorOverlap steps of "+(steps/1000)+")");
-        
+
         Space space = Space3D.getInstance();
         // make ref and tar clusters
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
         ClusterWheatleyHS refCluster = new ClusterWheatleyHS(nPoints, fRef);
         refCluster.setTemperature(temperature);
-        
+
         final P2O2Bartolomei p2 = new P2O2Bartolomei(space);
-        p2.setS(s);
-        p2.setPT2(isPT2);
+        P2O2Bartolomei.setS(s);
+        P2O2Bartolomei.setPT2(isPT2);
         PotentialGroupPI pTarGroup = new PotentialGroupPI(beadFac);
         pTarGroup.addPotential(p2, new ApiIntergroupCoupled());
         MayerGeneral fTar = new MayerGeneral(pTarGroup) {
-            public double f(IMoleculeList pair, double r2, double beta) {                
+            public double f(IMoleculeList pair, double r2, double beta) {
                 return super.f(pair, r2, beta/nBeads);
             }
         };
         ClusterWheatleySoft tarCluster = new ClusterWheatleySoft(nPoints, fTar, 1e-12);
         tarCluster.setTemperature(temperature);
-        
-        // make species        
-        IAtomTypeOriented atype = new AtomTypeOrientedSphere(Oxygen.INSTANCE, space);
+
+        // make species
+        AtomTypeOriented atype = new AtomTypeOriented(Oxygen.INSTANCE, space);
         SpeciesSpheresHetero speciesO2 = null;
-        speciesO2 = new SpeciesSpheresHetero(space,new IAtomTypeOriented [] {atype}) {
-            protected IAtom makeLeafAtom(IAtomType leafType) {
-                return new AtomHydrogen(space,(IAtomTypeOriented)leafType,blO2);
+        speciesO2 = new SpeciesSpheresHetero(space, new AtomTypeOriented[]{atype}) {
+            protected IAtom makeLeafAtom(AtomType leafType) {
+                return new AtomHydrogen(space, (AtomTypeOriented) leafType, blO2);
             }
         };
         speciesO2.setChildCount(new int [] {nBeads});
@@ -130,15 +130,15 @@ public class VirialO2PI {
 //        sim.init();
         sim.integratorOS.setNumSubSteps(1000);
         steps /= 1000;
-        
+
 //        add additional moves here, simulation already has translation and rotation moves
 //        rotation is a bit pointless when we can regrow the ring completely
 
         if (nBeads != 1) {
             sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveRotate[0]);
             sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveRotate[1]);
-        }        
-        
+        }
+
 //        ring regrow translation
         MCMoveClusterRingRegrow refTr = new MCMoveClusterRingRegrow(sim.getRandom(), space);
         double lambda = Constants.PLANCK_H/Math.sqrt(2*Math.PI*massO*temperature);
@@ -152,16 +152,16 @@ public class VirialO2PI {
             sim.integrators[1].getMoveManager().addMCMove(tarTr);
         }
 //        ring regrow orientation
-        MCMoveClusterRingRegrowOrientation refOr = new MCMoveClusterRingRegrowOrientation(sim.getRandom(), space, nBeads);        
+        MCMoveClusterRingRegrowOrientation refOr = new MCMoveClusterRingRegrowOrientation(sim.getRandom(), space, nBeads);
         MCMoveClusterRingRegrowOrientation tarOr = new MCMoveClusterRingRegrowOrientation(sim.getRandom(), space, nBeads);
         refOr.setStiffness(temperature, massO);
         tarOr.setStiffness(temperature, massO);
-        
+
         if (nBeads != 1) {
             sim.integrators[0].getMoveManager().addMCMove(refOr);
             sim.integrators[1].getMoveManager().addMCMove(tarOr);
         }
-        
+
         System.out.println();
         String refFileName = null;
         if (isCommandLine) {
@@ -175,7 +175,7 @@ public class VirialO2PI {
             refFileName += "_"+tempString+"_PI";
         }
         long t1 = System.currentTimeMillis();
-        
+
         sim.initRefPref(refFileName, steps/40);
         if (refFrac >= 0) {
             sim.integratorOS.setRefStepFraction(refFrac);
@@ -183,21 +183,21 @@ public class VirialO2PI {
         }
         sim.equilibrate(refFileName, steps/10);
         System.out.println("equilibration finished");
-        
+
         sim.integratorOS.setNumSubSteps((int)steps);
         sim.setAccumulatorBlockSize(steps);
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
         sim.ai.setMaxSteps(1000);
-        
+
         System.out.println("MC Move step sizes (ref)    "+sim.mcMoveTranslate[0].getStepSize());
         System.out.println("MC Move step sizes (target) "+sim.mcMoveTranslate[1].getStepSize());
-        
+
         final double refIntegralF = HSB[nPoints];
         if (! isCommandLine) {
-            IIntegratorListener progressReport = new IIntegratorListener() {        
-                public void integratorInitialized(IIntegratorEvent e) {}
-                public void integratorStepStarted(IIntegratorEvent e) {}
-                public void integratorStepFinished(IIntegratorEvent e) {
+            IIntegratorListener progressReport = new IIntegratorListener() {
+                public void integratorInitialized(IntegratorEvent e) {}
+                public void integratorStepStarted(IntegratorEvent e) {}
+                public void integratorStepFinished(IntegratorEvent e) {
                     if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();
@@ -216,21 +216,21 @@ public class VirialO2PI {
         sim.getController().actionPerformed();
         //end of simulation
         long t2 = System.currentTimeMillis();
-        
-        
+
+
         System.out.println(" ");
         System.out.println("final reference step fraction "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step fraction "+sim.integratorOS.getRefStepFraction());
         System.out.println(" ");
-        
+
         System.out.println("Reference system: ");
         List<MCMove> refMoves = sim.integrators[0].getMoveManager().getMCMoves();
         for (MCMove m : refMoves) {
             double acc = m.getTracker().acceptanceRatio();
-            System.out.println(m.toString()+" acceptance ratio: "+acc);            
+            System.out.println(m.toString() + " acceptance ratio: " + acc);
         }
         System.out.println("Target system: ");
-        List<MCMove> tarMoves = sim.integrators[1].getMoveManager().getMCMoves();        
+        List<MCMove> tarMoves = sim.integrators[1].getMoveManager().getMCMoves();
         for (MCMove m : tarMoves) {
             double acc = m.getTracker().acceptanceRatio();
 
@@ -239,24 +239,24 @@ public class VirialO2PI {
 //            }
             System.out.println(m.toString()+" acceptance ratio: "+acc);
         }
-        
+
         // Printing results here
         double[] ratioAndError = sim.dvo.getAverageAndError();
         double ratio = ratioAndError[0];
         double error = ratioAndError[1];
         double bn = ratio*HSB[nPoints];
         double bnError = error*Math.abs(HSB[nPoints]);
-        
+
         System.out.println("ratio average: "+ratio+" error: "+error);
         System.out.println("abs average: "+bn+" error: "+bnError);
         DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData();
-        IData ratioData = allYourBase.getData(sim.accumulators[0].RATIO.index);
-        IData ratioErrorData = allYourBase.getData(sim.accumulators[0].RATIO_ERROR.index);
-        IData averageData = allYourBase.getData(sim.accumulators[0].AVERAGE.index);
-        IData stdevData = allYourBase.getData(sim.accumulators[0].STANDARD_DEVIATION.index);
-        IData errorData = allYourBase.getData(sim.accumulators[0].ERROR.index);
-        IData correlationData = allYourBase.getData(sim.accumulators[0].BLOCK_CORRELATION.index);
-        IData covarianceData = allYourBase.getData(sim.accumulators[0].BLOCK_COVARIANCE.index);
+        IData ratioData = allYourBase.getData(AccumulatorRatioAverageCovarianceFull.RATIO.index);
+        IData ratioErrorData = allYourBase.getData(AccumulatorRatioAverageCovarianceFull.RATIO_ERROR.index);
+        IData averageData = allYourBase.getData(AccumulatorAverage.AVERAGE.index);
+        IData stdevData = allYourBase.getData(AccumulatorAverage.STANDARD_DEVIATION.index);
+        IData errorData = allYourBase.getData(AccumulatorAverage.ERROR.index);
+        IData correlationData = allYourBase.getData(AccumulatorAverage.BLOCK_CORRELATION.index);
+        IData covarianceData = allYourBase.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
         double correlationCoef = covarianceData.getValue(1)/Math.sqrt(covarianceData.getValue(0)*covarianceData.getValue(3));
         correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
         double refAvg = averageData.getValue(0);
@@ -266,15 +266,15 @@ public class VirialO2PI {
                               averageData.getValue(0), stdevData.getValue(0), errorData.getValue(0), correlationData.getValue(0)));
         System.out.print(String.format("reference overlap average: %20.15e stdev: %9.4e error: %9.3e cor: %6.4f\n",
                               averageData.getValue(1), stdevData.getValue(1), errorData.getValue(1), correlationData.getValue(1)));
-        
+
         allYourBase = (DataGroup)sim.accumulators[1].getData();
-        ratioData = allYourBase.getData(sim.accumulators[1].RATIO.index);
-        ratioErrorData = allYourBase.getData(sim.accumulators[1].RATIO_ERROR.index);
-        averageData = allYourBase.getData(sim.accumulators[1].AVERAGE.index);
-        stdevData = allYourBase.getData(sim.accumulators[1].STANDARD_DEVIATION.index);
-        errorData = allYourBase.getData(sim.accumulators[1].ERROR.index);
-        correlationData = allYourBase.getData(sim.accumulators[1].BLOCK_CORRELATION.index);
-        covarianceData = allYourBase.getData(sim.accumulators[1].BLOCK_COVARIANCE.index);
+        ratioData = allYourBase.getData(AccumulatorRatioAverageCovarianceFull.RATIO.index);
+        ratioErrorData = allYourBase.getData(AccumulatorRatioAverageCovarianceFull.RATIO_ERROR.index);
+        averageData = allYourBase.getData(AccumulatorAverage.AVERAGE.index);
+        stdevData = allYourBase.getData(AccumulatorAverage.STANDARD_DEVIATION.index);
+        errorData = allYourBase.getData(AccumulatorAverage.ERROR.index);
+        correlationData = allYourBase.getData(AccumulatorAverage.BLOCK_CORRELATION.index);
+        covarianceData = allYourBase.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
         int n = sim.numExtraTargetClusters;
         correlationCoef = covarianceData.getValue(n+1)/Math.sqrt(covarianceData.getValue(0)*covarianceData.getValue((n+2)*(n+2)-1));
         correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
@@ -322,7 +322,7 @@ public class VirialO2PI {
                 resultsMap.put("unit","secs");
                 System.out.println("time: "+(t2-t1)/1000.0+" secs");
             }
-            
+
             try {
                 FileWriter jsonFile = new FileWriter(params.jsonOutputFileName);
                 jsonFile.write(JSONObject.toJSONString(resultsMap));
@@ -330,10 +330,10 @@ public class VirialO2PI {
                 jsonFile.close();
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage());
-            }                
+            }
         }
-//        sim.printResults(HSB[nPoints]);        
-        
+//        sim.printResults(HSB[nPoints]);
+
         if (!isCommandLine) {
             if ((t2-t1)/1000.0 > 24*3600) {
                 System.out.println("time: "+(t2-t1)/(24*3600*1000.0)+" days");
@@ -349,8 +349,6 @@ public class VirialO2PI {
             }
         }
     }
-    public static final double blO2 = BohrRadius.UNIT.toSim(2.28);
-    public static final double massO = Oxygen.INSTANCE.getMass();
     
     /**
      * Inner class for parameters

@@ -5,10 +5,13 @@
 package etomica.normalmode;
 
 import etomica.api.*;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.atom.AtomArrayList;
 import etomica.box.BoxAgentManager;
+import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.space.Space;
 
@@ -196,7 +199,7 @@ public class P1ConstraintNbr implements IPotentialAtomic{
 	protected int[][] neighborAtoms;
 	protected final Vector drj, drk;
 	protected double neighborRadiusSq;
-	protected IBoundary boundary;
+	protected Boundary boundary;
 	protected IAtomList leafList;
 	protected BoxAgentManager<int[][]> boxManager;
 	protected int boxIndex;

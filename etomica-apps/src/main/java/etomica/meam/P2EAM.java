@@ -1,12 +1,15 @@
 package etomica.meam;
 
 import etomica.api.*;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
+import etomica.integrator.IntegratorEvent;
 import etomica.potential.Potential2;
 import etomica.potential.PotentialCalculationEnergySum;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialSoft;
+import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -31,7 +34,7 @@ import etomica.space.Tensor;
 public class P2EAM extends Potential2 implements PotentialSoft {
     
     protected double n2, m2, eps, a, a2, Ceps, rc12, rc22;
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected final Vector dr;
     protected Vector[] gradient;
     protected Vector rhograd;
@@ -174,7 +177,7 @@ public class P2EAM extends Potential2 implements PotentialSoft {
             PotentialCalculationEnergySum pcEnergy = new PotentialCalculationEnergySum();
             IteratorDirective id = new IteratorDirective();
             @Override
-            public void integratorForcePrecomputed(IIntegratorEvent e) {
+            public void integratorForcePrecomputed(IntegratorEvent e) {
                 p2.disableEnergy();
                 p2.reset();
                 potentialMaster.calculate(box, id, pcEnergy);
@@ -183,16 +186,16 @@ public class P2EAM extends Potential2 implements PotentialSoft {
             }
         
             @Override
-            public void integratorForceComputed(IIntegratorEvent e) {}
+            public void integratorForceComputed(IntegratorEvent e) {}
         
             @Override
-            public void integratorInitialized(IIntegratorEvent e) {}
+            public void integratorInitialized(IntegratorEvent e) {}
         
             @Override
-            public void integratorStepStarted(IIntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
         
             @Override
-            public void integratorStepFinished(IIntegratorEvent e) {}
+            public void integratorStepFinished(IntegratorEvent e) {}
         };
     }
 }

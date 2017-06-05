@@ -6,7 +6,7 @@ package etomica.normalmode;
 
 import java.io.Serializable;
 
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;

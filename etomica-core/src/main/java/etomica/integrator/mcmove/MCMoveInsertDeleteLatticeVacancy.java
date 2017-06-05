@@ -7,6 +7,8 @@ package etomica.integrator.mcmove;
 import etomica.api.*;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSetSinglet;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomIteratorAtomDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.IteratorDirective;
@@ -14,11 +16,13 @@ import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxCellManager;
+import etomica.integrator.Integrator;
 import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialMaster;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.IEvent;
@@ -43,7 +47,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
 
     protected final Vector dest;
     protected final Vector dr;
-    protected IIntegrator integrator;
+    protected Integrator integrator;
     protected long lastStepCount;
     protected boolean dirty;
     protected double maxDistance, maxInsertDistance;
@@ -62,7 +66,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
     protected AtomIteratorAtomDependent atomIterator;
 
     public MCMoveInsertDeleteLatticeVacancy(PotentialMaster potentialMaster,
-                                            IRandom random, Space _space, IIntegrator integrator, double maxDistance, int maxN, int maxVacancy) {
+                                            IRandom random, Space _space, Integrator integrator, double maxDistance, int maxN, int maxVacancy) {
         super(potentialMaster, random, _space, maxN-maxVacancy, maxN);
         this.space = _space;
         this.potentialMaster = potentialMaster;
@@ -331,7 +335,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
             oldBoxSize = newBoxSize;
         }
         
-        IBoundary boundary = box.getBoundary();
+        Boundary boundary = box.getBoundary();
         int numAtoms = box.getLeafList().getAtomCount();
         if (numNeighbors.length < numAtoms) {
             numNeighbors = new int[numAtoms];

@@ -9,10 +9,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IIntegrator;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
+import etomica.integrator.Integrator;
 import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
 import etomica.space.Vector;
@@ -38,7 +38,7 @@ public class MCMoveInsertDeleteVacancy extends MCMoveInsertDeleteBiased implemen
 
     protected final Vector dest;
     protected final Vector dr;
-    protected IIntegrator integrator;
+    protected Integrator integrator;
     protected long lastStepCount;
     protected boolean dirty;
     protected double minDistance, maxDistance, maxInsertDistance;
@@ -53,7 +53,7 @@ public class MCMoveInsertDeleteVacancy extends MCMoveInsertDeleteBiased implemen
     protected final Vector oldPosition;
 
     public MCMoveInsertDeleteVacancy(PotentialMaster potentialMaster,
-                                     IRandom random, Space _space, IIntegrator integrator, double nbrDistance, int maxN, int maxVacancy) {
+                                     IRandom random, Space _space, Integrator integrator, double nbrDistance, int maxN, int maxVacancy) {
         super(potentialMaster, random, _space, maxN-maxVacancy, maxN);
         this.potentialMaster = (PotentialMasterList)potentialMaster;
         dest = _space.makeVector();
@@ -237,7 +237,7 @@ public class MCMoveInsertDeleteVacancy extends MCMoveInsertDeleteBiased implemen
     
     protected void findCandidates() {
         NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
-        IBoundary boundary = box.getBoundary();
+        Boundary boundary = box.getBoundary();
         int numAtoms = box.getLeafList().getAtomCount();
         numNeighbors = new int[numAtoms];
         numNeighborCandidatesOnDelete = new int[numAtoms];

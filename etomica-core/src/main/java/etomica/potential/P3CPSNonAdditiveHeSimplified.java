@@ -9,9 +9,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Date;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.atom.Atom;
@@ -388,7 +388,7 @@ System.out.println();
     }
     
     protected final Vector drAB, drAC, drBC;
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected final Vector[] gradient;
     public static boolean bigAngle;
     

@@ -6,16 +6,17 @@ package etomica.dimer;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
-import etomica.space.Vector;
-import etomica.box.Box;
 import etomica.api.ISpecies;
+import etomica.atom.AtomType;
+import etomica.box.Box;
 import etomica.chem.elements.Tin;
 import etomica.config.GrainBoundaryTiltConfiguration;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPump;
-import etomica.data.AccumulatorAverage.StatType;
+import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
@@ -31,10 +32,10 @@ import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.data.history.HistoryCollapsingAverage;
 
 /**
  * Simulation using Henkelman's Dimer method to find a saddle point for
@@ -95,9 +96,9 @@ public class SimDimerLJgb extends Simulation{
     	
     	
     	potential = new P2LennardJones(space, sigma, 1.0);
-		potentialMaster.addPotential(potential, new IAtomType[]{fixed.getLeafType(), fixed.getLeafType()});
-		potentialMaster.addPotential(potential, new IAtomType[]{movable.getLeafType(), fixed.getLeafType()});
-		potentialMaster.addPotential(potential, new IAtomType[]{movable.getLeafType(), movable.getLeafType()});
+        potentialMaster.addPotential(potential, new AtomType[]{fixed.getLeafType(), fixed.getLeafType()});
+        potentialMaster.addPotential(potential, new AtomType[]{movable.getLeafType(), fixed.getLeafType()});
+        potentialMaster.addPotential(potential, new AtomType[]{movable.getLeafType(), movable.getLeafType()});
         
     	
 	 //CRYSTAL
@@ -155,8 +156,8 @@ public class SimDimerLJgb extends Simulation{
         AccumulatorHistory energyAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
         AccumulatorAverageCollapsing accumulatorAveragePE = new AccumulatorAverageCollapsing();
         
-        DataPump energyPump = new DataPump(energyMeter,accumulatorAveragePE);       
-        accumulatorAveragePE.addDataSink(energyAccumulator, new StatType[]{accumulatorAveragePE.MOST_RECENT});
+        DataPump energyPump = new DataPump(energyMeter,accumulatorAveragePE);
+        accumulatorAveragePE.addDataSink(energyAccumulator, new StatType[]{AccumulatorAverage.MOST_RECENT});
         
         DisplayPlot plotPE = new DisplayPlot();
         plotPE.setLabel("PE Plot");

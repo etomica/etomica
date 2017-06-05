@@ -6,10 +6,8 @@ package etomica.virial;
 
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.*;
+import etomica.atom.*;
 import etomica.box.Box;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.atom.MoleculePair;
 import etomica.models.water.PNWaterGCPMThreeSite;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -178,7 +176,7 @@ public class ConfigurationClusterWertheimGCPMDirectSampling extends Configuratio
 	public void association(MoleculePair pair, Box box){
 		RotationTensor rotationTensor = space.makeRotationTensor();
 		Vector r0 = space.makeVector();
-		IAtomPositionDefinition positionDefinition = new AtomPositionGeometricCenter(space);
+		IMoleculePositionDefinition positionDefinition = new MoleculePositionGeometricCenter(space);
 		IMoleculeList list = box.getMoleculeList();
 		pair.atom0 = list.getMolecule(0);
 		IMolecule water = list.getMolecule(1);
@@ -218,7 +216,7 @@ public class ConfigurationClusterWertheimGCPMDirectSampling extends Configuratio
 	public void association2(MoleculePair pair, Box box){
 		RotationTensor rotationTensor = space.makeRotationTensor();
 		Vector r0 = space.makeVector();
-		IAtomPositionDefinition positionDefinition = new AtomPositionGeometricCenter(space);
+		IMoleculePositionDefinition positionDefinition = new MoleculePositionGeometricCenter(space);
 		IMoleculeList list = box.getMoleculeList();
 		pair.atom0 = list.getMolecule(1);
 		IMolecule water = list.getMolecule(2);
@@ -258,7 +256,7 @@ public class ConfigurationClusterWertheimGCPMDirectSampling extends Configuratio
 	public void association3(MoleculePair pair, Box box){
 		RotationTensor rotationTensor = space.makeRotationTensor();
 		Vector r0 = space.makeVector();
-		IAtomPositionDefinition positionDefinition = new AtomPositionGeometricCenter(space);
+		IMoleculePositionDefinition positionDefinition = new MoleculePositionGeometricCenter(space);
 		IMoleculeList list = box.getMoleculeList();
 		pair.atom0 = list.getMolecule(2);
 		IMolecule water = list.getMolecule(3);
@@ -298,7 +296,7 @@ public class ConfigurationClusterWertheimGCPMDirectSampling extends Configuratio
 	public void association4(MoleculePair pair, Box box){
 		RotationTensor rotationTensor = space.makeRotationTensor();
 		Vector r0 = space.makeVector();
-		IAtomPositionDefinition positionDefinition = new AtomPositionGeometricCenter(space);
+		IMoleculePositionDefinition positionDefinition = new MoleculePositionGeometricCenter(space);
 		IMoleculeList list = box.getMoleculeList();
 		pair.atom0 = list.getMolecule(1);
 		IMolecule water = list.getMolecule(3);

@@ -8,7 +8,7 @@ package etomica.paracetamol;
  * The agent source for the charges on paracetamol
  */
 
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.potential.EwaldSummation.MyCharge;

@@ -7,14 +7,11 @@ package etomica.models.nitrogen;
 import java.util.Arrays;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.atom.*;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.space.Vector;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.atom.MoleculeAgentManager;
+import etomica.atom.MoleculePositionGeometricCenter;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
@@ -209,7 +206,7 @@ public class MinimizationBetaNitrogenModel extends Simulation{
         pcForce.setMoleculeAgentManager(molAgentManager);
         double[] d = new double[16];
         MoleculeActionTranslateTo translator = new MoleculeActionTranslateTo(sim.space);
-        AtomPositionGeometricCenter pos = new AtomPositionGeometricCenter(sim.space);
+        MoleculePositionGeometricCenter pos = new MoleculePositionGeometricCenter(sim.space);
         translator.setAtomPositionDefinition(pos);
         Vector p = sim.space.makeVector();
         int nA = 16;
@@ -435,7 +432,7 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 
 	}
 	
-    protected static void doTransform(IMolecule molecule, IAtomPositionDefinition posDef, Tensor rotationTensor) {
+    protected static void doTransform(IMolecule molecule, IMoleculePositionDefinition posDef, Tensor rotationTensor) {
         IAtomList childList = molecule.getChildList();
         Vector com = posDef.position(molecule);
         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {

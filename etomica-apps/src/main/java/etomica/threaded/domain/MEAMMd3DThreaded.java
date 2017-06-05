@@ -3,30 +3,23 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.threaded.domain;
-import java.util.ArrayList;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.IAtomType;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.Copper;
 import etomica.chem.elements.Silver;
 import etomica.chem.elements.Tin;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataPump;
-import etomica.data.IDataInfo;
+import etomica.data.*;
 import etomica.data.AccumulatorAverage.StatType;
+import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.SimulationGraphic;
+import etomica.graphics.*;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisCubicFcc;
@@ -42,12 +35,9 @@ import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.threaded.IntegratorVelocityVerletThreaded;
 import etomica.threaded.PotentialThreaded;
-import etomica.units.CompoundUnit;
-import etomica.units.Joule;
-import etomica.units.Kelvin;
-import etomica.units.Mole;
-import etomica.units.Unit;
-import etomica.data.history.HistoryCollapsingAverage;
+import etomica.units.*;
+
+import java.util.ArrayList;
 
 /**
  * Molecular-Dynamics Simulation Using the Modified Embedded-Atom Method 
@@ -165,8 +155,8 @@ public class MEAMMd3DThreaded extends Simulation {
         }
         
 		potentialThreaded = new PotentialThreaded(space, potentialN);
-       
-        potentialMaster.addPotential(potentialThreaded, new IAtomType[]{sn.getLeafType(), ag.getLeafType(), cu.getLeafType()});  
+
+        potentialMaster.addPotential(potentialThreaded, new AtomType[]{sn.getLeafType(), ag.getLeafType(), cu.getLeafType()});
         
         potentialMaster.setNumThreads(numThreads, box);
         
@@ -209,11 +199,11 @@ public class MEAMMd3DThreaded extends Simulation {
     	
     	DataPump energyPump = new DataPump(energyMeter,accumulatorAveragePE);   	
     	DataPump kineticPump = new DataPump(kineticMeter, accumulatorAverageKE);
-    	
-    	accumulatorAveragePE.addDataSink(energyAccumulator, new StatType[]{accumulatorAveragePE.MOST_RECENT});
-    	accumulatorAverageKE.addDataSink(kineticAccumulator, new StatType[]{accumulatorAverageKE.MOST_RECENT});
-    	
-    	DisplayPlot plotPE = new DisplayPlot();
+
+        accumulatorAveragePE.addDataSink(energyAccumulator, new StatType[]{AccumulatorAverage.MOST_RECENT});
+        accumulatorAverageKE.addDataSink(kineticAccumulator, new StatType[]{AccumulatorAverage.MOST_RECENT});
+
+        DisplayPlot plotPE = new DisplayPlot();
     	plotPE.setLabel("PE Plot");
         DisplayPlot plotKE = new DisplayPlot();
         plotKE.setLabel("KE Plot");
@@ -232,9 +222,9 @@ public class MEAMMd3DThreaded extends Simulation {
     	//Heat Capacity (KE)
     	DataProcessorCvMD dataProcessorKE = new DataProcessorCvMD();
     	dataProcessorKE.setIntegrator(sim.integrator);
-    	
-    	accumulatorAveragePE.addDataSink(dataProcessorPE, new StatType[]{accumulatorAveragePE.STANDARD_DEVIATION});
-    	accumulatorAverageKE.addDataSink(dataProcessorKE, new StatType[]{accumulatorAverageKE.STANDARD_DEVIATION});
+
+        accumulatorAveragePE.addDataSink(dataProcessorPE, new StatType[]{AccumulatorAverage.STANDARD_DEVIATION});
+        accumulatorAverageKE.addDataSink(dataProcessorKE, new StatType[]{AccumulatorAverage.STANDARD_DEVIATION});
 
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(energyPump));
     	sim.integrator.getEventManager().addListener(new IntegratorListenerAction(kineticPump));

@@ -19,8 +19,8 @@ import javax.swing.border.TitledBorder;
 
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
 import etomica.math.function.Function;
 import etomica.space.Vector;
 import etomica.data.AccumulatorAverage;

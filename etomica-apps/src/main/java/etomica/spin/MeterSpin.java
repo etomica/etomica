@@ -4,7 +4,7 @@
 
 package etomica.spin;
 
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;

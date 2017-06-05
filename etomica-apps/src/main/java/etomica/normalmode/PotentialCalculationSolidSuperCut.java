@@ -1,8 +1,8 @@
 package etomica.normalmode;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.space.Vector;
@@ -26,7 +26,7 @@ public class PotentialCalculationSolidSuperCut implements PotentialCalculation {
     protected double fac1;
     protected double[] fac2;
     protected Box box;
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected final double[] r2Cut;
     protected double temperature;
     protected double[] pHarmonic;

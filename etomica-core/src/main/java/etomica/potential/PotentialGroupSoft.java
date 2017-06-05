@@ -4,12 +4,12 @@
 
 package etomica.potential;
 
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.space.Vector;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.MoleculePositionGeometricCenter;
 import etomica.space.Space;
 import etomica.space.Tensor;
 
@@ -23,7 +23,7 @@ public class PotentialGroupSoft extends PotentialGroup implements PotentialMolec
 
 	private static final long serialVersionUID = 1L;
 	protected final Vector[] gradients;
-	protected final IAtomPositionDefinition positionDefinition;
+	protected final IMoleculePositionDefinition positionDefinition;
 	protected double truncation;
 
 	public PotentialGroupSoft(int nBody, Space space, double truncation) {
@@ -33,7 +33,7 @@ public class PotentialGroupSoft extends PotentialGroup implements PotentialMolec
         gradients[1] = space.makeVector();
 		// TODO Auto-generated constructor stub
         this.truncation=truncation;
-		positionDefinition = new AtomPositionGeometricCenter(space);
+		positionDefinition = new MoleculePositionGeometricCenter(space);
 	}
 
 	public double getTruncation() {

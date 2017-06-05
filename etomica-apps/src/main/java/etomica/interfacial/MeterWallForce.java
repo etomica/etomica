@@ -1,19 +1,19 @@
 package etomica.interfacial;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialAtomic;
-import etomica.potential.PotentialMaster;
 import etomica.api.ISpecies;
-import etomica.space.Vector;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.potential.PotentialCalculation;
+import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialSoft;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Force;
 
 public class MeterWallForce extends DataSourceScalar {
@@ -54,13 +54,13 @@ public class MeterWallForce extends DataSourceScalar {
     public static class PotentialCalculationWallForce implements PotentialCalculation {
 
         protected double sum;
-        protected IAtomType atomType;
+        protected AtomType atomType;
     
         public double getSum() {
             return sum;
         }
-        
-        public void setAtomType(IAtomType type) {
+
+        public void setAtomType(AtomType type) {
             atomType = type;
         }
         

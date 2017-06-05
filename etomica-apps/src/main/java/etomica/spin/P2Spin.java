@@ -4,7 +4,7 @@
 
 package etomica.spin;
 
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.potential.Potential2;
 import etomica.space.Space;

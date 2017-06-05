@@ -5,9 +5,10 @@
 package etomica.normalmode;
 
 import etomica.api.*;
+import etomica.atom.IAtomList;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.box.Box;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.MoleculePositionGeometricCenter;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
@@ -19,7 +20,7 @@ public class MCMoveRotateMoleculePhiTheta extends MCMoveRotateMolecule3D {
     protected double maxAngle;
     protected boolean rotatePhi;
     protected final Vector dr, com;
-    protected IAtomPositionDefinition pos;
+    protected IMoleculePositionDefinition pos;
     protected double delta;
     
     public MCMoveRotateMoleculePhiTheta(PotentialMaster potentialMaster,
@@ -29,7 +30,7 @@ public class MCMoveRotateMoleculePhiTheta extends MCMoveRotateMolecule3D {
         dr = _space.makeVector();
         rotatePhi = doPhi;
         com = _space.makeVector();
-        pos = new AtomPositionGeometricCenter(_space);
+        pos = new MoleculePositionGeometricCenter(_space);
     }
     
     public void setBox(Box p) {

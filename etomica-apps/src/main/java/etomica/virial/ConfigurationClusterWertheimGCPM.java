@@ -6,10 +6,8 @@ package etomica.virial;
 
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.*;
+import etomica.atom.*;
 import etomica.box.Box;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.atom.MoleculePair;
 import etomica.models.water.PNWaterGCPMThreeSite;
 import etomica.models.water.SpeciesWater4P;
 import etomica.space.Space;
@@ -273,7 +271,7 @@ public class ConfigurationClusterWertheimGCPM extends ConfigurationCluster {
 	public void association(MoleculePair pair, Box box){
 		RotationTensor rotationTensor = space.makeRotationTensor();
 		Vector r0 = space.makeVector();
-		IAtomPositionDefinition positionDefinition = new AtomPositionGeometricCenter(space);
+		IMoleculePositionDefinition positionDefinition = new MoleculePositionGeometricCenter(space);
 		IMoleculeList list = box.getMoleculeList();
 		pair.atom0 = list.getMolecule(0);
 		IMolecule water = list.getMolecule(1);
@@ -313,7 +311,7 @@ public class ConfigurationClusterWertheimGCPM extends ConfigurationCluster {
 	public void association2(MoleculePair pair, Box box){
 		RotationTensor rotationTensor = space.makeRotationTensor();
 		Vector r0 = space.makeVector();
-		IAtomPositionDefinition positionDefinition = new AtomPositionGeometricCenter(space);
+		IMoleculePositionDefinition positionDefinition = new MoleculePositionGeometricCenter(space);
 		IMoleculeList list = box.getMoleculeList();
 		pair.atom0 = list.getMolecule(1);
 		IMolecule water = list.getMolecule(2);
@@ -354,7 +352,7 @@ public class ConfigurationClusterWertheimGCPM extends ConfigurationCluster {
 	public void association3(MoleculePair pair, Box box){
 		RotationTensor rotationTensor = space.makeRotationTensor();
 		Vector r0 = space.makeVector();
-		IAtomPositionDefinition positionDefinition = new AtomPositionGeometricCenter(space);
+		IMoleculePositionDefinition positionDefinition = new MoleculePositionGeometricCenter(space);
 		IMoleculeList list = box.getMoleculeList();
 		pair.atom0 = list.getMolecule(1);
 		IMolecule water = list.getMolecule(2);
@@ -395,7 +393,7 @@ public class ConfigurationClusterWertheimGCPM extends ConfigurationCluster {
 	public void association4(MoleculePair pair,MoleculePair pair2, Box box){
 		RotationTensor rotationTensor = space.makeRotationTensor();
 		Vector r0 = space.makeVector();
-		IAtomPositionDefinition positionDefinition = new AtomPositionGeometricCenter(space);
+		IMoleculePositionDefinition positionDefinition = new MoleculePositionGeometricCenter(space);
 		IMoleculeList list = box.getMoleculeList();
 		pair.atom0 = list.getMolecule(1);
 		IMolecule water = list.getMolecule(2);
@@ -438,7 +436,7 @@ public class ConfigurationClusterWertheimGCPM extends ConfigurationCluster {
 	public void association5(MoleculePair pair,MoleculePair pair2, Box box){
 		RotationTensor rotationTensor = space.makeRotationTensor();
 		Vector r0 = space.makeVector();
-		IAtomPositionDefinition positionDefinition = new AtomPositionGeometricCenter(space);
+		IMoleculePositionDefinition positionDefinition = new MoleculePositionGeometricCenter(space);
 		IMoleculeList list = box.getMoleculeList();
 		pair.atom0 = list.getMolecule(1);
 		IMolecule water = list.getMolecule(2);
@@ -480,7 +478,7 @@ public class ConfigurationClusterWertheimGCPM extends ConfigurationCluster {
 	public void association6(MoleculePair pair,MoleculePair pair2, Box box){
 		RotationTensor rotationTensor = space.makeRotationTensor();
 		Vector r0 = space.makeVector();
-		IAtomPositionDefinition positionDefinition = new AtomPositionGeometricCenter(space);
+		IMoleculePositionDefinition positionDefinition = new MoleculePositionGeometricCenter(space);
 		IMoleculeList list = box.getMoleculeList();
 		pair.atom0 = list.getMolecule(1);
 		IMolecule water = list.getMolecule(2);

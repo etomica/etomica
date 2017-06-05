@@ -5,23 +5,21 @@
 package etomica.models.oneDHardRods;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.AccumulatorHistogram;
 import etomica.data.DataPump;
 import etomica.data.DataSplitter;
+import etomica.data.histogram.Histogram;
+import etomica.data.histogram.HistogramSimple;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.listener.IntegratorListenerAction;
-import etomica.normalmode.CoordinateDefinition;
-import etomica.normalmode.CoordinateDefinitionLeaf;
-import etomica.normalmode.MCMoveAtomCoupled;
-import etomica.normalmode.NormalModes;
-import etomica.normalmode.NormalModesFromFile;
-import etomica.normalmode.WaveVectorFactory;
+import etomica.math.DoubleRange;
+import etomica.normalmode.*;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
 import etomica.potential.PotentialMasterMonatomic;
@@ -30,9 +28,6 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
-import etomica.math.DoubleRange;
-import etomica.data.histogram.Histogram;
-import etomica.data.histogram.HistogramSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 
@@ -55,15 +50,14 @@ public class SimDegreeFreedom3D extends Simulation {
     private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "SimDegreeFreedom3D";
     public Primitive primitive;
-    int[] nCells;
-    NormalModes nm;
     public IntegratorMC integrator;
     public BasisCubicFcc basis;
     public ActivityIntegrate activityIntegrate;
-    
     public Box box;
     public Boundary boundary;
     public CoordinateDefinition coordinateDefinition;
+    int[] nCells;
+    NormalModes nm;
     MeterNormalModeCoordinate meternmc;
     WaveVectorFactory waveVectorFactory;
     MCMoveAtomCoupled mcMoveAtom;
@@ -95,7 +89,7 @@ public class SimDegreeFreedom3D extends Simulation {
        
         Potential2 potential = new P2HardSphere(space, 1.0, true);
         potential.setBox(box);
-        potentialMaster.addPotential(potential, new IAtomType[] {species.getLeafType(), species.getLeafType()});
+        potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
         
         primitive = new PrimitiveCubic(space, 1.0);
         double v = primitive.unitCell().getVolume();
@@ -200,13 +194,6 @@ public class SimDegreeFreedom3D extends Simulation {
 //        }
     }
 
-    private void setHarmonicWV(int hwv){
-        harmonicWV = hwv;
-        System.out.println("need to fix this setHarmonicWV");
-        
-//        mcMoveMode.setHarmonicWV(hwv);
-    }
-    
     /**
      * @param args
      */
@@ -222,7 +209,7 @@ public class SimDegreeFreedom3D extends Simulation {
             readParameters.readParameters();
             inputFilename = params.inputfilename;
         }
-        
+
         int nA = params.numAtoms;
         double density = params.density;
         int D = params.D;
@@ -238,10 +225,10 @@ public class SimDegreeFreedom3D extends Simulation {
         long nSteps = params.numSteps;
         int bs = params.blockSize;
         int nbins = params.nBins;
-        
+
         // construct simulation
         SimDegreeFreedom3D sim = new SimDegreeFreedom3D(Space.getInstance(D), nA, density, bs, nbins, inputFilename);
-        System.out.println("Running " + sim.APP_NAME + " "
+        System.out.println("Running " + APP_NAME + " "
                 + (D == 1 ? "1D" : (D == 3 ? "FCC" : "2D hexagonal"))
                 + " hard sphere simulation");
         System.out.println(nA + " atoms at density " + density);
@@ -262,14 +249,14 @@ public class SimDegreeFreedom3D extends Simulation {
             if(sim.skipThisMode[i]) {continue;}
             sim.hists[i].reset();
         }
-       
+
         sim.activityIntegrate.setMaxSteps(nSteps);
         sim.getController().actionPerformed();
-        
-        /* 
-         * This loop creates a new write class for each histogram from each 
+
+        /*
+         * This loop creates a new write class for each histogram from each
          * AccumulatorHistogram, changes the filename for the histogram output,
-         * connects the write class with this histogram, and 
+         * connects the write class with this histogram, and
          * writes out the results to the file.
          */
         WriteHistograms wh;
@@ -280,8 +267,8 @@ public class SimDegreeFreedom3D extends Simulation {
             wh.actionPerformed();
         }
 //        System.out.println("number of hits " + sim.hists[0].getHistograms().getCount());
-        
-        
+
+
 //        IAtomList leaflist = sim.box.getLeafList();
 //        double[] locations = new double[nA];
 //        System.out.println("final:");
@@ -289,13 +276,20 @@ public class SimDegreeFreedom3D extends Simulation {
 //            //one d is assumed here.
 //            locations[i] = ( ((Atom)leaflist.getAtom(i)).getPosition().x(0) );
 //        }
-//        
+//
 //        for(int i = 0; i < 32; i++){
 //            System.out.println(i + "  " + locations[i]);
 //        }
-        
-        
+
+
         System.out.println("Fini.");
+    }
+
+    private void setHarmonicWV(int hwv) {
+        harmonicWV = hwv;
+        System.out.println("need to fix this setHarmonicWV");
+
+//        mcMoveMode.setHarmonicWV(hwv);
     }
     
     public static class SimParam extends ParameterBase {

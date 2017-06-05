@@ -4,8 +4,8 @@
 
 package etomica.meam;
 
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.potential.PotentialN;
@@ -19,7 +19,7 @@ public class PotentialCuLREP extends PotentialN implements PotentialSoft{
     protected double c0, c1, c2, c3, c4, mLREP, nLREP;
     protected double A, rC1, rC2, B, r0;
     protected Vector dr, drij, drik, drjk;
-    protected IBoundary boundary; 
+    protected Boundary boundary;
     protected Vector[] gradient;
     protected Vector[] rhograd;
     protected double [][] secondder;

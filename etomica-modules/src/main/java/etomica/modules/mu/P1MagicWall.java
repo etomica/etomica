@@ -4,8 +4,8 @@
 
 package etomica.modules.mu;
 
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.api.IPotential;
 import etomica.space.Vector;

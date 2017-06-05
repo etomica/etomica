@@ -6,6 +6,7 @@ package etomica.models.water;
 
 import Jama.Matrix;
 import etomica.api.*;
+import etomica.atom.IAtomList;
 import etomica.atom.MoleculePair;
 import etomica.box.Box;
 import etomica.chem.elements.Hydrogen;
@@ -13,6 +14,7 @@ import etomica.chem.elements.Oxygen;
 import etomica.math.SpecialFunctions;
 import etomica.potential.PotentialMolecular;
 import etomica.potential.PotentialPolarizable;
+import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -459,7 +461,7 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
     public enum Component { TWO_BODY, INDUCTION, FULL }
 
     protected final MoleculePair pair;
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected final double sigma;
     protected final double epsilon, gamma;
     protected final double chargeH, chargeM;

@@ -5,9 +5,9 @@
 package etomica.normalmode;
 
 import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculePositionDefinition;
 import etomica.space.Vector;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.MoleculePositionGeometricCenter;
 import etomica.data.DataSourceScalar;
 import etomica.space.Space;
 import etomica.units.Length;
@@ -16,13 +16,13 @@ public class MeterDisplacementMoleculeRMS extends DataSourceScalar {
 
     protected final CoordinateDefinitionMolecule coordinateDefinition;
     protected final Vector dr;
-    protected IAtomPositionDefinition position;
+    protected IMoleculePositionDefinition position;
     
     public MeterDisplacementMoleculeRMS(Space space, CoordinateDefinitionMolecule coordinateDefinition) {
         super("displacement", Length.DIMENSION);
         this.coordinateDefinition = coordinateDefinition;
         dr = space.makeVector();
-        position = new AtomPositionGeometricCenter(space);
+        position = new MoleculePositionGeometricCenter(space);
     }
     
     public double getDataAsScalar() {

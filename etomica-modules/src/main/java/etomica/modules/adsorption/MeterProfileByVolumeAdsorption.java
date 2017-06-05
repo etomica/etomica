@@ -4,7 +4,7 @@
 
 package etomica.modules.adsorption;
 
-import etomica.api.IBoundary;
+import etomica.space.Boundary;
 import etomica.data.meter.MeterProfileByVolume;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
@@ -20,7 +20,7 @@ public class MeterProfileByVolumeAdsorption extends MeterProfileByVolume {
     public void reset() {
         if (box == null || xMax-xMin==0) return;
         
-        IBoundary boundary = box.getBoundary();
+        Boundary boundary = box.getBoundary();
         xDataSource.setXMin(xMin);
         xDataSource.setXMax(xMax);
         xDataSource.setDoEnforceBounds(false);

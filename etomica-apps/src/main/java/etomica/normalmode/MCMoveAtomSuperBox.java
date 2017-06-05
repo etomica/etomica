@@ -4,7 +4,7 @@
 
  package etomica.normalmode;
 
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.api.IRandom;
