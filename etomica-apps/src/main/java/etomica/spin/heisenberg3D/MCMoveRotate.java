@@ -49,9 +49,12 @@ public class MCMoveRotate extends MCMoveAtom {
         iOrientation = ((IAtomOriented)atom).getOrientation(); 
         oldOrientation.E(iOrientation);  //save old orientation
 
+        //TODO this mcRotate inforce the rotation is around z axis. also the initial
         IVectorMutable dr = space.makeVector();
         dr.setX(2,1);
-        ((IOrientation3D)iOrientation).rotateBy((2*random.nextDouble()-1)*stepSize, dr);//TODO
+        ((IOrientation3D)iOrientation).rotateBy((2*random.nextDouble()-1)*stepSize, dr);
+
+        //iOrientation.randomRotation(random, stepSize);
 
 
         uNew = energyMeter.getDataAsScalar();
