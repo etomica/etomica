@@ -69,9 +69,8 @@ public class Heisenberg extends Simulation {
      */
     public Heisenberg(Space space, int nCells, double temperature, double interactionS, double dipoleMagnitude) {
 		super(Space2D.getInstance());
-		setRandom(new RandomNumberGenerator(1)); //debug only TODO
-
-
+//		setRandom(new RandomNumberGenerator(1)); //debug only
+//		System.out.println("============================the RandomSeed is one ===========================");
 
         potentialMaster = new PotentialMasterSite(this, nCells, space);
         box = new Box(space);
@@ -139,7 +138,7 @@ public class Heisenberg extends Simulation {
 
     	Space sp = Space2D.getInstance();
 		Heisenberg sim = new Heisenberg(sp,nCells,temperature,interactionS,dipoleMagnitude);
-    	
+
 		MeterSpinMSquare meterMSquare = null;
 		AccumulatorAverage dipoleSumSquaredAccumulator = null;
 
@@ -191,10 +190,11 @@ public class Heisenberg extends Simulation {
 		sim.activityIntegrate.setMaxSteps(steps/5);//TODO
 		sim.getController().actionPerformed();
 		sim.getController().reset();
-    	int blockNumber = 100;
+    	int blockNumber = 1000;
 		int sampleAtInterval = numberMolecules;
 		int samplePerBlock = steps/sampleAtInterval/blockNumber;
-
+         System.out.println("number of blocks is : "+blockNumber);
+         System.out.println("sample per block is : "+samplePerBlock);
 		
 		System.out.println("equilibration finished");
         long equilibrationTime = System.currentTimeMillis();
@@ -278,9 +278,9 @@ public class Heisenberg extends Simulation {
     	public boolean mSquare = true;
     	public boolean aEE = true; 
     	public double temperature = 10;// Kelvin
-    	public int nCells = 1;//number of atoms is nCells*nCells
-    	public double interactionS = 1;
-    	public double dipoleMagnitude = 1;
-    	public int steps = 1000000;
+    	public int nCells = 10;//number of atoms is nCells*nCells
+    	public double interactionS = 1.5;
+    	public double dipoleMagnitude = 1.5;
+    	public int steps = 1000000000;
     }
 }
