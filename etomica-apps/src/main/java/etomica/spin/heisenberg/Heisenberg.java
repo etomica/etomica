@@ -281,6 +281,6 @@ public class Heisenberg extends Simulation {
     	public int nCells = 10;//number of atoms is nCells*nCells
     	public double interactionS = 1.5;
     	public double dipoleMagnitude = 1.5;
-    	public int steps = 1000000000;
+    	public int steps = 10000000;
     }
 }
