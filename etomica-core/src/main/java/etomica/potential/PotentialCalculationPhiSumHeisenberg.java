@@ -35,37 +35,24 @@ public class PotentialCalculationPhiSumHeisenberg implements PotentialCalculatio
 			return;
 		}
 
-		//don't need this for now
-//		IPotentialAtomicSecondDerivative potentialSecondDerivative = (IPotentialAtomicSecondDerivative) potential;
-//
-//		Tensor[] t = potentialSecondDerivative.secondDerivative(atoms);
-		
+
 		IAtomOriented atom1 = (IAtomOriented)atoms.getAtom(0);
-    	IAtomOriented atom2 = (IAtomOriented)atoms.getAtom(1);
-    	ei.E(atom1.getOrientation().getDirection());
-    	ej.E(atom2.getOrientation().getDirection());
+		IAtomOriented atom2 = (IAtomOriented)atoms.getAtom(1);
+		ei.E(atom1.getOrientation().getDirection());
+		ej.E(atom2.getOrientation().getDirection());
 
-		double c1 = ei.getX(0);//cost1
-		double c2 = ej.getX(0);//cost2
-		double s1 = ei.getX(1);//sint1
-		double s2 = ej.getX(1);//sint2
+		//complicated way to get secondDerivativeSum, don't need the secondDerivative from p2Spin
+		IPotentialAtomicSecondDerivative potentialSecondDerivative = (IPotentialAtomicSecondDerivative) potential;
+		Tensor[] t = potentialSecondDerivative.secondDerivative(atoms);
+		secondDerivativeSum += 2*t[0].component(0,0)*(ei.dot(ej));
+		secondDerivativeSum += t[1].component(0,0);
+		secondDerivativeSum += t[2].component(0,0);
 
-		//ij phi_ij = -J*(1+c1*c2/s1/s2); J would be multiplied in meter
-		//-J Sin[t1] Sin[t2] (Cos[t1] Cos[t2] + Sin[t1] Sin[t2])
-//		secondDerivativeSum += -2.0*(s1*s2+c1*c2)*s1*s2;
-
-		//ii phi_ii = J*s2^3/s1; J would be multiplied in meter
-		//J Sin[t1] Sin[t2]
-		//jj phi_jj = J*s1^3/s2; J would be multiplied in meter
-		//J Sin[t1] Sin[t2]
-		//ii and jj is the same
-//		secondDerivativeSum += 2.0*s1*s2;
-
-		//or you could combine ij ii and jj
-//		secondDerivativeSum += -2.0*(s1*s2+c1*c2-1)*s1*s2;
-
-		double Cos = ei.dot(ej);
-		secondDerivativeSum += -2*Cos*Cos+2*Cos;
+		//much easier way but need to time back coupling J in the meter and here!!!!!!!!
+//		double Cos = ei.dot(ej);
+//		secondDerivativeSum += -2*Cos*Cos+2*Cos;
+//		double diff = 2*t[0].component(0,0)*(ei.dot(ej))+t[1].component(0,0)+t[2].component(0,0)-1.5*( -2*Cos*Cos+2*Cos);
+//		System.out.println("diff = " + diff);//check these two approach is the same or not
 	}
 
 	public void doCalculation(IMoleculeList molecules, IPotentialMolecular potential) {
