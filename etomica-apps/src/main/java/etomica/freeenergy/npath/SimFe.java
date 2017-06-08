@@ -206,8 +206,8 @@ public class SimFe extends Simulation {
         double w = params.w;
         int offsetDim = params.offsetDim;
         Crystal crystal = params.crystal;
-        int numInnerSteps = w > 0 ? params.numInnerSteps : 1;
         boolean swap = params.swap;
+        int numInnerSteps = w > 0 ? params.numInnerSteps : (swap ? 1 : 0);
 
         if (!graphics) {
             System.out.println("Running Iron MC with N="+numAtoms+" at rho="+density+" T="+temperatureK);
