@@ -101,6 +101,8 @@ public class MappedRdf extends Simulation {
         long numSteps = params.numSteps;
         double rc = params.rc;
         boolean graphics = false;
+        boolean computeR = params.computeR;
+        boolean computeRMA = params.computeRMA;
 
         int nBlocks = params.nBlocks;
 
@@ -151,44 +153,53 @@ public class MappedRdf extends Simulation {
 
         sim.integrator.getMoveManager().setEquilibrating(false);
 
-        meterRDF = new MeterRDF(space);
-        meterRDF.setBox(sim.box);
-        meterRDF.getXDataSource().setNValues(nbins);
-        meterRDF.getXDataSource().setXMax(eqncutoff);
+        if(computeR){
 
-        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, numAtoms));
-        sim.activityIntegrate.actionPerformed();
+            meterRDF = new MeterRDF(space);
+            meterRDF.setBox(sim.box);
+            meterRDF.getXDataSource().setNValues(nbins);
+            meterRDF.getXDataSource().setXMax(eqncutoff);
 
-        IData rdata = meterRDF.getIndependentData(0);
-        IData gdata = meterRDF.getData();
+            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, numAtoms));
+            sim.activityIntegrate.actionPerformed();
 
-        for (int i = 0; i < rdata.getLength(); i++)
+            IData rdata = meterRDF.getIndependentData(0);
+            IData gdata = meterRDF.getData();
 
-        {
-            double r = rdata.getValue(i);
-            double g = gdata.getValue(i);
-           // double e = Math.exp(-sim.p2Truncated.u(r * r) / temperature);
-            System.out.println("r "+r+" g "+g);
+            for (int i = 0; i < rdata.getLength(); i++)
+
+            {
+                double r = rdata.getValue(i);
+                double g = gdata.getValue(i);
+                // double e = Math.exp(-sim.p2Truncated.u(r * r) / temperature);
+                System.out.println("r "+r+" g "+g);
+            }
+
         }
 
-        meterMappedRdf = new MeterMappedRdf(space);
-        meterMappedRdf.setBox(sim.box);
-        meterMappedRdf.getXDataSource().setNValues(nbins);
-        meterMappedRdf.getXDataSource().setXMax(eqncutoff);
+        if(computeRMA){
+            meterMappedRdf = new MeterMappedRdf(space,sim.integrator.getPotentialMaster(), sim.box, nbins);
+            meterMappedRdf.setBox(sim.box);
+            meterMappedRdf.getXDataSource().setNValues(nbins);
+            meterMappedRdf.getXDataSource().setXMax(eqncutoff);
 
-        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterMappedRdf,numAtoms));
-        sim.activityIntegrate.actionPerformed();
+            meterMappedRdf.getPotentialCalculation().setTemperature(sim.integrator.getTemperature(), sim.p2Truncated);
 
-        IData rmdata = meterMappedRdf.getIndependentData(0);
-        IData gmdata = meterMappedRdf.getData();
 
-        for (int i = 0; i < rmdata.getLength(); i++)
+            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterMappedRdf,numAtoms));
+            sim.activityIntegrate.actionPerformed();
 
-        {
-            double rm = rmdata.getValue(i);
-            double gm = gmdata.getValue(i);
-            // double e = Math.exp(-sim.p2Truncated.u(r * r) / temperature);
-            System.out.println("rm "+rm+" gm "+gm);
+            IData rmdata = meterMappedRdf.getIndependentData(0);
+            IData gmdata = meterMappedRdf.getData();
+
+            for (int i = 0; i < rmdata.getLength(); i++)
+
+            {
+                double rm = rmdata.getValue(i);
+                double gm = gmdata.getValue(i);
+                // double e = Math.exp(-sim.p2Truncated.u(r * r) / temperature);
+                System.out.println("rm "+rm+" gm "+gm);
+            }
         }
 
     }
@@ -199,6 +210,8 @@ public class MappedRdf extends Simulation {
         public long numSteps = 1000000;
         public double rc = 4;
         public int nBlocks = 1000;
+        public boolean computeR = false;
+        public boolean computeRMA = true;
     }
 }
 

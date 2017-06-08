@@ -2,11 +2,13 @@ package etomica.mappedRdf;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
+import etomica.api.IBoundary;
 import etomica.api.IPotentialAtomic;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPair;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
+import etomica.data.DataSourceUniform;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -16,6 +18,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.units.Length;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -24,62 +27,49 @@ import java.io.IOException;
  * Created by aksharag on 5/16/17.
  */
 public class PotentialCalculationMappedRdf implements PotentialCalculation{
-    protected final Box box;
-    protected final IteratorDirective allAtoms;
-    protected final AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> forceManager;
-    protected final Space space;
-    protected double beta;
     protected final Vector dr;
-    protected double c1;
-    protected final double[] cumint;
-    protected final AtomPair pair;
+    protected long[] gSum;
+    protected IBoundary boundary;
+    protected final DataSourceUniform xDataSource;
+    protected double xMax;
     protected double vol;
     protected double q;
     protected double qp;
-    protected double qp_q;
-    protected final int nbins;
-    protected double sum;
+    protected double sum, R;
     protected double x0, vCut;
     protected double vShift;
-    protected double R, uR;
+    protected double beta;
+    protected double c1;
+    protected final int nbins;
+    protected final Space space;
+    protected final double[] cumint;
+    protected final AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> forceManager;
+
 
     public PotentialCalculationMappedRdf(Space space, Box box, int nbins, AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> forceManager) {
-        this.space = space;
-        this.box = box;
-        this.nbins = nbins;
-        pair = new AtomPair();
-        this.forceManager = forceManager;
-        allAtoms = new IteratorDirective();
         dr = space.makeVector();
-        cumint = new double[nbins+1];
-        vol = box.getBoundary().volume();
+        xDataSource = new DataSourceUniform("r", Length.DIMENSION);
+        xDataSource.setTypeMax(DataSourceUniform.LimitType.HALF_STEP);
+        xDataSource.setTypeMin(DataSourceUniform.LimitType.HALF_STEP);
 
+        gSum = new long[xDataSource.getData().getLength()];
+
+        this.boundary = box.getBoundary();
+        this.nbins = nbins;
+        this.space = space;
+
+        cumint = new double[nbins+1];
+
+        this.forceManager = forceManager;
     }
 
-    public static void main (String[] args) throws IOException {
-        Simulation sim = new Simulation(Space3D.getInstance());
-        Box box = new Box(sim.getSpace());
+    public DataSourceUniform getXDataSource() {
+        return xDataSource;
+    }
 
-        PotentialCalculationMappedRdf pc = new PotentialCalculationMappedRdf(sim.getSpace(),box, 1000000, null);
-        P2LennardJones potential = new P2LennardJones(sim.getSpace());
-        P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(sim.getSpace(), potential, 4);
-
-        pc.setVolume(99999.99999999997);
-        pc.setTemperature(2, p2Truncated);
-        double rc = p2Truncated.getRange();
-        double x0 = rc;
-
-        FileWriter fw = new FileWriter("vu.dat");
-        for (int i=10; i<45; i++) {
-            double r = i*0.1;
-            if (r>=4) r = 3.99999999;
-                       System.out.println(r+" "+pc.calcXu(r, p2Truncated.u(r*r))+" ");
-                       fw.write(r+" "+pc.calcXu(r, p2Truncated.u(r*r))+"\n");
-                   }
-
-        fw.close();
-
-          }
+    public void setBox(Box box) {
+        boundary = box.getBoundary();
+    }
 
     public double getX0() {
         return x0;
@@ -104,12 +94,8 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
     public void setTemperature(double T, Potential2SoftSpherical p2) {
         beta = 1/T;
         double rc = p2.getRange();
-        R = 3.5;
-        uR = p2.u(R);
         x0 = rc;
         q = 0;
-        qp = 0;
-        qp_q = 0;
 
         if (vCut==0) vCut = x0;
         vShift = -p2.u(vCut*vCut);
@@ -152,18 +138,19 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
 
     }
 
-    protected double calcXu(double r, double u) {
+    protected double calcXu(double r, double u, int R, Potential2SoftSpherical p2) {
 
         double y = cumint(r);
         double v = calcV(r,u);
+        double uR = p2.u(R);
         double vR = calcV(R,uR);
         double evm1 = Math.exp(-beta*v);
         double evmR = Math.exp(-beta*vR);
 
         if(r<R)
-         return y*(evmR/evm1)*(R/r)*(R/r)*beta*4*Math.PI/q*-1;
+            return y*(evmR/evm1)*(R/r)*(R/r)*beta*4*Math.PI/q*-1;
         else
-         return beta*(R/r)*(R/r)*(evmR/evm1)*(1-(4*Math.PI/q*y));
+            return beta*(R/r)*(R/r)*(evmR/evm1)*(1-(4*Math.PI/q*y));
 
     }
 
@@ -182,44 +169,47 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
         return y;
     }
 
+    /**
+     * Zero's out the RDF sum tracked by this meter.
+     */
     public void reset() {
-        sum = 0;
+        xMax = xDataSource.getXMax();
+        gSum = new long[xDataSource.getData().getLength()];
     }
 
     public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
         if (!(potential instanceof Potential2SoftSpherical)) return;
         Potential2SoftSpherical p2 = (Potential2SoftSpherical)potential;
-        IAtom a = atoms.getAtom(0);
-        IAtom b = atoms.getAtom(1);
-//        System.out.println("volume "+vol);
-        dr.Ev1Mv2(b.getPosition(),a.getPosition());
-        box.getBoundary().nearestImage(dr);
-        double r2 = dr.squared();
+        IAtom atom0 = atoms.getAtom(0);
+        IAtom atom1 = atoms.getAtom(1);
+        dr.Ev1Mv2(atom0.getPosition(), atom1.getPosition());
+
+        double xMaxSquared = xMax*xMax;
+        boundary.nearestImage(dr);
+        double r2 = dr.squared();       //compute pair separation
         double r = Math.sqrt(r2);
         if (r > p2.getRange()) return;
         double fij = p2.du(r2);
         double up = fij/r;
         double vp = up;
         double u= p2.u(r2);
-        //double v = calcV(r,u);
-        // sum += v-u;
+        if(r2 < xMaxSquared) {
+            int index = xDataSource.getIndex(Math.sqrt(r2));  //determine histogram index
 
-        if (r<x0) {
-            Vector fi = forceManager.getAgent(a).force;
-            Vector fj = forceManager.getAgent(b).force;
-            //  System.out.println(u+" "+r);
-            double fifj = (fi.dot(dr) - fj.dot(dr))/r;
-            double xu = calcXu(r, u);
-            double wp = 0.5*fifj;
-            sum += xu*beta*(vp-wp);
+            if (index<x0) {
+                Vector fi = forceManager.getAgent(atom0).force;
+                Vector fj = forceManager.getAgent(atom1).force;
+                //  System.out.println(u+" "+r);
+                double fifj = (fi.dot(dr) - fj.dot(dr))/r;
+                double xu = calcXu(r, u, index, p2);
+                double wp = 0.5*fifj;
+                gSum[index] += xu*(vp-wp);               //add once for each atom
 
+            }
         }
-
     }
 
-    public double getRdf() {
-
-        return sum;
-
+    public long[] getGSum() {
+        return gSum;
     }
 }
