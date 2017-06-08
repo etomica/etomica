@@ -6,7 +6,6 @@ package etomica.freeenergy.npath;
 
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.integrator.IntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHash;
@@ -23,8 +22,10 @@ import etomica.data.meter.MeterStructureFactor;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD;
+import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicBcc;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeHcp4;
@@ -58,14 +59,14 @@ public class SimFe extends Simulation {
     
     public final PotentialMasterList potentialMaster;
     public final ActivityIntegrate ai;
-    public IntegratorImageHarmonicMD integrator;
+    public IntegratorVelocityVerlet integrator;
     public SpeciesSpheresMono species;
     public Box box;
     public P2EAM potential;
     public P1ImageHarmonic p1ImageHarmonic;
     public MCMoveAtomSwap mcMoveSwap;
 
-    public SimFe(Crystal crystal, int numAtoms, double temperature, double density, double w, int offsetDim, int numInnerSteps) {
+    public SimFe(Crystal crystal, int numAtoms, double temperature, double density, double w, int offsetDim, int numInnerSteps, boolean swap) {
         super(Space3D.getInstance());
         species = new SpeciesSpheresMono(space, Iron.INSTANCE);
         species.setIsDynamic(true);
@@ -100,12 +101,22 @@ public class SimFe extends Simulation {
         potentialMaster = new PotentialMasterList(this, 1.2*rc, space);
         potentialMaster.getNbrCellManager(box).setSuppressBoxLengthWarning(true);
         potentialMaster.setCellRange(2);
-        double sigma = 1.0;
-        if (numInnerSteps==0) {
-//            integrator = new IntegratorImageHarmonicMD0(potentialMaster, random, 0.001, temperature, space);
-        }
-        else {
+
+        AtomType leafType = species.getLeafType();
+
+        potentialMaster.addPotential(potential, new AtomType[]{leafType, leafType});
+
+        Vector offset = space.makeVector();
+        offset.setX(offsetDim, box.getBoundary().getBoxSize().getX(offsetDim) * 0.5);
+        p1ImageHarmonic = new P1ImageHarmonic(space, offset, w, true);
+        potentialMaster.addPotential(p1ImageHarmonic, new AtomType[]{leafType});
+
+        if (numInnerSteps > 0 || swap) {
             integrator = new IntegratorImageHarmonicMD(potentialMaster, random, 0.001, temperature, space);
+            ((IntegratorImageHarmonicMD) integrator).setP1Harmonic(p1ImageHarmonic);
+            ((IntegratorImageHarmonicMD) integrator).setNumInnerSteps(numInnerSteps);
+        } else {
+            integrator = new IntegratorVelocityVerlet(potentialMaster, random, 0.001, temperature, space);
         }
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setPotentialCalculation(new PotentialCalculationEnergySumEAM(potential));
@@ -120,24 +131,8 @@ public class SimFe extends Simulation {
         ai = new ActivityIntegrate(integrator);
         getController().addAction(ai);
 
-        AtomType leafType = species.getLeafType();
-
-        potentialMaster.addPotential(potential, new AtomType[]{leafType, leafType});
-
-        Vector offset = space.makeVector();
-        offset.setX(offsetDim, box.getBoundary().getBoxSize().getX(offsetDim)*0.5);
-        p1ImageHarmonic = new P1ImageHarmonic(space, offset, w, true);
-        potentialMaster.addPotential(p1ImageHarmonic, new AtomType[]{leafType});
-
         integrator.setBox(box);
 
-        if (numInnerSteps>0) {
-            integrator.setP1Harmonic(p1ImageHarmonic);
-            integrator.setNumInnerSteps(numInnerSteps);
-        }
-        else {
-//            ((IntegratorImageHarmonicMD0) integrator).setP1Harmonic(p1ImageHarmonic);
-        }
         p1ImageHarmonic.setZeroForce(false);
 
         SpaceLattice lat = null;
@@ -173,14 +168,16 @@ public class SimFe extends Simulation {
         PotentialMasterCell potentialMasterCell = new PotentialMasterCell(this, swapDistance, space);
         potentialMasterCell.setCellRange(2);
         potentialMasterCell.getNbrCellManager(box).assignCellAll();
-        mcMoveSwap = new MCMoveAtomSwap(random, potentialMasterCell, space, p1ImageHarmonic);
-        mcMoveSwap.setNbrDistance(swapDistance);
-        IntegratorMC integratorMC = new IntegratorMC(potentialMaster, random, temperature);
-        integrator.setIntegratorMC(integratorMC, 10*numAtoms);
-        integrator.getIntegratorMC().getMoveManager().addMCMove(mcMoveSwap);
+        if (swap) {
+            mcMoveSwap = new MCMoveAtomSwap(random, potentialMasterCell, space, p1ImageHarmonic);
+            mcMoveSwap.setNbrDistance(swapDistance);
+            IntegratorMC integratorMC = new IntegratorMC(potentialMaster, random, temperature);
+            integrator.setIntegratorMC(integratorMC, 10 * numAtoms);
+            integrator.getIntegratorMC().getMoveManager().addMCMove(mcMoveSwap);
 
-        integrator.getIntegratorMC().getMoveEventManager().addListener(potentialMasterCell.getNbrCellManager(box).makeMCMoveListener());
-        integrator.setNeighborCellManager(potentialMasterCell.getNbrCellManager(box));
+            integrator.getIntegratorMC().getMoveEventManager().addListener(potentialMasterCell.getNbrCellManager(box).makeMCMoveListener());
+            ((IntegratorImageHarmonicMD) integrator).setNeighborCellManager(potentialMasterCell.getNbrCellManager(box));
+        }
     }
     
     public static void main(String[] args) {
@@ -188,15 +185,16 @@ public class SimFe extends Simulation {
         LjMC3DParams params = new LjMC3DParams();
         ParseArgs.doParseArgs(params, args);
         if (args.length==0) {
-            params.graphics = true;
+            params.graphics = false;
             params.numAtoms = 1024;
             params.steps = 1000;
-            params.density = 0.15;
-            params.T = 6000;
-            params.w = 1000;
+            params.density = 0.15151515151515;
+            params.T = 7000;
+            params.w = 0;
             params.crystal = Crystal.BCC;
             params.offsetDim = 2;
-            params.numInnerSteps = 100;
+            params.numInnerSteps = 0;
+            params.swap = false;
         }
 
         final int numAtoms = params.numAtoms;
@@ -208,7 +206,8 @@ public class SimFe extends Simulation {
         double w = params.w;
         int offsetDim = params.offsetDim;
         Crystal crystal = params.crystal;
-        int numInnerSteps = params.numInnerSteps;
+        int numInnerSteps = w > 0 ? params.numInnerSteps : 1;
+        boolean swap = params.swap;
 
         if (!graphics) {
             System.out.println("Running Iron MC with N="+numAtoms+" at rho="+density+" T="+temperatureK);
@@ -218,7 +217,7 @@ public class SimFe extends Simulation {
         }
 
         double L = Math.pow(numAtoms/density, 1.0/3.0);
-        final SimFe sim = new SimFe(crystal, numAtoms, temperature, density, w, offsetDim, numInnerSteps);
+        final SimFe sim = new SimFe(crystal, numAtoms, temperature, density, w, offsetDim, numInnerSteps, swap);
         System.out.println(Arrays.toString(sim.getRandomSeeds()));
 
         DataSourceEnergies dsEnergies = new DataSourceEnergies(sim.potentialMaster);
@@ -353,12 +352,27 @@ public class SimFe extends Simulation {
         if (blockSize==0) blockSize = 1;
 
         AccumulatorAverageCovariance accEnergies = new AccumulatorAverageCovariance(blockSize);
-        DataPumpListener pumpEnergies = new DataPumpListener(dsEnergies, accEnergies, interval);
+        DataFork energyFork = new DataFork();
+        DataPumpListener pumpEnergies = new DataPumpListener(dsEnergies, energyFork, interval);
+        energyFork.addDataSink(accEnergies);
         sim.integrator.getEventManager().addListener(pumpEnergies);
+        DataLogger dataLogger = null;
+        if (!swap && w == 0) {
+            dataLogger = new DataLogger();
+            DataSplitter splitter = new DataSplitter();
+            energyFork.addDataSink(splitter);
+            splitter.setDataSink(2, dataLogger);
+            dataLogger.setFileName("r2hist.dat");
+            DataArrayWriter writer = new DataArrayWriter();
+            writer.setIncludeHeader(false);
+            dataLogger.setDataSink(writer);
+            dataLogger.setAppending(false);
+            sim.getController().getEventManager().addListener(dataLogger);
+        }
 
         sim.getController().actionPerformed();
 
-        System.out.println("swap acceptance: "+sim.mcMoveSwap.getTracker().acceptanceProbability());
+        if (swap) System.out.println("swap acceptance: " + sim.mcMoveSwap.getTracker().acceptanceProbability());
         System.out.println("Hybrid MD/MC acceptance: "+sim.integrator.getHybridAcceptance());
 
         IData avgEnergies = accEnergies.getData(AccumulatorAverage.AVERAGE);
@@ -398,6 +412,7 @@ public class SimFe extends Simulation {
         public int offsetDim = 0;
         public int numInnerSteps = 10;
         public Crystal crystal = Crystal.FCC;
+        public boolean swap = true;
     }
 
 }
