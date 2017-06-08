@@ -195,6 +195,7 @@ public class SimFe extends Simulation {
             params.offsetDim = 2;
             params.numInnerSteps = 0;
             params.swap = false;
+            params.nve = true;
         }
 
         final int numAtoms = params.numAtoms;
@@ -208,6 +209,7 @@ public class SimFe extends Simulation {
         Crystal crystal = params.crystal;
         boolean swap = params.swap;
         int numInnerSteps = w > 0 ? params.numInnerSteps : (swap ? 1 : 0);
+        boolean nve = params.nve;
 
         if (!graphics) {
             System.out.println("Running Iron MC with N="+numAtoms+" at rho="+density+" T="+temperatureK);
@@ -342,6 +344,9 @@ public class SimFe extends Simulation {
         }
         sim.integrator.resetStepCount();
         sim.ai.setMaxSteps(steps);
+        if (nve) {
+            sim.integrator.setIsothermal(false);
+        }
 
         System.out.println("equilibration finished ("+steps/20+"+"+steps/20+"+"+steps/10+" steps)");
 
@@ -413,6 +418,7 @@ public class SimFe extends Simulation {
         public int numInnerSteps = 10;
         public Crystal crystal = Crystal.FCC;
         public boolean swap = true;
+        public boolean nve = false;
     }
 
 }
