@@ -4,9 +4,6 @@
 
 package etomica.data;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.data.DataLogger.DataWriter;
 import etomica.data.types.CastGroupToDoubleArray;
 import etomica.data.types.CastToDoubleArray;
@@ -14,22 +11,24 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup.DataInfoGroup;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 /**
  * A DataWriter that writes out data as a table with optional column headings
  */
 public class DataArrayWriter implements DataWriter, java.io.Serializable {
 
+    private static final long serialVersionUID = 1L;
+    private FileWriter fileWriter;
+    private boolean firstWrite;
+    private IEtomicaDataInfo dataInfo;
+    private boolean includeHeader;
+    
     public DataArrayWriter() {
         super();
         setIncludeHeader(true);
         reset();
-    }
-
-    /**
-     * Directs the writer to include column headers or not
-     */
-    public void setIncludeHeader(boolean newIncludeHeader) {
-        includeHeader = newIncludeHeader;
     }
     
     /**
@@ -38,7 +37,14 @@ public class DataArrayWriter implements DataWriter, java.io.Serializable {
     public boolean getIncludeHeader() {
         return includeHeader;
     }
-    
+
+    /**
+     * Directs the writer to include column headers or not
+     */
+    public void setIncludeHeader(boolean newIncludeHeader) {
+        includeHeader = newIncludeHeader;
+    }
+
     public void putDataInfo(IEtomicaDataInfo newDataInfo) {
         dataInfo = newDataInfo;
     }
@@ -66,27 +72,41 @@ public class DataArrayWriter implements DataWriter, java.io.Serializable {
         }
         return new CastToDoubleArray();
     }
-    
+
     public void putData(IData data) {
         DataDoubleArray dataArray = (DataDoubleArray)data;
         try {
-            int nColumns = dataArray.getArrayShape(1);
-            if (nColumns < 1) {
-                return;
-            }
-            if (firstWrite && includeHeader) {
-                // if this is the first write to a file, start with the column headers
-                fileWriter.write(dataInfo.getLabel()+" "+dataInfo.getDimension()+"\n");
-            }
-            firstWrite = false;
-            int[] indices = new int[2];
-            for (int i=0; i<dataArray.getArrayShape(0); i++) {
-                indices[0] = i;
-                indices[1] = 0;
-                fileWriter.write(Double.toString(dataArray.getValue(indices)));
-                for (int j=1; j<nColumns; j++) {
-                    indices[1] = j;
-                    fileWriter.write("  "+Double.toString(dataArray.getValue(indices)));
+            int dim = dataArray.getArrayDimension();
+            if (dim == 2) {
+                int nColumns = dataArray.getArrayShape(1);
+                if (nColumns < 1) {
+                    return;
+                }
+                if (firstWrite && includeHeader) {
+                    // if this is the first write to a file, start with the column headers
+                    fileWriter.write(dataInfo.getLabel() + " " + dataInfo.getDimension() + "\n");
+                }
+                firstWrite = false;
+                int[] indices = new int[2];
+                for (int i = 0; i < dataArray.getArrayShape(0); i++) {
+                    indices[0] = i;
+                    indices[1] = 0;
+                    fileWriter.write(Double.toString(dataArray.getValue(indices)));
+                    for (int j = 1; j < nColumns; j++) {
+                        indices[1] = j;
+                        fileWriter.write("  " + Double.toString(dataArray.getValue(indices)));
+                    }
+                    fileWriter.write("\n");
+                }
+            } else {
+                if (firstWrite && includeHeader) {
+                    // if this is the first write to a file, start with the column headers
+                    fileWriter.write(dataInfo.getLabel() + " " + dataInfo.getDimension() + "\n");
+                }
+                firstWrite = false;
+                int[] indices = new int[2];
+                for (int i = 0; i < dataArray.getArrayShape(0); i++) {
+                    fileWriter.write("  " + Double.toString(dataArray.getValue(i)));
                 }
                 fileWriter.write("\n");
             }
@@ -94,20 +114,14 @@ public class DataArrayWriter implements DataWriter, java.io.Serializable {
         catch (IOException e) {
             throw new RuntimeException(e);
         }
-        
+
     }
-    
+
     public void setFileWriter(FileWriter newFileWriter) {
         fileWriter = newFileWriter;
     }
-    
+
     public void reset() {
         firstWrite = true;
     }
-
-    private static final long serialVersionUID = 1L;
-    private FileWriter fileWriter;
-    private boolean firstWrite;
-    private IEtomicaDataInfo dataInfo;
-    private boolean includeHeader;
 }
