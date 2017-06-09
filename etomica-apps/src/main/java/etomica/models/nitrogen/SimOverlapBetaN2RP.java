@@ -6,8 +6,6 @@ package etomica.models.nitrogen;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
-import etomica.api.ISpecies;
-import etomica.space.Vector;
 import etomica.data.DataPump;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -29,6 +27,8 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.Degree;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;

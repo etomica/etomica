@@ -7,7 +7,6 @@ package etomica.dimer;
 import etomica.action.CalcVibrationalModes;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
@@ -44,6 +43,7 @@ import etomica.space.BoundaryRectangularSlit;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 

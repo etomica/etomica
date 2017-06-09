@@ -6,7 +6,6 @@ package etomica.rotation;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
@@ -24,6 +23,7 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.util.Constants;

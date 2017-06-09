@@ -7,10 +7,10 @@ package etomica.config;
 import etomica.action.BoxInflate;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.api.ISpecies;
-import etomica.space.Vector;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 
 public class ConfigurationReplicate {

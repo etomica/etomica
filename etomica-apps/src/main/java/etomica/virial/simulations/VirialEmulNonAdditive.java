@@ -5,7 +5,6 @@
 package etomica.virial.simulations;
 
 
-import etomica.api.ISpecies;
 import etomica.atom.IAtomList;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverage;
@@ -25,6 +24,7 @@ import etomica.potential.IPotentialMolecular;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;

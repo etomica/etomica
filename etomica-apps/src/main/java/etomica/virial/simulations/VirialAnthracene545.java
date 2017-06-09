@@ -5,9 +5,6 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.integrator.IntegratorEvent;
-import etomica.integrator.IntegratorListener;
-import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.data.AccumulatorAverage;
@@ -15,10 +12,13 @@ import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;

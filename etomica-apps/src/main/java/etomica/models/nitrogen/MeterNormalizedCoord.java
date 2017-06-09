@@ -5,7 +5,6 @@
 package etomica.models.nitrogen;
 
 import etomica.action.IAction;
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -19,6 +18,7 @@ import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.molecule.IMoleculeList;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
+import etomica.species.ISpecies;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
 import etomica.units.Length;

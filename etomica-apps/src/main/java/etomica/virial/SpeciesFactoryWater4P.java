@@ -4,10 +4,10 @@
 
 package etomica.virial;
 
-import etomica.models.water.SpeciesWater4P;
-import etomica.api.ISpecies;
 import etomica.config.IConformation;
+import etomica.models.water.SpeciesWater4P;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 
 
 /**

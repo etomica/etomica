@@ -4,10 +4,10 @@
 
 package etomica.atom;
 
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
+import etomica.species.ISpecies;
 import etomica.util.random.IRandom;
 
 /**

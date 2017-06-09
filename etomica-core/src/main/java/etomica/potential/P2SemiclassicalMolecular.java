@@ -6,7 +6,6 @@ package etomica.potential;
 
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
-import etomica.api.ISpecies;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.SpeciesAgentManager;
@@ -16,6 +15,7 @@ import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.util.Constants;
 
 /**

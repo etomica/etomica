@@ -5,7 +5,6 @@
 package etomica.data;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;
@@ -14,6 +13,7 @@ import etomica.integrator.IntegratorBox;
 import etomica.molecule.IMolecule;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.Null;
 
 /**

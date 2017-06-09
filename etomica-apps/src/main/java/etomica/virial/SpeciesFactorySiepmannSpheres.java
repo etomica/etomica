@@ -4,10 +4,10 @@
 
 package etomica.virial;
 
-import etomica.space.Vector;
 import etomica.config.ConformationChainZigZag;
 import etomica.space.Space;
-import etomica.api.ISpecies;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 
 /**
  * SpeciesFactory that makes Siepmann's alkane model.

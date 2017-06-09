@@ -4,13 +4,13 @@
 
 package etomica.molecule.iterator;
 
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeArrayList;
 import etomica.molecule.MoleculeListWrapper;
 import etomica.potential.IteratorDirective.Direction;
+import etomica.species.ISpecies;
 
 /**
  * Iterator for all the molecules of a set of species in a box.  Each iterate

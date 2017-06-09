@@ -3,24 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.modules.crystalviewer;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.util.HashMap;
-
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.border.TitledBorder;
 
 import etomica.action.IAction;
 import etomica.box.Box;
-import etomica.api.ISpecies;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.DeviceBox;
 import etomica.graphics.DeviceSlider;
@@ -31,9 +16,21 @@ import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.units.Degree;
 import etomica.units.Quantity;
 import etomica.util.Arrays;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.util.HashMap;
 
 /**
  * Class that produces a panel with controls that permit editing of

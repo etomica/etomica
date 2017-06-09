@@ -5,7 +5,6 @@
 package etomica.box;
 
 import etomica.action.BoxInflate;
-import etomica.api.ISpecies;
 import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
@@ -15,6 +14,7 @@ import etomica.molecule.MoleculeArrayList;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.util.Arrays;
 import etomica.util.Debug;
 

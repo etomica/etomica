@@ -4,8 +4,8 @@
 
 package etomica.atom;
 
-import etomica.api.ISpecies;
 import etomica.simulation.*;
+import etomica.species.ISpecies;
 import etomica.util.Arrays;
 
 import java.io.Serializable;

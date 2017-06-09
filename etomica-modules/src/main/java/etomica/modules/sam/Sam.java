@@ -5,7 +5,6 @@
 package etomica.modules.sam;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.ISpecies;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
@@ -34,6 +33,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.IOrientation3D;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Calorie;
 import etomica.units.Kelvin;

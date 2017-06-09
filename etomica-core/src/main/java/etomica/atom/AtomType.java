@@ -4,8 +4,8 @@
 
 package etomica.atom;
 
-import etomica.api.ISpecies;
 import etomica.chem.elements.IElement;
+import etomica.species.ISpecies;
 import etomica.units.Dimension;
 import etomica.units.Mass;
 

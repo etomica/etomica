@@ -4,10 +4,10 @@
 
 package etomica.molecule.iterator;
 
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePair;
+import etomica.species.ISpecies;
 
 /**
  * Gives pairs formed from the molecules of two different species in a box.

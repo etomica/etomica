@@ -4,12 +4,11 @@
 
 package etomica.modules.reactionequilibrium;
 
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
-import etomica.api.ISpecies;
-import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -22,11 +21,8 @@ import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.data.types.DataTable;
 import etomica.data.types.DataTable.DataInfoTable;
-import etomica.units.CompoundDimension;
-import etomica.units.Dimension;
-import etomica.units.Fraction;
-import etomica.units.Quantity;
-import etomica.units.Volume;
+import etomica.species.ISpecies;
+import etomica.units.*;
 
 public final class MeterDimerFraction implements IEtomicaDataSource {
     public MeterDimerFraction(AtomLeafAgentManager aam) {

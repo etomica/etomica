@@ -4,17 +4,13 @@
 
 package etomica.models.nitrogen;
 
-import java.io.File;
-
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
-import etomica.api.ISpecies;
 import etomica.config.ConfigurationFile;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
@@ -28,8 +24,11 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.species.Species;
 import etomica.units.Kelvin;
+
+import java.io.File;
 
 /**
  * Direct Sampling for Rotational Perturbation

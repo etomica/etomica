@@ -5,53 +5,36 @@
 package etomica.virial.simulations;
 
 
-import java.awt.Color;
-import java.util.Set;
-
+import etomica.atom.IAtomList;
+import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCovariance;
-import etomica.integrator.IntegratorListener;
-import etomica.atom.IAtomList;
-import etomica.integrator.IntegratorEvent;
-import etomica.api.ISpecies;
-import etomica.space.Vector;
-import etomica.chem.elements.ElementSimple;
 import etomica.data.IData;
+import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.types.DataGroup;
 import etomica.graph.model.Graph;
 import etomica.graph.operations.DeleteEdge;
 import etomica.graph.operations.DeleteEdgeParameters;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
-import etomica.potential.IPotentialAtomicMultibody;
-import etomica.potential.P2HePCKLJS;
-import etomica.potential.P2HeSimplified;
-import etomica.potential.P3CPSNonAdditiveHe;
-import etomica.potential.P3CPSNonAdditiveHeSimplified;
-import etomica.potential.Potential2Spherical;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
+import etomica.math.DoubleRange;
+import etomica.potential.*;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
-import etomica.math.DoubleRange;
-import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterBonds;
-import etomica.virial.ClusterDifference;
-import etomica.virial.ClusterSum;
-import etomica.virial.ClusterSumMultibody;
-import etomica.virial.ClusterWeight;
-import etomica.virial.ClusterWeightAbs;
-import etomica.virial.CoordinatePairSet;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerFunctionNonAdditive;
-import etomica.virial.MayerFunctionSphericalThreeBody;
-import etomica.virial.MayerGeneralSpherical;
-import etomica.virial.MayerHardSphere;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 import etomica.virial.cluster.VirialDiagrams;
+
+import java.awt.*;
+import java.util.Set;
 
 /* 
  * Adapted by Kate from VirialGCPM

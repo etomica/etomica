@@ -1,6 +1,5 @@
 package etomica.surfacetension;
 
-import etomica.api.ISpecies;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.IAtom;
@@ -22,6 +21,7 @@ import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.Null;
 
 

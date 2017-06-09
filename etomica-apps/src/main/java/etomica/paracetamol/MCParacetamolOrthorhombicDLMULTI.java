@@ -21,17 +21,17 @@ import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.listener.IntegratorListenerAction;
+import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.normalmode.MCMoveHarmonicStep;
 import etomica.normalmode.NormalModesFromFile;
 import etomica.normalmode.WaveVectorFactory;
-import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.potential.P2DLPOLY;
 import etomica.potential.PotentialDLPOLY;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.api.ISpecies;
+import etomica.species.ISpecies;
 import etomica.units.Kelvin;
 
 /**

@@ -5,24 +5,12 @@
 package etomica.crystalviewer;
 
 import etomica.box.Box;
-import etomica.simulation.Simulation;
-import etomica.api.ISpecies;
 import etomica.config.ConfigurationLattice;
-import etomica.lattice.BravaisLattice;
-import etomica.lattice.BravaisLatticeCrystal;
-import etomica.lattice.LatticeCubicBcc;
-import etomica.lattice.LatticeCubicDiamond;
-import etomica.lattice.LatticeCubicFcc;
-import etomica.lattice.LatticeCubicSimple;
-import etomica.lattice.LatticeHcp;
-import etomica.lattice.LatticePlane;
-import etomica.lattice.crystal.BasisMonatomic;
-import etomica.lattice.crystal.PrimitiveHexagonal;
-import etomica.lattice.crystal.PrimitiveMonoclinic;
-import etomica.lattice.crystal.PrimitiveOrthorhombic;
-import etomica.lattice.crystal.PrimitiveTetragonal;
-import etomica.lattice.crystal.PrimitiveTriclinic;
+import etomica.lattice.*;
+import etomica.lattice.crystal.*;
+import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 
 public class LatticePlaneTestUtility {

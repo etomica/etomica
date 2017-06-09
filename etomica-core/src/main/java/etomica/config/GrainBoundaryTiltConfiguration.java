@@ -4,7 +4,6 @@
 
 package etomica.config;
 
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
@@ -14,6 +13,7 @@ import etomica.space.RotationTensor;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
+import etomica.species.ISpecies;
 
 /**
  * @authors ajschultz, msellers

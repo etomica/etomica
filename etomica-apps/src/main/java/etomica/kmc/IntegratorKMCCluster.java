@@ -7,7 +7,6 @@ package etomica.kmc;
 import etomica.action.BoxImposePbc;
 import etomica.action.WriteConfiguration;
 import etomica.action.XYZWriter;
-import etomica.api.ISpecies;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.atom.iterator.AtomIteratorLeafFilteredType;
@@ -25,6 +24,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.Joule;
 import etomica.util.random.IRandom;
 

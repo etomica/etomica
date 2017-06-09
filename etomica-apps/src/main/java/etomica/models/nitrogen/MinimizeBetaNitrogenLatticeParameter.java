@@ -4,7 +4,6 @@
 
 package etomica.models.nitrogen;
 
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.lattice.crystal.Basis;
@@ -19,6 +18,7 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.Degree;
 
 /**

@@ -4,7 +4,6 @@
 
 package etomica.integrator;
 
-import etomica.api.ISpecies;
 import etomica.atom.*;
 import etomica.box.Box;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
@@ -17,6 +16,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.util.Constants;

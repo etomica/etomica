@@ -4,16 +4,16 @@
 
 package etomica.normalmode;
 
-import java.io.Serializable;
-
-import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space1d.Space1D;
 import etomica.space1d.Vector1D;
-import etomica.api.ISpecies;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
+
+import java.io.Serializable;
 
 /**
  * Wave vector factory that returns wave vectors for a 1D system.  

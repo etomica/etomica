@@ -4,53 +4,23 @@
 
 package etomica.modules.chainequilibrium;
 
-import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.util.ArrayList;
-
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.SwingConstants;
-
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.api.ISpecies;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataFork;
-import etomica.data.DataPump;
-import etomica.data.DataSourceCountTime;
-import etomica.data.DataTag;
-import etomica.graphics.DeviceBox;
-import etomica.graphics.DeviceButton;
-import etomica.graphics.DeviceDelaySlider;
-import etomica.graphics.DeviceSlider;
-import etomica.graphics.DeviceThermoSlider;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.DisplayTextBoxesCAE;
-import etomica.graphics.DisplayTimer;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.data.*;
+import etomica.data.history.HistoryCollapsingAverage;
+import etomica.graphics.*;
 import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.units.Dimension;
-import etomica.units.Joule;
-import etomica.units.Kelvin;
-import etomica.units.Mole;
-import etomica.units.Pixel;
-import etomica.units.Prefix;
-import etomica.units.PrefixedUnit;
-import etomica.units.Quantity;
-import etomica.units.UnitRatio;
+import etomica.units.*;
 import etomica.util.Constants.CompassDirection;
-import etomica.data.history.HistoryCollapsingAverage;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
 
 /**
  * Module for chain reaction (polymerization) using ChainEquilibriumSim as the

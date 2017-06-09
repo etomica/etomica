@@ -4,11 +4,11 @@
 
 package etomica.molecule.iterator;
 
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.molecule.IMolecule;
 import etomica.molecule.MoleculeArrayList;
 import etomica.potential.IteratorDirective.Direction;
+import etomica.species.ISpecies;
 
 /**
  * Iterator for the molecules of a single species in a box.  Can be targeted to

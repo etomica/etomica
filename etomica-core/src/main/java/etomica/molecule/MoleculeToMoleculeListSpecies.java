@@ -4,8 +4,8 @@
 
 package etomica.molecule;
 
-import etomica.api.ISpecies;
 import etomica.box.Box;
+import etomica.species.ISpecies;
 
 import java.io.Serializable;
 

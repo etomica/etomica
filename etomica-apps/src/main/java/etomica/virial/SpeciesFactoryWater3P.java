@@ -5,8 +5,8 @@
 package etomica.virial;
 
 import etomica.models.water.SpeciesWater3P;
-import etomica.api.ISpecies;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 
 
 /**

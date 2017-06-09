@@ -5,7 +5,6 @@
 package etomica.virial.GUI.models;
 
 
-import etomica.api.ISpecies;
 import etomica.atom.IAtomList;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.IElement;
@@ -14,6 +13,7 @@ import etomica.config.IConformation;
 import etomica.potential.P2CO2EMP2;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.Electron;
 import etomica.units.Kelvin;

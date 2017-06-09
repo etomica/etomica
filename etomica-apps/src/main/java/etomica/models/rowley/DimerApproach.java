@@ -6,7 +6,6 @@ package etomica.models.rowley;
 
 import etomica.action.IntegratorDimerApproach;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
@@ -22,6 +21,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.units.*;
 
 import java.awt.*;

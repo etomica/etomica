@@ -4,7 +4,6 @@
 
 package etomica.modules.rosmosis;
 
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -19,6 +18,7 @@ import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.*;
 
 /**

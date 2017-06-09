@@ -4,7 +4,7 @@
 
 package etomica.box;
 
-import etomica.api.ISpecies;
+import etomica.species.ISpecies;
 
 /**
  * Box event that indicates the number of molecules of a particular species has

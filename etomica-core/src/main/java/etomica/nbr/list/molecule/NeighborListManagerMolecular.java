@@ -5,7 +5,6 @@
 package etomica.nbr.list.molecule;
 
 import etomica.action.BoxImposePbc;
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
@@ -18,6 +17,7 @@ import etomica.potential.IPotential;
 import etomica.potential.IPotentialMolecular;
 import etomica.potential.PotentialArrayMolecular;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.util.Debug;
 
 import java.io.Serializable;

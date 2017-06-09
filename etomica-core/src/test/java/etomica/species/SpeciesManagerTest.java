@@ -4,7 +4,6 @@
 
 package etomica.species;
 
-import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.IElement;

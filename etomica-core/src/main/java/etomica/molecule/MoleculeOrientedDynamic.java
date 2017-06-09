@@ -4,9 +4,9 @@
 
 package etomica.molecule;
 
-import etomica.api.ISpecies;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.species.ISpecies;
 
 /**
  * Molecule class appropriate for a rigid molecule in a dynamic context.  The

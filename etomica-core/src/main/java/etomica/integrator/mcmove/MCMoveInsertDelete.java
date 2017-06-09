@@ -5,7 +5,6 @@
 package etomica.integrator.mcmove;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.ISpecies;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorNull;
@@ -19,6 +18,7 @@ import etomica.molecule.MoleculeArrayList;
 import etomica.molecule.MoleculeSetSinglet;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.util.Debug;
 import etomica.util.random.IRandom;
 

@@ -4,10 +4,10 @@
 
 package etomica.molecule.iterator;
 
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePair;
+import etomica.species.ISpecies;
 import etomica.util.Debug;
 
 import java.io.Serializable;

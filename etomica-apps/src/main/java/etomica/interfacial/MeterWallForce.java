@@ -1,6 +1,5 @@
 package etomica.interfacial;
 
-import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
@@ -10,6 +9,7 @@ import etomica.molecule.IMoleculeList;
 import etomica.potential.*;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.Force;
 
 public class MeterWallForce extends DataSourceScalar {

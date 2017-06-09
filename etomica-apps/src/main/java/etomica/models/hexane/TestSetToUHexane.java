@@ -9,7 +9,6 @@ package etomica.models.hexane;
  */
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -31,6 +30,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
+import etomica.species.ISpecies;
 
 public class TestSetToUHexane extends Simulation {
 

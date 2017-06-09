@@ -5,7 +5,6 @@
 package etomica.tests;
 
 import etomica.action.ActionIntegrate;
-import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.box.Box;
@@ -30,6 +29,7 @@ import etomica.potential.PotentialGroup;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheres;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;

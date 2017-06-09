@@ -4,7 +4,6 @@
 
 package etomica.normalmode;
 
-import etomica.api.ISpecies;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.box.Box;
 import etomica.lattice.IndexIteratorRectangular;
@@ -17,6 +16,7 @@ import etomica.molecule.MoleculeListWrapper;
 import etomica.molecule.iterator.MoleculeIteratorAllMolecules;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.species.ISpecies;
 
 
 

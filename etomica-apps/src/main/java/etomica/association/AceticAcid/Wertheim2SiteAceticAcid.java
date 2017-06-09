@@ -5,7 +5,6 @@
 package etomica.association.AceticAcid;
 
 import etomica.action.IAction;
-import etomica.api.ISpecies;
 import etomica.association.BiasVolume2SiteAceticAcid;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
@@ -25,6 +24,7 @@ import etomica.potential.P4BondTorsion;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.units.*;
 import etomica.util.Arrays;
 import etomica.util.ParameterBase;

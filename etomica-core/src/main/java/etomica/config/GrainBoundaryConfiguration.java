@@ -14,7 +14,6 @@
 package etomica.config;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
@@ -26,6 +25,7 @@ import etomica.molecule.MoleculePositionFirstAtom;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
+import etomica.species.ISpecies;
 
 /**
  * @author K.R. Schadel with help from A. Schultz

@@ -5,8 +5,8 @@
 
 package etomica.nbr.molecule;
 
-import etomica.api.ISpecies;
 import etomica.molecule.IMoleculeList;
+import etomica.species.ISpecies;
 
 /**
  * Filters molecule to match a given species.

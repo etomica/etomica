@@ -4,13 +4,13 @@
 
 package etomica.potential;
 
-import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.molecule.IMolecule;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 
 /**
  * Zero-body potential implementing the long-range correction 

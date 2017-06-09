@@ -4,11 +4,11 @@
 
 package etomica.atom;
 
-import etomica.api.ISpecies;
 import etomica.molecule.IMolecule;
 import etomica.molecule.Molecule;
 import etomica.molecule.MoleculeArrayList;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.util.Debug;
 import junit.framework.TestCase;

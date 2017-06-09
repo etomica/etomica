@@ -4,12 +4,12 @@
 
 package etomica.molecule;
 
-import etomica.api.ISpecies;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.IOrientation3D;
 import etomica.space3d.Orientation3D;
 import etomica.space3d.OrientationFull3D;
+import etomica.species.ISpecies;
 
 /**
  * Molecule class appropriate for a rigid molecule.  The molecule object holds

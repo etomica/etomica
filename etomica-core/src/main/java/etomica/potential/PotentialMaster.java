@@ -4,7 +4,6 @@
 
 package etomica.potential;
 
-import etomica.api.ISpecies;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
@@ -19,6 +18,7 @@ import etomica.molecule.MoleculeArrayList;
 import etomica.molecule.iterator.IteratorFactory;
 import etomica.molecule.iterator.MoleculeIteratorAll;
 import etomica.molecule.iterator.MoleculesetIteratorPDT;
+import etomica.species.ISpecies;
 
 import java.util.ArrayList;
 import java.util.Arrays;

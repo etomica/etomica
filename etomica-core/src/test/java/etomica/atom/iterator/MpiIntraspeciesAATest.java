@@ -5,12 +5,12 @@
 package etomica.atom.iterator;
 
 import etomica.UnitTestUtil;
-import etomica.api.ISpecies;
 import etomica.atom.MoleculesetAction;
 import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.iterator.MpiIntraspeciesAA;
 import etomica.simulation.Simulation;
+import etomica.species.ISpecies;
 
 
 /**

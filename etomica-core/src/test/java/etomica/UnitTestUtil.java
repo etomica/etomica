@@ -4,13 +4,13 @@
 
 package etomica;
 
-import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheres;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.species.SpeciesSpheresMono;

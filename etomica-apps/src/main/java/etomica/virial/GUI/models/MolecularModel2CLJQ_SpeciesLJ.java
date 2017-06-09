@@ -5,19 +5,16 @@
 package etomica.virial.GUI.models;
 
 
-import etomica.api.ISpecies;
 import etomica.config.ConformationLinear;
 import etomica.potential.P22CLJQ;
-
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheres;
-
-import etomica.virial.SpeciesFactory;
-
-import etomica.virial.SpeciesFactoryTangentSpheres;
 import etomica.virial.GUI.components.SimpleElementForSimilarSpecies;
+import etomica.virial.SpeciesFactory;
+import etomica.virial.SpeciesFactoryTangentSpheres;
 
 public class MolecularModel2CLJQ_SpeciesLJ implements IMolecularModel_SpeciesFactory,Cloneable{
 	private static String MoleculeDisplayName = "2 Centered LJ with Quad";

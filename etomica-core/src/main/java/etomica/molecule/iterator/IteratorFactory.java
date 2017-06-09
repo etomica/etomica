@@ -4,7 +4,7 @@
 
 package etomica.molecule.iterator;
 
-import etomica.api.ISpecies;
+import etomica.species.ISpecies;
 
 /**
  * Class for construction of iterators of molecules.  Iterators are given for looping

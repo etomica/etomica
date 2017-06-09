@@ -4,14 +4,7 @@
 
 package etomica.virial.simulations;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.ISpecies;
 import etomica.data.DataPumpListener;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
@@ -21,24 +14,15 @@ import etomica.integrator.mcmove.MCMoveManager;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.species.SpeciesSpheresRotating;
-import etomica.virial.BoxCluster;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterWeight;
-import etomica.virial.ClusterWeightAbs;
-import etomica.virial.ConfigurationCluster;
-import etomica.virial.MCMoveClusterAngleBend;
-import etomica.virial.MCMoveClusterAtomMulti;
-import etomica.virial.MCMoveClusterAtomRotateMulti;
-import etomica.virial.MCMoveClusterMoleculeMulti;
-import etomica.virial.MCMoveClusterRotateMoleculeMulti;
-import etomica.virial.MCMoveClusterWiggleMulti;
-import etomica.virial.MeterVirial;
-import etomica.virial.SpeciesFactory;
+import etomica.virial.*;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
 import etomica.virial.overlap.IntegratorOverlap;
+
+import java.io.*;
 
 /**
  * @author kofke

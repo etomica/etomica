@@ -7,7 +7,6 @@ package etomica.rotation;
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.ISpecies;
 import etomica.atom.IAtomOriented;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -25,6 +24,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space3d.IOrientationFull3D;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresRotatingMolecule;
 import etomica.units.Pixel;
 

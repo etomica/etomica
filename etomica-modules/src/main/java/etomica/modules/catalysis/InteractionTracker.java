@@ -4,14 +4,14 @@
 
 package etomica.modules.catalysis;
 
+import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.api.ISpecies;
-import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.integrator.IntegratorHard.Agent;
 import etomica.integrator.IntegratorHard.CollisionListener;
+import etomica.species.ISpecies;
 
 public class InteractionTracker implements CollisionListener, AgentSource<InteractionTracker.CatalysisAgent> {
 

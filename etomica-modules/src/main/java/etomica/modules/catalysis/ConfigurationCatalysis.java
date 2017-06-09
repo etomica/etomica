@@ -4,7 +4,6 @@
 
 package etomica.modules.catalysis;
 
-import etomica.api.ISpecies;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.box.Box;
@@ -24,6 +23,7 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.species.ISpecies;
 
 /**
  * Configuration for catalysis module.  Places molecules within the box on an

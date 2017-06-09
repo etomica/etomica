@@ -6,7 +6,6 @@ package etomica.virial.simulations;
 
 import etomica.action.IAction;
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.ISpecies;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.IAtomList;
 import etomica.chem.elements.Carbon;
@@ -33,6 +32,7 @@ import etomica.potential.PotentialMolecularSum;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.Electron;
 import etomica.units.Kelvin;

@@ -4,7 +4,6 @@
 
 package etomica.normalmode;
 
-import etomica.api.ISpecies;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.DataTag;
@@ -17,6 +16,7 @@ import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.Angle;
 
 /**

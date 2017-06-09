@@ -4,10 +4,10 @@
 
 package etomica.molecule;
 
-import etomica.api.ISpecies;
 import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
+import etomica.species.ISpecies;
 
 public class Molecule implements IMolecule, java.io.Serializable {
 

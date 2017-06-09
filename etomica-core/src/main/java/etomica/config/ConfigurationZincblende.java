@@ -6,7 +6,6 @@ package etomica.config;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.molecule.IMolecule;
@@ -14,6 +13,7 @@ import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
+import etomica.species.ISpecies;
 
 /**
  * Sets the configuration to the zincblende structure, which consists

@@ -4,7 +4,6 @@
 
 package etomica.nbr;
 
-import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.SpeciesAgentManager;
@@ -13,6 +12,7 @@ import etomica.box.BoxAgentManager.BoxAgentSource;
 import etomica.box.BoxCellManager;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
+import etomica.species.ISpecies;
 import etomica.util.Arrays;
 
 public abstract class PotentialMasterNbr extends PotentialMaster implements AtomTypeAgentManager.AgentSource, SpeciesAgentManager.AgentSource {

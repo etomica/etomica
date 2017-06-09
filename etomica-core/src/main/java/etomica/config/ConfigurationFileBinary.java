@@ -4,19 +4,19 @@
 
 package etomica.config;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-
 import etomica.action.BoxInflate;
-import etomica.api.*;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 
 /**
  * reads configuration coordinates from a binary file and assigns them to the

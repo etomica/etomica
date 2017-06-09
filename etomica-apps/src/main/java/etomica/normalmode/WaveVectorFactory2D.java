@@ -4,18 +4,18 @@
 
 package etomica.normalmode;
 
-import java.io.Serializable;
-
 import etomica.box.Box;
-import etomica.api.ISpecies;
-import etomica.space.Vector;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveOrthorhombicHexagonal;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space2d.Space2D;
 import etomica.space2d.Vector2D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
+
+import java.io.Serializable;
 
 /**
  * Wave vector factory that returns wave vectors appropriate for a box with 

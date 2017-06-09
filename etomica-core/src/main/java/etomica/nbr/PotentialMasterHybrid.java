@@ -4,7 +4,6 @@
 
 package etomica.nbr;
 
-import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
@@ -18,6 +17,7 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 
 /**
  * PotentialMaster that uses both neighbor-cell iteration and cell-list 

@@ -4,8 +4,8 @@
 
 package etomica.models.traPPE;
 
-import etomica.api.ISpecies;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.virial.SpeciesFactory;
 
 /**

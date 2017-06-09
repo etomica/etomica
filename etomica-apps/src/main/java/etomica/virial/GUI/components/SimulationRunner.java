@@ -6,7 +6,6 @@ package etomica.virial.GUI.components;
 
 
 import etomica.action.IAction;
-import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIntergroup;
@@ -20,6 +19,7 @@ import etomica.listener.IntegratorListenerAction;
 import etomica.potential.*;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.Species;
 import etomica.units.*;
 import etomica.units.Dimension;

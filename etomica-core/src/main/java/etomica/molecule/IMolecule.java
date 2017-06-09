@@ -5,8 +5,8 @@
 package etomica.molecule;
 
 
-import etomica.api.ISpecies;
 import etomica.atom.IAtomList;
+import etomica.species.ISpecies;
 
 /**
  * Interface for an IMolecule

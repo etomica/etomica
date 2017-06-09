@@ -4,7 +4,6 @@
 
 package etomica.nbr.list;
 
-import etomica.api.ISpecies;
 import etomica.atom.*;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.box.Box;
@@ -18,6 +17,7 @@ import etomica.nbr.cell.NeighborCellManager;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.util.Arrays;
 import etomica.util.Debug;
 

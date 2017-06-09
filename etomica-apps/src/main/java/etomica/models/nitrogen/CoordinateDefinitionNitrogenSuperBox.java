@@ -5,7 +5,6 @@
 package etomica.models.nitrogen;
 
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.ISpecies;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.box.Box;
 import etomica.config.Configuration;
@@ -22,6 +21,7 @@ import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Tensor3D;
+import etomica.species.ISpecies;
 import etomica.units.Degree;
 import etomica.util.random.IRandom;
 import etomica.util.random.RandomNumberGenerator;

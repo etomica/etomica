@@ -5,18 +5,18 @@
 package etomica.normalmode;
 
 import etomica.atom.IAtomList;
-import etomica.space.Boundary;
 import etomica.box.Box;
-import etomica.api.ISpecies;
-import etomica.space.Vector;
 import etomica.config.ConfigurationLatticeSimple;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.simulation.Simulation;
+import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 
 public class BasisBigCell extends Basis {

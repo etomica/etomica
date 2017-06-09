@@ -6,7 +6,6 @@ package etomica.modules.rosmosis;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.Chlorine;
@@ -23,6 +22,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Dalton;
 import etomica.units.Electron;

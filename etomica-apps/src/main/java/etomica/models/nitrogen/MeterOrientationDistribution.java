@@ -5,7 +5,6 @@
 package etomica.models.nitrogen;
 
 import etomica.action.IAction;
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -21,6 +20,7 @@ import etomica.molecule.IMoleculeList;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.units.*;
 
 import java.io.FileWriter;

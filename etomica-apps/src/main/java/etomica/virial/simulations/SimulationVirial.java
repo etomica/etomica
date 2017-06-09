@@ -5,12 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.ISpecies;
-import etomica.data.AccumulatorRatioAverageCovariance;
-import etomica.data.DataPumpListener;
-import etomica.data.IData;
-import etomica.data.IDataSink;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBox;
@@ -18,22 +13,12 @@ import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheres;
 import etomica.species.SpeciesSpheresMono;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.util.random.RandomMersenneTwister;
-import etomica.virial.BoxCluster;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterWeight;
-import etomica.virial.ConfigurationCluster;
-import etomica.virial.MCMoveClusterAtomMulti;
-import etomica.virial.MCMoveClusterAtomRotateMulti;
-import etomica.virial.MCMoveClusterMoleculeMulti;
-import etomica.virial.MCMoveClusterReptateMulti;
-import etomica.virial.MCMoveClusterRotateMoleculeMulti;
-import etomica.virial.MCMoveClusterWiggleMulti;
-import etomica.virial.MeterVirial;
-import etomica.virial.SpeciesFactory;
+import etomica.virial.*;
 
 /**
  * Generic simulation using Mayer sampling to evaluate cluster integrals

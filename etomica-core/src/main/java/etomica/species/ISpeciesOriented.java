@@ -4,7 +4,6 @@
 
 package etomica.species;
 
-import etomica.api.ISpecies;
 import etomica.space.Vector;
 
 public interface ISpeciesOriented extends ISpecies {

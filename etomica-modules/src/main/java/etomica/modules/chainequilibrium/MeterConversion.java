@@ -4,12 +4,12 @@
 
 package etomica.modules.chainequilibrium;
 
-import etomica.api.ISpecies;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.molecule.IMoleculeList;
+import etomica.species.ISpecies;
 import etomica.units.Fraction;
 
 /**

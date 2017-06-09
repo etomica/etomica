@@ -4,10 +4,10 @@
 
 package etomica.virial.GUI.components;
 
-import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.potential.*;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.virial.GUI.models.EnumSiteName;
 import etomica.virial.GUI.models.IMolecularModel_SpeciesFactory;
 import etomica.virial.GUI.models.ModelSelectedSpecies;

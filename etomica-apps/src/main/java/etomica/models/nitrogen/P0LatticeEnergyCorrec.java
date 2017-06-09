@@ -4,11 +4,11 @@
 
 package etomica.models.nitrogen;
 
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialMolecular;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.units.Kelvin;
 
 /**

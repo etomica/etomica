@@ -4,7 +4,6 @@
 
 package etomica.nbr.site;
 
-import etomica.api.ISpecies;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
@@ -20,6 +19,7 @@ import etomica.nbr.*;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.util.Arrays;
 import etomica.util.Debug;
 

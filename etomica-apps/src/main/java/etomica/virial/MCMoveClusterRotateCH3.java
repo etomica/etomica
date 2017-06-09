@@ -4,7 +4,6 @@
 
 package etomica.virial;
 
-import etomica.api.ISpecies;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
@@ -17,6 +16,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Vector3D;
+import etomica.species.ISpecies;
 import etomica.util.random.IRandom;
 
 /**

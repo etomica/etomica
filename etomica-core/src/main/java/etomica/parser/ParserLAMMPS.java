@@ -1,6 +1,5 @@
 package etomica.parser;
 
-import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
@@ -11,6 +10,7 @@ import etomica.potential.*;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresCustom;
 import etomica.units.*;
 

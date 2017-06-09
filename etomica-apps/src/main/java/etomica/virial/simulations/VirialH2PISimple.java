@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.virial.simulations;
 
-import etomica.api.ISpecies;
 import etomica.atom.*;
 import etomica.atom.iterator.ANIntragroupExchange;
 import etomica.atom.iterator.ApiIntergroupCoupled;
@@ -25,6 +24,7 @@ import etomica.potential.P1HydrogenMielke.P1HydrogenMielkeAtomic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.BohrRadius;
 import etomica.units.Kelvin;

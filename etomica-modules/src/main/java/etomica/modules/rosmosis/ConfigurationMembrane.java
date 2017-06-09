@@ -7,7 +7,6 @@ package etomica.modules.rosmosis;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.ISpecies;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.config.Configuration;
@@ -24,6 +23,7 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.species.ISpecies;
 
 public class ConfigurationMembrane implements Configuration {
 

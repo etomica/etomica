@@ -4,22 +4,13 @@
 
 package etomica.models.nitrogen;
 
-import java.awt.Color;
-import java.io.File;
-
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.api.ISpecies;
-import etomica.space.Vector;
 import etomica.box.BoxAgentManager;
 import etomica.config.ConfigurationFile;
-import etomica.data.AccumulatorAverageCovariance;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.DataPumpListener;
-import etomica.data.DataSourceCountSteps;
-import etomica.data.IData;
+import etomica.data.*;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorScheme;
@@ -41,10 +32,15 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.Degree;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
+
+import java.awt.*;
+import java.io.File;
 
 /**
  * Temperature-perturbation simulation for beta-phase Nitrogen

@@ -4,8 +4,8 @@
 
 package etomica.virial.GUI.models;
 
-import etomica.api.ISpecies;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.virial.SpeciesFactory;
 
 public interface IMolecularModel_SpeciesFactory {

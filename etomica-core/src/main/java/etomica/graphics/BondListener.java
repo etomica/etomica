@@ -4,7 +4,6 @@
 
 package etomica.graphics;
 
-import etomica.api.ISpecies;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
@@ -17,6 +16,7 @@ import etomica.molecule.MoleculeSetSinglet;
 import etomica.molecule.iterator.MoleculeIteratorMolecule;
 import etomica.potential.IPotential;
 import etomica.potential.IteratorDirective.Direction;
+import etomica.species.ISpecies;
 
 import java.io.Serializable;
 import java.util.ArrayList;

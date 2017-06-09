@@ -4,17 +4,17 @@
 
 package etomica.normalmode;
 
-import java.io.Serializable;
-
 import etomica.box.Box;
-import etomica.api.ISpecies;
-import etomica.space.Vector;
 import etomica.lattice.crystal.PrimitiveFcc;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
+
+import java.io.Serializable;
 
 /**
  * WaveVectorFactory implementation that returns wave vectors appropriate for 

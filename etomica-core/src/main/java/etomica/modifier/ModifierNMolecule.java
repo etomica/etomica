@@ -5,7 +5,7 @@
 package etomica.modifier;
 
 import etomica.box.Box;
-import etomica.api.ISpecies;
+import etomica.species.ISpecies;
 import etomica.units.Dimension;
 import etomica.units.Quantity;
 

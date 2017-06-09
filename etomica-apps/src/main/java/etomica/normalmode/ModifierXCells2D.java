@@ -5,8 +5,8 @@
 package etomica.normalmode;
 
 import etomica.box.Box;
-import etomica.api.ISpecies;
 import etomica.modifier.Modifier;
+import etomica.species.ISpecies;
 import etomica.units.Dimension;
 import etomica.units.Null;
 

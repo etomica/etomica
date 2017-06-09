@@ -5,7 +5,6 @@
 package etomica.models.nitrogen;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.ISpecies;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
@@ -35,6 +34,7 @@ import etomica.simulation.Simulation;
 import etomica.space.*;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.units.Degree;
 
 import java.util.Arrays;

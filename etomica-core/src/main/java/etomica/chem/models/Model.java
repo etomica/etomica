@@ -4,10 +4,10 @@
 
 package etomica.chem.models;
 
-import etomica.api.ISpecies;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.potential.IPotentialAtomic;
 import etomica.simulation.Simulation;
+import etomica.species.ISpecies;
 
 /**
  * Top-level class for a molecular model.

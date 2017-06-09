@@ -4,9 +4,9 @@
 
 package etomica.virial;
 
-import etomica.api.ISpecies;
 import etomica.chem.elements.ElementSimple;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresRotating;
 
 

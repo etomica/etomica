@@ -4,7 +4,6 @@
 
 package etomica.modules.sam;
 
-import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
@@ -15,6 +14,7 @@ import etomica.molecule.MoleculeAgentManager;
 import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.nbr.NeighborCriterion;
 import etomica.simulation.Simulation;
+import etomica.species.ISpecies;
 
 /**
  * Returns first leaf atom of each polymer molecule and the atom its bonded to.

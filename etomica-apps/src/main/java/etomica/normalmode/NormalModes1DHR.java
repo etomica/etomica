@@ -4,13 +4,13 @@
 
 package etomica.normalmode;
 
-import etomica.space.Boundary;
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space1d.Space1D;
 import etomica.space1d.Vector1D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 
 /**

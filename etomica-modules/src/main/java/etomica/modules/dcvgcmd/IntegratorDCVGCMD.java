@@ -11,18 +11,18 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.atom.IAtomList;
-import etomica.potential.PotentialMaster;
-import etomica.util.random.IRandom;
-import etomica.api.ISpecies;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.mcmove.MCMoveManager;
 import etomica.modifier.Modifier;
 import etomica.nbr.PotentialMasterHybrid;
+import etomica.potential.PotentialMaster;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.units.Dimension;
 import etomica.units.Null;
+import etomica.util.random.IRandom;
 
 
 

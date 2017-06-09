@@ -5,7 +5,6 @@
 package etomica.integrator.mcmove;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.ISpecies;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.box.Box;
@@ -13,6 +12,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.molecule.*;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.util.random.IRandom;
 
 /**

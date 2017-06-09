@@ -4,7 +4,6 @@
 
 package etomica.models.nitrogen;
 
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -18,6 +17,7 @@ import etomica.nbr.list.molecule.PotentialMasterListMolecular;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.units.Kelvin;
 import etomica.units.Null;
 

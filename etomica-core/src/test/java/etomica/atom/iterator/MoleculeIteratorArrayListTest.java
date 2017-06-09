@@ -5,12 +5,12 @@
 package etomica.atom.iterator;
 
 import etomica.UnitTestUtil;
-import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.molecule.Molecule;
 import etomica.molecule.MoleculeArrayList;
 import etomica.molecule.iterator.MoleculeIteratorArrayListSimple;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresHetero;
 
 import java.util.LinkedList;

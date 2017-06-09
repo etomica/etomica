@@ -5,8 +5,8 @@
 package etomica.data.meter;
 
 import etomica.box.Box;
-import etomica.api.ISpecies;
 import etomica.data.DataSourceScalar;
+import etomica.species.ISpecies;
 import etomica.units.Fraction;
 
 /**

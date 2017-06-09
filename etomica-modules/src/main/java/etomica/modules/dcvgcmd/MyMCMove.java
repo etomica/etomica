@@ -5,7 +5,6 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.action.AtomActionRandomizeVelocity;
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
@@ -14,6 +13,7 @@ import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeArrayList;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.util.random.IRandom;
 
 /**

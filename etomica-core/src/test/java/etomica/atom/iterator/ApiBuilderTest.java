@@ -5,7 +5,6 @@
 package etomica.atom.iterator;
 
 import etomica.UnitTestUtil;
-import etomica.api.ISpecies;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
@@ -17,6 +16,7 @@ import etomica.molecule.MoleculePair;
 import etomica.molecule.MoleculeSetSinglet;
 import etomica.potential.IteratorDirective;
 import etomica.simulation.Simulation;
+import etomica.species.ISpecies;
 
 import java.util.LinkedList;
 

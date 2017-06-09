@@ -4,10 +4,10 @@
 
 package etomica.molecule;
 
-import etomica.api.ISpecies;
 import etomica.atom.IAtomList;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.species.ISpecies;
 
 import java.io.Serializable;
 

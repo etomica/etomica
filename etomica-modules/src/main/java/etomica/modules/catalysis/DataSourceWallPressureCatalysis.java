@@ -4,10 +4,8 @@
 
 package etomica.modules.catalysis;
 
-import etomica.atom.IAtom;
-import etomica.api.ISpecies;
-import etomica.space.Vector;
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.IAtom;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -19,6 +17,8 @@ import etomica.integrator.IntegratorHard.CollisionListener;
 import etomica.modules.catalysis.InteractionTracker.CatalysisAgent;
 import etomica.potential.P1HardBoundary;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.Pressure;
 
 public class DataSourceWallPressureCatalysis implements IEtomicaDataSource, CollisionListener {

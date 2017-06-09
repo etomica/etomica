@@ -4,23 +4,20 @@
 
       package etomica.normalmode;
 
-import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-
-import javax.swing.JPanel;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeListener;
-
 import etomica.action.IAction;
 import etomica.action.activity.Controller;
 import etomica.action.activity.IController;
 import etomica.box.Box;
-import etomica.api.ISpecies;
 import etomica.graphics.Device;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.SimulationGraphic;
 import etomica.modifier.Modifier;
+import etomica.species.ISpecies;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
 
 
 /**

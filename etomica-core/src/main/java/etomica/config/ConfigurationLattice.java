@@ -5,7 +5,6 @@
 package etomica.config;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
@@ -18,6 +17,7 @@ import etomica.molecule.MoleculePositionGeometricCenter;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.species.ISpecies;
 
 /**
  * Constructs configuration that has the molecules placed on the sites of a

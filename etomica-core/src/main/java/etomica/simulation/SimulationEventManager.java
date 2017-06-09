@@ -4,11 +4,10 @@
 
 package etomica.simulation;
 
-import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.box.Box;
+import etomica.species.ISpecies;
 
-import java.io.IOException;
 import java.util.LinkedList;
 
 public class SimulationEventManager {

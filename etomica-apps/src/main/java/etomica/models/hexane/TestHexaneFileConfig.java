@@ -7,7 +7,6 @@ package etomica.models.hexane;
 import etomica.action.BoxInflateDeformable;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
@@ -37,6 +36,7 @@ import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.virial.MCMoveClusterWiggleMulti;
 
 /**

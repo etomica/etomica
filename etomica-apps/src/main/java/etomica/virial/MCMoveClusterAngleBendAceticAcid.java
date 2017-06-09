@@ -4,7 +4,6 @@
 
 package etomica.virial;
 
-import etomica.api.ISpecies;
 import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
@@ -19,6 +18,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.util.random.IRandom;
 
 /**

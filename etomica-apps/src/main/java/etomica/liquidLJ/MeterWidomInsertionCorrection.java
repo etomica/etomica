@@ -1,7 +1,6 @@
 package etomica.liquidLJ;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.box.RandomPositionSource;
 import etomica.box.RandomPositionSourceRectangular;
@@ -15,6 +14,7 @@ import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.math.function.IFunction;
 import etomica.molecule.IMolecule;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.units.Null;
 import etomica.util.random.IRandom;
 

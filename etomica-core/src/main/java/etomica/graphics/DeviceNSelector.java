@@ -9,10 +9,10 @@ import etomica.action.IAction;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.IController;
 import etomica.box.Box;
-import etomica.api.ISpecies;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierNMolecule;
 import etomica.simulation.prototypes.HSMD2D;
+import etomica.species.ISpecies;
 
 /**
  * Slider that selects the number of atoms of a given species in a box.

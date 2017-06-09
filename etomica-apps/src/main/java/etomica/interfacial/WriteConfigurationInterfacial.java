@@ -4,14 +4,14 @@
 
 package etomica.interfacial;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.action.WriteConfiguration;
 import etomica.atom.IAtom;
-import etomica.api.ISpecies;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
+
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * Dumps a box's configuration to a file.  The coordinates are written in a 

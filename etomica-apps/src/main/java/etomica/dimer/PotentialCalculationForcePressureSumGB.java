@@ -4,7 +4,6 @@
 
 package etomica.dimer;
 
-import etomica.api.ISpecies;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.potential.IPotential;
@@ -13,6 +12,7 @@ import etomica.potential.PotentialSoft;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
+import etomica.species.ISpecies;
 
 
 /**

@@ -5,15 +5,15 @@
 package etomica.data.meter;
 
 import etomica.atom.IAtom;
-import etomica.box.Box;
-import etomica.api.ISpecies;
-import etomica.space.Vector;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.math.geometry.Polytope;
 import etomica.space.Boundary;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.Fraction;
 
 /**

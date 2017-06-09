@@ -4,7 +4,6 @@
 
 package etomica.modules.colloid;
 
-import etomica.api.ISpecies;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
@@ -12,6 +11,7 @@ import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.IPotentialAtomic;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 
 public class NeighborListManagerColloid extends NeighborListManager {
 

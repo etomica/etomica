@@ -4,7 +4,6 @@
 
 package etomica.data.meter;
 
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.DataSourceUniform.LimitType;
@@ -21,6 +20,7 @@ import etomica.molecule.MoleculePositionGeometricCenter;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.Length;
 
 /**

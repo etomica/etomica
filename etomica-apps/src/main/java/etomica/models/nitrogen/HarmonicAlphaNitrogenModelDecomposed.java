@@ -6,7 +6,6 @@ package etomica.models.nitrogen;
 
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.data.types.DataTensor;
 import etomica.lattice.crystal.Basis;
@@ -23,6 +22,7 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 
 import java.io.FileWriter;
 import java.io.IOException;

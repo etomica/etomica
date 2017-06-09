@@ -1,8 +1,8 @@
 package etomica.interfacial;
 
 import etomica.box.Box;
-import etomica.api.ISpecies;
 import etomica.data.DataSourceScalar;
+import etomica.species.ISpecies;
 import etomica.units.Length;
 
 public class MeterWallPosition extends DataSourceScalar {

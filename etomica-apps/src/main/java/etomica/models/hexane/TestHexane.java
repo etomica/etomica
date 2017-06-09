@@ -7,7 +7,6 @@ package etomica.models.hexane;
 import etomica.action.PDBWriter;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.types.DataGroup;
@@ -30,6 +29,7 @@ import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.virial.MCMoveClusterWiggleMulti;
 /**
  * @author nancycribbin

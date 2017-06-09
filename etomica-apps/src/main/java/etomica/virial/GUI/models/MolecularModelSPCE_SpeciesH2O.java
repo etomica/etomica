@@ -4,11 +4,11 @@
 
 package etomica.virial.GUI.models;
 
-import etomica.api.ISpecies;
 import etomica.models.water.P2WaterSPCE;
 import etomica.models.water.SpeciesWater3P;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.Species;
 import etomica.units.Electron;
 import etomica.units.Kelvin;

@@ -1,11 +1,11 @@
 package etomica.interfacial;
 
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.species.ISpecies;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

@@ -4,7 +4,6 @@
 
 package etomica.chem.models;
 
-import etomica.api.ISpecies;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.IElement;
@@ -12,6 +11,7 @@ import etomica.config.IConformation;
 import etomica.potential.Potential2;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheres;
 
 /**

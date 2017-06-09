@@ -4,7 +4,7 @@
 
 package etomica.simulation;
 
-import etomica.api.ISpecies;
+import etomica.species.ISpecies;
 
 public class SimulationSpeciesEvent extends SimulationEvent {
 

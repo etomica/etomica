@@ -1,6 +1,5 @@
 package etomica.interfacial;
 
-import etomica.api.ISpecies;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
@@ -12,6 +11,7 @@ import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.species.ISpecies;
 
 public class FixedWall implements IntegratorListenerMD {
 

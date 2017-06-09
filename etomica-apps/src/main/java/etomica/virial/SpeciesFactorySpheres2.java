@@ -4,11 +4,11 @@
 
 package etomica.virial;
 
-import etomica.api.ISpecies;
-import etomica.space.Vector;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConformationChainZigZag2;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 
 
 public class SpeciesFactorySpheres2 implements SpeciesFactory, java.io.Serializable {

@@ -7,9 +7,9 @@ package etomica.modules.adsorption;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.api.ISpecies;
-import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.Quantity;
 
 public class MeterExcessAdsorbed extends DataSourceScalar {
