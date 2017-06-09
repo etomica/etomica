@@ -193,7 +193,7 @@ public class Simulation {
     }
 
     /**
-     * Removes the given ISpecies from the ISimulation.
+     * Removes the given ISpecies from the Simulation.
      */
     public void removeSpecies(ISpecies removedSpecies) {
 

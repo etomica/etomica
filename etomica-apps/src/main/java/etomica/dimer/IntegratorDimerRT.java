@@ -936,7 +936,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Inte
 	/*
 	public static class PotentialMasterListDimer extends PotentialMasterList{
 
-		public PotentialMasterListDimer(ISimulation sim, ISpace space) {
+		public PotentialMasterListDimer(Simulation sim, ISpace space) {
 			super(sim, space);
 			
 		}

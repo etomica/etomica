@@ -99,7 +99,7 @@ public class Box implements java.io.Serializable {
 
     /**
      * Informs the Box what its index is.  This should only be called by the
-     * ISimulation.
+     * Simulation.
      *
      * @param newIndex the box's new index
      */
@@ -130,7 +130,7 @@ public class Box implements java.io.Serializable {
      * Adds the given molecule to the this box.  The molecule should not
      * already be in this box and should not be in another Box.  The molecule
      * should be a member of an ISpecies which has been added to the
-     * ISimulation.
+     * Simulation.
      *
      * @param molecule the molecule to be added to the box
      */

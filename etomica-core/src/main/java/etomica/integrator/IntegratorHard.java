@@ -548,7 +548,7 @@ public class IntegratorHard extends IntegratorMD
      */
     public void setNullPotential(PotentialHard nullPotential, AtomType type) {
         // if nullPotentialManager is null, it's because you passed a null
-        // ISimulation when you constructed this class
+        // Simulation when you constructed this class
         nullPotentialManager.setAgent(type, nullPotential);
         if (nullPotential != null && box != null) {
             nullPotential.setBox(box);

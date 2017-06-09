@@ -58,7 +58,7 @@ public class AtomTypeAgentManager implements ISimulationListener, java.io.Serial
     
     /**
      * Sets the agent associated with the given atom type to be the given
-     * agent.  The AtomType must be from the ISimulation.  The AtomType's old
+     * agent.  The AtomType must be from the Simulation.  The AtomType's old
      * agent is not "released".  This should be done manually if needed.
      */
     public void setAgent(AtomType atomType, Object newAgent) {

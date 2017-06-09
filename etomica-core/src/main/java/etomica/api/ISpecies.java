@@ -25,7 +25,7 @@ public interface ISpecies {
 
     /**
      * Returns the index for this ISpecies, within the context of an
-     * ISimulation.  The index is the ISpecies' position in the array returned
+     * Simulation.  The index is the ISpecies' position in the array returned
      * by SpeciesManager.getSpecies().
      */
     int getIndex();

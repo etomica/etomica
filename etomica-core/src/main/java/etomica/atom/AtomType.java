@@ -28,7 +28,7 @@ public class AtomType {
 
     /**
      * @return the index for this IAtomType, within the context of an
-     * ISimulation.  The index is the IAtomType's position in the list of
+     * Simulation.  The index is the IAtomType's position in the list of
      * atom types in the simulation.
      */
     public int getIndex() {

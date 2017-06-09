@@ -46,7 +46,7 @@ public class SpeciesAgentManager implements ISimulationListener, java.io.Seriali
     
     /**
      * Sets the agent associated with the given atom type to be the given
-     * agent.  The AtomType must be from the ISimulation.  The AtomType's old
+     * agent.  The AtomType must be from the Simulation.  The AtomType's old
      * agent is not "released".  This should be done manually if needed.
      */
     public void setAgent(ISpecies atomType, Object newAgent) {

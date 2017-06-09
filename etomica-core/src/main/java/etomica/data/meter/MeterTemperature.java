@@ -21,8 +21,8 @@ import etomica.units.Temperature;
  * the kinetic energy, but any DataSourceScalar can be used for this purpose by
  * calling setKineticEnergyMeter.
  * 
- * If the ISimulation is not given, the class will assume that all atoms have
- * only translational degrees of freedom.  If the ISimulation is given, this
+ * If the Simulation is not given, the class will assume that all atoms have
+ * only translational degrees of freedom.  If the Simulation is given, this
  * class will examine the ISpecies and calculate the actual number of degrees
  * of freedom (more for oriented atoms or molecules).
  * 
