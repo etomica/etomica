@@ -11,7 +11,7 @@ import etomica.box.Box;
 import java.io.IOException;
 import java.util.LinkedList;
 
-public class SimulationEventManager implements SimulationEventManager {
+public class SimulationEventManager {
 
 
     private transient final LinkedList<SimulationListener> intervalListeners = new LinkedList<SimulationListener>();
@@ -75,7 +75,7 @@ public class SimulationEventManager implements SimulationEventManager {
     }
 
     public synchronized void atomTypeIndexChanged(AtomType atomType, int index) {
-        SimulationAtomTypeEvent e = new SimulationAtomTypeIndexEvent(simulation, atomType, index);
+        SimulationAtomTypeIndexEvent e = new SimulationAtomTypeIndexEvent(simulation, atomType, index);
         for (int i = 0; i < intervalListeners.size(); i++) {
             intervalListeners.get(i).simulationAtomTypeIndexChanged(e);
         }

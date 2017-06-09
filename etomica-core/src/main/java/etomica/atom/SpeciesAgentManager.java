@@ -154,7 +154,7 @@ public class SpeciesAgentManager implements SimulationListener, java.io.Serializ
     public void simulationSpeciesMaxIndexChanged(SimulationIndexEvent e) {
     }
 
-    public void simulationAtomTypeIndexChanged(SimulationAtomTypeEvent e) {
+    public void simulationAtomTypeIndexChanged(SimulationAtomTypeIndexEvent e) {
     }
 
     protected void addAgent(ISpecies type) {

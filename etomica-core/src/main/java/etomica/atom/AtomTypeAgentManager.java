@@ -164,7 +164,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
         releaseAgents(e.getSpecies());
     }
 
-    public void simulationAtomTypeIndexChanged(SimulationAtomTypeEvent e) {
+    public void simulationAtomTypeIndexChanged(SimulationAtomTypeIndexEvent e) {
         AtomType atomType = e.getAtomType();
         int oldIndex = e.getIndex();
         int newIndex = atomType.getIndex();

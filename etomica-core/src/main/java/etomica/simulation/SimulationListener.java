@@ -18,7 +18,7 @@ public interface SimulationListener {
 
     void simulationSpeciesMaxIndexChanged(SimulationIndexEvent e);
 
-    void simulationAtomTypeIndexChanged(SimulationAtomTypeEvent e);
+    void simulationAtomTypeIndexChanged(SimulationAtomTypeIndexEvent e);
 
     void simulationAtomTypeMaxIndexChanged(SimulationIndexEvent e);
 }

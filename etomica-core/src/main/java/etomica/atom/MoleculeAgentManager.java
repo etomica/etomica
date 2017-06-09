@@ -194,7 +194,7 @@ public class MoleculeAgentManager implements BoxEventListener, SimulationListene
     public void simulationSpeciesMaxIndexChanged(SimulationIndexEvent e) {
     }
 
-    public void simulationAtomTypeIndexChanged(SimulationAtomTypeEvent e) {
+    public void simulationAtomTypeIndexChanged(SimulationAtomTypeIndexEvent e) {
     }
 
     public void simulationAtomTypeMaxIndexChanged(SimulationIndexEvent e) {
