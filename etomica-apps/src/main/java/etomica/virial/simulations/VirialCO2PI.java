@@ -4,7 +4,7 @@ import etomica.action.AtomActionTranslateBy;
 import etomica.action.IAction;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.integrator.IntegratorEvent;
-import etomica.api.IIntegratorListener;
+import etomica.integrator.IntegratorListener;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.atom.*;
@@ -616,7 +616,7 @@ public class VirialCO2PI {
         final HistogramNotSoSimple hist = new HistogramNotSoSimple(nBins, new DoubleRange(dx*0.5, sigmaHSRef+dx*0.5));
         final HistogramNotSoSimple piHist = new HistogramNotSoSimple(nBins, new DoubleRange(dx*0.5, sigmaHSRef+dx*0.5));
         final ClusterAbstract finalTargetCluster = targetCluster.makeCopy();
-        IIntegratorListener histListenerRef = new IIntegratorListener() {
+        IntegratorListener histListenerRef = new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
             
             public void integratorStepFinished(IntegratorEvent e) {
@@ -636,7 +636,7 @@ public class VirialCO2PI {
             public void integratorInitialized(IntegratorEvent e) {
             }
         };
-        IIntegratorListener histListenerTarget = new IIntegratorListener() {
+        IntegratorListener histListenerTarget = new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
             
             public void integratorStepFinished(IntegratorEvent e) {
@@ -668,7 +668,7 @@ public class VirialCO2PI {
         if (!isCommandline) {
             // if interactive, print intermediate results
             final double refIntegralF = refIntegral;
-            IIntegratorListener progressReport = new IIntegratorListener() {
+            IntegratorListener progressReport = new IntegratorListener() {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
@@ -688,7 +688,7 @@ public class VirialCO2PI {
             };
             sim.integratorOS.getEventManager().addListener(progressReport);
             if (params.doHist) {
-                IIntegratorListener histReport = new IIntegratorListener() {
+                IntegratorListener histReport = new IntegratorListener() {
                     public void integratorInitialized(IntegratorEvent e) {}
                     public void integratorStepStarted(IntegratorEvent e) {}
                     public void integratorStepFinished(IntegratorEvent e) {

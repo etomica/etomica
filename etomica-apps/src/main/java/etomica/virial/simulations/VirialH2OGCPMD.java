@@ -6,8 +6,10 @@ package etomica.virial.simulations;
 
 import etomica.action.IAction;
 import etomica.action.MoleculeActionTranslateTo;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCovariance;
 import etomica.integrator.IntegratorEvent;
-import etomica.api.IIntegratorListener;
+import etomica.integrator.IntegratorListener;
 import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.histogram.HistogramSimple;
 import etomica.math.DoubleRange;
@@ -258,7 +260,7 @@ public class VirialH2OGCPMD {
         final HistogramNotSoSimple hist = new HistogramNotSoSimple(nBins, new DoubleRange(dx*0.5, sigmaHSRef+dx*0.5));
         final HistogramNotSoSimple piHist = new HistogramNotSoSimple(nBins, new DoubleRange(dx*0.5, sigmaHSRef+dx*0.5));
         final ClusterAbstract finalTargetCluster = targetCluster.makeCopy();
-        IIntegratorListener histListenerRef = new IIntegratorListener() {
+        IntegratorListener histListenerRef = new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
             
             public void integratorStepFinished(IntegratorEvent e) {
@@ -278,7 +280,7 @@ public class VirialH2OGCPMD {
             public void integratorInitialized(IntegratorEvent e) {
             }
         };
-        IIntegratorListener histListenerTarget = new IIntegratorListener() {
+        IntegratorListener histListenerTarget = new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
             
             public void integratorStepFinished(IntegratorEvent e) {
@@ -314,7 +316,7 @@ public class VirialH2OGCPMD {
         };
 
         if (params.doHist) {
-            IIntegratorListener histReport = new IIntegratorListener() {
+            IntegratorListener histReport = new IntegratorListener() {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
@@ -384,9 +386,9 @@ public class VirialH2OGCPMD {
         boolean derprint = false;
         if(derprint){
             DataGroup allData = (DataGroup)sim.accumulators[1].getData();
-            IData dataAvg = allData.getData(sim.accumulators[1].AVERAGE.index);
-            IData dataErr = allData.getData(sim.accumulators[1].ERROR.index);
-            IData dataCov = allData.getData(sim.accumulators[1].BLOCK_COVARIANCE.index);
+            IData dataAvg = allData.getData(AccumulatorAverage.AVERAGE.index);
+            IData dataErr = allData.getData(AccumulatorAverage.ERROR.index);
+            IData dataCov = allData.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
             // we'll ignore block correlation -- whatever effects are here should be in the full target results
             
             int nTotal = (primes.length+2);

@@ -7,8 +7,8 @@ package etomica.virial.simulations;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.IAction;
 import etomica.action.MoleculeChildAtomAction;
+import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorEvent;
-import etomica.api.IIntegratorListener;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.atom.AtomType;
@@ -509,7 +509,7 @@ public class VirialHePI_PotentialCorrection {
         final HistogramNotSoSimple hist = new HistogramNotSoSimple(100, new DoubleRange(0, sigmaHSRef));
         final HistogramNotSoSimple piHist = new HistogramNotSoSimple(100, new DoubleRange(0, sigmaHSRef));
         final ClusterAbstract finalTargetCluster = targetCluster.makeCopy();
-        IIntegratorListener histListenerRef = new IIntegratorListener() {
+        IntegratorListener histListenerRef = new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
             
             public void integratorStepFinished(IntegratorEvent e) {
@@ -529,7 +529,7 @@ public class VirialHePI_PotentialCorrection {
             public void integratorInitialized(IntegratorEvent e) {
             }
         };
-        IIntegratorListener histListenerTarget = new IIntegratorListener() {
+        IntegratorListener histListenerTarget = new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
             
             public void integratorStepFinished(IntegratorEvent e) {
@@ -561,7 +561,7 @@ public class VirialHePI_PotentialCorrection {
         if (!isCommandline) {
             // if interactive, print intermediate results
             final double refIntegralF = refIntegral;
-            IIntegratorListener progressReport = new IIntegratorListener() {
+            IntegratorListener progressReport = new IntegratorListener() {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
@@ -578,7 +578,7 @@ public class VirialHePI_PotentialCorrection {
             };
             sim.integratorOS.getEventManager().addListener(progressReport);
             if (params.doHist) {
-                IIntegratorListener histReport = new IIntegratorListener() {
+                IntegratorListener histReport = new IntegratorListener() {
                     public void integratorInitialized(IntegratorEvent e) {}
                     public void integratorStepStarted(IntegratorEvent e) {}
                     public void integratorStepFinished(IntegratorEvent e) {

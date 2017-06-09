@@ -5,8 +5,8 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorEvent;
-import etomica.api.IIntegratorListener;
 import etomica.atom.AtomTypeOriented;
 import etomica.chem.elements.ElementSimple;
 import etomica.graphics.ColorSchemeByType;
@@ -172,7 +172,7 @@ public class VirialB3C1HSDipole {
         }
 
         if (false) {
-            IIntegratorListener progressReport = new IIntegratorListener() {
+            IntegratorListener progressReport = new IntegratorListener() {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {

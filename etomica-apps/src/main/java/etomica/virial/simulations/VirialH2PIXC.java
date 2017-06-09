@@ -6,7 +6,7 @@ package etomica.virial.simulations;
 
 import etomica.action.IAction;
 import etomica.integrator.IntegratorEvent;
-import etomica.api.IIntegratorListener;
+import etomica.integrator.IntegratorListener;
 import etomica.atom.*;
 import etomica.chem.elements.Hydrogen;
 import etomica.config.ConformationLinear;
@@ -281,7 +281,7 @@ public class VirialH2PIXC {
 		sim.integrator.getEventManager().addListener(pumpDiagrams1);
 
 		if (true) {
-			IIntegratorListener progressReport = new IIntegratorListener() {
+			IntegratorListener progressReport = new IntegratorListener() {
 				@Override
 				public void integratorInitialized(IntegratorEvent e) {}
 				@Override

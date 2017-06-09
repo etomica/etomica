@@ -7,9 +7,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
+
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCovariance;
+import etomica.data.AccumulatorRatioAverageCovarianceFull;
 import org.json.simple.JSONObject;
 import etomica.integrator.IntegratorEvent;
-import etomica.api.IIntegratorListener;
+import etomica.integrator.IntegratorListener;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
@@ -90,8 +94,8 @@ public class VirialO2 {
         ClusterAbstract tarCluster = null;        
                 
         P2O2Bartolomei p2 = new P2O2Bartolomei(space);
-        p2.setS(s);
-        p2.setPT2(isPT2);
+        P2O2Bartolomei.setS(s);
+        P2O2Bartolomei.setPT2(isPT2);
         PotentialMolecularMonatomic p2O2Molecular = new PotentialMolecularMonatomic(space, p2);        
         MayerGeneral f2Tar = new MayerGeneral(p2O2Molecular);
         tarCluster = new ClusterWheatleySoft(nPoints, f2Tar, 1e-12);
@@ -143,7 +147,7 @@ public class VirialO2 {
         }
         final double refIntegralF = HSB[nPoints];
         if (!isCommandLine) {
-            IIntegratorListener progressReport = new IIntegratorListener() {
+            IntegratorListener progressReport = new IntegratorListener() {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
@@ -199,13 +203,13 @@ public class VirialO2 {
         System.out.println("ratio average: "+ratio+" error: "+error);
         System.out.println("abs average: "+bn+" error: "+bnError);
         DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData();
-        IData ratioData = allYourBase.getData(sim.accumulators[0].RATIO.index);
-        IData ratioErrorData = allYourBase.getData(sim.accumulators[0].RATIO_ERROR.index);
-        IData averageData = allYourBase.getData(sim.accumulators[0].AVERAGE.index);
-        IData stdevData = allYourBase.getData(sim.accumulators[0].STANDARD_DEVIATION.index);
-        IData errorData = allYourBase.getData(sim.accumulators[0].ERROR.index);
-        IData correlationData = allYourBase.getData(sim.accumulators[0].BLOCK_CORRELATION.index);
-        IData covarianceData = allYourBase.getData(sim.accumulators[0].BLOCK_COVARIANCE.index);
+        IData ratioData = allYourBase.getData(AccumulatorRatioAverageCovarianceFull.RATIO.index);
+        IData ratioErrorData = allYourBase.getData(AccumulatorRatioAverageCovarianceFull.RATIO_ERROR.index);
+        IData averageData = allYourBase.getData(AccumulatorAverage.AVERAGE.index);
+        IData stdevData = allYourBase.getData(AccumulatorAverage.STANDARD_DEVIATION.index);
+        IData errorData = allYourBase.getData(AccumulatorAverage.ERROR.index);
+        IData correlationData = allYourBase.getData(AccumulatorAverage.BLOCK_CORRELATION.index);
+        IData covarianceData = allYourBase.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
         double correlationCoef = covarianceData.getValue(1)/Math.sqrt(covarianceData.getValue(0)*covarianceData.getValue(3));
         correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
         double refAvg = averageData.getValue(0);
@@ -217,13 +221,13 @@ public class VirialO2 {
                               averageData.getValue(1), stdevData.getValue(1), errorData.getValue(1), correlationData.getValue(1)));
         
         allYourBase = (DataGroup)sim.accumulators[1].getData();
-        ratioData = allYourBase.getData(sim.accumulators[1].RATIO.index);
-        ratioErrorData = allYourBase.getData(sim.accumulators[1].RATIO_ERROR.index);
-        averageData = allYourBase.getData(sim.accumulators[1].AVERAGE.index);
-        stdevData = allYourBase.getData(sim.accumulators[1].STANDARD_DEVIATION.index);
-        errorData = allYourBase.getData(sim.accumulators[1].ERROR.index);
-        correlationData = allYourBase.getData(sim.accumulators[1].BLOCK_CORRELATION.index);
-        covarianceData = allYourBase.getData(sim.accumulators[1].BLOCK_COVARIANCE.index);
+        ratioData = allYourBase.getData(AccumulatorRatioAverageCovarianceFull.RATIO.index);
+        ratioErrorData = allYourBase.getData(AccumulatorRatioAverageCovarianceFull.RATIO_ERROR.index);
+        averageData = allYourBase.getData(AccumulatorAverage.AVERAGE.index);
+        stdevData = allYourBase.getData(AccumulatorAverage.STANDARD_DEVIATION.index);
+        errorData = allYourBase.getData(AccumulatorAverage.ERROR.index);
+        correlationData = allYourBase.getData(AccumulatorAverage.BLOCK_CORRELATION.index);
+        covarianceData = allYourBase.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
         int n = sim.numExtraTargetClusters;
         correlationCoef = covarianceData.getValue(n+1)/Math.sqrt(covarianceData.getValue(0)*covarianceData.getValue((n+2)*(n+2)-1));
         correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
@@ -293,7 +297,7 @@ public class VirialO2 {
 
     }
     enum level {
-        classical;
+        classical
     }
     /**
      * Inner class for parameters

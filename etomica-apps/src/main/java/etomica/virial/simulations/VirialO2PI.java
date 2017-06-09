@@ -4,7 +4,7 @@
 package etomica.virial.simulations;
 
 import etomica.integrator.IntegratorEvent;
-import etomica.api.IIntegratorListener;
+import etomica.integrator.IntegratorListener;
 import etomica.api.IMoleculeList;
 import etomica.atom.AtomHydrogen;
 import etomica.atom.AtomType;
@@ -194,7 +194,7 @@ public class VirialO2PI {
 
         final double refIntegralF = HSB[nPoints];
         if (! isCommandLine) {
-            IIntegratorListener progressReport = new IIntegratorListener() {
+            IntegratorListener progressReport = new IntegratorListener() {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {

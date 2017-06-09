@@ -15,6 +15,7 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P4BondTorsion;
@@ -120,7 +121,7 @@ public class SimulationRunner {
 		    			}
 		    			
 		    			
-		    			new IIntegratorListener() {
+		    			new IntegratorListener() {
 		    		    	public void integratorInitialized(IntegratorEvent e) {}
 		    		    	public void integratorStepStarted(IntegratorEvent e) {}
 		    		    	public void integratorStepFinished(IntegratorEvent e) {
@@ -195,7 +196,7 @@ public class SimulationRunner {
     					}
         				ISpecies species =  speciesDataModel.getSpecies(0);
         				final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,species,temperature,refCluster,targetCluster);
-        				new IIntegratorListener() {
+        				new IntegratorListener() {
         			    	public void integratorInitialized(IntegratorEvent e) {}
         			    	public void integratorStepStarted(IntegratorEvent e) {}
         			    	public void integratorStepFinished(IntegratorEvent e) {
@@ -251,7 +252,7 @@ public class SimulationRunner {
 					ISpecies species =  speciesDataModel.getSpecies(0);
 					final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,species,temperature,refCluster,targetCluster);
 					
-					new IIntegratorListener() {
+					new IntegratorListener() {
 				    	public void integratorInitialized(IntegratorEvent e) {}
 				    	public void integratorStepStarted(IntegratorEvent e) {}
 				    	public void integratorStepFinished(IntegratorEvent e) {
@@ -506,7 +507,7 @@ public class SimulationRunner {
     			  }
 			  }
 			  
-			  IIntegratorListener progressReport = new IIntegratorListener() {
+			  IntegratorListener progressReport = new IntegratorListener() {
   		    	public void integratorInitialized(IntegratorEvent e) {}
   		    	public void integratorStepStarted(IntegratorEvent e) {}
   		    	public void integratorStepFinished(IntegratorEvent e) {
@@ -658,7 +659,7 @@ public class SimulationRunner {
 		
 	}
 	
-	public void showReport(SimulationVirialOverlap2 sim, IIntegratorListener progressReport){
+	public void showReport(SimulationVirialOverlap2 sim, IntegratorListener progressReport){
 		sim.integratorOS.setNumSubSteps(1000);
 		sim.initRefPref(null, SimEnv.getNoOfSteps()/100);
 	        // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref

@@ -7,14 +7,10 @@ package etomica.nbr.list.molecule;
 import java.io.Serializable;
 
 import etomica.action.BoxImposePbc;
+import etomica.api.*;
 import etomica.box.Box;
 import etomica.integrator.IntegratorEvent;
-import etomica.api.IIntegratorListener;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotential;
-import etomica.api.IPotentialMolecular;
-import etomica.api.ISpecies;
+import etomica.integrator.IntegratorListener;
 import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeArrayList;
 import etomica.atom.MoleculeSetSinglet;
@@ -41,7 +37,7 @@ import etomica.util.Debug;
  * @author taitan
  *
  */
-public class NeighborListManagerMolecular implements IIntegratorListener, MoleculeAgentManager.MoleculeAgentSource, Serializable {
+public class NeighborListManagerMolecular implements IntegratorListener, MoleculeAgentManager.MoleculeAgentSource, Serializable {
 
     /**
      * Configures instance for use by the given PotentialMaster.

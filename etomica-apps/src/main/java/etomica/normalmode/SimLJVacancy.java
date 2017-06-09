@@ -7,9 +7,9 @@ package etomica.normalmode;
 import etomica.action.BoxInflate;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorEvent;
 import etomica.space.Boundary;
-import etomica.api.IIntegratorListener;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
@@ -251,7 +251,7 @@ public class SimLJVacancy extends Simulation {
         pSplitter.putDataInfo(meterP.getDataInfo());
 
         // collect pressure data before any insert/delete trials
-        sim.integrator.getEventManager().addListener(new IIntegratorListener() {
+        sim.integrator.getEventManager().addListener(new IntegratorListener() {
             long countDown = numAtoms, interval = numAtoms;
             public void integratorInitialized(IntegratorEvent e) {}
 
@@ -599,7 +599,7 @@ public class SimLJVacancy extends Simulation {
         final long finalSteps = steps;
         if (!fixedDaDef) {
             // wait until 1/4 of the way through 2nd stage initialization, then start readjusting weights again
-            sim.integrator.getEventManager().addListener(new IIntegratorListener() {
+            sim.integrator.getEventManager().addListener(new IntegratorListener() {
                 boolean reenabled = false;
                 public void integratorStepStarted(IntegratorEvent e) {}
 
@@ -778,7 +778,7 @@ public class SimLJVacancy extends Simulation {
             pSplitter.putDataInfo(meterP.getDataInfo());
 
             // collect pressure data before any insert/delete trials
-            sim.integrator.getEventManager().addListener(new IIntegratorListener() {
+            sim.integrator.getEventManager().addListener(new IntegratorListener() {
                 long countDown = numAtoms, interval = numAtoms;
                 public void integratorInitialized(IntegratorEvent e) {}
 

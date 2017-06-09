@@ -2,28 +2,29 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.api;
+package etomica.integrator;
 
-import etomica.integrator.IntegratorEvent;
-
-public interface IIntegratorListener {
+public interface IntegratorListener {
 
     /**
      * Invoked when integration begins.
+     *
      * @param e
      */
-    public void integratorInitialized(IntegratorEvent e);
-   
+    void integratorInitialized(IntegratorEvent e);
+
     /**
      * Invoked at the beginning of each integrator step.
+     *
      * @param e
      */
-    public void integratorStepStarted(IntegratorEvent e);
-    
+    void integratorStepStarted(IntegratorEvent e);
+
     /**
      * Invoked at the end of each integrator step.
+     *
      * @param e
      */
-    public void integratorStepFinished(IntegratorEvent e);
-    
+    void integratorStepFinished(IntegratorEvent e);
+
 }

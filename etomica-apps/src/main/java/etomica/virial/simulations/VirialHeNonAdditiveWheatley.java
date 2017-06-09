@@ -7,10 +7,10 @@ package etomica.virial.simulations;
 
 import java.awt.Color;
 
+import etomica.integrator.IntegratorListener;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.integrator.IntegratorEvent;
-import etomica.api.IIntegratorListener;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
 import etomica.space.Vector;
@@ -261,7 +261,7 @@ public class VirialHeNonAdditiveWheatley {
         System.out.println("MC Move step sizes (target) "+sim.mcMoveTranslate[1].getStepSize());
         
         final HistogramSimple targHist = new HistogramSimple(200, new DoubleRange(-1, 6));
-        IIntegratorListener histListenerTarget = new IIntegratorListener() {
+        IntegratorListener histListenerTarget = new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
             
             public void integratorStepFinished(IntegratorEvent e) {
@@ -283,7 +283,7 @@ public class VirialHeNonAdditiveWheatley {
 
             public void integratorInitialized(IntegratorEvent e) {}
         };
-        IIntegratorListener progressReport = new IIntegratorListener() {
+        IntegratorListener progressReport = new IntegratorListener() {
             public void integratorInitialized(IntegratorEvent e) {}
             public void integratorStepStarted(IntegratorEvent e) {}
             public void integratorStepFinished(IntegratorEvent e) {
@@ -304,7 +304,7 @@ public class VirialHeNonAdditiveWheatley {
         if (!isCommandline) {
             sim.integratorOS.getEventManager().addListener(progressReport);
             if (params.doHist) {
-                IIntegratorListener histReport = new IIntegratorListener() {
+                IntegratorListener histReport = new IntegratorListener() {
                     public void integratorInitialized(IntegratorEvent e) {}
                     public void integratorStepStarted(IntegratorEvent e) {}
                     public void integratorStepFinished(IntegratorEvent e) {

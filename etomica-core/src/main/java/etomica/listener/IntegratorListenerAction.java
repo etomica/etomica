@@ -5,10 +5,10 @@
 package etomica.listener;
 
 import etomica.action.IAction;
+import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorEvent;
-import etomica.api.IIntegratorListener;
 
-public class IntegratorListenerAction implements IIntegratorListener {
+public class IntegratorListenerAction implements IntegratorListener {
 
     private IAction action;
     private int interval;

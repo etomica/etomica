@@ -4,7 +4,7 @@
 package etomica.virial.simulations;
 
 import etomica.integrator.IntegratorEvent;
-import etomica.api.IIntegratorListener;
+import etomica.integrator.IntegratorListener;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialAtomic;
 import etomica.atom.*;
@@ -266,7 +266,7 @@ public class VirialN2PI {
 
         final double refIntegralF = HSB[nPoints];
         if (! isCommandLine) {
-            IIntegratorListener progressReport = new IIntegratorListener() {
+            IntegratorListener progressReport = new IntegratorListener() {
                 @Override
                 public void integratorInitialized(IntegratorEvent e) {}
                 @Override

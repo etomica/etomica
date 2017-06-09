@@ -319,7 +319,7 @@ public class LjMd3D extends Simulation {
 //        catch (IOException ex) {
 //            throw new RuntimeException(ex);
 //        }
-//        sim.integrator.getEventManager().addListener(new IIntegratorListener() {
+//        sim.integrator.getEventManager().addListener(new IntegratorListener() {
 //            
 //            public void integratorStepStarted(IIntegratorEvent e) {}
 //            

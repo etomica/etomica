@@ -7,8 +7,8 @@ package etomica.virial.simulations;
 import java.awt.Color;
 
 import etomica.action.IAction;
+import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorEvent;
-import etomica.api.IIntegratorListener;
 import etomica.chem.elements.ElementSimple;
 import etomica.graphics.ColorSchemeRandomByMolecule;
 import etomica.graphics.DisplayBox;
@@ -157,7 +157,7 @@ public class VirialLJ {
 
         
         final HistogramSimple targHist = new HistogramSimple(200, new DoubleRange(-1, 4));
-        IIntegratorListener histListenerTarget = new IIntegratorListener() {
+        IntegratorListener histListenerTarget = new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
             
             public void integratorStepFinished(IntegratorEvent e) {
@@ -188,7 +188,7 @@ public class VirialLJ {
         }
         
         
-        IIntegratorListener progressReport = new IIntegratorListener() {
+        IntegratorListener progressReport = new IntegratorListener() {
             
             public void integratorStepStarted(IntegratorEvent e) {}
             

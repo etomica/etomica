@@ -6,7 +6,7 @@ package etomica.virial.simulations;
 
 import etomica.action.IAction;
 import etomica.integrator.IntegratorEvent;
-import etomica.api.IIntegratorListener;
+import etomica.integrator.IntegratorListener;
 import etomica.atom.AtomTypeOriented;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.histogram.HistogramNotSoSimple;
@@ -183,7 +183,7 @@ public class VirialB3C2HSDipole {
         }
 
         if (false) {
-            IIntegratorListener progressReport = new IIntegratorListener() {
+            IntegratorListener progressReport = new IntegratorListener() {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
@@ -200,7 +200,7 @@ public class VirialB3C2HSDipole {
         final HistogramNotSoSimple targPiHist = new HistogramNotSoSimple(70, new DoubleRange(-1, 8));
         final ClusterAbstract finalTargetCluster = targetCluster.makeCopy();
 
-        IIntegratorListener histListenerTarget = new IIntegratorListener() {
+        IntegratorListener histListenerTarget = new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
             
             public void integratorStepFinished(IntegratorEvent e) {

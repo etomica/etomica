@@ -7,7 +7,7 @@ package etomica.modules.catalysis;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.integrator.IntegratorEvent;
-import etomica.api.IIntegratorListener;
+import etomica.integrator.IntegratorListener;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.util.random.IRandom;
@@ -15,7 +15,7 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.modules.catalysis.InteractionTracker.CatalysisAgent;
 import etomica.units.Kelvin;
 
-public class ReactionManagerCO implements IIntegratorListener {
+public class ReactionManagerCO implements IntegratorListener {
 
     public ReactionManagerCO(Catalysis sim) {
         this.sim = sim;

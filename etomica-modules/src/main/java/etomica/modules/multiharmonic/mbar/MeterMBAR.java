@@ -5,7 +5,7 @@
 package etomica.modules.multiharmonic.mbar;
 
 import etomica.integrator.IntegratorEvent;
-import etomica.api.IIntegratorListener;
+import etomica.integrator.IntegratorListener;
 import etomica.data.DataSourceScalar;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -15,7 +15,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.units.Null;
 
-public class MeterMBAR implements IEtomicaDataSource, IIntegratorListener {
+public class MeterMBAR implements IEtomicaDataSource, IntegratorListener {
 
     protected double[] alphaSpan, alphaCenter;
     protected int nAlpha;

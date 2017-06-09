@@ -6,7 +6,7 @@ package etomica.virial.simulations;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.integrator.IntegratorEvent;
-import etomica.api.IIntegratorListener;
+import etomica.integrator.IntegratorListener;
 import etomica.api.ISpecies;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
@@ -347,7 +347,7 @@ public class SimulationVirialOverlap2 extends Simulation {
      * 
      * The listener is returned.
      */
-    public IIntegratorListener addProgressListener(final double HSB) {
+    public IntegratorListener addProgressListener(final double HSB) {
         return addProgressListener(HSB, false);
     }
 
@@ -358,8 +358,8 @@ public class SimulationVirialOverlap2 extends Simulation {
      * 
      * The listener is returned.
      */
-    public IIntegratorListener addProgressListener(final double HSB, final boolean full) {
-        IIntegratorListener progressReport = new IIntegratorListener() {
+    public IntegratorListener addProgressListener(final double HSB, final boolean full) {
+        IntegratorListener progressReport = new IntegratorListener() {
 
             public void integratorStepStarted(IntegratorEvent e) {}
 
@@ -392,7 +392,7 @@ public class SimulationVirialOverlap2 extends Simulation {
     public void setupTargetHistogram() {
         targHist = new HistogramSimple(90, new DoubleRange(-1, 8));
         targPiHist = new HistogramNotSoSimple(90, new DoubleRange(-1, 8));
-        IIntegratorListener histListenerTarget = new IIntegratorListener() {
+        IntegratorListener histListenerTarget = new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
 
             public void integratorStepFinished(IntegratorEvent e) {
@@ -423,7 +423,7 @@ public class SimulationVirialOverlap2 extends Simulation {
             public void integratorInitialized(IntegratorEvent e) {}
         };
 
-        IIntegratorListener histReport = new IIntegratorListener() {
+        IntegratorListener histReport = new IntegratorListener() {
             public void integratorInitialized(IntegratorEvent e) {}
             public void integratorStepStarted(IntegratorEvent e) {}
             public void integratorStepFinished(IntegratorEvent e) {
@@ -625,13 +625,13 @@ public class SimulationVirialOverlap2 extends Simulation {
         System.out.println("ratio average: "+ratio+" error: "+error);
         System.out.println("abs average: "+ratio*refIntegral+" error: "+error*Math.abs(refIntegral));
         DataGroup allYourBase = (DataGroup)accumulators[0].getData();
-        IData ratioData = allYourBase.getData(accumulators[0].RATIO.index);
-        IData ratioErrorData = allYourBase.getData(accumulators[0].RATIO_ERROR.index);
-        IData averageData = allYourBase.getData(accumulators[0].AVERAGE.index);
-        IData stdevData = allYourBase.getData(accumulators[0].STANDARD_DEVIATION.index);
-        IData errorData = allYourBase.getData(accumulators[0].ERROR.index);
-        IData correlationData = allYourBase.getData(accumulators[0].BLOCK_CORRELATION.index);
-        IData covarianceData = allYourBase.getData(accumulators[0].BLOCK_COVARIANCE.index);
+        IData ratioData = allYourBase.getData(AccumulatorRatioAverageCovarianceFull.RATIO.index);
+        IData ratioErrorData = allYourBase.getData(AccumulatorRatioAverageCovarianceFull.RATIO_ERROR.index);
+        IData averageData = allYourBase.getData(AccumulatorAverage.AVERAGE.index);
+        IData stdevData = allYourBase.getData(AccumulatorAverage.STANDARD_DEVIATION.index);
+        IData errorData = allYourBase.getData(AccumulatorAverage.ERROR.index);
+        IData correlationData = allYourBase.getData(AccumulatorAverage.BLOCK_CORRELATION.index);
+        IData covarianceData = allYourBase.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
         double correlationCoef = covarianceData.getValue(1)/Math.sqrt(covarianceData.getValue(0)*covarianceData.getValue(3));
         correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
         System.out.print(String.format("reference ratio average: %20.15e error:  %10.5e  cor: %20.18f\n", ratioData.getValue(1), ratioErrorData.getValue(1), correlationCoef));
@@ -643,13 +643,13 @@ public class SimulationVirialOverlap2 extends Simulation {
         double refRatioErr = ratioErrorData.getValue(1);
         
         allYourBase = (DataGroup)accumulators[1].getData();
-        ratioData = allYourBase.getData(accumulators[1].RATIO.index);
-        ratioErrorData = allYourBase.getData(accumulators[1].RATIO_ERROR.index);
-        averageData = allYourBase.getData(accumulators[1].AVERAGE.index);
-        stdevData = allYourBase.getData(accumulators[1].STANDARD_DEVIATION.index);
-        errorData = allYourBase.getData(accumulators[1].ERROR.index);
-        correlationData = allYourBase.getData(accumulators[1].BLOCK_CORRELATION.index);
-        covarianceData = allYourBase.getData(accumulators[1].BLOCK_COVARIANCE.index);
+        ratioData = allYourBase.getData(AccumulatorRatioAverageCovarianceFull.RATIO.index);
+        ratioErrorData = allYourBase.getData(AccumulatorRatioAverageCovarianceFull.RATIO_ERROR.index);
+        averageData = allYourBase.getData(AccumulatorAverage.AVERAGE.index);
+        stdevData = allYourBase.getData(AccumulatorAverage.STANDARD_DEVIATION.index);
+        errorData = allYourBase.getData(AccumulatorAverage.ERROR.index);
+        correlationData = allYourBase.getData(AccumulatorAverage.BLOCK_CORRELATION.index);
+        covarianceData = allYourBase.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
         int n = numExtraTargetClusters;
         correlationCoef = covarianceData.getValue(n+1)/Math.sqrt(covarianceData.getValue(0)*covarianceData.getValue((n+2)*(n+2)-1));
         correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;

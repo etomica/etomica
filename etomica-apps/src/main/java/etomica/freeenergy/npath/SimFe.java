@@ -6,7 +6,7 @@ package etomica.freeenergy.npath;
 
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IIntegratorListener;
+import etomica.integrator.IntegratorListener;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHash;
 import etomica.atom.DiameterHashByType;
@@ -296,7 +296,7 @@ public class SimFe extends Simulation {
             simGraphic.add(plotSfac);
             
             sim.integrator.setTimeStep(0.0001);
-            sim.integrator.getEventManager().addListener(new IIntegratorListener() {
+            sim.integrator.getEventManager().addListener(new IntegratorListener() {
                 @Override
                 public void integratorInitialized(IntegratorEvent e) {}
 

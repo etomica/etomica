@@ -4,14 +4,11 @@
 
 package etomica.integrator;
 
-import etomica.api.IIntegratorListener;
-import etomica.api.IIntegratorListenerMD;
-
 import java.util.ArrayList;
 
 public class IntegratorEventManager {
 
-    protected final ArrayList<IIntegratorListener> listeners = new ArrayList<IIntegratorListener>();
+    protected final ArrayList<IntegratorListener> listeners = new ArrayList<IntegratorListener>();
     private final IntegratorEvent event;
     protected boolean eventing;
 
@@ -22,10 +19,10 @@ public class IntegratorEventManager {
     /**
      * Adds the given listener to this event manager.
      */
-    public synchronized void addListener(IIntegratorListener newListener) {
-        if(newListener == null) throw new NullPointerException("Cannot add null as a listener to Integrator");
+    public synchronized void addListener(IntegratorListener newListener) {
+        if (newListener == null) throw new NullPointerException("Cannot add null as a listener to Integrator");
         if (listeners.contains(newListener)) {
-            throw new RuntimeException(newListener+" is already an interval action");
+            throw new RuntimeException(newListener + " is already an interval action");
         }
         listeners.add(newListener);
     }
@@ -33,7 +30,7 @@ public class IntegratorEventManager {
     /**
      * Removes the given listener from this event manager.
      */
-    public synchronized void removeListener(IIntegratorListener listener) {
+    public synchronized void removeListener(IntegratorListener listener) {
         listeners.remove(listener);
     }
 
@@ -46,7 +43,7 @@ public class IntegratorEventManager {
 
     public synchronized void stepStarted() {
         eventing = true;
-        for (IIntegratorListener listener : listeners) {
+        for (IntegratorListener listener : listeners) {
             listener.integratorStepStarted(event);
         }
         eventing = false;
@@ -54,7 +51,7 @@ public class IntegratorEventManager {
 
     public synchronized void stepFinished() {
         eventing = true;
-        for (IIntegratorListener listener : listeners) {
+        for (IntegratorListener listener : listeners) {
             listener.integratorStepFinished(event);
         }
         eventing = false;
@@ -62,17 +59,17 @@ public class IntegratorEventManager {
 
     public synchronized void initialized() {
         eventing = true;
-        for (IIntegratorListener listener : listeners) {
+        for (IntegratorListener listener : listeners) {
             listener.integratorInitialized(event);
         }
         eventing = false;
     }
-    
+
     public synchronized void forcePrecomputed() {
         eventing = true;
-        for (IIntegratorListener l : listeners) {
-            if (l instanceof IIntegratorListenerMD) {
-                ((IIntegratorListenerMD) l).integratorForcePrecomputed(event);
+        for (IntegratorListener l : listeners) {
+            if (l instanceof IntegratorListenerMD) {
+                ((IntegratorListenerMD) l).integratorForcePrecomputed(event);
             }
         }
         eventing = false;
@@ -80,9 +77,9 @@ public class IntegratorEventManager {
 
     public synchronized void forceComputed() {
         eventing = true;
-        for (IIntegratorListener l : listeners) {
-            if (l instanceof IIntegratorListenerMD) {
-                ((IIntegratorListenerMD) l).integratorForceComputed(event);
+        for (IntegratorListener l : listeners) {
+            if (l instanceof IntegratorListenerMD) {
+                ((IntegratorListenerMD) l).integratorForceComputed(event);
             }
         }
         eventing = false;

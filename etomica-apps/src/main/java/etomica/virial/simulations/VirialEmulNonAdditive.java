@@ -11,6 +11,8 @@ import java.util.Set;
 import etomica.api.*;
 import etomica.atom.IAtomList;
 import etomica.chem.elements.ElementSimple;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.graph.model.Graph;
@@ -19,6 +21,7 @@ import etomica.graph.operations.DeleteEdgeParameters;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -258,7 +261,7 @@ public class VirialEmulNonAdditive {
         
         final HistogramNotSoSimple hist = new HistogramNotSoSimple(100, new DoubleRange(0, sigmaHSRef));
         final HistogramNotSoSimple piHist = new HistogramNotSoSimple(100, new DoubleRange(0, sigmaHSRef));
-        IIntegratorListener histListener = new IIntegratorListener() {
+        IntegratorListener histListener = new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
             
             public void integratorStepFinished(IntegratorEvent e) {
@@ -277,7 +280,7 @@ public class VirialEmulNonAdditive {
             
             public void integratorInitialized(IntegratorEvent e) {}
         };
-        IIntegratorListener progressReport = new IIntegratorListener() {
+        IntegratorListener progressReport = new IntegratorListener() {
             public void integratorInitialized(IntegratorEvent e) {}
             public void integratorStepStarted(IntegratorEvent e) {}
             public void integratorStepFinished(IntegratorEvent e) {
@@ -298,7 +301,7 @@ public class VirialEmulNonAdditive {
         if (!isCommandline) {
             sim.integratorOS.getEventManager().addListener(progressReport);
             if (params.doHist) {
-                IIntegratorListener histReport = new IIntegratorListener() {
+                IntegratorListener histReport = new IntegratorListener() {
                     public void integratorInitialized(IntegratorEvent e) {}
                     public void integratorStepStarted(IntegratorEvent e) {}
                     public void integratorStepFinished(IntegratorEvent e) {
@@ -350,9 +353,9 @@ public class VirialEmulNonAdditive {
         sim.printResults(HSB[nPoints]);
 
         DataGroup allData = (DataGroup)sim.accumulators[1].getData();
-        IData dataAvg = allData.getData(sim.accumulators[1].AVERAGE.index);
-        IData dataErr = allData.getData(sim.accumulators[1].ERROR.index);
-        IData dataCov = allData.getData(sim.accumulators[1].BLOCK_COVARIANCE.index);
+        IData dataAvg = allData.getData(AccumulatorAverage.AVERAGE.index);
+        IData dataErr = allData.getData(AccumulatorAverage.ERROR.index);
+        IData dataCov = allData.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
         // we'll ignore block correlation -- whatever effects are here should be in the full target results
         int nTotal = (targetDiagrams.length+2);
         double oVar = dataCov.getValue(nTotal*nTotal-1);

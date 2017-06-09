@@ -238,7 +238,7 @@ public class VirialHePIXC {
 
 //        if (false) {
 //            final double refIntegralF = refIntegral;
-//            IIntegratorListener progressReport = new IIntegratorListener() {
+//            IntegratorListener progressReport = new IntegratorListener() {
 //                public void integratorInitialized(IIntegratorEvent e) {}
 //                public void integratorStepStarted(IIntegratorEvent e) {}
 //                public void integratorStepFinished(IIntegratorEvent e) {

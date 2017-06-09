@@ -4,8 +4,8 @@
 
 package etomica.data;
 
+import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorEvent;
-import etomica.api.IIntegratorListener;
 
 /**
  * DataPump class that takes data at steps 2^i, i=0,1,2,3...
@@ -17,7 +17,7 @@ import etomica.api.IIntegratorListener;
  * 
  * @author Andrew Schultz
  */
-public class DataPumpListenerPow extends DataPump implements IIntegratorListener {
+public class DataPumpListenerPow extends DataPump implements IntegratorListener {
 
     protected long interval;
     protected long stepCount;

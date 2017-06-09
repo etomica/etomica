@@ -4,10 +4,10 @@
 
 package etomica.data;
 
+import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorEvent;
-import etomica.api.IIntegratorListener;
 
-public class DataPumpListener extends DataPump implements IIntegratorListener {
+public class DataPumpListener extends DataPump implements IntegratorListener {
 
     protected long interval;
     protected long intervalCount;

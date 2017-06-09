@@ -9,13 +9,12 @@ import java.util.Arrays;
 
 import etomica.action.IAction;
 import etomica.action.MoleculeActionTranslateTo;
+import etomica.api.*;
 import etomica.atom.IAtomList;
-import etomica.api.IElement;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCovariance;
 import etomica.integrator.IntegratorEvent;
-import etomica.api.IIntegratorListener;
-import etomica.api.IMolecule;
-import etomica.api.IPotentialMolecular;
-import etomica.api.ISpecies;
+import etomica.integrator.IntegratorListener;
 import etomica.space.Vector;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.chem.elements.Carbon;
@@ -270,7 +269,7 @@ public class VirialCO2H2OGCPM {
                 // temperature is an integer, use "200" instead of "200.0"
                 tempString = ""+(int)temperatureK;
             }
-            refFileName = "refpref"+nPoints+"_"+(nonAdditive==nonAdditive.NONE?"2":("3"+(nonAdditive==Nonadditive.DISPERSION?"a":"ai")))+"_"+tempString;
+            refFileName = "refpref"+nPoints+"_"+(nonAdditive== Nonadditive.NONE ?"2":("3"+(nonAdditive==Nonadditive.DISPERSION?"a":"ai")))+"_"+tempString;
             refFileName += "C";
         }
 
@@ -292,7 +291,7 @@ public class VirialCO2H2OGCPM {
         final HistogramNotSoSimple hist = new HistogramNotSoSimple(nBins, new DoubleRange(dx*0.5, sigmaHSRef+dx*0.5));
         final HistogramNotSoSimple piHist = new HistogramNotSoSimple(nBins, new DoubleRange(dx*0.5, sigmaHSRef+dx*0.5));
         final ClusterAbstract finalTargetCluster = targetCluster.makeCopy();
-        IIntegratorListener histListenerRef = new IIntegratorListener() {
+        IntegratorListener histListenerRef = new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
             
             public void integratorStepFinished(IntegratorEvent e) {
@@ -312,7 +311,7 @@ public class VirialCO2H2OGCPM {
             public void integratorInitialized(IntegratorEvent e) {
             }
         };
-        IIntegratorListener histListenerTarget = new IIntegratorListener() {
+        IntegratorListener histListenerTarget = new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
             
             public void integratorStepFinished(IntegratorEvent e) {
@@ -343,7 +342,7 @@ public class VirialCO2H2OGCPM {
         };
 
         if (params.doHist) {
-            IIntegratorListener histReport = new IIntegratorListener() {
+            IntegratorListener histReport = new IntegratorListener() {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
@@ -404,9 +403,9 @@ public class VirialCO2H2OGCPM {
         sim.printResults(HSB);
 
         DataGroup allYourBase = (DataGroup)sim.accumulators[1].getData();
-        IData averageData = allYourBase.getData(sim.accumulators[1].AVERAGE.index);
-        IData errorData = allYourBase.getData(sim.accumulators[1].ERROR.index);
-        IData covarianceData = allYourBase.getData(sim.accumulators[1].BLOCK_COVARIANCE.index);
+        IData averageData = allYourBase.getData(AccumulatorAverage.AVERAGE.index);
+        IData errorData = allYourBase.getData(AccumulatorAverage.ERROR.index);
+        IData covarianceData = allYourBase.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
         int n = 0;
         double correlationCoef = covarianceData.getValue(n+1)/Math.sqrt(covarianceData.getValue(0)*covarianceData.getValue((n+2)*(n+2)-1));
         correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;

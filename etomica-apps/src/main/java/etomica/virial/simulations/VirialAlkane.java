@@ -6,7 +6,7 @@ package etomica.virial.simulations;
 
 import etomica.action.IAction;
 import etomica.integrator.IntegratorEvent;
-import etomica.api.IIntegratorListener;
+import etomica.integrator.IntegratorListener;
 import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
@@ -281,7 +281,7 @@ public class VirialAlkane {
         }
 
         if (false) {
-            IIntegratorListener progressReport = new IIntegratorListener() {
+            IntegratorListener progressReport = new IntegratorListener() {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {

@@ -7,11 +7,12 @@ import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListenerMD;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.space.Vector;
 import etomica.space.Space;
 
-public class FixedWall implements IIntegratorListenerMD {
+public class FixedWall implements IntegratorListenerMD {
 
     protected final AtomLeafAgentManager<MyAgent> agentManager;
     protected final Box box;

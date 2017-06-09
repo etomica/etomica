@@ -9,7 +9,7 @@ import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.space.Boundary;
 import etomica.integrator.IntegratorEvent;
-import etomica.api.IIntegratorListener;
+import etomica.integrator.IntegratorListener;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHash;
 import etomica.atom.IAtom;
@@ -691,7 +691,7 @@ public class SimHSMDVacancy extends Simulation {
         }
 
         final long finalSteps = steps;
-        sim.integrator.getEventManager().addListener(new IIntegratorListener() {
+        sim.integrator.getEventManager().addListener(new IntegratorListener() {
             boolean reenabled = false;
             public void integratorStepStarted(IntegratorEvent e) {}
             

@@ -5,8 +5,8 @@
 package etomica.interfacial;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorEvent;
-import etomica.api.IIntegratorListener;
 import etomica.atom.AtomSourceRandomSpecies;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
@@ -288,7 +288,7 @@ public class LJMD extends Simulation {
         catch (IOException ex) {
             throw new RuntimeException(ex);
         }
-        sim.integrator.getEventManager().addListener(new IIntegratorListener() {
+        sim.integrator.getEventManager().addListener(new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
             
             public void integratorStepFinished(IntegratorEvent e) {

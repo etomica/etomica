@@ -26,6 +26,7 @@ import etomica.graph.property.IsBiconnected;
 import etomica.graph.property.NumRootNodes;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.integrator.mcmove.MCMove;
 import etomica.listener.IntegratorListenerAction;
 import etomica.math.DoubleRange;
@@ -789,7 +790,7 @@ public class VirialH2PI {
 			final HistogramNotSoSimple hist = new HistogramNotSoSimple(nBins, new DoubleRange(dx*0.5, sigmaHSRef+dx*0.5));
 			final HistogramNotSoSimple piHist = new HistogramNotSoSimple(nBins, new DoubleRange(dx*0.5, sigmaHSRef+dx*0.5));
 			final ClusterAbstract finalTargetCluster = targetCluster.makeCopy();
-			IIntegratorListener histListenerRef = new IIntegratorListener() {
+			IntegratorListener histListenerRef = new IntegratorListener() {
 				@Override
 				public void integratorStepStarted(IntegratorEvent e) {}
 
@@ -812,7 +813,7 @@ public class VirialH2PI {
 				public void integratorInitialized(IntegratorEvent e) {
 				}
 			};
-			IIntegratorListener histListenerTarget = new IIntegratorListener() {
+			IntegratorListener histListenerTarget = new IntegratorListener() {
 				@Override
 				public void integratorStepStarted(IntegratorEvent e) {}
 
@@ -847,7 +848,7 @@ public class VirialH2PI {
 			if (!isCommandline) {
 				// if interactive, print intermediate results
 				final double refIntegralF = refIntegral;
-				IIntegratorListener progressReport = new IIntegratorListener() {
+				IntegratorListener progressReport = new IntegratorListener() {
 					@Override
 					public void integratorInitialized(IntegratorEvent e) {}
 					@Override
@@ -868,7 +869,7 @@ public class VirialH2PI {
 				};
 				sim.integratorOS.getEventManager().addListener(progressReport);
 				if (params.doHist) {
-					IIntegratorListener histReport = new IIntegratorListener() {
+					IntegratorListener histReport = new IntegratorListener() {
 						@Override
 						public void integratorInitialized(IntegratorEvent e) {}
 						@Override

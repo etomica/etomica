@@ -11,7 +11,7 @@ import java.util.Arrays;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.integrator.IntegratorEvent;
-import etomica.api.IIntegratorListener;
+import etomica.integrator.IntegratorListener;
 import etomica.space.*;
 import etomica.space.Vector;
 import etomica.integrator.IntegratorMC;
@@ -143,7 +143,7 @@ public class SimModesJ extends Simulation {
             histograms[i] = new HistogramSimple(nA*10, new DoubleRange(0, 2.0*Math.PI*(nA/2)/nA));
         }
 
-        final IIntegratorListener dumpHist = new IIntegratorListener() {
+        final IntegratorListener dumpHist = new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
             public void integratorStepFinished(IntegratorEvent e) {
                 if (++count != 1000) return;
@@ -175,7 +175,7 @@ public class SimModesJ extends Simulation {
         };
         sim.integrator.getEventManager().addListener(dumpHist);
         
-        sim.integrator.getEventManager().addListener(new IIntegratorListener() {
+        sim.integrator.getEventManager().addListener(new IntegratorListener() {
             
             public void integratorStepStarted(IntegratorEvent e) {}
             

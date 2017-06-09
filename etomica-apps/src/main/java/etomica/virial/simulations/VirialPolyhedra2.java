@@ -9,22 +9,16 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import etomica.action.IAction;
+import etomica.data.*;
+import etomica.integrator.IntegratorListener;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.integrator.IntegratorEvent;
-import etomica.api.IIntegratorListener;
 import etomica.api.IPotentialAtomic;
 import etomica.space.Vector;
 import etomica.atom.AtomTypeSpheroPolyhedron;
 import etomica.chem.elements.ElementSimple;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorHistogram;
-import etomica.data.DataPipe;
-import etomica.data.DataProcessor;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray;
@@ -237,7 +231,7 @@ public class VirialPolyhedra2 {
         accHistRefRingy.putDataInfo(diRef);
         final ClusterAbstract finalTargetCluster = targetCluster;
         final ClusterAbstract finalRefCluster = refCluster;
-        IIntegratorListener histListener = new IIntegratorListener() {
+        IntegratorListener histListener = new IntegratorListener() {
             DataDoubleArray dataTarg = new DataDoubleArray(2);
             DataDouble dataRef = new DataDouble();
             Vector com = Space3D.getInstance().makeVector();
@@ -267,7 +261,7 @@ public class VirialPolyhedra2 {
             }
         };
         if (doHist) sim.integrator.getEventManager().addListener(histListener);
-        IIntegratorListener histListenerRingy = new IIntegratorListener() {
+        IntegratorListener histListenerRingy = new IntegratorListener() {
             DataDoubleArray dataTarg = new DataDoubleArray(2);
             DataDouble dataRef = new DataDouble();
             public void integratorStepStarted(IntegratorEvent e) {}
@@ -339,8 +333,8 @@ public class VirialPolyhedra2 {
             IAction pushAnswer = new IAction() {
                 public void actionPerformed() {
                     IData avgData = sim.accumulator.getData();
-                    double ratio = ((DataGroup)avgData).getData(sim.accumulator.RATIO.index).getValue(1);
-                    double error = ((DataGroup)avgData).getData(sim.accumulator.RATIO_ERROR.index).getValue(1);
+                    double ratio = ((DataGroup)avgData).getData(AccumulatorRatioAverageCovariance.RATIO.index).getValue(1);
+                    double error = ((DataGroup)avgData).getData(AccumulatorRatioAverageCovariance.RATIO_ERROR.index).getValue(1);
                     data.x = ratio*refIntegral;
                     averageBox.putData(data);
                     data.x = error*Math.abs(refIntegral);
@@ -400,8 +394,8 @@ public class VirialPolyhedra2 {
         
 
         DataGroup allYourBase = (DataGroup)accumulator.getData();
-        IData averageData = allYourBase.getData(accumulator.AVERAGE.index);
-        IData errorData = allYourBase.getData(accumulator.ERROR.index);
+        IData averageData = allYourBase.getData(AccumulatorAverage.AVERAGE.index);
+        IData errorData = allYourBase.getData(AccumulatorAverage.ERROR.index);
         
         System.out.println();
         

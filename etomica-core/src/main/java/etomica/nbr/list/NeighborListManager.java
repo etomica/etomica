@@ -6,7 +6,7 @@ package etomica.nbr.list;
 
 import etomica.action.BoxImposePbc;
 import etomica.integrator.IntegratorEvent;
-import etomica.api.IIntegratorListener;
+import etomica.integrator.IntegratorListener;
 import etomica.api.IPotential;
 import etomica.atom.*;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -31,7 +31,7 @@ import etomica.util.Debug;
  * the calculate method of PotentialMasterNbr, passing a
  * PotentialCalculationCellAssign instance as the PotentialCalculation.
  */
-public class NeighborListManager implements IIntegratorListener, AgentSource<AtomNeighborLists> {
+public class NeighborListManager implements IntegratorListener, AgentSource<AtomNeighborLists> {
 
     private static final long serialVersionUID = 1L;
     protected final AtomSetSinglet atomSetSinglet;

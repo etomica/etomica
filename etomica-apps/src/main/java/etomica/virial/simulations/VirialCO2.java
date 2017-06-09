@@ -8,7 +8,7 @@ import etomica.action.IAction;
 import etomica.atom.IAtomList;
 import etomica.api.IElement;
 import etomica.integrator.IntegratorEvent;
-import etomica.api.IIntegratorListener;
+import etomica.integrator.IntegratorListener;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.Oxygen;
 import etomica.config.IConformation;
@@ -151,7 +151,7 @@ public class VirialCO2 {
         }
 
         if (false) {
-            IIntegratorListener progressReport = new IIntegratorListener() {
+            IntegratorListener progressReport = new IntegratorListener() {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {

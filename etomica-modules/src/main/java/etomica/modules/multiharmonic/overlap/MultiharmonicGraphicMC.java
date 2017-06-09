@@ -13,9 +13,9 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import etomica.action.IAction;
+import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorEvent;
 import etomica.math.function.IFunction;
-import etomica.api.IIntegratorListener;
 import etomica.atom.DiameterHashByType;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsingLog;
@@ -222,7 +222,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         sim.integratorOS.setNumSubSteps(1);
         sim.integratorOS.setAdjustInterval(dataInterval);
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
-        sim.integratorOS.getEventManager().addListener(new IIntegratorListener() {
+        sim.integratorOS.getEventManager().addListener(new IntegratorListener() {
             
             public void integratorStepStarted(IntegratorEvent e) {}
             public void integratorInitialized(IntegratorEvent e) {}
@@ -649,7 +649,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         feRefTargetPlot.setLegend(new DataTag[]{targetAntibiasHistory.getTag()}, "B(ab)");
         
 
-        sim.integratorA.getEventManager().addListener(new IIntegratorListener() {
+        sim.integratorA.getEventManager().addListener(new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
             public void integratorInitialized(IntegratorEvent e) {}
             
@@ -686,7 +686,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
                 }
             }
         });
-        sim.integratorB.getEventManager().addListener(new IIntegratorListener() {
+        sim.integratorB.getEventManager().addListener(new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
             public void integratorInitialized(IntegratorEvent e) {}
             
@@ -752,7 +752,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         targetErrHistory.addDataSink(stdevRefTargetPlot.getDataSet().makeDataSink());
         stdevRefTargetPlot.setLegend(new DataTag[]{targetErrHistory.getTag()}, "B");
 
-//        sim.integratorOS.getEventManager().addListener(new IIntegratorListener() {
+//        sim.integratorOS.getEventManager().addListener(new IntegratorListener() {
 //            public void integratorStepStarted(IIntegratorEvent e) {}
 //            public void integratorStepFinished(IIntegratorEvent e) {
 //                if (sim.integratorA.getStepCount() > 1<<22 && sim.integratorB.getStepCount() > 1<<22) System.exit(0);
@@ -1663,8 +1663,8 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             double[] lnRefAvg = new double[numAlpha];
             double[] lnTargetAvg = new double[numAlpha];
 
-            IData refData = ((DataGroup)accRefUa2.getData()).getData(accRefUa2.AVERAGE.index);
-            IData targetData = ((DataGroup)accTargetUa2.getData()).getData(accTargetUa2.AVERAGE.index);
+            IData refData = ((DataGroup)accRefUa2.getData()).getData(AccumulatorAverage.AVERAGE.index);
+            IData targetData = ((DataGroup)accTargetUa2.getData()).getData(AccumulatorAverage.AVERAGE.index);
             
             for (int j=0; j<numAlpha; j++) {
                 double jAlpha = dsvo.getAlphaSource().getAlpha(j);

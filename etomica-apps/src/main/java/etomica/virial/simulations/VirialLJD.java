@@ -5,8 +5,10 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCovariance;
+import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorEvent;
-import etomica.api.IIntegratorListener;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.IData;
 import etomica.data.histogram.HistogramSimple;
@@ -149,7 +151,7 @@ public class VirialLJD {
 
         
         final HistogramSimple targHist = new HistogramSimple(200, new DoubleRange(-1, 4));
-        IIntegratorListener histListenerTarget = new IIntegratorListener() {
+        IntegratorListener histListenerTarget = new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
             
             public void integratorStepFinished(IntegratorEvent e) {
@@ -180,7 +182,7 @@ public class VirialLJD {
         }
         
         
-        IIntegratorListener progressReport = new IIntegratorListener() {
+        IntegratorListener progressReport = new IntegratorListener() {
             
             public void integratorStepStarted(IntegratorEvent e) {}
             
@@ -230,9 +232,9 @@ public class VirialLJD {
         sim.printResults(HSBn);
 
         DataGroup allData = (DataGroup)sim.accumulators[1].getData();
-        IData dataAvg = allData.getData(sim.accumulators[1].AVERAGE.index);
-        IData dataErr = allData.getData(sim.accumulators[1].ERROR.index);
-        IData dataCov = allData.getData(sim.accumulators[1].BLOCK_COVARIANCE.index);
+        IData dataAvg = allData.getData(AccumulatorAverage.AVERAGE.index);
+        IData dataErr = allData.getData(AccumulatorAverage.ERROR.index);
+        IData dataCov = allData.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
         // we'll ignore block correlation -- whatever effects are here should be in the full target results
         int nTotal = (targetDiagrams.length+2);
         double oVar = dataCov.getValue(nTotal*nTotal-1);

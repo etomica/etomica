@@ -16,6 +16,7 @@ import etomica.data.IData;
 import etomica.data.histogram.HistogramSimple;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.integrator.mcmove.MCMove;
 import etomica.math.DoubleRange;
 import etomica.potential.P1HydrogenMielke.P1HydrogenMielkeAtomic;
@@ -266,7 +267,7 @@ public class VirialH2PISimple {
 		System.out.println("equilibration finished");
 
 		final HistogramSimple h1 = new HistogramSimple(500, new DoubleRange(0,Math.PI));
-		IIntegratorListener histListenerTarget = new IIntegratorListener() {
+		IntegratorListener histListenerTarget = new IntegratorListener() {
 			@Override
 			public void integratorInitialized(IntegratorEvent e) {}
 			@Override
@@ -292,7 +293,7 @@ public class VirialH2PISimple {
 
 		final double refIntegralF = HSB[nPoints];
 		if (! isCommandLine) {
-			IIntegratorListener progressReport = new IIntegratorListener() {
+			IntegratorListener progressReport = new IntegratorListener() {
 				@Override
 				public void integratorInitialized(IntegratorEvent e) {}
 				@Override

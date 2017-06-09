@@ -7,10 +7,10 @@ package etomica.virial.simulations;
 import java.awt.Color;
 
 import etomica.action.IAction;
+import etomica.integrator.IntegratorListener;
 import etomica.atom.IAtomList;
 import etomica.api.IElement;
 import etomica.integrator.IntegratorEvent;
-import etomica.api.IIntegratorListener;
 import etomica.atom.DiameterHashByType;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Nitrogen;
@@ -207,7 +207,7 @@ public class VirialN2TraPPE {
         }
 
         if (false) {
-            IIntegratorListener progressReport = new IIntegratorListener() {
+            IntegratorListener progressReport = new IntegratorListener() {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {

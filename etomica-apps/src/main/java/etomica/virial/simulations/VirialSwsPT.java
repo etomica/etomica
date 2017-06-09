@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 
 import etomica.action.IAction;
 import etomica.integrator.IntegratorEvent;
-import etomica.api.IIntegratorListener;
+import etomica.integrator.IntegratorListener;
 import etomica.api.ISpecies;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.IEtomicaDataInfo;
@@ -243,7 +243,7 @@ public class VirialSwsPT {
 
         if (false) {
             final double refIntegralF = refIntegral;
-            IIntegratorListener progressReport = new IIntegratorListener() {
+            IntegratorListener progressReport = new IntegratorListener() {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {

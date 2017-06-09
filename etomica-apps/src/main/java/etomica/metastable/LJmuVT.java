@@ -6,7 +6,7 @@ package etomica.metastable;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.integrator.IntegratorEvent;
-import etomica.api.IIntegratorListener;
+import etomica.integrator.IntegratorListener;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -314,7 +314,7 @@ public class LJmuVT extends Simulation {
 
             sim.mcMoveID.setMu(mu);
             sim.activityIntegrate.setMaxSteps(numSteps);
-            sim.integrator.getEventManager().addListener(new IIntegratorListener() {
+            sim.integrator.getEventManager().addListener(new IntegratorListener() {
 
                 int count = 0;
                 int interval = numAtoms;
