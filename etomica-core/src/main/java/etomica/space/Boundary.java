@@ -50,7 +50,7 @@ public abstract class Boundary {
     }
 
     /**
-     * Sets the box that holds the IBoundary.  If no box holds the boundary,
+     * Sets the box that holds the boundary.  If no box holds the boundary,
      * the box should be set to null.
      *
      * @param newBox the box that holds the boundary
