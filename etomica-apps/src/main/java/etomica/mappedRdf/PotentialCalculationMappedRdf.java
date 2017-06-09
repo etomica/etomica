@@ -44,6 +44,8 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
     protected final Space space;
     protected final double[] cumint;
     protected final AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> forceManager;
+    protected Potential2SoftSpherical p2;
+
 
 
     public PotentialCalculationMappedRdf(Space space, Box box, int nbins, AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> forceManager) {
@@ -61,6 +63,33 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
         cumint = new double[nbins+1];
 
         this.forceManager = forceManager;
+    }
+
+    public static void main (String[] args) throws IOException{
+        Simulation sim = new Simulation(Space3D.getInstance());
+        Box box = new Box(sim.getSpace());
+
+        PotentialCalculationMappedRdf pc = new PotentialCalculationMappedRdf(sim.getSpace(),box, 1000000, null);
+        P2LennardJones potential = new P2LennardJones(sim.getSpace());
+        P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(sim.getSpace(), potential, 4);
+        double vol1 = pc.vol;
+        double R = 3;
+
+        pc.setVolume(99999.99999999997);
+        pc.setPotential(p2Truncated);
+        pc.setTemperature(2);
+        double rc = p2Truncated.getRange();
+        double x0 = rc;
+        FileWriter fw = new FileWriter("vu.dat");
+        for (int i=10; i<45; i++) {
+            double r = i*0.1;
+            if (r>=4) r = 3.99999999;
+
+            System.out.println(r+" "+pc.calcXu(r, p2Truncated.u(r*r),R)+" ");
+               fw.write(r+" "+pc.calcXu(r, p2Truncated.u(r*r),R)+"\n");
+        }
+
+         fw.close();
     }
 
     public DataSourceUniform getXDataSource() {
@@ -91,10 +120,15 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
         vol = newVol;
     }
 
-    public void setTemperature(double T, Potential2SoftSpherical p2) {
+    public void setPotential(Potential2SoftSpherical p){
+        p2 = p;
+    }
+
+    public void setTemperature(double T) {
         beta = 1/T;
         double rc = p2.getRange();
-        x0 = rc;
+        x0 = 0.99*rc;
+        System.out.println("x0 "+x0);
         q = 0;
 
         if (vCut==0) vCut = x0;
@@ -117,8 +151,8 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
 
         }
 
-        q *= (D==2?2:4)*Math.PI*vol;
-        q += vol*vol;
+        q *= (D==2?2:4)*Math.PI;
+        q += vol;
 
         for (int i=1; i<=nbins; i++) {
             double r = Math.exp(c1*i)-1;
@@ -138,7 +172,7 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
 
     }
 
-    protected double calcXu(double r, double u, int R, Potential2SoftSpherical p2) {
+    protected double calcXu(double r, double u, double R) {
 
         double y = cumint(r);
         double v = calcV(r,u);
@@ -169,6 +203,21 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
         return y;
     }
 
+    public double[] gR(){
+        double[] gR = new double[xDataSource.getData().getLength()];
+           for (int k = 0; k < xDataSource.getData().getLength(); k++) {
+            double R = xDataSource.getData().getValue(k);
+            double uR = p2.u(R);
+            double vR = calcV(R,uR);
+            double evmR = Math.exp(-beta*vR);
+            gR[k] = evmR*4*Math.PI*R*R*.01/q;
+            gR[k] = 0;
+            System.out.println( gR[k]);
+
+        }
+        return gR;
+    }
+
     /**
      * Zero's out the RDF sum tracked by this meter.
      */
@@ -179,32 +228,41 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
 
     public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
         if (!(potential instanceof Potential2SoftSpherical)) return;
-        Potential2SoftSpherical p2 = (Potential2SoftSpherical)potential;
+        Potential2SoftSpherical p2 = (Potential2SoftSpherical) potential;
         IAtom atom0 = atoms.getAtom(0);
         IAtom atom1 = atoms.getAtom(1);
         dr.Ev1Mv2(atom0.getPosition(), atom1.getPosition());
 
-        double xMaxSquared = xMax*xMax;
+        double xMaxSquared = xMax * xMax;
         boundary.nearestImage(dr);
         double r2 = dr.squared();       //compute pair separation
         double r = Math.sqrt(r2);
         if (r > p2.getRange()) return;
         double fij = p2.du(r2);
-        double up = fij/r;
+        double up = fij / r;
         double vp = up;
-        double u= p2.u(r2);
-        if(r2 < xMaxSquared) {
+        double u = p2.u(r2);
+        if (r2 < xMaxSquared) {
             int index = xDataSource.getIndex(Math.sqrt(r2));  //determine histogram index
+            for (int k = 0; k < xDataSource.getData().getLength(); k++) {
+                double R = xDataSource.getData().getValue(k);
+               // System.out.println("R "+ R);
+                if ( R < x0) {
+                    Vector fi = forceManager.getAgent(atom0).force;
+                    Vector fj = forceManager.getAgent(atom1).force;
+                    //  System.out.println(u+" "+r);
+                    double fifj = (fi.dot(dr) - fj.dot(dr)) / r;
+                    double xu = calcXu(r, u, R);
+                    double wp = 0.5 * fifj;
+                    gSum[k] -= xu * (vp - wp);               //add once for each atom
 
-            if (index<x0) {
-                Vector fi = forceManager.getAgent(atom0).force;
-                Vector fj = forceManager.getAgent(atom1).force;
-                //  System.out.println(u+" "+r);
-                double fifj = (fi.dot(dr) - fj.dot(dr))/r;
-                double xu = calcXu(r, u, index, p2);
-                double wp = 0.5*fifj;
-                gSum[index] += xu*(vp-wp);               //add once for each atom
+                }
+                else{
+                    if(r>R && r<(R+0.01)){
+                        gSum[k] += 1;
+                    }
 
+                }
             }
         }
     }

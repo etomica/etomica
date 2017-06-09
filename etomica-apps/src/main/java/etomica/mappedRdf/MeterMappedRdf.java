@@ -111,14 +111,17 @@ public class MeterMappedRdf implements IAction, IEtomicaDataSource, DataSourceIn
         final double[] y = data.getData();
         long numAtomPairs = 0;
         long numAtoms = box.getLeafList().getAtomCount();
-        numAtomPairs = numAtoms*(numAtoms-1)/2;
+        numAtomPairs = numAtoms * (numAtoms - 1) / 2;
         double norm = numAtomPairs * callCount / box.getBoundary().volume();
         double[] r = rData.getData();
-        double dx2 = 0.5*(xMax - xDataSource.getXMin())/r.length;
+        double dx2 = 0.5 * (xMax - xDataSource.getXMin()) / r.length;
         long[] gSum = pc.getGSum();
+        double[] gR = pc.gR();
+
+
         for(int i=0;i<r.length; i++) {
             double vShell = space.sphereVolume(r[i]+dx2)-space.sphereVolume(r[i]-dx2);
-            y[i] = gSum[i] / (norm*vShell);
+            y[i] = gSum[i]+gR[i] / (norm*vShell);
         }
         return data;
     }
@@ -168,6 +171,8 @@ public class MeterMappedRdf implements IAction, IEtomicaDataSource, DataSourceIn
     public void setName(String name) {
         this.name = name;
     }
+
+
 
     protected Box box;
     protected final Space space;

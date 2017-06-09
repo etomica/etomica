@@ -18,12 +18,14 @@ import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
+import etomica.potential.Potential2SoftSpherical;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
+import java.io.FileWriter;
 import java.io.IOException;
 
 /**
@@ -90,7 +92,7 @@ public class MappedRdf extends Simulation {
             params.temperature = 2.0;
             params.density = 0.01;
             params.numSteps = 1000000;
-            params.rc = 2.5;
+            params.rc = 4;
             params.numAtoms = 1000;
 
         }
@@ -115,7 +117,7 @@ public class MappedRdf extends Simulation {
         MeterMappedRdf meterMappedRdf = null;
 
         double halfBoxlength = sim.box.getBoundary().getBoxSize().getX(0) /2;
-        int nbins = (int) Math.floor(halfBoxlength / 0.01);
+        int nbins = (int) Math.floor(rc / 0.01);
         double eqncutoff = nbins * 0.01;
 
 
@@ -183,7 +185,9 @@ public class MappedRdf extends Simulation {
             meterMappedRdf.getXDataSource().setNValues(nbins);
             meterMappedRdf.getXDataSource().setXMax(eqncutoff);
 
-            meterMappedRdf.getPotentialCalculation().setTemperature(sim.integrator.getTemperature(), sim.p2Truncated);
+            meterMappedRdf.getPotentialCalculation().setPotential(sim.p2Truncated);
+            meterMappedRdf.getPotentialCalculation().setTemperature(sim.integrator.getTemperature());
+
 
 
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterMappedRdf,numAtoms));
@@ -192,6 +196,10 @@ public class MappedRdf extends Simulation {
             IData rmdata = meterMappedRdf.getIndependentData(0);
             IData gmdata = meterMappedRdf.getData();
 
+            FileWriter fw = new FileWriter("rdfM.dat");
+
+            //System.out.println("len "+rmdata.getLength());
+
             for (int i = 0; i < rmdata.getLength(); i++)
 
             {
@@ -199,10 +207,15 @@ public class MappedRdf extends Simulation {
                 double gm = gmdata.getValue(i);
                 // double e = Math.exp(-sim.p2Truncated.u(r * r) / temperature);
                 System.out.println("rm "+rm+" gm "+gm);
+                fw.write(rm+" "+gm+"\n");
             }
+            fw.close();
         }
 
     }
+
+
+
     public static class LJMDParams extends ParameterBase {
         public int numAtoms = 100;
         public double temperature = 1.0;
