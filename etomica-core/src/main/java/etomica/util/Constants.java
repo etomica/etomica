@@ -17,11 +17,12 @@ import etomica.units.systems.LJ;
  */
 public final class Constants {
 
-    //private constructor to prevent instantiation
-    private Constants() {
-    }
-    
     public static final double TWO_PI = 2.0*Math.PI;
+    /**
+     * Avogadro's number, 6.022140857(74)e23 molecules/mole.
+     */
+    // reference:  http://physics.nist.gov/cgi-bin/cuu/Value?na|search_for=abbr_in!
+    public static final double AVOGADRO = 6.022140857e23;
     
     /*             
        Units for internal calculations (simulation units)
@@ -29,59 +30,51 @@ public final class Constants {
           length: Angstroms
             mass: Daltons, or atomic mass units (amu)
     */
-    
-    /**
-     * Avogadro's number, 6.02214129(27)e23 molecules/mole.
-     */
-    // reference:  http://physics.nist.gov/cgi-bin/cuu/Value?na|search_for=abbr_in!
-    public static final double AVOGADRO = 6.02214129e23; 
-        
-    
     /**
      * The standard acceleration of gravity on Earth.
      */
     //  acceleration of gravity (on Earth), in A/ps^2
-    public static final double G_EARTH = 9.8*1e10/1e24;  
-
+    public static final double G_EARTH = 9.8 * 1e10 / 1e24;
     /**
      * Boltzmann's constant, in (sim units)/kelvin.  Specifically,
-     * equal to 0.8314517839107 (daltons)(angstroms^2)(ps^-2)(kelvin^-1).
+     * (daltons)(angstroms^2)(ps^-2)(kelvin^-1).
      */
-    //  Boltzmann's constant, converted from J/K to D-A^2/ps^2/K (where it equals 0.8314)
-    // (1.38e-23 kg-m^2/s^2/K/molecule)(1000 g/kg)(N_avo D/g)(10^10 A/m)^2 (10^-12 s/ps)^2  
-    public static final double BOLTZMANN_K = 1.3806488e-23 * 1000 * AVOGADRO * 1e20 * 1e-24; 
-
+    //  Boltzmann's constant, converted from J/K to D-A^2/ps^2/K (where it equals ~0.8314)
+    // (~1.38e-23 kg-m^2/s^2/K/molecule)(1000 g/kg)(N_avo D/g)(10^10 A/m)^2 (10^-12 s/ps)^2
+    // reference:  http://physics.nist.gov/cgi-bin/cuu/Value?k
+    public static final double BOLTZMANN_K = 1.38064852e-23 * 1000 * AVOGADRO * 1e20 * 1e-24;
     /**
      * Planck's constant, in simulation units.  Specifically, equal to approximately 39.903127 D-A^2/ps.
      */
     //convert from J-s to simulation units
-    public static final double PLANCK_H = Joule.UNIT.toSim(6.62606957e-34) * 1e12;
-
+    public static final double PLANCK_H = Joule.UNIT.toSim(6.626070040e-34) * 1e12;
     /**
      * Rydberg's constant, in Angstroms.
      */
-    public static final double RYDBERG_R = 1.0973731568527E-3;
-    
+    public static final double RYDBERG_R = 1.0973731568508E-3;
     /**
      * The permittivity of a vacuum, in (sim units) (electron charge)^2. Specifically,
-     * equal to  5.7276575390366254E-7 (ps^2)(daltons^-1)(angstroms^-3)(electrons^2).
+     * (ps^2)(daltons^-1)(angstroms^-3)(electrons^2).
      */
     //epsilon0, converted from C^2/(N-m^2) to e^2 ps^2/(D-A^3)
-    // (8.854e-12 C^2 s^2/(kg-m^3)) (1/1.60217653e-12 e/C)^2 (10^12 ps/s)^2 (10^-3 kg/g) (1/Avo g/D) (10^-10 m/A)^3
-    public static final double EPSILON_0 = 8.8541878176e-12 * (1.0/1.60217653e-19/1.60217653e-19)
+    // (~8.854e-12 C^2 s^2/(kg-m^3)) (1/1.60217653e-12 e/C)^2 (10^12 ps/s)^2 (10^-3 kg/g) (1/Avo g/D) (10^-10 m/A)^3
+    public static final double EPSILON_0 = 8.8541878176e-12 * (1.0 / 1.6021766208e-19 / 1.6021766208e-19)
             * 1e24 * 1e-3 / AVOGADRO * 1e-30;
-    
     /**
      * The speed of light, in simulation units.  Equal to 2997924.58 Angstroms/picosecond
      */
     public static final double LIGHT_SPEED = 299792458 * (1e10 * 1e-12);//convert m/s to A/ps
-    
     /**
-     * The gravitational constant, in simulation units.  
-     * Equal to approximately 1.1e-31 A^3/ps^2/D. 
+     * The gravitational constant, in simulation units.
+     * Equal to approximately 1.1e-31 A^3/ps^2/D.
      */
-    // 6.6742e-11 m^3 s^-2 kg^-1 (1e10 A/m)^3 (10-12 s/ps)^2 (1kg/1000g) (1g/Avo D)
-    public static final double G = 6.6742e-11 * (1e30 * 1e-24 * 1e-3) /AVOGADRO;
+    // ~6.674e-11 m^3 s^-2 kg^-1 (1e10 A/m)^3 (10-12 s/ps)^2 (1kg/1000g) (1g/Avo D)
+    // reference http://physics.nist.gov/cgi-bin/cuu/Value?bg
+    public static final double G = 6.67408e-11 * (1e30 * 1e-24 * 1e-3) / AVOGADRO;
+    
+    //private constructor to prevent instantiation
+    private Constants() {
+    }
     
     public static void main(String arg[]) {
         System.out.println("Avogadro's number: "+AVOGADRO);
