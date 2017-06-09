@@ -94,34 +94,4 @@ public class SimulationEventManager {
     public synchronized void removeListener(SimulationListener listener) {
         intervalListeners.remove(listener);
     }
-
-    private void writeObject(java.io.ObjectOutputStream out)
-            throws IOException {
-
-        out.defaultWriteObject();
-
-        // write # of listeners that will be serialized
-        out.writeInt(intervalListeners.size());
-
-        for (int i = 0; i < intervalListeners.size(); i++) {
-
-            out.writeObject(intervalListeners.get(i));
-
-        }
-
-
-    }
-
-    private void readObject(java.io.ObjectInputStream in)
-            throws IOException, ClassNotFoundException {
-        in.defaultReadObject();
-
-        // read the listener count
-        int count = in.readInt();
-
-        for (int i = 0; i < count; i++) {
-            addListener((SimulationListener) in.readObject());
-        }
-    }
-
 }
