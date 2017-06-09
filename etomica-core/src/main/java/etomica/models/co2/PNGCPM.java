@@ -6,10 +6,7 @@ package etomica.models.co2;
 
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.*;
-import etomica.atom.AtomType;
-import etomica.atom.AtomTypeAgentManager;
-import etomica.atom.IAtomList;
-import etomica.atom.MoleculePair;
+import etomica.atom.*;
 import etomica.box.Box;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.Oxygen;

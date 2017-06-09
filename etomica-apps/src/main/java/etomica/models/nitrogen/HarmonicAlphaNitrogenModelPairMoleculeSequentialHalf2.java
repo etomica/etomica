@@ -4,7 +4,7 @@
 
 package etomica.models.nitrogen;
 
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.api.ISpecies;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.MoleculePair;

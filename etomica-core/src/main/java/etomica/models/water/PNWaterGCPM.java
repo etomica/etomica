@@ -5,7 +5,7 @@
 package etomica.models.water;
 
 import Jama.Matrix;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.api.IPotentialMolecular;
 import etomica.atom.IAtomList;
 import etomica.atom.MoleculePair;

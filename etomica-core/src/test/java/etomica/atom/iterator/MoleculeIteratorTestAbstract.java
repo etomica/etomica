@@ -7,8 +7,8 @@ package etomica.atom.iterator;
 import java.util.LinkedList;
 
 import junit.framework.TestCase;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.atom.MoleculePair;
 import etomica.atom.MoleculeSetSinglet;
 import etomica.atom.MoleculesetArray;

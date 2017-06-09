@@ -4,7 +4,6 @@
 
 package etomica.atom;
 
-import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 
 public class Molecule implements IMolecule, java.io.Serializable {

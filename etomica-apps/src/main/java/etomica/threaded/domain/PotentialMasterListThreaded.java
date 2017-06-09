@@ -7,7 +7,7 @@ package etomica.threaded.domain;
 import etomica.atom.IAtom;
 import etomica.atom.IMoleculePositionDefinition;
 import etomica.box.Box;
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.api.IPotential;
 import etomica.simulation.Simulation;
 import etomica.atom.iterator.IteratorDirective;

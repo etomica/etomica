@@ -1,18 +1,14 @@
 package etomica.parser;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import etomica.action.IAction;
-import etomica.action.MoleculeAction;
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.atom.MoleculePair;
 import etomica.box.Box;
-import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialGroup;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresCustom;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

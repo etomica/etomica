@@ -5,8 +5,8 @@
 package etomica.models.OPLS;
 
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.association.BiasVolume2SiteAceticAcid;
 import etomica.potential.PotentialGroup;
 

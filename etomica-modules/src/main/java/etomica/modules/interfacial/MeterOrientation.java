@@ -7,7 +7,7 @@ package etomica.modules.interfacial;
 import etomica.atom.IAtomList;
 import etomica.space.Boundary;
 import etomica.box.Box;
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.space.Vector;
 import etomica.data.DataSourceMolecular;
 import etomica.data.DataTag;

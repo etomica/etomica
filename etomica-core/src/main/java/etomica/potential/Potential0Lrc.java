@@ -4,7 +4,7 @@
 
 package etomica.potential;
 
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.api.IPotentialAtomic;
 import etomica.api.ISpecies;
 import etomica.atom.AtomType;

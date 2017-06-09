@@ -6,7 +6,7 @@ package etomica.models.hexane;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.*;
+import etomica.atom.IMolecule;
 import etomica.box.Box;
 import etomica.atom.MoleculePositionGeometricCenter;
 import etomica.atom.MoleculeSourceRandomMolecule;

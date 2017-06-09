@@ -6,8 +6,8 @@ package etomica.threaded.atom;
 
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.api.IPotential;
 import etomica.simulation.Simulation;
 import etomica.atom.IMoleculePositionDefinition;

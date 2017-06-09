@@ -4,8 +4,8 @@
 
 package etomica.modules.sam;
 
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;

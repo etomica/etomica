@@ -6,8 +6,8 @@ package etomica.normalmode;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.potential.PotentialMaster;
 import etomica.util.random.IRandom;
 import etomica.space.Vector;

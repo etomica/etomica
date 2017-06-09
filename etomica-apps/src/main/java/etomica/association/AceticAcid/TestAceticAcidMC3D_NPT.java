@@ -7,7 +7,7 @@ package etomica.association.AceticAcid;
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.api.ISpecies;
 import etomica.association.*;
 import etomica.atom.AtomType;

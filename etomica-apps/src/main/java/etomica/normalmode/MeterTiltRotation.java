@@ -6,6 +6,8 @@ package etomica.normalmode;
 
 import etomica.api.*;
 import etomica.atom.IAtomList;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;

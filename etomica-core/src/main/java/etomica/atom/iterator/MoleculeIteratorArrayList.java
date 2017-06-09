@@ -4,7 +4,7 @@
 
 package etomica.atom.iterator;
 
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.atom.MoleculeToIndex;
 import etomica.atom.MoleculeToMoleculeList;
 

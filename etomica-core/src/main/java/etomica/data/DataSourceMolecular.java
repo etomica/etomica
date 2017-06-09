@@ -4,7 +4,7 @@
 
 package etomica.data;
 
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 
 
 /**

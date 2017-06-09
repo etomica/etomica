@@ -9,8 +9,8 @@
 package etomica.nbr.molecule;
 
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 
 /**
  * Wraps another criterion while adding additional criteria to the acceptance

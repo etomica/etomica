@@ -5,7 +5,7 @@
 package etomica.modules.droplet;
 
 import etomica.atom.IAtom;
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.space.Vector;
 import etomica.atom.AtomFilterCollective;
 import etomica.data.IDataSource;

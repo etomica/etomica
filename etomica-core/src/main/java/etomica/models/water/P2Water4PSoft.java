@@ -5,11 +5,7 @@
 
 package etomica.models.water;
 
-import etomica.api.*;
-import etomica.atom.MoleculePositionCOM;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
-import etomica.atom.IMoleculePositionDefinition;
+import etomica.atom.*;
 import etomica.potential.IPotentialMolecularSecondDerivative;
 import etomica.space.Vector;
 import etomica.space.Space;

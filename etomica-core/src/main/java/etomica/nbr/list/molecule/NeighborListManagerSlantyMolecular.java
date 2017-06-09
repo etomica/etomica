@@ -5,8 +5,8 @@
 package etomica.nbr.list.molecule;
 
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.api.IPotential;
 import etomica.api.IPotentialMolecular;
 import etomica.atom.MoleculePair;

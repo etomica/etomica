@@ -11,7 +11,7 @@ import java.util.HashMap;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.api.IPotential;
 import etomica.api.ISpecies;
 import etomica.atom.AtomLeafAgentManager;

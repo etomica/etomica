@@ -6,7 +6,7 @@ package etomica.virial;
 
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.potential.PotentialMaster;
 import etomica.util.random.IRandom;
 import etomica.space.Vector;

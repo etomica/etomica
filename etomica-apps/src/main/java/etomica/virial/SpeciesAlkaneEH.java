@@ -5,7 +5,7 @@
 package etomica.virial;
 
 
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.atom.*;
 import etomica.chem.elements.ElementSimple;
 import etomica.space.Space;

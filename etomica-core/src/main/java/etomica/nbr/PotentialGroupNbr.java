@@ -4,7 +4,7 @@
 
 package etomica.nbr;
 
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.api.IPotentialAtomic;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;

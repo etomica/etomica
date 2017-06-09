@@ -6,8 +6,8 @@ package etomica.paracetamol;
 
 import java.io.Serializable;
 
-import etomica.api.*;
 import etomica.atom.IAtomList;
+import etomica.atom.IMoleculeList;
 import etomica.box.Box;
 import etomica.conjugategradient.DerivativeEnergyFunction;
 import etomica.potential.PotentialMaster;

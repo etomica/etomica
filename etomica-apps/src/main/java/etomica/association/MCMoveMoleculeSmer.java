@@ -4,7 +4,8 @@
 
 package etomica.association;
 
-import etomica.api.*;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.atom.MoleculeArrayList;

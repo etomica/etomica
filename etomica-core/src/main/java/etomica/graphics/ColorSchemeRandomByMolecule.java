@@ -7,7 +7,7 @@ import java.awt.Color;
 
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.util.random.IRandom;
 import etomica.simulation.Simulation;
 import etomica.atom.MoleculeAgentManager;

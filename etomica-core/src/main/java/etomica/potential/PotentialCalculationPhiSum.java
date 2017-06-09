@@ -3,6 +3,8 @@ package etomica.potential;
 import etomica.api.*;
 import etomica.atom.DipoleSource;
 import etomica.atom.IAtomList;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;

@@ -6,7 +6,7 @@ package etomica.math.numerical;
 
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.potential.PotentialMaster;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;

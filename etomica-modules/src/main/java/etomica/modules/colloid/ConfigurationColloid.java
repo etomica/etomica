@@ -6,6 +6,7 @@ package etomica.modules.colloid;
 
 import etomica.api.*;
 import etomica.atom.IAtom;
+import etomica.atom.IMoleculeList;
 import etomica.box.Box;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;

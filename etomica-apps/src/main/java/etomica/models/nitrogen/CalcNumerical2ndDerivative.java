@@ -5,7 +5,7 @@
 package etomica.models.nitrogen;
 
 import etomica.box.Box;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.potential.PotentialMaster;

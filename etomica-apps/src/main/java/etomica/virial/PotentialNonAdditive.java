@@ -5,7 +5,7 @@
 package etomica.virial;
 
 import etomica.box.Box;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.api.IPotentialMolecular;
 import etomica.atom.MoleculeArrayList;
 import etomica.chem.elements.Argon;

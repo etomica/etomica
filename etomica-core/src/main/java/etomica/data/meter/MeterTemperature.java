@@ -4,7 +4,7 @@
 
 package etomica.data.meter;
 
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.atom.AtomTypeOriented;
 import etomica.atom.IAtomList;
 import etomica.atom.MoleculeOrientedDynamic;

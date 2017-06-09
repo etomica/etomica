@@ -5,7 +5,7 @@
 package etomica.data.meter;
 
 import etomica.box.Box;
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.api.ISpecies;
 import etomica.data.DataSourceMolecular;
 import etomica.data.DataSourceScalar;

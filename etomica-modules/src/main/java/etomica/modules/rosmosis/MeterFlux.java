@@ -6,8 +6,8 @@ package etomica.modules.rosmosis;
 
 import etomica.atom.MoleculePositionGeometricCenter;
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.space.Vector;

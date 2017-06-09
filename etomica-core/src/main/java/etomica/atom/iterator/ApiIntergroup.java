@@ -6,7 +6,7 @@ package etomica.atom.iterator;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.atom.AtomPair;
 import etomica.atom.MoleculeSetSinglet;
 import etomica.util.Debug;

@@ -4,7 +4,6 @@
 
 package etomica.atom;
 
-import etomica.api.IMolecule;
 import etomica.math.geometry.Shape;
 
 

@@ -7,7 +7,6 @@ package etomica.integrator.mcmove;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.*;
 import etomica.atom.*;
 import etomica.box.Box;
 import etomica.atom.MoleculePositionCOM;

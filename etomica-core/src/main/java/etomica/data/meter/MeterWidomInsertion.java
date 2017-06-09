@@ -6,7 +6,7 @@ package etomica.data.meter;
 
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.box.Box;
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.util.random.IRandom;
 import etomica.api.ISpecies;
 import etomica.box.RandomPositionSource;

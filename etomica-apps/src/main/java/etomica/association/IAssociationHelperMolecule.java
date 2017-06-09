@@ -4,7 +4,7 @@
 
 package etomica.association;
 
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.atom.MoleculeArrayList;
 
 /**

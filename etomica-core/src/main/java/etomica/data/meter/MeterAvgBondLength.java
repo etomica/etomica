@@ -5,7 +5,7 @@
 package etomica.data.meter;
 
 import etomica.box.Box;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.atom.AtomHydrogen;
 import etomica.data.DataSourceScalar;
 import etomica.units.Length;

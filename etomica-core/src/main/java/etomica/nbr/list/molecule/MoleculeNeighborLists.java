@@ -4,8 +4,8 @@
 
 package etomica.nbr.list.molecule;
 
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.atom.MoleculeArrayList;
 
 /**

@@ -17,7 +17,7 @@ import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.integrator.IntegratorEvent;
 import etomica.math.function.IFunction;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.api.IPotential;
 import etomica.space.Vector;
 import etomica.atom.AtomTypeSpheroPolyhedron;

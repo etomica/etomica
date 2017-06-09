@@ -7,8 +7,8 @@ package etomica.util;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.atom.AtomPair;
 import etomica.atom.MoleculePair;
 

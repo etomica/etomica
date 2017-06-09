@@ -7,8 +7,6 @@ package etomica.atom;
 import java.io.Serializable;
 
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 
 public class MoleculeToMoleculeListSpecies implements MoleculeToMoleculeList, MoleculeToIndex, Serializable {

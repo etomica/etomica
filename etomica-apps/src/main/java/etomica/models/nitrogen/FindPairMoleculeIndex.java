@@ -4,7 +4,7 @@
 
 package etomica.models.nitrogen;
 
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.atom.MoleculePositionGeometricCenter;
 import etomica.space.Vector;
 import etomica.atom.IMoleculePositionDefinition;

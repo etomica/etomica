@@ -6,8 +6,8 @@ package etomica.modules.dcvgcmd;
 
 import etomica.action.AtomActionRandomizeVelocity;
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.util.random.IRandom;
 import etomica.api.ISpecies;
 import etomica.space.Vector;

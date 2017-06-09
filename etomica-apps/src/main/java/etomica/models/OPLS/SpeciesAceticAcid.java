@@ -4,7 +4,7 @@
 
 package etomica.models.OPLS;
 
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.atom.Atom;
 import etomica.atom.AtomType;
 import etomica.atom.Molecule;

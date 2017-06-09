@@ -13,11 +13,8 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import etomica.action.IAction;
-import etomica.api.*;
-import etomica.atom.IAtomList;
+import etomica.atom.*;
 import etomica.box.Box;
-import etomica.atom.MoleculePositionGeometricCenterPBC;
-import etomica.atom.DiameterHashByType;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;

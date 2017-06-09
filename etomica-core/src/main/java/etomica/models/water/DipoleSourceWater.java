@@ -4,7 +4,7 @@
 
 package etomica.models.water;
 
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.space.Vector;
 import etomica.atom.DipoleSource;
 import etomica.atom.MoleculeOriented;

@@ -14,7 +14,7 @@ import etomica.action.ActionGroupSeries;
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
 import etomica.atom.IAtom;
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.atom.AtomFilter;
 import etomica.atom.DiameterHashByType;
 import etomica.data.AccumulatorAverage;

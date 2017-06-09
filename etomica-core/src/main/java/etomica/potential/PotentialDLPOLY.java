@@ -10,7 +10,7 @@ import java.io.IOException;
 
 import etomica.action.WriteConfigurationDLPOLY;
 import etomica.box.Box;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.space.Space;
 
 public class PotentialDLPOLY extends PotentialMolecular {

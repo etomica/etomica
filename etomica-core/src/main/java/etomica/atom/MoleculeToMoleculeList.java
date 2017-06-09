@@ -4,9 +4,6 @@
 
 package etomica.atom;
 
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-
 
 /**
  * Interface for class that determines an AtomArrayList given an atom.

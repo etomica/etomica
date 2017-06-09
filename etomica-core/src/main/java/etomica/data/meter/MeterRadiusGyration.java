@@ -4,9 +4,9 @@
 
 package etomica.data.meter;
 
-import etomica.api.*;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
+import etomica.atom.IMolecule;
 import etomica.box.Box;
 import etomica.atom.iterator.MoleculeIteratorAllMolecules;
 import etomica.data.DataSourceScalar;

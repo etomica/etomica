@@ -4,7 +4,7 @@
 
 package etomica.virial;
 
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.atom.MoleculeArrayList;
 import etomica.potential.PotentialPolarizable;
 import etomica.util.Arrays;

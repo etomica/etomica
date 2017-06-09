@@ -4,9 +4,6 @@
 
 package etomica.atom;
 
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-
 
 /**
  * AtomSet formed by wrapping an AtomArrayList.  ArrayList can be 

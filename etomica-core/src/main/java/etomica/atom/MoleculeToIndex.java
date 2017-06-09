@@ -4,8 +4,6 @@
 
 package etomica.atom;
 
-import etomica.api.IMolecule;
-
 
 /**
  * Interface for class that associates an integer with an atom.

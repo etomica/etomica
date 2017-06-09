@@ -16,7 +16,7 @@ import etomica.action.IAction;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.math.function.IFunction;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.api.IPotential;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverageFixed;

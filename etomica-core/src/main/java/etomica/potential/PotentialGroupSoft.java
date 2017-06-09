@@ -5,8 +5,8 @@
 package etomica.potential;
 
 import etomica.atom.IAtomList;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.atom.IMoleculePositionDefinition;
 import etomica.space.Vector;
 import etomica.atom.MoleculePositionGeometricCenter;

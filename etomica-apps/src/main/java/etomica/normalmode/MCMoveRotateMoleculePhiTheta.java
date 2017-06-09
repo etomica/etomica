@@ -4,8 +4,8 @@
 
 package etomica.normalmode;
 
-import etomica.api.*;
 import etomica.atom.IAtomList;
+import etomica.atom.IMoleculeList;
 import etomica.atom.IMoleculePositionDefinition;
 import etomica.box.Box;
 import etomica.atom.MoleculePositionGeometricCenter;

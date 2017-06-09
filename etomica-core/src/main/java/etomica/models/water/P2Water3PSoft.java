@@ -5,7 +5,7 @@
 
 package etomica.models.water;
 
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.space.Vector;
 import etomica.atom.MoleculeOrientedDynamic;
 import etomica.potential.IPotentialMolecularTorque;

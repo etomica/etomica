@@ -11,7 +11,7 @@ import java.io.Serializable;
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 import etomica.box.Box;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.math.numerical.CalcGradientDifferentiable;

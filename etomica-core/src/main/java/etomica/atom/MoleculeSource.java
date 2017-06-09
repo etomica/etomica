@@ -5,7 +5,6 @@
 package etomica.atom;
 
 import etomica.box.Box;
-import etomica.api.IMolecule;
 
 /**
  * Interface for objects when return atoms (meeting some specification)

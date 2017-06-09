@@ -6,7 +6,7 @@ package etomica.paracetamol;
 
 import etomica.action.WriteConfigurationDLPOLY;
 import etomica.box.Box;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.atom.MoleculePair;
 import etomica.data.DataInfo;
 import etomica.data.DataTag;

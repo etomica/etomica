@@ -5,7 +5,7 @@
 package etomica.modules.rosmosis;
 
 import etomica.atom.IAtomList;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.api.IPotential;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;

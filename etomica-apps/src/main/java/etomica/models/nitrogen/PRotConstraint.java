@@ -6,8 +6,8 @@ package etomica.models.nitrogen;
 
 import etomica.space.Vector;
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.potential.PotentialMolecular;
 import etomica.space.Space;
 import etomica.units.Degree;

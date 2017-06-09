@@ -13,7 +13,7 @@ import java.io.IOException;
 import etomica.action.BoxImposePbc;
 import etomica.action.WriteConfiguration;
 import etomica.action.XYZWriter;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.potential.PotentialMaster;
 import etomica.util.random.IRandom;
 import etomica.simulation.Simulation;

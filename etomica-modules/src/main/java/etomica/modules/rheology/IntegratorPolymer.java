@@ -4,8 +4,9 @@
 
 package etomica.modules.rheology;
 
-import etomica.api.*;
 import etomica.atom.IAtomList;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.integrator.IntegratorMD;
 import etomica.potential.PotentialMaster;
 import etomica.space.Vector;

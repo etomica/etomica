@@ -11,6 +11,7 @@ import etomica.action.IAction;
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.*;
 import etomica.atom.IAtomList;
+import etomica.atom.IMolecule;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCovariance;
 import etomica.integrator.IntegratorEvent;

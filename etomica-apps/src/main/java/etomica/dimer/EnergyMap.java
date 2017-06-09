@@ -5,7 +5,7 @@
 package etomica.dimer;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;

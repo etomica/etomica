@@ -5,8 +5,8 @@
 package etomica.box;
 
 import etomica.action.BoxInflate;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;

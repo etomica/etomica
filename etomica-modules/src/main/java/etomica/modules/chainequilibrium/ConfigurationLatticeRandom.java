@@ -4,7 +4,8 @@
 
 package etomica.modules.chainequilibrium;
 
-import etomica.api.*;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.lattice.BravaisLatticeCrystal;

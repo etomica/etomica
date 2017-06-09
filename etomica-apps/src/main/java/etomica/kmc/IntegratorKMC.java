@@ -8,6 +8,7 @@ import etomica.action.BoxImposePbc;
 import etomica.action.WriteConfiguration;
 import etomica.action.XYZWriter;
 import etomica.api.*;
+import etomica.atom.IMoleculeList;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.config.ConfigurationFile;

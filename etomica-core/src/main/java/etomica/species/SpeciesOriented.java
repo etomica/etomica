@@ -6,7 +6,7 @@ package etomica.species;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.atom.MoleculePositionCOM;
 import etomica.space.Vector;
 import etomica.space.Space;

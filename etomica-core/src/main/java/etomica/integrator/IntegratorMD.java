@@ -5,12 +5,8 @@
 package etomica.integrator;
 
 import etomica.action.AtomActionRandomizeVelocity;
-import etomica.api.*;
-import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.*;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomKinetic;
-import etomica.atom.IAtomList;
 import etomica.box.*;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterKineticEnergy;

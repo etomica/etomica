@@ -10,6 +10,8 @@ import java.io.Serializable;
 
 import etomica.action.IAction;
 import etomica.api.*;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;

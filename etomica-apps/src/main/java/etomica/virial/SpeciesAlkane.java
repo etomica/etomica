@@ -4,7 +4,7 @@
 
 package etomica.virial;
 
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.atom.AtomType;
 import etomica.atom.Molecule;
 import etomica.chem.elements.Element;

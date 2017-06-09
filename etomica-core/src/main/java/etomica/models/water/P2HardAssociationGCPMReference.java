@@ -5,7 +5,7 @@
 package etomica.models.water;
 
 import etomica.atom.IAtomList;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.space.Vector;
 import etomica.space.Space;
 

@@ -5,7 +5,7 @@
 package etomica.nbr.cell.molecule;
 
 import etomica.box.Box;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.atom.MoleculeArrayList;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.atom.iterator.MoleculesetIterator;

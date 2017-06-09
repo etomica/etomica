@@ -9,7 +9,7 @@ import java.io.Serializable;
 import etomica.atom.IAtom;
 import etomica.space.Vector;
 import etomica.box.Box;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;

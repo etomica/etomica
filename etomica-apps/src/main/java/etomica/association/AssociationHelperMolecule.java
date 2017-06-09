@@ -6,8 +6,8 @@ package etomica.association;
 
 import etomica.space.Boundary;
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.space.Vector;
 import etomica.atom.MoleculeArrayList;
 import etomica.models.OPLS.SpeciesAceticAcid;

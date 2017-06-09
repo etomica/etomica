@@ -4,6 +4,8 @@
 
 package etomica.api;
 
+import etomica.atom.IMoleculeList;
+
 public interface IPotentialMolecular extends IPotential {
 
     /**

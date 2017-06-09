@@ -6,9 +6,6 @@ package etomica.atom;
 
 import java.io.Serializable;
 
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-
 /**
  * @author Tai Boon Tan  
  * 

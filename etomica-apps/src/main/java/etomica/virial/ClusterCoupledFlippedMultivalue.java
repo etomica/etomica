@@ -4,10 +4,7 @@
 
 package etomica.virial;
 
-import etomica.api.*;
-import etomica.atom.MoleculePositionGeometricCenter;
-import etomica.atom.IAtomList;
-import etomica.atom.IMoleculePositionDefinition;
+import etomica.atom.*;
 import etomica.space.Vector;
 import etomica.space.Space;
 

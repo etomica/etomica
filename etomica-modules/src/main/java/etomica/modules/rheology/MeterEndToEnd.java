@@ -7,7 +7,7 @@ package etomica.modules.rheology;
 import etomica.atom.IAtomList;
 import etomica.space.Vector;
 import etomica.box.Box;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.data.DataSourceScalar;
 import etomica.space.Space;
 import etomica.units.CompoundDimension;

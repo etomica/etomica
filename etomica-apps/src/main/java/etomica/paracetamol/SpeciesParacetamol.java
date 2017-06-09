@@ -4,7 +4,7 @@
 
 package etomica.paracetamol;
 
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.atom.*;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.Hydrogen;

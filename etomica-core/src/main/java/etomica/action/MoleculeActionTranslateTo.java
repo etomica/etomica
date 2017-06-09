@@ -7,7 +7,7 @@ package etomica.action;
 
 import java.io.Serializable;
 
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.atom.IMoleculePositionDefinition;
 import etomica.space.Vector;
 import etomica.atom.MoleculePositionCOM;

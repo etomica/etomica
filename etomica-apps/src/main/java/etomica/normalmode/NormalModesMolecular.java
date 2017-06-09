@@ -8,8 +8,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.atom.MoleculePositionCOM;

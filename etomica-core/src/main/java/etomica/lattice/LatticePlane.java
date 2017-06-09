@@ -5,7 +5,7 @@
 package etomica.lattice;
 
 import etomica.atom.IAtom;
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.space.Vector;
 import etomica.atom.AtomFilter;
 import etomica.lattice.crystal.Primitive;

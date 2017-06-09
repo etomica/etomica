@@ -8,7 +8,7 @@ import etomica.action.IAction;
 import etomica.atom.IAtom;
 import etomica.space.Vector;
 import etomica.box.Box;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.data.DataSourceIndependent;
 import etomica.data.DataTag;
 import etomica.data.IData;

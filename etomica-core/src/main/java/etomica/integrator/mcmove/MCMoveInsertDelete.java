@@ -6,8 +6,8 @@ package etomica.integrator.mcmove;
 
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.potential.PotentialMaster;
 import etomica.util.random.IRandom;
 import etomica.api.ISpecies;

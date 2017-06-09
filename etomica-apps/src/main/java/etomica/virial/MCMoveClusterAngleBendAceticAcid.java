@@ -5,12 +5,10 @@
 package etomica.virial;
 
 import etomica.api.*;
-import etomica.atom.IAtomList;
+import etomica.atom.*;
 import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.atom.MoleculeSource;
-import etomica.atom.MoleculeSourceRandomMolecule;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.data.meter.MeterPotentialEnergy;

@@ -1,7 +1,7 @@
 package etomica.potential;
 
 import etomica.box.Box;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.space.Vector;
 import etomica.atom.DipoleSource;
 import etomica.space.Space;

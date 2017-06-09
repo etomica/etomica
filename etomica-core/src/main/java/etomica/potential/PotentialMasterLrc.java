@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;
 import etomica.atom.AtomArrayList;

@@ -9,7 +9,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.*;
 import etomica.box.Box;
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.potential.PotentialMaster;
 import etomica.api.ISpecies;
 import etomica.space.Vector;

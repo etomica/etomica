@@ -15,6 +15,8 @@ package etomica.config;
 
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.*;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.box.Box;
 import etomica.atom.MoleculePositionFirstAtom;
 import etomica.lattice.BravaisLatticeCrystal;

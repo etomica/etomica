@@ -5,7 +5,7 @@
 package etomica.models.water;
 
 import etomica.atom.*;
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.space.Vector;
 import etomica.atom.MoleculePositionCOM;
 import etomica.exception.MethodNotImplementedException;

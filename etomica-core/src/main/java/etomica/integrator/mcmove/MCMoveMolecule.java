@@ -7,7 +7,7 @@ package etomica.integrator.mcmove;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.box.Box;
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.potential.PotentialMaster;
 import etomica.util.random.IRandom;
 import etomica.simulation.Simulation;

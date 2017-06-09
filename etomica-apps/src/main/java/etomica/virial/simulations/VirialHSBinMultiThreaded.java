@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import etomica.box.Box;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.api.IPotential;
 import etomica.chem.elements.ElementSimple;
 import etomica.listener.IntegratorListenerAction;

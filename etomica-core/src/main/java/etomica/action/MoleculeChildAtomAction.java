@@ -7,7 +7,7 @@ package etomica.action;
 import java.io.Serializable;
 
 import etomica.atom.IAtomList;
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 
 /**
  * Wraps an AtomAction, and performs the wrapped action on the atom

@@ -4,8 +4,6 @@
 
 package etomica.atom;
 
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
 import etomica.box.*;
 import etomica.simulation.*;
 import etomica.util.Arrays;

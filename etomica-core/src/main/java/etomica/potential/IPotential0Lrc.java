@@ -5,7 +5,7 @@
 package etomica.potential;
 
 import etomica.atom.IAtom;
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.api.IPotential;
 
 /**

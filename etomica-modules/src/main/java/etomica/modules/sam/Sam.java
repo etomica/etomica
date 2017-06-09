@@ -6,8 +6,8 @@ package etomica.modules.sam;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.space.Boundary;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.atom.*;
 import etomica.atom.iterator.ApiIndexList;

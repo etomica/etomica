@@ -6,7 +6,7 @@ package etomica.modules.chainequilibrium;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.IController;
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.AtomType;

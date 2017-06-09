@@ -8,8 +8,8 @@ import java.io.Serializable;
 
 import etomica.action.MoleculeChildAtomAction;
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.util.random.IRandom;
 import etomica.simulation.Simulation;
 import etomica.api.ISpecies;

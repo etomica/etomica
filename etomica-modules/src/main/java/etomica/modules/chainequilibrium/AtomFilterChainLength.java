@@ -7,7 +7,7 @@ package etomica.modules.chainequilibrium;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.atom.AtomFilterCollective;
 import etomica.atom.AtomLeafAgentManager;
 

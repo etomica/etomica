@@ -15,6 +15,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import etomica.api.*;
+import etomica.atom.IMoleculeList;
 import etomica.box.Box;
 import etomica.space.Boundary;
 import etomica.space.Vector;
@@ -281,7 +282,7 @@ public class P3HydrogenManzhos implements IPotential{
             }
         }
 
-        public double energy(IMoleculeList molecules) {                        
+        public double energy(IMoleculeList molecules) {
             for (int i=0; i<molecules.getMoleculeCount(); i++) {                
                 v[2*i] = molecules.getMolecule(i).getChildList().getAtom(0).getPosition();
                 v[2*i+1] = molecules.getMolecule(i).getChildList().getAtom(1).getPosition();

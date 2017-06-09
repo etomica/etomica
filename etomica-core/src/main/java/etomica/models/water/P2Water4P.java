@@ -5,7 +5,8 @@
 
 package etomica.models.water;
 
-import etomica.api.*;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.atom.IMoleculePositionDefinition;
 import etomica.box.Box;
 import etomica.potential.PotentialMolecular;

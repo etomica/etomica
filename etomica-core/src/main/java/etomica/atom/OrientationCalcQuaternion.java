@@ -4,8 +4,6 @@
 
 package etomica.atom;
 
-import etomica.api.IMolecule;
-
 /**
  * OrientationCalc interface that handles quaternions (as a a double array)
  * instead of an Orientation object.

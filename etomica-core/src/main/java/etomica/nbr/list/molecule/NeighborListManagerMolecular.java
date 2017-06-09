@@ -8,12 +8,10 @@ import java.io.Serializable;
 
 import etomica.action.BoxImposePbc;
 import etomica.api.*;
+import etomica.atom.*;
 import etomica.box.Box;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
-import etomica.atom.MoleculeAgentManager;
-import etomica.atom.MoleculeArrayList;
-import etomica.atom.MoleculeSetSinglet;
 import etomica.nbr.cell.molecule.Mpi1ACell;
 import etomica.nbr.cell.molecule.MpiAACell;
 import etomica.nbr.cell.molecule.NeighborCellManagerMolecular;

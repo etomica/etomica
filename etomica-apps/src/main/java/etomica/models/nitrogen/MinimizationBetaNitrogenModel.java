@@ -8,7 +8,7 @@ import java.util.Arrays;
 
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.atom.*;
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.api.ISpecies;
 import etomica.space.Vector;
 import etomica.atom.MoleculePositionGeometricCenter;

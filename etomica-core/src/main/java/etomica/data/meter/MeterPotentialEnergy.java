@@ -5,7 +5,7 @@
 package etomica.data.meter;
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.potential.PotentialMaster;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataSourceScalar;

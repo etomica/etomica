@@ -6,7 +6,7 @@ package etomica.models.nitrogen;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.api.ISpecies;
 import etomica.space.Vector;
 import etomica.atom.MoleculePair;

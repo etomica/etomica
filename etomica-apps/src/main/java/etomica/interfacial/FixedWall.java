@@ -1,10 +1,7 @@
 package etomica.interfacial;
 
 import etomica.api.*;
-import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomKinetic;
-import etomica.atom.IAtomList;
+import etomica.atom.*;
 import etomica.box.Box;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListenerMD;

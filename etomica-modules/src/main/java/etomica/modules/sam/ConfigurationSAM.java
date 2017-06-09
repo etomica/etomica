@@ -7,6 +7,8 @@ package etomica.modules.sam;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.api.*;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.config.Configuration;

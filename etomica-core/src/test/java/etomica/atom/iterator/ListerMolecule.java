@@ -8,8 +8,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import etomica.action.MoleculeAction;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.atom.MoleculeArrayList;
 import etomica.atom.MoleculeSetSinglet;
 

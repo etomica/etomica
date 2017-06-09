@@ -5,7 +5,6 @@
 package etomica.virial;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.*;
 import etomica.atom.*;
 import etomica.box.Box;
 import etomica.models.water.PNWaterGCPMThreeSite;

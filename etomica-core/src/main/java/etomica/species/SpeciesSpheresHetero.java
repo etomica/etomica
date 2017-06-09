@@ -5,7 +5,7 @@
 package etomica.species;
 
 import etomica.api.IElement;
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.atom.*;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConformationLinear;

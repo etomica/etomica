@@ -4,7 +4,6 @@
 
 package etomica.atom;
 
-import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresHetero;

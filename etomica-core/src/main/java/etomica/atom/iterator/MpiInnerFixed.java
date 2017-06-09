@@ -4,8 +4,8 @@
 
 package etomica.atom.iterator;
 
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.atom.MoleculePair;
 
 /**

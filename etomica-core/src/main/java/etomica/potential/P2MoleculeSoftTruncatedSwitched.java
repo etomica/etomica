@@ -6,7 +6,7 @@ package etomica.potential;
 
 import etomica.space.Boundary;
 import etomica.box.Box;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.space.Vector;
 import etomica.atom.MoleculeOrientedDynamic;
 import etomica.models.water.P2WaterSPCSoft;

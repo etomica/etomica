@@ -6,7 +6,6 @@ package etomica.atom;
 
 import java.io.Serializable;
 
-import etomica.api.IMolecule;
 import etomica.space.Vector;
 import etomica.space.Space;
 

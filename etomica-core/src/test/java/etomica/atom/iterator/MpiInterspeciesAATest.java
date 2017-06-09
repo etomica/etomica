@@ -5,7 +5,7 @@
 package etomica.atom.iterator;
 
 import etomica.box.Box;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
 import etomica.UnitTestUtil;

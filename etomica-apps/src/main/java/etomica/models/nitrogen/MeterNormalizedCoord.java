@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 import etomica.action.IAction;
 import etomica.box.Box;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.data.DataTag;
 import etomica.data.IData;

@@ -5,6 +5,7 @@
 package etomica.api;
 
 import etomica.atom.AtomType;
+import etomica.atom.IMolecule;
 import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 

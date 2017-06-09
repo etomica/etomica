@@ -8,7 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.box.Box;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.api.ISpecies;

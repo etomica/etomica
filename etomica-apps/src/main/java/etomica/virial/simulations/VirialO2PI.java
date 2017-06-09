@@ -5,7 +5,7 @@ package etomica.virial.simulations;
 
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.atom.AtomHydrogen;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeOriented;

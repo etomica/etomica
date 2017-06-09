@@ -1,6 +1,6 @@
 package etomica.interfacial;
 
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.api.IPotentialAtomic;
 import etomica.api.ISpecies;
 import etomica.atom.AtomType;

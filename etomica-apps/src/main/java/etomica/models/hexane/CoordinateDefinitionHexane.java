@@ -4,8 +4,9 @@
 
 package etomica.models.hexane;
 
-import etomica.api.*;
 import etomica.atom.IAtomList;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.lattice.crystal.Primitive;

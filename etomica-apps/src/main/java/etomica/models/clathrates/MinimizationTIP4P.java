@@ -7,7 +7,7 @@ package etomica.models.clathrates;
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.action.WriteConfiguration;
 import etomica.space.Boundary;
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.atom.*;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;

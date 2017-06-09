@@ -7,7 +7,7 @@ package etomica.models.nitrogen;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.api.ISpecies;
 import etomica.atom.MoleculePair;
 import etomica.box.Box;

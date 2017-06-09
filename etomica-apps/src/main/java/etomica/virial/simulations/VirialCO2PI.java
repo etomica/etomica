@@ -5,7 +5,7 @@ import etomica.action.IAction;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.atom.*;
 import etomica.atom.iterator.ApiIndexList;

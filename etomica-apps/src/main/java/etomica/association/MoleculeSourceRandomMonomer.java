@@ -4,8 +4,8 @@
 
 package etomica.association;
 
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.atom.MoleculeSourceRandomMolecule;
 
 public class MoleculeSourceRandomMonomer extends MoleculeSourceRandomMolecule {

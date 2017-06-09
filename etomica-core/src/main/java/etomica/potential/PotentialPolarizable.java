@@ -4,7 +4,7 @@
 
 package etomica.potential;
 
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 
 /**
  * Interface for a polarizable potential.  The interface includes only a method

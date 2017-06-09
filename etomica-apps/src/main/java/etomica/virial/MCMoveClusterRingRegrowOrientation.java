@@ -4,8 +4,8 @@
 
 package etomica.virial;
 
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.util.random.IRandom;
 import etomica.atom.AtomHydrogen;
 import etomica.atom.AtomTypeOriented;

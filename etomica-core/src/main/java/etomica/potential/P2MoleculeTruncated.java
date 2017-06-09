@@ -3,7 +3,7 @@ package etomica.potential;
 import etomica.space.Boundary;
 import etomica.atom.IMoleculePositionDefinition;
 import etomica.box.Box;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.api.IPotentialMolecular;
 import etomica.space.Vector;
 import etomica.space.Space;

@@ -5,7 +5,7 @@
 package etomica.virial;
 
 import etomica.box.Box;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.potential.PotentialEmul;
 import etomica.space.Space;
 import etomica.virial.cluster.VirialDiagrams;

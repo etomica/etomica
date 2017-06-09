@@ -5,8 +5,8 @@
 package etomica.action;
 
 import etomica.box.Box;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.space.Vector;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;

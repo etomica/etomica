@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 
 import etomica.atom.IAtomList;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;
 

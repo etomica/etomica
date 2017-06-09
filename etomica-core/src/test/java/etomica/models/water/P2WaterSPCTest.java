@@ -1,8 +1,8 @@
 package etomica.models.water;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.atom.MoleculePair;
 import etomica.box.Box;
 import etomica.space3d.Space3D;

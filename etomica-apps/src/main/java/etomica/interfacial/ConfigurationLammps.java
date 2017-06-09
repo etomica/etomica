@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import etomica.box.Box;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.space.Vector;
 import etomica.config.Configuration;

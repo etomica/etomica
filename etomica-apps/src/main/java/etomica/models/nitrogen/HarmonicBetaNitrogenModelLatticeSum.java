@@ -5,7 +5,7 @@
 package etomica.models.nitrogen;
 
 import etomica.box.Box;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.data.DataInfo;
 import etomica.data.FunctionData;
 import etomica.data.IData;

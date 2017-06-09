@@ -4,7 +4,7 @@
 
 package etomica.nbr.cell.molecule;
 
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.atom.MoleculeArrayList;
 import etomica.lattice.AbstractLattice;
 import etomica.lattice.RectangularLattice;

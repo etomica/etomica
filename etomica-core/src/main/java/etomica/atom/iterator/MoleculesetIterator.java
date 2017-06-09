@@ -4,7 +4,7 @@
 
 package etomica.atom.iterator;
 
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 
 /**
  * Interface for classes that loop over a set of atoms. Permits

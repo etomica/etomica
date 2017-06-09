@@ -4,8 +4,6 @@
 
 package etomica.atom;
 
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
 import etomica.util.Debug;
 
 public class MoleculeArrayList implements IMoleculeList {

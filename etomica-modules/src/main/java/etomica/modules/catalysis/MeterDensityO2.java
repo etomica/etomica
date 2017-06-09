@@ -6,7 +6,7 @@ package etomica.modules.catalysis;
 
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.data.DataSourceScalar;

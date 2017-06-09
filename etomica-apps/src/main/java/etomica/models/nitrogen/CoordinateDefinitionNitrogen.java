@@ -8,14 +8,10 @@ import java.io.Serializable;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.*;
+import etomica.atom.*;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
-import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
-import etomica.atom.MoleculeArrayList;
-import etomica.atom.MoleculeListWrapper;
 import etomica.config.Configuration;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.crystal.Basis;

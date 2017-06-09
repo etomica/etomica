@@ -6,6 +6,7 @@ package etomica.modules.adsorption;
 
 import etomica.action.AtomActionRandomizeVelocity;
 import etomica.api.*;
+import etomica.atom.IMolecule;
 import etomica.box.Box;
 import etomica.atom.MoleculeArrayList;
 import etomica.integrator.IntegratorBox;

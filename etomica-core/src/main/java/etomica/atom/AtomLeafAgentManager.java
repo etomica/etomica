@@ -10,7 +10,6 @@ import java.lang.reflect.Array;
 import etomica.box.*;
 import etomica.box.BoxAtomIndexEvent;
 import etomica.box.BoxMoleculeEvent;
-import etomica.api.IMolecule;
 import etomica.box.BoxIndexEvent;
 import etomica.util.Arrays;
 

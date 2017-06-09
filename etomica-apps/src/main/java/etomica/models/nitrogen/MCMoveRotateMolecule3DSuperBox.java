@@ -5,7 +5,7 @@
 package etomica.models.nitrogen;
 import etomica.atom.*;
 import etomica.box.Box;
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.potential.PotentialMaster;
 import etomica.api.IPotentialMolecular;
 import etomica.util.random.IRandom;

@@ -5,7 +5,8 @@
 
 package etomica.potential;
 
-import etomica.api.*;
+import etomica.atom.IMolecule;
+import etomica.atom.IMoleculeList;
 import etomica.box.Box;
 import etomica.space.Boundary;
 import etomica.space.Vector;

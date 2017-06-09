@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 
 /**
  * Returns iterates from the childList of a single basis atom.  Behavior is set

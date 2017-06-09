@@ -24,7 +24,7 @@ import etomica.action.IAction;
 import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.math.function.IFunction;
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.atom.DiameterHashByType;
 import etomica.box.RandomPositionSourceRectangular;
 import etomica.data.AccumulatorAverage;

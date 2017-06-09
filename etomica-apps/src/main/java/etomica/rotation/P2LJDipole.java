@@ -6,7 +6,7 @@ package etomica.rotation;
 
 import etomica.space.Boundary;
 import etomica.box.Box;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
 import etomica.potential.IPotentialMolecularTorque;

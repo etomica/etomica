@@ -6,7 +6,7 @@ package etomica.models.nitrogen;
 
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.space.Vector;
 import etomica.atom.DiameterHashByType;

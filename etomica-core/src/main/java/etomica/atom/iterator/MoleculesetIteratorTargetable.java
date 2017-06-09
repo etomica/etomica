@@ -4,7 +4,7 @@
 
 package etomica.atom.iterator;
 
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 
 /**
  * Interface for an iterator that can be targeted at one or more atoms.

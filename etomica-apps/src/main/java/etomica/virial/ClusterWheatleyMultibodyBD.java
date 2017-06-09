@@ -6,7 +6,7 @@ package etomica.virial;
 
 import java.math.BigDecimal;
 
-import etomica.api.IMoleculeList;
+import etomica.atom.IMoleculeList;
 import etomica.atom.MoleculeArrayList;
 import etomica.math.SpecialFunctions;
 

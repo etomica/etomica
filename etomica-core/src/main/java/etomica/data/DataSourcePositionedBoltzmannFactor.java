@@ -6,7 +6,7 @@ package etomica.data;
 
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.box.Box;
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.api.ISpecies;
 import etomica.space.Vector;
 import etomica.data.meter.MeterPotentialEnergy;

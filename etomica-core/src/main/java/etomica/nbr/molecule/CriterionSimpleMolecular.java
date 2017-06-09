@@ -4,12 +4,9 @@
 
 package etomica.nbr.molecule;
 
-import etomica.api.*;
-import etomica.atom.IMoleculePositionDefinition;
-import etomica.atom.MoleculePositionGeometricCenter;
+import etomica.atom.*;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
-import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentSourceMoleculeManager;

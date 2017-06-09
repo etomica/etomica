@@ -5,7 +5,7 @@
 package etomica.integrator;
 
 import etomica.box.BoxMoleculeEvent;
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.api.IPotentialAtomic;
 import etomica.util.random.IRandom;
 import etomica.atom.*;

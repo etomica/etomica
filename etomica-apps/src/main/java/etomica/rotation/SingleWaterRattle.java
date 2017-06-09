@@ -13,7 +13,7 @@ import java.io.IOException;
 import etomica.action.BoxImposePbc;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IMolecule;
+import etomica.atom.IMolecule;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.ColorSchemeByType;

@@ -4,8 +4,6 @@
 
 package etomica.atom;
 
-import etomica.api.IMoleculeList;
-
 /**
  * Interface for a class that can perform an action on an atom set.
  */
