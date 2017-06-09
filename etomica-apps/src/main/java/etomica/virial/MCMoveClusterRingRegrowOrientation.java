@@ -4,9 +4,6 @@
 
 package etomica.virial;
 
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.util.random.IRandom;
 import etomica.atom.AtomHydrogen;
 import etomica.atom.AtomTypeOriented;
 import etomica.atom.IAtomList;
@@ -18,6 +15,8 @@ import etomica.chem.elements.Hydrogen;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.math.Quaternion;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -26,6 +25,7 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
+import etomica.util.random.IRandom;
 
 import java.io.File;
 import java.io.FileWriter;

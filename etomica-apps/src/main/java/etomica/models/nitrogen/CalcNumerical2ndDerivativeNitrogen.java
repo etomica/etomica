@@ -7,12 +7,12 @@ package etomica.models.nitrogen;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.atom.MoleculePositionGeometricCenter;
 import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculePair;
+import etomica.molecule.MoleculePositionGeometricCenter;
 import etomica.space.Vector;
-import etomica.atom.MoleculePair;
 import etomica.space3d.Space3D;
 
 /**

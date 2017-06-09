@@ -4,9 +4,6 @@
 
 package etomica.virial.simulations;
 
-import etomica.integrator.IntegratorListener;
-import etomica.integrator.IntegratorEvent;
-import etomica.atom.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
@@ -21,7 +18,10 @@ import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.IData;
 import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.types.DataGroup;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.math.DoubleRange;
+import etomica.molecule.IMoleculeList;
 import etomica.potential.*;
 import etomica.space.Space;
 import etomica.space.Vector;

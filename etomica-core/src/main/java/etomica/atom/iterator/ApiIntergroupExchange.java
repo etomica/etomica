@@ -6,7 +6,7 @@ package etomica.atom.iterator;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.IMoleculeList;
+import etomica.molecule.IMoleculeList;
 
 /**
  */

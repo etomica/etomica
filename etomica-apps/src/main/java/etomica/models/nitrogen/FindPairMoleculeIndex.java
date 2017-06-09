@@ -4,11 +4,11 @@
 
 package etomica.models.nitrogen;
 
-import etomica.atom.IMolecule;
-import etomica.atom.MoleculePositionGeometricCenter;
-import etomica.space.Vector;
-import etomica.atom.IMoleculePositionDefinition;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculePositionDefinition;
+import etomica.molecule.MoleculePositionGeometricCenter;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 
 /**

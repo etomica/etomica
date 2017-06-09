@@ -4,17 +4,12 @@
 
 package etomica.potential;
 
-import etomica.atom.IAtomList;
-import etomica.space.Boundary;
-import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
 import etomica.api.IPotentialAtomic;
-import etomica.space.Vector;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomTypeAgentManager;
+import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.atom.MoleculePair;
+import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
@@ -23,9 +18,14 @@ import etomica.models.water.P2WaterSzalewicz;
 import etomica.models.water.P2WaterSzalewicz.Component;
 import etomica.models.water.PNWaterGCPM;
 import etomica.models.water.SpeciesWater4P;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculePair;
 import etomica.simulation.Simulation;
+import etomica.space.Boundary;
 import etomica.space.IOrientation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.OrientationFull3D;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresRotating;

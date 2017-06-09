@@ -4,13 +4,10 @@
 
 package etomica.atom.iterator;
 
-import etomica.atom.IAtom;
-import etomica.atom.AtomToAtomLeafList;
-import etomica.atom.AtomToIndex;
-import etomica.atom.AtomToIndexChild;
-import etomica.atom.AtomToParentChildList;
+import etomica.atom.*;
+import etomica.potential.IteratorDirective;
 
- /**
+/**
   * An atom iterator of the elements from an AtomArrayList (in proper
   * sequence).  Iterator will fail if element are added to or removed 
   * from list while iteration is proceeding.

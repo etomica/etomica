@@ -4,21 +4,21 @@
 
 package etomica.models.nitrogen;
 
-import etomica.box.Box;
-import etomica.atom.IMoleculeList;
 import etomica.api.ISpecies;
-import etomica.space.Vector;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
+import etomica.molecule.IMoleculeList;
 import etomica.normalmode.BasisBigCell;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Degree;
 
 /**

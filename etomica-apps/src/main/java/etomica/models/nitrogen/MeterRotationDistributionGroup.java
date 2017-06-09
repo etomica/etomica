@@ -4,29 +4,29 @@
 
 package etomica.models.nitrogen;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Serializable;
-
 import etomica.action.IAction;
-import etomica.space.Vector;
 import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
+import etomica.data.histogram.HistogramExpanding;
+import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
+import etomica.math.DoubleRange;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.units.Null;
-import etomica.math.DoubleRange;
-import etomica.data.histogram.HistogramExpanding;
-import etomica.data.histogram.HistogramNotSoSimple;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Serializable;
 
 /**
  * Meter that measures the spherical coordinate angles

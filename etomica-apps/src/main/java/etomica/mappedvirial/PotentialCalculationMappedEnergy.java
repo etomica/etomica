@@ -1,23 +1,19 @@
 package etomica.mappedvirial;
 
-import java.io.IOException;
-
+import etomica.api.IPotentialAtomic;
+import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.AtomPair;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.api.IPotentialAtomic;
-import etomica.space.Vector;
-import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomPair;
-import etomica.atom.iterator.IteratorDirective;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
-import etomica.potential.P2LennardJones;
-import etomica.potential.P2SoftSphericalTruncated;
-import etomica.potential.Potential2SoftSpherical;
-import etomica.potential.PotentialCalculation;
+import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
+
+import java.io.IOException;
 
 /**
  * PotentialCalculation that implements mapped-averaged framework (to get the energy).

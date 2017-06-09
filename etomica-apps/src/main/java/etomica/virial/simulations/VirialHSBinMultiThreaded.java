@@ -4,46 +4,27 @@
 
 package etomica.virial.simulations;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import etomica.box.Box;
-import etomica.atom.IMoleculeList;
 import etomica.api.IPotential;
+import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.listener.IntegratorListenerAction;
 import etomica.math.SpecialFunctions;
+import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.random.RandomMersenneTwister;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterChainHS;
-import etomica.virial.ClusterSinglyConnected;
-import etomica.virial.ClusterWeightAbs;
-import etomica.virial.ClusterWeightUmbrella;
-import etomica.virial.ClusterWheatley;
-import etomica.virial.ClusterWheatleyHS;
-import etomica.virial.ClusterWheatleyPartitionScreening;
-import etomica.virial.IntSet;
+import etomica.virial.*;
 import etomica.virial.IntSet.PropertyBin;
-import etomica.virial.MCMoveClusterAtomHSChain;
-import etomica.virial.MCMoveClusterAtomHSRing;
-import etomica.virial.MCMoveClusterAtomHSTree;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.MeterVirialBDBinMultiThreaded;
 import etomica.virial.MeterVirialBDBinMultiThreaded.MyData;
 import etomica.virial.cluster.Standard;
 import etomica.virial.cluster.VirialDiagrams;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * Calculation for virial coefficients of hard spheres

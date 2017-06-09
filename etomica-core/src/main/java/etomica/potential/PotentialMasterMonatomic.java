@@ -4,10 +4,13 @@
 
 package etomica.potential;
 
-import etomica.api.*;
+import etomica.api.IPotential;
+import etomica.api.IPotentialAtomic;
+import etomica.api.IPotentialMolecular;
+import etomica.api.ISpecies;
 import etomica.atom.*;
-import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
+import etomica.molecule.IMolecule;
 import etomica.simulation.Simulation;
 import etomica.util.Arrays;
 

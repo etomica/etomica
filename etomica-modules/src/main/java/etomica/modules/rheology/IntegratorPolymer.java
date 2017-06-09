@@ -5,12 +5,12 @@
 package etomica.modules.rheology;
 
 import etomica.atom.IAtomList;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
 import etomica.integrator.IntegratorMD;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialMaster;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.util.random.IRandom;
 
 /**

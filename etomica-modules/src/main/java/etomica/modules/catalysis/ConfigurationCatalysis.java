@@ -4,14 +4,10 @@
 
 package etomica.modules.catalysis;
 
+import etomica.api.ISpecies;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.simulation.Simulation;
-import etomica.api.ISpecies;
-import etomica.space.Vector;
-import etomica.atom.AtomLeafAgentManager;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.config.ConfigurationLatticeSimple;
@@ -22,8 +18,12 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.modules.catalysis.InteractionTracker.CatalysisAgent;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * Configuration for catalysis module.  Places molecules within the box on an

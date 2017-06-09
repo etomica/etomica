@@ -4,12 +4,12 @@
 
 package etomica.modules.droplet;
 
-import etomica.atom.IAtom;
-import etomica.atom.IMolecule;
-import etomica.space.Vector;
 import etomica.atom.AtomFilterCollective;
+import etomica.atom.IAtom;
 import etomica.data.IDataSource;
+import etomica.molecule.IMolecule;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 public class AtomFilterLiquid implements AtomFilterCollective {
     

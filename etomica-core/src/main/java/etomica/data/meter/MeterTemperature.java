@@ -4,12 +4,12 @@
 
 package etomica.data.meter;
 
-import etomica.atom.IMolecule;
 import etomica.atom.AtomTypeOriented;
 import etomica.atom.IAtomList;
-import etomica.atom.MoleculeOrientedDynamic;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculeOrientedDynamic;
 import etomica.simulation.Simulation;
 import etomica.species.ISpeciesOriented;
 import etomica.units.Dimension;

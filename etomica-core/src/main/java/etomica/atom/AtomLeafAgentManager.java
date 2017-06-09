@@ -4,14 +4,12 @@
 
 package etomica.atom;
 
+import etomica.box.*;
+import etomica.molecule.IMolecule;
+import etomica.util.Arrays;
+
 import java.io.Serializable;
 import java.lang.reflect.Array;
-
-import etomica.box.*;
-import etomica.box.BoxAtomIndexEvent;
-import etomica.box.BoxMoleculeEvent;
-import etomica.box.BoxIndexEvent;
-import etomica.util.Arrays;
 
 /**
  * AtomAgentManager acts on behalf of client classes (an AgentSource) to

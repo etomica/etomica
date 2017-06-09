@@ -4,7 +4,6 @@
 
 package etomica.potential;
 
-import etomica.atom.IMoleculeList;
 import etomica.api.IPotential;
 import etomica.api.IPotentialAtomic;
 import etomica.atom.AtomType;
@@ -12,6 +11,8 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.iterator.*;
 import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.iterator.MoleculesetIterator;
 import etomica.nbr.CriterionAll;
 import etomica.nbr.NeighborCriterion;
 import etomica.potential.PotentialMaster.AtomIterator0;

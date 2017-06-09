@@ -4,24 +4,24 @@
 
 package etomica.action;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Formatter;
-import java.util.HashMap;
-
+import etomica.api.IElement;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
-import etomica.space.Boundary;
 import etomica.box.Box;
-import etomica.api.IElement;
-import etomica.atom.IMolecule;
-import etomica.space.Vector;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Nitrogen;
 import etomica.chem.elements.Oxygen;
+import etomica.molecule.IMolecule;
+import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
+import etomica.space.Vector;
 import etomica.space3d.BoundaryTruncatedOctahedron;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Formatter;
+import java.util.HashMap;
 
 
 /**

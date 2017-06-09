@@ -5,11 +5,11 @@
 package etomica.virial;
 
 import etomica.atom.IAtomList;
-import etomica.atom.IMolecule;
-import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
+import etomica.molecule.IMolecule;
 import etomica.space.IOrientation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.OrientationFull3D;
 
 public class ClusterCoupledAtomFlipped  extends ClusterCoupledFlipped {

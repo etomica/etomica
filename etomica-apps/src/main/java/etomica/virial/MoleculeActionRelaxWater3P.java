@@ -9,10 +9,10 @@ package etomica.virial;
 
 import etomica.action.MoleculeAction;
 import etomica.atom.IAtom;
-import etomica.atom.IMolecule;
-import etomica.space.Vector;
 import etomica.models.water.SpeciesWater3P;
+import etomica.molecule.IMolecule;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 public class MoleculeActionRelaxWater3P implements MoleculeAction {
     public MoleculeActionRelaxWater3P(Space space) {

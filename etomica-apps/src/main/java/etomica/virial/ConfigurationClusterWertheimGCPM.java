@@ -5,13 +5,15 @@
 package etomica.virial;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.atom.*;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.models.water.PNWaterGCPMThreeSite;
 import etomica.models.water.SpeciesWater4P;
+import etomica.molecule.*;
+import etomica.space.RotationTensor;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.space.RotationTensor;
 import etomica.util.random.IRandom;
 
 public class ConfigurationClusterWertheimGCPM extends ConfigurationCluster {

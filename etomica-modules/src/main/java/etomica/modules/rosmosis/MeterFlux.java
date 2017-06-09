@@ -4,16 +4,8 @@
 
 package etomica.modules.rosmosis;
 
-import etomica.atom.MoleculePositionGeometricCenter;
-import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
-import etomica.space.Vector;
-import etomica.atom.IMoleculePositionDefinition;
-import etomica.atom.MoleculeAgentManager;
-import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
+import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -22,12 +14,12 @@ import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMD;
+import etomica.molecule.*;
+import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
-import etomica.units.CompoundDimension;
-import etomica.units.Dimension;
-import etomica.units.Length;
-import etomica.units.Quantity;
-import etomica.units.Time;
+import etomica.space.Vector;
+import etomica.units.*;
 
 /**
  * Meter to measure flux across a boundary or boundaries.  If an atom is on one

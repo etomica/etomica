@@ -1,19 +1,13 @@
 package etomica.dielectric;
-import java.awt.Color;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.atom.*;
-import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.potential.PotentialMaster;
 import etomica.api.ISpecies;
-import etomica.space.Vector;
-import etomica.atom.MoleculePositionCOM;
+import etomica.atom.DiameterHashByType;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
 import etomica.config.ConfigurationLattice;
@@ -35,9 +29,15 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.listener.IntegratorListenerAction;
 import etomica.models.water.P2WaterTIP4PSoft;
 import etomica.models.water.SpeciesWater4P;
+import etomica.molecule.DipoleSource;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculePositionDefinition;
+import etomica.molecule.MoleculePositionCOM;
 import etomica.potential.P2ReactionFieldDipole;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
@@ -45,6 +45,11 @@ import etomica.units.Pixel;
 import etomica.util.Constants;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+
+import java.awt.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 /**
  * Canonical ensemble Monte Carlo simulation (NVT)
@@ -70,7 +75,7 @@ public class TIP4P_NVT extends Simulation {
      protected double chargeM, chargeH;
 
      //************************************* for reaction field ********************************************//
-     public static class DipoleSourceTIP4PWater implements DipoleSource{//for potential reaction field
+     public static class DipoleSourceTIP4PWater implements DipoleSource {//for potential reaction field
     	 protected final Vector dipole;
          public DipoleSourceTIP4PWater(Space space){
               dipole=space.makeVector();

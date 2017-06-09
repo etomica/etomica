@@ -4,14 +4,12 @@
 
 package etomica.lattice;
 
-import java.awt.Color;
-import java.awt.Graphics;
-
-import javax.swing.JPanel;
-
-import etomica.atom.iterator.IteratorDirective;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.RectangularLattice.Iterator;
+import etomica.potential.IteratorDirective;
+
+import javax.swing.*;
+import java.awt.*;
 
 
 /**

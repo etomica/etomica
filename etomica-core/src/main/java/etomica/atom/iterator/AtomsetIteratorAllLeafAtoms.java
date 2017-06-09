@@ -4,11 +4,11 @@
 
 package etomica.atom.iterator;
 
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
-import etomica.atom.IMoleculeList;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomListWrapper;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.molecule.IMoleculeList;
 
 /**
  * Iterator for all the molecules of a set of species in a box.  Each iterate

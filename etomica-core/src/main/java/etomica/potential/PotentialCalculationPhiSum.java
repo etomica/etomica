@@ -1,13 +1,14 @@
 package etomica.potential;
 
-import etomica.api.*;
-import etomica.atom.DipoleSource;
+import etomica.api.IPotentialAtomic;
+import etomica.api.IPotentialMolecular;
 import etomica.atom.IAtomList;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.space.Vector;
+import etomica.molecule.DipoleSource;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 
 public class PotentialCalculationPhiSum implements PotentialCalculationMolecular {
 	 protected Vector fieldE;

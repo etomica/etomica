@@ -6,11 +6,11 @@ package etomica.potential;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.IMoleculeList;
 import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
 import etomica.space.Boundary;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * Two-centered Lennard Jones molecule with a quadrupole.

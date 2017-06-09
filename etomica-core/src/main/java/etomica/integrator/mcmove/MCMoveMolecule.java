@@ -6,20 +6,20 @@ package etomica.integrator.mcmove;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.potential.PotentialMaster;
-import etomica.util.random.IRandom;
-import etomica.simulation.Simulation;
-import etomica.atom.MoleculeSource;
-import etomica.atom.MoleculeSourceRandomMolecule;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
-import etomica.atom.iterator.MoleculeIterator;
-import etomica.atom.iterator.MoleculeIteratorSinglet;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculeSource;
+import etomica.molecule.MoleculeSourceRandomMolecule;
+import etomica.molecule.iterator.MoleculeIterator;
+import etomica.molecule.iterator.MoleculeIteratorSinglet;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * Standard Monte Carlo molecule-displacement trial move.

@@ -4,15 +4,15 @@
 
 package etomica.nbr;
 
-import etomica.atom.IMolecule;
 import etomica.api.IPotentialAtomic;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.MoleculeSetSinglet;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculeSetSinglet;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialGroup;
 

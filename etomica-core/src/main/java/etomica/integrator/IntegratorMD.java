@@ -5,16 +5,20 @@
 package etomica.integrator;
 
 import etomica.action.AtomActionRandomizeVelocity;
-import etomica.atom.*;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
 import etomica.box.*;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
+import etomica.molecule.IMolecule;
 import etomica.potential.PotentialMaster;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Dimension;
 import etomica.units.Time;
 import etomica.util.Debug;

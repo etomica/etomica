@@ -4,22 +4,18 @@
 
 package etomica.normalmode;
 
-import java.io.Serializable;
-
 import etomica.action.BoxInflate;
-import etomica.atom.IMoleculePositionDefinition;
 import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.simulation.Simulation;
-import etomica.space.Vector;
-import etomica.atom.MoleculePositionGeometricCenter;
-import etomica.atom.MoleculeAgentManager;
-import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
+import etomica.molecule.*;
+import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
+
+import java.io.Serializable;
 
 /**
  * CoordinateDefinition implementation for molecules. The class takes the first

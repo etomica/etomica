@@ -4,12 +4,12 @@
 
 package etomica.models.nitrogen;
 
-import etomica.space.Vector;
 import etomica.box.Box;
-import etomica.atom.MoleculePair;
 import etomica.data.types.DataTensor;
+import etomica.molecule.MoleculePair;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 
 /**
  *  Determine the second derivative of the atomic/ molecular potential energy w.r.t. to

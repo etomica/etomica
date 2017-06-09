@@ -6,10 +6,10 @@ package etomica.nbr.list;
 
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.simulation.Simulation;
-import etomica.atom.IMoleculePositionDefinition;
+import etomica.molecule.IMoleculePositionDefinition;
 import etomica.nbr.cell.Cell;
 import etomica.nbr.cell.NeighborCellManager;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 
 /**

@@ -4,14 +4,8 @@
 
 package etomica.models.nitrogen;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
-import etomica.box.Box;
-import etomica.atom.IMoleculeList;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
+import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -19,10 +13,16 @@ import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.molecule.IMoleculeList;
 import etomica.nbr.list.molecule.PotentialMasterListMolecular;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.units.Kelvin;
 import etomica.units.Null;
+
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * For molecular model, e.g., diatomic Nitrogen model, with 5 d.o.f.

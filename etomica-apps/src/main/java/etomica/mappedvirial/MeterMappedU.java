@@ -1,15 +1,15 @@
 package etomica.mappedvirial;
 
-import etomica.atom.IAtom;
-import etomica.box.Box;
-import etomica.potential.PotentialMaster;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.atom.IAtom;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
+import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.units.Energy;
 

@@ -5,11 +5,11 @@
 package etomica.modules.rheology;
 
 import etomica.atom.IAtomList;
-import etomica.space.Vector;
 import etomica.box.Box;
-import etomica.atom.IMoleculeList;
 import etomica.data.DataSourceScalar;
+import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
 import etomica.units.Length;

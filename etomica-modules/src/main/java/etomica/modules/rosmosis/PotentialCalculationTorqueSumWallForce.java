@@ -4,20 +4,16 @@
 
 package etomica.modules.rosmosis;
 
-import etomica.atom.IAtomList;
-import etomica.atom.IMoleculeList;
 import etomica.api.IPotential;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;
-import etomica.space.Vector;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.MoleculeAgentManager;
+import etomica.atom.IAtomList;
 import etomica.integrator.IntegratorBox;
-import etomica.potential.IPotentialMolecularTorque;
-import etomica.potential.IPotentialTorque;
-import etomica.potential.PotentialCalculationTorqueSum;
-import etomica.potential.PotentialMolecularSoft;
-import etomica.potential.PotentialSoft;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeAgentManager;
+import etomica.potential.*;
+import etomica.space.Vector;
 
 /**
  * Sums the force and torque on each iterated atom or molecule and adds it to

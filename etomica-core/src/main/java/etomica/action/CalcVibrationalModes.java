@@ -4,17 +4,17 @@
 
 package etomica.action;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Serializable;
-
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 import etomica.box.Box;
-import etomica.atom.IMoleculeList;
+import etomica.math.numerical.CalcGradientDifferentiable;
+import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
-import etomica.math.numerical.CalcGradientDifferentiable;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Serializable;
 
 /**
  * Calculates the eigenvalues of an NxN matrix.  Assumes these are actually changes in

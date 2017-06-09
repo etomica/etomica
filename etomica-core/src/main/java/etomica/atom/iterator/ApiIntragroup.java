@@ -4,11 +4,12 @@
 
 package etomica.atom.iterator;
 
-import java.io.Serializable;
-
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.IMoleculeList;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.IteratorDirective;
+
+import java.io.Serializable;
 
 /**
  * Returns iterates from the childList of a single basis atom.  Behavior is set

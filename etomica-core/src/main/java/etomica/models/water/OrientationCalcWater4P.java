@@ -4,18 +4,21 @@
 
 package etomica.models.water;
 
-import etomica.atom.*;
-import etomica.atom.IMolecule;
-import etomica.space.Vector;
-import etomica.atom.MoleculePositionCOM;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.exception.MethodNotImplementedException;
-import etomica.space.Space;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculePositionCOM;
+import etomica.molecule.OrientationCalc;
+import etomica.molecule.OrientationCalcQuaternion;
 import etomica.space.RotationTensor;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.IOrientationFull3D;
 import etomica.space3d.RotationTensor3D;
 
-public class OrientationCalcWater4P extends ConformationWaterTIP4P implements 
-                                             OrientationCalc, OrientationCalcQuaternion, java.io.Serializable {
+public class OrientationCalcWater4P extends ConformationWaterTIP4P implements
+        OrientationCalc, OrientationCalcQuaternion, java.io.Serializable {
 
     public OrientationCalcWater4P(Space space) {
         super(space);

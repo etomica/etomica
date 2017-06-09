@@ -4,12 +4,23 @@
 
 package etomica.potential;
 
-import etomica.api.*;
-import etomica.atom.*;
-import etomica.atom.iterator.*;
+import etomica.api.IPotentialAtomic;
+import etomica.api.IPotentialMolecular;
+import etomica.api.ISpecies;
+import etomica.atom.AtomArrayList;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.box.Box;
 import etomica.chem.models.Model;
 import etomica.chem.models.Model.PotentialAndIterator;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeArrayList;
+import etomica.molecule.iterator.IteratorFactory;
+import etomica.molecule.iterator.MoleculeIteratorAll;
+import etomica.molecule.iterator.MoleculesetIteratorPDT;
 
 import java.util.ArrayList;
 import java.util.Arrays;

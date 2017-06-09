@@ -5,14 +5,14 @@
 package etomica.virial;
 
 import etomica.atom.IAtomList;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.box.Box;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.atom.iterator.AtomIterator;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBox;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 import etomica.util.random.IRandom;

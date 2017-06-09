@@ -5,10 +5,10 @@
 package etomica.modules.vle;
 
 import etomica.box.Box;
-import etomica.potential.PotentialMaster;
-import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataSourceScalar;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationVirialSum;
+import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.units.Pressure;
 

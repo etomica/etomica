@@ -4,17 +4,13 @@
 
 package etomica.rotation;
 
-import etomica.space.Boundary;
-import etomica.box.Box;
-import etomica.atom.IMoleculeList;
-import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
 import etomica.potential.IPotentialMolecularTorque;
 import etomica.potential.PotentialMolecular;
 import etomica.simulation.Simulation;
-import etomica.space.BoundaryRectangularNonperiodic;
-import etomica.space.Space;
-import etomica.space.Tensor;
+import etomica.space.*;
 import etomica.space3d.IOrientation3D;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;

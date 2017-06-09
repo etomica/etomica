@@ -4,7 +4,7 @@
 
 package etomica.action;
 
-import etomica.atom.IMolecule;
+import etomica.molecule.IMolecule;
 
 
 /**

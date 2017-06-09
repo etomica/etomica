@@ -4,12 +4,12 @@
 
 package etomica.nbr.cell;
 
-import etomica.atom.IMoleculePositionDefinition;
 import etomica.box.Box;
-import etomica.simulation.Simulation;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxCellManager;
+import etomica.molecule.IMoleculePositionDefinition;
 import etomica.nbr.site.PotentialMasterSite;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 
 /**

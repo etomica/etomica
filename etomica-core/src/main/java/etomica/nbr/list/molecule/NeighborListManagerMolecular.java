@@ -4,14 +4,14 @@
 
 package etomica.nbr.list.molecule;
 
-import java.io.Serializable;
-
 import etomica.action.BoxImposePbc;
-import etomica.api.*;
-import etomica.atom.*;
+import etomica.api.IPotential;
+import etomica.api.IPotentialMolecular;
+import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
+import etomica.molecule.*;
 import etomica.nbr.cell.molecule.Mpi1ACell;
 import etomica.nbr.cell.molecule.MpiAACell;
 import etomica.nbr.cell.molecule.NeighborCellManagerMolecular;
@@ -19,6 +19,8 @@ import etomica.nbr.molecule.NeighborCriterionMolecular;
 import etomica.potential.PotentialArrayMolecular;
 import etomica.space.Space;
 import etomica.util.Debug;
+
+import java.io.Serializable;
 
 /**
  * Initiates the process of updating the neighbor lists. Instance is constructed

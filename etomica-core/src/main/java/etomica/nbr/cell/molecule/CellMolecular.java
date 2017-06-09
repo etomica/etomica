@@ -4,11 +4,11 @@
 
 package etomica.nbr.cell.molecule;
 
-import etomica.atom.IMolecule;
-import etomica.atom.MoleculeArrayList;
 import etomica.lattice.AbstractLattice;
 import etomica.lattice.RectangularLattice;
 import etomica.lattice.SiteFactory;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculeArrayList;
 
 /**
  * Site used to form array of cells for cell-based neighbor listing.  Each

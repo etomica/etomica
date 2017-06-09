@@ -1,14 +1,14 @@
 package etomica.potential;
 
 import etomica.atom.IAtomList;
-import etomica.space.Boundary;
-import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
+import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 
 /**
  * Lennard Jones molecule with a point dipole sitting in the center.

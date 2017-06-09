@@ -5,16 +5,16 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.atom.MoleculePositionGeometricCenter;
-import etomica.space.Vector;
 import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
 import etomica.config.ConfigurationLattice;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculePositionGeometricCenter;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.species.SpeciesSpheresMono;
 
 /**

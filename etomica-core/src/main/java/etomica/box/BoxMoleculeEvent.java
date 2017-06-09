@@ -4,7 +4,7 @@
 
 package etomica.box;
 
-import etomica.atom.IMolecule;
+import etomica.molecule.IMolecule;
 
 /**
  * A box event that is somehow related to a molecule.  The molecule might have

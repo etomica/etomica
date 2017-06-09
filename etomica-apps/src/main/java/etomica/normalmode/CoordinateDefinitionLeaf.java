@@ -4,16 +4,16 @@
 
 package etomica.normalmode;
 
-import java.io.Serializable;
-
 import etomica.atom.IAtom;
-import etomica.space.Vector;
 import etomica.box.Box;
-import etomica.atom.IMoleculeList;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
+import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
+import etomica.space.Vector;
+
+import java.io.Serializable;
 
 /**
  * CoordinateDefinition implementation for monatomic molecules that are simply

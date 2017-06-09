@@ -4,11 +4,8 @@
 
 package etomica.models.nitrogen;
 
-import etomica.api.*;
-import etomica.atom.IMoleculeList;
+import etomica.api.ISpecies;
 import etomica.box.Box;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -16,9 +13,12 @@ import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.molecule.IMoleculeList;
 import etomica.nbr.list.molecule.PotentialMasterListMolecular;
-import etomica.space.Vector;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Degree;
 import etomica.units.Null;
 

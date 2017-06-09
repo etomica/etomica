@@ -4,16 +4,15 @@
 
 package etomica.potential;
 
-import etomica.space.Boundary;
-import etomica.atom.IMolecule;
 import etomica.api.IPotentialAtomic;
-import etomica.util.random.IRandom;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.box.Box;
 import etomica.math.numerical.AkimaSpline;
+import etomica.molecule.IMolecule;
+import etomica.space.Boundary;
 import etomica.space.IOrientation;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -24,6 +23,7 @@ import etomica.units.Calorie;
 import etomica.units.Hartree;
 import etomica.units.Kelvin;
 import etomica.units.Mole;
+import etomica.util.random.IRandom;
 import etomica.util.random.RandomMersenneTwister;
 
 public class P2WaterPotentialsJankowski implements IPotentialAtomic {

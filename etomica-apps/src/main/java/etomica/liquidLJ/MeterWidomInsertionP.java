@@ -2,17 +2,17 @@ package etomica.liquidLJ;
 
 import etomica.action.BoxInflate;
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.util.random.IRandom;
 import etomica.api.ISpecies;
+import etomica.box.Box;
 import etomica.box.RandomPositionSource;
 import etomica.box.RandomPositionSourceRectangular;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorBox;
+import etomica.molecule.IMolecule;
 import etomica.space.Space;
 import etomica.units.Null;
+import etomica.util.random.IRandom;
 
 /**
  * Meter to measure the chemical potential (as its exponent: exp(-mu/kT)) of a

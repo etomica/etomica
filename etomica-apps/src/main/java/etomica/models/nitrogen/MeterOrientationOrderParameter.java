@@ -4,11 +4,11 @@
 
 package etomica.models.nitrogen;
 
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.units.Null;
 

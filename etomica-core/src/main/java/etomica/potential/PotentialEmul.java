@@ -4,33 +4,22 @@
 
 package etomica.potential;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-
 import etomica.atom.IAtom;
-import etomica.space.Boundary;
 import etomica.box.Box;
-import etomica.atom.IMoleculeList;
-import etomica.space.Vector;
-import etomica.atom.MoleculeArrayList;
 import etomica.chem.elements.Argon;
 import etomica.chem.elements.Helium;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeArrayList;
 import etomica.simulation.Simulation;
+import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.units.Calorie;
-import etomica.units.Kelvin;
-import etomica.units.Mole;
-import etomica.units.Prefix;
-import etomica.units.PrefixedUnit;
-import etomica.units.Unit;
-import etomica.units.UnitRatio;
+import etomica.units.*;
+
+import java.io.*;
 
 /**
  * PotentialEmul class invokes the emul external program to compute energies

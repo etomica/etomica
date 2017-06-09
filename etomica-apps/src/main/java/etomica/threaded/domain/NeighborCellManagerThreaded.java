@@ -5,11 +5,11 @@
 package etomica.threaded.domain;
 
 import etomica.box.Box;
-import etomica.simulation.Simulation;
-import etomica.space.Vector;
-import etomica.atom.IMoleculePositionDefinition;
+import etomica.molecule.IMoleculePositionDefinition;
 import etomica.nbr.cell.NeighborCellManager;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 public class NeighborCellManagerThreaded extends NeighborCellManager {
 

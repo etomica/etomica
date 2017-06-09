@@ -4,9 +4,9 @@
 
 package etomica.potential;
 
-import etomica.atom.IAtom;
-import etomica.atom.IMolecule;
 import etomica.api.IPotential;
+import etomica.atom.IAtom;
+import etomica.molecule.IMolecule;
 
 /**
  * Interface for a long-range correction potential.

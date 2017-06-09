@@ -4,26 +4,22 @@
 
 package etomica.paracetamol;
 
-import java.io.Serializable;
-
 import etomica.action.MoleculeChildAtomAction;
-import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.simulation.Simulation;
-import etomica.space.Vector;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.MoleculeAgentManager;
-import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
-import etomica.atom.MoleculeArrayList;
-import etomica.atom.MoleculeListWrapper;
+import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
+import etomica.molecule.*;
+import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.normalmode.CoordinateDefinitionMolecule;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
+
+import java.io.Serializable;
 
 /**
  * CoordinateDefinition implementation for paracetamol molecule. The class takes the first

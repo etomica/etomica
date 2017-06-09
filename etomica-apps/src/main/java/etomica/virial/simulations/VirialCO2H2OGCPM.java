@@ -4,52 +4,45 @@
 
 package etomica.virial.simulations;
 
-import java.awt.Color;
-import java.util.Arrays;
-
 import etomica.action.IAction;
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.*;
-import etomica.atom.IAtomList;
-import etomica.atom.IMolecule;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCovariance;
-import etomica.integrator.IntegratorEvent;
-import etomica.integrator.IntegratorListener;
-import etomica.space.Vector;
+import etomica.api.IElement;
+import etomica.api.IPotentialMolecular;
+import etomica.api.ISpecies;
 import etomica.atom.AtomTypeAgentManager;
+import etomica.atom.IAtomList;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.Oxygen;
 import etomica.config.IConformation;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.IData;
+import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
+import etomica.math.DoubleRange;
 import etomica.models.co2.PNGCPM;
 import etomica.models.co2.PNGCPM.GCPMAgent;
 import etomica.models.water.SpeciesWater4PCOM;
+import etomica.molecule.IMolecule;
 import etomica.potential.PotentialMolecularSum;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
-import etomica.math.DoubleRange;
-import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterCoupledFlipped;
-import etomica.virial.ClusterWheatleyHS;
-import etomica.virial.ClusterWheatleyMultibody;
-import etomica.virial.ClusterWheatleySoft;
-import etomica.virial.CoordinatePairSet;
-import etomica.virial.MayerFunctionMolecularThreeBody;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.PotentialNonAdditive;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
+
+import java.awt.*;
+import java.util.Arrays;
 
 /**
  * Computes CO2-H2O mixture virial coefficients using ab-initio potentials

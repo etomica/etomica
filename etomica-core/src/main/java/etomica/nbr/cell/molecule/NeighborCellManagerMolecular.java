@@ -4,24 +4,17 @@
 
 package etomica.nbr.cell.molecule;
 
-import etomica.atom.*;
-import etomica.space.Boundary;
-import etomica.space.BoundaryEvent;
-import etomica.space.BoundaryEventListener;
-import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.simulation.Simulation;
-import etomica.space.Vector;
-import etomica.atom.MoleculePositionGeometricCenter;
-import etomica.atom.IMoleculePositionDefinition;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIterator;
+import etomica.box.Box;
 import etomica.box.BoxCellManager;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.lattice.CellLattice;
-import etomica.space.Space;
+import etomica.molecule.*;
+import etomica.simulation.Simulation;
+import etomica.space.*;
 import etomica.util.Debug;
 import etomica.util.IEvent;
 import etomica.util.IListener;

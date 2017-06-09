@@ -1,11 +1,10 @@
 package etomica.surfacetension;
 
-import etomica.api.*;
+import etomica.api.ISpecies;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
@@ -18,10 +17,11 @@ import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.integrator.Integrator.Forcible;
 import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Null;
 
 

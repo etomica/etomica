@@ -5,18 +5,18 @@
 package etomica.conjugategradient;
 
 import etomica.action.Activity;
-import etomica.atom.IAtom;
-import etomica.box.Box;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.atom.IAtom;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.math.numerical.FiniteDifferenceDerivative;
 import etomica.paracetamol.AnalyticalDerivativeEnergyParacetamol;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
-import etomica.math.numerical.FiniteDifferenceDerivative;
 
 public class FiniteDifferenceDerivativeCG {
 	

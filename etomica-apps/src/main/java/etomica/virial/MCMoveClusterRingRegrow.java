@@ -4,18 +4,18 @@
 
 package etomica.virial;
 
+import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.util.random.IRandom;
-import etomica.space.Vector;
-import etomica.atom.AtomArrayList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBox;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * MCMove that fully regrows the beads of a ring polymer, accepting or

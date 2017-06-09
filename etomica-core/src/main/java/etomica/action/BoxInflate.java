@@ -4,12 +4,12 @@
 
 package etomica.action;
 
-import etomica.atom.MoleculePositionGeometricCenter;
 import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.space.Vector;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculePositionGeometricCenter;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * Performs actions that cause volume of system to expand or contract, with

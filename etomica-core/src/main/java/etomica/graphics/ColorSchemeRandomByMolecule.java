@@ -3,15 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.graphics;
-import java.awt.Color;
 
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.util.random.IRandom;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculeAgentManager;
+import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.simulation.Simulation;
-import etomica.atom.MoleculeAgentManager;
-import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
+import etomica.util.random.IRandom;
+
+import java.awt.*;
 
 public class ColorSchemeRandomByMolecule extends ColorScheme implements MoleculeAgentSource {
     

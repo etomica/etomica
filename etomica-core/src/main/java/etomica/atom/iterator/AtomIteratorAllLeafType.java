@@ -5,8 +5,8 @@
 package etomica.atom.iterator;
 
 import etomica.atom.*;
-import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.box.Box;
+import etomica.potential.IteratorDirective.Direction;
 
 /**
  * Iterator for all the molecules of a set of species in a box.  Each iterate

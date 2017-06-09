@@ -5,12 +5,12 @@
 package etomica.normalmode;
 
 import etomica.atom.IAtomList;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
-import etomica.space.Vector;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Angle;
 
 /**

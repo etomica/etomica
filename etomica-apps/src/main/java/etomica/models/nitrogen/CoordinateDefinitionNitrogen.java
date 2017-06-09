@@ -4,27 +4,28 @@
 
 package etomica.models.nitrogen;
 
-import java.io.Serializable;
-
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.atom.*;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.box.Box;
-import etomica.simulation.Simulation;
-import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.config.Configuration;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
+import etomica.molecule.*;
+import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.normalmode.CoordinateDefinitionMolecule;
 import etomica.paracetamol.AtomActionTransformed;
-import etomica.space.Vector;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Tensor3D;
 import etomica.util.random.IRandom;
 import etomica.util.random.RandomNumberGenerator;
+
+import java.io.Serializable;
 
 /**
  * CoordinateDefinition implementation for nitrogen molecule. The class takes the first

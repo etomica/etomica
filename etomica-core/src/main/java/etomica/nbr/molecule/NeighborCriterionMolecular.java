@@ -4,8 +4,8 @@
 
 package etomica.nbr.molecule;
 import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 
 /**
  * Atom filter used to specify whether two atoms are considered neighbors,

@@ -4,18 +4,18 @@
 
 package etomica.math.numerical;
 
-import etomica.atom.IAtom;
-import etomica.box.Box;
-import etomica.atom.IMoleculeList;
-import etomica.potential.PotentialMaster;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.atom.IAtom;
+import etomica.box.Box;
 import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.nbr.list.PotentialMasterList;
-import etomica.potential.PotentialCalculationForceSum;
-import etomica.space.Space;
 import etomica.math.function.FunctionMultiDimensionalDifferentiable;
+import etomica.molecule.IMoleculeList;
+import etomica.nbr.list.PotentialMasterList;
+import etomica.potential.IteratorDirective;
+import etomica.potential.PotentialCalculationForceSum;
+import etomica.potential.PotentialMaster;
+import etomica.space.Space;
 
 /**
  * Uses finite difference methods to determine the second order differential of the potential (i.e. dF/dx).

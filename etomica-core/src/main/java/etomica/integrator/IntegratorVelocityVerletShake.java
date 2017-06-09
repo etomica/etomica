@@ -4,17 +4,19 @@
 
 package etomica.integrator;
 
-import etomica.api.*;
+import etomica.api.ISpecies;
 import etomica.atom.*;
 import etomica.box.Box;
+import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.IteratorDirective;
+import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.atom.iterator.IteratorDirective;
-import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
-import etomica.potential.PotentialCalculationForceSum;
 import etomica.space.Boundary;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.util.Constants;

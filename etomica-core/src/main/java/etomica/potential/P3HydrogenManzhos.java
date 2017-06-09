@@ -4,26 +4,22 @@
 
 package etomica.potential;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-
-import etomica.api.*;
-import etomica.atom.IMoleculeList;
+import etomica.api.IPotential;
+import etomica.api.IPotentialMolecular;
 import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
 import etomica.space.Boundary;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.units.BohrRadius;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
+
+import java.io.*;
+import java.net.URL;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 public class P3HydrogenManzhos implements IPotential{
     public static void main(String[] args) {       

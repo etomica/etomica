@@ -4,12 +4,12 @@
 
 package etomica.atom.iterator;
 
+import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.IMoleculeList;
-import etomica.atom.AtomArrayList;
-import etomica.atom.MoleculePair;
-import etomica.atom.MoleculeSetSinglet;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculePair;
+import etomica.molecule.MoleculeSetSinglet;
 
 /**
  */

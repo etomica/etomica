@@ -3,9 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.data.meter;
+
 import etomica.box.Box;
-import etomica.potential.PotentialMaster;
-import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -14,8 +13,10 @@ import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationHyperVirialSum;
 import etomica.potential.PotentialCalculationVirialSum;
+import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.units.Null;
 

@@ -4,22 +4,22 @@
 
 package etomica.normalmode;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-
 import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.potential.PotentialMaster;
-import etomica.space.Vector;
-import etomica.atom.MoleculePositionCOM;
 import etomica.lattice.crystal.Primitive;
 import etomica.models.water.SpeciesWater4P;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculePositionCOM;
 import etomica.normalmode.LatticeSumMolecularCrystal.AtomicTensorAtomicPair;
+import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.space3d.Tensor3D;
 import etomica.spaceNd.TensorND;
+
+import java.io.IOException;
+import java.io.PrintWriter;
 
 /**
  * Uses analysis of 2nd derivatives to compute the normal modes for a Bravais lattice with a basis, 

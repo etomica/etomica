@@ -5,8 +5,8 @@
 package etomica.virial;
 
 import etomica.atom.IAtomList;
-import etomica.atom.IMoleculeList;
 import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
 

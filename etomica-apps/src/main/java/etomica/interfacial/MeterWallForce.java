@@ -1,14 +1,14 @@
 package etomica.interfacial;
 
-import etomica.atom.IMoleculeList;
 import etomica.api.IPotentialAtomic;
 import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialSoft;

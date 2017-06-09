@@ -4,13 +4,14 @@
 
 package etomica.atom.iterator;
 
-import java.util.LinkedList;
-
+import etomica.UnitTestUtil;
+import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
+import etomica.potential.IteratorDirective;
 import etomica.simulation.Simulation;
-import etomica.atom.AtomSetSinglet;
-import etomica.UnitTestUtil;
+
+import java.util.LinkedList;
 
 
 /**

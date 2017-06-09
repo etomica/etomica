@@ -4,10 +4,8 @@
 
 package etomica.models.nitrogen;
 
-import etomica.atom.IMolecule;
 import etomica.api.ISpecies;
 import etomica.atom.DiameterHashByType;
-import etomica.atom.MoleculePair;
 import etomica.box.Box;
 import etomica.data.types.DataTensor;
 import etomica.graphics.DisplayBox;
@@ -16,6 +14,8 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculePair;
 import etomica.normalmode.BasisBigCell;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;

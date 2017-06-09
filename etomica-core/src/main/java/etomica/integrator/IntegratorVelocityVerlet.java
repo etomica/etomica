@@ -6,15 +6,15 @@ package etomica.integrator;
 
 import etomica.atom.*;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.util.Debug;
 import etomica.util.random.IRandom;
 

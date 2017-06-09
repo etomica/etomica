@@ -4,12 +4,13 @@
 
 package etomica.atom.iterator;
 
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.atom.AtomType;
-import etomica.atom.Molecule;
-import etomica.atom.MoleculeSetSinglet;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.Molecule;
+import etomica.molecule.MoleculeSetSinglet;
+import etomica.molecule.iterator.MoleculeIteratorSinglet;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresHetero;
 

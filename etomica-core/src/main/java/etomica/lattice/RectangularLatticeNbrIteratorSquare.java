@@ -4,9 +4,9 @@
 
 package etomica.lattice;
 
-import etomica.atom.iterator.IteratorDirective;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.RectangularLattice.Iterator;
+import etomica.potential.IteratorDirective;
 import etomica.util.Debug;
 
 import javax.swing.*;

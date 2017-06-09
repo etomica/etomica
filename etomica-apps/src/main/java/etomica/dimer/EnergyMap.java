@@ -5,7 +5,6 @@
 package etomica.dimer;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.IMolecule;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
@@ -21,6 +20,7 @@ import etomica.lattice.crystal.PrimitiveTetragonal;
 import etomica.listener.IntegratorListenerAction;
 import etomica.meam.ParameterSetMEAM;
 import etomica.meam.PotentialMEAM;
+import etomica.molecule.IMolecule;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;

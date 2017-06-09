@@ -4,15 +4,15 @@
 
 package etomica.modules.sam;
 
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.MoleculeAgentManager;
-import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeAgentManager;
+import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.nbr.NeighborCriterion;
 import etomica.simulation.Simulation;
 

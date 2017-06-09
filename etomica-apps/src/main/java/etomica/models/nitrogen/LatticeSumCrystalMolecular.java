@@ -8,21 +8,16 @@ import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.space.Vector;
-import etomica.atom.MoleculePair;
+import etomica.data.FunctionData;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataGroup;
-import etomica.lattice.BravaisLatticeCrystal;
-import etomica.lattice.IndexIterator;
-import etomica.lattice.IndexIteratorReflecting;
-import etomica.lattice.IndexIteratorTriangular;
-import etomica.lattice.IndexIteratorTriangularPermutations;
-import etomica.lattice.SpaceLattice;
+import etomica.lattice.*;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculePair;
 import etomica.paracetamol.AtomActionTransformed;
 import etomica.space.Tensor;
-import etomica.data.FunctionData;
+import etomica.space.Vector;
 
 /**
  * Lattice sum crystal for molecular model

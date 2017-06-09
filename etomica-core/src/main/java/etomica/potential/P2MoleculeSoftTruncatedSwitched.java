@@ -4,14 +4,14 @@
 
 package etomica.potential;
 
-import etomica.space.Boundary;
 import etomica.box.Box;
-import etomica.atom.IMoleculeList;
-import etomica.space.Vector;
-import etomica.atom.MoleculeOrientedDynamic;
 import etomica.models.water.P2WaterSPCSoft;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeOrientedDynamic;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 
 

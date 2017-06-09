@@ -4,9 +4,9 @@
 
 package etomica.box;
 
-import etomica.atom.IMolecule;
 import etomica.api.ISpecies;
 import etomica.atom.IAtom;
+import etomica.molecule.IMolecule;
 
 import java.util.ArrayList;
 import java.util.List;

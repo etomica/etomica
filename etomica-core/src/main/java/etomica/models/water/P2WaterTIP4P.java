@@ -5,7 +5,7 @@
 
 package etomica.models.water;
 
-import etomica.atom.MoleculePositionCOM;
+import etomica.molecule.MoleculePositionCOM;
 import etomica.space.Space;
 import etomica.units.Calorie;
 import etomica.units.Electron;

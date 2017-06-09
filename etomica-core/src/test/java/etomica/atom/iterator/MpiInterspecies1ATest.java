@@ -4,16 +4,18 @@
 
 package etomica.atom.iterator;
 
-import java.util.LinkedList;
-
-import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.simulation.Simulation;
-import etomica.api.ISpecies;
-import etomica.atom.MoleculeArrayList;
 import etomica.UnitTestUtil;
+import etomica.api.ISpecies;
 import etomica.atom.MoleculesetAction;
+import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeArrayList;
+import etomica.molecule.iterator.MpiInterspecies1A;
+import etomica.potential.IteratorDirective;
+import etomica.simulation.Simulation;
+
+import java.util.LinkedList;
 
 /**
  * Unit test for ApiInterspecies1A

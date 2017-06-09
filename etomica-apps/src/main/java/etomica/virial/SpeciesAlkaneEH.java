@@ -5,9 +5,13 @@
 package etomica.virial;
 
 
-import etomica.atom.IMolecule;
-import etomica.atom.*;
+import etomica.atom.Atom;
+import etomica.atom.AtomLeafDynamic;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
 import etomica.chem.elements.ElementSimple;
+import etomica.molecule.IMolecule;
+import etomica.molecule.Molecule;
 import etomica.space.Space;
 import etomica.species.Species;
 /**

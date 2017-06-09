@@ -4,20 +4,20 @@
 
 package etomica.virial;
 
+import etomica.api.ISpecies;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.atom.IMoleculeList;
-import etomica.potential.PotentialMaster;
-import etomica.util.random.IRandom;
-import etomica.simulation.Simulation;
-import etomica.api.ISpecies;
-import etomica.space.Vector;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 import etomica.util.Debug;
+import etomica.util.random.IRandom;
 
 /**
  * An MC Move for cluster simulations that "wiggles" a chain molecule.  If the 

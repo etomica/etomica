@@ -4,15 +4,20 @@
 
 package etomica.nbr.list;
 
-import etomica.api.*;
+import etomica.api.IPotential;
+import etomica.api.IPotentialAtomic;
+import etomica.api.ISpecies;
 import etomica.atom.*;
 import etomica.atom.iterator.AtomIteratorSinglet;
-import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxCellManager;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.IMoleculePositionDefinition;
 import etomica.nbr.*;
 import etomica.nbr.cell.NeighborCellManager;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialGroup;

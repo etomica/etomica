@@ -8,15 +8,15 @@ import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.space.Boundary;
 import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.util.random.IRandom;
-import etomica.space.Vector;
-import etomica.atom.MoleculePair;
 import etomica.models.OPLS.SpeciesAceticAcid;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculePair;
+import etomica.space.Boundary;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.RotationTensor3D;
+import etomica.util.random.IRandom;
 
 public class BiasVolumeAceticAcid extends BiasVolumeMolecule {
     

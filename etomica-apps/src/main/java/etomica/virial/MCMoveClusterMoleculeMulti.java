@@ -4,14 +4,14 @@
 
 package etomica.virial;
 
-import etomica.space.Vector;
 import etomica.box.Box;
-import etomica.atom.IMoleculeList;
-import etomica.potential.PotentialMaster;
-import etomica.util.random.IRandom;
-import etomica.simulation.Simulation;
 import etomica.integrator.mcmove.MCMoveMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 
 /**

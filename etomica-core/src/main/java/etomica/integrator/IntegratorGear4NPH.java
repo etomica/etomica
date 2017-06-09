@@ -5,18 +5,13 @@
 // includes a main method
 
 package etomica.integrator;
+
 import etomica.action.BoxInflate;
+import etomica.api.IPotential;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
-import etomica.space.Boundary;
 import etomica.box.Box;
-import etomica.api.IPotential;
-import etomica.potential.PotentialMaster;
-import etomica.util.random.IRandom;
-import etomica.simulation.Simulation;
-import etomica.space.Vector;
-import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -25,15 +20,16 @@ import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.modifier.ModifierBoolean;
+import etomica.potential.IteratorDirective;
 import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialCalculationForceSum;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.space.Boundary;
 import etomica.space.Space;
-import etomica.units.Dimension;
-import etomica.units.Energy;
-import etomica.units.Kelvin;
-import etomica.units.Null;
-import etomica.units.Pressure;
-import etomica.units.Temperature;
+import etomica.space.Vector;
+import etomica.units.*;
+import etomica.util.random.IRandom;
 
 /**
  * Gear 4th-order predictor-corrector integrator for constant enthalphy, pressure.

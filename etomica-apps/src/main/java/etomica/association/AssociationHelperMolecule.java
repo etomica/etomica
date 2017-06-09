@@ -4,14 +4,14 @@
 
 package etomica.association;
 
-import etomica.space.Boundary;
 import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.space.Vector;
-import etomica.atom.MoleculeArrayList;
 import etomica.models.OPLS.SpeciesAceticAcid;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeArrayList;
+import etomica.space.Boundary;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * AssociationHelperBranched is capable of populating a list of molecules in an smer 

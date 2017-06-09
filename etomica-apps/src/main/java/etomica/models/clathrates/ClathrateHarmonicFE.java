@@ -4,9 +4,7 @@
 
 package etomica.models.clathrates;
 
-import etomica.atom.IMolecule;
 import etomica.atom.*;
-import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationFileBinary;
@@ -21,6 +19,7 @@ import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.models.clathrates.MinimizationTIP4P.ChargeAgentSourceRPM;
 import etomica.models.water.ConfigurationFileTIP4P;
 import etomica.models.water.SpeciesWater4P;
+import etomica.molecule.IMolecule;
 import etomica.normalmode.LatticeSumMolecularCrystal.AtomicTensorAtomicPair;
 import etomica.normalmode.NormalModesMolecular;
 import etomica.potential.*;

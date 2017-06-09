@@ -5,11 +5,11 @@
 package etomica.virial;
 
 import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.space.Vector;
 import etomica.config.Configuration;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * @author kofke

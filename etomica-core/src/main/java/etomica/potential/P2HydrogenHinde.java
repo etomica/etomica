@@ -37,26 +37,26 @@ package etomica.potential;
 //    The potential energy is returned to the calling program in the
 //    variable potl, in units of wavenumbers.
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
-import etomica.space.Boundary;
-import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
 import etomica.api.IPotential;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;
-import etomica.space.Vector;
 import etomica.atom.AtomHydrogen;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.space.Boundary;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.units.BohrRadius;
 import etomica.units.Degree;
 import etomica.util.Constants;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 
 public class P2HydrogenHinde implements IPotential {
     public static void main(String[] args) {

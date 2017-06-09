@@ -4,23 +4,23 @@
 
 package etomica.integrator;
 
+import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
-import etomica.space.Boundary;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.potential.PotentialMaster;
-import etomica.util.random.IRandom;
-import etomica.simulation.Simulation;
-import etomica.space.Vector;
-import etomica.atom.AtomSetSinglet;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.space.Boundary;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
 import etomica.util.Debug;
+import etomica.util.random.IRandom;
 
 /**
  * Integrator implementing RATTLE algorithm.

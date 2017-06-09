@@ -1,10 +1,10 @@
 package etomica.potential;
 
 import etomica.box.Box;
-import etomica.atom.IMoleculeList;
-import etomica.space.Vector;
-import etomica.atom.DipoleSource;
+import etomica.molecule.DipoleSource;
+import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 public class P1ExternalField extends PotentialMolecular {
 

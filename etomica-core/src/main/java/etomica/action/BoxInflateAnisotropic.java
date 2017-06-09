@@ -4,12 +4,12 @@
 
 package etomica.action;
 
-import etomica.space.Vector;
 import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 
 /**

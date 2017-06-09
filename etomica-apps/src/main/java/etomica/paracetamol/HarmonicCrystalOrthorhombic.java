@@ -6,8 +6,6 @@ package etomica.paracetamol;
 
 import etomica.action.WriteConfigurationDLPOLY;
 import etomica.box.Box;
-import etomica.atom.IMoleculeList;
-import etomica.atom.MoleculePair;
 import etomica.data.DataInfo;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -17,6 +15,8 @@ import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculePair;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.paracetamol.LatticeSumCrystalParacetamol.DataGroupLSCParacetamol;
 import etomica.potential.P2DLPOLY;

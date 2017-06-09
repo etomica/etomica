@@ -6,17 +6,17 @@ package etomica.models.hexane;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.atom.IMolecule;
-import etomica.box.Box;
-import etomica.atom.MoleculePositionGeometricCenter;
-import etomica.atom.MoleculeSourceRandomMolecule;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBox;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculePositionGeometricCenter;
+import etomica.molecule.MoleculeSourceRandomMolecule;
 import etomica.potential.PotentialMaster;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.util.random.IRandom;
 
 

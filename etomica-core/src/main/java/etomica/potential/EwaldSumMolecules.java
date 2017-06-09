@@ -4,16 +4,16 @@
 
 package etomica.potential;
 
-import etomica.api.*;
-import etomica.atom.IAtom;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.box.Box;
+import etomica.api.IPotentialMolecular;
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.IAtom;
+import etomica.box.Box;
 import etomica.math.Complex;
 import etomica.math.SpecialFunctions;
-import etomica.space.Vector;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Electron;
 
 /**

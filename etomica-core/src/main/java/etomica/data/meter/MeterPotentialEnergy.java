@@ -3,13 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.data.meter;
+
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.potential.PotentialMaster;
-import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataSourceScalar;
+import etomica.molecule.IMolecule;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationEnergySum;
+import etomica.potential.PotentialMaster;
 import etomica.units.Energy;
 
 /**

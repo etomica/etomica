@@ -5,12 +5,12 @@
 package etomica.action;
 
 import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.space.Vector;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 
 /**
  * Performs actions that cause volume of a deformable system to expand, with molecule

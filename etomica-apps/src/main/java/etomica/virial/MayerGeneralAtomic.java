@@ -1,10 +1,10 @@
 package etomica.virial;
 
-import etomica.box.Box;
-import etomica.atom.IMoleculeList;
 import etomica.api.IPotential;
 import etomica.api.IPotentialAtomic;
 import etomica.atom.AtomPair;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
 
 /**
  * @author kofke

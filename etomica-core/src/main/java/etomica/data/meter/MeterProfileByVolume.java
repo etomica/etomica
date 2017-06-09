@@ -3,29 +3,24 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.data.meter;
-import etomica.space.Boundary;
-import etomica.atom.IMoleculePositionDefinition;
-import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
+
 import etomica.api.ISpecies;
-import etomica.space.Vector;
-import etomica.atom.MoleculePositionGeometricCenter;
-import etomica.data.DataSourceIndependent;
-import etomica.data.DataSourceMolecular;
-import etomica.data.DataSourceUniform;
+import etomica.box.Box;
+import etomica.data.*;
 import etomica.data.DataSourceUniform.LimitType;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.IMoleculePositionDefinition;
+import etomica.molecule.MoleculePositionGeometricCenter;
+import etomica.space.Boundary;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Length;
 
 /**

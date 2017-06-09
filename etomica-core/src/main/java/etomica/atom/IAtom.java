@@ -4,6 +4,7 @@
 
 package etomica.atom;
 
+import etomica.molecule.IMolecule;
 import etomica.space.Vector;
 
 /**

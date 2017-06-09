@@ -7,21 +7,19 @@ package etomica.integrator.mcmove;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.atom.*;
-import etomica.box.Box;
-import etomica.atom.MoleculePositionCOM;
-import etomica.atom.IMoleculePositionDefinition;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorNull;
+import etomica.box.Box;
 import etomica.box.RandomPositionSource;
 import etomica.box.RandomPositionSourceRectangular;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
+import etomica.molecule.*;
 import etomica.potential.PotentialMaster;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.util.random.IRandom;
 
 /**

@@ -5,6 +5,7 @@
 package etomica.atom.iterator;
 
 import etomica.atom.AtomType;
+import etomica.potential.IteratorDirective;
 
 /**
  * Provides static methods for construction of some useful pair iterators.

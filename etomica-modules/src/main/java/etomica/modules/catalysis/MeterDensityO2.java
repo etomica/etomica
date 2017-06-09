@@ -4,13 +4,13 @@
 
 package etomica.modules.catalysis;
 
-import etomica.atom.IAtom;
-import etomica.box.Box;
-import etomica.atom.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.IAtom;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.modules.catalysis.InteractionTracker.CatalysisAgent;
+import etomica.molecule.IMoleculeList;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
 import etomica.units.Quantity;

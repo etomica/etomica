@@ -8,11 +8,12 @@
  */
 package etomica.atom.iterator;
 
+import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.atom.AtomArrayList;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.IteratorDirective;
 
 /**
  * Elementary basis-dependent iterator that gives atoms meeting specification

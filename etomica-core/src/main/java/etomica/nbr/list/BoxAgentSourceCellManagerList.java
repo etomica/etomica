@@ -4,11 +4,11 @@
 
 package etomica.nbr.list;
 
-import etomica.atom.IMoleculePositionDefinition;
 import etomica.box.Box;
-import etomica.simulation.Simulation;
+import etomica.molecule.IMoleculePositionDefinition;
 import etomica.nbr.cell.BoxAgentSourceCellManager;
 import etomica.nbr.cell.NeighborCellManager;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 
 /**

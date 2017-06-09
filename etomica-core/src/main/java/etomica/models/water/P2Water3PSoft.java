@@ -5,12 +5,12 @@
 
 package etomica.models.water;
 
-import etomica.atom.IMoleculeList;
-import etomica.space.Vector;
-import etomica.atom.MoleculeOrientedDynamic;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeOrientedDynamic;
 import etomica.potential.IPotentialMolecularTorque;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 
 /** 
  * 3-point potential for water that can calculate gradient and torque (for the

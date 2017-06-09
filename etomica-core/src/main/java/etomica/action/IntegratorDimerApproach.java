@@ -6,12 +6,12 @@ package etomica.action;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.potential.PotentialMaster;
-import etomica.space.Vector;
 import etomica.integrator.IntegratorBox;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.PotentialMaster;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /*
  * Integrator for simulation DimerApproach

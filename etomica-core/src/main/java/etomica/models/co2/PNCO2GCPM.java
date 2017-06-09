@@ -4,28 +4,28 @@
 
 package etomica.models.co2;
 
-import etomica.atom.IAtomList;
-import etomica.space.Boundary;
-import etomica.box.Box;
 import etomica.api.IElement;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
 import etomica.api.IPotentialMolecular;
-import etomica.space.Vector;
 import etomica.atom.AtomTypeAgentManager;
+import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.atom.MoleculePair;
+import etomica.box.Box;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Oxygen;
 import etomica.config.IConformation;
 import etomica.models.co2.P2CO2Hellmann.Parameters;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculePair;
 import etomica.potential.P3AxilrodTeller;
 import etomica.potential.PotentialMolecular;
 import etomica.potential.PotentialPolarizable;
 import etomica.simulation.Simulation;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.species.SpeciesSpheresRotating;

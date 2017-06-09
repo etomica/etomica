@@ -4,12 +4,16 @@
 
 package etomica.paracetamol;
 
-import etomica.atom.IMolecule;
-import etomica.atom.*;
+import etomica.atom.Atom;
+import etomica.atom.AtomLeafDynamic;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Nitrogen;
 import etomica.chem.elements.Oxygen;
+import etomica.molecule.IMolecule;
+import etomica.molecule.Molecule;
 import etomica.space.Space;
 import etomica.species.Species;
 import etomica.units.ElectronVolt;

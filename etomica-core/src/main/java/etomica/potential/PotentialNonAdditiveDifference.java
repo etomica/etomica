@@ -1,9 +1,9 @@
 package etomica.potential;
 
-import etomica.box.Box;
-import etomica.atom.IMoleculeList;
 import etomica.api.IPotentialMolecular;
-import etomica.atom.MoleculePair;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculePair;
 import etomica.space.Space;
 
 public class PotentialNonAdditiveDifference extends PotentialMolecular {

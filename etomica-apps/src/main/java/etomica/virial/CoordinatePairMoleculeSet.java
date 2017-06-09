@@ -4,12 +4,12 @@
 
 package etomica.virial;
 
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.atom.IMoleculePositionDefinition;
-import etomica.space.Vector;
-import etomica.atom.MoleculePositionGeometricCenter;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.IMoleculePositionDefinition;
+import etomica.molecule.MoleculePositionGeometricCenter;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.util.Debug;
 
 /**

@@ -4,26 +4,14 @@
 
 package etomica.integrator;
 
-import java.awt.Color;
-import java.io.Serializable;
-
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.BoxImposePbc;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.*;
-import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
-import etomica.space.*;
-import etomica.space.Vector;
+import etomica.atom.*;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.MoleculePositionCOM;
-import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationLattice;
 import etomica.data.meter.MeterKineticEnergyRigid;
@@ -32,13 +20,16 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.listener.IntegratorListenerAction;
+import etomica.math.function.Function;
 import etomica.models.water.DipoleSourceWater;
 import etomica.models.water.OrientationCalcWater3P;
 import etomica.models.water.P2WaterSPCSoft;
 import etomica.models.water.SpeciesWater3POriented;
-import etomica.potential.P2MoleculeSoftTruncatedSwitched;
-import etomica.potential.P2ReactionFieldDipole;
-import etomica.potential.PotentialCalculationTorqueSum;
+import etomica.molecule.*;
+import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
+import etomica.potential.*;
+import etomica.simulation.Simulation;
+import etomica.space.*;
 import etomica.space3d.IOrientationFull3D;
 import etomica.space3d.OrientationFull3D;
 import etomica.space3d.RotationTensor3D;
@@ -49,7 +40,9 @@ import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
 import etomica.util.Debug;
-import etomica.math.function.Function;
+
+import java.awt.*;
+import java.io.Serializable;
 
 public class IntegratorRigidIterative extends IntegratorMD implements AgentSource<IntegratorVelocityVerlet.MyAgent>, SpeciesAgentManager.AgentSource, MoleculeAgentSource {
 

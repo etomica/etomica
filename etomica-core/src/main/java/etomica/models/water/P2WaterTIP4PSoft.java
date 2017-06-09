@@ -5,7 +5,7 @@
 
 package etomica.models.water;
 
-import etomica.atom.IMoleculePositionDefinition;
+import etomica.molecule.IMoleculePositionDefinition;
 import etomica.space.Space;
 
 /** 

@@ -4,19 +4,18 @@
 
 package etomica.normalmode;
 
-import etomica.atom.*;
+import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.potential.PotentialMaster;
-import etomica.space.Vector;
-import etomica.atom.IMoleculePositionDefinition;
-import etomica.atom.iterator.IteratorDirective;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.crystal.Primitive;
+import etomica.molecule.*;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
+import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.space3d.Tensor3D;
 import etomica.spaceNd.TensorND;
 

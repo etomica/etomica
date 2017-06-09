@@ -4,27 +4,27 @@
 
 package etomica.models.nitrogen;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
-import etomica.atom.IMolecule;
 import etomica.api.ISpecies;
-import etomica.space.Vector;
-import etomica.atom.MoleculePair;
 import etomica.box.Box;
 import etomica.data.types.DataTensor;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculePair;
 import etomica.normalmode.BasisBigCell;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.units.Degree;
+
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * 

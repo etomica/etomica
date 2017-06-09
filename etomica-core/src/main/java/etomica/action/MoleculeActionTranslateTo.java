@@ -5,13 +5,13 @@
 package etomica.action;
 
 
-import java.io.Serializable;
-
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculePositionDefinition;
-import etomica.space.Vector;
-import etomica.atom.MoleculePositionCOM;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculePositionDefinition;
+import etomica.molecule.MoleculePositionCOM;
 import etomica.space.Space;
+import etomica.space.Vector;
+
+import java.io.Serializable;
 
 /**
  * Moves (translates) an atom to a specified position.  Location of the

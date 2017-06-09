@@ -6,13 +6,13 @@ package etomica.virial;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.IMoleculeList;
-import etomica.atom.MoleculeArrayList;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveStepTracker;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeArrayList;
 import etomica.potential.PotentialMaster;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.util.random.IRandom;
 
 /**

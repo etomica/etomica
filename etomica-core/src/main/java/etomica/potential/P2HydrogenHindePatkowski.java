@@ -4,23 +4,23 @@
 
 package etomica.potential;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
-import etomica.space.Boundary;
-import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
 import etomica.api.IPotential;
 import etomica.api.IPotentialAtomic;
-import etomica.space.Vector;
 import etomica.atom.AtomHydrogen;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.space.Boundary;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.BohrRadius;
 import etomica.units.Degree;
 import etomica.units.Kelvin;
+
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class P2HydrogenHindePatkowski implements IPotential {
     protected Boundary boundary;

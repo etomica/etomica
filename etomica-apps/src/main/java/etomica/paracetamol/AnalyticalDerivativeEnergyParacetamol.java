@@ -4,15 +4,15 @@
 
 package etomica.paracetamol;
 
-import java.io.Serializable;
-
 import etomica.atom.IAtomList;
-import etomica.atom.IMoleculeList;
 import etomica.box.Box;
 import etomica.conjugategradient.DerivativeEnergyFunction;
+import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialMaster;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
+
+import java.io.Serializable;
 
 public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunction implements Serializable{
 	

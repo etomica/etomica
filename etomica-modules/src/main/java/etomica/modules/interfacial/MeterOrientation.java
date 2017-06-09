@@ -5,17 +5,17 @@
 package etomica.modules.interfacial;
 
 import etomica.atom.IAtomList;
-import etomica.space.Boundary;
 import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.space.Vector;
 import etomica.data.DataSourceMolecular;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
+import etomica.molecule.IMolecule;
+import etomica.space.Boundary;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Angle;
 
 /**

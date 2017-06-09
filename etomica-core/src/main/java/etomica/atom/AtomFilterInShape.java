@@ -5,6 +5,8 @@
 package etomica.atom;
 
 import etomica.math.geometry.Shape;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculePositionDefinition;
 
 
 /**

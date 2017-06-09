@@ -5,13 +5,13 @@
 package etomica.box;
 
 import etomica.action.BoxInflate;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.MoleculeArrayList;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeArrayList;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;

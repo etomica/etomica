@@ -2,9 +2,9 @@ package etomica.parser;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.atom.IMolecule;
-import etomica.atom.MoleculePair;
 import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculePair;
 import etomica.potential.PotentialGroup;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
@@ -14,7 +14,8 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ParmedStructureTest {
     private static ParmedStructure structure;

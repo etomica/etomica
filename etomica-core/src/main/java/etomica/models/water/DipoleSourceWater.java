@@ -4,11 +4,11 @@
 
 package etomica.models.water;
 
-import etomica.atom.IMolecule;
-import etomica.space.Vector;
-import etomica.atom.DipoleSource;
-import etomica.atom.MoleculeOriented;
+import etomica.molecule.DipoleSource;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculeOriented;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.IOrientationFull3D;
 
 /**

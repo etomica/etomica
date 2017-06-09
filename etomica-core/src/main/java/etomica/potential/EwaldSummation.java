@@ -4,20 +4,19 @@
 
 package etomica.potential;
 
-import etomica.space.Space;
-import etomica.space.Vector;
-import org.apache.commons.math3.special.Erf;
-
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.atom.AtomLeafAgentManager;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.space3d.Tensor3D;
 import etomica.units.Joule;
 import etomica.util.Constants;
+import org.apache.commons.math3.special.Erf;
 
 /**Sabry*/
 //Given: rc=L/2  ,  s  ,  

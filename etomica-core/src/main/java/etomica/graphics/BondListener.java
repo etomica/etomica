@@ -4,23 +4,23 @@
 
 package etomica.graphics;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
-import etomica.box.Box;
-import etomica.atom.IMolecule;
 import etomica.api.IPotential;
 import etomica.api.ISpecies;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.MoleculeSetSinglet;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
-import etomica.atom.iterator.IteratorDirective.Direction;
-import etomica.atom.iterator.MoleculeIteratorMolecule;
+import etomica.box.Box;
 import etomica.chem.models.Model;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculeSetSinglet;
+import etomica.molecule.iterator.MoleculeIteratorMolecule;
+import etomica.potential.IteratorDirective.Direction;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * BondListener listens for Atoms being added to the Simulation, determines

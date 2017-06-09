@@ -4,19 +4,19 @@
 
 package etomica.normalmode;
 
-import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
 import etomica.api.ISpecies;
-import etomica.space.Vector;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.MoleculeArrayList;
-import etomica.atom.MoleculeListWrapper;
-import etomica.atom.iterator.MoleculeIteratorAllMolecules;
+import etomica.box.Box;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeArrayList;
+import etomica.molecule.MoleculeListWrapper;
+import etomica.molecule.iterator.MoleculeIteratorAllMolecules;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 
 

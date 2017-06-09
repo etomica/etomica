@@ -4,10 +4,11 @@
 
 package etomica.atom;
 
-import java.io.Serializable;
-
-import etomica.space.Vector;
+import etomica.molecule.IMolecule;
 import etomica.space.Space;
+import etomica.space.Vector;
+
+import java.io.Serializable;
 
 /**
  * Calculates the mass average velocity over a set of atoms. The velocity

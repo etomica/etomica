@@ -5,43 +5,29 @@
 package etomica.virial.simulations;
 
 
-import java.awt.Color;
-
-import etomica.integrator.IntegratorListener;
+import etomica.api.IPotential;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.integrator.IntegratorEvent;
-import etomica.atom.IMoleculeList;
-import etomica.api.IPotential;
-import etomica.space.Vector;
 import etomica.chem.elements.ElementSimple;
+import etomica.data.histogram.HistogramSimple;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
+import etomica.math.DoubleRange;
 import etomica.math.SpecialFunctions;
-import etomica.potential.IPotentialAtomicMultibody;
-import etomica.potential.P2HePCKLJS;
-import etomica.potential.P2HeSimplified;
-import etomica.potential.P3CPSNonAdditiveHe;
-import etomica.potential.P3CPSNonAdditiveHeSimplified;
-import etomica.potential.Potential2Spherical;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.*;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
-import etomica.math.DoubleRange;
-import etomica.data.histogram.HistogramSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterChainHS;
-import etomica.virial.ClusterDifference;
-import etomica.virial.ClusterWheatleyMultibody;
-import etomica.virial.CoordinatePairSet;
-import etomica.virial.MCMoveClusterAtomHSChain;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerFunctionNonAdditive;
-import etomica.virial.MayerFunctionSphericalThreeBody;
-import etomica.virial.MayerGeneralSpherical;
+import etomica.virial.*;
+
+import java.awt.*;
 
 /**
  * Adapted by Andrew from VirialHeNonAdditive

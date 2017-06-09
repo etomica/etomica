@@ -6,21 +6,21 @@ package etomica.paracetamol;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.potential.PotentialMaster;
-import etomica.space.Vector;
-import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.util.random.IRandom;
 import etomica.atom.AtomArrayList;
-import etomica.atom.MoleculeSource;
-import etomica.atom.MoleculeSourceRandomMolecule;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculeSource;
+import etomica.molecule.MoleculeSourceRandomMolecule;
 import etomica.potential.PotentialGroup;
+import etomica.potential.PotentialMaster;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 
 /**

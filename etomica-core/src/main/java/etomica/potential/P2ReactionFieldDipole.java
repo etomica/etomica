@@ -4,17 +4,17 @@
 
 package etomica.potential;
 
-import etomica.atom.IAtom;
-import etomica.space.Boundary;
-import etomica.atom.IMoleculePositionDefinition;
-import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
 import etomica.api.IPotentialMolecular;
-import etomica.space.Vector;
-import etomica.atom.DipoleSource;
+import etomica.atom.IAtom;
+import etomica.box.Box;
+import etomica.molecule.DipoleSource;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.IMoleculePositionDefinition;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 
 public class P2ReactionFieldDipole extends PotentialMolecular implements PotentialMolecularSoft, IPotentialMolecularSecondDerivative {
 

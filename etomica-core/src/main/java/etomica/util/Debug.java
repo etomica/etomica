@@ -4,13 +4,13 @@
 
 package etomica.util;
 
+import etomica.atom.AtomPair;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.atom.AtomPair;
-import etomica.atom.MoleculePair;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculePair;
 
 /**
  * Class holding static fields that determine whether debugging is on, how

@@ -4,13 +4,13 @@
 
 package etomica.potential;
 
-import java.math.BigDecimal;
-import java.math.MathContext;
-
-import etomica.atom.IAtomList;
-import etomica.atom.IMoleculeList;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;
+import etomica.atom.IAtomList;
+import etomica.molecule.IMoleculeList;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
 
 /**
  * Mimics original PotentialEnergySum calculation, but uses a BigDecimal

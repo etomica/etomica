@@ -1,17 +1,17 @@
 package etomica.interfacial;
 
+import etomica.api.ISpecies;
+import etomica.box.Box;
+import etomica.config.Configuration;
+import etomica.molecule.IMoleculeList;
+import etomica.space.Space;
+import etomica.space.Vector;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import etomica.box.Box;
-import etomica.atom.IMoleculeList;
-import etomica.api.ISpecies;
-import etomica.space.Vector;
-import etomica.config.Configuration;
-import etomica.space.Space;
 
 public class ConfigurationLammps implements Configuration {
     protected final Space space;

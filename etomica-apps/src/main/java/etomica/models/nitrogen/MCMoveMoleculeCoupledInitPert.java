@@ -6,14 +6,15 @@ package etomica.models.nitrogen;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.*;
-import etomica.atom.*;
-import etomica.box.Box;
+import etomica.api.IPotentialMolecular;
+import etomica.atom.AtomArrayList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
+import etomica.molecule.*;
 import etomica.nbr.list.molecule.PotentialMasterListMolecular;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;

@@ -4,6 +4,8 @@
 
 package etomica.atom;
 
+import etomica.molecule.IMolecule;
+import etomica.molecule.Molecule;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.Debug;

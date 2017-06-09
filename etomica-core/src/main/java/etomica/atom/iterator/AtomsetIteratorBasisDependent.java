@@ -5,7 +5,7 @@
 package etomica.atom.iterator;
 
 import etomica.atom.IAtom;
-import etomica.atom.IMoleculeList;
+import etomica.molecule.IMoleculeList;
 
 /**
  * Interface for an AtomIterator that can be conditioned with

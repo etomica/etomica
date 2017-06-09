@@ -4,13 +4,13 @@
 
 package etomica.association;
 
-import etomica.potential.PotentialMaster;
-import etomica.util.random.IRandom;
-import etomica.simulation.Simulation;
-import etomica.space.Vector;
-import etomica.atom.MoleculeArrayList;
 import etomica.integrator.mcmove.MCMoveMolecule;
+import etomica.molecule.MoleculeArrayList;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * Monte Carlo molecule-displacement trial move for monomer molecules

@@ -4,10 +4,10 @@
 
 package etomica.potential;
 
-import etomica.atom.IMoleculeList;
-import etomica.space.Vector;
+import etomica.molecule.IMoleculeList;
 import etomica.potential.P3HydrogenManzhos.P3HydrogenManzhosMolecular;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 public class P3HydrogenGarberoglioMolecular extends P3HydrogenManzhosMolecular {
     protected double R0 = 5.0;

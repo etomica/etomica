@@ -1,7 +1,6 @@
 package etomica.normalmode;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.IMolecule;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
@@ -16,6 +15,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.lattice.crystal.*;
+import etomica.molecule.IMolecule;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.list.BoxAgentSourceCellManagerList;
 import etomica.nbr.list.NeighborListManagerSlanty;

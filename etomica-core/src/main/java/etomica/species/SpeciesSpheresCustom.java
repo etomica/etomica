@@ -5,10 +5,11 @@
 package etomica.species;
 
 import etomica.api.IElement;
-import etomica.atom.IMolecule;
 import etomica.atom.*;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConformationLinear;
+import etomica.molecule.IMolecule;
+import etomica.molecule.Molecule;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 

@@ -1,10 +1,10 @@
 package etomica.models.water;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.atom.MoleculePair;
 import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculePair;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import org.junit.Before;

@@ -6,10 +6,10 @@ package etomica.models.OPLS;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.IMolecule;
-import etomica.space.Vector;
-import etomica.atom.DipoleSource;
+import etomica.molecule.DipoleSource;
+import etomica.molecule.IMolecule;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Electron;
 
 /**

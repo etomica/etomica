@@ -4,21 +4,10 @@
 
 package etomica.kmc;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.action.BoxImposePbc;
 import etomica.action.WriteConfiguration;
 import etomica.action.XYZWriter;
-import etomica.atom.IMoleculeList;
-import etomica.potential.PotentialMaster;
-import etomica.util.random.IRandom;
-import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
-import etomica.space.Vector;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.atom.iterator.AtomIteratorLeafFilteredType;
@@ -30,9 +19,16 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorBox;
 import etomica.listener.IntegratorListenerAction;
+import etomica.molecule.IMoleculeList;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Joule;
+import etomica.util.random.IRandom;
+
+import java.io.*;
 
 public class IntegratorKMCCluster extends IntegratorBox{
 

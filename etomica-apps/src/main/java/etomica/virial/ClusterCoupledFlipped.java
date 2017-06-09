@@ -5,12 +5,12 @@
 package etomica.virial;
 
 import etomica.atom.IAtomList;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.space.Vector;
-import etomica.atom.MoleculePositionGeometricCenter;
-import etomica.atom.IMoleculePositionDefinition;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.IMoleculePositionDefinition;
+import etomica.molecule.MoleculePositionGeometricCenter;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 public class ClusterCoupledFlipped implements ClusterAbstract {
 

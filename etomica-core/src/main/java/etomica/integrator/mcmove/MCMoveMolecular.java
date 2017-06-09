@@ -5,7 +5,7 @@
 package etomica.integrator.mcmove;
 
 import etomica.box.Box;
-import etomica.atom.iterator.MoleculeIterator;
+import etomica.molecule.iterator.MoleculeIterator;
 
 
 

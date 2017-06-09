@@ -6,15 +6,11 @@ package etomica.action;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.space.Boundary;
 import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.space.Vector;
-import etomica.atom.MoleculePositionGeometricCenter;
-import etomica.atom.IMoleculePositionDefinition;
-import etomica.atom.IMoleculePositioned;
+import etomica.molecule.*;
+import etomica.space.Boundary;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * Action that imposes the central-image effect of a box having periodic

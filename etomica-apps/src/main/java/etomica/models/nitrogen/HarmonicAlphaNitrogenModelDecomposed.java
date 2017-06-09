@@ -4,19 +4,16 @@
 
 package etomica.models.nitrogen;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 import etomica.api.ISpecies;
-import etomica.atom.MoleculePair;
 import etomica.box.Box;
 import etomica.data.types.DataTensor;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.molecule.MoleculePair;
 import etomica.normalmode.ArrayReader1D;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.CoordinateDefinition;
@@ -26,6 +23,9 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+
+import java.io.FileWriter;
+import java.io.IOException;
 
 
 

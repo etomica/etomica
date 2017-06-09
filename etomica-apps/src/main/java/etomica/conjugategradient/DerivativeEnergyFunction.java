@@ -5,21 +5,21 @@
 package etomica.conjugategradient;
 
 import etomica.action.Activity;
+import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.atom.IMoleculeList;
-import etomica.space.Vector;
-import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.iterator.IteratorDirective;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.math.function.FunctionMultiDimensionalDifferentiable;
+import etomica.molecule.IMoleculeList;
 import etomica.normalmode.CoordinateDefinition;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
-import etomica.math.function.FunctionMultiDimensionalDifferentiable;
+import etomica.space.Vector;
 
 public class DerivativeEnergyFunction implements FunctionMultiDimensionalDifferentiable{
 

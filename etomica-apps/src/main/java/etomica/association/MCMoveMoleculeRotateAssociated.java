@@ -4,11 +4,11 @@
 
 package etomica.association;
 
-import etomica.potential.PotentialMaster;
-import etomica.util.random.IRandom;
-import etomica.atom.MoleculeArrayList;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
+import etomica.molecule.MoleculeArrayList;
+import etomica.potential.PotentialMaster;
 import etomica.space.Space;
+import etomica.util.random.IRandom;
 
 /**
  * Performs a rotation of a molecule that has an orientation coordinate.

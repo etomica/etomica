@@ -4,16 +4,16 @@
 
 package etomica.modules.catalysis;
 
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.util.random.IRandom;
-import etomica.atom.AtomLeafAgentManager;
 import etomica.modules.catalysis.InteractionTracker.CatalysisAgent;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.units.Kelvin;
+import etomica.util.random.IRandom;
 
 public class ReactionManagerCO implements IntegratorListener {
 

@@ -4,9 +4,11 @@
 
 package etomica.atom;
 
-import etomica.box.Box;
-import etomica.util.random.IRandom;
 import etomica.api.ISpecies;
+import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.util.random.IRandom;
 
 /**
  * AtomSource that returns a completely random leaf atom.

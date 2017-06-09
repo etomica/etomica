@@ -5,19 +5,19 @@
 package etomica.config;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.space.Boundary;
-import etomica.atom.IMoleculePositionDefinition;
-import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
 import etomica.api.ISpecies;
-import etomica.space.Vector;
-import etomica.atom.MoleculePositionGeometricCenter;
+import etomica.box.Box;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.SpaceLattice;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.IMoleculePositionDefinition;
+import etomica.molecule.MoleculePositionGeometricCenter;
+import etomica.space.Boundary;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * Constructs configuration that has the molecules placed on the sites of a

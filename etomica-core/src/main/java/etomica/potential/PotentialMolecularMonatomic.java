@@ -4,10 +4,10 @@
 
 package etomica.potential;
 
-import etomica.box.Box;
-import etomica.atom.IMoleculeList;
 import etomica.api.IPotentialAtomic;
 import etomica.atom.AtomArrayList;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
 
 /**

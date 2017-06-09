@@ -4,14 +4,14 @@
 
 package etomica.modules.chainequilibrium;
 
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.SpaceLattice;
-import etomica.space.Vector;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.util.random.IRandom;
 
 /**

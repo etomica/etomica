@@ -4,11 +4,11 @@
 
 package etomica.atom.iterator;
 
+import etomica.atom.AtomPair;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.atom.AtomPair;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 
 /**
  * Iterator that returns intramolecular pairs of atoms with specific indices.

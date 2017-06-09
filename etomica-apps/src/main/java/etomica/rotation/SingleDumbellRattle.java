@@ -6,13 +6,13 @@ package etomica.rotation;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.IMolecule;
 import etomica.box.Box;
 import etomica.config.ConformationLinear;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerletRattle;
 import etomica.integrator.IntegratorVelocityVerletShake;
 import etomica.listener.IntegratorListenerAction;
+import etomica.molecule.IMolecule;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;

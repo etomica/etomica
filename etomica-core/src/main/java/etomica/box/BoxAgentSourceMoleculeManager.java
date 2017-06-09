@@ -4,9 +4,9 @@
 
 package etomica.box;
 
-import etomica.atom.MoleculeAgentManager;
-import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.box.BoxAgentManager.BoxAgentSource;
+import etomica.molecule.MoleculeAgentManager;
+import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.simulation.Simulation;
 
 /**

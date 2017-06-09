@@ -3,10 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.normalmode;
+
 import etomica.box.Box;
-import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorBox;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationVirialSum;
 import etomica.space.Space;
 import etomica.units.Pressure;

@@ -5,14 +5,14 @@
 
 package etomica.models.water;
 
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.atom.IMoleculePositionDefinition;
 import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.IMoleculePositionDefinition;
 import etomica.potential.PotentialMolecular;
 import etomica.space.Boundary;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /** 
  * 4-point potential for water.  Potential parameters are typically defined

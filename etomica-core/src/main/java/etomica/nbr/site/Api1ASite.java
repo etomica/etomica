@@ -8,17 +8,17 @@
  */
 package etomica.nbr.site;
 
+import etomica.atom.AtomPair;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
-import etomica.atom.AtomPair;
 import etomica.atom.iterator.AtomsetIteratorPDT;
-import etomica.atom.iterator.IteratorDirective;
-import etomica.atom.iterator.IteratorDirective.Direction;
+import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLatticeNbrIterator;
 import etomica.lattice.RectangularLatticeNbrIteratorAdjacent;
+import etomica.potential.IteratorDirective;
+import etomica.potential.IteratorDirective.Direction;
 
 /**
  * Iteration is performed using site lists.

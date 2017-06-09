@@ -4,11 +4,11 @@
 
 package etomica.potential;
 
-import etomica.box.Box;
-import etomica.atom.IMoleculeList;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;
 import etomica.atom.AtomPair;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
 
 public class P2MoleculeMonatomic implements IPotentialMolecular {
 	public P2MoleculeMonatomic(IPotentialAtomic potential) {

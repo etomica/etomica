@@ -6,10 +6,10 @@ package etomica.virial;
 
 import etomica.action.MoleculeAction;
 import etomica.box.Box;
-import etomica.atom.IMoleculeList;
-import etomica.util.random.IRandom;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
+import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
+import etomica.util.random.IRandom;
 
 /**
  * MCMove for use in a Mayer sampling simulation that rotates all molecules in

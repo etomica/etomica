@@ -5,26 +5,22 @@
 package etomica.normalmode;
 
 import etomica.action.IAction;
-import etomica.api.*;
+import etomica.api.ISpecies;
 import etomica.atom.IAtomList;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
 import etomica.box.Box;
-import etomica.data.DataSourceIndependentSimple;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
+import etomica.data.histogram.HistogramSimple;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
-import etomica.space.Vector;
-import etomica.space.Space;
-import etomica.units.Angle;
 import etomica.math.DoubleRange;
-import etomica.data.histogram.HistogramSimple;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.units.Angle;
 
 /**
  * Meter that measures the average tilt angle (not the angle of average tilt!)

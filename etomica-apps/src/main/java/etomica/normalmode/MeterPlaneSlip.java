@@ -4,20 +4,20 @@
 
 package etomica.normalmode;
 
-import etomica.atom.IAtomList;
-import etomica.atom.MoleculePositionGeometricCenter;
-import etomica.box.Box;
-import etomica.atom.IMoleculeList;
 import etomica.api.ISpecies;
-import etomica.space.Vector;
-import etomica.atom.IMoleculePositionDefinition;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.IMoleculePositionDefinition;
+import etomica.molecule.MoleculePositionGeometricCenter;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Angle;
 
 /**

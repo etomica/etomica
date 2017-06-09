@@ -4,18 +4,12 @@
 
 package etomica.threaded.domain;
 
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.api.IPotential;
 import etomica.api.IPotentialAtomic;
-import etomica.atom.AtomArrayList;
-import etomica.atom.AtomListWrapper;
-import etomica.atom.AtomPair;
-import etomica.atom.AtomSetSinglet;
-import etomica.atom.AtomTypeAgentManager;
+import etomica.atom.*;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
-import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.list.NeighborListManager;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
 import etomica.threaded.PotentialThreaded;

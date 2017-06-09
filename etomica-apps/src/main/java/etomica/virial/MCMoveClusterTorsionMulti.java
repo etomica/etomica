@@ -4,17 +4,19 @@
 
 package etomica.virial;
 
-import etomica.api.*;
-import etomica.atom.*;
+import etomica.api.ISpecies;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveStepTracker;
+import etomica.molecule.*;
 import etomica.potential.P4BondTorsion;
-import etomica.space.Vector;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.util.random.IRandom;
 
 /**

@@ -4,34 +4,35 @@
 
 package etomica.association;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.action.WriteConfiguration;
-import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.potential.PotentialMaster;
-import etomica.util.random.IRandom;
-import etomica.simulation.Simulation;
-import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
-import etomica.atom.MoleculeAgentManager;
-import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
-import etomica.atom.MoleculeArrayList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.atom.iterator.MoleculeIterator;
-import etomica.atom.iterator.MoleculeIteratorAllMolecules;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.integrator.mcmove.MCMoveMolecular;
 import etomica.models.OPLS.SpeciesAceticAcid;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeAgentManager;
+import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
+import etomica.molecule.MoleculeArrayList;
+import etomica.molecule.iterator.MoleculeIterator;
+import etomica.molecule.iterator.MoleculeIteratorAllMolecules;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.units.Dimension;
 import etomica.units.Pressure;
+import etomica.util.random.IRandom;
+
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * Monte Carlo volume-change move for associating fluids simulations in the NPT ensemble.

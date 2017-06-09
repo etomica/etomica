@@ -4,28 +4,25 @@
 
 package etomica.integrator;
 
-import java.io.Serializable;
-
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.IAction;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.atom.*;
-import etomica.space.Boundary;
-import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
-import etomica.space.Vector;
+import etomica.atom.*;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.MoleculePositionCOM;
-import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.box.Box;
 import etomica.data.meter.MeterKineticEnergyRigid;
+import etomica.math.function.Function;
+import etomica.molecule.*;
+import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationTorqueSum;
 import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.space3d.IOrientationFull3D;
 import etomica.space3d.OrientationFull3D;
 import etomica.space3d.RotationTensor3D;
@@ -34,7 +31,8 @@ import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
 import etomica.util.Debug;
-import etomica.math.function.Function;
+
+import java.io.Serializable;
 
 /**
  * Integrator implementation of Omelyan's leapfrog integrator for rotational

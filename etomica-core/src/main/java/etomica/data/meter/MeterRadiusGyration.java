@@ -6,13 +6,13 @@ package etomica.data.meter;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.IMolecule;
 import etomica.box.Box;
-import etomica.atom.iterator.MoleculeIteratorAllMolecules;
 import etomica.data.DataSourceScalar;
+import etomica.molecule.IMolecule;
+import etomica.molecule.iterator.MoleculeIteratorAllMolecules;
 import etomica.space.Boundary;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Length;
 
 /**

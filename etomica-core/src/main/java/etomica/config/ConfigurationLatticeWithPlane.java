@@ -4,19 +4,19 @@
 
 package etomica.config;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import etomica.space.Vector;
-import etomica.box.Box;
-import etomica.atom.IMolecule;
 import etomica.api.ISpecies;
-import etomica.atom.iterator.MoleculeIteratorArrayListSimple;
+import etomica.box.Box;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.SpaceLattice;
 import etomica.math.geometry.Plane;
+import etomica.molecule.IMolecule;
+import etomica.molecule.iterator.MoleculeIteratorArrayListSimple;
 import etomica.space.Space;
+import etomica.space.Vector;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Constructs configuration that has the molecules placed on the sites of a

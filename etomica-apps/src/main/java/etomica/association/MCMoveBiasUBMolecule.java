@@ -3,27 +3,28 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.association;
+
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.util.random.IRandom;
-import etomica.space.Vector;
-import etomica.atom.MoleculeArrayList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
-import etomica.atom.iterator.MoleculeIterator;
-import etomica.atom.iterator.MoleculeIteratorSinglet;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveMolecular;
 import etomica.models.OPLS.SpeciesAceticAcid;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeArrayList;
+import etomica.molecule.iterator.MoleculeIterator;
+import etomica.molecule.iterator.MoleculeIteratorSinglet;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.RotationTensor3D;
+import etomica.util.random.IRandom;
 
 public class MCMoveBiasUBMolecule extends MCMoveBox implements MCMoveMolecular{
     

@@ -5,8 +5,6 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
@@ -21,6 +19,8 @@ import etomica.graphics.SimulationGraphic;
 import etomica.listener.IntegratorListenerAction;
 import etomica.math.DoubleRange;
 import etomica.models.rowley.*;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;

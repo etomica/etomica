@@ -4,15 +4,15 @@
 
 package etomica.config;
 
-import etomica.box.Box;
-import etomica.atom.IMolecule;
 import etomica.api.ISpecies;
-import etomica.space.Vector;
+import etomica.box.Box;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
+import etomica.molecule.IMolecule;
 import etomica.space.Boundary;
-import etomica.space.Space;
 import etomica.space.RotationTensor;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 
 /**

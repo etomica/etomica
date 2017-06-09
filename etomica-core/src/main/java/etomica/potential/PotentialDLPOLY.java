@@ -4,14 +4,14 @@
 
 package etomica.potential;
 
+import etomica.action.WriteConfigurationDLPOLY;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
+import etomica.space.Space;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-
-import etomica.action.WriteConfigurationDLPOLY;
-import etomica.box.Box;
-import etomica.atom.IMoleculeList;
-import etomica.space.Space;
 
 public class PotentialDLPOLY extends PotentialMolecular {
 	

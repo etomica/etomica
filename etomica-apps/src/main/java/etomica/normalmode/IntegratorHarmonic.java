@@ -4,15 +4,15 @@
 
 package etomica.normalmode;
 
-import etomica.space.Vector;
 import etomica.box.Box;
-import etomica.util.random.IRandom;
-import etomica.atom.iterator.MoleculeIteratorAllMolecules;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorMD;
+import etomica.molecule.iterator.MoleculeIteratorAllMolecules;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Null;
+import etomica.util.random.IRandom;
 
 /**
  * 

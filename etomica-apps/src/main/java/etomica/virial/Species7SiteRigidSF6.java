@@ -4,13 +4,13 @@
 
 package etomica.virial;
 
-import etomica.atom.IMolecule;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
 import etomica.atom.AtomType;
-import etomica.atom.Molecule;
 import etomica.chem.elements.Fluorine;
 import etomica.chem.elements.Sulfur;
+import etomica.molecule.IMolecule;
+import etomica.molecule.Molecule;
 import etomica.space.Space;
 import etomica.species.Species;
 

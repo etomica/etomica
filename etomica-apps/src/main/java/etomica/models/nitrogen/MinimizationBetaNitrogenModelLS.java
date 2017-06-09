@@ -4,18 +4,14 @@
 
 package etomica.models.nitrogen;
 
-import java.util.Arrays;
-
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.atom.*;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.space.Vector;
-import etomica.atom.IMoleculePositionDefinition;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.DataInfo;
+import etomica.data.FunctionData;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
@@ -25,16 +21,19 @@ import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveTriclinic;
 import etomica.models.nitrogen.LatticeSumCrystalMolecular.DataGroupLSC;
+import etomica.molecule.*;
 import etomica.normalmode.BasisBigCell;
 import etomica.paracetamol.AtomActionTransformed;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
 import etomica.units.Degree;
 import etomica.units.Energy;
-import etomica.data.FunctionData;
+
+import java.util.Arrays;
 
 
 

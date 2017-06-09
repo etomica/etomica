@@ -4,8 +4,8 @@
 
 package etomica.box;
 
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 
 public class AtomSetAllMolecules implements IMoleculeList {
 

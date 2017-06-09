@@ -7,7 +7,6 @@ package etomica.normalmode;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
-import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPressure;

@@ -4,9 +4,9 @@
 
 package etomica.virial;
 
-import etomica.box.Box;
-import etomica.atom.IMoleculeList;
 import etomica.api.IPotential;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
 
 public class MayerFunctionSum implements MayerFunction {
 

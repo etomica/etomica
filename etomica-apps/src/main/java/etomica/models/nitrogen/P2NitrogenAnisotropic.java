@@ -5,13 +5,13 @@
 
 package etomica.models.nitrogen;
 
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
 import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialMolecular;
 import etomica.space.Boundary;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Kelvin;
 
 /** 

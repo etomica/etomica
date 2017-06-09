@@ -5,14 +5,14 @@
 package etomica.normalmode;
 
 import etomica.atom.IAtomList;
-import etomica.atom.IMoleculeList;
-import etomica.atom.IMoleculePositionDefinition;
 import etomica.box.Box;
-import etomica.atom.MoleculePositionGeometricCenter;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.IMoleculePositionDefinition;
+import etomica.molecule.MoleculePositionGeometricCenter;
 import etomica.potential.PotentialMaster;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.util.random.IRandom;
 
 public class MCMoveRotateMoleculePhiTheta extends MCMoveRotateMolecule3D {

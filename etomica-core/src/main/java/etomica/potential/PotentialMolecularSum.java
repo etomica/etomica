@@ -1,8 +1,8 @@
 package etomica.potential;
 
-import etomica.box.Box;
-import etomica.atom.IMoleculeList;
 import etomica.api.IPotentialMolecular;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
 
 /**
  * Molecular potential class that simply sums up contributions from multiple

@@ -5,14 +5,14 @@
 package etomica.nbr.cell.molecule;
 
 import etomica.box.Box;
-import etomica.atom.IMoleculeList;
-import etomica.atom.MoleculeArrayList;
-import etomica.atom.iterator.IteratorDirective;
-import etomica.atom.iterator.MoleculesetIterator;
-import etomica.atom.iterator.MpiInterArrayList;
-import etomica.atom.iterator.MpiIntraArrayList;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeArrayList;
+import etomica.molecule.iterator.MoleculesetIterator;
+import etomica.molecule.iterator.MpiInterArrayList;
+import etomica.molecule.iterator.MpiIntraArrayList;
+import etomica.potential.IteratorDirective;
 
 /**
  * Returns iterates formed from all cell-based neighbor pairs.

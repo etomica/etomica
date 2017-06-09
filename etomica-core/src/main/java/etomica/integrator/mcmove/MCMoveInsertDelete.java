@@ -5,22 +5,22 @@
 package etomica.integrator.mcmove;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.potential.PotentialMaster;
-import etomica.util.random.IRandom;
 import etomica.api.ISpecies;
-import etomica.atom.MoleculeArrayList;
-import etomica.atom.MoleculeSetSinglet;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorNull;
+import etomica.box.Box;
 import etomica.box.RandomPositionSource;
 import etomica.box.RandomPositionSourceRectangular;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeArrayList;
+import etomica.molecule.MoleculeSetSinglet;
+import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.util.Debug;
+import etomica.util.random.IRandom;
 
 /**
  * Elementary Monte Carlo move in which a molecule of a specified species is

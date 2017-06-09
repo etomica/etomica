@@ -4,16 +4,10 @@
 
 package etomica.models.nitrogen;
 
-import java.util.Arrays;
-
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.atom.*;
-import etomica.atom.IMolecule;
 import etomica.api.ISpecies;
-import etomica.space.Vector;
-import etomica.atom.MoleculePositionGeometricCenter;
-import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -22,6 +16,11 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculePositionDefinition;
+import etomica.molecule.MoleculeAgentManager;
+import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
+import etomica.molecule.MoleculePositionGeometricCenter;
 import etomica.nbr.cell.molecule.NeighborCellManagerMolecular;
 import etomica.nbr.list.molecule.BoxAgentSourceCellManagerListMolecular;
 import etomica.nbr.list.molecule.NeighborCellManagerListMolecular;
@@ -29,6 +28,7 @@ import etomica.nbr.list.molecule.NeighborListManagerSlantyMolecular;
 import etomica.nbr.list.molecule.PotentialMasterListMolecular;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MeterHarmonicEnergy;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationEnergySumBigDecimal;
 import etomica.potential.PotentialCalculationTorqueSum;
 import etomica.simulation.Simulation;
@@ -36,6 +36,8 @@ import etomica.space.*;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
 import etomica.units.Degree;
+
+import java.util.Arrays;
 
 
 

@@ -4,9 +4,9 @@
 
 package etomica.nbr.list.molecule;
 
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.atom.MoleculeArrayList;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeArrayList;
 
 /**
  * Class used to maintain neighbor lists.  Holds lists of molecules that were 

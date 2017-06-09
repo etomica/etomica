@@ -6,7 +6,6 @@ package etomica.modules.chainequilibrium;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.IController;
-import etomica.atom.IMolecule;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.AtomType;
@@ -18,6 +17,7 @@ import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
+import etomica.molecule.IMolecule;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardSphere;
 import etomica.potential.PotentialMaster;

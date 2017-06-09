@@ -4,78 +4,40 @@
 
 package etomica.modules.interfacial;
 
-import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.util.ArrayList;
-
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-
 import etomica.action.IAction;
-import etomica.atom.*;
+import etomica.atom.DiameterHashByType;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataDump;
-import etomica.data.DataFork;
-import etomica.data.DataGroupSplitter;
-import etomica.data.DataPipe;
-import etomica.data.DataProcessor;
-import etomica.data.DataProcessorChemicalPotential;
-import etomica.data.DataProcessorInterfacialTension;
-import etomica.data.DataPump;
-import etomica.data.DataPumpListener;
-import etomica.data.DataSourceCountTime;
-import etomica.data.DataSourcePositionedBoltzmannFactor;
-import etomica.data.DataSplitter;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IDataSink;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.meter.MeterDensity;
-import etomica.data.meter.MeterNMolecules;
-import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
-import etomica.data.meter.MeterProfile;
-import etomica.data.meter.MeterProfileByAtoms;
-import etomica.data.meter.MeterProfileByVolume;
-import etomica.data.meter.MeterTemperature;
+import etomica.data.*;
+import etomica.data.history.HistoryCollapsingAverage;
+import etomica.data.meter.*;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataTensor;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DeviceButton;
-import etomica.graphics.DeviceNSelector;
-import etomica.graphics.DeviceSlider;
-import etomica.graphics.DeviceThermoSlider;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.DisplayTextBoxesCAE;
-import etomica.graphics.DisplayTimer;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modules.interfacial.DataSourceTensorVirialHardProfile.DataSourceVirialProfile;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculePositionGeometricCenterPBC;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
 import etomica.units.Dimension;
-import etomica.units.Energy;
-import etomica.units.Length;
-import etomica.units.Pixel;
-import etomica.units.Unit;
+import etomica.units.*;
 import etomica.units.systems.LJ;
 import etomica.util.Constants.CompassDirection;
-import etomica.data.history.HistoryCollapsingAverage;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
 
 /**
  * Graphic UI for interfacial tension module.  Design by Heath Turner.

@@ -4,15 +4,15 @@
 
 package etomica.virial;
 
-import etomica.atom.IAtomList;
-import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
 import etomica.api.IPotential;
 import etomica.api.IPotentialMolecular;
-import etomica.space.Vector;
+import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
+import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * f + u 

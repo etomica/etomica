@@ -4,26 +4,26 @@
 
 package etomica.modules.droplet;
 
-import java.io.Serializable;
-
+import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
-import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.iterator.IteratorDirective;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMD;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialCalculationForceSum;
-import etomica.space.Vector;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.util.Debug;
 import etomica.util.random.IRandom;
+
+import java.io.Serializable;
 
 /**
  * Mesoscale integrator for Droplet module.

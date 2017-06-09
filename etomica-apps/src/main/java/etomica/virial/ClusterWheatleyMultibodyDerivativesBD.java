@@ -4,9 +4,9 @@
 
 package etomica.virial;
 
-import etomica.atom.IMoleculeList;
-import etomica.atom.MoleculeArrayList;
 import etomica.math.SpecialFunctions;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeArrayList;
 
 import java.math.BigDecimal;
 

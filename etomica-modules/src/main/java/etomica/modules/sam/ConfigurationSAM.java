@@ -6,11 +6,8 @@ package etomica.modules.sam;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.*;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
+import etomica.api.ISpecies;
 import etomica.box.Box;
-import etomica.simulation.Simulation;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLatticeSimple;
 import etomica.config.ConformationChainZigZag;
@@ -18,9 +15,12 @@ import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.Vector;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 public class ConfigurationSAM implements Configuration {
 

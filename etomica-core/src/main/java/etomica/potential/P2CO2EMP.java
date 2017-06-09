@@ -5,12 +5,12 @@
 
 package etomica.potential;
 
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
 import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.space.Boundary;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /** 
  * 3-point potential for CO2.  Includes LJ interactions for each pair of atom types.

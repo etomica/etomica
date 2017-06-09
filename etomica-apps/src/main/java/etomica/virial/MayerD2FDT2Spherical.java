@@ -4,9 +4,9 @@
 
 package etomica.virial;
 
-import etomica.box.Box;
-import etomica.atom.IMoleculeList;
 import etomica.api.IPotential;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
 import etomica.potential.Potential2Spherical;
 /**
  * Required for computing second derivatives  of virial coefficients w/r to temperature

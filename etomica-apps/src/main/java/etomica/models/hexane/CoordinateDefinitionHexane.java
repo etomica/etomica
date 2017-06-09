@@ -5,15 +5,15 @@
 package etomica.models.hexane;
 
 import etomica.atom.IAtomList;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
 import etomica.box.Box;
-import etomica.simulation.Simulation;
 import etomica.lattice.crystal.Primitive;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.normalmode.CoordinateDefinitionMolecule;
-import etomica.space.Vector;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 
 /**

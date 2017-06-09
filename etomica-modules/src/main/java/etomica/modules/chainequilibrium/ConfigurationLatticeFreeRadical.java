@@ -4,16 +4,16 @@
 
 package etomica.modules.chainequilibrium;
 
-import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.util.random.IRandom;
 import etomica.api.ISpecies;
-import etomica.space.Vector;
+import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.SpaceLattice;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * Configuration that puts atoms randomly on a lattice and groups pairs of

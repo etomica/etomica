@@ -4,15 +4,15 @@
 
 package etomica.nbr.cell;
 
-import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.atom.AtomArrayList;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.ApiInterArrayList;
 import etomica.atom.iterator.ApiIntraArrayList;
 import etomica.atom.iterator.AtomLeafsetIterator;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.box.Box;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
+import etomica.potential.IteratorDirective;
 
 /**
  * Returns iterates formed from all cell-based neighbor pairs.

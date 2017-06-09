@@ -4,15 +4,15 @@
 
 package etomica.potential;
 
-import etomica.atom.IAtomList;
-import etomica.atom.IMoleculeList;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;
-import etomica.space.Vector;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.MoleculeAgentManager;
+import etomica.atom.IAtomList;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorBox;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeAgentManager;
+import etomica.space.Vector;
 
 /**
  * Sums the force and torque on each iterated atom or molecule and adds it to

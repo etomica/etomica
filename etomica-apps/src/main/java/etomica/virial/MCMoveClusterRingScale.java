@@ -4,18 +4,18 @@
 
 package etomica.virial;
 
-import etomica.atom.IAtomList;
-import etomica.box.Box;
-import etomica.atom.IMoleculeList;
-import etomica.potential.PotentialMaster;
-import etomica.util.random.IRandom;
-import etomica.space.Vector;
 import etomica.atom.AtomArrayList;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBox;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.PotentialMaster;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * MCMove that scales the atoms of a molecule in or out.  This is helpful

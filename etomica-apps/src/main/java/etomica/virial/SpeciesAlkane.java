@@ -4,12 +4,12 @@
 
 package etomica.virial;
 
-import etomica.atom.IMolecule;
 import etomica.atom.AtomType;
-import etomica.atom.Molecule;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConformationChainZigZag2;
+import etomica.molecule.IMolecule;
+import etomica.molecule.Molecule;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.SpeciesSpheresHetero;

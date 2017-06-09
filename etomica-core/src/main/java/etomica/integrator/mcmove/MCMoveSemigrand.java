@@ -5,19 +5,15 @@
 package etomica.integrator.mcmove;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.atom.IMoleculePositionDefinition;
-import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.potential.PotentialMaster;
-import etomica.util.random.IRandom;
 import etomica.api.ISpecies;
-import etomica.atom.MoleculePositionCOM;
-import etomica.atom.MoleculeArrayList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.molecule.*;
+import etomica.potential.PotentialMaster;
 import etomica.space.Space;
+import etomica.util.random.IRandom;
 
 /**
  * Basic Monte Carlo move for semigrand-ensemble simulations.  Move consists

@@ -1,13 +1,17 @@
 package etomica.interfacial;
 
-import etomica.api.*;
-import etomica.atom.*;
+import etomica.api.ISpecies;
+import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListenerMD;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
-import etomica.space.Vector;
+import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 public class FixedWall implements IntegratorListenerMD {
 

@@ -4,17 +4,17 @@
 
 package etomica.atom.iterator;
 
-import java.util.LinkedList;
-
-import etomica.atom.IAtom;
-import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.simulation.Simulation;
+import etomica.UnitTestUtil;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.MoleculeSetSinglet;
-import etomica.UnitTestUtil;
+import etomica.atom.IAtom;
+import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeSetSinglet;
+import etomica.simulation.Simulation;
+
+import java.util.LinkedList;
 
 
 /**

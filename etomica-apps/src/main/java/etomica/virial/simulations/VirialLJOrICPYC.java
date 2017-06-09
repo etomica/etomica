@@ -4,26 +4,16 @@
 
 package etomica.virial.simulations;
 
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.List;
-
-import etomica.box.Box;
-import etomica.math.function.IFunction;
-import etomica.atom.IMoleculeList;
 import etomica.api.IPotential;
+import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.DataDistributer;
-import etomica.data.DataFork;
-import etomica.data.DataSplitter;
-import etomica.data.IData;
-import etomica.data.IDataSink;
+import etomica.data.*;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
+import etomica.math.function.IFunction;
+import etomica.molecule.IMoleculeList;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.Potential2Spherical;
@@ -34,17 +24,12 @@ import etomica.units.Pixel;
 import etomica.util.Arrays;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.CalcFFT;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterBonds;
-import etomica.virial.ClusterSum;
-import etomica.virial.MCMoveClusterAtomDiscrete;
-import etomica.virial.MCMoveClusterAtomMulti;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerGeneralSpherical;
-import etomica.virial.MayerSphericalPlus;
-import etomica.virial.PYGenerator;
+import etomica.virial.*;
 import etomica.virial.cluster.VirialDiagrams;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * LJ simulation using Mayer sampling to evaluate cluster integrals

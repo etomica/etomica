@@ -7,23 +7,23 @@ package etomica.modules.rosmosis;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.atom.IAtom;
-import etomica.atom.MoleculePositionGeometricCenter;
-import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
-import etomica.space.Vector;
-import etomica.atom.IMoleculePositionDefinition;
+import etomica.atom.IAtom;
+import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.IMoleculePositionDefinition;
+import etomica.molecule.MoleculePositionGeometricCenter;
+import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 public class ConfigurationMembrane implements Configuration {
 

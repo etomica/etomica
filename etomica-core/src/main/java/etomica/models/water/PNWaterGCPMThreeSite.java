@@ -5,9 +5,9 @@
 package etomica.models.water;
 
 import etomica.atom.IAtomList;
-import etomica.atom.IMoleculeList;
-import etomica.space.Vector;
+import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * GCPM Water potential with three association site for Wertheim approach.  

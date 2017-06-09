@@ -4,24 +4,24 @@
 
 package etomica.normalmode;
 
-import java.io.Serializable;
-
 import etomica.action.MoleculeActionTranslateTo;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.space.Vector;
-import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.MoleculeArrayList;
-import etomica.atom.MoleculeListWrapper;
-import etomica.atom.iterator.MoleculeIteratorAllMolecules;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeArrayList;
+import etomica.molecule.MoleculeListWrapper;
+import etomica.molecule.iterator.MoleculeIteratorAllMolecules;
 import etomica.space.Space;
+import etomica.space.Vector;
+
+import java.io.Serializable;
 
 /**
  * An abstract class that defines the real-space generalized coordinates that are

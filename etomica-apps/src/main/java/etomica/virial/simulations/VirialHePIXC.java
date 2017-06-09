@@ -5,7 +5,6 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.atom.IMoleculeList;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtomList;
@@ -21,6 +20,7 @@ import etomica.data.types.DataGroup;
 import etomica.graphics.*;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.listener.IntegratorListenerAction;
+import etomica.molecule.IMoleculeList;
 import etomica.potential.P2HePCKLJS;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;

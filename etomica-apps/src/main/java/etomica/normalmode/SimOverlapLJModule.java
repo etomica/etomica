@@ -5,9 +5,7 @@
 package etomica.normalmode;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.space.Boundary;
 import etomica.atom.AtomType;
-import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
 import etomica.data.DataPump;
 import etomica.data.DataSourceScalar;
@@ -22,6 +20,7 @@ import etomica.overlap.DataOverlap;
 import etomica.overlap.IntegratorOverlap;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
+import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;

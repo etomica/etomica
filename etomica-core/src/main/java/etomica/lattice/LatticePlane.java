@@ -4,13 +4,13 @@
 
 package etomica.lattice;
 
-import etomica.atom.IAtom;
-import etomica.atom.IMolecule;
-import etomica.space.Vector;
 import etomica.atom.AtomFilter;
+import etomica.atom.IAtom;
 import etomica.lattice.crystal.Primitive;
 import etomica.math.geometry.Plane;
+import etomica.molecule.IMolecule;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * Class describing a plane through a lattice.  Holds a Plane

@@ -4,14 +4,14 @@
 
 package etomica.dimer;
 
-import etomica.box.Box;
-import etomica.atom.IMoleculeList;
-import etomica.simulation.Simulation;
 import etomica.api.ISpecies;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculation;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.util.Debug;
 

@@ -5,15 +5,15 @@
 package etomica.modules.adsorption;
 
 import etomica.action.AtomActionRandomizeVelocity;
-import etomica.api.*;
-import etomica.atom.IMolecule;
+import etomica.api.ISpecies;
 import etomica.box.Box;
-import etomica.atom.MoleculeArrayList;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
-import etomica.space.Vector;
-import etomica.space.Space;
 import etomica.math.DoubleRange;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculeArrayList;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.util.random.IRandom;
 
 /**

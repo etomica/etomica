@@ -4,21 +4,21 @@
 
 package etomica.threaded.atom;
 
+import etomica.api.IPotential;
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.api.IPotential;
-import etomica.simulation.Simulation;
-import etomica.atom.IMoleculePositionDefinition;
-import etomica.atom.iterator.IteratorDirective;
 import etomica.box.BoxAgentManager;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.IMoleculePositionDefinition;
 import etomica.nbr.PotentialGroupNbr;
 import etomica.nbr.list.BoxAgentSourceCellManagerList;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.threaded.IPotentialCalculationThreaded;
 import etomica.util.Debug;

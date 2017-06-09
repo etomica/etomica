@@ -4,57 +4,34 @@
 
 package etomica.virial.simulations;
 
-import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
 import etomica.action.IAction;
+import etomica.api.IPotential;
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.math.function.IFunction;
-import etomica.atom.IMoleculeList;
-import etomica.api.IPotential;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
-import etomica.graphics.ColorScheme;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayBoxCanvasG3DSys;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
 import etomica.listener.IntegratorListenerAction;
 import etomica.math.SpecialFunctions;
+import etomica.math.function.IFunction;
+import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Null;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.CalcFFT;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterChainHS;
-import etomica.virial.ClusterChainSoft;
-import etomica.virial.ClusterSinglyConnected;
-import etomica.virial.ClusterWeightAbs;
-import etomica.virial.ClusterWeightUmbrella;
-import etomica.virial.ClusterWheatleyHS;
-import etomica.virial.ClusterWheatleyPartitionScreening;
-import etomica.virial.MCMoveClusterAtomChainHSTail;
-import etomica.virial.MCMoveClusterAtomHSChain;
-import etomica.virial.MCMoveClusterAtomHSRing;
-import etomica.virial.MCMoveClusterAtomHSTree;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.MeterVirialBD;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Calculation for virial coefficients of hard spheres

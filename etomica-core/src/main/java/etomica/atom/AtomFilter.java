@@ -4,6 +4,8 @@
 
 package etomica.atom;
 
+import etomica.molecule.IMolecule;
+
 
 /**
  * Interface for a class that screens atoms according

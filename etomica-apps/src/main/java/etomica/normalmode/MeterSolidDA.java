@@ -5,18 +5,18 @@
 package etomica.normalmode;
 
 import etomica.box.Box;
-import etomica.potential.PotentialMaster;
-import etomica.space.Vector;
-import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationEnergySum;
 import etomica.potential.PotentialCalculationVirialSum;
+import etomica.potential.PotentialMaster;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Null;
 
 /**

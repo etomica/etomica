@@ -3,9 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.virial.simulations;
 
-import etomica.integrator.IntegratorEvent;
-import etomica.integrator.IntegratorListener;
-import etomica.atom.IMoleculeList;
 import etomica.api.IPotentialAtomic;
 import etomica.atom.*;
 import etomica.atom.iterator.ApiIntergroupCoupled;
@@ -17,7 +14,10 @@ import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.AccumulatorRatioAverageCovarianceFull;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.integrator.mcmove.MCMove;
+import etomica.molecule.IMoleculeList;
 import etomica.potential.P2NitrogenHellmann;
 import etomica.potential.P2SemiclassicalAtomic;
 import etomica.potential.P2SemiclassicalAtomic.AtomInfo;

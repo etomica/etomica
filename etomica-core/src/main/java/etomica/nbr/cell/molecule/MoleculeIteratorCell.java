@@ -5,14 +5,14 @@
 package etomica.nbr.cell.molecule;
 
 import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.atom.MoleculeSetSinglet;
-import etomica.atom.iterator.MoleculeIterator;
-import etomica.atom.iterator.MoleculeIteratorArrayListSimple;
 import etomica.box.BoxAgentManager;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeSetSinglet;
+import etomica.molecule.iterator.MoleculeIterator;
+import etomica.molecule.iterator.MoleculeIteratorArrayListSimple;
 
 /**
  * Returns occupants of all cells as iterates.

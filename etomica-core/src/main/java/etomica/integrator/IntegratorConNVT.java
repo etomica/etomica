@@ -4,18 +4,18 @@
 
 package etomica.integrator;
 
+import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.potential.IteratorDirective;
+import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.iterator.IteratorDirective;
-import etomica.potential.PotentialCalculationForceSum;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.util.random.IRandom;
 
 /**

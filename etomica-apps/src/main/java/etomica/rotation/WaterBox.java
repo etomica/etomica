@@ -4,12 +4,9 @@
 
 package etomica.rotation;
 
-import java.awt.Color;
-
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.ISpecies;
-import etomica.atom.MoleculePositionCOM;
 import etomica.box.Box;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
@@ -19,6 +16,7 @@ import etomica.models.water.DipoleSourceWater;
 import etomica.models.water.OrientationCalcWater3P;
 import etomica.models.water.P2WaterSPCSoft;
 import etomica.models.water.SpeciesWater3POriented;
+import etomica.molecule.MoleculePositionCOM;
 import etomica.potential.P2MoleculeSoftTruncatedSwitched;
 import etomica.potential.P2ReactionFieldDipole;
 import etomica.potential.PotentialMaster;
@@ -29,6 +27,8 @@ import etomica.space3d.Space3D;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
+
+import java.awt.*;
 
 public class WaterBox {
 

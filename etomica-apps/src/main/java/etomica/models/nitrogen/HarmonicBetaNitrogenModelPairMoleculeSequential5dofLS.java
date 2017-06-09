@@ -6,20 +6,20 @@ package etomica.models.nitrogen;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.atom.IMolecule;
 import etomica.api.ISpecies;
-import etomica.space.Vector;
-import etomica.atom.MoleculePair;
 import etomica.box.Box;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculePair;
 import etomica.normalmode.BasisBigCell;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.units.Degree;
 

@@ -5,10 +5,10 @@
 package etomica.association;
 
 import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeSource;
 import etomica.util.random.IRandom;
-import etomica.atom.MoleculeSource;
 
 public class MoleculeSourceRandomDimer implements MoleculeSource {
 	public void setRandomNumberGenerator(IRandom newRandom) {

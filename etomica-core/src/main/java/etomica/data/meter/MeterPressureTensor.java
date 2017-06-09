@@ -5,15 +5,11 @@
 package etomica.data.meter;
 
 import etomica.box.Box;
-import etomica.potential.PotentialMaster;
-import etomica.atom.iterator.IteratorDirective;
-import etomica.data.DataInfo;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.types.DataTensor;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationPressureTensor;
+import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.units.Pressure;
 

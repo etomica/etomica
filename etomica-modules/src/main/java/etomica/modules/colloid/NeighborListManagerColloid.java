@@ -4,11 +4,11 @@
 
 package etomica.modules.colloid;
 
-import etomica.atom.IAtom;
-import etomica.box.Box;
-import etomica.atom.IMoleculeList;
 import etomica.api.IPotentialAtomic;
 import etomica.api.ISpecies;
+import etomica.atom.IAtom;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.space.Space;

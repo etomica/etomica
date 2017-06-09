@@ -5,8 +5,8 @@
 package etomica.nbr.molecule;
 
 import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 
 /**
  * Specifies that all atoms pairs are to be considered neighbors.  Should

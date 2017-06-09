@@ -5,12 +5,12 @@
 package etomica.paracetamol;
 
 import etomica.box.Box;
-import etomica.atom.IMoleculeList;
-import etomica.potential.PotentialMaster;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.normalmode.CoordinateDefinition;
 import etomica.math.function.FunctionMultiDimensionalDifferentiable;
 import etomica.math.numerical.FiniteDifferenceDerivative;
+import etomica.molecule.IMoleculeList;
+import etomica.normalmode.CoordinateDefinition;
+import etomica.potential.PotentialMaster;
 
 
 public class NumericalDerivativeEnergyParacetamol implements FunctionMultiDimensionalDifferentiable{

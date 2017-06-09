@@ -3,22 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.virial;
-import etomica.atom.*;
-import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.potential.PotentialMaster;
-import etomica.util.random.IRandom;
-import etomica.simulation.Simulation;
+
 import etomica.api.ISpecies;
-import etomica.space.Vector;
-import etomica.atom.MoleculePositionGeometricCenterAlkaneEH;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveStepTracker;
+import etomica.molecule.*;
 import etomica.potential.P4BondTorsion;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.RotationTensor3D;
+import etomica.util.random.IRandom;
 
 /**
  * MC move for alkane-TraPPE-EH torsion

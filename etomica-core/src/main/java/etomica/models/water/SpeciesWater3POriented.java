@@ -4,13 +4,13 @@
 
 package etomica.models.water;
 
-import etomica.atom.IMolecule;
 import etomica.atom.Atom;
 import etomica.atom.AtomType;
-import etomica.atom.MoleculeOriented;
-import etomica.atom.MoleculeOrientedDynamic;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculeOriented;
+import etomica.molecule.MoleculeOrientedDynamic;
 import etomica.space.Space;
 import etomica.species.SpeciesOriented;
 

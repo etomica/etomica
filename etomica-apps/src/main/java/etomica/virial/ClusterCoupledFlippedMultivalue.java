@@ -4,9 +4,13 @@
 
 package etomica.virial;
 
-import etomica.atom.*;
-import etomica.space.Vector;
+import etomica.atom.IAtomList;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.IMoleculePositionDefinition;
+import etomica.molecule.MoleculePositionGeometricCenter;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalue {
 

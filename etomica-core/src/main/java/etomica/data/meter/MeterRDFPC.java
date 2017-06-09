@@ -3,20 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.data.meter;
+
 import etomica.action.IAction;
 import etomica.box.Box;
-import etomica.potential.PotentialMaster;
-import etomica.atom.iterator.IteratorDirective;
-import etomica.data.DataSourceIndependent;
-import etomica.data.DataSourceUniform;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
+import etomica.potential.IteratorDirective;
+import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.units.Null;
 

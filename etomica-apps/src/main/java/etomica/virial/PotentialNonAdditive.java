@@ -4,11 +4,11 @@
 
 package etomica.virial;
 
-import etomica.box.Box;
-import etomica.atom.IMoleculeList;
 import etomica.api.IPotentialMolecular;
-import etomica.atom.MoleculeArrayList;
+import etomica.box.Box;
 import etomica.chem.elements.Argon;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeArrayList;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;

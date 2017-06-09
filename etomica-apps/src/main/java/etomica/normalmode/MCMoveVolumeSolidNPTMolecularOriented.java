@@ -6,13 +6,13 @@ package etomica.normalmode;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialMaster;
-import etomica.util.random.IRandom;
-import etomica.space.Vector;
-import etomica.space.Space;
 import etomica.space.RotationTensor;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 
 /**

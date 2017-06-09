@@ -4,18 +4,17 @@
 
 package etomica.integrator;
 
-import etomica.box.BoxMoleculeEvent;
-import etomica.atom.IMolecule;
 import etomica.api.IPotentialAtomic;
-import etomica.util.random.IRandom;
 import etomica.atom.*;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
+import etomica.box.BoxMoleculeEvent;
 import etomica.exception.ConfigurationOverlapException;
+import etomica.molecule.IMolecule;
 import etomica.nbr.PotentialMasterHybrid;
 import etomica.nbr.list.INeighborListListener;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialHard;
 import etomica.potential.PotentialMaster;
@@ -25,6 +24,7 @@ import etomica.space.Vector;
 import etomica.util.Debug;
 import etomica.util.TreeLinker;
 import etomica.util.TreeList;
+import etomica.util.random.IRandom;
 
 /**
  * Integrator for hard potentials.

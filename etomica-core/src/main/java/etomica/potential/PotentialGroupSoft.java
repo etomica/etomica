@@ -5,13 +5,13 @@
 package etomica.potential;
 
 import etomica.atom.IAtomList;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.atom.IMoleculePositionDefinition;
-import etomica.space.Vector;
-import etomica.atom.MoleculePositionGeometricCenter;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.IMoleculePositionDefinition;
+import etomica.molecule.MoleculePositionGeometricCenter;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 
 /** 
  * include virial and gradient for a molecular potential

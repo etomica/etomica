@@ -5,18 +5,18 @@
 package etomica.nbr.cell.molecule;
 
 import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.atom.MoleculePair;
-import etomica.atom.MoleculeToMoleculeSetFixed;
-import etomica.atom.iterator.IteratorDirective;
-import etomica.atom.iterator.IteratorDirective.Direction;
-import etomica.atom.iterator.MoleculeIterator;
-import etomica.atom.iterator.MoleculeIteratorArrayList;
-import etomica.atom.iterator.MoleculeIteratorArrayListSimple;
-import etomica.atom.iterator.MoleculesetIteratorPDT;
 import etomica.box.BoxAgentManager;
 import etomica.lattice.CellLattice;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculePair;
+import etomica.molecule.MoleculeToMoleculeSetFixed;
+import etomica.molecule.iterator.MoleculeIterator;
+import etomica.molecule.iterator.MoleculeIteratorArrayList;
+import etomica.molecule.iterator.MoleculeIteratorArrayListSimple;
+import etomica.molecule.iterator.MoleculesetIteratorPDT;
+import etomica.potential.IteratorDirective;
+import etomica.potential.IteratorDirective.Direction;
 
 /**
  * Generates pairs that are cell-based neighbors of a specific Molecule. Iteration is

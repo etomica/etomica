@@ -4,30 +4,30 @@
 
 package etomica.dimer;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.action.CalcVibrationalModes;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.*;
-import etomica.atom.IAtom;
-import etomica.atom.IMoleculeList;
-import etomica.box.Box;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
+import etomica.api.ISpecies;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.atom.IAtom;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.molecule.IMoleculeList;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;
+
+import java.io.FileWriter;
+import java.io.IOException;
 
 
 /**

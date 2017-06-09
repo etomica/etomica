@@ -4,15 +4,15 @@
 
 package etomica.nbr.molecule;
 
-import etomica.atom.*;
 import etomica.box.Box;
-import etomica.simulation.Simulation;
-import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentSourceMoleculeManager;
+import etomica.molecule.*;
+import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
+import etomica.simulation.Simulation;
 import etomica.space.Boundary;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Dimension;
 import etomica.units.Length;
 

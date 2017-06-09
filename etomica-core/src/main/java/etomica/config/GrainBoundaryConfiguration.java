@@ -14,17 +14,17 @@
 package etomica.config;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.*;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
+import etomica.api.ISpecies;
 import etomica.box.Box;
-import etomica.atom.MoleculePositionFirstAtom;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.SpaceLattice;
-import etomica.space.Vector;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculePositionFirstAtom;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 
 /**

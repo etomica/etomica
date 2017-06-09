@@ -5,15 +5,15 @@
 
 package etomica.models.nitrogen;
 
-import etomica.space.Boundary;
 import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.space.Vector;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialMolecular;
 import etomica.potential.PotentialMolecularSoft;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 
 /** 
  * CAUTION!!!!!! The potential DOES NOT really describe the ALPHA and GAMMA structure at

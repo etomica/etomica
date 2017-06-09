@@ -6,22 +6,22 @@ package etomica.normalmode;
 
 import etomica.action.BoxInflate;
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.potential.PotentialMaster;
-import etomica.util.random.IRandom;
-import etomica.space.Vector;
-import etomica.atom.MoleculePositionGeometricCenter;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
+import etomica.math.function.Function;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculePositionGeometricCenter;
+import etomica.potential.PotentialMaster;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Dimension;
 import etomica.units.Pressure;
-import etomica.math.function.Function;
+import etomica.util.random.IRandom;
 
 /**
  * Monte Carlo volume-change move for simulations of crystalline solids in the

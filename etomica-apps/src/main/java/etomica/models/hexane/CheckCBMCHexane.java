@@ -7,13 +7,13 @@ package etomica.models.hexane;
 import etomica.action.IAction;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.space.Vector;
-import etomica.atom.iterator.MoleculeIteratorAllMolecules;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.iterator.MoleculeIteratorAllMolecules;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * 

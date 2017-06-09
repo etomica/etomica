@@ -1,33 +1,29 @@
 package etomica.mappedvirial;
 
- import etomica.action.IAction;
+import etomica.action.IAction;
+import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.potential.PotentialMaster;
-import etomica.space.Vector;
- import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.iterator.IteratorDirective;
- import etomica.data.DataSourceIndependent;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
+import etomica.data.histogram.Histogram;
+import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
+import etomica.math.DoubleRange;
+import etomica.potential.IteratorDirective;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialCalculationForceSum;
+import etomica.potential.PotentialMaster;
 import etomica.space.Space;
- import etomica.units.Force;
+import etomica.space.Vector;
+import etomica.units.Force;
 import etomica.units.Length;
-import etomica.math.DoubleRange;
-import etomica.data.histogram.Histogram;
-import etomica.data.histogram.HistogramNotSoSimple;
 
 public class MeterMeanForce implements IEtomicaDataSource, AgentSource<IntegratorVelocityVerlet.MyAgent>, DataSourceIndependent, IAction {
 

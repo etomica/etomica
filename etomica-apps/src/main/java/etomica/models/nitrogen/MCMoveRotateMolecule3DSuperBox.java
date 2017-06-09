@@ -3,21 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.models.nitrogen;
-import etomica.atom.*;
-import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.potential.PotentialMaster;
+
 import etomica.api.IPotentialMolecular;
-import etomica.util.random.IRandom;
-import etomica.space.Vector;
-import etomica.atom.IMoleculePositionDefinition;
-import etomica.atom.iterator.MoleculeIterator;
-import etomica.atom.iterator.MoleculeIteratorArrayListSimple;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveMolecular;
 import etomica.integrator.mcmove.MCMoveMolecule;
+import etomica.molecule.*;
+import etomica.molecule.iterator.MoleculeIterator;
+import etomica.molecule.iterator.MoleculeIteratorArrayListSimple;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
-import etomica.space.Space;
+import etomica.potential.PotentialMaster;
 import etomica.space.RotationTensor;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 
 /**

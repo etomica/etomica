@@ -1,30 +1,25 @@
 package etomica.data.meter;
 
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
-import etomica.space.Vector;
-import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.DipoleSource;
-import etomica.atom.MoleculeAgentManager;
-import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
-import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntegratorRigidIterative.MoleculeAgent;
-import etomica.potential.PotentialCalculationEnergySum;
-import etomica.potential.PotentialCalculationForceSum;
-import etomica.potential.PotentialCalculationPhiSum;
-import etomica.potential.PotentialCalculationTorqueSum;
+import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.molecule.DipoleSource;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeAgentManager;
+import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
+import etomica.potential.*;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Null;
 
 /**

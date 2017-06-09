@@ -6,17 +6,17 @@ package etomica.paracetamol;
 
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.space.Vector;
 import etomica.box.Box;
-import etomica.atom.IMolecule;
-import etomica.atom.IMoleculeList;
 import etomica.config.Configuration;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.SpaceLattice;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 
 /**
  * Constructs configuration that has the molecules placed on the sites of a

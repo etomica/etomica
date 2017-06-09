@@ -4,9 +4,9 @@
 
 package etomica.models.nitrogen;
 
-import etomica.box.Box;
-import etomica.atom.IMoleculeList;
 import etomica.api.ISpecies;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialMolecular;
 import etomica.space.Space;
 import etomica.units.Kelvin;

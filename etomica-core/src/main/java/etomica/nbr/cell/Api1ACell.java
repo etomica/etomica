@@ -4,19 +4,19 @@
 
 package etomica.nbr.cell;
 
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomToAtomSetFixed;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayList;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomsetIteratorPDT;
-import etomica.atom.iterator.IteratorDirective;
-import etomica.atom.iterator.IteratorDirective.Direction;
+import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.lattice.CellLattice;
+import etomica.potential.IteratorDirective;
+import etomica.potential.IteratorDirective.Direction;
 
 /**
  * Generates pairs that are cell-based neighbors of a specific Atom. Iteration is

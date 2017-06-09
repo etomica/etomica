@@ -1,22 +1,18 @@
 package etomica.normalmode;
 
-import etomica.atom.IAtom;
-import etomica.space.Vector;
-import etomica.box.Box;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.iterator.IteratorDirective;
-import etomica.data.DataSourceScalar;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.atom.IAtom;
+import etomica.box.Box;
+import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Null;
 
 public class MeterSolidProps implements IEtomicaDataSource, AgentSource<MyAgent> {

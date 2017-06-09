@@ -4,10 +4,10 @@
 
 package etomica.data.meter;
 
-import etomica.box.Box;
-import etomica.atom.IMoleculeList;
 import etomica.atom.AtomHydrogen;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
+import etomica.molecule.IMoleculeList;
 import etomica.units.Length;
 
 public class MeterAvgBondLength extends DataSourceScalar {

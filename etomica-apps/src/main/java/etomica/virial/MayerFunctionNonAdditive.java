@@ -5,7 +5,7 @@
 package etomica.virial;
 
 import etomica.box.Box;
-import etomica.atom.IMoleculeList;
+import etomica.molecule.IMoleculeList;
 
 /**
  * Interface for a Mayer f-function, which takes 3+ atoms and

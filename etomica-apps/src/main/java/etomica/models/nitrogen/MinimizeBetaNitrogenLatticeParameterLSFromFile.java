@@ -4,11 +4,7 @@
 
 package etomica.models.nitrogen;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.box.Box;
-import etomica.atom.IMoleculeList;
 import etomica.data.DataInfo;
 import etomica.data.FunctionData;
 import etomica.data.IData;
@@ -20,10 +16,14 @@ import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveTriclinic;
 import etomica.models.nitrogen.LatticeSumCrystalMolecular.DataGroupLSC;
+import etomica.molecule.IMoleculeList;
 import etomica.normalmode.BasisBigCell;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.units.Energy;
+
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * 

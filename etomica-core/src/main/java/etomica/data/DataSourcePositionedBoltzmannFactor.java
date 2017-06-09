@@ -5,15 +5,15 @@
 package etomica.data;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.box.Box;
-import etomica.atom.IMolecule;
 import etomica.api.ISpecies;
-import etomica.space.Vector;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.integrator.IntegratorBox;
+import etomica.molecule.IMolecule;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Null;
 
 /**

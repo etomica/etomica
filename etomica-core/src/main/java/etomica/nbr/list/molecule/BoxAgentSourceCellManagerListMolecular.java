@@ -5,9 +5,9 @@
 package etomica.nbr.list.molecule;
 
 import etomica.box.Box;
-import etomica.simulation.Simulation;
-import etomica.atom.IMoleculePositionDefinition;
+import etomica.molecule.IMoleculePositionDefinition;
 import etomica.nbr.cell.molecule.BoxAgentSourceCellManagerMolecular;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 
 /**

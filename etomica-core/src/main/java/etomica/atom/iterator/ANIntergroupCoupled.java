@@ -4,12 +4,12 @@
 
 package etomica.atom.iterator;
 
-import java.util.ArrayList;
-
+import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.IMoleculeList;
-import etomica.atom.AtomArrayList;
+import etomica.molecule.IMoleculeList;
+
+import java.util.ArrayList;
 
 /**
  * Iterator that returns coupled iterates of any size; the first set contains

@@ -4,16 +4,15 @@
 
 package etomica.potential;
 
-import java.util.ArrayList;
-
-import etomica.atom.IAtom;
-import etomica.box.Box;
-import etomica.atom.IMolecule;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;
 import etomica.atom.AtomArrayList;
-import etomica.atom.MoleculeArrayList;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.atom.IAtom;
+import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculeArrayList;
+
+import java.util.ArrayList;
 
 /**
  * Collects potentials used for long-range correction.

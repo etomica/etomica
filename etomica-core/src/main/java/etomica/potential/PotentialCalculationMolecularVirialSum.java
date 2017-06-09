@@ -4,10 +4,10 @@
 
 package etomica.potential;
 
-import etomica.atom.IAtomList;
-import etomica.atom.IMoleculeList;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;
+import etomica.atom.IAtomList;
+import etomica.molecule.IMoleculeList;
 
 /**
  * Evaluates the virial summed over all iterated molecules.

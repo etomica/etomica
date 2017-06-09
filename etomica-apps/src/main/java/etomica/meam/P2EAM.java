@@ -1,18 +1,14 @@
 package etomica.meam;
 
 import etomica.atom.IAtomList;
-import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListenerMD;
-import etomica.potential.Potential2;
-import etomica.potential.PotentialCalculationEnergySum;
-import etomica.potential.PotentialMaster;
-import etomica.potential.PotentialSoft;
+import etomica.potential.*;
 import etomica.space.Boundary;
-import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 
 /**
  * EAM (Embedded Atom Method) potential that pretends to be a pair potential.

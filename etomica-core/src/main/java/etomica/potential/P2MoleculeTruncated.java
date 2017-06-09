@@ -1,12 +1,12 @@
 package etomica.potential;
 
-import etomica.space.Boundary;
-import etomica.atom.IMoleculePositionDefinition;
-import etomica.box.Box;
-import etomica.atom.IMoleculeList;
 import etomica.api.IPotentialMolecular;
-import etomica.space.Vector;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.IMoleculePositionDefinition;
+import etomica.space.Boundary;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 
 /**
