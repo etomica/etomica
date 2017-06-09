@@ -4,9 +4,10 @@
 
 package etomica.atom;
 
-import etomica.api.*;
+import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.box.*;
-import etomica.simulation.Simulation;
+import etomica.simulation.*;
 import etomica.util.Arrays;
 
 import java.io.Serializable;
@@ -20,8 +21,15 @@ import java.lang.reflect.Array;
  * 
  * @author Andrew Schultz
  */
-public class MoleculeAgentManager implements BoxEventListener, ISimulationListener, Serializable {
+public class MoleculeAgentManager implements BoxEventListener, SimulationListener, Serializable {
 
+    private static final long serialVersionUID = 1L;
+    protected final MoleculeAgentSource agentSource;
+    protected final Box box;
+    protected final Simulation sim;
+    protected Object[][] agents;
+    protected int reservoirSize;
+    
     public MoleculeAgentManager(Simulation sim, Box box, MoleculeAgentSource source) {
         agentSource = source;
         this.box = box;
@@ -29,24 +37,24 @@ public class MoleculeAgentManager implements BoxEventListener, ISimulationListen
         setReservoirSize(30);
         setupBox();
     }
+
+    public int getReservoirSize() {
+        return reservoirSize;
+    }
     
     /**
      * Sets the size of the manager's "reservoir".  When an atom is removed,
      * the agents array will only be trimmed if the number of holes in the
      * array exceeds the reservoir size.  Also, when the array has no holes and
-     * another atom is added, the array will resized to be 
+     * another atom is added, the array will resized to be
      * numAtoms+reservoirSize to avoid reallocating a new array every time an
      * atom is added.  reservoirSize=0 means the array will
      * always be the same size as the number of atoms (no holes).
-     * 
+     *
      * The default reservoir size is 30.
      */
     public void setReservoirSize(int newReservoirSize) {
         reservoirSize = newReservoirSize;
-    }
-
-    public int getReservoirSize() {
-        return reservoirSize;
     }
 
     /**
@@ -102,7 +110,7 @@ public class MoleculeAgentManager implements BoxEventListener, ISimulationListen
         }
         agents = null;
     }
-    
+
     /**
      * Sets the Box in which this AtomAgentManager will manage molecule agents.
      */
@@ -137,7 +145,7 @@ public class MoleculeAgentManager implements BoxEventListener, ISimulationListen
             speciesAgents[index] = null;
         }
     }
-    
+
     public void boxMoleculeIndexChanged(BoxMoleculeIndexEvent e) {
         IMolecule mole = e.getMolecule();
         // the atom's index changed.  assume it would get the same agent
@@ -147,39 +155,51 @@ public class MoleculeAgentManager implements BoxEventListener, ISimulationListen
         speciesAgents[mole.getIndex()] = speciesAgents[oldIndex];
         speciesAgents[oldIndex] = null;
     }
-    
+
     public void boxNumberMolecules(BoxMoleculeCountEvent e) {
         int speciesIndex = e.getSpecies().getIndex();
         int newMaxIndex = e.getCount();
         if (agents[speciesIndex].length > newMaxIndex+reservoirSize || agents[speciesIndex].length < newMaxIndex) {
             // indices got compacted.  If our array is a lot bigger than it
             // needs to be, shrink it.
-            // ... or we've been notified that atoms are about to get added to the 
+            // ... or we've been notified that atoms are about to get added to the
             // system.  Make room for them
             agents[speciesIndex] = Arrays.resizeArray(agents[speciesIndex],newMaxIndex+reservoirSize);
         }
     }
-    
+
     public void boxGlobalAtomLeafIndexChanged(BoxIndexEvent e) {}
+
     public void boxAtomLeafIndexChanged(BoxAtomIndexEvent e) {}
-    
-    public void simulationSpeciesAdded(ISimulationSpeciesEvent e) {
+
+    public void simulationSpeciesAdded(SimulationSpeciesEvent e) {
         agents = (Object[][])Arrays.resizeArray(agents, agents.length+1);
         agents[agents.length-1] = (Object[])Array.newInstance(agentSource.getMoleculeAgentClass(), 0);
     }
-    
-    public void simulationSpeciesRemoved(ISimulationSpeciesEvent e) {
+
+    public void simulationSpeciesRemoved(SimulationSpeciesEvent e) {
         agents = (Object[][])Arrays.removeObject(agents, agents[e.getSpecies().getIndex()]);
 
     }
 
-    public void simulationBoxAdded(ISimulationBoxEvent e) {}
-    public void simulationBoxRemoved(ISimulationBoxEvent e) {}
-    public void simulationSpeciesIndexChanged(ISimulationSpeciesIndexEvent e) {}
-    public void simulationSpeciesMaxIndexChanged(ISimulationIndexEvent e) {}
-    public void simulationAtomTypeIndexChanged(ISimulationAtomTypeIndexEvent e) {}
-    public void simulationAtomTypeMaxIndexChanged(ISimulationIndexEvent e) {}
-    
+    public void simulationBoxAdded(SimulationBoxEvent e) {
+    }
+
+    public void simulationBoxRemoved(SimulationBoxEvent e) {
+    }
+
+    public void simulationSpeciesIndexChanged(SimulationSpeciesIndexEvent e) {
+    }
+
+    public void simulationSpeciesMaxIndexChanged(SimulationIndexEvent e) {
+    }
+
+    public void simulationAtomTypeIndexChanged(SimulationAtomTypeEvent e) {
+    }
+
+    public void simulationAtomTypeMaxIndexChanged(SimulationIndexEvent e) {
+    }
+
     protected void addAgent(IMolecule a) {
         int speciesIndex = a.getType().getIndex();
         if (agents[speciesIndex].length < a.getIndex()+1) {
@@ -188,46 +208,43 @@ public class MoleculeAgentManager implements BoxEventListener, ISimulationListen
         }
         agents[speciesIndex][a.getIndex()] = agentSource.makeAgent(a);
     }
-    
     /**
      * Interface for an object that wants an agent associated with each
      * IMolecule a Box.
      */
     public interface MoleculeAgentSource {
         /**
-         * Returns the Class of the agent.  This is used to create an array of 
+         * Returns the Class of the agent.  This is used to create an array of
          * the appropriate Class.
          */
-        public Class getMoleculeAgentClass();
+        Class getMoleculeAgentClass();
 
         /**
          * Returns an agent for the given Atom.
          */
-        public Object makeAgent(IMolecule a);
-        
+        Object makeAgent(IMolecule a);
+
         /**
-         * This informs the agent source that the agent is going away and that 
+         * This informs the agent source that the agent is going away and that
          * the agent source should disconnect the agent from other elements
          */
-        public void releaseAgent(Object agent, IMolecule atom);
+        void releaseAgent(Object agent, IMolecule atom);
     }
-
-    private static final long serialVersionUID = 1L;
-    protected final MoleculeAgentSource agentSource;
-    protected Object[][] agents;
-    protected final Box box;
-    protected final Simulation sim;
-    protected int reservoirSize;
     
     /**
      * Iterator that loops over the agents, skipping null elements
      */
     public static class AgentIterator implements Serializable {
 
+        private static final long serialVersionUID = 1L;
+        private final MoleculeAgentManager agentManager;
+        private int speciesCursor, moleculeCursor;
+        private Object[][] agents;
+        private Object[] speciesAgents;
         protected AgentIterator(MoleculeAgentManager agentManager) {
             this.agentManager = agentManager;
         }
-        
+
         public void reset() {
             speciesCursor = 0;
             moleculeCursor = 0;
@@ -239,7 +256,7 @@ public class MoleculeAgentManager implements BoxEventListener, ISimulationListen
                 speciesAgents = null;
             }
         }
-        
+
         public boolean hasNext() {
             if (speciesAgents == null) {
                 return false;
@@ -264,7 +281,7 @@ public class MoleculeAgentManager implements BoxEventListener, ISimulationListen
                 }
             } while (true);
         }
-        
+
         public Object next() {
             if (speciesAgents == null) {
                 return false;
@@ -288,11 +305,5 @@ public class MoleculeAgentManager implements BoxEventListener, ISimulationListen
                 }
             } while (true);
         }
-        
-        private static final long serialVersionUID = 1L;
-        private final MoleculeAgentManager agentManager;
-        private int speciesCursor, moleculeCursor;
-        private Object[][] agents;
-        private Object[] speciesAgents;
     }
 }

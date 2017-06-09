@@ -4,8 +4,7 @@
 
 package etomica.box;
 
-import etomica.api.*;
-import etomica.simulation.Simulation;
+import etomica.simulation.*;
 import etomica.util.Arrays;
 
 import java.lang.reflect.Array;
@@ -20,11 +19,11 @@ import java.lang.reflect.Array;
  *
  * @author andrew
  */
-public class BoxAgentManager<E> implements ISimulationListener {
+public class BoxAgentManager<E> implements SimulationListener {
 
     protected final BoxAgentSource<E> agentSource;
     protected final Class boxAgentClass;
-    protected ISimulationEventManager simEventManager;
+    protected SimulationEventManager simEventManager;
     protected E[] agents;
 
     public BoxAgentManager(BoxAgentSource<E> source, Class boxAgentClass) {
@@ -105,11 +104,11 @@ public class BoxAgentManager<E> implements ISimulationListener {
         agents = null;
     }
 
-    public void simulationBoxAdded(ISimulationBoxEvent e) {
+    public void simulationBoxAdded(SimulationBoxEvent e) {
         addAgent(e.getBox());
     }
 
-    public void simulationBoxRemoved(ISimulationBoxEvent e) {
+    public void simulationBoxRemoved(SimulationBoxEvent e) {
         Box box = e.getBox();
         // The given Box got removed.  The remaining boxes got shifted
         // down.
@@ -123,22 +122,22 @@ public class BoxAgentManager<E> implements ISimulationListener {
         agents = (E[]) Arrays.resizeArray(agents, agents.length - 1);
     }
 
-    public void simulationSpeciesAdded(ISimulationSpeciesEvent e) {
+    public void simulationSpeciesAdded(SimulationSpeciesEvent e) {
     }
 
-    public void simulationSpeciesRemoved(ISimulationSpeciesEvent e) {
+    public void simulationSpeciesRemoved(SimulationSpeciesEvent e) {
     }
 
-    public void simulationSpeciesIndexChanged(ISimulationSpeciesIndexEvent e) {
+    public void simulationSpeciesIndexChanged(SimulationSpeciesIndexEvent e) {
     }
 
-    public void simulationSpeciesMaxIndexChanged(ISimulationIndexEvent e) {
+    public void simulationSpeciesMaxIndexChanged(SimulationIndexEvent e) {
     }
 
-    public void simulationAtomTypeIndexChanged(ISimulationAtomTypeIndexEvent e) {
+    public void simulationAtomTypeIndexChanged(SimulationAtomTypeEvent e) {
     }
 
-    public void simulationAtomTypeMaxIndexChanged(ISimulationIndexEvent e) {
+    public void simulationAtomTypeMaxIndexChanged(SimulationIndexEvent e) {
     }
 
     protected void addAgent(Box box) {

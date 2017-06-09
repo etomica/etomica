@@ -35,9 +35,9 @@ import etomica.species.SpeciesSpheresMono;
  *
  * @author David Kofke
  */
- 
+
 public class SoftSphere3d extends Simulation {
-    
+
     private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
@@ -47,20 +47,20 @@ public class SoftSphere3d extends Simulation {
     public PotentialMaster potentialMaster;
     public Controller controller;
     public DataSourceCountSteps meterCycles;
-    
+
 
     public SoftSphere3d(double density, int exponent, double temperature) {
         super(Space3D.getInstance());
         potentialMaster = new PotentialMasterMonatomic(this);
-	    integrator = new IntegratorMC(this, potentialMaster);
-	    integrator.setTemperature(temperature);
-	    
-	    
-	    mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
+        integrator = new IntegratorMC(this, potentialMaster);
+        integrator.setTemperature(temperature);
+
+
+        mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setMaxSteps(10000000);
         getController().addAction(activityIntegrate);
-        
+
         species = new SpeciesSpheresMono(this, space);
         //species2 = new SpeciesSpheresMono(this);
         addSpecies(species);
@@ -71,19 +71,19 @@ public class SoftSphere3d extends Simulation {
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
-       // box.setNMolecules(species2, 20);
+        // box.setNMolecules(species2, 20);
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
-	    potential = new P2SoftSphere(space,1,1,exponent);
-	    P2SoftSphericalTruncated truncated = new P2SoftSphericalTruncated(space, potential,box.getBoundary().getBoxSize().getX(0)/2);
-	   // System.out.println("Truncated radius is: " +truncated.getTruncationRadius());
+        potential = new P2SoftSphere(space, 1, 1, exponent);
+        P2SoftSphericalTruncated truncated = new P2SoftSphericalTruncated(space, potential, box.getBoundary().getBoxSize().getX(0) / 2);
+        // System.out.println("Truncated radius is: " +truncated.getTruncationRadius());
 
         AtomType type1 = species.getLeafType();
         //AtomType type2 = species2.getLeafType();
         potentialMaster.addPotential(truncated, new AtomType[]{type1, type1});
-       // potentialMaster.addPotential(potential, new AtomType[] {type1, type2});
+        // potentialMaster.addPotential(potential, new AtomType[] {type1, type2});
         //potentialMaster.addPotential(potential, new AtomType[] {type2, type2});
-        
-	    meterCycles = new DataSourceCountSteps(integrator);
+
+        meterCycles = new DataSourceCountSteps(integrator);
 
         integrator.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
@@ -91,19 +91,19 @@ public class SoftSphere3d extends Simulation {
 
 //	    LatticeRenderer.ColorSchemeCell colorSchemeCell = new LatticeRenderer.ColorSchemeCell();
 //	    display.setColorScheme(colorSchemeCell);
-	    
+
 //		elementCoordinator.go();
 //	    etomica.lattice.BravaisLattice lattice = ((IteratorFactoryCell)this.getIteratorFactory()).getLattice(box);
 //        colorSchemeCell.setLattice(lattice);
     }
-    
+
     public static void main(String[] args) {
-   
-    	double density = 1.338;
-    	int exponent = 12;
-    	double temperature = 0.1;
-    	
-    	
+
+        double density = 1.338;
+        int exponent = 12;
+        double temperature = 0.1;
+
+
         if (args.length > 0) {
             density = Double.parseDouble(args[0]);
         }
@@ -113,30 +113,30 @@ public class SoftSphere3d extends Simulation {
         if (args.length > 1) {
             temperature = Double.parseDouble(args[2]);
         }
-    	
-    	final SoftSphere3d sim = new SoftSphere3d(density, exponent, temperature);
+
+        final SoftSphere3d sim = new SoftSphere3d(density, exponent, temperature);
         int numAtoms = 108;
-        
+
         MeterPotentialEnergyFromIntegrator meterEnergy = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         DataPump pump = new DataPump(meterEnergy, null);
         AccumulatorAverageCollapsing accumulator = new AccumulatorAverageCollapsing();
-       
+
         accumulator.setPushInterval(1);
         pump.setDataSink(accumulator);
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pump));
-        
+
         sim.getController().actionPerformed();
-        
-        
+
+
         double temp = sim.integrator.getTemperature();
         double Cv = ((DataDouble) ((DataGroup) accumulator.getData()).getData(AccumulatorAverage.STANDARD_DEVIATION.index)).x;
         double energy = ((DataDouble) ((DataGroup) accumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
         Cv /= temp;
-        Cv *= Cv/numAtoms;
-        System.out.println("Cv/k: "+Cv);
-        System.out.println("System Energy: "+energy/numAtoms);
-        
-   }
+        Cv *= Cv / numAtoms;
+        System.out.println("Cv/k: " + Cv);
+        System.out.println("System Energy: " + energy / numAtoms);
 
-    
+    }
+
+
 }

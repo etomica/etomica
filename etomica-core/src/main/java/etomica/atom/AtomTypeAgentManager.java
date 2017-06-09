@@ -4,8 +4,8 @@
 
 package etomica.atom;
 
-import etomica.api.*;
-import etomica.simulation.Simulation;
+import etomica.api.ISpecies;
+import etomica.simulation.*;
 import etomica.util.Arrays;
 
 import java.io.Serializable;
@@ -20,7 +20,7 @@ import java.lang.reflect.Array;
  * would be stale at that point.
  * @author andrew
  */
-public class AtomTypeAgentManager implements ISimulationListener, java.io.Serializable {
+public class AtomTypeAgentManager implements SimulationListener, java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
     private final AgentSource agentSource;
@@ -149,8 +149,8 @@ public class AtomTypeAgentManager implements ISimulationListener, java.io.Serial
         // fill in the array with agents from all the atoms
         makeAllAgents();
     }
-    
-    public void simulationSpeciesAdded(ISimulationSpeciesEvent e) {
+
+    public void simulationSpeciesAdded(SimulationSpeciesEvent e) {
         ISpecies species = e.getSpecies();
         for(int i = 0; i < species.getAtomTypeCount(); i++) {
             AtomType newType = species.getAtomType(i);
@@ -160,11 +160,11 @@ public class AtomTypeAgentManager implements ISimulationListener, java.io.Serial
         }
     }
 
-    public void simulationSpeciesRemoved(ISimulationSpeciesEvent e) {
+    public void simulationSpeciesRemoved(SimulationSpeciesEvent e) {
         releaseAgents(e.getSpecies());
     }
 
-    public void simulationAtomTypeIndexChanged(ISimulationAtomTypeIndexEvent e) {
+    public void simulationAtomTypeIndexChanged(SimulationAtomTypeEvent e) {
         AtomType atomType = e.getAtomType();
         int oldIndex = e.getIndex();
         int newIndex = atomType.getIndex();
@@ -175,18 +175,22 @@ public class AtomTypeAgentManager implements ISimulationListener, java.io.Serial
         agents[oldIndex] = null;
     }
 
-    public void simulationAtomTypeMaxIndexChanged(ISimulationIndexEvent e) {
+    public void simulationAtomTypeMaxIndexChanged(SimulationIndexEvent e) {
         int maxIndex = e.getIndex();
         agents = Arrays.resizeArray(agents, maxIndex+1);
     }
 
-    public void simulationSpeciesIndexChanged(ISimulationSpeciesIndexEvent e) {}
+    public void simulationSpeciesIndexChanged(SimulationSpeciesIndexEvent e) {
+    }
 
-    public void simulationSpeciesMaxIndexChanged(ISimulationIndexEvent e) {}
+    public void simulationSpeciesMaxIndexChanged(SimulationIndexEvent e) {
+    }
 
-    public void simulationBoxAdded(ISimulationBoxEvent e) {}
+    public void simulationBoxAdded(SimulationBoxEvent e) {
+    }
 
-    public void simulationBoxRemoved(ISimulationBoxEvent e) {}
+    public void simulationBoxRemoved(SimulationBoxEvent e) {
+    }
 
     protected void addAgent(AtomType type) {
         if (agentSource != null) {

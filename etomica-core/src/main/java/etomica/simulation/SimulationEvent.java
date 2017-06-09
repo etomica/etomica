@@ -4,18 +4,15 @@
 
 package etomica.simulation;
 
-import etomica.api.ISimulationEvent;
 
+public class SimulationEvent {
 
-public class SimulationEvent implements ISimulationEvent, java.io.Serializable {
-    
     private Simulation simulation;
-    private static final long serialVersionUID = 1L;
-    
+
     public SimulationEvent(Simulation sim) {
-    	simulation = sim;
+        simulation = sim;
     }
-    
+
     public Simulation getSimulation() {
         return simulation;
     }

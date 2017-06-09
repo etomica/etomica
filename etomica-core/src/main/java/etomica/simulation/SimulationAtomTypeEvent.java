@@ -4,13 +4,10 @@
 
 package etomica.simulation;
 
-import etomica.api.ISimulationAtomTypeEvent;
 import etomica.atom.AtomType;
 
-public class SimulationAtomTypeEvent extends SimulationEvent
-                            implements ISimulationAtomTypeEvent {
-    
-    private static final long serialVersionUID = 1L;
+public class SimulationAtomTypeEvent extends SimulationEvent {
+
     private final AtomType atomType;
 
     public SimulationAtomTypeEvent(Simulation sim, AtomType atomType) {

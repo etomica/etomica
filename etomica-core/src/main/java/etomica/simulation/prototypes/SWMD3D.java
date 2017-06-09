@@ -39,6 +39,7 @@ public class SWMD3D extends Simulation {
     public P2SquareWell potential;
     public Controller controller;
     public DisplayBox display;
+
     public SWMD3D(Space _space) {
         super(_space);
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 2.5, space);
@@ -53,10 +54,10 @@ public class SWMD3D extends Simulation {
 
         box = new Box(space);
         addBox(box);
-        potential  = new etomica.potential.P2SquareWell(space);
+        potential = new etomica.potential.P2SquareWell(space);
         potential.setLambda(lambda);
 
-        species  = new etomica.species.SpeciesSpheresMono(this, space);
+        species = new etomica.species.SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
         addSpecies(species);
         box.setNMolecules(species, 108);
@@ -86,7 +87,7 @@ public class SWMD3D extends Simulation {
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
         simGraphic.makeAndDisplayFrame(APP_NAME);
-        ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
+        ColorSchemeByType colorScheme = ((ColorSchemeByType) ((DisplayBox) simGraphic.displayList().getFirst()).getColorScheme());
         colorScheme.setColor(sim.species.getLeafType(), java.awt.Color.red);
 
         MeterPressureHard pMeter = new MeterPressureHard(sim.space);

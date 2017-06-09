@@ -24,9 +24,9 @@ import etomica.species.SpeciesSpheresMono;
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 2D
  */
- 
+
 public class LjMd2D extends Simulation {
-    
+
     private static final long serialVersionUID = 1L;
     public IntegratorVelocityVerlet integrator;
     public SpeciesSpheresMono species;
@@ -54,12 +54,12 @@ public class LjMd2D extends Simulation {
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
         potential = new P2LennardJones(space);
         potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
-        
+
 //      elementCoordinator.go();
         //explicit implementation of elementCoordinator activities
         integrator.setBox(box);
-		
-		energy = new MeterEnergy(potentialMaster, box);
+
+        energy = new MeterEnergy(potentialMaster, box);
 //		energy.setHistorying(true);
 //		
 //		energy.getHistory().setHistoryLength(500);
@@ -67,7 +67,7 @@ public class LjMd2D extends Simulation {
 //		plot = new DisplayPlot(this);
 //		plot.setLabel("Energy");
 //		plot.setDataSources(energy.getHistory());
-		
+
     }
-    
+
 }

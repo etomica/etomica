@@ -31,12 +31,13 @@ import etomica.species.SpeciesSpheresRotating;
  */
 //in present form uses just a LJ potential, so orientation is irrelevant
 public class GEMCWithRotation extends Simulation {
-    
+
     private static final long serialVersionUID = 1L;
     public Box box1, box2;
     public IntegratorGEMC integrator;
     public SpeciesSpheresRotating species;
     public P2LennardJones potential;
+
     public GEMCWithRotation(Space _space) {
         super(_space);
         double sigma = 1.2;
@@ -50,7 +51,7 @@ public class GEMCWithRotation extends Simulation {
         species = new SpeciesSpheresRotating(this, space);
         addSpecies(species);
 
-	    box1 = new Box(space);
+        box1 = new Box(space);
         addBox(box1);
         box1.setNMolecules(species, 200);
 
@@ -79,8 +80,7 @@ public class GEMCWithRotation extends Simulation {
         SpaceLattice lattice;
         if (space.D() == 2) {
             lattice = new LatticeOrthorhombicHexagonal(space);
-        }
-        else {
+        } else {
             lattice = new LatticeCubicFcc(space);
         }
         ConfigurationLattice config = new ConfigurationLattice(lattice, space);
@@ -88,7 +88,7 @@ public class GEMCWithRotation extends Simulation {
         config.initializeCoordinates(box2);
 
         potential = new P2LennardJones(space);
-	    potential.setSigma(sigma);
+        potential.setSigma(sigma);
 
         potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
 

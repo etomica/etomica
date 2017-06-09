@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.simulation.prototypes;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -21,9 +22,9 @@ import etomica.species.SpeciesSpheresMono;
  *
  * @author David Kofke
  */
- 
+
 public class HSMD2D extends Simulation {
-    
+
     private static final long serialVersionUID = 1L;
     public IntegratorHard integrator;
     public SpeciesSpheresMono species1, species2;
@@ -39,20 +40,20 @@ public class HSMD2D extends Simulation {
         double sigma = 0.38;
 
         double neighborRangeFac = 1.6;
-        potentialMaster.setRange(neighborRangeFac*sigma);
+        potentialMaster.setRange(neighborRangeFac * sigma);
 
         integrator = new IntegratorHard(this, potentialMaster, space);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
 
-        potentialMaster.setRange(sigma*1.6);
+        potentialMaster.setRange(sigma * 1.6);
 
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
         species1 = new SpeciesSpheresMono(this, space);
         species1.setIsDynamic(true);
-	    species2 = new SpeciesSpheresMono(this, space);
+        species2 = new SpeciesSpheresMono(this, space);
         species2.setIsDynamic(true);
         AtomType leafType1 = species1.getLeafType();
         AtomType leafType2 = species2.getLeafType();
@@ -76,13 +77,13 @@ public class HSMD2D extends Simulation {
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
         integrator.setBox(box);
     }
-    
+
     /**
      * Demonstrates how this class is implemented.
      */
     public static void main(String[] args) {
         HSMD2D sim = new HSMD2D();
-		sim.getController().actionPerformed();
+        sim.getController().actionPerformed();
     }
-    
+
 }

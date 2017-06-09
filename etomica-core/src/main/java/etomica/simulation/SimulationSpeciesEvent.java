@@ -4,15 +4,12 @@
 
 package etomica.simulation;
 
-import etomica.api.ISimulationSpeciesEvent;
 import etomica.api.ISpecies;
 
-public class SimulationSpeciesEvent extends SimulationEvent
-                                   implements ISimulationSpeciesEvent {
+public class SimulationSpeciesEvent extends SimulationEvent {
 
     private final ISpecies species;
-    private static final long serialVersionUID = 1L;
-    
+
     public SimulationSpeciesEvent(Simulation sim, ISpecies species) {
         super(sim);
         this.species = species;

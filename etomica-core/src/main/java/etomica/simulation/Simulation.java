@@ -8,7 +8,8 @@ import etomica.action.ActionIntegrate;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.*;
+import etomica.api.IElement;
+import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.integrator.Integrator;
@@ -157,7 +158,7 @@ public class Simulation {
      * Returns the Simulation's event manager, which fires events for
      * Boxes and Species being added and removed.
      */
-    public ISimulationEventManager getEventManager() {
+    public SimulationEventManager getEventManager() {
         return eventManager;
     }
 

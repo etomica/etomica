@@ -5,13 +5,11 @@
 package etomica.simulation;
 
 import etomica.box.Box;
-import etomica.api.ISimulationBoxEvent;
 
-public class SimulationBoxEvent extends SimulationEvent implements ISimulationBoxEvent {
+public class SimulationBoxEvent extends SimulationEvent {
 
     private final Box box;
-    private static final long serialVersionUID = 1L;
-    
+
     public SimulationBoxEvent(Simulation sim, Box box) {
         super(sim);
         this.box = box;

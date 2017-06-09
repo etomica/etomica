@@ -4,11 +4,9 @@
 
 package etomica.simulation;
 
-import etomica.api.ISimulationAtomTypeIndexEvent;
 import etomica.atom.AtomType;
 
-public class SimulationAtomTypeIndexEvent extends SimulationAtomTypeEvent
-                           implements ISimulationAtomTypeIndexEvent {
+public class SimulationAtomTypeIndexEvent extends SimulationAtomTypeEvent {
 
     private int index;
 
@@ -16,7 +14,7 @@ public class SimulationAtomTypeIndexEvent extends SimulationAtomTypeEvent
         super(sim, at);
         this.index = index;
     }
-    
+
     public int getIndex() {
         return index;
     }

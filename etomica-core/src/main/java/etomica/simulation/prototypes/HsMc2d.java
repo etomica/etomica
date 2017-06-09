@@ -27,9 +27,9 @@ import etomica.species.SpeciesSpheresMono;
  *
  * @author David Kofke
  */
- 
+
 public class HsMc2d extends Simulation {
-    
+
     private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
@@ -42,8 +42,8 @@ public class HsMc2d extends Simulation {
     public HsMc2d() {
         super(Space2D.getInstance());
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
-	    integrator = new IntegratorMC(this, potentialMaster);
-	    mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
+        integrator = new IntegratorMC(this, potentialMaster);
+        mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this, space);
@@ -55,7 +55,7 @@ public class HsMc2d extends Simulation {
         box.setNMolecules(species, 20);
         box.setNMolecules(species2, 20);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
-	    potential = new P2HardSphere(space);
+        potential = new P2HardSphere(space);
         AtomType type1 = species.getLeafType();
         AtomType type2 = species2.getLeafType();
         potentialMaster.addPotential(potential, new AtomType[]{type1, type1});
@@ -69,10 +69,10 @@ public class HsMc2d extends Simulation {
 
 //	    LatticeRenderer.ColorSchemeCell colorSchemeCell = new LatticeRenderer.ColorSchemeCell();
 //	    display.setColorScheme(colorSchemeCell);
-	    
+
 //		elementCoordinator.go();
 //	    etomica.lattice.BravaisLattice lattice = ((IteratorFactoryCell)this.getIteratorFactory()).getLattice(box);
 //        colorSchemeCell.setLattice(lattice);
     }
-    
+
 }

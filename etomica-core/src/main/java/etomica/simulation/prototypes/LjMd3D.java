@@ -28,9 +28,9 @@ import etomica.species.SpeciesSpheresMono;
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 3D
  */
- 
+
 public class LjMd3D extends Simulation {
-    
+
     private static final long serialVersionUID = 1L;
     public IntegratorVelocityVerlet integrator;
     public SpeciesSpheresMono species;
@@ -61,12 +61,12 @@ public class LjMd3D extends Simulation {
         AtomType leafType = species.getLeafType();
 
         potentialMaster.addPotential(potential, new AtomType[]{leafType, leafType});
-        
+
         integrator.setBox(box);
         BoxImposePbc imposepbc = new BoxImposePbc(space);
         imposepbc.setBox(box);
         integrator.getEventManager().addListener(new IntegratorListenerAction(imposepbc));
-		
+
         ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         configuration.initializeCoordinates(box);
         energy = new MeterPotentialEnergy(potentialMaster);

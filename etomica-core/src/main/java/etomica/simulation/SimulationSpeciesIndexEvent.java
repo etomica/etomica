@@ -4,20 +4,18 @@
 
 package etomica.simulation;
 
-import etomica.api.ISimulationSpeciesIndexEvent;
 import etomica.api.ISpecies;
 
-public class SimulationSpeciesIndexEvent extends SimulationSpeciesEvent
-                                 implements ISimulationSpeciesIndexEvent {
+public class SimulationSpeciesIndexEvent extends SimulationSpeciesEvent {
 
     private int index;
-    
+
     public SimulationSpeciesIndexEvent(Simulation sim, ISpecies species,
                                        int index) {
         super(sim, species);
         this.index = index;
     }
-    
+
     public int getIndex() {
         return index;
     }
