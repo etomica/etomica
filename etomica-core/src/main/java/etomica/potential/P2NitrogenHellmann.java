@@ -4,6 +4,19 @@
 
 package etomica.potential;
 
+import etomica.atom.IAtomList;
+import etomica.atom.IAtomOriented;
+import etomica.box.Box;
+import etomica.chem.elements.Nitrogen;
+import etomica.space.Boundary;
+import etomica.space.Space;
+import etomica.space.Tensor;
+import etomica.space.Vector;
+import etomica.space3d.Space3D;
+import etomica.units.Degree;
+import etomica.units.Kelvin;
+import etomica.util.Constants;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -45,20 +58,6 @@ import java.io.IOException;
 //
 //
 //
-
-import etomica.atom.IAtomList;
-import etomica.space.Boundary;
-import etomica.box.Box;
-import etomica.api.IPotentialAtomic;
-import etomica.space.Vector;
-import etomica.atom.IAtomOriented;
-import etomica.chem.elements.Nitrogen;
-import etomica.space.Space;
-import etomica.space.Tensor;
-import etomica.space3d.Space3D;
-import etomica.units.Degree;
-import etomica.units.Kelvin;
-import etomica.util.Constants;
 
 
 public class P2NitrogenHellmann implements IPotentialAtomic, IPotentialTorque {    

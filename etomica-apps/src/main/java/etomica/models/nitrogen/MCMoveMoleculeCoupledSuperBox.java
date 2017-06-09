@@ -6,7 +6,6 @@ package etomica.models.nitrogen;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IPotentialMolecular;
 import etomica.atom.iterator.AtomIterator;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -17,6 +16,7 @@ import etomica.molecule.*;
 import etomica.molecule.iterator.MoleculeIterator;
 import etomica.molecule.iterator.MoleculeIteratorArrayListSimple;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
+import etomica.potential.IPotentialMolecular;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space.Vector;

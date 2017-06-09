@@ -4,13 +4,13 @@
 
 package etomica.models.oneDHardRods;
 
-import etomica.api.IPotential;
-import etomica.potential.PotentialMaster;
-import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
+import etomica.potential.IPotential;
+import etomica.potential.PotentialMaster;
+import etomica.space.Vector;
 import etomica.units.Null;
 
 

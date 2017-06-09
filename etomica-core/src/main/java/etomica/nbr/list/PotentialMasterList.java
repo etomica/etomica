@@ -4,8 +4,6 @@
 
 package etomica.nbr.list;
 
-import etomica.api.IPotential;
-import etomica.api.IPotentialAtomic;
 import etomica.api.ISpecies;
 import etomica.atom.*;
 import etomica.atom.iterator.AtomIteratorSinglet;
@@ -17,10 +15,7 @@ import etomica.molecule.IMoleculeList;
 import etomica.molecule.IMoleculePositionDefinition;
 import etomica.nbr.*;
 import etomica.nbr.cell.NeighborCellManager;
-import etomica.potential.IteratorDirective;
-import etomica.potential.PotentialArray;
-import etomica.potential.PotentialCalculation;
-import etomica.potential.PotentialGroup;
+import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.util.Arrays;

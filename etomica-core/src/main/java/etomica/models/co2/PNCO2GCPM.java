@@ -5,7 +5,6 @@
 package etomica.models.co2;
 
 import etomica.api.IElement;
-import etomica.api.IPotentialMolecular;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
@@ -18,6 +17,7 @@ import etomica.models.co2.P2CO2Hellmann.Parameters;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePair;
+import etomica.potential.IPotentialMolecular;
 import etomica.potential.P3AxilrodTeller;
 import etomica.potential.PotentialMolecular;
 import etomica.potential.PotentialPolarizable;

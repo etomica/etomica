@@ -4,11 +4,11 @@
 
 package etomica.virial;
 
-import etomica.api.IPotential;
-import etomica.api.IPotentialMolecular;
 import etomica.box.Box;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
+import etomica.potential.IPotential;
+import etomica.potential.IPotentialMolecular;
 
 /**
  * Mayer function class that returns temperature expansion bond of the desired

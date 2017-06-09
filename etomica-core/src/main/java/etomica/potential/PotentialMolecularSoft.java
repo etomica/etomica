@@ -4,7 +4,6 @@
 
 package etomica.potential;
 
-import etomica.api.IPotentialMolecular;
 import etomica.molecule.IMoleculeList;
 import etomica.space.Tensor;
 import etomica.space.Vector;

@@ -4,9 +4,6 @@
 
 package etomica.potential;
 
-import etomica.api.IPotential;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IPotentialMolecular;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;

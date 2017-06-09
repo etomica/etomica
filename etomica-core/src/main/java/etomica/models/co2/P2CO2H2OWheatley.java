@@ -4,25 +4,20 @@
 
 package etomica.models.co2;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.atom.IAtomList;
-import etomica.box.Box;
-import etomica.api.IPotentialAtomic;
-import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
+import etomica.box.Box;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
+import etomica.potential.IPotentialAtomic;
 import etomica.potential.IPotentialTorque;
 import etomica.simulation.Simulation;
 import etomica.space.IOrientation;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.space3d.IOrientation3D;
 import etomica.space3d.OrientationFull3D;
 import etomica.space3d.Space3D;
@@ -33,6 +28,11 @@ import etomica.units.Kelvin;
 import etomica.util.Constants;
 import etomica.util.random.RandomMersenneTwister;
 import etomica.util.random.RandomNumberGeneratorUnix;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * Ab initio potential for CO2-H2O by Wheatley and Harvey

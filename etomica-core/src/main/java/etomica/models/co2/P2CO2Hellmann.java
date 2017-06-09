@@ -5,19 +5,19 @@
 package etomica.models.co2;
 
 import etomica.atom.IAtomList;
-import etomica.box.Box;
-import etomica.api.IPotentialAtomic;
-import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
+import etomica.box.Box;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Oxygen;
+import etomica.potential.IPotentialAtomic;
 import etomica.potential.IPotentialTorque;
 import etomica.potential.P2SemiclassicalAtomic;
 import etomica.potential.P2SemiclassicalAtomic.AtomInfo;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.space3d.IOrientation3D;
 import etomica.space3d.Orientation3D;
 import etomica.space3d.Space3D;

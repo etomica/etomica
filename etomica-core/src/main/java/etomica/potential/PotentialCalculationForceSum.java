@@ -4,11 +4,10 @@
 
 package etomica.potential;
 
-import etomica.atom.IAtomList;
-import etomica.api.IPotentialAtomic;
-import etomica.space.Vector;
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.IAtomList;
 import etomica.integrator.IntegratorBox;
+import etomica.space.Vector;
 
 /**
  * Sums the force on each iterated atom and adds it to the integrator agent

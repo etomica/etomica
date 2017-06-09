@@ -5,7 +5,6 @@
 package etomica.potential;
 
 import etomica.atom.IAtomList;
-import etomica.api.IPotentialAtomic;
 
 /**
  * Evaluates the hypervirial summed over all iterated atoms.

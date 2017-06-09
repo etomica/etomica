@@ -5,7 +5,7 @@
 package etomica.meam;
 
 import etomica.atom.IAtomList;
-import etomica.api.IPotentialAtomic;
+import etomica.potential.IPotentialAtomic;
 import etomica.potential.PotentialCalculationEnergySum;
 
 /**

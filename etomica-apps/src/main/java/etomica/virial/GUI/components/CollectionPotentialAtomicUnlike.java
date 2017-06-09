@@ -4,8 +4,8 @@
 
 package etomica.virial.GUI.components;
 
-import etomica.api.IPotential;
 import etomica.atom.AtomType;
+import etomica.potential.IPotential;
 import etomica.potential.PotentialGroup;
 
 import java.util.HashMap;

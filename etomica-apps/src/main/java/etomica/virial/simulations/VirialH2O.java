@@ -3,53 +3,44 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.virial.simulations;
 
+import etomica.atom.IAtomList;
+import etomica.chem.elements.ElementSimple;
+import etomica.chem.elements.Hydrogen;
+import etomica.chem.elements.Oxygen;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCovariance;
+import etomica.data.AccumulatorRatioAverageCovarianceFull;
+import etomica.data.IData;
+import etomica.data.histogram.HistogramNotSoSimple;
+import etomica.data.types.DataGroup;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
+import etomica.integrator.mcmove.MCMove;
+import etomica.math.DoubleRange;
+import etomica.models.water.P2WaterSzalewicz;
+import etomica.models.water.P2WaterSzalewicz.Component;
+import etomica.potential.IPotentialAtomic;
+import etomica.potential.IPotentialMolecular;
+import etomica.potential.P2WaterPotentialsJankowski;
+import etomica.potential.PotentialMolecularMonatomic;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.space3d.Space3D;
+import etomica.species.SpeciesSpheresRotating;
+import etomica.units.Kelvin;
+import etomica.util.Arrays;
+import etomica.util.ParameterBase;
+import etomica.util.ParseArgs;
+import etomica.virial.*;
+import etomica.virial.cluster.Standard;
+import org.json.simple.JSONObject;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCovariance;
-import etomica.data.AccumulatorRatioAverageCovarianceFull;
-import etomica.integrator.IntegratorListener;
-import org.json.simple.JSONObject;
-import etomica.atom.IAtomList;
-import etomica.integrator.IntegratorEvent;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IPotentialMolecular;
-import etomica.space.Vector;
-import etomica.chem.elements.ElementSimple;
-import etomica.chem.elements.Hydrogen;
-import etomica.chem.elements.Oxygen;
-import etomica.data.IData;
-import etomica.data.types.DataGroup;
-import etomica.integrator.mcmove.MCMove;
-import etomica.models.water.P2WaterSzalewicz;
-import etomica.models.water.P2WaterSzalewicz.Component;
-import etomica.potential.P2WaterPotentialsJankowski;
-import etomica.potential.PotentialMolecularMonatomic;
-import etomica.space.Space;
-import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresRotating;
-import etomica.units.Kelvin;
-import etomica.util.Arrays;
-import etomica.math.DoubleRange;
-import etomica.data.histogram.HistogramNotSoSimple;
-import etomica.util.ParameterBase;
-import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterCoupledAtomFlipped;
-import etomica.virial.ClusterDifference;
-import etomica.virial.ClusterWheatleyHS;
-import etomica.virial.ClusterWheatleyMultibody;
-import etomica.virial.ClusterWheatleySoft;
-import etomica.virial.MayerFunctionMolecularThreeBody;
-import etomica.virial.MayerFunctionNonAdditive;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
 //import etomica.virial.PotentialCommonAtomic;
-import etomica.virial.PotentialNonAdditive;
-import etomica.virial.cluster.Standard;
 
 public class VirialH2O {
     public static void main(String[] args) {

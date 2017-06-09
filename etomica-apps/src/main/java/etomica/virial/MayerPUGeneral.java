@@ -4,13 +4,13 @@
 
 package etomica.virial;
 
-import etomica.api.IPotential;
-import etomica.api.IPotentialMolecular;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.box.Box;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
+import etomica.potential.IPotential;
+import etomica.potential.IPotentialMolecular;
 import etomica.space.Space;
 import etomica.space.Vector;
 

@@ -1,24 +1,14 @@
 package etomica.virial.simulations;
 
-import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.io.FileWriter;
-import java.io.IOException;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
 import etomica.action.IAction;
-import etomica.data.*;
-import etomica.integrator.IntegratorListener;
+import etomica.atom.AtomTypeSpheroPolyhedron;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.integrator.IntegratorEvent;
-import etomica.api.IPotentialAtomic;
-import etomica.space.Vector;
-import etomica.atom.AtomTypeSpheroPolyhedron;
 import etomica.chem.elements.ElementSimple;
+import etomica.data.*;
+import etomica.data.histogram.HistogramReweightedData;
+import etomica.data.histogram.HistogramSimple;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray;
@@ -26,37 +16,28 @@ import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.data.types.DataGroup;
-import etomica.graphics.ColorScheme;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayBoxCanvasG3DSys;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.listener.IntegratorListenerAction;
+import etomica.math.DoubleRange;
 import etomica.math.SpecialFunctions;
+import etomica.potential.IPotentialAtomic;
 import etomica.potential.P2SpheroPolyhedron;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesPolyhedron;
 import etomica.units.Null;
-import etomica.math.DoubleRange;
-import etomica.data.histogram.HistogramReweightedData;
-import etomica.data.histogram.HistogramSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterChainHS;
-import etomica.virial.ClusterSinglyConnected;
-import etomica.virial.ClusterWeightAbs;
-import etomica.virial.ClusterWeightUmbrella;
-import etomica.virial.ClusterWheatleyHS;
-import etomica.virial.MCMoveClusterPolyhedraChain;
-import etomica.virial.MCMoveClusterPolyhedraTree;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerGeneralAtomic;
-import etomica.virial.MeterVirialBD;
+import etomica.virial.*;
 import etomica.virial.simulations.ShapeParser.ShapeData;
+
+import javax.swing.*;
+import java.awt.*;
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * Calculation for virial coefficients of hard spheres

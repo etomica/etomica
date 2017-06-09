@@ -6,7 +6,6 @@ package etomica.normalmode;
 
 import etomica.action.BoxInflate;
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IPotentialAtomic;
 import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -17,6 +16,7 @@ import etomica.math.function.Function;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePositionGeometricCenter;
+import etomica.potential.IPotentialAtomic;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationEnergySum;
 import etomica.potential.PotentialMaster;

@@ -4,35 +4,30 @@
 
 package etomica.models.water;
 
-import java.util.Arrays;
-
-import etomica.atom.IAtomList;
-import etomica.box.Box;
-import etomica.api.IPotentialAtomic;
-import etomica.space.Vector;
 import etomica.atom.AtomPair;
+import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
+import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
+import etomica.potential.IPotentialAtomic;
 import etomica.potential.IPotentialTorque;
 import etomica.simulation.Simulation;
 import etomica.space.IOrientation;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.space3d.IOrientation3D;
 import etomica.space3d.OrientationFull3D;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresRotating;
-import etomica.units.BohrRadius;
-import etomica.units.CompoundUnit;
-import etomica.units.Debye;
-import etomica.units.Hartree;
-import etomica.units.Kelvin;
-import etomica.units.Unit;
+import etomica.units.*;
 import etomica.util.Constants;
 import etomica.util.random.RandomMersenneTwister;
 import etomica.util.random.RandomNumberGeneratorUnix;
+
+import java.util.Arrays;
 
 /**
  * Water potential as described by

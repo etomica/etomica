@@ -1,13 +1,13 @@
 package etomica.liquidLJ;
 
-import etomica.api.*;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.potential.IPotentialAtomic;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialCalculation;
 import etomica.space.Boundary;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * Evaluates the energy summed over all iterated atoms. Each call to doCalculate

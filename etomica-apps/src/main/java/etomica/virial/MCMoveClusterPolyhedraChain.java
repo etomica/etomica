@@ -4,11 +4,11 @@
 
 package etomica.virial;
 
-import etomica.api.*;
 import etomica.atom.AtomOrientedQuaternion;
 import etomica.atom.AtomPair;
 import etomica.atom.IAtomList;
 import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.potential.IPotentialAtomic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;

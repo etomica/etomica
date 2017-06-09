@@ -4,18 +4,16 @@
 
 package etomica.potential;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.space.Boundary;
-import etomica.box.Box;
-import etomica.api.IPotential;
-import etomica.api.IPotentialAtomic;
-import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
+import etomica.box.Box;
+import etomica.space.Boundary;
 import etomica.space.Space;
+import etomica.space.Vector;
+
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class P3HydrogenATM implements IPotential{
     public static void main(String[] args) {       

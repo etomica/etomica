@@ -4,14 +4,10 @@
 
 package etomica.threaded.domain;
 
-import etomica.api.IPotential;
-import etomica.api.IPotentialAtomic;
 import etomica.atom.*;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.nbr.list.NeighborListManager;
-import etomica.potential.IteratorDirective;
-import etomica.potential.PotentialArray;
-import etomica.potential.PotentialCalculation;
+import etomica.potential.*;
 import etomica.threaded.PotentialThreaded;
 
 public class PotentialMasterListWorker extends Thread {

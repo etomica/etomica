@@ -4,15 +4,10 @@
 
 package etomica.virial.simulations;
 
-import java.awt.Color;
-
 import etomica.action.IAction;
-import etomica.atom.IAtomList;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IPotentialMolecular;
 import etomica.api.ISpecies;
-import etomica.space.Vector;
 import etomica.atom.AtomTypeAgentManager;
+import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.ElementSimple;
@@ -27,13 +22,10 @@ import etomica.models.co2.P2CO2H2OWheatley;
 import etomica.models.co2.P2CO2Hellmann;
 import etomica.models.water.P2WaterSzalewicz;
 import etomica.models.water.P2WaterSzalewicz.Component;
-import etomica.potential.P2SemiclassicalAtomic;
+import etomica.potential.*;
 import etomica.potential.P2SemiclassicalAtomic.AtomInfo;
-import etomica.potential.P3AxilrodTeller;
-import etomica.potential.P3Induction;
-import etomica.potential.PotentialAtomicSum;
-import etomica.potential.PotentialMolecularMonatomic;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.ElectronVolt;
@@ -41,18 +33,10 @@ import etomica.units.Kelvin;
 import etomica.util.Arrays;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterCoupledAtomFlipped;
-import etomica.virial.ClusterWheatleyHS;
-import etomica.virial.ClusterWheatleyMultibodyMix;
-import etomica.virial.ClusterWheatleySoftMix;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerFunctionMolecularThreeBody;
-import etomica.virial.MayerFunctionNonAdditive;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.PotentialNonAdditive;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
+
+import java.awt.*;
 
 /**
  * Computes CO2-H2O mixture virial coefficients using ab-initio potentials

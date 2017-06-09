@@ -5,7 +5,6 @@
 package etomica.virial.simulations;
 
 
-import etomica.api.IPotential;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;

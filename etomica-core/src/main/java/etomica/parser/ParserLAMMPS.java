@@ -1,6 +1,5 @@
 package etomica.parser;
 
-import etomica.api.IPotentialAtomic;
 import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiIndexList;

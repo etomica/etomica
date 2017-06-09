@@ -5,7 +5,6 @@
 package etomica.potential;
 
 import etomica.atom.IAtomList;
-import etomica.api.IPotentialAtomic;
 
 /**
  * Class defining a particular action to be performed on a set of atoms using an

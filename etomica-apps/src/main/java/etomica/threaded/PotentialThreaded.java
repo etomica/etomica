@@ -6,7 +6,7 @@ package etomica.threaded;
 
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.api.IPotentialAtomic;
+import etomica.potential.IPotentialAtomic;
 import etomica.potential.Potential;
 import etomica.space.Space;
 

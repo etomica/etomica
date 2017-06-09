@@ -2,7 +2,6 @@ package etomica.potential;
 
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.api.IPotentialAtomic;
 
 /**
  * Atomic potential class that simply sums up contributions from multiple

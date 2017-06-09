@@ -4,7 +4,6 @@
 
 package etomica.virial.simulations;
 
-import etomica.api.IPotential;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.*;
@@ -14,6 +13,7 @@ import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
 import etomica.math.function.IFunction;
 import etomica.molecule.IMoleculeList;
+import etomica.potential.IPotential;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.Potential2Spherical;

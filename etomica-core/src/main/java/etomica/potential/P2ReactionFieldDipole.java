@@ -4,7 +4,6 @@
 
 package etomica.potential;
 
-import etomica.api.IPotentialMolecular;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.molecule.DipoleSource;

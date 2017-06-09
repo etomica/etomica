@@ -7,7 +7,6 @@
 package etomica.integrator;
 
 import etomica.action.BoxInflate;
-import etomica.api.IPotential;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
@@ -20,10 +19,7 @@ import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.modifier.ModifierBoolean;
-import etomica.potential.IteratorDirective;
-import etomica.potential.Potential2Soft;
-import etomica.potential.PotentialCalculationForceSum;
-import etomica.potential.PotentialMaster;
+import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.Space;

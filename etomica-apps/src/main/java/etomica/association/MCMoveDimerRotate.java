@@ -4,21 +4,21 @@
 
 package etomica.association;
 
-import etomica.api.*;
-import etomica.atom.IAtom;
-import etomica.box.Box;
-import etomica.simulation.Simulation;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSource;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.cell.PotentialMasterCell;
-import etomica.space.Vector;
-import etomica.space.Space;
+import etomica.potential.IPotentialAtomic;
+import etomica.simulation.Simulation;
 import etomica.space.RotationTensor;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.util.random.IRandom;
 
 /**

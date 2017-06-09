@@ -1,15 +1,15 @@
 package etomica.normalmode;
 
-import etomica.api.*;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.meam.PotentialCuLREP;
 import etomica.meam.PotentialEAM;
 import etomica.meam.PotentialEAM_LS;
 import etomica.meam.PotentialEFS;
+import etomica.potential.IPotentialAtomic;
 import etomica.potential.PotentialCalculation;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 public class PotentialCalculationEFSSP implements PotentialCalculation {
 		

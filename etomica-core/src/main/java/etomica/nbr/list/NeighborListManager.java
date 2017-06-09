@@ -5,16 +5,16 @@
 package etomica.nbr.list;
 
 import etomica.action.BoxImposePbc;
-import etomica.integrator.IntegratorEvent;
-import etomica.integrator.IntegratorListener;
-import etomica.api.IPotential;
 import etomica.atom.*;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.Box;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.cell.ApiAACell;
 import etomica.nbr.cell.NeighborCellManager;
+import etomica.potential.IPotential;
 import etomica.potential.PotentialArray;
 import etomica.space.Space;
 import etomica.util.Debug;

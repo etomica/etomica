@@ -5,15 +5,13 @@
 package etomica.virial.simulations;
 
 
-import java.awt.Color;
-import java.util.Set;
-
-import etomica.api.*;
+import etomica.api.ISpecies;
 import etomica.atom.IAtomList;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.IData;
+import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.types.DataGroup;
 import etomica.graph.model.Graph;
 import etomica.graph.operations.DeleteEdge;
@@ -22,28 +20,21 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
-import etomica.space.Vector;
+import etomica.math.DoubleRange;
+import etomica.potential.IPotentialMolecular;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
-import etomica.math.DoubleRange;
-import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterSum;
-import etomica.virial.ClusterSumMultibody;
-import etomica.virial.ClusterWeight;
-import etomica.virial.ClusterWeightAbs;
-import etomica.virial.CoordinatePairSet;
-import etomica.virial.MayerFunctionMolecularThreeBody;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.PotentialEmulCached;
-import etomica.virial.PotentialNonAdditive;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 import etomica.virial.cluster.VirialDiagrams;
+
+import java.awt.*;
+import java.util.Set;
 
 public class VirialEmulNonAdditive {
 

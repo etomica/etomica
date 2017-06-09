@@ -4,13 +4,11 @@
 
 package etomica.potential;
 
+import etomica.atom.AtomHydrogen;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.space.Boundary;
 import etomica.box.Box;
-import etomica.api.IPotential;
-import etomica.api.IPotentialAtomic;
-import etomica.atom.AtomHydrogen;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.units.BohrRadius;
 import etomica.units.Hartree;

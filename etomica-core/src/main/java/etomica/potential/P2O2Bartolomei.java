@@ -4,20 +4,19 @@
 
 package etomica.potential;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
-import etomica.api.*;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.atom.IAtomOriented;
+import etomica.box.Box;
 import etomica.space.Boundary;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.BohrRadius;
 import etomica.units.Degree;
 import etomica.units.ElectronVolt;
 import etomica.util.Constants;
+
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class P2O2Bartolomei implements IPotentialAtomic {
     

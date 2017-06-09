@@ -1,6 +1,5 @@
 package etomica.virial.simulations;
 
-import etomica.api.IPotential;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverageCovariance;
@@ -8,6 +7,7 @@ import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
+import etomica.potential.IPotential;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;

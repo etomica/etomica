@@ -4,18 +4,18 @@
 
 package etomica.threaded;
 
-import etomica.api.*;
+import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
+import etomica.potential.IPotentialAtomic;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialCalculationForceSum;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 public class PotentialCalculationForceSumThreaded extends PotentialCalculationForceSum implements IPotentialCalculationThreaded, AgentSource<MyAgent> {
 

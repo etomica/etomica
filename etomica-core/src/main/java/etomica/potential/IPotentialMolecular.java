@@ -2,15 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.api;
+package etomica.potential;
 
-import etomica.atom.IAtomList;
+import etomica.molecule.IMoleculeList;
 
-public interface IPotentialAtomic extends IPotential {
+public interface IPotentialMolecular extends IPotential {
 
     /**
      * Returns the interaction energy between the given atoms.  There might be
-     * 0, 1, 2 or more atoms in the AtomSet.
+     * 0, 1, 2 or more molecules in the IMoleculesList.
      */
-    public double energy(IAtomList atoms);
+    public double energy(IMoleculeList molecules);
 }

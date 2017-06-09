@@ -6,7 +6,6 @@ package etomica.models.co2;
 
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.IElement;
-import etomica.api.IPotentialMolecular;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.IAtomList;
@@ -20,6 +19,7 @@ import etomica.models.water.SpeciesWater4PCOM;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePair;
+import etomica.potential.IPotentialMolecular;
 import etomica.potential.PotentialMolecular;
 import etomica.potential.PotentialPolarizable;
 import etomica.simulation.Simulation;

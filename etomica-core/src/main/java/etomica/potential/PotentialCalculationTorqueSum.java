@@ -4,8 +4,6 @@
 
 package etomica.potential;
 
-import etomica.api.IPotentialAtomic;
-import etomica.api.IPotentialMolecular;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtomList;
 import etomica.integrator.Integrator;

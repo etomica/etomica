@@ -4,7 +4,7 @@
 package etomica.freeenergy.npath;
 
 import etomica.atom.IAtomList;
-import etomica.api.IPotentialAtomic;
+import etomica.potential.IPotentialAtomic;
 import etomica.potential.PotentialCalculation;
 
 /**

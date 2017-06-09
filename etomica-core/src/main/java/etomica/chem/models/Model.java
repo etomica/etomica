@@ -3,10 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.chem.models;
-import etomica.api.IPotentialAtomic;
-import etomica.simulation.Simulation;
+
 import etomica.api.ISpecies;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
+import etomica.potential.IPotentialAtomic;
+import etomica.simulation.Simulation;
 
 /**
  * Top-level class for a molecular model.

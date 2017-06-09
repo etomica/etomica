@@ -1,11 +1,11 @@
 package etomica.normalmode;
 
 import etomica.atom.IAtomList;
-import etomica.api.IPotentialAtomic;
-import etomica.space.Vector;
 import etomica.liquidLJ.Potential2SoftSphericalLSMultiLat;
 import etomica.liquidLJ.Potential2SoftSphericalLSMultiLat.ReturnValue;
+import etomica.potential.IPotentialAtomic;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * Sums the force on each iterated atom and adds it to the integrator agent

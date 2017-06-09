@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.virial.simulations;
 
-import etomica.api.IPotentialAtomic;
 import etomica.api.ISpecies;
 import etomica.atom.*;
 import etomica.atom.iterator.ANIntragroupExchange;
@@ -21,11 +20,8 @@ import etomica.integrator.IntegratorListener;
 import etomica.integrator.mcmove.MCMove;
 import etomica.math.DoubleRange;
 import etomica.molecule.IMoleculeList;
+import etomica.potential.*;
 import etomica.potential.P1HydrogenMielke.P1HydrogenMielkeAtomic;
-import etomica.potential.P2HydrogenHindePatkowskiAtomic;
-import etomica.potential.P2HydrogenPatkowskiAtomic;
-import etomica.potential.P2HydrogenPatkowskiIso;
-import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;

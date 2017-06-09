@@ -4,10 +4,7 @@
 
 package etomica.association.GCPMWater;
 
-import java.awt.Color;
-
 import etomica.action.IAction;
-import etomica.api.IPotentialMolecular;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
@@ -19,30 +16,17 @@ import etomica.models.water.P2HardAssociationGCPMReference;
 import etomica.models.water.PNWaterGCPM;
 import etomica.models.water.PNWaterGCPMThreeSite;
 import etomica.models.water.SpeciesWater4P;
+import etomica.potential.IPotentialMolecular;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.units.Calorie;
-import etomica.units.CompoundUnit;
-import etomica.units.Kelvin;
-import etomica.units.Mole;
-import etomica.units.Unit;
+import etomica.units.*;
 import etomica.util.Arrays;
 import etomica.util.ParameterBase;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterBonds;
-import etomica.virial.ClusterCoupledFlipped;
-import etomica.virial.ClusterSum;
-import etomica.virial.ClusterSumPolarizableWertheimProduct4PtFinal;
-import etomica.virial.ConfigurationClusterWertheimGCPM4Pt;
-import etomica.virial.MayerEGeneral;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerFunctionProductGeneral;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.SpeciesFactoryWaterGCPM;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 import etomica.virial.simulations.SimulationVirialOverlap;
+
+import java.awt.*;
 
 /**
  * repulsive potential: energy of pair is greater than -3000cal/mol

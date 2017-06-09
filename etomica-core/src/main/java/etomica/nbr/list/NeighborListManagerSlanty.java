@@ -4,13 +4,13 @@
 
 package etomica.nbr.list;
 
+import etomica.atom.AtomPair;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.api.IPotential;
-import etomica.atom.AtomPair;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.PotentialMasterList.NeighborListAgentSource;
+import etomica.potential.IPotential;
 import etomica.potential.PotentialArray;
 import etomica.space.Space;
 

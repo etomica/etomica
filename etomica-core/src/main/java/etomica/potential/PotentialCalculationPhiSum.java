@@ -1,7 +1,5 @@
 package etomica.potential;
 
-import etomica.api.IPotentialAtomic;
-import etomica.api.IPotentialMolecular;
 import etomica.atom.IAtomList;
 import etomica.molecule.DipoleSource;
 import etomica.molecule.IMolecule;

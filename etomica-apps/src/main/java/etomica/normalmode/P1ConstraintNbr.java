@@ -4,18 +4,18 @@
 
 package etomica.normalmode;
 
-import etomica.api.*;
+import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.simulation.Simulation;
-import etomica.atom.AtomArrayList;
 import etomica.box.BoxAgentManager;
+import etomica.potential.IPotentialAtomic;
+import etomica.simulation.Simulation;
 import etomica.space.Boundary;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 
-public class P1ConstraintNbr implements IPotentialAtomic{
+public class P1ConstraintNbr implements IPotentialAtomic {
 
     // this could take a NeighborListManager to try to speed up finding neighbors
     public P1ConstraintNbr(Space space, double neighborDistance, Simulation sim) {

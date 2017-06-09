@@ -7,7 +7,6 @@ package etomica.virial.simulations;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.IAction;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IPotentialAtomic;
 import etomica.api.ISpecies;
 import etomica.atom.*;
 import etomica.atom.iterator.ANIntergroupCoupled;

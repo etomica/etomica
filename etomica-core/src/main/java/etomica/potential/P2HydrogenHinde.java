@@ -37,9 +37,6 @@ package etomica.potential;
 //    The potential energy is returned to the calling program in the
 //    variable potl, in units of wavenumbers.
 
-import etomica.api.IPotential;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IPotentialMolecular;
 import etomica.atom.AtomHydrogen;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;

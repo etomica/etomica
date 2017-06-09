@@ -4,7 +4,6 @@
 
 package etomica.threaded.domain;
 
-import etomica.api.IPotential;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
@@ -17,6 +16,7 @@ import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.list.BoxAgentSourceCellManagerList;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.potential.IPotential;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;

@@ -5,10 +5,10 @@
 package etomica.modules.sam;
 
 import etomica.atom.IAtomList;
-import etomica.api.IPotentialAtomic;
-import etomica.space.Vector;
+import etomica.potential.IPotentialAtomic;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialSoft;
+import etomica.space.Vector;
 
 public class PotentialCalculationForceSumWall extends
         PotentialCalculationForceSum {

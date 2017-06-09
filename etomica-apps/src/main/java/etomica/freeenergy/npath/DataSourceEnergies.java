@@ -4,7 +4,6 @@
 
 package etomica.freeenergy.npath;
 
-import etomica.api.IPotentialAtomic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.DataTag;
@@ -13,6 +12,7 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.meam.P2EAM;
+import etomica.potential.IPotentialAtomic;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialMaster;

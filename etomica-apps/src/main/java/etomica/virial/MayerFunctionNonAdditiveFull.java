@@ -1,8 +1,8 @@
 package etomica.virial;
 
-import etomica.api.IPotentialMolecular;
 import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
+import etomica.potential.IPotentialMolecular;
 
 public class MayerFunctionNonAdditiveFull implements MayerFunctionNonAdditive {
 

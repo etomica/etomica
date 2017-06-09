@@ -4,7 +4,6 @@
 
 package etomica.potential;
 
-import etomica.api.IPotential;
 import etomica.atom.*;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;

@@ -5,16 +5,14 @@
 package etomica.virial.GUI.components;
 
 
-import java.util.HashMap;
-
-import etomica.api.IPotential;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
-
+import etomica.potential.IPotential;
 import etomica.potential.P3BondAngle;
-
 import etomica.space.Space;
 import etomica.units.Kelvin;
+
+import java.util.HashMap;
 
 
 

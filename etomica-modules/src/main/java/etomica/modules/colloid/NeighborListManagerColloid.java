@@ -4,13 +4,13 @@
 
 package etomica.modules.colloid;
 
-import etomica.api.IPotentialAtomic;
 import etomica.api.ISpecies;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.potential.IPotentialAtomic;
 import etomica.space.Space;
 
 public class NeighborListManagerColloid extends NeighborListManager {

@@ -4,9 +4,6 @@
 
 package etomica.modules.rosmosis;
 
-import etomica.api.IPotential;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IPotentialMolecular;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtomList;
 import etomica.integrator.IntegratorBox;

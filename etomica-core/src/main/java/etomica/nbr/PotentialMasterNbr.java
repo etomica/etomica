@@ -4,9 +4,6 @@
 
 package etomica.nbr;
 
-import etomica.api.IPotential;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IPotentialMolecular;
 import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeAgentManager;
@@ -14,9 +11,7 @@ import etomica.atom.SpeciesAgentManager;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentManager.BoxAgentSource;
 import etomica.box.BoxCellManager;
-import etomica.potential.PotentialArray;
-import etomica.potential.PotentialGroup;
-import etomica.potential.PotentialMaster;
+import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.util.Arrays;
 

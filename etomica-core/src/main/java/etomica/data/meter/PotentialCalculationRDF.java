@@ -1,15 +1,15 @@
 package etomica.data.meter;
 
-import etomica.api.*;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.DataSourceUniform;
 import etomica.data.DataSourceUniform.LimitType;
+import etomica.potential.IPotentialAtomic;
 import etomica.potential.PotentialCalculation;
 import etomica.space.Boundary;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Length;
 
 /**

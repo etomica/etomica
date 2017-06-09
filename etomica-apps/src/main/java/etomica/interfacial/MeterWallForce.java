@@ -1,6 +1,5 @@
 package etomica.interfacial;
 
-import etomica.api.IPotentialAtomic;
 import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
@@ -8,10 +7,7 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.molecule.IMoleculeList;
-import etomica.potential.IteratorDirective;
-import etomica.potential.PotentialCalculation;
-import etomica.potential.PotentialMaster;
-import etomica.potential.PotentialSoft;
+import etomica.potential.*;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Force;

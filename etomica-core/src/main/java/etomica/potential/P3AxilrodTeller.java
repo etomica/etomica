@@ -4,13 +4,12 @@
 
 package etomica.potential;
 
-import etomica.api.*;
+import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.atom.AtomTypeAgentManager;
 import etomica.space.Boundary;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * Axilrod-Teller potential.  The potential is atomic.  Ionization energy and

@@ -1,6 +1,5 @@
 package etomica.mappedRdf;
 
-import etomica.api.IPotentialAtomic;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPair;
 import etomica.atom.IAtom;

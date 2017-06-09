@@ -5,11 +5,11 @@
 package etomica.modules.rosmosis;
 
 import etomica.atom.IAtomList;
-import etomica.api.IPotential;
-import etomica.api.IPotentialAtomic;
-import etomica.space.Vector;
+import etomica.potential.IPotential;
+import etomica.potential.IPotentialAtomic;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialSoft;
+import etomica.space.Vector;
 
 /**
  * Sums the force and torque on each iterated atom or molecule and adds it to

@@ -4,13 +4,9 @@
 
 package etomica.virial.GUI.components;
 
-import etomica.api.IPotential;
-import etomica.api.IPotentialMolecular;
 import etomica.api.ISpecies;
 import etomica.atom.AtomType;
-import etomica.potential.P2LJQ;
-import etomica.potential.P2LennardJones;
-import etomica.potential.PotentialSoft;
+import etomica.potential.*;
 import etomica.space.Space;
 import etomica.virial.GUI.models.EnumSiteName;
 import etomica.virial.GUI.models.IMolecularModel_SpeciesFactory;
@@ -95,7 +91,7 @@ public class BuilderCollectionPotential {
 				speciesInteractionIndex[indexCount][0] = i;
 				speciesInteractionIndex[indexCount][1] = j;
 				if(i==j){
-					if (etomica.api.IPotentialMolecular.class.isAssignableFrom(speciesDataModel.getSpeciesDataModel(i).getPotential())){
+					if (IPotentialMolecular.class.isAssignableFrom(speciesDataModel.getSpeciesDataModel(i).getPotential())){
 						makeMolecularPairPotentialsLike(speciesDataModel.getSpeciesDataModel(i),i);
 					}else if(etomica.potential.Potential2SoftSpherical.class.isAssignableFrom(speciesDataModel.getSpeciesDataModel(i).getPotential()) && speciesDataModel.getSpeciesDataModel(i).getPotentialSites().length > 1){
 						makeAtomicPairPotentialsLike(speciesDataModel.getSpeciesDataModel(i),i);
@@ -158,7 +154,7 @@ public class BuilderCollectionPotential {
 			//We figure details abt each of the potential
 			
 			//If molecular or atomic
-			if (etomica.api.IPotentialMolecular.class.isAssignableFrom(speciesDM[i].getPotential())){
+			if (IPotentialMolecular.class.isAssignableFrom(speciesDM[i].getPotential())){
 
 				//If potentialsites existing are greater than 1, although we dont have a intrabonded or intra non-bonded potential, but we have 
 				//cross potentials

@@ -5,11 +5,11 @@
 package etomica.modules.materialfracture;
 
 import etomica.atom.IAtomList;
-import etomica.api.IPotentialAtomic;
-import etomica.space.Vector;
+import etomica.potential.IPotentialAtomic;
 import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialSoft;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 public class PotentialCalculationForceStress extends
         PotentialCalculationForcePressureSum {

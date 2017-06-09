@@ -4,14 +4,14 @@
 
 package etomica.nbr.list.molecule;
 
-import etomica.api.IPotential;
-import etomica.api.IPotentialMolecular;
 import etomica.box.Box;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePair;
 import etomica.nbr.list.molecule.PotentialMasterListMolecular.NeighborListAgentSourceMolecular;
 import etomica.nbr.molecule.NeighborCriterionMolecular;
+import etomica.potential.IPotential;
+import etomica.potential.IPotentialMolecular;
 import etomica.potential.PotentialArrayMolecular;
 import etomica.space.Space;
 

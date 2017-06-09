@@ -5,8 +5,6 @@
 package etomica.nbr.list.molecule;
 
 import etomica.action.BoxImposePbc;
-import etomica.api.IPotential;
-import etomica.api.IPotentialMolecular;
 import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.integrator.IntegratorEvent;
@@ -16,6 +14,8 @@ import etomica.nbr.cell.molecule.Mpi1ACell;
 import etomica.nbr.cell.molecule.MpiAACell;
 import etomica.nbr.cell.molecule.NeighborCellManagerMolecular;
 import etomica.nbr.molecule.NeighborCriterionMolecular;
+import etomica.potential.IPotential;
+import etomica.potential.IPotentialMolecular;
 import etomica.potential.PotentialArrayMolecular;
 import etomica.space.Space;
 import etomica.util.Debug;

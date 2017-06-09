@@ -5,7 +5,6 @@
 package etomica.models.water;
 
 import Jama.Matrix;
-import etomica.api.IPotentialMolecular;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.chem.elements.Hydrogen;
@@ -13,6 +12,7 @@ import etomica.chem.elements.Oxygen;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePair;
+import etomica.potential.IPotentialMolecular;
 import etomica.potential.PotentialMolecular;
 import etomica.potential.PotentialPolarizable;
 import etomica.space.Boundary;

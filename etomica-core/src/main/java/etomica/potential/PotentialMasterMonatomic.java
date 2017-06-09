@@ -4,9 +4,6 @@
 
 package etomica.potential;
 
-import etomica.api.IPotential;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IPotentialMolecular;
 import etomica.api.ISpecies;
 import etomica.atom.*;
 import etomica.box.Box;

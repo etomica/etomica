@@ -1,8 +1,8 @@
 package etomica.virial;
 
-import etomica.api.IPotential;
 import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
+import etomica.potential.IPotential;
 
 public class MayerWell implements MayerFunction {
 

@@ -4,13 +4,13 @@
 
 package etomica.modules.droplet;
 
-import etomica.atom.IAtomList;
-import etomica.api.IPotentialAtomic;
-import etomica.space.Vector;
 import etomica.atom.AtomFilter;
+import etomica.atom.IAtomList;
+import etomica.potential.IPotentialAtomic;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 
 /**
  * Cohesive potential for mesoscale droplet simulation

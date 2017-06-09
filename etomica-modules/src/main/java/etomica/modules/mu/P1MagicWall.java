@@ -7,15 +7,15 @@ package etomica.modules.mu;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.api.IPotential;
-import etomica.space.Vector;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.potential.IPotential;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialHard;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 
 /**
  */

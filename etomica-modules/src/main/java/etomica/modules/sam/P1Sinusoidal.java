@@ -7,11 +7,11 @@ package etomica.modules.sam;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.api.IPotential;
-import etomica.space.Vector;
+import etomica.potential.IPotential;
 import etomica.potential.PotentialSoft;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 
 public class P1Sinusoidal implements IPotential, PotentialSoft {
 

@@ -4,15 +4,15 @@
 
 package etomica.virial;
 
-import etomica.atom.IAtomList;
-import etomica.box.Box;
-import etomica.api.IPotentialAtomic;
-import etomica.util.random.IRandom;
-import etomica.space.Vector;
 import etomica.atom.AtomOrientedQuaternion;
 import etomica.atom.AtomPair;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.potential.IPotentialAtomic;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 public class MCMoveClusterPolyhedraTree extends MCMoveAtom {
 

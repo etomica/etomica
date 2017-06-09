@@ -4,10 +4,10 @@
 
 package etomica.virial.GUI.components;
 
-import etomica.api.IPotential;
-import etomica.api.IPotentialAtomic;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
+import etomica.potential.IPotential;
+import etomica.potential.IPotentialAtomic;
 import etomica.potential.PotentialGroup;
 import etomica.virial.MCMoveClusterTorsionMulti;
 

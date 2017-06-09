@@ -4,15 +4,15 @@
 
 package etomica.normalmode;
 
-import etomica.api.*;
 import etomica.atom.*;
-import etomica.box.Box;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.potential.IPotentialAtomic;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -35,7 +35,7 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
     protected double uNew;
     protected AtomSource atomSource;
     protected final IRandom random;
-    protected IPotentialAtomic [] pairPotential;
+    protected IPotentialAtomic[] pairPotential;
     protected final AtomPair pair;
     protected final AtomSetSinglet atomSinglet;
     protected boolean doExcludeNonNeighbors;
