@@ -31,7 +31,7 @@ public class P2WaterSPCTest{
     }
 
     @Test
-    public void energy() throws Exception {
+    public void testEnergy() throws Exception {
         P2WaterSPC potential = new P2WaterSPC(Space3D.getInstance());
         potential.setBox(new Box(Space3D.getInstance()));
         assertEquals(-8.874839138857169, potential.energy(molecules), EPSILON);
