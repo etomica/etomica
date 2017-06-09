@@ -19,7 +19,7 @@ public class IntegratorEventManager {
     /**
      * Adds the given listener to this event manager.
      */
-    public synchronized void addListener(IntegratorListener newListener) {
+    public void addListener(IntegratorListener newListener) {
         if (newListener == null) throw new NullPointerException("Cannot add null as a listener to Integrator");
         if (listeners.contains(newListener)) {
             throw new RuntimeException(newListener + " is already an interval action");
@@ -30,7 +30,7 @@ public class IntegratorEventManager {
     /**
      * Removes the given listener from this event manager.
      */
-    public synchronized void removeListener(IntegratorListener listener) {
+    public void removeListener(IntegratorListener listener) {
         listeners.remove(listener);
     }
 
@@ -41,7 +41,7 @@ public class IntegratorEventManager {
         return eventing;
     }
 
-    public synchronized void stepStarted() {
+    public void stepStarted() {
         eventing = true;
         for (IntegratorListener listener : listeners) {
             listener.integratorStepStarted(event);
@@ -49,7 +49,7 @@ public class IntegratorEventManager {
         eventing = false;
     }
 
-    public synchronized void stepFinished() {
+    public void stepFinished() {
         eventing = true;
         for (IntegratorListener listener : listeners) {
             listener.integratorStepFinished(event);
@@ -57,7 +57,7 @@ public class IntegratorEventManager {
         eventing = false;
     }
 
-    public synchronized void initialized() {
+    public void initialized() {
         eventing = true;
         for (IntegratorListener listener : listeners) {
             listener.integratorInitialized(event);
@@ -65,7 +65,7 @@ public class IntegratorEventManager {
         eventing = false;
     }
 
-    public synchronized void forcePrecomputed() {
+    public void forcePrecomputed() {
         eventing = true;
         for (IntegratorListener l : listeners) {
             if (l instanceof IntegratorListenerMD) {
@@ -75,7 +75,7 @@ public class IntegratorEventManager {
         eventing = false;
     }
 
-    public synchronized void forceComputed() {
+    public void forceComputed() {
         eventing = true;
         for (IntegratorListener l : listeners) {
             if (l instanceof IntegratorListenerMD) {

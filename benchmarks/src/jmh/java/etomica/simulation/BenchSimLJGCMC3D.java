@@ -2,6 +2,8 @@ package etomica.simulation;
 
 import etomica.config.Configuration;
 import etomica.config.ConfigurationResourceFile;
+import etomica.data.AccumulatorAverageFixed;
+import etomica.data.DataPumpListener;
 import etomica.data.meter.MeterPressure;
 import etomica.tests.TestLJGCMC3D;
 import org.openjdk.jmh.annotations.*;
@@ -30,10 +32,12 @@ public class BenchSimLJGCMC3D {
                 TestLJGCMC3D.class
         );
 
-        sim = new TestLJGCMC3D(numMolecules, numSteps / numMolecules, config);
+        sim = new TestLJGCMC3D(numMolecules, numSteps, config);
 
         pMeter = new MeterPressure(sim.space);
         pMeter.setIntegrator(sim.integrator);
+        DataPumpListener pumpListener = new DataPumpListener(pMeter, new AccumulatorAverageFixed(10), 2 * numMolecules);
+        sim.integrator.getEventManager().addListener(pumpListener);
     }
 
     @Benchmark
