@@ -5,9 +5,6 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.api.IElement;
-import etomica.integrator.IntegratorListener;
-import etomica.integrator.IntegratorEvent;
 import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
@@ -17,12 +14,15 @@ import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.atom.iterator.Atomset4IteratorIndexList;
 import etomica.chem.elements.Carbon;
+import etomica.chem.elements.IElement;
 import etomica.chem.elements.Oxygen;
 import etomica.config.IConformation;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.potential.*;
 import etomica.space.Space;
 import etomica.space3d.Space3D;

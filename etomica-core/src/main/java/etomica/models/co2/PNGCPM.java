@@ -5,12 +5,12 @@
 package etomica.models.co2;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IElement;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.chem.elements.Carbon;
+import etomica.chem.elements.IElement;
 import etomica.chem.elements.Oxygen;
 import etomica.config.IConformation;
 import etomica.models.water.PNWaterGCPM;

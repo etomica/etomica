@@ -5,21 +5,21 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.api.IElement;
-import etomica.integrator.IntegratorListener;
-import etomica.integrator.IntegratorEvent;
 import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtomList;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.chem.elements.ElementSimple;
+import etomica.chem.elements.IElement;
 import etomica.chem.elements.Nitrogen;
 import etomica.config.IConformation;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.potential.P2CO2EMP;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialGroup;

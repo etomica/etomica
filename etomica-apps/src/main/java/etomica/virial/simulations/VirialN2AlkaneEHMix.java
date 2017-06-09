@@ -6,7 +6,6 @@ package etomica.virial.simulations;
 
 import etomica.AlkaneEH.SpeciesAlkaneEH;
 import etomica.action.IAction;
-import etomica.api.IElement;
 import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
@@ -16,6 +15,7 @@ import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.atom.iterator.Atomset4IteratorIndexList;
 import etomica.chem.elements.ElementSimple;
+import etomica.chem.elements.IElement;
 import etomica.chem.elements.Nitrogen;
 import etomica.config.IConformation;
 import etomica.data.AccumulatorAverage;

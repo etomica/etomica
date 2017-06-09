@@ -6,11 +6,11 @@ package etomica.virial.simulations;
 
 import etomica.action.IAction;
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IElement;
 import etomica.api.ISpecies;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.IAtomList;
 import etomica.chem.elements.Carbon;
+import etomica.chem.elements.IElement;
 import etomica.chem.elements.Oxygen;
 import etomica.config.IConformation;
 import etomica.data.AccumulatorAverage;

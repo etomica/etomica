@@ -6,13 +6,13 @@ package etomica.virial.simulations;
 
 import etomica.action.IAction;
 import etomica.atom.IAtomList;
-import etomica.api.IElement;
-import etomica.integrator.IntegratorEvent;
-import etomica.integrator.IntegratorListener;
 import etomica.chem.elements.Carbon;
+import etomica.chem.elements.IElement;
 import etomica.chem.elements.Oxygen;
 import etomica.config.IConformation;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.potential.P2CO2EMP2;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -21,11 +21,7 @@ import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.MayerEGeneral;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 
 /**

@@ -5,10 +5,10 @@
 package etomica.virial.GUI.models;
 
 
-import etomica.atom.IAtomList;
-import etomica.api.IElement;
 import etomica.api.ISpecies;
+import etomica.atom.IAtomList;
 import etomica.chem.elements.Carbon;
+import etomica.chem.elements.IElement;
 import etomica.chem.elements.Oxygen;
 import etomica.config.IConformation;
 import etomica.potential.P2CO2EMP2;

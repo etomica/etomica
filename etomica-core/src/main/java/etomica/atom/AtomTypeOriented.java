@@ -4,7 +4,7 @@
 
 package etomica.atom;
 
-import etomica.api.IElement;
+import etomica.chem.elements.IElement;
 import etomica.space.Space;
 import etomica.space.Vector;
 

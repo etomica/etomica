@@ -4,10 +4,10 @@
 
 package etomica.species;
 
-import etomica.api.IElement;
 import etomica.api.ISpecies;
 import etomica.atom.AtomType;
 import etomica.chem.elements.ElementSimple;
+import etomica.chem.elements.IElement;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import junit.framework.TestCase;

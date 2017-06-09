@@ -4,14 +4,10 @@
 
 package etomica.action;
 
-import etomica.api.IElement;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.box.Box;
-import etomica.chem.elements.Carbon;
-import etomica.chem.elements.Hydrogen;
-import etomica.chem.elements.Nitrogen;
-import etomica.chem.elements.Oxygen;
+import etomica.chem.elements.*;
 import etomica.molecule.IMolecule;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;

@@ -4,7 +4,6 @@
 
 package etomica.chem.elements;
 
-import etomica.api.IElement;
 import etomica.units.Dimension;
 import etomica.units.Mass;
 

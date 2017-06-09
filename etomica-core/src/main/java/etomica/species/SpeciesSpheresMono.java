@@ -4,12 +4,12 @@
 
 package etomica.species;
 
-import etomica.api.IElement;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.chem.elements.ElementSimple;
+import etomica.chem.elements.IElement;
 import etomica.config.ConformationLinear;
 import etomica.molecule.IMolecule;
 import etomica.molecule.Molecule;

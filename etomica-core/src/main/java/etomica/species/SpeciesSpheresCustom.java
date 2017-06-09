@@ -4,9 +4,9 @@
 
 package etomica.species;
 
-import etomica.api.IElement;
 import etomica.atom.*;
 import etomica.chem.elements.ElementSimple;
+import etomica.chem.elements.IElement;
 import etomica.config.ConformationLinear;
 import etomica.molecule.IMolecule;
 import etomica.molecule.Molecule;

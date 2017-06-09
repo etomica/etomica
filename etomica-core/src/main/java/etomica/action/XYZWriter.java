@@ -4,13 +4,13 @@
 
 package etomica.action;
 
-import etomica.api.IElement;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.chem.elements.ElementChemical;
+import etomica.chem.elements.IElement;
 
 import java.io.File;
 import java.io.FileWriter;

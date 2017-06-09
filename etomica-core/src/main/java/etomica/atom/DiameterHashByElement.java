@@ -4,9 +4,9 @@
 
 package etomica.atom;
 
-import java.util.HashMap;
+import etomica.chem.elements.IElement;
 
-import etomica.api.IElement;
+import java.util.HashMap;
 
 /**
  * This class hashes atomic diameters based on the element.  A static method is
