@@ -30,7 +30,7 @@ public class BenchSimSWChain {
     @Param({"500", "4000"})
     public int numMolecules;
 
-    @Param({"100000", "200000"})
+    @Param({"100000"})
     public int numSteps;
 
     private TestSWChain sim;
@@ -59,6 +59,16 @@ public class BenchSimSWChain {
     public double swChain() {
         sim.getController().actionPerformed();
         return pMeter.getDataAsScalar() + sim.integrator.getTemperature();
+    }
+
+    @Benchmark
+    @BenchmarkMode(Mode.Throughput)
+    @OutputTimeUnit(TimeUnit.SECONDS)
+    @Warmup(time = 1, iterations = 5)
+    @Measurement(time = 1, timeUnit = TimeUnit.SECONDS)
+    public long integratorStep() {
+        sim.integrator.doStep();
+        return sim.integrator.getStepCount();
     }
 
     public static void main(String[] args) throws RunnerException {
