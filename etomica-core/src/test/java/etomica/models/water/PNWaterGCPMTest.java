@@ -10,14 +10,14 @@ import etomica.space3d.Vector3D;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by akshara on 05-10-2017.
  */
 public class PNWaterGCPMTest {
     private IMoleculeList molecules;
-    private static final double EPSILON = 1e-10;
+    private static final double EPSILON = 7e-7;
     @Before
     public void setUp() throws Exception {
         IMolecule mol1 = new SpeciesWater4PCOM(Space3D.getInstance()).makeMolecule();
@@ -35,7 +35,7 @@ public class PNWaterGCPMTest {
     public void testEnergy() throws Exception {
         PNWaterGCPM potential = new PNWaterGCPM(Space3D.getInstance());
         potential.setBox(new Box(Space3D.getInstance()));
-        assertEquals(-14.868664238785254, potential.energy(molecules), EPSILON);
+        assertEquals(-14.868663567298231, potential.energy(molecules), EPSILON);
     }
 
 }

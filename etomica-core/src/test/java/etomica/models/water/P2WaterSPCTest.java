@@ -10,14 +10,14 @@ import etomica.space3d.Vector3D;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by akshara on 05-10-2017.
  */
 public class P2WaterSPCTest{
         private IMoleculeList molecules;
-        private static final double EPSILON = 1e-10;
+        private static final double EPSILON = 4e-7;
     @Before
     public void setUp() throws Exception {
         IMolecule mol1 = new SpeciesWater3P(Space3D.getInstance()).makeMolecule();
@@ -34,7 +34,7 @@ public class P2WaterSPCTest{
     public void energy() throws Exception {
         P2WaterSPC potential = new P2WaterSPC(Space3D.getInstance());
         potential.setBox(new Box(Space3D.getInstance()));
-        assertEquals(-8.874839538758351, potential.energy(molecules), EPSILON);
+        assertEquals(-8.874839138857169, potential.energy(molecules), EPSILON);
     }
 
 }
