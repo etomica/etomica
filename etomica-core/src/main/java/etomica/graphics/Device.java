@@ -3,20 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.graphics;
-import java.awt.Component;
 
 import etomica.action.IAction;
 import etomica.action.activity.IController;
 import etomica.units.Dimension;
-import etomica.units.Dimensioned;
 import etomica.units.Unit;
+
+import java.awt.*;
 
 /**
  * Base class for all Devices.  These are objects that permit manipulation of the
  * fields of other objects.  They provide a (usually) graphical interface to permit
  * values of fields to be input and changed.
  */
-public abstract class Device implements GraphicalElement, Dimensioned {
+public abstract class Device implements GraphicalElement {
     
     protected Unit unit;
     protected IController controller;
