@@ -69,7 +69,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         
         DeviceBox solventThermoFrac = new DeviceBox();
         solventThermoFrac.setController(sim.getController());
-        solventThermoFrac.setModifier(new ModifierGeneral(new P2SquareWellBonded[]{sim.ABbonded}, "solventThermoFrac"));
+        solventThermoFrac.setModifier(new ModifierGeneral(sim.ABbonded, "solventThermoFrac"));
         solventThermoFrac.setLabel("fraction heat transfer to solvent");
         DisplayTextBox tBox = new DisplayTextBox();
 
@@ -386,7 +386,20 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
 
         numberRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
     }
-    
+
+    public static void main(String[] args) {
+        int D = 2;
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].equals("-dim") && i + 1 < args.length) {
+                i++;
+                D = Integer.parseInt(args[i]);
+            }
+        }
+        ChainEquilibriumSim sim = new ChainEquilibriumSim(Space.getInstance(D));
+        ChainEquilibriumGraphic graphic = new ChainEquilibriumGraphic(sim, sim.getSpace());
+        SimulationGraphic.makeAndDisplayFrame(graphic.getPanel(), APP_NAME);
+    }
+
     public DeviceSlider sliders(int eMin, int eMax, String s, P2SquareWellBonded p){
 
         DeviceSlider AASlider = new DeviceSlider(sim.getController(), new ModifierGeneral(p, "epsilon"));
@@ -400,19 +413,6 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
 //        AASlider.getSlider().setSnapToTicks(true);
 
         return AASlider;
-    }
-
-    public static void main(String[] args) {
-        int D = 2;
-        for (int i=0; i<args.length; i++) {
-            if (args[i].equals("-dim") && i+1<args.length) {
-                i++;
-                D = Integer.parseInt(args[i]);
-            }
-        }
-        ChainEquilibriumSim sim = new ChainEquilibriumSim(Space.getInstance(D));
-        ChainEquilibriumGraphic graphic = new ChainEquilibriumGraphic(sim, sim.getSpace());
-        SimulationGraphic.makeAndDisplayFrame(graphic.getPanel(), APP_NAME);
     }
 
     public static class Applet extends javax.swing.JApplet {
