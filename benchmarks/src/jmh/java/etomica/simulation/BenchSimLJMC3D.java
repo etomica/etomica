@@ -23,7 +23,7 @@ public class BenchSimLJMC3D {
     private TestLJMC3D sim;
     private MeterPressure pMeter;
 
-    @Setup
+    @Setup(Level.Iteration)
     public void setUp() {
 
         Configuration config = new ConfigurationResourceFile(
@@ -37,6 +37,7 @@ public class BenchSimLJMC3D {
         pMeter.setIntegrator(sim.integrator);
         DataPumpListener pumpListener = new DataPumpListener(pMeter, new AccumulatorAverageFixed(10), 2 * numMolecules);
         sim.integrator.getEventManager().addListener(pumpListener);
+        sim.integrator.reset();
     }
 
     @Benchmark

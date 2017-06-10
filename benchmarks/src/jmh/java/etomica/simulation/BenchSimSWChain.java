@@ -11,8 +11,6 @@ import etomica.space3d.Space3D;
 import etomica.tests.TestSWChain;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.profile.GCProfiler;
-import org.openjdk.jmh.profile.SafepointsProfiler;
-import org.openjdk.jmh.profile.StackProfiler;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
@@ -36,7 +34,7 @@ public class BenchSimSWChain {
     private TestSWChain sim;
     private MeterPressureHard pMeter;
 
-    @Setup
+    @Setup(Level.Iteration)
     public void setUp() {
         double simTime = numSteps / numMolecules;
         Configuration config = new ConfigurationResourceFile(
@@ -53,6 +51,7 @@ public class BenchSimSWChain {
         DataPumpListener energyPump = new DataPumpListener(energyMeter, energyAccumulator);
         energyAccumulator.setBlockSize(50);
         sim.integrator.getEventManager().addListener(energyPump);
+        sim.integrator.reset();
     }
 
     @Benchmark

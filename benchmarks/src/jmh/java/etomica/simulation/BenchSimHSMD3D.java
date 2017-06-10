@@ -23,7 +23,7 @@ public class BenchSimHSMD3D {
     private TestHSMD3D sim;
     private MeterPressureHard pMeter;
 
-    @Setup
+    @Setup(Level.Iteration)
     public void setUp() {
 
         Configuration config = new ConfigurationResourceFile(
@@ -35,6 +35,7 @@ public class BenchSimHSMD3D {
 
         pMeter = new MeterPressureHard(sim.space);
         pMeter.setIntegrator(sim.integrator);
+        sim.integrator.reset();
     }
 
     @Benchmark
@@ -50,9 +51,9 @@ public class BenchSimHSMD3D {
     @BenchmarkMode(Mode.Throughput)
     @OutputTimeUnit(TimeUnit.SECONDS)
     @Warmup(time = 1, iterations = 5)
-    @Measurement(time = 1, timeUnit = TimeUnit.SECONDS)
-    public long integratorStep() {
+    @Measurement(time = 5, timeUnit = TimeUnit.SECONDS, iterations = 5)
+    public double integratorStep() {
         sim.integrator.doStep();
-        return sim.integrator.getStepCount();
+        return pMeter.getDataAsScalar();
     }
 }
