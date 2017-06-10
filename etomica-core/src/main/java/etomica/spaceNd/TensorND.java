@@ -5,9 +5,8 @@
 package etomica.spaceNd;
 
 import Jama.Matrix;
-import etomica.api.IFunction;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.math.function.IFunction;
+import etomica.space.Vector;
 import etomica.space.Tensor;
 
 /**
@@ -66,7 +65,7 @@ public class TensorND implements Tensor {
         }
     }
 
-    public void E(IVector[] v) {
+    public void E(Vector[] v) {
         if(v.length != dim) {
             throw new IllegalArgumentException("Tensor requires " + dim + " vectors to set its values");
         }
@@ -93,14 +92,14 @@ public class TensorND implements Tensor {
         }
     }
 
-    public void diagE(IVector v) {
+    public void diagE(Vector v) {
         this.E(0.0);
         for(int i=0; i<dim; i++) {
             x[i][i] = v.getX(i);
         }
     }
 
-    public void assignTo(IVectorMutable[] v) {
+    public void assignTo(Vector[] v) {
         for(int i=0; i<dim; i++){
             for(int j=0; j<dim; j++){
                 ((VectorND)v[i]).x[j] = x[j][i];
@@ -108,7 +107,7 @@ public class TensorND implements Tensor {
         }
     }
 
-    public void Ev1v2(IVector v1, IVector v2) {
+    public void Ev1v2(Vector v1, Vector v2) {
         VectorND u1 = (VectorND)v1;
         VectorND u2 = (VectorND)v2;
         for(int i=0; i<dim; i++){
@@ -139,7 +138,7 @@ public class TensorND implements Tensor {
         x[i][j] += a;
     }
 
-    public void PEv1v2(IVector v1, IVector v2) {
+    public void PEv1v2(Vector v1, Vector v2) {
         VectorND u1 = (VectorND)v1;
         VectorND u2 = (VectorND)v2;
         for(int i=0; i<dim; i++){
@@ -149,7 +148,7 @@ public class TensorND implements Tensor {
         }
     }
 
-    public void MEv1v2(IVector v1, IVector v2) {
+    public void MEv1v2(Vector v1, Vector v2) {
         VectorND u1 = (VectorND)v1;
         VectorND u2 = (VectorND)v2;
         for(int i=0; i<dim; i++){
@@ -287,7 +286,7 @@ public class TensorND implements Tensor {
         }
     }
 
-    public void transform(IVectorMutable A) {
+    public void transform(Vector A) {
         VectorND tmp = new VectorND(dim);
         VectorND B = (VectorND)A;
         for(int i=0; i<dim; i++){

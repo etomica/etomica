@@ -4,39 +4,17 @@
 
 package etomica.normalmode;
 
-import java.awt.Color;
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.*;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataFork;
-import etomica.data.DataPipe;
-import etomica.data.DataPumpListener;
-import etomica.data.DataSourceCountSteps;
-import etomica.data.IData;
-import etomica.data.IDataSink;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
+import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterVolume;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.graphics.ColorScheme;
-import etomica.graphics.DeviceBox;
-import etomica.graphics.DeviceSelector;
-import etomica.graphics.DeviceSlider;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.SimulationGraphic;
+import etomica.graphics.*;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveStepTracker;
@@ -50,17 +28,20 @@ import etomica.modifier.Modifier;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardSphere;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Dimension;
 import etomica.units.Length;
 import etomica.units.Null;
-import etomica.util.HistoryCollapsingAverage;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+
+import java.awt.*;
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * NPT simulation for hard sphere solid using an MCMove that does coordinate
@@ -71,7 +52,7 @@ public class HSNPT extends Simulation {
     public final PotentialMasterList potentialMaster;
     public final IntegratorMC integrator;
     public final SpeciesSpheresMono species;
-    public final IBox box;
+    public final Box box;
     public final ActivityIntegrate activityIntegrate;
     public final CoordinateDefinition coordinateDefinition;
     public final P2HardSphere pCross;
@@ -101,10 +82,10 @@ public class HSNPT extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
         addSpecies(species);
-        IAtomType type1 = species.getLeafType();
+        AtomType type1 = species.getLeafType();
 
         P2HardSphere p2 = new P2HardSphere(space, sigma, false);
-        potentialMaster.addPotential(p2, new IAtomType[]{type1, type1});
+        potentialMaster.addPotential(p2, new AtomType[]{type1, type1});
 
         box = new Box(space);
         addBox(box);
@@ -113,9 +94,9 @@ public class HSNPT extends Simulation {
             SpeciesSpheresMono species2 = new SpeciesSpheresMono(this, space);
             species.setIsDynamic(true);
             addSpecies(species2);
-            IAtomType type2 = species2.getLeafType();
+            AtomType type2 = species2.getLeafType();
             pCross = new P2HardSphere(space, (sigma+sigma2)/2.0, false);
-            potentialMaster.addPotential(pCross, new IAtomType[]{type1, type2});
+            potentialMaster.addPotential(pCross, new AtomType[]{type1, type2});
             box.setNMolecules(species, numAtoms-1);
             box.setNMolecules(species2, 1);
         }
@@ -358,6 +339,10 @@ public class HSNPT extends Simulation {
             DeviceBox sigmaBox = new DeviceBox();
             sigmaBox.setController(sim.getController());
             sigmaBox.setModifier(new Modifier() {
+
+                public double getValue() {
+                    return (sim.pCross.getCollisionDiameter() * 2 - 1);
+                }
                 
                 public void setValue(double newValue) {
                     double oldValue = getValue();
@@ -373,10 +358,6 @@ public class HSNPT extends Simulation {
                         return;
                     }
                     diameterHash.setDiameter(sim.getSpecies(1).getAtomType(0), newValue);
-                }
-                
-                public double getValue() {
-                    return (sim.pCross.getCollisionDiameter()*2-1);
                 }
                 
                 public String getLabel() {
@@ -454,42 +435,42 @@ public class HSNPT extends Simulation {
                     throw new RuntimeException(e);
                 }
             }
-            double vavg = volumeAvg.getData().getValue(volumeAvg.AVERAGE.index);
-            double verr = volumeAvg.getData().getValue(volumeAvg.ERROR.index);
-            double vstdev = volumeAvg.getData().getValue(volumeAvg.STANDARD_DEVIATION.index);
-            double vcorr = volumeAvg.getData().getValue(volumeAvg.BLOCK_CORRELATION.index);
+            double vavg = volumeAvg.getData().getValue(AccumulatorAverage.AVERAGE.index);
+            double verr = volumeAvg.getData().getValue(AccumulatorAverage.ERROR.index);
+            double vstdev = volumeAvg.getData().getValue(AccumulatorAverage.STANDARD_DEVIATION.index);
+            double vcorr = volumeAvg.getData().getValue(AccumulatorAverage.BLOCK_CORRELATION.index);
             System.out.println("avg volume "+vavg+"  err "+verr+"  stdev "+vstdev+"  correlation "+vcorr);
             System.out.println("avg density "+params.numAtoms/vavg+" "+params.numAtoms/(vavg*vavg)*verr);
         }
 
         if (params.nvt) {
-            double davg = displacementAvg.getData().getValue(displacementAvg.AVERAGE.index);
-            double dstdev = displacementAvg.getData().getValue(displacementAvg.STANDARD_DEVIATION.index);
-            double derr = displacementAvg.getData().getValue(displacementAvg.ERROR.index);
+            double davg = displacementAvg.getData().getValue(AccumulatorAverage.AVERAGE.index);
+            double dstdev = displacementAvg.getData().getValue(AccumulatorAverage.STANDARD_DEVIATION.index);
+            double derr = displacementAvg.getData().getValue(AccumulatorAverage.ERROR.index);
             System.out.println("displacement avg "+davg+" stdev "+dstdev+" err "+derr);
 
 //            double dmaxavg = displacementMax.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
 //            double dmaxstdev = displacementMax.getData().getValue(AccumulatorAverage.StatType.STANDARD_DEVIATION.index);
 //            System.out.println("displacement max avg "+dmaxavg+" stdev "+dmaxstdev);
 
-            double emaxavg = maxExpansionAvg.getData().getValue(maxExpansionAvg.AVERAGE.index);
-            double emaxstdev = maxExpansionAvg.getData().getValue(maxExpansionAvg.STANDARD_DEVIATION.index);
+            double emaxavg = maxExpansionAvg.getData().getValue(AccumulatorAverage.AVERAGE.index);
+            double emaxstdev = maxExpansionAvg.getData().getValue(AccumulatorAverage.STANDARD_DEVIATION.index);
             System.out.println("max expansion avg "+emaxavg+" stdev "+emaxstdev);
         }
     }
     
     public static class ColorSchemeDisplacement extends ColorScheme {
+        protected final Vector v, v2;
+        protected final ActionSummer summer;
         protected CoordinateDefinition coordinateDefinition;
         protected AtomLeafAgentManager agentManager;
         protected double siteFactor = 1000;
         protected double fluctuationFactor = 1000;
         protected double nominalFluctuation = 0.0627;  // 256=>0.0607, 864=>0.0627
         protected boolean fluctuationFromAvg = true;
-        protected final IVectorMutable v, v2;
-        protected final ActionSummer summer;
         protected double mysum;
         
-        public ColorSchemeDisplacement(CoordinateDefinition cDef, ISpace space, ActionSummer summer) {
+        public ColorSchemeDisplacement(CoordinateDefinition cDef, Space space, ActionSummer summer) {
             super();
             v = space.makeVector();
             v2 = space.makeVector();
@@ -573,11 +554,11 @@ public class HSNPT extends Simulation {
     public static class ActionSummer implements IAction, AgentSource<MyAgent> {
         
         protected final AtomLeafAgentManager<MyAgent> agentManager;
-        protected final IVectorMutable v;
+        protected final Vector v;
+        protected final Space space;
         protected int count;
-        protected final ISpace space;
         
-        public ActionSummer(IBox box, ISpace space) {
+        public ActionSummer(Box box, Space space) {
             this.space = space;
             agentManager = new AtomLeafAgentManager<MyAgent>(this, box, MyAgent.class);
             v = space.makeVector();
@@ -588,7 +569,7 @@ public class HSNPT extends Simulation {
         }
         
         public void actionPerformed() {
-            IBox box = agentManager.getBox();
+            Box box = agentManager.getBox();
             IAtomList atoms = box.getLeafList();
             for (int i=0; i<atoms.getAtomCount(); i++) {
                 IAtom atom = atoms.getAtom(i);
@@ -606,7 +587,7 @@ public class HSNPT extends Simulation {
         }
         
         public void reset() {
-            IBox box = agentManager.getBox();
+            Box box = agentManager.getBox();
             IAtomList atoms = box.getLeafList();
             for (int i=0; i<atoms.getAtomCount(); i++) {
                 IAtom atom = atoms.getAtom(i);
@@ -617,17 +598,17 @@ public class HSNPT extends Simulation {
             count = 0;
         }
         
-        public MyAgent makeAgent(IAtom a, IBox agentBox) {
+        public MyAgent makeAgent(IAtom a, Box agentBox) {
             return new MyAgent(space);
         }
         
-        public void releaseAgent(MyAgent agent, IAtom atom, IBox agentBox) {}
+        public void releaseAgent(MyAgent agent, IAtom atom, Box agentBox) {}
 
     }
     
     public static class MyAgent {
-        public IVectorMutable pSum, pSum2;
-        public MyAgent(ISpace space) {
+        public Vector pSum, pSum2;
+        public MyAgent(Space space) {
             pSum = space.makeVector();
             pSum2 = space.makeVector();
         }

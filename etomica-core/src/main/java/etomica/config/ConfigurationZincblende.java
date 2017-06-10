@@ -6,14 +6,14 @@ package etomica.config;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
+import etomica.box.Box;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Vector3D;
+import etomica.species.ISpecies;
 
 /**
  * Sets the configuration to the zincblende structure, which consists
@@ -26,7 +26,7 @@ public class ConfigurationZincblende extends ConfigurationLattice {
     private MoleculeChildAtomAction translator0, translator1;
     protected ISpecies[] species;
     
-    public ConfigurationZincblende(double latticeConstant, ISpace space) {
+    public ConfigurationZincblende(double latticeConstant, Space space) {
         super(new LatticeCubicFcc(space, latticeConstant), space);
         species = new ISpecies[2];
     }
@@ -51,7 +51,7 @@ public class ConfigurationZincblende extends ConfigurationLattice {
      * Initializes positions of atoms to the zincblende structure.  The given
      * array should hold exactly two AtomLists, each with the same number of atoms.
      */
-    public void initializeCoordinates(IBox box) {
+    public void initializeCoordinates(Box box) {
         translator0 = new MoleculeChildAtomAction(new AtomActionTranslateBy(space));
         translator1 = new MoleculeChildAtomAction(new AtomActionTranslateBy(space));
         IMoleculeList[] lists = new IMoleculeList[]{box.getMoleculeList(species[0]), box.getMoleculeList(species[1])};
@@ -65,9 +65,9 @@ public class ConfigurationZincblende extends ConfigurationLattice {
         int nCells = (int) Math.ceil(lists[0].getMoleculeCount() / 4.0);
 
         // determine scaled shape of simulation volume
-        IVectorMutable shape = space.makeVector();
+        Vector shape = space.makeVector();
         shape.E(box.getBoundary().getBoxSize());
-        IVectorMutable latticeConstantV = space.makeVector(lattice.getLatticeConstants());
+        Vector latticeConstantV = space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
 
         // determine number of cells in each direction
@@ -97,7 +97,7 @@ public class ConfigurationZincblende extends ConfigurationLattice {
         int i = 0;
         while (indexIterator.hasNext()) {
             int[] ii = indexIterator.next();
-            IVectorMutable site = (IVectorMutable) lattice.site(ii);
+            Vector site = (Vector) lattice.site(ii);
             atomActionTranslateTo.setDestination(site);
 
             IMolecule a0 = lists[0].getMolecule(i);

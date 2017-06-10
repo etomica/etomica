@@ -9,15 +9,14 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Date;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
+import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Space3D;
 import etomica.units.BohrRadius;
@@ -31,19 +30,19 @@ import etomica.units.Kelvin;
  */
 public class P3CPSNonAdditiveHeSimplified extends Potential implements PotentialSoft, IPotentialAtomicMultibody {
 
-    public P3CPSNonAdditiveHeSimplified(ISpace space) {
+    public P3CPSNonAdditiveHeSimplified(Space space) {
         super(3, space);
         drAB = space.makeVector();
         drBC = space.makeVector();
         drAC = space.makeVector();
-        gradient = new IVectorMutable[3];
+        gradient = new Vector[3];
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();
         gradient[2] = space.makeVector();
 
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 
@@ -218,11 +217,11 @@ public class P3CPSNonAdditiveHeSimplified extends Potential implements Potential
         return Double.POSITIVE_INFINITY;
     }
 
-    public IVector[] gradient(IAtomList atoms) {
+    public Vector[] gradient(IAtomList atoms) {
        throw new RuntimeException("Sorry, no gradient available yet");
     }
 
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         return gradient(atoms);
     }
 
@@ -231,7 +230,7 @@ public class P3CPSNonAdditiveHeSimplified extends Potential implements Potential
     }
 
     public static void main(String[] args) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
 
         P3CPSNonAdditiveHeSimplified potential = new P3CPSNonAdditiveHeSimplified(space);
         System.out.println(potential.energy(new double[]{4.326850577421106e+00, 4.713606275205238e+03, 4.961477925052809e+03}));
@@ -248,7 +247,7 @@ public class P3CPSNonAdditiveHeSimplified extends Potential implements Potential
         atoms.add(atom1);
         atoms.add(atom2);
         
-        double a; double U; IVector r0; IVector r1; IVector r2;
+        double a; double U; Vector r0; Vector r1; Vector r2;
         boolean test = true;
         if (test) {
 	        
@@ -388,9 +387,9 @@ System.out.println();
        
     }
     
-    protected final IVectorMutable drAB, drAC, drBC;
-    protected IBoundary boundary;
-    protected final IVectorMutable[] gradient;
+    protected final Vector drAB, drAC, drBC;
+    protected Boundary boundary;
+    protected final Vector[] gradient;
     public static boolean bigAngle;
     
     

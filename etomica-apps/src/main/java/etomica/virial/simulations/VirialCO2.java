@@ -5,14 +5,14 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.api.IAtomList;
-import etomica.api.IElement;
-import etomica.api.IIntegratorEvent;
-import etomica.api.IIntegratorListener;
+import etomica.atom.IAtomList;
 import etomica.chem.elements.Carbon;
+import etomica.chem.elements.IElement;
 import etomica.chem.elements.Oxygen;
 import etomica.config.IConformation;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.potential.P2CO2EMP2;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -21,11 +21,7 @@ import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.MayerEGeneral;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 
 /**
@@ -151,10 +147,10 @@ public class VirialCO2 {
         }
 
         if (false) {
-            IIntegratorListener progressReport = new IIntegratorListener() {
-                public void integratorInitialized(IIntegratorEvent e) {}
-                public void integratorStepStarted(IIntegratorEvent e) {}
-                public void integratorStepFinished(IIntegratorEvent e) {
+            IntegratorListener progressReport = new IntegratorListener() {
+                public void integratorInitialized(IntegratorEvent e) {}
+                public void integratorStepStarted(IntegratorEvent e) {}
+                public void integratorStepFinished(IntegratorEvent e) {
                     if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();

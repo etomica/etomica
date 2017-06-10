@@ -4,28 +4,28 @@
 
 package etomica.models.hexane;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
-import etomica.atom.MoleculeSource;
-import etomica.atom.MoleculeSourceRandomMolecule;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculeSource;
+import etomica.molecule.MoleculeSourceRandomMolecule;
+import etomica.potential.PotentialMaster;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.util.Constants;
+import etomica.util.random.IRandom;
 
 public abstract class MCMoveCBMC extends MCMoveBox {
 
-    public MCMoveCBMC(IPotentialMaster potentialMaster, IRandom random,
-            ISpace _space, IntegratorMC integrator, IBox p, int maxAtomsPerMolecule,
-            int NTrial) {
+    public MCMoveCBMC(PotentialMaster potentialMaster, IRandom random,
+                      Space _space, IntegratorMC integrator, Box p, int maxAtomsPerMolecule,
+                      int NTrial) {
         super(potentialMaster);
         this.random = random;
 
@@ -44,7 +44,7 @@ public abstract class MCMoveCBMC extends MCMoveBox {
         ((MoleculeSourceRandomMolecule) moleculeSource).setRandomNumberGenerator(random);
         setMoleculeSource(moleculeSource);
 
-        positionOld = new IVectorMutable[maxAtomsPerMolecule];
+        positionOld = new Vector[maxAtomsPerMolecule];
         for (int i = 0; i < maxAtomsPerMolecule; i++) {
             positionOld[i] = _space.makeVector();
         }
@@ -66,7 +66,7 @@ public abstract class MCMoveCBMC extends MCMoveBox {
 
     public abstract double energyChange();
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         externalMeter.setBox(p);
     }
@@ -176,7 +176,7 @@ public abstract class MCMoveCBMC extends MCMoveBox {
 
     protected double uNew = Double.NaN;
 
-    protected IVectorMutable[] positionOld; // Used to store the position of the
+    protected Vector[] positionOld; // Used to store the position of the
                                         // molecule before mofing it.
 
     protected IAtomList atomList;

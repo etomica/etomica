@@ -4,12 +4,12 @@
 
 package etomica.potential;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.space.Boundary;
+import etomica.space.Vector;
+import etomica.space.Space;
 
 /**
  * Methods for a hard (impulsive), spherically-symmetric pair potential.
@@ -18,7 +18,7 @@ import etomica.space.ISpace;
 
 public abstract class Potential2HardSpherical extends Potential2 implements PotentialHard, Potential2Spherical {
    
-    public Potential2HardSpherical(ISpace space) {
+    public Potential2HardSpherical(Space space) {
 	    super(space);
         dr = space.makeVector();
 	}
@@ -44,10 +44,10 @@ public abstract class Potential2HardSpherical extends Potential2 implements Pote
         return u(dr.squared());
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 
-    protected final IVectorMutable dr;
-    protected IBoundary boundary;
+    protected final Vector dr;
+    protected Boundary boundary;
 }

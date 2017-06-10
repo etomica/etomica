@@ -5,11 +5,11 @@
 package etomica.integrator;
 
 import etomica.action.AtomAction;
-import etomica.api.IAtomList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
-import etomica.space.ISpace;
+import etomica.atom.IAtomList;
+import etomica.potential.PotentialMaster;
+import etomica.util.random.IRandom;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
 
 /**
  * Integrator that generates atom trajectories from an analytic formula.
@@ -25,12 +25,12 @@ public class IntegratorAnalytic extends IntegratorMD {
     private static final long serialVersionUID = 1L;
     private AtomTimeAction action;
     
-    public IntegratorAnalytic(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
+    public IntegratorAnalytic(Simulation sim, PotentialMaster potentialMaster, Space _space) {
         this(potentialMaster, sim.getRandom(), 0.05, _space);
     }
     
-    public IntegratorAnalytic(IPotentialMaster potentialMaster, IRandom random,
-                              double timeStep, ISpace _space) {
+    public IntegratorAnalytic(PotentialMaster potentialMaster, IRandom random,
+                              double timeStep, Space _space) {
         super(potentialMaster,random,timeStep,0, _space);
     }
     

@@ -4,56 +4,43 @@
 
 package etomica.graphics;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Panel;
-
-import org.jmol.util.Colix;
-import org.jmol.util.Point3f;
-
 import etomica.action.activity.Controller;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.ISimulation;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomFilter;
-import etomica.atom.AtomFilterCollective;
-import etomica.atom.AtomLeafAgentManager;
+import etomica.space.Boundary;
+import etomica.atom.*;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.AtomTypeAgentManager;
-import etomica.atom.DiameterHash;
-import etomica.atom.IAtomOriented;
-import etomica.atom.IAtomTypeOriented;
+import etomica.box.Box;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Plane;
 import etomica.math.geometry.Polytope;
-import etomica.space.Boundary;
+import etomica.simulation.Simulation;
 import etomica.space.IOrientation;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.IOrientationFull3D;
 import etomica.units.Pixel;
 import etomica.util.Arrays;
 import g3dsys.control.G3DSys;
-import g3dsys.images.Ball;
-import g3dsys.images.Bond;
-import g3dsys.images.Figure;
-import g3dsys.images.Line;
-import g3dsys.images.Triangle;
+import g3dsys.images.*;
+import org.jmol.util.Colix;
+import org.jmol.util.Point3f;
+
+import java.awt.*;
 
 public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		AgentSource<Figure>, BondManager {
 
 
-	// will handle all actual drawing
-	private G3DSys gsys;
-	private final double[] coords;
-
-	protected AtomLeafAgentManager<Figure> aam;
-
-	private Polytope oldPolytope;
+    protected final AtomTypeAgentManager atomTypeOrientedManager;
+    private final double[] coords;
+    private final Space space;
+    protected AtomLeafAgentManager<Figure> aam;
+    protected LineSegment[] lines;
+    protected Line[] lineFigures;
+    protected AtomLeafAgentManager<Ball[]> aamOriented;
+    protected Vector rMin, rMax;
+    // will handle all actual drawing
+    private G3DSys gsys;
+    private Polytope oldPolytope;
 	private Line[] polytopeLines;
 	private boolean boundaryDisplayed = false;
 	private Color backgroundColor;
@@ -63,17 +50,12 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 	private boolean initialOrient = false;
     private Plane[] planes;
     private Triangle[][] planeTriangles;
-    protected LineSegment[] lines;
-    protected Line[] lineFigures;
-    private IVectorMutable[] planeIntersections;
-    private IVectorMutable work, work2, work3;
+    private Vector[] planeIntersections;
+    private Vector work, work2, work3;
     private double[] planeAngles;
-    private final ISpace space;
-    protected AtomLeafAgentManager<Ball[]> aamOriented;
-    protected final AtomTypeAgentManager atomTypeOrientedManager;
-    protected IVector rMin, rMax;
+    private java.util.ArrayList<Object[]> pendingBonds = new java.util.ArrayList<Object[]>();
 
-    public DisplayBoxCanvasG3DSys(ISimulation sim, DisplayBox _box, ISpace _space, Controller controller) {
+    public DisplayBoxCanvasG3DSys(Simulation sim, DisplayBox _box, Space _space, Controller controller) {
         super(controller);
         displayBox = _box;
         space = _space;
@@ -104,7 +86,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 
         planes = new Plane[0];
         planeTriangles = new Triangle[0][0];
-        planeIntersections = new IVectorMutable[0];
+        planeIntersections = new Vector[0];
         lines = new LineSegment[0];
         lineFigures = new Line[0];
         planeAngles = new double[0];
@@ -123,7 +105,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 	 * Sets the display bounding box.  Atoms outside the box are not draw.  The
 	 * boundary lines are snapped inside the bounding box if they are outside.
 	 */
-    public void setBoundingBox(IVector rMin, IVector rMax) {
+    public void setBoundingBox(Vector rMin, Vector rMax) {
         this.rMin = rMin;
         this.rMax = rMax;
     }
@@ -157,6 +139,15 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		createOffScreen(width, height);
 	}
 
+    /**
+     * Gets the background color of the display box canvas.
+     *
+     * @return Color : Current color of background
+     */
+    public Color getBackgroundColor() {
+        return backgroundColor;
+    }
+
 	/**
 	 * Sets the background color of the display box canvas.
 	 * @param color : color to set background to
@@ -165,15 +156,15 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		backgroundColor = color;
 		gsys.setBGColor(color);
 		panel.setBackground(color);
-	}
+    }
 
-	/**
-	 * Gets the background color of the display box canvas.
-	 * @return Color : Current color of background
-	 */
-	public Color getBackgroundColor() {
-		return backgroundColor;
-	}
+    /**
+     * Gets the color of box boundary.
+     * @return Color : Current color of box boundary
+     */
+    public Color getBoundaryFrameColor() {
+        return boundaryFrameColor;
+    }
 
 	/**
 	 * Sets the color of the box boundary.
@@ -185,30 +176,23 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 	}
 
 	/**
-	 * Gets the color of box boundary.
-	 * @return Color : Current color of box boundary
-	 */
-	public Color getBoundaryFrameColor() {
-		return boundaryFrameColor;
-	}
-
-	/**
-	 * Sets the color of the plane.
-	 * @param color : color to set plane
-	 */
-	public void setPlaneColor(Color color) {
-		planeColor = color;
-	}
-
-	/**
 	 * Gets the color of the plane.
 	 * @return Color : Current color of plane
 	 */
-	public Color getPlaneColor() {
-		return planeColor;
-	}
+    public Color getPlaneColor() {
+        return planeColor;
+    }
 
-	public void removeObjectByBox(IBox p) {
+    /**
+     * Sets the color of the plane.
+     *
+     * @param color : color to set plane
+     */
+    public void setPlaneColor(Color color) {
+        planeColor = color;
+    }
+
+	public void removeObjectByBox(Box p) {
 
 		// Remove old box atoms
 		IAtomList leafList = p.getLeafList();
@@ -315,8 +299,8 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 			 * drawable flag. This makes it possible to filter bonds in
 			 * wireframe mode as well.
 			 */
-			boolean drawable = atomFilter == null ? true : atomFilter.accept(a);
-			if (drawable && rMin != null) {
+            boolean drawable = atomFilter == null || atomFilter.accept(a);
+            if (drawable && rMin != null) {
 			    for (int i=0; i<rMin.getD(); i++) {
 			        double x = a.getPosition().getX(i);
 			        if (x < rMin.getX(i) || x > rMax.getX(i)) {
@@ -351,14 +335,14 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		            aamOriented.setAgent(a, ballSites);
 			    }
 			    IOrientation orientation = ((IAtomOriented)a).getOrientation();
-			    IVector direction1 = orientation.getDirection();
-			    IVector direction2 = null;
+			    Vector direction1 = orientation.getDirection();
+			    Vector direction2 = null;
 			    if (orientation instanceof IOrientationFull3D) {
 			        direction2 = ((IOrientationFull3D)orientation).getSecondaryDirection();
 	                work2.E(direction1);
 	                work2.XE(direction2);
 			    }
-			    
+
 			    for (int j=0; j<sites.length; j++) {
 			        work.E(a.getPosition());
 			        work.PEa1Tv1(sites[j].coord, direction1);
@@ -382,7 +366,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
             updatePlane(i);
         }
 
-		IBoundary boundary = displayBox.getBox().getBoundary();
+		Boundary boundary = displayBox.getBox().getBoundary();
 
 		// Do not draw bounding box around figure if the boundary
 		// is not an etomica.space.Boundary
@@ -390,11 +374,11 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 
 			Polytope polytope = ((Boundary)boundary).getShape();
 			if (polytope != oldPolytope) {
-	
+
 				// send iterator to g3dsys
 				gsys.setBoundaryVectorsIterator(wrapIndexIterator((((Boundary)boundary)
 						.getIndexIterator())));
-	
+
 				if (polytopeLines != null) {
 					for (int i = 0; i < polytopeLines.length; i++) {
 						gsys.removeFig(polytopeLines[i]);
@@ -403,7 +387,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 				LineSegment[] boundaryLines = polytope.getEdges();
 				polytopeLines = new Line[boundaryLines.length];
 				for (int i = 0; i < boundaryLines.length; i++) {
-					IVector[] vertices = boundaryLines[i].getVertices();
+					Vector[] vertices = boundaryLines[i].getVertices();
                     float v0x = (float)rBound(vertices[0].getX(0), 0);
                     float v0y = (float)rBound(vertices[0].getX(1), 1);
                     float v0z = (float)rBound(vertices[0].getX(2), 2);
@@ -420,7 +404,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 			} else {
 				LineSegment[] boundaryLines = polytope.getEdges();
 				for (int i = 0; i < boundaryLines.length; i++) {
-					IVector[] vertices = boundaryLines[i].getVertices();
+					Vector[] vertices = boundaryLines[i].getVertices();
 
                     float v0x = (float)rBound(vertices[0].getX(0), 0);
                     float v0y = (float)rBound(vertices[0].getX(1), 1);
@@ -430,22 +414,18 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
                     float v1z = (float)rBound(vertices[1].getX(2), 2);
                     polytopeLines[i].setStart(v0x, v0y, v0z);
                     polytopeLines[i].setEnd(v1x, v1y, v1z);
-	
+
 					if (displayBox.getShowBoundary() == false
 							&& boundaryDisplayed == true) {
 						gsys.removeFig(polytopeLines[i]);
 					} else if (displayBox.getShowBoundary() == true
 							&& boundaryDisplayed == false) {
 						gsys.addFig(polytopeLines[i]);
-					}
-				}
-			}
-	
-			if (displayBox.getShowBoundary() == false) {
-				boundaryDisplayed = false;
-			} else {
-				boundaryDisplayed = true;
-			}
+                    }
+                }
+            }
+
+            boundaryDisplayed = displayBox.getShowBoundary() != false;
 
 
 
@@ -460,7 +440,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 															// 3-dimensional vectors
 			int j = 0;
 			for (int i = 0; i < space.D(); i++) {
-			    IVector v = boundary.getEdgeVector(i);
+			    Vector v = boundary.getEdgeVector(i);
 			    if (!boundary.getPeriodicity(i)) {
 			        continue;
 			    }
@@ -471,8 +451,8 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 			}
 			gsys.setBoundaryVectors(dvecs);
 		}
-		
-		IVector bounds = boundary.getBoxSize();
+
+		Vector bounds = boundary.getBoxSize();
 		gsys.setBoundingBox((float) (-bounds.getX(0) * 0.5),
 				(float) (-bounds.getX(1) * 0.5), (float) (-bounds.getX(2) * 0.5),
 				(float) (bounds.getX(0) * 0.5), (float) (bounds.getX(1) * 0.5),
@@ -489,7 +469,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 
     public void addLine(LineSegment newLine) {
         lines = (LineSegment[])Arrays.addObject(lines, newLine);
-        IVector[] endpoints = newLine.getVertices();
+        Vector[] endpoints = newLine.getVertices();
         Point3f s = new Point3f();
         s.x = (float)endpoints[0].getX(0);
         s.y = (float)endpoints[0].getX(1);
@@ -515,7 +495,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
     }
 
     protected synchronized void updateLine(int iLine) {
-        IVector[] endpoints = lines[iLine].getVertices();
+        Vector[] endpoints = lines[iLine].getVertices();
         Line myLine = lineFigures[iLine];
         Point3f s = myLine.getStart();
         s.x = (float)endpoints[0].getX(0);
@@ -526,12 +506,12 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
         e.y = (float)endpoints[1].getX(1);
         e.z = (float)endpoints[1].getX(2);
     }
-
+    
     public void addPlane(Plane newPlane) {
         planes = (Plane[])Arrays.addObject(planes, newPlane);
         planeTriangles = (Triangle[][])Arrays.addObject(planeTriangles, new Triangle[0]);
     }
-    
+        
     public void removePlane(Plane oldPlane) {
         for (int i=0; i<planes.length; i++) {
             if (planes[i] == oldPlane) {
@@ -545,9 +525,9 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
         }
         throw new RuntimeException("I don't know about that plane");
     }
-        
+    
     protected synchronized void updatePlane(int iPlane) {
-        IBoundary boundary = displayBox.getBox().getBoundary();
+        Boundary boundary = displayBox.getBox().getBoundary();
     	if(!(boundary instanceof Boundary)) {
     		throw new RuntimeException("Unable to drawPlane for a Boundary not a subclass of etomica.space.Boundary");
     	}
@@ -556,16 +536,16 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
         LineSegment[] boundaryLines = polytope.getEdges();
         int intersectionCount = 0;
         for (int i = 0; i < boundaryLines.length; i++) {
-            IVector[] vertices = boundaryLines[i].getVertices();
+            Vector[] vertices = boundaryLines[i].getVertices();
             work.Ev1Mv2(vertices[1], vertices[0]);
             // this happens to do what we want
-            double alpha = -plane.distanceTo(vertices[0]) / 
+            double alpha = -plane.distanceTo(vertices[0]) /
                             (plane.distanceTo(work) - plane.getD());
             if (alpha >= 0 && alpha <= 1) {
-                IVectorMutable newIntersection;
+                Vector newIntersection;
                 if (planeIntersections.length == intersectionCount) {
                     newIntersection = space.makeVector();
-                    planeIntersections = (IVectorMutable[])Arrays.addObject(planeIntersections, newIntersection);
+                    planeIntersections = (Vector[])Arrays.addObject(planeIntersections, newIntersection);
                 }
                 else {
                     newIntersection = planeIntersections[intersectionCount];
@@ -582,14 +562,14 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
             planeTriangles[iPlane] = new Triangle[0];
             return;
         }
-        
+
         //find the center of the polygon
         work.E(0);
         for (int i=0; i<intersectionCount; i++) {
             work.PE(planeIntersections[i]);
         }
         work.TE(1.0/intersectionCount);
-        
+
         // convert the vertices to be vectors from the center
         // we'll switch back later
         for (int i=0; i<intersectionCount; i++) {
@@ -623,7 +603,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
             for (int j=1; j<i; j++) {
                 if (angle < planeAngles[j-1]) {
                     // insert the i point at position j, shift existing points
-                    IVectorMutable intersection = planeIntersections[i];
+                    Vector intersection = planeIntersections[i];
                     for (int k=i; k>j; k--) {
                         planeAngles[k-1] = planeAngles[k-2];
                         planeIntersections[k] = planeIntersections[k-1];
@@ -671,8 +651,8 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
             p.z = (float)planeIntersections[i+2].getX(2);
         }
     }
-    
-	/**
+
+    /**
 	 * Add a bond to the graphical display between the given pairs. The given
 	 * bondType is used to decide how the bond should be drawn.
 	 */
@@ -702,49 +682,13 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		    f = new Bond(gsys, ball0, ball1, c);
 		}
 		gsys.addFig(f);
-		return f;
+        return f;
+    }
+
+    public void setOrientationSites(AtomTypeOriented atomType, OrientedSite[] sites) {
+        atomTypeOrientedManager.setAgent(atomType, sites);
 	}
 	
-	public static class OrientedSite {
-	    public final double coord;
-	    public final Color color;
-	    public final double diameter;
-	    
-	    public OrientedSite(double coord, Color color, double diameter) {
-	        this.coord = coord;
-	        this.color = color;
-	        this.diameter = diameter;
-	    }
-	}
-	
-	public static class OrientedFullSite extends OrientedSite {
-	    public final double coord2, coord3;
-	    public OrientedFullSite(IVector coord, Color color, double diameter) {
-	        super(coord.getX(0), color, diameter);
-	        coord2 = coord.getX(1);
-            coord3 = coord.getX(2);
-	    }
-	}
-	
-	public void setOrientationSites(IAtomTypeOriented atomType, OrientedSite[] sites) {
-	    atomTypeOrientedManager.setAgent(atomType, sites);
-	}
-	
-	public class OrientedAgentSource implements AgentSource<Ball[]> {
-
-        public Ball[] makeAgent(IAtom a, IBox agentBox) {
-            return null;
-        }
-
-        public void releaseAgent(Ball[] agent, IAtom atom, IBox agentBox) {
-            for (int i=0; i<agent.length; i++) {
-                gsys.removeFig(agent[i]);
-            }
-        }
-	}
-
-	private java.util.ArrayList<Object[]> pendingBonds = new java.util.ArrayList<Object[]>();
-
 	/**
 	 * Removes the given bond from the graphical display. The bond must be an
 	 * Object returned by the makeBond method.
@@ -753,14 +697,14 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		Figure figure = (Figure) bond;
 		if (figure.getID() == -1) {
 			throw new RuntimeException(figure + " has already been removed");
-		}
+        }
 		gsys.removeFig(figure);
 	}
 
-	/***************************************************************************
+    /***************************************************************************
 	 * AgentSource methods
 	 **************************************************************************/
-	public Figure makeAgent(IAtom a, IBox agentBox) {
+	public Figure makeAgent(IAtom a, Box agentBox) {
 		a.getPosition().assignTo(coords);
 
 		float diameter = (float) displayBox.getDiameterHash().getDiameter(a);
@@ -774,7 +718,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
         if (atomFilter instanceof AtomFilterCollective) {
             ((AtomFilterCollective)atomFilter).resetFilter();
         }
-        boolean drawable = atomFilter == null ? true : atomFilter.accept(a);
+        boolean drawable = atomFilter == null || atomFilter.accept(a);
         if (drawable && rMin != null) {
             for (int i=0; i<rMin.getD(); i++) {
                 double x = a.getPosition().getX(i);
@@ -789,13 +733,22 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		return newBall;
 	}
 
-	public void releaseAgent(Figure agent, IAtom atom, IBox agentBox) {
-		gsys.removeFig(agent);
-	}
+    public void releaseAgent(Figure agent, IAtom atom, Box agentBox) {
+        gsys.removeFig(agent);
+    }
+
+    /**
+     * Get depth percentage
+     *
+     * @return returns current depth percentage
+     */
+    public double getSlab() {
+        return gsys.getSlabPercent();
+    }
 
 	/**
 	 * Set slab percentage
-	 * 
+     *
 	 * @param slab
 	 *            the slab percentage to set
 	 */
@@ -805,30 +758,21 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 
 	/**
 	 * Get depth percentage
-	 * 
+     *
 	 * @return returns current depth percentage
-	 */
-	public double getSlab() {
-		return gsys.getSlabPercent();
+     */
+    public double getDepth() {
+        return gsys.getDepthPercent();
 	}
 
 	/**
 	 * Set depth percentage
-	 * 
+     *
 	 * @param depth
 	 *            the depth percentage to set
 	 */
 	public void setDepth(double depth) {
 		gsys.setDepthPercent((int) depth);
-	}
-
-	/**
-	 * Get depth percentage
-	 * 
-	 * @return returns current depth percentage
-	 */
-	public double getDepth() {
-		return gsys.getDepthPercent();
 	}
 
 	public void stopRotate() {
@@ -839,52 +783,87 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 	 * Wraps an etomica index iterator in an equivalent g3dsys interface for
 	 * transport; removes g3dsys dependency from all but the etomica.graphics
 	 * package.
-	 * 
+     *
 	 * @param iter
 	 *            the etomica index iterator to wrap
 	 * @return returns the g3dsys index iterator
 	 */
 	private g3dsys.control.IndexIterator wrapIndexIterator(
-			etomica.lattice.IndexIteratorSizable iter) {
+            etomica.lattice.IndexIteratorSizable iter) {
 
-		final etomica.lattice.IndexIteratorSizable i = iter;
+        final etomica.lattice.IndexIteratorSizable i = iter;
 
-		return new g3dsys.control.IndexIterator() {
+        return new g3dsys.control.IndexIterator() {
 
-			private etomica.lattice.IndexIteratorSizable ii = i;
+            private etomica.lattice.IndexIteratorSizable ii = i;
 
-			public int getD() {
-				return ii.getD();
-			}
+            public int getD() {
+                return ii.getD();
+            }
 
-			public boolean hasNext() {
-				return ii.hasNext();
-			}
+            public boolean hasNext() {
+                return ii.hasNext();
+            }
 
-			public int[] next() {
-				return ii.next();
-			}
+            public int[] next() {
+                return ii.next();
+            }
 
-			public void reset() {
-				ii.reset();
-			}
+            public void reset() {
+                ii.reset();
+            }
 
-			public void setSize(int[] size) {
-				ii.setSize(size);
-			}
+            public void setSize(int[] size) {
+                ii.setSize(size);
+            }
 
-			public boolean isLazySafe() {
+            public boolean isLazySafe() {
 				/*
 				 * For now all boundaries are lazy-safe, including truncated
 				 * octahedron. If this changes, check for that boundary type
 				 * here (instanceof IndexIteratorSequentialFiltered, say, after
 				 * making the class public) and use appropriate boolean.
 				 */
-				return true;
-			}
+                return true;
+            }
 
-		};
+        };
 
-	}
+    }
+
+    public static class OrientedSite {
+        public final double coord;
+        public final Color color;
+        public final double diameter;
+
+        public OrientedSite(double coord, Color color, double diameter) {
+            this.coord = coord;
+            this.color = color;
+            this.diameter = diameter;
+        }
+    }
+
+    public static class OrientedFullSite extends OrientedSite {
+        public final double coord2, coord3;
+
+        public OrientedFullSite(Vector coord, Color color, double diameter) {
+            super(coord.getX(0), color, diameter);
+            coord2 = coord.getX(1);
+            coord3 = coord.getX(2);
+        }
+    }
+
+    public class OrientedAgentSource implements AgentSource<Ball[]> {
+
+        public Ball[] makeAgent(IAtom a, Box agentBox) {
+            return null;
+        }
+
+        public void releaseAgent(Ball[] agent, IAtom atom, Box agentBox) {
+            for (int i = 0; i < agent.length; i++) {
+                gsys.removeFig(agent[i]);
+            }
+        }
+    }
 
 }

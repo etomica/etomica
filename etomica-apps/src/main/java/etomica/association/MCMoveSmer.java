@@ -4,24 +4,22 @@
 
 package etomica.association;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSource;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.cell.PotentialMasterCell;
-import etomica.potential.PotentialCalculationEnergySum;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
+import etomica.potential.IPotentialAtomic;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * Standard Monte Carlo atom-displacement trial move of Trimer
@@ -33,29 +31,29 @@ public class MCMoveSmer extends MCMoveBoxStep {
     private static final long serialVersionUID = 2L;
     protected final AtomIteratorArrayListSimple affectedAtomIterator;
     protected final MeterPotentialEnergy energyMeter;
-    protected final IVectorRandom translationVector;
+    protected final Vector translationVector;
     protected IAtom atom;
     protected double uOld;
     protected double uNew = Double.NaN;
     protected AtomSource atomSource;
     protected boolean fixOverlap;
     protected final IRandom random;
-    protected ISpace space;
+    protected Space space;
     protected final PotentialMasterCell potentialMaster;
     protected final Api1ACell neighborIterator;
-    protected final IVectorMutable dr;
+    protected final Vector dr;
     protected final IPotentialAtomic trimerPotential;
     protected final AtomArrayList smerList;
     protected final AtomArrayList newSmerList;
     protected AssociationManager associationManager;
 
-    public MCMoveSmer(ISimulation sim, PotentialMasterCell potentialMaster, ISpace _space, IPotentialAtomic dimerPotential) {
+    public MCMoveSmer(Simulation sim, PotentialMasterCell potentialMaster, Space _space, IPotentialAtomic dimerPotential) {
         this(potentialMaster, sim.getRandom(), _space, 1.0, 15.0, false, dimerPotential);
     }
     
     public MCMoveSmer(PotentialMasterCell potentialMaster, IRandom random,
-    		          ISpace _space, double stepSize, double stepSizeMax,
-            boolean fixOverlap, IPotentialAtomic TrimerPotential) {
+                      Space _space, double stepSize, double stepSizeMax,
+                      boolean fixOverlap, IPotentialAtomic TrimerPotential) {
         super(potentialMaster);
         this.smerList = new AtomArrayList();
         this.newSmerList = new AtomArrayList();
@@ -69,7 +67,7 @@ public class MCMoveSmer extends MCMoveBoxStep {
         atomSource = new AtomSourceRandomDimer();
         ((AtomSourceRandomDimer)atomSource).setRandomNumberGenerator(random);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
-        translationVector = (IVectorRandom)space.makeVector();
+        translationVector = space.makeVector();
         setStepSizeMax(stepSizeMax);
         setStepSizeMin(0.0);
         setStepSize(stepSize);
@@ -294,7 +292,7 @@ public class MCMoveSmer extends MCMoveBoxStep {
         return affectedAtomIterator;
     }
     
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         atomSource.setBox(p);

@@ -1,7 +1,7 @@
 package etomica.space1d;
 
-import etomica.api.IRandom;
-import etomica.api.IVector;
+import etomica.util.random.IRandom;
+import etomica.space.Vector;
 import etomica.space.IOrientation;
 
 /**
@@ -27,12 +27,12 @@ public class Orientation1D implements IOrientation {
     }
 
 
-    public IVector getDirection() {
+    public Vector getDirection() {
         return new Vector1D(direction);
     }
 
 
-    public void setDirection(IVector newDirection) {
+    public void setDirection(Vector newDirection) {
         double x = ((Vector1D)newDirection).x;
         if(x == 0) throw new IllegalArgumentException("Can't set direction to zero.");
         direction = x > 0 ? +1 : -1;

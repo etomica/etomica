@@ -4,24 +4,22 @@
 
 package etomica.potential;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomHydrogen;
-import etomica.space.ISpace;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.space.Boundary;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.BohrRadius;
 import etomica.units.Degree;
 import etomica.units.Kelvin;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 public class P2HydrogenHindePatkowskiAtomic implements IPotentialAtomic {
-    protected IBoundary boundary;
-    protected IVectorMutable dr,com0,com1,hh0,hh1,n0,n1;
+    protected Boundary boundary;
+    protected Vector dr,com0,com1,hh0,hh1,n0,n1;
     protected P2HydrogenHindeAtomic p2Hinde;
     protected P2HydrogenPatkowskiAtomic p2Patkowski;
     protected static final double r0 = BohrRadius.UNIT.toSim(1.448736);
@@ -29,7 +27,7 @@ public class P2HydrogenHindePatkowskiAtomic implements IPotentialAtomic {
     public static final double blMax = 1.2;
     protected boolean print = false;
     public FileWriter filePat = null;
-    public P2HydrogenHindePatkowskiAtomic(ISpace space) {
+    public P2HydrogenHindePatkowskiAtomic(Space space) {
         p2Hinde = new P2HydrogenHindeAtomic(space);
         p2Patkowski = new P2HydrogenPatkowskiAtomic(space);        
         dr = space.makeVector();
@@ -46,7 +44,7 @@ public class P2HydrogenHindePatkowskiAtomic implements IPotentialAtomic {
     }
 
 
-    public void setBox(IBox box) {    
+    public void setBox(Box box) {
         boundary = box.getBoundary();
         p2Patkowski.setBox(box);
         p2Hinde.setBox(box);
@@ -61,10 +59,10 @@ public class P2HydrogenHindePatkowskiAtomic implements IPotentialAtomic {
         public double energy(IAtomList atoms) {
             AtomHydrogen m0 = (AtomHydrogen) atoms.getAtom(0);
             AtomHydrogen m1 = (AtomHydrogen) atoms.getAtom(1);            
-            IVector hh0 = m0.getOrientation().getDirection();
-            IVector hh1 = m1.getOrientation().getDirection();        
-            IVector com0 = m0.getPosition();               
-            IVector com1 = m1.getPosition();        
+            Vector hh0 = m0.getOrientation().getDirection();
+            Vector hh1 = m1.getOrientation().getDirection();
+            Vector com0 = m0.getPosition();
+            Vector com1 = m1.getPosition();
             
             dr.Ev1Mv2(com1, com0);    
             boundary.nearestImage(dr);    

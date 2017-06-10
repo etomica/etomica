@@ -4,11 +4,11 @@
 
 package etomica.virial;
 
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotential;
-import etomica.api.IPotentialMolecular;
+import etomica.box.Box;
 import etomica.math.SpecialFunctions;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.IPotential;
+import etomica.potential.IPotentialMolecular;
 
 /**
  * Mayer function class that returns temperature expansion bond of the desired
@@ -85,7 +85,7 @@ public class MayerPTAtt implements MayerFunction {
 		return dfdkT;
 	}
 
-	public void setBox(IBox newBox) {
+	public void setBox(Box newBox) {
 	    potentialRef.setBox(newBox);
 	    potentialAtt.setBox(newBox);
 	}

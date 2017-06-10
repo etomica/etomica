@@ -4,7 +4,7 @@
 
 package etomica.space3d;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 
 public class RotationTensor3D extends Tensor3D implements etomica.space.RotationTensor {
     protected final Vector3D work;
@@ -47,11 +47,11 @@ public class RotationTensor3D extends Tensor3D implements etomica.space.Rotation
     /**
      * Sets the tensor for rotation about the axis v by an angle theta.
      */
-    public void setRotationAxis(IVector v, double theta) {
+    public void setRotationAxis(Vector v, double theta) {
         setRotationAxisCT(v, Math.cos(theta));
     }
     
-    public void setRotationAxisCT(IVector v, double costheta) {
+    public void setRotationAxisCT(Vector v, double costheta) {
         double st = Math.sqrt(1-costheta*costheta);
         double ct = costheta;
         double vx = v.getX(0);
@@ -95,9 +95,9 @@ public class RotationTensor3D extends Tensor3D implements etomica.space.Rotation
     }
 
     public void setOrientation(IOrientationFull3D orientation3D) {
-        IVector direction = orientation3D.getDirection();
+        Vector direction = orientation3D.getDirection();
         work.E(direction);
-        IVector secondaryDirection = orientation3D.getSecondaryDirection();
+        Vector secondaryDirection = orientation3D.getSecondaryDirection();
         xx = direction.getX(0);
         xy = direction.getX(1);
         xz = direction.getX(2);

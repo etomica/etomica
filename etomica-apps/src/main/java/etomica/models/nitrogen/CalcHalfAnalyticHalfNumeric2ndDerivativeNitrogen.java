@@ -7,14 +7,13 @@ package etomica.models.nitrogen;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.MoleculePair;
-import etomica.space.ISpace;
+import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculePair;
+import etomica.molecule.MoleculePositionGeometricCenter;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Degree;
 
 /**
@@ -37,12 +36,12 @@ import etomica.units.Degree;
  */
 public class CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen{
 	
-	public CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen(ISpace space, IBox box, P2Nitrogen potential,CoordinateDefinitionNitrogen coordinateDefinition, boolean isAlpha){
+	public CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen(Space space, Box box, P2Nitrogen potential, CoordinateDefinitionNitrogen coordinateDefinition, boolean isAlpha){
 		this(space, box, potential, coordinateDefinition, false, potential.getRange(), isAlpha);
 	}
 	
-	public CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen(ISpace space, IBox box, P2Nitrogen potential,CoordinateDefinitionNitrogen coordinateDefinition,
-			boolean doLatticeSum, double rC, boolean isAlpha){
+	public CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen(Space space, Box box, P2Nitrogen potential, CoordinateDefinitionNitrogen coordinateDefinition,
+                                                            boolean doLatticeSum, double rC, boolean isAlpha){
 		this.coordinateDefinition = coordinateDefinition;
 		this.potential = potential;
 		this.doLatticeSum = doLatticeSum;
@@ -56,7 +55,7 @@ public class CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen{
 		
 		translateBy = new AtomActionTranslateBy(coordinateDefinition.getPrimitive().getSpace());
         atomGroupActionTranslate = new MoleculeChildAtomAction(translateBy); 
-        pos = new AtomPositionGeometricCenter(coordinateDefinition.getPrimitive().getSpace());
+        pos = new MoleculePositionGeometricCenter(coordinateDefinition.getPrimitive().getSpace());
         translator = new MoleculeActionTranslateTo(coordinateDefinition.getPrimitive().getSpace());
         translator.setAtomPositionDefinition(pos);
         
@@ -95,7 +94,7 @@ public class CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen{
 		pair.atom0 = moleculeList.getMolecule(moleculei[0]);
 		
 		IMolecule molecule1;
-		IVector[][] gradTorq;
+		Vector[][] gradTorq;
 		int firstRowMol = (int)Math.pow(numMolecule/1.99999, 1.0/3.0)*2;
 		
 		for (int i=0; i<numMolecule; i++){
@@ -359,14 +358,14 @@ public class CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen{
 		this.fixedDeltaU = fixedDeltaU;
 	}
 
-	protected IBox box;
-	protected AtomPositionGeometricCenter pos;
+	protected Box box;
+	protected MoleculePositionGeometricCenter pos;
 	protected MoleculeActionTranslateTo translator;
 	protected CoordinateDefinitionNitrogen coordinateDefinition;
 	protected P2Nitrogen potential;
 	protected AtomActionTranslateBy translateBy;
 	protected MoleculeChildAtomAction atomGroupActionTranslate;
-	protected IVectorMutable lsPosition, destination, workVec;
+	protected Vector lsPosition, destination, workVec;
 	protected double errt, fac, xVecBox, yVecBox, zVecBox, rC;
 	protected double deltaU;
 	protected double [][] a;

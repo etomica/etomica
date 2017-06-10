@@ -7,10 +7,8 @@ package etomica.models.hexane;
 import java.util.ArrayList;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataFork;
 import etomica.data.DataHistogram;
@@ -48,8 +46,8 @@ import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Null;
-import etomica.util.DoubleRange;
-import etomica.util.HistogramSimple;
+import etomica.math.DoubleRange;
+import etomica.data.histogram.HistogramSimple;
 /**
  * @author nancycribbin
  *  
@@ -147,10 +145,10 @@ public class TestHexaneHarmonic extends Simulation {
         //The PotentialMaster generates a group potential and automatically
         // does a lot of the stuff which we have to do for the intramolecular
         // potential manually.
-        IAtomType sphereType = species.getLeafType();
+        AtomType sphereType = species.getLeafType();
 
         //Add the Potential to the PotentialMaster
-        potentialMaster.addPotential(potential, new IAtomType[] { sphereType,
+        potentialMaster.addPotential(potential, new AtomType[] { sphereType,
                 sphereType });
         
 //         //INTRAMOLECULAR POTENTIAL STUFF
@@ -331,7 +329,7 @@ public class TestHexaneHarmonic extends Simulation {
     public ActivityIntegrate activityIntegrate;
     public IntegratorMC integrator;
 
-    public IBox box;
+    public Box box;
 
     public BoundaryDeformablePeriodic bdry;
  

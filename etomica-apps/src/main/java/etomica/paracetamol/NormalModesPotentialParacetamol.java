@@ -6,10 +6,9 @@ package etomica.paracetamol;
 
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.IVectorMutable;
 import etomica.box.Box;
+import etomica.potential.PotentialMaster;
+import etomica.space.Vector;
 import etomica.data.DataInfo;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -24,11 +23,11 @@ import etomica.normalmode.WaveVectorFactorySimple;
 import etomica.paracetamol.LatticeSumCrystalParacetamol.DataGroupLSCParacetamol;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.util.Arrays;
-import etomica.util.Function;
-import etomica.util.numerical.FiniteDifferenceDerivative;
+import etomica.math.function.Function;
+import etomica.math.numerical.FiniteDifferenceDerivative;
 
 /**
  * Uses analysis of 2nd derivatives to compute the normal modes for a Bravais lattice with a basis, 
@@ -40,7 +39,7 @@ import etomica.util.numerical.FiniteDifferenceDerivative;
 public class NormalModesPotentialParacetamol implements NormalModes {
 
     public NormalModesPotentialParacetamol(int[] nCells, Primitive primitive,
-    		               Basis basis, ISpace space) {
+    		               Basis basis, Space space) {
         
         harmonicFudge = 1.0;
         needToCalculateModes = true;
@@ -88,7 +87,7 @@ public class NormalModesPotentialParacetamol implements NormalModes {
         
         LatticeSumCrystalParacetamol summer = new LatticeSumCrystalParacetamol(lattice);
         summer.setMaxLatticeShell(maxLatticeShell);
-        IVectorMutable kVector = lattice.getSpace().makeVector();
+        Vector kVector = lattice.getSpace().makeVector();
         
         //calculation of self term
         kVector.E(0.0);
@@ -200,19 +199,19 @@ public class NormalModesPotentialParacetamol implements NormalModes {
     	return coordinateDefinitionParacetamol;
     }
     
-	public void setPotentialMaster(IPotentialMaster potentialMaster) {
+	public void setPotentialMaster(PotentialMaster potentialMaster) {
 		this.potentialMaster = potentialMaster;
 	}
     
-	public IBox getBox() {
+	public Box getBox() {
 		return box;
 	}
 
-	public void setBox(IBox box) {
+	public void setBox(Box box) {
 		this.box = box;
 	}
     
-	public IPotentialMaster getPotentialMaster() {
+	public PotentialMaster getPotentialMaster() {
 		return potentialMaster;
 	}
 	
@@ -294,8 +293,8 @@ public class NormalModesPotentialParacetamol implements NormalModes {
 
 	
     private CoordinateDefinitionParacetamol coordinateDefinitionParacetamol;
-    private IPotentialMaster potentialMaster;
-    private IBox box;
+    private PotentialMaster potentialMaster;
+    private Box box;
     private final BravaisLatticeCrystal lattice;
     private WaveVectorFactory kFactory;
     private int maxLatticeShell;

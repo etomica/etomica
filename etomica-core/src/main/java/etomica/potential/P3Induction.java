@@ -4,18 +4,10 @@
 
 package etomica.potential;
 
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomTypeAgentManager;
+import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.atom.MoleculePair;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
@@ -25,14 +17,19 @@ import etomica.models.water.P2WaterSzalewicz;
 import etomica.models.water.P2WaterSzalewicz.Component;
 import etomica.models.water.PNWaterGCPM;
 import etomica.models.water.SpeciesWater4P;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculePair;
 import etomica.simulation.Simulation;
+import etomica.space.Boundary;
 import etomica.space.IOrientation;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.OrientationFull3D;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresRotating;
-import etomica.util.RandomMersenneTwister;
-import etomica.util.RandomNumberGeneratorUnix;
+import etomica.util.random.RandomMersenneTwister;
+import etomica.util.random.RandomNumberGeneratorUnix;
 
 /**
  * 3-body induction potential based on form used by Oakley and Wheatley.
@@ -44,16 +41,16 @@ import etomica.util.RandomNumberGeneratorUnix;
 public class P3Induction implements IPotentialAtomic {
 
     protected final AtomTypeAgentManager paramsManager;
-    protected final ISpace space;
+    protected final Space space;
     protected final double[] I = new double[3];
     protected final double[] alpha = new double[3];
-    protected final IVectorMutable dr1, dr2;
-    protected final IVectorMutable ri, rj, rk;
-    protected final IVectorMutable rij, rik;
-    protected final IVectorMutable or3;
-    protected IBoundary boundary;
+    protected final Vector dr1, dr2;
+    protected final Vector ri, rj, rk;
+    protected final Vector rij, rik;
+    protected final Vector or3;
+    protected Boundary boundary;
 
-    public P3Induction(ISpace space, AtomTypeAgentManager paramsManager) {
+    public P3Induction(Space space, AtomTypeAgentManager paramsManager) {
         this.space = space;
         this.paramsManager = paramsManager;
         dr1 = space.makeVector();
@@ -85,7 +82,7 @@ public class P3Induction implements IPotentialAtomic {
                 ri.E(atomi.getPosition());
                 ri.PEa1Tv1(agi.polSite[ip].getX(0), ori.getDirection());
                 if (ori instanceof OrientationFull3D) {
-                    IVector or2 = ((OrientationFull3D)ori).getSecondaryDirection();
+                    Vector or2 = ((OrientationFull3D)ori).getSecondaryDirection();
                     ri.PEa1Tv1(agi.polSite[ip].getX(1), or2);
                     or3.E(ori.getDirection());
                     or3.XE(or2);
@@ -95,7 +92,7 @@ public class P3Induction implements IPotentialAtomic {
                     rj.E(atomj.getPosition());
                     rj.PEa1Tv1(agj.qSite[jq].getX(0), orj.getDirection());
                     if (orj instanceof OrientationFull3D) {
-                        IVector or2 = ((OrientationFull3D)orj).getSecondaryDirection();
+                        Vector or2 = ((OrientationFull3D)orj).getSecondaryDirection();
                         rj.PEa1Tv1(agj.qSite[jq].getX(1), or2);
                         or3.E(orj.getDirection());
                         or3.XE(or2);
@@ -109,7 +106,7 @@ public class P3Induction implements IPotentialAtomic {
                         rk.E(atomk.getPosition());
                         rk.PEa1Tv1(agk.qSite[kq].getX(0), ork.getDirection());
                         if (ork instanceof OrientationFull3D) {
-                            IVector or2 = ((OrientationFull3D)ork).getSecondaryDirection();
+                            Vector or2 = ((OrientationFull3D)ork).getSecondaryDirection();
                             rk.PEa1Tv1(agk.qSite[kq].getX(1), or2);
                             or3.E(ork.getDirection());
                             or3.XE(or2);
@@ -132,7 +129,7 @@ public class P3Induction implements IPotentialAtomic {
         return Double.POSITIVE_INFINITY;
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 
@@ -142,8 +139,8 @@ public class P3Induction implements IPotentialAtomic {
 
     public static class MyAgent {
         public final double[] alpha, q;
-        public final IVector[] polSite, qSite;
-        public MyAgent(double[] alpha, IVector[] polSite, double[] q, IVector[] qSite) {
+        public final Vector[] polSite, qSite;
+        public MyAgent(double[] alpha, Vector[] polSite, double[] q, Vector[] qSite) {
             this.alpha = alpha;
             this.polSite = polSite;
             this.q = q;
@@ -152,13 +149,13 @@ public class P3Induction implements IPotentialAtomic {
     }
     
     public static void main(String[] args) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
         SpeciesSpheresRotating species = new SpeciesSpheresRotating(space, new ElementSimple("H2O", Oxygen.INSTANCE.getMass()+2*Hydrogen.INSTANCE.getMass()));
         species.setAxisSymmetric(false);
         sim.addSpecies(species);
-        IBox box = new Box(space);
-        IBox box2 = new Box(space);
+        Box box = new Box(space);
+        Box box2 = new Box(space);
         sim.addBox(box);
         box.setNMolecules(species, 3);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{10000,10000,10000}));
@@ -196,11 +193,11 @@ public class P3Induction implements IPotentialAtomic {
         p3i.setBox(box);
         double alphaH2O = 1.444;
 
-        IVectorMutable polH2O = space.makeVector();
+        Vector polH2O = space.makeVector();
         double[] qH2O = P2WaterSzalewicz.getQ();
-        IVector[] qSiteH2O = P2WaterSzalewicz.getSites(space);
+        Vector[] qSiteH2O = P2WaterSzalewicz.getSites(space);
         polH2O.E(qSiteH2O[0]);
-        P3Induction.MyAgent agentH2O = new P3Induction.MyAgent(new double[]{alphaH2O}, new IVector[]{polH2O}, qH2O, qSiteH2O);
+        P3Induction.MyAgent agentH2O = new P3Induction.MyAgent(new double[]{alphaH2O}, new Vector[]{polH2O}, qH2O, qSiteH2O);
 
         paramsManager.setAgent(species.getLeafType(), agentH2O);
 
@@ -208,8 +205,8 @@ public class P3Induction implements IPotentialAtomic {
         pGCPM.setBox(box2);
         
         double r = 5;
-        IVectorMutable dr1 = space.makeVector();
-        IVectorMutable dr2 = space.makeVector();
+        Vector dr1 = space.makeVector();
+        Vector dr2 = space.makeVector();
         for (int i=0; i<10; i++) {
             r *= 2;
             atom2.getPosition().setX(0, r);

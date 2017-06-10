@@ -3,13 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.modules.ensembles;
+
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
@@ -21,6 +19,7 @@ import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 
@@ -28,7 +27,7 @@ public class LJMC extends Simulation {
     
     private static final long serialVersionUID = 1L;
     public final SpeciesSpheresMono species;
-    public final IBox box;
+    public final Box box;
     public final ActivityIntegrate activityIntegrate;
     public final IntegratorMC integrator;
     public final MCMoveAtom mcMoveAtom;
@@ -54,12 +53,12 @@ public class LJMC extends Simulation {
         //instantiate several potentials for selection in combo-box
 	    P2LennardJones potential = new P2LennardJones(space);
         P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(space, potential,2.5);
-	    potentialMaster.addPotential(p2Truncated, new IAtomType[]{species.getLeafType(), species.getLeafType()});
-	    
+        potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
+
         //construct box
 	    box = new Box(space);
         addBox(box);
-        IVectorMutable dim = space.makeVector();
+        Vector dim = space.makeVector();
         dim.E(space.D() == 2 ? 15 : 10);
         box.getBoundary().setBoxSize(dim);
         box.setNMolecules(species, N);

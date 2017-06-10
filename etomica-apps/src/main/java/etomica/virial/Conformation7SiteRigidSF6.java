@@ -4,13 +4,13 @@
 
 package etomica.virial;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
 import etomica.config.IConformation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
- /**
+/**
  *  Conformation of SF6
  *  7 LJ sites, rigid, no charge
  *  Reference: Samios, Molecular force field investigation for sulfur hexafluoride: A computer simulation study
@@ -20,12 +20,12 @@ import etomica.space.ISpace;
  */
 public class Conformation7SiteRigidSF6 implements IConformation, java.io.Serializable{
 
-	protected final ISpace space;
+	protected final Space space;
 	protected final double bondL = 1.565;
-	protected IVectorMutable vector;
+	protected Vector vector;
 	private static final long serialVersionUID = 1L;
 	
-	public Conformation7SiteRigidSF6(ISpace space){
+	public Conformation7SiteRigidSF6(Space space){
 		this.space = space;
 		vector = space.makeVector();
 	}

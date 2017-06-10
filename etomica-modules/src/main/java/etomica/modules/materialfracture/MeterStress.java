@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.modules.materialfracture;
-import etomica.api.IBox;
-import etomica.api.IVector;
+import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
 import etomica.units.Pressure2D;
 
@@ -20,17 +20,17 @@ public class MeterStress extends DataSourceScalar {
         this.pc = pc;
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
 
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
 
     public double getDataAsScalar(){
         double area = 1;
-        IVector dim = box.getBoundary().getBoxSize();
+        Vector dim = box.getBoundary().getBoxSize();
         for (int i=1; i<dim.getD(); i++) {
             area *= dim.getX(i);
         }
@@ -39,5 +39,5 @@ public class MeterStress extends DataSourceScalar {
     }
 
     protected final PotentialCalculationForceStress pc;
-    protected IBox box;
+    protected Box box;
 }

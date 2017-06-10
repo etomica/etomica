@@ -4,14 +4,13 @@
 
 package etomica.association;
 
-import etomica.api.IAtom;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IRandom;
-import etomica.api.IVector;
+import etomica.atom.IAtom;
+import etomica.space.Boundary;
+import etomica.box.Box;
+import etomica.util.random.IRandom;
+import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
+import etomica.space.Space;
 
 public class BiasVolumeSphereOriented extends BiasVolume {
     
@@ -21,21 +20,21 @@ public class BiasVolumeSphereOriented extends BiasVolume {
 	private static final long serialVersionUID = 1L;
 	private double radius;
     private double innerRadius;
-    private final IVectorRandom work;
+    private final Vector work;
     private final IRandom random;
-    private IBoundary boundary;
+    private Boundary boundary;
     private double ec2;
     private double ec1;
     
-    public BiasVolumeSphereOriented(ISpace space, IRandom random){
+    public BiasVolumeSphereOriented(Space space, IRandom random){
         super(space);
         this.random = random;
-        work = (IVectorRandom)space.makeVector();
+        work = space.makeVector();
         radius = 1.0;//size of the sphere
         innerRadius = 0.9;
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
     	boundary = box.getBoundary();
     }
     
@@ -69,7 +68,7 @@ public class BiasVolumeSphereOriented extends BiasVolume {
 				work.TE(radius);
 			}
 			//compute the orientation
-			IVector e2 = ((IAtomOriented)atom2).getOrientation().getDirection();//orientation of atom2
+			Vector e2 = ((IAtomOriented)atom2).getOrientation().getDirection();//orientation of atom2
 			er2 = e2.dot(work);
         }
         while ( er2 < 0.0 || er2*er2 < ec2*work.squared());
@@ -78,7 +77,7 @@ public class BiasVolumeSphereOriented extends BiasVolume {
         double er1;
         do{
         	((IAtomOriented)atom1).getOrientation().randomRotation(random, 1.0);
-        	IVector e1 = ((IAtomOriented)atom1).getOrientation().getDirection();//orientation of atom1
+        	Vector e1 = ((IAtomOriented)atom1).getOrientation().getDirection();//orientation of atom1
             er1 = e1.dot(work);
         }
         while ( er1 > 0.0 || er1*er1 < ec2*work.squared());
@@ -102,7 +101,7 @@ public class BiasVolumeSphereOriented extends BiasVolume {
         if (r2 < innerRadius*innerRadius || r2 > radius*radius) {
         	return false;
         }
-        IVector e1 = ((IAtomOriented)atom1).getOrientation().getDirection();
+        Vector e1 = ((IAtomOriented)atom1).getOrientation().getDirection();
         double er1 = e1.dot(work);
 //        if (atom1.getLeafIndex() == 68 ||atom2.getLeafIndex() == 68 ||atom1.getLeafIndex() == 303 ||atom2.getLeafIndex() == 303){
 //	        System.out.println ("atom1 = "+atom1+ " atom2 = "+atom2);
@@ -111,7 +110,7 @@ public class BiasVolumeSphereOriented extends BiasVolume {
         if ( er1 < 0.0 || er1*er1 < ec2*r2) {
         	return false;
         }
-        IVector e2 = ((IAtomOriented)atom2).getOrientation().getDirection();
+        Vector e2 = ((IAtomOriented)atom2).getOrientation().getDirection();
         double er2 = e2.dot(work);
 //        if (atom1.getLeafIndex() == 68 ||atom2.getLeafIndex() == 68 ||atom1.getLeafIndex() == 303 ||atom2.getLeafIndex() == 303){
 //	        System.out.println ("atom1 = "+atom1+ " atom2 = "+atom2);

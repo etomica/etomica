@@ -4,20 +4,17 @@
 
 package etomica.potential;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IRandom;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
+import etomica.box.Box;
+import etomica.math.numerical.AkimaSpline;
+import etomica.molecule.IMolecule;
+import etomica.space.Boundary;
 import etomica.space.IOrientation;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.IOrientationFull3D;
 import etomica.space3d.OrientationFull3D;
 import etomica.space3d.Space3D;
@@ -25,47 +22,47 @@ import etomica.units.Calorie;
 import etomica.units.Hartree;
 import etomica.units.Kelvin;
 import etomica.units.Mole;
-import etomica.util.RandomMersenneTwister;
-import etomica.util.numerical.AkimaSpline;
+import etomica.util.random.IRandom;
+import etomica.util.random.RandomMersenneTwister;
 
 public class P2WaterPotentialsJankowski implements IPotentialAtomic {
     
-    protected IBoundary boundary;
-    protected ISpace space;
-    protected int iSurf, iEmbed;
-    protected static int iPotParts;
-    protected int icc;
-    protected int iMonomer;
-    protected IPotentialAtomic pRigid = null;
-    protected IBox b = null;
     protected static final int nsitemax = 8;
-    protected static double[] bl = new double [4], angles = new double [2], ccpol2BL = new double [4];
-    protected static double[] ccpol2Angles = new double [2];
-    protected double tKelvin = -1, eMon = 0.0;
     protected static final int naamax = 14, nbbmax = 14;
-    protected static final int ntypemax = 6;    
+    protected static final int ntypemax = 6;
     protected static final int maxpar1 = 18, maxpar2 = 84;
-    protected static IVectorMutable[] set_sites_sitea, sa, sb, alignedV1, alignedV2, bisectorVec, posVec; 
-    protected static IVectorMutable[][] siteat, sitebt; 
-    protected static IVectorMutable set_sites_sa;
-    protected static IVector[] cartA, cartB;
-    protected static int[] set_sites_itypea = new int[nsitemax];
     protected static final double[] c = new double[1000], values = new double[100];
-    protected static int[] numtm = new int[2];
-    protected static IVectorMutable tttprod;
     protected static final double [][] param = new double [maxpar1][ntypemax];
     protected static final double [][][] parab = new double [maxpar2][ntypemax][ntypemax];
-    protected static int[][][] itypus = new int[ntypemax][ntypemax][2];
     protected static final int nsitea = 8, nsiteb = 8, ntpot = 124161, idonl = 1, iopt = 1, iweight = 315;
     protected static final int iasdone = 1, linp = 5, lout = 7, ipr = 0, isyst = 2, npowers = 3;
     protected static final double tolf = 0.10E-2, tolr = 0.20E+03, anoise = 0.10E-08, timlim = 880000;
     protected static final double alfst = 0.1, safetl = 0.20E+03, r0 = 0, rcond = 1.0E-12;
     protected static final double a0 = 0.5291772490, har2kcal = 627.5100, cmtoau = 219474.624, mH = 1.00782503210;
     protected static final double mO = 15.99491462210, mH2O = 2*mH + mO, rHSCore = 1.2;
+    protected static int iPotParts;
+    protected static double[] bl = new double[4], angles = new double[2], ccpol2BL = new double[4];
+    protected static double[] ccpol2Angles = new double[2];
+    protected static Vector[] set_sites_sitea, sa, sb, alignedV1, alignedV2, bisectorVec, posVec;
+    protected static Vector[][] siteat, sitebt;
+    protected static Vector set_sites_sa;
+    protected static Vector[] cartA, cartB;
+    protected static int[] set_sites_itypea = new int[nsitemax];
+    protected static int[] numtm = new int[2];
+    protected static Vector tttprod;
+    protected static int[][][] itypus = new int[ntypemax][ntypemax][2];
     protected static double comHackDist = 0.0;
     protected static boolean flag = true, comHack = false, flip = false;
+    protected Boundary boundary;
+    protected Space space;
+    protected int iSurf, iEmbed;
+    protected int icc;
+    protected int iMonomer;
+    protected IPotentialAtomic pRigid = null;
+    protected Box b = null;
+    protected double tKelvin = -1, eMon = 0.0;
     
-    public P2WaterPotentialsJankowski(ISpace space, int iSurface, int iMon, double tSim, IPotentialAtomic pRigid) {
+    public P2WaterPotentialsJankowski(Space space, int iSurface, int iMon, double tSim, IPotentialAtomic pRigid) {
         this.space = space;
         iSurf = iSurface;
         tKelvin = Kelvin.UNIT.fromSim(tSim);
@@ -75,14 +72,14 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         set_sites_sitea = space.makeVectorArray(nsitemax);
         sa = space.makeVectorArray(naamax+2);
         sb = space.makeVectorArray(nbbmax+2);
-        siteat = new IVectorMutable[nsitemax][naamax+2];
-        sitebt = new IVectorMutable[nsitemax][nbbmax+2];
+        siteat = new Vector[nsitemax][naamax+2];
+        sitebt = new Vector[nsitemax][nbbmax+2];
         alignedV1 = space.makeVectorArray(3);
         alignedV2 = space.makeVectorArray(3);
         posVec = space.makeVectorArray(3);
         bisectorVec = space.makeVectorArray(2);
-        cartA = new IVector[3];
-        cartB = new IVector[3];        
+        cartA = new Vector[3];
+        cartB = new Vector[3];
         for (int i=0; i<nsitemax; i++) {
             siteat[i] = space.makeVectorArray(naamax+2);
             sitebt[i] = space.makeVectorArray(nbbmax+2);
@@ -269,12 +266,12 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         if (iMonomer == 1) {
             eMon = pots(bl[0],bl[1],angles[0]) + pots(bl[2],bl[3],angles[1]);
         }
-        IVectorMutable[] rigidPosVec = space.makeVectorArray(3);
+        Vector[] rigidPosVec = space.makeVectorArray(3);
         rigidPosVec[0].E(new double[] {0.00000000000000, 0.0000000, 0.1255334885});
         rigidPosVec[1].E(new double[] {-1.45365196228170, 0.0000000,-0.9961538357});
         rigidPosVec[2].E(new double[] {1.45365196228170, 0.0000000,-0.9961538357});
-        IVectorMutable x1 = space.makeVector();
-        IVectorMutable y1 = space.makeVector();
+        Vector x1 = space.makeVector();
+        Vector y1 = space.makeVector();
         x1.Ev1Mv2(rigidPosVec[1],rigidPosVec[0]);
         y1.Ev1Mv2(rigidPosVec[2],rigidPosVec[0]);
         double bl1 = Math.sqrt(x1.squared())*a0;
@@ -290,98 +287,10 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         }
     }
     
-    public double getRange() {
-        return Double.POSITIVE_INFINITY;
-    }
-    
-    public void setBox(IBox box) {
-        boundary = box.getBoundary();
-        pRigid.setBox(box);
-    }
-
-    public int nBody() {
-        return 2;
-    }   
-     
-    public double energy(IAtomList atoms) {
-        if (tKelvin < 0) throw new RuntimeException("Temperature needs to be set while calling the constructor");
-        processAtoms(atoms);
-        double eTot = poten(); // flexible configuration with temperature dependent
-        // bond lengths and angle
-        if (icc == 1) {
-            double eRigid = pRigid.energy(atoms);
-            // rigid configuration with ground state bond lengths and angles from P2WaterSzalewicz            
-            double [] oldBL = getBondLengths();
-            double [] oldAngles = getAngles();            
-            setBondLengths(ccpol2BL);
-            setAngles(ccpol2Angles);
-            processAtoms(atoms);            
-            setBondLengths(oldBL);
-            setAngles(oldAngles);
-            double eFlex = poten();
-            // if ccpol8s is ever used instead of ccpol2, use the following instead
-            // of the above line of code
-            // double eFlex = poten(cartaa,cartbb);
-            if (Double.isInfinite(eRigid) || Double.isInfinite(eFlex) || Double.isInfinite(eTot)) return Double.POSITIVE_INFINITY;
-//            if ((eTot - eFlex) < -Kelvin.UNIT.fromSim(1)*1000) {
-//                System.out.println(eRigid);
-//            }
-            eTot += eRigid - eFlex;
-        }
-        return (iMonomer == 1 ? (eTot + eMon): eTot);
-//        IVectorMutable[] cartaa = space.makeVectorArray(3);
-//        IVectorMutable[] cartbb = space.makeVectorArray(3);        
-        
-//        if (false) { // if we ever use ccpol8s
-//            // make embedding for molecule A
-//            if (iEmbed == 1) {
-//                eck_rad_tst(carta);
-//            }
-//            else {
-//                radau_f1_tst(carta);
-//            }
-//
-//            put_rigid();
-//            if (icc == 1) {
-//                for (int i=0; i<3; i++) {
-//                    cartaa[i].E(posVec[i]);
-//                }
-//            }
-//
-//            // make embedding for molecule B
-//
-//            for (int i=0; i<3; i++) {
-//                cartb[i].setX(2,cartb[i].getX(2)-rCom);
-//            }
-//            if (iEmbed == 1) {
-//                eck_rad_tst(cartb);
-//            }
-//            else {
-//                radau_f1_tst(cartb);
-//            }
-//
-//            for (int i=0; i<3; i++) {
-//                cartb[i].setX(2,cartb[i].getX(2)+rCom);
-//            }
-//            put_rigid();
-//            if (icc == 1) {
-//                for (int i=0; i<3; i++) {
-//                    cartbb[i].E(posVec[i]);
-//                    cartbb[i].setX(2,cartbb[i].getX(2)+rCom);
-//                }
-//            }
-//        }
-
-
-
-        
-//        System.out.println(rCom+" "+eTot);        
-    }
-    
     // subroutine in H20.pjt2.f
     public static double pots(double q1, double q2, double theta) {
         q1 /= a0;
-        q2 /= a0;        
+        q2 /= a0;
         double x1 = 1.0;
         double rho1 = 75.50035308;
         double fa2 = 18902.44193433;
@@ -449,7 +358,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         double y3 = x1 - Math.exp(-a*ds);
         // transform to jensens angular coordinate;
         double coro = Math.cos(theta) + Math.cos(rho);
-        
+
         double coro2 = coro*coro;
         double coro3 = coro2*coro;
         double coro4 = coro2*coro2;
@@ -462,7 +371,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         double v0 = (fa2+fa3*coro+fa4*coro2+fa6*coro4+fa7*coro5)*coro2;
         v0 += (fa8*coro6+fa5*coro3+fa9*coro7+fa10*coro8)*coro2;
         v0 += fa11*coro9*coro2;
-        
+
         double fe1 = f1a1*coro+f2a1*coro2+f3a1*coro3+f4a1*coro4;
         double fe3 = f1a3*coro+f2a3*coro2+f3a3*coro3+f4a3*coro4;
         double fe11 = f11+f1a11*coro+f2a11*coro2;
@@ -512,20 +421,20 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         // if (ds.le. 0.0 ) v=0.1e17;
         v += c1*Math.exp(-alpha1*drhh) + c2*Math.exp(-alpha2*drhh);
         // convert to hartree;
-        v /= cmtoau;        
+        v /= cmtoau;
         v *= Hartree.UNIT.toSim(1);
         return v;
     }
     
-    public static void set_sites(IVector[] cartX) {
-        ISpace space = Space3D.getInstance();
+    public static void set_sites(Vector[] cartX) {
+        Space space = Space3D.getInstance();
 //        System.out.println("From set_sites");
 //        for (int i=0; i<3; i++) {
 //            System.out.println(carta[i]);
 //        }
 //        System.exit(1);
-        IVectorMutable v1 = space.makeVector(), vn1 = space.makeVector(), v2 = space.makeVector(), vn2 = space.makeVector(), vsm = space.makeVector();
-        IVectorMutable vb = space.makeVector(), vp = space.makeVector(), vd1a = space.makeVector(), vd1b = space.makeVector(), vd2a = space.makeVector(), vd2b = space.makeVector();
+        Vector v1 = space.makeVector(), vn1 = space.makeVector(), v2 = space.makeVector(), vn2 = space.makeVector(), vsm = space.makeVector();
+        Vector vb = space.makeVector(), vp = space.makeVector(), vd1a = space.makeVector(), vd1b = space.makeVector(), vd2a = space.makeVector(), vd2b = space.makeVector();
         // In this procedure positions of sites are established on the base of
         // the cartesian coordinates of atoms.
         // Written on the base of data from the subroutine getgeo
@@ -550,7 +459,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         double sig4 = 0.125368076;
         double sig5 = 0.2;
         double shift = 9.01563628739252e-4; //accounts for shift to precise masses (in bohr)
-        
+
         double rad2d = 180.0/Math.PI;
         // distances in carta are given in bohr, so we will use bohr as the default unit;
         // they should be changed to angstroms at the end;
@@ -562,28 +471,28 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         set_sites_sitea[2].E(cartX[2]);
 
         // vn1 is a normalized vector pointing from o to h1;
-        v1.Ev1Mv2(cartX[1],cartX[0]);        
+        v1.Ev1Mv2(cartX[1], cartX[0]);
         double xnv1 = Math.sqrt(v1.squared());
         vn1.E(v1);
         vn1.normalize();
-        double xnv1_ang = xnv1*a0;        
+        double xnv1_ang = xnv1 * a0;
         // write(44,*) "xnv1_ang = ",xnv1_ang," aa";
         // vn2 is a normalized vector pointing from o to h2;
-        v2.Ev1Mv2(cartX[2],cartX[0]);        
+        v2.Ev1Mv2(cartX[2], cartX[0]);
         double xnv2 = Math.sqrt(v2.squared());
         vn2.E(v2);
         vn2.normalize();
         double xnv2_ang = xnv2*a0;
         // write(44,*) "xnv2_ang = ",xnv2_ang," aa";
         // components of the bisector (vb) vector (normalized):;
-        vb.Ev1Pv2(vn1,vn2);        
+        vb.Ev1Pv2(vn1, vn2);
         vb.normalize();
         // a normalized vector, perpendicular (vp) to the surface defined by ;
         // the v1 and v2 vectors (or vn1 and vn2);
         vp.E(v1);
         vp.XE(v2);
         vp.normalize();
-        
+
         // set bunny_ratio_a;
         double r0 = r0_ang/a0;
         double theta0 = theta0_deg/rad2d;
@@ -591,28 +500,28 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         double prodv1vb = v1.dot(vb);
         double prodv2vb = v2.dot(vb);
         double bunny_ratio_a = (0.5*(prodv1vb+prodv2vb))/(r0*cta);
-        // write(44,*) "bunny_ratio = ",bunny_ratio_a;       
-        
+        // write(44,*) "bunny_ratio = ",bunny_ratio_a;
+
         //--- bunny1 1 -- charged one;
         vd1a.Ea1Tv1(sig3,vp);
         vd1a.PEa1Tv1(sig2*bunny_ratio_a,vb);
         set_sites_sitea[3].Ev1Pv2(cartX[0],vd1a);
-        
+
         //--- bunny1 2 -- charged one;
         vd1b.Ea1Tv1(-sig3,vp);
         vd1b.PEa1Tv1(sig2*bunny_ratio_a,vb);
         set_sites_sitea[4].Ev1Pv2(cartX[0],vd1b);
-        
+
         //--- bunny2 1 -- exp-type one;
         vd2a.Ea1Tv1(sig5,vp);
         vd2a.PEa1Tv1(-sig4*bunny_ratio_a,vb);
         set_sites_sitea[5].Ev1Pv2(cartX[0],vd2a);
-        
+
         //--- bunny2 2 -- exp-type one;
         vd2b.Ea1Tv1(-sig5,vp);
         vd2b.PEa1Tv1(-sig4*bunny_ratio_a,vb);
         set_sites_sitea[6].Ev1Pv2(cartX[0],vd2b);
-        
+
         // calculate com position with robert''s masses;
         double xm16 = 15.994915;
         double xm1 = 1.007825;
@@ -621,13 +530,13 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         vsm.PEa1Tv1(xm1,cartX[1]);
         vsm.PEa1Tv1(xm1,cartX[2]);
         vsm.TE(1/sm);
-        
+
         // and then shift the position of the com-site to the position of com calculated;
         // with the approximated masses.;
         //--- com;
         set_sites_sitea[7].E(vsm);
         set_sites_sitea[7].PEa1Tv1(-shift,vb);
-        
+
         // sss = Math.sqrt(vsm[0]**2+vsm[1]**2+vsm[2]**2);
         // write(44,*) "|vsm| = ",sss;
         // transform to angstroms...;
@@ -660,8 +569,8 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         set_sites_itypea[6] = 4;
         set_sites_itypea[7] = 5;
     }
-    
-    public static IVectorMutable TTTprod(IVectorMutable Ri, IVectorMutable Rj, IVectorMutable u, double rij) {        
+
+    public static Vector TTTprod(Vector Ri, Vector Rj, Vector u, double rij) {
         //
         // Calculate the vector V resulting from the action
         // of the dipole propagator tensor T_ij on U
@@ -673,12 +582,12 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         double scal = tttprod.dot(u);
         tttprod.TE(3*scal*ddd);
         tttprod.ME(u);
-        tttprod.TE(rij);        
+        tttprod.TE(rij);
         return tttprod;
     }
-    
+
     public static double dipind(int iaa, int ibb, int[] itypea, int[] itypeb) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         //
         // A simple routine to calculate the dipole-dipole induction,
         // now in the flexible case
@@ -686,8 +595,8 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         //
 
         // dimension dma_unrot[3], dmb_unrot[3], dma[3], dmb[3], u[3];
-        IVectorMutable dma = space.makeVector(), dmb = space.makeVector(), u;
-        
+        Vector dma = space.makeVector(), dmb = space.makeVector(), u;
+
 
         // calculate static dipole moments of a and b in these orientations and;
         // lets place the polarizability on oxygen, just;
@@ -698,11 +607,11 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         double s1 = sa[iaa-1].getX(0);
         double s2 = sa[iaa-1].getX(1);
         double s3 = sa[iaa-1].getX(2);
-        
+
         // write(31,*) iaa,s1,s2,s3;
         double signa = 1.00;
         dma.E(0);
-                
+
         double polisa = 0.00;
 
         for (int ia=1; ia<=nsitea; ia++) {
@@ -714,15 +623,15 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
             qa += param[1][itypea[ia-1]-1]*s1;
             qa += param[2][itypea[ia-1]-1]*s2;
             qa += param[3][itypea[ia-1]-1]*s3;
-            qa += param[4][itypea[ia-1]-1]*s1*s2;            
+            qa += param[4][itypea[ia - 1] - 1] * s1 * s2;
             qa += param[5][itypea[ia-1]-1]*s2*s3;
             qa += param[6][itypea[ia-1]-1]*s1*s1;
             qa += param[7][itypea[ia-1]-1]*s2*s2;
             qa += param[8][itypea[ia-1]-1]*s3*s3;
             qa /= 18.222623730; //convert back to atomic units;
             // write(31,101);
-            // &iaa,ia,param[0][itypea[ia-1]-1]/18.222623730,qa;            
-            
+            // &iaa,ia,param[0][itypea[ia-1]-1]/18.222623730,qa;
+
             dma.PEa1Tv1(qa/a0,siteat[ia-1][iaa-1]);
             if (ia == 1) {//oxygen only;
                 polisa = param[9][itypea[ia-1]-1];
@@ -775,10 +684,10 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
             qb /= 18.222623730; //convert back to atomic units;
             // write(32,102);
             // &ibb,ib,param[0][itypeb[ib-1]-1]/18.222623730,qb;
-            
+
             dmb.PEa1Tv1(qb/a0,sitebt[ib-1][ibb-1]);
-            
-            
+
+
             if (ib == 1) { //oxygen only;
                 polisb = param[9][itypeb[ib-1]-1];
                 polisb += param[10][itypeb[ib-1]-1]*s4;
@@ -791,7 +700,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
                 polisb += param[17][itypeb[ib-1]-1]*s6*s6; //already in units of bohr^3/ang^n multiply by ang^n to get bohr^3
             }
         }
-        
+
         // write(32,202) ibb, (dmb_unrot[i],i = 1,3);
         // write(32,302) ibb, (dmb[i],i = 1,3);
         // write(32,*) 'ibb, polisb:', ibb, polisb;
@@ -802,12 +711,12 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         //;
         // calculate the distance between the os (pol centers);
         //;
-        
-        IVectorMutable pom = space.makeVector();
+
+        Vector pom = space.makeVector();
         pom.Ev1Mv2(sitebt[0][ibb-1],siteat[0][iaa-1]);
         double dlen = Math.sqrt(pom.squared());
 //        System.out.println("dlen = "+dlen);
-        
+
         //;
         // compute the damping factor for induction;
         //;
@@ -862,7 +771,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
     }
 
     public static int potparts_old(int iaa, int ibb, double rij, int ia, int ib, int[] itypea, int[] itypeb) {
-    
+
         //;
         // ***********************************************************;
         // GM-modified: more linear basis functions inc squares (but now with couplings;
@@ -926,7 +835,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         qa += param[6][itypea[ia-1]-1]*s1*s1;
         qa += param[7][itypea[ia-1]-1]*s2*s2;
         qa += param[8][itypea[ia-1]-1]*s3*s3;
-        
+
         qb += param[1][itypeb[ib-1]-1]*s4;
         qb += param[2][itypeb[ib-1]-1]*s5;
         qb += param[3][itypeb[ib-1]-1]*s6;
@@ -991,14 +900,14 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         c6 += parab[19][itypea[ia-1]-1][itypeb[ib-1]-1]*(s3*s6);
         c6 += parab[22][itypea[ia-1]-1][itypeb[ib-1]-1]*(s1*s4);
         c6 += parab[25][itypea[ia-1]-1][itypeb[ib-1]-1]*(s2*s5);
-        
-        c8 += parab[11][itypea[ia-1]-1][itypeb[ib-1]-1]*(s3+s6);        
+
+        c8 += parab[11][itypea[ia - 1] - 1][itypeb[ib - 1] - 1] * (s3 + s6);
         c8 += parab[14][itypea[ia-1]-1][itypeb[ib-1]-1]*(s1+s4);
         c8 += parab[17][itypea[ia-1]-1][itypeb[ib-1]-1]*(s2+s5);
         c8 += parab[20][itypea[ia-1]-1][itypeb[ib-1]-1]*(s3*s6);
         c8 += parab[23][itypea[ia-1]-1][itypeb[ib-1]-1]*(s1*s4);
         c8 += parab[26][itypea[ia-1]-1][itypeb[ib-1]-1]*(s2*s5);
-        
+
         c10 += parab[12][itypea[ia-1]-1][itypeb[ib-1]-1]*(s3+s6);
         c10 += parab[15][itypea[ia-1]-1][itypeb[ib-1]-1]*(s1+s4);
         c10 += parab[18][itypea[ia-1]-1][itypeb[ib-1]-1]*(s2+s5);
@@ -1013,15 +922,15 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
             c6as += parab[28][itypea[ia-1]-1][itypeb[ib-1]-1]*(s3-s6);
             c6as += parab[31][itypea[ia-1]-1][itypeb[ib-1]-1]*(s1-s4);
             c6as += parab[34][itypea[ia-1]-1][itypeb[ib-1]-1]*(s2-s5);
-            
+
             c8as += parab[29][itypea[ia-1]-1][itypeb[ib-1]-1]*(s3-s6);
             c8as += parab[32][itypea[ia-1]-1][itypeb[ib-1]-1]*(s1-s4);
             c8as += parab[35][itypea[ia-1]-1][itypeb[ib-1]-1]*(s2-s5);
-            
+
             c10as += parab[30][itypea[ia-1]-1][itypeb[ib-1]-1]*(s3-s6);
             c10as += parab[33][itypea[ia-1]-1][itypeb[ib-1]-1]*(s1-s4);
             c10as += parab[36][itypea[ia-1]-1][itypeb[ib-1]-1]*(s2-s5);
-        
+
             if (itypea[ia-1]>itypeb[ib-1]) {
                 c6as = -c6as;
                 c8as = -c8as;
@@ -1115,7 +1024,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
                 values[36] = (s3*s6)*val0;
                 values[37] = (s3*s6)*val1;
                 values[38] = (s3*s6)*val2;
-                values[39] = (s3*s6)*val3;            
+                values[39] = (s3 * s6) * val3;
                 // For uneqal types, add s-antisymmetric terms;
                 if (itypea[ia-1]<itypeb[ib-1]) {
                     values[40] = (s1-s4)*val0;
@@ -1242,7 +1151,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
                 values[36] = (s3*s6)*val0;
                 values[37] = (s3*s6)*val1;
                 values[38] = (s3*s6)*val2;
-                values[39] = (s3*s6)*val3;            
+                values[39] = (s3 * s6) * val3;
                 // For uneqal types, add s-antisymmetric terms;
                 if (itypea[ia-1]<itypeb[ib-1]) {
                     values[40] = (s1-s4)*val0;
@@ -1326,13 +1235,13 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
             numt=1;
             numtm[0] = 0;
             numtm[1] = 0;
-            values[numt-1] = d1*qa*qb/rij - d6*c6/rij6 - d8*c8/rij8 - d10*c10/rij10;            
+            values[numt - 1] = d1 * qa * qb / rij - d6 * c6 / rij6 - d8 * c8 / rij8 - d10 * c10 / rij10;
         }
         return numt;
     }
     
     public static int potparts(int iaa, int ibb, double rij, int ia, int ib, int[] itypea, int[] itypeb) {
-        
+
         //;
         // ***********************************************************;
         // GM-modified: more linear basis functions inc squares (but now with couplings;
@@ -1396,7 +1305,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         qa += param[6][itypea[ia-1]-1]*s1*s1;
         qa += param[7][itypea[ia-1]-1]*s2*s2;
         qa += param[8][itypea[ia-1]-1]*s3*s3;
-        
+
         qb += param[1][itypeb[ib-1]-1]*s4;
         qb += param[2][itypeb[ib-1]-1]*s5;
         qb += param[3][itypeb[ib-1]-1]*s6;
@@ -1461,14 +1370,14 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         c6 += parab[19][itypea[ia-1]-1][itypeb[ib-1]-1]*(s3*s6);
         c6 += parab[22][itypea[ia-1]-1][itypeb[ib-1]-1]*(s1*s4);
         c6 += parab[25][itypea[ia-1]-1][itypeb[ib-1]-1]*(s2*s5);
-        
-        c8 += parab[11][itypea[ia-1]-1][itypeb[ib-1]-1]*(s3+s6);        
+
+        c8 += parab[11][itypea[ia - 1] - 1][itypeb[ib - 1] - 1] * (s3 + s6);
         c8 += parab[14][itypea[ia-1]-1][itypeb[ib-1]-1]*(s1+s4);
         c8 += parab[17][itypea[ia-1]-1][itypeb[ib-1]-1]*(s2+s5);
         c8 += parab[20][itypea[ia-1]-1][itypeb[ib-1]-1]*(s3*s6);
         c8 += parab[23][itypea[ia-1]-1][itypeb[ib-1]-1]*(s1*s4);
         c8 += parab[26][itypea[ia-1]-1][itypeb[ib-1]-1]*(s2*s5);
-        
+
         c10 += parab[12][itypea[ia-1]-1][itypeb[ib-1]-1]*(s3+s6);
         c10 += parab[15][itypea[ia-1]-1][itypeb[ib-1]-1]*(s1+s4);
         c10 += parab[18][itypea[ia-1]-1][itypeb[ib-1]-1]*(s2+s5);
@@ -1483,15 +1392,15 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
             c6as += parab[28][itypea[ia-1]-1][itypeb[ib-1]-1]*(s3-s6);
             c6as += parab[31][itypea[ia-1]-1][itypeb[ib-1]-1]*(s1-s4);
             c6as += parab[34][itypea[ia-1]-1][itypeb[ib-1]-1]*(s2-s5);
-            
+
             c8as += parab[29][itypea[ia-1]-1][itypeb[ib-1]-1]*(s3-s6);
             c8as += parab[32][itypea[ia-1]-1][itypeb[ib-1]-1]*(s1-s4);
             c8as += parab[35][itypea[ia-1]-1][itypeb[ib-1]-1]*(s2-s5);
-            
+
             c10as += parab[30][itypea[ia-1]-1][itypeb[ib-1]-1]*(s3-s6);
             c10as += parab[33][itypea[ia-1]-1][itypeb[ib-1]-1]*(s1-s4);
             c10as += parab[36][itypea[ia-1]-1][itypeb[ib-1]-1]*(s2-s5);
-        
+
             if (itypea[ia-1]>itypeb[ib-1]) {
                 c6as = -c6as;
                 c8as = -c8as;
@@ -1632,8 +1541,8 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
                     values[45] =-(s2-s5)*val1;
                     values[46] =-(s2-s5)*val2;
                     values[47] =-(s2-s5)*val3;
-                    
-                    values[48] =-(s3-s6)*val0;                    
+
+                    values[48] = -(s3 - s6) * val0;
                     values[49] =-(s3-s6)*val1;
                     values[50] =-(s3-s6)*val2;
                     values[51] =-(s3-s6)*val3;
@@ -1734,7 +1643,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
                     values[53] = (s1*s2-s4*s5)*val1;
                     values[54] = (s1*s2-s4*s5)*val2; //x;
                     values[55] = (s1*s2-s4*s5)*val3; //x;
-                    
+
                     values[56] = (s2*s3-s5*s6)*val0;
                     values[57] = (s2*s3-s5*s6)*val1;
                     values[58] = (s2*s3-s5*s6)*val2;
@@ -1799,29 +1708,29 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         }
         return numt;
     }
-    
-    public static double poten() {        
-        
+
+    public static double poten() {
+
      // carta and cartb in bohrs from this point forward
-        
+
         int numt = 0;
         int iaa = 1;
         int ibb = 1;
         set_sites(cartA);
-        IVectorMutable[] sitex = set_sites_sitea;
-        IVectorMutable sx = set_sites_sa;
+        Vector[] sitex = set_sites_sitea;
+        Vector sx = set_sites_sa;
 
         int[] itypea = set_sites_itypea;
-        sa[iaa-1].E(sx);        
+        sa[iaa - 1].E(sx);
         for (int ia=1; ia<=nsitea; ia++) {
-            siteat[ia-1][iaa-1].E(sitex[ia-1]);            
-        }        
-        
+            siteat[ia - 1][iaa - 1].E(sitex[ia - 1]);
+        }
+
         set_sites(cartB);
         sitex = set_sites_sitea;
         sx = set_sites_sa;
         int[] itypeb = set_sites_itypea;
-        sb[ibb-1].E(sx);        
+        sb[ibb - 1].E(sx);
         for (int ib=1; ib<=nsiteb; ib++) {
             sitebt[ib-1][ibb-1].E(sitex[ib-1]);
         }
@@ -1845,7 +1754,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
             for (int ib=1; ib<=nsiteb; ib++) {
                 double valp = 0.0;
                 // Compute the distance between the two sites;
-                //;        
+                //;
                 double rij = Math.sqrt(siteat[ia-1][iaa-1].Mv1Squared(sitebt[ib-1][ibb-1]));
                 if (rij < rHSCore) return Double.POSITIVE_INFINITY;
 //                if (rij > 2.0 && rij < 2.5) System.out.println(rij);
@@ -1871,7 +1780,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
                 //;
                 // If abs(ntpot)>10, the last values is the fixed part.;
                 //;
-                                                
+
                 valp += values[numt-1];
 //                System.out.println("valp at beginning: "+valp);
 //                System.out.println(values[numt-1]+" "+valp);
@@ -1917,12 +1826,12 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
             }
         }
 //        System.out.println(val);
-        
+
 
         //;
         // Dont forget to add asymptotics when the fitting part tested...;
         //;
-        double fcind = 0;//dipind(iaa, ibb, itypea, itypeb);        
+        double fcind = 0;//dipind(iaa, ibb, itypea, itypeb);
         val += fcind;
 //        val = fcind;
 //        System.out.println(fcind);
@@ -1943,17 +1852,17 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         return val;
     }
     
-    public static double align_on_z_axis(IVectorMutable[] carta, IVectorMutable[] cartb) {
-        ISpace space = Space3D.getInstance();
+    public static double align_on_z_axis(Vector[] carta, Vector[] cartb) {
+        Space space = Space3D.getInstance();
         double thr = 1E-09;
-        IVectorMutable coma = space.makeVector();
-        IVectorMutable comb = space.makeVector();
-        IVectorMutable[] xyza = space.makeVectorArray(3);
-        IVectorMutable[] xyzb = space.makeVectorArray(3);
-        IVectorMutable[] xyzaa = space.makeVectorArray(3);
-        IVectorMutable[] xyzbb = space.makeVectorArray(3);
-        IVectorMutable[] xyzaaa = space.makeVectorArray(3);
-        IVectorMutable[] xyzbbb = space.makeVectorArray(3);
+        Vector coma = space.makeVector();
+        Vector comb = space.makeVector();
+        Vector[] xyza = space.makeVectorArray(3);
+        Vector[] xyzb = space.makeVectorArray(3);
+        Vector[] xyzaa = space.makeVectorArray(3);
+        Vector[] xyzbb = space.makeVectorArray(3);
+        Vector[] xyzaaa = space.makeVectorArray(3);
+        Vector[] xyzbbb = space.makeVectorArray(3);
         for (int i=0; i<carta.length; i++) {
             if (carta.length != cartb.length || carta.length != 3) throw new RuntimeException("Mismatching vector lengths!!!");
             xyza[i].E(carta[i]);
@@ -1968,7 +1877,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         comb.PEa1Tv1(mH,cartb[1]);
         comb.PEa1Tv1(mH,cartb[2]);
         comb.TE(1/mH2O);
-        // shift the whole system in such a way that comA coincides with the origin of the 
+        // shift the whole system in such a way that comA coincides with the origin of the
         // system of coordinates
 
         for (int i=0; i<3; i++) {
@@ -1988,7 +1897,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         if (ss < thr) {
             //        write(66,*) "    both center of masses are on the Z axis, ss=",ss
             // "Konrad problem"
-            // Even if both are on the Z axis, take care about position of comB with respect to comA: 
+            // Even if both are on the Z axis, take care about position of comB with respect to comA:
             // the value of the z-coordinate of B should be larger than of A (means 0 in our case)
             // Make an inversion when needed
             if (comb.getX(2) < 0) {
@@ -2026,21 +1935,21 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
            s1[1] = -comb.getX(1)/ss;
            s1[2] = 0.0;
            // let's express the positions of atoms in the new basis:
-           for (int i=0; i<3; i++) {               
+            for (int i = 0; i < 3; i++) {
                xyzaa[i].setX(0,xyza[i].getX(0)*s[0]+xyza[i].getX(1)*s[1]);
                xyzaa[i].setX(1,xyza[i].getX(0)*s1[0]+xyza[i].getX(1)*s1[1]);
                xyzaa[i].setX(2,xyza[i].getX(2));
-               
+
                xyzbb[i].setX(0,xyzb[i].getX(0)*s[0]+xyzb[i].getX(1)*s[1]);
                xyzbb[i].setX(1,xyzb[i].getX(0)*s1[0]+xyzb[i].getX(1)*s1[1]);
                xyzbb[i].setX(2,xyzb[i].getX(2));
            }
            // rotate everything:
-           for (int i=0; i<3; i++) {               
+            for (int i = 0; i < 3; i++) {
                xyzaaa[i].setX(0,xyzaa[i].getX(0));
                xyzaaa[i].setX(1,xyzaa[i].getX(1)*ccos+xyzaa[i].getX(2)*ssin);
                xyzaaa[i].setX(2,-xyzaa[i].getX(1)*ssin+xyzaa[i].getX(2)*ccos);
-               
+
                xyzbbb[i].setX(0,xyzbb[i].getX(0));
                xyzbbb[i].setX(1,xyzbb[i].getX(1)*ccos+xyzbb[i].getX(2)*ssin);
                xyzbbb[i].setX(2,-xyzbb[i].getX(1)*ssin+xyzbb[i].getX(2)*ccos);
@@ -2057,291 +1966,31 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
 //        }
 //        System.exit(1);
     }
-    
-    public void radau_f1_tst(IVectorMutable[] rPos) {
-        //;
-        // I assume that the molecule is already shifted to fit COM to (0,0,0) ;
-        // ;        
-        IVectorMutable q1 = space.makeVector(),q2 = space.makeVector(),bv = space.makeVector();
-        IVectorMutable br0 = space.makeVector();
-        IVectorMutable pom1 = space.makeVector(),pom2 = space.makeVector();
-        IVectorMutable temp1 = space.makeVector(),temp2 = space.makeVector();
-        //      data xmO /15.994915d0/, xmH /1.007825d0/;
-        
-//        double xq1e=0.951118220;
-//        double xq2e=0.951118220;
-//        double theta_r_e_deg=107.9526120;
-//        double theta_r_e=1.884128510;
-//
-//        double deg2rad=Math.acos(-1.0)/180.0;
 
-        // data given above and hard-coded as xq1e, xq2e, and theta_r_e;
-
-
-        double xm12=2*mH;
-        
-        double alpha=Math.sqrt(mO/mH2O);               // Eq. (26)    can be precalculated;
-        double b=(alpha-alpha*alpha)*mH2O/xm12;     // Eq. (27);
-
-        // move the COM of the molecule to the origin of the coordinate system;
-        br0.Ea1Tv1(b,rPos[0]);
-        q1.Ev1Mv2(rPos[1],br0);
-        q2.Ev1Mv2(rPos[2],br0);
-
-        // calculate length of q1 and q2 vectors, and the angle between them;
-//        double xq1=Math.sqrt(q1.squared());
-//        double xq2=Math.sqrt(q2.squared());
-//        double theta_r=Math.acos(q1.dot(q2));
-
-        pom1.E(q1);
-        pom2.E(q2);
-        bv.Ev1Pv2(pom1,pom2);
-        bv.normalize();
-        bisectorVec[0].E(bv);
-
-
-        // I need also a vector which is perpendicular to vecI and lies in the plane;
-        // of the molecule.;
-        // I can obtain it from the following expression:;
-        // temp2=norm[q2-(vecI*q2) vecI]     (q2 or q1 - does not matter);
-        temp1.E(q2);
-        temp2.Ea1Tv1(bisectorVec[0].dot(q2),bisectorVec[0]);
-        temp1.ME(temp2);
-        temp1.normalize();
-        bisectorVec[1].E(temp1);
-        bisectorVec[1].TE(-1);        
-    }
-    
-    public void eck_rad_tst(IVectorMutable[] rPos) {
-        //;
-        // I assume that the molecule is already shifted to fit COM to (0,0,0) ;
-        // ;
-
-        IVectorMutable q1 = space.makeVector(),q2 = space.makeVector(),bv = space.makeVector();
-        IVectorMutable br0 = space.makeVector();
-        IVectorMutable pom1 = space.makeVector(),pom2 = space.makeVector();
-        IVectorMutable temp1 = space.makeVector(),temp2 = space.makeVector();
-        //      data xmO /15.994915d0/, xmH /1.007825d0/;
-       
-        double xq1e=0.951118220;
-        double xq2e=0.951118220;
-//        double theta_r_e_deg=107.9526120;
-        double theta_r_e=1.884128510;
-
-//        double deg2rad=Math.acos(-1.0)/180.0;
-
-        // To perform the Eckart embedding we need info about the Radau coordinates of ;
-        // the molecule in its equilibrium geometry. It was precalculated with the ;
-        // data given above and hard-coded as xq1e, xq2e, and theta_r_e;
-
-        double xm12=2*mH;        
-        double alpha=Math.sqrt(mO/mH2O);               // Eq. (26)    can be precalculated;
-        double b=(alpha-alpha*alpha)*mH2O/xm12;     // Eq. (27);
-
-        // move the COM of the molecule to the origin of the coordinate system;
-        br0.Ea1Tv1(b,rPos[0]);
-        q1.Ev1Mv2(rPos[1],br0);
-        q2.Ev1Mv2(rPos[2],br0);
-
-        // calculate length of q1 and q2 vectors, and the angle between them;
-        double xq1=Math.sqrt(q1.squared());
-        double xq2=Math.sqrt(q2.squared());
-        double theta_r=Math.acos(q1.dot(q2)/(xq1*xq2));
-
-        pom1.E(q1);
-        pom2.E(q2);
-        bv.Ev1Pv2(pom1,pom2);
-        bv.normalize();
-
-        // formula (33) from Wei & Carrington, JCP 107, 2813 (1997);
-        // masses are the same and can be skipped, in fact xq1e and xq2e could be also;
-        double eta_e=0.50*theta_r_e;
-        double ang=theta_r-theta_r_e+eta_e;
-        double sss=(xq2e*xq2*Math.sin(ang) + xq1e*xq1*Math.sin(eta_e))/(xq2e*xq2*Math.cos(ang) + xq1e*xq1*Math.cos(eta_e));
-        double eta=Math.atan(sss);
-        // To obtain the I vector which bisects the angle made by q1e and q2e I do not;
-        // need an explicit information about these vectors, but I can get it by the;
-        // rotation  of the q1 vector in direction of q2 by the angle equal to eta.;
-        // Temporary axes temp1=norm(q1) and temp2=norm[q2-((q1*q2)/(q1*q1)) q1];
-        //                                or temp2=norm[q2-(temp1*q2) temp1];
-
-        temp1.E(q1);
-        temp1.normalize();
-        temp2.E(q2);
-        temp2.PEa1Tv1(-temp1.dot(q2),temp1);
-        temp2.normalize();
-
-        // s1=0.0d0;
-        // s2=0.0d0;
-        // s3=0.0d0;
-        // for (int j=1; j<=3; j++) {
-        //     s1=s1+temp1(j)*temp1(j);
-        //     s2=s2+temp2(j)*temp2(j);
-        //     s3=s3+temp1(j)*temp2(j);
-        // }
-        //        write(67,'(a,3f12.6)') "s1, s2, s3:", s1, s2, s3;
-        //        write(67,*);
-        // vecI=cos(eta)*temp1 + sin(eta)*temp2;
-        bisectorVec[0].Ea1Tv1(Math.cos(eta),temp1);
-        bisectorVec[0].PEa1Tv1(Math.sin(eta),temp2);
-        bisectorVec[1].Ea1Tv1(-Math.sin(eta),temp1);
-        bisectorVec[1].PEa1Tv1(Math.cos(eta),temp2);        
-    }
-    
-    public void put_rigid () {
-        // The rigid (reference) molecule is embedded into the plane defined by the original;
-        // (distorted) molecule and by the axis I related to the embedding method. The bisection;
-        // vector of the rigid molecule is put along the I vector and COM of the rigid molecule;
-        // is put at the position of COM of the distorted one.;
-        //;
-        // Information about two normalized vectors is passed to the procedure.;
-        // vi1 - the bisection vector of the reference water is put in this direction;
-        // vi2 - it is perpendicular to vi1 and lies in the plane of the molecule;
-        //;
-        IVectorMutable vshift = space.makeVector();
-        double ds=0.791703581105605350;
-        double dc=0.610905426121392430;
-        double rOHref=0.971625700277173540;
-        double com_shift=0.66429466101803E-01;        
-
-        // Initially O is put in the origin, but next the whole rigid molecule should be shifted;
-        // to put its COM in the origin. This shift is in the vi1 direction by com_shift.;
-        posVec[0].E(0);
-        posVec[1].Ea1Tv1(dc,bisectorVec[0]);
-        posVec[1].PEa1Tv1(ds,bisectorVec[1]);
-        posVec[2].Ea1Tv1(dc,bisectorVec[0]);
-        posVec[2].PEa1Tv1(-ds,bisectorVec[1]);
-        vshift.Ea1Tv1(-com_shift,bisectorVec[0]);
-        posVec[1].TE(rOHref);
-        posVec[2].TE(rOHref);
-        posVec[1].PE(vshift);
-        posVec[2].PE(vshift);
-        posVec[0].PE(vshift);        
-    }    
-    
-    public static void setBondLengths(double[] blAngstroms) {
-        if (blAngstroms.length != bl.length) throw new RuntimeException("Sizes are different");
-        bl = blAngstroms;
-    }
-    
-    public double [] getBondLengths() {
-        return bl;
-    }
-    
-    public static void setAngles(double[] angleRadians) {
-        if (angleRadians.length != angles.length) throw new RuntimeException("Sizes are different");
-        angles = angleRadians;
-    }
-    
-    public double[] getAngles() {
-        return angles;
-    }
-    
-    public double getEnergy(IVectorMutable[] carta, IVectorMutable[] cartb) {
-        double rCom = align_on_z_axis(carta,cartb);
-//        System.out.println("dummy rCom = "+rCom);
-        IVectorMutable[] cartaa = space.makeVectorArray(3);
-        IVectorMutable[] cartbb = space.makeVectorArray(3);
-        // make embedding for molecule A
-        if (iEmbed == 1) {
-            eck_rad_tst(carta);
-        }
-        else {
-            radau_f1_tst(carta);
-        }
-        put_rigid();
-        if (icc == 1) {
-            for (int i=0; i<3; i++) {
-                cartaa[i].E(posVec[i]);
-            }
-        }
-        // make embedding for molecule B
-        for (int i=0; i<3; i++) {
-            cartb[i].setX(2,cartb[i].getX(2)-rCom);
-        }
-        if (iEmbed == 1) {
-            eck_rad_tst(cartb);
-        }
-        else {
-            radau_f1_tst(cartb);
-        }
-        for (int i=0; i<3; i++) {
-            cartb[i].setX(2,cartb[i].getX(2)+rCom);
-        }
-        put_rigid();
-        if (icc == 1) {
-            for (int i=0; i<3; i++) {
-                cartbb[i].E(posVec[i]);
-                cartbb[i].setX(2,cartbb[i].getX(2)+rCom);
-            }
-        }
-        
-//        System.out.println("From ccpol_xyz");
-//        for (int i=0; i<3; i++) {
-//            System.out.println(alignedV1[i]);
-//        }
-//        System.out.println();
-//        System.exit(1);
-        // carta and cartb in angstroms
-        for (int i=0; i<carta.length; i++) {
-            if (carta.length != cartb.length || carta.length != 3) throw new RuntimeException("Mismatching vector lengths!!!");            
-            carta[i].Ea1Tv1(1/a0,alignedV1[i]);
-            cartb[i].Ea1Tv1(1/a0,alignedV2[i]);
-            if (icc == 1) {
-                cartaa[i].TE(1/a0);
-                cartbb[i].TE(1/a0);
-            }
-        }
-        double eTot = 0;//poten(carta,cartb);
-        
-        if (iMonomer == 1) {
-            IVectorMutable oh1 = space.makeVector();
-            oh1.Ev1Mv2(carta[1],carta[0]);
-            double rA1 = Math.sqrt(oh1.squared());
-            IVectorMutable oh2 = space.makeVector();
-            oh2.Ev1Mv2(carta[2],carta[0]);
-            double rA2 = Math.sqrt(oh2.squared());
-            double thA = Math.acos(oh1.dot(oh2)/(rA1*rA2));
-            rA1 /= a0;
-            rA2 /= a0;
-            eTot += pots(rA1,rA2,thA);
-            
-            oh1.Ev1Mv2(cartb[1],cartb[0]);
-            double rB1 = Math.sqrt(oh1.squared());            
-            oh2.Ev1Mv2(cartb[2],cartb[0]);
-            double rB2 = Math.sqrt(oh2.squared());
-            double thB = Math.acos(oh1.dot(oh2)/(rB1*rB2));
-            rB1 /= a0;
-            rB2 /= a0;
-            eTot += pots(rB1,rB2,thB);
-        }
-        return eTot;        
-    }
-    
-    public static IAtomList posVecToAtoms(IVectorMutable[] a1, IVectorMutable[] b1) {
+    public static IAtomList posVecToAtoms(Vector[] a1, Vector[] b1) {
         // Returns atoms whose orientation vectors' order corresponds to the order used in
         // P2WaterSzalewicz.java
-        ISpace space = Space3D.getInstance();
-        final IVectorMutable comA = space.makeVector();
-        final IVectorMutable comB = space.makeVector();
+        Space space = Space3D.getInstance();
+        final Vector comA = space.makeVector();
+        final Vector comB = space.makeVector();
         final IOrientationFull3D orA = (IOrientationFull3D)space.makeOrientation();
         final IOrientationFull3D orB = (IOrientationFull3D)space.makeOrientation();
-        IVectorMutable q1 = space.makeVector();
-        IVectorMutable q2 = space.makeVector();
-        IVectorMutable q3 = space.makeVector();
+        Vector q1 = space.makeVector();
+        Vector q2 = space.makeVector();
+        Vector q3 = space.makeVector();
         comA.Ea1Tv1(mO,a1[0]);
         comA.PEa1Tv1(mH,a1[1]);
         comA.PEa1Tv1(mH,a1[2]);
         comA.TE(1/mH2O);
-        
-        q1.Ev1Mv2(a1[0],comA);            
+
+        q1.Ev1Mv2(a1[0], comA);
         q1.normalize();
-        q2.Ev1Mv2(a1[1],comA);        
+        q2.Ev1Mv2(a1[1], comA);
         q2.normalize();
         q3.Ev1Mv2(a1[2],comA);
         q3.E(q2);
         q3.PEa1Tv1(-q1.dot(q2),q1);
-        q3.normalize();        
+        q3.normalize();
         orA.setDirections(q1,q3);
         if (flag) { // set this flag to false to make the method return atoms suitable for use in this class
             q2.Ea1Tv1(-1.0,q3);
@@ -2350,7 +1999,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
             q2.TE(-1);
             orA.setDirections(q3,q2);
         }
-        
+
         final IAtomOriented atom0 = new IAtomOriented() {
 
             public void setParent(IMolecule newParent) {
@@ -2359,44 +2008,44 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
             public void setLeafIndex(int newGlobalIndex) {
             }
 
-            public void setIndex(int index) {                    
+            public void setIndex(int index) {
             }
-            
-            public IAtomType getType() {
+
+            public AtomType getType() {
                 return null;
             }
-            
-            public IVectorMutable getPosition() {
+
+            public Vector getPosition() {
                 return comA;
             }
 
             public IMolecule getParentGroup() {
                 return null;
             }
-            
+
             public int getLeafIndex() {
                 return 0;
             }
-            
+
             public int getIndex() {
                 return 0;
             }
-            
+
             public IOrientation getOrientation() {
                 return orA;
             }
         };
-        
+
         comB.Ea1Tv1(mO,b1[0]);
         comB.PEa1Tv1(mH,b1[1]);
         comB.PEa1Tv1(mH,b1[2]);
-        comB.TE(1/mH2O);        
-        
+        comB.TE(1 / mH2O);
+
         q1.Ev1Mv2(b1[0],comB);
         q1.normalize();
-        q2.Ev1Mv2(b1[1],comB);        
+        q2.Ev1Mv2(b1[1], comB);
         q2.normalize();
-        q3.Ev1Mv2(b1[2],comB);        
+        q3.Ev1Mv2(b1[2], comB);
         q3.E(q2);
         q3.PEa1Tv1(-q1.dot(q2),q1);
         q3.normalize();
@@ -2405,7 +2054,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
             q3.TE(-1);
         }
         orB.setDirections(q1,q3);
-        
+
         if (flag) { // see comment above
             q2.Ea1Tv1(-1.0,q3);
             q2.XE(q1);
@@ -2413,40 +2062,37 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
             q2.TE(-1);
             orB.setDirections(q3,q2);
         }
-        
+
         if (comHack) {
             int[] seeds = new int[] {1300602402,1236700976,-450785077,-1529402919};
             IRandom random = new RandomMersenneTwister(seeds);
-            IVectorRandom rV1 = (IVectorRandom)space.makeVector();            
+            Vector rV1 = space.makeVector();
             rV1.setRandomSphere(random);
             comB.PEa1Tv1(comHackDist,rV1);
-        }        
+        }
 
-        final IAtomOriented atom1 = new IAtomOriented() {                
+        final IAtomOriented atom1 = new IAtomOriented() {
 
-            public void setParent(IMolecule newParent) {                    
+            public void setParent(IMolecule newParent) {
             }
-            
-            public void setLeafIndex(int newGlobalIndex) {                    
-            }            
 
-            public void setIndex(int index) {                    
-            }
-            
-            public IAtomType getType() {
+            public AtomType getType() {
                 return null;
             }
-            
-            public IVectorMutable getPosition() {
+
+            public Vector getPosition() {
                 return comB;
             }
-            
+
             public IMolecule getParentGroup() {
                 return null;
             }
-            
+
             public int getLeafIndex() {
                 return 1;
+            }
+
+            public void setLeafIndex(int newGlobalIndex) {
             }
 
             public int getIndex() {
@@ -2454,16 +2100,19 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
                 return 1;
             }
 
+            public void setIndex(int index) {
+            }
+
             public IOrientation getOrientation() {
                 return orB;
             }
         };
-        
+
         IAtomList atoms = new IAtomList() {
-            
+
             public int getAtomCount() {
                 return 2;
-            }                
+            }
 
             public IAtom getAtom(int i) {
                 if (i == 0) return atom0;
@@ -2474,19 +2123,19 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
     }
     
     public static void atomToPosVec(IAtom atomi) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         if (bl == null || angles == null) throw new RuntimeException("Bond lengths or bond angles haven't been set");
         int ind = atomi.getIndex();
         double cth0 = Math.cos(angles[ind]);
         double sth0 = Math.sin(angles[ind]);
-        
-//        System.out.println();        
-        IVectorMutable com = space.makeVector();
-        IVectorMutable[] v = space.makeVectorArray(2);
-        
+
+//        System.out.println();
+        Vector com = space.makeVector();
+        Vector[] v = space.makeVectorArray(2);
+
         IAtomOriented atom0 = (IAtomOriented) atomi;
         com.E(atom0.getPosition());
-        OrientationFull3D ori = (OrientationFull3D)atom0.getOrientation();        
+        OrientationFull3D ori = (OrientationFull3D) atom0.getOrientation();
         v[0].E(ori.getDirection());
         v[1].E(ori.getSecondaryDirection());
         double dr = -Math.sqrt(bl[2*ind]*bl[2*ind] + bl[2*ind+1]*bl[2*ind+1] + 2*bl[2*ind]*bl[2*ind+1]*cth0);
@@ -2499,17 +2148,17 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
 //        System.out.println(h2zA);
         posVec[1].Ea1Tv1(h1zA, v[0]);
         posVec[2].Ea1Tv1(h2zA, v[0]);
-        
+
         posVec[1].PEa1Tv1(hxA,v[1]);
         posVec[2].PEa1Tv1(-hxA,v[1]);
         for (int i=0; i<3; i++) {
             posVec[i].PE(com);
-        }        
+        }
     }
     
     public static void processAtoms (IAtomList atomL) {
-        ISpace space = Space3D.getInstance();
-        IVectorMutable[] carta = space.makeVectorArray(3), cartb = space.makeVectorArray(3);
+        Space space = Space3D.getInstance();
+        Vector[] carta = space.makeVectorArray(3), cartb = space.makeVectorArray(3);
         atomToPosVec(atomL.getAtom(0));
         for (int i=0; i<3; i++) {
             carta[i].E(posVec[i]);
@@ -2519,16 +2168,16 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         for (int i=0; i<3; i++) {
             cartb[i].E(posVec[i]);
         }
-        
+
         align_on_z_axis(carta,cartb);
-        
+
         for (int i=0; i<3; i++) {
             carta[i].Ea1Tv1(1/a0,alignedV1[i]);
             cartb[i].Ea1Tv1(1/a0,alignedV2[i]);
 //            System.out.println(alignedV1[i]+" "+alignedV2[i]);
-        }        
+        }
         cartA = carta;
-        cartB = cartb;        
+        cartB = cartb;
     }
     
     public static void main(String[] args) {
@@ -2537,7 +2186,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         double [] b2CLErrInput = new double [] {4.1888e+03, 1.7516e+03, 8.2494e+02, 4.2482e+02, 2.3830e+02, 1.3226e+02, 5.1014e+01, 2.5958e+01, 1.3011e+01, 8.0436e+00, 4.5994e+00, 2.9268e+00, 2.0378e+00, 1.4761e+00, 1.0693e+00, 8.6528e-01, 6.0054e-01, 4.4386e-01, 3.7362e-01, 2.9988e-01, 2.6020e-01, 2.2802e-01, 1.9877e-01, 1.7375e-01, 1.5851e-01, 1.5057e-01, 1.2802e-01, 1.0446e-01, 8.9230e-02, 7.8196e-02, 6.6916e-02, 6.0282e-02};
         double [] b2SCInput = new double [] {-1.5816195332e+05, -8.1843505451e+04, -4.6204989134e+04, -2.7563235505e+04, -1.7607418930e+04, -1.1790769701e+04, -5.9077126437e+03, -3.3733920147e+03, -2.1236931947e+03, -1.4374980535e+03, -1.0304382481e+03, -7.6904607382e+02, -5.9935989014e+02, -4.7720418692e+02, -3.9101687533e+02, -3.2611879033e+02, -2.3647357584e+02, -1.7927100657e+02, -1.4054987406e+02, -1.1303137390e+02, -9.2375446293e+01, -7.6619647130e+01, -6.4110869082e+01, -5.4072512552e+01, -4.5774084313e+01, -3.9045698261e+01, -2.6404600659e+01, -1.7656262842e+01, -6.6004470687e+00, -7.3095101048e-02, 4.1705936075e+00, 9.0719201561e+00};
         double [] b2SCErrInput = new double [] {1.2702e+03, 6.0298e+02, 3.1136e+02, 1.8125e+02, 1.1197e+02, 6.7848e+01, 3.1174e+01, 1.4852e+01, 8.6712e+00, 4.6524e+00, 3.2930e+00, 2.1916e+00, 1.6467e+00, 1.1311e+00, 8.7360e-01, 6.9854e-01, 5.3164e-01, 3.9800e-01, 3.3616e-01, 2.8184e-01, 2.5136e-01, 2.1084e-01, 1.9008e-01, 1.7553e-01, 1.5297e-01, 1.5248e-01, 1.2166e-01, 1.0552e-01, 8.8202e-02, 7.4540e-02, 6.6922e-02, 5.9188e-02};
-       
+
         AkimaSpline a = new AkimaSpline();
         double [] tOutput = new double [] {273.15, 293.15, 295.15, 298.15, 323.15, 373.15, 423.15, 448.15, 473.15, 523.15, 573.15, 673.15, 773.15, 873.15, 973.15, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1800, 2000, 2500, 3000};
         a.setInputData(tInput,b2CLInput);
@@ -2555,7 +2204,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         for (int i=0; i<tOutput.length; i++) {
             System.out.println(tOutput[i]+" "+yOut[i]+" "+yOutErr[i]);
         }
-//        ISpace space = Space3D.getInstance();        
+//        ISpace space = Space3D.getInstance();
 //        IVectorMutable[] carta = space.makeVectorArray(3), cartb = space.makeVectorArray(3);
 //        for (int i=1; i<=1; i++) {
 //            // Configuration 1
@@ -2565,7 +2214,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
 //            cartb[0].E(new double[] {-1.2432320000E+00,-2.4577440000E+00,-0.9531060000E+00});
 //            cartb[1].E(new double[] {-1.9878020000E+00,-2.2562350000E+00,-1.5239170000E+00});
 //            cartb[2].E(new double[] {-0.8989400000E+00,-1.6006000000E+00,-0.6891600000E+00});
-            
+
 //            carta[0].E(new double [] {5.1936168638e-02, 3.5100733409e-02, -1.0876226919e-01});
 //            carta[1].E(new double[] {6.0045683526e-01, 4.7085469932e-01, 1.5884501631e+00});
 //            carta[2].E(new double[] {-1.4247215208e+00, -1.0279288106e+00, 1.3768597602e-01});
@@ -2574,7 +2223,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
 //            cartb[2].E(new double[] {4.8637572635e-01, -2.1582461875e+00, -3.7232231709e-01});
 //            P2WaterPotentialsJankowski p1 = new P2WaterPotentialsJankowski(space,i,0,1);
 //            double u1 = 373151.4724295495;
-            
+
 //            IVectorMutable x1 = space.makeVector();
 //            IVectorMutable y1 = space.makeVector();
 //            IVectorMutable x2 = space.makeVector();
@@ -2590,7 +2239,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
 //            y2.normalize();
 //            double [] angle = new double [] {Math.acos(x1.dot(y1)),Math.acos(x2.dot(y2))};
 //            setBondLengths(bl);
-//            setAngles(angle);            
+//            setAngles(angle);
 //            flag = false;
 //            comHack = true;
 //            comHackDist = 30.00;
@@ -2607,7 +2256,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
 //                double u2 = p1.energy(posVecToAtoms(carta,cartb));
 //                flip = false;
 //                System.out.println(comHackDist+" "+(u1+u2));
-//                comHackDist *= Math.pow(2,0.2); 
+//                comHackDist *= Math.pow(2,0.2);
 //            }
 //            flag = true;
 ////            System.out.println(i+" "+u);
@@ -2631,7 +2280,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
 //            cartb[0].E(Ob);
 //            cartb[1].E(Hb1);
 //            cartb[2].E(Hb2);
-//            
+//
 //            com.Ea1Tv1(mO,carta[0]);
 //            com.PEa1Tv1(mH,carta[1]);
 //            com.PEa1Tv1(mH,carta[2]);
@@ -2641,8 +2290,8 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
 //            q2.Ev1Mv2(carta[1],carta[2]);
 //            q2.normalize();
 //            or.setDirections(q1,q2);
-//            
-//            
+//
+//
 //            com.Ea1Tv1(mO,cartb[0]);
 //            com.PEa1Tv1(mH,cartb[1]);
 //            com.PEa1Tv1(mH,cartb[2]);
@@ -2652,13 +2301,13 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
 //            q2.Ev1Mv2(cartb[1],cartb[2]);
 //            q2.normalize();
 //            or.setDirections(q1,q2);
-//            
+//
 //
 //            double u = p1.energy(atoms);
 //            System.out.println(u+" ");
 //        }
 //        System.out.println();
-//        
+//
 //        for (int i=5; i<=10; i++) {
 //            System.out.println(i);
 //            P2WaterPotentialsJankowski p1 = new P2WaterPotentialsJankowski(space,i,0);
@@ -2676,8 +2325,8 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
 //            carta[2].E(Ha2);
 //            cartb[0].E(Ob);
 //            cartb[1].E(Hb1);
-//            cartb[2].E(Hb2);        
-//                        
+//            cartb[2].E(Hb2);
+//
 //            com.Ea1Tv1(mO,carta[0]);
 //            com.PEa1Tv1(mH,carta[1]);
 //            com.PEa1Tv1(mH,carta[2]);
@@ -2687,8 +2336,8 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
 //            q2.Ev1Mv2(carta[1],carta[2]);
 //            q2.normalize();
 //            or.setDirections(q1,q2);
-//            
-//            
+//
+//
 //            com.Ea1Tv1(mO,cartb[0]);
 //            com.PEa1Tv1(mH,cartb[1]);
 //            com.PEa1Tv1(mH,cartb[2]);
@@ -2698,17 +2347,17 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
 //            q2.Ev1Mv2(cartb[1],cartb[2]);
 //            q2.normalize();
 //            or.setDirections(q1,q2);
-//            
+//
 //
 //            double u = p1.energy(atoms);
 //            System.out.println(u+" ");
 //        }
 //        System.out.println();
-//        
+//
 //        for (int i=5; i<=10; i++) {
 //            System.out.println(i);
 //            P2WaterPotentialsJankowski p1 = new P2WaterPotentialsJankowski(space,i,0);
-//            
+//
 //            // Configuration 4
 //            Oa.E(new double[] {0.5161511850E-01,-0.1412377570E-01,-0.4046145808E-01});
 //            Ha1.E(new double[] {-0.8950773848E+00,0.4893932087E+00,-0.1456523089E+00});
@@ -2722,8 +2371,8 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
 //            carta[2].E(Ha2);
 //            cartb[0].E(Ob);
 //            cartb[1].E(Hb1);
-//            cartb[2].E(Hb2);        
-//            
+//            cartb[2].E(Hb2);
+//
 //            com.Ea1Tv1(mO,carta[0]);
 //            com.PEa1Tv1(mH,carta[1]);
 //            com.PEa1Tv1(mH,carta[2]);
@@ -2733,8 +2382,8 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
 //            q2.Ev1Mv2(carta[1],carta[2]);
 //            q2.normalize();
 //            or.setDirections(q1,q2);
-//            
-//            
+//
+//
 //            com.Ea1Tv1(mO,cartb[0]);
 //            com.PEa1Tv1(mH,cartb[1]);
 //            com.PEa1Tv1(mH,cartb[2]);
@@ -2744,13 +2393,13 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
 //            q2.Ev1Mv2(cartb[1],cartb[2]);
 //            q2.normalize();
 //            or.setDirections(q1,q2);
-//            
+//
 //
 //            double u = p1.energy(atoms);
 //            System.out.println(u+" ");
 //        }
 //        System.out.println();
-//        
+//
 //        for (int i=5; i<=10; i++) {
 //            System.out.println(i);
 //            P2WaterPotentialsJankowski p1 = new P2WaterPotentialsJankowski(space,i,0);
@@ -2769,7 +2418,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
 //            cartb[0].E(Ob);
 //            cartb[1].E(Hb1);
 //            cartb[2].E(Hb2);
-//            
+//
 //            com.Ea1Tv1(mO,carta[0]);
 //            com.PEa1Tv1(mH,carta[1]);
 //            com.PEa1Tv1(mH,carta[2]);
@@ -2779,8 +2428,8 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
 //            q2.Ev1Mv2(carta[1],carta[2]);
 //            q2.normalize();
 //            or.setDirections(q1,q2);
-//         
-//            
+//
+//
 //            com.Ea1Tv1(mO,cartb[0]);
 //            com.PEa1Tv1(mH,cartb[1]);
 //            com.PEa1Tv1(mH,cartb[2]);
@@ -2790,7 +2439,353 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
 //            q2.Ev1Mv2(cartb[1],cartb[2]);
 //            q2.normalize();
 //            or.setDirections(q1,q2);
-//                 
+//
+    }
+
+    public double getRange() {
+        return Double.POSITIVE_INFINITY;
+    }
+
+    public void setBox(Box box) {
+        boundary = box.getBoundary();
+        pRigid.setBox(box);
+    }
+
+    public int nBody() {
+        return 2;
+    }
+
+    public double energy(IAtomList atoms) {
+        if (tKelvin < 0) throw new RuntimeException("Temperature needs to be set while calling the constructor");
+        processAtoms(atoms);
+        double eTot = poten(); // flexible configuration with temperature dependent
+        // bond lengths and angle
+        if (icc == 1) {
+            double eRigid = pRigid.energy(atoms);
+            // rigid configuration with ground state bond lengths and angles from P2WaterSzalewicz
+            double[] oldBL = getBondLengths();
+            double[] oldAngles = getAngles();
+            setBondLengths(ccpol2BL);
+            setAngles(ccpol2Angles);
+            processAtoms(atoms);
+            setBondLengths(oldBL);
+            setAngles(oldAngles);
+            double eFlex = poten();
+            // if ccpol8s is ever used instead of ccpol2, use the following instead
+            // of the above line of code
+            // double eFlex = poten(cartaa,cartbb);
+            if (Double.isInfinite(eRigid) || Double.isInfinite(eFlex) || Double.isInfinite(eTot))
+                return Double.POSITIVE_INFINITY;
+//            if ((eTot - eFlex) < -Kelvin.UNIT.fromSim(1)*1000) {
+//                System.out.println(eRigid);
+//            }
+            eTot += eRigid - eFlex;
+        }
+        return (iMonomer == 1 ? (eTot + eMon) : eTot);
+//        IVectorMutable[] cartaa = space.makeVectorArray(3);
+//        IVectorMutable[] cartbb = space.makeVectorArray(3);
+
+//        if (false) { // if we ever use ccpol8s
+//            // make embedding for molecule A
+//            if (iEmbed == 1) {
+//                eck_rad_tst(carta);
+//            }
+//            else {
+//                radau_f1_tst(carta);
+//            }
+//
+//            put_rigid();
+//            if (icc == 1) {
+//                for (int i=0; i<3; i++) {
+//                    cartaa[i].E(posVec[i]);
+//                }
+//            }
+//
+//            // make embedding for molecule B
+//
+//            for (int i=0; i<3; i++) {
+//                cartb[i].setX(2,cartb[i].getX(2)-rCom);
+//            }
+//            if (iEmbed == 1) {
+//                eck_rad_tst(cartb);
+//            }
+//            else {
+//                radau_f1_tst(cartb);
+//            }
+//
+//            for (int i=0; i<3; i++) {
+//                cartb[i].setX(2,cartb[i].getX(2)+rCom);
+//            }
+//            put_rigid();
+//            if (icc == 1) {
+//                for (int i=0; i<3; i++) {
+//                    cartbb[i].E(posVec[i]);
+//                    cartbb[i].setX(2,cartbb[i].getX(2)+rCom);
+//                }
+//            }
+//        }
+
+
+//        System.out.println(rCom+" "+eTot);
+    }
+
+    public void radau_f1_tst(Vector[] rPos) {
+        //;
+        // I assume that the molecule is already shifted to fit COM to (0,0,0) ;
+        // ;
+        Vector q1 = space.makeVector(), q2 = space.makeVector(), bv = space.makeVector();
+        Vector br0 = space.makeVector();
+        Vector pom1 = space.makeVector(), pom2 = space.makeVector();
+        Vector temp1 = space.makeVector(), temp2 = space.makeVector();
+        //      data xmO /15.994915d0/, xmH /1.007825d0/;
+
+//        double xq1e=0.951118220;
+//        double xq2e=0.951118220;
+//        double theta_r_e_deg=107.9526120;
+//        double theta_r_e=1.884128510;
+//
+//        double deg2rad=Math.acos(-1.0)/180.0;
+
+        // data given above and hard-coded as xq1e, xq2e, and theta_r_e;
+
+
+        double xm12 = 2 * mH;
+
+        double alpha = Math.sqrt(mO / mH2O);               // Eq. (26)    can be precalculated;
+        double b = (alpha - alpha * alpha) * mH2O / xm12;     // Eq. (27);
+
+        // move the COM of the molecule to the origin of the coordinate system;
+        br0.Ea1Tv1(b, rPos[0]);
+        q1.Ev1Mv2(rPos[1], br0);
+        q2.Ev1Mv2(rPos[2], br0);
+
+        // calculate length of q1 and q2 vectors, and the angle between them;
+//        double xq1=Math.sqrt(q1.squared());
+//        double xq2=Math.sqrt(q2.squared());
+//        double theta_r=Math.acos(q1.dot(q2));
+
+        pom1.E(q1);
+        pom2.E(q2);
+        bv.Ev1Pv2(pom1, pom2);
+        bv.normalize();
+        bisectorVec[0].E(bv);
+
+
+        // I need also a vector which is perpendicular to vecI and lies in the plane;
+        // of the molecule.;
+        // I can obtain it from the following expression:;
+        // temp2=norm[q2-(vecI*q2) vecI]     (q2 or q1 - does not matter);
+        temp1.E(q2);
+        temp2.Ea1Tv1(bisectorVec[0].dot(q2), bisectorVec[0]);
+        temp1.ME(temp2);
+        temp1.normalize();
+        bisectorVec[1].E(temp1);
+        bisectorVec[1].TE(-1);
+    }
+
+    public void eck_rad_tst(Vector[] rPos) {
+        //;
+        // I assume that the molecule is already shifted to fit COM to (0,0,0) ;
+        // ;
+
+        Vector q1 = space.makeVector(), q2 = space.makeVector(), bv = space.makeVector();
+        Vector br0 = space.makeVector();
+        Vector pom1 = space.makeVector(), pom2 = space.makeVector();
+        Vector temp1 = space.makeVector(), temp2 = space.makeVector();
+        //      data xmO /15.994915d0/, xmH /1.007825d0/;
+
+        double xq1e = 0.951118220;
+        double xq2e = 0.951118220;
+//        double theta_r_e_deg=107.9526120;
+        double theta_r_e = 1.884128510;
+
+//        double deg2rad=Math.acos(-1.0)/180.0;
+
+        // To perform the Eckart embedding we need info about the Radau coordinates of ;
+        // the molecule in its equilibrium geometry. It was precalculated with the ;
+        // data given above and hard-coded as xq1e, xq2e, and theta_r_e;
+
+        double xm12 = 2 * mH;
+        double alpha = Math.sqrt(mO / mH2O);               // Eq. (26)    can be precalculated;
+        double b = (alpha - alpha * alpha) * mH2O / xm12;     // Eq. (27);
+
+        // move the COM of the molecule to the origin of the coordinate system;
+        br0.Ea1Tv1(b, rPos[0]);
+        q1.Ev1Mv2(rPos[1], br0);
+        q2.Ev1Mv2(rPos[2], br0);
+
+        // calculate length of q1 and q2 vectors, and the angle between them;
+        double xq1 = Math.sqrt(q1.squared());
+        double xq2 = Math.sqrt(q2.squared());
+        double theta_r = Math.acos(q1.dot(q2) / (xq1 * xq2));
+
+        pom1.E(q1);
+        pom2.E(q2);
+        bv.Ev1Pv2(pom1, pom2);
+        bv.normalize();
+
+        // formula (33) from Wei & Carrington, JCP 107, 2813 (1997);
+        // masses are the same and can be skipped, in fact xq1e and xq2e could be also;
+        double eta_e = 0.50 * theta_r_e;
+        double ang = theta_r - theta_r_e + eta_e;
+        double sss = (xq2e * xq2 * Math.sin(ang) + xq1e * xq1 * Math.sin(eta_e)) / (xq2e * xq2 * Math.cos(ang) + xq1e * xq1 * Math.cos(eta_e));
+        double eta = Math.atan(sss);
+        // To obtain the I vector which bisects the angle made by q1e and q2e I do not;
+        // need an explicit information about these vectors, but I can get it by the;
+        // rotation  of the q1 vector in direction of q2 by the angle equal to eta.;
+        // Temporary axes temp1=norm(q1) and temp2=norm[q2-((q1*q2)/(q1*q1)) q1];
+        //                                or temp2=norm[q2-(temp1*q2) temp1];
+
+        temp1.E(q1);
+        temp1.normalize();
+        temp2.E(q2);
+        temp2.PEa1Tv1(-temp1.dot(q2), temp1);
+        temp2.normalize();
+
+        // s1=0.0d0;
+        // s2=0.0d0;
+        // s3=0.0d0;
+        // for (int j=1; j<=3; j++) {
+        //     s1=s1+temp1(j)*temp1(j);
+        //     s2=s2+temp2(j)*temp2(j);
+        //     s3=s3+temp1(j)*temp2(j);
+        // }
+        //        write(67,'(a,3f12.6)') "s1, s2, s3:", s1, s2, s3;
+        //        write(67,*);
+        // vecI=cos(eta)*temp1 + sin(eta)*temp2;
+        bisectorVec[0].Ea1Tv1(Math.cos(eta), temp1);
+        bisectorVec[0].PEa1Tv1(Math.sin(eta), temp2);
+        bisectorVec[1].Ea1Tv1(-Math.sin(eta), temp1);
+        bisectorVec[1].PEa1Tv1(Math.cos(eta), temp2);
+    }
+
+    public void put_rigid() {
+        // The rigid (reference) molecule is embedded into the plane defined by the original;
+        // (distorted) molecule and by the axis I related to the embedding method. The bisection;
+        // vector of the rigid molecule is put along the I vector and COM of the rigid molecule;
+        // is put at the position of COM of the distorted one.;
+        //;
+        // Information about two normalized vectors is passed to the procedure.;
+        // vi1 - the bisection vector of the reference water is put in this direction;
+        // vi2 - it is perpendicular to vi1 and lies in the plane of the molecule;
+        //;
+        Vector vshift = space.makeVector();
+        double ds = 0.791703581105605350;
+        double dc = 0.610905426121392430;
+        double rOHref = 0.971625700277173540;
+        double com_shift = 0.66429466101803E-01;
+
+        // Initially O is put in the origin, but next the whole rigid molecule should be shifted;
+        // to put its COM in the origin. This shift is in the vi1 direction by com_shift.;
+        posVec[0].E(0);
+        posVec[1].Ea1Tv1(dc, bisectorVec[0]);
+        posVec[1].PEa1Tv1(ds, bisectorVec[1]);
+        posVec[2].Ea1Tv1(dc, bisectorVec[0]);
+        posVec[2].PEa1Tv1(-ds, bisectorVec[1]);
+        vshift.Ea1Tv1(-com_shift, bisectorVec[0]);
+        posVec[1].TE(rOHref);
+        posVec[2].TE(rOHref);
+        posVec[1].PE(vshift);
+        posVec[2].PE(vshift);
+        posVec[0].PE(vshift);
+    }
+
+    public double[] getBondLengths() {
+        return bl;
+    }
+
+    public static void setBondLengths(double[] blAngstroms) {
+        if (blAngstroms.length != bl.length) throw new RuntimeException("Sizes are different");
+        bl = blAngstroms;
+    }
+
+    public double[] getAngles() {
+        return angles;
+    }
+
+    public static void setAngles(double[] angleRadians) {
+        if (angleRadians.length != angles.length) throw new RuntimeException("Sizes are different");
+        angles = angleRadians;
+    }
+
+    public double getEnergy(Vector[] carta, Vector[] cartb) {
+        double rCom = align_on_z_axis(carta, cartb);
+//        System.out.println("dummy rCom = "+rCom);
+        Vector[] cartaa = space.makeVectorArray(3);
+        Vector[] cartbb = space.makeVectorArray(3);
+        // make embedding for molecule A
+        if (iEmbed == 1) {
+            eck_rad_tst(carta);
+        } else {
+            radau_f1_tst(carta);
+        }
+        put_rigid();
+        if (icc == 1) {
+            for (int i = 0; i < 3; i++) {
+                cartaa[i].E(posVec[i]);
+            }
+        }
+        // make embedding for molecule B
+        for (int i = 0; i < 3; i++) {
+            cartb[i].setX(2, cartb[i].getX(2) - rCom);
+        }
+        if (iEmbed == 1) {
+            eck_rad_tst(cartb);
+        } else {
+            radau_f1_tst(cartb);
+        }
+        for (int i = 0; i < 3; i++) {
+            cartb[i].setX(2, cartb[i].getX(2) + rCom);
+        }
+        put_rigid();
+        if (icc == 1) {
+            for (int i = 0; i < 3; i++) {
+                cartbb[i].E(posVec[i]);
+                cartbb[i].setX(2, cartbb[i].getX(2) + rCom);
+            }
+        }
+
+//        System.out.println("From ccpol_xyz");
+//        for (int i=0; i<3; i++) {
+//            System.out.println(alignedV1[i]);
+//        }
+//        System.out.println();
+//        System.exit(1);
+        // carta and cartb in angstroms
+        for (int i = 0; i < carta.length; i++) {
+            if (carta.length != cartb.length || carta.length != 3)
+                throw new RuntimeException("Mismatching vector lengths!!!");
+            carta[i].Ea1Tv1(1 / a0, alignedV1[i]);
+            cartb[i].Ea1Tv1(1 / a0, alignedV2[i]);
+            if (icc == 1) {
+                cartaa[i].TE(1 / a0);
+                cartbb[i].TE(1 / a0);
+            }
+        }
+        double eTot = 0;//poten(carta,cartb);
+
+        if (iMonomer == 1) {
+            Vector oh1 = space.makeVector();
+            oh1.Ev1Mv2(carta[1], carta[0]);
+            double rA1 = Math.sqrt(oh1.squared());
+            Vector oh2 = space.makeVector();
+            oh2.Ev1Mv2(carta[2], carta[0]);
+            double rA2 = Math.sqrt(oh2.squared());
+            double thA = Math.acos(oh1.dot(oh2) / (rA1 * rA2));
+            rA1 /= a0;
+            rA2 /= a0;
+            eTot += pots(rA1, rA2, thA);
+
+            oh1.Ev1Mv2(cartb[1], cartb[0]);
+            double rB1 = Math.sqrt(oh1.squared());
+            oh2.Ev1Mv2(cartb[2], cartb[0]);
+            double rB2 = Math.sqrt(oh2.squared());
+            double thB = Math.acos(oh1.dot(oh2) / (rB1 * rB2));
+            rB1 /= a0;
+            rB2 /= a0;
+            eTot += pots(rB1, rB2, thB);
+        }
+        return eTot;
     }
 }
 

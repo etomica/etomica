@@ -4,8 +4,7 @@
 
 package etomica.species;
 
-import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.space.Vector;
 
 public interface ISpeciesOriented extends ISpecies {
 
@@ -14,7 +13,7 @@ public interface ISpeciesOriented extends ISpecies {
      * molecule within the body-fixed frame.  Do NOT modify the returned moment
      * of inertia returned.
      */
-    public IVector getMomentOfInertia();
+    public Vector getMomentOfInertia();
 
     public double getMass();
 

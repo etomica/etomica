@@ -4,22 +4,22 @@
 
 package etomica.virial;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
-import etomica.atom.MoleculeSource;
-import etomica.atom.MoleculeSourceRandomMolecule;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeSource;
+import etomica.molecule.MoleculeSourceRandomMolecule;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
+import etomica.util.random.IRandom;
 
 /**
  * An MC Move for cluster simulations that bends the bond angle for 3-atom
@@ -30,12 +30,12 @@ import etomica.space.ISpace;
  */
 public class MCMoveClusterAngleBendAceticAcid extends MCMoveBoxStep {
 
-    public MCMoveClusterAngleBendAceticAcid(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
+    public MCMoveClusterAngleBendAceticAcid(Simulation sim, PotentialMaster potentialMaster, Space _space) {
     	this(potentialMaster,sim.getRandom(), 1.0, _space);
     }
     
-    public MCMoveClusterAngleBendAceticAcid(IPotentialMaster potentialMaster, 
-            IRandom random, double stepSize, ISpace _space) {
+    public MCMoveClusterAngleBendAceticAcid(PotentialMaster potentialMaster,
+                                            IRandom random, double stepSize, Space _space) {
         super(potentialMaster);
         this.space = _space;
         this.random = random;
@@ -53,7 +53,7 @@ public class MCMoveClusterAngleBendAceticAcid extends MCMoveBoxStep {
         work3 = _space.makeVector();
     }
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         dTheta = new double[p.getMoleculeList().getMoleculeCount()];
@@ -91,11 +91,11 @@ public class MCMoveClusterAngleBendAceticAcid extends MCMoveBoxStep {
         int numChildren = childList.getAtomCount();
         if (numChildren != 3) return;
         
-        IVectorMutable pos0 = childList.getAtom(3).getPosition();//SBO
-        IVectorMutable pos1 = childList.getAtom(1).getPosition();//C
-        IVectorMutable pos2 = childList.getAtom(2).getPosition();//DBO
-        IVectorMutable pos3 = childList.getAtom(4).getPosition();//H
-        IVectorMutable pos4 = childList.getAtom(0).getPosition();//CH3
+        Vector pos0 = childList.getAtom(3).getPosition();//SBO
+        Vector pos1 = childList.getAtom(1).getPosition();//C
+        Vector pos2 = childList.getAtom(2).getPosition();//DBO
+        Vector pos3 = childList.getAtom(4).getPosition();//H
+        Vector pos4 = childList.getAtom(0).getPosition();//CH3
         
         work1.Ev1Mv2(pos0, pos1);
         double bondLength01 = Math.sqrt(work1.squared());
@@ -197,10 +197,10 @@ public class MCMoveClusterAngleBendAceticAcid extends MCMoveBoxStep {
     private static final long serialVersionUID = 1L;
     protected final AtomIteratorArrayListSimple affectedAtomIterator = new AtomIteratorArrayListSimple();
     protected final MeterPotentialEnergy energyMeter;
-    protected final IVectorMutable work1, work2, work3;
+    protected final Vector work1, work2, work3;
     protected double[] dTheta;
     protected double wOld, wNew;
-    protected final ISpace space;
+    protected final Space space;
     protected ISpecies species;
     protected double uOld;
     protected double uNew = Double.NaN;

@@ -9,18 +9,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IIntegrator;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
+import etomica.integrator.Integrator;
+import etomica.potential.PotentialMaster;
+import etomica.util.random.IRandom;
+import etomica.space.Vector;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
+import etomica.space.Space;
 import etomica.util.IEvent;
 import etomica.util.IListener;
 
@@ -38,9 +36,9 @@ import etomica.util.IListener;
  */
 public class MCMoveInsertDeleteVacancy extends MCMoveInsertDeleteBiased implements IListener {
 
-    protected final IVectorRandom dest;
-    protected final IVectorMutable dr;
-    protected IIntegrator integrator;
+    protected final Vector dest;
+    protected final Vector dr;
+    protected Integrator integrator;
     protected long lastStepCount;
     protected boolean dirty;
     protected double minDistance, maxDistance, maxInsertDistance;
@@ -52,13 +50,13 @@ public class MCMoveInsertDeleteVacancy extends MCMoveInsertDeleteBiased implemen
     protected int numNewDeleteCandidates;
     protected int forced = 0;
     protected double oldLnA, oldB, newLnA;
-    protected final IVectorMutable oldPosition;
+    protected final Vector oldPosition;
 
-    public MCMoveInsertDeleteVacancy(IPotentialMaster potentialMaster, 
-            IRandom random, ISpace _space, IIntegrator integrator, double nbrDistance, int maxN, int maxVacancy) {
+    public MCMoveInsertDeleteVacancy(PotentialMaster potentialMaster,
+                                     IRandom random, Space _space, Integrator integrator, double nbrDistance, int maxN, int maxVacancy) {
         super(potentialMaster, random, _space, maxN-maxVacancy, maxN);
         this.potentialMaster = (PotentialMasterList)potentialMaster;
-        dest = (IVectorRandom)_space.makeVector();
+        dest = _space.makeVector();
         dr = _space.makeVector();
         this.integrator = integrator;
         minDistance = 0.95;
@@ -147,7 +145,7 @@ public class MCMoveInsertDeleteVacancy extends MCMoveInsertDeleteBiased implemen
             // we also need to see how many times testAtom shows up as a neighbor
             // of a deleteCandidate
             deleteCandidateTimes[testAtom.getLeafIndex()] = 0;
-            IVector pi = testAtom.getPosition();
+            Vector pi = testAtom.getPosition();
             IAtomList nbrs = potentialMaster.getNeighborManager(box).getUpList(testAtom)[0];
             int nTestNbrs = 0, nTestNbrsDeletion = 0;
             for (int j=0; j<nbrs.getAtomCount(); j++) {
@@ -239,7 +237,7 @@ public class MCMoveInsertDeleteVacancy extends MCMoveInsertDeleteBiased implemen
     
     protected void findCandidates() {
         NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
-        IBoundary boundary = box.getBoundary();
+        Boundary boundary = box.getBoundary();
         int numAtoms = box.getLeafList().getAtomCount();
         numNeighbors = new int[numAtoms];
         numNeighborCandidatesOnDelete = new int[numAtoms];
@@ -251,7 +249,7 @@ public class MCMoveInsertDeleteVacancy extends MCMoveInsertDeleteBiased implemen
         totalDeleteCandidateTimes = 0;
         for (int i=0; i<numAtoms; i++) {
             IAtom iAtom = box.getLeafList().getAtom(i);
-            IVector pi = iAtom.getPosition();
+            Vector pi = iAtom.getPosition();
             IAtomList nbrsUp = nbrManager.getUpList(iAtom)[0];
             for (int j=0; j<nbrsUp.getAtomCount(); j++) {
                 dr.Ev1Mv2(pi, nbrsUp.getAtom(j).getPosition());
@@ -268,7 +266,7 @@ public class MCMoveInsertDeleteVacancy extends MCMoveInsertDeleteBiased implemen
                 // the neighbors of i may be candidates for deletion.  after deleting
                 // one of its neighbors, i would have <12 neighbors
                 IAtom iAtom = box.getLeafList().getAtom(i);
-                IVector pi = iAtom.getPosition();
+                Vector pi = iAtom.getPosition();
                 IAtomList nbrs = nbrManager.getUpList(iAtom)[0];
                 for (int j=0; j<nbrs.getAtomCount(); j++) {
                     IAtom jAtom = nbrs.getAtom(j);

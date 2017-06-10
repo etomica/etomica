@@ -4,19 +4,17 @@
 
 package etomica.models.oneDHardRods;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
-import etomica.atom.Atom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.potential.PotentialMaster;
+import etomica.util.random.IRandom;
+import etomica.space.Vector;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
-import etomica.space3d.Vector3D;
 
 /**
  * A Monte Carlo move which selects a wave vector and mode(s), and changes the normal mode
@@ -39,13 +37,13 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
     protected final MeterPotentialEnergy energyMeter;
     private double[][][] eigenVectors;
     private double[][] omega2, oneOverOmega2;
-    private IVectorMutable[] waveVectors;
+    private Vector[] waveVectors;
     private double[] waveVectorCoefficients, sqrtWVC;
     int changedWV, changedMode, numberOfModesChanged;
     int[] changeableWVs, changeableModes;  //all wvs from the harmonic wv are not changed.
     
     
-    public MCMoveChangeMultipleModes(IPotentialMaster potentialMaster, IRandom random) {
+    public MCMoveChangeMultipleModes(PotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         
         this.random = random;
@@ -90,8 +88,8 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
      * 
      * @param wv
      */
-    public void setWaveVectors(IVectorMutable[] wv){
-        waveVectors = new IVectorMutable[wv.length];
+    public void setWaveVectors(Vector[] wv){
+        waveVectors = new Vector[wv.length];
         waveVectors = wv;
     }
     public void setWaveVectorCoefficients(double[] coeff){
@@ -110,7 +108,7 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
         eigenVectors = newEigenVectors;
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         super.setBox(newBox);
         iterator.setBox(newBox);
         energyMeter.setBox(newBox);
@@ -228,7 +226,7 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
         
         if(box.getBoundary().getEdgeVector(0).getD() == 1){
             for(int i = 0; i < ats; i++){
-                System.out.println(i + "  " + ((Atom)list.getAtom(i)).getPosition().getX(0));
+                System.out.println(i + "  " + list.getAtom(i).getPosition().getX(0));
             }
         }
         
@@ -236,7 +234,7 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
             for(int i = 0; i < ats; i++){
                 System.out.println("Atom " + i);
                 for(int j = 0; j < 3; j++){
-                    System.out.println(j + " " + ((Atom)list.getAtom(i)).getPosition().getX(j));
+                    System.out.println(j + " " + list.getAtom(i).getPosition().getX(j));
                 }
             }
         }

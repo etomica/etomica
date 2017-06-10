@@ -4,8 +4,6 @@
 
 package etomica.space;
 
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.math.geometry.*;
 
@@ -16,23 +14,23 @@ import etomica.math.geometry.*;
 public abstract class BoundaryRectangular extends Boundary {
 
     private static final long serialVersionUID = 1L;
-    protected final IVectorMutable dimensions;
+    protected final Vector dimensions;
     protected final float[][] shift0 = new float[0][0];
-    protected final IVectorMutable[] edgeVectors;
+    protected final Vector[] edgeVectors;
     private final IndexIteratorRectangular indexIterator;
 
     /**
      * Constructs cubic boundary of the given periodicity, using the space and default box-size
      * given by the Simulation.
      */
-    public BoundaryRectangular(ISpace _space) {
+    public BoundaryRectangular(Space _space) {
         this(_space, 10.0);
     }
 
     /**
      * Constructs cubic boundary of the given periodicity with each edge of length boxSize
      */
-    public BoundaryRectangular(ISpace space, double boxSize) {
+    public BoundaryRectangular(Space space, double boxSize) {
         this(space, makeArray(space.D(), boxSize));
     }
 
@@ -40,13 +38,13 @@ public abstract class BoundaryRectangular extends Boundary {
      * Constructs rectangular boundary of the given periodicity with edges given by the
      * values in the array boxSize.  Length of arrays must equal dimension of space.
      */
-    public BoundaryRectangular(ISpace space, double[] boxSize) {
+    public BoundaryRectangular(Space space, double[] boxSize) {
         super(space, makeShape(space));
         dimensions = space.makeVector();
         dimensions.E(boxSize);
 
         indexIterator = new IndexIteratorRectangular(space.D());
-        edgeVectors = new IVectorMutable[space.D()];
+        edgeVectors = new Vector[space.D()];
         for (int i = 0; i < space.D(); i++) {
             edgeVectors[i] = space.makeVector();
         }
@@ -62,7 +60,7 @@ public abstract class BoundaryRectangular extends Boundary {
     }
 
     //used by constructors
-    private static Polytope makeShape(ISpace space) {
+    private static Polytope makeShape(Space space) {
         switch (space.D()) {
             case 1:
                 return new LineSegment(space);
@@ -80,7 +78,7 @@ public abstract class BoundaryRectangular extends Boundary {
      * the boundary.  The returned Vector does not represent the values internally,
      * so manipulation of the vector has no effect on this BoundaryRectangular instance.
      */
-    public IVector getBoxSize() {
+    public Vector getBoxSize() {
         return dimensions;
     }
 
@@ -89,7 +87,7 @@ public abstract class BoundaryRectangular extends Boundary {
      * copied, so manipulation of the given vector has no subsequent effect
      * on this Boundary instance.
      */
-    public void setBoxSize(IVector v) {
+    public void setBoxSize(Vector v) {
         dimensions.E(v);
         updateDimensions();
 
@@ -111,7 +109,7 @@ public abstract class BoundaryRectangular extends Boundary {
         return shape.getVolume();
     }
 
-    public IVector getEdgeVector(int d) {
+    public Vector getEdgeVector(int d) {
         return edgeVectors[d];
     }
 
@@ -121,7 +119,7 @@ public abstract class BoundaryRectangular extends Boundary {
      * is the dimension of the space.
      */
     public double[][] imageOrigins(int nShells) {
-        IVectorMutable workVector = space.makeVector();
+        Vector workVector = space.makeVector();
         int shellFormula = (2 * nShells) + 1;
         int nImages = space.powerD(shellFormula) - 1;
         double[][] origins = new double[nImages][space.D()];

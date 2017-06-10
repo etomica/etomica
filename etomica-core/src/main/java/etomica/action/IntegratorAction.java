@@ -4,15 +4,15 @@
 
 package etomica.action;
 
-import etomica.api.IIntegrator;
+import etomica.integrator.Integrator;
 
- /**
+/**
   * Elementary action performed on an integrator.
   */
 public interface IntegratorAction extends IAction {
 
-    public void setIntegrator(IIntegrator integrator);
+    public void setIntegrator(Integrator integrator);
     
-    public IIntegrator getIntegrator();
+    public Integrator getIntegrator();
 
 }

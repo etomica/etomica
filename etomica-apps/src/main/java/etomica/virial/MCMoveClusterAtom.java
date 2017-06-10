@@ -4,11 +4,11 @@
 
 package etomica.virial;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IRandom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.util.random.IRandom;
 import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 
 /**
@@ -16,11 +16,11 @@ import etomica.space.ISpace;
  */
 public class MCMoveClusterAtom extends MCMoveAtom {
 
-    public MCMoveClusterAtom(IRandom random, ISpace _space) {
+    public MCMoveClusterAtom(IRandom random, Space _space) {
         super(random, null, _space);
 	}
 	
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
     }
     

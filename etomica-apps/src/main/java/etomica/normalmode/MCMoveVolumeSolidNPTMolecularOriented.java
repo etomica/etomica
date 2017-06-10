@@ -4,15 +4,15 @@
 
 package etomica.normalmode;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.PotentialMaster;
 import etomica.space.RotationTensor;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 
 /**
@@ -26,23 +26,23 @@ import etomica.space.RotationTensor;
 public class MCMoveVolumeSolidNPTMolecularOriented extends
         MCMoveVolumeSolidNPTMolecular {
 
-    protected final IVectorMutable orientation, dr, com;
-    protected final IVectorMutable[] drSum, drSumSave;
+    protected final Vector orientation, dr, com;
+    protected final Vector[] drSum, drSumSave;
     protected double maxPhi;
     protected double cosNominalTheta;
     protected transient RotationTensor rotationTensor;
     protected int maxMolecule;
     protected double thetaFrac = 1;
     
-    public MCMoveVolumeSolidNPTMolecularOriented(IPotentialMaster potentialMaster, IRandom random,
-            ISpace space, double pressure, IVectorMutable[] drSum) {
+    public MCMoveVolumeSolidNPTMolecularOriented(PotentialMaster potentialMaster, IRandom random,
+                                                 Space space, double pressure, Vector[] drSum) {
         super(potentialMaster, random, space, pressure, 5);
         rotationTensor = space.makeRotationTensor();
         this.drSum = drSum;
         orientation = space.makeVector();
         dr = space.makeVector();
         com = space.makeVector();
-        drSumSave = new IVectorMutable[drSum.length];
+        drSumSave = new Vector[drSum.length];
         for (int i=0; i<drSumSave.length; i++) {
             drSumSave[i] = space.makeVector();
         }
@@ -127,7 +127,7 @@ public class MCMoveVolumeSolidNPTMolecularOriented extends
         IAtomList childList = molecule.getChildList();
         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
             IAtom a = childList.getAtom(iChild);
-            IVectorMutable r = a.getPosition();
+            Vector r = a.getPosition();
             r.ME(com);
             box.getBoundary().nearestImage(r);
             rotationTensor.transform(r);
@@ -139,7 +139,7 @@ public class MCMoveVolumeSolidNPTMolecularOriented extends
         com.E(moleculeCenter.position(molecule));
         IAtomList childList = molecule.getChildList();
         for (int i=0; i<childList.getAtomCount(); i++) {
-            IVectorMutable p1 = childList.getAtom(i).getPosition();
+            Vector p1 = childList.getAtom(i).getPosition();
             p1.ME(com);
             double bl = Math.sqrt(p1.squared());
             if (p1.getX(2) < 0) bl = -bl;
@@ -167,7 +167,7 @@ public class MCMoveVolumeSolidNPTMolecularOriented extends
             
             int nPlanes = drSum.length;
             int iPlane = (molecule.getIndex()/2)%nPlanes;
-            IVectorMutable drSumi = drSum[iPlane];
+            Vector drSumi = drSum[iPlane];
 
             IAtomList atoms = molecule.getChildList();
             // add the trial orientation

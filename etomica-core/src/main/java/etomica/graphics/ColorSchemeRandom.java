@@ -5,15 +5,15 @@
 package etomica.graphics;
 import java.awt.Color;
 
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.IRandom;
+import etomica.atom.IAtom;
+import etomica.box.Box;
+import etomica.util.random.IRandom;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 
 public class ColorSchemeRandom extends ColorScheme implements AgentSource<Color> {
     
-    public ColorSchemeRandom(IBox box, IRandom random) {
+    public ColorSchemeRandom(Box box, IRandom random) {
     	super();
         this.random = random;
         agentManager = new AtomLeafAgentManager<Color>(this, box, Color.class);
@@ -27,11 +27,11 @@ public class ColorSchemeRandom extends ColorScheme implements AgentSource<Color>
         return Color.class;
     }
     
-    public Color makeAgent(IAtom a, IBox agentBox) {
+    public Color makeAgent(IAtom a, Box agentBox) {
         return new Color((float)random.nextDouble(),(float)random.nextDouble(),(float)random.nextDouble());
     }
     
-    public void releaseAgent(Color agent, IAtom atom, IBox agentBox) {}
+    public void releaseAgent(Color agent, IAtom atom, Box agentBox) {}
 
     private static final long serialVersionUID = 2L;
     private final AtomLeafAgentManager<Color> agentManager;

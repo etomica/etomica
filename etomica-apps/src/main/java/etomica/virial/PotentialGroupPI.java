@@ -4,10 +4,10 @@
 
 package etomica.virial;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMolecular;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.IPotentialMolecular;
 import etomica.potential.PotentialGroup;
 
 /**
@@ -25,7 +25,7 @@ public class PotentialGroupPI extends PotentialGroup {
         uBeads = new double[beadFac][0];
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         super.setBox(box);
         int nMolecules = box.getMoleculeList().getMoleculeCount();
         int nPairs = nMolecules*(nMolecules-1)/2;
@@ -87,7 +87,7 @@ public class PotentialGroupPI extends PotentialGroup {
             return PotentialGroupPI.this.getRange();
         }
 
-        public void setBox(IBox box) {
+        public void setBox(Box box) {
             PotentialGroupPI.this.setBox(box);
         }
 

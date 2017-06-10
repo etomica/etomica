@@ -5,13 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.ISpecies;
-import etomica.data.AccumulatorRatioAverage;
-import etomica.data.DataAccumulator;
-import etomica.data.DataPumpListener;
-import etomica.data.DataSourceAcceptanceProbability;
-import etomica.data.DataSourceAcceptanceRatio;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorPT;
 import etomica.integrator.mcmove.MCMove;
@@ -20,17 +14,10 @@ import etomica.integrator.mcmove.MCMoveManager;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.species.SpeciesSpheresRotating;
-import etomica.virial.BoxCluster;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterWeight;
-import etomica.virial.ConfigurationCluster;
-import etomica.virial.MCMoveClusterAtomMulti;
-import etomica.virial.MCMoveClusterMoleculeMulti;
-import etomica.virial.MCMoveClusterRotateMoleculeMulti;
-import etomica.virial.MeterVirial;
-import etomica.virial.SpeciesFactory;
+import etomica.virial.*;
 import etomica.virial.paralleltempering.MCMoveSwapCluster;
 
 /**

@@ -4,16 +4,13 @@
 
 package etomica.potential;
 
-import java.util.ArrayList;
-
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IPotentialMolecular;
 import etomica.atom.AtomArrayList;
-import etomica.atom.MoleculeArrayList;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.atom.IAtom;
+import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculeArrayList;
+
+import java.util.ArrayList;
 
 /**
  * Collects potentials used for long-range correction.
@@ -40,7 +37,7 @@ public class PotentialMasterLrc {
      * and that the given IteratorDirective has includeLrc set to true; if all
      * are so, calculation is performed.
      */
-    public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
+    public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled || !id.includeLrc) return;
         IAtom targetAtom = id.getTargetAtom();
         IMolecule targetMolecule = id.getTargetMolecule();

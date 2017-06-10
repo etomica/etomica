@@ -4,15 +4,14 @@
 
 package etomica.normalmode;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
 import etomica.config.IConformationOriented;
 import etomica.space.IOrientation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
- /**
+/**
   *  Conformation for HS Dimer
   *
   * @author Tai Boon Tan
@@ -20,17 +19,17 @@ import etomica.space.ISpace;
   */
 public class ConformationHSDimer implements IConformationOriented, java.io.Serializable{
 	
-	public ConformationHSDimer(ISpace space, double L){
+	public ConformationHSDimer(Space space, double L){
 		this.space = space;
 		this.L = L;
         orientationX = space.makeOrientation();
-        IVectorMutable vectorX = space.makeVector();
+        Vector vectorX = space.makeVector();
         vectorX.setX(0, 1);
         orientationX.setDirection(vectorX);
 	}
 
     public void initializePositions(IAtomList atomList, IOrientation orientation) {
-        IVector orientationDir = orientation.getDirection();
+        Vector orientationDir = orientation.getDirection();
         IAtom n1 = atomList.getAtom(SpeciesHSDimer.indexAtom1);
         n1.getPosition().Ea1Tv1(-0.5*L, orientationDir);
         
@@ -42,7 +41,7 @@ public class ConformationHSDimer implements IConformationOriented, java.io.Seria
         initializePositions(atomList, orientationX);
 	}
 		
-	protected final ISpace space;
+	protected final Space space;
 	protected final double L;
 	
 	protected IOrientation orientationX;

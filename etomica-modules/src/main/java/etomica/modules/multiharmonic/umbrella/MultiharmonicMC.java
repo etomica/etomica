@@ -5,8 +5,7 @@
 package etomica.modules.multiharmonic.umbrella;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.DataPump;
@@ -31,6 +30,16 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class MultiharmonicMC extends Simulation {
 
+    private static final long serialVersionUID = 1L;
+    protected final SpeciesSpheresMono species;
+    protected final Box box;
+    protected final P1Harmonic potentialA, potentialB;
+    protected final IntegratorMC integrator;
+    protected final MCMoveMultiHarmonic moveA, moveB;
+    protected final ActivityIntegrate activityIntegrate;
+    protected final MeterUmbrella meterUmbrella;
+    protected final AccumulatorRatioAverageCovariance accumulator;
+    protected final DataPump dataPumpA;
     public MultiharmonicMC() {
         super(Space1D.getInstance());
         PotentialMaster potentialMasterA = new PotentialMasterMonatomic(this);
@@ -49,12 +58,12 @@ public class MultiharmonicMC extends Simulation {
         potentialA = new P1Harmonic(space);
         moveA = new MCMoveMultiHarmonic(potentialA, random);
         integrator.getMoveManager().addMCMove(moveA);
-        potentialMasterA.addPotential(potentialA, new IAtomType[] {species.getLeafType()});
-        
+        potentialMasterA.addPotential(potentialA, new AtomType[]{species.getLeafType()});
+
         potentialB = new P1Harmonic(space);
         moveB = new MCMoveMultiHarmonic(potentialB, random);
         integrator.getMoveManager().addMCMove(moveB);
-        potentialMasterB.addPotential(potentialB, new IAtomType[] {species.getLeafType()});
+        potentialMasterB.addPotential(potentialB, new AtomType[]{species.getLeafType()});
 
         MeterPotentialEnergy meterPEAinA = new MeterPotentialEnergy(potentialMasterA);
         meterPEAinA.setBox(box);
@@ -66,19 +75,8 @@ public class MultiharmonicMC extends Simulation {
         dataPumpA = new DataPump(meterUmbrella, accumulator);
         integrator.getEventManager().addListener(new IntegratorListenerAction(dataPumpA));
 
-        
+
         activityIntegrate = new ActivityIntegrate(integrator, 1, false);
         getController().addAction(activityIntegrate);
     }
-
-    private static final long serialVersionUID = 1L;
-    protected final SpeciesSpheresMono species;
-    protected final IBox box;
-    protected final P1Harmonic potentialA, potentialB;
-    protected final IntegratorMC integrator;
-    protected final MCMoveMultiHarmonic moveA, moveB;
-    protected final ActivityIntegrate activityIntegrate;
-    protected final MeterUmbrella meterUmbrella;
-    protected final AccumulatorRatioAverageCovariance accumulator;
-    protected final DataPump dataPumpA;
 }

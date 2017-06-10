@@ -4,17 +4,20 @@
 
 package etomica.virial;
 
-import etomica.api.*;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.space.ISpace;
+import etomica.atom.IAtomList;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.IMoleculePositionDefinition;
+import etomica.molecule.MoleculePositionGeometricCenter;
+import etomica.space.Space;
+import etomica.space.Vector;
 
 public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalue {
 
     /**
      * cluster must have caching disabled
      */
-    public ClusterCoupledFlippedMultivalue(ClusterAbstractMultivalue cluster, ISpace space, int nDer) {
+    public ClusterCoupledFlippedMultivalue(ClusterAbstractMultivalue cluster, Space space, int nDer) {
         this(cluster, space, 0,nDer);
     }
     
@@ -23,12 +26,12 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
      * configurations will be flipped when the minimum distance between any two molecules
      * exceeds minFlipDistance.  set minFlipDistance to 0 to always flip.
      */
-    public ClusterCoupledFlippedMultivalue(ClusterAbstractMultivalue cluster, ISpace space, double minFlipDistance, int nDer) {
+    public ClusterCoupledFlippedMultivalue(ClusterAbstractMultivalue cluster, Space space, double minFlipDistance, int nDer) {
         this.space = space;
         wrappedCluster = cluster;
         childAtomVector = space.makeVector();
         flippedAtoms = new boolean[cluster.pointCount()];
-        positionDefinition = new AtomPositionGeometricCenter(space);
+        positionDefinition = new MoleculePositionGeometricCenter(space);
         this.minFlipDistance = minFlipDistance;
         value = new double[nDer+1];
         lastValue = new double[nDer+1];
@@ -141,7 +144,7 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
     }
     
     protected void flip(IMolecule flippedMolecule) {
-        IVector COM = positionDefinition.position(flippedMolecule);
+        Vector COM = positionDefinition.position(flippedMolecule);
 		IAtomList childAtoms = flippedMolecule.getChildList();
 		for (int i = 0; i < childAtoms.getAtomCount(); i++) {
 		    childAtomVector.Ea1Tv1(2,COM);
@@ -167,12 +170,12 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
     }
     
     protected final ClusterAbstractMultivalue wrappedCluster;
-    protected final ISpace space;
+    protected final Space space;
     protected long cPairID = -1, lastCPairID = -1;
     protected double value[], lastValue[];
     protected final boolean[] flippedAtoms;
-    private IVectorMutable childAtomVector;
-    protected IAtomPositionDefinition positionDefinition;
+    private Vector childAtomVector;
+    protected IMoleculePositionDefinition positionDefinition;
     protected final double minFlipDistance;
     protected final int nDer;
     protected final boolean countflips = true;

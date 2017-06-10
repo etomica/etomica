@@ -4,14 +4,13 @@
 
 package etomica.normalmode;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IRandom;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.util.random.IRandom;
+import etomica.space.Vector;
 import etomica.atom.iterator.AtomIterator;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * MC move whose purpose in life is to sample an  Einstein crystal.
@@ -22,7 +21,7 @@ import etomica.space.ISpace;
  */
 public class MCMoveEinsteinCrystal extends MCMoveBox {
 
-    public MCMoveEinsteinCrystal(ISpace space, IRandom random) {
+    public MCMoveEinsteinCrystal(Space space, IRandom random) {
         super(null);
         this.random = random;
         fixedCOM = true;
@@ -66,8 +65,8 @@ public class MCMoveEinsteinCrystal extends MCMoveBox {
         }
         for (int i=0; i<end; i++) {
             IAtom a = atomList.getAtom(i);
-            IVectorMutable p = a.getPosition();
-            IVector site = coordinateDefinition.getLatticePosition(a);
+            Vector p = a.getPosition();
+            Vector site = coordinateDefinition.getLatticePosition(a);
             for (int k=0; k<p.getD(); k++) {
                 p.setX(k, einFac * random.nextGaussian() );
             }
@@ -80,7 +79,7 @@ public class MCMoveEinsteinCrystal extends MCMoveBox {
             dr.TE(-1.0/end);
             for (int i=0; i<end; i++) {
                 IAtom a = atomList.getAtom(i);
-                IVectorMutable p = a.getPosition();
+                Vector p = a.getPosition();
                 p.PE(dr);
             }
         }
@@ -104,5 +103,5 @@ public class MCMoveEinsteinCrystal extends MCMoveBox {
     protected final IRandom random;
     protected CoordinateDefinition coordinateDefinition;
     protected boolean fixedCOM;
-    protected final IVectorMutable dr;
+    protected final Vector dr;
 }

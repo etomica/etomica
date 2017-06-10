@@ -4,16 +4,16 @@
 
 package etomica.freeenergy.npath;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotentialAtomic;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.meam.P2EAM;
+import etomica.potential.IPotentialAtomic;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialMaster;
 import etomica.units.Energy;
@@ -29,7 +29,7 @@ public class DataSourceEnergies implements IEtomicaDataSource {
     protected final PotentialCalculationDUDW pcDUDW;
     protected PotentialCalculationEnergies pc;
     protected final PotentialMaster potentialMaster;
-    protected IBox box;
+    protected Box box;
     protected final IteratorDirective id;
 
     public DataSourceEnergies(PotentialMaster potentialMaster) {
@@ -47,7 +47,7 @@ public class DataSourceEnergies implements IEtomicaDataSource {
         this.pc = pc;
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
     }
 

@@ -4,11 +4,11 @@
 
 package etomica.math.geometry.coordinate;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 
 public class CoordinateConverter {
 
-    public static void toSpherical(IVector v, double[] result) {
+    public static void toSpherical(Vector v, double[] result) {
         switch (v.getD()) {
             case 1:
                 result[0] = v.getX(0);

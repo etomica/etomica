@@ -4,24 +4,24 @@
 
 package etomica.threaded.domain;
 
-import etomica.api.IBox;
-import etomica.api.ISimulation;
-import etomica.api.IVector;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.box.Box;
+import etomica.molecule.IMoleculePositionDefinition;
 import etomica.nbr.cell.NeighborCellManager;
-import etomica.space.ISpace;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.space.Vector;
 
 public class NeighborCellManagerThreaded extends NeighborCellManager {
 
     public int totalCells;
     
-    public NeighborCellManagerThreaded(ISimulation sim, IBox box, double potentialRange, ISpace space) {
+    public NeighborCellManagerThreaded(Simulation sim, Box box, double potentialRange, Space space) {
         super(sim, box, potentialRange, space);
         // TODO Auto-generated constructor stub
     }
 
-    public NeighborCellManagerThreaded(ISimulation sim, IBox box, double potentialRange,
-            IAtomPositionDefinition positionDefinition, ISpace space) {
+    public NeighborCellManagerThreaded(Simulation sim, Box box, double potentialRange,
+                                       IMoleculePositionDefinition positionDefinition, Space space) {
         super(sim, box, potentialRange, positionDefinition, space);
         // TODO Auto-generated constructor stub
     }
@@ -37,7 +37,7 @@ public class NeighborCellManagerThreaded extends NeighborCellManager {
     public void setNumCells(int totalCells){
         this.totalCells = totalCells;
         if(totalCells==0){return;}
-        IVector dimensions = box.getBoundary().getBoxSize();
+        Vector dimensions = box.getBoundary().getBoxSize();
         lattice.setDimensions(dimensions);
        
         int [] nCells = calculateLatticeDimensions(totalCells, dimensions);
@@ -55,7 +55,7 @@ public class NeighborCellManagerThreaded extends NeighborCellManager {
         
     }
     
-    protected int[] calculateLatticeDimensions(int nCells, IVector shape) {
+    protected int[] calculateLatticeDimensions(int nCells, Vector shape) {
         int dimLeft = shape.getD();
         int nCellsLeft = nCells;
         int[] latticeDimensions = new int[shape.getD()];

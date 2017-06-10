@@ -4,20 +4,19 @@
 
 package etomica.potential;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.space.ISpace;
+import etomica.box.Box;
+import etomica.space.Boundary;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.BohrRadius;
 import etomica.units.Degree;
 import etomica.units.ElectronVolt;
 import etomica.util.Constants;
+
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class P2O2Bartolomei implements IPotentialAtomic {
     
@@ -68,8 +67,8 @@ public class P2O2Bartolomei implements IPotentialAtomic {
 
 }
 
-    protected IBoundary boundary;
-    protected final ISpace space;
+    protected Boundary boundary;
+    protected final Space space;
     public static int s = -1;    
     protected static boolean isPT2 = false;
     protected static final int nfctmx=101,mxter=47,nbin = 100;
@@ -120,7 +119,7 @@ public class P2O2Bartolomei implements IPotentialAtomic {
     protected static final double [] qbetPT2 = {0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.2500000,0.2500000,0.2500000,0.2500000,0.000000,0.2500000,0.2500000,0.2500000,0.2500000,0.2500000,0.2500000,0.000000,0.000000,0.2500000,0.2500000,0.2500000,0.2500000,0.000000,0.000000,0.000000,0.2500000,0.2500000,0.2500000,0.2500000,0.000000,0.000000,0.2500000,0.2500000,0.000000,0.000000,0.000000,0.000000,0.000000};
 
 
-    public P2O2Bartolomei(ISpace space) {
+    public P2O2Bartolomei(Space space) {
         this.space = space;
     }
 
@@ -128,7 +127,7 @@ public class P2O2Bartolomei implements IPotentialAtomic {
         return Double.POSITIVE_INFINITY;
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 
@@ -143,12 +142,12 @@ public class P2O2Bartolomei implements IPotentialAtomic {
         double th1 = 0;
         double th2 = 0;
         double phi = 0;
-        IVectorMutable ex = space.makeVector();
-        IVectorMutable ey = space.makeVector();
-        IVectorMutable ez = space.makeVector();
-        IVectorMutable dr = space.makeVector();
-        IVectorMutable a0 = space.makeVector();
-        IVectorMutable a1 = space.makeVector();        
+        Vector ex = space.makeVector();
+        Vector ey = space.makeVector();
+        Vector ez = space.makeVector();
+        Vector dr = space.makeVector();
+        Vector a0 = space.makeVector();
+        Vector a1 = space.makeVector();
         
         ex.E(0);
         ex.setX(0, 1);
@@ -170,8 +169,8 @@ public class P2O2Bartolomei implements IPotentialAtomic {
         if (cth2 > 1.0) cth2 = 1.0;
         if (cth2 < -1.0) cth2 = -1.0;
         th2 = Math.acos(cth2);
-        IVectorMutable n0 = space.makeVector();
-        IVectorMutable n1 = space.makeVector();
+        Vector n0 = space.makeVector();
+        Vector n1 = space.makeVector();
         n0.E(a0);
         n0.PEa1Tv1(-cth1, ex);
         if (n0.isZero())  n0.E(ey);
@@ -746,7 +745,7 @@ public class P2O2Bartolomei implements IPotentialAtomic {
         protected final double temperature;
         protected final double mass = 4.002602;
         protected final double fac;
-        protected final IVectorMutable dr;
+        protected final Vector dr;
 
         public P2O2TI(double temperature) {
             dr = space.makeVector();
@@ -765,7 +764,7 @@ public class P2O2Bartolomei implements IPotentialAtomic {
             return P2O2Bartolomei.this.getRange();
         }
 
-        public void setBox(IBox box) {
+        public void setBox(Box box) {
             P2O2Bartolomei.this.setBox(box);
         }
 

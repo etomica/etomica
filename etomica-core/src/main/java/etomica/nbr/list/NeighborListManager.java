@@ -4,26 +4,19 @@
 
 package etomica.nbr.list;
 
-import java.io.Serializable;
-
 import etomica.action.BoxImposePbc;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IIntegratorEvent;
-import etomica.api.IIntegratorListener;
-import etomica.api.IPotential;
-import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.*;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.AtomSetSinglet;
+import etomica.box.Box;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.cell.ApiAACell;
 import etomica.nbr.cell.NeighborCellManager;
+import etomica.potential.IPotential;
 import etomica.potential.PotentialArray;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.util.Debug;
 
 /**
@@ -38,13 +31,32 @@ import etomica.util.Debug;
  * the calculate method of PotentialMasterNbr, passing a
  * PotentialCalculationCellAssign instance as the PotentialCalculation.
  */
-public class NeighborListManager implements IIntegratorListener, AgentSource<AtomNeighborLists> {
+public class NeighborListManager implements IntegratorListener, AgentSource<AtomNeighborLists> {
 
+    private static final long serialVersionUID = 1L;
+    protected final AtomSetSinglet atomSetSinglet;
+    protected final PotentialMasterList potentialMaster;
+    protected final AtomLeafAgentManager<AtomNeighborLists> agentManager2Body;
+    protected final AtomLeafAgentManager<AtomPotentialList> agentManager1Body;
+    private final ApiAACell cellNbrIterator;
+    private final Api1ACell cell1ANbrIterator;
+    protected long numUnsafe;
+    protected Box box;
+    protected boolean initialized;
+    protected boolean doApplyPBC;
+    protected int numUpdates;
+    private int updateInterval;
+    private int iieCount;
+    private BoxImposePbc pbcEnforcer;
+    private boolean quiet;
+    private NeighborListEventManager eventManager;
+    private NeighborCriterion[] oldCriteria;
+    
     /**
      * Configures instance for use by the given PotentialMaster.
      */
-    public NeighborListManager(PotentialMasterList potentialMasterList, double range, 
-            IBox box, ISpace space) {
+    public NeighborListManager(PotentialMasterList potentialMasterList, double range,
+                               Box box, Space space) {
         setUpdateInterval(1);
         this.box = box;
         iieCount = updateInterval;
@@ -64,14 +76,14 @@ public class NeighborListManager implements IIntegratorListener, AgentSource<Ato
         eventManager = new NeighborListEventManager();
     }
 
-    public void setDoApplyPBC(boolean newDoApplyPBC) {
-        doApplyPBC = newDoApplyPBC;
-    }
-
     public boolean getDoApplyPBC() {
         return doApplyPBC;
     }
 
+    public void setDoApplyPBC(boolean newDoApplyPBC) {
+        doApplyPBC = newDoApplyPBC;
+    }
+    
     public void updateLists() {
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
@@ -84,22 +96,21 @@ public class NeighborListManager implements IIntegratorListener, AgentSource<Ato
         }
     }
 
-
-    public void integratorInitialized(IIntegratorEvent e) {
+    public void integratorInitialized(IntegratorEvent e) {
         reset();
     }
 
-    public void integratorStepFinished(IIntegratorEvent e) {
+    public void integratorStepFinished(IntegratorEvent e) {
         if (--iieCount == 0) {
             updateNbrsIfNeeded();
             iieCount = updateInterval;
         }
     }
 
-    public void integratorStepStarted(IIntegratorEvent e) {}
+    public void integratorStepStarted(IntegratorEvent e) {}
 
     /**
-     * For each box in the array, applies central image, 
+     * For each box in the array, applies central image,
      * resets neighbors of all atoms, and sets up all neighbor
      * lists.
      */
@@ -127,7 +138,7 @@ public class NeighborListManager implements IIntegratorListener, AgentSource<Ato
 
     /**
      * Checks whether any atom needs neighbor list updating, and if
-     * one is found, performs neighbor list updates of all atom 
+     * one is found, performs neighbor list updates of all atom
      * neighbor lists.  Performs this action on all boxs acted on
      * by given integrator.
      */
@@ -167,7 +178,7 @@ public class NeighborListManager implements IIntegratorListener, AgentSource<Ato
                 }
             }
         }
-        
+
         if (needUpdate) {
             if (Debug.ON && Debug.DEBUG_NOW) {
                 System.out.println("Updating neighbors");
@@ -215,7 +226,7 @@ public class NeighborListManager implements IIntegratorListener, AgentSource<Ato
         return numUpdates;
     }
 
-    public NeighborCriterion[] getCriterion(IAtomType atomType) {
+    public NeighborCriterion[] getCriterion(AtomType atomType) {
         return potentialMaster.getRangedPotentials(atomType).getCriteria();
     }
 
@@ -265,7 +276,7 @@ public class NeighborListManager implements IIntegratorListener, AgentSource<Ato
                 agentManager1Body.getAgent(atom).setIsInteracting(criteria[i].accept(atomSetSinglet),i);
             }
         }
-        
+
         NeighborCellManager cellManager = potentialMaster.getNbrCellManager(box);
         cellManager.setDoApplyPBC(!doApplyPBC);
         cellManager.assignCellAll();
@@ -304,7 +315,7 @@ public class NeighborListManager implements IIntegratorListener, AgentSource<Ato
             // things are set up properly (like calling setBox on the criteria).
             return;
         }
-        
+
         PotentialArray potentialArray = potentialMaster.getRangedPotentials(atom.getType());
         IPotential[] potentials = potentialArray.getPotentials();
         NeighborCriterion[] criteria = potentialArray.getCriteria();
@@ -319,7 +330,7 @@ public class NeighborListManager implements IIntegratorListener, AgentSource<Ato
             atomSetSinglet.atom = atom;
             agentManager1Body.getAgent(atom).setIsInteracting(criteria[i].accept(atomSetSinglet),i);
         }
-        
+
         if (agentManager2Body.getAgent(atom) == null) {
             // we're getting called before our own makeAgent (we have no
             // control over order here).  make the agent now and then use it
@@ -347,6 +358,10 @@ public class NeighborListManager implements IIntegratorListener, AgentSource<Ato
         }
     }
 
+    public double getRange() {
+        return cellNbrIterator.getNbrCellIterator().getNeighborDistance();
+    }
+
     /**
      * Sets the interaction range, which affects the cell-list neighbor iteration
      * used to generate candidate neighbors for neighbor listing.
@@ -354,10 +369,6 @@ public class NeighborListManager implements IIntegratorListener, AgentSource<Ato
     public void setRange(double d) {
         cell1ANbrIterator.getNbrCellIterator().setNeighborDistance(d);
         cellNbrIterator.getNbrCellIterator().setNeighborDistance(d);
-    }
-    
-    public double getRange() {
-        return cellNbrIterator.getNbrCellIterator().getNeighborDistance();
     }
 
     /**
@@ -373,14 +384,14 @@ public class NeighborListManager implements IIntegratorListener, AgentSource<Ato
      * Sets the quiet flag, indicating if unsafe-neighbor conditions should generate
      * an error message (would not want this if atoms were inserted in a MC
      * move, for example).
-     * 
+     *
      * @param quiet
      *            if true, no error will be generated; default is false
      */
     public void setQuiet(boolean quiet) {
         this.quiet = quiet;
     }
-    
+
     public IAtomList[] getUpList(IAtom atom) {
         return agentManager2Body.getAgent(atom).getUpList();
     }
@@ -392,7 +403,7 @@ public class NeighborListManager implements IIntegratorListener, AgentSource<Ato
     public AtomPotentialList getPotential1BodyList(IAtom atom) {
         return agentManager1Body.getAgent(atom);
     }
-    
+
     public void dispose() {
         agentManager1Body.dispose();
         agentManager2Body.dispose();
@@ -401,27 +412,8 @@ public class NeighborListManager implements IIntegratorListener, AgentSource<Ato
     public NeighborListEventManager getEventManager() {
         return eventManager;
     }
-    
-    private static final long serialVersionUID = 1L;
-    private int updateInterval;
-    private int iieCount;
-    protected final AtomSetSinglet atomSetSinglet;
-    private final ApiAACell cellNbrIterator;
-    private final Api1ACell cell1ANbrIterator;
-    protected final PotentialMasterList potentialMaster;
-    private BoxImposePbc pbcEnforcer;
-    private boolean quiet;
-    protected long numUnsafe;
-    protected final AtomLeafAgentManager<AtomNeighborLists> agentManager2Body;
-    protected final AtomLeafAgentManager<AtomPotentialList> agentManager1Body;
-    private NeighborListEventManager eventManager;
-    protected IBox box;
-    private NeighborCriterion[] oldCriteria;
-    protected boolean initialized;
-    protected boolean doApplyPBC;
-    protected int numUpdates;
 
-    public AtomNeighborLists makeAgent(IAtom atom, IBox agentBox) {
+    public AtomNeighborLists makeAgent(IAtom atom, Box agentBox) {
         if (initialized) {
             AtomNeighborLists oldAgent = agentManager2Body.getAgent(atom);
             if (oldAgent != null) {
@@ -436,7 +428,7 @@ public class NeighborListManager implements IIntegratorListener, AgentSource<Ato
         return lists;
     }
     
-    public void releaseAgent(AtomNeighborLists agent, IAtom atom, IBox agentBox) {
+    public void releaseAgent(AtomNeighborLists agent, IAtom atom, Box agentBox) {
         // we need to remove this atom from the neighbor lists of its neighbors.
         AtomNeighborLists nbrLists = agent;
         IAtomList[] upDnLists = nbrLists.getUpList();
@@ -484,8 +476,8 @@ public class NeighborListManager implements IIntegratorListener, AgentSource<Ato
         	this.manager = manager;
         }
 
-        public void releaseAgent(AtomPotentialList obj, IAtom atom, IBox agentBox) {}
-        public AtomPotentialList makeAgent(IAtom atom, IBox agentBox) {
+        public void releaseAgent(AtomPotentialList obj, IAtom atom, Box agentBox) {}
+        public AtomPotentialList makeAgent(IAtom atom, Box agentBox) {
         	if (manager != null) {
 	            AtomPotentialList oldAgent = manager.getAgent(atom);
 	            if (oldAgent != null) {

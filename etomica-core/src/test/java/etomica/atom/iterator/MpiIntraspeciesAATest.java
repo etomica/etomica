@@ -4,12 +4,13 @@
 
 package etomica.atom.iterator;
 
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
-import etomica.api.ISpecies;
 import etomica.UnitTestUtil;
 import etomica.atom.MoleculesetAction;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.iterator.MpiIntraspeciesAA;
+import etomica.simulation.Simulation;
+import etomica.species.ISpecies;
 
 
 /**
@@ -26,7 +27,7 @@ public class MpiIntraspeciesAATest extends MoleculeIteratorTestAbstract {
         int[] n0 = new int[] {10, 1, 0};
         int nA0 = 5;
         int[] n1 = new int[] {5, 1, 6};
-        ISimulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1);
+        Simulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1);
         
         ISpecies[] species = new ISpecies[sim.getSpeciesCount()];
         for(int i = 0; i < sim.getSpeciesCount(); i++) {
@@ -54,7 +55,7 @@ public class MpiIntraspeciesAATest extends MoleculeIteratorTestAbstract {
         assertTrue(exceptionThrown);
         try {
             // null Species
-            new MpiIntraspeciesAA((ISpecies)null);
+            new MpiIntraspeciesAA(null);
         } catch(NullPointerException e) {exceptionThrown = true;}
         assertTrue(exceptionThrown);
     }
@@ -62,7 +63,7 @@ public class MpiIntraspeciesAATest extends MoleculeIteratorTestAbstract {
     /**
      * Performs tests on different species combinations in a particular box.
      */
-    private void boxTest(IBox box, ISpecies[] species) {
+    private void boxTest(Box box, ISpecies[] species) {
         speciesTestForward(box, species, 0);
         speciesTestForward(box, species, 1);
     }
@@ -71,7 +72,7 @@ public class MpiIntraspeciesAATest extends MoleculeIteratorTestAbstract {
      * Test iteration in various directions with different targets.  Iterator constructed with
      * index of first species less than index of second.
      */
-    private void speciesTestForward(IBox box, ISpecies[] species, int species0Index) {
+    private void speciesTestForward(Box box, ISpecies[] species, int species0Index) {
         MpiIntraspeciesAA api = new MpiIntraspeciesAA(species[species0Index]);
         MoleculesetAction speciesTest = new SpeciesTestAction(species[species0Index], species[species0Index]);
 

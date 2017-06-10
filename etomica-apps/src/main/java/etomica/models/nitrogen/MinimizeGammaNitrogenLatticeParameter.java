@@ -4,8 +4,6 @@
 
 package etomica.models.nitrogen;
 
-import etomica.api.IBoundary;
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.lattice.crystal.Basis;
@@ -16,9 +14,11 @@ import etomica.normalmode.BasisBigCell;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMolecular;
 import etomica.simulation.Simulation;
+import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 
 
 
@@ -34,7 +34,7 @@ import etomica.space3d.Space3D;
  */
 public class MinimizeGammaNitrogenLatticeParameter extends Simulation{
 
-	public MinimizeGammaNitrogenLatticeParameter(ISpace space, int numMolecule, double density, double ratio) {
+	public MinimizeGammaNitrogenLatticeParameter(Space space, int numMolecule, double density, double ratio) {
 		super(space);
 		this.space = space;
 		this.density = density;
@@ -58,7 +58,7 @@ public class MinimizeGammaNitrogenLatticeParameter extends Simulation{
 		box.setNMolecules(species, numMolecule);		
 		int [] nCells = new int[]{1,1,1};
 				
-		IBoundary boundary = new BoundaryRectangularPeriodic(space, new double[]{nCell*a, nCell*a, nCell*c});
+		Boundary boundary = new BoundaryRectangularPeriodic(space, new double[]{nCell*a, nCell*a, nCell*c});
 		Primitive primitive = new PrimitiveTetragonal(space, nCell*a, nCell*c);
 		
 		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
@@ -83,7 +83,7 @@ public class MinimizeGammaNitrogenLatticeParameter extends Simulation{
 		
 		int [] nCells = new int[]{1,1,1};
 		
-		IBoundary boundary = new BoundaryRectangularPeriodic(space, new double[]{nCell*a, nCell*a, nCell*c});
+		Boundary boundary = new BoundaryRectangularPeriodic(space, new double[]{nCell*a, nCell*a, nCell*c});
 		Primitive primitive = new PrimitiveTetragonal(space, nCell*a, nCell*c);
 		box.setBoundary(boundary);
 		
@@ -261,7 +261,7 @@ public double findOptRatio(double minRatio, double maxRatio){
 
 	protected double a, c, latticeEnergy;
 	protected Box box;
-	protected ISpace space;
+	protected Space space;
 	protected int numMolecule;
 	protected double density;
 	protected int nCell;

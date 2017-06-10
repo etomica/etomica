@@ -6,17 +6,11 @@ package etomica.zeolite;
 
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.atom.DiameterHash;
+import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataFork;
-import etomica.data.DataPump;
-import etomica.data.IDataSink;
+import etomica.data.*;
 import etomica.data.meter.MeterEnergy;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceNSelector;
@@ -55,7 +49,7 @@ public class ZeoliteSimulation extends Simulation {
     /**
      * The Box holding the atoms. 
      */
-    public final IBox box;
+    public final Box box;
     /**
      * The Integrator performing the dynamics.
      */
@@ -70,10 +64,12 @@ public class ZeoliteSimulation extends Simulation {
      */
     //public final P2HardSphere potential;
     public final P2LennardJones potentialMM;
-    private int nAtomsMeth;
-    private int interval;
     public ActivityIntegrate activityIntegrate;
     public DisplayPlot ePlot;
+    private int nAtomsMeth;
+    private int interval;
+    private SpeciesSpheresMono sp;
+    private String filename;
     /**
      * Sole public constructor, makes a simulation using a 3D space.
      */
@@ -94,27 +90,27 @@ public class ZeoliteSimulation extends Simulation {
         //String fileName = "pbu2";
         ConfigurationFileXYZ config = new ConfigurationFileXYZ(fileName, space);
         int[] numAtoms = config.getNumAtoms();
-        
+
         nAtomsMeth = numAtoms[numAtoms.length - 1];
         double neighborRangeFac = 1.2;
         //defaults.makeLJDefaults();
         //Setting sizes of molecules
-        
+
         double range = 8.035;
         potentialMaster.setRange(3.214*neighborRangeFac*2.5);
-        
-        
+
+
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(10);
         integrator.setTimeStep(0.00611);
         integrator.setTemperature(Kelvin.UNIT.toSim(298.0));
-        
+
 
         activityIntegrate = new ActivityIntegrate(integrator, 2, true);
         activityIntegrate.setMaxSteps(500);
         getController().addAction(activityIntegrate);
-        
+
         box = new Box(space);
         addBox(box);
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
@@ -140,31 +136,31 @@ public class ZeoliteSimulation extends Simulation {
         potentialMM.setSigma(3.0);
         //Setting up potential for Methane-Oxygen interactions
         P2LennardJones potentialMO = new P2LennardJones(space);
-        //Setting sigma and epsilon 
+        //Setting sigma and epsilon
         potentialMO.setEpsilon(Kelvin.UNIT.toSim(133.3));
         //potentialMO.setEpsilon(100);
         potentialMO.setSigma(3.214);
-        
+
         //Setting up Methane - Silicon interactions
         //P2LennardJones potentialMS = potentialMO;
         P2WCA potentialMS = new P2WCA(space,1.18,potentialMO.getEpsilon());
-        
+
         //Wrap LJ potentials to truncate
         P2SoftSphericalTruncated MM = new P2SoftSphericalTruncated(space, potentialMM,2.5*potentialMM.getSigma());
         P2SoftSphericalTruncated MO = new P2SoftSphericalTruncated(space, potentialMO,2.5*potentialMO.getSigma());
         //P2SoftSphericalTruncated MS = new P2SoftSphericalTruncated(potentialMS,2.5*potentialMS.getSigma());
-        
-        
-        potentialMaster.addPotential(MM,new IAtomType[]{species[2].getLeafType(),species[2].getLeafType()});
-        potentialMaster.addPotential(MO,new IAtomType[]{species[0].getLeafType(),species[2].getLeafType()});
-        potentialMaster.addPotential(potentialMS,new IAtomType[]{species[1].getLeafType(),species[2].getLeafType()});
-        
+
+
+        potentialMaster.addPotential(MM, new AtomType[]{species[2].getLeafType(), species[2].getLeafType()});
+        potentialMaster.addPotential(MO, new AtomType[]{species[0].getLeafType(), species[2].getLeafType()});
+        potentialMaster.addPotential(potentialMS, new AtomType[]{species[1].getLeafType(), species[2].getLeafType()});
+
         //Initializes the coordinates and positions
         config.initializeCoordinates(box);
         box.getBoundary().setBoxSize(config.getUpdatedDimensions());
         integrator.setBox(box);
         //integrator.addListener(new BoxImposePbc(box));
-          
+
         //PARAMETERS For Simulation Run
         //activityIntegrate.setMaxSteps(5000000);
         activityIntegrate.setMaxSteps(1000000);
@@ -172,9 +168,9 @@ public class ZeoliteSimulation extends Simulation {
         integrator.setTimeStep(ts);
         interval = 2000;
         integrator.setThermostatInterval(interval/1000);
-        
+
         //      Adding coordinate writer by Mike Sellars
-     
+
         filename = (numAtoms[2]+"_"+activityIntegrate.getMaxSteps()+"_"+ts+"_"+interval+"_WCA");
         sp = species[2];
         /*
@@ -185,29 +181,17 @@ public class ZeoliteSimulation extends Simulation {
         coordWriter.setWriteInterval(interval);
         */
     } //end of constructor
-    int getInterval(){
-    	return interval;
-    }
-    int getMethane(){
-    	return nAtomsMeth;
-    }
-    String getFileName(){
-    	return filename;
-    }
-    SpeciesSpheresMono getSpeciesRMS(){
-    	return sp;
-    }
-    private SpeciesSpheresMono sp;
-    private String filename;
+
     public static void Converter(String inputFile) {
 		// TODO Auto-generated method stub
 		String outputFile = inputFile+"__Result.txt";
 		MSDProcessor proc = new MSDProcessor(Space3D.getInstance(),inputFile,outputFile);
-		
-		//proc.setDeltaTmax(1);
+
+        //proc.setDeltaTmax(1);
 		proc.fillArrays();
 		System.out.println("Converter done");
 	}
+
     /**
      * Demonstrates how this class is implemented.
      */
@@ -221,11 +205,11 @@ public class ZeoliteSimulation extends Simulation {
         nSelector.setSpecies(sim.species[num-1]);
         nSelector.setBox(sim.box);
         simGraphic.add(nSelector);
-        
+
         //Energy
         int history = sim.getInterval()*10;
         //Settings
-        
+
         MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotentialMaster(), sim.box);
         AccumulatorHistory energyHistory = new AccumulatorHistory();
         energyHistory.getHistory().setHistoryLength(history);
@@ -238,7 +222,7 @@ public class ZeoliteSimulation extends Simulation {
         sim.integrator.getEventManager().addListener(pumpListener);
         energyHistory.setPushInterval(10);
         simGraphic.getController().getDataStreamPumps().add(energyPump);
-		
+
         /*
         MeterPotentialEnergy peMeter = new MeterPotentialEnergy(sim.potentialMaster);
         peMeter.setBox(sim.box);
@@ -252,7 +236,7 @@ public class ZeoliteSimulation extends Simulation {
         peHistory.setPushInterval(10);
         sim.register(peMeter,pePump);
         sim.integrator.addListener(peAdapter);
-		
+
 		MeterKineticEnergy keMeter = new MeterKineticEnergy();
         keMeter.setBox(sim.box);
         AccumulatorHistory keHistory = new AccumulatorHistory();
@@ -263,8 +247,8 @@ public class ZeoliteSimulation extends Simulation {
         keHistory.setPushInterval(10);
         sim.register(keMeter,kePump);
         sim.integrator.addListener(keAdapter);
-        
-        
+
+
         MeterTemperature temp = new MeterTemperature();
 		temp.setBox(sim.box);
 		AccumulatorHistory tHistory = new AccumulatorHistory();
@@ -278,7 +262,7 @@ public class ZeoliteSimulation extends Simulation {
         sim.register(temp,tPump);
         sim.integrator.addListener(tAdapter);
         */
-        
+
         DisplayPlot ePlot = sim.ePlot;
         ePlot = new DisplayPlot();
         ePlot.setLabel("Energy");
@@ -309,10 +293,26 @@ public class ZeoliteSimulation extends Simulation {
         		default:
         			colorScheme.setColor(sim.species[i].getLeafType(), java.awt.Color.white);
         	}
-        	
-        	diameterManager.setDiameter(sim.species[i].getLeafType(), atomicSize[i]);
+
+            diameterManager.setDiameter(sim.species[i].getLeafType(), atomicSize[i]);
         }
 
     }//end of main
+
+    int getInterval() {
+        return interval;
+    }
+
+    int getMethane() {
+        return nAtomsMeth;
+    }
+
+    String getFileName() {
+        return filename;
+    }
+
+    SpeciesSpheresMono getSpeciesRMS() {
+        return sp;
+    }
 
 }//end of class

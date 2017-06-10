@@ -4,8 +4,8 @@
 
 package etomica.potential;
 
-import etomica.api.IBox;
-import etomica.space.ISpace;
+import etomica.box.Box;
+import etomica.space.Space;
 
 /**
  * Lennard Jones molecule with a quadrupole.
@@ -21,18 +21,18 @@ import etomica.space.ISpace;
  */
 public class P2LJQQ extends Potential2SoftSpherical  {
 
-    public P2LJQQ(ISpace space) {
+    public P2LJQQ(Space space) {
         this(space, 1, 1, 1);
     }
 
-    public P2LJQQ(ISpace space, double sigma, double epsilon,  double momentSquared) {
+    public P2LJQQ(Space space, double sigma, double epsilon, double momentSquared) {
         super(space);
         setSigma(sigma);
         setEpsilon(epsilon);
         setQuadrupolarMomentSquare(momentSquared);
        
     }
-      public void setBox(IBox box) {
+      public void setBox(Box box) {
         boundary = box.getBoundary();
     }
          // LJ contribution

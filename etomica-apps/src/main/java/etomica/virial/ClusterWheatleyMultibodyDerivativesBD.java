@@ -4,9 +4,9 @@
 
 package etomica.virial;
 
-import etomica.api.IMoleculeList;
-import etomica.atom.MoleculeArrayList;
 import etomica.math.SpecialFunctions;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeArrayList;
 
 import java.math.BigDecimal;
 
@@ -44,10 +44,7 @@ public class ClusterWheatleyMultibodyDerivativesBD extends ClusterWheatleySoftDe
      *          4-body Mayer function, etc.  fMulti null entries will be
      *          ignored and the array need to not be of size equal to nPoints.
      *          If only 3-body Mayer function is available, then fMulti can be
-     *          of length 4 (0,1,2,3).
-     * @param tol if the magnitude of the computed cluster value is less than
-     *          the value will be recomputed using BigDecimal.  Use tol=0 to
-     *          prevent BigDecimal computations.
+     *          of length 4 (0,1,2,3)
      */
     public ClusterWheatleyMultibodyDerivativesBD(int nPoints, MayerFunction f, MayerFunctionNonAdditive fNonAdditive, MayerFunctionNonAdditive[] fMulti, int precision, int nDer, boolean doTotal) {
         super(nPoints, f, precision, nDer);

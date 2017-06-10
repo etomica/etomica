@@ -4,15 +4,14 @@
 
 package etomica.liquidLJ;
 
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
+import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialSoft;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 /**
@@ -25,9 +24,9 @@ import etomica.space.Tensor;
  
 public class Potential2SoftSphericalLSMulti extends Potential2 implements PotentialSoft {
    
-    public Potential2SoftSphericalLSMulti(ISpace space, double[] rCut, Potential2Soft p2Soft) {
+    public Potential2SoftSphericalLSMulti(Space space, double[] rCut, Potential2Soft p2Soft) {
         super(space);
-        gradient = new IVectorMutable[2];
+        gradient = new Vector[2];
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();
         dr = space.makeVector();
@@ -94,11 +93,11 @@ public class Potential2SoftSphericalLSMulti extends Potential2 implements Potent
     /**
      * Gradient of the pair potential as given by the du(double) method.
      */
-    public IVector[] gradient(IAtomList atoms) {
+    public Vector[] gradient(IAtomList atoms) {
         return gradient;
     }
     
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         gradient(atoms);
         pressureTensor.PEv1v2(gradient[0],dr);
         return gradient;
@@ -112,7 +111,7 @@ public class Potential2SoftSphericalLSMulti extends Potential2 implements Potent
         return Double.POSITIVE_INFINITY;
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
         p2Soft.setBox(box);
 
@@ -124,14 +123,14 @@ public class Potential2SoftSphericalLSMulti extends Potential2 implements Potent
 
     }
 
-    protected final IVectorMutable[] gradient;
-    protected IBoundary boundary;
+    protected final Vector[] gradient;
+    protected Boundary boundary;
     protected final int[] nShells;
     protected final double[] a0;
     protected final Potential2Soft p2Soft;
-    protected final IVectorMutable Lxyz;
-    protected final IVectorMutable dr;
-    protected final IVectorMutable drtmp;
+    protected final Vector Lxyz;
+    protected final Vector dr;
+    protected final Vector drtmp;
     protected final double[] rCut2;
     protected final double rCutMax;
     protected final double[][] sums;

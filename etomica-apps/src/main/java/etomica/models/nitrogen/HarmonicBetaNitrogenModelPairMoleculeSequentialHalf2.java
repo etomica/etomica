@@ -4,24 +4,23 @@
 
 package etomica.models.nitrogen;
 
-import etomica.api.IMolecule;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
-import etomica.atom.MoleculePair;
 import etomica.box.Box;
 import etomica.data.types.DataTensor;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
-import etomica.normalmode.ArrayReader1D;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculePair;
 import etomica.normalmode.BasisBigCell;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.units.Degree;
 
 /**
@@ -34,7 +33,7 @@ import etomica.units.Degree;
  */
 public class HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2 extends Simulation{
 	
-	public HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2(ISpace space, int numMolecule, String densityStr) {
+	public HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2(Space space, int numMolecule, String densityStr) {
 		super(space);
 		this.space = space;
 		
@@ -51,7 +50,7 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2 extends Simula
 		Basis basisHCP = new BasisHcp();
 		BasisBigCell basis = new BasisBigCell(space, basisHCP, new int[]{nCell/division,nCell/division,nCell/division});
         
-		IVector[] boxDim = new IVector[3];
+		Vector[] boxDim = new Vector[3];
 		boxDim[0] = space.makeVector(new double[]{nCell*aDim, 0, 0});
 		boxDim[1] = space.makeVector(new double[]{-nCell*aDim*Math.cos(Degree.UNIT.toSim(60)), nCell*aDim*Math.sin(Degree.UNIT.toSim(60)), 0});
 		boxDim[2] = space.makeVector(new double[]{0, 0, nCell*cDim});
@@ -300,7 +299,7 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2 extends Simula
 	
 	
 	protected Box box;
-	protected ISpace space;
+	protected Space space;
 	protected P2Nitrogen potential;
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected PotentialMaster potentialMaster;

@@ -7,7 +7,7 @@ package etomica.virial;
 import etomica.potential.P2LennardJones;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.util.SineTransform;
+import etomica.math.numerical.SineTransform;
 
 /**
  * 

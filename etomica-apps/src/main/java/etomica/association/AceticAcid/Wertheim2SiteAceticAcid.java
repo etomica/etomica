@@ -4,16 +4,13 @@
 
 package etomica.association.AceticAcid;
 
-import java.awt.Color;
-
 import etomica.action.IAction;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.ISpecies;
 import etomica.association.BiasVolume2SiteAceticAcid;
+import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.atom.iterator.Atomset4IteratorIndexList;
+import etomica.box.Box;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
@@ -27,29 +24,16 @@ import etomica.potential.P4BondTorsion;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.units.Calorie;
-import etomica.units.CompoundUnit;
-import etomica.units.Kelvin;
-import etomica.units.Mole;
-import etomica.units.Unit;
+import etomica.species.ISpecies;
+import etomica.units.*;
 import etomica.util.Arrays;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterBonds;
-import etomica.virial.ClusterCoupledFlipped;
-import etomica.virial.ClusterSum;
-import etomica.virial.ConfigurationClusterAceticAcid;
-import etomica.virial.MCMoveClusterTorsionAceticAcid;
-import etomica.virial.MCMoveClusterWiggleAceticAcid;
-import etomica.virial.MayerEGeneral;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerFunctionProductGeneral;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 import etomica.virial.simulations.SimulationVirialOverlap2;
+
+import java.awt.*;
 
 /**
  * Wertheim coefficients calculation for acetic acid using IMPROVED OPLS united-atom model.
@@ -638,8 +622,8 @@ public class Wertheim2SiteAceticAcid {
         wiggle[1] = new MCMoveClusterWiggleAceticAcid(sim,sim.integrators[1].getPotentialMaster(), space);
         sim.integrators[1].getMoveManager().addMCMove(wiggle[1]);//target system
 
-        IBox referenceBox = sim.box[0];
-        IBox targetBox = sim.box[1];
+        Box referenceBox = sim.box[0];
+        Box targetBox = sim.box[1];
             
         if (false) {
             referenceBox.getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
@@ -649,12 +633,12 @@ public class Wertheim2SiteAceticAcid {
             ColorSchemeByType colorScheme1 = (ColorSchemeByType) simGraphic.getDisplayBox(targetBox).getColorScheme();
             DiameterHashByType diameterScheme0 = (DiameterHashByType) simGraphic.getDisplayBox(referenceBox).getDiameterHash();
             DiameterHashByType diameterScheme1 = (DiameterHashByType) simGraphic.getDisplayBox(targetBox).getDiameterHash();
-           
-         IAtomType typeCH3  = species.getCH3Type();
-         IAtomType typeC  = species.getCType();
-            IAtomType typeDBO = species.getDBOType();
-            IAtomType typeSBO = species.getSBOType();
-            IAtomType typeH = species.getHType();
+
+            AtomType typeCH3 = species.getCH3Type();
+            AtomType typeC = species.getCType();
+            AtomType typeDBO = species.getDBOType();
+            AtomType typeSBO = species.getSBOType();
+            AtomType typeH = species.getHType();
             colorScheme0.setColor(typeCH3, Color.GREEN);
             diameterScheme0.setDiameter(typeCH3, 2*1.7);
             colorScheme0.setColor(typeC, Color.BLUE);

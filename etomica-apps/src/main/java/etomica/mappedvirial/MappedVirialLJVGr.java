@@ -3,20 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.mappedvirial;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
 
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.DataPump;
-import etomica.data.DataPumpListener;
-import etomica.data.IData;
+import etomica.data.*;
+import etomica.data.histogram.Histogram;
 import etomica.data.meter.MeterPressure;
 import etomica.data.meter.MeterRDFPC;
 import etomica.graphics.DisplayPlot;
@@ -30,23 +24,25 @@ import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.Histogram;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class MappedVirialLJVGr extends Simulation {
     
     public SpeciesSpheresMono species;
-    public IBox box;
+    public Box box;
     public IntegratorMC integrator;
     public MCMoveAtom move;
     public ActivityIntegrate activityIntegrate;
     public P2SoftSphericalTruncated p2Truncated;
     
-    public MappedVirialLJVGr(ISpace _space, int numAtoms, double temperature, double density, double rc) {
+    public MappedVirialLJVGr(Space _space, int numAtoms, double temperature, double density, double rc) {
         super(_space);
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, rc, space);
         potentialMaster.lrcMaster().setEnabled(false);
@@ -64,8 +60,8 @@ public class MappedVirialLJVGr extends Simulation {
         
 	    P2LennardJones potential = new P2LennardJones(space);
         p2Truncated = new P2SoftSphericalTruncated(space, potential, rc);
-	    potentialMaster.addPotential(p2Truncated, new IAtomType[]{species.getLeafType(), species.getLeafType()});
-	    
+        potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
+
         //construct box
 	    box = new Box(space);
         addBox(box);
@@ -118,7 +114,7 @@ public class MappedVirialLJVGr extends Simulation {
         System.out.println("cutoff: "+rc);
         System.out.println(nBlocks+" blocks");
 
-        ISpace space = Space.getInstance(3);
+        Space space = Space.getInstance(3);
 
         MappedVirialLJVGr sim = new MappedVirialLJVGr(space, numAtoms, temperature, density, rc);
         
@@ -199,18 +195,18 @@ public class MappedVirialLJVGr extends Simulation {
         }
 
         sim.getController().actionPerformed();
-        
-        IData mappedAvg = accMappedVirial.getData(accMappedVirial.AVERAGE);
-        IData mappedErr = accMappedVirial.getData(accMappedVirial.ERROR);
-        IData mappedCor = accMappedVirial.getData(accMappedVirial.BLOCK_CORRELATION);
+
+        IData mappedAvg = accMappedVirial.getData(AccumulatorAverage.AVERAGE);
+        IData mappedErr = accMappedVirial.getData(AccumulatorAverage.ERROR);
+        IData mappedCor = accMappedVirial.getData(AccumulatorAverage.BLOCK_CORRELATION);
         double avg = mappedAvg.getValue(0);
         double err = mappedErr.getValue(0);
         double cor = mappedCor.getValue(0);
         if (computePMA) System.out.print(String.format("avg: %13.6e   err: %11.4e   cor: % 4.2f\n", avg, err, cor));
-        
-        double pAvg = accP.getData(accP.AVERAGE).getValue(0);
-        double pErr = accP.getData(accP.ERROR).getValue(0);
-        double pCor = accP.getData(accP.BLOCK_CORRELATION).getValue(0);
+
+        double pAvg = accP.getData(AccumulatorAverage.AVERAGE).getValue(0);
+        double pErr = accP.getData(AccumulatorAverage.ERROR).getValue(0);
+        double pCor = accP.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
         if (computeP) System.out.print(String.format("Pressure     avg: %13.6e   err: %11.4e   cor: % 4.2f\n", pAvg, pErr, pCor));
 
         if (functionsFile != null) {
@@ -246,9 +242,9 @@ public class MappedVirialLJVGr extends Simulation {
         long t2 = System.currentTimeMillis();
         System.out.println("time: "+(t2-t1)*0.001);
     }
-    
-    enum VSource {U_SHIFT, TANH, SINE};
-    
+
+    enum VSource {U_SHIFT, TANH, SINE}
+
     public static class LJMDParams extends ParameterBase {
         public int numAtoms = 100;
         public double temperature = 1.0;

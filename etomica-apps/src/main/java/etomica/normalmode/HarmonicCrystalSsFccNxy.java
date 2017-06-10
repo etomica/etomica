@@ -18,12 +18,11 @@ import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential2SoftSpherical;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.units.Energy;
-import etomica.util.FunctionGeneral;
+import etomica.data.FunctionData;
 import etomica.util.ParameterBase;
 
 /**
@@ -39,9 +38,9 @@ import etomica.util.ParameterBase;
 public class HarmonicCrystalSsFccNxy {
 
     public HarmonicCrystalSsFccNxy(int[] nCells, Primitive primitive, Basis 
-            basis, Potential2SoftSpherical potential, ISpace _space) {
+            basis, Potential2SoftSpherical potential, Space _space) {
         this.potential = potential;
-        this.nCells = (int[])nCells.clone();
+        this.nCells = nCells.clone();
         this.space = _space;
         lattice = new BravaisLatticeCrystal(primitive, basis);
         normalModes = new NormalModesPotential(nCells, primitive, basis, 
@@ -53,7 +52,7 @@ public class HarmonicCrystalSsFccNxy {
     }
 
     public double getLatticeEnergy() {
-        FunctionGeneral function = new FunctionGeneral() {
+        FunctionData<Object> function = new FunctionData<Object>() {
             public IData f(Object obj) {
                 data.x = potential.u(((Vector3D)obj).squared());
                 return data;
@@ -180,7 +179,7 @@ public class HarmonicCrystalSsFccNxy {
     private int[] nCells;
     private int maxLatticeShell;
     private Potential2SoftSpherical potential;
-    private final ISpace space;
+    private final Space space;
     private static final long serialVersionUID = 1L;
     
     

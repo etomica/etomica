@@ -3,10 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.lattice.crystal;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.space.Vector;
 import etomica.math.geometry.Polytope;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 
 /**
@@ -18,11 +17,11 @@ public class PrimitiveTriclinic extends Primitive {
     
     private static final long serialVersionUID = 1L;
 
-    public PrimitiveTriclinic(ISpace space) {
+    public PrimitiveTriclinic(Space space) {
         this(space, 1.0, 1.0, 1.0, rightAngle, rightAngle, rightAngle);
     }
-    public PrimitiveTriclinic(ISpace space, double a, double b, double c, 
-                                              double alpha, double beta, double gamma) {
+    public PrimitiveTriclinic(Space space, double a, double b, double c,
+                              double alpha, double beta, double gamma) {
         super(space);
         setSize(new double[]{a, b, c});
         setAngles(new double[]{alpha, beta, gamma});
@@ -30,9 +29,9 @@ public class PrimitiveTriclinic extends Primitive {
 
     //called by superclass constructor
     public Primitive makeReciprocal() {
-        IVectorMutable aStar = space.makeVector();
-        IVectorMutable bStar = space.makeVector();
-        IVectorMutable cStar = space.makeVector();
+        Vector aStar = space.makeVector();
+        Vector bStar = space.makeVector();
+        Vector cStar = space.makeVector();
         aStar.E(latticeVectors[1]);
         aStar.XE(latticeVectors[2]);
         double factor = 2.0*Math.PI/latticeVectors[0].dot(aStar); // a . (b X c)
@@ -45,7 +44,7 @@ public class PrimitiveTriclinic extends Primitive {
         cStar.XE(latticeVectors[1]);
         factor = 2.0*Math.PI/latticeVectors[2].dot(cStar);
         cStar.TE(factor);
-        return new PrimitiveGeneral(space, new IVectorMutable[]{aStar, bStar, cStar});
+        return new PrimitiveGeneral(space, new Vector[]{aStar, bStar, cStar});
     }
     
     public void setSizeA(double newA) {
@@ -120,11 +119,11 @@ public class PrimitiveTriclinic extends Primitive {
         setSize(new double[]{size[0]*scale, size[1]*scale, size[2]*scale});
     }        
     
-    public int[] latticeIndex(IVector q) {
+    public int[] latticeIndex(Vector q) {
         throw new RuntimeException("nope");
     }
 
-    public int[] latticeIndex(IVector q, int[] dimensions) {
+    public int[] latticeIndex(Vector q, int[] dimensions) {
         throw new RuntimeException("not this either");
     }
     
@@ -136,9 +135,9 @@ public class PrimitiveTriclinic extends Primitive {
 
     public static void main(String args[]) {
         PrimitiveTriclinic primitive = new PrimitiveTriclinic(Space3D.getInstance(), 1, 1.5, 2, Math.PI*0.4, Math.PI*0.45, Math.PI*0.6);
-        IVector[] v = primitive.vectors();
+        Vector[] v = primitive.vectors();
         Primitive reciprocal = primitive.makeReciprocal();
-        IVector[] vr = reciprocal.vectors();
+        Vector[] vr = reciprocal.vectors();
         for (int i=0; i<v.length; i++) {
             for (int j=0; j<vr.length; j++) {
                 System.out.println(i+" "+j+" "+v[i].dot(vr[j]));

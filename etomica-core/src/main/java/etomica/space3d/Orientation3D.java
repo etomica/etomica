@@ -6,25 +6,22 @@ package etomica.space3d;
 
 import java.io.Serializable;
 
-import etomica.api.IRandom;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.util.random.IRandom;
+import etomica.space.Vector;
 import etomica.space.IOrientation;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
 import etomica.space.Space;
 import etomica.util.Debug;
 
 public class Orientation3D implements IOrientation3D, Serializable {
 
     private static final long serialVersionUID = 1L;
-    protected final IVectorMutable direction;
-    protected final IVectorMutable temp, temp2;
+    protected final Vector direction;
+    protected final Vector temp, temp2;
     
     /**
      * Default constructor sets orientation to point in the X direction.
      */
-    public Orientation3D(ISpace space) {
+    public Orientation3D(Space space) {
         direction = space.makeVector();
         direction.setX(0, 1);
         temp = Space.makeVector(3);
@@ -35,7 +32,7 @@ public class Orientation3D implements IOrientation3D, Serializable {
         setDirection(o.getDirection());
     }
 
-    public IVector getDirection() {
+    public Vector getDirection() {
         return direction;
     }
 
@@ -43,7 +40,7 @@ public class Orientation3D implements IOrientation3D, Serializable {
      * Sets this orientation to point in the given direction.
      * @throws Exception if vector has 0 length
      */
-    public void setDirection(IVector newDirection) {
+    public void setDirection(Vector newDirection) {
         direction.E(newDirection);
         direction.normalize();
     }
@@ -53,7 +50,7 @@ public class Orientation3D implements IOrientation3D, Serializable {
      * must have unit length, but need not be perpendicular to the current
      * orientation direction.
      */
-    public void rotateBy(double dt, IVector axis) {
+    public void rotateBy(double dt, Vector axis) {
         // consider a circle on the surface of the unit sphere.  The given axis
         // passes through the center of the circle.  The circle passes through
         // the current direction vector and the vector v4 defined below.  We
@@ -90,7 +87,7 @@ public class Orientation3D implements IOrientation3D, Serializable {
         double tempSq = 0;
         do {
             // first get a random unit vector
-            ((IVectorRandom)temp).setRandomSphere(random);
+            temp.setRandomSphere(random);
             // find the component of the unit vector perpendicular to our direction
             temp.PEa1Tv1(-temp.dot(direction), direction);
             // if the random unit vector was nearly parallel (or anti-parallel)

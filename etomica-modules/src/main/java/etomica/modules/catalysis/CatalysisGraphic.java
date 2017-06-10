@@ -39,8 +39,8 @@ import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.ISpace;
-import etomica.space3d.Space3D;
+import etomica.space.Space;
+ import etomica.space3d.Space3D;
 import etomica.units.Dimension;
 import etomica.units.Energy;
 import etomica.units.Fraction;
@@ -53,8 +53,8 @@ import etomica.units.Quantity;
 import etomica.units.Unit;
 import etomica.units.UnitRatio;
 import etomica.units.Volume;
-import etomica.util.HistoryCollapsingDiscard;
-import etomica.util.HistoryCollapsingAverage;
+import etomica.data.history.HistoryCollapsingDiscard;
+import etomica.data.history.HistoryCollapsingAverage;
 
 /**
  * Catalysis graphical app.
@@ -69,7 +69,7 @@ public class CatalysisGraphic extends SimulationGraphic {
     protected DeviceThermoSlider tempSlider;
     protected Catalysis sim;
 
-    public CatalysisGraphic(final Catalysis simulation, ISpace _space, boolean showParams) {
+    public CatalysisGraphic(final Catalysis simulation, Space _space, boolean showParams) {
 
     	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
 
@@ -780,7 +780,7 @@ public class CatalysisGraphic extends SimulationGraphic {
     }
 
     public static void main(String[] args) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         boolean showParams = false;
         int nCellsZ = 20;
         if(args.length != 0) {
@@ -815,7 +815,7 @@ public class CatalysisGraphic extends SimulationGraphic {
             if (nCellsZStr != null) {
                 nCellsZ = Integer.valueOf(nCellsZStr);
             }
-            ISpace sp = Space3D.getInstance();
+            Space sp = Space3D.getInstance();
             CatalysisGraphic swmdGraphic = new CatalysisGraphic(new Catalysis(sp, nCellsZ), sp, showParams);
 
 		    getContentPane().add(swmdGraphic.getPanel());

@@ -49,7 +49,7 @@ public class EigenSystemTriDiagonal implements java.io.Serializable {
             do {
                 for(m = l;m <(n-1);m++){
                     dd = Math.abs(d[m]) + Math.abs(d[m+1]);
-                    if((double)(Math.abs(e[m] + dd)) == dd)break;
+                    if(Math.abs(e[m] + dd) == dd)break;
                 }
                 if(m != l){
                     if(iter++ == 30){

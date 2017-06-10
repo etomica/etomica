@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.lattice.crystal;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.math.geometry.Polytope;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 
 /**
@@ -17,10 +17,10 @@ public class PrimitiveMonoclinic extends Primitive {
     
     private static final long serialVersionUID = 1L;
 
-    public PrimitiveMonoclinic(ISpace space) {
+    public PrimitiveMonoclinic(Space space) {
         this(space, 1.0, 1.0, 1.0, rightAngle);
     }
-    public PrimitiveMonoclinic(ISpace space, double a, double b, double c, double beta) {
+    public PrimitiveMonoclinic(Space space, double a, double b, double c, double beta) {
         super(space);
         setSize(new double[]{a, b, c});//also sets reciprocal via update
         setAngleBeta(beta);
@@ -94,7 +94,7 @@ public class PrimitiveMonoclinic extends Primitive {
         setSize(new double[]{size[0]*scale, size[1]*scale, size[2]*scale});
     }        
     
-    public int[] latticeIndex(IVector q) {
+    public int[] latticeIndex(Vector q) {
         for(int i=0; i<D; i++) {
             double x = q.getX(i)/size[i];
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x
@@ -102,7 +102,7 @@ public class PrimitiveMonoclinic extends Primitive {
         return idx;
     }
 
-    public int[] latticeIndex(IVector q, int[] dimensions) {
+    public int[] latticeIndex(Vector q, int[] dimensions) {
         for(int i=0; i<D; i++) {
             double x = q.getX(i)/size[i];
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x
@@ -121,7 +121,7 @@ public class PrimitiveMonoclinic extends Primitive {
     protected static class PrimitiveMonoclinicReciprocal extends PrimitiveMonoclinic {
         private static final long serialVersionUID = 1L;
 
-        public PrimitiveMonoclinicReciprocal(ISpace space, double a, double b, double c, double beta) {
+        public PrimitiveMonoclinicReciprocal(Space space, double a, double b, double c, double beta) {
             super(space, a, b, c, beta);
         }
 
@@ -135,9 +135,9 @@ public class PrimitiveMonoclinic extends Primitive {
 
     public static void main(String args[]) {
         PrimitiveMonoclinic primitive = new PrimitiveMonoclinic(Space3D.getInstance(), 1, 1, 1, Math.PI*100/180);
-        IVector[] v = primitive.vectors();
+        Vector[] v = primitive.vectors();
         Primitive reciprocal = primitive.makeReciprocal();
-        IVector[] vr = reciprocal.vectors();
+        Vector[] vr = reciprocal.vectors();
         for (int i=0; i<v.length; i++) {
             for (int j=0; j<vr.length; j++) {
                 System.out.println(i+" "+j+" "+v[i].dot(vr[j]));

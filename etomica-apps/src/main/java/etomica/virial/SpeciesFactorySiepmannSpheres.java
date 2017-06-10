@@ -4,21 +4,21 @@
 
 package etomica.virial;
 
-import etomica.api.IVectorMutable;
 import etomica.config.ConformationChainZigZag;
-import etomica.space.ISpace;
-import etomica.api.ISpecies;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 
 /**
  * SpeciesFactory that makes Siepmann's alkane model.
  */
 public class SpeciesFactorySiepmannSpheres implements SpeciesFactory, java.io.Serializable {
 
-    public SpeciesFactorySiepmannSpheres(ISpace space, int nA) {
+    public SpeciesFactorySiepmannSpheres(Space space, int nA) {
         this(space, nA, nominalBondL, nominalBondTheta);
     }
     
-    public SpeciesFactorySiepmannSpheres(ISpace space, int nA, double bondL, double bondTheta) {
+    public SpeciesFactorySiepmannSpheres(Space space, int nA, double bondL, double bondTheta) {
         this.nA = nA;
         this.bondL = bondL;
         this.bondTheta = bondTheta;
@@ -45,15 +45,15 @@ public class SpeciesFactorySiepmannSpheres implements SpeciesFactory, java.io.Se
     }
     
     public void init() {
-        IVectorMutable vector1 = space.makeVector();
+        Vector vector1 = space.makeVector();
         vector1.setX(0, bondL);
-        IVectorMutable vector2 = space.makeVector();
+        Vector vector2 = space.makeVector();
         vector2.setX(0, -bondL*Math.cos(bondTheta));
         vector2.setX(1, bondL*Math.sin(bondTheta));
         conformation = new ConformationChainZigZag(space, vector1, vector2);
     }
     
-    public ISpecies makeSpecies(ISpace _space) {
+    public ISpecies makeSpecies(Space _space) {
         SpeciesAlkane species = new SpeciesAlkane(_space, nA);
         species.setConformation(conformation);
         return species;
@@ -62,7 +62,7 @@ public class SpeciesFactorySiepmannSpheres implements SpeciesFactory, java.io.Se
     private static final long serialVersionUID = 1L;
     protected static final double nominalBondL = 1.54;
     protected static final double nominalBondTheta = Math.PI*114/180;
-    protected final ISpace space;
+    protected final Space space;
     protected double bondL;
     protected double bondTheta;
     private final int nA;

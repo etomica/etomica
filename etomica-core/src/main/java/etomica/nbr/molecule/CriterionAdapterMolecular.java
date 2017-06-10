@@ -8,9 +8,9 @@
  */
 package etomica.nbr.molecule;
 
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
+import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 
 /**
  * Wraps another criterion while adding additional criteria to the acceptance
@@ -63,7 +63,7 @@ public abstract class CriterionAdapterMolecular implements NeighborCriterionMole
      * applied. Sometimes needed if the criterion depends on features of the
      * box, such as the volume.
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         subCriterion.setBox(box);
     }
 

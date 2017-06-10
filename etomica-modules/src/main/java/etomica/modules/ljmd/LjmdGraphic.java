@@ -36,7 +36,6 @@ import etomica.data.meter.MeterPressureTensorFromIntegrator;
 import etomica.data.meter.MeterRDF;
 import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDouble;
-import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.data.types.DataTensor;
 import etomica.graphics.ActionConfigWindow;
 import etomica.graphics.ColorSchemeByType;
@@ -63,8 +62,8 @@ import etomica.units.Time;
 import etomica.units.Unit;
 import etomica.units.systems.LJ;
 import etomica.util.Constants.CompassDirection;
-import etomica.util.DoubleRange;
-import etomica.util.HistogramSimple;
+import etomica.math.DoubleRange;
+import etomica.data.histogram.HistogramSimple;
 
 public class LjmdGraphic extends SimulationGraphic {
 
@@ -145,7 +144,7 @@ public class LjmdGraphic extends SimulationGraphic {
 		DataSourceUniform mbX = mbSource.getXSource();
 		mbX.setTypeMax(LimitType.HALF_STEP);
 		mbX.setTypeMin(LimitType.HALF_STEP);
-		mbX.setNValues(((DataInfoFunction)meterVelocity.getDataInfo()).getLength());
+		mbX.setNValues(meterVelocity.getDataInfo().getLength());
 		mbX.setXMin(vMin);
 		mbX.setXMax(vMax);
 		mbSource.update();

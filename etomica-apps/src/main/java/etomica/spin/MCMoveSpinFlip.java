@@ -4,11 +4,11 @@
 
 package etomica.spin;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.potential.PotentialMaster;
+import etomica.util.random.IRandom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -28,7 +28,7 @@ public class MCMoveSpinFlip extends MCMoveBox {
      * @param potentialMaster
      * @param nBoxs
      */
-    public MCMoveSpinFlip(IPotentialMaster potentialMaster, IRandom random) {
+    public MCMoveSpinFlip(PotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         this.random = random;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
@@ -36,7 +36,7 @@ public class MCMoveSpinFlip extends MCMoveBox {
         energyMeter.setIncludeLrc(false);
     }
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
     }

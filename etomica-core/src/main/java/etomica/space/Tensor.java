@@ -4,9 +4,7 @@
 
 package etomica.space;
 
-import etomica.api.IFunction;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.math.function.IFunction;
 
 /**
  * Interface for a second-order tensor. Implementations differ depending on the dimension of
@@ -51,7 +49,7 @@ public interface Tensor extends Cloneable {
      * for D = 3, xx = v[0].x, xy = v[1].x, xz = v[2].x,...,yx = v[0].y, etc.
      * @param v the given vectors used to set this tensor's values
      */
-    void E(IVector[] v);
+    void E(Vector[] v);
 
     /**
      * Sets the tensor elements using the elements of the array.
@@ -71,14 +69,14 @@ public interface Tensor extends Cloneable {
      * other elements of this tensor are set to zero.
      * @param v the given vector
      */
-    void diagE(IVector v);
+    void diagE(Vector v);
     
     /**
      * Assigns the tensor elements column-wise to the given vectors. The number
      * of vectors must equal the dimension of the tensor, and the vector
      * dimensions must equal the tensor dimension.
      */
-    void assignTo(IVectorMutable[] v);
+    void assignTo(Vector[] v);
     
     /**
      * Sets this tensor equal to the dyadic or outer product of the given vectors.
@@ -86,7 +84,7 @@ public interface Tensor extends Cloneable {
      * @param v1 first vector of the dyad
      * @param v2 second vector of the dyad
      */
-    void Ev1v2(IVector v1, IVector v2);
+    void Ev1v2(Vector v1, Vector v2);
 
     /**
      * "Plus equals" (+=) operation, adding the given value to each element of this tensor
@@ -114,14 +112,14 @@ public interface Tensor extends Cloneable {
      * "Plus equals" (+=) operation with a dyad argument. Increments this tensor by the dyadic or outer product of the given vectors.
      * Element ab of this tensor is replaced by (ab + v1.a * v2.b)
      */
-    void PEv1v2(IVector v1, IVector v2);
+    void PEv1v2(Vector v1, Vector v2);
 
 
     /**
      * "Minus equals" (-=) operation with a dyad argument. Decrements this tensor by the dyadic or outer product of the given vectors.
      * Element ab of this tensor is replaced by (ab - v1.a * v2.b)
      */
-    void MEv1v2(IVector v1, IVector v2);
+    void MEv1v2(Vector v1, Vector v2);
 
 
     /**
@@ -205,7 +203,7 @@ public interface Tensor extends Cloneable {
      * elements with the transformed values. This operation is equivalent to a matrix
      * multiplication.
      */
-    void transform(IVectorMutable x);
+    void transform(Vector x);
 
     /**
      * Fills the given array with the elements of this tensor.

@@ -4,15 +4,14 @@
 
 package etomica.space3d;
 
-import etomica.api.IFunction;
-import etomica.api.IRandom;
-import etomica.api.IVector;
-import etomica.space.IVectorRandom;
+import etomica.math.function.IFunction;
+import etomica.util.random.IRandom;
+import etomica.space.Vector;
 
 /**
  * Implementation of the Vector class for a 3-dimensional space.
  */
-public final class Vector3D implements IVectorRandom, java.io.Serializable {
+public final class Vector3D implements Vector, java.io.Serializable {
 
     protected double x, y, z;
     private static final long serialVersionUID = 1L;
@@ -60,7 +59,7 @@ public final class Vector3D implements IVectorRandom, java.io.Serializable {
         array[2] = z;
     }
 
-    public boolean equals(IVector v) {
+    public boolean equals(Vector v) {
         return (x == ((Vector3D) v).x) && (y == ((Vector3D) v).y)
                 && (z == ((Vector3D) v).z);
     }
@@ -69,7 +68,7 @@ public final class Vector3D implements IVectorRandom, java.io.Serializable {
         return (x == 0.0) && (y == 0.0) && (z == 0);
     }
 
-    public void E(IVector u) {
+    public void E(Vector u) {
         x = ((Vector3D) u).x;
         y = ((Vector3D) u).y;
         z = ((Vector3D) u).z;
@@ -96,19 +95,19 @@ public final class Vector3D implements IVectorRandom, java.io.Serializable {
         z = u[2];
     }
     
-    public void Ea1Tv1(double a1, IVector u) {
+    public void Ea1Tv1(double a1, Vector u) {
         x = a1 * ((Vector3D) u).x;
         y = a1 * ((Vector3D) u).y;
         z = a1 * ((Vector3D) u).z;
     }
 
-    public void PEa1Tv1(double a1, IVector u) {
+    public void PEa1Tv1(double a1, Vector u) {
         x += a1 * ((Vector3D) u).x;
         y += a1 * ((Vector3D) u).y;
         z += a1 * ((Vector3D) u).z;
     }
 
-    public void PE(IVector u) {
+    public void PE(Vector u) {
         x += ((Vector3D) u).x;
         y += ((Vector3D) u).y;
         z += ((Vector3D) u).z;
@@ -120,7 +119,7 @@ public final class Vector3D implements IVectorRandom, java.io.Serializable {
         z += a;
     }
 
-    public void ME(IVector u) {
+    public void ME(Vector u) {
         x -= ((Vector3D) u).x;
         y -= ((Vector3D) u).y;
         z -= ((Vector3D) u).z;
@@ -132,31 +131,31 @@ public final class Vector3D implements IVectorRandom, java.io.Serializable {
         z *= a;
     }
 
-    public void TE(IVector u) {
+    public void TE(Vector u) {
         x *= ((Vector3D) u).x;
         y *= ((Vector3D) u).y;
         z *= ((Vector3D) u).z;
     }
 
-    public void DE(IVector u) {
+    public void DE(Vector u) {
         x /= ((Vector3D) u).x;
         y /= ((Vector3D) u).y;
         z /= ((Vector3D) u).z;
     }
 
-    public void Ev1Pv2(IVector u1, IVector u2) {
+    public void Ev1Pv2(Vector u1, Vector u2) {
         x = ((Vector3D) u1).x + ((Vector3D) u2).x;
         y = ((Vector3D) u1).y + ((Vector3D) u2).y;
         z = ((Vector3D) u1).z + ((Vector3D) u2).z;
     }
 
-    public void Ev1Mv2(IVector u1, IVector u2) {
+    public void Ev1Mv2(Vector u1, Vector u2) {
         x = ((Vector3D) u1).x - ((Vector3D) u2).x;
         y = ((Vector3D) u1).y - ((Vector3D) u2).y;
         z = ((Vector3D) u1).z - ((Vector3D) u2).z;
     }
     
-    public void mod(IVector u) {
+    public void mod(Vector u) {
         mod((Vector3D) u);
     }
 
@@ -179,14 +178,14 @@ public final class Vector3D implements IVectorRandom, java.io.Serializable {
         return x * x + y * y + z * z;
     }
 
-    public double Mv1Squared(IVector u) {
+    public double Mv1Squared(Vector u) {
         double dx = x - ((Vector3D) u).x;
         double dy = y - ((Vector3D) u).y;
         double dz = z - ((Vector3D) u).z;
         return dx * dx + dy * dy + dz * dz;
     }
 
-    public double dot(IVector u) {
+    public double dot(Vector u) {
         return x * ((Vector3D) u).x + y * ((Vector3D) u).y + z
                 * ((Vector3D) u).z;
     }
@@ -195,7 +194,7 @@ public final class Vector3D implements IVectorRandom, java.io.Serializable {
      * Sets this vector to an arbitrary vector in the plane normal to the given vector.
      * Does not normalize this vector on completion.  Assumes that the given vector is not identically zero.
      */
-    public void setPerpendicularTo(IVector v) {
+    public void setPerpendicularTo(Vector v) {
         Vector3D v3 = (Vector3D)v;
         if(v3.z != 0) {
             x = v3.z;
@@ -263,7 +262,7 @@ public final class Vector3D implements IVectorRandom, java.io.Serializable {
         z = 1.0 - 2.0 * zsq;
     }
 
-    public void XE(IVector u) {//cross product
+    public void XE(Vector u) {//cross product
         double xNew = y * u.getX(2) - z * u.getX(1);
         double yNew = z * u.getX(0) - x * u.getX(2);
         z = x * u.getX(1) - y * u.getX(0);

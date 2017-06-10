@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.models.water;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.config.IConformation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Electron;
 
 /**
@@ -14,7 +14,7 @@ import etomica.units.Electron;
  */
 public class ConformationWaterTIP4P implements IConformation, java.io.Serializable {
 
-    public ConformationWaterTIP4P(ISpace space) {
+    public ConformationWaterTIP4P(Space space) {
         this.space = space;
     }
     
@@ -45,7 +45,7 @@ public class ConformationWaterTIP4P implements IConformation, java.io.Serializab
     }
     
     private static final long serialVersionUID = 1L;
-    protected final ISpace space;
+    protected final Space space;
     public static final double bondLengthOH = 0.9572;
     public static final double angleHOH = 104.52*Math.PI/180.;
     public static final double rOM=0.15;

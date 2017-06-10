@@ -1,13 +1,13 @@
 package etomica.liquidLJ;
 
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.potential.IPotentialAtomic;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialCalculation;
-import etomica.space.ISpace;
+import etomica.space.Boundary;
+import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * Evaluates the energy summed over all iterated atoms. Each call to doCalculate
@@ -20,7 +20,7 @@ import etomica.space.ISpace;
  */
 public class PotentialCalculationSumCutoff implements PotentialCalculation {
 
-    public PotentialCalculationSumCutoff(ISpace space, double[] cutoffs) {
+    public PotentialCalculationSumCutoff(Space space, double[] cutoffs) {
         dr = space.makeVector();
         r2Cuts = new double[cutoffs.length];
         for (int i=0; i<cutoffs.length; i++) {
@@ -30,7 +30,7 @@ public class PotentialCalculationSumCutoff implements PotentialCalculation {
         vSums = new double[cutoffs.length];
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
         boundary = box.getBoundary();
     }
@@ -79,7 +79,7 @@ public class PotentialCalculationSumCutoff implements PotentialCalculation {
 
 	
 	protected double[] uSums, vSums, r2Cuts;
-	protected final IVectorMutable dr;
-	protected IBox box;
-	protected IBoundary boundary;
+	protected final Vector dr;
+	protected Box box;
+	protected Boundary boundary;
 }

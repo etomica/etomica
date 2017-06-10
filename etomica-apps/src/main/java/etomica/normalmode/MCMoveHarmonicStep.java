@@ -4,9 +4,9 @@
 
 package etomica.normalmode;
 
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
+import etomica.box.Box;
+import etomica.potential.PotentialMaster;
+import etomica.util.random.IRandom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -23,7 +23,7 @@ import etomica.normalmode.CoordinateDefinition.BasisCell;
  */
 public class MCMoveHarmonicStep extends MCMoveBoxStep {
 
-    public MCMoveHarmonicStep(IPotentialMaster potentialMaster, IRandom random) {
+    public MCMoveHarmonicStep(PotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         
         this.random = random;
@@ -57,7 +57,7 @@ public class MCMoveHarmonicStep extends MCMoveBoxStep {
         eigenVectors = newEigenVectors;
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         super.setBox(newBox);
         iterator.setBox(newBox);
         energyMeter.setBox(newBox);

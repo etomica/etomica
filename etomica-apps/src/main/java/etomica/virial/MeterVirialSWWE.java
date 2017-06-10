@@ -1,9 +1,7 @@
 package etomica.virial;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 
-import etomica.api.IAtomList;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;

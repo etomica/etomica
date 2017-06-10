@@ -4,25 +4,18 @@
 
 package etomica.rotation;
 
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
-import etomica.api.IVector;
 import etomica.atom.IAtomOriented;
 import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
 import etomica.potential.IPotentialMolecularTorque;
 import etomica.potential.PotentialMolecular;
 import etomica.simulation.Simulation;
-import etomica.space.BoundaryRectangularNonperiodic;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
-import etomica.space.Tensor;
+import etomica.space.*;
 import etomica.space3d.IOrientation3D;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresRotating;
-import etomica.util.RandomNumberGenerator;
+import etomica.util.random.RandomNumberGenerator;
 
 /**
  * r^-12 potential plus a point dipole, force shifted, as used in
@@ -32,25 +25,25 @@ import etomica.util.RandomNumberGenerator;
  */
 public class P2LJDipole extends PotentialMolecular implements IPotentialMolecularTorque {
 
-    public P2LJDipole(ISpace space) {
+    public P2LJDipole(Space space) {
         this(space, 1, 1, 1);
     }
 
-    public P2LJDipole(ISpace space, double sigma, double epsilon,  double momentSquared) {
+    public P2LJDipole(Space space, double sigma, double epsilon, double momentSquared) {
         super(2, space);
         setSigma(sigma);
         setEpsilon(epsilon);
         setDipoleMomentSquare(momentSquared);
-        gradient = new IVectorMutable[2];
+        gradient = new Vector[2];
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();
-        torque = new IVectorMutable[2];
+        torque = new Vector[2];
         torque[0] = space.makeVector();
         torque[1] = space.makeVector();
         dr = space.makeVector();
         drunit = space.makeVector();
         work = space.makeVector();
-        gradientAndTorque = new IVectorMutable[][]{gradient,torque};
+        gradientAndTorque = new Vector[][]{gradient,torque};
     }
 
     public void setHardCoreDiamterSq(double val){
@@ -72,7 +65,7 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
         dipoleUShift = -1.75*s2*s1;
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 
@@ -102,10 +95,10 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
 
         if(momentSq!=0.0){
             // v1 is the orientation of molecule 1
-            IVector v1 = atom1.getOrientation().getDirection();
+            Vector v1 = atom1.getOrientation().getDirection();
 
             // v2 is the orientation of molecule 2
-            IVector v2 = atom2.getOrientation().getDirection();
+            Vector v2 = atom2.getOrientation().getDirection();
 
             // we didn't normalize dr, so divide by r2 here
             double udd = v1.dot(v2) - 3.0*v1.dot(dr)*v2.dot(dr)*s2;
@@ -141,11 +134,11 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
         return momentSq;
     }
     
-    public IVector[] gradient(IMoleculeList pair, Tensor pressureTensor) {
+    public Vector[] gradient(IMoleculeList pair, Tensor pressureTensor) {
         return gradient(pair);
     }
 
-    public IVector[] gradient(IMoleculeList pair) {
+    public Vector[] gradient(IMoleculeList pair) {
         // do extra work to calculate torque
         gradientAndTorque(pair);
         return gradient;
@@ -168,7 +161,7 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
     }
 
 
-    public IVector[][] gradientAndTorque(IMoleculeList atoms) {
+    public Vector[][] gradientAndTorque(IMoleculeList atoms) {
         IAtomOriented atom1 = (IAtomOriented)atoms.getMolecule(0);
         IAtomOriented atom2 = (IAtomOriented)atoms.getMolecule(1);
 
@@ -197,10 +190,10 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
             drunit.TE(1/r12);
 
             // v1 is the orientation of molecule 1
-            IVector v1 = atom1.getOrientation().getDirection();
+            Vector v1 = atom1.getOrientation().getDirection();
 
             // v2 is the orientation of molecule 2
-            IVector v2 = atom2.getOrientation().getDirection();
+            Vector v2 = atom2.getOrientation().getDirection();
 
             double fac = momentSq * (s2*s1 + dipoleFShift/(s2*s2) + dipoleUShift);
             double dfac = momentSq * (3*s2*s2*s1 - 4*dipoleFShift/(s2));
@@ -238,11 +231,11 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
     private double epsilon, epsilon4, epsilon48;
     private double hsdiasq=1.0/Math.sqrt(2);
     private double momentSq;
-    private IBoundary boundary;
-    private final IVectorMutable dr, drunit, work;
-    private final IVectorMutable[] gradient;
-    protected final IVectorMutable[] torque;
-    protected final IVectorMutable[][] gradientAndTorque;
+    private Boundary boundary;
+    private final Vector dr, drunit, work;
+    private final Vector[] gradient;
+    protected final Vector[] torque;
+    protected final Vector[][] gradientAndTorque;
     protected double cutoff2;
     protected double dipoleFShift, dipoleUShift;
     protected double fShift, uShift;
@@ -251,7 +244,7 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
         RandomNumberGenerator random = new RandomNumberGenerator();
         Space3D space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        IBox box = new Box(new BoundaryRectangularNonperiodic(space), space);
+        Box box = new Box(new BoundaryRectangularNonperiodic(space), space);
         sim.addBox(box);
         SpeciesSpheresRotating species = new SpeciesSpheresRotating(sim, space);
         species.setIsDynamic(true);
@@ -272,9 +265,9 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
         IAtomOriented atom1 = (IAtomOriented)leafAtoms.getMolecule(1);
         potential.setBox(box);
         
-        IVectorMutable grad1 = space.makeVector();
-        IVectorMutable oldPosition = space.makeVector();
-        IVectorRandom ran = (IVectorRandom)space.makeVector();
+        Vector grad1 = space.makeVector();
+        Vector oldPosition = space.makeVector();
+        Vector ran = space.makeVector();
 //        atom0.getOrientation().randomRotation(sim.getRandom(), 1);
 //        atom1.getOrientation().randomRotation(sim.getRandom(), 1);
 //        atom1.getOrientation().randomRotation(sim.getRandom(), 1);
@@ -283,14 +276,14 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
 //        for (int i=0; i<101; i++) {
 //            atom1.getPosition().setX(0, 1+i*(rCut-1)*0.01);
 //            double u = potential.energy(leafAtoms);
-//            IVector[] gradient = potential.gradient(leafAtoms);
+//            Vector[] gradient = potential.gradient(leafAtoms);
 //            System.out.println(atom1.getPosition().get(0)+" "+u+" "+gradient[0]);
 //        }
 //        System.exit(1);
         for (int i=0; i<100; i++) {
             // calculate the gradient
             System.out.println("do gradient");
-            IVector[] gradients = potential.gradient(leafAtoms);
+            Vector[] gradients = potential.gradient(leafAtoms);
             grad1.E(gradients[1]);
             if (grad1.isNaN()) {
                 throw new RuntimeException("oops "+grad1);
@@ -324,7 +317,7 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
             }
             do {
                 // move the atom1 to an entirely random position within 5sigma of atom0
-                ((IVectorRandom)atom1.getPosition()).setRandomInSphere(random);
+                atom1.getPosition().setRandomInSphere(random);
                 atom1.getPosition().TE(rCut+1);
                 ran.setRandomSphere(random);
                 atom1.getOrientation().setDirection(ran);
@@ -333,8 +326,8 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
             while (Double.isInfinite(potential.energy(leafAtoms)));
         }
         
-        IVectorMutable torque1 = space.makeVector();
-        IVectorMutable work = space.makeVector();
+        Vector torque1 = space.makeVector();
+        Vector work = space.makeVector();
         atom1.getPosition().E(0);
         atom1.getPosition().setX(0, 2);
         atom1.getOrientation().setDirection(new Vector3D(0,1,0));
@@ -342,7 +335,7 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
             // calculate the gradient
             System.out.println("do torque");
             System.out.println("pos "+atom1.getPosition()+" "+Math.sqrt(atom1.getPosition().squared()));
-            IVector[][] torqueGradient = potential.gradientAndTorque(leafAtoms);
+            Vector[][] torqueGradient = potential.gradientAndTorque(leafAtoms);
             torque1.E(torqueGradient[1][1]);
             if (torque1.isNaN()) {
                 throw new RuntimeException("oops "+torque1);
@@ -375,7 +368,7 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
             }
             do {
                 // move the atom1 to an entirely random position within 5sigma of atom0
-                ((IVectorRandom)atom1.getPosition()).setRandomInSphere(random);
+                atom1.getPosition().setRandomInSphere(random);
                 atom1.getPosition().TE(rCut+1);
                 ran.setRandomSphere(random);
                 atom1.getOrientation().setDirection(ran);

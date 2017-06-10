@@ -1,14 +1,11 @@
 package etomica.potential;
 
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMolecular;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.atom.MoleculeOrientedDynamic;
-import etomica.space.ISpace;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.IMoleculePositionDefinition;
+import etomica.space.Boundary;
+import etomica.space.Space;
+import etomica.space.Vector;
 
 
 /**
@@ -17,7 +14,7 @@ import etomica.space.ISpace;
  */
 public class P2MoleculeTruncated extends PotentialMolecular {
     
-    public P2MoleculeTruncated(IPotentialMolecular potential, double truncationRadius, ISpace _space, IAtomPositionDefinition positionDefinition) {
+    public P2MoleculeTruncated(IPotentialMolecular potential, double truncationRadius, Space _space, IMoleculePositionDefinition positionDefinition) {
         super(2, _space);
         this.potential = potential;
         this.positionDefinition = positionDefinition;
@@ -77,11 +74,11 @@ public class P2MoleculeTruncated extends PotentialMolecular {
      */
     public etomica.units.Dimension getTruncationRadiusDimension() {return etomica.units.Length.DIMENSION;}
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         potential.setBox(newBox);
         boundary = newBox.getBoundary();
         if (cutoffRatio > 0){
-        	IVector vectorBox = boundary.getBoxSize();
+        	Vector vectorBox = boundary.getBoxSize();
         	double minBoxSize = vectorBox.getX(0);
         	for (int i = 1;i<vectorBox.getD();i++){
         		if (vectorBox.getX(i) < minBoxSize){
@@ -99,8 +96,8 @@ public class P2MoleculeTruncated extends PotentialMolecular {
     private static final long serialVersionUID = 1L;
     protected double rCutoff, r2Cutoff;
     protected final IPotentialMolecular potential;
-    protected final IVectorMutable dr;
-    protected IBoundary boundary;
+    protected final Vector dr;
+    protected Boundary boundary;
     protected double cutoffRatio;
-    protected final IAtomPositionDefinition positionDefinition;
+    protected final IMoleculePositionDefinition positionDefinition;
 }

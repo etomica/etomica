@@ -4,7 +4,7 @@
 
 package etomica.math.geometry;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 
 /**
  * Interface for an object that defines a closed region of space.
@@ -24,13 +24,13 @@ public interface Shape {
      * Returns true if the point described by the vector lies in or on the
      * enclosed region.
      */
-    public boolean contains(IVector r);
+    public boolean contains(Vector r);
     
     /**
      * Sets the position of the shape, which typically represents some central
      * point within it.  Specific definition depends on the definition of the shape.
      */
-    public void setPosition(IVector r);
+    public void setPosition(Vector r);
 
     /**
      * Returns the spatial dimension of the shape. For example, D = 2 for a

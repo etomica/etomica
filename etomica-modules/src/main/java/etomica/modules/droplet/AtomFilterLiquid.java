@@ -4,17 +4,16 @@
 
 package etomica.modules.droplet;
 
-import etomica.api.IAtom;
-import etomica.api.IMolecule;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomFilterCollective;
+import etomica.atom.IAtom;
 import etomica.data.IDataSource;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.space.Space;
+import etomica.space.Vector;
 
 public class AtomFilterLiquid implements AtomFilterCollective {
     
-    public AtomFilterLiquid(ISpace space, IDataSource meterDeformation) {
+    public AtomFilterLiquid(Space space, IDataSource meterDeformation) {
         axis = space.makeVector();
         work = space.makeVector();
         meter = meterDeformation;
@@ -37,7 +36,7 @@ public class AtomFilterLiquid implements AtomFilterCollective {
     }
     
     public boolean accept(IAtom a) {
-        IVector p = a.getPosition();
+        Vector p = a.getPosition();
         work.E(p);
         work.DE(axis);
         double r2 = work.squared();
@@ -51,6 +50,6 @@ public class AtomFilterLiquid implements AtomFilterCollective {
     private static final long serialVersionUID = 1L;
     protected double cutoff, cutoffSq;
     protected final IDataSource meter;
-    protected final IVectorMutable axis;
-    protected final IVectorMutable work;
+    protected final Vector axis;
+    protected final Vector work;
 }

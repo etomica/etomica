@@ -4,14 +4,17 @@
 
 package etomica.freeenergy.npath;
 
-import etomica.api.*;
 import etomica.atom.AtomSetSinglet;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
-import etomica.space.ISpace;
+import etomica.space.Vector;
+import etomica.space.Space;
 import etomica.util.Debug;
+import etomica.util.random.IRandom;
 
 /**
  * This integrator implements velocity Verlet algorithm and Tuckerman's
@@ -26,7 +29,7 @@ public class IntegratorImageHarmonicMD extends IntegratorVelocityVerlet {
     protected final AtomSetSinglet atomSetSinglet;
     protected NeighborCellManager neighborCellManager;
 
-    public IntegratorImageHarmonicMD(PotentialMaster potentialMaster, IRandom random, double timeStep, double temperature, ISpace space) {
+    public IntegratorImageHarmonicMD(PotentialMaster potentialMaster, IRandom random, double timeStep, double temperature, Space space) {
         super(potentialMaster, random, timeStep, temperature, space);
         atomSetSinglet = new AtomSetSinglet();
         setForceSum(new PotentialCalculationForceSum());
@@ -54,8 +57,8 @@ public class IntegratorImageHarmonicMD extends IntegratorVelocityVerlet {
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             MyAgent agent = agentManager.getAgent(a);
-            IVectorMutable r = a.getPosition();
-            IVectorMutable v = a.getVelocity();
+            Vector r = a.getPosition();
+            Vector v = a.getVelocity();
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
                 System.out.println("first "+a+" r="+r+", v="+v+", f="+agent.force);
             }
@@ -70,13 +73,13 @@ public class IntegratorImageHarmonicMD extends IntegratorVelocityVerlet {
             }
             IAtomKinetic atom0 = (IAtomKinetic)leafList.getAtom(iLeaf);
             IAtomKinetic atom1 = (IAtomKinetic)leafList.getAtom(iLeaf+nOffset);
-            IVectorMutable r0 = atom0.getPosition();
-            IVectorMutable r1 = atom1.getPosition();
-            IVectorMutable v0 = atom0.getVelocity();
-            IVectorMutable v1 = atom1.getVelocity();
+            Vector r0 = atom0.getPosition();
+            Vector r1 = atom1.getPosition();
+            Vector v0 = atom0.getVelocity();
+            Vector v1 = atom1.getVelocity();
             atomSetSinglet.atom = atom0;
-            IVector[] grad = p1.gradient(atomSetSinglet);
-            IVector grad0 = grad[0];
+            Vector[] grad = p1.gradient(atomSetSinglet);
+            Vector grad0 = grad[0];
             double rm0 = atom0.getType().rm();
             double rm1 = atom1.getType().rm();
             for (int i=0; i<numInnerSteps; i++) {
@@ -106,7 +109,7 @@ public class IntegratorImageHarmonicMD extends IntegratorVelocityVerlet {
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
 //            System.out.println("force: "+((MyAgent)a.ia).force.toString());
-            IVectorMutable velocity = a.getVelocity();
+            Vector velocity = a.getVelocity();
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
                 System.out.println("second "+a+" v="+velocity+", f="+agentManager.getAgent(a).force);
             }

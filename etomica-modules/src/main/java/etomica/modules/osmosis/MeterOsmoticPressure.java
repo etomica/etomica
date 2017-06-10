@@ -3,11 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.modules.osmosis;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
 import etomica.potential.P1HardBoundary;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Osmotic pressure meter that calculates the difference in 
@@ -19,7 +19,7 @@ public class MeterOsmoticPressure extends MeterPressureHard {
     private double collisionRadius;
     private final P1HardBoundary[] boundaryPotentials;
     
-    public MeterOsmoticPressure(ISpace space, P1HardBoundary[] boundaryPotentials) {
+    public MeterOsmoticPressure(Space space, P1HardBoundary[] boundaryPotentials) {
         super(space);
         this.boundaryPotentials = boundaryPotentials;
     }
@@ -57,7 +57,7 @@ public class MeterOsmoticPressure extends MeterPressureHard {
         virialSum = 0;
 
         // calculate accessible "area"
-        IVector dimensions = integratorHard.getBox().getBoundary().getBoxSize();
+        Vector dimensions = integratorHard.getBox().getBoundary().getBoxSize();
         double area = 1;
         for (int i=1; i<dimensions.getD(); i++) {
             area *= (dimensions.getX(i)-2*collisionRadius);

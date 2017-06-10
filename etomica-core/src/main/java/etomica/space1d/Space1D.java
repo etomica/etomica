@@ -4,8 +4,8 @@
 
 package etomica.space1d;
 
-import etomica.api.IBoundary;
-import etomica.api.IVectorMutable;
+import etomica.space.Boundary;
+import etomica.space.Vector;
 import etomica.space.RotationTensor;
 import etomica.space.Space;
 
@@ -37,7 +37,7 @@ public final class Space1D extends Space {
      * to a nearest image transformation.  This method constructs a new vector that
      * is used as the work-vector input to the other r2 method.
      */
-    public static final double r2(Vector1D u1, Vector1D u2, IBoundary b) {
+    public static final double r2(Vector1D u1, Vector1D u2, Boundary b) {
         return r2(u1, u2, b, new Vector1D());
     }
     
@@ -50,7 +50,7 @@ public final class Space1D extends Space {
      * @param work a work vector used for the calculation
      * @return the nearest-image squared distance
      */
-    public static final double r2(Vector1D u1, Vector1D u2, IBoundary b, Vector1D work) {
+    public static final double r2(Vector1D u1, Vector1D u2, Boundary b, Vector1D work) {
         work.Ev1Mv2(u1, u2);
         b.nearestImage(work);
         return work.squared();
@@ -78,7 +78,7 @@ public final class Space1D extends Space {
         return 2.0;
     } //surface area of sphere of radius r (used for differential shell volume)
 
-    public IVectorMutable makeVector() {
+    public Vector makeVector() {
         return new Vector1D();
     }
 

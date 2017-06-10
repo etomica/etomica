@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.freeenergy.npath;
 
-import etomica.api.IAtomList;
-import etomica.api.IPotentialAtomic;
+import etomica.atom.IAtomList;
+import etomica.potential.IPotentialAtomic;
 import etomica.potential.PotentialCalculation;
 
 /**

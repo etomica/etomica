@@ -4,44 +4,54 @@
 
 package etomica.nbr.site;
 
-import etomica.api.*;
 import etomica.atom.AtomSetSinglet;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomsetIteratorPDT;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentManager.BoxAgentSource;
 import etomica.box.BoxCellManager;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.nbr.*;
-import etomica.potential.PotentialArray;
-import etomica.potential.PotentialCalculation;
-import etomica.space.ISpace;
+import etomica.potential.*;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.util.Arrays;
 import etomica.util.Debug;
 
 public class PotentialMasterSite extends PotentialMasterNbr {
 
+    protected final AtomSetSinglet atomSetSinglet;
+    protected final AtomsetIteratorPDT neighborIterator;
+    private int cellRange;
+    private NeighborCriterion[] criteriaArray = new NeighborCriterion[0];
+    
 	/**
 	 * Invokes superclass constructor, specifying IteratorFactoryCell
      * for generating molecule iterators.  Sets default nCells of 10 and
      * position definition to null, so that atom type's definition is used
-     * to assign cells. 
-	 */
-	public PotentialMasterSite(ISimulation sim, int nCells, ISpace _space) {
+     * to assign cells.
+     */
+	public PotentialMasterSite(Simulation sim, int nCells, Space _space) {
         this(sim, new BoxAgentSiteSource(nCells, _space), _space);
     }
-    
-    public PotentialMasterSite(ISimulation sim,
-    		                   BoxAgentSource<BoxCellManager> boxAgentSource, ISpace _space) {
+
+    public PotentialMasterSite(Simulation sim,
+    		                   BoxAgentSource<BoxCellManager> boxAgentSource, Space _space) {
         this(sim, boxAgentSource, new BoxAgentManager<BoxCellManager>(boxAgentSource, BoxCellManager.class), _space);
     }
     
-    public PotentialMasterSite(ISimulation sim, BoxAgentSource<BoxCellManager> boxAgentSource,
-    		BoxAgentManager<BoxCellManager> agentManager, ISpace _space) {
+    public PotentialMasterSite(Simulation sim, BoxAgentSource<BoxCellManager> boxAgentSource,
+                               BoxAgentManager<BoxCellManager> agentManager, Space _space) {
         this(sim, boxAgentSource, agentManager, new Api1ASite(_space.D(),agentManager));
     }
     
-    protected PotentialMasterSite(ISimulation sim, BoxAgentSource<? extends BoxCellManager> boxAgentSource, 
-            BoxAgentManager<? extends BoxCellManager> agentManager, AtomsetIteratorPDT neighborIterator) {
+    protected PotentialMasterSite(Simulation sim, BoxAgentSource<? extends BoxCellManager> boxAgentSource,
+                                  BoxAgentManager<? extends BoxCellManager> agentManager, AtomsetIteratorPDT neighborIterator) {
         super(sim, boxAgentSource, agentManager);
         atomSetSinglet = new AtomSetSinglet();
         this.neighborIterator = neighborIterator;
@@ -60,8 +70,8 @@ public class PotentialMasterSite extends PotentialMasterNbr {
     public void setCellRange(int newCellRange) {
         cellRange = newCellRange;
     }
-    
-    protected void addRangedPotentialForTypes(IPotentialAtomic potential, IAtomType[] atomType) {
+
+    protected void addRangedPotentialForTypes(IPotentialAtomic potential, AtomType[] atomType) {
         NeighborCriterion criterion;
         if (atomType.length == 2) {
             criterion = new CriterionTypePair(new CriterionAll(), atomType[0], atomType[1]);
@@ -82,7 +92,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
         }
         criteriaArray = (NeighborCriterion[]) Arrays.addObject(criteriaArray, criterion);
     }
-    
+
     /**
      * Returns the criterion used by to determine what atoms interact with the
      * given potential.
@@ -100,12 +110,12 @@ public class PotentialMasterSite extends PotentialMasterNbr {
         }
         return null;
     }
-    
+
     /**
-     * Sets the criterion associated with the given potential, overriding the 
-     * default provided by the PotentialMasterCell.  The criterion can be 
-     * configured by calling getCriterion(Potential) and changing the 
-     * criterion.  The potential passed to this method must be a potential 
+     * Sets the criterion associated with the given potential, overriding the
+     * default provided by the PotentialMasterCell.  The criterion can be
+     * configured by calling getCriterion(Potential) and changing the
+     * criterion.  The potential passed to this method must be a potential
      * handled by this instance.
      */
     public void setCriterion(IPotentialAtomic potential, NeighborCriterion criterion) {
@@ -122,7 +132,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
         }
         throw new IllegalArgumentException("Potential "+potential+" is not associated with this PotentialMasterList");
     }
-    
+
     /**
      * Overrides superclass method to enable direct neighbor-list iteration
      * instead of iteration via species/potential hierarchy. If no target atoms are
@@ -132,7 +142,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
      * down species hierarchy from it; if two or more atoms are specified,
      * superclass method is invoked.
      */
-    public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
+    public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
         if (!enabled)
             return;
         for (int i=0; i<criteriaArray.length; i++) {
@@ -197,7 +207,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
                 for (int i=0; i<allPotentials.length; i++) {
                     allPotentials[i].setBox(box);
                 }
-                
+
                 IAtomList atomList = (targetMolecule).getChildList();
                 int numChildren = atomList.getAtomCount();
                 for (int k=0; k<numChildren; k++) {
@@ -215,7 +225,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             lrcMaster.calculate(box, id, pc);
         }
     }
-	
+
     /**
      * Performs given PotentialCalculation using potentials/neighbors associated
      * with the given atom (if any).  Then, if atom is not a leaf atom, iteration over
@@ -248,26 +258,21 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             }
         }
     }
-
-	protected final AtomSetSinglet atomSetSinglet;
-    private int cellRange;
-    protected final AtomsetIteratorPDT neighborIterator;
-    private NeighborCriterion[] criteriaArray = new NeighborCriterion[0];
     
     public static class BoxAgentSiteSource implements BoxAgentSource<BoxCellManager> {
-        public BoxAgentSiteSource(int nCells, ISpace _space) {
+        private final int nCells;
+        private final Space space;
+        
+        public BoxAgentSiteSource(int nCells, Space _space) {
             this.nCells = nCells;
             this.space = _space;
         }
 
-        public BoxCellManager makeAgent(IBox box) {
+        public BoxCellManager makeAgent(Box box) {
             return new NeighborSiteManager(box,nCells, space);
         }
-        
+
         public void releaseAgent(BoxCellManager agent) {
         }
-        
-        private final int nCells;
-        private final ISpace space;
     }
 }

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.lattice.crystal;
-import etomica.api.IVector;
+import etomica.space.Vector;
 
 /**
  * General basis class that hold scaled coordinates of atoms within a unit cell.
@@ -19,18 +19,18 @@ public class Basis implements java.io.Serializable {
      * for interal representation of basis, so changes to scaledCoordinates
      * will affect the basis.
      */
-    public Basis(IVector[] scaledCoordinates) {
+    public Basis(Vector[] scaledCoordinates) {
         this.scaledCoordinates = scaledCoordinates;
     }
     
     /**
      * Returns scaled coordinates
      */
-    public IVector[] getScaledCoordinates() {
+    public Vector[] getScaledCoordinates() {
         return scaledCoordinates;
     }
     
     private static final long serialVersionUID = 1L;
-    private final IVector[] scaledCoordinates;
+    private final Vector[] scaledCoordinates;
     
 }

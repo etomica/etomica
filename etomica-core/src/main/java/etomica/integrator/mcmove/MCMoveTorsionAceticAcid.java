@@ -4,16 +4,12 @@
 
 package etomica.integrator.mcmove;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
-import etomica.data.meter.MeterPotentialEnergy;
-import etomica.space.ISpace;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.potential.PotentialMaster;
+import etomica.space.Vector;
+import etomica.space.Space;
+import etomica.util.random.IRandom;
 
 /**
  * An MC Move for cluster simulations that performs torsion moves on acetic acid.
@@ -26,8 +22,8 @@ import etomica.space.ISpace;
  */
 public class MCMoveTorsionAceticAcid extends MCMoveMolecule {
    
-    public MCMoveTorsionAceticAcid(IPotentialMaster potentialMaster, ISpace space,
-            IRandom random) {
+    public MCMoveTorsionAceticAcid(PotentialMaster potentialMaster, Space space,
+                                   IRandom random) {
         super(potentialMaster,random,space,1,Double.POSITIVE_INFINITY);//we don't need stepsize-> put 1
         ((MCMoveStepTracker)getTracker()).setTunable(false);
         vCO = space.makeVector();
@@ -49,8 +45,8 @@ public class MCMoveTorsionAceticAcid extends MCMoveMolecule {
         vOH.Ev1Mv2(h.getPosition(), sBO.getPosition());//vector OH
         double lengthdr13 = vCO.squared();
         
-        IVectorMutable project = space.makeVector();
-        IVectorMutable secondaryDirection = space.makeVector();
+        Vector project = space.makeVector();
+        Vector secondaryDirection = space.makeVector();
         project.E(vCO);
         project.TE(vCO.dot(vOH)/lengthdr13);
         secondaryDirection.Ev1Mv2(project,vOH);
@@ -77,8 +73,8 @@ public class MCMoveTorsionAceticAcid extends MCMoveMolecule {
         vOH.Ev1Mv2(h.getPosition(), sBO.getPosition());//vector OH
         double lengthdr13 = vCO.squared();
         
-        IVectorMutable project = space.makeVector();
-        IVectorMutable secondaryDirection = space.makeVector();
+        Vector project = space.makeVector();
+        Vector secondaryDirection = space.makeVector();
         project.E(vCO);
         project.TE(vCO.dot(vOH)/lengthdr13);
         secondaryDirection.Ev1Mv2(project,vOH);
@@ -96,6 +92,6 @@ public class MCMoveTorsionAceticAcid extends MCMoveMolecule {
 
 	
     private static final long serialVersionUID = 1L;
-    protected final IVectorMutable vCO,vOH;
+    protected final Vector vCO,vOH;
     
 }

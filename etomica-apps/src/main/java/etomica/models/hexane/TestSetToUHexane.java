@@ -9,11 +9,8 @@ package etomica.models.hexane;
  */
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
+import etomica.atom.AtomType;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
 import etomica.graphics.SimulationGraphic;
@@ -30,30 +27,29 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
+import etomica.species.ISpecies;
 
 public class TestSetToUHexane extends Simulation {
 
-    CoordinateDefinitionHexane cdHex;
-    PrimitiveHexane prim;    
     public BoundaryDeformablePeriodic bdry;
     public BravaisLattice lattice;
-    SpeciesHexane species;
-    IBox box;
-    
     public ActivityIntegrate activityIntegrate;
     public IntegratorMC integrator;
 //    public MCMoveVolume moveVolume;
-////    public MCMoveCrankshaft crank; 
+////    public MCMoveCrankshaft crank;
 //    public MCMoveReptate snake;
     public MCMoveMolecule moveMolecule;
     public CBMCGrowSolidHexane growMolecule;
     public MCMoveRotateMolecule3D rot;
     public MCMoveMoleculeCoupled coupledMove;
     public MCMoveCombinedCbmcTranslation cctMove;
-    
-    
+    CoordinateDefinitionHexane cdHex;
+    PrimitiveHexane prim;
+    SpeciesHexane species;
+    Box box;
     Vector3D[] oldX;
     Vector3D[] newX;
     double[] oldUs;
@@ -154,10 +150,10 @@ public class TestSetToUHexane extends Simulation {
         //The PotentialMaster generates a group potential and automatically
         // does a lot of the stuff which we have to do for the intramolecular
         // potential manually.
-        IAtomType sphereType = species.getLeafType();
+        AtomType sphereType = species.getLeafType();
 
         //Add the Potential to the PotentialMaster
-        potentialMaster.addPotential(potential, new IAtomType[] { sphereType,
+        potentialMaster.addPotential(potential, new AtomType[]{sphereType,
                 sphereType });
         
         coupledMove.setPotential(potentialMaster.getPotential(new ISpecies[] {
@@ -165,52 +161,64 @@ public class TestSetToUHexane extends Simulation {
 
         integrator.setBox(box);
     }
-    
+
+    public static void main(String[] args) {
+
+        TestSetToUHexane sim = new TestSetToUHexane(Space3D.getInstance());
+        boolean graphic = false;
+
+        if (graphic) {
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
+            simGraphic.makeAndDisplayFrame();
+        } else {
+            sim.runit();
+        }
+    }
     
     public void runit(){
         System.out.println("Start"  );
 
         int nsteps = chainLength * 500;
-            
+
         //Store old positions
         IAtomList aal = box.getMoleculeList().getMolecule(0).getChildList();
 
-        IVectorMutable site = cdHex.getLatticePosition(box.getMoleculeList().getMolecule(0));
-        
+        Vector site = cdHex.getLatticePosition(box.getMoleculeList().getMolecule(0));
+
         for(int i = 0; i < chainLength; i++){
             oldX[i].E(aal.getAtom(i).getPosition());
         }
-           
-        for(int counter = 0; counter < nsteps; counter++){    
-            //Calculate the u's that correspond to the old positions. 
+
+        for (int counter = 0; counter < nsteps; counter++) {
+            //Calculate the u's that correspond to the old positions.
             oldUs = cdHex.calcU(box.getMoleculeList(species));
 //            for(int i = 0; i < 9; i++){
 //                System.out.println(oldUs[i]);
 //            }
-            
+
             //make a bunch of moves
             for(int i = 0; i < chainLength*2; i++){
                 integrator.doStepInternal();
             }
-            
+
             //Store the current positions for later use.
             for(int i = 0; i < chainLength; i++){
                 newX[i].E(aal.getAtom(i).getPosition());
 //                System.out.println("newX  " + newX[i]);
             }
-            
-            //Move the molecules to the old positions, using u's      
+
+            //Move the molecules to the old positions, using u's
             cdHex.setToU(box.getMoleculeList(species), oldUs);
 //            for(int i = 0; i < 9; i++){
 //                System.out.println("u "+ i + " + " +oldUs[i]);
 //            }
-            
+
 //            for(int i = 0; i < chainLength; i++){
 //                System.out.println("oldX  " + oldX[i]);
-//                System.out.println("back  "+ 
+//                System.out.println("back  "+
 //                        (Vector3D)((AtomLeaf)list.getAtom(i)).getPosition());
 //            }
-            
+
             //Compare the old and new positions.
             double tol = 0.0000005;
             for(int i = 0; i < chainLength; i++) {
@@ -223,21 +231,8 @@ public class TestSetToUHexane extends Simulation {
                 }
              }
         }
-                
-        System.out.println("Zoinks!");
-    }
-    
-    public static void main(String[] args) {
 
-        TestSetToUHexane sim = new TestSetToUHexane(Space3D.getInstance());
-        boolean graphic = false;
-        
-        if (graphic) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
-            simGraphic.makeAndDisplayFrame();
-        } else {
-            sim.runit();
-        }
+        System.out.println("Zoinks!");
     }
     
 }

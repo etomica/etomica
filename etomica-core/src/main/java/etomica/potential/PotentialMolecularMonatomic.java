@@ -4,11 +4,10 @@
 
 package etomica.potential;
 
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialAtomic;
 import etomica.atom.AtomArrayList;
-import etomica.space.ISpace;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
+import etomica.space.Space;
 
 /**
  * Intermolecular potential that wraps an atomic potential.  The potential is
@@ -21,7 +20,7 @@ public class PotentialMolecularMonatomic extends PotentialMolecular {
     protected final IPotentialAtomic potentialAtomic;
     protected final AtomArrayList atoms;
 
-    public PotentialMolecularMonatomic(ISpace space, IPotentialAtomic potentialAtomic) {
+    public PotentialMolecularMonatomic(Space space, IPotentialAtomic potentialAtomic) {
         super(potentialAtomic.nBody(), space);
         this.potentialAtomic = potentialAtomic;
         atoms = new AtomArrayList(nBody);
@@ -39,7 +38,7 @@ public class PotentialMolecularMonatomic extends PotentialMolecular {
         return potentialAtomic.energy(atoms);
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         potentialAtomic.setBox(box);
     }
 }

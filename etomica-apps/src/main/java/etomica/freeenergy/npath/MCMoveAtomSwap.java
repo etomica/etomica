@@ -4,20 +4,20 @@
 
 package etomica.freeenergy.npath;
 
-import etomica.api.*;
-import etomica.atom.AtomArrayList;
-import etomica.atom.AtomSetSinglet;
-import etomica.atom.AtomSource;
-import etomica.atom.AtomSourceRandomLeaf;
+import etomica.atom.*;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorAtomDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
+import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveInsertDeleteLatticeVacancy;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.ISpace;
+import etomica.potential.PotentialMaster;
+import etomica.space.Vector;
+import etomica.space.Space;
+import etomica.util.random.IRandom;
 
 /**
  * Created by andrew on 4/11/17.
@@ -29,16 +29,16 @@ public class MCMoveAtomSwap extends MCMoveBox {
     protected double uNew = Double.NaN;
     protected AtomSource atomSource;
     protected final IRandom random;
-    protected ISpace space;
+    protected Space space;
     protected IAtomList atoms;
     protected AtomIteratorAtomDependent atomIterator;
     protected double nbrDistance;
     protected final AtomArrayList nbrList;
-    protected final IVectorMutable dr;
+    protected final Vector dr;
     protected final P1ImageHarmonic p1;
     protected final AtomSetSinglet singlet;
 
-    public MCMoveAtomSwap(IRandom random, IPotentialMaster potentialMaster, ISpace _space, P1ImageHarmonic p1) {
+    public MCMoveAtomSwap(IRandom random, PotentialMaster potentialMaster, Space _space, P1ImageHarmonic p1) {
         super(potentialMaster);
         this.random = random;
         this.space = _space;
@@ -71,7 +71,7 @@ public class MCMoveAtomSwap extends MCMoveBox {
         ((AtomsetIteratorDirectable)atomIterator).setDirection(null);
         atomIterator.reset();
         nbrList.clear();
-        IVector pi = atom.getPosition();
+        Vector pi = atom.getPosition();
         for (IAtom jAtom = atomIterator.nextAtom(); jAtom != null; jAtom = atomIterator.nextAtom()) {
             dr.Ev1Mv2(pi, jAtom.getPosition());
             box.getBoundary().nearestImage(dr);
@@ -142,7 +142,7 @@ public class MCMoveAtomSwap extends MCMoveBox {
         return affectedAtomIterator;
     }
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         atomSource.setBox(p);
         atoms = p.getLeafList();

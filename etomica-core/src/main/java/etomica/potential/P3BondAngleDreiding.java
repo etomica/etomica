@@ -4,13 +4,12 @@
 
 package etomica.potential;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
+import etomica.box.Box;
+import etomica.space.Vector;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 /**
@@ -28,13 +27,13 @@ import etomica.space.Tensor;
 
 public class P3BondAngleDreiding extends Potential implements PotentialSoft {
 	
-	public P3BondAngleDreiding (ISpace space, double thetaEq, double gamma){
+	public P3BondAngleDreiding (Space space, double thetaEq, double gamma){
 		super(3, space);
 		dr12 = space.makeVector();
 		dr23 = space.makeVector();
 		setAngle(thetaEq);
 		setGamma(gamma);
-		gradient = new IVectorMutable[3];
+		gradient = new Vector[3];
 		gradient[0] = space.makeVector();
 		gradient[1] = space.makeVector();
 		gradient[2] = space.makeVector();
@@ -44,7 +43,7 @@ public class P3BondAngleDreiding extends Potential implements PotentialSoft {
 		return 0.0;
 	}
 	
-	public IVector[] gradient(IAtomList atomSet,  Tensor pressureTensor){
+	public Vector[] gradient(IAtomList atomSet, Tensor pressureTensor){
         IAtom atom0 = atomSet.getAtom(0);
         IAtom atom1 = atomSet.getAtom(1);
         IAtom atom2 = atomSet.getAtom(2);
@@ -155,12 +154,12 @@ public class P3BondAngleDreiding extends Potential implements PotentialSoft {
 		return gradient;
 	}
 	
-    public IVector[] gradient(IAtomList atoms) {
+    public Vector[] gradient(IAtomList atoms) {
 
         return gradient(atoms,null);
     }
 	
-	public void setBox(IBox box){
+	public void setBox(Box box){
 		boundary = box.getBoundary();
 	}
 	
@@ -221,9 +220,9 @@ public class P3BondAngleDreiding extends Potential implements PotentialSoft {
         return Double.POSITIVE_INFINITY;
     }
 	
-    protected final IVectorMutable dr12, dr23;
-    protected final IVectorMutable[] gradient;
-    protected IBoundary boundary;
+    protected final Vector dr12, dr23;
+    protected final Vector[] gradient;
+    protected Boundary boundary;
     private double gamma;
     private double thetaEq;
     private static final long serialVersionUID = 1L;

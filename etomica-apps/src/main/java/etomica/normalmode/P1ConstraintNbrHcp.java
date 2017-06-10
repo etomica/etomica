@@ -4,16 +4,16 @@
 
 package etomica.normalmode;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
-import etomica.space.ISpace;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.potential.IPotentialAtomic;
+import etomica.space.Boundary;
+import etomica.space.Space;
+import etomica.space.Vector;
 
-public class P1ConstraintNbrHcp implements IPotentialAtomic{
+public class P1ConstraintNbrHcp implements IPotentialAtomic {
 
     /**
      * 
@@ -21,7 +21,7 @@ public class P1ConstraintNbrHcp implements IPotentialAtomic{
     private static final long serialVersionUID = 1L;
 
     // this could take a NeighborListManager to try to speed up finding neighbors
-    public P1ConstraintNbrHcp(ISpace space, double neighborDistance, IBox box) {
+    public P1ConstraintNbrHcp(Space space, double neighborDistance, Box box) {
         boundary = box.getBoundary();
 
         neighborRadiusSq = neighborDistance*neighborDistance;
@@ -60,7 +60,7 @@ public class P1ConstraintNbrHcp implements IPotentialAtomic{
         return Double.POSITIVE_INFINITY;
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         leafList = box.getLeafList();
     }
 
@@ -84,7 +84,7 @@ public class P1ConstraintNbrHcp implements IPotentialAtomic{
 	 */
 	public double energyi(IAtom atom) {
 
-	    IVectorMutable posAtom = atom.getPosition();
+	    Vector posAtom = atom.getPosition();
 
 	    int atomIndex = atom.getLeafIndex();
 	    int[] list = neighborAtoms[atomIndex];
@@ -107,9 +107,9 @@ public class P1ConstraintNbrHcp implements IPotentialAtomic{
 	
 
 	protected final int[][] neighborAtoms;
-	protected final IVectorMutable drj, drk;
+	protected final Vector drj, drk;
 	protected double neighborRadiusSq;
-	protected final IBoundary boundary;
+	protected final Boundary boundary;
 	protected IAtomList leafList;
 	protected int p1Counter=0;
 }

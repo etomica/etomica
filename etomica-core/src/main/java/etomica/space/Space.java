@@ -4,7 +4,6 @@
 
 package etomica.space;
 
-import etomica.api.IVectorMutable;
 import etomica.space1d.Space1D;
 import etomica.space1d.Vector1D;
 import etomica.space2d.Space2D;
@@ -15,7 +14,7 @@ import etomica.space3d.Vector3D;
 /**
  * Superclass for all Space instances. Space classes are factories for vectors, tensors, etc.
  */
-public abstract class Space implements java.io.Serializable, ISpace {
+public abstract class Space implements java.io.Serializable {
 
     protected Space() {
     }
@@ -61,7 +60,7 @@ public abstract class Space implements java.io.Serializable, ISpace {
     /**
      * @return a new Vector appropriate to the space.
      */
-    public abstract IVectorMutable makeVector();
+    public abstract Vector makeVector();
 
     /**
      * @return a new Orientation appropriate to the space.
@@ -116,7 +115,7 @@ public abstract class Space implements java.io.Serializable, ISpace {
      * 
      * @throws IllegalArgumentException if D is not 1, 2, or 3.
      */
-    public static IVectorMutable makeVector(int D) {
+    public static Vector makeVector(int D) {
         switch(D) {
             case 1:  return new Vector1D();
             case 2:  return new Vector2D();
@@ -131,7 +130,7 @@ public abstract class Space implements java.io.Serializable, ISpace {
      * 
      * @throws IllegalArgumentException if a.length is not 1, 2, or 3.
      */
-    public IVectorMutable makeVector(double[] a) {
+    public Vector makeVector(double[] a) {
         switch(a.length) {
             case 1:  return new etomica.space1d.Vector1D(a);
             case 2:  return new etomica.space2d.Vector2D(a);
@@ -144,7 +143,7 @@ public abstract class Space implements java.io.Serializable, ISpace {
      * Returns a Vector initialized to the given set of values in the array (cast to double).
      * Spatial dimension of the Vector is determined by the length of a.
      */
-    public IVectorMutable makeVector(int[] k) {
+    public Vector makeVector(int[] k) {
         double[] a = new double[k.length];
         for(int i=0; i<k.length; i++) {a[i] = k[i];}
         return makeVector(a);
@@ -155,8 +154,8 @@ public abstract class Space implements java.io.Serializable, ISpace {
      * @param n number of vectors in the returned array
      * @return an array of n new vectors made by this Space instance
      */
-    public IVectorMutable[] makeVectorArray(int n) {
-        IVectorMutable[] vectors = new IVectorMutable[n];
+    public Vector[] makeVectorArray(int n) {
+        Vector[] vectors = new Vector[n];
         for(int i=0; i<n; i++) vectors[i] = makeVector();
         return vectors;
     }

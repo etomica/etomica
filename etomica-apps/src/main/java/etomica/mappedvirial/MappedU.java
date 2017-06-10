@@ -3,20 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.mappedvirial;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
 
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.DataPump;
-import etomica.data.DataPumpListener;
-import etomica.data.IData;
+import etomica.data.*;
+import etomica.data.histogram.Histogram;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterRDF;
 import etomica.graphics.DisplayPlot;
@@ -29,23 +23,25 @@ import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.Histogram;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class MappedU extends Simulation {
 
     public SpeciesSpheresMono species;
-    public IBox box;
+    public Box box;
     public IntegratorMC integrator;
     public MCMoveAtom move;
     public ActivityIntegrate activityIntegrate;
     public P2SoftSphericalTruncated p2Truncated;
 
-    public MappedU(ISpace _space, int numAtoms, double temperature, double density, double rc) {
+    public MappedU(Space _space, int numAtoms, double temperature, double density, double rc) {
         super(_space);
 
         //species and potentials
@@ -73,7 +69,7 @@ public class MappedU extends Simulation {
 
         P2LennardJones potential = new P2LennardJones(space);
         p2Truncated = new P2SoftSphericalTruncated(space, potential, rc);
-        potentialMaster.addPotential(p2Truncated, new IAtomType[]{species.getLeafType(), species.getLeafType()});
+        potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
         integrator.setBox(box);
@@ -125,7 +121,7 @@ public class MappedU extends Simulation {
 
         // FileWriter fwr = new FileWriter("/usr/users/aksharag/workspace/Apps/Ushift/mapped_shifted.dat",true);
 
-        ISpace space = Space.getInstance(3);
+        Space space = Space.getInstance(3);
 
         MappedU sim = new MappedU(space, numAtoms, temperature, density, rc);
         halfBoxlength = Math.cbrt(numAtoms/density) / 2;
@@ -218,9 +214,9 @@ public class MappedU extends Simulation {
 
         if (computeUMA) {
 
-            IData mappedAvg = accMappedVirial.getData(accMappedVirial.AVERAGE);
-            IData mappedErr = accMappedVirial.getData(accMappedVirial.ERROR);
-            IData mappedCor = accMappedVirial.getData(accMappedVirial.BLOCK_CORRELATION);
+            IData mappedAvg = accMappedVirial.getData(AccumulatorAverage.AVERAGE);
+            IData mappedErr = accMappedVirial.getData(AccumulatorAverage.ERROR);
+            IData mappedCor = accMappedVirial.getData(AccumulatorAverage.BLOCK_CORRELATION);
 
             double avg = mappedAvg.getValue(0);
             double err = mappedErr.getValue(0);
@@ -238,9 +234,9 @@ public class MappedU extends Simulation {
 
         if (computeU){
 
-            double UAvg = accU.getData(accU.AVERAGE).getValue(0);
-            double UErr = accU.getData(accU.ERROR).getValue(0);
-            double UCor = accU.getData(accU.BLOCK_CORRELATION).getValue(0);
+            double UAvg = accU.getData(AccumulatorAverage.AVERAGE).getValue(0);
+            double UErr = accU.getData(AccumulatorAverage.ERROR).getValue(0);
+            double UCor = accU.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
 
             System.out.println("Uavg intensive "+UAvg/numAtoms);
             System.out.println("err intensive "+UErr/numAtoms);

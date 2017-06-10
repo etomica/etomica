@@ -4,10 +4,14 @@
 
 package etomica.freeenergy.npath;
 
-import etomica.api.*;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
-import etomica.space.ISpace;
+import etomica.space.Boundary;
+import etomica.space.Vector;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 /**
@@ -16,31 +20,31 @@ import etomica.space.Tensor;
 public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
 
     protected double w;
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected IAtomList allAtoms;
-    protected final IVector offset;
-    protected final IVectorMutable dr;
-    protected final IVectorMutable[] gradient;
+    protected final Vector offset;
+    protected final Vector dr;
+    protected final Vector[] gradient;
     protected int nOffset;
     protected boolean zeroF = true;
     protected boolean do21;
 
-    public P1ImageHarmonic(ISpace space, IVector offset, double w, boolean do21) {
+    public P1ImageHarmonic(Space space, Vector offset, double w, boolean do21) {
         super(space);
         this.offset = offset;
         this.w = w;
         this.do21 = do21;
         dr = space.makeVector();
-        gradient = new IVectorMutable[1];
+        gradient = new Vector[1];
         gradient[0] = space.makeVector();
     }
     
-    public void findNOffset(IBox box) {
+    public void findNOffset(Box box) {
         IAtomList atoms = box.getLeafList();
-        IVector p0 = atoms.getAtom(0).getPosition();
-        IBoundary boundary = box.getBoundary();
+        Vector p0 = atoms.getAtom(0).getPosition();
+        Boundary boundary = box.getBoundary();
         for (int i=1; i<atoms.getAtomCount(); i++) {
-            IVector p = atoms.getAtom(i).getPosition();
+            Vector p = atoms.getAtom(i).getPosition();
             dr.Ev1Mv2(p, p0);
             dr.ME(offset);
             boundary.nearestImage(dr);
@@ -56,7 +60,7 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
         return nOffset;
     }
 
-    public IVector getOffset() {
+    public Vector getOffset() {
         return offset;
     }
 
@@ -74,14 +78,14 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
         IAtom atom1 = null;
         if (idx0%(nOffset*2) >= nOffset) return 0;
         atom1 = allAtoms.getAtom(idx0+nOffset);
-        IVector p0 = atom0.getPosition();
-        IVector p1 = atom1.getPosition();
+        Vector p0 = atom0.getPosition();
+        Vector p1 = atom1.getPosition();
         dr.Ev1Mv2(p1,p0);
         dr.ME(offset);
         boundary.nearestImage(dr);
         // return the full contribution for this pair.  our partner will be skipped
         double r2 = dr.squared();
-        if (!do21) return r2;
+        if (!do21 || w==0) return r2;
         if (r2 == 0) return 0;
         double wr2 = w*r2;
         double sqrtwr2 = Math.sqrt(wr2);
@@ -95,7 +99,7 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
     }
 
     @Override
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         allAtoms = box.getLeafList();
         boundary = box.getBoundary();
     }
@@ -112,8 +116,8 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
         else {
             atom1 = allAtoms.getAtom(idx0+nOffset);
         }
-        IVector p0 = atom0.getPosition();
-        IVector p1 = atom1.getPosition();
+        Vector p0 = atom0.getPosition();
+        Vector p1 = atom1.getPosition();
         dr.Ev1Mv2(p1,p0);
         dr.ME(offset);
         boundary.nearestImage(dr);
@@ -134,7 +138,7 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
     }
 
     @Override
-    public IVector[] gradient(IAtomList atoms) {
+    public Vector[] gradient(IAtomList atoms) {
         if (zeroF) {
             gradient[0].E(0);
             return gradient;
@@ -145,8 +149,8 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
         int iOffset = nOffset;
         if (idx0%(nOffset*2) >= nOffset) iOffset = -nOffset;
         IAtom atom1 = allAtoms.getAtom(idx0+iOffset);
-        IVector p0 = atom0.getPosition();
-        IVector p1 = atom1.getPosition();
+        Vector p0 = atom0.getPosition();
+        Vector p1 = atom1.getPosition();
         dr.Ev1Mv2(p1,p0);
         dr.ME(offset);
         boundary.nearestImage(dr);
@@ -167,7 +171,7 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
     }
 
     @Override
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         throw new RuntimeException("Implement me (just kidding.  call a different method instead)");
     }
 }

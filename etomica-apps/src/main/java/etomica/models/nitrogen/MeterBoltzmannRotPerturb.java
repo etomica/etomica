@@ -4,10 +4,6 @@
 
 package etomica.models.nitrogen;
 
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.ISimulation;
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -18,7 +14,10 @@ import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorMC;
-import etomica.space.ISpace;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.units.Null;
 
 /**
@@ -30,11 +29,11 @@ import etomica.units.Null;
  */
 public class MeterBoltzmannRotPerturb implements IEtomicaDataSource {
     
-    public MeterBoltzmannRotPerturb(IntegratorMC integrator, IPotentialMaster potentialMaster, ISpecies species, 
-    		ISpace space, ISimulation sim, CoordinateDefinitionNitrogen coordinateDef) {
+    public MeterBoltzmannRotPerturb(IntegratorMC integrator, PotentialMaster potentialMaster, ISpecies species,
+                                    Space space, Simulation sim, CoordinateDefinitionNitrogen coordinateDef) {
         this.primaryCoordDef = coordinateDef;
         
-        IBox realBox = coordinateDef.getBox();
+        Box realBox = coordinateDef.getBox();
         secondaryBox = new Box(space);
         sim.addBox(secondaryBox);
        
@@ -90,7 +89,7 @@ public class MeterBoltzmannRotPerturb implements IEtomicaDataSource {
 	private static final long serialVersionUID = 1L;
 	protected final MeterPotentialEnergy meterPotentialMeasured;
 	protected final MeterPotentialEnergyFromIntegrator meterPotentialSampled;
-    protected final IBox secondaryBox;
+    protected final Box secondaryBox;
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
     protected final DataTag tag;

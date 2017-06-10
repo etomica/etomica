@@ -5,20 +5,20 @@
 package etomica.virial;
 
 import etomica.action.MoleculeAction;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.potential.PotentialMaster;
+import etomica.util.random.IRandom;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * MC move for Mayer Sampling that rotates a single molecule
  */
 public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
 
-    public MCMoveClusterRotateMolecule3D(IPotentialMaster potentialMaster,
-            IRandom random, ISpace _space) {
+    public MCMoveClusterRotateMolecule3D(PotentialMaster potentialMaster,
+            IRandom random, Space _space) {
         super(potentialMaster, random, _space);
     }
 

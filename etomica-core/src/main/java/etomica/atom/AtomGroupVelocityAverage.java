@@ -4,15 +4,11 @@
 
 package etomica.atom;
 
-import java.io.Serializable;
+import etomica.molecule.IMolecule;
+import etomica.space.Space;
+import etomica.space.Vector;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IMolecule;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import java.io.Serializable;
 
 /**
  * Calculates the mass average velocity over a set of atoms. The velocity
@@ -24,7 +20,7 @@ import etomica.space.ISpace;
  */
 public class AtomGroupVelocityAverage implements Serializable {
 
-    public AtomGroupVelocityAverage(ISpace space) {
+    public AtomGroupVelocityAverage(Space space) {
         vectorSum = space.makeVector();
     }
     
@@ -32,7 +28,7 @@ public class AtomGroupVelocityAverage implements Serializable {
      * Returns the mass-average velocity of the given Atom and 
      * all its children.
      */
-    public IVector getVelocityAverage(IMolecule molecule) {
+    public Vector getVelocityAverage(IMolecule molecule) {
         vectorSum.E(0.0);
         double massSum = 0;
         IAtomList children = molecule.getChildList();
@@ -47,5 +43,5 @@ public class AtomGroupVelocityAverage implements Serializable {
     }
 
     private static final long serialVersionUID = 1L;
-    private final IVectorMutable vectorSum;
+    private final Vector vectorSum;
 }

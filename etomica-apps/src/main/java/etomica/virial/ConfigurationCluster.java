@@ -4,13 +4,12 @@
 
 package etomica.virial;
 
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
+import etomica.box.Box;
 import etomica.config.Configuration;
-import etomica.config.IConformation;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * @author kofke
@@ -20,15 +19,15 @@ import etomica.space.ISpace;
  */
 public class ConfigurationCluster implements Configuration, java.io.Serializable {
 
-	public ConfigurationCluster(ISpace _space) {
+	public ConfigurationCluster(Space _space) {
 		this.space = _space;
 	}
 
 	/**
 	 * @see etomica.config.Configuration#initializeCoordinates
 	 */
-	public void initializeCoordinates(IBox box) {
-        IVectorMutable dimVector = space.makeVector();
+	public void initializeCoordinates(Box box) {
+        Vector dimVector = space.makeVector();
         dimVector.E(box.getBoundary().getBoxSize());
 		IMoleculeList moleculeList = box.getMoleculeList();
 		for (int i=0; i<moleculeList.getMoleculeCount(); i++) {
@@ -46,6 +45,6 @@ public class ConfigurationCluster implements Configuration, java.io.Serializable
         // nothing needs that (and alkanes are unhappy with it).
 	}
 
-	protected final ISpace space;
+	protected final Space space;
     private static final long serialVersionUID = 3L;
 }

@@ -4,106 +4,47 @@
 
 package etomica.virial.simulations;
 
-import java.awt.Color;
-
-import java.util.Map;
-
-import java.util.Set;
-
 import etomica.action.IAction;
-
-import etomica.api.IAtomType;
-
-import etomica.api.ISpecies;
-
+import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
-
 import etomica.atom.iterator.ApiBuilder;
-
 import etomica.atom.iterator.ApiIndexList;
-
 import etomica.atom.iterator.Atomset3IteratorIndexList;
-
 import etomica.atom.iterator.Atomset4IteratorIndexList;
-
 import etomica.chem.elements.ElementSimple;
-
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.IData;
-
 import etomica.data.types.DataGroup;
-
 import etomica.graph.model.Graph;
-
 import etomica.graph.model.Node;
-
 import etomica.graph.operations.DeleteEdge;
-
 import etomica.graph.operations.DeleteEdgeParameters;
-
 import etomica.graphics.ColorSchemeByType;
-
 import etomica.graphics.DisplayBox;
-
 import etomica.graphics.DisplayBoxCanvasG3DSys;
-
 import etomica.graphics.SimulationGraphic;
-
 import etomica.potential.P2LennardJones;
-
 import etomica.potential.P3BondAngle;
-
 import etomica.potential.P4BondTorsion;
-
 import etomica.potential.PotentialGroup;
-
 import etomica.space.Space;
-
 import etomica.space3d.Space3D;
-
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
-
 import etomica.units.Kelvin;
-
 import etomica.units.Pixel;
-
 import etomica.util.Constants;
 import etomica.util.ParameterBase;
-
 import etomica.util.ParseArgs;
-
-import etomica.virial.ClusterAbstract;
-
-import etomica.virial.ClusterSum;
-
-import etomica.virial.ClusterSumShell;
-
-import etomica.virial.ClusterWeight;
-
-import etomica.virial.ClusterWeightAbs;
-
-import etomica.virial.MCMoveClusterMoleculeMulti;
-
-import etomica.virial.MCMoveClusterRotateMoleculeMulti;
-
-import etomica.virial.MCMoveClusterTorsionMulti;
-
-import etomica.virial.MCMoveClusterWiggleMulti;
-
-import etomica.virial.MayerFunction;
-
-import etomica.virial.MayerGeneral;
-
-import etomica.virial.MayerGeneralSpherical;
-
-import etomica.virial.MayerHardSphere;
-
-import etomica.virial.SpeciesAlkane;
-
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
-
 import etomica.virial.cluster.VirialDiagrams;
-
 import etomica.virial.cluster.VirialDiagramsMix2;
+
+import java.awt.*;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -131,7 +72,7 @@ public class VirialSF6LJAlkaneUAMix {
             }
             else {
                 str += " "+gs.getStore().toNumberString();
-                if (flexDiagrams.graphHasEdgeColor(gs, flexDiagrams.eBond)) {
+                if (VirialDiagramsMix2.graphHasEdgeColor(gs, flexDiagrams.eBond)) {
                     str += "p" + edgeDeleter.apply(gs, ede).getStore().toNumberString();
 
                 }
@@ -495,34 +436,33 @@ public static void main(String[] args) {
 
         sim.integratorOS.setNumSubSteps(1000);
 
-        
 
-        IAtomType typeSF6 = speciesSF6.getAtomType(0);
+    AtomType typeSF6 = speciesSF6.getAtomType(0);
 
-        IAtomType typeCH3 = speciesAlkane.getAtomType(0);
+    AtomType typeCH3 = speciesAlkane.getAtomType(0);
 
-        IAtomType typeCH2 = speciesAlkane.getAtomType(1);
+    AtomType typeCH2 = speciesAlkane.getAtomType(1);
 
 
         // alkane potential
 
-        pAlkane.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH2}));
+    pAlkane.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH2, typeCH2}));
 
-        pAlkane.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH3}));// CH2 on molecule1 to CH3 on molecule2
+    pAlkane.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH2, typeCH3}));// CH2 on molecule1 to CH3 on molecule2
 
-        pAlkane.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeCH2}));// CH3 on molecule1 to CH2 on molecule2
+    pAlkane.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH3, typeCH2}));// CH3 on molecule1 to CH2 on molecule2
 
-        pAlkane.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeCH3}));
+    pAlkane.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH3, typeCH3}));
 
         // SF6-alkane potential
 
-        pSF6Alkane.addPotential(pSF6_CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeSF6, typeCH3}));
+    pSF6Alkane.addPotential(pSF6_CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeSF6, typeCH3}));
 
-        pSF6Alkane.addPotential(pSF6_CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeSF6, typeCH2}));
+    pSF6Alkane.addPotential(pSF6_CH2, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeSF6, typeCH2}));
 
-        pSF6Alkane.addPotential(pSF6_CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeSF6, typeCH3}));
+    pSF6Alkane.addPotential(pSF6_CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeSF6, typeCH3}));
 
-        pSF6Alkane.addPotential(pSF6_CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeSF6, typeCH2}));
+    pSF6Alkane.addPotential(pSF6_CH2, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeSF6, typeCH2}));
 
 
         sim.integratorOS.setNumSubSteps(1000);
@@ -856,11 +796,11 @@ public static void main(String[] args) {
 
         DataGroup allData = (DataGroup)sim.accumulators[1].getData();
 
-        IData dataAvg = allData.getData(sim.accumulators[1].AVERAGE.index);
+    IData dataAvg = allData.getData(AccumulatorAverage.AVERAGE.index);
 
-        IData dataErr = allData.getData(sim.accumulators[1].ERROR.index);
+    IData dataErr = allData.getData(AccumulatorAverage.ERROR.index);
 
-        IData dataCov = allData.getData(sim.accumulators[1].BLOCK_COVARIANCE.index);
+    IData dataCov = allData.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
 
         // we'll ignore block correlation -- whatever effects are here should be in the full target results
 

@@ -6,9 +6,14 @@ package etomica.virial.simulations;
 
 import etomica.action.IAction;
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IIntegratorEvent;
-import etomica.api.IIntegratorListener;
-import etomica.api.IVectorMutable;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCovariance;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
+import etomica.data.histogram.HistogramNotSoSimple;
+import etomica.data.histogram.HistogramSimple;
+import etomica.math.DoubleRange;
+import etomica.space.Vector;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayBox;
@@ -19,12 +24,13 @@ import etomica.models.water.PNWaterGCPM.Component;
 import etomica.models.water.PNWaterGCPM.PNWaterGCPMCached;
 import etomica.models.water.SpeciesWater4PCOM;
 import etomica.potential.PotentialNonAdditiveDifference;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.CompoundUnit;
 import etomica.units.Kelvin;
 import etomica.units.Unit;
 import etomica.util.*;
+import etomica.util.random.RandomMersenneTwister;
 import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 
@@ -32,12 +38,7 @@ import java.awt.*;
 import java.util.Arrays;
 
 /**
- * Computes CO2-H2O mixture virial coefficients using ab-initio potentials
- * for both components.  Classical and semiclassical coefficients can be
- * computed.
- * 
- * 3-body dispersion for water (and water-CO2) can be used if Ewater is set.
- * CO2-H2O combining rules can be adjusted via k parameters.
+ * Computes virial coefficients and its temperature derivatives for GCPM Water
  * 
  * @author Andrew Schultz
  */
@@ -89,7 +90,7 @@ public class VirialH2OGCPMD {
         
         System.out.println("  B"+nPoints+"HS: "+HSB);
 		
-        final ISpace space = Space3D.getInstance();
+        final Space space = Space3D.getInstance();
         
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
 
@@ -130,7 +131,7 @@ public class VirialH2OGCPMD {
         System.out.println(steps+" steps (1000 IntegratorOverlap steps of "+(steps/1000)+")");
  		
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, speciesWater, nPoints, temperature, refCluster, targetCluster);
-        if(seed!=null)sim.setRandom(new RandomMersenneTwister(seed));        
+        if(seed!=null)sim.setRandom(new RandomMersenneTwister(seed));
         sim.setExtraTargetClusters(primes);
                 
         if(nPoints > 4){
@@ -152,7 +153,7 @@ public class VirialH2OGCPMD {
         
         if (nonAdditive != Nonadditive.NONE) {
             MoleculeActionTranslateTo act = new MoleculeActionTranslateTo(space);
-            IVectorMutable pos = space.makeVector();
+            Vector pos = space.makeVector();
             double r = 4;
             for (int i=1; i<nPoints; i++) {
                 double theta = 2*i*Math.PI/nPoints;
@@ -259,10 +260,10 @@ public class VirialH2OGCPMD {
         final HistogramNotSoSimple hist = new HistogramNotSoSimple(nBins, new DoubleRange(dx*0.5, sigmaHSRef+dx*0.5));
         final HistogramNotSoSimple piHist = new HistogramNotSoSimple(nBins, new DoubleRange(dx*0.5, sigmaHSRef+dx*0.5));
         final ClusterAbstract finalTargetCluster = targetCluster.makeCopy();
-        IIntegratorListener histListenerRef = new IIntegratorListener() {
-            public void integratorStepStarted(IIntegratorEvent e) {}
+        IntegratorListener histListenerRef = new IntegratorListener() {
+            public void integratorStepStarted(IntegratorEvent e) {}
             
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 double r2Max = 0;
                 CoordinatePairSet cPairs = sim.box[0].getCPairSet();
                 for (int i=0; i<nPoints; i++) {
@@ -276,13 +277,13 @@ public class VirialH2OGCPMD {
                 piHist.addValue(Math.sqrt(r2Max), Math.abs(v));
             }
             
-            public void integratorInitialized(IIntegratorEvent e) {
+            public void integratorInitialized(IntegratorEvent e) {
             }
         };
-        IIntegratorListener histListenerTarget = new IIntegratorListener() {
-            public void integratorStepStarted(IIntegratorEvent e) {}
+        IntegratorListener histListenerTarget = new IntegratorListener() {
+            public void integratorStepStarted(IntegratorEvent e) {}
             
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 double r2Max = 0;
                 double r2Min = Double.POSITIVE_INFINITY;
                 CoordinatePairSet cPairs = sim.box[1].getCPairSet();
@@ -311,14 +312,14 @@ public class VirialH2OGCPMD {
                 }
             }
 
-            public void integratorInitialized(IIntegratorEvent e) {}
+            public void integratorInitialized(IntegratorEvent e) {}
         };
 
         if (params.doHist) {
-            IIntegratorListener histReport = new IIntegratorListener() {
-                public void integratorInitialized(IIntegratorEvent e) {}
-                public void integratorStepStarted(IIntegratorEvent e) {}
-                public void integratorStepFinished(IIntegratorEvent e) {
+            IntegratorListener histReport = new IntegratorListener() {
+                public void integratorInitialized(IntegratorEvent e) {}
+                public void integratorStepStarted(IntegratorEvent e) {}
+                public void integratorStepFinished(IntegratorEvent e) {
                     if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
                     System.out.println("**** reference ****");
                     double[] xValues = hist.xValues();
@@ -385,9 +386,9 @@ public class VirialH2OGCPMD {
         boolean derprint = false;
         if(derprint){
             DataGroup allData = (DataGroup)sim.accumulators[1].getData();
-            IData dataAvg = allData.getData(sim.accumulators[1].AVERAGE.index);
-            IData dataErr = allData.getData(sim.accumulators[1].ERROR.index);
-            IData dataCov = allData.getData(sim.accumulators[1].BLOCK_COVARIANCE.index);
+            IData dataAvg = allData.getData(AccumulatorAverage.AVERAGE.index);
+            IData dataErr = allData.getData(AccumulatorAverage.ERROR.index);
+            IData dataCov = allData.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
             // we'll ignore block correlation -- whatever effects are here should be in the full target results
             
             int nTotal = (primes.length+2);

@@ -1,6 +1,6 @@
 package etomica.spaceNd;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.space.Tensor;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,13 +62,13 @@ public class TensorNDTest {
         assertTrue(t3.equals(t1));
     }
 
-    // tests E(IVector[]) and assignTo(IVector[])
+    // tests E(Vector[]) and assignTo(Vector[])
     @Test
     public void testE() throws Exception {
         VectorND v0 = new VectorND(new double[]{1.0, 4.0, 7.0});
         VectorND v1 = new VectorND(new double[]{2.0, -5.0, 8.0});
         VectorND v2 = new VectorND(new double[]{3.0, 6.0, 9.0});
-        t2.E(new IVector[]{v0, v1, v2});
+        t2.E(new Vector[]{v0, v1, v2});
         assertTrue(t2.equals(t1));
 
         VectorND[] vecs = new VectorND[]{new VectorND(dim), new VectorND(dim), new VectorND(dim)};

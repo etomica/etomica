@@ -4,21 +4,21 @@
 
 package etomica.virial;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
-import etomica.space.ISpace;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Vector3D;
+import etomica.species.ISpecies;
 import etomica.util.Debug;
+import etomica.util.random.IRandom;
 
 /**
  * Wiggle move for alkane, TraPPE-EH
@@ -42,7 +42,7 @@ import etomica.util.Debug;
  */
 
 public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
-    public MCMoveClusterWiggleAlkaneEH(ISimulation sim, IPotentialMaster potentialMaster, int nAtoms, ISpace _space) {
+    public MCMoveClusterWiggleAlkaneEH(Simulation sim, PotentialMaster potentialMaster, int nAtoms, Space _space) {
         this(potentialMaster,sim.getRandom(), 1.0, nAtoms, _space);
 
     }
@@ -55,7 +55,7 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
      * because first atom is never moved)
      */
 
-    public MCMoveClusterWiggleAlkaneEH(IPotentialMaster potentialMaster,IRandom random, double stepSize, int nAtoms, ISpace _space) {
+    public MCMoveClusterWiggleAlkaneEH(PotentialMaster potentialMaster, IRandom random, double stepSize, int nAtoms, Space _space) {
         super(potentialMaster,random,_space, stepSize,Double.POSITIVE_INFINITY);
         this.space = _space;
         setStepSizeMax(Math.PI);
@@ -66,11 +66,11 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
         work3 = _space.makeVector();
     }
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
     	super.setBox(p);
     	int nMolecules = box.getMoleculeList().getMoleculeCount();
     	selectedAtoms = new IAtom[nMolecules][8];// [0] is carbon, other 5 or 6 or 7 are H
-    	positionSelectedAtoms = new IVectorMutable[8];   // [0] is carbon, other 5 or 6 or 7 are H
+    	positionSelectedAtoms = new Vector[8];   // [0] is carbon, other 5 or 6 or 7 are H
     	translationVectors = new Vector3D[nMolecules][8];// [0] is carbon, other 5 or 6 or 7 are H
     	for (int i=0; i<nMolecules; i++) {
     		for (int m = 0; m < 8 ; m++){
@@ -235,8 +235,8 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
                 work2.TE(Math.cos(phi));
                 work2.PEa1Tv1(Math.sin(phi),work3);
                 
-                IVectorMutable axis = space.makeVector();
-                IVectorMutable jNeighbor = space.makeVector();
+                Vector axis = space.makeVector();
+                Vector jNeighbor = space.makeVector();
                 jNeighbor.Ev1Mv2(positionSelectedAtoms[0], work1); //position of C1, r(C[1]) = r(C[0]) - work1 or  r(C[n-2]) = r(C[n-1]) - work1
                 axis.E(work2);// copy of work2
                 axis.normalize();
@@ -267,7 +267,7 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
      //           		System.out.println("s is:"+s);
                     
                 		jH[s] =  childList.getAtom(numCarbons * (s+1));
-                        IVectorMutable r = jH[s].getPosition();
+                        Vector r = jH[s].getPosition();
                 	//	System.out.println("position of H before move is:"+r);
                 		
  //               		IVectorMutable vector_chBefore = space.makeVector();
@@ -295,17 +295,17 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
                     ///// #########  GET the new positions of 2 H on (j+1)= C1 ###################### ///////////////////
                     ///// ######################################################################### ///////////////////
 
-                	IVectorMutable jPlus1 = childList.getAtom(j+1).getPosition();// (j+1) carbon position
-                    IVectorMutable jPlus2 = childList.getAtom(j+2).getPosition();// (j+2) carbon position
-                    IVectorMutable jPlus1_H1 = childList.getAtom(numCarbons+j+1).getPosition();//H1 on (j+1) carbon
-                    IVectorMutable jPlus1_H2 = childList.getAtom(numCarbons*2+j+1).getPosition();//H2 on (j+1) carbon
-                    IVectorMutable crossV = space.makeVector();
-                    IVectorMutable jPlus1H1_q = space.makeVector();// r(H1)-r(q)
-                    IVectorMutable jPlus1H2_q = space.makeVector();// r(H2)-r(q)
+                	Vector jPlus1 = childList.getAtom(j+1).getPosition();// (j+1) carbon position
+                    Vector jPlus2 = childList.getAtom(j+2).getPosition();// (j+2) carbon position
+                    Vector jPlus1_H1 = childList.getAtom(numCarbons+j+1).getPosition();//H1 on (j+1) carbon
+                    Vector jPlus1_H2 = childList.getAtom(numCarbons*2+j+1).getPosition();//H2 on (j+1) carbon
+                    Vector crossV = space.makeVector();
+                    Vector jPlus1H1_q = space.makeVector();// r(H1)-r(q)
+                    Vector jPlus1H2_q = space.makeVector();// r(H2)-r(q)
 
                     // 1.(r(H) - r(q) and [ r(H') - r(q)]
-                    IVectorMutable jPlus1_j = space.makeVector();
-                    IVectorMutable jPlus1_jPlus2 = space.makeVector();
+                    Vector jPlus1_j = space.makeVector();
+                    Vector jPlus1_jPlus2 = space.makeVector();
                     jPlus1_j.Ev1Mv2(jPlus1, positionSelectedAtoms[0]);// r(j+1)-r(j)(new position)
                     jPlus1_jPlus2.Ev1Mv2(jPlus1, jPlus2);// r(j+1)-r(j+2)
                     crossV.E(jPlus1_j);
@@ -316,7 +316,7 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
                     jPlus1H2_q.E(crossV);
                     jPlus1H2_q.TE(-1.0);// has opposite sign
                     // 2.r(q) - r(j+1)
-                    IVectorMutable q_jPlus1 = space.makeVector();
+                    Vector q_jPlus1 = space.makeVector();
                     q_jPlus1.Ev1Pv2(jPlus1_jPlus2 , jPlus1_j);//[r(j+1)-r(j+2)] - [r(j+1)-r(j)]
                     q_jPlus1.normalize();
                     q_jPlus1.TE(CHBond*Math.cos(alpha));//r(q)-r(j+1)
@@ -364,7 +364,7 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
                 	hydrogen[2]=childList.getAtom(numCarbons*3+1);
 
                 	for (int s=0;s<3; s++){
-                		IVectorMutable r = hydrogen[s].getPosition();
+                		Vector r = hydrogen[s].getPosition();
                 		
                 	//	r.ME(positionNeighbor);//position C[n-2]
                 	//	rotateTensor.transform(r);
@@ -380,19 +380,19 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
                 	///// ######################################################################### ///////////////////
                 	///// #########  GET the new positions of 2 H on (j-1)= (n-2) ###################### ///////////////////
                 	///// ######################################################################### ///////////////////
-                	IVectorMutable jMinus1 = childList.getAtom(j-1).getPosition();// (j-1) position
-                	IVectorMutable jMinus2 = childList.getAtom(j-2).getPosition();// (j-2)  position
-                	IVectorMutable jMinus1_H1 = childList.getAtom(j-1 + numCarbons).getPosition();// H1 on (j-1)
-                	IVectorMutable jMinus1_H2 = childList.getAtom(j-1 + numCarbons * 2 ).getPosition();// H2 on (j-1)
+                	Vector jMinus1 = childList.getAtom(j-1).getPosition();// (j-1) position
+                	Vector jMinus2 = childList.getAtom(j-2).getPosition();// (j-2)  position
+                	Vector jMinus1_H1 = childList.getAtom(j-1 + numCarbons).getPosition();// H1 on (j-1)
+                	Vector jMinus1_H2 = childList.getAtom(j-1 + numCarbons * 2 ).getPosition();// H2 on (j-1)
 
-                	IVectorMutable H1_q = space.makeVector();
-                	IVectorMutable H2_q = space.makeVector();
-                	IVectorMutable jMinus1_jMinus2 = space.makeVector();
-                	IVectorMutable jMinus1_j = space.makeVector();
+                	Vector H1_q = space.makeVector();
+                	Vector H2_q = space.makeVector();
+                	Vector jMinus1_jMinus2 = space.makeVector();
+                	Vector jMinus1_j = space.makeVector();
                 	jMinus1_jMinus2.Ev1Mv2(jMinus1, jMinus2);// r(j-1)-r(j-2)
                 	jMinus1_j.Ev1Mv2(jMinus1, positionSelectedAtoms[0]);//r(j-1)-r(j)
                 	
-                	IVectorMutable crossV = space.makeVector();
+                	Vector crossV = space.makeVector();
                 	crossV.E(jMinus1_jMinus2);
                 	crossV.XE(jMinus1_j);
                 	crossV.normalize();// unit normal vector of (j-2)-(j-1)-j plane
@@ -402,7 +402,7 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
                 	H2_q.TE(-1.0);// has opposite sign
                 	
                 	
-                	IVectorMutable q_jMinus1 = space.makeVector();
+                	Vector q_jMinus1 = space.makeVector();
                 	q_jMinus1.Ev1Pv2(jMinus1_j, jMinus1_jMinus2);//r(q)= [r(j-1)-r(j)] + [r(j-1)-r(j-2)]
                 	q_jMinus1.PE(jMinus1_jMinus2);//r(q)= [r(j-1)-r(j)] + [r(j-1)-r(j-2)]
                 	q_jMinus1.normalize();
@@ -443,8 +443,8 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
             	// j-1 - j and j - j+1 bond lengths are unaltered.
 //                System.out.println("middle move "+j+" "+position);
 
-            	IVectorMutable jMinus1 = childList.getAtom(j-1).getPosition();// (j-1) carbon position
-            	IVectorMutable jPlus1  = childList.getAtom(j+1).getPosition();// (j+1) carbon position
+            	Vector jMinus1 = childList.getAtom(j-1).getPosition();// (j-1) carbon position
+            	Vector jPlus1  = childList.getAtom(j+1).getPosition();// (j+1) carbon position
             	
             	work1.Ev1Mv2(jMinus1, positionSelectedAtoms[0]);
                 work2.Ev1Mv2(jPlus1, positionSelectedAtoms[0]);
@@ -478,7 +478,7 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
                 ///// ######################################################################### ///////////////////
                 ///// #########  GET the new position of j=positionSelectedAtoms[0]  ########## ///////////////////
                 ///// ######################################################################### ///////////////////
-                IVectorMutable axis = space.makeVector();
+                Vector axis = space.makeVector();
                 axis.Ev1Mv2(jPlus1, jMinus1); // r(j+1)-r(j-1)
                 axis.normalize();
                 rotateTensor.setRotationAxis(axis, theta);
@@ -489,17 +489,17 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
               	///// ######################################################################### ///////////////////
             	///// #########  GET the new positions of 2H on j       ####################### ///////////////////
             	///// ######################################################################### ///////////////////
-                IVectorMutable j_H1 = childList.getAtom(j + numCarbons ).getPosition();  // H1 on j
-                IVectorMutable j_H2 = childList.getAtom(j + numCarbons * 2).getPosition();// H2 on j 
+                Vector j_H1 = childList.getAtom(j + numCarbons ).getPosition();  // H1 on j
+                Vector j_H2 = childList.getAtom(j + numCarbons * 2).getPosition();// H2 on j
                 
-                IVectorMutable j_jMinus1 = space.makeVector();// r(j)-r(j-1)
+                Vector j_jMinus1 = space.makeVector();// r(j)-r(j-1)
                 j_jMinus1.Ev1Mv2(positionSelectedAtoms[0], jMinus1);
-                IVectorMutable j_jPlus1 = space.makeVector();// r(j)-(j+1)
+                Vector j_jPlus1 = space.makeVector();// r(j)-(j+1)
                 j_jPlus1.Ev1Mv2(positionSelectedAtoms[0], jPlus1);
                 
-            	IVectorMutable crossV = space.makeVector();// helper
-            	IVectorMutable H1_q = space.makeVector();// helper
-            	IVectorMutable H2_q = space.makeVector();//helper
+            	Vector crossV = space.makeVector();// helper
+            	Vector H1_q = space.makeVector();// helper
+            	Vector H2_q = space.makeVector();//helper
             	
             	crossV.E(j_jMinus1);
                 crossV.XE(j_jPlus1);
@@ -509,7 +509,7 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
                 H2_q.E(crossV);
                 H2_q.TE(-1.0);// has opposite sign with H1_q
 
-                IVectorMutable q_j = space.makeVector();// r(q) - r(j)
+                Vector q_j = space.makeVector();// r(q) - r(j)
                 q_j.Ev1Pv2(j_jMinus1, j_jPlus1);
                 q_j.normalize();
                 q_j.TE(CHBond*Math.cos(alpha));
@@ -529,7 +529,7 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
             	if (j==1){
             		for (int s=0;s<3; s++){
                 		hydrogen[s] = childList.getAtom(numCarbons * (s+1));
-                		IVectorMutable r = hydrogen[s].getPosition();
+                		Vector r = hydrogen[s].getPosition();
                 		r.ME(jMinus1);
                 		rotateTensor.transform(r);
                 		r.PE(jMinus1);
@@ -541,7 +541,7 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
                 	hydrogen[1]=childList.getAtom(numCarbons*3-1);
                 	hydrogen[2]=childList.getAtom(numCarbons*3+1);
                 	for (int s=0;s<3; s++){
-                		IVectorMutable r = hydrogen[s].getPosition();
+                		Vector r = hydrogen[s].getPosition();
                 		r.ME(jMinus1);
                    		rotateTensor.transform(r);
                    		r.PE(jMinus1);
@@ -553,12 +553,12 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
                 	///// ######################################################################### ///////////////////
                 	///// #########  GET the new positions of 2H on (j+1)              ############ ///////////////////
                 	///// ######################################################################### ///////////////////
-                	IVectorMutable jPlus2 = childList.getAtom(j+2).getPosition();// (j+2) carbon position
-                	IVectorMutable jPlus1_H1 = childList.getAtom( j + 1 + numCarbons).getPosition();     // H1 on j+1
-                	IVectorMutable jPlus1_H2 = childList.getAtom( j + 1 + numCarbons * 2).getPosition(); // H2 on j+1
+                	Vector jPlus2 = childList.getAtom(j+2).getPosition();// (j+2) carbon position
+                	Vector jPlus1_H1 = childList.getAtom( j + 1 + numCarbons).getPosition();     // H1 on j+1
+                	Vector jPlus1_H2 = childList.getAtom( j + 1 + numCarbons * 2).getPosition(); // H2 on j+1
                     	
-                   	IVectorMutable jPlus1_j = space.makeVector();//r(j+1)-r(j)
-                    IVectorMutable jPlus1_jPlus2 = space.makeVector();// r(j+1)-r(j+2)
+                   	Vector jPlus1_j = space.makeVector();//r(j+1)-r(j)
+                    Vector jPlus1_jPlus2 = space.makeVector();// r(j+1)-r(j+2)
                 	jPlus1_j.Ev1Mv2(jPlus1, positionSelectedAtoms[0]);
                 	jPlus1_jPlus2.Ev1Mv2(jPlus1, jPlus2);
                 	
@@ -569,7 +569,7 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
                     H1_q.E(crossV);
                     H2_q.E(crossV);
                     H2_q.TE(-1.0);
-                    IVectorMutable q_jPlus1 = space.makeVector();//r(q)-r(j+1)
+                    Vector q_jPlus1 = space.makeVector();//r(q)-r(j+1)
                     q_jPlus1.Ev1Pv2(jPlus1_jPlus2,jPlus1_j); 
                     q_jPlus1.normalize();
                     q_jPlus1.TE(CHBond*Math.cos(alpha));
@@ -587,12 +587,12 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
                 	///// ######################################################################### ///////////////////
                 	///// #########  GET the new positions of 2H on (j-1)              ############ ///////////////////
                 	///// ######################################################################### ///////////////////
-                	IVectorMutable jMinus2 = childList.getAtom(j-2).getPosition();// (j-2) carbon position
-                	IVectorMutable jMinus1_H1 = childList.getAtom(j - 1 + numCarbons).getPosition();     // H1 on (j-1)
-                	IVectorMutable jMinus1_H2 = childList.getAtom(j - 1 + numCarbons * 2 ).getPosition();// H2 on (j-1)
+                	Vector jMinus2 = childList.getAtom(j-2).getPosition();// (j-2) carbon position
+                	Vector jMinus1_H1 = childList.getAtom(j - 1 + numCarbons).getPosition();     // H1 on (j-1)
+                	Vector jMinus1_H2 = childList.getAtom(j - 1 + numCarbons * 2 ).getPosition();// H2 on (j-1)
                 
-                	IVectorMutable jMinus1_jMinus2 = space.makeVector();// r(j-1)-r(j-2)
-                   	IVectorMutable jMinus1_j = space.makeVector();//r(j-1)-r(j)
+                	Vector jMinus1_jMinus2 = space.makeVector();// r(j-1)-r(j-2)
+                   	Vector jMinus1_j = space.makeVector();//r(j-1)-r(j)
                 	jMinus1_jMinus2.Ev1Mv2(jMinus1, jMinus2);
                 	jMinus1_j.Ev1Mv2(jMinus1, positionSelectedAtoms[0]);//r(j-1)-r(j)
                 
@@ -604,7 +604,7 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
                     H2_q.E(crossV);
                     H2_q.TE(-1.0);// has opposite sign with H1_q
                    
-                    IVectorMutable q_jMinus1 = space.makeVector();
+                    Vector q_jMinus1 = space.makeVector();
                     q_jMinus1.Ev1Pv2(jMinus1_j,jMinus1_jMinus2);// r(q) = [r(j-1)+r(j)]+[r(j-1)+r(j-2)]
                     q_jMinus1.normalize();
                     q_jMinus1.TE(CHBond*Math.cos(alpha));
@@ -698,13 +698,13 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
     private static final long serialVersionUID = 1L;
     protected final MeterPotentialEnergy energyMeter;
     protected IAtom[][] selectedAtoms;
-    protected final IVectorMutable work1, work2, work3;
-    protected IVectorMutable[][] translationVectors;
+    protected final Vector work1, work2, work3;
+    protected Vector[][] translationVectors;
     protected double wOld, wNew;
-    protected final ISpace space;
+    protected final Space space;
     protected ISpecies species;
     protected RotationTensor3D rotateTensor;
     protected int numAtomsMove ;
     protected int numCarbons;
-    protected IVectorMutable[] positionSelectedAtoms;
+    protected Vector[] positionSelectedAtoms;
 }

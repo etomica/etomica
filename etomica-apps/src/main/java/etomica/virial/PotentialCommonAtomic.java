@@ -4,9 +4,9 @@
 
 package etomica.virial;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotentialAtomic;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.potential.IPotentialAtomic;
 import etomica.virial.cluster.VirialDiagrams;
 
 
@@ -21,7 +21,7 @@ public class PotentialCommonAtomic implements IPotentialAtomic {
         return pot.getRange();
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box1 = box;
         pot.setBox(box);
         int nMolecules = box.getMoleculeList().getMoleculeCount();
@@ -85,7 +85,7 @@ public class PotentialCommonAtomic implements IPotentialAtomic {
     }
     protected boolean[] pairDone, tripletDone;
     protected long lastPairID, lastBoxIndex;
-    protected IBox box1;
+    protected Box box1;
     protected double[] uPair, uTriplet;
     protected int nBody;
 }

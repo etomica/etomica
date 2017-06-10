@@ -14,8 +14,8 @@ import java.util.Set;
 import javax.swing.JPanel;
 
 import etomica.action.IAction;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.atom.AtomPair;
 import etomica.atom.DiameterHashByType;
 import etomica.data.AccumulatorAverage;
@@ -357,7 +357,7 @@ public class RenderMDGraphic extends SimulationGraphic {
         	            Set<IAtom> aSet = bondedSet.get(pair.atom0);
         	            Iterator<IAtom> iterator = aSet.iterator();
         	            while(iterator.hasNext()) {
-        	                pair.atom1 = (IAtom)iterator.next();
+        	                pair.atom1 = iterator.next();
         	                double bondLength2 = bondedMap.get(pair).doubleValue();
         	                double separation2 = pair.atom1.getPosition().Mv1Squared(pair.atom0.getPosition());
         	                if(separation2 > 0.999*bondLength2 && separation2 < 1.001*bondLength2*lambda2) {

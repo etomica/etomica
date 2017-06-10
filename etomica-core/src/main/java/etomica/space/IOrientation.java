@@ -4,8 +4,7 @@
 
 package etomica.space;
 
-import etomica.api.IRandom;
-import etomica.api.IVector;
+import etomica.util.random.IRandom;
 
 /**
  * Interface for a class that specifies an orientation in space.
@@ -25,7 +24,7 @@ public interface IOrientation {
      * @ return a unit vector pointing in the orientation's direction.  This
      * vector should not be modified.
      */
-    IVector getDirection();
+    Vector getDirection();
 
     /**
      * Sets this orientation to point in the given direction.
@@ -33,7 +32,7 @@ public interface IOrientation {
      * @param newDirection the new direction for this orientation
      * @throws Exception if vector has 0 length
      */
-    void setDirection(IVector newDirection);
+    void setDirection(Vector newDirection);
 
     /**
      * Perform a rotation by a random amount in the solid angle theta on the 

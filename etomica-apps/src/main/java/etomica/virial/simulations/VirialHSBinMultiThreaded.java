@@ -4,47 +4,27 @@
 
 package etomica.virial.simulations;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotential;
+import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.listener.IntegratorListenerAction;
 import etomica.math.SpecialFunctions;
-import etomica.space.ISpace;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.IPotential;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.RandomMersenneTwister;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterChainHS;
-import etomica.virial.ClusterSinglyConnected;
-import etomica.virial.ClusterWeightAbs;
-import etomica.virial.ClusterWeightUmbrella;
-import etomica.virial.ClusterWheatley;
-import etomica.virial.ClusterWheatleyHS;
-import etomica.virial.ClusterWheatleyPartitionScreening;
-import etomica.virial.IntSet;
+import etomica.util.random.RandomMersenneTwister;
+import etomica.virial.*;
 import etomica.virial.IntSet.PropertyBin;
-import etomica.virial.MCMoveClusterAtomHSChain;
-import etomica.virial.MCMoveClusterAtomHSRing;
-import etomica.virial.MCMoveClusterAtomHSTree;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.MeterVirialBDBinMultiThreaded;
 import etomica.virial.MeterVirialBDBinMultiThreaded.MyData;
 import etomica.virial.cluster.Standard;
 import etomica.virial.cluster.VirialDiagrams;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * Calculation for virial coefficients of hard spheres
@@ -112,7 +92,7 @@ public class VirialHSBinMultiThreaded {
         MayerHardSphere fRef = new MayerHardSphere(sigmaHS);
         MayerFunction fRefPos = new MayerFunction() {
             
-            public void setBox(IBox box) {
+            public void setBox(Box box) {
             }
             
             public IPotential getPotential() {
@@ -356,7 +336,7 @@ public class VirialHSBinMultiThreaded {
         protected final double vhs;
         protected final double chainFrac, ringFrac;
         protected final long steps;
-        protected final ISpace space;
+        protected final Space space;
         protected final String runName;
         protected final double tRatio;
         protected final Map<IntSet,MeterVirialBDBinMultiThreaded.MyData> allMyData;
@@ -369,10 +349,10 @@ public class VirialHSBinMultiThreaded {
         protected final boolean doWheatley;
         
         public SimulationWorker(int iThread, int nPtsTabulated, int nPoints, MayerFunction fRef,
-                MayerFunction fRefPos, int ref, double vhs, double chainFrac, double ringFrac,
-                long steps, ISpace space, String runName, double tRatio,
-                Map<IntSet,MeterVirialBDBinMultiThreaded.MyData> allMyData, double w, long[] totalCount,
-                boolean doReweight, int[] mySeeds, boolean doWheatley) {
+                                MayerFunction fRefPos, int ref, double vhs, double chainFrac, double ringFrac,
+                                long steps, Space space, String runName, double tRatio,
+                                Map<IntSet,MeterVirialBDBinMultiThreaded.MyData> allMyData, double w, long[] totalCount,
+                                boolean doReweight, int[] mySeeds, boolean doWheatley) {
             this.iThread = iThread;
             this.nPtsTabulated = nPtsTabulated;
             this.nPoints = nPoints;

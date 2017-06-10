@@ -5,46 +5,28 @@
 package etomica.virial.simulations;
 
 
-import java.awt.Color;
-
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IIntegratorEvent;
-import etomica.api.IIntegratorListener;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotential;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
+import etomica.data.histogram.HistogramSimple;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
+import etomica.math.DoubleRange;
 import etomica.math.SpecialFunctions;
-import etomica.potential.IPotentialAtomicMultibody;
-import etomica.potential.P2HePCKLJS;
-import etomica.potential.P2HeSimplified;
-import etomica.potential.P3CPSNonAdditiveHe;
-import etomica.potential.P3CPSNonAdditiveHeSimplified;
-import etomica.potential.Potential2Spherical;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.*;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
-import etomica.util.DoubleRange;
-import etomica.util.HistogramExpanding;
-import etomica.util.HistogramNotSoSimple;
-import etomica.util.HistogramSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.RandomMersenneTwister;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterChainHS;
-import etomica.virial.ClusterDifference;
-import etomica.virial.ClusterWheatleyMultibody;
-import etomica.virial.CoordinatePairSet;
-import etomica.virial.MCMoveClusterAtomHSChain;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerFunctionNonAdditive;
-import etomica.virial.MayerFunctionSphericalThreeBody;
-import etomica.virial.MayerGeneralSpherical;
+import etomica.virial.*;
+
+import java.awt.*;
 
 /**
  * Adapted by Andrew from VirialHeNonAdditive
@@ -106,7 +88,7 @@ public class VirialHeNonAdditiveWheatley {
         
         MayerFunction fRef = new MayerFunction() {
 
-            public void setBox(IBox box) {}
+            public void setBox(Box box) {}
             public IPotential getPotential() {return null;}
 
             public double f(IMoleculeList pair, double r2, double beta) {
@@ -182,7 +164,7 @@ public class VirialHeNonAdditiveWheatley {
         IAtomList atoms = sim.box[1].getLeafList();
         double r = 3;
         for (int i=1; i<nPoints; i++) {
-            IVectorMutable v = atoms.getAtom(i).getPosition();
+            Vector v = atoms.getAtom(i).getPosition();
             v.setX(0, r*Math.cos(2*(i-1)*Math.PI/(nPoints-1)));
             v.setX(1, r*Math.sin(2*(i-1)*Math.PI/(nPoints-1)));
         }
@@ -264,10 +246,10 @@ public class VirialHeNonAdditiveWheatley {
         System.out.println("MC Move step sizes (target) "+sim.mcMoveTranslate[1].getStepSize());
         
         final HistogramSimple targHist = new HistogramSimple(200, new DoubleRange(-1, 6));
-        IIntegratorListener histListenerTarget = new IIntegratorListener() {
-            public void integratorStepStarted(IIntegratorEvent e) {}
+        IntegratorListener histListenerTarget = new IntegratorListener() {
+            public void integratorStepStarted(IntegratorEvent e) {}
             
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 CoordinatePairSet cPairs = sim.box[1].getCPairSet();
                 for (int i=0; i<nPoints; i++) {
                     for (int j=i+1; j<nPoints; j++) {
@@ -284,12 +266,12 @@ public class VirialHeNonAdditiveWheatley {
                 }
             }
 
-            public void integratorInitialized(IIntegratorEvent e) {}
+            public void integratorInitialized(IntegratorEvent e) {}
         };
-        IIntegratorListener progressReport = new IIntegratorListener() {
-            public void integratorInitialized(IIntegratorEvent e) {}
-            public void integratorStepStarted(IIntegratorEvent e) {}
-            public void integratorStepFinished(IIntegratorEvent e) {
+        IntegratorListener progressReport = new IntegratorListener() {
+            public void integratorInitialized(IntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
+            public void integratorStepFinished(IntegratorEvent e) {
 //                if (Double.isInfinite(sim.dsvo.getOverlapAverageAndError()[0])) {
 //                    sim.dsvo.getOverlapAverageAndError();
 //                    throw new RuntimeException("oops");
@@ -307,10 +289,10 @@ public class VirialHeNonAdditiveWheatley {
         if (!isCommandline) {
             sim.integratorOS.getEventManager().addListener(progressReport);
             if (params.doHist) {
-                IIntegratorListener histReport = new IIntegratorListener() {
-                    public void integratorInitialized(IIntegratorEvent e) {}
-                    public void integratorStepStarted(IIntegratorEvent e) {}
-                    public void integratorStepFinished(IIntegratorEvent e) {
+                IntegratorListener histReport = new IntegratorListener() {
+                    public void integratorInitialized(IntegratorEvent e) {}
+                    public void integratorStepStarted(IntegratorEvent e) {}
+                    public void integratorStepFinished(IntegratorEvent e) {
                         if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
                         double[] xValues = targHist.xValues();
                         double[] h = targHist.getHistogram();

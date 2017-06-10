@@ -4,15 +4,14 @@
 
 package etomica.chem.models;
 
-import etomica.api.IElement;
-import etomica.api.ISimulation;
-import etomica.api.ISpecies;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.chem.elements.ElementSimple;
+import etomica.chem.elements.IElement;
 import etomica.config.IConformation;
 import etomica.potential.Potential2;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheres;
 
 /**
@@ -26,7 +25,7 @@ public class ModelChain extends Model {
      * must be set before making the Species.  The conformation and element can
      * also be set if desired.
      */
-    public ModelChain(ISpace _space, boolean isDynamic) {
+    public ModelChain(Space _space, boolean isDynamic) {
         super(isDynamic);
         speciesMade = false;
         space = _space;
@@ -114,7 +113,7 @@ public class ModelChain extends Model {
         return element;
     }
     
-    protected void initPotentials(ISimulation sim) {
+    protected void initPotentials(Simulation sim) {
         // we already have our bonding potential, so do nothing
     }
 
@@ -123,7 +122,7 @@ public class ModelChain extends Model {
                 bondingPotential,ApiBuilder.makeAdjacentPairIterator())};
     }
 
-    protected ISpecies makeSpeciesInternal(ISimulation sim) {
+    protected ISpecies makeSpeciesInternal(Simulation sim) {
         if (bondingPotential == null) {
             throw new RuntimeException("Please set the bonding potential before" +
                     " creating the Species");
@@ -134,7 +133,7 @@ public class ModelChain extends Model {
         }
         
         if (element == null) {
-            setElement(new ElementSimple((Simulation)sim));
+            setElement(new ElementSimple(sim));
         }
         
         if (conformation == null) {
@@ -155,5 +154,5 @@ public class ModelChain extends Model {
     protected IConformation conformation;
     protected IElement element;
     protected boolean speciesMade;
-    private final ISpace space;
+    private final Space space;
 }

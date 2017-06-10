@@ -6,20 +6,20 @@ package etomica.integrator.mcmove;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
-import etomica.atom.MoleculeSource;
-import etomica.atom.MoleculeSourceRandomMolecule;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
-import etomica.atom.iterator.MoleculeIterator;
-import etomica.atom.iterator.MoleculeIteratorSinglet;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculeSource;
+import etomica.molecule.MoleculeSourceRandomMolecule;
+import etomica.molecule.iterator.MoleculeIterator;
+import etomica.molecule.iterator.MoleculeIteratorSinglet;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * Standard Monte Carlo molecule-displacement trial move.
@@ -35,20 +35,20 @@ public class MCMoveMolecule extends MCMoveBoxStep implements MCMoveMolecular {
     protected double uOld;
     protected double uNew = Double.NaN;
     protected final IRandom random;
-    protected ISpace space;
+    protected Space space;
 
     protected final MoleculeChildAtomAction moveMoleculeAction;
-    protected final IVectorRandom groupTranslationVector;
+    protected final Vector groupTranslationVector;
     protected MoleculeSource moleculeSource;
     protected IMolecule molecule;
 
-    public MCMoveMolecule(ISimulation sim, IPotentialMaster potentialMaster,
-    		              ISpace _space) {
+    public MCMoveMolecule(Simulation sim, PotentialMaster potentialMaster,
+                          Space _space) {
         this(potentialMaster, sim.getRandom(), _space, 1.0, 15.0);
     }
     
-    public MCMoveMolecule(IPotentialMaster potentialMaster, IRandom random,
-    		              ISpace _space, double stepSize,
+    public MCMoveMolecule(PotentialMaster potentialMaster, IRandom random,
+                          Space _space, double stepSize,
                           double stepSizeMax) {
         super(potentialMaster);
         this.random = random;
@@ -63,7 +63,7 @@ public class MCMoveMolecule extends MCMoveBoxStep implements MCMoveMolecular {
         energyMeter.setIncludeLrc(false);
 
         AtomActionTranslateBy translator = new AtomActionTranslateBy(_space);
-        groupTranslationVector = (IVectorRandom)translator.getTranslationVector();
+        groupTranslationVector = translator.getTranslationVector();
         moveMoleculeAction = new MoleculeChildAtomAction(translator);
         
         //set directive to exclude intramolecular contributions to the energy
@@ -124,7 +124,7 @@ public class MCMoveMolecule extends MCMoveBoxStep implements MCMoveMolecular {
         moveMoleculeAction.actionPerformed(molecule);
     }
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         moleculeSource.setBox(p);
@@ -135,7 +135,7 @@ public class MCMoveMolecule extends MCMoveBoxStep implements MCMoveMolecular {
         return affectedAtomIterator;
     }
     
-    public MoleculeIterator affectedMolecules(IBox box) {
+    public MoleculeIterator affectedMolecules(Box box) {
         affectedMoleculeIterator.setMolecule(molecule);
         return affectedMoleculeIterator;
     }

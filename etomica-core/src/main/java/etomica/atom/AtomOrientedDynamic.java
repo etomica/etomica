@@ -4,10 +4,9 @@
 
 package etomica.atom;
 
-import etomica.api.IAtomType;
-import etomica.api.IVectorMutable;
 import etomica.space.IOrientation;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Orientation3D;
 import etomica.space3d.OrientationFull3D;
 
@@ -15,11 +14,14 @@ public class AtomOrientedDynamic extends AtomLeafDynamic implements
         IAtomOrientedKinetic {
 
     private static final long serialVersionUID = 1L;
-    public AtomOrientedDynamic(ISpace space, IAtomType type) {
+    protected final IOrientation iOrientation;
+    protected final Vector angularVelocity;
+
+    public AtomOrientedDynamic(Space space, AtomType type) {
         this(space, type, false);
     }
-    
-    public AtomOrientedDynamic(ISpace space, IAtomType type, boolean isAxisSymmetric) {
+
+    public AtomOrientedDynamic(Space space, AtomType type, boolean isAxisSymmetric) {
         super(space, type);
         if (space.D() == 3) {
             if (isAxisSymmetric) {
@@ -35,14 +37,11 @@ public class AtomOrientedDynamic extends AtomLeafDynamic implements
         angularVelocity = space.makeVector();  //XXX wrong! see https://rheneas.eng.buffalo.edu/bugzilla/show_bug.cgi?id=128
     }
 
-    public IVectorMutable getAngularVelocity() {
+    public Vector getAngularVelocity() {
         return angularVelocity;
     }
 
     public IOrientation getOrientation() {
         return iOrientation;
     }
-
-    protected final IOrientation iOrientation;
-    protected final IVectorMutable angularVelocity;
 }

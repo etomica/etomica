@@ -4,8 +4,8 @@
 
 package etomica.virial;
 
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
 import etomica.virial.cluster.VirialDiagrams;
 
 /**
@@ -77,7 +77,7 @@ public abstract class MayerFunctionThreeBody implements MayerFunctionNonAdditive
     
     protected abstract double energy(IMoleculeList molecules, double[] r2);
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         if (lastValue != null) return;
         IMoleculeList molecules = box.getMoleculeList();
         totalMolecules = molecules.getMoleculeCount();

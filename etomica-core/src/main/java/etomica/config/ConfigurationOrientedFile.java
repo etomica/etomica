@@ -4,11 +4,11 @@
 
 package etomica.config;
 
-import etomica.api.IAtom;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
 import etomica.space.IOrientation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.IOrientationFull3D;
 
 /**
@@ -20,7 +20,7 @@ import etomica.space3d.IOrientationFull3D;
  */
 public class ConfigurationOrientedFile extends ConfigurationFile {
 
-    public ConfigurationOrientedFile(String aConfName, ISpace space) {
+    public ConfigurationOrientedFile(String aConfName, Space space) {
         super(aConfName);
         direction = space.makeVector();
         secondaryDirection = space.makeVector();
@@ -48,5 +48,5 @@ public class ConfigurationOrientedFile extends ConfigurationFile {
     }
     
     private static final long serialVersionUID = 2L;
-    protected final IVectorMutable direction, secondaryDirection;
+    protected final Vector direction, secondaryDirection;
 }

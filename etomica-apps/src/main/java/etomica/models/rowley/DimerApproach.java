@@ -4,20 +4,12 @@
 
 package etomica.models.rowley;
 
-import java.awt.Color;
-
 import etomica.action.IntegratorDimerApproach;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtom;
-import etomica.api.IAtomType;
-import etomica.api.ISpecies;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataFork;
-import etomica.data.DataLogger;
-import etomica.data.DataPump;
-import etomica.data.DataSourceAtomDistance;
-import etomica.data.DataTableWriter;
+import etomica.data.*;
 import etomica.data.DataLogger.DataWriter;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.ColorSchemeByType;
@@ -29,12 +21,10 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space3d.Space3D;
-import etomica.units.Calorie;
-import etomica.units.Mole;
-import etomica.units.Prefix;
-import etomica.units.PrefixedUnit;
-import etomica.units.Unit;
-import etomica.units.UnitRatio;
+import etomica.species.ISpecies;
+import etomica.units.*;
+
+import java.awt.*;
 
 /*
  * Uses the site-site models of Rowley et al (2006) to reproduce potential-energy plots for dimers 
@@ -53,32 +43,27 @@ import etomica.units.UnitRatio;
 
 public class DimerApproach extends Simulation {
 	
-	// True to consider ethanol, false to consider methanol
-    static boolean ethanol = false;
-    
     // True to use model with point charges, false to use model without point charges
     public final static boolean pointCharges = true;
-    
-    // ID of approach route (see Rowley et al (2006) for table)
-    static int route = 18;
-	
 	public final static long serialVersionUID = 1L;
-	public ISpecies species;
 	public static SpeciesEthanol speciesEthanol;
 	public static SpeciesMethanol speciesMethanol;
-	public Box box;
-	public PotentialMaster potentialMaster;
-	public IntegratorDimerApproach dimerApproach;
 	public static MeterPotentialEnergy meterPE;
-
-	static IAtom atom_O_A;
+    // True to consider ethanol, false to consider methanol
+    static boolean ethanol = false;
+    // ID of approach route (see Rowley et al (2006) for table)
+    static int route = 18;
+    static IAtom atom_O_A;
     static IAtom atom_aC_A;
     static IAtom atom_aH_A;
-    static IAtom atom_H1_A; 
-    
+    static IAtom atom_H1_A;
     static IAtom atom_O_B;
     static IAtom atom_aC_B;
     static IAtom atom_aH_B;
+    public ISpecies species;
+    public Box box;
+    public PotentialMaster potentialMaster;
+    public IntegratorDimerApproach dimerApproach;
     
     
 
@@ -287,13 +272,13 @@ public class DimerApproach extends Simulation {
             if (ethanol) {
             	
             	// Create instances of the types of molecular sites
-            	
-            	IAtomType type_O  = speciesEthanol.getOxygenType();
-                IAtomType type_aC = speciesEthanol.getAlphaCarbonType(); 
-                IAtomType type_C = speciesEthanol.getCarbonType();
-                IAtomType type_aH = speciesEthanol.getAlphaHydrogenType();
-                IAtomType type_H  = speciesEthanol.getHydrogenType();
-                IAtomType type_X  = speciesEthanol.getXType();
+
+                AtomType type_O = speciesEthanol.getOxygenType();
+                AtomType type_aC = speciesEthanol.getAlphaCarbonType();
+                AtomType type_C = speciesEthanol.getCarbonType();
+                AtomType type_aH = speciesEthanol.getAlphaHydrogenType();
+                AtomType type_H = speciesEthanol.getHydrogenType();
+                AtomType type_X = speciesEthanol.getXType();
                 
                 // Set color of each site type for each simulation
                 
@@ -307,12 +292,12 @@ public class DimerApproach extends Simulation {
             } else {
             	
             	// Create instances of the types of molecular sites
-            	
-            	IAtomType type_O  = speciesMethanol.getOxygenType();
-                IAtomType type_aC = speciesMethanol.getAlphaCarbonType(); 
-                IAtomType type_aH = speciesMethanol.getAlphaHydrogenType();
-                IAtomType type_H  = speciesMethanol.getHydrogenType();
-                IAtomType type_X  = speciesMethanol.getXType();
+
+                AtomType type_O = speciesMethanol.getOxygenType();
+                AtomType type_aC = speciesMethanol.getAlphaCarbonType();
+                AtomType type_aH = speciesMethanol.getAlphaHydrogenType();
+                AtomType type_H = speciesMethanol.getHydrogenType();
+                AtomType type_X = speciesMethanol.getXType();
                 
                 // Set color of each site type for each simulation
                 

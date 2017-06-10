@@ -4,10 +4,9 @@
 
 package etomica.potential;
 
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMolecular;
-import etomica.api.IVector;
+import etomica.molecule.IMoleculeList;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 
 
 /**
@@ -26,7 +25,7 @@ public interface PotentialMolecularSoft extends IPotentialMolecular {
      * Vectors with fewer elements than the number of molecules in the
      * IMoleculeList.
 	 */
-	public IVector[] gradient(IMoleculeList molecules);
+	public Vector[] gradient(IMoleculeList molecules);
     
     /**
      * Returns the same gradient as gradient(IMoleculeList) and also adds in
@@ -36,6 +35,6 @@ public interface PotentialMolecularSoft extends IPotentialMolecular {
      * generally trivial once the gradient is known but often requires
      * intermediate information.
      */
-    public IVector[] gradient(IMoleculeList molecules, Tensor pressureTensor);
+    public Vector[] gradient(IMoleculeList molecules, Tensor pressureTensor);
 
 }

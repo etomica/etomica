@@ -4,17 +4,15 @@
 
 package etomica.dimer;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotential;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.integrator.IntegratorBox;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.potential.IPotential;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialSoft;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 
 
 /**
@@ -28,10 +26,10 @@ public class PotentialCalculationForcePressureSumGB extends PotentialCalculation
     private static final long serialVersionUID = 1L;
     protected final Tensor pressureTensor;
     protected ISpecies fixed;
-    protected IBox box;
-    private final ISpace space;
+    protected Box box;
+    private final Space space;
     
-    public PotentialCalculationForcePressureSumGB(ISpace _space, IBox box) {
+    public PotentialCalculationForcePressureSumGB(Space _space, Box box) {
     	this.space = _space;
         pressureTensor = space.makeTensor();
         this.box = box;
@@ -55,18 +53,18 @@ public class PotentialCalculationForcePressureSumGB extends PotentialCalculation
 		PotentialSoft potentialSoft = (PotentialSoft)potential;
 		int nBody = potential.nBody();
 		
-		IVectorMutable forceTop = space.makeVector();
-		IVectorMutable forceBottom = space.makeVector();
+		Vector forceTop = space.makeVector();
+		Vector forceBottom = space.makeVector();
 		
-		IVector[] f = potentialSoft.gradient(atoms, pressureTensor);
-		IVectorMutable rij = space.makeVector();
+		Vector[] f = potentialSoft.gradient(atoms, pressureTensor);
+		Vector rij = space.makeVector();
 		switch(nBody) {
 			case 1:
-				((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().ME(f[0]);
+				integratorAgentManager.getAgent(atoms.getAtom(0)).force().ME(f[0]);
 				break;
 			case 2:
-                ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().ME(f[0]);
-                ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(1))).force().ME(f[1]);
+                integratorAgentManager.getAgent(atoms.getAtom(0)).force().ME(f[0]);
+                integratorAgentManager.getAgent(atoms.getAtom(1)).force().ME(f[1]);
 		 		break;
             default:
                 //XXX atoms.count might not equal f.length.  The potential might size its 
@@ -91,11 +89,11 @@ public class PotentialCalculationForcePressureSumGB extends PotentialCalculation
                     
                     if(rij.getX(2)>0){
                         
-                        ((IntegratorBox.Forcible)integratorAgentManager.getAgent(box.getLeafList().getAtom(i))).force().ME(forceTop);
+                        integratorAgentManager.getAgent(box.getLeafList().getAtom(i)).force().ME(forceTop);
                     }
                     else{
                         
-                        ((IntegratorBox.Forcible)integratorAgentManager.getAgent(box.getLeafList().getAtom(i))).force().ME(forceBottom);
+                        integratorAgentManager.getAgent(box.getLeafList().getAtom(i)).force().ME(forceBottom);
                     }
                 }
 		}

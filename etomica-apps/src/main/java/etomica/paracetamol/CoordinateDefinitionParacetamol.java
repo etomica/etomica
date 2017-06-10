@@ -4,27 +4,22 @@
 
 package etomica.paracetamol;
 
-import java.io.Serializable;
-
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.MoleculeAgentManager;
-import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
-import etomica.atom.MoleculeArrayList;
-import etomica.atom.MoleculeListWrapper;
+import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
+import etomica.molecule.*;
+import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.normalmode.CoordinateDefinitionMolecule;
-import etomica.space.ISpace;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
+
+import java.io.Serializable;
 
 /**
  * CoordinateDefinition implementation for paracetamol molecule. The class takes the first
@@ -36,10 +31,10 @@ import etomica.space.Tensor;
 public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecule
         implements Serializable {
 
-    public CoordinateDefinitionParacetamol(ISimulation sim, IBox box, Primitive primitive, Basis basis, ISpace _space) {
+    public CoordinateDefinitionParacetamol(Simulation sim, Box box, Primitive primitive, Basis basis, Space _space) {
     	super(sim, box, primitive, 3, basis, _space);
        
-       	axes = new IVectorMutable [3];
+       	axes = new Vector[3];
         axes [0] = space.makeVector();
         axes [1] = space.makeVector();
         axes [2] = space.makeVector();
@@ -89,8 +84,8 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 
         int basisSize = lattice.getBasis().getScaledCoordinates().length;
 
-        IVectorMutable offset = lattice.getSpace().makeVector();
-        IVector[] primitiveVectors = primitive.vectors();
+        Vector offset = lattice.getSpace().makeVector();
+        Vector[] primitiveVectors = primitive.vectors();
         for (int i=0; i<primitiveVectors.length; i++) {
             offset.PEa1Tv1(nCells[i],primitiveVectors[i]);
         }
@@ -113,7 +108,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
         int iCell = -1;
         // Place molecules
         indexIterator.reset();
-        IVectorMutable position = lattice.getSpace().makeVector();
+        Vector position = lattice.getSpace().makeVector();
         MoleculeArrayList currentList = null;
 		if (configuration != null){
         	configuration.initializeCoordinates(box);
@@ -140,7 +135,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	            atomGroupAction.actionPerformed(molecule);
             }
             
-            position.E((IVectorMutable)lattice.site(ii));
+            position.E((Vector)lattice.site(ii));
             position.PE(offset);
             
             /*
@@ -167,7 +162,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
         initNominalU(cells[totalCells-1].molecules);
 
         moleculeSiteManager = new MoleculeAgentManager(sim, box, new MoleculeSiteSource(space, positionDefinition));
-        siteManager = new AtomLeafAgentManager<IVectorMutable>(new SiteSource(space), box, IVectorMutable.class);
+        siteManager = new AtomLeafAgentManager<Vector>(new SiteSource(space), box, Vector.class);
     }
     
     public void setConfiguration(Configuration configuration){
@@ -243,15 +238,15 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
         
         for (int i=0; i < molecules.getMoleculeCount() ; i++){
         	IMolecule molecule = molecules.getMolecule(i);
-        	IVectorMutable [] siteOrientation = (IVectorMutable [])orientationManager.getAgent(molecule);
+        	Vector[] siteOrientation = (Vector[])orientationManager.getAgent(molecule);
         	
 	    	/*
 	    	 * Determine the Orientation of Each Molecule
 	    	 */
 	    	
-	    	IVectorMutable leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-	    	IVectorMutable leafPos5 = molecule.getChildList().getAtom(5).getPosition();
-	    	IVectorMutable leafPos10 = molecule.getChildList().getAtom(10).getPosition();
+	    	Vector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
+	    	Vector leafPos5 = molecule.getChildList().getAtom(5).getPosition();
+	    	Vector leafPos10 = molecule.getChildList().getAtom(10).getPosition();
 	    	
 	    	/*
 	    	 * Determine axis 1 by using Vector Projection
@@ -333,7 +328,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
     	
     	for (int i=0; i < molecules.getMoleculeCount() ; i++){
     		
-    		IVectorMutable[] orientation = new IVectorMutable[3];
+    		Vector[] orientation = new Vector[3];
     		
     		orientation[0] = space.makeVector();
     		orientation[1] = space.makeVector();
@@ -344,9 +339,9 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
     	    	 * Determine the Orientation of Each Molecule
     	    	 */
     	    	
-    	    	IVectorMutable leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-    	    	IVectorMutable leafPos5 = molecule.getChildList().getAtom(5).getPosition();
-    	    	IVectorMutable leafPos10 = molecule.getChildList().getAtom(10).getPosition();
+    	    	Vector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
+    	    	Vector leafPos5 = molecule.getChildList().getAtom(5).getPosition();
+    	    	Vector leafPos10 = molecule.getChildList().getAtom(10).getPosition();
     	    	
     	    	
     	    	/*
@@ -383,7 +378,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
         for (int i=0; i < molecules.getMoleculeCount() ; i++){
         	
         	IMolecule molecule = molecules.getMolecule(i);
-            IVectorMutable[] siteOrientation = (IVectorMutable[])orientationManager.getAgent(molecule);
+            Vector[] siteOrientation = (Vector[])orientationManager.getAgent(molecule);
 	    	
 	    	/*
 	    	 *   STEP 1
@@ -391,9 +386,9 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	    	 * Determine the Orientation of Each Molecule
 	    	 */
             
-	    	IVectorMutable leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-	    	IVectorMutable leafPos5 = molecule.getChildList().getAtom(5).getPosition();
-	    	IVectorMutable leafPos10 = molecule.getChildList().getAtom(10).getPosition();
+	    	Vector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
+	    	Vector leafPos5 = molecule.getChildList().getAtom(5).getPosition();
+	    	Vector leafPos10 = molecule.getChildList().getAtom(10).getPosition();
 	    	
 	    	/*
 	    	 * Determine axis 1 by using Vector Projection
@@ -700,15 +695,15 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
     }
 
     private static final long serialVersionUID = 1L;
-    protected final IVectorMutable [] axes;
+    protected final Vector[] axes;
     protected double [][] basisOrientation ;
-    protected final IVectorMutable com, temp, axis0, axis0Prime; 
-    protected final IVectorMutable proj, proja, projb;
-    protected final IVectorMutable axisNorm, axisNormPrime, b, bprime, c;
-//    protected final IVector x, y, z, xPrime, zPrime;
-    protected final IVectorMutable xNorm, yNorm, zNorm;
-    protected final IVectorMutable yDoublePrime, zDoublePrime;
-    protected final IVectorMutable xTriplePrime, yTriplePrime, zTriplePrime, zQuadruplePrime;
+    protected final Vector com, temp, axis0, axis0Prime;
+    protected final Vector proj, proja, projb;
+    protected final Vector axisNorm, axisNormPrime, b, bprime, c;
+//    protected final Vector x, y, z, xPrime, zPrime;
+    protected final Vector xNorm, yNorm, zNorm;
+    protected final Vector yDoublePrime, zDoublePrime;
+    protected final Vector xTriplePrime, yTriplePrime, zTriplePrime, zQuadruplePrime;
     protected final Tensor rotationL, rotationM, rotationN;
     protected Configuration configuration;
     
@@ -722,7 +717,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
         public OrientationAgentSource() {
         }
         public Class getMoleculeAgentClass() {
-            return IVectorMutable [].class;
+            return Vector[].class;
         }
         public Object makeAgent(IMolecule atom) {
             return null;

@@ -6,26 +6,26 @@ package etomica.normalmode;
 
 import etomica.action.BoxInflate;
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionGeometricCenter;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
+import etomica.math.function.Function;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculePositionGeometricCenter;
+import etomica.potential.IPotentialAtomic;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationEnergySum;
+import etomica.potential.PotentialMaster;
 import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Dimension;
 import etomica.units.Pressure;
-import etomica.util.Function;
+import etomica.util.random.IRandom;
 
 /**
  * Monte Carlo volume-change move for simulations of crystalline solids in the
@@ -44,12 +44,12 @@ public class MCMoveVolumeMonoclinicScaled extends MCMoveBoxStep {
     protected IRandom random;
     protected final AtomIteratorLeafAtoms affectedAtomIterator;
     protected double temperature;
-    protected final IVectorMutable boxSize;
-    protected final IVectorMutable dest, comOld;
-    protected final IVectorMutable scaleVector;
-    protected final IVectorMutable latticeScale;
+    protected final Vector boxSize;
+    protected final Vector dest, comOld;
+    protected final Vector scaleVector;
+    protected final Vector latticeScale;
 
-    protected final AtomPositionGeometricCenter moleculeCenter;
+    protected final MoleculePositionGeometricCenter moleculeCenter;
     protected final MoleculeActionTranslateTo translateTo;
     
     protected transient double uOld;
@@ -57,19 +57,19 @@ public class MCMoveVolumeMonoclinicScaled extends MCMoveBoxStep {
     
     protected Function uLatFunction = uLat0;
     
-    protected IBox latticeBox;
+    protected Box latticeBox;
 
     /**
      * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
      * @param space the governing space for the simulation
      */
-    public MCMoveVolumeMonoclinicScaled(IPotentialMaster potentialMaster, IRandom random,
-    		            ISpace space, double pressure) {
+    public MCMoveVolumeMonoclinicScaled(PotentialMaster potentialMaster, IRandom random,
+                                        Space space, double pressure) {
         this(potentialMaster, random, space, pressure, space.D());
     }
     
-    public MCMoveVolumeMonoclinicScaled(IPotentialMaster potentialMaster, IRandom random,
-            ISpace space, double pressure, int D) {
+    public MCMoveVolumeMonoclinicScaled(PotentialMaster potentialMaster, IRandom random,
+                                        Space space, double pressure, int D) {
         super(potentialMaster);
         this.random = random;
         this.D = D;
@@ -87,7 +87,7 @@ public class MCMoveVolumeMonoclinicScaled extends MCMoveBoxStep {
         boxSize = space.makeVector();
         scaleVector = space.makeVector();
         latticeScale = space.makeVector();
-        moleculeCenter = new AtomPositionGeometricCenter(space);
+        moleculeCenter = new MoleculePositionGeometricCenter(space);
         translateTo = new MoleculeActionTranslateTo(space);
     }
     
@@ -95,11 +95,11 @@ public class MCMoveVolumeMonoclinicScaled extends MCMoveBoxStep {
         inflate = newInflate;
     }
     
-    public void setLatticeBox(IBox newLatticeBox) {
+    public void setLatticeBox(Box newLatticeBox) {
         latticeBox = newLatticeBox;
     }
     
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         affectedAtomIterator.setBox(p);

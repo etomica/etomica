@@ -4,10 +4,9 @@
 
 package etomica.species;
 
-import etomica.api.IAtomType;
-import etomica.api.IMolecule;
-import etomica.api.ISpecies;
+import etomica.atom.AtomType;
 import etomica.config.IConformation;
+import etomica.molecule.IMolecule;
 import etomica.util.Arrays;
 
 /**
@@ -18,21 +17,10 @@ import etomica.util.Arrays;
  */
 public abstract class Species implements ISpecies, java.io.Serializable {
 
+    private static final long serialVersionUID = 2L;
     protected int index;
-
-    /* (non-Javadoc)
-     * @see etomica.atom.IAtomType#setIndex(int)
-     */
-    public void setIndex(int newIndex) {
-        index = newIndex;
-    }
-
-    /* (non-Javadoc)
-     * @see etomica.atom.IAtomType#getIndex()
-     */
-    public int getIndex() {
-        return index;
-    }
+    protected IConformation conformation;
+    protected AtomType[] childTypes = new AtomType[0];
 
     /**
      * Simple invokes parent constructor with same arguments.
@@ -42,9 +30,23 @@ public abstract class Species implements ISpecies, java.io.Serializable {
     }
 
     /* (non-Javadoc)
-     * @see etomica.atom.IAtomTypeMolecule#removeChildType(etomica.atom.AtomTypeLeaf)
+     * @see etomica.atom.IAtomType#getIndex()
      */
-    public void removeChildType(IAtomType removedType) {
+    public int getIndex() {
+        return index;
+    }
+
+    /* (non-Javadoc)
+     * @see etomica.atom.IAtomType#setIndex(int)
+     */
+    public void setIndex(int newIndex) {
+        index = newIndex;
+    }
+
+    /* (non-Javadoc)
+     * @see etomica.atom.IAtomTypeMolecule#removeChildType(etomica.atom.AtomType)
+     */
+    public void removeChildType(AtomType removedType) {
         boolean success = false;
         for (int i=0; i<childTypes.length; i++) {
             if (childTypes[i] == removedType) {
@@ -55,21 +57,14 @@ public abstract class Species implements ISpecies, java.io.Serializable {
         if (!success) {
             throw new IllegalArgumentException("AtomType "+removedType+" is not my child!");
         }
-        childTypes = (IAtomType[])Arrays.removeObject(childTypes,removedType);
+        childTypes = (AtomType[]) Arrays.removeObject(childTypes, removedType);
         for (int i = 0; i < childTypes.length; i++) {
             childTypes[i].setChildIndex(i);
         }
     }
-    
-    /**
-     * @return Returns the species.
-     */
-    public ISpecies getSpecies() {
-        return this;
-    }
 
-    public IAtomType getAtomType(int index) {
-    	return childTypes[index];
+    public AtomType getAtomType(int index) {
+        return childTypes[index];
     }
 
     public int getAtomTypeCount() {
@@ -77,33 +72,32 @@ public abstract class Species implements ISpecies, java.io.Serializable {
     }
 
     /* (non-Javadoc)
-     * @see etomica.atom.IAtomTypeMolecule#addChildType(etomica.atom.AtomTypeLeaf)
+     * @see etomica.atom.IAtomTypeMolecule#addChildType(etomica.atom.AtomType)
      */
-    public void addChildType(IAtomType newChildType) {
+    public void addChildType(AtomType newChildType) {
         if (newChildType.getSpecies() != null) {
             throw new IllegalArgumentException(newChildType+" already has a parent");
         }
         newChildType.setSpecies(this);
         newChildType.setChildIndex(childTypes.length);
-        childTypes = (IAtomType[]) Arrays.addObject(childTypes, newChildType);
+        childTypes = (AtomType[]) Arrays.addObject(childTypes, newChildType);
     }
-    
+
+    /* (non-Javadoc)
+     * @see etomica.atom.IAtomTypeMolecule#getConformation()
+     */
+    public IConformation getConformation() {
+        return conformation;
+    }
+
     /* (non-Javadoc)
      * @see etomica.atom.IAtomTypeMolecule#setConformation(etomica.config.Conformation)
      */
     public void setConformation(IConformation config) {
         conformation = config;
     }
-    
-    /* (non-Javadoc)
-     * @see etomica.atom.IAtomTypeMolecule#getConformation()
-     */
-    public IConformation getConformation() {return conformation;}
- 
+
     public void initializeConformation(IMolecule molecule) {
         conformation.initializePositions(molecule.getChildList());
     }
-    private static final long serialVersionUID = 2L;
-    protected IConformation conformation;
-    protected IAtomType[] childTypes = new IAtomType[0];
 }

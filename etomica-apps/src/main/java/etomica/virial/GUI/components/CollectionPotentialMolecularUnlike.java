@@ -5,7 +5,7 @@
 package etomica.virial.GUI.components;
 
 
-import etomica.api.IPotentialMolecular;
+import etomica.potential.IPotentialMolecular;
 
 
 

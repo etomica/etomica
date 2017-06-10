@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.potential;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.units.Energy;
 import etomica.units.Length;
@@ -21,11 +21,11 @@ public class P2WCA extends Potential2SoftSpherical {
     /**
      * Constructs potential using default sigma and epsilon given by Default class.
      */
-    public P2WCA(ISpace _space) {
+    public P2WCA(Space _space) {
         this(_space, 1.0, 1.0);
     }
     
-    public P2WCA(ISpace _space, double sigma, double epsilon) {
+    public P2WCA(Space _space, double sigma, double epsilon) {
         super(_space);
         setSigma(sigma);
         setEpsilon(epsilon);

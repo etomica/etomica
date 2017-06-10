@@ -4,8 +4,7 @@
 
 package etomica.math.geometry;
 
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.space.Vector;
 import etomica.exception.MethodNotImplementedException;
 
 
@@ -55,7 +54,7 @@ public class Hypersphere implements Shape, java.io.Serializable {
      * @throws ClassCastException
      *             if given vector is not an instance of a D-dimensional vector
      */
-    public boolean contains(IVector r) {
+    public boolean contains(Vector r) {
         return r.Mv1Squared(position) <= radius;
     }
 
@@ -78,7 +77,7 @@ public class Hypersphere implements Shape, java.io.Serializable {
      * @return Returns the vector (not a copy) used to represent the position of
      *         the sphere.
      */
-    public IVector getPosition() {
+    public Vector getPosition() {
         return position;
     }
 
@@ -86,12 +85,12 @@ public class Hypersphere implements Shape, java.io.Serializable {
      * @param position
      *            The new position, which is copied to an internal vector.
      */
-    public void setPosition(IVector position) {
+    public void setPosition(Vector position) {
         this.position.E(position);
     }
 
     protected double radius;
-    private IVectorMutable position;
+    private Vector position;
     private final int D;
 
 }

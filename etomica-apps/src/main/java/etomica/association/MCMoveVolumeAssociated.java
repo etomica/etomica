@@ -8,25 +8,20 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.WriteConfiguration;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.IAtomOriented;
+import etomica.atom.*;
+import etomica.box.Box;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.space.ISpace;
+import etomica.space.Vector;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Dimension;
 import etomica.units.Pressure;
+import etomica.util.random.IRandom;
 
 /**
  * Standard Monte Carlo volume-change move for simulations in the NPT ensemble.
@@ -41,8 +36,8 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
     private final int D;
     private IRandom random;
     protected final AtomIteratorLeafAtoms affectedAtomIterator;
-    protected final IVectorMutable r;
-    protected final IVectorMutable dr, dr2;
+    protected final Vector r;
+    protected final Vector dr, dr2;
     private transient double uOld, hOld, vNew, vScale, hNew;
     private transient double uNew = Double.NaN;
     protected AssociationManager associationManager;
@@ -53,8 +48,8 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
     public static boolean dodebug;
     protected FileWriter fileWriter;
 
-    public MCMoveVolumeAssociated(ISimulation sim, IPotentialMaster potentialMaster,
-    		            ISpace _space) {
+    public MCMoveVolumeAssociated(Simulation sim, PotentialMaster potentialMaster,
+                                  Space _space) {
         this(potentialMaster, sim.getRandom(), _space, 1.0);
     }
     
@@ -62,8 +57,8 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
      * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
      * @param space the governing space for the simulation
      */
-    public MCMoveVolumeAssociated(IPotentialMaster potentialMaster, IRandom random,
-    		            ISpace _space, double pressure) {
+    public MCMoveVolumeAssociated(PotentialMaster potentialMaster, IRandom random,
+                                  Space _space, double pressure) {
         super(potentialMaster);
         this.random = random;
         smerList = new AtomArrayList();
@@ -80,7 +75,7 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
         affectedAtomIterator = new AtomIteratorLeafAtoms();
     }
     
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         affectedAtomIterator.setBox(p);
@@ -485,11 +480,11 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
     public final double getPressure() {return pressure;}
     public Dimension getPressureDimension() {return Pressure.DIMENSION;}
 
-	public Agent makeAgent(IAtom a, IBox agentBox) {
+	public Agent makeAgent(IAtom a, Box agentBox) {
 		return new Agent();
 	}
 
-	public void releaseAgent(Agent agent, IAtom atom, IBox agentBox) {
+	public void releaseAgent(Agent agent, IAtom atom, Box agentBox) {
 		
 	}
 	public static class Agent {

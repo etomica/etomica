@@ -4,15 +4,12 @@
 
 package etomica.models.OPLS;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IMolecule;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.DipoleSource;
-import etomica.atom.MoleculeOriented;
-import etomica.space.ISpace;
-import etomica.space3d.IOrientationFull3D;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.molecule.DipoleSource;
+import etomica.molecule.IMolecule;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Electron;
 
 /**
@@ -22,13 +19,13 @@ import etomica.units.Electron;
  */
 public class DipoleSourceAceticAcid implements DipoleSource {
 
-    protected final IVectorMutable dipole;
+    protected final Vector dipole;
 
     /**
      * @param space dimension of the space
      */
 
-    public DipoleSourceAceticAcid(ISpace space) {
+    public DipoleSourceAceticAcid(Space space) {
         dipole = space.makeVector();
     }
 
@@ -36,7 +33,7 @@ public class DipoleSourceAceticAcid implements DipoleSource {
      * @param molecule index of the molecule
      * @return Returns the dipole of the given molecule
      */
-    public IVector getDipole(IMolecule molecule) {//dipole= sum of position * charge for all sites in a molecule
+    public Vector getDipole(IMolecule molecule) {//dipole= sum of position * charge for all sites in a molecule
 
 
         IAtomList childList = molecule.getChildList();

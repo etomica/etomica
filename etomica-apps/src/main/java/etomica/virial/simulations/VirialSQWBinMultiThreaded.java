@@ -4,46 +4,28 @@
 
 package etomica.virial.simulations;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotential;
+import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.listener.IntegratorListenerAction;
 import etomica.math.SpecialFunctions;
-import etomica.space.ISpace;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.IPotential;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.RandomMersenneTwister;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterChainHS;
-import etomica.virial.ClusterSinglyConnected;
-import etomica.virial.ClusterWeightAbs;
-import etomica.virial.ClusterWeightUmbrella;
-import etomica.virial.ClusterWheatleyExtendSW;
-import etomica.virial.IntSet;
+import etomica.util.random.RandomMersenneTwister;
+import etomica.virial.*;
 import etomica.virial.IntSet.PropertyBin;
-import etomica.virial.MCMoveClusterAtomHSChain;
-import etomica.virial.MCMoveClusterAtomHSRing;
-import etomica.virial.MCMoveClusterAtomHSTree;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerFunction;
-import etomica.virial.MeterVirialEBinMultiThreaded;
 import etomica.virial.MeterVirialEBinMultiThreaded.MyData;
 import etomica.virial.MeterVirialEBinMultiThreaded.MyDataCov;
 import etomica.virial.cluster.Standard;
 import etomica.virial.simulations.VirialHSBinMultiThreaded.DooDad;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * Calculation for virial coefficients of hard spheres
@@ -89,7 +71,7 @@ public class VirialSQWBinMultiThreaded {
             final double sigma2 = 1.0;
             final double well2 = lambda*lambda;
             
-            public void setBox(IBox box) {}
+            public void setBox(Box box) {}
             
             public IPotential getPotential() {return null;}
             
@@ -100,7 +82,7 @@ public class VirialSQWBinMultiThreaded {
         };
         MayerFunction fRefPos = new MayerFunction() {
             
-            public void setBox(IBox box) {}
+            public void setBox(Box box) {}
             
             public IPotential getPotential() {return null;}
             
@@ -305,7 +287,7 @@ public class VirialSQWBinMultiThreaded {
         protected final double vhs;
         protected final double chainFrac, ringFrac;
         protected final long steps;
-        protected final ISpace space;
+        protected final Space space;
         protected final String runName;
         protected final double tRatio;
         protected final Map<IntSet,MeterVirialEBinMultiThreaded.MyData> allMyData;
@@ -318,10 +300,10 @@ public class VirialSQWBinMultiThreaded {
         public MeterVirialEBinMultiThreaded meter;
         
         public SimulationWorker(int iThread, int nPoints, MayerFunction fTargetf1, MayerFunction fTargete2,
-                MayerFunction fRefPos, double lambda, double vhs, double chainFrac, double ringFrac,
-                long steps, ISpace space, String runName, double tRatio,
-                Map<IntSet,MeterVirialEBinMultiThreaded.MyData> allMyData, double w, long[] totalCount,
-                boolean doReweight, int[] mySeeds, boolean doCov) {
+                                MayerFunction fRefPos, double lambda, double vhs, double chainFrac, double ringFrac,
+                                long steps, Space space, String runName, double tRatio,
+                                Map<IntSet,MeterVirialEBinMultiThreaded.MyData> allMyData, double w, long[] totalCount,
+                                boolean doReweight, int[] mySeeds, boolean doCov) {
             this.iThread = iThread;
             this.nPoints = nPoints;
             this.fTargetf1 = fTargetf1;

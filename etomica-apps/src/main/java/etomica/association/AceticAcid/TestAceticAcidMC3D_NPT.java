@@ -3,39 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.association.AceticAcid;
-import java.awt.Color;
-import java.io.File;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
-import etomica.association.AssociationHelperMolecule;
-import etomica.association.AssociationManagerMolecule;
-import etomica.association.BiasVolumeAceticAcid;
-import etomica.association.MCMoveBiasUBMolecule;
-import etomica.association.MCMoveMoleculeMonomer;
-import etomica.association.MCMoveMoleculeRotateAssociated;
-import etomica.association.MCMoveMoleculeSmer;
-import etomica.association.MCMoveVolumeAssociatedMolecule;
+import etomica.association.*;
+import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
-import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.atom.iterator.Atomset4IteratorIndexList;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverage;
+import etomica.data.*;
 import etomica.data.AccumulatorAverage.StatType;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataPump;
-import etomica.data.DataSourceCountSteps;
+import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
@@ -51,27 +34,23 @@ import etomica.integrator.mcmove.MCMoveWiggleAceticAcid;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.listener.IntegratorListenerAction;
 import etomica.models.OPLS.AceticAcidPotentialHelper;
-import etomica.models.OPLS.SpeciesAceticAcid;
 import etomica.models.OPLS.DipoleSourceAceticAcid;
+import etomica.models.OPLS.SpeciesAceticAcid;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculePositionDefinition;
 import etomica.nbr.cell.molecule.BoxAgentSourceCellManagerMolecular;
 import etomica.nbr.cell.molecule.NeighborCellManagerMolecular;
-import etomica.potential.P2ReactionFieldDipole;
-import etomica.potential.P3BondAngle;
-import etomica.potential.P4BondTorsion;
-import etomica.potential.PotentialGroup;
-import etomica.potential.PotentialMaster;
+import etomica.potential.*;
 import etomica.simulation.Simulation;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.units.Bar;
-import etomica.units.Calorie;
-import etomica.units.CompoundUnit;
-import etomica.units.Kelvin;
-import etomica.units.Liter;
-import etomica.units.Mole;
-import etomica.units.Unit;
-import etomica.util.HistoryCollapsingAverage;
+import etomica.species.ISpecies;
+import etomica.units.*;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+
+import java.awt.*;
+import java.io.File;
 
 /**
  * OPLS Acetic Acid Monte Carlo NPT simulation in 3D.
@@ -92,7 +71,7 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
     public MCMoveWiggleAceticAcid mcMoveWiggle;
     public MCMoveBiasUBMolecule mcMoveBiasUB;
     public SpeciesAceticAcid species;
-    public IBox box;
+    public Box box;
     public PotentialGroup potential;
     public P2ReactionFieldDipole reactionField;
     public ActivityIntegrate actionIntegrator;
@@ -104,8 +83,8 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
         super(Space3D.getInstance());
         PotentialMaster potentialMaster = new PotentialMaster();
         //setRandom(new RandomNumberGenerator(3));
-        IAtomPositionDefinition positionDefinition = new IAtomPositionDefinition() {//anonymous class
-			public IVector position(IMolecule molecule) {
+        IMoleculePositionDefinition positionDefinition = new IMoleculePositionDefinition() {//anonymous class
+			public Vector position(IMolecule molecule) {
 				return molecule.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition();
 			}
 		};
@@ -286,20 +265,20 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
         if (false) {
         	SimulationGraphic graphic = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE,"acetic acid", 1, sim.space,sim.getController());
         	SpeciesAceticAcid species = (SpeciesAceticAcid)sim.getSpecies(0);
-        	IAtomType typeCH3  = species.getCH3Type();
-        	IAtomType typeC  = species.getCType();
-            IAtomType typeDBO = species.getDBOType();
-            IAtomType typeSBO = species.getSBOType(); 
-            IAtomType typeH = species.getHType();
+            AtomType typeCH3 = species.getCH3Type();
+            AtomType typeC = species.getCType();
+            AtomType typeDBO = species.getDBOType();
+            AtomType typeSBO = species.getSBOType();
+            AtomType typeH = species.getHType();
             ((ColorSchemeByType)graphic.getDisplayBox(sim.box).getColorScheme()).setColor(typeCH3, Color.GREEN);
             ((DiameterHashByType)graphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(typeCH3, 2*1.7);
             ((ColorSchemeByType)graphic.getDisplayBox(sim.box).getColorScheme()).setColor(typeC, Color.BLUE);
             ((ColorSchemeByType)graphic.getDisplayBox(sim.box).getColorScheme()).setColor(typeDBO, Color.RED);
             ((ColorSchemeByType)graphic.getDisplayBox(sim.box).getColorScheme()).setColor(typeSBO, Color.YELLOW);
             ((ColorSchemeByType)graphic.getDisplayBox(sim.box).getColorScheme()).setColor(typeH, Color.WHITE);
-        	AccumulatorHistory densityHistory = new AccumulatorHistory(new HistoryCollapsingAverage()); 
-        	rhoAccumulator.addDataSink(densityHistory, new StatType[]{rhoAccumulator.MOST_RECENT});
-        	DisplayPlot rhoPlot = new DisplayPlot();
+        	AccumulatorHistory densityHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
+            rhoAccumulator.addDataSink(densityHistory, new StatType[]{AccumulatorAverage.MOST_RECENT});
+            DisplayPlot rhoPlot = new DisplayPlot();
         	densityHistory.setDataSink(rhoPlot.getDataSet().makeDataSink());
         	rhoPlot.setLabel("density");
         	graphic.add(rhoPlot);
@@ -310,14 +289,14 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
         	//smerPlot1.setLabel("smer fraction "+associationEnergy+"association Energy");
         	//graphic.add(smerPlot1);
         	DataSourceCountSteps stepCounter = new DataSourceCountSteps(sim.integrator);
-        	AccumulatorHistory energyHistory = new AccumulatorHistory(new HistoryCollapsingAverage()); 
-        	energyAccumulator.addDataSink(energyHistory, new StatType[]{energyAccumulator.MOST_RECENT});
-        	DisplayPlot energyPlot = new DisplayPlot();
+        	AccumulatorHistory energyHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
+            energyAccumulator.addDataSink(energyHistory, new StatType[]{AccumulatorAverage.MOST_RECENT});
+            DisplayPlot energyPlot = new DisplayPlot();
         	AccumulatorHistory energy2History = new AccumulatorHistory(new HistoryCollapsingAverage());
         	energyHistory.setTimeDataSource(stepCounter);
         	energy2History.setTimeDataSource(stepCounter);
-        	energy2Accumulator.addDataSink(energy2History, new StatType[]{energy2Accumulator.MOST_RECENT});
-        	energyHistory.setDataSink(energyPlot.getDataSet().makeDataSink());
+            energy2Accumulator.addDataSink(energy2History, new StatType[]{AccumulatorAverage.MOST_RECENT});
+            energyHistory.setDataSink(energyPlot.getDataSet().makeDataSink());
         	energyPlot.setLabel("energy");
         	graphic.add(energyPlot);
         	energy2History.setDataSink(energyPlot.getDataSet().makeDataSink());
@@ -333,9 +312,9 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
         finalDensity = rhoUnit.fromSim(finalDensity);
         System.out.println("next initial Density "+finalDensity);
         System.out.println("numAtom=" +numAtoms);
-        double avgDensity = ((DataDouble)((DataGroup)rhoAccumulator.getData()).getData(rhoAccumulator.AVERAGE.index)).x;//average density
-        double errDensity = ((DataDouble)((DataGroup)rhoAccumulator.getData()).getData(rhoAccumulator.ERROR.index)).x;
-        double correlationBlock = ((DataDouble)((DataGroup)rhoAccumulator.getData()).getData(rhoAccumulator.BLOCK_CORRELATION.index)).x;
+        double avgDensity = ((DataDouble) ((DataGroup) rhoAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;//average density
+        double errDensity = ((DataDouble) ((DataGroup) rhoAccumulator.getData()).getData(AccumulatorAverage.ERROR.index)).x;
+        double correlationBlock = ((DataDouble) ((DataGroup) rhoAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index)).x;
         System.out.println("err "+errDensity);
         System.out.println("correlationBlock "+correlationBlock);
         //double avgSmerFraction = ((DataDouble)((DataGroup)smerAccumulator1.getData()).getData(smerAccumulator1.AVERAGE.index)).x;//average density
@@ -345,7 +324,7 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
         //System.out.println("smer fraction of "+associationEnergy+" association energy "+avgSmerFraction);
         
         double Z = pressure/(avgDensity*sim.integrator.getTemperature());
-        double avgPE = ((DataDouble)((DataGroup)energyAccumulator.getData()).getData(energyAccumulator.AVERAGE.index)).x;
+        double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
         System.out.println("average energy= "+avgPE);
         double finalEnergy = energyMeter.getDataAsScalar();
         double finalEnergy2 = energy2Meter.getDataAsScalar();
@@ -357,7 +336,7 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
     	Unit calPerMoles = new CompoundUnit(new Unit[]{Calorie.UNIT,Mole.UNIT},new double[]{1.0,-1.0});
     	System.out.println("PE/epsilon="+calPerMoles.fromSim(avgPE)+"cal/mole");
         double temp = sim.integrator.getTemperature();
-        double Cv = ((DataDouble)((DataGroup)energyAccumulator.getData()).getData(energyAccumulator.STANDARD_DEVIATION.index)).x;
+        double Cv = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(AccumulatorAverage.STANDARD_DEVIATION.index)).x;
         Cv /= temp;
         Cv *= Cv/numAtoms;
         System.out.println("Cv/k="+Cv);

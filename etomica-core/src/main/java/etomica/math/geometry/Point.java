@@ -4,9 +4,8 @@
 
 package etomica.math.geometry;
 
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Vector;
+import etomica.space.Space;
 
 /**
  * A zero-dimensional polytope, a mathematical point in space.
@@ -16,11 +15,11 @@ import etomica.space.ISpace;
  */
 public class Point extends Polytope {
 
-    public Point(ISpace embeddedSpace) {
+    public Point(Space embeddedSpace) {
         this(embeddedSpace, embeddedSpace.makeVector());
     }
 
-    public Point(ISpace embeddedSpace, IVectorMutable vectorRandom) {
+    public Point(Space embeddedSpace, Vector vectorRandom) {
         super(embeddedSpace, vectorRandom);
     }
 
@@ -46,7 +45,7 @@ public class Point extends Polytope {
      * Returns true if this point is at exactly the same location as the point
      * defined by the given vector.
      */
-    public boolean contains(IVector v) {
+    public boolean contains(Vector v) {
         return vertices[0].equals(v);
     }
     

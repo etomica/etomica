@@ -6,27 +6,28 @@ package etomica.freeenergy.npath;
 
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.*;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.*;
+import etomica.data.history.HistoryCollapsingAverage;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.CompoundUnit;
 import etomica.units.Null;
 import etomica.units.SimpleUnit;
 import etomica.units.Unit;
-import etomica.util.HistoryCollapsingAverage;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -42,7 +43,7 @@ public class SimLJ extends Simulation {
     public final ActivityIntegrate ai;
     public IntegratorMC integrator;
     public SpeciesSpheresMono species;
-    public IBox box;
+    public Box box;
     public P2LennardJones potential;
     public MCMoveAtomNPath mcMoveAtom;
     public MCMoveAtomCoupled mcMoveAtomCoupled;
@@ -56,7 +57,7 @@ public class SimLJ extends Simulation {
         box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
-        IVectorMutable l = space.makeVector();
+        Vector l = space.makeVector();
         l.E(10);
         for (int i=0; i<=offsetDim; i++) {
             l.setX(i,20);
@@ -77,15 +78,15 @@ public class SimLJ extends Simulation {
         getController().addAction(ai);
 
         potential = new P2LennardJones(space, sigma, 1);
-        IAtomType leafType = species.getLeafType();
+        AtomType leafType = species.getLeafType();
         P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(space, potential, rc);
 
-        potentialMasterCell.addPotential(potentialTruncated,new IAtomType[]{leafType,leafType});
+        potentialMasterCell.addPotential(potentialTruncated, new AtomType[]{leafType, leafType});
 
-        IVectorMutable offset = space.makeVector();
+        Vector offset = space.makeVector();
         offset.setX(offsetDim, box.getBoundary().getBoxSize().getX(offsetDim)*0.5);
-        p1ImageHarmonic = new P1ImageHarmonic(space, offset, w, false);
-        potentialMasterCell.addPotential(p1ImageHarmonic, new IAtomType[]{leafType});
+        p1ImageHarmonic = new P1ImageHarmonic(space, offset, w, true);
+        potentialMasterCell.addPotential(p1ImageHarmonic, new AtomType[]{leafType});
 
         mcMoveAtom = new MCMoveAtomNPath(random, potentialMasterCell, space, p1ImageHarmonic);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
@@ -94,7 +95,7 @@ public class SimLJ extends Simulation {
 //        ((MCMoveStepTracker)mcMoveAtom.getTracker()).setNoisyAdjustment(true);
 //        ((MCMoveStepTracker)mcMoveAtomCoupled.getTracker()).setNoisyAdjustment(true);
 
-        IVector boxLength = box.getBoundary().getBoxSize();
+        Vector boxLength = box.getBoundary().getBoxSize();
         double lMin = boxLength.getX(0);
         if (boxLength.getX(1) < lMin) lMin = boxLength.getX(1);
         if (boxLength.getX(2) < lMin) lMin = boxLength.getX(2);
@@ -116,6 +117,7 @@ public class SimLJ extends Simulation {
         configuration.initializeCoordinates(box);
         potentialMasterCell.getNbrCellManager(box).assignCellAll();
         p1ImageHarmonic.findNOffset(box);
+        mcMoveAtomCoupled.setNOffset(p1ImageHarmonic.getNOffset());
     }
     
     public static void main(String[] args) {
@@ -199,6 +201,7 @@ public class SimLJ extends Simulation {
         sim.ai.setMaxSteps(eqSteps);
         sim.getController().actionPerformed();
         sim.getController().reset();
+        sim.integrator.resetStepCount();
         sim.integrator.getMoveManager().setEquilibrating(false);
         sim.ai.setMaxSteps(steps);
 
@@ -215,27 +218,29 @@ public class SimLJ extends Simulation {
 
         sim.getController().actionPerformed();
 
-        IData avgEnergies = accEnergies.getData(accEnergies.AVERAGE);
-        IData errEnergies = accEnergies.getData(accEnergies.ERROR);
-        IData corEnergies = accEnergies.getData(accEnergies.BLOCK_CORRELATION);
-        IData covEnergies = accEnergies.getData(accEnergies.BLOCK_COVARIANCE);
+        IData avgEnergies = accEnergies.getData(AccumulatorAverage.AVERAGE);
+        IData errEnergies = accEnergies.getData(AccumulatorAverage.ERROR);
+        IData corEnergies = accEnergies.getData(AccumulatorAverage.BLOCK_CORRELATION);
+        IData covEnergies = accEnergies.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE);
 
         System.out.println("swap acceptance: "+sim.mcMoveSwap.getTracker().acceptanceProbability());
-        System.out.println("simple move step size: " + ((MCMoveStepTracker) sim.mcMoveAtom.getTracker()).getAdjustStepSize());
-        System.out.println("coupled move step size: " + ((MCMoveStepTracker) sim.mcMoveAtom.getTracker()).getAdjustStepSize());
+        System.out.println("simple move step size: " + sim.mcMoveAtom.getStepSize());
+        System.out.println("coupled move step size: " + sim.mcMoveAtomCoupled.getStepSize());
 
         System.out.println("spring energy: "+avgEnergies.getValue(0)/numAtoms+"   error: "+errEnergies.getValue(0)/numAtoms+"  cor: "+corEnergies.getValue(0));
         System.out.println("LJ energy: "+avgEnergies.getValue(1)/numAtoms+"   error: "+errEnergies.getValue(1)/numAtoms+"  cor: "+corEnergies.getValue(1));
         System.out.println("du/dw: "+avgEnergies.getValue(2)/numAtoms+"   error: "+errEnergies.getValue(2)/numAtoms+"  cor: "+corEnergies.getValue(2));
-        double cor01 = covEnergies.getValue(0*3+1)/Math.sqrt(covEnergies.getValue(0*3+0)*covEnergies.getValue(1*3+1));
-        double cor02 = covEnergies.getValue(0*3+2)/Math.sqrt(covEnergies.getValue(0*3+0)*covEnergies.getValue(2*3+2));
+        double var0 = covEnergies.getValue(0*3+0);
+        double var1 = covEnergies.getValue(1*3+1);
+        double var2 = covEnergies.getValue(2*3+2);
+        double cor01 = 0;
+        if (var0*var1>0) cor01 = covEnergies.getValue(0*3+1)/Math.sqrt(covEnergies.getValue(0*3+0)*covEnergies.getValue(1*3+1));
+        double cor02 = 0;
+        if (var0*var2>0) cor02 = covEnergies.getValue(0*3+2)/Math.sqrt(covEnergies.getValue(0*3+0)*covEnergies.getValue(2*3+2));
         System.out.println("spring correlation: 1 "+cor01+" "+cor02);
-        double cor10 = covEnergies.getValue(1*3+0)/Math.sqrt(covEnergies.getValue(1*3+1)*covEnergies.getValue(0*3+0));
         double cor12 = covEnergies.getValue(1*3+2)/Math.sqrt(covEnergies.getValue(1*3+1)*covEnergies.getValue(2*3+2));
-        System.out.println("Fe correlation: "+cor10+" 1 "+cor12);
-        double cor20 = covEnergies.getValue(2*3+0)/Math.sqrt(covEnergies.getValue(2*3+2)*covEnergies.getValue(0*3+0));
-        double cor21 = covEnergies.getValue(2*3+1)/Math.sqrt(covEnergies.getValue(2*3+2)*covEnergies.getValue(1*3+1));
-        System.out.println("du/dw correlation: "+cor20+" "+cor21+" 1");
+        System.out.println("Fe correlation: "+cor01+" 1 "+cor12);
+        System.out.println("du/dw correlation: "+cor02+" "+cor12+" 1");
         long t2 = System.currentTimeMillis();
         System.out.println("time: "+(t2-t1)/1000.0+" seconds");
     }

@@ -4,26 +4,15 @@
 
 package etomica.interfacial;
 
-import java.util.List;
-
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomSourceRandomSpecies;
+import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataDump;
-import etomica.data.DataFork;
-import etomica.data.DataPump;
-import etomica.data.DataPumpListener;
-import etomica.data.DataSourceCountSteps;
+import etomica.data.*;
+import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
@@ -40,11 +29,13 @@ import etomica.potential.P2SoftSphericalTruncatedForceShifted;
 import etomica.potential.Potential1;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.HistoryCollapsingAverage;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+
+import java.util.List;
 
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 3D
@@ -56,7 +47,7 @@ public class LJMC extends Simulation {
     public final ActivityIntegrate ai;
     public IntegratorMC integrator;
     public SpeciesSpheresMono speciesFluid, speciesTopWall, speciesBottomWall;
-    public IBox box;
+    public Box box;
     public P2SoftSphericalTruncatedForceShifted pFF, pTW, pBW;
     public ConfigurationLammps config;
 
@@ -97,14 +88,14 @@ public class LJMC extends Simulation {
         getController().addAction(ai);
 
         pFF = new P2SoftSphericalTruncatedForceShifted(space, new P2LennardJones(space, 1.0, 1.0), 2.5);
-        IAtomType leafType = speciesFluid.getLeafType();
-        potentialMasterCell.addPotential(pFF,new IAtomType[]{leafType,leafType});
+        AtomType leafType = speciesFluid.getLeafType();
+        potentialMasterCell.addPotential(pFF, new AtomType[]{leafType, leafType});
 
         pBW = new P2SoftSphericalTruncatedForceShifted(space, new P2LennardJones(space, 1.09985, 0.4), 5.49925);
-        potentialMasterCell.addPotential(pBW,new IAtomType[]{leafType,speciesBottomWall.getLeafType()});
+        potentialMasterCell.addPotential(pBW, new AtomType[]{leafType, speciesBottomWall.getLeafType()});
         
         pTW = new P2SoftSphericalTruncatedForceShifted(space, new P2LennardJones(space, 1.5, 0.1), 1.68);
-        potentialMasterCell.addPotential(pTW,new IAtomType[]{leafType,speciesTopWall.getLeafType()});
+        potentialMasterCell.addPotential(pTW, new AtomType[]{leafType, speciesTopWall.getLeafType()});
 
         Potential1 p1F = new Potential1(space) {
             
@@ -115,7 +106,7 @@ public class LJMC extends Simulation {
                 return (pz < zMin || pz > zMax) ? Double.POSITIVE_INFINITY : 0;
             }
         };
-        potentialMasterCell.addPotential(p1F,new IAtomType[]{leafType});
+        potentialMasterCell.addPotential(p1F, new AtomType[]{leafType});
         
         integrator.setBox(box);
 
@@ -174,7 +165,7 @@ public class LJMC extends Simulation {
         densityProfileAvg.setPushInterval(10);
         DataPump profilePump = new DataPumpListener(densityProfileMeter, densityProfileAvg, 1000);
         DataDump profileDump = new DataDump();
-        densityProfileAvg.addDataSink(profileDump, new AccumulatorAverage.StatType[]{densityProfileAvg.AVERAGE});
+        densityProfileAvg.addDataSink(profileDump, new AccumulatorAverage.StatType[]{AccumulatorAverage.AVERAGE});
         IntegratorListenerAction profilePumpListener = new IntegratorListenerAction(profilePump);
         sim.integrator.getEventManager().addListener(profilePumpListener);
         profilePumpListener.setInterval(10);
@@ -215,7 +206,7 @@ public class LJMC extends Simulation {
             
 
             DisplayPlot profilePlot = new DisplayPlot();
-            densityProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{densityProfileAvg.AVERAGE});
+            densityProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{AccumulatorAverage.AVERAGE});
             profilePlot.setLabel("density");
             simGraphic.add(profilePlot);
             
@@ -235,13 +226,13 @@ public class LJMC extends Simulation {
         u = meterPE2.getDataAsScalar();
         System.out.println("Potential energy: "+u);
         System.out.println("Wall force: "+meterWF.getDataAsScalar());
-        
-        double avgPE = accPE.getData().getValue(accPE.AVERAGE.index);
-        double errPE = accPE.getData().getValue(accPE.ERROR.index);
-        double corPE = accPE.getData().getValue(accPE.BLOCK_CORRELATION.index);
-        double avgWF = accWF.getData().getValue(accPE.AVERAGE.index);
-        double errWF = accWF.getData().getValue(accPE.ERROR.index);
-        double corWF = accWF.getData().getValue(accPE.BLOCK_CORRELATION.index);
+
+        double avgPE = accPE.getData().getValue(AccumulatorAverage.AVERAGE.index);
+        double errPE = accPE.getData().getValue(AccumulatorAverage.ERROR.index);
+        double corPE = accPE.getData().getValue(AccumulatorAverage.BLOCK_CORRELATION.index);
+        double avgWF = accWF.getData().getValue(AccumulatorAverage.AVERAGE.index);
+        double errWF = accWF.getData().getValue(AccumulatorAverage.ERROR.index);
+        double corWF = accWF.getData().getValue(AccumulatorAverage.BLOCK_CORRELATION.index);
         
         if (steps>100000) {
             System.out.println(String.format("Average potential energy: %25.15e %10.4e % 5.3f\n",avgPE,errPE,corPE));
@@ -254,7 +245,7 @@ public class LJMC extends Simulation {
         
         WriteConfigurationInterfacial configWriter = new WriteConfigurationInterfacial(sim.space);
         configWriter.setSpecies(sim.speciesFluid);
-        IVectorMutable unshift = sim.space.makeVector();
+        Vector unshift = sim.space.makeVector();
         unshift.Ea1Tv1(-1, sim.config.getShift());
         configWriter.setShift(unshift);
         configWriter.setBox(sim.box);

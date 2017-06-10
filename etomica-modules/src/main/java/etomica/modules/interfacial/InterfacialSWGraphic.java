@@ -4,84 +4,40 @@
 
 package etomica.modules.interfacial;
 
-import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.util.ArrayList;
-
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-
 import etomica.action.IAction;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionGeometricCenterPBC;
 import etomica.atom.DiameterHashByType;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataDump;
-import etomica.data.DataFork;
-import etomica.data.DataGroupSplitter;
-import etomica.data.DataPipe;
-import etomica.data.DataProcessor;
-import etomica.data.DataProcessorChemicalPotential;
-import etomica.data.DataProcessorInterfacialTension;
-import etomica.data.DataPump;
-import etomica.data.DataPumpListener;
-import etomica.data.DataSourceCountTime;
-import etomica.data.DataSourcePositionedBoltzmannFactor;
-import etomica.data.DataSplitter;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IDataSink;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.meter.MeterDensity;
-import etomica.data.meter.MeterNMolecules;
-import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
-import etomica.data.meter.MeterProfile;
-import etomica.data.meter.MeterProfileByAtoms;
-import etomica.data.meter.MeterProfileByVolume;
-import etomica.data.meter.MeterTemperature;
+import etomica.data.*;
+import etomica.data.history.HistoryCollapsingAverage;
+import etomica.data.meter.*;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataTensor;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DeviceButton;
-import etomica.graphics.DeviceNSelector;
-import etomica.graphics.DeviceSlider;
-import etomica.graphics.DeviceThermoSlider;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.DisplayTextBoxesCAE;
-import etomica.graphics.DisplayTimer;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modules.interfacial.DataSourceTensorVirialHardProfile.DataSourceVirialProfile;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculePositionGeometricCenterPBC;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.ISpace;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
 import etomica.units.Dimension;
-import etomica.units.Energy;
-import etomica.units.Length;
-import etomica.units.Pixel;
-import etomica.units.Unit;
+import etomica.units.*;
 import etomica.units.systems.LJ;
 import etomica.util.Constants.CompassDirection;
-import etomica.util.HistoryCollapsingAverage;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
 
 /**
  * Graphic UI for interfacial tension module.  Design by Heath Turner.
@@ -146,7 +102,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                         deltaX = -deltaX;
                     }
                     for (int j=0; j<2; j++) {
-                        IVectorMutable pos = surfactant.getChildList().getAtom(j).getPosition();
+                        Vector pos = surfactant.getChildList().getAtom(j).getPosition();
                         pos.setX(0, pos.getX(0) + deltaX);
                     }
                     sim.box.addMolecule(surfactant);
@@ -173,7 +129,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 
                 isExpanded = true;
             }
-            IVectorMutable dim = space.makeVector();
+            Vector dim = space.makeVector();
             ConfigurationLattice configLattice = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         };
         expandButton.setAction(expandAction);
@@ -186,7 +142,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
             public void actionPerformed() {
                 oldPreAction.actionPerformed();
                 if (!isExpanded) return;
-                IVectorMutable dim = space.makeVector();
+                Vector dim = space.makeVector();
                 dim.E(sim.box.getBoundary().getBoxSize());
                 dim.setX(0, dim.getX(0) / expansionFac);
                 sim.box.setNMolecules(sim.surfactant, 0);
@@ -235,7 +191,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 double sumCos = 0, sumSin = 0;
                 double q = 2*Math.PI/L;
                 for (int i=0; i<nTot; i++) {
-                    IVectorMutable pos = leafAtoms.getAtom(i).getPosition();
+                    Vector pos = leafAtoms.getAtom(i).getPosition();
                     double sinx = Math.sin(q*pos.getX(0));
                     double cosx = Math.cos(q*pos.getX(0));
                     sumCos += cosx;
@@ -258,7 +214,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                     center = -1;
                 }
                 for (int i=0; i<nTot; i++) {
-                    IVectorMutable pos = leafAtoms.getAtom(i).getPosition();
+                    Vector pos = leafAtoms.getAtom(i).getPosition();
                     pos.setX(0, pos.getX(0) - center);
                 }
                 ((PotentialMasterList)sim.integrator.getPotentialMaster()).getNeighborManager(sim.box).reset();
@@ -424,7 +380,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         profilePumpListener.setInterval(10);
         dataStreamPumps.add(profilePump);
 
-        AtomPositionGeometricCenterPBC positionDefinitionPBC = new AtomPositionGeometricCenterPBC(space, sim.box.getBoundary());
+        MoleculePositionGeometricCenterPBC positionDefinitionPBC = new MoleculePositionGeometricCenterPBC(space, sim.box.getBoundary());
         surfactantProfileMeter = new MeterProfileByVolume(space);
         surfactantProfileMeter.setBox(sim.box);
         surfactantProfileMeter.setPositionDefinition(positionDefinitionPBC);
@@ -841,7 +797,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
     }
     
     public static class ModifierBoxSize implements Modifier {
-        public ModifierBoxSize(ISpace space, IBox box, int dim, IAction reconfig) {
+        public ModifierBoxSize(Space space, Box box, int dim, IAction reconfig) {
             this.box = box;
             this.dim = dim;
             this.reconfig = reconfig;
@@ -884,10 +840,10 @@ public class InterfacialSWGraphic extends SimulationGraphic {
             }
         }
         
-        protected final IBox box;
+        protected final Box box;
         protected final int dim;
         protected final IAction reconfig;
-        protected final IVectorMutable size;
+        protected final Vector size;
     }
 }
 

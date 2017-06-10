@@ -1,9 +1,12 @@
 package etomica.meam;
 
-import etomica.api.*;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.potential.PotentialN;
 import etomica.potential.PotentialSoft;
-import etomica.space.ISpace;
+import etomica.space.Boundary;
+import etomica.space.Vector;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 /**
@@ -15,13 +18,13 @@ import etomica.space.Tensor;
 public class PotentialEAM extends PotentialN implements PotentialSoft{
 
     protected double n , m , eps , a , C , rC1, rC2;
-    protected IBoundary boundary; 
-    protected final IVectorMutable dr, drij, drik, drjk;
-    protected IVectorMutable[] gradient; 
-    protected IVectorMutable[] rhograd;
+    protected Boundary boundary;
+    protected final Vector dr, drij, drik, drjk;
+    protected Vector[] gradient;
+    protected Vector[] rhograd;
     protected double [][] secondder;
     
-    public PotentialEAM(ISpace space, double n , double  m , double  eps , double  a , double  C, double rC) {
+    public PotentialEAM(Space space, double n , double  m , double  eps , double  a , double  C, double rC) {
         super(space);
         
         this.n=n;
@@ -35,8 +38,8 @@ public class PotentialEAM extends PotentialN implements PotentialSoft{
         drij=space.makeVector();
         drik=space.makeVector();
         drjk=space.makeVector();
-        gradient=new IVectorMutable[0];
-        rhograd=new IVectorMutable[0];
+        gradient=new Vector[0];
+        rhograd=new Vector[0];
     }
     
     public double getRange() {
@@ -50,10 +53,10 @@ public class PotentialEAM extends PotentialN implements PotentialSoft{
     public double energy(IAtomList atoms) {
         double sumV=0;
         double rhoi=0;
-        IVector ipos=atoms.getAtom(0).getPosition();
+        Vector ipos=atoms.getAtom(0).getPosition();
         
         for(int j=1;j<atoms.getAtomCount();j++){
-            IVector jpos=atoms.getAtom(j).getPosition();
+            Vector jpos=atoms.getAtom(j).getPosition();
             dr.Ev1Mv2(ipos, jpos);
             boundary.nearestImage(dr);
             double rij=Math.sqrt(dr.squared());
@@ -72,16 +75,16 @@ public class PotentialEAM extends PotentialN implements PotentialSoft{
         
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary=box.getBoundary();
     }
 
     public double virial(IAtomList atoms) {
         double virial=0;
         gradient(atoms);
-        IVector ipos=atoms.getAtom(0).getPosition();
+        Vector ipos=atoms.getAtom(0).getPosition();
         for(int j=1;j<atoms.getAtomCount();j++){
-            IVector jpos=atoms.getAtom(j).getPosition();
+            Vector jpos=atoms.getAtom(j).getPosition();
             dr.Ev1Mv2(jpos,ipos);
             boundary.nearestImage(dr);
             virial += gradient[j].dot(dr);
@@ -89,11 +92,11 @@ public class PotentialEAM extends PotentialN implements PotentialSoft{
         return virial;
     }
 
-    public IVector[] gradient(IAtomList atoms) {
+    public Vector[] gradient(IAtomList atoms) {
         
         if(gradient.length<atoms.getAtomCount()){
-            rhograd=new IVectorMutable[atoms.getAtomCount()];
-            gradient=new IVectorMutable[atoms.getAtomCount()];
+            rhograd=new Vector[atoms.getAtomCount()];
+            gradient=new Vector[atoms.getAtomCount()];
             
             for(int j=0;j<atoms.getAtomCount();j++){
                 rhograd[j] = space.makeVector();
@@ -102,7 +105,7 @@ public class PotentialEAM extends PotentialN implements PotentialSoft{
         }
         
         gradient[0].E(0);
-        IVector ipos=atoms.getAtom(0).getPosition();
+        Vector ipos=atoms.getAtom(0).getPosition();
         
         double rhoi=0;
     	double dvdr;
@@ -111,7 +114,7 @@ public class PotentialEAM extends PotentialN implements PotentialSoft{
         for(int j=1;j<atoms.getAtomCount();j++){
             gradient[j].E(0);
             rhograd[j].E(0);
-            IVector jpos=atoms.getAtom(j).getPosition();
+            Vector jpos=atoms.getAtom(j).getPosition();
             dr.Ev1Mv2(ipos, jpos);
             boundary.nearestImage(dr);
             double rij=Math.sqrt(dr.squared());
@@ -134,7 +137,7 @@ public class PotentialEAM extends PotentialN implements PotentialSoft{
         return gradient;
     }
 
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         return gradient(atoms);
     }
     
@@ -144,7 +147,7 @@ public class PotentialEAM extends PotentialN implements PotentialSoft{
     public double [][] secondder(IAtomList atoms){
 		int ng = atoms.getAtomCount();
     	secondder = new double[3*ng][3*ng];
-        IVector ipos=atoms.getAtom(0).getPosition();
+        Vector ipos=atoms.getAtom(0).getPosition();
         double rhoi=0;
     	double dvdr, d2vdr2, g1, g2;
         double rij, rij2 , rij3 , rij4, sij;
@@ -155,7 +158,7 @@ public class PotentialEAM extends PotentialN implements PotentialSoft{
 		
 		//Get rhoi
         for(int j=1;j<ng;j++){
-            IVector jpos=atoms.getAtom(j).getPosition();
+            Vector jpos=atoms.getAtom(j).getPosition();
             drij.Ev1Mv2(ipos, jpos);
             boundary.nearestImage(drij);
             rij=Math.sqrt(drij.squared());
@@ -169,7 +172,7 @@ public class PotentialEAM extends PotentialN implements PotentialSoft{
         
         
         for(int j=1;j<ng;j++){
-          IVector jpos=atoms.getAtom(j).getPosition();
+          Vector jpos=atoms.getAtom(j).getPosition();
           drij.Ev1Mv2(ipos, jpos);
           boundary.nearestImage(drij);
 
@@ -221,7 +224,7 @@ public class PotentialEAM extends PotentialN implements PotentialSoft{
             /**EAM: 1st&2nd derivative terms*/
             //k-loop:             
             for(int k=1;k<ng;k++){
-              IVector kpos=atoms.getAtom(k).getPosition();
+              Vector kpos=atoms.getAtom(k).getPosition();
               drik.Ev1Mv2(ipos, kpos);
               boundary.nearestImage(drik);
               rik=Math.sqrt(drik.squared());

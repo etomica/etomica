@@ -4,9 +4,9 @@
 
 package etomica.normalmode;
 
-import etomica.api.IBox;
-import etomica.api.ISpecies;
+import etomica.box.Box;
 import etomica.modifier.Modifier;
+import etomica.species.ISpecies;
 import etomica.units.Dimension;
 import etomica.units.Null;
 
@@ -19,7 +19,7 @@ public class ModifierYCells2D implements Modifier, java.io.Serializable {
     /**
      * 
      */
-    public ModifierYCells2D(IBox box, ISpecies species, int x) {
+    public ModifierYCells2D(Box box, ISpecies species, int x) {
         this.box = box;
         this.species = species;
         this.xCell = x;
@@ -47,7 +47,7 @@ public class ModifierYCells2D implements Modifier, java.io.Serializable {
     
  
     private static final long serialVersionUID = 1L;
-    protected final IBox box;
+    protected final Box box;
     protected final ISpecies species;
     protected int mostRecentValue, previousValue, xCell;
 }

@@ -4,11 +4,9 @@
 
 package etomica.potential;
 
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IPotentialMolecular;
 import etomica.atom.AtomPair;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
 
 public class P2MoleculeMonatomic implements IPotentialMolecular {
 	public P2MoleculeMonatomic(IPotentialAtomic potential) {
@@ -30,7 +28,7 @@ public class P2MoleculeMonatomic implements IPotentialMolecular {
 		return 2;
 	}
 
-	public void setBox(IBox box) {
+	public void setBox(Box box) {
 		wrappedPotential.setBox(box); 
 
 	}

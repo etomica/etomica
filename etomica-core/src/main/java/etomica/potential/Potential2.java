@@ -4,7 +4,7 @@
 
 package etomica.potential;
 
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Potential acting on 2 atoms or molecules.
@@ -17,7 +17,7 @@ public abstract class Potential2 extends Potential {
     /**
      * Constructs potential with given space.
      */
-    public Potential2(ISpace space) {
+    public Potential2(Space space) {
         super(2, space);
     }
 

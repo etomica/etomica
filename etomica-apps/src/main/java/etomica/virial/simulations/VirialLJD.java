@@ -5,20 +5,25 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.api.IIntegratorEvent;
-import etomica.api.IIntegratorListener;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCovariance;
+import etomica.integrator.IntegratorListener;
+import etomica.integrator.IntegratorEvent;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.IData;
+import etomica.data.histogram.HistogramSimple;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeRandomByMolecule;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
+import etomica.math.DoubleRange;
 import etomica.potential.P2LennardJones;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.*;
+import etomica.util.random.RandomNumberGenerator;
 import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 
@@ -146,10 +151,10 @@ public class VirialLJD {
 
         
         final HistogramSimple targHist = new HistogramSimple(200, new DoubleRange(-1, 4));
-        IIntegratorListener histListenerTarget = new IIntegratorListener() {
-            public void integratorStepStarted(IIntegratorEvent e) {}
+        IntegratorListener histListenerTarget = new IntegratorListener() {
+            public void integratorStepStarted(IntegratorEvent e) {}
             
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 CoordinatePairSet cPairs = sim.box[1].getCPairSet();
                 for (int i=0; i<nPoints; i++) {
                     for (int j=i+1; j<nPoints; j++) {
@@ -167,7 +172,7 @@ public class VirialLJD {
 
             }
 
-            public void integratorInitialized(IIntegratorEvent e) {}
+            public void integratorInitialized(IntegratorEvent e) {}
         };
 
         if (doHist) {
@@ -177,18 +182,18 @@ public class VirialLJD {
         }
         
         
-        IIntegratorListener progressReport = new IIntegratorListener() {
+        IntegratorListener progressReport = new IntegratorListener() {
             
-            public void integratorStepStarted(IIntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
             
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 if (sim.integratorOS.getStepCount() % 100 != 0) return;
                 System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                 double[] ratioAndError = sim.dvo.getAverageAndError();
                 System.out.println("abs average: "+ratioAndError[0]*HSBn+", error: "+ratioAndError[1]*HSBn);
             }
             
-            public void integratorInitialized(IIntegratorEvent e) {}
+            public void integratorInitialized(IntegratorEvent e) {}
                 
         };
         if (false) {
@@ -227,9 +232,9 @@ public class VirialLJD {
         sim.printResults(HSBn);
 
         DataGroup allData = (DataGroup)sim.accumulators[1].getData();
-        IData dataAvg = allData.getData(sim.accumulators[1].AVERAGE.index);
-        IData dataErr = allData.getData(sim.accumulators[1].ERROR.index);
-        IData dataCov = allData.getData(sim.accumulators[1].BLOCK_COVARIANCE.index);
+        IData dataAvg = allData.getData(AccumulatorAverage.AVERAGE.index);
+        IData dataErr = allData.getData(AccumulatorAverage.ERROR.index);
+        IData dataCov = allData.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
         // we'll ignore block correlation -- whatever effects are here should be in the full target results
         int nTotal = (targetDiagrams.length+2);
         double oVar = dataCov.getValue(nTotal*nTotal-1);

@@ -7,25 +7,24 @@ package etomica.rotation;
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
 import etomica.atom.IAtomOriented;
-import etomica.atom.IMoleculePositioned;
-import etomica.atom.OrientationCalcAtom;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorRigidIterative;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.listener.IntegratorListenerAction;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.IMoleculePositioned;
+import etomica.molecule.OrientationCalcAtom;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.IOrientationFull3D;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresRotatingMolecule;
 import etomica.units.Pixel;
 
@@ -33,9 +32,9 @@ public class DipoleBox extends Simulation {
 
     public final IntegratorRigidIterative integrator;
     public final ActivityIntegrate ai;
-    public final IBox box;
+    public final Box box;
     
-    public DipoleBox(ISpace space, int nAtoms, double dt) {
+    public DipoleBox(Space space, int nAtoms, double dt) {
         super(space);
         box = new Box(new BoundaryRectangularPeriodic(getSpace(), 10), space);
         addBox(box);
@@ -79,7 +78,7 @@ public class DipoleBox extends Simulation {
     }
     
     public static void main(String[] args) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         int nAtoms = 864;
         double dt = 0.01;
         if (args.length == 0) {
@@ -101,7 +100,7 @@ public class DipoleBox extends Simulation {
     public static class Applet extends javax.swing.JApplet {
 
         public void init() {
-            ISpace space = Space3D.getInstance();
+            Space space = Space3D.getInstance();
             DipoleBox sim = new DipoleBox(space, 864, 0.01);
             sim.ai.setSleepPeriod(10);
             SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1, space, sim.getController());

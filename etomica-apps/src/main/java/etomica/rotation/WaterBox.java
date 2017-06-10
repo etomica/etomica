@@ -4,12 +4,8 @@
 
 package etomica.rotation;
 
-import java.awt.Color;
-
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.ISpecies;
-import etomica.atom.AtomPositionCOM;
 import etomica.box.Box;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
@@ -19,6 +15,7 @@ import etomica.models.water.DipoleSourceWater;
 import etomica.models.water.OrientationCalcWater3P;
 import etomica.models.water.P2WaterSPCSoft;
 import etomica.models.water.SpeciesWater3POriented;
+import etomica.molecule.MoleculePositionCOM;
 import etomica.potential.P2MoleculeSoftTruncatedSwitched;
 import etomica.potential.P2ReactionFieldDipole;
 import etomica.potential.PotentialMaster;
@@ -26,9 +23,12 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
+
+import java.awt.*;
 
 public class WaterBox {
 
@@ -76,7 +76,7 @@ public class WaterBox {
 
         DipoleSourceWater dipoleSource = new DipoleSourceWater(sim.getSpace());
         dipoleSource.setDipoleStrength(2*Electron.UNIT.toSim(0.41)*Math.cos(109.5/2.0*Math.PI/180));
-        P2ReactionFieldDipole pNRF = new P2ReactionFieldDipole(sim.getSpace(),new AtomPositionCOM(space));
+        P2ReactionFieldDipole pNRF = new P2ReactionFieldDipole(sim.getSpace(),new MoleculePositionCOM(space));
         pNRF.setDipoleSource(dipoleSource);
         pNRF.setRange(boxlength*0.49);
         pNRF.setDielectric(78.4);

@@ -4,18 +4,17 @@
 
 package etomica.normalmode;
 
-import java.io.Serializable;
-
-import etomica.api.IBox;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.box.Box;
 import etomica.lattice.crystal.PrimitiveFcc;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
+
+import java.io.Serializable;
 
 /**
  * WaveVectorFactory implementation that returns wave vectors appropriate for 
@@ -30,7 +29,7 @@ public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
         this.dim = D;
     }
     
-    public void makeWaveVectors(IBox box) {
+    public void makeWaveVectors(Box box) {
         int numCells = 0;
         double d = -1;
         for (int i = 0; i < dim; i++) {
@@ -149,7 +148,7 @@ public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
         }
     }
     
-    public IVectorMutable[] getWaveVectors() {
+    public Vector[] getWaveVectors() {
         return waveVectors;
     }
     
@@ -161,7 +160,7 @@ public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
         int nCells = 3;
         Space sp = Space3D.getInstance();
         Simulation sim = new Simulation(sp);
-        IBox box = new Box(sp);
+        Box box = new Box(sp);
         sim.addBox(box);
         box.getBoundary().setBoxSize(new Vector3D(nCells, nCells, nCells));
         ISpecies species = new SpeciesSpheresMono(sim, sp);
@@ -171,7 +170,7 @@ public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
         
         WaveVectorFactoryFcc foo = new WaveVectorFactoryFcc(primitive, sp.D());
         foo.makeWaveVectors(box);
-        IVectorMutable[] waveVectors = foo.getWaveVectors();
+        Vector[] waveVectors = foo.getWaveVectors();
         double[] coefficients = foo.getCoefficients();
         System.out.println("number of wave vectors "+waveVectors.length);
         for (int i=0; i<waveVectors.length; i++) {

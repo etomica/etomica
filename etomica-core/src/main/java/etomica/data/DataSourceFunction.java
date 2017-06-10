@@ -6,14 +6,14 @@ package etomica.data;
 
 import java.io.Serializable;
 
-import etomica.api.IFunction;
+import etomica.math.function.IFunction;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.units.Dimension;
 import etomica.units.Null;
-import etomica.util.Function;
+import etomica.math.function.Function;
 
 /**
  * Datasource formed as a wrapper around a function.  Uses a DataSourceUniform
@@ -89,7 +89,7 @@ public class DataSourceFunction implements IEtomicaDataSource, DataSourceIndepen
      */
     protected void setupData(String label, Dimension dimension) {
         boolean needUpdate = false;
-        if (xData != (DataDoubleArray)xSource.getData()) {
+        if (xData != xSource.getData()) {
             xData = (DataDoubleArray)xSource.getData();
             needUpdate = true;
         }

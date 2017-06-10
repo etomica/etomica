@@ -4,17 +4,12 @@
 
 package etomica.virial.simulations;
 
-import java.awt.Color;
-import java.util.Map;
-import java.util.Set;
-
 import etomica.action.IAction;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.ISpecies;
+import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.atom.iterator.Atomset4IteratorIndexList;
+import etomica.box.Box;
 import etomica.graph.model.Graph;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
@@ -27,26 +22,17 @@ import etomica.potential.P4BondTorsion;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterCoupledFlipped;
-import etomica.virial.ClusterCoupledFlippedPartial;
-import etomica.virial.ClusterSum;
-import etomica.virial.ClusterSumShell;
-import etomica.virial.ClusterWeight;
-import etomica.virial.ClusterWeightAbs;
-import etomica.virial.ConfigurationClusterAceticAcid;
-import etomica.virial.MCMoveClusterAngleBendAceticAcid;
-import etomica.virial.MCMoveClusterMoleculeMulti;
-import etomica.virial.MCMoveClusterRotateMoleculeMulti;
-import etomica.virial.MCMoveClusterTorsionAceticAcid;
-import etomica.virial.MCMoveClusterWiggleAceticAcid;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 import etomica.virial.cluster.VirialDiagrams;
+
+import java.awt.*;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Mayer-sampling MC simulation for acetic acid using IMPROVED TraPPE-UA model
@@ -242,8 +228,8 @@ public class VirialAceticAcidFlex {
         ConfigurationClusterAceticAcid conf = new ConfigurationClusterAceticAcid(space, sim.getRandom(), fTarget);
         conf.translation2Mol(1, new double[] {5.0,0.0,0}, sim.box[1]);
         conf.translation2Mol(2, new double[] {5.0,5.0,0}, sim.box[1]);
-        IBox referenceBox = sim.box[0];
-        IBox targetBox = sim.box[1];
+        Box referenceBox = sim.box[0];
+        Box targetBox = sim.box[1];
              
         if (false) {
             referenceBox.getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
@@ -253,12 +239,12 @@ public class VirialAceticAcidFlex {
             ColorSchemeByType colorScheme1 = (ColorSchemeByType) simGraphic.getDisplayBox(targetBox).getColorScheme();
             DiameterHashByType	diameterScheme0 = (DiameterHashByType) simGraphic.getDisplayBox(referenceBox).getDiameterHash();
             DiameterHashByType	diameterScheme1 = (DiameterHashByType) simGraphic.getDisplayBox(targetBox).getDiameterHash();
-            
-        	IAtomType typeCH3  = species.getCH3Type();
-        	IAtomType typeC  = species.getCType();
-            IAtomType typeDBO = species.getDBOType();
-            IAtomType typeSBO = species.getSBOType(); 
-            IAtomType typeH = species.getHType();
+
+            AtomType typeCH3 = species.getCH3Type();
+            AtomType typeC = species.getCType();
+            AtomType typeDBO = species.getDBOType();
+            AtomType typeSBO = species.getSBOType();
+            AtomType typeH = species.getHType();
             colorScheme0.setColor(typeCH3, Color.GREEN);
             diameterScheme0.setDiameter(typeCH3, 2*1.7);
             colorScheme0.setColor(typeC, Color.BLUE);

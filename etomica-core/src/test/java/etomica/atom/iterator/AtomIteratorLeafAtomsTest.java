@@ -6,8 +6,8 @@ package etomica.atom.iterator;
 
 import java.util.LinkedList;
 
-import etomica.api.IBox;
-import etomica.api.ISimulation;
+import etomica.box.Box;
+import etomica.simulation.Simulation;
 import etomica.atom.AtomArrayList;
 import etomica.UnitTestUtil;
 
@@ -24,7 +24,7 @@ public class AtomIteratorLeafAtomsTest extends IteratorTestAbstract {
         int[] n0 = new int[] { 10, 1, 0 };
         int nA0 = 5;
         int[] n1 = new int[] { 5, 0, 6 };
-        ISimulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1);
+        Simulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1);
 
         AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
 
@@ -43,7 +43,7 @@ public class AtomIteratorLeafAtomsTest extends IteratorTestAbstract {
          * when species is set to null
          */
         for (int i = 0; i < boxCount; i++) {
-        	IBox box = sim.getBox(i);
+        	Box box = sim.getBox(i);
             iterator.setBox(box);
             int count = nA0 * n0[i] + n1[i];
             LinkedList list = testIterates(iterator, ((AtomArrayList)box.getLeafList()).toAtomLeafArray());

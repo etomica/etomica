@@ -4,13 +4,13 @@
 
 package etomica.normalmode;
 
-import etomica.api.IBoundary;
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Boundary;
+import etomica.space.Space;
 import etomica.space1d.Space1D;
 import etomica.space1d.Vector1D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 
 /**
@@ -19,7 +19,7 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class NormalModes1DHR implements NormalModes {
     
-    public NormalModes1DHR(IBoundary boundary, int numMolecules) {
+    public NormalModes1DHR(Boundary boundary, int numMolecules) {
         harmonicFudge = 1;
         this.boundary = boundary;
         this.nA = numMolecules;
@@ -64,7 +64,7 @@ public class NormalModes1DHR implements NormalModes {
     protected double harmonicFudge;
     protected double temperature;
     private final WaveVectorFactory1D waveVectorFactory;
-    protected final IBoundary boundary;
+    protected final Boundary boundary;
     protected final int nA;
 
     /**
@@ -90,7 +90,7 @@ public class NormalModes1DHR implements NormalModes {
 
     public static void main(String[] args) {
         int N = 8;
-        ISpace space = Space1D.getInstance();
+        Space space = Space1D.getInstance();
         Box box = new Box(space);
         Simulation sim = new Simulation(space);
         sim.addBox(box);

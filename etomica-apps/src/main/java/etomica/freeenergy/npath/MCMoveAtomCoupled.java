@@ -4,16 +4,16 @@
 
 package etomica.freeenergy.npath;
 
-import etomica.api.*;
-import etomica.atom.AtomArrayList;
-import etomica.atom.AtomSource;
-import etomica.atom.AtomSourceRandomLeaf;
+import etomica.atom.*;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
+import etomica.potential.PotentialMaster;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * Created by andrew on 4/11/17.
@@ -21,37 +21,38 @@ import etomica.space.IVectorRandom;
 public class MCMoveAtomCoupled extends MCMoveBoxStep {
     protected final AtomIteratorArrayListSimple affectedAtomIterator;
     protected final MeterPotentialEnergy energyMeter;
-    protected final IVectorRandom translationVector;
+    protected final Vector translationVector;
     protected IAtom atom, atom2;
     protected double uOld;
     protected double uNew = Double.NaN;
     protected AtomSource atomSource;
     protected boolean fixOverlap;
     protected final IRandom random;
-    protected ISpace space;
+    protected Space space;
     protected IAtomList atoms;
+    protected int nOffset;
 
-    public MCMoveAtomCoupled(IRandom random, IPotentialMaster potentialMaster, ISpace _space) {
+    public MCMoveAtomCoupled(IRandom random, PotentialMaster potentialMaster, Space _space) {
         this(potentialMaster, random, _space, 1.0, 15.0, false);
     }
 
-    public MCMoveAtomCoupled(IPotentialMaster potentialMaster, IRandom random,
-                      ISpace _space, double stepSize, double stepSizeMax,
-                      boolean fixOverlap) {
+    public MCMoveAtomCoupled(PotentialMaster potentialMaster, IRandom random,
+                             Space _space, double stepSize, double stepSizeMax,
+                             boolean fixOverlap) {
         this(potentialMaster, new MeterPotentialEnergy(potentialMaster), random, _space,
                 stepSize, stepSizeMax, fixOverlap);
     }
 
-    public MCMoveAtomCoupled(IPotentialMaster potentialMaster, MeterPotentialEnergy meterPE, IRandom random,
-                      ISpace _space, double stepSize, double stepSizeMax,
-                      boolean fixOverlap) {
+    public MCMoveAtomCoupled(PotentialMaster potentialMaster, MeterPotentialEnergy meterPE, IRandom random,
+                             Space _space, double stepSize, double stepSizeMax,
+                             boolean fixOverlap) {
         super(potentialMaster);
         this.random = random;
         this.space = _space;
         atomSource = new AtomSourceRandomLeaf();
         ((AtomSourceRandomLeaf)atomSource).setRandomNumberGenerator(random);
         this.energyMeter = meterPE;
-        translationVector = (IVectorRandom)space.makeVector();
+        translationVector = space.makeVector();
         setStepSizeMax(stepSizeMax);
         setStepSizeMin(0.0);
         setStepSize(stepSize);
@@ -61,16 +62,25 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         affectedAtomIterator = new AtomIteratorArrayListSimple();
     }
 
+    public void setNOffset(int newOffset) {
+        nOffset = newOffset;
+    }
+
     /**
      * Method to perform trial move.
      */
     public boolean doTrial() {
         atom = atomSource.getAtom();
         if (atom == null) return false;
-        int n = atoms.getAtomCount();
-        int idx2 = atom.getLeafIndex()+n/2;
-        if (idx2>=n) idx2-=n;
-        atom2 = atoms.getAtom(idx2);
+        int idx0 = atom.getLeafIndex();
+        IAtomList allAtoms = box.getLeafList();
+        if (idx0%(nOffset*2) >= nOffset) {
+            atom2 = atom;
+            atom = allAtoms.getAtom(idx0-nOffset);
+        }
+        else {
+            atom2 = allAtoms.getAtom(idx0+nOffset);
+        }
 
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();
@@ -135,7 +145,7 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         return affectedAtomIterator;
     }
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         atomSource.setBox(p);
