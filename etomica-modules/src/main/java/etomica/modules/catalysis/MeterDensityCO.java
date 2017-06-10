@@ -19,7 +19,7 @@ import etomica.units.Volume;
 public class MeterDensityCO extends DataSourceScalar {
 
     public MeterDensityCO(IBox box, ISpecies speciesC, AtomLeafAgentManager interactionAgentManager) {
-        super("Density", new CompoundDimension(new Dimension[]{Quantity.DIMENSION, Volume.DIMENSION}, new double[]{-1,1}));
+        super("Density", new CompoundDimension(new Dimension[]{Quantity.DIMENSION, Volume.DIMENSION}, new double[]{+1,-1}));
         this.box = box;
         this.speciesC = speciesC;
         this.interactionAgentManager= interactionAgentManager;
