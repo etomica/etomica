@@ -1,4 +1,6 @@
-package etomica.units;
+package etomica.units.dimensions;
+
+import etomica.units.dimensions.Dimension;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

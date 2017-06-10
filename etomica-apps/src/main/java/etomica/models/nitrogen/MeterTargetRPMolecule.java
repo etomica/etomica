@@ -20,7 +20,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
 import etomica.units.Degree;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * Rotational Perturbation for beta-phase Nitrogen

@@ -8,7 +8,7 @@ import etomica.atom.AtomHydrogen;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.molecule.IMoleculeList;
-import etomica.units.Length;
+import etomica.units.dimensions.Length;
 
 public class MeterAvgBondLength extends DataSourceScalar {
     private Box box;

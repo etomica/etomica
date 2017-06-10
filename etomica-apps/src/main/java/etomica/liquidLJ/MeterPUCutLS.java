@@ -14,7 +14,7 @@ import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * Meter for evaluation of the soft-potential pressure in a box.

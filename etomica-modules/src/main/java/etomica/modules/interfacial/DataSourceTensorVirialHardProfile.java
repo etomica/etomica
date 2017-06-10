@@ -21,8 +21,8 @@ import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.integrator.IntegratorHard;
 import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.units.Energy;
-import etomica.units.Length;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Length;
 
 /**
  * A DataSource that collects the average virial tensor as a function of

@@ -2,29 +2,37 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.units;
+package etomica.units.dimensions;
 
 import java.io.ObjectStreamException;
 
+import etomica.units.Picosecond;
+import etomica.units.Unit;
 import etomica.units.systems.UnitSystem;
 
 /**
- * Base for all force units. Simulation unit of force is D-A/ps^2
+ * Dimension for all units of time.
  */
-public final class Force extends Dimension {
+public final class Time extends Dimension {
 
-    public static final Dimension DIMENSION = new Force();
-    public static final Unit SIM_UNIT = new SimpleUnit(DIMENSION, 1.0, "sim force units", "D-A/ps^2", Prefix.NOT_ALLOWED);
+    /**
+     * Singleton instance of this class.
+     */
+    public static final Dimension DIMENSION = new Time();
+    /**
+     * Simulation unit for time is the picosecond.
+     */
+    public static final Unit SIM_UNIT = Picosecond.UNIT;
 
-    private Force() {
-        super("Force", 1, 1, -2);
+    private Time() {
+        super("Time", 0, 0, 1);
     }
-    
+
     public Unit getUnit(UnitSystem unitSystem) {
-        return unitSystem.force();
+        return unitSystem.time();
     }
 
-   /**
+    /**
      * Required to guarantee singleton when deserializing.
      * 
      * @return the singleton DIMENSION
@@ -34,5 +42,4 @@ public final class Force extends Dimension {
     }
 
     private static final long serialVersionUID = 1;
-
 }

@@ -21,7 +21,7 @@ import etomica.potential.Potential2SoftSpherical;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.units.Energy;
+import etomica.units.dimensions.Energy;
 import etomica.data.FunctionData;
 import etomica.util.ParameterBase;
 

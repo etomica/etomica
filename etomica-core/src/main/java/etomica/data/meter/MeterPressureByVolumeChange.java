@@ -15,9 +15,9 @@ import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationEnergySum;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.Null;
-import etomica.units.Pressure;
-import etomica.units.Volume;
+import etomica.units.dimensions.Null;
+import etomica.units.dimensions.Pressure;
+import etomica.units.dimensions.Volume;
 
 /**
  * Evaluates the pressure by examining the change in energy accompanying

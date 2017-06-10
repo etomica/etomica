@@ -11,10 +11,10 @@ import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.space.Space;
-import etomica.units.CompoundDimension;
-import etomica.units.Dimension;
-import etomica.units.Quantity;
-import etomica.units.Volume;
+import etomica.units.dimensions.CompoundDimension;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Quantity;
+import etomica.units.dimensions.Volume;
 import etomica.data.histogram.HistogramDiscrete;
 
 public class MeterDensityDistribution implements IEtomicaDataSource {

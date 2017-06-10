@@ -10,7 +10,7 @@ import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.space.Space;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * Meter uses harmonically-mapped averages to compute properties and also

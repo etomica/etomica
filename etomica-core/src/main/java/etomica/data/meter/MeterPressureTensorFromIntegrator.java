@@ -13,7 +13,7 @@ import etomica.data.types.DataTensor;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.space.Space;
-import etomica.units.Pressure;
+import etomica.units.dimensions.Pressure;
 
 /**
  * Acts as a DataSource to retrieve the pressure from the integrator.

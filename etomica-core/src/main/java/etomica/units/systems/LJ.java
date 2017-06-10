@@ -6,7 +6,7 @@ package etomica.units.systems;
 
 import etomica.units.Count;
 import etomica.units.Decimal;
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
 import etomica.units.Electron;
 import etomica.units.Radian;
 import etomica.units.Unit;
@@ -218,7 +218,7 @@ public class LJ extends UnitSystem implements java.io.Serializable {
         }
 
         public Dimension dimension() {
-            return etomica.units.Mass.DIMENSION;
+            return etomica.units.dimensions.Mass.DIMENSION;
         }
 
         public String symbol() {
@@ -238,7 +238,7 @@ public class LJ extends UnitSystem implements java.io.Serializable {
         }
 
         public Dimension dimension() {
-            return etomica.units.Length.DIMENSION;
+            return etomica.units.dimensions.Length.DIMENSION;
         }
 
         public String symbol() {
@@ -258,7 +258,7 @@ public class LJ extends UnitSystem implements java.io.Serializable {
         }
 
         public Dimension dimension() {
-            return etomica.units.Time.DIMENSION;
+            return etomica.units.dimensions.Time.DIMENSION;
         }
 
         public String symbol() {
@@ -278,7 +278,7 @@ public class LJ extends UnitSystem implements java.io.Serializable {
         }
 
         public Dimension dimension() {
-            return etomica.units.Current.DIMENSION;
+            return etomica.units.dimensions.Current.DIMENSION;
         }
 
         public String symbol() {
@@ -299,7 +299,7 @@ public class LJ extends UnitSystem implements java.io.Serializable {
         }
 
         public Dimension dimension() {
-            return etomica.units.Dipole.DIMENSION;
+            return etomica.units.dimensions.Dipole.DIMENSION;
         }
 
         public String symbol() {
@@ -319,7 +319,7 @@ public class LJ extends UnitSystem implements java.io.Serializable {
         }
 
         public Dimension dimension() {
-            return etomica.units.Force.DIMENSION;
+            return etomica.units.dimensions.Force.DIMENSION;
         }
 
         public String symbol() { // \u03B5/\u03C3";// epsilon/sigma
@@ -339,7 +339,7 @@ public class LJ extends UnitSystem implements java.io.Serializable {
         }
 
         public Dimension dimension() {
-            return etomica.units.Energy.DIMENSION;
+            return etomica.units.dimensions.Energy.DIMENSION;
         }
 
         public String symbol() {
@@ -359,7 +359,7 @@ public class LJ extends UnitSystem implements java.io.Serializable {
         }
 
         public Dimension dimension() {
-            return etomica.units.Temperature.DIMENSION;
+            return etomica.units.dimensions.Temperature.DIMENSION;
         }
 
         public String symbol() {
@@ -379,7 +379,7 @@ public class LJ extends UnitSystem implements java.io.Serializable {
         }
 
         public Dimension dimension() {
-            return etomica.units.Pressure.DIMENSION;
+            return etomica.units.dimensions.Pressure.DIMENSION;
         }
 
         public String symbol() {
@@ -399,7 +399,7 @@ public class LJ extends UnitSystem implements java.io.Serializable {
         }
 
         public Dimension dimension() {
-            return etomica.units.Volume.DIMENSION;
+            return etomica.units.dimensions.Volume.DIMENSION;
         }
 
         public String symbol() {
@@ -419,7 +419,7 @@ public class LJ extends UnitSystem implements java.io.Serializable {
         }
 
         public Dimension dimension() {
-            return etomica.units.Area.DIMENSION;
+            return etomica.units.dimensions.Area.DIMENSION;
         }
 
         public String symbol() {
@@ -439,7 +439,7 @@ public class LJ extends UnitSystem implements java.io.Serializable {
         }
 
         public Dimension dimension() {
-            return etomica.units.Viscosity.DIMENSION;
+            return etomica.units.dimensions.Viscosity.DIMENSION;
         }
 
         public String symbol() {

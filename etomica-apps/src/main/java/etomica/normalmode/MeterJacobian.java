@@ -8,7 +8,7 @@ import Jama.Matrix;
 import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 public class MeterJacobian extends DataSourceScalar {
 

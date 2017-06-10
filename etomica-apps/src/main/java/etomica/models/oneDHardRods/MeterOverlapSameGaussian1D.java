@@ -11,7 +11,7 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
 
 
 public class MeterOverlapSameGaussian1D implements IEtomicaDataSource {

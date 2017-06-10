@@ -24,7 +24,7 @@ import etomica.space.Space;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.species.SpeciesSpheresRotating;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 import etomica.virial.*;
 import etomica.virial.overlap.DataProcessorVirialOverlap;
 import etomica.virial.overlap.DataVirialOverlap;

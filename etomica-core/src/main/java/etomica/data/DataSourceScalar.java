@@ -6,7 +6,7 @@ package etomica.data;
 
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
 
 /**
  * Particular data source for which the data is a simple scalar of type double.

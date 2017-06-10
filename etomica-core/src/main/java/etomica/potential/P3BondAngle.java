@@ -16,9 +16,9 @@ import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Space3D;
-import etomica.units.Angle;
-import etomica.units.Dimension;
-import etomica.units.Energy;
+import etomica.units.dimensions.Angle;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Energy;
 import etomica.util.random.RandomNumberGenerator;
 
 /**

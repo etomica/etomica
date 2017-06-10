@@ -18,7 +18,7 @@ import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.graph.model.Graph;
 import etomica.graph.property.HasSimpleArticulationPoint;
 import etomica.graph.traversal.BCVisitor;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 import etomica.virial.cluster.ExternalVirialDiagrams;
 
 /**

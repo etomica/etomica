@@ -12,8 +12,8 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.Length;
-import etomica.units.Null;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Null;
 
 /**
  * Created by aksharag on 5/16/17.

@@ -2,35 +2,32 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.units;
+package etomica.units.dimensions;
 
 import java.io.ObjectStreamException;
 
+import etomica.units.Prefix;
+import etomica.units.SimpleUnit;
+import etomica.units.Unit;
 import etomica.units.systems.UnitSystem;
 
 /**
- * The dimension for luminous intensity.  Simulation unit is the Candela.
+ * Base unit for electrical dipole moment. Simulation unit is electron-Angstrom.
  */
-public final class LuminousIntensity extends Dimension {
+public class Dipole extends Dimension {
 
-    /**
-     * Singleton instance of this class.
-     */
-    public static final Dimension DIMENSION = new LuminousIntensity();
-    /**
-     * The Candela unit.
-     */
-    public static final Unit SIM_UNIT = Candela.UNIT;
+    public static final Dimension DIMENSION = new Dipole();
+    public static final Unit SIM_UNIT = new SimpleUnit(DIMENSION, 1, "sim dipole units", "e-\u00c5", Prefix.NOT_ALLOWED);
 
-    private LuminousIntensity() {
-        super("Luminous Intensity", 0, 0, 0, 0, 0, 0, 1);// LMTCtNl
+    private Dipole() {
+        super("Dipole", 1, 0, 1, 1, 0, 0, 0);
     }
     
     public Unit getUnit(UnitSystem unitSystem) {
-        return unitSystem.luminousIntensity();
+        return unitSystem.dipole();
     }
 
-    /**
+   /**
      * Required to guarantee singleton when deserializing.
      * 
      * @return the singleton DIMENSION

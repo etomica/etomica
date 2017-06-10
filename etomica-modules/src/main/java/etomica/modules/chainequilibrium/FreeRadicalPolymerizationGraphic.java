@@ -16,8 +16,9 @@ import etomica.modifier.ModifierGeneral;
 import etomica.modifier.ModifierNMolecule;
 import etomica.space.Space;
 import etomica.species.ISpecies;
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
 import etomica.units.*;
+import etomica.units.dimensions.Quantity;
 import etomica.util.Constants.CompassDirection;
 
 import javax.swing.*;

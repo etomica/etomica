@@ -29,7 +29,7 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;

@@ -6,8 +6,8 @@ package etomica.modifier;
 
 import etomica.box.Box;
 import etomica.species.ISpecies;
-import etomica.units.Dimension;
-import etomica.units.Quantity;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Quantity;
 
 /**
  * Modifier class that enables change of the number of molecules of a particular species

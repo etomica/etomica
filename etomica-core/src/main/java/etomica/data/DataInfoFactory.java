@@ -6,7 +6,7 @@ package etomica.data;
 
 import java.util.ArrayList;
 
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
 
 /**
  * Interface for a mutable DataInfo factory.  The factory is created based on 

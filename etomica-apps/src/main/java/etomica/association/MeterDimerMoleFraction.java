@@ -8,7 +8,7 @@ import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.space.Boundary;
 import etomica.space.Space;
-import etomica.units.Fraction;
+import etomica.units.dimensions.Fraction;
 
 /**
  * Meter for measurement of species mole fraction within a specified subvolume

@@ -6,7 +6,7 @@ package etomica.graphics;
 
 import etomica.action.IAction;
 import etomica.action.activity.IController;
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
 import etomica.units.Unit;
 
 import java.awt.*;

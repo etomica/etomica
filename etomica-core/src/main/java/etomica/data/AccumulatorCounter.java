@@ -6,7 +6,7 @@ package etomica.data;
 
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
-import etomica.units.Quantity;
+import etomica.units.dimensions.Quantity;
 
 /**
  * Data processor that simply counts the number of times its

@@ -4,6 +4,8 @@
 
 package etomica.units;
 
+import etomica.units.dimensions.Angle;
+
 import java.io.ObjectStreamException;
 
 /**

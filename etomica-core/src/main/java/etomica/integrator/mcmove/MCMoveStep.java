@@ -5,8 +5,8 @@
 package etomica.integrator.mcmove;
 
 import etomica.potential.PotentialMaster;
-import etomica.units.Dimension;
-import etomica.units.Length;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
 
 public abstract class MCMoveStep extends MCMove implements MCMoveStepDependent {
 

@@ -5,24 +5,24 @@
 package etomica.units.systems;
 
 import etomica.units.Angstrom;
-import etomica.units.Area;
+import etomica.units.dimensions.Area;
 import etomica.units.Candela;
-import etomica.units.Charge;
+import etomica.units.dimensions.Charge;
 import etomica.units.Count;
-import etomica.units.Current;
+import etomica.units.dimensions.Current;
 import etomica.units.Dalton;
 import etomica.units.Decimal;
-import etomica.units.Dipole;
-import etomica.units.Energy;
-import etomica.units.Force;
+import etomica.units.dimensions.Dipole;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Force;
 import etomica.units.Picosecond;
-import etomica.units.Pressure;
-import etomica.units.Pressure2D;
+import etomica.units.dimensions.Pressure;
+import etomica.units.dimensions.Pressure2D;
 import etomica.units.Radian;
-import etomica.units.Temperature;
+import etomica.units.dimensions.Temperature;
 import etomica.units.Unit;
-import etomica.units.Viscosity;
-import etomica.units.Volume;
+import etomica.units.dimensions.Viscosity;
+import etomica.units.dimensions.Volume;
 
 /**
  * Specifies a system of units.  Defines methods that return specific units for

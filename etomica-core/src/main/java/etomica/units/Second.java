@@ -4,6 +4,8 @@
 
 package etomica.units;
 
+import etomica.units.dimensions.Time;
+
 import java.io.ObjectStreamException;
 
 public final class Second extends SimpleUnit {

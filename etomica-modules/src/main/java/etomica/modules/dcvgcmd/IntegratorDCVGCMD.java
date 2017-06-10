@@ -20,8 +20,8 @@ import etomica.nbr.PotentialMasterHybrid;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.species.ISpecies;
-import etomica.units.Dimension;
-import etomica.units.Null;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Null;
 import etomica.util.random.IRandom;
 
 

@@ -15,7 +15,7 @@ import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveGeneral;
 import etomica.space.Space;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * Meter for calculation of structure factor of atoms for all wave vectors less

@@ -7,12 +7,12 @@ package etomica.modules.dcvgcmd;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.data.IEtomicaDataSource;
-import etomica.units.Area;
-import etomica.units.CompoundDimension;
-import etomica.units.Dimension;
-import etomica.units.DimensionRatio;
-import etomica.units.Quantity;
-import etomica.units.Time;
+import etomica.units.dimensions.Area;
+import etomica.units.dimensions.CompoundDimension;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.DimensionRatio;
+import etomica.units.dimensions.Quantity;
+import etomica.units.dimensions.Time;
 
 public class MeterFlux extends DataSourceScalar implements IEtomicaDataSource {
     

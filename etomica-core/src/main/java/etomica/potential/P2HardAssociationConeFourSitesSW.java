@@ -10,11 +10,11 @@ import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
 import etomica.space.Space;
 import etomica.space3d.IOrientationFull3D;
-import etomica.units.Angle;
-import etomica.units.Dimension;
-import etomica.units.Energy;
-import etomica.units.Length;
-import etomica.units.Null;
+import etomica.units.dimensions.Angle;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Null;
 
 /**
  * Square-Well cone of attraction for associating fluid theory

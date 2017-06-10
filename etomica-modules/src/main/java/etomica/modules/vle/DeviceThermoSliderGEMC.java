@@ -26,8 +26,8 @@ import etomica.integrator.IntegratorBox;
 import etomica.modifier.Modifier;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
-import etomica.units.Dimension;
-import etomica.units.Temperature;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Temperature;
 import etomica.units.Unit;
 
 /**

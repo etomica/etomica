@@ -14,6 +14,7 @@ import java.util.StringTokenizer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
+import etomica.units.dimensions.Dimension;
 import etomica.units.systems.UnitSystem;
 
 public final class Lister {

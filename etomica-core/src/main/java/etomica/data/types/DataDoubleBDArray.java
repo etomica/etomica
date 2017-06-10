@@ -16,7 +16,7 @@ import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataInfoFactory;
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
 
 /**
  * Data object that wraps a array of BigDecimals.  Precision is specified at

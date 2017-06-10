@@ -13,7 +13,7 @@ import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * Meter whose purpose in life is to measure the overlap between systems

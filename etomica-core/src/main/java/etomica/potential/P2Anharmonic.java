@@ -5,11 +5,11 @@
 package etomica.potential;
 
 import etomica.space.Space;
-import etomica.units.CompoundDimension;
-import etomica.units.Dimension;
-import etomica.units.DimensionRatio;
-import etomica.units.Energy;
-import etomica.units.Length;
+import etomica.units.dimensions.CompoundDimension;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.DimensionRatio;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Length;
 
 
 /**

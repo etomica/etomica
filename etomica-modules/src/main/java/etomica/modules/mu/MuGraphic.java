@@ -30,8 +30,12 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.SpeciesSpheresMono;
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
 import etomica.units.*;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Fraction;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Null;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;

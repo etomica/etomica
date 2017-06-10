@@ -6,7 +6,7 @@ package etomica.data.meter;
 
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
-import etomica.units.Volume;
+import etomica.units.dimensions.Volume;
 
 /**
  * Meter for measurement of the box volume.

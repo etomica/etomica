@@ -25,7 +25,7 @@ import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.CompoundUnit;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 import etomica.units.SimpleUnit;
 import etomica.units.Unit;
 import etomica.util.ParameterBase;

@@ -12,7 +12,7 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.units.Energy;
+import etomica.units.dimensions.Energy;
 
 /**
  * Meter that calculates the Boltzmann-factored harmonic energy of each normal mode for a 

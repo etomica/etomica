@@ -4,6 +4,8 @@
 
 package etomica.units;
 
+import etomica.units.dimensions.Fraction;
+
 import java.io.ObjectStreamException;
 
 /**

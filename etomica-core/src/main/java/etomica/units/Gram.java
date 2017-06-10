@@ -5,6 +5,7 @@
 package etomica.units;
 import java.io.ObjectStreamException;
 
+import etomica.units.dimensions.Mass;
 import etomica.util.Constants;
 
 public final class Gram extends SimpleUnit {

@@ -7,7 +7,7 @@ import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorHard;
 import etomica.space.Space;
-import etomica.units.Pressure;
+import etomica.units.dimensions.Pressure;
 
 /**
  * Meter for the pressure (given as the compressibility factor) of a hard potential.

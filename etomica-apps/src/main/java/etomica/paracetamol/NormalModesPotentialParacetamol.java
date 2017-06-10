@@ -24,7 +24,7 @@ import etomica.paracetamol.LatticeSumCrystalParacetamol.DataGroupLSCParacetamol;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.Space;
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
 import etomica.util.Arrays;
 import etomica.math.function.Function;
 import etomica.math.numerical.FiniteDifferenceDerivative;

@@ -4,6 +4,8 @@
 
 package etomica.units;
 
+import etomica.units.dimensions.Length;
+
 /**
  * Unit converting between simulation unit of length and pixels rendered in an
  * image.  Conversion factor is set at construction.
@@ -21,7 +23,7 @@ public class Pixel extends SimpleUnit {
 	 * units to pixels.  Default is 10.
 	 */
 	public Pixel(double toPixels) {
-		super(Length.DIMENSION, 
+		super(Length.DIMENSION,
 			1.0/toPixels, //need to pass superclass conversion from pixels to simulation units
 			"pixel","px", Prefix.NOT_ALLOWED
 			);

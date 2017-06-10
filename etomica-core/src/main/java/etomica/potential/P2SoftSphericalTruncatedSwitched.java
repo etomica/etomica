@@ -11,6 +11,8 @@ import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Space3D;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
 
 
 /**
@@ -164,7 +166,7 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
     /**
      * Returns the dimension (length) of the radial cutoff distance.
      */
-    public etomica.units.Dimension getTruncationRadiusDimension() {return etomica.units.Length.DIMENSION;}
+    public Dimension getTruncationRadiusDimension() {return Length.DIMENSION;}
     
     public void setBox(Box newBox) {
         potential.setBox(newBox);

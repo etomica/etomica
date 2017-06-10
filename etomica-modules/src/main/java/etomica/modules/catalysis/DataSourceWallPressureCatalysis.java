@@ -19,7 +19,7 @@ import etomica.potential.P1HardBoundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
-import etomica.units.Pressure;
+import etomica.units.dimensions.Pressure;
 
 public class DataSourceWallPressureCatalysis implements IEtomicaDataSource, CollisionListener {
     public DataSourceWallPressureCatalysis(Space space, ISpecies speciesC, ISpecies speciesO, AtomLeafAgentManager interactionAgentManager) {

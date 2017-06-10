@@ -14,9 +14,9 @@ import etomica.atom.AtomArrayList;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Space3D;
-import etomica.units.Angle;
-import etomica.units.Dimension;
-import etomica.units.Energy;
+import etomica.units.dimensions.Angle;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Energy;
 
 /**
  * Ab initio non-additive trimer potential for He developed by Cencek, Patkowski, and Szalewicz JCP 131 064105 2009.

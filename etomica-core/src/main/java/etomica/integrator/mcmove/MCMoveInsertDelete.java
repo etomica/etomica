@@ -19,6 +19,8 @@ import etomica.molecule.MoleculeSetSinglet;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.species.ISpecies;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Energy;
 import etomica.util.Debug;
 import etomica.util.random.IRandom;
 
@@ -195,6 +197,6 @@ public class MCMoveInsertDelete extends MCMoveBox {
     /**
      * Indicates that chemical potential has dimensions of energy.
      */
-    public final etomica.units.Dimension getMuDimension() {return etomica.units.Energy.DIMENSION;}
+    public final Dimension getMuDimension() {return Energy.DIMENSION;}
   
 }//end of MCMoveInsertDelete

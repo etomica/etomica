@@ -11,7 +11,7 @@ import etomica.molecule.IMolecule;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationEnergySum;
 import etomica.potential.PotentialMaster;
-import etomica.units.Energy;
+import etomica.units.dimensions.Energy;
 
 /**
  * Meter for evaluation of the potential energy in a box.

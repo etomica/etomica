@@ -6,7 +6,7 @@ package etomica.normalmode;
 
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
-import etomica.units.Energy;
+import etomica.units.dimensions.Energy;
 
 /**
  * Meter that returns the potential energy using an IAPIPotential.

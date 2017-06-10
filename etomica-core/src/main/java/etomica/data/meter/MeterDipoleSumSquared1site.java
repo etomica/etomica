@@ -8,9 +8,9 @@ import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
-import etomica.units.CompoundDimension;
-import etomica.units.Dimension;
-import etomica.units.Dipole;
+import etomica.units.dimensions.CompoundDimension;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Dipole;
 /**
  * meter for (sum dipole)^2, used for dielectric constant calculation
  * 

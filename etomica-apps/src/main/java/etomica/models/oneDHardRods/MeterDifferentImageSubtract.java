@@ -19,7 +19,7 @@ import etomica.normalmode.NormalModes;
 import etomica.normalmode.WaveVectorFactory;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 
 /**

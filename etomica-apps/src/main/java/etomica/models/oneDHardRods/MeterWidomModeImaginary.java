@@ -11,7 +11,7 @@ import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 
 /**
