@@ -1,8 +1,11 @@
 package etomica.freeenergy.npath;
 
+import etomica.action.IAction;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.SimulationGraphic;
+import etomica.graphics.*;
+import etomica.modifier.Modifier;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
@@ -11,13 +14,17 @@ import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
+import etomica.units.Dimension;
+import etomica.units.Quantity;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
+import java.awt.*;
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This reads ATOM files from LAMMPS and creates a display of one of the
@@ -27,14 +34,14 @@ import java.io.IOException;
  */
 public class ConfigFromFileLAMMPS {
 
-    public static void main(String[] args) throws FileNotFoundException, IOException {
+    public static void main(String[] args) throws IOException {
         ConfigFromFileLAMMPSParam params = new ConfigFromFileLAMMPSParam();
         if (args.length == 0) {
-            throw new RuntimeException("Usage: ConfigFromFileLAMMPS -filename sim.atom -configNum n");
+            throw new RuntimeException("Usage: ConfigFromFileLAMMPS -filename sim.atom -configNum n -crystal CRYSTAL");
         }
         ParseArgs.doParseArgs(params, args);
         String filename = params.filename;
-        int which = params.configNum;
+        boolean colorDeviation = params.colorDeviation;
         FileReader fileReader = new FileReader(filename);
         BufferedReader reader = new BufferedReader(fileReader);
         String line = null;
@@ -50,6 +57,8 @@ public class ConfigFromFileLAMMPS {
         Box box = new Box(space);
         sim.addBox(box);
         int config = 1;
+        List<Vector[]> allCoords = new ArrayList<>();
+        Vector[] iCoords = null;
         while ((line = reader.readLine()) != null) {
             if (line.matches("ITEM:.*")) {
                 read = "";
@@ -63,16 +72,16 @@ public class ConfigFromFileLAMMPS {
                     read = "atoms";
                     Boundary boundary = new BoundaryDeformablePeriodic(space, edges);
                     box.setBoundary(boundary);
+                    iCoords = new Vector[numAtoms];
                 }
                 item = 0;
                 continue;
             }
-            if (read == "numAtoms") {
+            if (read.equals("numAtoms")) {
                 numAtoms = Integer.parseInt(line);
                 System.out.println("numAtoms: " + numAtoms);
                 box.setNMolecules(species, numAtoms);
-            }
-            else if (read == "boundary") {
+            } else if (read.equals("boundary")) {
                 String[] bits = line.split("[ \t]+");
                 if (bits.length == 2) {
                     double xlo = Double.parseDouble(bits[0]);
@@ -102,32 +111,127 @@ public class ConfigFromFileLAMMPS {
                     }
                 }
                 item++;
-            }
-            else if (read == "atoms") {
+            } else if (read.equals("atoms")) {
                 item++;
                 String[] bits = line.split("[ \t]+");
-                Vector p = box.getLeafList().getAtom(item - 1).getPosition();
+                Vector p = space.makeVector();
                 p.E(0);
                 for (int i = 0; i < 3; i++) {
                     p.PEa1Tv1(Double.parseDouble(bits[i + 2]) - 0.5, edges[i]);
                 }
+                iCoords[item - 1] = p;
                 if (item == numAtoms) {
-                    if (which == config) {
-                        SimulationGraphic graphic = new SimulationGraphic(sim, space, sim.getController());
-                        final DisplayBox display = new DisplayBox(sim, box, space, sim.getController());
-                        graphic.add(display);
-
-                        graphic.makeAndDisplayFrame();
-                        return;
-                    }
+                    allCoords.add(iCoords);
                     config++;
                 }
             }
         }
+        SimulationGraphic graphic = new SimulationGraphic(sim, space, sim.getController());
+        final DisplayBox display = new DisplayBox(sim, box, space, sim.getController());
+        graphic.add(display);
+        if (colorDeviation) {
+            graphic.getDisplayBox(box).setColorScheme(new ColorSchemeDeviation(allCoords.get(0), box, space));
+        }
+        ModifierConfiguration modifierConfig = new ModifierConfiguration(box, allCoords);
+        DeviceSlider configSlider = new DeviceSlider(sim.getController(), modifierConfig);
+        configSlider.setMaximum(config - 2);
+        configSlider.setNMajor(config - 1);
+        configSlider.setMinimum(0);
+        configSlider.setPrecision(0);
+        configSlider.setPostAction(new IAction() {
+
+            @Override
+            public void actionPerformed() {
+                graphic.getDisplayBox(box).repaint();
+            }
+        });
+        graphic.add(configSlider);
+
+        graphic.makeAndDisplayFrame();
+        modifierConfig.setValue(0);
     }
 
     public static class ConfigFromFileLAMMPSParam extends ParameterBase {
         public String filename;
-        public int configNum = 0;
+        public boolean colorDeviation = true;
+    }
+
+    public static class ColorSchemeDeviation extends ColorScheme implements ColorSchemeCollective {
+        protected final Vector[] latticeCoords;
+        protected final Box box;
+        protected final Vector dr;
+        protected final Color[] colors;
+        protected double rMax;
+
+        public ColorSchemeDeviation(Vector[] latticeCoords, Box box, Space space) {
+            this.latticeCoords = latticeCoords;
+            this.box = box;
+            dr = space.makeVector();
+            colors = new Color[256];
+            for (int i = 0; i < 256; i++) {
+                colors[i] = new Color(i, 0, 255 - i);
+            }
+        }
+
+        @Override
+        public void colorAllAtoms() {
+            double maxR2 = 0;
+            IAtomList atoms = box.getLeafList();
+            Boundary boundary = box.getBoundary();
+            for (int i = 0; i < atoms.getAtomCount(); i++) {
+                dr.Ev1Mv2(atoms.getAtom(i).getPosition(), latticeCoords[i]);
+                boundary.nearestImage(dr);
+                double r2 = dr.squared();
+                if (r2 > maxR2) maxR2 = r2;
+            }
+            rMax = maxR2 == 0 ? 1 : Math.sqrt(maxR2);
+        }
+
+        @Override
+        public Color getAtomColor(IAtom a) {
+            dr.Ev1Mv2(a.getPosition(), latticeCoords[a.getLeafIndex()]);
+            box.getBoundary().nearestImage(dr);
+            int i = (int) (255.9999 * (Math.sqrt(dr.squared()) / rMax));
+            return colors[i];
+        }
+    }
+
+    public static class ModifierConfiguration implements Modifier {
+
+        protected int configIndex = -1;
+        protected Box box;
+        protected List<Vector[]> allCoords;
+
+        public ModifierConfiguration(Box box, List<Vector[]> allCoords) {
+            this.box = box;
+            this.allCoords = allCoords;
+        }
+
+        @Override
+        public double getValue() {
+            return configIndex;
+        }
+
+        @Override
+        public void setValue(double newValue) {
+            int nv = (int) Math.round(newValue);
+            if (nv == configIndex) return;
+            configIndex = nv;
+            IAtomList atoms = box.getLeafList();
+            Vector[] myCoords = allCoords.get(configIndex);
+            for (int i = 0; i < atoms.getAtomCount(); i++) {
+                atoms.getAtom(i).getPosition().E(myCoords[i]);
+            }
+        }
+
+        @Override
+        public Dimension getDimension() {
+            return Quantity.DIMENSION;
+        }
+
+        @Override
+        public String getLabel() {
+            return "Configuration";
+        }
     }
 }
