@@ -5,7 +5,15 @@ import etomica.atom.AtomFilter;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.data.DataSourceIndependentSimple;
+import etomica.data.DataTag;
+import etomica.data.IData;
+import etomica.data.IDataSink;
+import etomica.data.meter.MeterStructureFactor;
+import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataFunction;
 import etomica.graphics.*;
+import etomica.math.numerical.ArrayReader1D;
 import etomica.modifier.Modifier;
 import etomica.molecule.IMolecule;
 import etomica.simulation.Simulation;
@@ -13,16 +21,13 @@ import etomica.space.*;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
+import etomica.units.*;
 import etomica.units.Dimension;
-import etomica.units.Null;
-import etomica.units.Quantity;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,11 +42,16 @@ public class ConfigFromFileLAMMPS {
     public static void main(String[] args) throws IOException {
         ConfigFromFileLAMMPSParam params = new ConfigFromFileLAMMPSParam();
         if (args.length == 0) {
-            throw new RuntimeException("Usage: ConfigFromFileLAMMPS -filename sim.atom -configNum n -crystal CRYSTAL");
+            params.filename = "/tmp/foo/npath/Fe/7000K/lammps/rmsd2/N8192/fe.atom";
+//            throw new RuntimeException("Usage: ConfigFromFileLAMMPS -filename sim.atom -configNum n -crystal CRYSTAL");
         }
         ParseArgs.doParseArgs(params, args);
         String filename = params.filename;
         boolean colorDeviation = params.colorDeviation;
+        boolean doSfac = params.doSfac;
+        double cutoffS = params.cutS;
+        double thresholdS = params.thresholdS;
+        boolean gui = params.gui;
         FileReader fileReader = new FileReader(filename);
         BufferedReader reader = new BufferedReader(fileReader);
         String line = null;
@@ -60,6 +70,10 @@ public class ConfigFromFileLAMMPS {
         List<Vector[]> allCoords = new ArrayList<>();
         Vector[] iCoords = null;
         List<Vector[]> allEdges = new ArrayList<>();
+        List<DataFunction> sfacData = new ArrayList<>();
+        List<DataFunction.DataInfoFunction> sfacDataInfo = new ArrayList<>();
+        ModifierConfiguration modifierConfig = new ModifierConfiguration(box, allCoords, allEdges, sfacData, sfacDataInfo);
+        DataTag sfacTag = new DataTag();
         while ((line = reader.readLine()) != null) {
             if (line.matches("ITEM:.*")) {
                 read = "";
@@ -125,12 +139,22 @@ public class ConfigFromFileLAMMPS {
                 iCoords[item - 1] = p;
                 if (item == numAtoms) {
                     allCoords.add(iCoords);
+                    if (doSfac) {
+                        File sfile = new File(config + ".sfac");
+                        if (!sfile.exists()) {
+                            modifierConfig.setValue(config - 1);
+                            MeterStructureFactor meter = new MeterStructureFactor(space, box, cutoffS);
+                            writeFile(meter, thresholdS, config);
+                        }
+                    }
                     config++;
                     edges = space.makeVectorArray(3);
+
                 }
             }
         }
-        SimulationGraphic graphic = new SimulationGraphic(sim, space, sim.getController());
+        if (!gui) return;
+        SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
         final DisplayBox display = new DisplayBox(sim, box, space, sim.getController());
         graphic.add(display);
         if (colorDeviation) {
@@ -173,7 +197,6 @@ public class ConfigFromFileLAMMPS {
             });
             graphic.add(filterSlider);
         }
-        ModifierConfiguration modifierConfig = new ModifierConfiguration(box, allCoords, allEdges);
         DeviceSlider configSlider = new DeviceSlider(sim.getController(), modifierConfig);
         configSlider.setMaximum(config - 2);
         configSlider.setNMajor(config - 1);
@@ -190,12 +213,62 @@ public class ConfigFromFileLAMMPS {
 
         modifierConfig.setValue(0);
 
+        DisplayPlot sfacPlot = null;
+        IDataSink sfacPlotSink = null;
+        for (int i = 1; i <= config - 1; i++) {
+            File sfile = new File(i + ".sfac");
+            if (sfile.exists()) {
+                double[][] xy = ArrayReader1D.getFromFile(i + ".sfac");
+                double[] x = new double[xy.length];
+                double[] y = new double[xy.length];
+                for (int j = 0; j < x.length; j++) {
+                    x[j] = xy[j][0];
+                    y[j] = xy[j][1];
+                }
+                DataFunction data = new DataFunction(new int[]{y.length}, y);
+                DataDoubleArray.DataInfoDoubleArray xDataInfo = new DataDoubleArray.DataInfoDoubleArray("wave vector", new CompoundDimension(new Dimension[]{Length.DIMENSION}, new double[]{-1}), new int[]{x.length});
+                DataSourceIndependentSimple xDataSource = new DataSourceIndependentSimple(x, xDataInfo);
+                DataFunction.DataInfoFunction dataInfo = new DataFunction.DataInfoFunction("structure factor", Null.DIMENSION, xDataSource);
+                dataInfo.addTag(sfacTag);
+
+                if (sfacPlot == null) {
+                    sfacPlot = new DisplayPlot();
+                    sfacPlot.getPlot().setYLog(true);
+                    sfacPlot.getPlot().setYRange(Math.log10(thresholdS), Math.log10(2));
+                    sfacPlot.setLabel("structure factor");
+                    sfacPlot.setDoLegend(false);
+                    sfacPlotSink = sfacPlot.getDataSet().makeDataSink();
+                    sfacPlotSink.putDataInfo(dataInfo);
+                    sfacPlot.setDoDrawLines(new DataTag[]{sfacTag}, false);
+                    graphic.add(sfacPlot);
+                    modifierConfig.setSfacPlotSink(sfacPlotSink);
+                }
+                sfacData.add(data);
+                sfacDataInfo.add(dataInfo);
+            }
+        }
+
         graphic.makeAndDisplayFrame();
+    }
+
+    public static void writeFile(MeterStructureFactor meter, double threshold, int config) throws IOException {
+        IData data = meter.getData();
+        IData xData = ((DataFunction.DataInfoFunction) meter.getDataInfo()).getXDataSource().getIndependentData(0);
+        FileWriter fw = new FileWriter(config + ".sfac");
+        for (int i = 0; i < data.getLength(); i++) {
+            double sfac = data.getValue(i);
+            if (sfac > threshold) fw.write(xData.getValue(i) + " " + sfac + "\n");
+        }
+        fw.close();
     }
 
     public static class ConfigFromFileLAMMPSParam extends ParameterBase {
         public String filename;
         public boolean colorDeviation = true;
+        public boolean doSfac = false;
+        public double cutS = 8;
+        public double thresholdS = 0.001;
+        public boolean gui = false;
     }
 
     public static class ColorSchemeDeviation extends ColorScheme implements ColorSchemeCollective {
@@ -272,13 +345,22 @@ public class ConfigFromFileLAMMPS {
 
         protected final List<Vector[]> allCoords;
         protected final List<Vector[]> allEdges;
+        protected final List<DataFunction> sfacData;
+        protected final List<DataFunction.DataInfoFunction> sfacDataInfo;
         protected int configIndex = -1;
         protected Box box;
+        protected IDataSink sfacPlotSink;
 
-        public ModifierConfiguration(Box box, List<Vector[]> allCoords, List<Vector[]> allEdges) {
+        public ModifierConfiguration(Box box, List<Vector[]> allCoords, List<Vector[]> allEdges, List<DataFunction> sfacData, List<DataFunction.DataInfoFunction> sfacDataInfo) {
             this.box = box;
             this.allCoords = allCoords;
             this.allEdges = allEdges;
+            this.sfacData = sfacData;
+            this.sfacDataInfo = sfacDataInfo;
+        }
+
+        public void setSfacPlotSink(IDataSink sfacPlotSink) {
+            this.sfacPlotSink = sfacPlotSink;
         }
 
         @Override
@@ -298,6 +380,11 @@ public class ConfigFromFileLAMMPS {
             Vector[] myCoords = allCoords.get(configIndex);
             for (int i = 0; i < atoms.getAtomCount(); i++) {
                 atoms.getAtom(i).getPosition().E(myCoords[i]);
+            }
+
+            if (configIndex < sfacData.size()) {
+                sfacPlotSink.putDataInfo(sfacDataInfo.get(configIndex));
+                sfacPlotSink.putData(sfacData.get(configIndex));
             }
         }
 
@@ -340,4 +427,5 @@ public class ConfigFromFileLAMMPS {
             return false;
         }
     }
+
 }
