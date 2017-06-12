@@ -5,7 +5,6 @@
 package etomica.graphics;
 
 import etomica.action.activity.Controller;
-import etomica.space.Boundary;
 import etomica.atom.*;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.Box;
@@ -13,6 +12,7 @@ import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Plane;
 import etomica.math.geometry.Polytope;
 import etomica.simulation.Simulation;
+import etomica.space.Boundary;
 import etomica.space.IOrientation;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -310,31 +310,36 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 			    }
 			}
 			ball.setDrawable(drawable);
-			if (!drawable) {
-				continue;
+			if (drawable) {
+				a.getPosition().assignTo(coords);
+				float diameter = (float) diameterHash.getDiameter(a);
+				// default diameter
+				if (diameter == -1) diameter = 1;
+				ball.setColor(G3DSys.getColix(colorScheme.getAtomColor(a)));
+				ball.setD(diameter);
+				ball.setX((float) coords[0]);
+				ball.setY((float) coords[1]);
+				ball.setZ((float) coords[2]);
 			}
-			a.getPosition().assignTo(coords);
-			float diameter = (float) diameterHash.getDiameter(a);
-            // default diameter
-	        if (diameter == -1) diameter = 1;
-			ball.setColor(G3DSys.getColix(colorScheme.getAtomColor(a)));
-			ball.setD(diameter);
-			ball.setX((float) coords[0]);
-			ball.setY((float) coords[1]);
-			ball.setZ((float) coords[2]);
 
 			OrientedSite[] sites = (OrientedSite[])atomTypeOrientedManager.getAgent(a.getType());
 			if (sites != null) {
 			    Ball[] ballSites = aamOriented.getAgent(a);
 			    if (ballSites == null) {
-		            ballSites = new Ball[sites.length];
+					if (!drawable) continue;
+					ballSites = new Ball[sites.length];
 		            for (int j=0; j<sites.length; j++) {
 		                ballSites[j] = new Ball(gsys, G3DSys.getColix(sites[j].color), 0, 0, 0, (float)sites[j].diameter);
 		                gsys.addFig(ballSites[j]);
 		            }
 		            aamOriented.setAgent(a, ballSites);
-			    }
-			    IOrientation orientation = ((IAtomOriented)a).getOrientation();
+			    } else {
+					for (int i = 0; i < ballSites.length; i++) {
+						ballSites[i].setDrawable(drawable);
+					}
+					if (!drawable) continue;
+				}
+				IOrientation orientation = ((IAtomOriented)a).getOrientation();
 			    Vector direction1 = orientation.getDirection();
 			    Vector direction2 = null;
 			    if (orientation instanceof IOrientationFull3D) {
