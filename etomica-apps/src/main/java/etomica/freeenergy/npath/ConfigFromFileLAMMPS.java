@@ -42,9 +42,7 @@ public class ConfigFromFileLAMMPS {
     public static void main(String[] args) throws IOException {
         ConfigFromFileLAMMPSParam params = new ConfigFromFileLAMMPSParam();
         if (args.length == 0) {
-            params.filename = "/tmp/foo/npath/Fe/7000K/lammps/rmsd2/N8192/fe.atom";
-            params.doSfac = false;
-//            throw new RuntimeException("Usage: ConfigFromFileLAMMPS -filename sim.atom -configNum n -crystal CRYSTAL");
+            throw new RuntimeException("Usage: ConfigFromFileLAMMPS -filename sim.atom -configNum n -crystal CRYSTAL");
         }
         ParseArgs.doParseArgs(params, args);
         String filename = params.filename;
@@ -67,7 +65,7 @@ public class ConfigFromFileLAMMPS {
         sim.addSpecies(species);
         Box box = new Box(space);
         sim.addBox(box);
-        int config = 1;
+        int config = 0;
         List<Vector[]> allCoords = new ArrayList<>();
         Vector[] iCoords = null;
         List<Vector[]> allEdges = new ArrayList<>();
@@ -87,7 +85,7 @@ public class ConfigFromFileLAMMPS {
                 else if (line.matches("ITEM: ATOMS.*")) {
                     read = "atoms";
                     allEdges.add(edges);
-                    if (config == 1) {
+                    if (config == 0) {
                         Boundary boundary = new BoundaryDeformablePeriodic(space, edges);
                         box.setBoundary(boundary);
                     }
@@ -143,7 +141,7 @@ public class ConfigFromFileLAMMPS {
                     if (doSfac) {
                         File sfile = new File(config + ".sfac");
                         if (!sfile.exists()) {
-                            modifierConfig.setValue(config - 1);
+                            modifierConfig.setValue(config);
                             MeterStructureFactor meter = new MeterStructureFactor(space, box, cutoffS);
                             writeFile(meter, thresholdS, config);
                         }
@@ -199,8 +197,8 @@ public class ConfigFromFileLAMMPS {
             graphic.add(filterSlider);
         }
         DeviceSlider configSlider = new DeviceSlider(sim.getController(), modifierConfig);
-        configSlider.setMaximum(config - 2);
-        configSlider.setNMajor(config - 1);
+        configSlider.setMaximum(config - 1);
+        configSlider.setNMajor(config);
         configSlider.setMinimum(0);
         configSlider.setPrecision(0);
         configSlider.setPostAction(new IAction() {
@@ -211,10 +209,11 @@ public class ConfigFromFileLAMMPS {
             }
         });
         graphic.add(configSlider);
+        configSlider.setValue(0);
 
         DisplayPlot sfacPlot = null;
         IDataSink sfacPlotSink = null;
-        for (int i = 1; i <= config - 1; i++) {
+        for (int i = 0; i <= config; i++) {
             int xMin = (int) cutoffS + 1;
             File sfile = new File(i + ".sfac");
             if (sfile.exists()) {
