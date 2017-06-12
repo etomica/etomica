@@ -1,9 +1,7 @@
 package etomica.freeenergy.npath;
 
 import etomica.action.IAction;
-import etomica.atom.AtomFilter;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
+import etomica.atom.*;
 import etomica.box.Box;
 import etomica.data.DataSourceIndependentSimple;
 import etomica.data.DataTag;
@@ -20,7 +18,7 @@ import etomica.simulation.Simulation;
 import etomica.space.*;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesSpheresRotating;
 import etomica.units.*;
 import etomica.units.Dimension;
 import etomica.util.ParameterBase;
@@ -46,7 +44,6 @@ public class ConfigFromFileLAMMPS {
         }
         ParseArgs.doParseArgs(params, args);
         String filename = params.filename;
-        boolean colorDeviation = params.colorDeviation;
         boolean doSfac = params.doSfac;
         double cutoffS = params.cutS;
         double thresholdS = params.thresholdS;
@@ -61,7 +58,7 @@ public class ConfigFromFileLAMMPS {
         Vector[] edges = space.makeVectorArray(3);
         double[][] boundaryStuff = new double[3][3];
         Simulation sim = new Simulation(space);
-        Species species = new SpeciesSpheresMono(sim, space);
+        Species species = new SpeciesSpheresRotating(sim, space);
         sim.addSpecies(species);
         Box box = new Box(space);
         sim.addBox(box);
@@ -155,47 +152,49 @@ public class ConfigFromFileLAMMPS {
         if (!GUI) return;
         SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
         final DisplayBox display = new DisplayBox(sim, box, space, sim.getController());
+        DisplayBoxCanvasG3DSys.OrientedSite site = new DisplayBoxCanvasG3DSys.OrientedSite(0.5, Color.WHITE, 0.5);
+        ((DisplayBoxCanvasG3DSys) display.canvas).setOrientationSites((AtomTypeOriented) species.getAtomType(0), new DisplayBoxCanvasG3DSys.OrientedSite[]{site});
         graphic.add(display);
-        if (colorDeviation) {
-            ColorSchemeDeviation colorScheme = new ColorSchemeDeviation(allCoords.get(0), box, space);
-            graphic.getDisplayBox(box).setColorScheme(colorScheme);
-            final AtomFilterDeviation atomFilter = new AtomFilterDeviation(colorScheme);
-            display.setAtomFilter(atomFilter);
 
-            DeviceSlider filterSlider = new DeviceSlider(sim.getController(), new Modifier() {
-                @Override
-                public double getValue() {
-                    return atomFilter.getThreshold();
-                }
+        ColorSchemeDeviation colorScheme = new ColorSchemeDeviation(allCoords.get(0), box, space);
+        graphic.getDisplayBox(box).setColorScheme(colorScheme);
+        final AtomFilterDeviation atomFilter = new AtomFilterDeviation(colorScheme);
+        display.setAtomFilter(atomFilter);
+        modifierConfig.setColorScheme(colorScheme);
 
-                @Override
-                public void setValue(double newValue) {
-                    atomFilter.setThreshold(newValue);
-                }
+        DeviceSlider filterSlider = new DeviceSlider(sim.getController(), new Modifier() {
+            @Override
+            public double getValue() {
+                return atomFilter.getThreshold();
+            }
 
-                @Override
-                public Dimension getDimension() {
-                    return Null.DIMENSION;
-                }
+            @Override
+            public void setValue(double newValue) {
+                atomFilter.setThreshold(newValue);
+            }
 
-                @Override
-                public String getLabel() {
-                    return "Displacement Threshold";
-                }
-            });
-            filterSlider.setMinimum(0);
-            filterSlider.setMaximum(2);
-            filterSlider.setPrecision(2);
-            filterSlider.setNMajor(4);
-            filterSlider.setPostAction(new IAction() {
+            @Override
+            public Dimension getDimension() {
+                return Null.DIMENSION;
+            }
 
-                @Override
-                public void actionPerformed() {
-                    graphic.getDisplayBox(box).repaint();
-                }
-            });
-            graphic.add(filterSlider);
-        }
+            @Override
+            public String getLabel() {
+                return "Displacement Threshold";
+            }
+        });
+        filterSlider.setMinimum(0);
+        filterSlider.setMaximum(2);
+        filterSlider.setPrecision(2);
+        filterSlider.setNMajor(4);
+        filterSlider.setPostAction(new IAction() {
+
+            @Override
+            public void actionPerformed() {
+                graphic.getDisplayBox(box).repaint();
+            }
+        });
+        graphic.add(filterSlider);
         DeviceSlider configSlider = new DeviceSlider(sim.getController(), modifierConfig);
         configSlider.setMaximum(config - 1);
         configSlider.setNMajor(config);
@@ -267,7 +266,6 @@ public class ConfigFromFileLAMMPS {
 
     public static class ConfigFromFileLAMMPSParam extends ParameterBase {
         public String filename;
-        public boolean colorDeviation = true;
         public boolean doSfac = false;
         public double cutS = 8;
         public double thresholdS = 0.001;
@@ -337,10 +335,14 @@ public class ConfigFromFileLAMMPS {
 
         }
 
-        public double getRelativeDisplacement(IAtom a) {
+        public Vector getDisplacement(IAtom a) {
             dr.Ev1Mv2(a.getPosition(), rescaledCoords0[a.getLeafIndex()]);
             box.getBoundary().nearestImage(dr);
-            return Math.sqrt(dr.squared()) / rNbr;
+            return dr;
+        }
+
+        public double getRelativeDisplacement(IAtom a) {
+            return Math.sqrt(getDisplacement(a).squared()) / rNbr;
         }
 
         @Override
@@ -363,6 +365,8 @@ public class ConfigFromFileLAMMPS {
         protected int configIndex = -1;
         protected Box box;
         protected IDataSink sfacPlotSink;
+        protected ColorSchemeDeviation colorScheme;
+
 
         public ModifierConfiguration(Box box, List<Vector[]> allCoords, List<Vector[]> allEdges, List<DataFunction> sfacData, List<DataFunction.DataInfoFunction> sfacDataInfo, DataTag sfacTag) {
             this.box = box;
@@ -376,6 +380,10 @@ public class ConfigFromFileLAMMPS {
             DataSourceIndependentSimple xDataSource = new DataSourceIndependentSimple(x, xDataInfo);
             emptySfacDataInfo = new DataFunction.DataInfoFunction("structure factor", Null.DIMENSION, xDataSource);
             emptySfacDataInfo.addTag(sfacTag);
+        }
+
+        public void setColorScheme(ColorSchemeDeviation colorScheme) {
+            this.colorScheme = colorScheme;
         }
 
         public void setSfacPlotSink(IDataSink sfacPlotSink) {
@@ -398,7 +406,11 @@ public class ConfigFromFileLAMMPS {
             IAtomList atoms = box.getLeafList();
             Vector[] myCoords = allCoords.get(configIndex);
             for (int i = 0; i < atoms.getAtomCount(); i++) {
-                atoms.getAtom(i).getPosition().E(myCoords[i]);
+                IAtom a = atoms.getAtom(i);
+                a.getPosition().E(myCoords[i]);
+                Vector orientation = colorScheme.getDisplacement(a);
+                orientation.normalize();
+                ((IAtomOriented) a).getOrientation().setDirection(orientation);
             }
 
             if (sfacPlotSink != null) {
