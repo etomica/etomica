@@ -43,6 +43,7 @@ public class ConfigFromFileLAMMPS {
         ConfigFromFileLAMMPSParam params = new ConfigFromFileLAMMPSParam();
         if (args.length == 0) {
             params.filename = "/tmp/foo/npath/Fe/7000K/lammps/rmsd2/N8192/fe.atom";
+            params.doSfac = false;
 //            throw new RuntimeException("Usage: ConfigFromFileLAMMPS -filename sim.atom -configNum n -crystal CRYSTAL");
         }
         ParseArgs.doParseArgs(params, args);
@@ -51,7 +52,7 @@ public class ConfigFromFileLAMMPS {
         boolean doSfac = params.doSfac;
         double cutoffS = params.cutS;
         double thresholdS = params.thresholdS;
-        boolean gui = params.gui;
+        boolean GUI = params.GUI;
         FileReader fileReader = new FileReader(filename);
         BufferedReader reader = new BufferedReader(fileReader);
         String line = null;
@@ -72,8 +73,8 @@ public class ConfigFromFileLAMMPS {
         List<Vector[]> allEdges = new ArrayList<>();
         List<DataFunction> sfacData = new ArrayList<>();
         List<DataFunction.DataInfoFunction> sfacDataInfo = new ArrayList<>();
-        ModifierConfiguration modifierConfig = new ModifierConfiguration(box, allCoords, allEdges, sfacData, sfacDataInfo);
         DataTag sfacTag = new DataTag();
+        ModifierConfiguration modifierConfig = new ModifierConfiguration(box, allCoords, allEdges, sfacData, sfacDataInfo, sfacTag);
         while ((line = reader.readLine()) != null) {
             if (line.matches("ITEM:.*")) {
                 read = "";
@@ -153,7 +154,7 @@ public class ConfigFromFileLAMMPS {
                 }
             }
         }
-        if (!gui) return;
+        if (!GUI) return;
         SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
         final DisplayBox display = new DisplayBox(sim, box, space, sim.getController());
         graphic.add(display);
@@ -211,11 +212,10 @@ public class ConfigFromFileLAMMPS {
         });
         graphic.add(configSlider);
 
-        modifierConfig.setValue(0);
-
         DisplayPlot sfacPlot = null;
         IDataSink sfacPlotSink = null;
         for (int i = 1; i <= config - 1; i++) {
+            int xMin = (int) cutoffS + 1;
             File sfile = new File(i + ".sfac");
             if (sfile.exists()) {
                 double[][] xy = ArrayReader1D.getFromFile(i + ".sfac");
@@ -223,6 +223,7 @@ public class ConfigFromFileLAMMPS {
                 double[] y = new double[xy.length];
                 for (int j = 0; j < x.length; j++) {
                     x[j] = xy[j][0];
+                    if (xMin > x[j]) xMin = (int) x[j];
                     y[j] = xy[j][1];
                 }
                 DataFunction data = new DataFunction(new int[]{y.length}, y);
@@ -234,6 +235,7 @@ public class ConfigFromFileLAMMPS {
                 if (sfacPlot == null) {
                     sfacPlot = new DisplayPlot();
                     sfacPlot.getPlot().setYLog(true);
+                    sfacPlot.getPlot().setXRange(xMin, cutoffS);
                     sfacPlot.getPlot().setYRange(Math.log10(thresholdS), Math.log10(2));
                     sfacPlot.setLabel("structure factor");
                     sfacPlot.setDoLegend(false);
@@ -247,6 +249,8 @@ public class ConfigFromFileLAMMPS {
                 sfacDataInfo.add(dataInfo);
             }
         }
+
+        modifierConfig.setValue(0);
 
         graphic.makeAndDisplayFrame();
     }
@@ -268,7 +272,7 @@ public class ConfigFromFileLAMMPS {
         public boolean doSfac = false;
         public double cutS = 8;
         public double thresholdS = 0.001;
-        public boolean gui = false;
+        public boolean GUI = true;
     }
 
     public static class ColorSchemeDeviation extends ColorScheme implements ColorSchemeCollective {
@@ -347,16 +351,24 @@ public class ConfigFromFileLAMMPS {
         protected final List<Vector[]> allEdges;
         protected final List<DataFunction> sfacData;
         protected final List<DataFunction.DataInfoFunction> sfacDataInfo;
+        protected final DataFunction.DataInfoFunction emptySfacDataInfo;
+        protected final DataFunction emptySfacData;
         protected int configIndex = -1;
         protected Box box;
         protected IDataSink sfacPlotSink;
 
-        public ModifierConfiguration(Box box, List<Vector[]> allCoords, List<Vector[]> allEdges, List<DataFunction> sfacData, List<DataFunction.DataInfoFunction> sfacDataInfo) {
+        public ModifierConfiguration(Box box, List<Vector[]> allCoords, List<Vector[]> allEdges, List<DataFunction> sfacData, List<DataFunction.DataInfoFunction> sfacDataInfo, DataTag sfacTag) {
             this.box = box;
             this.allCoords = allCoords;
             this.allEdges = allEdges;
             this.sfacData = sfacData;
             this.sfacDataInfo = sfacDataInfo;
+            this.emptySfacData = new DataFunction(new int[]{0}, new double[0]);
+            DataDoubleArray.DataInfoDoubleArray xDataInfo = new DataDoubleArray.DataInfoDoubleArray("wave vector", new CompoundDimension(new Dimension[]{Length.DIMENSION}, new double[]{-1}), new int[]{0});
+            double[] x = new double[0];
+            DataSourceIndependentSimple xDataSource = new DataSourceIndependentSimple(x, xDataInfo);
+            emptySfacDataInfo = new DataFunction.DataInfoFunction("structure factor", Null.DIMENSION, xDataSource);
+            emptySfacDataInfo.addTag(sfacTag);
         }
 
         public void setSfacPlotSink(IDataSink sfacPlotSink) {
@@ -382,9 +394,14 @@ public class ConfigFromFileLAMMPS {
                 atoms.getAtom(i).getPosition().E(myCoords[i]);
             }
 
-            if (configIndex < sfacData.size()) {
-                sfacPlotSink.putDataInfo(sfacDataInfo.get(configIndex));
-                sfacPlotSink.putData(sfacData.get(configIndex));
+            if (sfacPlotSink != null) {
+                if (configIndex < sfacData.size()) {
+                    sfacPlotSink.putDataInfo(sfacDataInfo.get(configIndex));
+                    sfacPlotSink.putData(sfacData.get(configIndex));
+                } else {
+                    sfacPlotSink.putDataInfo(emptySfacDataInfo);
+                    sfacPlotSink.putData(emptySfacData);
+                }
             }
         }
 
