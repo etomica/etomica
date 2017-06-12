@@ -184,9 +184,9 @@ public class ConfigFromFileLAMMPS {
                 }
             });
             filterSlider.setMinimum(0);
-            filterSlider.setMaximum(1);
+            filterSlider.setMaximum(2);
             filterSlider.setPrecision(2);
-            filterSlider.setNMajor(5);
+            filterSlider.setNMajor(4);
             filterSlider.setPostAction(new IAction() {
 
                 @Override
@@ -282,14 +282,17 @@ public class ConfigFromFileLAMMPS {
         protected final Vector[] edges0, edges;
         protected final Tensor t0, t;
         protected final Vector r0;
-        protected double rMax;
+        protected double rNbr;
 
         public ColorSchemeDeviation(Vector[] latticeCoords, Box box, Space space) {
             this.box = box;
             dr = space.makeVector();
-            colors = new Color[256];
+            colors = new Color[511];
             for (int i = 0; i < 256; i++) {
-                colors[i] = new Color(i, 0, 255 - i);
+                colors[i] = new Color(0, i, 255 - i);
+            }
+            for (int i = 1; i < 256; i++) {
+                colors[255 + i] = new Color(i, 255 - i, 0);
             }
             edges0 = space.makeVectorArray(3);
             for (int i = 0; i < 3; i++) {
@@ -311,8 +314,12 @@ public class ConfigFromFileLAMMPS {
 
         @Override
         public void colorAllAtoms() {
-            double maxR2 = 0;
             IAtomList atoms = box.getLeafList();
+
+            double vol = box.getBoundary().volume() / atoms.getAtomCount();
+            double a = Math.cbrt(vol);
+            rNbr = a * Math.sqrt(3) / 2;
+
             BoundaryDeformablePeriodic boundary = (BoundaryDeformablePeriodic) box.getBoundary();
             for (int i = 0; i < 3; i++) {
                 edges[i] = boundary.getEdgeVector(i);
@@ -326,20 +333,21 @@ public class ConfigFromFileLAMMPS {
                 dr.Ev1Mv2(atoms.getAtom(i).getPosition(), r0);
                 boundary.nearestImage(dr);
                 double r2 = dr.squared();
-                if (r2 > maxR2) maxR2 = r2;
             }
-            rMax = maxR2 < 1e-16 ? 1 : Math.sqrt(maxR2);
+
         }
 
         public double getRelativeDisplacement(IAtom a) {
             dr.Ev1Mv2(a.getPosition(), rescaledCoords0[a.getLeafIndex()]);
             box.getBoundary().nearestImage(dr);
-            return Math.sqrt(dr.squared()) / rMax;
+            return Math.sqrt(dr.squared()) / rNbr;
         }
 
         @Override
         public Color getAtomColor(IAtom a) {
-            int i = (int) (255.9999 * getRelativeDisplacement(a));
+            double s = getRelativeDisplacement(a);
+            if (s >= 2) return colors[510];
+            int i = (int) (510.9999 * s / 2);
             return colors[i];
         }
     }
