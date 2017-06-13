@@ -462,15 +462,18 @@ public class ConfigFromFileLAMMPS {
             for (int i = 0; i < atoms.getAtomCount(); i++) {
                 IAtom a = atoms.getAtom(i);
                 a.getPosition().E(myCoords[i]);
-                Vector orientation = colorScheme.getDisplacement(a);
-                orientation.normalize();
-                ((IAtomOriented) a).getOrientation().setDirection(orientation);
+                if (colorScheme != null) {
+                    Vector orientation = colorScheme.getDisplacement(a);
+                    orientation.normalize();
+                    ((IAtomOriented) a).getOrientation().setDirection(orientation);
+                }
             }
-            if (doPrevious && configIndex>0) {
-                colorScheme.setLattice(allEdges.get(configIndex-1), allCoords.get(configIndex-1));
-            }
-            else {
-                colorScheme.setLattice(allEdges.get(0), allCoords.get(0));
+            if (colorScheme != null) {
+                if (doPrevious && configIndex > 0) {
+                    colorScheme.setLattice(allEdges.get(configIndex - 1), allCoords.get(configIndex - 1));
+                } else {
+                    colorScheme.setLattice(allEdges.get(0), allCoords.get(0));
+                }
             }
 
             if (sfacPlotSink != null) {
