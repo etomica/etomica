@@ -13,6 +13,7 @@ import etomica.data.types.DataFunction;
 import etomica.graphics.*;
 import etomica.math.numerical.ArrayReader1D;
 import etomica.modifier.Modifier;
+import etomica.modifier.ModifierBoolean;
 import etomica.molecule.IMolecule;
 import etomica.simulation.Simulation;
 import etomica.space.*;
@@ -156,7 +157,7 @@ public class ConfigFromFileLAMMPS {
         ((DisplayBoxCanvasG3DSys) display.canvas).setOrientationSites((AtomTypeOriented) species.getAtomType(0), new DisplayBoxCanvasG3DSys.OrientedSite[]{site});
         graphic.add(display);
 
-        ColorSchemeDeviation colorScheme = new ColorSchemeDeviation(allCoords.get(0), box, space);
+        ColorSchemeDeviation colorScheme = new ColorSchemeDeviation(box, space);
         graphic.getDisplayBox(box).setColorScheme(colorScheme);
         final AtomFilterDeviation atomFilter = new AtomFilterDeviation(colorScheme);
         display.setAtomFilter(atomFilter);
@@ -200,7 +201,7 @@ public class ConfigFromFileLAMMPS {
         configSlider.setNMajor(config);
         configSlider.setMinimum(0);
         configSlider.setPrecision(0);
-        configSlider.setPostAction(new IAction() {
+        modifierConfig.setPostAction(new IAction() {
 
             @Override
             public void actionPerformed() {
@@ -249,6 +250,18 @@ public class ConfigFromFileLAMMPS {
         }
 
         modifierConfig.setValue(0);
+        DeviceToggleRadioButtons deviceDoPrevious = new DeviceToggleRadioButtons(new ModifierBoolean() {
+            @Override
+            public void setBoolean(boolean b) {
+                modifierConfig.setDoPrevious(b);
+            }
+    
+            @Override
+            public boolean getBoolean() {
+                return modifierConfig.getDoPrevious();
+            }
+        },"Deviation from","previous","original");
+        graphic.add(deviceDoPrevious);
 
         graphic.makeAndDisplayFrame();
     }
@@ -277,12 +290,12 @@ public class ConfigFromFileLAMMPS {
         protected final Box box;
         protected final Vector dr;
         protected final Color[] colors;
-        protected final Vector[] edges0, edges;
-        protected final Tensor t0, t;
+        protected final Vector[] edges;
+        protected final Tensor t;
         protected final Vector r0;
         protected double rNbr;
 
-        public ColorSchemeDeviation(Vector[] latticeCoords, Box box, Space space) {
+        public ColorSchemeDeviation(Box box, Space space) {
             this.box = box;
             dr = space.makeVector();
             colors = new Color[511];
@@ -292,22 +305,24 @@ public class ConfigFromFileLAMMPS {
             for (int i = 1; i < 256; i++) {
                 colors[255 + i] = new Color(i, 255 - i, 0);
             }
-            edges0 = space.makeVectorArray(3);
-            for (int i = 0; i < 3; i++) {
-                edges0[i] = box.getBoundary().getEdgeVector(i);
-            }
-            t0 = space.makeTensor();
-            t0.E(edges0);
-            t0.invert();
             edges = space.makeVectorArray(3);
+            for (int i = 0; i < 3; i++) {
+                edges[i] = box.getBoundary().getEdgeVector(i);
+            }
+            int numAtoms = box.getLeafList().getAtomCount();
             t = space.makeTensor();
-            scaledCoords0 = space.makeVectorArray(latticeCoords.length);
+            scaledCoords0 = space.makeVectorArray(numAtoms);
+            rescaledCoords0 = space.makeVectorArray(numAtoms);
+            r0 = space.makeVector();
+        }
+        
+        public void setLattice(Vector[] latticeEdges, Vector[] latticeCoords) {
+            t.E(latticeEdges);
+            t.invert();
             for (int i = 0; i < scaledCoords0.length; i++) {
                 scaledCoords0[i].E(latticeCoords[i]);
-                t0.transform(scaledCoords0[i]);
+                t.transform(scaledCoords0[i]);
             }
-            rescaledCoords0 = space.makeVectorArray(latticeCoords.length);
-            r0 = space.makeVector();
         }
 
         @Override
@@ -366,7 +381,8 @@ public class ConfigFromFileLAMMPS {
         protected Box box;
         protected IDataSink sfacPlotSink;
         protected ColorSchemeDeviation colorScheme;
-
+        protected boolean doPrevious;
+        protected IAction postAction;
 
         public ModifierConfiguration(Box box, List<Vector[]> allCoords, List<Vector[]> allEdges, List<DataFunction> sfacData, List<DataFunction.DataInfoFunction> sfacDataInfo, DataTag sfacTag) {
             this.box = box;
@@ -380,6 +396,22 @@ public class ConfigFromFileLAMMPS {
             DataSourceIndependentSimple xDataSource = new DataSourceIndependentSimple(x, xDataInfo);
             emptySfacDataInfo = new DataFunction.DataInfoFunction("structure factor", Null.DIMENSION, xDataSource);
             emptySfacDataInfo.addTag(sfacTag);
+        }
+        
+        public void setPostAction(IAction postAction) {
+            this.postAction = postAction;
+        }
+        
+        public void setDoPrevious(boolean doPrevious) {
+            if (this.doPrevious == doPrevious) return;
+            this.doPrevious = doPrevious;
+            int foo = configIndex;
+            configIndex = -1;
+            setValue(foo);
+        }
+        
+        public boolean getDoPrevious() {
+            return doPrevious;
         }
 
         public void setColorScheme(ColorSchemeDeviation colorScheme) {
@@ -412,6 +444,12 @@ public class ConfigFromFileLAMMPS {
                 orientation.normalize();
                 ((IAtomOriented) a).getOrientation().setDirection(orientation);
             }
+            if (doPrevious && configIndex>0) {
+                colorScheme.setLattice(allEdges.get(configIndex-1), allCoords.get(configIndex-1));
+            }
+            else {
+                colorScheme.setLattice(allEdges.get(0), allCoords.get(0));
+            }
 
             if (sfacPlotSink != null) {
                 if (configIndex < sfacData.size()) {
@@ -421,6 +459,9 @@ public class ConfigFromFileLAMMPS {
                     sfacPlotSink.putDataInfo(emptySfacDataInfo);
                     sfacPlotSink.putData(emptySfacData);
                 }
+            }
+            if (postAction!= null) {
+                postAction.actionPerformed();
             }
         }
 
