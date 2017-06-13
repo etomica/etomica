@@ -692,6 +692,19 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 
     public void setOrientationSites(AtomTypeOriented atomType, OrientedSite[] sites) {
         atomTypeOrientedManager.setAgent(atomType, sites);
+		IAtomList leafList = displayBox.getBox().getLeafList();
+		int nLeaf = leafList.getAtomCount();
+
+		for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
+			IAtom a = leafList.getAtom(iLeaf);
+			if (a.getType() != atomType) continue;
+			Ball[] balls = aamOriented.getAgent(a);
+			if (balls == null) continue;
+			for (int j = 0; j < balls.length; j++) {
+				gsys.removeFig(balls[j]);
+			}
+			aamOriented.setAgent(a, null);
+		}
 	}
 	
 	/**
