@@ -118,10 +118,19 @@ public class MeterMappedRdf implements IAction, IEtomicaDataSource, DataSourceIn
         long[] gSum = pc.getGSum();
         double[] gR = pc.gR();
 
+        System.out.println("metervol "+ box.getBoundary().volume());
 
         for(int i=0;i<r.length; i++) {
             double vShell = space.sphereVolume(r[i]+dx2)-space.sphereVolume(r[i]-dx2);
-            y[i] = gSum[i]+gR[i] / (norm*vShell);
+           // y[i] = (gR[i]*callCount+gSum[i])*01/(norm*vShell);
+
+            y[i] = gR[i];
+
+            //y[i] = (gSum[i]/(vShell*norm));
+           // y[i] = gSum[i];
+
+
+
         }
         return data;
     }

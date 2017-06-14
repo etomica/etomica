@@ -82,13 +82,11 @@ public class MappedRdf extends Simulation {
 
     public static void main(String[] args) throws IOException {
 
-      MappedRdf.LJMDParams params = new MappedRdf.LJMDParams();
+        MappedRdf.LJMDParams params = new MappedRdf.LJMDParams();
 
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
-        }
-
-        else {
+        } else {
             params.temperature = 2.0;
             params.density = 0.01;
             params.numSteps = 1000000;
@@ -116,13 +114,12 @@ public class MappedRdf extends Simulation {
         MeterRDF meterRDF = null;
         MeterMappedRdf meterMappedRdf = null;
 
-        double halfBoxlength = sim.box.getBoundary().getBoxSize().getX(0) /2;
+        double halfBoxlength = sim.box.getBoundary().getBoxSize().getX(0) / 2;
         int nbins = (int) Math.floor(rc / 0.01);
         double eqncutoff = nbins * 0.01;
 
 
-        if(graphics)
-        {
+        if (graphics) {
             meterRDF = new MeterRDF(space);
             meterRDF.setBox(sim.box);
             meterRDF.getXDataSource().setNValues(nbins);
@@ -131,12 +128,12 @@ public class MappedRdf extends Simulation {
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, numAtoms));
 
             DisplayPlot rdfPlot = new DisplayPlot();
-            DataPump rdfPump = new DataPump(meterRDF,rdfPlot.getDataSet().makeDataSink());
+            DataPump rdfPump = new DataPump(meterRDF, rdfPlot.getDataSet().makeDataSink());
             IntegratorListenerAction rdfPumpListener = new IntegratorListenerAction(rdfPump);
             sim.integrator.getEventManager().addListener(rdfPumpListener);
-            rdfPumpListener.setInterval(10*numAtoms);
+            rdfPumpListener.setInterval(10 * numAtoms);
 
-            SimulationGraphic gsim = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE,space,sim.getController());
+            SimulationGraphic gsim = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
 
             rdfPlot.setDoLegend(false);
             rdfPlot.getPlot().setTitle("Radial Distribution Function");
@@ -149,71 +146,81 @@ public class MappedRdf extends Simulation {
 
         }
 
-        sim.activityIntegrate.setMaxSteps(numSteps/10);
+        sim.activityIntegrate.setMaxSteps(numSteps / 10);
         sim.activityIntegrate.actionPerformed();
         sim.activityIntegrate.setMaxSteps(numSteps);
 
         sim.integrator.getMoveManager().setEquilibrating(false);
 
-        if(computeR){
+        // if(computeR){
 
-            meterRDF = new MeterRDF(space);
-            meterRDF.setBox(sim.box);
-            meterRDF.getXDataSource().setNValues(nbins);
-            meterRDF.getXDataSource().setXMax(eqncutoff);
+        meterRDF = new MeterRDF(space);
+        meterRDF.setBox(sim.box);
+        meterRDF.getXDataSource().setNValues(nbins);
+        meterRDF.getXDataSource().setXMax(eqncutoff);
 
-            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, numAtoms));
-            sim.activityIntegrate.actionPerformed();
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, numAtoms));
+        sim.activityIntegrate.actionPerformed();
 
-            IData rdata = meterRDF.getIndependentData(0);
-            IData gdata = meterRDF.getData();
+        IData rdata = meterRDF.getIndependentData(0);
+        IData gdata = meterRDF.getData();
 
-            for (int i = 0; i < rdata.getLength(); i++)
+        for (int i = 0; i < rdata.getLength(); i++)
 
-            {
-                double r = rdata.getValue(i);
-                double g = gdata.getValue(i);
-                // double e = Math.exp(-sim.p2Truncated.u(r * r) / temperature);
-                System.out.println("r "+r+" g "+g);
-            }
-
+        {
+            double r = rdata.getValue(i);
+            double g = gdata.getValue(i);
+            // double e = Math.exp(-sim.p2Truncated.u(r * r) / temperature);
+            System.out.println("r " + r + " g " + g);
         }
 
-        if(computeRMA){
-            meterMappedRdf = new MeterMappedRdf(space,sim.integrator.getPotentialMaster(), sim.box, nbins);
-            meterMappedRdf.setBox(sim.box);
-            meterMappedRdf.getXDataSource().setNValues(nbins);
-            meterMappedRdf.getXDataSource().setXMax(eqncutoff);
+        // }
 
-            meterMappedRdf.getPotentialCalculation().setPotential(sim.p2Truncated);
-            meterMappedRdf.getPotentialCalculation().setTemperature(sim.integrator.getTemperature());
+        //   if(computeRMA){
+        meterMappedRdf = new MeterMappedRdf(space, sim.integrator.getPotentialMaster(), sim.box, nbins);
+        meterMappedRdf.setBox(sim.box);
+        meterMappedRdf.getXDataSource().setNValues(nbins);
+        meterMappedRdf.getXDataSource().setXMax(eqncutoff);
+
+        meterMappedRdf.getPotentialCalculation().setPotential(sim.p2Truncated);
+        meterMappedRdf.getPotentialCalculation().setTemperature(sim.integrator.getTemperature());
 
 
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterMappedRdf, numAtoms));
+        sim.activityIntegrate.actionPerformed();
 
-            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterMappedRdf,numAtoms));
-            sim.activityIntegrate.actionPerformed();
+        IData rmdata = meterMappedRdf.getIndependentData(0);
+        IData gmdata = meterMappedRdf.getData();
 
-            IData rmdata = meterMappedRdf.getIndependentData(0);
-            IData gmdata = meterMappedRdf.getData();
+        //  FileWriter fw = new FileWriter("rdfM.dat");
 
-            FileWriter fw = new FileWriter("rdfM.dat");
 
-            //System.out.println("len "+rmdata.getLength());
+        //System.out.println("len "+rmdata.getLength());
 
-            for (int i = 0; i < rmdata.getLength(); i++)
+        for (int i = 0; i < rmdata.getLength(); i++)
 
-            {
-                double rm = rmdata.getValue(i);
-                double gm = gmdata.getValue(i);
-                // double e = Math.exp(-sim.p2Truncated.u(r * r) / temperature);
-                System.out.println("rm "+rm+" gm "+gm);
-                fw.write(rm+" "+gm+"\n");
-            }
-            fw.close();
+        {
+            double rm = rmdata.getValue(i);
+            double gm = gmdata.getValue(i);
+            double gdiff = gdata.getValue(i) - gmdata.getValue(i);
+            // double e = Math.exp(-sim.p2Truncated.u(r * r) / temperature);
+            System.out.println("rm " + rm + " gm " + gm);
+            // fw.write(rm+" "+gm+"\n");
         }
+        // fw.close();
+
+        FileWriter fw = new FileWriter("rdfDiff.dat");
+        for (int i = 0; i < rmdata.getLength(); i++) {
+            double rm = rmdata.getValue(i);
+            double gdiff = gdata.getValue(i) - gmdata.getValue(i);
+            System.out.println("rm " + rm + " gDiff " + gdiff);
+            fw.write(rm + " " + gdiff + "\n");
+        }
+        fw.close();
 
     }
 
+    // }
 
 
     public static class LJMDParams extends ParameterBase {

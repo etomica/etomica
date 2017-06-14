@@ -47,7 +47,6 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
     protected Potential2SoftSpherical p2;
 
 
-
     public PotentialCalculationMappedRdf(Space space, Box box, int nbins, AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> forceManager) {
         dr = space.makeVector();
         xDataSource = new DataSourceUniform("r", Length.DIMENSION);
@@ -61,6 +60,7 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
         this.space = space;
 
         cumint = new double[nbins+1];
+        vol = box.getBoundary().volume();
 
         this.forceManager = forceManager;
     }
@@ -85,8 +85,8 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
             double r = i*0.1;
             if (r>=4) r = 3.99999999;
 
-            System.out.println(r+" "+pc.calcXu(r, p2Truncated.u(r*r),R)+" ");
-               fw.write(r+" "+pc.calcXu(r, p2Truncated.u(r*r),R)+"\n");
+            System.out.println(r+" "+pc.calcXu(r, p2Truncated.u(r*r),1.17)+" ");
+               fw.write(r+" "+pc.calcXu(r, p2Truncated.u(r*r),1.17)+"\n");
         }
 
          fw.close();
@@ -153,6 +153,7 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
 
         q *= (D==2?2:4)*Math.PI;
         q += vol;
+        System.out.println("vol "+vol+" q "+q);
 
         for (int i=1; i<=nbins; i++) {
             double r = Math.exp(c1*i)-1;
@@ -200,6 +201,7 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
         double i = Math.log(r+1)/c1;
         int ii = (int)i;
         double y = cumint[ii] + (cumint[ii+1]-cumint[ii])*(i-ii);
+       // System.out.println("y "+y);
         return y;
     }
 
@@ -209,10 +211,9 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
             double R = xDataSource.getData().getValue(k);
             double uR = p2.u(R);
             double vR = calcV(R,uR);
+          //  System.out.println(vR*beta);
             double evmR = Math.exp(-beta*vR);
-            gR[k] = evmR*4*Math.PI*R*R*.01/q;
-            gR[k] = 0;
-            System.out.println( gR[k]);
+            gR[k] = evmR * vol /q;
 
         }
         return gR;
@@ -254,7 +255,7 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
                     double fifj = (fi.dot(dr) - fj.dot(dr)) / r;
                     double xu = calcXu(r, u, R);
                     double wp = 0.5 * fifj;
-                    gSum[k] -= xu * (vp - wp);               //add once for each atom
+                    gSum[k] -= xu*(vp - wp);               //add once for each atom
 
                 }
                 else{
