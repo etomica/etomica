@@ -8,6 +8,7 @@ apply plugin: "me.champeau.gradle.jmh"
 
 dependencies {
     compile project(':etomica-core')
+    compile project(':etomica-apps')
     compileClasspath 'org.openjdk.jmh:jmh-generator-annprocess:1.19'
 }
 
