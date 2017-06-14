@@ -26,7 +26,7 @@ import etomica.util.Strings;
 
 // consider whether LJ units for charge, dipole, etc should be reduced by 4 pi eps0 rather than by electron charge 
 
-public class LJ extends UnitSystem implements java.io.Serializable {
+public class LJ extends UnitSystem  {
 
     /**
      * Constructs LJ unit system with default values of sigma, epsilon and mass each equal to unity.
@@ -127,9 +127,9 @@ public class LJ extends UnitSystem implements java.io.Serializable {
         return forceUnit;
     }
 
-    public Unit energy() {
-        return energyUnit;
-    }
+    public Unit energy() { return energyUnit; }
+
+    public Unit power() { return powerUnit; }
 
     public Unit temperature() {
         return temperatureUnit;
@@ -170,6 +170,7 @@ public class LJ extends UnitSystem implements java.io.Serializable {
     private final Unit dipoleUnit = new Dipole(this);
     private final Unit forceUnit = new Force(this);
     private final Unit energyUnit = new Energy(this);
+    private final Unit powerUnit = new Power(this);
     private final Unit temperatureUnit = new Temperature(this);
     private final Unit pressureUnit = new Pressure(this);
     private final Unit volumeUnit = new Volume(this);
@@ -262,7 +263,7 @@ public class LJ extends UnitSystem implements java.io.Serializable {
         }
 
         public String symbol() {
-            return "("+lj.EPS+lj.DOT+"m"+lj.DOT+lj.SIG+Strings.exponent(2)+")"+Strings.exponent(lj.HALF);
+            return "("+lj.EPS+Strings.exponent(-1)+lj.DOT+"m"+lj.DOT+lj.SIG+Strings.exponent(2)+")"+Strings.exponent(lj.HALF);
         }
 
         public double fromSim(double x) {
@@ -348,6 +349,24 @@ public class LJ extends UnitSystem implements java.io.Serializable {
 
         public double fromSim(double x) {
             return x / lj.epsilon;
+        }
+
+        private static final long serialVersionUID = 1;
+    }
+
+    private static final class Power extends LJUnit {
+        private Power(LJ ljSystem) { super(ljSystem); }
+
+        public Dimension dimension() {
+            return etomica.units.dimensions.Power.DIMENSION;
+        }
+
+        public String symbol() {
+            return  "("+lj.EPS+Strings.exponent(1.5)+lj.DOT+"m"+Strings.exponent(-0.5)+lj.DOT+lj.SIG+Strings.exponent(-1)+")";
+        }
+
+        public double fromSim(double x) {
+            return x/(lj.epsilon * Math.sqrt(lj.epsilon / lj.mass) / lj.sigma );
         }
 
         private static final long serialVersionUID = 1;
