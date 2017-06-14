@@ -44,6 +44,7 @@ public class P2Spin extends Potential2 implements IPotentialTorque,IPotentialAto
         gradient = new IVectorMutable[2];
 		gradient[0] = space.makeVector();
 		gradient[1] = space.makeVector();
+		dr = space.makeVector();
 		torque = new IVectorMutable[2];
 		torque[0] = new Vector1D();
 		torque[1] = new Vector1D();
@@ -142,6 +143,10 @@ public class P2Spin extends Potential2 implements IPotentialTorque,IPotentialAto
 		//u=-J*cos(t1-t2) and  du/dt1 = J*sin(t1-t2) = J*(sint1*cost2- cost1*sint2 =y1*x2-x1*y2)
 		double JSin = coupling*(y1*x2-x1*y2);
 
+//		System.out.println("ei = " + atom1.getOrientation().getDirection());
+//		System.out.println("ej = " + atom2.getOrientation().getDirection());
+//		System.out.println("JSin = " + JSin);//test whether I got the right torque.
+
 		torque[0].E(-JSin);
 		torque[1].E(JSin);
 		return gradientAndTorque;
@@ -164,13 +169,15 @@ public class P2Spin extends Potential2 implements IPotentialTorque,IPotentialAto
 	public Tensor[] secondDerivative(IAtomList atoms){
 		IAtomOriented atom1 = (IAtomOriented)atoms.getAtom(0);
     	IAtomOriented atom2 = (IAtomOriented)atoms.getAtom(1);
-    	double JCos = coupling*atom1.getOrientation().getDirection().dot(atom2.getOrientation().getDirection());
+    	double JCos = coupling*(atom1.getOrientation().getDirection()).dot(atom2.getOrientation().getDirection());
     	
     	
     	secondDerivative[0].E(-JCos);//ij
     	secondDerivative[1].E(JCos);//ii
     	secondDerivative[2].E(JCos);//jj
-    	
+
+//		System.out.println("ei = " + atom1.getOrientation().getDirection());
+//		System.out.println("ej = " + atom2.getOrientation().getDirection());
 //    	System.out.println(secondDerivative[0].component(0, 0));
 //    	System.out.println(secondDerivative[1].component(0, 0));
 //    	System.out.println(secondDerivative[2].component(0, 0));
