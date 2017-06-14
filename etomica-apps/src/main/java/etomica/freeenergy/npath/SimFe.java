@@ -6,7 +6,6 @@ package etomica.freeenergy.npath;
 
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.integrator.IntegratorListener;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHash;
 import etomica.atom.DiameterHashByType;
@@ -23,8 +22,8 @@ import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicBcc;
 import etomica.lattice.LatticeCubicFcc;
@@ -51,10 +50,6 @@ import java.util.Arrays;
 
 import static etomica.freeenergy.npath.SimFe.Crystal.HCP;
 
-/**
- * Simple Lennard-Jones molecular dynamics simulation in 3D
- */
- 
 public class SimFe extends Simulation {
     
     public final PotentialMasterList potentialMaster;
@@ -122,8 +117,6 @@ public class SimFe extends Simulation {
         meterPE.setPotentialCalculation(new PotentialCalculationEnergySumEAM(potential));
         integrator.setMeterPotentialEnergy(meterPE);
         integrator.setIsothermal(true);
-        integrator.setThermostat(IntegratorMD.ThermostatType.HYBRID_MC);
-        integrator.setThermostatInterval(10);
         integrator.setTemperature(temperature);
         integrator.getEventManager().addListener(potential.makeIntegratorListener(potentialMaster, box));
         integrator.setForceSum(new PotentialCalculationForceSum());
@@ -172,11 +165,32 @@ public class SimFe extends Simulation {
             mcMoveSwap = new MCMoveAtomSwap(random, potentialMasterCell, space, p1ImageHarmonic);
             mcMoveSwap.setNbrDistance(swapDistance);
             IntegratorMC integratorMC = new IntegratorMC(potentialMaster, random, temperature);
-            integrator.setIntegratorMC(integratorMC, 10 * numAtoms);
-            integrator.getIntegratorMC().getMoveManager().addMCMove(mcMoveSwap);
-
-            integrator.getIntegratorMC().getMoveEventManager().addListener(potentialMasterCell.getNbrCellManager(box).makeMCMoveListener());
-            ((IntegratorImageHarmonicMD) integrator).setNeighborCellManager(potentialMasterCell.getNbrCellManager(box));
+            integratorMC.getMoveManager().addMCMove(mcMoveSwap);
+            integratorMC.setBox(box);
+    
+            integrator.getEventManager().addListener(new IntegratorListener() {
+                int countdown = 10, interval = 10;
+        
+                public void integratorInitialized(IntegratorEvent e) {
+                }
+        
+                public void integratorStepStarted(IntegratorEvent e) {
+                }
+        
+                @Override
+                public void integratorStepFinished(IntegratorEvent e) {
+                    if (--countdown > 0) {
+                        return;
+                    }
+                    countdown = interval;
+                    potentialMasterCell.getNbrCellManager(box).assignCellAll();
+                    for (int i = 0; i < 10 * numAtoms; i++) {
+                        integratorMC.doStep();
+                    }
+                    integrator.reset();
+                }
+            });
+            integratorMC.getMoveEventManager().addListener(potentialMasterCell.getNbrCellManager(box).makeMCMoveListener());
         }
     }
     
@@ -185,17 +199,18 @@ public class SimFe extends Simulation {
         LjMC3DParams params = new LjMC3DParams();
         ParseArgs.doParseArgs(params, args);
         if (args.length==0) {
-            params.graphics = false;
+            params.graphics = true;
             params.numAtoms = 1024;
             params.steps = 1000;
             params.density = 0.15151515151515;
             params.T = 7000;
-            params.w = 0;
+            params.w = 10000000;
             params.crystal = Crystal.BCC;
             params.offsetDim = 2;
-            params.numInnerSteps = 0;
-            params.swap = false;
-            params.nve = true;
+            params.numInnerSteps = 100;
+            params.swap = true;
+            params.nve = false;
+            params.thermostatInterval = 100;
         }
 
         final int numAtoms = params.numAtoms;
@@ -210,6 +225,7 @@ public class SimFe extends Simulation {
         boolean swap = params.swap;
         int numInnerSteps = w > 0 ? params.numInnerSteps : (swap ? 1 : 0);
         boolean nve = params.nve;
+        int thermostatInterval = params.thermostatInterval;
 
         if (!graphics) {
             System.out.println("Running Iron MC with N="+numAtoms+" at rho="+density+" T="+temperatureK);
@@ -295,54 +311,17 @@ public class SimFe extends Simulation {
             plotSfac.getPlot().setYLog(true);
             simGraphic.add(plotSfac);
             
-            sim.integrator.setTimeStep(0.0001);
-            sim.integrator.getEventManager().addListener(new IntegratorListener() {
-                @Override
-                public void integratorInitialized(IntegratorEvent e) {}
-
-                @Override
-                public void integratorStepStarted(IntegratorEvent e) {}
-
-                @Override
-                public void integratorStepFinished(IntegratorEvent e) {
-                    if (sim.integrator.getStepCount() > 400) {
-                        sim.integrator.setTimeStep(0.001);
-                    }
-                }
-            });
-
-
             simGraphic.makeAndDisplayFrame(APP_NAME);
 
             return;
         }
-
-        // initial conservation of energy is often poor.  use a smaller timestep
-        // for a few steps to get off lattice sites
-        sim.ai.setMaxSteps(steps/20);
-        sim.integrator.setTimeStep(0.0001);
-        sim.getController().actionPerformed();
-        sim.getController().reset();
-        if (sim.integrator.getHybridAcceptance() < 0.5) {
-            throw new RuntimeException("hybrid acceptance "+sim.integrator.getHybridAcceptance());
-        }
-        sim.integrator.resetStepCount();
-        sim.ai.setMaxSteps(steps/20);
-        sim.integrator.setTimeStep(0.0002);
-        sim.getController().actionPerformed();
-        sim.getController().reset();
-        if (sim.integrator.getHybridAcceptance() < 0.5) {
-            throw new RuntimeException("hybrid acceptance "+sim.integrator.getHybridAcceptance());
-        }
-        sim.integrator.resetStepCount();
+    
+        sim.integrator.setThermostatInterval(10);
         sim.ai.setMaxSteps(steps/10);
-        sim.integrator.setTimeStep(0.001);
         sim.getController().actionPerformed();
         sim.getController().reset();
-        if (sim.integrator.getHybridAcceptance() < 0.5) {
-            throw new RuntimeException("hybrid acceptance "+sim.integrator.getHybridAcceptance());
-        }
         sim.integrator.resetStepCount();
+        sim.integrator.setThermostatInterval(thermostatInterval);
         sim.ai.setMaxSteps(steps);
         if (nve) {
             sim.integrator.setIsothermal(false);
@@ -378,7 +357,6 @@ public class SimFe extends Simulation {
         sim.getController().actionPerformed();
 
         if (swap) System.out.println("swap acceptance: " + sim.mcMoveSwap.getTracker().acceptanceProbability());
-        System.out.println("Hybrid MD/MC acceptance: "+sim.integrator.getHybridAcceptance());
 
         IData avgEnergies = accEnergies.getData(AccumulatorAverage.AVERAGE);
         IData errEnergies = accEnergies.getData(AccumulatorAverage.ERROR);
@@ -411,7 +389,6 @@ public class SimFe extends Simulation {
         public double T = 2.0;
         public double density = 0.3;
         public long steps = 100000;
-        public double rc = 2.5;
         public boolean graphics = false;
         public double w = 1;
         public int offsetDim = 0;
@@ -419,6 +396,7 @@ public class SimFe extends Simulation {
         public Crystal crystal = Crystal.FCC;
         public boolean swap = true;
         public boolean nve = false;
+        public int thermostatInterval = 10;
     }
 
 }
