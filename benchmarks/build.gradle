@@ -13,6 +13,7 @@ dependencies {
 }
 
 jmh {
+    duplicateClassesStrategy = 'warn'
 //    include = "SWChain"
     jmhVersion = "1.19"
 
