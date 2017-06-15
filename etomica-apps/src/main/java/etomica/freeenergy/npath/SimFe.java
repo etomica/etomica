@@ -344,9 +344,9 @@ public class SimFe extends Simulation {
         sim.integrator.getEventManager().addListener(pumpEnergies);
     
         DataLogger dataLogger = new DataLogger();
-        MeterRMSD rmsd = new MeterRMSD
-        energyFork.addDataSink(splitter);
-        splitter.setDataSink(2, dataLogger);
+        MeterRMSD meterRMSD = new MeterRMSD(sim.box, sim.space);
+        DataPumpListener pumpRMSD = new DataPumpListener(meterRMSD, dataLogger, interval);
+        sim.integrator.getEventManager().addListener(pumpRMSD);
         dataLogger.setFileName("rmsd.dat");
         DataArrayWriter writer = new DataArrayWriter();
         writer.setIncludeHeader(false);
