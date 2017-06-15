@@ -22,15 +22,15 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
     protected final AtomIteratorArrayListSimple affectedAtomIterator;
     protected final MeterPotentialEnergy energyMeter;
     protected final Vector translationVector;
+    protected final IRandom random;
     protected IAtom atom, atom2;
     protected double uOld;
     protected double uNew = Double.NaN;
     protected AtomSource atomSource;
     protected boolean fixOverlap;
-    protected final IRandom random;
     protected Space space;
     protected IAtomList atoms;
-    protected int nOffset;
+    protected P1ImageHarmonic p1;
 
     public MCMoveAtomCoupled(IRandom random, PotentialMaster potentialMaster, Space _space) {
         this(potentialMaster, random, _space, 1.0, 15.0, false);
@@ -61,9 +61,9 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         this.fixOverlap = fixOverlap;
         affectedAtomIterator = new AtomIteratorArrayListSimple();
     }
-
-    public void setNOffset(int newOffset) {
-        nOffset = newOffset;
+    
+    public void setP1(P1ImageHarmonic p1) {
+        this.p1 = p1;
     }
 
     /**
@@ -74,13 +74,7 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         if (atom == null) return false;
         int idx0 = atom.getLeafIndex();
         IAtomList allAtoms = box.getLeafList();
-        if (idx0%(nOffset*2) >= nOffset) {
-            atom2 = atom;
-            atom = allAtoms.getAtom(idx0-nOffset);
-        }
-        else {
-            atom2 = allAtoms.getAtom(idx0+nOffset);
-        }
+        atom2 = allAtoms.getAtom(p1.getPartner(idx0));
 
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();

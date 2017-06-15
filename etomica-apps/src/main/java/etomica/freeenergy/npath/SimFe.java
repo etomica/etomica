@@ -232,6 +232,7 @@ public class SimFe extends Simulation {
             System.out.println(steps+" steps");
             System.out.println("w: "+w);
             System.out.println(numInnerSteps+" inner steps");
+            System.out.println("thermostat interval: " + thermostatInterval);
         }
 
         double L = Math.pow(numAtoms/density, 1.0/3.0);

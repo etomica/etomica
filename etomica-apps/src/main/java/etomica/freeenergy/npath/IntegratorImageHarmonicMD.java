@@ -47,7 +47,6 @@ public class IntegratorImageHarmonicMD extends IntegratorVelocityVerlet {
         // IntegratorVelocityVerlet code
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
-        int nOffset = p1.getNOffset();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             MyAgent agent = agentManager.getAgent(a);
@@ -62,11 +61,12 @@ public class IntegratorImageHarmonicMD extends IntegratorVelocityVerlet {
         double tStepShort = timeStep/numInnerSteps;
         p1.setZeroForce(false);
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            if (iLeaf%(nOffset*2) >= nOffset) {
+            int iLeaf1 = p1.getPartner(iLeaf);
+            if (iLeaf1 < iLeaf) {
                 continue;
             }
             IAtomKinetic atom0 = (IAtomKinetic)leafList.getAtom(iLeaf);
-            IAtomKinetic atom1 = (IAtomKinetic)leafList.getAtom(iLeaf+nOffset);
+            IAtomKinetic atom1 = (IAtomKinetic) leafList.getAtom(iLeaf1);
             Vector r0 = atom0.getPosition();
             Vector r1 = atom1.getPosition();
             Vector v0 = atom0.getVelocity();

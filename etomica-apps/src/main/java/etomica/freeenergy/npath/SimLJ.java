@@ -117,7 +117,6 @@ public class SimLJ extends Simulation {
         configuration.initializeCoordinates(box);
         potentialMasterCell.getNbrCellManager(box).assignCellAll();
         p1ImageHarmonic.findNOffset(box);
-        mcMoveAtomCoupled.setNOffset(p1ImageHarmonic.getNOffset());
     }
     
     public static void main(String[] args) {
