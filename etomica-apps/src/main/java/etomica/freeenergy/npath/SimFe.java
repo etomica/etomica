@@ -252,7 +252,9 @@ public class SimFe extends Simulation {
             ColorScheme colorScheme = new ColorScheme() {
                 @Override
                 public Color getAtomColor(IAtom a) {
-                    return a.getLeafIndex() < numAtoms/2 ? Color.RED : Color.BLUE;
+                    int idx0 = a.getLeafIndex();
+                    int idx1 = sim.p1ImageHarmonic.getPartner(idx0);
+                    return idx0 < idx1 ? Color.RED : Color.BLUE;
                 }
             };
             simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);

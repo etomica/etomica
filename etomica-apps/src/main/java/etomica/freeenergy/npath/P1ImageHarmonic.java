@@ -67,6 +67,11 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
     public int getPartner(int idx0) {
         return partners[idx0];
     }
+    
+    public void setPartner(int idx0, int idx1) {
+        partners[idx0] = idx1;
+        partners[idx1] = idx0;
+    }
 
     public Vector getOffset() {
         return offset;

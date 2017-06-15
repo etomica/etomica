@@ -15,8 +15,8 @@ import etomica.integrator.mcmove.MCMoveInsertDeleteLatticeVacancy;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialMaster;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.util.random.IRandom;
 
 /**
@@ -24,19 +24,19 @@ import etomica.util.random.IRandom;
  */
 public class MCMoveAtomSwap extends MCMoveBox {
     protected final AtomIteratorArrayListSimple affectedAtomIterator;
-    protected IAtom atom, atom2;
-    protected double uOld;
-    protected double uNew = Double.NaN;
-    protected AtomSource atomSource;
     protected final IRandom random;
-    protected Space space;
-    protected IAtomList atoms;
-    protected AtomIteratorAtomDependent atomIterator;
-    protected double nbrDistance;
     protected final AtomArrayList nbrList;
     protected final Vector dr;
     protected final P1ImageHarmonic p1;
     protected final AtomSetSinglet singlet;
+    protected IAtom atom, atom2;
+    protected double uOld;
+    protected double uNew = Double.NaN;
+    protected AtomSource atomSource;
+    protected Space space;
+    protected IAtomList atoms;
+    protected AtomIteratorAtomDependent atomIterator;
+    protected double nbrDistance;
 
     public MCMoveAtomSwap(IRandom random, PotentialMaster potentialMaster, Space _space, P1ImageHarmonic p1) {
         super(potentialMaster);
@@ -52,12 +52,12 @@ public class MCMoveAtomSwap extends MCMoveBox {
         singlet = new AtomSetSinglet();
     }
 
-    public void setNbrDistance(double newNbrDistance) {
-        nbrDistance = newNbrDistance;
-    }
-
     public double getNbrDistance() {
         return nbrDistance;
+    }
+    
+    public void setNbrDistance(double newNbrDistance) {
+        nbrDistance = newNbrDistance;
     }
 
     /**
@@ -87,10 +87,13 @@ public class MCMoveAtomSwap extends MCMoveBox {
         uOld = 2*p1.energy(singlet);
         singlet.atom = atom2;
         uOld += 2*p1.energy(singlet);
-
-        dr.E(atom.getPosition());
-        atom.getPosition().E(atom2.getPosition());
-        atom2.getPosition().E(dr);
+    
+        int partner = p1.getPartner(atom.getLeafIndex());
+        int partner2 = p1.getPartner(atom2.getLeafIndex());
+    
+        p1.setPartner(atom.getLeafIndex(), partner2);
+        p1.setPartner(atom2.getLeafIndex(), partner);
+        
         return true;
     }//end of doTrial
 
@@ -129,9 +132,11 @@ public class MCMoveAtomSwap extends MCMoveBox {
      * before the most recent call to doTrial.
      */
     public void rejectNotify() {
-        dr.E(atom.getPosition());
-        atom.getPosition().E(atom2.getPosition());
-        atom2.getPosition().E(dr);
+        int partner = p1.getPartner(atom.getLeafIndex());
+        int partner2 = p1.getPartner(atom2.getLeafIndex());
+    
+        p1.setPartner(atom.getLeafIndex(), partner2);
+        p1.setPartner(atom2.getLeafIndex(), partner);
     }
 
     public AtomIterator affectedAtoms() {
