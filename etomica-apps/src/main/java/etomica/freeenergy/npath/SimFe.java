@@ -17,6 +17,7 @@ import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.meter.MeterRMSD;
 import etomica.data.meter.MeterStructureFactor;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayPlot;
@@ -199,12 +200,12 @@ public class SimFe extends Simulation {
         LjMC3DParams params = new LjMC3DParams();
         ParseArgs.doParseArgs(params, args);
         if (args.length==0) {
-            params.graphics = true;
+            params.graphics = false;
             params.numAtoms = 1024;
-            params.steps = 1000;
-            params.density = 0.15151515151515;
-            params.T = 7000;
-            params.w = 10000000;
+            params.steps = 10000;
+            params.density = 0.150375939849624;
+            params.T = 7011.894582745354;
+            params.w = 1741237.786686226;
             params.crystal = Crystal.BCC;
             params.offsetDim = 2;
             params.numInnerSteps = 100;
@@ -339,23 +340,19 @@ public class SimFe extends Simulation {
         if (blockSize==0) blockSize = 1;
 
         AccumulatorAverageCovariance accEnergies = new AccumulatorAverageCovariance(blockSize);
-        DataFork energyFork = new DataFork();
-        DataPumpListener pumpEnergies = new DataPumpListener(dsEnergies, energyFork, interval);
-        energyFork.addDataSink(accEnergies);
+        DataPumpListener pumpEnergies = new DataPumpListener(dsEnergies, accEnergies, interval);
         sim.integrator.getEventManager().addListener(pumpEnergies);
-        DataLogger dataLogger = null;
-        if (!swap && w == 0) {
-            dataLogger = new DataLogger();
-            DataSplitter splitter = new DataSplitter();
-            energyFork.addDataSink(splitter);
-            splitter.setDataSink(2, dataLogger);
-            dataLogger.setFileName("r2hist.dat");
-            DataArrayWriter writer = new DataArrayWriter();
-            writer.setIncludeHeader(false);
-            dataLogger.setDataSink(writer);
-            dataLogger.setAppending(false);
-            sim.getController().getEventManager().addListener(dataLogger);
-        }
+    
+        DataLogger dataLogger = new DataLogger();
+        MeterRMSD rmsd = new MeterRMSD
+        energyFork.addDataSink(splitter);
+        splitter.setDataSink(2, dataLogger);
+        dataLogger.setFileName("rmsd.dat");
+        DataArrayWriter writer = new DataArrayWriter();
+        writer.setIncludeHeader(false);
+        dataLogger.setDataSink(writer);
+        dataLogger.setAppending(false);
+        sim.getController().getEventManager().addListener(dataLogger);
 
         sim.getController().actionPerformed();
 
