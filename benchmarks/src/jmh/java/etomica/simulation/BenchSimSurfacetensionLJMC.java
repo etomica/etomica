@@ -1,5 +1,8 @@
 package etomica.simulation;
 
+import etomica.data.AccumulatorAverageFixed;
+import etomica.data.DataPumpListener;
+import etomica.data.IData;
 import etomica.data.meter.MeterPressureTensor;
 import etomica.space3d.Space3D;
 import etomica.surfacetension.LJMC;
@@ -24,15 +27,18 @@ public class BenchSimSurfacetensionLJMC {
         meter = new MeterPressureTensor(sim.potentialMaster, sim.space);
         meter.setBox(sim.box);
         meter.setTemperature(1.1);
-
+        DataPumpListener pumpListener = new DataPumpListener(meter, new AccumulatorAverageFixed(10), 2 * numAtoms);
+        sim.integrator.getEventManager().addListener(pumpListener);
+        sim.integrator.reset();
     }
 
     @Benchmark
     @BenchmarkMode(Mode.Throughput)
     @OutputTimeUnit(TimeUnit.SECONDS)
     @Warmup(time = 1, iterations = 5)
-    @Measurement(time = 1, timeUnit = TimeUnit.SECONDS)
-    public void surfacetension() {
+    @Measurement(time = 5, timeUnit = TimeUnit.SECONDS, iterations = 5)
+    public IData surfacetension() {
         sim.integrator.doStep();
+        return meter.getData();
     }
 }
