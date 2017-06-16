@@ -18,9 +18,15 @@ public class HardSphereFluid {
         -0.014474727265714415,-0.003183349327605778,0.017074836705042406,-0.0026047002163831975,-0.005498931252679095};
     public final static double[] NexpStretchFit = {6.960601433965988e-03,-2.263564675011192e-06,5.464112392968496e-10,-3.004093460638223e-14};
     public final static double a = 7123.0875;
-    
-    // Z = exp([Ni * rho^(i-1)] + rho^11 [Mi x^i])
-    //    x = a^rho
+
+    /**
+     * Computes Z using the following equation
+     * Z = exp([Ni * rho^(i-1)] + rho^11 [Mi x^i]) where x = a^rho
+     *
+     * @param rho
+     * @return Z
+     */
+
     public static double zFluid(double rho) {
         double expSum = 0;
         double rhoi = rho;
@@ -42,11 +48,21 @@ public class HardSphereFluid {
      * Returns the difference between absolute free energies between the given
      * densities for solid (FCC) hard spheres.  The result is computed using
      * numeric integration with n points.
+     * @param rho Density
+     * @return Absolute free energy difference
      */
     public static double Asolid(double rho){
         return Asolid(rho, 10000);
     }
-    
+
+    /**
+     * Returns the difference between absolute free energies between the given
+     * densities for solid (FCC) hard spheres.  The result is computed using
+     * numeric integration with n points.
+     * @param rho Density
+     * @param n number of points
+     * @return Absolute free energy difference
+     */
     public static double Asolid(double rho, int n) {
         // use trapezoid rule to integrate the correction
         double h = rho/n;
