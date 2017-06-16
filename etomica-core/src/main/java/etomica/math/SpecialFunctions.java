@@ -12,17 +12,16 @@ import etomica.units.Mole;
 /**
  * Static-method library of various functions
  */
- 
 public final class SpecialFunctions {
     
     private SpecialFunctions() {}
     
     /**
-     * consider using org.apache.commons.math3.special.Erf.erfc()
-     * this method is substantially faster (~10x - 100x), but only accurate to ~10^-7
-     * 
      * Complementary error function, computed using the approximant 7.1.26 of Abramowitz & Stegun.
      * Defined for x >= 0
+     *
+     * Consider using {@link org.apache.commons.math3.special.Erf#erfc} if more precision is required.
+     * This method is substantially faster (~10x - 100x), but only accurate to ~10^-7.
      */
     public static double erfc(double x) {
         double t = 1.0/(1.0 + 0.3275911*x);
@@ -34,9 +33,11 @@ public final class SpecialFunctions {
     }
     
     /**
-     * The factorial function, n!
-     * 
+     * The factorial function, n! Will overflow with any input value greater than 20.
+     *
+     * @param n an integer greater than or equal to 0
      * @throws IllegalArgumentException if n < 0
+     * @return the factorial of n
      */
     public static long factorial(int n){
         if(n < 0){
@@ -51,7 +52,14 @@ public final class SpecialFunctions {
         }
         return product;
     }
-    
+
+    /**
+     * The log of the factorial function, ln(n!). Will not overflow even if n! would be large.
+     *
+     * @param n an integer greater than or equal to 0
+     * @throws IllegalArgumentException if n < 0
+     * @return the natural logarithm of the factorial of n.
+     */
     public static double lnFactorial(int n) {
         if(n < 0) {
             throw new IllegalArgumentException("Argument less than zero: "+n);
@@ -63,7 +71,7 @@ public final class SpecialFunctions {
         double sum = 0;
         for (int i=n; i>1; i--) {
             p *= i;
-            if (p > Integer.MAX_VALUE/(p-1)) {
+            if (p > Integer.MAX_VALUE/(i-1)) {
                 sum += Math.log(p);
                 p = 1;
             }
@@ -75,6 +83,7 @@ public final class SpecialFunctions {
     /**
      * The sign function, returning -1 if x < 0, zero if x == 0, and +1 if x > 0.
      */
+    // TODO: all usages can just be converted to Math.signum
     public static double sgn(double x) {
         return (x < 0.0) ? -1.0 : ((x > 0.0) ? +1.0 : 0.0);
     }
@@ -83,6 +92,9 @@ public final class SpecialFunctions {
      * Returns the ln(gamma), the natural logarithm of the gamma function.
      * Lanczos approximation, with precision ~15 digits
      * coefficients from GSL (GNU Scientific Library) with g=7
+     *
+     * @param x a non-negative number.
+     * @return the natural logarithm of the gamma function of x.
      */
     public static double lnGamma(double x) {
         if (x < 0) {
@@ -303,21 +315,22 @@ public final class SpecialFunctions {
         return lp[n];
     }
     
-    /** 
+    protected static int nbin = 100;
+    protected static double [][] binom = new double [nbin][nbin];
+
+    /**
      * Returns the Wigner 3j symbol associated with coupling angular momenta in quantum mechanics.
      * Reference for code that is commented out: (this code is not much robust)
      * 1. http://mathworld.wolfram.com/Wigner3j-Symbol.html
      * 2. http://massey.dur.ac.uk/umk/files/python/wigner.py
      * Robust code taken from Bartolomei's pes-mrci.f file located at
      * /usr/users/rsubrama/Desktop/Acads/Phd/oxygen/Bartolomei2010/
-     * 
+     *
      * Currently only works for all 6 inputs being integers and not
      * half integers
      * @author rsubrama
      * @return double w3j
      */
-    protected static int nbin = 100;
-    protected static double [][] binom = new double [nbin][nbin];
     public static double wigner3J(int j1, int j2, int j3, int m1, int m2, int m3) {
 //        // Rule 1
 //        if (Math.abs(m1) > j1) return 0;
