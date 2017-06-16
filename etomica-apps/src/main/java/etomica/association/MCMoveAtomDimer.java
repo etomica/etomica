@@ -4,29 +4,27 @@
 
 package etomica.association;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.atom.IAtom;
+import etomica.potential.PotentialMaster;
+import etomica.util.random.IRandom;
+import etomica.simulation.Simulation;
 import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.space.ISpace;
-import etomica.virial.simulations.TestLJAssociationMC3D_NPT;
+import etomica.space.Space;
 
 public class MCMoveAtomDimer extends MCMoveAtom {
 	protected AssociationManager associationManager;
 	
 	
 
-	public MCMoveAtomDimer(ISimulation sim, IPotentialMaster potentialMaster,
-			ISpace _space) {
+	public MCMoveAtomDimer(Simulation sim, PotentialMaster potentialMaster,
+                           Space _space) {
 		this(potentialMaster, sim.getRandom(), _space, 1.0, 15.0, false);
 	}
 
 
-	public MCMoveAtomDimer(IPotentialMaster potentialMaster, IRandom random,
-			ISpace _space, double stepSize, double stepSizeMax,
-			boolean fixOverlap) {
+	public MCMoveAtomDimer(PotentialMaster potentialMaster, IRandom random,
+                           Space _space, double stepSize, double stepSizeMax,
+                           boolean fixOverlap) {
 		super(potentialMaster, random, _space, stepSize, stepSizeMax,
 				fixOverlap);
 	}

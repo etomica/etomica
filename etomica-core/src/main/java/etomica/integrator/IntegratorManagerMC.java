@@ -4,8 +4,7 @@
 
 package etomica.integrator;
 
-import etomica.api.IIntegrator;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveEventManager;
@@ -29,7 +28,7 @@ public class IntegratorManagerMC extends Integrator {
     public IntegratorManagerMC(IRandom random) {
         super();
         this.random = random;
-        integrators = new IIntegrator[0];
+        integrators = new Integrator[0];
         setGlobalMoveInterval(2);
         moveManager = new MCMoveManager(random);
         eventManager = new MCMoveEventManager();
@@ -80,8 +79,8 @@ public class IntegratorManagerMC extends Integrator {
         }
     }
 
-    public void addIntegrator(IIntegrator integrator){
-        integrators = (IIntegrator[])Arrays.addObject(integrators,integrator);
+    public void addIntegrator(Integrator integrator){
+        integrators = (Integrator[])Arrays.addObject(integrators,integrator);
         nIntegrators++;
     }
 
@@ -89,8 +88,8 @@ public class IntegratorManagerMC extends Integrator {
      * Removes the given integrator from the list of integrators.  Returns
      * false if the given integrator was not handled by this integrator.
      */
-    public boolean removeIntegrator(IIntegrator integrator) {
-        integrators = (IIntegrator[])Arrays.removeObject(integrators,integrator);
+    public boolean removeIntegrator(Integrator integrator) {
+        integrators = (Integrator[])Arrays.removeObject(integrators,integrator);
         if (nIntegrators == integrators.length) {
             return false;
         }
@@ -98,7 +97,7 @@ public class IntegratorManagerMC extends Integrator {
         return true;
     }
     
-    public IIntegrator[] getIntegrators() {
+    public Integrator[] getIntegrators() {
         return integrators.clone();
     }
 
@@ -204,7 +203,7 @@ public class IntegratorManagerMC extends Integrator {
     protected double globalMoveProbability;
     protected MCMoveManager moveManager;
     protected final IEventManager eventManager;
-    protected IIntegrator[] integrators;
+    protected Integrator[] integrators;
     protected int nIntegrators;
     private final IEvent trialEvent;
     private final IEvent acceptedEvent, rejectedEvent;

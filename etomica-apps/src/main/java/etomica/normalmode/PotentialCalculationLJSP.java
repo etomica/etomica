@@ -1,17 +1,16 @@
 package etomica.normalmode;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.potential.IPotentialAtomic;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialCalculation;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.space.Vector;
 
 public class PotentialCalculationLJSP implements PotentialCalculation {
 		
-	public PotentialCalculationLJSP(ISpace space, IBox box, CoordinateDefinition coordinateDefinition, double temperature, double dP, double f1,double fe, double fee){
+	public PotentialCalculationLJSP(Space space, Box box, CoordinateDefinition coordinateDefinition, double temperature, double dP, double f1, double fe, double fee){
 		sum = new double[1];
 //		sum = new double[14];
         this.space = space;
@@ -37,19 +36,19 @@ public class PotentialCalculationLJSP implements PotentialCalculation {
 	}
 	public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
 		Potential2SoftSpherical potentialSoft = (Potential2SoftSpherical)potential;
-        IVector[] g = potentialSoft.gradient(atoms);// gradient do nearestImage() !!!
+        Vector[] g = potentialSoft.gradient(atoms);// gradient do nearestImage() !!!
         int nNbrAtoms = atoms.getAtomCount();
-        IVector ri = atoms.getAtom(0).getPosition();
-        IVector Ri = coordinateDefinition.getLatticePosition(atoms.getAtom(0));
+        Vector ri = atoms.getAtom(0).getPosition();
+        Vector Ri = coordinateDefinition.getLatticePosition(atoms.getAtom(0));
         dri.Ev1Mv2(ri, Ri);
-        IVector  rj;
+        Vector rj;
 
         
         for (int j=1;j<nNbrAtoms;j++){//START from "1" NOT "0" because we need j != i
         	rj = atoms.getAtom(j).getPosition();
-        	IVector Rj = coordinateDefinition.getLatticePosition(atoms.getAtom(j));
+        	Vector Rj = coordinateDefinition.getLatticePosition(atoms.getAtom(j));
         	Rij.Ev1Mv2(Ri , Rj);
-        	IVector shift_Rij = box.getBoundary().centralImage(Rij);
+        	Vector shift_Rij = box.getBoundary().centralImage(Rij);
         	box.getBoundary().nearestImage(Rij);
         	rij.Ev1Mv2(ri , rj);
         	rij.PE(shift_Rij);
@@ -112,7 +111,7 @@ public class PotentialCalculationLJSP implements PotentialCalculation {
         }//j atoms loop
 	}
 
-	protected double function(IVector rij, IVector T1ij, IVector T2ij, double dW, double d2W){
+	protected double function(Vector rij, Vector T1ij, Vector T2ij, double dW, double d2W){
 		double rij2 = rij.squared();
 		double rDr = dW/rij2 * T1ij.dot(T2ij) + (d2W-dW)/rij2/rij2 * T1ij.dot(rij)*(T2ij.dot(rij)); //B_new!!        		
 		return rDr;
@@ -141,17 +140,17 @@ public class PotentialCalculationLJSP implements PotentialCalculation {
 	protected double volume , temperature;
 	protected double dP,  f1, fe, fee;
 	protected int nMol;
-    protected final IVectorMutable rij;
-    protected final IVectorMutable Rij;
-    protected final IVectorMutable drj;
-    protected final IVectorMutable dri ;
-    protected final IVectorMutable drij;
-    protected final IVectorMutable drj_tmp;
-    protected final IVectorMutable T1ij, T2ij, T3ij;
+    protected final Vector rij;
+    protected final Vector Rij;
+    protected final Vector drj;
+    protected final Vector dri ;
+    protected final Vector drij;
+    protected final Vector drj_tmp;
+    protected final Vector T1ij, T2ij, T3ij;
 
     
 
-    protected final ISpace space;
-    protected final IBox box;
+    protected final Space space;
+    protected final Box box;
     protected final CoordinateDefinition coordinateDefinition;
  }//end VirialSum

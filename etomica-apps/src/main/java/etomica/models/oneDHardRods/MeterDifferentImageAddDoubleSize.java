@@ -4,13 +4,12 @@
 
 package etomica.models.oneDHardRods;
 
-import etomica.api.IAtomList;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.normalmode.NormalModes;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 
 /**
@@ -28,18 +27,18 @@ public class MeterDifferentImageAddDoubleSize extends MeterDifferentImageAdd {
     private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "MeterDifferentImageAddDoubleSize";
     
-    public MeterDifferentImageAddDoubleSize(ISimulation sim, ISpace space, 
-            double temp, CoordinateDefinition simCD, NormalModes simNM, 
-            CoordinateDefinition  otherCD, PotentialMasterList potentialMaster, 
-            int[] otherNCells, NormalModes otherNM) {
+    public MeterDifferentImageAddDoubleSize(Simulation sim, Space space,
+                                            double temp, CoordinateDefinition simCD, NormalModes simNM,
+                                            CoordinateDefinition  otherCD, PotentialMasterList potentialMaster,
+                                            int[] otherNCells, NormalModes otherNM) {
         this(sim, space, temp, simCD, simNM, otherCD, potentialMaster, 
                 otherNCells, otherNM, "file");
     }
     
-    public MeterDifferentImageAddDoubleSize(ISimulation sim, ISpace space, 
-            double temp, CoordinateDefinition simCD, NormalModes simNM, 
-            CoordinateDefinition otherCD, PotentialMasterList potentialMaster,
-            int[] otherNCells, NormalModes otherNM, String otherFilename){
+    public MeterDifferentImageAddDoubleSize(Simulation sim, Space space,
+                                            double temp, CoordinateDefinition simCD, NormalModes simNM,
+                                            CoordinateDefinition otherCD, PotentialMasterList potentialMaster,
+                                            int[] otherNCells, NormalModes otherNM, String otherFilename){
         
         super(sim, space, temp, simCD, simNM, otherCD, potentialMaster, 
                 otherNCells, otherNM, otherFilename);

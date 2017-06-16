@@ -4,31 +4,31 @@
 
 package etomica.association;
 
-import etomica.api.IAtom;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IRandom;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
+import etomica.atom.IAtom;
+import etomica.space.Boundary;
+import etomica.space.Vector;
+import etomica.box.Box;
+import etomica.util.random.IRandom;
+import etomica.space.Space;
 
 public class BiasVolumeSphere extends BiasVolume {
     
     private static final long serialVersionUID = 1L;
     private double radius;
     private double innerRadius;
-    private final IVectorRandom work;
+    private final Vector work;
     private final IRandom random;
-    private IBoundary boundary;
+    private Boundary boundary;
     
-    public BiasVolumeSphere(ISpace space, IRandom random){
+    public BiasVolumeSphere(Space space, IRandom random){
         super(space);
         this.random = random;
-        work = (IVectorRandom)space.makeVector();
+        work = space.makeVector();
         radius = 1.0;//size of the sphere
         innerRadius = 0.9;
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
     	boundary = box.getBoundary();
     }
     

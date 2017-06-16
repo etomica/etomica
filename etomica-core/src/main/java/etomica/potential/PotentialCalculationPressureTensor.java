@@ -4,13 +4,11 @@
 
 package etomica.potential;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotentialAtomic;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.integrator.IntegratorBox;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 /**
@@ -22,7 +20,7 @@ public class PotentialCalculationPressureTensor implements PotentialCalculation 
 
     protected final Tensor pressureTensor;
     protected final Tensor workTensor;
-    protected final ISpace space;
+    protected final Space space;
     protected IAtomList leafList;
     protected IntegratorBox integrator;
     protected boolean warningPrinted;
@@ -30,7 +28,7 @@ public class PotentialCalculationPressureTensor implements PotentialCalculation 
     protected final Tensor I;
     protected boolean doNonEquilibrium;
     
-    public PotentialCalculationPressureTensor(ISpace space) {
+    public PotentialCalculationPressureTensor(Space space) {
         this.space = space;
         pressureTensor = space.makeTensor();
         workTensor = space.makeTensor();
@@ -57,7 +55,7 @@ public class PotentialCalculationPressureTensor implements PotentialCalculation 
 		((PotentialSoft)potential).gradient(atoms, pressureTensor);
 	}
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         leafList = newBox.getLeafList();
     }
 
@@ -94,7 +92,7 @@ public class PotentialCalculationPressureTensor implements PotentialCalculation 
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtomKinetic atom = (IAtomKinetic)leafList.getAtom(iLeaf);
                 workTensor.Ev1v2(atom.getVelocity(), atom.getVelocity());
-                workTensor.TE(((IAtom)atom).getType().getMass());
+                workTensor.TE(atom.getType().getMass());
                 pressureTensor.PE(workTensor);
             }
             return pressureTensor;

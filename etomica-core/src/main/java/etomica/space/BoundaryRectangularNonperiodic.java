@@ -4,8 +4,6 @@
 
 package etomica.space;
 
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 
@@ -21,7 +19,7 @@ public class BoundaryRectangularNonperiodic extends BoundaryRectangular {
     /**
      * Make a boundary with unit volume.
      */
-    public BoundaryRectangularNonperiodic(ISpace space) {
+    public BoundaryRectangularNonperiodic(Space space) {
         super(space, 1.0);//boolean elements will all be false
         zero = space.makeVector();
     }
@@ -29,7 +27,7 @@ public class BoundaryRectangularNonperiodic extends BoundaryRectangular {
     /**
      * Returns a vector with all elements zero.
      */
-    public IVector centralImage(IVector r) {
+    public Vector centralImage(Vector r) {
         zero.E(0.0);
         return zero;
     }
@@ -37,7 +35,7 @@ public class BoundaryRectangularNonperiodic extends BoundaryRectangular {
     /**
      * Does nothing.
      */
-    public void nearestImage(IVectorMutable dr) {
+    public void nearestImage(Vector dr) {
     }
 
     /**
@@ -55,7 +53,7 @@ public class BoundaryRectangularNonperiodic extends BoundaryRectangular {
         return false;
     }
 
-    private final IVectorMutable zero;
+    private final Vector zero;
     protected final double[][] origins= new double[0][0];//cannot be static because several boxs may be using at once
     private static final long serialVersionUID = 1L;
 }

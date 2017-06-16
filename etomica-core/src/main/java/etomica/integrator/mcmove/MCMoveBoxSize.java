@@ -6,16 +6,16 @@ package etomica.integrator.mcmove;
 
 import etomica.action.BoxInflate;
 import etomica.action.BoxInflateDeformable;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
-import etomica.api.IVectorMutable;
+import etomica.potential.PotentialMaster;
+import etomica.space.Vector;
+import etomica.box.Box;
+import etomica.util.random.IRandom;
+import etomica.simulation.Simulation;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Monte Carlo move for changing the box dimensions at constant volume. 
@@ -28,17 +28,17 @@ public class MCMoveBoxSize extends MCMoveBoxStep {
     protected double pressure;
     private MeterPotentialEnergy energyMeter;
     protected BoxInflate inflate;
-    protected final ISpace space;
+    protected final Space space;
     private IRandom random;
     protected final AtomIteratorLeafAtoms affectedAtomIterator;
-    protected final IVectorMutable boxScale;
+    protected final Vector boxScale;
 
     private transient double uOld, lScale;
     private transient int dim1, dim2;
     private transient double uNew = Double.NaN;
 
-    public MCMoveBoxSize(ISimulation sim, IPotentialMaster potentialMaster,
-    		            ISpace _space) {
+    public MCMoveBoxSize(Simulation sim, PotentialMaster potentialMaster,
+                         Space _space) {
         this(potentialMaster, sim.getRandom(), _space);
     }
     
@@ -46,8 +46,8 @@ public class MCMoveBoxSize extends MCMoveBoxStep {
      * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
      * @param space the governing space for the simulation
      */
-    public MCMoveBoxSize(IPotentialMaster potentialMaster, IRandom random,
-    		            ISpace space) {
+    public MCMoveBoxSize(PotentialMaster potentialMaster, IRandom random,
+                         Space space) {
         super(potentialMaster);
         this.space = space;
         this.random = random;
@@ -61,7 +61,7 @@ public class MCMoveBoxSize extends MCMoveBoxStep {
         boxScale = space.makeVector();
     }
     
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         inflate.setBox(p);

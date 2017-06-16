@@ -8,12 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import etomica.action.IAction;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.ISimulation;
+import etomica.box.Box;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorHard;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Custom DMD integrator that handles hybrid simulations with
@@ -24,12 +24,12 @@ import etomica.space.ISpace;
 public class IntegratorHardMDMC extends IntegratorHard {
     protected List<IAction> thermostatActions;
 
-    public IntegratorHardMDMC(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
+    public IntegratorHardMDMC(Simulation sim, PotentialMaster potentialMaster, Space _space) {
         super(sim, potentialMaster, _space);
         thermostatActions = new ArrayList<IAction>();
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         super.setBox(box);
     }
     

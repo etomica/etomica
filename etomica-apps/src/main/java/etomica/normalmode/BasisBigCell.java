@@ -4,12 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.config.ConfigurationLatticeSimple;
 import etomica.lattice.BravaisLatticeCrystal;
@@ -17,19 +12,22 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.simulation.Simulation;
+import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 
 public class BasisBigCell extends Basis {
 
     private static final long serialVersionUID = 1L;
 
-    public BasisBigCell(ISpace space, Basis subBasis, int[] nSubCells) {
+    public BasisBigCell(Space space, Basis subBasis, int[] nSubCells) {
         super(makeScaledCoordinates(space, subBasis, nSubCells));
     }
 
-    protected static IVector[] makeScaledCoordinates(ISpace space, Basis subBasis, int[] nSubCells) {
+    protected static Vector[] makeScaledCoordinates(Space space, Basis subBasis, int[] nSubCells) {
         // make pretend sim, species and box so we can find the appropriate coordinates
         Simulation sim = new Simulation(space);
         ISpecies species = new SpeciesSpheresMono(sim, space);
@@ -39,12 +37,12 @@ public class BasisBigCell extends Basis {
         // change what our result should be.  so just pretend that it's rectangular.
         
         
-        IBoundary boundary = new BoundaryRectangularPeriodic(space);
+        Boundary boundary = new BoundaryRectangularPeriodic(space);
         Primitive primitive = new PrimitiveCubic(space);
         
-        IBox box = new Box(boundary, space);
+        Box box = new Box(boundary, space);
         sim.addBox(box);
-        IVector vector = space.makeVector(nSubCells);
+        Vector vector = space.makeVector(nSubCells);
         box.getBoundary().setBoxSize(vector);
         int numMolecules = subBasis.getScaledCoordinates().length;
         for (int i=0; i<nSubCells.length; i++) {
@@ -54,11 +52,11 @@ public class BasisBigCell extends Basis {
         ConfigurationLatticeSimple configLattice = new ConfigurationLatticeSimple(new BravaisLatticeCrystal(primitive, subBasis), space);
         configLattice.initializeCoordinates(box);
 
-        IVector boxSize = boundary.getBoxSize();
+        Vector boxSize = boundary.getBoxSize();
         
         // retrieve real coordinates and scale them
         IAtomList atomList = box.getLeafList();
-        IVectorMutable[] pos = new IVectorMutable[atomList.getAtomCount()];
+        Vector[] pos = new Vector[atomList.getAtomCount()];
         for (int i=0; i<atomList.getAtomCount(); i++) {
             pos[i] = space.makeVector();
             pos[i].E(atomList.getAtom(i).getPosition());

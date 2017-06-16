@@ -10,7 +10,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -21,7 +21,7 @@ import etomica.graph.property.HasSimpleArticulationPoint;
 import etomica.graph.traversal.BCVisitor;
 import etomica.graph.traversal.Biconnected;
 import etomica.units.Null;
-import etomica.util.DoubleRange;
+import etomica.math.DoubleRange;
 import etomica.virial.cluster.ExternalVirialDiagrams;
 
 /**

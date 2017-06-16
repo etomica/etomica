@@ -9,10 +9,8 @@ import java.io.IOException;
 
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
-import etomica.api.IBox;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.data.DataInfo;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
@@ -23,15 +21,12 @@ import etomica.lattice.LatticeSumCrystal.DataGroupLSC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.potential.Potential2SoftSpherical;
-import etomica.space.Boundary;
-import etomica.space.BoundaryDeformableLattice;
-import etomica.space.ISpace;
-import etomica.space.Tensor;
+import etomica.space.*;
 import etomica.space3d.Tensor3D;
 import etomica.units.Dimension;
 import etomica.util.Arrays;
-import etomica.util.Function;
-import etomica.util.FunctionGeneral;
+import etomica.math.function.Function;
+import etomica.data.FunctionData;
 
 /**
  * Uses analysis of 2nd derivatives to compute the normal modes for a Bravais lattice with a basis, 
@@ -40,7 +35,7 @@ import etomica.util.FunctionGeneral;
 
 public class NormalModesPotential implements NormalModes {
 
-    public NormalModesPotential(int[] nCells, Primitive primitive, Basis basis, Potential2SoftSpherical potential, ISpace space) {
+    public NormalModesPotential(int[] nCells, Primitive primitive, Basis basis, Potential2SoftSpherical potential, Space space) {
         this.space = space;
         needToCalculateModes = true;
         
@@ -50,7 +45,7 @@ public class NormalModesPotential implements NormalModes {
         int nSites = nCells[0]*nCells[1]*nCells[2];
         Boundary boundary = new BoundaryDeformableLattice(primitive, nCells);
         
-        IBox box = new Box(boundary, space);
+        Box box = new Box(boundary, space);
 
         System.out.println("Cell Density: "+nSites/boundary.volume());
         System.out.println("Site Density: "+nSites/boundary.volume()*basis.getScaledCoordinates().length);
@@ -74,9 +69,9 @@ public class NormalModesPotential implements NormalModes {
         omega2 = new double[kDim][eDim];
         eigenvectors = new double[kDim][eDim][eDim];
         //this function returns phi_{alpha,beta}, as defined in Dove Eq. 6.15
-        FunctionGeneral function = new FunctionGeneral() {
+        FunctionData<Object> function = new FunctionData<Object>() {
             public IData f(Object obj) {
-                IVector r = (IVector)obj;
+                Vector r = (Vector)obj;
                 tensor.x.Ev1v2(r, r);
                 double r2 = r.squared();
                 double dW = potential.du(r2);
@@ -95,7 +90,7 @@ public class NormalModesPotential implements NormalModes {
         
         LatticeSumCrystal summer = new LatticeSumCrystal(lattice);
         summer.setMaxLatticeShell(maxLatticeShell);
-        IVectorMutable kVector = lattice.getSpace().makeVector();
+        Vector kVector = lattice.getSpace().makeVector();
         
         
         
@@ -287,7 +282,7 @@ public class NormalModesPotential implements NormalModes {
 		this.fileName = filename;
 	}
 
-    protected final ISpace space;
+    protected final Space space;
     private final BravaisLatticeCrystal lattice;
     private Potential2SoftSpherical potential;
     private WaveVectorFactory kFactory;

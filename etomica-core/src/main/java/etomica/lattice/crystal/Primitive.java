@@ -4,13 +4,12 @@
 
 package etomica.lattice.crystal;
 
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.space.Vector;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Parallelepiped;
 import etomica.math.geometry.Parallelogram;
 import etomica.math.geometry.Polytope;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Collection of primitive elements that specify or are determined
@@ -19,12 +18,12 @@ import etomica.space.ISpace;
 public abstract class Primitive implements java.io.Serializable {
     
     private static final long serialVersionUID = 1L;
-    protected final IVectorMutable[] latticeVectors;
+    protected final Vector[] latticeVectors;
     protected final int[] idx;//used to return coordinate index
     protected final int D;
     protected final double[] size;
     protected final double[] angle;
-    protected final ISpace space;
+    protected final Space space;
     protected static final double rightAngle = 0.5*Math.PI;
     
     /**
@@ -32,10 +31,10 @@ public abstract class Primitive implements java.io.Serializable {
      * its reciprocal primitive.  For construction of the direct-lattice
      * primitive, this constructor is called via the Primitive(Simulation) constructor.
      */
-    public Primitive(ISpace space) {
+    public Primitive(Space space) {
         this.space = space;
         D = space.D();
-        latticeVectors = new IVectorMutable[D];
+        latticeVectors = new Vector[D];
         idx = new int[D];
         size = new double[D];
 //        sizeCopy = new double[D];
@@ -54,7 +53,7 @@ public abstract class Primitive implements java.io.Serializable {
     /**
      * @return the space
      */
-    public final ISpace getSpace() {
+    public final Space getSpace() {
         return space;
     }
 
@@ -62,7 +61,7 @@ public abstract class Primitive implements java.io.Serializable {
      * Returns a new array with values equal to the lengths of the primitive vectors.
      */
     public double[] getSize() {
-        return (double[])size.clone();
+        return size.clone();
     }
     
     /**
@@ -112,7 +111,7 @@ public abstract class Primitive implements java.io.Serializable {
      * provide mutator methods that permit changes to the vectors while
      * adhering to a particular structure (e.g., cubic, fcc, etc.).
      */
-    public IVector[] vectors() {
+    public Vector[] vectors() {
         return latticeVectors;
     }
     
@@ -126,7 +125,7 @@ public abstract class Primitive implements java.io.Serializable {
      * point if the index were passed to a the site method of a sufficiently
      * large lattice that uses this primitive.
      */
-    public abstract int[] latticeIndex(IVector r);
+    public abstract int[] latticeIndex(Vector r);
     
     /**
      * Same as latticeIndex(Space.Vector), but gives index for periodic system
@@ -134,7 +133,7 @@ public abstract class Primitive implements java.io.Serializable {
      * If lattice index corresponds to a cell outside the range of dimensions,
      * index of image in central cells is returned.
      */
-    public abstract int[] latticeIndex(IVector r, int[] dimensions);
+    public abstract int[] latticeIndex(Vector r, int[] dimensions);
     
     /**
      * Returns the Wigner-Seitz cell specified by this primitive.

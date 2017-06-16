@@ -1,14 +1,19 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 package etomica.freeenergy.npath;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotentialAtomic;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
+import etomica.meam.P2EAM;
+import etomica.potential.IPotentialAtomic;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialMaster;
 import etomica.units.Energy;
@@ -21,22 +26,28 @@ public class DataSourceEnergies implements IEtomicaDataSource {
     protected final DataDoubleArray data;
     protected final DataDoubleArray.DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
-    protected final PotentialCalculationEnergies pc;
+    protected final PotentialCalculationDUDW pcDUDW;
+    protected PotentialCalculationEnergies pc;
     protected final PotentialMaster potentialMaster;
-    protected IBox box;
+    protected Box box;
     protected final IteratorDirective id;
 
     public DataSourceEnergies(PotentialMaster potentialMaster) {
         this.potentialMaster = potentialMaster;
-        data = new DataDoubleArray(2);
-        dataInfo = new DataDoubleArray.DataInfoDoubleArray("energies!", Energy.DIMENSION, new int[]{2});
+        data = new DataDoubleArray(3);
+        dataInfo = new DataDoubleArray.DataInfoDoubleArray("energies!", Energy.DIMENSION, new int[]{3});
         tag = new DataTag();
         dataInfo.addTag(tag);
         pc = new PotentialCalculationEnergies();
+        pcDUDW = new PotentialCalculationDUDW();
         id = new IteratorDirective();
     }
+    
+    public void setPotentialCalculation(PotentialCalculationEnergies pc) {
+        this.pc = pc;
+    }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
     }
 
@@ -47,6 +58,9 @@ public class DataSourceEnergies implements IEtomicaDataSource {
         double[] x = data.getData();
         x[0] = pc.getSum1();
         x[1] = pc.getSum2();
+        pcDUDW.reset();
+        potentialMaster.calculate(box, id, pcDUDW);
+        x[2] = pcDUDW.getSum();
         return data;
     }
 
@@ -85,6 +99,17 @@ public class DataSourceEnergies implements IEtomicaDataSource {
             else {
                 sum2 += u;
             }
+        }
+    }
+    
+    public static class PotentialCalculationEnergiesEAM extends PotentialCalculationEnergies {
+        protected final P2EAM p2;
+        public PotentialCalculationEnergiesEAM(P2EAM p2) {
+            this.p2 = p2;
+        }
+        public void reset() {super.reset(); p2.reset();}
+        public double getSum2() {
+            return sum2 + p2.energy1();
         }
     }
 }

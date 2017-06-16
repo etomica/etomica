@@ -4,10 +4,10 @@
 
 package etomica.paracetamol;
 
-import etomica.api.IAtomList;
-import etomica.api.IAtom;
+import etomica.atom.IAtomList;
+import etomica.atom.IAtom;
 import etomica.config.IConformation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /*
  *  Geometry of Published Paracetamol Molecule (Monoclinic)
@@ -17,7 +17,7 @@ import etomica.space.ISpace;
 
 public class ConformationParacetamolMonoclinic implements IConformation {
 	
-	public ConformationParacetamolMonoclinic(ISpace space) {
+	public ConformationParacetamolMonoclinic(Space space) {
 	    this.space = space;
 	}
 	
@@ -149,5 +149,5 @@ public class ConformationParacetamolMonoclinic implements IConformation {
 	}
 
 	private static final long serialVersionUID = 1L;
-    protected final ISpace space;
+    protected final Space space;
 }

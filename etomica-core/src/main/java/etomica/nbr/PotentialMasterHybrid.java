@@ -4,24 +4,20 @@
 
 package etomica.nbr;
 
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IPotentialMolecular;
-import etomica.api.ISimulation;
-import etomica.api.ISpecies;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.atom.AtomType;
+import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxCellManager;
+import etomica.molecule.IMoleculePositionDefinition;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.BoxAgentSourceCellManagerList;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.potential.PotentialCalculation;
-import etomica.potential.PotentialGroup;
-import etomica.space.ISpace;
+import etomica.potential.*;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.species.ISpecies;
 
 /**
  * PotentialMaster that uses both neighbor-cell iteration and cell-list 
@@ -32,13 +28,17 @@ import etomica.space.ISpace;
  */
 public class PotentialMasterHybrid extends PotentialMasterNbr {
 
+    private final PotentialMasterList potentialMasterList;
+    private final PotentialMasterCell potentialMasterCell;
+    private boolean useNbrLists;
+    
     /**
 	 * Invokes superclass constructor, specifying IteratorFactoryCell
      * for generating molecule iterators.  Sets default nCells of 10,
      * and position definition to null, causing cell assignment to be
-     * based on atom type's position definition. 
-	 */
-	public PotentialMasterHybrid(ISimulation sim, double range, ISpace space) {
+     * based on atom type's position definition.
+     */
+	public PotentialMasterHybrid(Simulation sim, double range, Space space) {
         this(sim, null, range, space);
     }
     
@@ -46,21 +46,21 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
      * Constructs class using given position definition for all atom cell assignments.
      * @param positionDefinition if null, specifies use of atom type's position definition
      */
-    public PotentialMasterHybrid(ISimulation sim, IAtomPositionDefinition positionDefinition, double range, ISpace space) {
+    public PotentialMasterHybrid(Simulation sim, IMoleculePositionDefinition positionDefinition, double range, Space space) {
         this(sim, range, new BoxAgentSourceCellManagerList(sim, positionDefinition, space), space);
     }
     
-    private PotentialMasterHybrid(ISimulation sim, double range, BoxAgentSourceCellManagerList boxAgentSource, ISpace space) {
+    private PotentialMasterHybrid(Simulation sim, double range, BoxAgentSourceCellManagerList boxAgentSource, Space space) {
         this(sim, range, boxAgentSource, new BoxAgentManager<NeighborCellManager>(boxAgentSource, BoxCellManager.class), space);
     }
     
-    private PotentialMasterHybrid(ISimulation sim, double range, BoxAgentSourceCellManagerList boxAgentSource,
-            BoxAgentManager<NeighborCellManager> agentManager, ISpace _space) {
+    private PotentialMasterHybrid(Simulation sim, double range, BoxAgentSourceCellManagerList boxAgentSource,
+                                  BoxAgentManager<NeighborCellManager> agentManager, Space _space) {
         super(sim, boxAgentSource, agentManager);
         potentialMasterList = new PotentialMasterList(sim, range, boxAgentSource, agentManager, _space);
         potentialMasterCell = new PotentialMasterCell(sim, range, boxAgentSource, agentManager, _space);
 	}
-    
+
     public PotentialGroup makePotentialGroup(int nBody) {
         return new PotentialGroupHybrid(nBody);
     }
@@ -82,16 +82,16 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
      * down species hierarchy from it; if two or more atoms are specified,
      * superclass method is invoked.
      */
-    public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
+    public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
 		if(!enabled) return;
         if (useNbrLists) potentialMasterList.calculate(box,id,pc);
         else potentialMasterCell.calculate(box,id,pc);
     }
-    
+
     public double getCellRange() {
         return potentialMasterCell.getRange();
     }
-    
+
     public void setCellRange(int newRange) {
         potentialMasterList.setCellRange(newRange);
         potentialMasterCell.setCellRange(newRange);
@@ -106,7 +106,7 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
         potentialMasterCell.setRange(newRange);
     }
 
-    public NeighborCellManager getNbrCellManager(IBox box) {
+    public NeighborCellManager getNbrCellManager(Box box) {
         return potentialMasterList.getNbrCellManager(box);
     }
     
@@ -118,22 +118,22 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
         potentialMasterList.addPotential(potential, species);
         potentialMasterCell.addPotential(potential, species);
         if (potential instanceof PotentialGroup) {
-            // potential masters will attempt to set themselves as the group's 
-            // PotentialMaster, but it will resist because it only has eyes for 
+            // potential masters will attempt to set themselves as the group's
+            // PotentialMaster, but it will resist because it only has eyes for
             // us.
             ((PotentialGroup)potential).setPotentialMaster(this);
         }
     }
-    
-    protected void addRangedPotentialForTypes(IPotentialAtomic potential, IAtomType[] atomTypes) {
+
+    protected void addRangedPotentialForTypes(IPotentialAtomic potential, AtomType[] atomTypes) {
     }
-    
+
     public void potentialAddedNotify(IPotentialAtomic subPotential, PotentialGroup pGroup) {
         potentialMasterList.potentialAddedNotify(subPotential, pGroup);
         potentialMasterCell.potentialAddedNotify(subPotential, pGroup);
     }
-    
-    public NeighborListManager getNeighborManager(IBox box) {
+
+    public NeighborListManager getNeighborManager(Box box) {
         return potentialMasterList.getNeighborManager(box);
     }
 
@@ -141,8 +141,4 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
         potentialMasterList.removePotential(potential);
         potentialMasterCell.removePotential(potential);
     }
-
-    private boolean useNbrLists;
-    private final PotentialMasterList potentialMasterList;
-    private final PotentialMasterCell potentialMasterCell;
 }

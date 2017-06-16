@@ -4,10 +4,9 @@
 
 package etomica.normalmode;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
@@ -34,7 +33,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
         realT = new double[coordinateDim];
         imaginaryT = new double[coordinateDim];
 
-        IBox box = coordinateDefinition.getBox();
+        Box box = coordinateDefinition.getBox();
         normalModes.getWaveVectorFactory().makeWaveVectors(box);
         setWaveVectors(normalModes.getWaveVectorFactory().getWaveVectors(),normalModes.getWaveVectorFactory().getCoefficients());
         setEigenvectors(normalModes.getEigenvectors());
@@ -73,11 +72,11 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
         return energySum;//don't multiply by 1/2 because we're summing over only half of the wave vectors
     }
 
-    public IBox getBox() {
+    public Box getBox() {
         return coordinateDefinition.getBox();
     }
 
-    protected void setWaveVectors(IVectorMutable[] newWaveVectors, double[] coefficients) {
+    protected void setWaveVectors(Vector[] newWaveVectors, double[] coefficients) {
         waveVectors = newWaveVectors;
         waveVectorCoefficients = coefficients;
     }
@@ -99,7 +98,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
     private static final long serialVersionUID = 1L;
     protected CoordinateDefinition coordinateDefinition;
     protected double[] realT, imaginaryT;
-    protected IVectorMutable[] waveVectors;
+    protected Vector[] waveVectors;
     protected double[] waveVectorCoefficients;
     protected double[][][] eigenvectors;
     protected double[][] omegaSquared;
@@ -115,7 +114,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim, sp);
         sim.addSpecies(species);
 
-        IBox box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), L), sim.getSpace());
+        Box box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), L), sim.getSpace());
         sim.addBox(box);
         box.setNMolecules(species, numAtoms);
 

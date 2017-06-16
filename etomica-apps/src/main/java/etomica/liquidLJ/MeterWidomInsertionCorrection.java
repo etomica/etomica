@@ -1,11 +1,7 @@
 package etomica.liquidLJ;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IBox;
-import etomica.api.IFunction;
-import etomica.api.IMolecule;
-import etomica.api.IRandom;
-import etomica.api.ISpecies;
+import etomica.box.Box;
 import etomica.box.RandomPositionSource;
 import etomica.box.RandomPositionSourceRectangular;
 import etomica.data.DataTag;
@@ -15,8 +11,12 @@ import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.space.ISpace;
+import etomica.math.function.IFunction;
+import etomica.molecule.IMolecule;
+import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.units.Null;
+import etomica.util.random.IRandom;
 
 /**
  * Meter to measure the chemical potential (as its exponent: exp(-mu/kT)) of a
@@ -40,7 +40,7 @@ import etomica.units.Null;
  */
 public class MeterWidomInsertionCorrection implements IEtomicaDataSource {
 
-    public MeterWidomInsertionCorrection(ISpace space, IRandom random) {
+    public MeterWidomInsertionCorrection(Space space, IRandom random) {
         tag = new DataTag();
         dataInfo = new DataInfoDoubleArray("exp(-\u03BC/kT)", Null.DIMENSION, new int[]{4});
         dataInfo.addTag(tag);
@@ -162,7 +162,7 @@ public class MeterWidomInsertionCorrection implements IEtomicaDataSource {
         energyMeterFull = newEnergyMeterFull;
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         this.box = newBox;
         energyMeterFast.setBox(box);
         energyMeterFull.setBox(box);
@@ -201,7 +201,7 @@ public class MeterWidomInsertionCorrection implements IEtomicaDataSource {
     private MoleculeActionTranslateTo atomTranslator;
     protected RandomPositionSource positionSource;
     private MeterPotentialEnergy energyMeterFast, energyMeterFull;
-    protected IBox box;
+    protected Box box;
     protected double temperature;
     protected double uFac = 0;
     public double epsFactor = 1.0;

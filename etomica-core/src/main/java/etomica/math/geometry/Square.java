@@ -8,8 +8,8 @@
  */
 package etomica.math.geometry;
 
-import etomica.api.IVector;
-import etomica.space.ISpace;
+import etomica.space.Vector;
+import etomica.space.Space;
 import etomica.space2d.Vector2D;
 
 /**
@@ -22,7 +22,7 @@ public class Square extends Polygon {
     /**
      * Constructs a square of unit size.
      */
-    public Square(ISpace embeddedSpace) {
+    public Square(Space embeddedSpace) {
         this(embeddedSpace, 1.0);
     }
     
@@ -30,7 +30,7 @@ public class Square extends Polygon {
      * Constructs a square with edge length having the given value.
      * @param size edge length of the cube
      */
-    public Square(ISpace embeddedSpace, double size) {
+    public Square(Space embeddedSpace, double size) {
         super(embeddedSpace, 4);
         setEdgeLength(size);
     }
@@ -47,7 +47,7 @@ public class Square extends Polygon {
      * Returns <code>true</code> if the given vector lies inside (or on the surface of)
      * this cell, <code>false</code> otherwise.
      */
-    public boolean contains(IVector v) {
+    public boolean contains(Vector v) {
         double x = v.getX(0)-position.getX(0);
         double y = v.getX(1)-position.getX(1);
         return (x>=n) && (x<=p) && (y>=n) && (y<=p);

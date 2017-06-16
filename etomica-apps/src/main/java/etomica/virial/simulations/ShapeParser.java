@@ -6,12 +6,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import etomica.api.IVector;
-import etomica.space.ISpace;
+import etomica.space.Vector;
+import etomica.space.Space;
 
 public class ShapeParser {
 
-    public static ShapeData doParse(String filename, ISpace space) {
+    public static ShapeData doParse(String filename, Space space) {
         ShapeData shape = new ShapeData();
         try {
             FileReader fr = new FileReader(filename);
@@ -44,7 +44,7 @@ public class ShapeParser {
     }
 
     public static class ShapeData {
-        public List<IVector> vertices = new ArrayList<IVector>();
+        public List<Vector> vertices = new ArrayList<Vector>();
         public double volume, vEHS, B2;
     }
 }

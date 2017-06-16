@@ -1,30 +1,19 @@
 package etomica.virial.simulations;
 
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotential;
+import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.math.SpecialFunctions;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.IPotential;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterChainHS;
-import etomica.virial.ClusterSinglyConnected;
-import etomica.virial.ClusterWeightAbs;
-import etomica.virial.ClusterWeightUmbrella;
-import etomica.virial.ClusterWheatleyExtendSW;
-import etomica.virial.MCMoveClusterAtomHSChain;
-import etomica.virial.MCMoveClusterAtomHSRing;
-import etomica.virial.MCMoveClusterAtomHSTree;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerFunction;
-import etomica.virial.MeterVirialSWWE;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 import etomica.virial.simulations.VirialHS.VirialHSParam;
 
@@ -64,7 +53,7 @@ public class VirialSWWE {
             final double sigma2 = 1.0;
             final double well2 = lambda*lambda;
             
-            public void setBox(IBox box) {}
+            public void setBox(Box box) {}
             
             public IPotential getPotential() {return null;}
             
@@ -75,7 +64,7 @@ public class VirialSWWE {
         };
         MayerFunction fRefPos = new MayerFunction() {
 
-            public void setBox(IBox box) {}
+            public void setBox(Box box) {}
             public IPotential getPotential() {return null;}
 
             public double f(IMoleculeList pair, double r2, double beta) {

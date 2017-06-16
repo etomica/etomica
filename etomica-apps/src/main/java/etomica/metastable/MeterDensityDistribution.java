@@ -1,9 +1,8 @@
 package etomica.metastable;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.data.AccumulatorHistogram;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -11,25 +10,23 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
-import etomica.units.Null;
 import etomica.units.Quantity;
 import etomica.units.Volume;
-import etomica.util.HistogramDiscrete;
-import etomica.util.HistogramExpanding;
+import etomica.data.histogram.HistogramDiscrete;
 
 public class MeterDensityDistribution implements IEtomicaDataSource {
 
     protected AccumulatorHistogram histogram; 
-    protected final IBox box;
+    protected final Box box;
     protected final int[][][] counts;
-    protected final IVectorMutable p2;
-    protected final IVectorMutable subBox, shift;
+    protected final Vector p2;
+    protected final Vector subBox, shift;
     protected final DataDouble subData;
     
-    public MeterDensityDistribution(ISpace space, IBox box, int nSubBoxes) {
+    public MeterDensityDistribution(Space space, Box box, int nSubBoxes) {
         this.box = box;
         histogram = new AccumulatorHistogram(new HistogramDiscrete(1e-10));
         Dimension densityDim = new CompoundDimension(new Dimension[]{Quantity.DIMENSION,Volume.DIMENSION},new double[]{1,-1});
@@ -47,7 +44,7 @@ public class MeterDensityDistribution implements IEtomicaDataSource {
 
     public IData getData() {
         IAtomList atoms = box.getLeafList();
-        IVector L = box.getBoundary().getBoxSize();
+        Vector L = box.getBoundary().getBoxSize();
         int nSubBoxes = counts.length;
         subBox.Ea1Tv1(1.0/nSubBoxes, L);
         double vSubBox = box.getBoundary().volume()/Math.pow(nSubBoxes, 3);

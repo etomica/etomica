@@ -7,8 +7,8 @@ package etomica.integrator.mcmove;
 import java.util.ArrayList;
 import java.util.List;
 
-import etomica.api.IBox;
-import etomica.api.IRandom;
+import etomica.box.Box;
+import etomica.util.random.IRandom;
 
 public class MCMoveManager {
 
@@ -90,7 +90,7 @@ public class MCMoveManager {
      * 
      * @throws ClassCastException if any move is not an MCMoveBox
      */
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         box = p;
         for (int i=0; i<mcMoveList.size(); i++) {
             ((MCMoveBox)mcMoveList.get(i).move).setBox(box);
@@ -100,7 +100,7 @@ public class MCMoveManager {
     /**
      * @return Returns the box.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
 
@@ -181,7 +181,7 @@ public class MCMoveManager {
         throw new IllegalArgumentException("I don't have "+move);
     }
 
-    private IBox box;
+    private Box box;
     protected final List<MCMoveLinker> mcMoveList;
     private MCMoveLinker selectedLink;
     private int frequencyTotal;

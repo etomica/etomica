@@ -5,14 +5,13 @@
 package etomica.action;
 
 
-import java.io.Serializable;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculePositionDefinition;
+import etomica.molecule.MoleculePositionCOM;
+import etomica.space.Space;
+import etomica.space.Vector;
 
-import etomica.api.IMolecule;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionCOM;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.space.ISpace;
+import java.io.Serializable;
 
 /**
  * Moves (translates) an atom to a specified position.  Location of the
@@ -22,25 +21,25 @@ import etomica.space.ISpace;
 public class MoleculeActionTranslateTo implements MoleculeAction, Serializable {
     
     private static final long serialVersionUID = 1L;
-    private final IVectorMutable destination;
-    private IAtomPositionDefinition atomPositionDefinition;
+    private final Vector destination;
+    private IMoleculePositionDefinition atomPositionDefinition;
     private MoleculeChildAtomAction atomTranslator;
-    private final IVectorMutable translationVector;
+    private final Vector translationVector;
 
     /**
      * Creates new action with atom position defined by its
-     * center of mass (via AtomPositionCOM).
+     * center of mass (via MoleculePositionCOM).
      * @param space
      */
-    public MoleculeActionTranslateTo(ISpace space) {
+    public MoleculeActionTranslateTo(Space space) {
         destination = space.makeVector();
-        atomPositionDefinition = new AtomPositionCOM(space);
+        atomPositionDefinition = new MoleculePositionCOM(space);
         atomTranslator = new MoleculeChildAtomAction(new AtomActionTranslateBy(space));
         translationVector = ((AtomActionTranslateBy)atomTranslator.getAtomAction()).getTranslationVector();
     }
     
     public void actionPerformed(IMolecule atom) {
-        IVector currentPosition = atomPositionDefinition.position(atom);
+        Vector currentPosition = atomPositionDefinition.position(atom);
         translationVector.Ev1Mv2(destination, currentPosition);
         atomTranslator.actionPerformed(atom);
     }
@@ -49,27 +48,27 @@ public class MoleculeActionTranslateTo implements MoleculeAction, Serializable {
      * @return Returns the destination, the position that the
      * atom will be moved to by this action.
      */
-    public IVectorMutable getDestination() {
+    public Vector getDestination() {
         return destination;
     }
     /**
      * @param newDestination The destination to set.  A local copy
      * is made of the given vector.
      */
-    public void setDestination(IVector newDestination) {
+    public void setDestination(Vector newDestination) {
         destination.E(newDestination);
     }
     /**
      * @return Returns the atomPositionDefinition.
      */
-    public IAtomPositionDefinition getAtomPositionDefinition() {
+    public IMoleculePositionDefinition getAtomPositionDefinition() {
         return atomPositionDefinition;
     }
     /**
      * @param atomPositionDefinition The atomPositionDefinition to set.
      */
     public void setAtomPositionDefinition(
-            IAtomPositionDefinition atomPositionDefinition) {
+            IMoleculePositionDefinition atomPositionDefinition) {
         this.atomPositionDefinition = atomPositionDefinition;
     }
     
@@ -78,7 +77,7 @@ public class MoleculeActionTranslateTo implements MoleculeAction, Serializable {
      * This vector can be used to reverse the translation by multiplying it by -1 and 
      * performing an atomActionTranslateBy with it.
      */
-    public IVector getTranslationVector() {
+    public Vector getTranslationVector() {
         return translationVector;
     }
 }

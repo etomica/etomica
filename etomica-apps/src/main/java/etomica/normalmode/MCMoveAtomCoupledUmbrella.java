@@ -4,10 +4,10 @@
 
 package etomica.normalmode;
 
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
+import etomica.atom.IAtom;
+import etomica.box.Box;
+import etomica.potential.PotentialMaster;
+import etomica.util.random.IRandom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSource;
@@ -17,8 +17,8 @@ import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
+import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * Standard Monte Carlo atom-displacement trial move.  Two atoms are moved at a
@@ -35,7 +35,7 @@ public class MCMoveAtomCoupledUmbrella extends MCMoveBoxStep {
     protected final AtomArrayList affectedAtomList;
     protected final MeterPotentialEnergy energyMeter;
     protected final MeterHarmonicEnergy harmonicEnergyMeter;
-    protected final IVectorRandom translationVector;
+    protected final Vector translationVector;
     protected IAtom atom0, atom1;
     protected double uOld, uNew;
     protected double uHarmonicOld, uHarmonicNew;
@@ -51,8 +51,8 @@ public class MCMoveAtomCoupledUmbrella extends MCMoveBoxStep {
 
 
 
-	public MCMoveAtomCoupledUmbrella(IPotentialMaster potentialMaster, IRandom random, 
-    		CoordinateDefinition coordinateDef, NormalModes normalMode, double refpref, ISpace _space) {
+	public MCMoveAtomCoupledUmbrella(PotentialMaster potentialMaster, IRandom random,
+                                     CoordinateDefinition coordinateDef, NormalModes normalMode, double refpref, Space _space) {
         super(potentialMaster);
         this.random = random;
         this.refPref = refpref;
@@ -64,7 +64,7 @@ public class MCMoveAtomCoupledUmbrella extends MCMoveBoxStep {
         setNormalModes(normalMode);
         harmonicEnergyMeter = new MeterHarmonicEnergy(coordinateDefinition, normalModes);
         
-        translationVector = (IVectorRandom)_space.makeVector();
+        translationVector = _space.makeVector();
         setStepSizeMax(0.5);
         setStepSizeMin(0.0);
         setStepSize(0.1);
@@ -168,7 +168,7 @@ public class MCMoveAtomCoupledUmbrella extends MCMoveBoxStep {
         return affectedAtomIterator;
     }
     
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         atomSource.setBox(p);

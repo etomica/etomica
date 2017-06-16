@@ -4,13 +4,13 @@
 
 package etomica.virial;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
 import etomica.config.IConformation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
- /**
+/**
   *  Conformation for Anthracene
   *  Reference paper: Iwai
   * 3 site linear, group H to the two side benzene rings 
@@ -19,7 +19,7 @@ import etomica.space.ISpace;
  */
 public class ConformationAnthracene3site implements IConformation, java.io.Serializable{
 	
-	public ConformationAnthracene3site(ISpace space){
+	public ConformationAnthracene3site(Space space){
 		this.space = space;
 		vector = space.makeVector();
 	}
@@ -38,11 +38,11 @@ public class ConformationAnthracene3site implements IConformation, java.io.Seria
 		
 	}
 		
-	protected final ISpace space;
+	protected final Space space;
 	protected static final double bondlength = 2.42;//converst nm to angstrom
 
 	
-	protected IVectorMutable vector;
+	protected Vector vector;
 	
 	private static final long serialVersionUID = 1L;
 }

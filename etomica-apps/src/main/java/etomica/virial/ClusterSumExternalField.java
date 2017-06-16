@@ -4,7 +4,7 @@
 
 package etomica.virial;
 
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.data.meter.MeterPotentialEnergy;
 
 public class ClusterSumExternalField extends ClusterSum {
@@ -14,7 +14,7 @@ public class ClusterSumExternalField extends ClusterSum {
 		super(subClusters, subClusterWeights, fArray);
 		// TODO Auto-generated constructor stub
 	}
-	public void setPotentialMaster(IPotentialMaster potentialMaster){
+	public void setPotentialMaster(PotentialMaster potentialMaster){
 		meterPE=new MeterPotentialEnergy(potentialMaster);
 	}
 	public double value(BoxCluster box) {

@@ -1,17 +1,17 @@
 package etomica.interfacial;
 
-import etomica.api.IBox;
-import etomica.api.ISpecies;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
+import etomica.species.ISpecies;
 import etomica.units.Length;
 
 public class MeterWallPosition extends DataSourceScalar {
 
-    protected final IBox box;
+    protected final Box box;
     protected final ISpecies wallSpecies;
     protected final double zShift;
     
-    public MeterWallPosition(IBox box, ISpecies wallSpecies, double zShift) {
+    public MeterWallPosition(Box box, ISpecies wallSpecies, double zShift) {
         super("Wall position", Length.DIMENSION);
         this.box = box;
         this.wallSpecies = wallSpecies;

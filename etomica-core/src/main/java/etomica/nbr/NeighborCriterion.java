@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.nbr;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 
 /**
  * Atom filter used to specify whether two atoms are considered neighbors,
@@ -30,7 +30,7 @@ public interface NeighborCriterion {
      * needed if the criterion depends on features of the box, such as the
      * boundary.
      */
-	public void setBox(IBox box);
+	public void setBox(Box box);
 	
     /**
      * Indicates whether the atom has changed (e.g. moved) by an amount 

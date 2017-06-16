@@ -4,10 +4,9 @@
 
 package etomica.atom;
 
-import java.io.Serializable;
+import etomica.molecule.IMolecule;
 
-import etomica.api.IAtom;
-import etomica.api.IMolecule;
+import java.io.Serializable;
 
 public class AtomFilterStatic implements AtomFilter, Serializable {
 

@@ -1,10 +1,10 @@
 package etomica.virial;
 
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotential;
-import etomica.api.IPotentialAtomic;
 import etomica.atom.AtomPair;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.IPotential;
+import etomica.potential.IPotentialAtomic;
 
 /**
  * @author kofke
@@ -36,7 +36,7 @@ public class MayerGeneralAtomic implements MayerFunction {
         return potential;
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         potential.setBox(newBox);
     }
 

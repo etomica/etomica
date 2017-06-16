@@ -4,14 +4,11 @@
 
 package etomica.models.oneDHardRods;
 
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.space.Boundary;
 import etomica.box.Box;
+import etomica.util.random.IRandom;
+import etomica.simulation.Simulation;
+import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.nbr.list.PotentialMasterList;
@@ -21,9 +18,8 @@ import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.normalmode.NormalModes;
 import etomica.normalmode.WaveVectorFactory;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Null;
-import etomica.normalmode.BasisBigCell;
 
 
 /**
@@ -42,7 +38,7 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
     protected MeterPotentialEnergy meterPE;
     protected CoordinateDefinition cDef, simCDef;
     protected int cDim, simCDim;
-    protected IVectorMutable[] waveVectors, simWaveVectors;
+    protected Vector[] waveVectors, simWaveVectors;
     protected double[] simRealT, simImagT;
     protected double temperature;
     protected double[] newU;
@@ -51,9 +47,9 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
     protected double[][] sqrtSimOmega2, oneOverSqrtOmega2;
 
     protected final IRandom random;
-    protected IBox box;
+    protected Box box;
     protected int numAtoms;
-    protected IBoundary bdry;
+    protected Boundary bdry;
     protected NormalModes nm;
     WaveVectorFactory waveVectorFactory;
     protected double etas[];
@@ -61,17 +57,17 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
     protected double scaling;
     
     
-    public MeterDifferentImageSubtract(ISimulation sim, ISpace space, 
-            CoordinateDefinition simCD, NormalModes simNM, CoordinateDefinition
-            otherCD, PotentialMasterList potentialMaster, int[] otherNCells, 
-            NormalModes otherNM){
+    public MeterDifferentImageSubtract(Simulation sim, Space space,
+                                       CoordinateDefinition simCD, NormalModes simNM, CoordinateDefinition
+            otherCD, PotentialMasterList potentialMaster, int[] otherNCells,
+                                       NormalModes otherNM){
         this(sim, space, simCD, simNM, otherCD, potentialMaster, 
                 otherNCells, otherNM, "file");
     }
-    public MeterDifferentImageSubtract(ISimulation sim, ISpace space, 
-            CoordinateDefinition simCD, NormalModes simNM, CoordinateDefinition
-            otherCD, PotentialMasterList potentialMaster, int[] otherNCells, 
-            NormalModes otherNM, String otherFilename){
+    public MeterDifferentImageSubtract(Simulation sim, Space space,
+                                       CoordinateDefinition simCD, NormalModes simNM, CoordinateDefinition
+            otherCD, PotentialMasterList potentialMaster, int[] otherNCells,
+                                       NormalModes otherNM, String otherFilename){
         super("MeterSubtract", Null.DIMENSION);
         this.random = sim.getRandom();
         
@@ -106,7 +102,7 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
             bdry = new BoundaryRectangularPeriodic(space, numAtoms/ density);
         } else {
             bdry = new BoundaryRectangularPeriodic(space, 1.0);
-            IVector edges = otherCD.getBox().getBoundary().getBoxSize();
+            Vector edges = otherCD.getBox().getBoundary().getBoxSize();
             bdry.setBoxSize(edges);
         }
         box.setBoundary(bdry);
@@ -284,7 +280,7 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
     }
 
 
-    public IBox getBox(){
+    public Box getBox(){
         return box;
     }
     

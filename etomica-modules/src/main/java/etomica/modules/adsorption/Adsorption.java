@@ -3,10 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.modules.adsorption;
+
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
@@ -18,7 +17,8 @@ import etomica.nbr.PotentialMasterHybrid;
 import etomica.potential.P2SquareWell;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 
@@ -32,7 +32,7 @@ public class Adsorption extends Simulation {
     
     private static final long serialVersionUID = 1L;
     public final SpeciesSpheresMono speciesA, speciesB;
-    public final IBox box;
+    public final Box box;
     public final IntegratorHard integratorMD;
     public final IntegratorMC integratorMC;
     public final IntegratorHybrid integratorHybrid;
@@ -41,7 +41,7 @@ public class Adsorption extends Simulation {
     public final P1Wall p1WallA, p1WallB;
     public final MyMCMove mcMoveIDA, mcMoveIDB;
     
-    public Adsorption(ISpace _space) {
+    public Adsorption(Space _space) {
         super(_space);
         PotentialMasterHybrid potentialMaster = new PotentialMasterHybrid(this, 2, space); //List(this, 2.0);
         
@@ -90,11 +90,11 @@ public class Adsorption extends Simulation {
 
         
         p2AA = new P2SquareWell(space, sigma, lambda, epsilon, false);
-        potentialMaster.addPotential(p2AA,new IAtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
+        potentialMaster.addPotential(p2AA, new AtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
         p2AB = new P2SquareWell(space, sigma, lambda, epsilon, false);
-        potentialMaster.addPotential(p2AB,new IAtomType[]{speciesA.getLeafType(), speciesB.getLeafType()});
+        potentialMaster.addPotential(p2AB, new AtomType[]{speciesA.getLeafType(), speciesB.getLeafType()});
         p2BB = new P2SquareWell(space, sigma, lambda, epsilon, false);
-        potentialMaster.addPotential(p2BB,new IAtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
+        potentialMaster.addPotential(p2BB, new AtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
 
 
         p1WallA = new P1Wall(space);
@@ -109,12 +109,12 @@ public class Adsorption extends Simulation {
         p1WallB.setEpsilon(epsilonWF);
         p1WallB.setThermalize(integratorMC, 0.0, random);
 
-        potentialMaster.addPotential(p1WallA, new IAtomType[]{speciesA.getLeafType()});
-        potentialMaster.addPotential(p1WallB, new IAtomType[]{speciesB.getLeafType()});
+        potentialMaster.addPotential(p1WallA, new AtomType[]{speciesA.getLeafType()});
+        potentialMaster.addPotential(p1WallB, new AtomType[]{speciesB.getLeafType()});
 
         integratorMD.getEventManager().addListener(potentialMaster.getNeighborManager(box));
 
-        IVectorMutable dim = space.makeVector();
+        Vector dim = space.makeVector();
         dim.E(8*sigma);
         dim.setX(1, 12*sigma);
         box.getBoundary().setBoxSize(dim);
@@ -128,7 +128,7 @@ public class Adsorption extends Simulation {
     }
     
     public static void main(String[] args) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         
         Adsorption sim = new Adsorption(space);
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, "Catalysis", 1, sim.space, sim.getController());

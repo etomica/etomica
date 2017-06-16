@@ -4,16 +4,15 @@
 
 package etomica.normalmode;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
-import etomica.lattice.crystal.Primitive;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
+import etomica.box.Box;
 import etomica.potential.Potential1;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class P1Constraint extends Potential1{
 
-	public P1Constraint(ISpace space, double neighborRadius, IBox box, CoordinateDefinition coordinateDefinition) {
+	public P1Constraint(Space space, double neighborRadius, Box box, CoordinateDefinition coordinateDefinition) {
 	    super(space);
 
 	    siteIndex = box.getLeafList().getAtomCount();
@@ -34,7 +33,7 @@ public class P1Constraint extends Potential1{
 	@Override
 	public double energy(IAtomList atoms) {
 
-	    IVectorMutable posAtom = atoms.getAtom(0).getPosition();
+	    Vector posAtom = atoms.getAtom(0).getPosition();
 
 	    int atomIndex = atoms.getAtom(0).getLeafIndex();
 	    double d = posAtom.Mv1Squared(latticeSite[atomIndex]);
@@ -47,7 +46,7 @@ public class P1Constraint extends Potential1{
 	}
 
     private static final long serialVersionUID = 1L;
-    private IVectorMutable[] latticeSite; 
+    private Vector[] latticeSite;
     private int siteIndex;
     private double radiusInner;
 }

@@ -4,8 +4,8 @@
 
 package etomica.virial;
 
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
+import etomica.box.Box;
+import etomica.potential.PotentialMaster;
 
 import etomica.atom.iterator.AtomIterator;
 import etomica.integrator.mcmove.MCMoveBox;
@@ -15,11 +15,11 @@ import etomica.integrator.mcmove.MCMoveBox;
  */
 public class MCMoveClusterDiagram extends MCMoveBox {
 
-    public MCMoveClusterDiagram(IPotentialMaster potentialMaster) {
+    public MCMoveClusterDiagram(PotentialMaster potentialMaster) {
         super(potentialMaster);
     }
     
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         ClusterAbstract sampleCluster = ((BoxCluster)p).getSampleCluster();
         ClusterAbstract cluster1;

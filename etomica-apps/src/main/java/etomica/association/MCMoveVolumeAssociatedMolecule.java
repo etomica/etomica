@@ -4,35 +4,35 @@
 
 package etomica.association;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.action.WriteConfiguration;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
-import etomica.atom.MoleculeAgentManager;
-import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
-import etomica.atom.MoleculeArrayList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.atom.iterator.MoleculeIterator;
-import etomica.atom.iterator.MoleculeIteratorAllMolecules;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.integrator.mcmove.MCMoveMolecular;
 import etomica.models.OPLS.SpeciesAceticAcid;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeAgentManager;
+import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
+import etomica.molecule.MoleculeArrayList;
+import etomica.molecule.iterator.MoleculeIterator;
+import etomica.molecule.iterator.MoleculeIteratorAllMolecules;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.units.Dimension;
 import etomica.units.Pressure;
+import etomica.util.random.IRandom;
+
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * Monte Carlo volume-change move for associating fluids simulations in the NPT ensemble.
@@ -48,8 +48,8 @@ public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements Mol
     private IRandom random;
     protected final AtomIteratorLeafAtoms affectedAtomIterator;
     protected final MoleculeIteratorAllMolecules moleculeIterator;
-    protected final IVectorMutable r;
-    protected final IVectorMutable dr, dr2;
+    protected final Vector r;
+    protected final Vector dr, dr2;
     private transient double uOld, hOld, vNew, vScale, hNew;
     private transient double uNew = Double.NaN;
     protected AssociationManagerMolecule associationManager;
@@ -60,12 +60,12 @@ public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements Mol
     public static boolean dodebug;
     protected FileWriter fileWriter;
     protected IAssociationHelperMolecule associationHelper;
-    protected IVectorMutable groupTranslationVector;
+    protected Vector groupTranslationVector;
     protected MoleculeChildAtomAction moveMoleculeAction;
-    protected final ISimulation sim;
+    protected final Simulation sim;
 
-    public MCMoveVolumeAssociatedMolecule(ISimulation sim, IPotentialMaster potentialMaster,
-    		            ISpace _space) {
+    public MCMoveVolumeAssociatedMolecule(Simulation sim, PotentialMaster potentialMaster,
+                                          Space _space) {
         this(sim, potentialMaster, sim.getRandom(), _space, 1.0);
     }
     
@@ -73,8 +73,8 @@ public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements Mol
      * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
      * @param space the governing space for the simulation
      */
-    public MCMoveVolumeAssociatedMolecule(ISimulation sim, IPotentialMaster potentialMaster, IRandom random,
-    		            ISpace _space, double pressure) {
+    public MCMoveVolumeAssociatedMolecule(Simulation sim, PotentialMaster potentialMaster, IRandom random,
+                                          Space _space, double pressure) {
         super(potentialMaster);
         this.random = random;
         this.sim = sim;
@@ -96,7 +96,7 @@ public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements Mol
         moleculeIterator = new MoleculeIteratorAllMolecules();
     }
     
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         affectedAtomIterator.setBox(p);
@@ -326,7 +326,7 @@ public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements Mol
         return affectedAtomIterator;
     }
     
-    public IVector positionDefinition(IMolecule molecule){
+    public Vector positionDefinition(IMolecule molecule){
     	return molecule.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition();
     }
 
@@ -351,7 +351,7 @@ public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements Mol
 		return Agent.class;
 	}
 
-	public MoleculeIterator affectedMolecules(IBox box) {
+	public MoleculeIterator affectedMolecules(Box box) {
 		return moleculeIterator;
 	}
 

@@ -5,9 +5,7 @@
 package etomica.paracetamol;
 
 import etomica.action.WriteConfigurationDLPOLY;
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.atom.MoleculePair;
+import etomica.box.Box;
 import etomica.data.DataInfo;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -17,10 +15,11 @@ import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculePair;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.paracetamol.LatticeSumCrystalParacetamol.DataGroupLSCParacetamol;
 import etomica.potential.P2DLPOLY;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Energy;
@@ -37,10 +36,10 @@ import etomica.util.Arrays;
 public class HarmonicCrystalOrthorhombic {
 
     public HarmonicCrystalOrthorhombic(int[] nCells, Primitive primitive,
-    		     Basis basis, IBox box,
+    		     Basis basis, Box box,
     		     CoordinateDefinitionParacetamol coordinateDefinitionParacetamol,
-    		     ISpace _space) {
-        this.nCells = (int[])nCells.clone();
+    		     Space _space) {
+        this.nCells = nCells.clone();
         this.coordinateDefinitionParacetamol = coordinateDefinitionParacetamol;
         this.space = _space;
         potential = new P2DLPOLY(space);
@@ -220,7 +219,7 @@ public class HarmonicCrystalOrthorhombic {
     private int maxLatticeShell;
     private final CoordinateDefinitionParacetamol coordinateDefinitionParacetamol;
     private final P2DLPOLY potential;
-    private final ISpace space;
+    private final Space space;
     private static final long serialVersionUID = 1L;
     
     public static final class LatticeEnergy implements LatticeEnergyParacetamol {

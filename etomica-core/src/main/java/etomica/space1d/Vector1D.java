@@ -4,17 +4,16 @@
 
 package etomica.space1d;
 
-import etomica.api.IFunction;
-import etomica.api.IRandom;
-import etomica.api.IVector;
+import etomica.math.function.IFunction;
+import etomica.util.random.IRandom;
+import etomica.space.Vector;
 import etomica.exception.MethodNotImplementedException;
-import etomica.space.IVectorRandom;
 
 /**
  * Implementation of the Vector class for a 1-dimensional space. In this case the vector
  * is a trivial object formed from just one element.
  */
-public final class Vector1D implements IVectorRandom, java.io.Serializable { 
+public final class Vector1D implements Vector, java.io.Serializable {
     
     double x;
     private static final long serialVersionUID = 1L;
@@ -35,7 +34,7 @@ public final class Vector1D implements IVectorRandom, java.io.Serializable {
         this.E(u);
     }
 
-    public boolean equals(IVector v) {
+    public boolean equals(Vector v) {
         return (x == ((Vector1D) v).x);
     }
 
@@ -71,12 +70,12 @@ public final class Vector1D implements IVectorRandom, java.io.Serializable {
         x = a[0];
     }
 
-    public void Ea1Tv1(double a1, IVector u) {
+    public void Ea1Tv1(double a1, Vector u) {
         Vector1D u1 = (Vector1D) u;
         x = a1 * u1.x;
     }
 
-    public void PEa1Tv1(double a1, IVector u) {
+    public void PEa1Tv1(double a1, Vector u) {
         x += a1 * ((Vector1D) u).x;
     }
 
@@ -88,22 +87,22 @@ public final class Vector1D implements IVectorRandom, java.io.Serializable {
         x *= a;
     }
 
-    public void Ev1Pv2(IVector u1, IVector u2) {
+    public void Ev1Pv2(Vector u1, Vector u2) {
         x = ((Vector1D) u1).x + ((Vector1D) u2).x;
     }
 
-    public void Ev1Mv2(IVector u1, IVector u2) {
+    public void Ev1Mv2(Vector u1, Vector u2) {
         Vector1D v1 = (Vector1D) u1;
         Vector1D v2 = (Vector1D) u2;
         x = v1.x - v2.x;
     }
 
-    public double Mv1Squared(IVector u1) {
+    public double Mv1Squared(Vector u1) {
         double dx = x - ((Vector1D) u1).x;
         return dx * dx;
     }
     
-    public void mod(IVector u) {
+    public void mod(Vector u) {
         mod((Vector1D) u);
     }
 
@@ -138,27 +137,27 @@ public final class Vector1D implements IVectorRandom, java.io.Serializable {
         x = random.nextInt(2) * 2 - 1;
     }
 
-    public void E(IVector u) {
+    public void E(Vector u) {
         x = ((Vector1D) u).x;
     }
 
-    public void PE(IVector u) {
+    public void PE(Vector u) {
         x += ((Vector1D) u).x;
     }
 
-    public void ME(IVector u) {
+    public void ME(Vector u) {
         x -= ((Vector1D) u).x;
     }
 
-    public void TE(IVector u) {
+    public void TE(Vector u) {
         x *= ((Vector1D) u).x;
     }
 
-    public void DE(IVector u) {
+    public void DE(Vector u) {
         x /= ((Vector1D) u).x;
     }
 
-    public double dot(IVector u) {
+    public double dot(Vector u) {
         return ((Vector1D) u).x * x;
     }
 
@@ -170,7 +169,7 @@ public final class Vector1D implements IVectorRandom, java.io.Serializable {
         x = function.f(x);
     }
 
-    public void XE(IVector u) {
+    public void XE(Vector u) {
         throw new MethodNotImplementedException();
     }
 }

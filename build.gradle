@@ -1,10 +1,19 @@
 apply plugin: 'eclipse'
 
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.5'
+}
+
 
 subprojects {
     apply plugin: 'java'
     apply plugin: 'eclipse'
     apply plugin: 'findbugs'
+
+    if(rootProject.hasProperty("main")) {
+        apply plugin: 'application'
+        mainClassName = rootProject.findProperty("main")
+    }
 
     repositories {
         // superset of maven central
@@ -12,6 +21,7 @@ subprojects {
     }
 
     sourceCompatibility = 1.8
+    targetCompatibility = 1.8
 
     dependencies {
         testCompile 'junit:junit:4.12'
@@ -35,6 +45,14 @@ subprojects {
         sourceSets = []
         ignoreFailures = true
     }
+
+    test {
+        testLogging {
+            events 'failed'
+            exceptionFormat 'short'
+        }
+
+    }
 }
 
 project(':etomica-core') {
@@ -50,6 +68,13 @@ project(':etomica-core') {
 
     processResources.dependsOn ':setupPython'
     clean.dependsOn ':cleanPython'
+
+    test {
+        // don't run tests that depend on python if it hasn't been setup
+        if(!rootProject.hasProperty('buildPython')) {
+            exclude 'etomica/parser/**'
+        }
+    }
 }
 
 project(':etomica-apps') {
@@ -87,6 +112,9 @@ task findbugsAll
 subprojects { project -> findbugsAll.dependsOn("${project.path}:findbugsMain")}
 
 task setupPython(type:Exec) {
+    onlyIf {
+        rootProject.hasProperty('buildPython')
+    }
     workingDir = "${project.rootDir}"
     commandLine './setup_python.sh'
 }

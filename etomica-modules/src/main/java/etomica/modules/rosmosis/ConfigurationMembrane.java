@@ -7,16 +7,7 @@ package etomica.modules.rosmosis;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
@@ -24,12 +15,19 @@ import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.IMoleculePositionDefinition;
+import etomica.molecule.MoleculePositionGeometricCenter;
+import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 
 public class ConfigurationMembrane implements Configuration {
 
-    public ConfigurationMembrane(ISimulation sim, ISpace _space) {
+    public ConfigurationMembrane(Simulation sim, Space _space) {
         soluteMoleFraction = 1;
         solutionChamberDensity = 0.5;
         solventChamberDensity = 0.5;
@@ -37,12 +35,12 @@ public class ConfigurationMembrane implements Configuration {
         membraneWidth = 4;
         this.sim = sim;
         this.space = _space;
-        positionDefinition = new AtomPositionGeometricCenter(space);
+        positionDefinition = new MoleculePositionGeometricCenter(space);
     }
 
-    public void initializeCoordinates(IBox box) {
+    public void initializeCoordinates(Box box) {
         AtomActionTranslateBy translateBy = new AtomActionTranslateBy(space);
-        IVectorMutable translationVector = translateBy.getTranslationVector();
+        Vector translationVector = translateBy.getTranslationVector();
         MoleculeChildAtomAction translator = new MoleculeChildAtomAction(translateBy);
         translationVector.E(0);
         
@@ -50,15 +48,15 @@ public class ConfigurationMembrane implements Configuration {
         box.setNMolecules(speciesSolvent, 0);
         box.setNMolecules(speciesMembrane, 0);
         
-        IVector boxDimensions = box.getBoundary().getBoxSize();
+        Vector boxDimensions = box.getBoundary().getBoxSize();
         double boxLength = boxDimensions.getX(membraneDim);
         double membraneThickness = membraneThicknessPerLayer * numMembraneLayers;
         double chamberLength = 0.5 * boxLength - membraneThickness;
         
         // solventChamber (middle, solvent-only)
-        IBox pretendBox = new Box(new BoundaryRectangularPeriodic(space, 1), space);
+        Box pretendBox = new Box(new BoundaryRectangularPeriodic(space, 1), space);
         sim.addBox(pretendBox);
-        IVectorMutable pretendBoxDim = space.makeVector();
+        Vector pretendBoxDim = space.makeVector();
         pretendBoxDim.E(boxDimensions);
         pretendBoxDim.setX(membraneDim, chamberLength);
         pretendBox.getBoundary().setBoxSize(pretendBoxDim);
@@ -252,7 +250,7 @@ public class ConfigurationMembrane implements Configuration {
     protected double solventChamberDensity, solutionChamberDensity;
     protected double soluteMoleFraction;
     protected int membraneDim;
-    protected final ISimulation sim;
-    private final ISpace space;
-    protected IAtomPositionDefinition positionDefinition;
+    protected final Simulation sim;
+    private final Space space;
+    protected IMoleculePositionDefinition positionDefinition;
 }

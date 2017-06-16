@@ -4,11 +4,11 @@
 
 package etomica.lattice.crystal;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.math.geometry.Cube;
 import etomica.math.geometry.Polytope;
 import etomica.math.geometry.Square;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Primitive group for a cubic system.  All primitive
@@ -19,10 +19,10 @@ public class PrimitiveCubic extends Primitive {
     private static final long serialVersionUID = 1L;
     private double aBC;
     
-    public PrimitiveCubic(ISpace space) {
+    public PrimitiveCubic(Space space) {
         this(space, 1.0);
     }
-    public PrimitiveCubic(ISpace space, double latticeConstant) {
+    public PrimitiveCubic(Space space, double latticeConstant) {
         super(space);
         //set up orthogonal vectors of unit size
         setSizeABC(latticeConstant); //also sets reciprocal via update
@@ -85,7 +85,7 @@ public class PrimitiveCubic extends Primitive {
         setSizeABC(scale*aBC);
     }
 
-    public int[] latticeIndex(IVector q) {
+    public int[] latticeIndex(Vector q) {
         for(int i=0; i<D; i++) {
             double x = q.getX(i)/aBC;
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x
@@ -93,7 +93,7 @@ public class PrimitiveCubic extends Primitive {
         return idx;
     }
     
-    public int[] latticeIndex(IVector q, int[] dimensions) {
+    public int[] latticeIndex(Vector q, int[] dimensions) {
         for(int i=0; i<D; i++) {
             double x = q.getX(i)/aBC;
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x
@@ -108,7 +108,7 @@ public class PrimitiveCubic extends Primitive {
      * given by the size of the primitive vectors.
      */
     public Polytope wignerSeitzCell() {
-        return (D == 2) ? (Polytope)new Square(space,aBC) :  (Polytope)new Cube(space,aBC);
+        return (D == 2) ? new Square(space,aBC) : new Cube(space,aBC);
     }
     
     /**
@@ -116,7 +116,7 @@ public class PrimitiveCubic extends Primitive {
      * given by the size of the primitive vectors.
      */
     public Polytope unitCell() {
-        return (D == 2) ? (Polytope)new Square(space,aBC) :  (Polytope)new Cube(space,aBC);
+        return (D == 2) ? new Square(space,aBC) : new Cube(space,aBC);
     }
     
     public String toString() {return "Cubic";}

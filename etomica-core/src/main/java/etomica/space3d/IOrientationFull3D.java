@@ -4,7 +4,7 @@
 
 package etomica.space3d;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 
 /**
  * Interface representing an orientation in 3D.  The orientation defined by two
@@ -19,11 +19,11 @@ public interface IOrientationFull3D extends IOrientation3D {
      * Returns a unit vector pointing in the orientation's secondary direction.
      * This vector should not be modified.
      */
-    public IVector getSecondaryDirection();
+    public Vector getSecondaryDirection();
     
     /**
      * Sets the orientation's primary and secondary direction to be the given
      * directions.  The two vectors should be orthogonal.
      */
-    public void setDirections(IVector newPrimaryDirection, IVector newSecondaryDirection);
+    public void setDirections(Vector newPrimaryDirection, Vector newSecondaryDirection);
 }

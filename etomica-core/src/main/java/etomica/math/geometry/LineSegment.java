@@ -4,9 +4,8 @@
 
 package etomica.math.geometry;
 
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Vector;
+import etomica.space.Space;
 import etomica.space1d.Vector1D;
 import etomica.space3d.Space3D;
 
@@ -18,7 +17,7 @@ import etomica.space3d.Space3D;
  */
 public class LineSegment extends Polytope implements Rectangular {
 
-    public LineSegment(ISpace embeddedSpace) {
+    public LineSegment(Space embeddedSpace) {
         this(embeddedSpace, embeddedSpace.makeVector(), embeddedSpace.makeVector());
     }
     
@@ -26,7 +25,7 @@ public class LineSegment extends Polytope implements Rectangular {
      * Forms the segment using the given vectors as the instances used to
      * represent the end points.
      */
-    LineSegment(ISpace embeddedSpace, IVectorMutable v0, IVectorMutable v1) {
+    LineSegment(Space embeddedSpace, Vector v0, Vector v1) {
         super(new Point[] {new Point(embeddedSpace, v0), new Point(embeddedSpace, v1)});
         edges = new LineSegment[]{this};
     }
@@ -41,7 +40,7 @@ public class LineSegment extends Polytope implements Rectangular {
      * so rounding error will in most cases lead to return of false unless
      * embedded in a 1D space.
      */
-    public boolean contains(IVector v) {
+    public boolean contains(Vector v) {
         double length = getLength();
         //(v-v0) dot (v1-v0)
         double dot = v.dot(vertices[1]) - vertices[1].dot(vertices[0])
@@ -56,11 +55,11 @@ public class LineSegment extends Polytope implements Rectangular {
         return getLength();
     }
     
-    public void setVertex1(IVector newVertex1) {
+    public void setVertex1(Vector newVertex1) {
         vertices[0].E(newVertex1);
     }
     
-    public void setVertex2(IVector newVertex2) {
+    public void setVertex2(Vector newVertex2) {
         vertices[1].E(newVertex2);
     }
     
@@ -93,7 +92,7 @@ public class LineSegment extends Polytope implements Rectangular {
      * Sets the length equal to the element of the (presumably 1D) vector.
      * Implementation of Rectangular interface.
      */
-    public void setEdgeLengths(IVector v) {
+    public void setEdgeLengths(Vector v) {
         setLength(v.getX(0));
     }
     
@@ -101,7 +100,7 @@ public class LineSegment extends Polytope implements Rectangular {
      * Returns the length of the line segment as the element of a 1D vector.
      * Implmentation of the Rectangular interface.
      */
-    public IVector getEdgeLengths() {
+    public Vector getEdgeLengths() {
         return new Vector1D(getLength());
     }
     
@@ -111,9 +110,9 @@ public class LineSegment extends Polytope implements Rectangular {
 
 
     public static void main(String[] args) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         LineSegment segment = new LineSegment(space, space.makeVector(new double[]{1,4}), space.makeVector(new double[]{2,8}));
-        IVectorMutable p1 = space.makeVector();
+        Vector p1 = space.makeVector();
         p1.setX(0, 1.5);
         p1.setX(1, 6.0);
         System.out.println(segment.contains(p1));

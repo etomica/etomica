@@ -1,8 +1,8 @@
 package etomica.surfacetension;
 
 import etomica.action.IAction;
-import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.nbr.cell.PotentialMasterCell;
 
@@ -26,7 +26,7 @@ public class ActionRecenter implements IAction {
         double sumCos = 0, sumSin = 0;
         double q = 2*Math.PI/L;
         for (int i=0; i<nTot; i++) {
-            IVectorMutable pos = leafAtoms.getAtom(i).getPosition();
+            Vector pos = leafAtoms.getAtom(i).getPosition();
             double qx = q*pos.getX(0);
             double sinx = Math.sin(qx);
             double cosx = Math.cos(qx);
@@ -50,7 +50,7 @@ public class ActionRecenter implements IAction {
             center = -1;
         }
         for (int i=0; i<nTot; i++) {
-            IVectorMutable pos = leafAtoms.getAtom(i).getPosition();
+            Vector pos = leafAtoms.getAtom(i).getPosition();
             pos.setX(0, pos.getX(0) - center);
         }
         ((PotentialMasterCell)sim.integrator.getPotentialMaster()).getNbrCellManager(sim.box).assignCellAll();

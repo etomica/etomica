@@ -5,7 +5,7 @@
 package etomica.modules.crystalviewer;
 import java.awt.Color;
 
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.graphics.ColorScheme;
 import etomica.lattice.LatticePlane;
 

@@ -1,20 +1,19 @@
 package etomica.normalmode;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.meam.PotentialCuLREP;
+import etomica.meam.PotentialEAM;
+import etomica.meam.PotentialEAM_LS;
 import etomica.meam.PotentialEFS;
-import etomica.meam.PotentialFeEAM;
-import etomica.meam.PotentialFeEAM_LS;
+import etomica.potential.IPotentialAtomic;
 import etomica.potential.PotentialCalculation;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.space.Vector;
 
 public class PotentialCalculationEFSSP implements PotentialCalculation {
 		
-	public PotentialCalculationEFSSP(ISpace space, IBox box, CoordinateDefinition coordinateDefinition, double temperature, double f1, boolean isLS){
+	public PotentialCalculationEFSSP(Space space, Box box, CoordinateDefinition coordinateDefinition, double temperature, double f1, boolean isLS){
 		sum = new double[1];
 //		sum = new double[7];
         this.temperature = temperature;
@@ -35,13 +34,13 @@ public class PotentialCalculationEFSSP implements PotentialCalculation {
 
 	public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
         int nNbrAtoms = atoms.getAtomCount();
-		IVector[] g = null;
+		Vector[] g = null;
 		if(isLS){
-			PotentialFeEAM_LS potentialSoft = (PotentialFeEAM_LS)potential;
+			PotentialEAM_LS potentialSoft = (PotentialEAM_LS)potential;
 	        g = potentialSoft.gradient(atoms);// gradient do nearestImage() !!!
 		}else{
-	        if(potential instanceof PotentialFeEAM){
-	        	PotentialFeEAM potentialSoft = (PotentialFeEAM)potential;
+	        if(potential instanceof PotentialEAM){
+	        	PotentialEAM potentialSoft = (PotentialEAM)potential;
 		        g = potentialSoft.gradient(atoms);// gradient do nearestImage() !!!
 	        }else if(potential instanceof PotentialEFS){
 				PotentialEFS potentialSoft = (PotentialEFS)potential;
@@ -53,13 +52,13 @@ public class PotentialCalculationEFSSP implements PotentialCalculation {
 	        }
 			
 		}
-		IVector ri = atoms.getAtom(0).getPosition();
-		IVector Ri = coordinateDefinition.getLatticePosition(atoms.getAtom(0));
+		Vector ri = atoms.getAtom(0).getPosition();
+		Vector Ri = coordinateDefinition.getLatticePosition(atoms.getAtom(0));
         dri.Ev1Mv2(ri, Ri);
 
         for (int j=0;j<nNbrAtoms;j++){//START from "1" NOT "0" because we need j != i
-        	IVector rj = atoms.getAtom(j).getPosition();
-        	IVector Rj = coordinateDefinition.getLatticePosition(atoms.getAtom(j));
+        	Vector rj = atoms.getAtom(j).getPosition();
+        	Vector Rj = coordinateDefinition.getLatticePosition(atoms.getAtom(j));
         	rij.Ev1Mv2(ri , rj);
         	box.getBoundary().nearestImage(rij);
         	Rij.Ev1Mv2(Ri , Rj);
@@ -75,7 +74,7 @@ public class PotentialCalculationEFSSP implements PotentialCalculation {
         }//j atoms loop
 	}
 
-	protected double function(IVector rij, IVector T1ij, IVector T2ij, double dW, double d2W){
+	protected double function(Vector rij, Vector T1ij, Vector T2ij, double dW, double d2W){
 		double rij2 = rij.squared();
 		double rDr = dW/rij2 * T1ij.dot(T2ij) + (d2W-dW)/rij2/rij2 * T1ij.dot(rij)*(T2ij.dot(rij)); //B_new!!        		
 		return rDr;
@@ -104,15 +103,15 @@ public class PotentialCalculationEFSSP implements PotentialCalculation {
 	protected double volume , temperature;
 	protected double f1;
 	protected int nMol;
-    protected final IVectorMutable rij;
-    protected final IVectorMutable Rij;
-    protected final IVectorMutable drj;
-    protected final IVectorMutable dri;
-    protected final IVectorMutable drij;
-    protected final IVectorMutable T1ij, T1ik;
+    protected final Vector rij;
+    protected final Vector Rij;
+    protected final Vector drj;
+    protected final Vector dri;
+    protected final Vector drij;
+    protected final Vector T1ij, T1ik;
 
     protected final boolean isLS;
 
-    protected final IBox box;
+    protected final Box box;
     protected final CoordinateDefinition coordinateDefinition;
  }//end VirialSum

@@ -4,14 +4,9 @@
 
 package etomica.atom.iterator;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.atom.AtomSetSinglet;
-import etomica.atom.AtomToAtomLeafList;
-import etomica.atom.AtomToIndex;
-import etomica.atom.AtomToIndexChild;
-import etomica.atom.AtomToParentChildList;
-import etomica.atom.iterator.IteratorDirective.Direction;
+import etomica.atom.*;
+import etomica.potential.IteratorDirective;
+import etomica.potential.IteratorDirective.Direction;
 
 
 /**

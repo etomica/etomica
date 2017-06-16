@@ -4,11 +4,11 @@
 
 package etomica.association;
 
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.atom.MoleculeArrayList;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
-import etomica.space.ISpace;
+import etomica.molecule.MoleculeArrayList;
+import etomica.potential.PotentialMaster;
+import etomica.space.Space;
+import etomica.util.random.IRandom;
 
 /**
  * Performs a rotation of a molecule that has an orientation coordinate.
@@ -23,8 +23,8 @@ public class MCMoveMoleculeRotateAssociated extends MCMoveRotateMolecule3D {
 	protected IAssociationHelperMolecule associationHelper;
 	protected boolean debug;
 
-    public MCMoveMoleculeRotateAssociated(IPotentialMaster potentialMaster, IRandom random,
-    		            ISpace _space) {
+    public MCMoveMoleculeRotateAssociated(PotentialMaster potentialMaster, IRandom random,
+                                          Space _space) {
         super(potentialMaster, random, _space);
         this.smerList = new MoleculeArrayList();
     }

@@ -4,21 +4,20 @@
 
 package etomica.virial;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
-import etomica.space.ISpace;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Vector3D;
-import etomica.util.Debug;
+import etomica.species.ISpecies;
+import etomica.util.random.IRandom;
 
 /**
  * Monte Carlo CH3 rotation for cluster integrals(Alkane TraPPE-EH).
@@ -30,12 +29,12 @@ import etomica.util.Debug;
  */
 public class MCMoveClusterRotateCH3 extends MCMoveMolecule {
 
-    public MCMoveClusterRotateCH3(ISimulation sim, IPotentialMaster potentialMaster, int nAtoms, ISpace _space) {
+    public MCMoveClusterRotateCH3(Simulation sim, PotentialMaster potentialMaster, int nAtoms, Space _space) {
     	this(potentialMaster,sim.getRandom(), 1.0, nAtoms, _space);
     }
     
-    public MCMoveClusterRotateCH3(IPotentialMaster potentialMaster, 
-    		IRandom random, double stepSize, int nAtoms, ISpace _space) {
+    public MCMoveClusterRotateCH3(PotentialMaster potentialMaster,
+                                  IRandom random, double stepSize, int nAtoms, Space _space) {
         super(potentialMaster,random,_space, stepSize,Double.POSITIVE_INFINITY);
         this.space = _space;
         setStepSizeMax(Math.PI/3);
@@ -45,7 +44,7 @@ public class MCMoveClusterRotateCH3 extends MCMoveMolecule {
 
     }
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
     	super.setBox(p);
         selectedAtoms = new IAtom[box.getMoleculeList().getMoleculeCount()];
         translationVectors = new Vector3D[box.getMoleculeList().getMoleculeCount()];
@@ -70,8 +69,8 @@ public class MCMoveClusterRotateCH3 extends MCMoveMolecule {
                 continue;
             }
             IAtomList childList = moleculeList.getMolecule(i).getChildList();
-            IVectorMutable position = space.makeVector();
-            IVectorMutable positionNeighbor = space.makeVector();
+            Vector position = space.makeVector();
+            Vector positionNeighbor = space.makeVector();
             int numChildren = childList.getAtomCount();// total atoms in the i-th molecule
             int numCarbons = (numChildren-2)/3;// number of carbons in the i-th molecule
             int j = random.nextInt(2);// 0 or 1
@@ -106,7 +105,7 @@ public class MCMoveClusterRotateCH3 extends MCMoveMolecule {
             	///// ######################################################################### ///////////////////
             	for (int s=0;s<3; s++){
             		hydrogen[s] =  childList.getAtom(numCarbons * (s+1));// [n], [2n], [3n]
-            		IVectorMutable r = hydrogen[s].getPosition();
+            		Vector r = hydrogen[s].getPosition();
             		r.ME(position);//position is position of C0
             		rotateTensor.transform(r);
             		r.PE(position);
@@ -120,7 +119,7 @@ public class MCMoveClusterRotateCH3 extends MCMoveMolecule {
             	hydrogen[1]=childList.getAtom(numCarbons*3-1);//[n-1+2n]
             	hydrogen[2]=childList.getAtom(numCarbons*3+1);//[3n+1]
             	for (int s=0;s<3; s++){
-            		IVectorMutable  r = hydrogen[s].getPosition();
+            		Vector r = hydrogen[s].getPosition();
             		r.ME(position);//position is position of C[n-1]
             		rotateTensor.transform(r);
             		r.PE(position);
@@ -172,10 +171,10 @@ public class MCMoveClusterRotateCH3 extends MCMoveMolecule {
     private static final long serialVersionUID = 1L;
     protected final MeterPotentialEnergy energyMeter;
     protected IAtom[] selectedAtoms;
-    protected final IVectorMutable axis;
-    protected IVectorMutable[] translationVectors;
+    protected final Vector axis;
+    protected Vector[] translationVectors;
     protected double wOld, wNew;
-    protected final ISpace space;
+    protected final Space space;
     protected ISpecies species;
     protected RotationTensor3D rotateTensor;
 

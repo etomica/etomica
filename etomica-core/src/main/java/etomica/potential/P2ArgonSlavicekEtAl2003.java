@@ -3,12 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.potential;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.units.Dimension;
-import etomica.units.Energy;
-import etomica.units.Length;
 
 /**
  * Ab initio pair potential for argon from Slavicek et al. (1993) JCP 119(4): 2102.  This is a true pair potential, rather than a pairwise-additive potential.
@@ -19,7 +15,7 @@ import etomica.units.Length;
  */
 public class P2ArgonSlavicekEtAl2003 extends Potential2SoftSpherical {
     
-    public P2ArgonSlavicekEtAl2003(ISpace space) {
+    public P2ArgonSlavicekEtAl2003(Space space) {
         super(space);
    
     }

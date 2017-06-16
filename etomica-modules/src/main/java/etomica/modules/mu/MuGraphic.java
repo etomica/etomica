@@ -4,47 +4,15 @@
 
 package etomica.modules.mu;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.event.ItemListener;
-import java.util.ArrayList;
-
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
 import etomica.action.BoxImposePbc;
 import etomica.action.IAction;
-import etomica.api.IBox;
-import etomica.api.IFunction;
-import etomica.api.IMolecule;
-import etomica.api.IVectorMutable;
 import etomica.atom.DiameterHashByType;
+import etomica.box.Box;
 import etomica.box.RandomPositionSourceRectangular;
-import etomica.data.AccumulatorAverage;
+import etomica.data.*;
 import etomica.data.AccumulatorAverage.StatType;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorHistogram;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataDump;
-import etomica.data.DataFork;
-import etomica.data.DataPipe;
-import etomica.data.DataProcessor;
-import etomica.data.DataProcessorFunction;
-import etomica.data.DataPump;
-import etomica.data.DataPumpListener;
-import etomica.data.DataSourceCountTime;
-import etomica.data.DataSplitter;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.histogram.HistogramDiscrete;
+import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterProfileByVolume;
 import etomica.data.meter.MeterWidomInsertion;
@@ -52,32 +20,26 @@ import etomica.data.types.DataDouble;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DeviceBox;
-import etomica.graphics.DeviceDelaySlider;
-import etomica.graphics.DeviceNSelector;
-import etomica.graphics.DeviceThermoSlider;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTable;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.Drawable;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
 import etomica.integrator.IntegratorBox;
+import etomica.math.function.IFunction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierNMolecule;
+import etomica.molecule.IMolecule;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.ISpace;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Dimension;
-import etomica.units.Energy;
-import etomica.units.Fraction;
-import etomica.units.Length;
-import etomica.units.Null;
-import etomica.units.Pixel;
-import etomica.util.HistogramDiscrete;
-import etomica.util.HistoryCollapsingAverage;
+import etomica.units.*;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
+import java.awt.event.ItemListener;
+import java.util.ArrayList;
 
 public class MuGraphic extends SimulationGraphic {
 
@@ -87,7 +49,7 @@ public class MuGraphic extends SimulationGraphic {
     public ItemListener potentialChooserListener;
     protected Mu sim;
 
-    public MuGraphic(final Mu simulation, ISpace _space) {
+    public MuGraphic(final Mu simulation, Space _space) {
 
     	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
 
@@ -316,8 +278,8 @@ public class MuGraphic extends SimulationGraphic {
         meterMuA.setResidual(true);
         meterMuA.setSpecies(sim.speciesA);
         meterMuA.setPositionSource(new RandomPositionSourceRectangular(space, sim.getRandom()) {
-            public IVectorMutable randomPosition() {
-                IVectorMutable v;
+            public Vector randomPosition() {
+                Vector v;
                 do {
                     v = super.randomPosition();
                 }
@@ -362,8 +324,8 @@ public class MuGraphic extends SimulationGraphic {
         meterMuB.setResidual(true);
         meterMuB.setSpecies(sim.speciesB);
         meterMuB.setPositionSource(new RandomPositionSourceRectangular(space, sim.getRandom()) {
-            public IVectorMutable randomPosition() {
-                IVectorMutable v;
+            public Vector randomPosition() {
+                Vector v;
                 do {
                     v = super.randomPosition();
                 }
@@ -461,7 +423,7 @@ public class MuGraphic extends SimulationGraphic {
                 else {
                     for (int i=0; i<(d-oldValue); i++) {
                         IMolecule m = species.makeMolecule();
-                        IVectorMutable p = m.getChildList().getAtom(0).getPosition();
+                        Vector p = m.getChildList().getAtom(0).getPosition();
                         p.setX(0, -7.5);
                         box.addMolecule(m);
                     }
@@ -496,7 +458,7 @@ public class MuGraphic extends SimulationGraphic {
                 else {
                     for (int i=0; i<(d-oldValue); i++) {
                         IMolecule m = species.makeMolecule();
-                        IVectorMutable p = m.getChildList().getAtom(0).getPosition();
+                        Vector p = m.getChildList().getAtom(0).getPosition();
                         p.setX(0, -7.5);
                         box.addMolecule(m);
                     }
@@ -736,7 +698,7 @@ public class MuGraphic extends SimulationGraphic {
     
     public static class DataSinkExcludeOverlap extends DataProcessor {
 
-        public DataSinkExcludeOverlap(IBox box) {
+        public DataSinkExcludeOverlap(Box box) {
             myData = new DataDouble();
             this.box = box;
         }
@@ -759,7 +721,7 @@ public class MuGraphic extends SimulationGraphic {
             return inputDataInfo;
         }
         
-        protected final IBox box;
+        protected final Box box;
         protected final DataDouble myData;
     }
 
@@ -768,7 +730,7 @@ public class MuGraphic extends SimulationGraphic {
         if (args.length > 0) {
             dim = Integer.parseInt(args[0]);
         }
-        ISpace space = Space.getInstance(dim);
+        Space space = Space.getInstance(dim);
         
         MuGraphic swmdGraphic = new MuGraphic(new Mu(space), space);
 		SimulationGraphic.makeAndDisplayFrame

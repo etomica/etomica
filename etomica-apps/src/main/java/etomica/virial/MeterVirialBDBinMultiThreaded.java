@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 import etomica.action.IAction;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.virial.IntSet.PropertyBin;
 
 /**

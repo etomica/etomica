@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 
 import etomica.action.IAction;
-import etomica.api.IVectorMutable;
+import etomica.space.Vector;
 import etomica.atom.DiameterHashByType;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverage.StatType;
@@ -50,8 +50,8 @@ import etomica.units.Energy;
 import etomica.units.Length;
 import etomica.units.Pixel;
 import etomica.units.Quantity;
-import etomica.util.Function;
-import etomica.util.HistoryCollapsingDiscard;
+import etomica.math.function.Function;
+import etomica.data.history.HistoryCollapsingDiscard;
 
 /**
  * Colloid module app.  Design by Alberto Striolo.
@@ -164,7 +164,7 @@ public class ColloidGraphic extends SimulationGraphic {
                 if (newValue < sim.getColloidSigma() + 1 || newValue < 12) {
                     throw new IllegalArgumentException("box size too small");
                 }
-                IVectorMutable v = space.makeVector();
+                Vector v = space.makeVector();
                 v.E(sim.box.getBoundary().getBoxSize());
                 v.setX(1, newValue);
                 sim.box.setNMolecules(sim.species, 0);

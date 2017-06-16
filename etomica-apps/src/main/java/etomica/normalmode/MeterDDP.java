@@ -4,15 +4,8 @@
 
 package etomica.normalmode;
 
-import java.io.FileWriter;
-
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.ISimulation;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -21,10 +14,16 @@ import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.math.function.Function;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.ISpace;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.Null;
-import etomica.util.Function;
+
+import java.io.FileWriter;
 
 /**
  * Meter that measures the overlap averages for perturbing from a solid at one
@@ -36,13 +35,13 @@ import etomica.util.Function;
 public class MeterDDP implements IEtomicaDataSource {
 
     protected final MeterPotentialEnergy meterPotential;
-    protected final IPotentialMaster potentialMaster;
+    protected final PotentialMaster potentialMaster;
     protected double temperature;
     protected double[] otherDensities;
     protected DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;
     protected final DataTag tag;
-    protected final IBox pretendBox;
+    protected final Box pretendBox;
     protected CoordinateDefinition coordinateDefinition;
     protected final ISpecies species;
     protected double[][] p;
@@ -51,11 +50,11 @@ public class MeterDDP implements IEtomicaDataSource {
     protected boolean linPSpan;
     protected int numP = 1;
     protected P1ConstraintNbr p1;
-    protected final IVectorMutable work;
+    protected final Vector work;
     protected Function uLatFunction = uLat0;
     protected FileWriter fw;
     
-    public MeterDDP(IPotentialMaster potentialMaster, ISpecies species, ISpace space, ISimulation sim) {
+    public MeterDDP(PotentialMaster potentialMaster, ISpecies species, Space space, Simulation sim) {
         this.potentialMaster = potentialMaster;
         meterPotential = new MeterPotentialEnergy(potentialMaster);
         this.species = species;
@@ -95,7 +94,7 @@ public class MeterDDP implements IEtomicaDataSource {
     }
     
     public IData getData() {
-        IBox realBox = coordinateDefinition.getBox();
+        Box realBox = coordinateDefinition.getBox();
         meterPotential.setBox(realBox);
         double u = meterPotential.getDataAsScalar();
         
@@ -128,7 +127,7 @@ public class MeterDDP implements IEtomicaDataSource {
 //                System.out.println(i+" "+k+" "+p[i][k]+" "+rScale+" "+fac+" "+((p[i][k]*(vi-v0) + (uLatRhoi-uLatRho0))/(numAtoms*temperature*D)));
                 for (int j=0; j<numAtoms; j++) {
                     IAtom jRealAtom = atoms.getAtom(j);
-                    IVectorMutable pos = pretendAtoms.getAtom(j).getPosition();
+                    Vector pos = pretendAtoms.getAtom(j).getPosition();
 //                    if (j==25) System.out.println("hi "+coordinateDefinition.getLatticePosition(jRealAtom)+" "+jRealAtom.getPosition());
                     pos.Ea1Tv1(rScale-fac, coordinateDefinition.getLatticePosition(jRealAtom));
                     pos.PEa1Tv1(+fac, jRealAtom.getPosition());
@@ -166,7 +165,7 @@ public class MeterDDP implements IEtomicaDataSource {
     /**
      * Returns true if all atoms in the given box satisfy p1's constraint
      */
-    protected double constraintEnergy(IBox box) {
+    protected double constraintEnergy(Box box) {
         p1.setBox(box);
         IAtomList atomList = box.getLeafList();
         for (int i=0; i<atomList.getAtomCount(); i++) {
@@ -258,14 +257,14 @@ public class MeterDDP implements IEtomicaDataSource {
 
         // insert atoms into the box at their lattice sites.
         // we do this because want to find neighbors now (and then never again)
-        IBox realBox = coordinateDefinition.getBox();
+        Box realBox = coordinateDefinition.getBox();
         pretendBox.getBoundary().setBoxSize(realBox.getBoundary().getBoxSize());
         pretendBox.setNMolecules(species, realBox.getNMolecules(species));
         IAtomList atoms = realBox.getLeafList();
         IAtomList pretendAtoms = pretendBox.getLeafList();
         for (int j=0; j<atoms.getAtomCount(); j++) {
             IAtom jRealAtom = atoms.getAtom(j);
-            IVectorMutable pos = pretendAtoms.getAtom(j).getPosition();
+            Vector pos = pretendAtoms.getAtom(j).getPosition();
             pos.E(coordinateDefinition.getLatticePosition(jRealAtom));
         }
 

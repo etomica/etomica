@@ -6,16 +6,12 @@ package etomica.models.nitrogen;
 
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
@@ -25,6 +21,7 @@ import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
 import etomica.listener.IntegratorListenerAction;
+import etomica.molecule.IMoleculeList;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MCMoveMoleculeCoupled;
 import etomica.potential.PotentialMaster;
@@ -32,8 +29,10 @@ import etomica.potential.PotentialMolecular;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.units.Degree;
 import etomica.units.Kelvin;
 import etomica.units.Pascal;
@@ -51,7 +50,7 @@ import etomica.units.Pixel;
 public class SimulationBetaNitrogenModelTest extends Simulation{
 
 	
-	public SimulationBetaNitrogenModelTest(ISpace space, int[] nC, double temperature, double pressure, double newScale) {
+	public SimulationBetaNitrogenModelTest(Space space, int[] nC, double temperature, double pressure, double newScale) {
 		super(space);
 		this.space = space;
 		double a = 3.840259;//3.854;
@@ -70,7 +69,7 @@ public class SimulationBetaNitrogenModelTest extends Simulation{
 		box.setNMolecules(species, numMolecule);		
 		int [] nCells = new int[]{1,1,1};
 		
-		IVector[] boxDim = new IVector[3];
+		Vector[] boxDim = new Vector[3];
 		boxDim[0] = space.makeVector(new double[]{nC[0]*a, 0, 0});
 		boxDim[1] = space.makeVector(new double[]{-nC[1]*a*Math.cos(Degree.UNIT.toSim(60)), nC[1]*a*Math.sin(Degree.UNIT.toSim(60)), 0});
 		boxDim[2] = space.makeVector(new double[]{0, 0, nC[2]*c});
@@ -547,8 +546,8 @@ public class SimulationBetaNitrogenModelTest extends Simulation{
 		sim.getController().actionPerformed();
 		
 		
-		double averageEnergy = ((DataGroup)energyAverage.getData()).getValue(energyAverage.AVERAGE.index);
-		double errorEnergy = ((DataGroup)energyAverage.getData()).getValue(energyAverage.ERROR.index);
+		double averageEnergy = energyAverage.getData().getValue(energyAverage.AVERAGE.index);
+		double errorEnergy = energyAverage.getData().getValue(energyAverage.ERROR.index);
 		
 //		double averagePressure = ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
 //		double errorPressure = ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);
@@ -583,7 +582,7 @@ public class SimulationBetaNitrogenModelTest extends Simulation{
 	}
 
 	protected Box box;
-	protected ISpace space;
+	protected Space space;
 	protected PotentialMaster potentialMaster;
 	protected IntegratorMC integrator;
 	protected ActivityIntegrate activityIntegrate;

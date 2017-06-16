@@ -4,14 +4,14 @@
 
 package etomica.action;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.integrator.IntegratorBox;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.PotentialMaster;
+import etomica.space.Space;
+import etomica.space.Vector;
 
 /*
  * Integrator for simulation DimerApproach
@@ -24,7 +24,7 @@ import etomica.space.ISpace;
 
 public class IntegratorDimerApproach extends IntegratorBox {
 	
-	public IntegratorDimerApproach(IPotentialMaster potentialMaster, ISpace space) {
+	public IntegratorDimerApproach(PotentialMaster potentialMaster, Space space) {
 		
 		super(potentialMaster, 0);
 		
@@ -266,7 +266,7 @@ public class IntegratorDimerApproach extends IntegratorBox {
 	}
 	
 	public void checkOHBondLength() {
-		IVectorMutable work = space.makeVector();
+		Vector work = space.makeVector();
         
         work.Ev1Mv2(atom_aC_A.getPosition(), atom_aC_B.getPosition());
         double raCaC = Math.sqrt(work.squared());
@@ -293,7 +293,7 @@ public class IntegratorDimerApproach extends IntegratorBox {
         System.out.println();*/
 	}
 	
-	private final ISpace space;
+	private final Space space;
     
 	private static final long serialVersionUID = 1L;
     
@@ -304,8 +304,8 @@ public class IntegratorDimerApproach extends IntegratorBox {
     protected MoleculeChildAtomAction atomGroupActionTranslateBy;
    
     // vectors used in translateMonomerB()
-    protected IVectorMutable newOriginB;
-    protected IVectorMutable translationVector;
+    protected Vector newOriginB;
+    protected Vector translationVector;
     
     protected IMoleculeList moleculeList; // List of monomers in box.
     protected IAtomList atomSetA; // List of sites in monomer A.

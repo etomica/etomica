@@ -71,7 +71,7 @@ public static void main(String[] args) {
 		
 	
 		
-		    double[] results = getResults ( (Potential2SoftSpherical)p2, power, r_max, temp, printapalooza);
+		    double[] results = getResults (p2, power, r_max, temp, printapalooza);
 		
 		    double B2 = results[0];
 		    double error = results[1];

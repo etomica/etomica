@@ -5,8 +5,7 @@
 package etomica.simulation.prototypes;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.models.ModelChain;
 import etomica.config.ConfigurationLattice;
@@ -30,7 +29,7 @@ import etomica.species.SpeciesSpheres;
 public class ChainHSMD3D extends Simulation {
 
     private static final long serialVersionUID = 2L;
-    public IBox box;
+    public Box box;
     public IntegratorHard integrator;
     public SpeciesSpheres species;
     public P2HardSphere potential;
@@ -55,14 +54,14 @@ public class ChainHSMD3D extends Simulation {
         model.setNumAtoms(chainLength);
         model.setBondingPotential(new P2HardBond(space, 1.0, 0.15, true));
 
-        species = (SpeciesSpheres)model.makeSpecies(this);
+        species = (SpeciesSpheres) model.makeSpecies(this);
         potentialMaster.addModel(model);
-        ((ConformationLinear)model.getConformation()).setBondLength(1.0);
-        ((ConformationLinear)model.getConformation()).setAngle(1,0.35);
-        
+        ((ConformationLinear) model.getConformation()).setBondLength(1.0);
+        ((ConformationLinear) model.getConformation()).setAngle(1, 0.35);
+
         box = new Box(space);
-        double l = 14.4573*Math.pow((chainLength*numAtoms/2020.0),1.0/3.0);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{l,l,l}));
+        double l = 14.4573 * Math.pow((chainLength * numAtoms / 2020.0), 1.0 / 3.0);
+        box.getBoundary().setBoxSize(space.makeVector(new double[]{l, l, l}));
         addBox(box);
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         box.setNMolecules(species, numAtoms);
@@ -70,26 +69,26 @@ public class ChainHSMD3D extends Simulation {
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
 
         potential = new P2HardSphere(space, 1.0, true);
-        IAtomType leafType = species.getLeafType();
-        potentialMaster.addPotential(potential, new IAtomType[]{leafType,leafType});
+        AtomType leafType = species.getLeafType();
+        potentialMaster.addPotential(potential, new AtomType[]{leafType, leafType});
         CriterionBondedSimple nonBondedCriterion = new CriterionBondedSimple(new CriterionAll());
         nonBondedCriterion.setBonded(false);
-        ((CriterionInterMolecular)potentialMaster.getCriterion(potential)).setIntraMolecularCriterion(nonBondedCriterion);
+        ((CriterionInterMolecular) potentialMaster.getCriterion(potential)).setIntraMolecularCriterion(nonBondedCriterion);
 
         integrator.setBox(box);
     }
 
     public static void main(String[] args) {
 
-      final etomica.simulation.prototypes.ChainHSMD3D sim = new etomica.simulation.prototypes.ChainHSMD3D();
-      final SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
-      BondListener bl = new BondListener(sim.box,(DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box).canvas);
-      bl.addModel(sim.model);
-      ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box, sim.getRandom());
-      simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
+        final etomica.simulation.prototypes.ChainHSMD3D sim = new etomica.simulation.prototypes.ChainHSMD3D();
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
+        BondListener bl = new BondListener(sim.box, (DisplayBoxCanvasG3DSys) simGraphic.getDisplayBox(sim.box).canvas);
+        bl.addModel(sim.model);
+        ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box, sim.getRandom());
+        simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
 
-      simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
+        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
-      simGraphic.makeAndDisplayFrame();
+        simGraphic.makeAndDisplayFrame();
     }
 }//end of class

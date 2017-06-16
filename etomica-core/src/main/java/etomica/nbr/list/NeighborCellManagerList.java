@@ -4,13 +4,13 @@
 
 package etomica.nbr.list;
 
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.ISimulation;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.IAtom;
+import etomica.box.Box;
+import etomica.molecule.IMoleculePositionDefinition;
 import etomica.nbr.cell.Cell;
 import etomica.nbr.cell.NeighborCellManager;
-import etomica.space.ISpace;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
 
 /**
  * Subclass of NeighborCellManager that notifies the NeighborListManager when
@@ -20,14 +20,14 @@ import etomica.space.ISpace;
  */
 public class NeighborCellManagerList extends NeighborCellManager {
 
-    public NeighborCellManagerList(ISimulation sim, IBox box,
-            double potentialRange, ISpace _space) {
+    public NeighborCellManagerList(Simulation sim, Box box,
+                                   double potentialRange, Space _space) {
         this(sim, box, potentialRange, null, _space);
     }
 
-    public NeighborCellManagerList(ISimulation sim, IBox box,
-            double potentialRange, IAtomPositionDefinition positionDefinition,
-            ISpace _space) {
+    public NeighborCellManagerList(Simulation sim, Box box,
+                                   double potentialRange, IMoleculePositionDefinition positionDefinition,
+                                   Space _space) {
         super(sim, box, potentialRange, positionDefinition, _space);
     }
 
@@ -35,7 +35,7 @@ public class NeighborCellManagerList extends NeighborCellManager {
         potentialMaster = newPotentialMaster;
     }
 
-    public Cell makeAgent(IAtom atom, IBox agentBox) {
+    public Cell makeAgent(IAtom atom, Box agentBox) {
         if (range == 0) {
             // no range, no lattice, etc
             return null;

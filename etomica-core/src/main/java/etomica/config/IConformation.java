@@ -4,7 +4,7 @@
 
 package etomica.config;
 
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 
 
 public interface IConformation {

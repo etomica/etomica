@@ -3,19 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.graphics;
-import java.awt.Color;
 
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
-import etomica.atom.MoleculeAgentManager;
-import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
+import etomica.atom.IAtom;
+import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculeAgentManager;
+import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
+import etomica.simulation.Simulation;
+import etomica.util.random.IRandom;
+
+import java.awt.*;
 
 public class ColorSchemeRandomByMolecule extends ColorScheme implements MoleculeAgentSource {
     
-    public ColorSchemeRandomByMolecule(ISimulation sim, IBox box, IRandom random) {
+    public ColorSchemeRandomByMolecule(Simulation sim, Box box, IRandom random) {
     	super();
         this.random = random;
         agentManager = new MoleculeAgentManager(sim, box, this);

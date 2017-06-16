@@ -4,29 +4,29 @@
 
 package etomica.models.nitrogen;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Serializable;
-
 import etomica.action.IAction;
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
+import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
+import etomica.data.histogram.HistogramExpanding;
 import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataGroup;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
+import etomica.molecule.IMoleculeList;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
+import etomica.species.ISpecies;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
 import etomica.units.Length;
 import etomica.units.Null;
-import etomica.util.HistogramExpanding;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Serializable;
 
 /**
  * Sample the distribution of the normalized coordinate for the atoms/ molecules
@@ -41,7 +41,7 @@ import etomica.util.HistogramExpanding;
  */
 public class MeterNormalizedCoordBeta implements IEtomicaDataSource, IAction, Serializable {
 
-    public MeterNormalizedCoordBeta(IBox newBox, CoordinateDefinition coordDef, ISpecies species) {
+    public MeterNormalizedCoordBeta(Box newBox, CoordinateDefinition coordDef, ISpecies species) {
         tag = new DataTag();
         this.coordinateDefinition = coordDef;
         

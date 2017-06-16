@@ -4,16 +4,8 @@
 
 package etomica.normalmode;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.ISimulation;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -23,8 +15,15 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.ISpace;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.Null;
+
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * Meter that measures the overlap averages for perturbing from a solid at one
@@ -41,14 +40,14 @@ import etomica.units.Null;
 public class MeterTargetTP implements IEtomicaDataSource {
 
     protected final MeterPotentialEnergy meterPotential;
-    protected final IPotentialMaster potentialMaster;
+    protected final PotentialMaster potentialMaster;
     protected double latticeEnergy;
     protected double temperature;
     protected double[] otherTemperatures;
     protected DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;
     protected final DataTag tag;
-    protected final IBox pretendBox;
+    protected final Box pretendBox;
     protected CoordinateDefinition coordinateDefinition;
     protected final ISpecies species;
     protected double[][] alpha;
@@ -58,7 +57,7 @@ public class MeterTargetTP implements IEtomicaDataSource {
     protected FileWriter fw;
     protected P1ConstraintNbr p1;
     
-    public MeterTargetTP(IPotentialMaster potentialMaster, ISpecies species, ISpace space, ISimulation sim) {
+    public MeterTargetTP(PotentialMaster potentialMaster, ISpecies species, Space space, Simulation sim) {
         this.potentialMaster = potentialMaster;
         meterPotential = new MeterPotentialEnergy(potentialMaster);
         this.species = species;
@@ -77,7 +76,7 @@ public class MeterTargetTP implements IEtomicaDataSource {
     }
 
     public IData getData() {
-        IBox realBox = coordinateDefinition.getBox();
+        Box realBox = coordinateDefinition.getBox();
         meterPotential.setBox(realBox);
         double u = meterPotential.getDataAsScalar();
         meterPotential.setBox(pretendBox);
@@ -93,7 +92,7 @@ public class MeterTargetTP implements IEtomicaDataSource {
             
             for (int j=0; j<atoms.getAtomCount(); j++) {
                 IAtom jRealAtom = atoms.getAtom(j);
-                IVectorMutable pos = pretendAtoms.getAtom(j).getPosition();
+                Vector pos = pretendAtoms.getAtom(j).getPosition();
                 pos.Ea1Tv1(1-fac, coordinateDefinition.getLatticePosition(jRealAtom));
                 pos.PEa1Tv1(+fac, jRealAtom.getPosition());
             }
@@ -135,7 +134,7 @@ public class MeterTargetTP implements IEtomicaDataSource {
     /**
      * Returns true if all atoms in the given box satisfy p1's constraint
      */
-    protected double constraintEnergy(IBox box) {
+    protected double constraintEnergy(Box box) {
         p1.setBox(box);
         IAtomList atomList = box.getLeafList();
         for (int i=0; i<atomList.getAtomCount(); i++) {
@@ -246,14 +245,14 @@ public class MeterTargetTP implements IEtomicaDataSource {
 
         // insert atoms into the box at their lattice sites.
         // we do this because want to find neighbors now (and then never again)
-        IBox realBox = coordinateDefinition.getBox();
+        Box realBox = coordinateDefinition.getBox();
         pretendBox.setBoundary(realBox.getBoundary());
         pretendBox.setNMolecules(species, realBox.getNMolecules(species));
         IAtomList atoms = realBox.getLeafList();
         IAtomList pretendAtoms = pretendBox.getLeafList();
         for (int j=0; j<atoms.getAtomCount(); j++) {
             IAtom jRealAtom = atoms.getAtom(j);
-            IVectorMutable pos = pretendAtoms.getAtom(j).getPosition();
+            Vector pos = pretendAtoms.getAtom(j).getPosition();
             pos.E(coordinateDefinition.getLatticePosition(jRealAtom));
         }
 

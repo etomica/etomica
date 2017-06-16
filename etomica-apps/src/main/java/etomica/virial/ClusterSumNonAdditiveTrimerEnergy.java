@@ -4,7 +4,7 @@
 
 package etomica.virial;
 
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.atom.AtomArrayList;
 import etomica.potential.Potential;
 
@@ -330,7 +330,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
 
             double u123NonAdd = 0; 
             if (g12*g13*g23 != 0) {
-            	u123NonAdd = p3NonAdd.energy((IAtomList)atoms);
+            	u123NonAdd = p3NonAdd.energy(atoms);
                 beta123 = u123NonAdd*beta;
                 double exp123 = -beta123;
                 if (Math.abs(beta123) > 1E-8) {
@@ -355,7 +355,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
 
             double u124NonAdd = 0; 
             if (g12*g14*g24 != 0) {
-                u124NonAdd = p3NonAdd.energy((IAtomList)atoms);
+                u124NonAdd = p3NonAdd.energy(atoms);
                 beta124 = u124NonAdd*beta;
                 double exp124 = -beta124;
                 if (Math.abs(beta124) > 1E-8) {
@@ -373,7 +373,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
 
             double u125NonAdd = 0; 
             if (g12*g15*g25 != 0) {
-            	u125NonAdd = p3NonAdd.energy((IAtomList)atoms);
+            	u125NonAdd = p3NonAdd.energy(atoms);
                 beta125 = u125NonAdd*beta;
                 double exp125 = -beta125;
                 if (Math.abs(beta125) > 1E-8) {
@@ -391,7 +391,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
             
             double u135NonAdd = 0; 
             if (g13*g15*g35 != 0) {
-                u135NonAdd = p3NonAdd.energy((IAtomList)atoms);
+                u135NonAdd = p3NonAdd.energy(atoms);
                 beta135 = u135NonAdd*beta;
                 double exp135 = -beta135;
                 if (Math.abs(beta135) > 1E-8) {
@@ -417,7 +417,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
             
             double u134NonAdd = 0;
             if (g13*g14*g34 != 0) {
-                u134NonAdd = p3NonAdd.energy((IAtomList)atoms);
+                u134NonAdd = p3NonAdd.energy(atoms);
                 beta134 = u134NonAdd*beta;
                 double exp134 = -beta134;
                 if (Math.abs(beta134) > 1E-8) {
@@ -443,7 +443,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
             
             double u145NonAdd = 0;
             if (g14*g15*g45 != 0) {
-                u145NonAdd = p3NonAdd.energy((IAtomList)atoms);
+                u145NonAdd = p3NonAdd.energy(atoms);
                 beta145 = u145NonAdd*beta;
                 double exp145 = -beta145;
                 if (Math.abs(beta145) > 1E-8) {
@@ -469,7 +469,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
 
             double u245NonAdd = 0;
             if (g24*g25*g45 != 0) {
-                u245NonAdd = p3NonAdd.energy((IAtomList)atoms);
+                u245NonAdd = p3NonAdd.energy(atoms);
                 beta245 = u245NonAdd*beta;
                 double exp245 = -beta245;
                 if (Math.abs(beta245) > 1E-8) {
@@ -508,7 +508,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
             
             double u234NonAdd = 0;
             if (g23*g24*g34 != 0) {
-                u234NonAdd = p3NonAdd.energy((IAtomList)atoms);
+                u234NonAdd = p3NonAdd.energy(atoms);
                 beta234 = u234NonAdd*beta;
                 double exp234 = -beta234;
                 if (Math.abs(beta234) > 1E-8) {
@@ -547,7 +547,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
          
             double u235NonAdd = 0;
             if (g23*g25*g35 != 0) {
-                u235NonAdd = p3NonAdd.energy((IAtomList)atoms);
+                u235NonAdd = p3NonAdd.energy(atoms);
                 beta235 = u235NonAdd*beta;
                 double exp235 = -beta235;
                 if (Math.abs(beta235) > 1E-8) {
@@ -586,7 +586,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
 
             double u345NonAdd = 0;
             if (g34*g35*g45 != 0) {
-            	u345NonAdd = p3NonAdd.energy((IAtomList)atoms);
+            	u345NonAdd = p3NonAdd.energy(atoms);
                 beta345 = u345NonAdd*beta;
                 double exp345 = -beta345;
                 if (Math.abs(beta345) > 1E-8) {

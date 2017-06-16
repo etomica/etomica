@@ -2,17 +2,16 @@ package etomica.normalmode.nptdemo;
 
 import java.awt.Color;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
+import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.graphics.ColorSchemeCollectiveAgent;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinition;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Color atoms based on being neighbors of the reference atom
@@ -21,10 +20,10 @@ import etomica.space.ISpace;
  */
 public class ColorSchemeScaledOverlap extends ColorSchemeCollectiveAgent {
     
-    public ColorSchemeScaledOverlap(ISpace space, PotentialMasterList potentialMaster, CoordinateDefinition coordinateDefinition) {
+    public ColorSchemeScaledOverlap(Space space, PotentialMasterList potentialMaster, CoordinateDefinition coordinateDefinition) {
         super(coordinateDefinition.getBox());
         this.coordinateDefinition = coordinateDefinition;
-        IBox box = coordinateDefinition.getBox();
+        Box box = coordinateDefinition.getBox();
         nOverlaps = new int[box.getLeafList().getAtomCount()];
         neighborManager = potentialMaster.getNeighborManager(box);
         pi = space.makeVector();
@@ -50,7 +49,7 @@ public class ColorSchemeScaledOverlap extends ColorSchemeCollectiveAgent {
     
     public synchronized void colorAllAtoms() {
         
-        IBox box = coordinateDefinition.getBox();
+        Box box = coordinateDefinition.getBox();
         IAtomList leafList = box.getLeafList();
         double vOld = box.getBoundary().volume();
         int nAtoms = box.getLeafList().getAtomCount();
@@ -69,12 +68,12 @@ public class ColorSchemeScaledOverlap extends ColorSchemeCollectiveAgent {
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             nOverlaps[iLeaf] = 0;
         }
-        IBoundary boundary = box.getBoundary();
+        Boundary boundary = box.getBoundary();
         for (int i=0; i<leafList.getAtomCount(); i++) {
             //color blue the neighbor atoms in same group
             IAtom atom = leafList.getAtom(i);
             pi.E(atom.getPosition());
-            IVector l = coordinateDefinition.getLatticePosition(atom);
+            Vector l = coordinateDefinition.getLatticePosition(atom);
             pi.ME(l);
             pi.TE(latticeScale);
             pi.PE(l);
@@ -84,7 +83,7 @@ public class ColorSchemeScaledOverlap extends ColorSchemeCollectiveAgent {
                 IAtom jAtom = list.getAtom(j);
 
                 pj.E(jAtom.getPosition());
-                IVector lj = coordinateDefinition.getLatticePosition(jAtom);
+                Vector lj = coordinateDefinition.getLatticePosition(jAtom);
                 pj.ME(lj);
                 pj.TE(latticeScale);
                 pj.PE(lj);
@@ -106,8 +105,8 @@ public class ColorSchemeScaledOverlap extends ColorSchemeCollectiveAgent {
 
     private static final long serialVersionUID = 1L;
     private final NeighborListManager neighborManager;
-    protected final IVectorMutable dr;
-    protected final IVectorMutable pi, pj;
+    protected final Vector dr;
+    protected final Vector pi, pj;
     protected final int[] nOverlaps;
     protected double pressure, displayDensity;
     protected final CoordinateDefinition coordinateDefinition;

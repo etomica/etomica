@@ -8,10 +8,9 @@
  */
 package etomica.math.geometry;
 
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.space.Vector;
 import etomica.exception.MethodNotImplementedException;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Vector3D;
 
 /**
@@ -25,20 +24,20 @@ public class Parallelepiped extends Hexahedron implements Parallelotope {
     /**
      * Default constructor makes a cube of unit size
      */
-    public Parallelepiped(ISpace embeddedSpace) {
+    public Parallelepiped(Space embeddedSpace) {
         this(embeddedSpace, new Vector3D(1,0,0), new Vector3D(0,1,0), new Vector3D(0,0,1));
     }
 
     /**
      * Constructs a parallelepiped with the given edge vectors.
      */
-    public Parallelepiped(ISpace embeddedSpace, IVector a, IVector b, IVector c) {
+    public Parallelepiped(Space embeddedSpace, Vector a, Vector b, Vector c) {
         super(embeddedSpace);
         this.a = embeddedSpace.makeVector();
         this.b = embeddedSpace.makeVector();
         this.c = embeddedSpace.makeVector();
         work = embeddedSpace.makeVector();
-        setEdgeVectors(new IVector[] {a, b, c});
+        setEdgeVectors(new Vector[] {a, b, c});
     }
 
     /**
@@ -93,7 +92,7 @@ public class Parallelepiped extends Hexahedron implements Parallelotope {
      * surface of) this cell, <code>false</code> otherwise.
      */
     //TODO implement contains method in Parallelepiped
-    public boolean contains(IVector v) {
+    public boolean contains(Vector v) {
         throw new MethodNotImplementedException();
 //        double x = v.x(0)-position.x(0);
 //        double y = v.x(1)-position.x(1);
@@ -106,7 +105,7 @@ public class Parallelepiped extends Hexahedron implements Parallelotope {
      * Sets the lengths and directions of all edges of the parellelepiped.
      * Given instances are copied to an internal representation.
      */
-    public void setEdgeVectors(IVector[] vectors) {
+    public void setEdgeVectors(Vector[] vectors) {
         a.Ea1Tv1(0.5, vectors[0]);
         b.Ea1Tv1(0.5, vectors[1]);
         c.Ea1Tv1(0.5, vectors[2]);
@@ -114,7 +113,7 @@ public class Parallelepiped extends Hexahedron implements Parallelotope {
     }
 
     private static final long serialVersionUID = 1L;
-    private final IVectorMutable a, b, c;
-    private final IVectorMutable work;
+    private final Vector a, b, c;
+    private final Vector work;
 
 }

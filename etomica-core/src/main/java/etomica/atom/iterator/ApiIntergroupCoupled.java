@@ -4,7 +4,7 @@
 
 package etomica.atom.iterator;
 
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 
 /**
  * Iterator that returns coupled iterates; the first pair contains the first

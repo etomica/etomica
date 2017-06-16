@@ -4,9 +4,9 @@
 
 package etomica.potential;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.BoxAgentManager;
@@ -78,7 +78,7 @@ public class P2HardBondedList extends Potential2 implements PotentialHard, Agent
         return isBonded(pair) ? bondedPotential.energy(pair) : nonBondedPotential.energy(pair);
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         agentManager = boxAgentManager.getAgent(box);
         bondedPotential.setBox(box);
         nonBondedPotential.setBox(box);
@@ -126,11 +126,11 @@ public class P2HardBondedList extends Potential2 implements PotentialHard, Agent
         return agentManager.getAgent(atom);
     }
 
-    public BondArrayList makeAgent(IAtom a, IBox agentBox) {
+    public BondArrayList makeAgent(IAtom a, Box agentBox) {
         return new BondArrayList();
     }
 
-    public void releaseAgent(BondArrayList agent, IAtom atom, IBox agentBox) {
+    public void releaseAgent(BondArrayList agent, IAtom atom, Box agentBox) {
         agent.clear();
     }
     
@@ -150,7 +150,7 @@ public class P2HardBondedList extends Potential2 implements PotentialHard, Agent
             as = asource;
         }
 
-        public AtomLeafAgentManager<BondArrayList> makeAgent(IBox box) {
+        public AtomLeafAgentManager<BondArrayList> makeAgent(Box box) {
             return new AtomLeafAgentManager<BondArrayList>(as, box, BondArrayList.class);
         }
 

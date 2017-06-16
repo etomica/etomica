@@ -4,8 +4,8 @@
 
 package etomica.virial;
 
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
 
 /**
  * @author kofke
@@ -50,6 +50,6 @@ public class MayerEHardSphere extends MayerESpherical {
 		sigma2 = sigma*sigma;
 	}
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
     }
 }

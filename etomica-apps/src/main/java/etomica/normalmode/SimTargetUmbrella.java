@@ -4,24 +4,12 @@
 
 package etomica.normalmode;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorHistogram;
-import etomica.data.DataFork;
-import etomica.data.DataLogger;
-import etomica.data.DataPump;
-import etomica.data.IEtomicaDataSource;
-import etomica.data.DataTableWriter;
+import etomica.data.*;
+import etomica.data.histogram.HistogramSimple;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
@@ -29,6 +17,7 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.listener.IntegratorListenerAction;
+import etomica.math.DoubleRange;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
@@ -38,10 +27,13 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.DoubleRange;
-import etomica.util.HistogramSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * Simulation to sample target system and perturbing into
@@ -50,7 +42,21 @@ import etomica.util.ReadParameters;
 public class SimTargetUmbrella extends Simulation {
 
 	private static final String APP_NAME = "Sim Target-Umbrella";
-
+    private static final long serialVersionUID = 1L;
+    public IntegratorMC integrator;
+    public ActivityIntegrate activityIntegrate;
+    public Box box;
+    public Boundary boundary;
+    public Basis basis;
+    public SpeciesSpheresMono species;
+    public NormalModes normalModes;
+    public int[] nCells;
+    public CoordinateDefinition coordinateDefinition;
+    public Primitive primitive;
+    public PotentialMasterMonatomic potentialMasterMonatomic;
+    public double latticeEnergy;
+    public MeterHarmonicEnergy meterHarmonicEnergy;
+    public double refPref;
     public SimTargetUmbrella(Space _space, int numAtoms, double density, double temperature, String filename, int exponent) {
         super(_space);
 
@@ -64,41 +70,41 @@ public class SimTargetUmbrella extends Simulation {
         try {
         	BufferedReader bufReader = new BufferedReader(refFileReader);
         	String line = bufReader.readLine();
-        	
+
         	refPref = Double.parseDouble(line);
         	setRefPref(refPref);
-        	
+
         } catch (IOException e){
         	throw new RuntimeException(" Cannot read from file "+ refFileName);
         }
         //System.out.println("refPref is: "+ refPref);
-        
-        
+
+
         int D = space.D();
-        
+
         potentialMasterMonatomic = new PotentialMasterMonatomic(this);
         integrator = new IntegratorMC(potentialMasterMonatomic, getRandom(), temperature);
-       
+
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
-        //Target        
+        //Target
         box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
 
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
-      
+
        	double L = Math.pow(4.0/density, 1.0/3.0);
         primitive = new PrimitiveCubic(space, L);
         int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
         nCells = new int[]{n,n,n};
         boundary = new BoundaryRectangularPeriodic(space, n*L);
         basis = new BasisCubicFcc();
-        
+
         box.setBoundary(boundary);
-        
+
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         normalModes = new NormalModesFromFile(filename, D);
         /*
@@ -106,42 +112,33 @@ public class SimTargetUmbrella extends Simulation {
          */
         //normalModes.setTemperature(temperature);
         coordinateDefinition.initializeCoordinates(nCells);
-        
+
         Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, exponent);
         double truncationRadius = boundary.getBoxSize().getX(0) * 0.495;
         P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
-        IAtomType sphereType = species.getLeafType();
-        potentialMasterMonatomic.addPotential(pTruncated, new IAtomType[] { sphereType, sphereType });
-        
+        AtomType sphereType = species.getLeafType();
+        potentialMasterMonatomic.addPotential(pTruncated, new AtomType[]{sphereType, sphereType});
+
         integrator.setBox(box);
-        
+
         potentialMasterMonatomic.lrcMaster().setEnabled(false);
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterMonatomic);
         meterPE.setBox(box);
         latticeEnergy = meterPE.getDataAsScalar();
-        
+
         MCMoveAtomCoupled move = new MCMoveAtomCoupled(potentialMasterMonatomic, new MeterPotentialEnergy(potentialMasterMonatomic), getRandom(), space);
         move.setPotential(pTruncated);
         integrator.getMoveManager().addMCMove(move);
-      
+
         meterHarmonicEnergy = new MeterHarmonicEnergy(coordinateDefinition, normalModes);
-        
+
     }
 
-
-	public double getRefPref() {
-		return refPref;
-	}
-
-	public void setRefPref(double refPref) {
-		this.refPref = refPref;
-	}
-    
     /**
      * @param args
      */
     public static void main(String[] args) {
-        
+
         SimBennetParam params = new SimBennetParam();
         String inputFilename = null;
         if (args.length > 0) {
@@ -163,41 +160,41 @@ public class SimTargetUmbrella extends Simulation {
         	System.err.println("Need input files!!!");
             filename = "FCC_SoftSphere_n"+exponentN+"_T"+ (int)Math.round(temperature*10);
         }
-       
-    	
+
+
         System.out.println("Running "+(D==1 ? "1D" : (D==3 ? "FCC" : "2D hexagonal")) +" soft sphere Target-Umbrella perturbation simulation");
         System.out.println(numAtoms+" atoms at density "+density+" and temperature "+temperature);
         System.out.println("exponent N: "+ exponentN );
         System.out.println("total steps: "+ numSteps);
         System.out.println("output data to "+filename);
-        
+
         //construct simulation
         final SimTargetUmbrella sim = new SimTargetUmbrella(Space.getInstance(D), numAtoms, density, temperature, filename, exponentN);
-        
+
         IEtomicaDataSource[] workMeters = new IEtomicaDataSource[1];
-        
-      // Target 
+
+        // Target
         MeterWorkTargetUmbrella meterWorkTargetUmbrella = new MeterWorkTargetUmbrella(sim.integrator, sim.meterHarmonicEnergy);
         meterWorkTargetUmbrella.setRefPref(sim.refPref);
         meterWorkTargetUmbrella.setLatticeEnergy(sim.latticeEnergy);
         workMeters[0] = meterWorkTargetUmbrella;
-        
+
         DataFork dataFork = new DataFork();
         DataPump pumpTarget = new DataPump(workMeters[0], dataFork);
-        
+
         final AccumulatorAverageFixed dataAverageTarget = new AccumulatorAverageFixed();
         dataFork.addDataSink(dataAverageTarget);
         IntegratorListenerAction pumpTargetListener = new IntegratorListenerAction(pumpTarget);
         sim.integrator.getEventManager().addListener(pumpTargetListener);
         pumpTargetListener.setInterval(numAtoms*2);
-        
+
         //Histogram Target
         final AccumulatorHistogram histogramTarget = new AccumulatorHistogram(new HistogramSimple(600,new DoubleRange(-150,450)));
         dataFork.addDataSink(histogramTarget);
-        
-        
+
+
         FileWriter fileWriter;
-        
+
         try{
         	fileWriter = new FileWriter(filename + "_TargUmb");
         } catch (IOException e){
@@ -206,7 +203,7 @@ public class SimTargetUmbrella extends Simulation {
 
         final String outFileName = filename;
         final FileWriter fileWriterTargUmb = fileWriter;
-        
+
         IAction outputAction = new IAction(){
         	public void actionPerformed(){
         		long idStep = sim.integrator.getStepCount();
@@ -220,62 +217,53 @@ public class SimTargetUmbrella extends Simulation {
 				dataLogger.setDataSink(dataTableWriter);
 				dataTableWriter.setIncludeHeader(false);
 				dataLogger.putDataInfo(histogramTarget.getDataInfo());
-				
-				dataLogger.setWriteInterval(1);
+
+                dataLogger.setWriteInterval(1);
 				dataLogger.setAppending(false); //overwrite the file 8/5/08
 				dataLogger.putData(histogramTarget.getData());
 				dataLogger.closeFile();
-		        
-		        System.out.println("\n*****************************************************************");
+
+                System.out.println("\n*****************************************************************");
 		        System.out.println("********** Target-to-Umbrella Sampling "+ idStep + "   *************");
 		        System.out.println("*****************************************************************");
-		       
-		        
-				
-		        double wTarget   = dataAverageTarget.getData().getValue(dataAverageTarget.AVERAGE.index);
-		        double eTarget   = dataAverageTarget.getData().getValue(dataAverageTarget.ERROR.index);
-		        System.out.println("\n wTargetUmbrella: "  + wTarget   + " ,error: "+ eTarget);
-				
-				try {
+
+
+                double wTarget = dataAverageTarget.getData().getValue(AccumulatorAverage.AVERAGE.index);
+                double eTarget = dataAverageTarget.getData().getValue(AccumulatorAverage.ERROR.index);
+                System.out.println("\n wTargetUmbrella: "  + wTarget   + " ,error: "+ eTarget);
+
+                try {
 			        fileWriterTargUmb.write(idStep + " " + wTarget + " "+ eTarget +"\n");
-	                
-				} catch(IOException e){
-					
-				}
+
+                } catch(IOException e){
+
+                }
         	}
         };
-        
+
         IntegratorListenerAction outputActionListener = new IntegratorListenerAction(outputAction);
         outputActionListener.setInterval(20000);
         sim.integrator.getEventManager().addListener(outputActionListener);
-        
+
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.getController().actionPerformed();
-        
+
         try {
 	        fileWriterTargUmb.close();
-            
-		} catch(IOException e){
-			
-		}
-        
+
+        } catch(IOException e){
+
+        }
+
     }
 
-    private static final long serialVersionUID = 1L;
-    public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
-    public IBox box;
-    public Boundary boundary;
-    public Basis basis;
-    public SpeciesSpheresMono species;
-    public NormalModes normalModes;
-    public int[] nCells;
-    public CoordinateDefinition coordinateDefinition;
-    public Primitive primitive;
-    public PotentialMasterMonatomic potentialMasterMonatomic;
-    public double latticeEnergy;
-    public MeterHarmonicEnergy meterHarmonicEnergy;
-    public double refPref;
+    public double getRefPref() {
+        return refPref;
+    }
+
+    public void setRefPref(double refPref) {
+        this.refPref = refPref;
+    }
     
     public static class SimBennetParam extends ParameterBase {
     	public int numMolecules = 32;

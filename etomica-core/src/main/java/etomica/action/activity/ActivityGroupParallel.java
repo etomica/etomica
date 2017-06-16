@@ -91,7 +91,7 @@ public class ActivityGroupParallel extends Activity implements ActivityGroup {
 	}
 
 	public synchronized IAction[] getAllActions() {
-		return (IAction[])actions.clone();
+		return actions.clone();
 	}
 
 	public synchronized IAction[] getCompletedActions() {
@@ -106,7 +106,7 @@ public class ActivityGroupParallel extends Activity implements ActivityGroup {
 	}
 	
 	public synchronized IAction[] getPendingActions() {
-		if (firstThread == null) return (IAction[])actions.clone();
+		if (firstThread == null) return actions.clone();
 		return new IAction[0];
 	}
 	

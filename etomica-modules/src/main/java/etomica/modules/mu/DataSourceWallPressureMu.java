@@ -4,7 +4,7 @@
 
 package etomica.modules.mu;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -14,11 +14,11 @@ import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorHard.CollisionListener;
 import etomica.potential.P1HardBoundary;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Pressure2D;
 
 public class DataSourceWallPressureMu implements IEtomicaDataSource, CollisionListener {
-    public DataSourceWallPressureMu(ISpace space) {
+    public DataSourceWallPressureMu(Space space) {
         this.space = space;
         data = new DataDoubleArray(2);
         dataInfo = new DataInfoDoubleArray("pressure", Pressure2D.DIMENSION, new int[]{2});
@@ -32,7 +32,7 @@ public class DataSourceWallPressureMu implements IEtomicaDataSource, CollisionLi
      */
     public void collisionAction(IntegratorHard.Agent agent) {
         if (agent.collisionPotential instanceof P1HardBoundary) {
-            IVector p = agent.atom.getPosition();
+            Vector p = agent.atom.getPosition();
             if (p.getX(0) < 0) {
                 virialSumIG -= ((P1HardBoundary)agent.collisionPotential).lastWallVirial();
             }
@@ -83,7 +83,7 @@ public class DataSourceWallPressureMu implements IEtomicaDataSource, CollisionLi
     }
 
     private static final long serialVersionUID = 1L;
-    protected ISpace space;
+    protected Space space;
     protected IntegratorHard integratorHard;
     protected double virialSumIG, virialSumSQW;
     protected double lastTime;

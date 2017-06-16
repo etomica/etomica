@@ -3,12 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.modules.mu;
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
 import etomica.potential.Potential2HardSpherical;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
 import etomica.units.Energy;
@@ -32,14 +32,14 @@ public class P2SquareWellOneSide extends Potential2HardSpherical {
     protected double lastCollisionVirial, lastCollisionVirialr2;
     protected Tensor lastCollisionVirialTensor;
     protected double lastEnergyChange;
-    protected IVectorMutable dv;
+    protected Vector dv;
     protected final boolean ignoreOverlap;
 
-    public P2SquareWellOneSide(ISpace space) {
+    public P2SquareWellOneSide(Space space) {
         this(space, 1.0, 2.0, 1.0, false);
     }
 
-    public P2SquareWellOneSide(ISpace space, double coreDiameter, double lambda, double epsilon, boolean ignoreOverlap) {
+    public P2SquareWellOneSide(Space space, double coreDiameter, double lambda, double epsilon, boolean ignoreOverlap) {
         super(space);
         setCoreDiameter(coreDiameter);
         setLambda(lambda);
@@ -70,8 +70,8 @@ public class P2SquareWellOneSide extends Potential2HardSpherical {
         double r2 = dr.squared();
         double bij = dr.dot(dv);
         double eps = 1.0e-10;
-        double rm0 = ((IAtom)atom0).getType().rm();
-        double rm1 = ((IAtom)atom1).getType().rm();
+        double rm0 = atom0.getType().rm();
+        double rm1 = atom1.getType().rm();
         double reduced_m = 1.0/(rm0+rm1);
         double nudge = 0;
         if(2*r2 < (coreDiameterSquared+wellDiameterSquared)) {   // Hard-core collision

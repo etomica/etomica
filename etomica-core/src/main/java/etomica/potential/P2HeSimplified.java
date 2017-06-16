@@ -4,9 +4,9 @@
 
 
 package etomica.potential;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.space.ISpace;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.space.Space;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
 
@@ -18,7 +18,7 @@ import etomica.util.Constants;
  */
 public class P2HeSimplified extends Potential2SoftSpherical {
     
-    public P2HeSimplified(ISpace space) {
+    public P2HeSimplified(Space space) {
         super(space);
     }
 
@@ -108,7 +108,7 @@ public class P2HeSimplified extends Potential2SoftSpherical {
             return P2HeSimplified.this.getRange();
         }
 
-        public void setBox(IBox box) {
+        public void setBox(Box box) {
             P2HeSimplified.this.setBox(box);
         }
 
@@ -171,7 +171,7 @@ public class P2HeSimplified extends Potential2SoftSpherical {
             return P2HeSimplified.this.getRange();
         }
 
-        public void setBox(IBox box) {
+        public void setBox(Box box) {
             P2HeSimplified.this.setBox(box);
         }
 

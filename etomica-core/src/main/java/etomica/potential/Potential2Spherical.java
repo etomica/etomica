@@ -4,8 +4,6 @@
 
 package etomica.potential;
 
-import etomica.api.IPotentialAtomic;
-
 /**
  * interface for spherical 2-body potentials
  */

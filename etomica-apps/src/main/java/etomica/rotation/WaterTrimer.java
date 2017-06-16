@@ -4,14 +4,12 @@
 
 package etomica.rotation;
 
-import java.awt.Color;
-
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPump;
 import etomica.data.DataSourceCountTime;
+import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergyFromIntegrator;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
@@ -28,9 +26,11 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
-import etomica.util.HistoryCollapsingAverage;
+
+import java.awt.*;
 
 public class WaterTrimer {
 

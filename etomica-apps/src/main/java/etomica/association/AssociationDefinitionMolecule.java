@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.association;
-import etomica.api.IMolecule;
+import etomica.molecule.IMolecule;
 
 /**
  * Interface for a method that defines whether two molecules are considered associated.

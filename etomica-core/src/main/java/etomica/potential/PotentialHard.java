@@ -4,8 +4,7 @@
 
 package etomica.potential;
 
-import etomica.api.IAtomList;
-import etomica.api.IPotentialAtomic;
+import etomica.atom.IAtomList;
 import etomica.space.Tensor;
 
 /**

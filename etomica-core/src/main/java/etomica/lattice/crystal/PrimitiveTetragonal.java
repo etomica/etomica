@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.lattice.crystal;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.math.geometry.Cuboid;
 import etomica.math.geometry.Polytope;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Primitive group for a tetragonal system.  All primitive
@@ -17,10 +17,10 @@ public class PrimitiveTetragonal extends Primitive {
     private static final long serialVersionUID = 1L;
     private double ab = 1.0;
     
-    public PrimitiveTetragonal(ISpace space) {
+    public PrimitiveTetragonal(Space space) {
         this(space, 1.0, 1.0);
     }
-    public PrimitiveTetragonal(ISpace space, double ab, double c) {
+    public PrimitiveTetragonal(Space space, double ab, double c) {
         super(space);
         setSize(new double[]{ab, ab, c});
         setAngles(new double[]{rightAngle, rightAngle, rightAngle});
@@ -80,7 +80,7 @@ public class PrimitiveTetragonal extends Primitive {
         ab = ab * scale;
     }
 
-    public int[] latticeIndex(IVector q) {
+    public int[] latticeIndex(Vector q) {
         throw new RuntimeException("latticeIndex method not implemented yet in primitive");
    /*     for(int i=0; i<D; i++) {
             double x = q.x(i)/size;
@@ -89,7 +89,7 @@ public class PrimitiveTetragonal extends Primitive {
         return idx;
    */ }
     
-    public int[] latticeIndex(IVector q, int[] dimensions) {
+    public int[] latticeIndex(Vector q, int[] dimensions) {
         throw new RuntimeException("latticeIndex method not implemented yet in primitive");
    /*     for(int i=0; i<D; i++) {
             double x = q.x(i)/size;

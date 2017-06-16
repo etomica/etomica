@@ -4,7 +4,7 @@
 
 package etomica.config;
 
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.space.IOrientation;
 
 public interface IConformationOriented extends IConformation {

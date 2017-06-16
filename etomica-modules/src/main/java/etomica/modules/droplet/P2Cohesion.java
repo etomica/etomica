@@ -4,13 +4,13 @@
 
 package etomica.modules.droplet;
 
-import etomica.api.IAtomList;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IVector;
 import etomica.atom.AtomFilter;
+import etomica.atom.IAtomList;
+import etomica.potential.IPotentialAtomic;
 import etomica.potential.Potential2SoftSpherical;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 
 /**
  * Cohesive potential for mesoscale droplet simulation
@@ -19,7 +19,7 @@ import etomica.space.Tensor;
 public class P2Cohesion extends Potential2SoftSpherical implements
         IPotentialAtomic {
 
-    public P2Cohesion(ISpace space) {
+    public P2Cohesion(Space space) {
         super(space);
     }
 
@@ -30,7 +30,7 @@ public class P2Cohesion extends Potential2SoftSpherical implements
         return super.energy(atoms);
     }
 
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         if (useSurfaceOnly && (liquidFilter.accept(atoms.getAtom(0)) || liquidFilter.accept(atoms.getAtom(1)))) {
             gradient[0].E(0);
             gradient[1].E(0);
@@ -40,7 +40,7 @@ public class P2Cohesion extends Potential2SoftSpherical implements
         return super.gradient(atoms, pressureTensor);
     }
 
-    public IVector[] gradient(IAtomList atoms) {
+    public Vector[] gradient(IAtomList atoms) {
         if (useSurfaceOnly && (liquidFilter.accept(atoms.getAtom(0)) || liquidFilter.accept(atoms.getAtom(1)))) {
             gradient[0].E(0);
             gradient[1].E(0);

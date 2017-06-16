@@ -6,7 +6,7 @@ package etomica.lattice;
 import etomica.lattice.crystal.BasisOrthorhombicHexagonal;
 import etomica.lattice.crystal.PrimitiveHexagonal2D;
 import etomica.lattice.crystal.PrimitiveOrthorhombicHexagonal;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Lattice class for a hexagonal lattice composed of rectangular primitives 
@@ -16,11 +16,11 @@ import etomica.space.ISpace;
  */
 public class LatticeOrthorhombicHexagonal extends BravaisLatticeCrystal implements SpaceLattice {
 
-    public LatticeOrthorhombicHexagonal(ISpace space) {
+    public LatticeOrthorhombicHexagonal(Space space) {
         this(space, 1);
     }
     
-    public LatticeOrthorhombicHexagonal(ISpace space, double latticeConstant) {
+    public LatticeOrthorhombicHexagonal(Space space, double latticeConstant) {
         this(new PrimitiveOrthorhombicHexagonal(space, latticeConstant));
         if(space.D() != 2) {
             throw new IllegalArgumentException("LatticeOrthorhombicHexagonal requires a 2-D space");

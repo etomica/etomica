@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 
 import etomica.action.IAction;
-import etomica.api.IVectorMutable;
+import etomica.space.Vector;
 import etomica.atom.AtomPair;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPumpListener;
@@ -24,7 +24,6 @@ import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.math.geometry.LineSegment;
 import etomica.modifier.ModifierGeneral;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import g3dsys.images.Figure;
@@ -220,8 +219,8 @@ public class RheologyGraphic extends SimulationGraphic {
         // now construct new flowlines
         double a = sliderA.getValue();
         double sr = shearBox.getModifier().getValue();
-        IVectorMutable s = space.makeVector();
-        IVectorMutable v = space.makeVector();
+        Vector s = space.makeVector();
+        Vector v = space.makeVector();
         // flow doesn't vary with z, so we can put our flowlines in the z=0 plane
         for (int ix = -10; ix < 11; ix+=5) {
             s.setX(0, ix);
@@ -261,7 +260,7 @@ public class RheologyGraphic extends SimulationGraphic {
             getRootPane().putClientProperty(
                             "defeatSystemEventQueueCheck", Boolean.TRUE);
             int dim = 3;
-            ISpace sp = Space.getInstance(dim);
+            Space sp = Space.getInstance(dim);
             RheologyGraphic swmdGraphic = new RheologyGraphic(new SimulationRheology(sp));
 
             getContentPane().add(swmdGraphic.getPanel());

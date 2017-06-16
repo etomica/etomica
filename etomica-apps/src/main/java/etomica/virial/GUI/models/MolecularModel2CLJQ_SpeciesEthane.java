@@ -4,18 +4,17 @@
 
 package etomica.virial.GUI.models;
 
-import etomica.api.ISpecies;
-import etomica.chem.elements.ElementSimple;
 import etomica.config.ConformationLinear;
 import etomica.potential.P22CLJQ;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheres;
 import etomica.units.Kelvin;
+import etomica.virial.GUI.components.SimpleElementForSimilarSpecies;
 import etomica.virial.SpeciesFactory;
 import etomica.virial.SpeciesFactoryTangentSpheres;
-import etomica.virial.GUI.components.SimpleElementForSimilarSpecies;
 
 public class MolecularModel2CLJQ_SpeciesEthane implements IMolecularModel_SpeciesFactory,Cloneable{
 	private static String MoleculeDisplayName = "C2H6 - 2CCLJQ";
@@ -175,7 +174,7 @@ public class MolecularModel2CLJQ_SpeciesEthane implements IMolecularModel_Specie
 		//SpeciesFactory speciesFactory = new SpeciesFactoryTangentSpheres(2,this.getConformation());
 		
 		//return speciesFactory.makeSpecies(this.space);
-		return (ISpecies)ethaneSpecies;
+		return ethaneSpecies;
 	}
 	
 	//Creates the LJ Molecule Species

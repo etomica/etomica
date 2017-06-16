@@ -25,7 +25,7 @@ import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.ModifierGeneral;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Angstrom;
 import etomica.units.CompoundUnit;
 import etomica.units.Debye;
@@ -38,7 +38,7 @@ import etomica.units.Prefix;
 import etomica.units.PrefixedUnit;
 import etomica.units.Unit;
 import etomica.units.UnitRatio;
-import etomica.util.HistoryCollapsingAverage;
+import etomica.data.history.HistoryCollapsingAverage;
 
 public class VLE extends SimulationGraphic {
 
@@ -46,7 +46,7 @@ public class VLE extends SimulationGraphic {
     private final static int REPAINT_INTERVAL = 200;
     public boolean showNumMoleculesPlots = false;
 
-    public VLE(final VLESim sim, ISpace _space) {
+    public VLE(final VLESim sim, Space _space) {
         super(sim, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, sim.getController());
 
         getDisplayBox(sim.boxLiquid).setPixelUnit(new Pixel(8));

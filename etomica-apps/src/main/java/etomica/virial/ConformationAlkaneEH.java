@@ -4,13 +4,12 @@
 
 package etomica.virial;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.config.IConformation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
- /**
+/**
   *  Conformation for normal alkanes, explicit hydrogen
   *  Siepmann, TraPPE-EH
   * 
@@ -18,7 +17,7 @@ import etomica.space.ISpace;
   * 01-30-2013
   */
   public class ConformationAlkaneEH implements IConformation, java.io.Serializable{
-	  protected final ISpace space;
+	  protected final Space space;
 	  private static final long serialVersionUID = 1L;
 
 	  protected final double CCbondL = 1.535;
@@ -30,7 +29,7 @@ import etomica.space.ISpace;
 	  protected double angleHCH_half = angleHCH / 2.0;
 	  protected SpeciesAlkaneEH speciesAlkaneEH ;
 	  protected int numCarbons, numCH2, numH ; 
-	  public ConformationAlkaneEH(ISpace space, SpeciesAlkaneEH speciesAlkaneEH){
+	  public ConformationAlkaneEH(Space space, SpeciesAlkaneEH speciesAlkaneEH){
 		  this.space = space;
 		  this.speciesAlkaneEH = speciesAlkaneEH;
 		  this.numCarbons = speciesAlkaneEH.numCarbons;

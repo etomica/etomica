@@ -4,9 +4,9 @@
 
 package etomica.nbr;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 
 /**
  * Specifies that all atoms pairs are to be considered neighbors.  Should
@@ -31,7 +31,7 @@ public class CriterionAll implements NeighborCriterion, java.io.Serializable {
     /**
      * Performs no action.
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
     }
 
     /**

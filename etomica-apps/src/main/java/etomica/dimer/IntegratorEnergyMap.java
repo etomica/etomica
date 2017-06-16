@@ -7,27 +7,27 @@ package etomica.dimer;
 import java.io.IOException;
 import java.util.Formatter;
 
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.ISimulation;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.space.Vector;
+import etomica.box.Box;
+import etomica.simulation.Simulation;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialMaster;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class IntegratorEnergyMap extends IntegratorBox implements AgentSource{
 
     IAtom adatom;
     public MeterPotentialEnergy energy;
     String fileTail;
-    private final ISpace space;
+    private final Space space;
 
-    public IntegratorEnergyMap(ISimulation aSim, PotentialMaster potentialMaster,
-    		                   IAtom aAdatom, String aFileTail,
-    		                   ISpace _space) {
+    public IntegratorEnergyMap(Simulation aSim, PotentialMaster potentialMaster,
+                               IAtom aAdatom, String aFileTail,
+                               Space _space) {
         super(potentialMaster, 1.0);
         this.fileTail = aFileTail;
         this.adatom = aAdatom;
@@ -38,7 +38,7 @@ public class IntegratorEnergyMap extends IntegratorBox implements AgentSource{
         try {
            
             Formatter formatter = new Formatter("energy-"+fileTail);
-            IVectorMutable pos = adatom.getPosition();
+            Vector pos = adatom.getPosition();
             // Move atom along Y-axis, steps by 0.1
             for(int i=0; i<292; i++){ //292
                 
@@ -81,11 +81,11 @@ public class IntegratorEnergyMap extends IntegratorBox implements AgentSource{
         return IntegratorVelocityVerlet.MyAgent.class;
     }
 
-    public Object makeAgent(IAtom a, IBox agentBox) {
+    public Object makeAgent(IAtom a, Box agentBox) {
         return new IntegratorVelocityVerlet.MyAgent(space);
     }
 
-    public void releaseAgent(Object agent, IAtom atom, IBox agentBox) {
+    public void releaseAgent(Object agent, IAtom atom, Box agentBox) {
         // TODO Auto-generated method stub  
     }
     

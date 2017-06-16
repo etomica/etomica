@@ -4,29 +4,27 @@
 
 package etomica.potential;
 
-import etomica.api.IAtom;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMolecular;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.DipoleSource;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.space.ISpace;
+import etomica.atom.IAtom;
+import etomica.box.Box;
+import etomica.molecule.DipoleSource;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.IMoleculePositionDefinition;
+import etomica.space.Boundary;
+import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 
 public class P2ReactionFieldDipole extends PotentialMolecular implements PotentialMolecularSoft, IPotentialMolecularSecondDerivative {
 
-    public P2ReactionFieldDipole(ISpace space,IAtomPositionDefinition positionDefinition) {
+    public P2ReactionFieldDipole(Space space, IMoleculePositionDefinition positionDefinition) {
         super(2, space);
         this.positionDefinition = positionDefinition;
         iDipole = space.makeVector();
         cavityDipole = space.makeVector();
         dr = space.makeVector();
         dr1 = space.makeVector();
-        gradientAndTorque = new IVectorMutable[2][2];
+        gradientAndTorque = new Vector[2][2];
         gradientAndTorque[0][0] = space.makeVector();
         gradientAndTorque[0][1] = space.makeVector();
         gradientAndTorque[1][0] = space.makeVector();
@@ -35,7 +33,7 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
         secondDerivative[0] = space.makeTensor();
 		secondDerivative[1] = space.makeTensor();
 		secondDerivative[2] = space.makeTensor();
-		a = new IVectorMutable[3];
+		a = new Vector[3];
 		a[0] = space.makeVector();
 		a[1] = space.makeVector();
 		a[2] = space.makeVector();
@@ -92,7 +90,7 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
         }
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 
@@ -110,7 +108,7 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
         return -fac*idotj;
     }
 
-    public IVector[][] gradientAndTorque(IMoleculeList molecules) {
+    public Vector[][] gradientAndTorque(IMoleculeList molecules) {
     	IMolecule molecule0 = molecules.getMolecule(0);
 		IMolecule molecule1 = molecules.getMolecule(1);
 		dr.E(positionDefinition.position(molecule1));
@@ -146,7 +144,7 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
 		secondDerivative[2].E(0);
 		if (r2 > cutoff*cutoff) return secondDerivative;
 		iDipole.E(dipoleSource.getDipole(molecule0));
-		IVectorMutable jDipole = space.makeVector();
+		Vector jDipole = space.makeVector();
 		jDipole.E(dipoleSource.getDipole(molecule1));
 		
 		double exi = iDipole.getX(0);//ei and ej is the dipole orientation with mu
@@ -156,12 +154,12 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
 		double eyj = jDipole.getX(1);
 		double ezj = jDipole.getX(2);
 		
-		IVectorMutable deidxi = space.makeVector();
-		IVectorMutable deidyi = space.makeVector();
-		IVectorMutable deidzi = space.makeVector();
-		IVectorMutable dejdxj = space.makeVector();
-		IVectorMutable dejdyj = space.makeVector();
-		IVectorMutable dejdzj = space.makeVector();
+		Vector deidxi = space.makeVector();
+		Vector deidyi = space.makeVector();
+		Vector deidzi = space.makeVector();
+		Vector dejdxj = space.makeVector();
+		Vector dejdyj = space.makeVector();
+		Vector dejdzj = space.makeVector();
 		
 		double [] deidxiD = {0,-ezi,eyi};
 		double [] deidyiD = {ezi,0,-exi};
@@ -212,11 +210,11 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
     
     
 
-    public IVector[] gradient(IMoleculeList atoms) {
+    public Vector[] gradient(IMoleculeList atoms) {
         return gradientAndTorque[0];
     }
 
-    public IVector[] gradient(IMoleculeList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IMoleculeList atoms, Tensor pressureTensor) {
         return gradient(atoms);
     }
 
@@ -232,16 +230,16 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
         return new P0ReactionField(this.space, this);
     }
 
-    protected final IAtomPositionDefinition positionDefinition;
-    protected final IVectorMutable iDipole, cavityDipole;
-    protected final IVectorMutable dr ,dr1;
+    protected final IMoleculePositionDefinition positionDefinition;
+    protected final Vector iDipole, cavityDipole;
+    protected final Vector dr ,dr1;
     protected DipoleSource dipoleSource;
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected double cutoff2, cutoff;
     protected double epsilon;
-    protected final IVectorMutable[][] gradientAndTorque;
+    protected final Vector[][] gradientAndTorque;
     protected final Tensor[] secondDerivative;
-    protected final IVectorMutable [] a;
+    protected final Vector[] a;
     protected double fac;
     
     /**
@@ -254,10 +252,10 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
      */
     public static class P0ReactionField extends PotentialMolecular implements IPotential0Lrc, PotentialMolecularSoft {
 
-        public P0ReactionField(ISpace space, P2ReactionFieldDipole p) {
+        public P0ReactionField(Space space, P2ReactionFieldDipole p) {
             super(0,space);
             this.potential = p;
-            gradient = new IVectorMutable[0];
+            gradient = new Vector[0];
         }
         
         public double energy(IMoleculeList atoms) {
@@ -267,20 +265,20 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
             double fac = 2*(epsilon-1)/(2*epsilon+1)/(cutoff*cutoff*cutoff);
             double u = 0;
             if (targetAtom != null) {
-                IVector iDipole = dipoleSource.getDipole(targetAtom);
+                Vector iDipole = dipoleSource.getDipole(targetAtom);
                 u = -0.5 * fac * iDipole.squared();
             }
             else {
                 IMoleculeList moleculeList = box.getMoleculeList();
                 for (int i=0; i<moleculeList.getMoleculeCount(); i++) {
-                    IVector iDipole = dipoleSource.getDipole(moleculeList.getMolecule(i));
+                    Vector iDipole = dipoleSource.getDipole(moleculeList.getMolecule(i));
                     u += -0.5 * fac * iDipole.squared();
                 }
             }
             return u;
         }
         
-        public void setBox(IBox newBox) {
+        public void setBox(Box newBox) {
             box = newBox;
         }
         
@@ -300,11 +298,11 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
             return 0;
         }
 
-        public IVector[] gradient(IMoleculeList atoms) {
+        public Vector[] gradient(IMoleculeList atoms) {
             return gradient;
         }
         
-        public IVector[] gradient(IMoleculeList atoms, Tensor pressureTensor) {
+        public Vector[] gradient(IMoleculeList atoms, Tensor pressureTensor) {
             return gradient(atoms);
         }
         
@@ -313,9 +311,9 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
         }
 
         protected final P2ReactionFieldDipole potential;
-        protected final IVectorMutable[] gradient;
+        protected final Vector[] gradient;
         protected IMolecule targetAtom;
-        protected IBox box;
+        protected Box box;
 
     }
 }

@@ -12,17 +12,16 @@ import etomica.lattice.CellLattice;
  * other purposes.
  *
  * @author David Kofke and Andrew Schultz
- *
  */
 public interface BoxCellManager {
 
     /**
      * Returns the lattice that defines the cell arrangement.
      */
-    public CellLattice getLattice();
+    CellLattice getLattice();
 
     /**
      * Assigns cells to all molecules in the box.
      */
-    public void assignCellAll();
+    void assignCellAll();
 }

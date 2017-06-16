@@ -6,61 +6,80 @@ package etomica.integrator;
 
 import java.util.ArrayList;
 
-import etomica.api.IIntegratorEventManager;
-import etomica.api.IIntegratorListener;
-import etomica.api.IIntegratorListenerMD;
+public class IntegratorEventManager {
 
-public class IntegratorEventManager implements IIntegratorEventManager {
-
-    protected final ArrayList<IIntegratorListener> intervalListeners = new ArrayList<IIntegratorListener>();
+    protected final ArrayList<IntegratorListener> listeners = new ArrayList<IntegratorListener>();
+    private final IntegratorEvent event;
     protected boolean eventing;
 
-    public synchronized void addListener(IIntegratorListener newListener) {
-        if(newListener == null) throw new NullPointerException("Cannot add null as a listener to Integrator");
-        if (intervalListeners.contains(newListener)) {
-            throw new RuntimeException(newListener+" is already an interval action");
+    public IntegratorEventManager(Integrator integrator) {
+        this.event = new IntegratorEvent(integrator);
+    }
+
+    /**
+     * Adds the given listener to this event manager.
+     */
+    public void addListener(IntegratorListener newListener) {
+        if (newListener == null) throw new NullPointerException("Cannot add null as a listener to Integrator");
+        if (listeners.contains(newListener)) {
+            throw new RuntimeException(newListener + " is already an interval action");
         }
-        intervalListeners.add(newListener);
+        listeners.add(newListener);
     }
 
-    public synchronized void removeListener(IIntegratorListener listener) {
-        intervalListeners.remove(listener);
+    /**
+     * Removes the given listener from this event manager.
+     */
+    public void removeListener(IntegratorListener listener) {
+        listeners.remove(listener);
     }
 
+    /**
+     * Returns true if the event manager is currently firing events.
+     */
     public boolean firingEvent() {
         return eventing;
     }
 
-    public synchronized void stepStarted() {
+    public void stepStarted() {
         eventing = true;
-        for(int i = 0; i < intervalListeners.size(); i++) {
-            intervalListeners.get(i).integratorStepStarted(null);
+        for (IntegratorListener listener : listeners) {
+            listener.integratorStepStarted(event);
         }
         eventing = false;
     }
 
-    public synchronized void stepFinished() {
+    public void stepFinished() {
         eventing = true;
-        for(int i = 0; i < intervalListeners.size(); i++) {
-            intervalListeners.get(i).integratorStepFinished(null);
+        for (IntegratorListener listener : listeners) {
+            listener.integratorStepFinished(event);
         }
         eventing = false;
     }
 
-    public synchronized void initialized() {
+    public void initialized() {
         eventing = true;
-        for(int i = 0; i < intervalListeners.size(); i++) {
-            intervalListeners.get(i).integratorInitialized(null);
+        for (IntegratorListener listener : listeners) {
+            listener.integratorInitialized(event);
         }
         eventing = false;
     }
 
-    public synchronized void forceComputed() {
+    public void forcePrecomputed() {
         eventing = true;
-        for(int i = 0; i < intervalListeners.size(); i++) {
-            IIntegratorListener l = intervalListeners.get(i);
-            if (l instanceof IIntegratorListenerMD) {
-                ((IIntegratorListenerMD)intervalListeners.get(i)).integratorForceComputed(null);
+        for (IntegratorListener l : listeners) {
+            if (l instanceof IntegratorListenerMD) {
+                ((IntegratorListenerMD) l).integratorForcePrecomputed(event);
+            }
+        }
+        eventing = false;
+    }
+
+    public void forceComputed() {
+        eventing = true;
+        for (IntegratorListener l : listeners) {
+            if (l instanceof IntegratorListenerMD) {
+                ((IntegratorListenerMD) l).integratorForceComputed(event);
             }
         }
         eventing = false;

@@ -9,8 +9,7 @@ package etomica.simulation.prototypes;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.DataPumpListener;
@@ -24,7 +23,7 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2SquareWell;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 
@@ -33,10 +32,18 @@ import etomica.species.SpeciesSpheresMono;
 
 public class SWMD3D extends Simulation {
 
-    public SWMD3D(ISpace _space) {
+    private static final long serialVersionUID = 1L;
+    public IntegratorHard integrator;
+    public SpeciesSpheresMono species;
+    public Box box;
+    public P2SquareWell potential;
+    public Controller controller;
+    public DisplayBox display;
+
+    public SWMD3D(Space _space) {
         super(_space);
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 2.5, space);
-	
+
         integrator = new IntegratorHard(this, potentialMaster, space);
         integrator.setTimeStep(0.01);
         integrator.setIsothermal(true);
@@ -47,15 +54,15 @@ public class SWMD3D extends Simulation {
 
         box = new Box(space);
         addBox(box);
-        potential  = new etomica.potential.P2SquareWell(space);
+        potential = new etomica.potential.P2SquareWell(space);
         potential.setLambda(lambda);
 
-        species  = new etomica.species.SpeciesSpheresMono(this, space);
+        species = new etomica.species.SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
         addSpecies(species);
         box.setNMolecules(species, 108);
 
-        potentialMaster.addPotential(potential,new IAtomType[]{species.getLeafType(),species.getLeafType()});
+        potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
         integrator.setBox(box);
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
@@ -67,28 +74,20 @@ public class SWMD3D extends Simulation {
         configuration.initializeCoordinates(box);
     }
 
-    private static final long serialVersionUID = 1L;
-    public IntegratorHard integrator;
-    public SpeciesSpheresMono species;
-    public IBox box;
-    public P2SquareWell potential;
-    public Controller controller;
-    public DisplayBox display;
-
     /**
      * Demonstrates how this class is implemented.
      */
     public static void main(String[] args) {
         final String APP_NAME = "SWMD3D";
 
-        ISpace sp = Space3D.getInstance();
+        Space sp = Space3D.getInstance();
         final SWMD3D sim = new SWMD3D(sp);
         final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space, sim.getController());
 
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
         simGraphic.makeAndDisplayFrame(APP_NAME);
-        ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
+        ColorSchemeByType colorScheme = ((ColorSchemeByType) ((DisplayBox) simGraphic.displayList().getFirst()).getColorScheme());
         colorScheme.setColor(sim.species.getLeafType(), java.awt.Color.red);
 
         MeterPressureHard pMeter = new MeterPressureHard(sim.space);

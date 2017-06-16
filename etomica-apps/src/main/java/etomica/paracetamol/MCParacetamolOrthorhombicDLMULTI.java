@@ -21,18 +21,17 @@ import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.listener.IntegratorListenerAction;
+import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.normalmode.MCMoveHarmonicStep;
 import etomica.normalmode.NormalModesFromFile;
 import etomica.normalmode.WaveVectorFactory;
-import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.potential.P2DLPOLY;
 import etomica.potential.PotentialDLPOLY;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.api.IBox;
-import etomica.api.ISpecies;
+import etomica.species.ISpecies;
 import etomica.units.Kelvin;
 
 /**
@@ -62,7 +61,7 @@ public class MCParacetamolOrthorhombicDLMULTI extends Simulation {
 
 	private static final long serialVersionUID = 1L;
 //	private final static String APP_NAME = "MC Paracetamol Orthorhombic";
-    public IBox box;
+    public Box box;
     public IntegratorMC integrator;
     public MCMoveMolecule mcMoveMolecule;
     public MCMoveRotateMolecule3D mcMoveRotateMolecule;

@@ -4,35 +4,22 @@
 
 package etomica.potential;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-
-import etomica.api.IAtom;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.MoleculeArrayList;
+import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.chem.elements.Argon;
 import etomica.chem.elements.Helium;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeArrayList;
 import etomica.simulation.Simulation;
+import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularNonperiodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.units.Calorie;
-import etomica.units.Kelvin;
-import etomica.units.Mole;
-import etomica.units.Prefix;
-import etomica.units.PrefixedUnit;
-import etomica.units.Unit;
-import etomica.units.UnitRatio;
+import etomica.units.*;
+
+import java.io.*;
 
 /**
  * PotentialEmul class invokes the emul external program to compute energies
@@ -45,17 +32,17 @@ public class PotentialEmul extends PotentialMolecular {
     protected String templateName;
     public static final Unit emulEnergyUnit = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT);
     protected double r2Core;
-    protected final IVectorMutable r12Vec;
+    protected final Vector r12Vec;
     
-	public PotentialEmul(ISpace space, String templateName){
+	public PotentialEmul(Space space, String templateName){
 	    this(space, templateName, 2.5);
 	}
 	
-	public PotentialEmul(ISpace space, String templateName, double rCore) {
+	public PotentialEmul(Space space, String templateName, double rCore) {
 	    this(space, templateName, countMolecules(templateName), rCore);
 	}
 
-	protected PotentialEmul(ISpace space, String templateName, int nBody, double rCore) {
+	protected PotentialEmul(Space space, String templateName, int nBody, double rCore) {
 		super(nBody, space);
 		this.r2Core = rCore*rCore;
         r12Vec = space.makeVector();
@@ -186,7 +173,7 @@ public class PotentialEmul extends PotentialMolecular {
                     // the next line has the element and we add the x-y-z coordinate
                     // XXX we only handle mono-atomic molecules
                     IAtom atom = molecules.getMolecule(nAtomsWritten).getChildList().getAtom(0);
-                    IVector p = atom.getPosition();
+                    Vector p = atom.getPosition();
                     fw.write(bufReader.readLine()+" "+p.getX(0)+" "+p.getX(1)+" "+p.getX(2)+"\n");
                     nAtomsWritten++;
                 }
@@ -196,7 +183,7 @@ public class PotentialEmul extends PotentialMolecular {
                     // the following lines have the element and we add the x-y-z coordinate
                 	for (int i=0; i<molecules.getMoleculeCount(); i++) {
                         IAtom atom = molecules.getMolecule(i).getChildList().getAtom(0);
-                	    IVector p = atom.getPosition();
+                	    Vector p = atom.getPosition();
                         fw.write(bufReader.readLine()+" "+p.getX(0)+" "+p.getX(1)+" "+p.getX(2)+"\n");
                 	}
                 }
@@ -253,14 +240,14 @@ public class PotentialEmul extends PotentialMolecular {
 	}
 
 
-	public void setBox(IBox box) {
+	public void setBox(Box box) {
         this.boundary = box.getBoundary();
     }
 	
-	protected IBoundary boundary;
+	protected Boundary boundary;
 	
 	public static void main(String[] args) {
-	    ISpace space = Space3D.getInstance();
+	    Space space = Space3D.getInstance();
 	    if (false) {
     	    PotentialEmul p2 = new PotentialEmul(space, "template.in");
     	    Simulation sim = new Simulation(space);

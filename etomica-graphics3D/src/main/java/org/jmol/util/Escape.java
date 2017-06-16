@@ -78,9 +78,9 @@ public class Escape {
     if (x instanceof BitSet) 
       return escapeBs((BitSet) x, true);
     if (x instanceof Matrix3f) 
-      return TextFormat.simpleReplace(((Matrix3f) x).toString(), "\t", ",\t");
+      return TextFormat.simpleReplace(x.toString(), "\t", ",\t");
     if (x instanceof Matrix4f) 
-      return TextFormat.simpleReplace(((Matrix4f) x).toString(), "\t", ",\t");
+      return TextFormat.simpleReplace(x.toString(), "\t", ",\t");
     if (x instanceof Tuple3f)
       return escapePt((Tuple3f) x);
     if (x instanceof Point4f) {
@@ -622,7 +622,7 @@ public class Escape {
     StringXBuilder sb = new StringXBuilder();
     String sep = "";
     if (info == null)
-      return packageJSON(infoType, (String) null);
+      return packageJSON(infoType, null);
     if (info instanceof Integer || info instanceof Float || info instanceof Double)
       return packageJSON(infoType, info.toString());
     if (info instanceof String)

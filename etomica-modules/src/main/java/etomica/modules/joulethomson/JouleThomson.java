@@ -4,71 +4,38 @@
 
 package etomica.modules.joulethomson;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.GridBagConstraints;
-
-import javax.swing.JComboBox;
-import javax.swing.JPanel;
-import javax.swing.border.TitledBorder;
-
 import etomica.action.AtomAction;
 import etomica.action.BoxInflate;
 import etomica.action.SimulationRestart;
-import etomica.api.IAtom;
-import etomica.api.IAtomType;
-import etomica.api.IVectorMutable;
+import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
+import etomica.atom.IAtom;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataFork;
-import etomica.data.DataPump;
-import etomica.data.DataSourceCountTime;
-import etomica.data.DataSourceScalar;
-import etomica.data.DataTag;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
+import etomica.data.history.HistoryScrolling;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterPressure;
 import etomica.data.meter.MeterTemperature;
-import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.ColorSchemeTemperature;
-import etomica.graphics.DeviceBox;
-import etomica.graphics.DeviceButton;
-import etomica.graphics.DeviceSlider;
-import etomica.graphics.DeviceToggleRadioButtons;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTextBoxesCAE;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
 import etomica.integrator.IntegratorGear4NPH;
 import etomica.integrator.IntegratorGear4NPH.MeterEnthalpy;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.lattice.SpaceLattice;
 import etomica.listener.IntegratorListenerAction;
+import etomica.math.function.Function;
 import etomica.modifier.ModifierFunctionWrapper;
 import etomica.modifier.ModifierGeneral;
-import etomica.space.ISpace;
 import etomica.space.Space;
-import etomica.units.Bar;
-import etomica.units.CompoundUnit;
-import etomica.units.Joule;
-import etomica.units.Kelvin;
-import etomica.units.Liter;
-import etomica.units.Meter;
-import etomica.units.Mole;
-import etomica.units.Pixel;
-import etomica.units.Prefix;
-import etomica.units.PrefixedUnit;
-import etomica.units.Pressure;
-import etomica.units.Temperature;
-import etomica.units.Unit;
-import etomica.units.UnitRatio;
+import etomica.space.Vector;
+import etomica.units.*;
 import etomica.units.systems.MKS;
-import etomica.util.HistoryScrolling;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
 
 /**
  * Joule Thomson Experiment
@@ -125,7 +92,7 @@ public class JouleThomson extends SimulationGraphic {
             getDisplayBox(sim.box).setColorScheme(colorScheme);
         }
         ModifierFunctionWrapper scaleModifier = new ModifierFunctionWrapper(getDisplayBox(sim.box), "scale");
-        scaleModifier.setFunction(new etomica.util.Function.Linear(0.01, 0.0));
+        scaleModifier.setFunction(new Function.Linear(0.01, 0.0));
         scaleSlider = new DeviceSlider(sim.getController());
         scaleSlider.setModifier(scaleModifier);
 
@@ -340,30 +307,46 @@ public class JouleThomson extends SimulationGraphic {
 	    getController().getReinitButton().setPostAction(getPaintAction(sim.box));
     }
 
+    public static void main(String[] args) {
+        int dim = 2;
+        if (args.length > 0) {
+            try {
+                dim = Integer.parseInt(args[0]);
+            } catch (NumberFormatException ex) {
+                throw new NumberFormatException(args[0] + " is not a number!");
+            }
+        }
+
+        Space sp = Space.getInstance(dim);
+        SimulationGraphic simPanel = new JouleThomson(new JouleThomsonSim(sp), sp);
+        SimulationGraphic.makeAndDisplayFrame(simPanel.getPanel(), APP_NAME);
+    } //end of main
+
     //inner class the defines a drop-down menu to select LJ parameters to mimic
     //several real substances
     //the field "names" must be static to pass to super, and that requires this inner class to be static
     public static class SpeciesChooser extends JComboBox implements java.awt.event.ItemListener {
-        
-        public static final String[] names = new String[] 
+
+        public static final String[] names = new String[]
             {"Methane", "Argon", "Krypton", "Nitrogen", "Ideal gas"};
+        private final Space space;
         double[] sigma   = new double[] {
-                                         4.010, 
-                                         3.499, 
-                                         3.846, 
-                                         3.694, 
+                4.010,
+                3.499,
+                3.846,
+                3.694,
                                          2.};
         double[] epsilon = new double[] {
-                                         Kelvin.UNIT.toSim(142.87), 
+                Kelvin.UNIT.toSim(142.87),
                                          Kelvin.UNIT.toSim(118.13),
-                                         Kelvin.UNIT.toSim(162.74), 
+                Kelvin.UNIT.toSim(162.74),
                                          Kelvin.UNIT.toSim(96.26),
                                          Kelvin.UNIT.toSim(100.)};
         double[] mass    = new double[] {
-                                         16.0, 
-                                         39.95,  
-                                         83.80, 
-                                         28.0, 
+                16.0,
+                39.95,
+                83.80,
+                28.0,
                                          1.0};
         JouleThomsonSim sim;
         JouleThomson simGraphic;
@@ -374,9 +357,8 @@ public class JouleThomson extends SimulationGraphic {
             public void actionPerformed(IAtom a) {((ElementSimple)a.getType().getElement()).setMass(currentMass);}
         };
         SimulationRestart simRestart;
-        private final ISpace space;
-        
-        SpeciesChooser(JouleThomson simGraphic, ISpace _space) {
+
+        SpeciesChooser(JouleThomson simGraphic, Space _space) {
             super(names);
             this.space = _space;
             this.simGraphic = simGraphic;
@@ -391,7 +373,7 @@ public class JouleThomson extends SimulationGraphic {
             mass[0] = currentMass;
             simRestart = new SimulationRestart(sim, space, sim.getController());
         }
-        
+
         public void itemStateChanged(java.awt.event.ItemEvent evt) {
             if(evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) return;
             String speciesName = (String)evt.getItemSelectable().getSelectedObjects()[0];
@@ -424,7 +406,7 @@ public class JouleThomson extends SimulationGraphic {
     	        inflater.setTargetDensity(targetDensity/Math.pow(currentSig,sim.getSpace().D()));
     	        inflater.actionPerformed();
     	        double size = currentSig*Math.pow(sim.box.getLeafList().getAtomCount()/targetDensity,1.0/sim.getSpace().D());
-                IVectorMutable v = sim.getSpace().makeVector();
+                Vector v = sim.getSpace().makeVector();
                 v.E(size);
                 sim.box.getBoundary().setBoxSize(v);
                 SpaceLattice lattice;
@@ -444,13 +426,12 @@ public class JouleThomson extends SimulationGraphic {
             }
             else {
                 if (sim.integrator.getPotentialMaster().getPotentials().length == 0) {
-                    sim.integrator.getPotentialMaster().addPotential(sim.potential, new IAtomType[]{sim.species.getLeafType(), sim.species.getLeafType()});
+                    sim.integrator.getPotentialMaster().addPotential(sim.potential, new AtomType[]{sim.species.getLeafType(), sim.species.getLeafType()});
                 }
             }
             simRestart.actionPerformed();
         }
     }
-
 
     public static class Applet extends javax.swing.JApplet {
 
@@ -462,22 +443,5 @@ public class JouleThomson extends SimulationGraphic {
 		    getContentPane().add(simPanel.getPanel());
 	    }
     }//end of Applet
-
-    
-    
-    public static void main(String[] args) {
-        int dim = 2;
-        if(args.length > 0) {
-            try {
-            dim = Integer.parseInt(args[0]);
-            } catch(NumberFormatException ex) {
-                throw new NumberFormatException(args[0]+" is not a number!");
-            }
-        }
-
-        Space sp = Space.getInstance(dim);
-        SimulationGraphic simPanel = new JouleThomson(new JouleThomsonSim(sp), sp);
-        SimulationGraphic.makeAndDisplayFrame(simPanel.getPanel(), APP_NAME);
-    } //end of main
 
 }

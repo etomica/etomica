@@ -4,13 +4,12 @@
 
 package etomica.modules.rosmosis;
 
-import etomica.api.IAtomList;
-import etomica.api.IPotential;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IVector;
-import etomica.integrator.IntegratorBox;
+import etomica.atom.IAtomList;
+import etomica.potential.IPotential;
+import etomica.potential.IPotentialAtomic;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialSoft;
+import etomica.space.Vector;
 
 /**
  * Sums the force and torque on each iterated atom or molecule and adds it to
@@ -43,7 +42,7 @@ public class PotentialCalculationForceSumWallForce extends PotentialCalculationF
         int nBody = potential.nBody();
         if (potential instanceof PotentialSoft) {
             PotentialSoft potentialSoft = (PotentialSoft)potential;
-            IVector[] gradient = potentialSoft.gradient(atoms);
+            Vector[] gradient = potentialSoft.gradient(atoms);
             switch(nBody) {
                 case 1:
                     if (potential == potentialTether) {
@@ -54,18 +53,18 @@ public class PotentialCalculationForceSumWallForce extends PotentialCalculationF
                             wallForce -= gradient[0].getX(0);
                         }
                     }
-                    ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().ME(gradient[0]);
+                    integratorAgentManager.getAgent(atoms.getAtom(0)).force().ME(gradient[0]);
                     break;
                 case 2:
-                    ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().ME(gradient[0]);
-                    ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(1))).force().ME(gradient[1]);
+                    integratorAgentManager.getAgent(atoms.getAtom(0)).force().ME(gradient[0]);
+                    integratorAgentManager.getAgent(atoms.getAtom(1)).force().ME(gradient[1]);
                     break;
                 default:
                     //XXX atoms.count might not equal f.length.  The potential might size its 
                     //array of vectors to be large enough for one AtomSet and then not resize it
                     //back down for another AtomSet with fewer atoms.
                     for (int i=0; i<atoms.getAtomCount(); i++) {
-                        ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(i))).force().ME(gradient[i]);
+                        integratorAgentManager.getAgent(atoms.getAtom(i)).force().ME(gradient[i]);
                     }
             }
         }

@@ -4,11 +4,11 @@
 
 package etomica.modules.rheology;
 
-import etomica.api.IAtomList;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.util.random.IRandom;
+import etomica.space.Vector;
 import etomica.config.IConformation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Places polymer in a blob near the origin.
@@ -17,7 +17,7 @@ import etomica.space.ISpace;
  */
 public class ConformationPolymer implements IConformation {
     
-    public ConformationPolymer(ISpace space, IRandom random) {
+    public ConformationPolymer(Space space, IRandom random) {
         this.random = random;
         r = space.makeVector();
     }
@@ -25,7 +25,7 @@ public class ConformationPolymer implements IConformation {
     public void initializePositions(IAtomList atomList) {
         r.E(0);
         for (int i=0; i<atomList.getAtomCount(); i++) {
-            IVectorMutable p = atomList.getAtom(i).getPosition();
+            Vector p = atomList.getAtom(i).getPosition();
             for (int j=0; j<p.getD(); j++) {
                 p.setX(j, random.nextGaussian());
             }
@@ -38,5 +38,5 @@ public class ConformationPolymer implements IConformation {
     }
 
     protected final IRandom random;
-    protected final IVectorMutable r;
+    protected final Vector r;
 }

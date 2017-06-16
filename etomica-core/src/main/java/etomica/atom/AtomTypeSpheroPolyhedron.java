@@ -1,26 +1,25 @@
 package etomica.atom;
 
+import etomica.chem.elements.IElement;
+import etomica.space.Space;
+import etomica.space.Vector;
+
 import java.util.List;
 
-import etomica.api.IElement;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+public class AtomTypeSpheroPolyhedron extends AtomType {
 
-public class AtomTypeSpheroPolyhedron extends AtomTypeLeaf {
-
-    protected double outRadius, inRadius;
     protected final double sweepRadius;
-    protected final List<IVector> vertices;
+    protected final List<Vector> vertices;
+    protected double outRadius, inRadius;
     
-    public AtomTypeSpheroPolyhedron(IElement element,ISpace space, List<IVector> vertices, double sweepRadius) {
+    public AtomTypeSpheroPolyhedron(IElement element, Space space, List<Vector> vertices, double sweepRadius) {
         super(element);
         this.vertices = vertices;
         if (vertices.size() == 1 && sweepRadius == 0) sweepRadius = 0.5;
         this.sweepRadius = sweepRadius;
         int vertexNum = vertices.size();
-        IVectorMutable normal = space.makeVector();
-        IVectorMutable drij = space.makeVector();
+        Vector normal = space.makeVector();
+        Vector drij = space.makeVector();
         inRadius = Double.MAX_VALUE;
         
         if (vertexNum >= 3) {
@@ -80,7 +79,7 @@ public class AtomTypeSpheroPolyhedron extends AtomTypeLeaf {
         return outRadius;
     }
     
-    public List<IVector> getVertices() {
+    public List<Vector> getVertices() {
         return vertices;
     }
 }

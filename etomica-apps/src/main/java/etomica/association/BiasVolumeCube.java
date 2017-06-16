@@ -4,38 +4,36 @@
 
 package etomica.association;
 
-import etomica.api.IAtom;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IRandom;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
+import etomica.atom.IAtom;
+import etomica.space.Boundary;
+import etomica.box.Box;
+import etomica.util.random.IRandom;
+import etomica.space.Vector;
+import etomica.space.Space;
 
 public class BiasVolumeCube extends BiasVolume {
     
     private static final long serialVersionUID = 1L;
-    private final IVectorMutable dimensions;
-    private final IVectorRandom work;
+    private final Vector dimensions;
+    private final Vector work;
     private final IRandom random;
-    private IBoundary boundary;
+    private Boundary boundary;
     
-    public BiasVolumeCube(ISpace space, IRandom random){
+    public BiasVolumeCube(Space space, IRandom random){
         super(space);
         this.random = random;
         dimensions = space.makeVector();
-        work = (IVectorRandom)space.makeVector();
+        work = space.makeVector();
         dimensions.E(2.0);//size of the cube
     }
     
-    public void setBiasCubeDimensions(IVector dim) {
+    public void setBiasCubeDimensions(Vector dim) {
         dimensions.E(dim);
     }
     public void setBiasCubeDimensions(double d) {dimensions.E(d);}
-    public IVector getBiasCubeDimensions() {return dimensions;}
+    public Vector getBiasCubeDimensions() {return dimensions;}
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
     	boundary = box.getBoundary();
     }
     

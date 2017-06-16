@@ -4,10 +4,10 @@
 
 package etomica.action;
 
-import java.io.Serializable;
+import etomica.atom.IAtomList;
+import etomica.molecule.IMolecule;
 
-import etomica.api.IAtomList;
-import etomica.api.IMolecule;
+import java.io.Serializable;
 
 /**
  * Wraps an AtomAction, and performs the wrapped action on the atom

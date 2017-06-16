@@ -15,14 +15,14 @@ import java.awt.event.MouseMotionListener;
 import java.util.LinkedList;
 
 import etomica.action.activity.Controller;
-import etomica.api.IBox;
-import etomica.api.ISimulation;
-import etomica.api.IVectorMutable;
+import etomica.space.Vector;
+import etomica.box.Box;
+import etomica.simulation.Simulation;
 import etomica.atom.AtomFilter;
 import etomica.atom.DiameterHash;
 import etomica.atom.DiameterHashByElement;
 import etomica.atom.DiameterHashByElementType;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Pixel;
 
 /**
@@ -49,11 +49,11 @@ public class DisplayBox extends Display {
     protected AtomFilter atomFilter = null;
     protected boolean displayBoundary = true;
     LinkedList drawables = new LinkedList();  //was ArrayList before Java2 conversion
-    private IBox box;
+    private Box box;
     private boolean graphicResizable = true;
-    private final ISpace space;
+    private final Space space;
     private double sigma = 1.0;
-    protected final ISimulation sim;
+    protected final Simulation sim;
             
     //do not instantiate here; instead must be in graphic method
     public DisplayCanvas canvas = null;
@@ -108,7 +108,7 @@ public class DisplayBox extends Display {
      * }
      * @param box
      */
-    public DisplayBox(ISimulation sim, IBox box, ISpace space, Controller controller) {
+    public DisplayBox(Simulation sim, Box box, Space space, Controller controller) {
         super();
         this.sim = sim;
         this.controller = controller;
@@ -270,7 +270,7 @@ public class DisplayBox extends Display {
     /**
      * @return Box : the box associated with this display
      */
-    public final IBox getBox() {return box;}
+    public final Box getBox() {return box;}
 
     /**
      * Returns the amount of padding added around the edge of the drawing area.
@@ -297,9 +297,9 @@ public class DisplayBox extends Display {
     /**
      * Specifies the box for this display.  Updates atomIterator appropriately.
      */
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
 
-    	IBox oldBox = box;
+    	Box oldBox = box;
     	box = p;
     	if(p == null) {
             canvas = null;
@@ -657,7 +657,7 @@ public class DisplayBox extends Display {
      */
     private class InputEventHandler implements MouseListener, MouseMotionListener, KeyListener {
         
-        IVectorMutable point;
+        Vector point;
         
         //not yet configured to do molecule selections
         private boolean atomSelectEnabled = false;

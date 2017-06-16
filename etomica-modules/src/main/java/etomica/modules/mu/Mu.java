@@ -3,10 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.modules.mu;
+
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
@@ -18,8 +17,8 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P1HardBoundary;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
-import etomica.space.ISpace;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 
@@ -27,7 +26,7 @@ public class Mu extends Simulation {
     
     private static final long serialVersionUID = 1L;
     public final SpeciesSpheresMono speciesA, speciesB;
-    public final IBox box;
+    public final Box box;
     public final IntegratorHard integrator;
     public final ActivityIntegrate activityIntegrate;
     public final P2SquareWellOneSide potentialAA, potentialAB, potentialBB;
@@ -35,7 +34,7 @@ public class Mu extends Simulation {
     public final P1HardBoundary p1BoundaryA, p1BoundaryB;
     public final ConfigurationLatticeRandom configuration;
     
-    public Mu(ISpace _space) {
+    public Mu(Space _space) {
         super(_space);
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 4, space); //List(this, 2.0);
         
@@ -65,11 +64,11 @@ public class Mu extends Simulation {
         
         //instantiate several potentials for selection in combo-box
 	    potentialAA = new P2SquareWellOneSide(space, sigma, lambda, epsilon, true);
-        potentialMaster.addPotential(potentialAA,new IAtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
+        potentialMaster.addPotential(potentialAA, new AtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
         potentialAB = new P2SquareWellOneSide(space, sigma, lambda, epsilon, true);
-        potentialMaster.addPotential(potentialAB,new IAtomType[]{speciesA.getLeafType(), speciesB.getLeafType()});
+        potentialMaster.addPotential(potentialAB, new AtomType[]{speciesA.getLeafType(), speciesB.getLeafType()});
         potentialBB = new P2SquareWellOneSide(space, sigma, lambda, epsilon, true);
-        potentialMaster.addPotential(potentialBB,new IAtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
+        potentialMaster.addPotential(potentialBB, new AtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
         
         p1BoundaryA = new P1HardBoundary(space);
         p1BoundaryA.setActive(0, false, true);
@@ -89,16 +88,16 @@ public class Mu extends Simulation {
             p1BoundaryB.setActive(2, false, false);
             p1BoundaryB.setActive(2, true, false);
         }
-        potentialMaster.addPotential(p1BoundaryA,new IAtomType[]{speciesA.getLeafType()});
-        potentialMaster.addPotential(p1BoundaryB,new IAtomType[]{speciesB.getLeafType()});
-	    p1WallA = new P1MagicWall(space, potentialMaster);
-	    potentialMaster.addPotential(p1WallA, new IAtomType[]{speciesA.getLeafType()});
+        potentialMaster.addPotential(p1BoundaryA, new AtomType[]{speciesA.getLeafType()});
+        potentialMaster.addPotential(p1BoundaryB, new AtomType[]{speciesB.getLeafType()});
+        p1WallA = new P1MagicWall(space, potentialMaster);
+        potentialMaster.addPotential(p1WallA, new AtomType[]{speciesA.getLeafType()});
         p1WallB = new P1MagicWall(space, potentialMaster);
-        potentialMaster.addPotential(p1WallB, new IAtomType[]{speciesB.getLeafType()});
+        potentialMaster.addPotential(p1WallB, new AtomType[]{speciesB.getLeafType()});
         //construct box
 	    box = new Box(new BoundaryRectangularSlit(0, space), space);
         addBox(box);
-        IVectorMutable dim = space.makeVector();
+        Vector dim = space.makeVector();
         double xdim = space.D() == 3 ? 30 : 50;
         dim.E(0.5*xdim);
         dim.setX(0, xdim);
