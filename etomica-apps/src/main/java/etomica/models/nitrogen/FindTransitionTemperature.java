@@ -7,8 +7,8 @@ package etomica.models.nitrogen;
 import etomica.normalmode.ArrayReader1D;
 import etomica.units.Pascal;
 import etomica.util.Constants;
-import etomica.util.numerical.AkimaSpline;
-import etomica.util.numerical.PolynomialFit;
+import etomica.math.numerical.AkimaSpline;
+import etomica.math.numerical.PolynomialFit;
 
 /**
  * Class that determines the transition properties for alpha and beta nitrogen

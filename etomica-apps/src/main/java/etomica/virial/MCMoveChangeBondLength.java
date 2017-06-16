@@ -5,22 +5,22 @@
 package etomica.virial;
 
 import Jama.EigenvalueDecomposition;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.potential.PotentialMaster;
+import etomica.util.random.IRandom;
+import etomica.space.Vector;
 import etomica.atom.AtomHydrogen;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.potential.P1IntraMolecular;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.BohrRadius;
 import etomica.util.Constants;
-import etomica.util.DoubleRange;
-import etomica.util.HistogramSimple;
+import etomica.math.DoubleRange;
+import etomica.data.histogram.HistogramSimple;
 
 public class MCMoveChangeBondLength extends MCMoveBoxStep {
 
@@ -34,10 +34,10 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
 	private final AtomIteratorLeafAtoms leafIterator;
 	private final IRandom random;
 	private final MeterPotentialEnergy mpe;
-	private final IVectorMutable utilityVec1, utilityVec2, utilityVec3;
+	private final Vector utilityVec1, utilityVec2, utilityVec3;
 	private HistogramSimple h1;
 
-	public MCMoveChangeBondLength(IPotentialMaster potentialMaster, IRandom random, ISpace space, double temperature) {
+	public MCMoveChangeBondLength(PotentialMaster potentialMaster, IRandom random, Space space, double temperature) {
 		super(potentialMaster);
 		leafIterator = new AtomIteratorLeafAtoms();
 		this.random = random;
@@ -57,7 +57,7 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
 	}
 
 	@Override
-	public void setBox(IBox p) {
+	public void setBox(Box p) {
 		super.setBox(p);
 		int nMolecules = box.getMoleculeList().getMoleculeCount();
 		doExchange = new boolean[nMolecules];

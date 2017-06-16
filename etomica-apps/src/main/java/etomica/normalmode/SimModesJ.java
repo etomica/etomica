@@ -9,12 +9,11 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IBox;
-import etomica.api.IIntegratorEvent;
-import etomica.api.IIntegratorListener;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.box.Box;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
+import etomica.space.*;
+import etomica.space.Vector;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.Basis;
@@ -24,13 +23,9 @@ import etomica.lattice.crystal.BasisOrthorhombicHexagonal;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.simulation.Simulation;
-import etomica.space.Boundary;
-import etomica.space.BoundaryDeformableLattice;
-import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.DoubleRange;
-import etomica.util.HistogramSimple;
+import etomica.math.DoubleRange;
+import etomica.data.histogram.HistogramSimple;
 
 /**
  * Simulation class of hard spheres in 1D or 3D that calculates the dq/dx
@@ -74,7 +69,7 @@ public class SimModesJ extends Simulation {
         coordinateDefinition.initializeCoordinates(nCells);
         
         normalModes = new NormalModesVariable(space, space.D()*numAtoms, coordinateDefinition);
-        IVectorMutable[] waveVectors = normalModes.getWaveVectors();
+        Vector[] waveVectors = normalModes.getWaveVectors();
         double[][] eigenVectors = normalModes.getEigenVectors();
         double[] phaseAngles = normalModes.getPhaseAngles();
         WaveVectorFactory1D waveVectorFactory = new WaveVectorFactory1D();
@@ -148,9 +143,9 @@ public class SimModesJ extends Simulation {
             histograms[i] = new HistogramSimple(nA*10, new DoubleRange(0, 2.0*Math.PI*(nA/2)/nA));
         }
 
-        final IIntegratorListener dumpHist = new IIntegratorListener() {
-            public void integratorStepStarted(IIntegratorEvent e) {}
-            public void integratorStepFinished(IIntegratorEvent e) {
+        final IntegratorListener dumpHist = new IntegratorListener() {
+            public void integratorStepStarted(IntegratorEvent e) {}
+            public void integratorStepFinished(IntegratorEvent e) {
                 if (++count != 1000) return;
                 try {
                     FileWriter hw = new FileWriter("wv_total_histogram.dat");
@@ -175,17 +170,17 @@ public class SimModesJ extends Simulation {
                     throw new RuntimeException(ex);
                 }
             }
-            public void integratorInitialized(IIntegratorEvent e) {}
+            public void integratorInitialized(IntegratorEvent e) {}
             int count;
         };
         sim.integrator.getEventManager().addListener(dumpHist);
         
-        sim.integrator.getEventManager().addListener(new IIntegratorListener() {
+        sim.integrator.getEventManager().addListener(new IntegratorListener() {
             
-            public void integratorStepStarted(IIntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
             
-            public void integratorStepFinished(IIntegratorEvent e) {
-                IVector[] wv = sim.normalModes.getWaveVectors();
+            public void integratorStepFinished(IntegratorEvent e) {
+                Vector[] wv = sim.normalModes.getWaveVectors();
                 try {
                     FileWriter fw = new FileWriter("wv.out", true);
                     fw.write(sim.integrator.getStepCount()+" ");
@@ -206,7 +201,7 @@ public class SimModesJ extends Simulation {
                 }
             }
             
-            public void integratorInitialized(IIntegratorEvent e) {
+            public void integratorInitialized(IntegratorEvent e) {
                 try {
                     FileWriter fw = new FileWriter("wv.out", false);
                     fw.close();
@@ -226,7 +221,7 @@ public class SimModesJ extends Simulation {
     private static final long serialVersionUID = 1L;
     public final ActivityIntegrate activityIntegrate;
     public final IntegratorMC integrator;
-    public final IBox box;
+    public final Box box;
     public final Boundary bdry;
     public final Primitive primitive;
     public final CoordinateDefinition coordinateDefinition;

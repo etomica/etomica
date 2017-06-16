@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.association;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -34,12 +34,12 @@ import etomica.util.IListener;
 public class AssociationManager implements AgentSource<AtomArrayList>,IListener {
     
     private AssociationDefinition associationDefinition;
-    private final IBox box;
+    private final Box box;
     private final AtomLeafAgentManager<AtomArrayList> agentManager;
     private final Api1ACell neighborIterator;
     private final AtomArrayList associatedAtoms = new AtomArrayList();
     
-    public AssociationManager(IBox box, PotentialMasterCell potentialMaster, AssociationDefinition definition) {
+    public AssociationManager(Box box, PotentialMasterCell potentialMaster, AssociationDefinition definition) {
     	this.box = box;
     	agentManager = new AtomLeafAgentManager<AtomArrayList>(this,box,AtomArrayList.class);
         associationDefinition = definition;
@@ -155,10 +155,9 @@ public class AssociationManager implements AgentSource<AtomArrayList>,IListener 
        return agentManager.getAgent(atom);
     }
 
-	public AtomArrayList makeAgent(IAtom a, IBox agentBox) {
+	public AtomArrayList makeAgent(IAtom a, Box agentBox) {
 		return new AtomArrayList();
 	}
 
-	public void releaseAgent(AtomArrayList agent, IAtom atom, IBox agentBox) {	}
+	public void releaseAgent(AtomArrayList agent, IAtom atom, Box agentBox) {	}
 }
-    

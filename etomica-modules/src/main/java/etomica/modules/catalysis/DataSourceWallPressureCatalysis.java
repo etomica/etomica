@@ -4,10 +4,8 @@
 
 package etomica.modules.catalysis;
 
-import etomica.api.IAtom;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.IAtom;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -18,11 +16,13 @@ import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorHard.CollisionListener;
 import etomica.modules.catalysis.InteractionTracker.CatalysisAgent;
 import etomica.potential.P1HardBoundary;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.Pressure;
 
 public class DataSourceWallPressureCatalysis implements IEtomicaDataSource, CollisionListener {
-    public DataSourceWallPressureCatalysis(ISpace space, ISpecies speciesC, ISpecies speciesO, AtomLeafAgentManager interactionAgentManager) {
+    public DataSourceWallPressureCatalysis(Space space, ISpecies speciesC, ISpecies speciesO, AtomLeafAgentManager interactionAgentManager) {
         this.space = space;
         this.speciesC = speciesC;
         this.speciesO = speciesO;
@@ -39,7 +39,7 @@ public class DataSourceWallPressureCatalysis implements IEtomicaDataSource, Coll
      */
     public void collisionAction(IntegratorHard.Agent agent) {
         if (agent.collisionPotential instanceof P1HardBoundary) {
-            IVector p = agent.atom.getPosition();
+            Vector p = agent.atom.getPosition();
             if (p.getX(1) > 0) {
                 IAtom atom = agent.atom;
                 CatalysisAgent catalysisAgent = (CatalysisAgent)interactionAgentManager.getAgent(atom);
@@ -114,7 +114,7 @@ public class DataSourceWallPressureCatalysis implements IEtomicaDataSource, Coll
     }
 
     private static final long serialVersionUID = 1L;
-    protected final ISpace space;
+    protected final Space space;
     protected final ISpecies speciesC, speciesO;
     protected final AtomLeafAgentManager interactionAgentManager;
     protected IntegratorHard integratorHard;

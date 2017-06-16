@@ -5,15 +5,15 @@
 package etomica.zeolite;
 
 import etomica.graphics.SimulationGraphic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class zeoliteSimGraphic extends SimulationGraphic {
 
-	public zeoliteSimGraphic(ZeoliteSimulation sim, ISpace space) {
+	public zeoliteSimGraphic(ZeoliteSimulation sim, Space space) {
 		this(sim, space, "");
 	}
 
-	public zeoliteSimGraphic(ZeoliteSimulation sim, ISpace space, String appName){
+	public zeoliteSimGraphic(ZeoliteSimulation sim, Space space, String appName){
 		super(sim, appName, space, sim.getController());
 		DeviceButtonSingle tSwitch = new DeviceButtonSingle(sim.getController());
 		ZeoliteSimStart action = new ZeoliteSimStart(sim,this);

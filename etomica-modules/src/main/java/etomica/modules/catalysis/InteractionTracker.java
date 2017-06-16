@@ -4,18 +4,18 @@
 
 package etomica.modules.catalysis;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.ISpecies;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.integrator.IntegratorHard.Agent;
 import etomica.integrator.IntegratorHard.CollisionListener;
+import etomica.species.ISpecies;
 
 public class InteractionTracker implements CollisionListener, AgentSource<InteractionTracker.CatalysisAgent> {
 
-    public InteractionTracker(IBox box, ISpecies speciesSurface) {
+    public InteractionTracker(Box box, ISpecies speciesSurface) {
         agentManager = new AtomLeafAgentManager<CatalysisAgent>(this, box, CatalysisAgent.class);
         this.speciesSurface = speciesSurface;
     }
@@ -61,12 +61,12 @@ public class InteractionTracker implements CollisionListener, AgentSource<Intera
         return agentManager;
     }
 
-    public CatalysisAgent makeAgent(IAtom a, IBox agentBox) {
+    public CatalysisAgent makeAgent(IAtom a, Box agentBox) {
         if (a.getType().getSpecies() == speciesSurface) return null;
         return new CatalysisAgent();
     }
 
-    public void releaseAgent(CatalysisAgent agent, IAtom atom, IBox agentBox) {}
+    public void releaseAgent(CatalysisAgent agent, IAtom atom, Box agentBox) {}
 
     protected final AtomLeafAgentManager<CatalysisAgent> agentManager;
     protected final ISpecies speciesSurface;

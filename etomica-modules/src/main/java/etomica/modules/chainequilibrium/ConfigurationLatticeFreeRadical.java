@@ -4,16 +4,16 @@
 
 package etomica.modules.chainequilibrium;
 
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IRandom;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
+import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.SpaceLattice;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
+import etomica.util.random.IRandom;
 
 /**
  * Configuration that puts atoms randomly on a lattice and groups pairs of
@@ -24,7 +24,7 @@ import etomica.space.ISpace;
 public class ConfigurationLatticeFreeRadical extends ConfigurationLattice {
 
     public ConfigurationLatticeFreeRadical(SpaceLattice lattice,
-            ISpace space, IRandom random) {
+                                           Space space, IRandom random) {
         super(lattice, space);
         this.random = random;
     }
@@ -38,7 +38,7 @@ public class ConfigurationLatticeFreeRadical extends ConfigurationLattice {
      * Places the molecules in the given box on the positions of the
      * lattice.  
      */
-    public void initializeCoordinates(IBox box) {
+    public void initializeCoordinates(Box box) {
         IMoleculeList moleculeList = box.getMoleculeList();
         IMoleculeList initiatorList = box.getMoleculeList(speciesInitiator);
         IMoleculeList monomerList = box.getMoleculeList(speciesMonomer);
@@ -51,10 +51,10 @@ public class ConfigurationLatticeFreeRadical extends ConfigurationLattice {
                 / (double) basisSize);
 
         // determine scaled shape of simulation volume
-        IVectorMutable shape = space.makeVector();
+        Vector shape = space.makeVector();
         shape.E(box.getBoundary().getBoxSize());
         shape.PE(-boundaryPadding);
-        IVectorMutable latticeConstantV = space.makeVector(lattice.getLatticeConstants());
+        Vector latticeConstantV = space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
 
         // determine number of cells in each direction
@@ -75,7 +75,7 @@ public class ConfigurationLatticeFreeRadical extends ConfigurationLattice {
         }
 
         // determine lattice constant
-        IVectorMutable latticeScaling = space.makeVector();
+        Vector latticeScaling = space.makeVector();
         if (rescalingToFitVolume) {
             // in favorable situations, this should be approximately equal
             // to 1.0
@@ -88,18 +88,18 @@ public class ConfigurationLatticeFreeRadical extends ConfigurationLattice {
         }
 
         // determine amount to shift lattice so it is centered in volume
-        IVectorMutable offset = space.makeVector();
+        Vector offset = space.makeVector();
         offset.E(box.getBoundary().getBoxSize());
-        IVectorMutable vectorOfMax = space.makeVector();
-        IVectorMutable vectorOfMin = space.makeVector();
-        IVectorMutable site = space.makeVector();
+        Vector vectorOfMax = space.makeVector();
+        Vector vectorOfMin = space.makeVector();
+        Vector site = space.makeVector();
         vectorOfMax.E(Double.NEGATIVE_INFINITY);
         vectorOfMin.E(Double.POSITIVE_INFINITY);
 
         indexIterator.reset();
 
         while (indexIterator.hasNext()) {
-            site.E((IVectorMutable) lattice.site(indexIterator.next()));
+            site.E((Vector) lattice.site(indexIterator.next()));
             site.TE(latticeScaling);
             for (int i=0; i<site.getD(); i++) {
                 vectorOfMax.setX(i, Math.max(site.getX(i),vectorOfMax.getX(i)));
@@ -147,16 +147,16 @@ public class ConfigurationLatticeFreeRadical extends ConfigurationLattice {
             IMolecule a = moleculeList.getMolecule(i);
             a.getType().initializeConformation(a);
 
-            atomActionTranslateTo.setDestination((IVectorMutable)myLat.site(ii));
+            atomActionTranslateTo.setDestination((Vector)myLat.site(ii));
             if (a.getType() == speciesInitiator) {
-                IVectorMutable dest = atomActionTranslateTo.getDestination();
+                Vector dest = atomActionTranslateTo.getDestination();
                 dest.setX(0, dest.getX(0)-0.4);
             }
             atomActionTranslateTo.actionPerformed(a);
             if (a.getType() == speciesInitiator && i<initiatorList.getMoleculeCount()-1) {
                 i++;
                 a = moleculeList.getMolecule(i);
-                IVectorMutable dest = atomActionTranslateTo.getDestination();
+                Vector dest = atomActionTranslateTo.getDestination();
                 dest.setX(0, dest.getX(0)+0.8);
                 atomActionTranslateTo.actionPerformed(a);
             }

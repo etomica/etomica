@@ -4,11 +4,10 @@
 
 package etomica.atom;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomType;
-import etomica.api.IMolecule;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.molecule.Molecule;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.util.Debug;
 
  /**
@@ -19,24 +18,31 @@ import etomica.util.Debug;
   */
 public class Atom implements IAtom, java.io.Serializable {
 
-    public Atom(ISpace space, IAtomType type) {
+     private static final long serialVersionUID = 3L;
+     protected final AtomType type;
+     protected final Vector position;
+     protected int index;
+     protected IMolecule parent;
+     protected int leafIndex;
+
+     public Atom(Space space, AtomType type) {
         super();
         this.type = type;
         position = space.makeVector();
     }
-    
+
     /**
      * Makes a simple atom for the given space.  Coordinate is non-kinetic sphere;
-     * node is for a leaf atom; type is a sphere with unit mass and unit size, 
+     * node is for a leaf atom; type is a sphere with unit mass and unit size,
      * unique to the new atom; depth is 0.
      */
-    public Atom(ISpace space) {
+    public Atom(Space space) {
         super();
         type = null;
         position = space.makeVector();
     }
 
-    /**
+     /**
      * Returns a string of digits that uniquely identifies this atom.  String is
      * formed by concatenating the ordinal of this atom to the signature
      * given by the parent of this atom.  If atom has no parent, forms a string
@@ -53,21 +59,21 @@ public class Atom implements IAtom, java.io.Serializable {
     
     /**
      * Returns a string formed by concatenating the signature of this atom
-     * to a string that identifies it as a species master, species agent, 
+     * to a string that identifies it as a species master, species agent,
      * molecule, group, or (leaf) atom.
      */
     public final String toString() {
         return "Atom(" + signature() + ")";
     }
-
-    public final void setIndex(int newIndex) {
-        index = newIndex;
-    }
     
     public final int getIndex() {
         return index;
     }
-    
+
+     public final void setIndex(int newIndex) {
+         index = newIndex;
+     }
+
     /**
      * Informs the Atom that the given AtomGroup is its parent.
      * This method should only be called by the parent.
@@ -84,31 +90,24 @@ public class Atom implements IAtom, java.io.Serializable {
     public IMolecule getParentGroup() {
         return parent;
     }
-    
-    public IVectorMutable getPosition() {
+
+    public Vector getPosition() {
         return position;
     }
-    
-    public int getLeafIndex() {
+
+     public int getLeafIndex() {
         return leafIndex;
     }
-    
-    public void setLeafIndex(int newLeafIndex) {
+
+     public void setLeafIndex(int newLeafIndex) {
         leafIndex = newLeafIndex;
     }
 
     /**
-     * @return the Atom type, holding properties held in common with other 
+     * @return the Atom type, holding properties held in common with other
      * atoms made by this atom's factory.
      */
-    public final IAtomType getType() {
+    public final AtomType getType() {
         return type;
     }
-
-    private static final long serialVersionUID = 3L;
-    protected final IAtomType type;
-    protected int index;
-    protected final IVectorMutable position;
-    protected IMolecule parent;
-    protected int leafIndex;
 }

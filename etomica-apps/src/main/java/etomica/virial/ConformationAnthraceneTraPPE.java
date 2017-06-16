@@ -4,11 +4,11 @@
 
 package etomica.virial;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
 import etomica.config.IConformation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
  /**
   *  Conformation for Anthracene
@@ -19,7 +19,7 @@ import etomica.space.ISpace;
  */
 public class ConformationAnthraceneTraPPE implements IConformation, java.io.Serializable{
 	
-	public ConformationAnthraceneTraPPE(ISpace space){
+	public ConformationAnthraceneTraPPE(Space space){
 		this.space = space;
 		vector = space.makeVector();
 	}
@@ -72,7 +72,7 @@ public class ConformationAnthraceneTraPPE implements IConformation, java.io.Seri
 		n14.getPosition().E(new double[] {sqrt3a, bond, 0});
 			
 	}
-	protected final ISpace space;
+	protected final Space space;
 	protected static final double a = 0.7; // a is half of the bond length
 	protected static final double bond = 1.4;
 
@@ -81,7 +81,7 @@ public class ConformationAnthraceneTraPPE implements IConformation, java.io.Seri
 	protected static final double threesqrt3a = sqrt3a * 3 ;
 	protected static final double foursqrt3a = sqrt3a * 4 ;
 
-	protected IVectorMutable vector;
+	protected Vector vector;
 	
 	private static final long serialVersionUID = 1L;
 }

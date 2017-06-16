@@ -4,22 +4,21 @@
 
 package etomica.virial;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
+import etomica.box.Box;
+import etomica.util.random.IRandom;
 import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
+import etomica.space.Space;
 
 public class MCMoveClusterAtomHSTree extends MCMoveAtom {
 
-    public MCMoveClusterAtomHSTree(IRandom random, ISpace _space, double sigma) {
+    public MCMoveClusterAtomHSTree(IRandom random, Space _space, double sigma) {
         super(random, null, _space);
         this.sigma = sigma;
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         super.setBox(box);
         int n = box.getLeafList().getAtomCount();
         degree = new int[n];
@@ -96,7 +95,7 @@ public class MCMoveClusterAtomHSTree extends MCMoveAtom {
                     continue;
                 }
                 // insert nbr2 around nbr
-                IVectorRandom pos = (IVectorRandom)leafAtoms.getAtom(nbr2).getPosition();
+                Vector pos = leafAtoms.getAtom(nbr2).getPosition();
 
                 pos.setRandomInSphere(random);
                 pos.TE(sigma);

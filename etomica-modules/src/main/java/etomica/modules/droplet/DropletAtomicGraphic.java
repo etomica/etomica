@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 
 import etomica.action.IAction;
-import etomica.api.IVectorMutable;
+import etomica.space.Vector;
 import etomica.atom.DiameterHashByType;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
@@ -42,7 +42,7 @@ import etomica.units.Dimension;
 import etomica.units.Kelvin;
 import etomica.units.Null;
 import etomica.units.Pixel;
-import etomica.util.HistoryCollapsingAverage;
+import etomica.data.history.HistoryCollapsingAverage;
 
 /**
  * Graphic UI for Droplet module.  Design by Ludwig Nitsche.
@@ -308,7 +308,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
 //                return cell.occupants().getAtomCount() / (size[0]*size[1]*size[2]);
 //            }
 //            
-//            protected final IVector v = space.makeVector();
+//            protected final Vector v = space.makeVector();
 //        };
 //        
 //        DataFork ldFork = new DataFork();
@@ -364,7 +364,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
     
     public final class DataSourceVaporDensity extends DataSourceScalar {
         private static final long serialVersionUID = 1L;
-        protected final IVectorMutable v;
+        protected final Vector v;
 
         public DataSourceVaporDensity(String label, Dimension dimension) {
             super(label, dimension);

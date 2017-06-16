@@ -5,9 +5,9 @@
 package etomica.modules.entropylottery;
 
 import etomica.action.IAction;
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.IVector;
+import etomica.atom.IAtom;
+import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -15,8 +15,6 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.integrator.IntegratorBox;
-import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.units.Quantity;
 
 public class DataSourceProbabilityDensity implements IEtomicaDataSource, IAction {
@@ -42,14 +40,14 @@ public class DataSourceProbabilityDensity implements IEtomicaDataSource, IAction
         return tag;
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
         reset();
     }
     
     public void reset() {
         totalAtomCount = box.getMoleculeList().getMoleculeCount();
-        IVector dimensions = box.getBoundary().getBoxSize();
+        Vector dimensions = box.getBoundary().getBoxSize();
         if (data.getLength() != (int)Math.round(dimensions.getX(0))) {
             int newSize = (int)Math.round(dimensions.getX(0));
             data = new DataDoubleArray(newSize);
@@ -87,33 +85,9 @@ public class DataSourceProbabilityDensity implements IEtomicaDataSource, IAction
         data.E(newData);
     }
 
-    public void nonintervalAction(IntegratorNonintervalEvent evt) {
-        if (evt.type() == IntegratorNonintervalEvent.RESET) {
-            box = ((IntegratorBox)evt.getSource()).getBox();
-            totalAtomCount = box.getMoleculeList().getMoleculeCount();
-            IVector dimensions = box.getBoundary().getBoxSize();
-            if (data.getLength() != (int)Math.round(dimensions.getX(0))) {
-                int newSize = (int)Math.round(dimensions.getX(0));
-                data = new DataDoubleArray(newSize);
-                dataInfo = new DataInfoDoubleArray("probability density", Quantity.DIMENSION, new int[]{newSize});
-                dataInfo.addTag(tag);
-                newData = new double[newSize];
-            }
-            data.E(0);
-            atomIterator.setBox(box);
-            atomIterator.reset();
-            double[] atomCount = data.getData();
-            for (IAtom a = atomIterator.nextAtom(); a != null;
-                 a = atomIterator.nextAtom()) {
-                int x = (int)Math.round(a.getPosition().getX(0)+dimensions.getX(0)*0.5-0.5);
-                atomCount[x]++;
-            }
-        }
-    }
-
     protected DataDoubleArray data;
     protected DataInfoDoubleArray dataInfo;
-    protected IBox box;
+    protected Box box;
     protected final AtomIteratorLeafAtoms atomIterator;
     protected double[] newData;
     protected int totalAtomCount;

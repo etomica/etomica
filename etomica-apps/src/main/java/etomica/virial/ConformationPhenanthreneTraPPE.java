@@ -4,13 +4,13 @@
 
 package etomica.virial;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
 import etomica.config.IConformation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
- /**
+/**
   *  Conformation for Phenanthrene
   *  Reference paper: TraPPE: 4 UA description of linear and branched alkanes and alkylbenzenes, Siepmann et al
   *  modified from naphthalene
@@ -20,7 +20,7 @@ import etomica.space.ISpace;
   */
 public class ConformationPhenanthreneTraPPE implements IConformation, java.io.Serializable{
 	
-	public ConformationPhenanthreneTraPPE(ISpace space){
+	public ConformationPhenanthreneTraPPE(Space space){
 		this.space = space;
 		vector = space.makeVector();
 	}
@@ -76,7 +76,7 @@ public class ConformationPhenanthreneTraPPE implements IConformation, java.io.Se
 	
 	}
 	
-    protected final ISpace space;
+    protected final Space space;
 	protected static final double a = 0.7; // a is half of the bond length
 	protected static final double bond = 1.4;
 	protected static final double foura = a * 4;
@@ -88,7 +88,7 @@ public class ConformationPhenanthreneTraPPE implements IConformation, java.io.Se
 	protected static final double foursqrt3a = sqrt3a * 4 ;
 
 
-	protected IVectorMutable vector;
+	protected Vector vector;
 	
 	private static final long serialVersionUID = 1L;
 }

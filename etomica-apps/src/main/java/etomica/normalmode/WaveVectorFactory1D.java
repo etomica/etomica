@@ -4,17 +4,16 @@
 
 package etomica.normalmode;
 
-import java.io.Serializable;
-
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space1d.Space1D;
 import etomica.space1d.Vector1D;
-import etomica.api.ISpecies;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
+
+import java.io.Serializable;
 
 /**
  * Wave vector factory that returns wave vectors for a 1D system.  
@@ -29,7 +28,7 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class WaveVectorFactory1D implements WaveVectorFactory, Serializable {
 
-    public void makeWaveVectors(IBox box) {
+    public void makeWaveVectors(Box box) {
 
         int nA = box.getMoleculeList().getMoleculeCount();
         double L = box.getBoundary().getBoxSize().getX(0);
@@ -51,7 +50,7 @@ public class WaveVectorFactory1D implements WaveVectorFactory, Serializable {
 
     }
     
-    public IVectorMutable[] getWaveVectors() {
+    public Vector[] getWaveVectors() {
         return waveVectors;
     }
     
@@ -63,7 +62,7 @@ public class WaveVectorFactory1D implements WaveVectorFactory, Serializable {
         int nCells = 6;
         Space sp = Space1D.getInstance();
         Simulation sim = new Simulation(sp);
-        IBox box = new Box(sim.getSpace());
+        Box box = new Box(sim.getSpace());
         sim.addBox(box);
         box.getBoundary().setBoxSize(new Vector1D(nCells));
         ISpecies species = new SpeciesSpheresMono(sim, sp);
@@ -72,7 +71,7 @@ public class WaveVectorFactory1D implements WaveVectorFactory, Serializable {
         
         WaveVectorFactory1D foo = new WaveVectorFactory1D();
         foo.makeWaveVectors(box);
-        IVectorMutable[] waveVectors = foo.getWaveVectors();
+        Vector[] waveVectors = foo.getWaveVectors();
         double[] coefficients = foo.getCoefficients();
         System.out.println("number of wave vectors "+waveVectors.length);
         for (int i=0; i<waveVectors.length; i++) {
@@ -82,6 +81,6 @@ public class WaveVectorFactory1D implements WaveVectorFactory, Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    protected IVectorMutable[] waveVectors;
+    protected Vector[] waveVectors;
     protected double[] coefficients;
 }

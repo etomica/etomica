@@ -4,9 +4,8 @@
 
 package etomica.data.meter;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IBox;
+import etomica.atom.IAtomKinetic;
+import etomica.box.Box;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataSourceScalar;
@@ -58,7 +57,7 @@ public class MeterKineticEnergy extends DataSourceScalar {
         iterator.reset();
         for (IAtomKinetic atom = (IAtomKinetic)iterator.nextAtom(); atom != null;
              atom = (IAtomKinetic)iterator.nextAtom()) {
-            double mass = ((IAtom)atom).getType().getMass();
+            double mass = atom.getType().getMass();
             if(mass == Double.POSITIVE_INFINITY) continue;
             ke += 0.5*mass*(atom.getVelocity().squared());
         }
@@ -68,15 +67,15 @@ public class MeterKineticEnergy extends DataSourceScalar {
     /**
      * @return Returns the box.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     /**
      * @param box The box to set.
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
     }
 
-    private IBox box;
+    private Box box;
  }

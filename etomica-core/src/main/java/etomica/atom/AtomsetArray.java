@@ -4,9 +4,6 @@
 
 package etomica.atom;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-
 
 /**
  * AtomSet formed by wrapping an Atom array.  Size of array

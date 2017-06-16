@@ -4,10 +4,10 @@
 
 package etomica.integrator.mcmove;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.util.IEvent;
 import etomica.util.IListener;
-import etomica.util.numerical.AkimaSpline;
+import etomica.math.numerical.AkimaSpline;
 
 public class MCMoveOverlapListener implements IListener {
 
@@ -142,7 +142,7 @@ public class MCMoveOverlapListener implements IListener {
             if (((MCMoveEvent)event).getMCMove() != mcMove) return;
             // trial failed, but we were still here.  we need to increment our sums here
             // for the histogram.
-            IBox box = mcMove.getBox();
+            Box box = mcMove.getBox();
             int numAtoms = box.getLeafList().getAtomCount();
             if (sumInsert.length < numAtoms+1) {
                 sumInsert = (double[][])etomica.util.Arrays.resizeArray(sumInsert, numAtoms+1);
@@ -159,7 +159,7 @@ public class MCMoveOverlapListener implements IListener {
         }
         else if (event instanceof MCMoveTrialInitiatedEvent) {
             if (((MCMoveEvent)event).getMCMove() != mcMove) return;
-            IBox box = mcMove.getBox();
+            Box box = mcMove.getBox();
             int numAtoms = box.getLeafList().getAtomCount();
             // x = V/N*Math.exp(-beta*deltaU)
             double x = mcMove.getA();

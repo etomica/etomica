@@ -4,9 +4,9 @@
 
 package etomica.atom.iterator;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 
 /**
  * This iterator returns atoms that are one of two types.  This can be used to
@@ -16,12 +16,15 @@ import etomica.api.IAtomType;
  */
 public class AtomIteratorBasisFilteredType2 extends AtomIteratorBasis {
 
-    public AtomIteratorBasisFilteredType2(IAtomType type1, IAtomType type2) {
+    private static final long serialVersionUID = 1L;
+    protected final AtomType filteredType1, filteredType2;
+
+    public AtomIteratorBasisFilteredType2(AtomType type1, AtomType type2) {
         super();
         filteredType1 = type1;
         filteredType2 = type2;
     }
-    
+
     public IAtom nextAtom() {
         IAtom atom = super.nextAtom();
         while (atom != null) {
@@ -36,7 +39,7 @@ public class AtomIteratorBasisFilteredType2 extends AtomIteratorBasis {
     public IAtomList next() {
         IAtomList atom = super.next();
         while (atom != null) {
-            IAtomType t = atom.getAtom(0).getType();
+            AtomType t = atom.getAtom(0).getType();
             if (t == filteredType1 || t == filteredType2) {
                 return atom;
             }
@@ -53,7 +56,4 @@ public class AtomIteratorBasisFilteredType2 extends AtomIteratorBasis {
         }
         return count;
     }
-
-    private static final long serialVersionUID = 1L;
-    protected final IAtomType filteredType1, filteredType2;
 }

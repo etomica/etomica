@@ -4,10 +4,7 @@
 
 package etomica.association.GCPMWater;
 
-import java.awt.Color;
-
 import etomica.action.IAction;
-import etomica.api.IPotentialMolecular;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
@@ -16,32 +13,18 @@ import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
 import etomica.listener.IntegratorListenerAction;
 import etomica.models.water.P2HardAssociationGCPMReference;
-import etomica.models.water.PNWaterGCPM;
 import etomica.models.water.PNWaterGCPMThreeSite;
 import etomica.models.water.SpeciesWater4P;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.units.Calorie;
-import etomica.units.CompoundUnit;
-import etomica.units.Kelvin;
-import etomica.units.Mole;
-import etomica.units.Unit;
+import etomica.units.*;
 import etomica.util.Arrays;
 import etomica.util.ParameterBase;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterBonds;
-import etomica.virial.ClusterSum;
-import etomica.virial.ClusterSumPolarizableWertheimProduct;
-import etomica.virial.ConfigurationClusterWertheimGCPM;
-import etomica.virial.MayerEGeneral;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerFunctionProductGeneral;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.SpeciesFactoryWaterGCPM;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 import etomica.virial.simulations.SimulationVirialOverlap;
+
+import java.awt.*;
 
 /**
  * repulsive potential: energy of pair is greater than -association energy(cal/mol)
@@ -215,37 +198,37 @@ public class WertheimGCPM3PtThreeSite {
         targetCluster.setTemperature(temperature);
 		final SimulationVirialOverlap sim = new SimulationVirialOverlap(space, new SpeciesFactoryWaterGCPM(), temperature,refCluster,targetCluster);
 		//ConfigurationClusterMove configuration = new ConfigurationClusterMove(space, sim.getRandom());
-		ConfigurationClusterWertheimGCPM configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(),(PNWaterGCPMThreeSite)pAC );
+		ConfigurationClusterWertheimGCPM configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(), pAC);
 		if (numDiagram == 3 || numDiagram == 4 ) {
 			configuration.initializeCoordinates(sim.box[1]);
 		}
 		if (numDiagram ==5 &&diagramIndex==1){//diagram 5-1
-				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA,(PNWaterGCPMThreeSite)pCA );
+				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(), pCA, pCA);
 				configuration.initializeCoordinates3(sim.box[0]);	
 				configuration.initializeCoordinates3(sim.box[1]);	
 			}
 			if (numDiagram ==5 &&diagramIndex==2){//diagram 5-2
-				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA ,(PNWaterGCPMThreeSite)pBC );
+				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(), pCA, pBC);
 				configuration.initializeCoordinates3(sim.box[0]);	
 				configuration.initializeCoordinates3(sim.box[1]);	
 			}
 			if (numDiagram ==6 &&diagramIndex==2){//diagram 6-2
-				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA ,(PNWaterGCPMThreeSite)pAC );
+				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(), pCA, pAC);
 				configuration.initializeCoordinates3(sim.box[0]);	
 				configuration.initializeCoordinates3(sim.box[1]);	
 			}
 			if (numDiagram ==6 &&diagramIndex==1){//diagram 6-1
-				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(),(PNWaterGCPMThreeSite)pAC ,(PNWaterGCPMThreeSite)pCA );
+				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(), pAC, pCA);
 				configuration.initializeCoordinates3(sim.box[0]);	
 				configuration.initializeCoordinates3(sim.box[1]);	
 			}
 			if (numDiagram ==7 &&diagramIndex==1){//diagram 7-1
-				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA ,(PNWaterGCPMThreeSite)pCA,(PNWaterGCPMThreeSite)pCA );
+				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(), pCA, pCA, pCA);
 				configuration.initializeCoordinates3(sim.box[0]);	
 				configuration.initializeCoordinates5(sim.box[1]);	
 			}
 			if (numDiagram ==7 &&diagramIndex==2){//diagram 7-2
-				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA ,(PNWaterGCPMThreeSite)pAC,(PNWaterGCPMThreeSite)pCA);
+				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(), pCA, pAC, pCA);
 				configuration.initializeCoordinates3(sim.box[0]);	
 				configuration.initializeCoordinates5(sim.box[1]);		
 		}	

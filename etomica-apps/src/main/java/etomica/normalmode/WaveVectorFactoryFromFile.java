@@ -4,8 +4,8 @@
 
 package etomica.normalmode;
 
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
+import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.space.Space;
 
 /**
@@ -26,7 +26,7 @@ public class WaveVectorFactoryFromFile implements WaveVectorFactory {
         // read and process wave vectors
         double[][] waveVectorsAndCoefficients = ArrayReader1D
                 .getFromFile(filename + ".k");
-        waveVectors = new IVectorMutable[waveVectorsAndCoefficients.length];
+        waveVectors = new Vector[waveVectorsAndCoefficients.length];
         coefficients = new double[waveVectors.length];
         double[] justWaveVector = new double[D];
         for (int i = 0; i < waveVectors.length; i++) {
@@ -44,14 +44,14 @@ public class WaveVectorFactoryFromFile implements WaveVectorFactory {
         return coefficients;
     }
 
-    public IVectorMutable[] getWaveVectors() {
+    public Vector[] getWaveVectors() {
         return waveVectors;
     }
 
-    public void makeWaveVectors(IBox box) {
+    public void makeWaveVectors(Box box) {
         // nothing to do
     }
 
-    private IVectorMutable[] waveVectors;
+    private Vector[] waveVectors;
     private double[] coefficients;
 }

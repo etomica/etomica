@@ -4,20 +4,12 @@
 
 package etomica.virial.GUI.models;
 
-import etomica.api.IAtomList;
-import etomica.api.IElement;
-import etomica.api.ISpecies;
-import etomica.chem.elements.Carbon;
-import etomica.chem.elements.Oxygen;
-import etomica.config.IConformation;
 import etomica.models.water.P2WaterSPCE;
 import etomica.models.water.SpeciesWater3P;
-import etomica.potential.P2CO2TraPPE;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.Species;
-import etomica.species.SpeciesSpheresHetero;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.virial.SpeciesFactory;
@@ -212,7 +204,7 @@ private String[][] setParameterValues() {
 	//Creates the LJAtom Species
 	public ISpecies createSpecies(){
 		SpeciesFactory factory = new SpeciesFactory() {
-	        public ISpecies makeSpecies(ISpace space) {
+	        public ISpecies makeSpecies(Space space) {
 	            Species species = new SpeciesWater3P(space);
 	            return species;
 	        }
@@ -223,7 +215,7 @@ private String[][] setParameterValues() {
 	//Creates the LJAtom Species
 		public SpeciesFactory createSpeciesFactory(){
 			SpeciesFactory factory = new SpeciesFactory() {
-		        public ISpecies makeSpecies(ISpace space) {
+		        public ISpecies makeSpecies(Space space) {
 		            Species species = new SpeciesWater3P(space);
 		            return species;
 		        }

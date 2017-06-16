@@ -4,15 +4,8 @@
 
 package etomica.modules.catalysis;
 
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
@@ -24,8 +17,13 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.modules.catalysis.InteractionTracker.CatalysisAgent;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.ISpace;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 
 /**
  * Configuration for catalysis module.  Places molecules within the box on an
@@ -36,8 +34,8 @@ import etomica.space.ISpace;
  */
 public class ConfigurationCatalysis implements Configuration {
 
-    public ConfigurationCatalysis(ISimulation sim, ISpace space,
-            ISpecies speciesSurface, ISpecies speciesC, ISpecies speciesO, AtomLeafAgentManager agentManager) {
+    public ConfigurationCatalysis(Simulation sim, Space space,
+                                  ISpecies speciesSurface, ISpecies speciesC, ISpecies speciesO, AtomLeafAgentManager agentManager) {
         this.sim = sim;
         this.space = space;
         this.speciesSurface = speciesSurface;
@@ -48,20 +46,20 @@ public class ConfigurationCatalysis implements Configuration {
         conformation = new ConformationChainZigZag[4];
     }
     
-    public void setMoleculeOffset(IVectorMutable newMoleculeOffset) {
+    public void setMoleculeOffset(Vector newMoleculeOffset) {
         moleculeOffset.E(newMoleculeOffset);
     }
     
-    public IVectorMutable getMoleculeOffset() {
+    public Vector getMoleculeOffset() {
         return moleculeOffset;
     }
     
-    public void initializeCoordinates(IBox box) {
+    public void initializeCoordinates(Box box) {
         box.setNMolecules(speciesSurface, 0);
         box.setNMolecules(speciesO, 0);
         box.setNMolecules(speciesC, 0);
         
-        IVectorMutable dim = space.makeVector();
+        Vector dim = space.makeVector();
         dim.E(box.getBoundary().getBoxSize());
         dim.setX(0, nCellsX*cellSizeX);
         dim.setX(1, 0.9*dim.getX(1));
@@ -81,7 +79,7 @@ public class ConfigurationCatalysis implements Configuration {
         box.getBoundary().setBoxSize(dim);
         
         IMoleculeList molecules = pretendBox.getMoleculeList();
-        IVectorMutable shift = space.makeVector();
+        Vector shift = space.makeVector();
         shift.setX(0, -1.901);
         while (molecules.getMoleculeCount()>0) {
             IMolecule molecule1 = molecules.getMolecule(0);
@@ -90,9 +88,9 @@ public class ConfigurationCatalysis implements Configuration {
             IMolecule molecule2 = speciesO.makeMolecule();
             box.addMolecule(molecule2);
             IAtom atom1 = molecule1.getChildList().getAtom(0);
-            IVectorMutable pos1 = atom1.getPosition();
+            Vector pos1 = atom1.getPosition();
             IAtom atom2 = molecule2.getChildList().getAtom(0);
-            IVectorMutable pos2 = atom2.getPosition();
+            Vector pos2 = atom2.getPosition();
             pos2.Ev1Mv2(pos1, shift);
             pos1.PE(shift);
             ((CatalysisAgent)agentManager.getAgent(atom1)).bondedAtom1 = atom2;
@@ -193,15 +191,15 @@ public class ConfigurationCatalysis implements Configuration {
         nCellsZ = cellsZ;
     }
 
-    protected final ISpace space;
-    protected final ISimulation sim;
+    protected final Space space;
+    protected final Simulation sim;
     protected final ISpecies speciesSurface, speciesO, speciesC;
     protected int nCO, nO2;
     protected final AtomLeafAgentManager agentManager;
     protected double cellSizeX, cellSizeZ;
     protected int nCellsX, nCellsZ;
     protected double yOffset;
-    protected final IVectorMutable moleculeOffset;
+    protected final Vector moleculeOffset;
     protected ConformationChainZigZag[] conformation;
     protected PotentialMasterList potentialMaster;
     
@@ -210,12 +208,12 @@ public class ConfigurationCatalysis implements Configuration {
         /**
          * Makes a fcc 4-atom basis.
          */
-        public BasisOrthorhombicHexagonal3D(ISpace space) {
+        public BasisOrthorhombicHexagonal3D(Space space) {
             super(makeScaledPositions(space));
         }
         
-        private static final IVector[] makeScaledPositions(ISpace space) {
-            IVectorMutable[] v = new IVectorMutable[2];
+        private static final Vector[] makeScaledPositions(Space space) {
+            Vector[] v = new Vector[2];
             for (int i=0; i<2; i++) {
                 v[i] = space.makeVector();
             }

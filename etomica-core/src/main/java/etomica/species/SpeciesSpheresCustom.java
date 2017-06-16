@@ -3,21 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.species;
-import etomica.api.IAtom;
-import etomica.api.IAtomType;
-import etomica.api.IElement;
-import etomica.api.IMolecule;
-import etomica.atom.Atom;
-import etomica.atom.AtomLeafDynamic;
-import etomica.atom.AtomOriented;
-import etomica.atom.AtomOrientedDynamic;
-import etomica.atom.AtomTypeLeaf;
-import etomica.atom.IAtomTypeOriented;
-import etomica.atom.Molecule;
+
+import etomica.atom.*;
 import etomica.chem.elements.ElementSimple;
+import etomica.chem.elements.IElement;
 import etomica.config.ConformationLinear;
+import etomica.molecule.IMolecule;
+import etomica.molecule.Molecule;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Species in which molecules are made of arbitrary number of spheres,
@@ -28,11 +22,16 @@ import etomica.space.ISpace;
 
 public class SpeciesSpheresCustom extends Species {
 
+    private static final long serialVersionUID = 1L;
+    protected Space space;
+    protected boolean isDynamic;
+    protected int[] atomTypes;
+    
     /**
-     * Constructs instance with 0 components and total number of children 
+     * Constructs instance with 0 components and total number of children
      * equal to 1.  The actual atom types must be set before use.
      */
-    public SpeciesSpheresCustom(Simulation sim, ISpace _space) {
+    public SpeciesSpheresCustom(Simulation sim, Space _space) {
         this(sim,_space, 0);
     }
     
@@ -40,37 +39,21 @@ public class SpeciesSpheresCustom extends Species {
      * Constructs instance with the given number of atom types.  Generic atom
      * types are created.
      */
-    public SpeciesSpheresCustom(Simulation sim, ISpace _space, int nTypes) {
+    public SpeciesSpheresCustom(Simulation sim, Space _space, int nTypes) {
         this(_space, makeElements(sim,nTypes));
-    }
-    
-    private static IElement[] makeElements(Simulation sim, int nTypes) {
-        ElementSimple[] elements = new ElementSimple[nTypes];
-        for (int i=0; i<elements.length; i++) {
-            elements[i] = new ElementSimple(sim);
-        }
-        return elements;
     }
     
     /**
      * Constructs instance with the given elements.
      */
-    public SpeciesSpheresCustom(ISpace _space, IElement[] leafElements) {
+    public SpeciesSpheresCustom(Space _space, IElement[] leafElements) {
         this(_space, makeAtomTypes(leafElements));
     }
-    
-    protected static final AtomTypeLeaf[] makeAtomTypes(IElement[] leafElements) {
-        AtomTypeLeaf[] types = new AtomTypeLeaf[leafElements.length];
-        for (int i=0; i<types.length; i++) {
-            types[i] = new AtomTypeLeaf(leafElements[i]);
-        }
-        return types;
-    }
-    
+
     /**
      * Constructs instance with the given atom types.
      */
-    public SpeciesSpheresCustom(ISpace space, IAtomType[] atomTypes) {
+    public SpeciesSpheresCustom(Space space, AtomType[] atomTypes) {
         super();
         this.space = space;
         for (int i=0; i<atomTypes.length; i++) {
@@ -78,7 +61,23 @@ public class SpeciesSpheresCustom extends Species {
         }
         setConformation(new ConformationLinear(space));
     }
-    
+
+    private static IElement[] makeElements(Simulation sim, int nTypes) {
+        ElementSimple[] elements = new ElementSimple[nTypes];
+        for (int i = 0; i < elements.length; i++) {
+            elements[i] = new ElementSimple(sim);
+        }
+        return elements;
+    }
+
+    protected static final AtomType[] makeAtomTypes(IElement[] leafElements) {
+        AtomType[] types = new AtomType[leafElements.length];
+        for (int i = 0; i < types.length; i++) {
+            types[i] = new AtomType(leafElements[i]);
+        }
+        return types;
+    }
+
     public void setIsDynamic(boolean newIsDynamic) {
         isDynamic = newIsDynamic;
     }
@@ -100,8 +99,8 @@ public class SpeciesSpheresCustom extends Species {
         return group;
     }
 
-    protected IAtom makeLeafAtom(IAtomType leafType) {
-        if (leafType instanceof IAtomTypeOriented) {
+    protected IAtom makeLeafAtom(AtomType leafType) {
+        if (leafType instanceof AtomTypeOriented) {
             return isDynamic ? new AtomOrientedDynamic(space, leafType)
                              : new AtomOriented(space, leafType);
         }
@@ -112,10 +111,10 @@ public class SpeciesSpheresCustom extends Species {
     public int getNumComponents() {
         return childTypes.length;
     }
-    
+
     /**
      * Sets the factories that make the child atoms of this factory's atom.
-     * If the number of factories changes, the number fractions are set so 
+     * If the number of factories changes, the number fractions are set so
      * that there is an equal amount of each child.  The caller is responsible
      * for ensuring that the AtomTypes for the child factories are children
      * of this AtomFactory's AtomType.
@@ -123,7 +122,7 @@ public class SpeciesSpheresCustom extends Species {
      * @throws IllegalArgumentException
      *             if newChildFactory is an empty array
      */
-    public void setChildTypes(IAtomType[] newchildTypes) {
+    public void setChildTypes(AtomType[] newchildTypes) {
         for (int i=0; i<childTypes.length; i++) {
             removeChildType(childTypes[i]);
         }
@@ -131,7 +130,7 @@ public class SpeciesSpheresCustom extends Species {
             addChildType(newchildTypes[i]);
         }
     }
-    
+
     public void setAtomTypes(int[] atomTypes) {
         this.atomTypes = atomTypes;
     }
@@ -139,9 +138,4 @@ public class SpeciesSpheresCustom extends Species {
     public int getNumLeafAtoms() {
         return atomTypes.length;
     }
-
-    private static final long serialVersionUID = 1L;
-    protected ISpace space;
-    protected boolean isDynamic;
-    protected int[] atomTypes;
 }

@@ -4,10 +4,9 @@
 
 package etomica.modules.pistoncylinder;
 
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
+import etomica.space.Vector;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorBoxDependent;
 import etomica.potential.P1HardMovingBoundary;
@@ -48,7 +47,7 @@ public class ApiFilteredCylinder extends ApiLeafAtoms implements AtomsetIterator
      * wall. 
      */
     public static class AtomFilterInCylinder {
-        public AtomFilterInCylinder(IBoundary boundary, P1HardMovingBoundary pistonPotential, double padding) {
+        public AtomFilterInCylinder(Boundary boundary, P1HardMovingBoundary pistonPotential, double padding) {
             dimensions = boundary.getBoxSize();
             this.pistonPotential = pistonPotential;
             this.padding = padding;
@@ -65,7 +64,7 @@ public class ApiFilteredCylinder extends ApiLeafAtoms implements AtomsetIterator
             // accept them all and weight them half as much. 
             int numOut = 0;
             for (int i=0; i<2; i++) {
-                IVectorMutable pos = atoms.getAtom(i).getPosition();
+                Vector pos = atoms.getAtom(i).getPosition();
                 
                 if (pos.getX(0) < -0.5*dimensions.getX(0)+radius ||
                     pos.getX(0) >  0.5*dimensions.getX(0)-radius) {
@@ -87,7 +86,7 @@ public class ApiFilteredCylinder extends ApiLeafAtoms implements AtomsetIterator
         }
         
         private double padding;
-        private final IVector dimensions;
+        private final Vector dimensions;
         private final P1HardMovingBoundary pistonPotential;
         private int bitFlipper;
     }

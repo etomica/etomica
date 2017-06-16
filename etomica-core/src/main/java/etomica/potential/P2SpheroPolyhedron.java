@@ -2,29 +2,28 @@ package etomica.potential;
 
 import java.util.List;
 
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
+import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.atom.AtomOrientedQuaternion;
 import etomica.atom.AtomTypeSpheroPolyhedron;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.spaceNd.VectorND;
 
 public class P2SpheroPolyhedron extends Potential2 {
 
-    protected IBoundary boundary;
-    protected final IVectorMutable dr;
-    protected final IVectorMutable v, w;
-    protected final IVectorMutable W0, W1, W2;
+    protected Boundary boundary;
+    protected final Vector dr;
+    protected final Vector v, w;
+    protected final Vector W0, W1, W2;
     
-    protected final IVectorMutable sv, sqv, qsqv;
+    protected final Vector sv, sqv, qsqv;
     
-    protected final IVectorMutable dir0, dir1, dir2;
-    protected final IVectorMutable norm0, norm1, norm2;
+    protected final Vector dir0, dir1, dir2;
+    protected final Vector norm0, norm1, norm2;
     
-    public P2SpheroPolyhedron(ISpace space) {
+    public P2SpheroPolyhedron(Space space) {
         super(space);
         dr = space.makeVector();
         v = space.makeVector();
@@ -54,8 +53,8 @@ public class P2SpheroPolyhedron extends Potential2 {
         AtomOrientedQuaternion atom1 = (AtomOrientedQuaternion)atoms.getAtom(1);
         AtomTypeSpheroPolyhedron atomType0 = (AtomTypeSpheroPolyhedron)atom0.getType();
         AtomTypeSpheroPolyhedron atomType1 = (AtomTypeSpheroPolyhedron)atom1.getType();
-        IVector position0 = atom0.getPosition();
-        IVector position1 = atom1.getPosition();
+        Vector position0 = atom0.getPosition();
+        Vector position1 = atom1.getPosition();
         
         dr.Ev1Mv2(position0, position1);
         double r2 = dr.squared();
@@ -68,7 +67,7 @@ public class P2SpheroPolyhedron extends Potential2 {
         return gjke(atom0, atom1);
     }
 
-    protected void inverseProduct4D(IVectorMutable q0, IVector q1, IVector q2) {
+    protected void inverseProduct4D(Vector q0, Vector q1, Vector q2) {
         // take inverse of q1, multiply by v and assign to v1
         double a, b, c;
         a = q1.getX(0) * q2.getX(0) + q1.getX(1) * q2.getX(1) + q1.getX(2) * q2.getX(2) + q1.getX(3) * q2.getX(3);
@@ -80,7 +79,7 @@ public class P2SpheroPolyhedron extends Potential2 {
         q0.setX(2, c);
     }
     
-    protected void product3D(IVectorMutable v1, IVector q1, IVector vv) {
+    protected void product3D(Vector v1, Vector q1, Vector vv) {
         // take inverse of q1, multiply by v and assign to v1
         double x1, y1, z1;
         x1 = q1.getX(0) * vv.getX(0) + q1.getX(2) * vv.getX(2) - q1.getX(3) * vv.getX(1);
@@ -95,7 +94,7 @@ public class P2SpheroPolyhedron extends Potential2 {
         v1.setX(2, vz);
     }
 
-    protected void inverseProduct3D(IVectorMutable v1, IVector q1, IVector vv) {
+    protected void inverseProduct3D(Vector v1, Vector q1, Vector vv) {
         // take inverse of q1, multiply by v and assign to v1
         double x1, y1, z1;
         /*System.out.println("q1 "+q1);
@@ -117,8 +116,8 @@ public class P2SpheroPolyhedron extends Potential2 {
     // The support is the vertex with the lowest distance from the origin
     //XXX farthest?
     // direction is replaced with the distance
-    protected void calcSupport(AtomTypeSpheroPolyhedron atomType, IVectorMutable direction) {
-        List<IVector> vertices = atomType.getVertices();
+    protected void calcSupport(AtomTypeSpheroPolyhedron atomType, Vector direction) {
+        List<Vector> vertices = atomType.getVertices();
         if (vertices.size() == 0) {
             direction.E(0);
             return;
@@ -141,7 +140,7 @@ public class P2SpheroPolyhedron extends Potential2 {
         VectorND q = new VectorND(4);
         inverseProduct4D(q, atom0.getQuaternion(), atom1.getQuaternion());
         //System.out.println("q "+q);
-        IVectorMutable t = space.makeVector();
+        Vector t = space.makeVector();
         inverseProduct3D(t, atom0.getQuaternion(), dr);
         //System.out.println("t "+t);
         AtomTypeSpheroPolyhedron atomType0 = (AtomTypeSpheroPolyhedron)atom0.getType();
@@ -258,7 +257,7 @@ public class P2SpheroPolyhedron extends Potential2 {
     
 //    public long isum, callcount;
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 }

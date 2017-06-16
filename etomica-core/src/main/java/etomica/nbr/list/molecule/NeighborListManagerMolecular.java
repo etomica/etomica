@@ -4,27 +4,23 @@
 
 package etomica.nbr.list.molecule;
 
-import java.io.Serializable;
-
 import etomica.action.BoxImposePbc;
-import etomica.api.IBox;
-import etomica.api.IIntegratorEvent;
-import etomica.api.IIntegratorListener;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotential;
-import etomica.api.IPotentialMolecular;
-import etomica.api.ISpecies;
-import etomica.atom.MoleculeAgentManager;
-import etomica.atom.MoleculeArrayList;
-import etomica.atom.MoleculeSetSinglet;
+import etomica.box.Box;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
+import etomica.molecule.*;
 import etomica.nbr.cell.molecule.Mpi1ACell;
 import etomica.nbr.cell.molecule.MpiAACell;
 import etomica.nbr.cell.molecule.NeighborCellManagerMolecular;
 import etomica.nbr.molecule.NeighborCriterionMolecular;
+import etomica.potential.IPotential;
+import etomica.potential.IPotentialMolecular;
 import etomica.potential.PotentialArrayMolecular;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.util.Debug;
+
+import java.io.Serializable;
 
 /**
  * Initiates the process of updating the neighbor lists. Instance is constructed
@@ -41,13 +37,13 @@ import etomica.util.Debug;
  * @author taitan
  *
  */
-public class NeighborListManagerMolecular implements IIntegratorListener, MoleculeAgentManager.MoleculeAgentSource, Serializable {
+public class NeighborListManagerMolecular implements IntegratorListener, MoleculeAgentManager.MoleculeAgentSource, Serializable {
 
     /**
      * Configures instance for use by the given PotentialMaster.
      */
-    public NeighborListManagerMolecular(PotentialMasterListMolecular potentialMasterList, double range, 
-            IBox box, ISpace space) {
+    public NeighborListManagerMolecular(PotentialMasterListMolecular potentialMasterList, double range,
+                                        Box box, Space space) {
         setUpdateInterval(1);
         this.box = box;
         iieCount = updateInterval;
@@ -87,18 +83,18 @@ public class NeighborListManagerMolecular implements IIntegratorListener, Molecu
     }
 
 
-    public void integratorInitialized(IIntegratorEvent e) {
+    public void integratorInitialized(IntegratorEvent e) {
         reset();
     }
 
-    public void integratorStepFinished(IIntegratorEvent e) {
+    public void integratorStepFinished(IntegratorEvent e) {
         if (--iieCount == 0) {
             updateNbrsIfNeeded();
             iieCount = updateInterval;
         }
     }
 
-    public void integratorStepStarted(IIntegratorEvent e) {}
+    public void integratorStepStarted(IntegratorEvent e) {}
 
     /**
      * For each box in the array, applies central image, 
@@ -389,7 +385,7 @@ public class NeighborListManagerMolecular implements IIntegratorListener, Molecu
     protected final MoleculeAgentManager agentManager2Body;
     protected final MoleculeAgentManager agentManager1Body;
     private NeighborListEventManagerMolecular eventManager;
-    protected IBox box;
+    protected Box box;
     private NeighborCriterionMolecular[] oldCriteria;
     protected boolean initialized;
     protected boolean doApplyPBC;

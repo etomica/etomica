@@ -5,18 +5,17 @@
 package etomica.config;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionGeometricCenter;
+import etomica.box.Box;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.SpaceLattice;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculePositionGeometricCenter;
+import etomica.space.Boundary;
+import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * Constructs configuration that has the molecules placed on the sites of a
@@ -44,7 +43,7 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
      * Constructs class using instance of IndexIteratorRectangular as the default
      * index iterator.
      */
-    public ConfigurationLatticeSimple(SpaceLattice lattice, ISpace space) {
+    public ConfigurationLatticeSimple(SpaceLattice lattice, Space space) {
         this(lattice, new IndexIteratorRectangular(lattice.D()), space);
     }
 
@@ -54,7 +53,7 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
      * iterator.
      */
     public ConfigurationLatticeSimple(SpaceLattice lattice,
-            IndexIteratorSizable indexIterator, ISpace space) {
+            IndexIteratorSizable indexIterator, Space space) {
         if(indexIterator.getD() != lattice.D()) {
             throw new IllegalArgumentException("Dimension of index iterator and lattice are incompatible");
         }
@@ -62,14 +61,14 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
         this.lattice = lattice;
         this.indexIterator = indexIterator;
         atomActionTranslateTo = new MoleculeActionTranslateTo(lattice.getSpace());
-        atomActionTranslateTo.setAtomPositionDefinition(new AtomPositionGeometricCenter(space));
+        atomActionTranslateTo.setAtomPositionDefinition(new MoleculePositionGeometricCenter(space));
     }
 
     /**
      * Places the molecules in the given box on the positions of the
      * lattice.  
      */
-    public void initializeCoordinates(IBox box) {
+    public void initializeCoordinates(Box box) {
         IMoleculeList moleculeList = box.getMoleculeList();
         int sumOfMolecules = moleculeList.getMoleculeCount();
         if (sumOfMolecules == 0) {
@@ -83,15 +82,15 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
                 / (double) basisSize);
 
         // determine scaled shape of simulation volume
-        IVectorMutable dim = space.makeVector();
-        IBoundary boundary = box.getBoundary();
+        Vector dim = space.makeVector();
+        Boundary boundary = box.getBoundary();
         for (int i=0; i<space.D(); i++) {
-            IVector edgeVector = boundary.getEdgeVector(i);
+            Vector edgeVector = boundary.getEdgeVector(i);
             dim.setX(i,Math.sqrt(edgeVector.squared()));
         }
-        IVectorMutable shape = space.makeVector();
+        Vector shape = space.makeVector();
         shape.E(dim);
-        IVectorMutable latticeConstantV = space.makeVector(lattice.getLatticeConstants());
+        Vector latticeConstantV = space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
 
         // determine number of cells in each direction
@@ -109,21 +108,21 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
 
         // Place molecules
         indexIterator.reset();
-        IVectorMutable offset = space.makeVector();
+        Vector offset = space.makeVector();
         offset.Ea1Tv1(-0.5, box.getBoundary().getBoxSize());
-        IVectorMutable destinationVector = atomActionTranslateTo.getDestination();
+        Vector destinationVector = atomActionTranslateTo.getDestination();
         int nMolecules = moleculeList.getMoleculeCount();
         for (int i=0; i<nMolecules; i++) {
             IMolecule a = moleculeList.getMolecule(i);
             // initialize coordinates of child atoms
             a.getType().initializeConformation(a);
 
-            destinationVector.Ev1Pv2((IVector)lattice.site(indexIterator.next()), offset);
+            destinationVector.Ev1Pv2((Vector)lattice.site(indexIterator.next()), offset);
             atomActionTranslateTo.actionPerformed(a);
         }
     }
 
-    protected int[] calculateLatticeDimensions(int nCells, IVector shape) {
+    protected int[] calculateLatticeDimensions(int nCells, Vector shape) {
         int dimLeft = shape.getD();
         int nCellsLeft = nCells;
         int[] latticeDimensions = new int[shape.getD()];
@@ -161,6 +160,6 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
     protected final SpaceLattice lattice;
     protected final IndexIteratorSizable indexIterator;
     protected final MoleculeActionTranslateTo atomActionTranslateTo;
-    private final ISpace space;
+    private final Space space;
     private static final long serialVersionUID = 2L;
 }

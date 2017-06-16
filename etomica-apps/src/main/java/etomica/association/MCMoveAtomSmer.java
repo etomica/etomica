@@ -4,36 +4,34 @@
 
 package etomica.association;
 
-import etomica.action.WriteConfiguration;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.atom.AtomArrayList;
 import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.potential.PotentialCalculationEnergySum;
-import etomica.space.ISpace;
+import etomica.space.Vector;
+import etomica.space.Space;
+import etomica.util.random.IRandom;
 
 public class MCMoveAtomSmer extends MCMoveAtom {
 	protected AssociationManager associationManager;
 	protected final AtomArrayList bondList, smerList;
 	public static boolean dodebug;
-	protected final IVectorMutable dr;
+	protected final Vector dr;
 	protected int maxLength = Integer.MAX_VALUE;
 	
 	
 
-	public MCMoveAtomSmer(ISimulation sim, IPotentialMaster potentialMaster,
-			ISpace _space) {
+	public MCMoveAtomSmer(Simulation sim, PotentialMaster potentialMaster,
+                          Space _space) {
 		this(potentialMaster, sim.getRandom(), _space, 1.0, 15.0, false);
 	}
 
 
-	public MCMoveAtomSmer(IPotentialMaster potentialMaster, IRandom random,
-			ISpace _space, double stepSize, double stepSizeMax,
-			boolean fixOverlap) {
+	public MCMoveAtomSmer(PotentialMaster potentialMaster, IRandom random,
+                          Space _space, double stepSize, double stepSizeMax,
+                          boolean fixOverlap) {
 		super(potentialMaster, random, _space, stepSize, stepSizeMax,
 				fixOverlap);
 		this.smerList = new AtomArrayList();

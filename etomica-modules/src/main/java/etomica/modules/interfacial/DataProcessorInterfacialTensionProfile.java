@@ -4,8 +4,8 @@
 
 package etomica.modules.interfacial;
 
-import etomica.api.IBox;
-import etomica.api.IVector;
+import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.IData;
@@ -15,7 +15,7 @@ import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Area;
 import etomica.units.DimensionRatio;
 import etomica.units.Energy;
@@ -23,15 +23,15 @@ import etomica.units.Length;
 
 public class DataProcessorInterfacialTensionProfile extends DataProcessor {
 
-    public DataProcessorInterfacialTensionProfile(ISpace space) {
+    public DataProcessorInterfacialTensionProfile(Space space) {
         virialData = new double[space.D()][0];
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
 
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
 
@@ -62,7 +62,7 @@ public class DataProcessorInterfacialTensionProfile extends DataProcessor {
         }
 
         double area = 1;
-        IVector dim = box.getBoundary().getBoxSize();
+        Vector dim = box.getBoundary().getBoxSize();
         for (int i=0; i<dim.getD(); i++) {
             if (i == profileDim) continue;
             area *= dim.getX(i);
@@ -90,6 +90,6 @@ public class DataProcessorInterfacialTensionProfile extends DataProcessor {
 
     protected DataFunction data;
     protected final double[][] virialData;
-    protected IBox box;
+    protected Box box;
     protected int profileDim;
 }

@@ -4,17 +4,17 @@
 
 package etomica.atom.iterator;
 
-import java.util.LinkedList;
-
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
+import etomica.UnitTestUtil;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.MoleculeSetSinglet;
-import etomica.UnitTestUtil;
+import etomica.atom.IAtom;
+import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeSetSinglet;
+import etomica.simulation.Simulation;
+
+import java.util.LinkedList;
 
 
 /**
@@ -71,7 +71,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         assertEquals(list.size(), 0);
         
         //test no-target iteration of children of a basis
-        IBox box = sim.getBox(0);
+        Box box = sim.getBox(0);
         IMoleculeList moleculeList0 = box.getMoleculeList(sim.getSpecies(0));
         basis = moleculeList0.getMolecule(0);
         target = null;
@@ -154,7 +154,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
     }
     
     private AtomIteratorBasis basisIterator;
-    private ISimulation sim;
+    private Simulation sim;
     int n0a, nAtoms, n1a;
 
 }

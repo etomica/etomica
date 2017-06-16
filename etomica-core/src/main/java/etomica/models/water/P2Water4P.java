@@ -5,10 +5,14 @@
 
 package etomica.models.water;
 
-import etomica.api.*;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.IMoleculePositionDefinition;
 import etomica.potential.PotentialMolecular;
-import etomica.space.ISpace;
+import etomica.space.Boundary;
+import etomica.space.Space;
+import etomica.space.Vector;
 
 /** 
  * 4-point potential for water.  Potential parameters are typically defined
@@ -18,7 +22,7 @@ import etomica.space.ISpace;
  */
 public class P2Water4P extends PotentialMolecular {
 
-	public P2Water4P(ISpace space, double sigma, double epsilon, double chargeH, double rCut, IAtomPositionDefinition positionDefinition) {
+	public P2Water4P(Space space, double sigma, double epsilon, double chargeH, double rCut, IMoleculePositionDefinition positionDefinition) {
 		super(2, space);
         this.sigma = sigma;
         sigma2 = sigma*sigma;
@@ -37,7 +41,7 @@ public class P2Water4P extends PotentialMolecular {
         this.positionDefinition = positionDefinition;
 	}
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 
@@ -47,8 +51,8 @@ public class P2Water4P extends PotentialMolecular {
 		IMolecule water2 = pair.getMolecule(1);
 		
 		//compute O-O distance to consider truncation	
-        IVectorMutable O1r = (water1.getChildList().getAtom(2)).getPosition();
-        IVectorMutable O2r = (water2.getChildList().getAtom(2)).getPosition();
+        Vector O1r = (water1.getChildList().getAtom(2)).getPosition();
+        Vector O2r = (water2.getChildList().getAtom(2)).getPosition();
 
 		work.Ev1Mv2(O1r, O2r);
         shift.Ea1Tv1(-1,work);
@@ -69,12 +73,12 @@ public class P2Water4P extends PotentialMolecular {
 		double s6 = s2*s2*s2;
 		double sum = epsilon4*s6*(s6 - 1.0);
 		
-        IVectorMutable H11r = water1.getChildList().getAtom(0).getPosition();
-        IVectorMutable H12r = water1.getChildList().getAtom(1).getPosition();
-        IVectorMutable H21r = water2.getChildList().getAtom(0).getPosition();
-        IVectorMutable H22r = water2.getChildList().getAtom(1).getPosition();
-        IVectorMutable M1r = water1.getChildList().getAtom(3).getPosition();
-        IVectorMutable M2r = water2.getChildList().getAtom(3).getPosition();
+        Vector H11r = water1.getChildList().getAtom(0).getPosition();
+        Vector H12r = water1.getChildList().getAtom(1).getPosition();
+        Vector H21r = water2.getChildList().getAtom(0).getPosition();
+        Vector H22r = water2.getChildList().getAtom(1).getPosition();
+        Vector M1r = water1.getChildList().getAtom(3).getPosition();
+        Vector M2r = water2.getChildList().getAtom(3).getPosition();
         		
         if (zeroShift) {
             r2 = M1r.Mv1Squared(M2r);
@@ -157,11 +161,11 @@ public class P2Water4P extends PotentialMolecular {
     private static final long serialVersionUID = 1L;
 	public double sigma , sigma2;
 	protected double epsilon, epsilon4;
-	protected IBoundary boundary;
+	protected Boundary boundary;
 	protected final double chargeH;
 	protected final double chargeM;
 	protected final double chargeMM, chargeMH, chargeHH;
 	protected final double rCut;
-	protected final IVectorMutable work, shift,com1,com2;
-	protected final IAtomPositionDefinition positionDefinition;
+	protected final Vector work, shift,com1,com2;
+	protected final IMoleculePositionDefinition positionDefinition;
 }

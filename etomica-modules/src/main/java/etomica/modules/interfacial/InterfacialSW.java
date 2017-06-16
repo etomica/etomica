@@ -3,11 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.modules.interfacial;
+
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
+import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -23,8 +21,10 @@ import etomica.potential.P2SquareWell;
 import etomica.potential.PotentialGroup;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.species.SpeciesSpheresMono;
 
@@ -39,10 +39,10 @@ public class InterfacialSW extends Simulation {
     private static final long serialVersionUID = 1L;
     public final SpeciesSpheresMono species;
     public final SpeciesSpheresHetero surfactant;
-    public final IBox box;
+    public final Box box;
     public final IntegratorHard integrator;
     public final ActivityIntegrate activityIntegrate;
-    public final IAtomType leafType, headType, tailType;
+    public final AtomType leafType, headType, tailType;
     public final P2SquareWell p2Head, p2HeadHead;
     public final P2HardSphere p2TailTail, p2Tail, p2HeadTail;
     public final P2HardBond p2Bond;
@@ -83,18 +83,18 @@ public class InterfacialSW extends Simulation {
 
         //instantiate several potentials for selection in combo-box
         P2SquareWell p2SW = new P2SquareWell(space, 1.0, 1.5, 1.0, true);
-	    potentialMaster.addPotential(p2SW, new IAtomType[]{leafType, leafType});
+        potentialMaster.addPotential(p2SW, new AtomType[]{leafType, leafType});
         p2Head = new P2SquareWell(space, 1.0, 1.5, 1.0, true);
-        potentialMaster.addPotential(p2Head, new IAtomType[]{leafType, headType});
+        potentialMaster.addPotential(p2Head, new AtomType[]{leafType, headType});
         p2HeadHead = new P2SquareWell(space, 1.0, 1.5, 1.0, true);
-        potentialMaster.addPotential(p2HeadHead, new IAtomType[]{headType, headType});
+        potentialMaster.addPotential(p2HeadHead, new AtomType[]{headType, headType});
 
         p2TailTail = new P2HardSphere(space, 1.0, true);
-        potentialMaster.addPotential(p2TailTail, new IAtomType[]{tailType, tailType});
+        potentialMaster.addPotential(p2TailTail, new AtomType[]{tailType, tailType});
         p2Tail = new P2HardSphere(space, 1.0, true);
-        potentialMaster.addPotential(p2Tail, new IAtomType[]{leafType, tailType});
+        potentialMaster.addPotential(p2Tail, new AtomType[]{leafType, tailType});
         p2HeadTail = new P2HardSphere(space, 1.0, true);
-        potentialMaster.addPotential(p2HeadTail, new IAtomType[]{headType, tailType});
+        potentialMaster.addPotential(p2HeadTail, new AtomType[]{headType, tailType});
         
         p2Bond = new P2HardBond(space, 0.8, 0.2, true);
         PotentialGroup p1Surfactant = potentialMaster.makePotentialGroup(1);
@@ -104,7 +104,7 @@ public class InterfacialSW extends Simulation {
         //construct box
 	    box = new Box(space);
         addBox(box);
-        IVectorMutable dim = space.makeVector();
+        Vector dim = space.makeVector();
         if (space.D() == 2) {
             dim.E(new double[]{30,15});
         }

@@ -3,21 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.association;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.atom.AtomArrayList;
 import etomica.atom.IAtomOriented;
 import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.nbr.cell.PotentialMasterCell;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 public class MCMoveBiasUB extends MCMoveBox {
     
@@ -32,30 +30,30 @@ public class MCMoveBiasUB extends MCMoveBox {
     private int ni, Nai;
     private int maxLength = Integer.MAX_VALUE;
     private IAtom atomA;
-    private IVectorRandom orientation;
+    private Vector orientation;
     private boolean isbonding;
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     private double uOld;
     private double uNew;
-    private IVectorMutable oldPosition;
-    private IVectorMutable oldDirection;
+    private Vector oldPosition;
+    private Vector oldDirection;
     protected final AtomArrayList smerList;
-    protected final IVectorMutable dr;
+    protected final Vector dr;
 
-    public MCMoveBiasUB(PotentialMasterCell potentialMaster, BiasVolume bv, IRandom random, ISpace space) {
+    public MCMoveBiasUB(PotentialMasterCell potentialMaster, BiasVolume bv, IRandom random, Space space) {
         super(potentialMaster);//variable
         biasVolume = bv;
         this.random =random;
         this.smerList = new AtomArrayList();
         this.dr = space.makeVector();
         meterPotentialEnergy = new MeterPotentialEnergy(potentialMaster);
-        orientation = (IVectorRandom)space.makeVector();
+        orientation = space.makeVector();
         oldPosition = space.makeVector();
         oldDirection = space.makeVector();
         perParticleFrequency = true;// the frequency of the move is increasing with the system size
     }
     
-    public void setBox(IBox box){
+    public void setBox(Box box){
     	super.setBox(box);
     	meterPotentialEnergy.setBox(box);
     }
@@ -99,7 +97,7 @@ public class MCMoveBiasUB extends MCMoveBox {
             uOld = meterPotentialEnergy.getDataAsScalar();
             oldPosition.E(atomA.getPosition());
             oldDirection.E(((IAtomOriented)atomA).getOrientation().getDirection());
-            ((IVectorRandom)atomA.getPosition()).setRandomCube(random);
+            atomA.getPosition().setRandomCube(random);
             atomA.getPosition().TE(box.getBoundary().getBoxSize());//translate
             orientation.setRandomSphere(random);
             ((IAtomOriented)atomA).getOrientation().setDirection(orientation);//orientation

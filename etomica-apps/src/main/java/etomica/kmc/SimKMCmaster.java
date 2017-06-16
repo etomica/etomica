@@ -4,10 +4,9 @@
 
 package etomica.kmc;
 
-import etomica.api.IVectorMutable;
+import etomica.space.Vector;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
-import etomica.units.Kelvin;
+import etomica.space.Space;
 
 public class SimKMCmaster extends Simulation{
 
@@ -16,7 +15,7 @@ public class SimKMCmaster extends Simulation{
      */
     private static final long serialVersionUID = 1L;
 
-    public SimKMCmaster(ISpace space) {
+    public SimKMCmaster(Space space) {
         super(space);
     }
 
@@ -27,7 +26,7 @@ public class SimKMCmaster extends Simulation{
         final String APP_NAME = "SimKMCmaster";
 
         final SimKMCMEAMadatom sim = new SimKMCMEAMadatom();
-        IVectorMutable vect = sim.getSpace().makeVector();
+        Vector vect = sim.getSpace().makeVector();
         vect.setX(0, 9.8);
         vect.setX(1, -0.2);
         vect.setX(2, -0.2);

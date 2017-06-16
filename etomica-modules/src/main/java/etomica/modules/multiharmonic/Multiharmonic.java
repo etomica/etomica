@@ -7,16 +7,12 @@ package etomica.modules.multiharmonic;
 import etomica.action.SimulationDataAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.IController;
-import etomica.api.IAtom;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataPump;
-import etomica.data.DataSourceCountTime;
+import etomica.data.*;
+import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.meter.MeterEnergy;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.listener.IntegratorListenerAction;
@@ -28,7 +24,6 @@ import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space1d.Space1D;
 import etomica.space1d.Vector1D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.HistoryCollapsingDiscard;
 
 
 /**
@@ -40,6 +35,21 @@ import etomica.util.HistoryCollapsingDiscard;
  */
 public class Multiharmonic extends Simulation {
 
+    private static final long serialVersionUID = 1L;
+    MeterEnergy meterEnergy;
+    AccumulatorAverageCollapsing accumulatorEnergy;
+    AccumulatorHistory historyEnergy;
+    SpeciesSpheresMono species;
+    Box box;
+    IController controller;
+    P1Harmonic potentialA, potentialB;
+    IntegratorVelocityVerlet integrator;
+    ActivityIntegrate activityIntegrate;
+    MeterFreeEnergy meter;
+    AccumulatorAverageCollapsing accumulator;
+    DataPump dataPump, dataPumpEnergy;
+    SimulationDataAction resetAccumulators;
+    DataSourceCountTime timeCounter;
     public Multiharmonic() {
         super(Space1D.getInstance());
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
@@ -59,10 +69,10 @@ public class Multiharmonic extends Simulation {
         potentialA = new P1Harmonic(space);
         potentialA.setX0(new Vector1D(x0));
         potentialA.setSpringConstant(1.0);
-        potentialMaster.addPotential(potentialA, new IAtomType[] {species.getLeafType()});
-        
+        potentialMaster.addPotential(potentialA, new AtomType[]{species.getLeafType()});
+
         box.setNMolecules(species, 20);
-        
+
         AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
         iterator.setBox(box);
         iterator.reset();
@@ -82,33 +92,17 @@ public class Multiharmonic extends Simulation {
         accumulator = new AccumulatorAverageCollapsing();
         dataPump = new DataPump(meter, accumulator);
         integrator.getEventManager().addListener(new IntegratorListenerAction(dataPump));
-        
+
         meterEnergy = new MeterEnergy(potentialMaster, box);
         accumulatorEnergy = new AccumulatorAverageCollapsing();
         dataPumpEnergy = new DataPump(meterEnergy, accumulatorEnergy);
         integrator.getEventManager().addListener(new IntegratorListenerAction(dataPumpEnergy));
-        
+
         historyEnergy = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
-        accumulatorEnergy.addDataSink(historyEnergy, new AccumulatorAverage.StatType[] {accumulatorEnergy.AVERAGE});
+        accumulatorEnergy.addDataSink(historyEnergy, new AccumulatorAverage.StatType[]{AccumulatorAverage.AVERAGE});
 
         timeCounter = new DataSourceCountTime(integrator);
-        
+
         historyEnergy.setTimeDataSource(timeCounter);
     }
-
-    private static final long serialVersionUID = 1L;
-    MeterEnergy meterEnergy;
-    AccumulatorAverageCollapsing accumulatorEnergy;
-    AccumulatorHistory historyEnergy;
-    SpeciesSpheresMono species;
-    IBox box;
-    IController controller;
-    P1Harmonic potentialA, potentialB;
-    IntegratorVelocityVerlet integrator;
-    ActivityIntegrate activityIntegrate;
-    MeterFreeEnergy meter;
-    AccumulatorAverageCollapsing accumulator;
-    DataPump dataPump, dataPumpEnergy;
-    SimulationDataAction resetAccumulators;
-    DataSourceCountTime timeCounter;
 }

@@ -14,7 +14,7 @@ import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.modifier.ModifierGeneral;
 import etomica.space3d.Space3D;
-import etomica.util.HistogramCollapsing;
+import etomica.data.histogram.HistogramCollapsing;
 import etomica.util.ParameterBase;
 
 /**

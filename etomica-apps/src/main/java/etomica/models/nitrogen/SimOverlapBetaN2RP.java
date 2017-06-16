@@ -5,9 +5,6 @@
 package etomica.models.nitrogen;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IBox;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.data.DataPump;
 import etomica.data.IEtomicaDataSource;
@@ -30,6 +27,8 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.Degree;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
@@ -73,7 +72,7 @@ public class SimOverlapBetaN2RP extends Simulation {
 		Basis basisHCP = new BasisHcp();
 		BasisBigCell basis = new BasisBigCell(space, basisHCP, new int[]{nC,nC,nC});
         
-		IVector[] boxDim = new IVector[3];
+		Vector[] boxDim = new Vector[3];
 		boxDim[0] = space.makeVector(new double[]{nC*aDim, 0, 0});
 		boxDim[1] = space.makeVector(new double[]{-nC*aDim*Math.cos(Degree.UNIT.toSim(60)), nC*aDim*Math.sin(Degree.UNIT.toSim(60)), 0});
 		boxDim[2] = space.makeVector(new double[]{0, 0, nC*cDim});
@@ -345,7 +344,7 @@ public class SimOverlapBetaN2RP extends Simulation {
     public DataSourceVirialOverlap dsvo;
     public IntegratorBox[] integrators;
     public ActivityIntegrate activityIntegrate;
-    public IBox boxTarg, boxRef;
+    public Box boxTarg, boxRef;
     public int[] nCells;
     public Basis basis;
     public double refPref;

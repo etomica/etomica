@@ -4,12 +4,12 @@
 
 package etomica.nbr.list.molecule;
 
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.ISimulation;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculePositionDefinition;
 import etomica.nbr.cell.molecule.NeighborCellManagerMolecular;
-import etomica.space.ISpace;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
 
 /**
  * Subclass of NeighborCellManager that notifies the NeighborListManager when
@@ -19,14 +19,14 @@ import etomica.space.ISpace;
  */
 public class NeighborCellManagerListMolecular extends NeighborCellManagerMolecular {
 
-	public NeighborCellManagerListMolecular(ISimulation sim, IBox box,
-            double potentialRange, ISpace _space) {
+	public NeighborCellManagerListMolecular(Simulation sim, Box box,
+                                            double potentialRange, Space _space) {
         this(sim, box, potentialRange, null, _space);
     }
 
-    public NeighborCellManagerListMolecular(ISimulation sim, IBox box,
-            double potentialRange, IAtomPositionDefinition positionDefinition,
-            ISpace _space) {
+    public NeighborCellManagerListMolecular(Simulation sim, Box box,
+                                            double potentialRange, IMoleculePositionDefinition positionDefinition,
+                                            Space _space) {
         super(sim, box, potentialRange, positionDefinition, _space);
     }
 

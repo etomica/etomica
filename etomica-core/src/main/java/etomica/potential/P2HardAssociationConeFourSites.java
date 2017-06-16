@@ -3,13 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.potential;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
+import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.IOrientationFull3D;
 import etomica.units.Angle;
@@ -34,10 +33,10 @@ public class P2HardAssociationConeFourSites extends Potential2 implements Potent
     private double epsilon, epsilon4, wellEpsilon;
     private double cutoffLJSquared, cutoffFactor;
     private double ec1, ec2;
-    private final IVectorMutable dr;
-    private IBoundary boundary;
+    private final Vector dr;
+    private Boundary boundary;
     
-    public P2HardAssociationConeFourSites(ISpace space, double sigma, double epsilon, double cutoffFactorLJ, double wellConstant) {
+    public P2HardAssociationConeFourSites(Space space, double sigma, double epsilon, double cutoffFactorLJ, double wellConstant) {
         super(space);
         dr = space.makeVector();
 
@@ -87,42 +86,42 @@ public class P2HardAssociationConeFourSites extends Potential2 implements Potent
         	double coordX = 0.5*(2-length*length);
             double coordY = coordX*(1-cosAngle1)/sinAngle1;
             double coordZ = Math.sqrt(1-coordX*coordX-coordY*coordY);
-        	IVector e1A = atom0.getOrientation().getDirection();
+        	Vector e1A = atom0.getOrientation().getDirection();
             double er1Aa = e1A.dot(dr);//vector of site Aa on atom0  
-            IVector e1AaY = ((IOrientationFull3D) atom0.getOrientation()).getSecondaryDirection();//Perpendicular direction of e1A
-            IVectorMutable e1AaZ = space.makeVector();
+            Vector e1AaY = ((IOrientationFull3D) atom0.getOrientation()).getSecondaryDirection();//Perpendicular direction of e1A
+            Vector e1AaZ = space.makeVector();
             e1AaZ.E(e1A);
-            ((IVectorMutable) e1AaZ).XE(e1AaY);//crossproduct
-            IVectorMutable e1Ab = space.makeVector();
+            e1AaZ.XE(e1AaY);//crossproduct
+            Vector e1Ab = space.makeVector();
             e1Ab.Ea1Tv1(cosAngle1, e1A);
             e1Ab.PEa1Tv1(sinAngle1, e1AaY);
             double er1Ab = e1Ab.dot(dr);//vector of site Ab on atom0
-            IVectorMutable e1Ba = space.makeVector();
+            Vector e1Ba = space.makeVector();
             e1Ba.Ea1Tv1(coordX, e1A);
             e1Ba.PEa1Tv1(coordY, e1AaY);
             e1Ba.PEa1Tv1(coordZ, e1AaZ);
             double er1Ba = e1Ba.dot(dr);//vector of site Ba on atom0
-            IVectorMutable e1Bb = space.makeVector();
+            Vector e1Bb = space.makeVector();
             e1Bb.Ea1Tv1(coordX, e1A);
             e1Bb.PEa1Tv1(coordY, e1AaY);
             e1Bb.PEa1Tv1(-coordZ, e1AaZ);
             double er1Bb = e1Bb.dot(dr);//vector of site Bb on atom0
-            IVector e2A = atom1.getOrientation().getDirection();
+            Vector e2A = atom1.getOrientation().getDirection();
             double er2Aa = e2A.dot(dr);//vector of site Aa on atom1
-            IVector e2AaY = ((IOrientationFull3D) atom1.getOrientation()).getSecondaryDirection();//Perpendicular direction of e2A         
-            IVectorMutable e2AaZ = space.makeVector();
+            Vector e2AaY = ((IOrientationFull3D) atom1.getOrientation()).getSecondaryDirection();//Perpendicular direction of e2A
+            Vector e2AaZ = space.makeVector();
             e2AaZ.E(e2A);
-            ((IVectorMutable) e2AaZ).XE(e2AaY);//crossproduct
-            IVectorMutable e2Ab = space.makeVector();
+            e2AaZ.XE(e2AaY);//crossproduct
+            Vector e2Ab = space.makeVector();
             e2Ab.Ea1Tv1(cosAngle1, e2A);
             e2Ab.PEa1Tv1(sinAngle1, e2AaY);
             double er2Ab = e2Ab.dot(dr);//vector of site Ab on atom1
-            IVectorMutable e2Ba = space.makeVector();
+            Vector e2Ba = space.makeVector();
             e2Ba.Ea1Tv1(coordX, e2A);
             e2Ba.PEa1Tv1(coordY, e2AaY);
             e2Ba.PEa1Tv1(coordZ, e2AaZ);
             double er2Ba = e2Ba.dot(dr);//vector of site Ba on atom1
-            IVectorMutable e2Bb = space.makeVector();
+            Vector e2Bb = space.makeVector();
             e2Bb.Ea1Tv1(coordX, e2A);
             e2Bb.PEa1Tv1(coordY, e2AaY);
             e2Bb.PEa1Tv1(-coordZ, e2AaZ);
@@ -228,7 +227,7 @@ public class P2HardAssociationConeFourSites extends Potential2 implements Potent
     }
     public Dimension getThetaDimension() {return Angle.DIMENSION;}
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 
@@ -248,11 +247,11 @@ public class P2HardAssociationConeFourSites extends Potential2 implements Potent
         return 0;
     }
 
-	public IVector[] gradient(IAtomList atoms) {
+	public Vector[] gradient(IAtomList atoms) {
 		return null;
 	}
 
-	public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+	public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
 		return null;
 	}
 

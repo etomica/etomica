@@ -4,12 +4,11 @@
 
 package etomica.potential;
 
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
+import etomica.box.Box;
+import etomica.space.Vector;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 /**
@@ -22,9 +21,9 @@ import etomica.space.Tensor;
  
 public abstract class Potential2SoftSpherical extends Potential2 implements Potential2Soft {
    
-    public Potential2SoftSpherical(ISpace space) {
+    public Potential2SoftSpherical(Space space) {
         super(space);
-        gradient = new IVectorMutable[2];
+        gradient = new Vector[2];
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();
         dr = space.makeVector();
@@ -82,7 +81,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
     /**
      * Gradient of the pair potential as given by the du(double) method.
      */
-    public IVector[] gradient(IAtomList atoms) {
+    public Vector[] gradient(IAtomList atoms) {
         dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
@@ -96,7 +95,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
         return gradient;
     }
     
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         gradient(atoms);
         pressureTensor.PEv1v2(gradient[0],dr);
         return gradient;
@@ -116,12 +115,12 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
         return Double.POSITIVE_INFINITY;
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 
-    protected final IVectorMutable[] gradient;
-    protected IBoundary boundary;
-    protected final IVectorMutable dr;
+    protected final Vector[] gradient;
+    protected Boundary boundary;
+    protected final Vector dr;
     
 }//end of Potential2SoftSpherical

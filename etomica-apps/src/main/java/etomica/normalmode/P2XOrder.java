@@ -4,15 +4,15 @@
 
 package etomica.normalmode;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
+import etomica.box.Box;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2HardSpherical;
 import etomica.potential.Potential2Spherical;
 import etomica.potential.PotentialHard;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 /**
@@ -27,12 +27,12 @@ import etomica.space.Tensor;
 public class P2XOrder extends Potential2 implements Potential2Spherical, PotentialHard {
     
     private static final long serialVersionUID = 1L;
-    protected final IVectorMutable dr;
-    protected IBox box;
+    protected final Vector dr;
+    protected Box box;
     protected Potential2HardSpherical wrappedPotential;
     protected boolean hasPBC;
     
-    public P2XOrder(ISpace space, Potential2HardSpherical wrappedPotential) {
+    public P2XOrder(Space space, Potential2HardSpherical wrappedPotential) {
         super(space);
         dr = space.makeVector();
         this.wrappedPotential = wrappedPotential;
@@ -88,7 +88,7 @@ public class P2XOrder extends Potential2 implements Potential2Spherical, Potenti
         return wrappedPotential;
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
         wrappedPotential.setBox(newBox);
         dr.E(box.getBoundary().getBoxSize());

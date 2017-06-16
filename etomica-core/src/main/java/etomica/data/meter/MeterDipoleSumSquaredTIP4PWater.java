@@ -1,27 +1,18 @@
 package etomica.data.meter;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
-import etomica.data.DataSourceMolecular;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.space.ISpace;
+import etomica.molecule.IMoleculeList;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 import etomica.units.CompoundDimension;
-import etomica.units.Debye;
 import etomica.units.Dimension;
 import etomica.units.Dipole;
 import etomica.units.Electron;
-import etomica.units.Energy;
-import etomica.units.Length;
-import etomica.units.Mass;
-import etomica.units.Time;
+
 /**
  * meter for (sum dipole)^2
  * used for dielectric constant calculation
@@ -31,10 +22,10 @@ import etomica.units.Time;
  */
 public class MeterDipoleSumSquaredTIP4PWater extends DataSourceScalar{
 	 
-    private IBox box;
-    private IVectorMutable dipole, dipoleSum;
+    private Box box;
+    private Vector dipole, dipoleSum;
     
-	public MeterDipoleSumSquaredTIP4PWater(ISpace space, IBox box) {
+	public MeterDipoleSumSquaredTIP4PWater(Space space, Box box) {
 		super("TIP4P water, dipoleSum^2", new CompoundDimension(new Dimension[]{Dipole.DIMENSION},new double[]{2.0}));
 		this.box=box;
 		dipole = space.makeVector();
@@ -46,7 +37,7 @@ public class MeterDipoleSumSquaredTIP4PWater extends DataSourceScalar{
 		IMoleculeList moleculeList = box.getMoleculeList();
 		int numMolecule = moleculeList.getMoleculeCount();
 		for (int i=0;i<numMolecule; i++){
-			IAtomList childList = moleculeList.getMolecule(i).getChildList();	
+			IAtomList childList = moleculeList.getMolecule(i).getChildList();
 			IAtom atomH1 = childList.getAtom(0);
 			IAtom atomH2 = childList.getAtom(1);
 			IAtom atomO = childList.getAtom(2);
@@ -64,10 +55,10 @@ public class MeterDipoleSumSquaredTIP4PWater extends DataSourceScalar{
 		}
         return dipoleSum.squared();
 	}
-    public IBox getBox() {
+    public Box getBox() {
     	return box;
     }
-    public void setBox(IBox _box) {
+    public void setBox(Box _box) {
     	box = _box;
     }
 

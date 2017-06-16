@@ -4,7 +4,7 @@
 
 package etomica.virial.cluster;
 
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 
 /**
  * Holds information about a cluster diagram, including the bonds, root points,

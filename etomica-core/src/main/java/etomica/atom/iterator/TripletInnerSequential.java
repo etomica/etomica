@@ -3,13 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.atom.iterator;
-import java.io.Serializable;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IMoleculeList;
 import etomica.atom.AtomsetArray;
-import etomica.atom.iterator.IteratorDirective.Direction;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.IteratorDirective;
+import etomica.potential.IteratorDirective.Direction;
+
+import java.io.Serializable;
 
 public class TripletInnerSequential implements AtomsetIteratorBasisDependent, 
         AtomsetIteratorDirectable, Serializable  {

@@ -6,8 +6,7 @@ package etomica.threaded.atom;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.SimulationGraphic;
@@ -36,7 +35,7 @@ public class LJMD3DThreaded extends Simulation {
     public IntegratorVelocityVerlet integrator;
     public MCMoveAtom mcMoveAtom;
     public SpeciesSpheresMono species;
-    public IBox box;
+    public Box box;
     public P2LennardJones p2lj;
     public P2SoftSphericalTruncated[] potential;
     public PotentialThreaded potentialThreaded;
@@ -96,7 +95,7 @@ public class LJMD3DThreaded extends Simulation {
         potentialMaster.setCellRange(1);
         potentialMaster.setRange(neighborFac * truncationRadius);
         potentialMaster.getNeighborManager(box).setQuiet(true);
-        potentialMaster.addPotential(potentialThreaded, new IAtomType[] {species.getLeafType(), species.getLeafType()});
+        potentialMaster.addPotential(potentialThreaded, new AtomType[]{species.getLeafType(), species.getLeafType()});
        
         //--------------------------------------\\
         

@@ -5,15 +5,15 @@
 package etomica.normalmode;
 
 import etomica.action.BoxInflate;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
+import etomica.space.Vector;
+import etomica.box.Box;
+import etomica.potential.PotentialMaster;
+import etomica.util.random.IRandom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Standard Monte Carlo volume-change move for simulations in the NPT ensemble.
@@ -29,7 +29,7 @@ public class MCMoveVolumeMonoclinic extends MCMoveBoxStep {
     private MeterPotentialEnergy energyMeter;
     protected BoxInflate inflate;
     private IRandom random;
-    protected final IVectorMutable scaleVector;
+    protected final Vector scaleVector;
     protected final AtomIteratorLeafAtoms affectedAtomIterator;
 
     private transient double uOld;
@@ -39,8 +39,8 @@ public class MCMoveVolumeMonoclinic extends MCMoveBoxStep {
      * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
      * @param space the governing space for the simulation
      */
-    public MCMoveVolumeMonoclinic(IPotentialMaster potentialMaster, IRandom random,
-    		            ISpace _space) {
+    public MCMoveVolumeMonoclinic(PotentialMaster potentialMaster, IRandom random,
+                                  Space _space) {
         super(potentialMaster);
         this.random = random;
         inflate = new BoxInflate(_space);
@@ -53,7 +53,7 @@ public class MCMoveVolumeMonoclinic extends MCMoveBoxStep {
         scaleVector = _space.makeVector();
     }
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         inflate.setBox(p);

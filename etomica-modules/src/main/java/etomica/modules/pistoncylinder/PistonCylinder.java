@@ -5,23 +5,17 @@
 package etomica.modules.pistoncylinder;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.IVectorMutable;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.potential.P1HardBoundary;
-import etomica.potential.P1HardMovingBoundary;
-import etomica.potential.P2HardWrapper;
-import etomica.potential.P2SquareWell;
-import etomica.potential.PotentialMasterMonatomic;
+import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space2d.Vector2D;
 import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
@@ -37,7 +31,7 @@ public class PistonCylinder extends Simulation {
     public IntegratorHardPiston integrator;
     public P1HardMovingBoundary pistonPotential;
     public SpeciesSpheresMono species;
-    public IBox box;
+    public Box box;
     public P2HardWrapper potentialWrapper;
     public P1HardBoundary wallPotential;
     public ActivityIntegrate ai;
@@ -46,7 +40,7 @@ public class PistonCylinder extends Simulation {
 
     public PistonCylinder(int D) {
         super(Space.getInstance(D));
-        IPotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         lambda = 2.0;
         double sigma = 4.0;
         species = new SpeciesSpheresMono(this, space);
@@ -56,7 +50,7 @@ public class PistonCylinder extends Simulation {
         box = new Box(new BoundaryPistonCylinder(space), space);
         addBox(box);
         box.setNMolecules(species, INIT_NUM_MOLECULES);
-        IVectorMutable newDim;
+        Vector newDim;
         if (space.D() == 2) {
             config = new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space);
             newDim = new Vector2D(80,150);
@@ -71,11 +65,11 @@ public class PistonCylinder extends Simulation {
         
         P2SquareWell potentialSW = new P2SquareWell(space,sigma,lambda,31.875,true);
         potentialWrapper = new P2HardWrapper(space,potentialSW);
-        potentialMaster.addPotential(potentialWrapper,new IAtomType[]{species.getLeafType(),species.getLeafType()});
+        potentialMaster.addPotential(potentialWrapper, new AtomType[]{species.getLeafType(), species.getLeafType()});
         
         wallPotential = new P1HardBoundary(space, true);
         wallPotential.setCollisionRadius(sigma*0.5); //potential.getCoreDiameter()*0.5);
-        potentialMaster.addPotential(wallPotential, new IAtomType[]{species.getLeafType()});
+        potentialMaster.addPotential(wallPotential, new AtomType[]{species.getLeafType()});
         wallPotential.setActive(0,true,true);  // left wall
         wallPotential.setActive(0,false,true); // right wall
         if (D==3) {
@@ -102,7 +96,7 @@ public class PistonCylinder extends Simulation {
             pistonPotential.setPressure(Bar.UNIT.toSim(100.0));
         }
         pistonPotential.setThickness(1.0);
-        potentialMaster.addPotential(pistonPotential, new IAtomType[]{species.getLeafType()});
+        potentialMaster.addPotential(pistonPotential, new AtomType[]{species.getLeafType()});
         ((BoundaryPistonCylinder)box.getBoundary()).setPistonPotential(pistonPotential);
         
         integrator = new IntegratorHardPiston(this,potentialMaster,pistonPotential, space);

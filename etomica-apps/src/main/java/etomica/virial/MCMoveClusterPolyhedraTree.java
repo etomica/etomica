@@ -4,20 +4,19 @@
 
 package etomica.virial;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomOrientedQuaternion;
 import etomica.atom.AtomPair;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
+import etomica.potential.IPotentialAtomic;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 public class MCMoveClusterPolyhedraTree extends MCMoveAtom {
 
-    public MCMoveClusterPolyhedraTree(IRandom random, ISpace _space, double sigma, IPotentialAtomic p2, double[][] uValues) {
+    public MCMoveClusterPolyhedraTree(IRandom random, Space _space, double sigma, IPotentialAtomic p2, double[][] uValues) {
         super(random, null, _space);
         this.sigma = sigma;
         this.p2 = p2;
@@ -25,7 +24,7 @@ public class MCMoveClusterPolyhedraTree extends MCMoveAtom {
         this.uValues = uValues;
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         super.setBox(box);
         int n = box.getLeafList().getAtomCount();
         degree = new int[n];
@@ -34,7 +33,7 @@ public class MCMoveClusterPolyhedraTree extends MCMoveAtom {
         bonds = new int[n*(n-1)/2][2];
     }
 
-    protected void randomOrientation(IVectorMutable q) {
+    protected void randomOrientation(Vector q) {
         double u1 = random.nextDouble();
         double u2 = 2*Math.PI*random.nextDouble();
         double u3 = 2*Math.PI*random.nextDouble();
@@ -121,8 +120,8 @@ public class MCMoveClusterPolyhedraTree extends MCMoveAtom {
                 pair.atom0 = leafAtoms.getAtom(nbr);
                 pair.atom1 = leafAtoms.getAtom(nbr2);
                 // insert nbr2 around nbr
-                IVectorMutable q = ((AtomOrientedQuaternion)leafAtoms.getAtom(nbr2)).getQuaternion();
-                IVectorRandom pos = (IVectorRandom)leafAtoms.getAtom(nbr2).getPosition();
+                Vector q = ((AtomOrientedQuaternion)leafAtoms.getAtom(nbr2)).getQuaternion();
+                Vector pos = leafAtoms.getAtom(nbr2).getPosition();
 
                 while (true) {
                     pos.setRandomInSphere(random);

@@ -8,12 +8,12 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
+import etomica.box.Box;
 import etomica.config.ConfigurationFile;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Degree;
 
 /**
@@ -22,14 +22,14 @@ import etomica.units.Degree;
  * to the file containing limited precision.
  */
 public class ConfigurationFileTIP4P extends ConfigurationFile {
-	protected final ISpace space;
+	protected final Space space;
 	protected boolean isIce;
-	public ConfigurationFileTIP4P(String aConfName, ISpace space, boolean isIce) {
+	public ConfigurationFileTIP4P(String aConfName, Space space, boolean isIce) {
 		super(aConfName);
 		this.space = space;
 		this.isIce = isIce;
 	}
-    public void initializeCoordinates(IBox box) {
+    public void initializeCoordinates(Box box) {
         IAtomList leafList = box.getLeafList();
         String fileName = confName+".pos";
         FileReader fileReader;
@@ -41,8 +41,8 @@ public class ConfigurationFileTIP4P extends ConfigurationFile {
         try {
             BufferedReader bufReader = new BufferedReader(fileReader);
             int nLeaf = leafList.getAtomCount();
-            IVectorMutable tmp = space.makeVector();
-            IVectorMutable tmp2 = space.makeVector();
+            Vector tmp = space.makeVector();
+            Vector tmp2 = space.makeVector();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtom a = leafList.getAtom(iLeaf);
                 if(a.getLeafIndex() % 4 != 3 ){// skip M (order is HHOM)
@@ -53,9 +53,9 @@ public class ConfigurationFileTIP4P extends ConfigurationFile {
 //                	a.getPosition().PE(0.001);
                 }else{ // =3
                     //~ Define M positions
-                	IVectorMutable h1 = leafList.getAtom(iLeaf - 3).getPosition();//0 H1
-                	IVectorMutable h2 = leafList.getAtom(iLeaf - 2).getPosition();//1 H2
-                	IVectorMutable o = leafList.getAtom(iLeaf - 1).getPosition();//2 O
+                	Vector h1 = leafList.getAtom(iLeaf - 3).getPosition();//0 H1
+                	Vector h2 = leafList.getAtom(iLeaf - 2).getPosition();//1 H2
+                	Vector o = leafList.getAtom(iLeaf - 1).getPosition();//2 O
                 	
 					if(true){
 	                	//Sice I/P xyz has ONLY 6 digits we do this reconstruction :)
@@ -78,7 +78,7 @@ public class ConfigurationFileTIP4P extends ConfigurationFile {
 	                	h2.PEa1Tv1(1-Math.cos(Degree.UNIT.toSim(104.52)), o);
 					}
                 	
-                	IVectorMutable m = a.getPosition();
+                	Vector m = a.getPosition();
                 	m.E(h1);
                 	m.PE(h2);
                 	m.PEa1Tv1(-2, o);

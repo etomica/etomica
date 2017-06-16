@@ -4,7 +4,7 @@
 
 package etomica.virial.GUI.models;
 
-import etomica.api.ISpecies;
+import etomica.species.ISpecies;
 
 public class ModelSelectedSpecies {
 	

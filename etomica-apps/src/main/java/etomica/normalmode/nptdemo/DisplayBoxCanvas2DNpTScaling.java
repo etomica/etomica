@@ -3,18 +3,17 @@ package etomica.normalmode.nptdemo;
 import java.awt.Graphics;
 
 import etomica.action.activity.Controller;
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvas2D;
 import etomica.normalmode.CoordinateDefinition;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class DisplayBoxCanvas2DNpTScaling extends DisplayBoxCanvas2D {
 
-    public DisplayBoxCanvas2DNpTScaling(DisplayBox _box, ISpace _space,
+    public DisplayBoxCanvas2DNpTScaling(DisplayBox _box, Space _space,
             Controller controller, CoordinateDefinition coordinateDefinition) {
         super(_box, _space, controller);
         p = _space.makeVector();
@@ -40,10 +39,10 @@ public class DisplayBoxCanvas2DNpTScaling extends DisplayBoxCanvas2D {
     protected void drawAtom(Graphics g, int[] origin, IAtom a) {
         p.E(a.getPosition());
         
-        IVector l = coordinateDefinition.getLatticePosition(a);
+        Vector l = coordinateDefinition.getLatticePosition(a);
         p.ME(l);
 
-        IBox box = displayBox.getBox();
+        Box box = displayBox.getBox();
         double vOld = box.getBoundary().volume();
         int nAtoms = box.getLeafList().getAtomCount();
         double vNew = nAtoms/displayDensity;
@@ -73,6 +72,6 @@ public class DisplayBoxCanvas2DNpTScaling extends DisplayBoxCanvas2D {
     }
 
     protected double pressure, displayDensity;
-    protected final IVectorMutable p;
+    protected final Vector p;
     protected final CoordinateDefinition coordinateDefinition;
 }

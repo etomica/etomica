@@ -4,13 +4,13 @@
 
 package etomica.data.meter;
 
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.ISpecies;
+import etomica.box.Box;
 import etomica.data.DataSourceMolecular;
 import etomica.data.DataSourceScalar;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
+import etomica.molecule.IMolecule;
+import etomica.species.ISpecies;
 import etomica.units.Quantity;
 
 /**
@@ -45,15 +45,15 @@ public class MeterNMolecules extends DataSourceScalar implements DataSourceMolec
     /**
      * @return Returns the box.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     /**
      * @param box The box to set.
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
     }
 
-    private IBox box;
+    private Box box;
 }

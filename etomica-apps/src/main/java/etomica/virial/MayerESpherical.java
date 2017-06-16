@@ -4,9 +4,9 @@
 
 package etomica.virial;
 
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotential;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.IPotential;
 import etomica.potential.Potential2Spherical;
 /**
  * @author kofke
@@ -29,7 +29,7 @@ public class MayerESpherical implements MayerFunction {
 		return Math.exp(-beta*potential.u(r2));
 	}
 	
-	public void setBox(IBox newBox) {
+	public void setBox(Box newBox) {
 	    potential.setBox(newBox);
 	}
 

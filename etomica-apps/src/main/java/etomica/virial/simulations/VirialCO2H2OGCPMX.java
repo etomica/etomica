@@ -4,55 +4,45 @@
 
 package etomica.virial.simulations;
 
-import java.awt.Color;
-import java.util.Arrays;
-
 import etomica.action.IAction;
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IAtomList;
-import etomica.api.IElement;
-import etomica.api.IIntegratorEvent;
-import etomica.api.IIntegratorListener;
-import etomica.api.IMolecule;
-import etomica.api.IPotentialMolecular;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomTypeAgentManager;
+import etomica.atom.IAtomList;
 import etomica.chem.elements.Carbon;
+import etomica.chem.elements.IElement;
 import etomica.chem.elements.Oxygen;
 import etomica.config.IConformation;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.IData;
+import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
+import etomica.math.DoubleRange;
 import etomica.models.co2.PNGCPM;
 import etomica.models.co2.PNGCPM.GCPMAgent;
 import etomica.models.co2.PNGCPMX;
 import etomica.models.water.SpeciesWater4PCOM;
-import etomica.potential.PotentialMolecularSum;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.potential.IPotentialMolecular;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
-import etomica.util.DoubleRange;
-import etomica.util.HistogramNotSoSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterCoupledFlipped;
-import etomica.virial.ClusterWheatleyHS;
-import etomica.virial.ClusterWheatleyMultibody;
-import etomica.virial.ClusterWheatleySoft;
-import etomica.virial.CoordinatePairSet;
-import etomica.virial.MayerFunctionMolecularThreeBody;
-import etomica.virial.MayerFunctionNonAdditiveFull;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.PotentialNonAdditive;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
+
+import java.awt.*;
+import java.util.Arrays;
 
 /**
  * Computes CO2-H2O mixture virial coefficients using ab-initio potentials
@@ -114,7 +104,7 @@ public class VirialCO2H2OGCPMX {
         
         System.out.println("  B"+nPoints+"HS: "+HSB);
 		
-        final ISpace space = Space3D.getInstance();
+        final Space space = Space3D.getInstance();
         
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
 
@@ -206,8 +196,8 @@ public class VirialCO2H2OGCPMX {
         paramsManager.setAgent(speciesWater.getCOMType(), new GCPMAgent(1.0,0,0.610,12.75,0,1.444,1.444,0));
         double qC = Electron.UNIT.toSim(0.6642);
         paramsManager.setAgent(speciesCO2.getAtomType(0), new GCPMAgent(3.193,Kelvin.UNIT.toSim(71.34),0.61/1.0483,15.5,qC,4.05,1.95,16.0/9.0*Kelvin.UNIT.toSim(2.52e4)) {
-            protected final IVectorMutable r = space.makeVector();
-            public IVector getParallelAxis(IMolecule mol) {
+            protected final Vector r = space.makeVector();
+            public Vector getParallelAxis(IMolecule mol) {
                 IAtomList atoms = mol.getChildList();
                 r.Ev1Mv2(atoms.getAtom(2).getPosition(),atoms.getAtom(1).getPosition());
                 r.normalize();
@@ -219,7 +209,7 @@ public class VirialCO2H2OGCPMX {
         
         if (nonAdditive != Nonadditive.NONE) {
             MoleculeActionTranslateTo act = new MoleculeActionTranslateTo(space);
-            IVectorMutable pos = space.makeVector();
+            Vector pos = space.makeVector();
             double r = 4;
             for (int i=1; i<nPoints; i++) {
                 double theta = 2*i*Math.PI/nPoints;
@@ -294,7 +284,7 @@ public class VirialCO2H2OGCPMX {
                 // temperature is an integer, use "200" instead of "200.0"
                 tempString = ""+(int)temperatureK;
             }
-            refFileName = "refpref"+nPoints+"_"+(nonAdditive==nonAdditive.NONE?"2":("3"+(nonAdditive==Nonadditive.DISPERSION?"a":"ai")))+"_"+tempString;
+            refFileName = "refpref"+nPoints+"_"+(nonAdditive== Nonadditive.NONE ?"2":("3"+(nonAdditive==Nonadditive.DISPERSION?"a":"ai")))+"_"+tempString;
             refFileName += "C";
         }
 
@@ -316,10 +306,10 @@ public class VirialCO2H2OGCPMX {
         final HistogramNotSoSimple hist = new HistogramNotSoSimple(nBins, new DoubleRange(dx*0.5, sigmaHSRef+dx*0.5));
         final HistogramNotSoSimple piHist = new HistogramNotSoSimple(nBins, new DoubleRange(dx*0.5, sigmaHSRef+dx*0.5));
         final ClusterAbstract finalTargetCluster = targetCluster.makeCopy();
-        IIntegratorListener histListenerRef = new IIntegratorListener() {
-            public void integratorStepStarted(IIntegratorEvent e) {}
+        IntegratorListener histListenerRef = new IntegratorListener() {
+            public void integratorStepStarted(IntegratorEvent e) {}
             
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 double r2Max = 0;
                 CoordinatePairSet cPairs = sim.box[0].getCPairSet();
                 for (int i=0; i<nPoints; i++) {
@@ -333,13 +323,13 @@ public class VirialCO2H2OGCPMX {
                 piHist.addValue(Math.sqrt(r2Max), Math.abs(v));
             }
             
-            public void integratorInitialized(IIntegratorEvent e) {
+            public void integratorInitialized(IntegratorEvent e) {
             }
         };
-        IIntegratorListener histListenerTarget = new IIntegratorListener() {
-            public void integratorStepStarted(IIntegratorEvent e) {}
+        IntegratorListener histListenerTarget = new IntegratorListener() {
+            public void integratorStepStarted(IntegratorEvent e) {}
             
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 double r2Max = 0;
                 double r2Min = Double.POSITIVE_INFINITY;
                 CoordinatePairSet cPairs = sim.box[1].getCPairSet();
@@ -363,14 +353,14 @@ public class VirialCO2H2OGCPMX {
                 targPiHist.addValue(r, Math.abs(v));
             }
 
-            public void integratorInitialized(IIntegratorEvent e) {}
+            public void integratorInitialized(IntegratorEvent e) {}
         };
 
         if (params.doHist) {
-            IIntegratorListener histReport = new IIntegratorListener() {
-                public void integratorInitialized(IIntegratorEvent e) {}
-                public void integratorStepStarted(IIntegratorEvent e) {}
-                public void integratorStepFinished(IIntegratorEvent e) {
+            IntegratorListener histReport = new IntegratorListener() {
+                public void integratorInitialized(IntegratorEvent e) {}
+                public void integratorStepStarted(IntegratorEvent e) {}
+                public void integratorStepFinished(IntegratorEvent e) {
                     if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
                     System.out.println("**** reference ****");
                     double[] xValues = hist.xValues();
@@ -428,9 +418,9 @@ public class VirialCO2H2OGCPMX {
         sim.printResults(HSB);
 
         DataGroup allYourBase = (DataGroup)sim.accumulators[1].getData();
-        IData averageData = allYourBase.getData(sim.accumulators[1].AVERAGE.index);
-        IData errorData = allYourBase.getData(sim.accumulators[1].ERROR.index);
-        IData covarianceData = allYourBase.getData(sim.accumulators[1].BLOCK_COVARIANCE.index);
+        IData averageData = allYourBase.getData(AccumulatorAverage.AVERAGE.index);
+        IData errorData = allYourBase.getData(AccumulatorAverage.ERROR.index);
+        IData covarianceData = allYourBase.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
         int n = 0;
         double correlationCoef = covarianceData.getValue(n+1)/Math.sqrt(covarianceData.getValue(0)*covarianceData.getValue((n+2)*(n+2)-1));
         correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;

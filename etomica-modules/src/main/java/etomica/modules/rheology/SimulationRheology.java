@@ -5,13 +5,12 @@
 package etomica.modules.rheology;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
 import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.graphics.SimulationGraphic;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheres;
 
@@ -22,16 +21,16 @@ import etomica.species.SpeciesSpheres;
  */
 public class SimulationRheology extends Simulation {
 
-    public final IBox box;
+    public final Box box;
     public final SpeciesSpheres species;
     public final IntegratorPolymer integrator;
     public final ActivityIntegrate activityIntegrate;
     public final ConformationPolymer conformation;
     
-    public SimulationRheology(ISpace space) {
+    public SimulationRheology(Space space) {
         super(space);
         box = new Box(new BoundaryRectangularNonperiodic(space), space);
-        IVectorMutable d = space.makeVector();
+        Vector d = space.makeVector();
         d.E(20);
         box.getBoundary().setBoxSize(d);
         addBox(box);

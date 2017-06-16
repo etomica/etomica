@@ -2,17 +2,17 @@ package etomica.liquidLJ;
 
 import etomica.action.BoxInflate;
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IRandom;
-import etomica.api.ISpecies;
+import etomica.box.Box;
 import etomica.box.RandomPositionSource;
 import etomica.box.RandomPositionSourceRectangular;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorBox;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.units.Null;
+import etomica.util.random.IRandom;
 
 /**
  * Meter to measure the chemical potential (as its exponent: exp(-mu/kT)) of a
@@ -36,7 +36,7 @@ import etomica.units.Null;
  */
 public class MeterWidomInsertionP extends DataSourceScalar {
 
-    public MeterWidomInsertionP(ISpace space, IRandom random) {
+    public MeterWidomInsertionP(Space space, IRandom random) {
         super("exp(-\u03BC/kT)", Null.DIMENSION);//"\u03BC" is Unicode for greek "mu"
         setNInsert(100);
         atomTranslator = new MoleculeActionTranslateTo(space);
@@ -139,7 +139,7 @@ public class MeterWidomInsertionP extends DataSourceScalar {
         energyMeter = newEnergyMeter;
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         this.box = newBox;
         energyMeter.setBox(box);
         positionSource.setBox(box);
@@ -183,7 +183,7 @@ public class MeterWidomInsertionP extends DataSourceScalar {
     private MoleculeActionTranslateTo atomTranslator;
     protected RandomPositionSource positionSource;
     private MeterPotentialEnergy energyMeter;
-    protected IBox box;
+    protected Box box;
     protected double temperature;
     protected double pressure = Double.NaN;
     public double epsFactor = 1.0;

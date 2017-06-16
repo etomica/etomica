@@ -8,7 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import etomica.action.IAction;
-import etomica.api.IVectorMutable;
+import etomica.space.Vector;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
@@ -231,7 +231,7 @@ public class NormalModeAnalysisDisplay2DGraphic extends SimulationGraphic {
                 if (oldNx != nx ) {
                 	int[] nCells = new int[]{nx, (int)cellSlider.getYCellNum()};
                 	
-                	IVectorMutable[] dimension = sim.space.makeVectorArray(sim.space.D());
+                	Vector[] dimension = sim.space.makeVectorArray(sim.space.D());
                     for (int i=0; i<sim.space.D(); i++){
                     	dimension[i].Ea1Tv1(nCells[i], sim.primitive.vectors()[i]);
                     }
@@ -332,7 +332,7 @@ public class NormalModeAnalysisDisplay2DGraphic extends SimulationGraphic {
                 if (oldNy != ny ) {
                 	int[] nCells = new int[]{(int)cellSlider.getXCellNum(), ny};
                 	
-                	IVectorMutable[] dimension = sim.space.makeVectorArray(sim.space.D());
+                	Vector[] dimension = sim.space.makeVectorArray(sim.space.D());
                     for (int i=0; i<sim.space.D(); i++){
                     	dimension[i].Ea1Tv1(nCells[i], sim.primitive.vectors()[i]);
                     }

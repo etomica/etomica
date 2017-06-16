@@ -4,11 +4,10 @@
 
 package etomica.gaussianwork;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IRandom;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.util.random.IRandom;
+import etomica.space.Vector;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.integrator.mcmove.MCMoveBox;
@@ -30,7 +29,7 @@ public class MCMoveMultiHarmonic extends MCMoveBox {
         this.random = random;
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         super.setBox(newBox);
         iterator.setBox(box);
     }
@@ -49,12 +48,12 @@ public class MCMoveMultiHarmonic extends MCMoveBox {
     public boolean doTrial() {
         uOld = uNew;
         double s = p1.getSpringConstant();
-        IVector x0 = p1.getX0();
+        Vector x0 = p1.getX0();
         IAtomList atoms = box.getLeafList();
         uNew = 0;
         double sqrtS = Math.sqrt(s);
         for (int i=0; i<atoms.getAtomCount(); i++) {
-            IVectorMutable p = atoms.getAtom(i).getPosition();
+            Vector p = atoms.getAtom(i).getPosition();
             for (int j=0; j<p.getD(); j++) {
                 double r = random.nextGaussian()/sqrtS;
                 uNew += 0.5*r*r*s;

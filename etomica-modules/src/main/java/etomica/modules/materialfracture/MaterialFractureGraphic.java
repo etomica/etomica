@@ -40,7 +40,7 @@ import etomica.units.PrefixedUnit;
 import etomica.units.Pressure2D;
 import etomica.units.Second;
 import etomica.units.UnitRatio;
-import etomica.util.HistoryScrolling;
+import etomica.data.history.HistoryScrolling;
 
 /**
  * Graphical components for Material Fracture module

@@ -7,33 +7,33 @@ package etomica.kmc;
 import etomica.action.BoxImposePbc;
 import etomica.action.WriteConfiguration;
 import etomica.action.XYZWriter;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.config.ConfigurationFile;
 import etomica.dimer.IntegratorDimerMin;
 import etomica.dimer.IntegratorDimerRT;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorBox;
-import etomica.space.ISpace;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.Joule;
+import etomica.util.random.IRandom;
 
 public class IntegratorKMC extends IntegratorBox{
 
     private static final long serialVersionUID = 1L;
     IntegratorDimerRT integratorDimer;
     IntegratorDimerMin integratorMin1, integratorMin2;
-    IPotentialMaster potentialMaster;
+    PotentialMaster potentialMaster;
     double temperature;
-    private final ISpace space;
+    private final Space space;
     IRandom random;
-    ISimulation sim;
+    Simulation sim;
     ISpecies [] species;
-    IVectorMutable [] minPosition, currentSaddle, previousSaddle;
+    Vector[] minPosition, currentSaddle, previousSaddle;
     double[] saddleVib;
     double massSec;
     double[] saddleEnergies;
@@ -51,7 +51,7 @@ public class IntegratorKMC extends IntegratorBox{
     XYZWriter xyzfile;
     BoxImposePbc imposePbc;
     
-    public IntegratorKMC(ISimulation _sim, IPotentialMaster _potentialMaster, double _temperature, IRandom _random, ISpecies [] _species, ISpace _space){
+    public IntegratorKMC(Simulation _sim, PotentialMaster _potentialMaster, double _temperature, IRandom _random, ISpecies [] _species, Space _space){
         super(_potentialMaster, _temperature);
         this.potentialMaster = _potentialMaster;
         this.temperature = _temperature;
@@ -165,8 +165,8 @@ public class IntegratorKMC extends IntegratorBox{
         beta = 1.0/(temperature*1.3806503E-023);
         stepCounter = 0;     
         imposePbc = new BoxImposePbc(box, space);
-        currentSaddle = new IVectorMutable[box.getMoleculeList().getMoleculeCount()];
-        previousSaddle = new IVectorMutable[box.getMoleculeList().getMoleculeCount()];
+        currentSaddle = new Vector[box.getMoleculeList().getMoleculeCount()];
+        previousSaddle = new Vector[box.getMoleculeList().getMoleculeCount()];
         for(int i=0; i<currentSaddle.length; i++){
             currentSaddle[i] = space.makeVector();
             previousSaddle[i] = space.makeVector();
@@ -185,7 +185,7 @@ public class IntegratorKMC extends IntegratorBox{
         minVib = vibFreq;
         
         IMoleculeList loopSet2 = box.getMoleculeList();
-        minPosition = new IVectorMutable[loopSet2.getMoleculeCount()];
+        minPosition = new Vector[loopSet2.getMoleculeCount()];
         for(int i=0; i<minPosition.length; i++){
             minPosition[i] = space.makeVector();
         }
@@ -200,9 +200,9 @@ public class IntegratorKMC extends IntegratorBox{
     }
     
     public void randomizePositions(){
-        IVectorMutable workVector = space.makeVector();
+        Vector workVector = space.makeVector();
         IMoleculeList loopSet3 = box.getMoleculeList(species[0]);
-        IVectorMutable [] currentPos = new IVectorMutable [loopSet3.getMoleculeCount()];
+        Vector[] currentPos = new Vector[loopSet3.getMoleculeCount()];
         double offset = 0;
         for(int i=0; i<currentPos.length; i++){
             currentPos[i] = space.makeVector();
@@ -280,11 +280,11 @@ public class IntegratorKMC extends IntegratorBox{
     private double truncate(double numA, int digits){
         digits = (int)Math.pow(10,digits);
         numA = (long)(digits*numA);
-        numA = (double)(numA/digits);
+        numA = numA/digits;
         return numA;
     }
     public boolean checkMin(){
-        IVectorMutable workVector = space.makeVector();
+        Vector workVector = space.makeVector();
         double positionDiff=0;
         for(int i=0; i<box.getMoleculeList().getMoleculeCount(); i++){
             workVector.Ev1Mv2(minPosition[i],box.getMoleculeList().getMolecule(i).getChildList().getAtom(0).getPosition());

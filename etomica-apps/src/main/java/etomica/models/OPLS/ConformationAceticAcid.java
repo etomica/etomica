@@ -4,10 +4,10 @@
 
 package etomica.models.OPLS;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.config.IConformation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Conformation for acetic acid
@@ -17,7 +17,7 @@ import etomica.space.ISpace;
  */
 public class ConformationAceticAcid implements IConformation {
 
-    public ConformationAceticAcid(ISpace space) {
+    public ConformationAceticAcid(Space space) {
         this.space = space;
     }
     
@@ -51,7 +51,7 @@ public class ConformationAceticAcid implements IConformation {
     }
     
     private static final long serialVersionUID = 1L;
-    protected final ISpace space;
+    protected final Space space;
 
 }
 

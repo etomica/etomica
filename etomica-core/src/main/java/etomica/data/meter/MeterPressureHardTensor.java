@@ -3,10 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.data.meter;
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -14,13 +13,13 @@ import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataTensor;
 import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.integrator.IntegratorHard;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Temperature;
 
 public class MeterPressureHardTensor implements IEtomicaDataSource, IntegratorHard.CollisionListener, java.io.Serializable {
     
-    public MeterPressureHardTensor(ISpace space) {
+    public MeterPressureHardTensor(Space space) {
     	dim = space.D();
         data = new DataTensor(space);
         dataInfo = new DataInfoTensor("PV/Nk",Temperature.DIMENSION, space);
@@ -50,7 +49,7 @@ public class MeterPressureHardTensor implements IEtomicaDataSource, IntegratorHa
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             v.Ev1v2(a.getVelocity(), a.getVelocity());
-            v.TE((((IAtom)a).getType().rm()));
+            v.TE((a.getType().rm()));
             data.x.PE(v);
         }
 
@@ -97,7 +96,7 @@ public class MeterPressureHardTensor implements IEtomicaDataSource, IntegratorHa
     private Tensor v;
     private IntegratorHard integratorHard;
     private String name;
-    private IBox box;
+    private Box box;
     private final DataTensor data;
     private final IEtomicaDataInfo dataInfo;
     protected final DataTag tag;

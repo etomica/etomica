@@ -77,7 +77,7 @@ public class DataTable extends DataGroup implements IData, Serializable {
      *             if the DataTable has zero columns
      */
     public int getNRows() {
-        return ((DataDoubleArray)data[0]).getLength();
+        return data[0].getLength();
     }
     
     /**
@@ -107,7 +107,7 @@ public class DataTable extends DataGroup implements IData, Serializable {
             throw new IllegalArgumentException("Illegal index for get value. Maximum is "+getLength());
         }
         int nRows = getNRows();
-        return ((DataDoubleArray)data[i/nRows]).getValue(i % nRows);
+        return data[i/nRows].getValue(i % nRows);
     }
 
     /**
@@ -136,7 +136,7 @@ public class DataTable extends DataGroup implements IData, Serializable {
             super(label, Null.DIMENSION, columnInfo);
             this.nRows = nRows;
             if (rowHeaders != null) {
-                this.rowHeaders = (String[])rowHeaders.clone();
+                this.rowHeaders = rowHeaders.clone();
             }
             else {
                 this.rowHeaders = null;
@@ -182,7 +182,7 @@ public class DataTable extends DataGroup implements IData, Serializable {
         protected DataInfoTableFactory(DataInfoTable template) {
             super(template);
             if (template.rowHeaders != null) {
-                rowHeaders = (String[])template.rowHeaders.clone();
+                rowHeaders = template.rowHeaders.clone();
             }
             nRows = template.nRows;
             columnInfoFactories = new DataInfoDoubleArrayFactory[template.subDataInfo.length];
@@ -227,7 +227,7 @@ public class DataTable extends DataGroup implements IData, Serializable {
          * Returns a copy of the row headers or null if no row headers exist.
          */
         public String[] getRowHeaders() {
-            return (rowHeaders == null) ? null : (String[])rowHeaders.clone();
+            return (rowHeaders == null) ? null : rowHeaders.clone();
         }
         
         /**
@@ -235,7 +235,7 @@ public class DataTable extends DataGroup implements IData, Serializable {
          * If not null, nRows will be updated to match the number of row headers.  
          */
         public void setRowHeaders(String[] newRowHeaders) {
-            rowHeaders = (newRowHeaders == null) ? null : (String[])newRowHeaders.clone();
+            rowHeaders = (newRowHeaders == null) ? null : newRowHeaders.clone();
             if (rowHeaders != null) {
                 nRows = rowHeaders.length;
             }
@@ -245,14 +245,14 @@ public class DataTable extends DataGroup implements IData, Serializable {
          * Returns a copy of the array of DataInfoFactories for the columns
          */
         public DataInfoDoubleArrayFactory[] getColumnInfoFactories() {
-            return (DataInfoDoubleArrayFactory[])columnInfoFactories.clone();
+            return columnInfoFactories.clone();
         }
         
         /**
          * Sets the DataInfoFactories for the columns
          */
         public void setColumnInfoFactories(DataInfoDoubleArrayFactory[] newColumnInfoFactories) {
-            columnInfoFactories = (DataInfoDoubleArrayFactory[])newColumnInfoFactories.clone();
+            columnInfoFactories = newColumnInfoFactories.clone();
         }
         
         private static final long serialVersionUID = 1L;

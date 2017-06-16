@@ -4,10 +4,10 @@
 
 package etomica.normalmode;
 
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
+import etomica.space.Vector;
+import etomica.box.Box;
+import etomica.potential.PotentialMaster;
+import etomica.util.random.IRandom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -23,7 +23,7 @@ import etomica.normalmode.CoordinateDefinition.BasisCell;
  */
 public class MCMoveSingleMode extends MCMoveBoxStep{
 
-    public MCMoveSingleMode(IPotentialMaster potentialMaster, IRandom random) {
+    public MCMoveSingleMode(PotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         
         this.random = random;
@@ -60,8 +60,8 @@ public class MCMoveSingleMode extends MCMoveBoxStep{
      * 
      * @param wv
      */
-    public void setWaveVectors(IVectorMutable[] wv){
-        waveVectors = new IVectorMutable[wv.length];
+    public void setWaveVectors(Vector[] wv){
+        waveVectors = new Vector[wv.length];
         waveVectors = wv;
     }
     public void setWaveVectorCoefficients(double[] coeff){
@@ -87,7 +87,7 @@ public class MCMoveSingleMode extends MCMoveBoxStep{
         */
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         super.setBox(newBox);
         iterator.setBox(newBox);
         energyMeter.setBox(newBox);
@@ -207,7 +207,7 @@ public class MCMoveSingleMode extends MCMoveBoxStep{
     protected final MeterPotentialEnergy energyMeter;
     private double[][][] eigenVectors;
     private double[][] omega2, scaledStepSize;
-    private IVectorMutable[] waveVectors;
+    private Vector[] waveVectors;
     private double[] waveVectorCoefficients;
     int changedWV, harmonicWV;  //all wvs from the harmonic wv and up are not changed.
     protected double temperature;

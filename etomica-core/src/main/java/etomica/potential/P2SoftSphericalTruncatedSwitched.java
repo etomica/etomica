@@ -4,13 +4,11 @@
 
 package etomica.potential;
 
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.MoleculeOrientedDynamic;
-import etomica.space.ISpace;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
+import etomica.box.Box;
+import etomica.space.Vector;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Space3D;
 
@@ -21,12 +19,12 @@ import etomica.space3d.Space3D;
  */
 public class P2SoftSphericalTruncatedSwitched extends Potential2 implements PotentialSoft {
     
-    public P2SoftSphericalTruncatedSwitched(ISpace _space, Potential2SoftSpherical potential,
-    		                                double truncationRadius) {
+    public P2SoftSphericalTruncatedSwitched(Space _space, Potential2SoftSpherical potential,
+                                            double truncationRadius) {
         super(_space);
         this.potential = potential;
         setTruncationRadius(truncationRadius);
-        gradient = new IVectorMutable[2];
+        gradient = new Vector[2];
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();
         dr = space.makeVector();
@@ -70,12 +68,12 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
         return rCutoff;
     }
 
-    public IVector[] gradient(IAtomList atoms) {
+    public Vector[] gradient(IAtomList atoms) {
         dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
         if (r2 < r2Cutoff) {
-            IVector[] unswitchedGradient = potential.gradient(atoms);
+            Vector[] unswitchedGradient = potential.gradient(atoms);
             gradient[0].E(unswitchedGradient[0]);
             gradient[1].E(unswitchedGradient[1]);
             if (r2 > r2Switch) {
@@ -129,14 +127,14 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
     }
     
     public static void main(String[] args) {
-    	ISpace sp = Space3D.getInstance();
+    	Space sp = Space3D.getInstance();
         P2SoftSphericalTruncatedSwitched p = new P2SoftSphericalTruncatedSwitched(sp, new P2LennardJones(sp), 2);
         for (double x = 1.900001; x<1.999999; x+=0.001) {
             System.out.println(x+" "+p.getF(x)+" "+p.getdFdr(x));
         }
     }
     
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         return gradient(atoms);
     }
     
@@ -155,7 +153,7 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
     }
     
     public double virial(IAtomList atoms) {
-        dr.Ev1Mv2(((MoleculeOrientedDynamic)atoms.getAtom(1)).getPosition(),((MoleculeOrientedDynamic)atoms.getAtom(0)).getPosition());
+        dr.Ev1Mv2(atoms.getAtom(1).getPosition(), atoms.getAtom(0).getPosition());
         boundary.nearestImage(dr);
         if (dr.squared() < r2Cutoff) {
             return potential.virial(atoms);
@@ -168,7 +166,7 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
      */
     public etomica.units.Dimension getTruncationRadiusDimension() {return etomica.units.Length.DIMENSION;}
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         potential.setBox(newBox);
         boundary = newBox.getBoundary();
     }
@@ -176,9 +174,9 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
     private static final long serialVersionUID = 1L;
     protected double rCutoff, r2Cutoff;
     protected final Potential2SoftSpherical potential;
-    protected final IVectorMutable dr;
-    protected IBoundary boundary;
-    protected final IVectorMutable[] gradient;
+    protected final Vector dr;
+    protected Boundary boundary;
+    protected final Vector[] gradient;
     protected int taperOrder = 3;
     protected double switchFac, r2Switch;
 }

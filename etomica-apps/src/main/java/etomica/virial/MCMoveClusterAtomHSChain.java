@@ -4,18 +4,18 @@
 
 package etomica.virial;
 
-import etomica.api.IAtomList;
-import etomica.api.IRandom;
+import etomica.atom.IAtomList;
+import etomica.util.random.IRandom;
+import etomica.space.Vector;
 import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
+import etomica.space.Space;
 
 public class MCMoveClusterAtomHSChain extends MCMoveAtom {
 
-    public MCMoveClusterAtomHSChain(IRandom random, ISpace _space, double sigma) {
+    public MCMoveClusterAtomHSChain(IRandom random, Space _space, double sigma) {
         super(random, null, _space);
         this.sigma = sigma;
-        dr = (IVectorRandom)space.makeVector();
+        dr = space.makeVector();
     }
     
     public boolean doTrial() {
@@ -37,7 +37,7 @@ public class MCMoveClusterAtomHSChain extends MCMoveAtom {
         leafAtoms.getAtom(seq[0]).getPosition().E(0);
 
         for (int i=1; i<n; i++) {
-            IVectorRandom pos = (IVectorRandom)leafAtoms.getAtom(seq[i]).getPosition();
+            Vector pos = leafAtoms.getAtom(seq[i]).getPosition();
 
             pos.setRandomInSphere(random);
             pos.TE(sigma);
@@ -65,6 +65,6 @@ public class MCMoveClusterAtomHSChain extends MCMoveAtom {
     }
 
     protected final double sigma;
-    protected final IVectorRandom dr;
+    protected final Vector dr;
     protected int[] seq;
 }

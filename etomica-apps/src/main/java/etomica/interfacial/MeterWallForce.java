@@ -1,31 +1,27 @@
 package etomica.interfacial;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IPotentialMaster;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
-import etomica.potential.PotentialCalculation;
-import etomica.potential.PotentialSoft;
-import etomica.space.ISpace;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.*;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.Force;
 
 public class MeterWallForce extends DataSourceScalar {
 
-    protected final IPotentialMaster potentialMaster;
+    protected final PotentialMaster potentialMaster;
     protected final ISpecies topWall;
     protected final PotentialCalculationWallForce pc;
-    protected final ISpace space;
-    protected final IBox box;
+    protected final Space space;
+    protected final Box box;
     protected final IteratorDirective id;
     
-    public MeterWallForce(ISpace space, IPotentialMaster potentialMaster, IBox box, ISpecies topWall) {
+    public MeterWallForce(Space space, PotentialMaster potentialMaster, Box box, ISpecies topWall) {
         super("Force", Force.DIMENSION);
         this.space = space;
         this.box = box;
@@ -54,13 +50,13 @@ public class MeterWallForce extends DataSourceScalar {
     public static class PotentialCalculationWallForce implements PotentialCalculation {
 
         protected double sum;
-        protected IAtomType atomType;
+        protected AtomType atomType;
     
         public double getSum() {
             return sum;
         }
-        
-        public void setAtomType(IAtomType type) {
+
+        public void setAtomType(AtomType type) {
             atomType = type;
         }
         
@@ -79,7 +75,7 @@ public class MeterWallForce extends DataSourceScalar {
         public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
             if (atoms.getAtomCount()==1) return;
             PotentialSoft potentialSoft = (PotentialSoft)potential;
-            IVector[] f = potentialSoft.gradient(atoms);
+            Vector[] f = potentialSoft.gradient(atoms);
             if (atoms.getAtom(0).getType() == atomType) {
                 sum -= f[0].getX(2);
             }

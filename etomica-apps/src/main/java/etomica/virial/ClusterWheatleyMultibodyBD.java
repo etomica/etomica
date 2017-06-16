@@ -4,11 +4,11 @@
 
 package etomica.virial;
 
-import java.math.BigDecimal;
-
-import etomica.api.IMoleculeList;
-import etomica.atom.MoleculeArrayList;
 import etomica.math.SpecialFunctions;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeArrayList;
+
+import java.math.BigDecimal;
 
 /**
  * This class uses Wheatley's recursion approach to calculating all biconnected

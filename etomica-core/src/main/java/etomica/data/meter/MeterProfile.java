@@ -4,9 +4,9 @@
 
 package etomica.data.meter;
 
-import etomica.api.IBox;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
+import etomica.box.Box;
+import etomica.util.random.IRandom;
+import etomica.space.Vector;
 import etomica.box.RandomPositionSource;
 import etomica.box.RandomPositionSourceRectangular;
 import etomica.data.DataSourceIndependent;
@@ -22,7 +22,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Length;
 
 /**
@@ -40,7 +40,7 @@ public class MeterProfile implements IEtomicaDataSource, DataSourceIndependent, 
      * Default constructor sets profile along the x-axis, with 100 points in
      * the profile.
      */
-    public MeterProfile(ISpace space, IRandom random) {
+    public MeterProfile(Space space, IRandom random) {
         xDataSource = new DataSourceUniform("x", Length.DIMENSION);
         tag = new DataTag();
         xDataSource.setTypeMax(LimitType.HALF_STEP);
@@ -101,7 +101,7 @@ public class MeterProfile implements IEtomicaDataSource, DataSourceIndependent, 
         
         for (int i=0; i<y.length; i++) {
             double x = xData.getValue(i);
-            IVectorMutable pos = positionSource.randomPosition();
+            Vector pos = positionSource.randomPosition();
             pos.setX(profileDim, x);
             y[i] = meter.getData(pos).getValue(0);
         }
@@ -127,13 +127,13 @@ public class MeterProfile implements IEtomicaDataSource, DataSourceIndependent, 
     /**
      * @return Returns the box.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     /**
      * @param box The box to set.
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
         if (meter != null) {
             meter.setBox(box);
@@ -173,7 +173,7 @@ public class MeterProfile implements IEtomicaDataSource, DataSourceIndependent, 
     }
 
     private static final long serialVersionUID = 1L;
-    private IBox box;
+    private Box box;
     private DataSourceUniform xDataSource;
     private DataFunction data;
     private IEtomicaDataInfo dataInfo;

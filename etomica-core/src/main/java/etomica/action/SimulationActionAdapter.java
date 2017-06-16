@@ -4,8 +4,8 @@
 
 package etomica.action;
 
-import etomica.api.ISimulation;
-import etomica.space.ISpace;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
 
 /**
  * Convenience class used to define a SimulationAction. Implements all methods
@@ -16,7 +16,7 @@ public abstract class SimulationActionAdapter implements SimulationAction, java.
 	/**
 	 * @return Returns the simulation on which this action will be performed.
 	 */
-	public ISimulation getSimulation() {
+	public Simulation getSimulation() {
 		return simulation;
 	}
 
@@ -24,11 +24,11 @@ public abstract class SimulationActionAdapter implements SimulationAction, java.
 	 * @param simulation
 	 *            The simulation on which this action will be performed.
 	 */
-	protected void setSimulation(ISimulation simulation, ISpace _space) {
+	protected void setSimulation(Simulation simulation, Space _space) {
 		this.simulation = simulation;
 		this.space = _space;
 	}
 
-	protected ISimulation simulation;
-	protected ISpace space;
+	protected Simulation simulation;
+	protected Space space;
 }

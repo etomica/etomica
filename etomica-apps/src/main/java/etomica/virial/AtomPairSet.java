@@ -4,8 +4,8 @@
 
 package etomica.virial;
 
-import etomica.api.IMoleculeList;
-import etomica.atom.MoleculePair;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculePair;
 
 /**
  * Class that holds a set of atom pairs.  Takes a list of atoms in its

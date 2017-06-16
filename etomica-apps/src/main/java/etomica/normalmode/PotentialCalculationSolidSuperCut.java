@@ -1,15 +1,14 @@
 package etomica.normalmode;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.potential.IPotentialAtomic;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialCalculation;
-import etomica.space.ISpace;
+import etomica.space.Boundary;
+import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * Sums the force on each iterated atom and adds it to the integrator agent
@@ -18,21 +17,21 @@ import etomica.space.ISpace;
 public class PotentialCalculationSolidSuperCut implements PotentialCalculation {
         
     protected final CoordinateDefinition coordinateDefinition;
-    protected final IVectorMutable drSite0, drSite1, drA, dr, drB;
-    protected final ISpace space;
-    protected IVectorMutable[] pSumXYZ1, pSumXYZ2;
-    protected final IVectorMutable pTmp1, pTmp2;
+    protected final Vector drSite0, drSite1, drA, dr, drB;
+    protected final Space space;
+    protected Vector[] pSumXYZ1, pSumXYZ2;
+    protected final Vector pTmp1, pTmp2;
     protected double[] sum1, virialSum;
     protected double[] energySum, dadbSum;
     protected double fac1;
     protected double[] fac2;
-    protected IBox box;
-    protected IBoundary boundary;
+    protected Box box;
+    protected Boundary boundary;
     protected final double[] r2Cut;
     protected double temperature;
     protected double[] pHarmonic;
     
-    public PotentialCalculationSolidSuperCut(ISpace space, CoordinateDefinition coordinateDefinition, double[] cutoffs) {
+    public PotentialCalculationSolidSuperCut(Space space, CoordinateDefinition coordinateDefinition, double[] cutoffs) {
         this.coordinateDefinition = coordinateDefinition;
         this.space = space;
         this.r2Cut = new double[cutoffs.length];
@@ -49,8 +48,8 @@ public class PotentialCalculationSolidSuperCut implements PotentialCalculation {
         virialSum = new double[r2Cut.length];
         energySum = new double[r2Cut.length];
         dadbSum = new double[r2Cut.length];
-        pSumXYZ1 = new IVectorMutable[r2Cut.length];
-        pSumXYZ2 = new IVectorMutable[r2Cut.length];
+        pSumXYZ1 = new Vector[r2Cut.length];
+        pSumXYZ2 = new Vector[r2Cut.length];
         for (int i=0; i<pSumXYZ1.length; i++) {
             pSumXYZ1[i] = space.makeVector();
             pSumXYZ2[i] = space.makeVector();
@@ -71,8 +70,8 @@ public class PotentialCalculationSolidSuperCut implements PotentialCalculation {
     public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
         IAtom atom0 = atoms.getAtom(0);
         IAtom atom1 = atoms.getAtom(1);
-        IVector site0 = coordinateDefinition.getLatticePosition(atom0);
-        IVector site1 = coordinateDefinition.getLatticePosition(atom1);
+        Vector site0 = coordinateDefinition.getLatticePosition(atom0);
+        Vector site1 = coordinateDefinition.getLatticePosition(atom1);
 
         dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
         boundary.nearestImage(dr);
@@ -113,11 +112,11 @@ public class PotentialCalculationSolidSuperCut implements PotentialCalculation {
         return sum1;
     }
     
-    public IVector[] getPressure1XYZ() {
+    public Vector[] getPressure1XYZ() {
         return pSumXYZ1;
     }
     
-    public IVector[] getDADBXYZ() {
+    public Vector[] getDADBXYZ() {
         return pSumXYZ2;
     }
     
@@ -149,7 +148,7 @@ public class PotentialCalculationSolidSuperCut implements PotentialCalculation {
         fac1 = 1.0/(D*vol);
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
         boundary = box.getBoundary();
     }

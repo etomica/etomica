@@ -5,13 +5,10 @@
 package etomica.models.nitrogen;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.lattice.crystal.Basis;
@@ -26,6 +23,8 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.Degree;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
@@ -61,7 +60,7 @@ public class SimDirectBetaN2RP extends Simulation {
 		Basis basisHCP = new BasisHcp();
 		BasisBigCell basis = new BasisBigCell(space, basisHCP, new int[]{nC,nC,nC});
         
-		IVector[] boxDim = new IVector[3];
+		Vector[] boxDim = new Vector[3];
 		boxDim[0] = space.makeVector(new double[]{nC*aDim, 0, 0});
 		boxDim[1] = space.makeVector(new double[]{-nC*aDim*Math.cos(Degree.UNIT.toSim(60)), nC*aDim*Math.sin(Degree.UNIT.toSim(60)), 0});
 		boxDim[2] = space.makeVector(new double[]{0, 0, nC*cDim});
@@ -175,8 +174,8 @@ public class SimDirectBetaN2RP extends Simulation {
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.getController().actionPerformed();
 
-        double average = ((DataGroup)sim.boltzmannAverage.getData()).getValue(sim.boltzmannAverage.AVERAGE.index);
-        double error = ((DataGroup)sim.boltzmannAverage.getData()).getValue(sim.boltzmannAverage.ERROR.index);
+        double average = sim.boltzmannAverage.getData().getValue(sim.boltzmannAverage.AVERAGE.index);
+        double error = sim.boltzmannAverage.getData().getValue(sim.boltzmannAverage.ERROR.index);
         meterOrient.writeUdistribution("rotDistA"+angle[0]);
         
         System.out.println("boltzmann average "+angle[0] +" to "+angle[1]+": " + average + " ;err: " + error);

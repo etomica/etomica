@@ -4,34 +4,33 @@
 
 package etomica.modules.sam;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotential;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.potential.IPotential;
 import etomica.potential.PotentialSoft;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 
 public class P1Sinusoidal implements IPotential, PotentialSoft {
 
-    public P1Sinusoidal(ISpace space) {
+    public P1Sinusoidal(Space space) {
         this.space = space;
         setB(1);
         this.offset = space.makeVector();
         r = space.makeVector();
-        waveVectors = new IVectorMutable[3];
+        waveVectors = new Vector[3];
         setCellSize(1,1);
-        gradient = new IVectorMutable[1];
+        gradient = new Vector[1];
         gradient[0] = space.makeVector();
     }
     
-    public void setOffset(IVectorMutable newOffset) {
+    public void setOffset(Vector newOffset) {
         offset.E(newOffset);
     }
     
-    public IVectorMutable getOffset() {
+    public Vector getOffset() {
         return offset;
     }
     
@@ -62,7 +61,7 @@ public class P1Sinusoidal implements IPotential, PotentialSoft {
         return b45 * (3.0 - sum);
     }
 
-    public IVector[] gradient(IAtomList atoms) {
+    public Vector[] gradient(IAtomList atoms) {
         IAtom a = atoms.getAtom(0);
         r.Ev1Mv2(a.getPosition(), offset);
         gradient[0].E(0);
@@ -73,7 +72,7 @@ public class P1Sinusoidal implements IPotential, PotentialSoft {
         return gradient;
     }
 
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         return gradient(atoms);
     }
 
@@ -89,12 +88,12 @@ public class P1Sinusoidal implements IPotential, PotentialSoft {
         return 1;
     }
 
-    public void setBox(IBox box) {}
+    public void setBox(Box box) {}
 
-    protected final ISpace space;
+    protected final Space space;
     protected double b45;
-    protected final IVectorMutable offset;
-    protected final IVectorMutable r;
-    protected final IVectorMutable[] waveVectors;
-    protected final IVectorMutable[] gradient;
+    protected final Vector offset;
+    protected final Vector r;
+    protected final Vector[] waveVectors;
+    protected final Vector[] gradient;
 }

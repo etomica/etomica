@@ -5,44 +5,36 @@
 package etomica.virial.simulations;
 
 
-import java.awt.Color;
-import java.util.Set;
-
-import etomica.api.IAtomList;
-import etomica.api.IIntegratorEvent;
-import etomica.api.IIntegratorListener;
-import etomica.api.IPotentialMolecular;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
 import etomica.chem.elements.ElementSimple;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.IData;
+import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.types.DataGroup;
 import etomica.graph.model.Graph;
 import etomica.graph.operations.DeleteEdge;
 import etomica.graph.operations.DeleteEdgeParameters;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
+import etomica.math.DoubleRange;
+import etomica.potential.IPotentialMolecular;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
-import etomica.util.DoubleRange;
-import etomica.util.HistogramNotSoSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterSum;
-import etomica.virial.ClusterSumMultibody;
-import etomica.virial.ClusterWeight;
-import etomica.virial.ClusterWeightAbs;
-import etomica.virial.CoordinatePairSet;
-import etomica.virial.MayerFunctionMolecularThreeBody;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.PotentialEmulCached;
-import etomica.virial.PotentialNonAdditive;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 import etomica.virial.cluster.VirialDiagrams;
+
+import java.awt.*;
+import java.util.Set;
 
 public class VirialEmulNonAdditive {
 
@@ -181,7 +173,7 @@ public class VirialEmulNonAdditive {
         IAtomList atoms = sim.box[1].getLeafList();
         double r = 0.4f*sigmaHSRef/Math.sin(Math.PI/nPoints);
         for (int i=1; i<nPoints; i++) {
-            IVectorMutable v = atoms.getAtom(i).getPosition();
+            Vector v = atoms.getAtom(i).getPosition();
             double t = 2*i*Math.PI/nPoints;
             v.setX(0, r*(Math.cos(t)-1));
             v.setX(1, r*Math.sin(t));
@@ -260,10 +252,10 @@ public class VirialEmulNonAdditive {
         
         final HistogramNotSoSimple hist = new HistogramNotSoSimple(100, new DoubleRange(0, sigmaHSRef));
         final HistogramNotSoSimple piHist = new HistogramNotSoSimple(100, new DoubleRange(0, sigmaHSRef));
-        IIntegratorListener histListener = new IIntegratorListener() {
-            public void integratorStepStarted(IIntegratorEvent e) {}
+        IntegratorListener histListener = new IntegratorListener() {
+            public void integratorStepStarted(IntegratorEvent e) {}
             
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 double r2Max = 0;
                 CoordinatePairSet cPairs = sim.box[0].getCPairSet();
                 for (int i=0; i<nPoints; i++) {
@@ -277,12 +269,12 @@ public class VirialEmulNonAdditive {
                 piHist.addValue(Math.sqrt(r2Max), Math.abs(v));
             }
             
-            public void integratorInitialized(IIntegratorEvent e) {}
+            public void integratorInitialized(IntegratorEvent e) {}
         };
-        IIntegratorListener progressReport = new IIntegratorListener() {
-            public void integratorInitialized(IIntegratorEvent e) {}
-            public void integratorStepStarted(IIntegratorEvent e) {}
-            public void integratorStepFinished(IIntegratorEvent e) {
+        IntegratorListener progressReport = new IntegratorListener() {
+            public void integratorInitialized(IntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
+            public void integratorStepFinished(IntegratorEvent e) {
 //                if (Double.isInfinite(sim.dsvo.getOverlapAverageAndError()[0])) {
 //                    sim.dsvo.getOverlapAverageAndError();
 //                    throw new RuntimeException("oops");
@@ -300,10 +292,10 @@ public class VirialEmulNonAdditive {
         if (!isCommandline) {
             sim.integratorOS.getEventManager().addListener(progressReport);
             if (params.doHist) {
-                IIntegratorListener histReport = new IIntegratorListener() {
-                    public void integratorInitialized(IIntegratorEvent e) {}
-                    public void integratorStepStarted(IIntegratorEvent e) {}
-                    public void integratorStepFinished(IIntegratorEvent e) {
+                IntegratorListener histReport = new IntegratorListener() {
+                    public void integratorInitialized(IntegratorEvent e) {}
+                    public void integratorStepStarted(IntegratorEvent e) {}
+                    public void integratorStepFinished(IntegratorEvent e) {
                         if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
                         double[] xValues = hist.xValues();
                         double[] h = hist.getHistogram();
@@ -352,9 +344,9 @@ public class VirialEmulNonAdditive {
         sim.printResults(HSB[nPoints]);
 
         DataGroup allData = (DataGroup)sim.accumulators[1].getData();
-        IData dataAvg = allData.getData(sim.accumulators[1].AVERAGE.index);
-        IData dataErr = allData.getData(sim.accumulators[1].ERROR.index);
-        IData dataCov = allData.getData(sim.accumulators[1].BLOCK_COVARIANCE.index);
+        IData dataAvg = allData.getData(AccumulatorAverage.AVERAGE.index);
+        IData dataErr = allData.getData(AccumulatorAverage.ERROR.index);
+        IData dataCov = allData.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
         // we'll ignore block correlation -- whatever effects are here should be in the full target results
         int nTotal = (targetDiagrams.length+2);
         double oVar = dataCov.getValue(nTotal*nTotal-1);

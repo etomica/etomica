@@ -7,8 +7,8 @@ package etomica.data;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.api.IFunction;
-import etomica.util.Function;
+import etomica.math.function.IFunction;
+import etomica.math.function.Function;
 
 /**
  * AccumulatorAverage that maintains a fixed block size.

@@ -8,13 +8,12 @@ package etomica.models.hexane;
  * Class to calculate the volume of a single hexane molecule
  */
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
+import etomica.box.Box;
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.box.Box;
 import etomica.box.RandomPositionSource;
 import etomica.box.RandomPositionSourceRectangular;
 import etomica.graphics.SimulationGraphic;
@@ -31,7 +30,7 @@ public class HexaneVolumeFraction extends Simulation {
     public ActivityIntegrate activityIntegrate;
     public IntegratorMC integrator;
 
-    public IBox box;
+    public Box box;
     public BoundaryRectangularPeriodic bdry;
     public MCMoveMolecule moveMolecule;
        
@@ -86,8 +85,8 @@ public class HexaneVolumeFraction extends Simulation {
             long time1;
             long time2;
 
-            IVectorMutable temp = sim.space.makeVector();
-            IVectorMutable rand = sim.space.makeVector();
+            Vector temp = sim.space.makeVector();
+            Vector rand = sim.space.makeVector();
             AtomIteratorLeafAtoms ail = new AtomIteratorLeafAtoms(sim.box);
             ail.reset();
             IAtom atom = new Atom(sim.getSpace());
@@ -140,9 +139,9 @@ public class HexaneVolumeFraction extends Simulation {
             System.out.println("data collection:  " + time2);
             System.out.println("overlaps:  " + overlaps);
             System.out.println("total tries:  " + numberOfTests);
-            double td = (double)overlaps/(double)numberOfTests;
+            double td = (double)overlaps/ numberOfTests;
             System.out.println("percentage in molecule:  " + td);
-            double vol = ((BoundaryRectangularPeriodic)sim.bdry).volume();
+            double vol = sim.bdry.volume();
             System.out.println("volume of box:  " + vol);
             double another = td * vol;
             System.out.println("volume of molecule:  " + another);

@@ -5,7 +5,7 @@
 package etomica.data.types;
 
 
-import etomica.api.IVectorMutable;
+import etomica.space.Vector;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.IData;
@@ -159,20 +159,20 @@ public class CastGroupToDoubleArray extends DataProcessor {
             }
             return outputData;
         case 4:  // a single DataVector
-            ((DataVector)group.getData(0)).assignTo(outputData.getData());
+            group.getData(0).assignTo(outputData.getData());
             return outputData;
         case 5:  // multiple DataVectors
             double[] x = outputData.getData();
             int k=0;
             for (int i=0; i<group.getNData(); i++) {
-                IVectorMutable v = ((DataVector)group.getData(i)).x;
+                Vector v = ((DataVector)group.getData(i)).x;
                 for (int j=0; j<v.getD(); j++) {
                     x[k++] = v.getX(j);
                 }
             }
             return outputData;
         case 6:  // a single DataTensor
-            ((DataTensor)group.getData(0)).assignTo(outputData.getData());
+            group.getData(0).assignTo(outputData.getData());
             return outputData;
         case 7:  // multiple DataTensors
             x = outputData.getData();

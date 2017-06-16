@@ -4,25 +4,25 @@
 
 package etomica.models.nitrogen;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
-import etomica.api.IMolecule;
-import etomica.api.ISpecies;
-import etomica.atom.MoleculePair;
 import etomica.box.Box;
 import etomica.data.types.DataTensor;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculePair;
 import etomica.normalmode.BasisBigCell;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
+
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * This class is created to take care of Java out of memory problem when creating
@@ -38,7 +38,7 @@ import etomica.space3d.Space3D;
 public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation{
 
 	
-	public HarmonicAlphaNitrogenModelPairMoleculeSequential(ISpace space, int numMolecule, double density) {
+	public HarmonicAlphaNitrogenModelPairMoleculeSequential(Space space, int numMolecule, double density) {
 		super(space);
 		this.space = space;
 		
@@ -369,7 +369,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 	}
 
 	protected Box box;
-	protected ISpace space;
+	protected Space space;
 	protected P2Nitrogen potential;
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected PotentialMaster potentialMaster;

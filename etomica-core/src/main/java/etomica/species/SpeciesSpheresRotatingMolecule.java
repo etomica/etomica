@@ -4,18 +4,16 @@
 
 package etomica.species;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomType;
-import etomica.api.IMolecule;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.Atom;
-import etomica.atom.AtomTypeLeaf;
-import etomica.atom.MoleculeOriented;
-import etomica.atom.MoleculeOrientedDynamic;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
 import etomica.chem.elements.ElementSimple;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculeOriented;
+import etomica.molecule.MoleculeOrientedDynamic;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * Species in which molecules are made of a single atom.  The molecule itself
@@ -24,25 +22,28 @@ import etomica.space.ISpace;
  * @author Andrew Schultz
  */
 public class SpeciesSpheresRotatingMolecule extends SpeciesSpheresMono implements ISpeciesOriented {
-    
-    public SpeciesSpheresRotatingMolecule(Simulation sim, ISpace _space) {
+
+    private static final long serialVersionUID = 1L;
+    protected Vector moment;
+
+    public SpeciesSpheresRotatingMolecule(Simulation sim, Space _space) {
         this(sim, _space, makeNominalMoment(_space));
     }
 
-    protected static final IVectorMutable makeNominalMoment(ISpace space) {
-        IVectorMutable m = space.makeVector();
-        m.E(1);
-        return m;
+    public SpeciesSpheresRotatingMolecule(Simulation sim, Space _space, Vector moment) {
+        this(_space, new AtomType(new ElementSimple(sim)), moment);
     }
 
-    public SpeciesSpheresRotatingMolecule(Simulation sim, ISpace _space, IVector moment) {
-        this(_space, new AtomTypeLeaf(new ElementSimple(sim)), moment);
-    }
-    
-    public SpeciesSpheresRotatingMolecule(ISpace _space, IAtomType atomType, IVector moment) {
+    public SpeciesSpheresRotatingMolecule(Space _space, AtomType atomType, Vector moment) {
         super(_space, atomType);
         this.moment = _space.makeVector();
         this.moment.E(moment);
+    }
+
+    protected static final Vector makeNominalMoment(Space space) {
+        Vector m = space.makeVector();
+        m.E(1);
+        return m;
     }
 
     /**
@@ -63,17 +64,14 @@ public class SpeciesSpheresRotatingMolecule extends SpeciesSpheresMono implement
         return leafAtomType.getMass();
     }
 
-    public IVector getMomentOfInertia() {
+    public Vector getMomentOfInertia() {
         return moment;
     }
-    
+
     /**
      * Sets the species' moment of inertia to the given moment.
      */
-    public void setMomentOfInertia(IVector newMoment) {
+    public void setMomentOfInertia(Vector newMoment) {
         moment.E(newMoment);
     }
-
-    protected IVectorMutable moment;
-    private static final long serialVersionUID = 1L;
 }

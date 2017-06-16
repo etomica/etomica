@@ -6,7 +6,7 @@ package etomica.modules.droplet;
 
 import java.awt.Color;
 
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.atom.AtomFilterCollective;
 import etomica.graphics.ColorSchemeCollective;
 
@@ -52,4 +52,3 @@ public class ColorSchemeLiquidVapor extends etomica.graphics.ColorScheme impleme
     protected final AtomFilterCollective liquidFilter;
     protected boolean doResetFilter;
 }
- 

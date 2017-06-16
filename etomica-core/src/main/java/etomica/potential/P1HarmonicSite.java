@@ -4,13 +4,12 @@
 
 package etomica.potential;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.box.BoxAgentManager;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
@@ -28,21 +27,21 @@ import etomica.units.Length;
 public class P1HarmonicSite extends Potential1 implements PotentialSoft {
     
     private double w = 100.0;
-    private final IVectorMutable[] force;
-    protected final BoxAgentManager<AtomLeafAgentManager<? extends IVector>> boxAgentManager;
-    protected AtomLeafAgentManager<? extends IVector> atomAgentManager;
+    private final Vector[] force;
+    protected final BoxAgentManager<AtomLeafAgentManager<? extends Vector>> boxAgentManager;
+    protected AtomLeafAgentManager<? extends Vector> atomAgentManager;
     
-    public P1HarmonicSite(ISpace space) {
+    public P1HarmonicSite(Space space) {
         super(space);
-        force = new IVectorMutable[]{space.makeVector()};
-        boxAgentManager = new BoxAgentManager<AtomLeafAgentManager<? extends IVector>>(null, AtomLeafAgentManager.class);
+        force = new Vector[]{space.makeVector()};
+        boxAgentManager = new BoxAgentManager<AtomLeafAgentManager<? extends Vector>>(null, AtomLeafAgentManager.class);
     }
 
-    public void setAtomAgentManager(IBox box, AtomLeafAgentManager<? extends IVector> agentManager) {
+    public void setAtomAgentManager(Box box, AtomLeafAgentManager<? extends Vector> agentManager) {
         boxAgentManager.setAgent(box, agentManager);
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         atomAgentManager = boxAgentManager.getAgent(box);
     }
 
@@ -59,7 +58,7 @@ public class P1HarmonicSite extends Potential1 implements PotentialSoft {
     }
 
     public double energy(IAtomList a) {
-        IVector x0 = atomAgentManager.getAgent(a.getAtom(0));
+        Vector x0 = atomAgentManager.getAgent(a.getAtom(0));
         return w*a.getAtom(0).getPosition().Mv1Squared(x0);
     }
     
@@ -67,16 +66,16 @@ public class P1HarmonicSite extends Potential1 implements PotentialSoft {
         return 0.0;
     }
 
-    public IVector[] gradient(IAtomList a){
-        IVectorMutable r = a.getAtom(0).getPosition();
-        IVector x0 = atomAgentManager.getAgent(a.getAtom(0));
+    public Vector[] gradient(IAtomList a){
+        Vector r = a.getAtom(0).getPosition();
+        Vector x0 = atomAgentManager.getAgent(a.getAtom(0));
         force[0].Ev1Mv2(r,x0);
         force[0].TE(2*w);
             
         return force;
     }
         
-    public IVector[] gradient(IAtomList a, Tensor pressureTensor){
+    public Vector[] gradient(IAtomList a, Tensor pressureTensor){
         return gradient(a);
     }
 }

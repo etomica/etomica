@@ -7,14 +7,12 @@ package etomica.models.hexane;
 import etomica.action.BoxInflateDeformable;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.ISpecies;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
+import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
-import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterPressureByVolumeChange;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
@@ -38,6 +36,7 @@ import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.virial.MCMoveClusterWiggleMulti;
 
 /**
@@ -57,7 +56,7 @@ public class TestHexaneFileConfig extends Simulation {
     public ActivityIntegrate activityIntegrate;
     public IntegratorMC integrator;
 
-    public IBox box;
+    public Box box;
 
     public BoundaryDeformablePeriodic bdry;
     public BravaisLattice lattice;
@@ -156,10 +155,10 @@ public class TestHexaneFileConfig extends Simulation {
         //The PotentialMaster generates a group potential and automatically
         // does a lot of the stuff which we have to do for the intramolecular
         // potential manually.
-        IAtomType sphereType = species.getLeafType();
+        AtomType sphereType = species.getLeafType();
 
         //Add the Potential to the PotentialMaster
-        potentialMaster.addPotential(potential, new IAtomType[] { sphereType,
+        potentialMaster.addPotential(potential, new AtomType[]{sphereType,
                 sphereType });
         
         coupledMove.setPotential(potentialMaster.getPotential(new ISpecies[] {
@@ -298,10 +297,10 @@ public class TestHexaneFileConfig extends Simulation {
             double[] scalingFactors = new double[leng];
             double[] volumes = new double[leng];
 
-            lnXs = ((DataDoubleArray)((DataGroup)pressureAccumulator.getData()).getData(pressureAccumulator.AVERAGE.index)).getData();
+            lnXs = ((DataDoubleArray) ((DataGroup) pressureAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).getData();
             
             for(int i = 0; i < leng; i++){
-                scalingFactors[i] = ((DataDoubleArray)meterPressure.getScalingDataSource().getData()).getValue(i);
+                scalingFactors[i] = meterPressure.getScalingDataSource().getData().getValue(i);
                 lnXs[i] = Math.log(lnXs[i]);
                 volumes[i] = volume*scalingFactors[i];
                 pressies[i] = lnXs[i]/volumes[i];
@@ -320,8 +319,8 @@ public class TestHexaneFileConfig extends Simulation {
 //            for (int i = 0; i < leng; i++){
 //                System.out.println(scalingFactors[i]);
 //            }
-            
-            avgPressure = ((DataDoubleArray)((DataGroup)pressureAccumulator.getData()).getData(pressureAccumulator.AVERAGE.index)).getValue(0);
+
+            avgPressure = ((DataGroup) pressureAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(0);
             System.out.println("Avg Pres = "+ avgPressure);
             
 

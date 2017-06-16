@@ -4,11 +4,11 @@
 
 package etomica.data;
 
-import etomica.api.IFunction;
+import etomica.math.function.IFunction;
 import etomica.data.AccumulatorAverageBlockless.AllData;
 import etomica.data.types.DataGroup;
 import etomica.util.EnumeratedType;
-import etomica.util.Function;
+import etomica.math.function.Function;
 
 /**
  * AccumulatorAverage that does not use blocks (best used when each sample

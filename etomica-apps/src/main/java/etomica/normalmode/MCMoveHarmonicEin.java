@@ -4,11 +4,10 @@
 
 package etomica.normalmode;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IRandom;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.util.random.IRandom;
+import etomica.space.Vector;
 
 /**
  * MC move whose purpose in life is to sample a system whose energy is a
@@ -58,8 +57,8 @@ public class MCMoveHarmonicEin extends MCMoveHarmonic {
         lastU = 0;
         for (int i=0; i<atomList.getAtomCount(); i++) {
             IAtom a = atomList.getAtom(i);
-            IVectorMutable p = a.getPosition();
-            IVector site = coordinateDefinition.getLatticePosition(a);
+            Vector p = a.getPosition();
+            Vector site = coordinateDefinition.getLatticePosition(a);
             p.ME(site);
             for (int k=0; k<p.getD(); k++) {
                 double r = random.nextGaussian();

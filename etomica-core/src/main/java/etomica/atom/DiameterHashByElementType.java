@@ -4,8 +4,7 @@
 
 package etomica.atom;
 
-import etomica.api.IAtom;
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 
 /**
  * This class hashes atomic diameters based on both element and atom type.
@@ -16,7 +15,7 @@ import etomica.api.ISimulation;
  */
 public class DiameterHashByElementType extends DiameterHashByType {
 
-    public DiameterHashByElementType(ISimulation sim) {
+    public DiameterHashByElementType(Simulation sim) {
         super(sim);
         diameterManagerByElement = new DiameterHashByElement();
     }

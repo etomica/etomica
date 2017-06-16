@@ -1,8 +1,7 @@
 package etomica.potential;
 
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMolecular;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
 
 /**
  * Molecular potential class that simply sums up contributions from multiple
@@ -26,7 +25,7 @@ public class PotentialMolecularSum implements IPotentialMolecular {
         return r;
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         for (int i=0; i<p.length; i++) {
             p[i].setBox(box);
         }

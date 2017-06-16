@@ -4,16 +4,14 @@
 
 package etomica.virial;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotential;
-import etomica.api.IPotentialMolecular;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.space.ISpace;
+import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.IPotential;
+import etomica.potential.IPotentialMolecular;
+import etomica.space.Vector;
 
 /**
  * @author shu
@@ -39,8 +37,8 @@ public class MuFGeneral implements MayerFunction, java.io.Serializable {
         IAtomOriented atom1 = (IAtomOriented)atomList1.getAtom(0);
         IAtomOriented atom2 = (IAtomOriented)atomList2.getAtom(0);
 		// should have a loop to loop over all the atoms in the molecules 
-        IVector v1 = atom1.getOrientation().getDirection();//dipole1
-        IVector v2 = atom2.getOrientation().getDirection();//dipole2
+        Vector v1 = atom1.getOrientation().getDirection();//dipole1
+        Vector v2 = atom2.getOrientation().getDirection();//dipole2
         double cos12= v1.dot(v2);
 		double mu_Dot_mu= mu*mu*cos12;
 			
@@ -68,7 +66,7 @@ public class MuFGeneral implements MayerFunction, java.io.Serializable {
 		return potential;
 	}
 	
-	public void setBox(IBox newBox) {
+	public void setBox(Box newBox) {
 	    potential.setBox(newBox);
 	}
 }

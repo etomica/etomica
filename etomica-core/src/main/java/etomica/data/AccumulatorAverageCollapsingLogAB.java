@@ -4,10 +4,10 @@
 
 package etomica.data;
 
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.util.Arrays;
-import etomica.util.RandomMersenneTwister;
-import etomica.util.RandomNumberGeneratorUnix;
+import etomica.util.random.RandomMersenneTwister;
+import etomica.util.random.RandomNumberGeneratorUnix;
 
 public class AccumulatorAverageCollapsingLogAB extends
         AccumulatorAverageCollapsingLog {

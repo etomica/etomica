@@ -4,20 +4,20 @@
 
 package etomica.virial;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
+import etomica.box.Box;
 import etomica.atom.IAtomOriented;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.IOrientationFull3D;
 
 public class ConfigurationClusterChainFourSites extends ConfigurationCluster {
 
-	public ConfigurationClusterChainFourSites(ISpace _space) {
+	public ConfigurationClusterChainFourSites(Space _space) {
 		super(_space);
 	}
 
-	public void initializeCoordinates(IBox box) {
+	public void initializeCoordinates(Box box) {
 		double angle1 = Math.acos(-1.0/3.0);//theta
     	double cosAngle1 = -1.0/3.0;
     	double sinAngle1 = Math.sin(angle1);
@@ -35,8 +35,8 @@ public class ConfigurationClusterChainFourSites extends ConfigurationCluster {
 		super.initializeCoordinates(box);
 		BoxCluster clusterBox =(BoxCluster) box;
 		IAtomList list = box.getLeafList();
-        IVectorMutable direction = space.makeVector();
-        IVectorMutable secondaryDirection = space.makeVector();
+        Vector direction = space.makeVector();
+        Vector secondaryDirection = space.makeVector();
 		for (int i=1;i<list.getAtomCount();i++){
 			list.getAtom(i).getPosition().setX(0, 0.9*i);
 			if (list.getAtom(i) instanceof IAtomOriented){

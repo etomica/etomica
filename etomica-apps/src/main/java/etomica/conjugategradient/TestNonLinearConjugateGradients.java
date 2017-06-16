@@ -4,8 +4,8 @@
 
 package etomica.conjugategradient;
 
-import etomica.util.FunctionMultiDimensionalDifferentiable;
-import etomica.util.numerical.FiniteDifferenceDerivative;
+import etomica.math.function.FunctionMultiDimensionalDifferentiable;
+import etomica.math.numerical.FiniteDifferenceDerivative;
 
 public class TestNonLinearConjugateGradients implements FunctionMultiDimensionalDifferentiable{
 	

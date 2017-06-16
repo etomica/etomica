@@ -4,30 +4,28 @@
 
 package etomica.paracetamol;
 
-import java.io.Serializable;
-
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.conjugategradient.DerivativeEnergyFunction;
-import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialMaster;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.space.Vector;
+
+import java.io.Serializable;
 
 public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunction implements Serializable{
 	
-	public AnalyticalDerivativeEnergyParacetamol(IBox box, PotentialMaster potentialMaster, ISpace space){
+	public AnalyticalDerivativeEnergyParacetamol(Box box, PotentialMaster potentialMaster, Space space){
 		super(box, potentialMaster, space);
 		rotationAxis = space.makeVector();
 		a      = space.makeVector();
 		aProj  = space.makeVector();
 		v      = space.makeVector();
 		deltaV = space.makeVector();
-		distance = new IVectorMutable[20];
-		torque   = new IVectorMutable[20];
-		torqueF  = new IVectorMutable[20];
+		distance = new Vector[20];
+		torque   = new Vector[20];
+		torqueF  = new Vector[20];
 		for (int i=0; i<20; i++){
 			distance[i] = space.makeVector();
 			torque  [i] = space.makeVector();
@@ -99,8 +97,8 @@ public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunct
 			
 				 //leafPos0 is atom C1 in Paracetamol
 				 //leafPos5 is atom C4 in Paracetamol
-				IVectorMutable leafPos0 = molecule.getAtom(0).getPosition();
-				IVectorMutable leafPos5 = molecule.getAtom(5).getPosition();
+				Vector leafPos0 = molecule.getAtom(0).getPosition();
+				Vector leafPos5 = molecule.getAtom(5).getPosition();
 				
 				v.Ev1Mv2(leafPos5, leafPos0);
 				v.normalize();
@@ -191,7 +189,7 @@ public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunct
 						deltaV.normalize();
 						}
 						
-						moleculeForce.E(((IntegratorVelocityVerlet.MyAgent)agentManager.getAgent((IAtom)molecule.getAtom(q)))
+						moleculeForce.E(agentManager.getAgent(molecule.getAtom(q))
 									   .force);
 						
 						double scalarF = 0;
@@ -226,11 +224,11 @@ public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunct
 	
 	
 	
-	protected final IVectorMutable rotationAxis;
-	protected final IVectorMutable a, aProj;
-	protected final IVectorMutable v, deltaV;
-	protected final IVectorMutable [] distance, torque, torqueF;
-	protected final IVectorMutable torqueSum;
+	protected final Vector rotationAxis;
+	protected final Vector a, aProj;
+	protected final Vector v, deltaV;
+	protected final Vector[] distance, torque, torqueF;
+	protected final Vector torqueSum;
 	protected double[] fPrimeRotation;
 	private static final long serialVersionUID = 1L;
 }

@@ -4,18 +4,21 @@
 
 package etomica.atom.iterator;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 
 public class AtomIteratorLeafFilteredType extends AtomIteratorLeafAtoms {
 
-    public AtomIteratorLeafFilteredType(IBox box, IAtomType type) {
+    private static final long serialVersionUID = 1L;
+    protected final AtomType filteredType;
+
+    public AtomIteratorLeafFilteredType(Box box, AtomType type) {
         super(box);
         filteredType = type;
     }
-    
+
     public IAtom nextAtom() {
         IAtom atom = super.nextAtom();
         while (atom != null) {
@@ -46,7 +49,4 @@ public class AtomIteratorLeafFilteredType extends AtomIteratorLeafAtoms {
         }
         return count;
     }
-
-    private static final long serialVersionUID = 1L;
-    protected final IAtomType filteredType;
 }

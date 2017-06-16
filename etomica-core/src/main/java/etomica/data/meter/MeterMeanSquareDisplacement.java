@@ -4,15 +4,14 @@
 
 package etomica.data.meter;
 import etomica.action.IAction;
-import etomica.api.IAtom;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.space.Vector;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorBox;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Undefined;
 
 /**
@@ -29,11 +28,11 @@ import etomica.units.Undefined;
 public class MeterMeanSquareDisplacement extends DataSourceScalar {
 
     
-    public MeterMeanSquareDisplacement(ISpace space, IntegratorBox integrator) {
+    public MeterMeanSquareDisplacement(Space space, IntegratorBox integrator) {
         this(space, integrator, new AtomIteratorLeafAtoms());
     }
 
-    public MeterMeanSquareDisplacement(ISpace space, IntegratorBox integrator, AtomIteratorBoxDependent iter) {
+    public MeterMeanSquareDisplacement(Space space, IntegratorBox integrator, AtomIteratorBoxDependent iter) {
         super("Mean square displacement", Undefined.DIMENSION);
         throw new RuntimeException("MeterMeanSquareDisplacement class is currently unusable.");
 /*
@@ -71,8 +70,8 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
      */
     public void reset() {
         nAtoms = iterator.size();
-        rAccum = new IVectorMutable[nAtoms];
-        rLast = new IVectorMutable[nAtoms];
+        rAccum = new Vector[nAtoms];
+        rLast = new Vector[nAtoms];
         iterator.reset();
         int i=0;
         for (IAtom a = iterator.nextAtom(); a != null;
@@ -92,7 +91,7 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
         return sum/nAtoms;
     }
     
-    public IVector [] getDataAsArray() {
+    public Vector[] getDataAsArray() {
     	return rAccum;
     }
     
@@ -108,7 +107,7 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
             //accumulate difference from last coordinate before pbc applied
             for (IAtom a = it.nextAtom(); a != null;
                  a = it.nextAtom()) {
-                IVectorMutable r = a.getPosition();
+                Vector r = a.getPosition();
                 meter.rAccum[i].PE(r);
                 meter.rAccum[i].ME(meter.rLast[i]);
                 meter.rLast[i].E(r);
@@ -142,7 +141,7 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
     private int nAtoms = 0;
     AtomIteratorBoxDependent iterator;
     IntegratorBox integrator;
-    protected IVectorMutable[] rAccum, rLast;
-    private final ISpace space;
+    protected Vector[] rAccum, rLast;
+    private final Space space;
 
 }//end of class

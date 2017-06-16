@@ -4,10 +4,10 @@
 
 package etomica.integrator.mcmove;
 
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.space.ISpace;
+import etomica.box.Box;
+import etomica.potential.PotentialMaster;
+import etomica.util.random.IRandom;
+import etomica.space.Space;
 import etomica.util.Arrays;
 
 /**
@@ -25,15 +25,15 @@ public class MCMoveInsertDeleteBiased extends MCMoveInsertDelete {
     protected int minN, maxN;
     protected double[] lnbias;
 
-    public MCMoveInsertDeleteBiased(IPotentialMaster potentialMaster,
-            IRandom random, ISpace _space, int minN, int maxN) {
+    public MCMoveInsertDeleteBiased(PotentialMaster potentialMaster,
+                                    IRandom random, Space _space, int minN, int maxN) {
         super(potentialMaster, random, _space);
         lnbias = new double[0];
         this.minN = minN;
         this.maxN = maxN;
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         super.setBox(box);
     }
     

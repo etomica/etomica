@@ -6,19 +6,17 @@ package etomica.association;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IRandom;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.MoleculePair;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.models.OPLS.SpeciesAceticAcid;
-import etomica.potential.PotentialGroup;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculePair;
+import etomica.space.Boundary;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.RotationTensor3D;
+import etomica.util.random.IRandom;
 
 public class BiasVolume2SiteAceticAcid implements AssociationDefinitionMolecule {
     
@@ -32,17 +30,17 @@ public class BiasVolume2SiteAceticAcid implements AssociationDefinitionMolecule 
     private double innerOHLength;
     private double outerOHLength;
     private final IRandom random;
-    private IBoundary boundary;
+    private Boundary boundary;
     private double maxCosTheta,maxCosPhi, maxCosOHO, maxCosHOC, minCosHOC;
     protected final MoleculePair pair;
-    protected final IVectorMutable H1O2, H2O1, C1CH31, C2CH32, OO1, OO2, C2C1, secondAxis, thirdAxis, newPositionC, work1, work2;
-    protected final IVectorMutable C1SBO1, C1DBO1, C2SBO2, C2DBO2,dv, H1DBO2, H1SBO1, DBO2H1, DBO2C2;
-    protected IVectorMutable groupTranslationVector;
+    protected final Vector H1O2, H2O1, C1CH31, C2CH32, OO1, OO2, C2C1, secondAxis, thirdAxis, newPositionC, work1, work2;
+    protected final Vector C1SBO1, C1DBO1, C2SBO2, C2DBO2,dv, H1DBO2, H1SBO1, DBO2H1, DBO2C2;
+    protected Vector groupTranslationVector;
     protected MoleculeChildAtomAction moveMoleculeAction;
     protected final RotationTensor3D rotationTensor;
 
     
-    public BiasVolume2SiteAceticAcid(ISpace space, IRandom random){
+    public BiasVolume2SiteAceticAcid(Space space, IRandom random){
         this.random = random;
 
         pair = new MoleculePair();
@@ -82,7 +80,7 @@ public class BiasVolume2SiteAceticAcid implements AssociationDefinitionMolecule 
         moveMoleculeAction = new MoleculeChildAtomAction(translator);
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
     	boundary = box.getBoundary();
     }
     
@@ -108,7 +106,7 @@ public class BiasVolume2SiteAceticAcid implements AssociationDefinitionMolecule 
     
     protected void doFlip(IMolecule molecule){
     	IAtomList childList = molecule.getChildList();
-    	IVector rC = childList.getAtom(SpeciesAceticAcid.indexC).getPosition();
+    	Vector rC = childList.getAtom(SpeciesAceticAcid.indexC).getPosition();
     	for (int i = 0;i<childList.getAtomCount();i+=1){
     		if (i == SpeciesAceticAcid.indexC)continue;
     		childList.getAtom(i).getPosition().TE(-1);
@@ -116,18 +114,18 @@ public class BiasVolume2SiteAceticAcid implements AssociationDefinitionMolecule 
     	}
     }
     
-    protected double calcAngle(IVector v1, IVector v2){
+    protected double calcAngle(Vector v1, Vector v2){
     	dv.Ev1Mv2(v1, v2);
     	double l = 0.5*Math.sqrt(dv.squared());
     	return Math.asin(l)*2;
     }
     
-    protected void doTransform(IMolecule molecule, IVector r0, IVector axis, double theta) {
+    protected void doTransform(IMolecule molecule, Vector r0, Vector axis, double theta) {
         IAtomList childList = molecule.getChildList();
         rotationTensor.setRotationAxis(axis, theta);
         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
             IAtom a = childList.getAtom(iChild);
-            IVectorMutable r = a.getPosition();
+            Vector r = a.getPosition();
             r.ME(r0);
             rotationTensor.transform(r);
             r.PE(r0);

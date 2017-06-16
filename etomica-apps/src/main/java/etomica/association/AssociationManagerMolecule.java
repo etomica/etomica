@@ -3,21 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.association;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
+
 import etomica.atom.AtomArrayList;
-import etomica.atom.MoleculeAgentManager;
-import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
-import etomica.atom.MoleculeArrayList;
-import etomica.atom.iterator.MoleculeIterator;
+import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveMolecular;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeAgentManager;
+import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
+import etomica.molecule.MoleculeArrayList;
+import etomica.molecule.iterator.MoleculeIterator;
 import etomica.nbr.cell.molecule.Mpi1ACell;
 import etomica.nbr.cell.molecule.NeighborCellManagerMolecular;
+import etomica.simulation.Simulation;
 import etomica.util.IEvent;
 import etomica.util.IListener;
 
@@ -38,13 +39,13 @@ import etomica.util.IListener;
 public class AssociationManagerMolecule implements MoleculeAgentSource,IListener {
     
     private AssociationDefinitionMolecule associationDefinition;
-    private final IBox box;
+    private final Box box;
     private final MoleculeAgentManager agentManager;
     private final Mpi1ACell neighborIterator;
     private final MoleculeArrayList associatedMolecules = new MoleculeArrayList();
     private final IListener mcMoveListener;
 
-    public AssociationManagerMolecule(ISimulation sim,IBox box, BoxAgentManager<NeighborCellManagerMolecular> cellAgentManager, AssociationDefinitionMolecule definition, double range) {
+    public AssociationManagerMolecule(Simulation sim, Box box, BoxAgentManager<NeighborCellManagerMolecular> cellAgentManager, AssociationDefinitionMolecule definition, double range) {
     	this.box = box;
     	agentManager = new MoleculeAgentManager(sim,box,this);
         associationDefinition = definition;
@@ -168,4 +169,3 @@ public class AssociationManagerMolecule implements MoleculeAgentSource,IListener
 		
 	}
 }
-    

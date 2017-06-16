@@ -4,24 +4,29 @@
 
 package etomica.integrator.mcmove;
 
-import etomica.api.*;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.iterator.AtomIterator;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomIteratorAtomDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
-import etomica.atom.iterator.IteratorDirective;
-import etomica.atom.iterator.IteratorDirective.Direction;
+import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxCellManager;
+import etomica.integrator.Integrator;
 import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
+import etomica.potential.IteratorDirective;
+import etomica.potential.IteratorDirective.Direction;
+import etomica.potential.PotentialMaster;
+import etomica.space.Boundary;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.util.IEvent;
 import etomica.util.IListener;
+import etomica.util.random.IRandom;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,9 +45,9 @@ import java.util.List;
  */
 public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased implements IListener {
 
-    protected final IVectorRandom dest;
-    protected final IVectorMutable dr;
-    protected IIntegrator integrator;
+    protected final Vector dest;
+    protected final Vector dr;
+    protected Integrator integrator;
     protected long lastStepCount;
     protected boolean dirty;
     protected double maxDistance, maxInsertDistance;
@@ -50,22 +55,22 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
     protected List<Integer> insertCandidates, deleteCandidates;
     protected int[] numNeighbors, numNeighborCandidatesOnDelete, deleteCandidateTimes, numDeleteCandidateNbrs;
     protected int totalDeleteCandidateTimes;
-    protected IPotentialMaster potentialMaster;
+    protected PotentialMaster potentialMaster;
     protected int numNewDeleteCandidates;
     protected int forced = 0;
     protected double oldLnA, oldB, newLnA;
-    protected final IVectorMutable oldPosition;
-    protected IVectorMutable[] nbrVectors;
-    protected final ISpace space;
+    protected final Vector oldPosition;
+    protected Vector[] nbrVectors;
+    protected final Space space;
     protected double oldBoxSize;
     protected AtomIteratorAtomDependent atomIterator;
 
-    public MCMoveInsertDeleteLatticeVacancy(IPotentialMaster potentialMaster, 
-            IRandom random, ISpace _space, IIntegrator integrator, double maxDistance, int maxN, int maxVacancy) {
+    public MCMoveInsertDeleteLatticeVacancy(PotentialMaster potentialMaster,
+                                            IRandom random, Space _space, Integrator integrator, double maxDistance, int maxN, int maxVacancy) {
         super(potentialMaster, random, _space, maxN-maxVacancy, maxN);
         this.space = _space;
         this.potentialMaster = potentialMaster;
-        dest = (IVectorRandom)_space.makeVector();
+        dest = _space.makeVector();
         dr = _space.makeVector();
         this.integrator = integrator;
         this.maxDistance = maxDistance;
@@ -80,7 +85,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         oldPosition = _space.makeVector();
     }
 
-    public void setBox(final IBox box) {
+    public void setBox(final Box box) {
         super.setBox(box);
         // cubic
         if (potentialMaster instanceof PotentialMasterList) {
@@ -111,7 +116,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         if (maxInsertNbrDistance > maxDistance) {
             throw new RuntimeException("nbrDistance must be greater than maxInsert distance");
         }
-        nbrVectors = new IVectorMutable[12];
+        nbrVectors = new Vector[12];
         double s = nbrDistance/Math.sqrt(2);
         for (int i=0; i<12; i++) {
             nbrVectors[i] = space.makeVector();
@@ -138,7 +143,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         if (maxInsertNbrDistance > maxDistance) {
             throw new RuntimeException("nbrDistance must be greater than maxInsert distance");
         }
-        nbrVectors = new IVectorMutable[12];
+        nbrVectors = new Vector[12];
         double s = nbrDistance;
 
         for (int i=0; i<12; i++) {
@@ -240,14 +245,14 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
             // we also need to see how many times testAtom shows up as a neighbor
             // of a deleteCandidate
 
-            IVector pi = testAtom.getPosition();
+            Vector pi = testAtom.getPosition();
             atomIterator.setAtom(testAtom);
             ((AtomsetIteratorDirectable)atomIterator).setDirection(null);
             atomIterator.reset();
             int nTestNbrs = 0, nTestNbrsDeletion = 0;
             double maxInsertNbrDistance = nbrDistance + maxInsertDistance;
             double minInsertNbrDistance = nbrDistance - maxInsertDistance;
-            for (IAtom jAtom = ((AtomIterator)atomIterator).nextAtom(); jAtom != null ;jAtom = ((AtomIterator)atomIterator).nextAtom()) {
+            for (IAtom jAtom = atomIterator.nextAtom(); jAtom != null ; jAtom = atomIterator.nextAtom()) {
                 int jj = jAtom.getLeafIndex();
                 dr.Ev1Mv2(pi, jAtom.getPosition());
                 box.getBoundary().nearestImage(dr);
@@ -330,7 +335,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
             oldBoxSize = newBoxSize;
         }
         
-        IBoundary boundary = box.getBoundary();
+        Boundary boundary = box.getBoundary();
         int numAtoms = box.getLeafList().getAtomCount();
         if (numNeighbors.length < numAtoms) {
             numNeighbors = new int[numAtoms];
@@ -346,11 +351,11 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         }
         for (int i=0; i<numAtoms; i++) {
             IAtom iAtom = box.getLeafList().getAtom(i);
-            IVector pi = iAtom.getPosition();
+            Vector pi = iAtom.getPosition();
             atomIterator.setAtom(iAtom);
             ((AtomsetIteratorDirectable)atomIterator).setDirection(Direction.UP);
             atomIterator.reset();
-            for (IAtom jAtom = ((AtomIterator)atomIterator).nextAtom(); jAtom != null ;jAtom = ((AtomIterator)atomIterator).nextAtom()) {
+            for (IAtom jAtom = atomIterator.nextAtom(); jAtom != null ; jAtom = atomIterator.nextAtom()) {
                 dr.Ev1Mv2(pi, jAtom.getPosition());
                 boundary.nearestImage(dr);
                 double r2 = dr.squared();
@@ -367,11 +372,11 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
                 // the neighbors of i may be candidates for deletion.  after deleting
                 // one of its neighbors, i would have <12 neighbors
                 IAtom iAtom = box.getLeafList().getAtom(i);
-                IVector pi = iAtom.getPosition();
+                Vector pi = iAtom.getPosition();
                 atomIterator.setAtom(iAtom);
                 ((AtomsetIteratorDirectable)atomIterator).setDirection(null);
                 atomIterator.reset();
-                for (IAtom jAtom = ((AtomIterator)atomIterator).nextAtom(); jAtom != null ;jAtom = ((AtomIterator)atomIterator).nextAtom()) {
+                for (IAtom jAtom = atomIterator.nextAtom(); jAtom != null ; jAtom = atomIterator.nextAtom()) {
                     int jj = jAtom.getLeafIndex();
                     dr.Ev1Mv2(pi, jAtom.getPosition());
                     boundary.nearestImage(dr);
@@ -529,7 +534,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         protected final Api1ACell api;
         protected IAtom myAtom;
         
-        public AtomIteratorNbrCell(double maxDistance, BoxAgentManager<? extends BoxCellManager> neighborCellAgentManager, IBox box) {
+        public AtomIteratorNbrCell(double maxDistance, BoxAgentManager<? extends BoxCellManager> neighborCellAgentManager, Box box) {
             api = new Api1ACell(3, maxDistance, neighborCellAgentManager);
             api.setBox(box);
         }
@@ -577,10 +582,10 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         protected int cursor = 0;
         protected int targetIndex = -1;
         protected final AtomSetSinglet singlet = new AtomSetSinglet();
-        protected final IBox box;
+        protected final Box box;
         protected boolean all = true;
         
-        public AtomIteratorBruteForce(IBox box) {
+        public AtomIteratorBruteForce(Box box) {
             this.box = box;
         }
         

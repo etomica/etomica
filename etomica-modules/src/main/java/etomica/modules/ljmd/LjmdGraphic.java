@@ -4,67 +4,33 @@
 
 package etomica.modules.ljmd;
 
-import java.awt.GridBagConstraints;
-import java.util.ArrayList;
-
 import etomica.action.IAction;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverage;
+import etomica.data.*;
 import etomica.data.AccumulatorAverage.StatType;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataFork;
-import etomica.data.DataPipe;
-import etomica.data.DataProcessor;
-import etomica.data.DataPump;
-import etomica.data.DataSourceCountTime;
-import etomica.data.DataSourceFunction;
-import etomica.data.DataSourceRmsVelocity;
-import etomica.data.DataSourceUniform;
 import etomica.data.DataSourceUniform.LimitType;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IDataSink;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.meter.MeterDensity;
-import etomica.data.meter.MeterEnergy;
-import etomica.data.meter.MeterKineticEnergy;
-import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.meter.MeterPressureTensorFromIntegrator;
-import etomica.data.meter.MeterRDF;
-import etomica.data.meter.MeterTemperature;
+import etomica.data.histogram.HistogramSimple;
+import etomica.data.meter.*;
 import etomica.data.types.DataDouble;
-import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.data.types.DataTensor;
-import etomica.graphics.ActionConfigWindow;
-import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DeviceButton;
-import etomica.graphics.DeviceNSelector;
-import etomica.graphics.DeviceThermoSlider;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.DisplayTextBoxesCAE;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.listener.IntegratorListenerAction;
+import etomica.math.DoubleRange;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
 import etomica.statmech.MaxwellBoltzmann;
 import etomica.units.DimensionRatio;
-import etomica.units.Energy;
 import etomica.units.Length;
 import etomica.units.Null;
 import etomica.units.Time;
-import etomica.units.Unit;
-import etomica.units.systems.LJ;
 import etomica.util.Constants.CompassDirection;
-import etomica.util.DoubleRange;
-import etomica.util.HistogramSimple;
+
+import java.awt.*;
+import java.util.ArrayList;
 
 public class LjmdGraphic extends SimulationGraphic {
 
@@ -83,11 +49,8 @@ public class LjmdGraphic extends SimulationGraphic {
         
     	this.sim = simulation;
 
-        LJ unitSystem = new LJ();
-        Unit tUnit = Energy.DIMENSION.getUnit(unitSystem);
-
         sim.activityIntegrate.setSleepPeriod(1);
-       
+
 	    //display of box, timer
         ColorSchemeByType colorScheme = new ColorSchemeByType(sim);
         colorScheme.setColor(sim.species.getLeafType(),java.awt.Color.red);
@@ -138,19 +101,19 @@ public class LjmdGraphic extends SimulationGraphic {
         vPlot.getPlot().setTitle("Velocity Distribution");
         vPlot.setDoLegend(true);
         vPlot.setLabel("Velocity");
-		
+
 		final MaxwellBoltzmann.Distribution mbDistribution = new MaxwellBoltzmann.Distribution(sim.getSpace(),sim.integrator.getTemperature(),sim.species.getLeafType().getMass());
 		final DataSourceFunction mbSource = new DataSourceFunction("Maxwell Boltzmann Distribution",
                 Null.DIMENSION, mbDistribution, 100, "Speed", new DimensionRatio(Length.DIMENSION,Time.DIMENSION));
 		DataSourceUniform mbX = mbSource.getXSource();
 		mbX.setTypeMax(LimitType.HALF_STEP);
 		mbX.setTypeMin(LimitType.HALF_STEP);
-		mbX.setNValues(((DataInfoFunction)meterVelocity.getDataInfo()).getLength());
+		mbX.setNValues(meterVelocity.getDataInfo().getLength());
 		mbX.setXMin(vMin);
 		mbX.setXMax(vMax);
 		mbSource.update();
         final DataPump mbPump = new DataPump(mbSource,vPlot.getDataSet().makeDataSink());
-		
+
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
 
         //add meter and display for current kinetic temperature
@@ -165,12 +128,10 @@ public class LjmdGraphic extends SimulationGraphic {
         temperatureHistory.setTimeDataSource(timeCounter);
 		final DisplayTextBox tBox = new DisplayTextBox();
 		temperatureFork.setDataSinks(new IDataSink[]{tBox,temperatureHistory});
-        tBox.setUnit(tUnit);
 		tBox.setLabel("Measured Temperature");
 		tBox.setLabelPosition(CompassDirection.NORTH);
 
 		dataStreamPumps.add(temperaturePump);
-        tBox.setUnit(tUnit);
 		tBox.setLabel("Measured Temperature");
 		tBox.setLabelPosition(CompassDirection.NORTH);
 
@@ -184,7 +145,7 @@ public class LjmdGraphic extends SimulationGraphic {
         densityPumpListener.setInterval(10);
         dataStreamPumps.add(densityPump);
 	    densityBox.setLabel("Number Density");
-	    
+
 		MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotentialMaster(), sim.box);
         AccumulatorHistory energyHistory = new AccumulatorHistory();
         energyHistory.setTimeDataSource(timeCounter);
@@ -194,7 +155,7 @@ public class LjmdGraphic extends SimulationGraphic {
         energyPumpListener.setInterval(60);
         energyHistory.setPushInterval(5);
         dataStreamPumps.add(energyPump);
-		
+
 		MeterPotentialEnergy peMeter = new MeterPotentialEnergy(sim.integrator.getPotentialMaster());
         peMeter.setBox(sim.box);
         AccumulatorHistory peHistory = new AccumulatorHistory();
@@ -208,7 +169,7 @@ public class LjmdGraphic extends SimulationGraphic {
         pePumpListener.setInterval(60);
         peHistory.setPushInterval(5);
         dataStreamPumps.add(pePump);
-		
+
 		MeterKineticEnergy keMeter = new MeterKineticEnergy();
         keMeter.setBox(sim.box);
         AccumulatorHistory keHistory = new AccumulatorHistory();
@@ -235,7 +196,7 @@ public class LjmdGraphic extends SimulationGraphic {
         ePlot.getPlot().setTitle("Energy History");
 		ePlot.setDoLegend(true);
 		ePlot.setLabel("Energy");
-		
+
         MeterPressureTensorFromIntegrator pMeter = new MeterPressureTensorFromIntegrator(space);
         pMeter.setIntegrator(sim.integrator);
         final AccumulatorAverageCollapsing pAccumulator = new AccumulatorAverageCollapsing();
@@ -264,7 +225,7 @@ public class LjmdGraphic extends SimulationGraphic {
                 mbPump.actionPerformed();
             }
         };
-            
+
         IntegratorListenerAction mbActionListener = new IntegratorListenerAction(mbAction);
         sim.integrator.getEventManager().addListener(mbActionListener);
         mbActionListener.setInterval(100);
@@ -298,7 +259,7 @@ public class LjmdGraphic extends SimulationGraphic {
                 resetDataAction.actionPerformed();
                 getDisplayBox(sim.box).repaint();
             }
-            
+
             ConfigurationLattice config = new ConfigurationLattice((space.D() == 2) ? new LatticeOrthorhombicHexagonal(space) : new LatticeCubicFcc(space), space);
             int oldN = sim.box.getMoleculeList().getMoleculeCount();
         });
@@ -315,7 +276,6 @@ public class LjmdGraphic extends SimulationGraphic {
         temperatureSelect.setMinimum(0.0);
         temperatureSelect.setMaximum(10.0);
         temperatureSelect.setSliderMajorValues(3);
-	    temperatureSelect.setUnit(tUnit);
 	    temperatureSelect.setAdiabatic();
 
         final IAction temperatureAction = new IAction() {

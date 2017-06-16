@@ -3,22 +3,23 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.models.nitrogen;
+
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveMolecule;
+import etomica.molecule.IMoleculePositionDefinition;
+import etomica.molecule.MoleculePositionGeometricCenter;
 import etomica.paracetamol.AtomActionTransformed;
-import etomica.space.ISpace;
+import etomica.potential.PotentialMaster;
 import etomica.space.RotationTensor;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Tensor3D;
 import etomica.units.Degree;
+import etomica.util.random.IRandom;
 
 
 /**
@@ -39,28 +40,28 @@ import etomica.units.Degree;
 public class MCMoveRotateMolecule3DFixedAngle extends MCMoveMolecule {
     
     private static final long serialVersionUID = 2L;
-    protected transient IVectorMutable r0;
+    protected transient Vector r0;
     protected transient RotationTensor rotationTensor;
-    protected IAtomPositionDefinition positionDefinition;
+    protected IMoleculePositionDefinition positionDefinition;
     protected double constraintAngle;
     protected CoordinateDefinitionNitrogen coordinateDef;
-    protected IVectorMutable[][] initMolecOrientation;
-    protected IVectorMutable molecOrientation, rotationAxis;
+    protected Vector[][] initMolecOrientation;
+    protected Vector molecOrientation, rotationAxis;
 	protected RotationTensor3D rotation;
 	protected Tensor3D tensor;
     protected final MoleculeChildAtomAction atomGroupAction;
     
-    public MCMoveRotateMolecule3DFixedAngle(IPotentialMaster potentialMaster, IRandom random,
-    		                      ISpace _space, double angle, CoordinateDefinitionNitrogen coordinateDef, IBox box) {
+    public MCMoveRotateMolecule3DFixedAngle(PotentialMaster potentialMaster, IRandom random,
+                                            Space _space, double angle, CoordinateDefinitionNitrogen coordinateDef, Box box) {
         super(potentialMaster, random, _space, 0.5*Math.PI, Math.PI);
         rotationTensor = _space.makeRotationTensor();
         r0 = _space.makeVector();
-        positionDefinition = new AtomPositionGeometricCenter(space);
+        positionDefinition = new MoleculePositionGeometricCenter(space);
         constraintAngle = angle;
         this.coordinateDef = coordinateDef;
         
         int numMolec = box.getMoleculeList().getMoleculeCount();
-     	initMolecOrientation = new IVectorMutable[numMolec][3];
+     	initMolecOrientation = new Vector[numMolec][3];
      	molecOrientation = space.makeVector();
      	rotationAxis = space.makeVector();
      	
@@ -104,8 +105,8 @@ public class MCMoveRotateMolecule3DFixedAngle extends MCMoveMolecule {
         r0.E(positionDefinition.position(molecule));
         setToU(iMolecule, u3, u4);
 		
-	    IVectorMutable leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-		IVectorMutable leaftPos1 = molecule.getChildList().getAtom(1).getPosition();
+	    Vector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
+		Vector leaftPos1 = molecule.getChildList().getAtom(1).getPosition();
 		molecOrientation.Ev1Mv2(leaftPos1, leafPos0);
 		molecOrientation.normalize();
 		
@@ -129,21 +130,21 @@ public class MCMoveRotateMolecule3DFixedAngle extends MCMoveMolecule {
     	IAtomList childList = molecule.getChildList();
     	for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
     		IAtom a = childList.getAtom(iChild);
-    		IVectorMutable r = a.getPosition();
+    		Vector r = a.getPosition();
     		r.ME(r0);
     	}
     	
-    	IVectorMutable rotationAxis = space.makeVector();
+    	Vector rotationAxis = space.makeVector();
     	RotationTensor3D rotation = new RotationTensor3D();
     	rotation.E(tensor);
 	         
-    	IVectorMutable leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-    	IVectorMutable leafPos1 = molecule.getChildList().getAtom(1).getPosition();
+    	Vector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
+    	Vector leafPos1 = molecule.getChildList().getAtom(1).getPosition();
 		    	
     	/*
          * a.
          */
-	   	IVectorMutable axis = space.makeVector();
+	   	Vector axis = space.makeVector();
 	   	axis.Ev1Mv2(leafPos1, leafPos0);
 	   	axis.normalize();
 		    		    	
@@ -207,7 +208,7 @@ public class MCMoveRotateMolecule3DFixedAngle extends MCMoveMolecule {
     
         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
             IAtom a = childList.getAtom(iChild);
-            IVectorMutable r = a.getPosition();
+            Vector r = a.getPosition();
             r.PE(r0);
         }
     }

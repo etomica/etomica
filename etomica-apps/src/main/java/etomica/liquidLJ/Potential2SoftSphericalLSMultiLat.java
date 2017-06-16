@@ -4,16 +4,15 @@
 
 package etomica.liquidLJ;
 
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
+import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialSoft;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 /**
@@ -26,9 +25,9 @@ import etomica.space.Tensor;
  
 public class Potential2SoftSphericalLSMultiLat extends Potential2 implements PotentialSoft {
    
-    public Potential2SoftSphericalLSMultiLat(ISpace space, double[] rCut, Potential2Soft p2Soft, CoordinateDefinition coordinateDefinition) {
+    public Potential2SoftSphericalLSMultiLat(Space space, double[] rCut, Potential2Soft p2Soft, CoordinateDefinition coordinateDefinition) {
         super(space);
-        gradient = new IVectorMutable[2];
+        gradient = new Vector[2];
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();
         dr = space.makeVector();
@@ -130,11 +129,11 @@ public class Potential2SoftSphericalLSMultiLat extends Potential2 implements Pot
     /**
      * Gradient of the pair potential as given by the du(double) method.
      */
-    public IVector[] gradient(IAtomList atoms) {
+    public Vector[] gradient(IAtomList atoms) {
         return gradient;
     }
     
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         gradient(atoms);
         pressureTensor.PEv1v2(gradient[0],dr);
         return gradient;
@@ -148,7 +147,7 @@ public class Potential2SoftSphericalLSMultiLat extends Potential2 implements Pot
         return Double.POSITIVE_INFINITY;
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
         p2Soft.setBox(box);
 
@@ -160,14 +159,14 @@ public class Potential2SoftSphericalLSMultiLat extends Potential2 implements Pot
 
     }
 
-    protected final IVectorMutable[] gradient;
-    protected IBoundary boundary;
+    protected final Vector[] gradient;
+    protected Boundary boundary;
     protected final int[] nShells;
     protected final double[] a0;
     protected final Potential2Soft p2Soft;
-    protected final IVectorMutable Lxyz;
-    protected final IVectorMutable dr, drTmp, drLat, drA, drLatTmp;
-    protected final IVectorMutable pTmp1, pTmp2;
+    protected final Vector Lxyz;
+    protected final Vector dr, drTmp, drLat, drA, drLatTmp;
+    protected final Vector pTmp1, pTmp2;
     protected final double[] rCut2;
     protected final double rCutMax;
     protected final CoordinateDefinition coordinateDefinition;
@@ -175,14 +174,14 @@ public class Potential2SoftSphericalLSMultiLat extends Potential2 implements Pot
 
     public class ReturnValue {
         public double[] energySum, virialSum, sum1, dadbSum;
-        public IVectorMutable[] pSumXYZ1, pSumXYZ2;
-        public ReturnValue(int n, ISpace space) {
+        public Vector[] pSumXYZ1, pSumXYZ2;
+        public ReturnValue(int n, Space space) {
             energySum = new double[n];
             virialSum = new double[n];
             sum1 = new double[n];
             dadbSum = new double[n];
-            pSumXYZ1 = new IVectorMutable[n];
-            pSumXYZ2 = new IVectorMutable[n];
+            pSumXYZ1 = new Vector[n];
+            pSumXYZ2 = new Vector[n];
             for (int i=0; i<n; i++) {
                 pSumXYZ1[i] = space.makeVector();
                 pSumXYZ2[i] = space.makeVector();

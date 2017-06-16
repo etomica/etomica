@@ -4,12 +4,12 @@
 
 package etomica.modules.chainequilibrium;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
 import etomica.atom.AtomFilterCollective;
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.molecule.IMolecule;
 
 /**
  */
@@ -19,11 +19,11 @@ public class AtomFilterChainLength implements AtomFilterCollective, AtomLeafAgen
         agentManager = aam;
     }
 
-    public LengthAgent makeAgent(IAtom a, IBox agentBox) {
+    public LengthAgent makeAgent(IAtom a, Box agentBox) {
         return new LengthAgent();
     }
 
-    public void releaseAgent(LengthAgent agent, IAtom atom, IBox agentBox) {}
+    public void releaseAgent(LengthAgent agent, IAtom atom, Box agentBox) {}
 
     public void resetFilter() {
         maxChainLength = 0;
@@ -70,11 +70,11 @@ public class AtomFilterChainLength implements AtomFilterCollective, AtomLeafAgen
         return ctr;
     }
 
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
         if (chainLengthManager != null) {
             // allow old agentManager to de-register itself as a BoxListener
@@ -91,7 +91,7 @@ public class AtomFilterChainLength implements AtomFilterCollective, AtomLeafAgen
         return false;
     }
 
-    protected IBox box;
+    protected Box box;
     protected AtomLeafAgentManager<LengthAgent> chainLengthManager;
     protected AtomLeafAgentManager<IAtom[]> agentManager;
     protected int maxChainLength = 0;

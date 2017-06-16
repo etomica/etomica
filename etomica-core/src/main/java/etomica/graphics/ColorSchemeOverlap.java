@@ -6,15 +6,14 @@ package etomica.graphics;
 
 import java.awt.Color;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
+import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Color atoms based on how many overlaps they have with their neighbors
@@ -23,7 +22,7 @@ import etomica.space.ISpace;
  */
 public class ColorSchemeOverlap extends ColorSchemeCollectiveAgent {
     
-    public ColorSchemeOverlap(ISpace space, PotentialMasterList potentialMaster, IBox box) {
+    public ColorSchemeOverlap(Space space, PotentialMasterList potentialMaster, Box box) {
         super(box);
         leafList = box.getLeafList();
         nOverlaps = new int[leafList.getAtomCount()];
@@ -45,7 +44,7 @@ public class ColorSchemeOverlap extends ColorSchemeCollectiveAgent {
         for (int i=0; i<leafList.getAtomCount(); i++) {
             IAtom atom = leafList.getAtom(i);
             IAtomList list = neighborManager.getDownList(atom)[0];
-            IVector p = atom.getPosition();
+            Vector p = atom.getPosition();
             for (int j=0; j<list.getAtomCount(); j++) {
                 IAtom jAtom = list.getAtom(j);
                 dr.Ev1Mv2(p, jAtom.getPosition());
@@ -70,9 +69,9 @@ public class ColorSchemeOverlap extends ColorSchemeCollectiveAgent {
 
     private static final long serialVersionUID = 1L;
     protected final NeighborListManager neighborManager;
-    protected final IBoundary boundary;
+    protected final Boundary boundary;
     protected final IAtomList leafList;
-    protected final IVectorMutable dr;
+    protected final Vector dr;
     protected double sig2;
     protected int[] nOverlaps;
     protected Color[] colors = new Color[]{Color.RED, Color.BLUE, Color.GREEN, Color.BLACK, Color.CYAN, Color.PINK, new Color(0.5f, 0.0f, 0.5f)};

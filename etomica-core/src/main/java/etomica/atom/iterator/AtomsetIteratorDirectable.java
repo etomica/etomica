@@ -5,6 +5,8 @@
 package etomica.atom.iterator;
 
 
+import etomica.potential.IteratorDirective;
+
 /**
  * 
  * Interface for an iterator that can interpret specification of

@@ -3,16 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.liquidLJ;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.atom.iterator.IteratorDirective;
+
+import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.space.ISpace;
+import etomica.potential.IteratorDirective;
+import etomica.potential.PotentialMaster;
+import etomica.space.Space;
 import etomica.units.Null;
 
 /**
@@ -31,12 +32,12 @@ public class MeterPUCut implements IEtomicaDataSource {
     protected final DataTag tag;
     protected IteratorDirective iteratorDirective;
     protected final PotentialCalculationSumCutoff pc, pcDADv2;
-    protected IPotentialMaster potentialMaster, potentialMasterDADv2;
+    protected PotentialMaster potentialMaster, potentialMasterDADv2;
     protected double temperature;
-    protected IBox box;
+    protected Box box;
     private final int dim;
     
-    public MeterPUCut(ISpace space, double[] cutoffs) {
+    public MeterPUCut(Space space, double[] cutoffs) {
         data = new DataDoubleArray(new int[]{cutoffs.length,4});
         dataInfo = new DataInfoDoubleArray("PU", Null.DIMENSION, new int[]{cutoffs.length,4});
         tag = new DataTag();
@@ -48,11 +49,11 @@ public class MeterPUCut implements IEtomicaDataSource {
         pcDADv2 = new PotentialCalculationSumCutoff(space, cutoffs);
     }
 
-    public void setPotentialMaster(IPotentialMaster newPotentialMaster) {
+    public void setPotentialMaster(PotentialMaster newPotentialMaster) {
         potentialMaster = newPotentialMaster;
     }
     
-    public void setPotentialMasterDADv2(IPotentialMaster newPotentialMasterDADv2) {
+    public void setPotentialMasterDADv2(PotentialMaster newPotentialMasterDADv2) {
         this.potentialMasterDADv2 = newPotentialMasterDADv2;
     }
 
@@ -60,7 +61,7 @@ public class MeterPUCut implements IEtomicaDataSource {
         temperature = newTemperature;
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
         pc.setBox(box);
         pcDADv2.setBox(box);

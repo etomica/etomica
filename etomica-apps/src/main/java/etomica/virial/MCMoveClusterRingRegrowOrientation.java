@@ -4,35 +4,32 @@
 
 package etomica.virial;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IRandom;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomHydrogen;
-import etomica.atom.AtomTypeOrientedSphere;
+import etomica.atom.AtomTypeOriented;
+import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.atom.IAtomTypeOriented;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
 import etomica.chem.elements.Hydrogen;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.math.Quaternion;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.IOrientation3D;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
+import etomica.util.random.IRandom;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * MCMove that fully regrows the beads of a ring polymer by rotating the images, accepting or
@@ -44,18 +41,18 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 
 	// Private instance variables
 	private final int P;
-	private final ISpace space;
+	private final Space space;
 	private final IRandom random;
+	private final AtomIteratorLeafAtoms leafIterator;
+	private final Vector utilityVec1, utilityVec2, utilityVec3;
 	private IOrientation3D[][] oldOrientations;
 	private double weightOld, weightNew,kHarmonic,pacc;
-	private final AtomIteratorLeafAtoms leafIterator;
 	private int acc = 0, molIndexUntouched = -1;
 	private boolean firstMove = true;
 	private boolean[] doExchange;
 	private double [] newAlpha;
-	private final IVectorMutable utilityVec1,utilityVec2, utilityVec3;
 
-	public MCMoveClusterRingRegrowOrientation(IRandom random, ISpace _space, int P) {
+	public MCMoveClusterRingRegrowOrientation(IRandom random, Space _space, int P) {
 		super(null);
 		this.space = _space;
 		this.P = P;
@@ -66,8 +63,76 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 		utilityVec3 = space.makeVector();
 	}
 
+	public static void main(String[] args) {
+		Space space = Space3D.getInstance();
+		ClusterWeight cluster = new ClusterWeight() {
+
+			@Override
+			public double value(BoxCluster box) {
+				// TODO Auto-generated method stub
+				return 1;
+			}
+
+			@Override
+			public void setTemperature(double temperature) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public int pointCount() {
+				// TODO Auto-generated method stub
+				return 1;
+			}
+
+			@Override
+			public ClusterAbstract makeCopy() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+		};
+		BoxCluster box = new BoxCluster(cluster, space);
+		Simulation sim = new Simulation(space);
+		sim.addBox(box);
+		AtomTypeOriented atype = new AtomTypeOriented(Hydrogen.INSTANCE, space);
+		SpeciesSpheresHetero species = new SpeciesSpheresHetero(space, new AtomTypeOriented[]{atype});
+		sim.addSpecies(species);
+		File file1 = new File("acceptance.dat");
+		if (file1.exists()) {
+			file1.delete();
+		}
+		for (int p = 2; p <= 512; p *= 2) {
+			box.setNMolecules(species, 0);
+			species.setChildCount(new int[]{p});
+			box.setNMolecules(species, 1);
+			IntegratorMC integrator = new IntegratorMC(sim, null);
+			integrator.setBox(box);
+			MCMoveClusterRingRegrowOrientation move = new MCMoveClusterRingRegrowOrientation(sim.getRandom(), space, p);
+
+			for (int iTemp = 40; iTemp <= 40; iTemp += 2) {
+				move.acc = 0;
+				move.setStiffness(Kelvin.UNIT.toSim(iTemp), species.getAtomType(0).getMass());
+				integrator.getMoveManager().addMCMove(move);
+				integrator.reset();
+				int total = 100;
+				for (int i = 0; i < total; i++) {
+					integrator.doStep();
+				}
+				try {
+					FileWriter Temp = new FileWriter("acceptance.dat", true);
+					Temp.write(iTemp + " " + p + " " + move.getStiffness() + " " + ((double) move.acc) / total + "\n");
+					Temp.close();
+				} catch (IOException ex1) {
+					throw new RuntimeException(ex1);
+				}
+				System.out.println("p = " + p + " ,Temp = " + iTemp + " ,acceptance ratio = " + ((double) move.acc) / total);
+			}
+
+		}
+	}
+
 	@Override
-	public void setBox(IBox p) {
+	public void setBox(Box p) {
 		super.setBox(p);
 		int nMolecules = box.getMoleculeList().getMoleculeCount();
 		doExchange = new boolean[nMolecules];
@@ -91,6 +156,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 		double lambda = Constants.PLANCK_H/(Math.sqrt(2*Math.PI*mass*t));
 		kHarmonic = Math.PI*P/(lambda*lambda);
 	}
+
 	public double getStiffness() {
 		return kHarmonic;
 	}
@@ -98,9 +164,9 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 	@Override
 	public boolean doTrial() {
 		weightOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
-		IVectorRandom axis = (IVectorRandom) space.makeVector();
-		IVectorMutable oldCenter = space.makeVector();
-		IVectorMutable newCenter = space.makeVector();
+		Vector axis = space.makeVector();
+		Vector oldCenter = space.makeVector();
+		Vector newCenter = space.makeVector();
 		IMoleculeList molecules = box.getMoleculeList();
 		IOrientation3D [][] newOrientations = new IOrientation3D[molecules.getMoleculeCount()][P+1];
 		double [] oldAlpha = new double [P];
@@ -111,8 +177,8 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 		double uOld = 0;
 		double uNew = 0;
 		double pGenRatio = 1.00;
-		IVectorMutable pVecOld = space.makeVector();
-		IVectorMutable pVecNew = space.makeVector();
+		Vector pVecOld = space.makeVector();
+		Vector pVecNew = space.makeVector();
 		int nMolecules = molecules.getMoleculeCount();
 		molIndexUntouched = random.nextInt(nMolecules);
 		for (int i=0; i<nMolecules; i++) {
@@ -127,7 +193,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 				uOld += kHarmonic*dist(jAtom,jPrev, i);
 			}
 			oldOrientations[i][0].setDirection(((IAtomOriented) atoms.getAtom(0)).getOrientation().getDirection());
-			IVectorRandom rV1 = (IVectorRandom)space.makeVector();
+			Vector rV1 = space.makeVector();
 			rV1.setRandomSphere(random);
 			newOrientations[i][0] = (IOrientation3D)((IAtomOriented) atoms.getAtom(0)).getOrientation();
 			newOrientations[i][0].setDirection(rV1);
@@ -231,7 +297,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 					}
 					if (imageIndex == P/2) {
 						newOrientations[i][imageIndex].setDirection(rV1);
-						IVectorMutable rV2 = space.makeVector();
+						Vector rV2 = space.makeVector();
 						if (Math.abs(rV1.getX(0)) > 0.5) {
 							rV2.setX(1,1);
 						}
@@ -244,11 +310,11 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 						rotateVectorV(dummyAlpha, rV1, rV2);
 
 						if (!doExchange[i]) {
-							rotateVectorV(newAlpha[imageIndex],rV2,(IVectorMutable)newOrientations[i][imageIndex].getDirection());
+							rotateVectorV(newAlpha[imageIndex],rV2, newOrientations[i][imageIndex].getDirection());
 						}
 						else {
 							double angle = 2*Math.PI*random.nextDouble();
-							rotateVectorV(angle,rV2,(IVectorMutable)newOrientations[i][imageIndex].getDirection());
+							rotateVectorV(angle,rV2, newOrientations[i][imageIndex].getDirection());
 						}
 						theta[imageIndex] = 0; // without the loss of generality
 					}
@@ -267,7 +333,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 						axis.PEa1Tv1(-axis.dot(newCenter), newCenter);
 						axis.normalize();
 
-						rotateVectorV(newAlpha[imageIndex], axis,(IVectorMutable)newOrientations[i][imageIndex].getDirection());
+						rotateVectorV(newAlpha[imageIndex], axis, newOrientations[i][imageIndex].getDirection());
 						theta[imageIndex] = random.nextDouble()*2*Math.PI;
 						newOrientations[i][imageIndex].rotateBy(theta[imageIndex], newCenter);
 					}
@@ -396,10 +462,10 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 		return r2;
 	}
 
-	private void rotateVectorV(double angle, IVector axis, IVectorMutable v) {
+	private void rotateVectorV(double angle, Vector axis, Vector v) {
 		double q0 = Math.cos(angle/2.0);
 		double sth2 = Math.sin(angle/2.0);
-		IVectorMutable a1 = space.makeVector();
+		Vector a1 = space.makeVector();
 		a1.E(axis);
 		a1.TE(sth2);
 		double q1 = a1.getX(0);
@@ -410,75 +476,6 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 		Quaternion w = q.preMultiply(vec).preMultiply(q.conjugate());
 		if (Math.abs(w.getScalar()) > 1E-10 ) throw new RuntimeException("Quaternion product is not a vector!");
 		v.E(w.getVector());
-	}
-
-	public static void main(String[] args) {
-		ISpace space = Space3D.getInstance();
-		ClusterWeight cluster = new ClusterWeight() {
-
-			@Override
-			public double value(BoxCluster box) {
-				// TODO Auto-generated method stub
-				return 1;
-			}
-
-			@Override
-			public void setTemperature(double temperature) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public int pointCount() {
-				// TODO Auto-generated method stub
-				return 1;
-			}
-
-			@Override
-			public ClusterAbstract makeCopy() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-		};
-		BoxCluster box = new BoxCluster(cluster,space);
-		Simulation sim = new Simulation(space);
-		sim.addBox(box);
-		IAtomTypeOriented atype = new AtomTypeOrientedSphere(Hydrogen.INSTANCE, space);
-		SpeciesSpheresHetero species = new SpeciesSpheresHetero(space,new IAtomTypeOriented [] {atype});
-		sim.addSpecies(species);
-		File file1 = new File ("acceptance.dat");
-		if (file1.exists()) {
-			file1.delete();
-		}
-		for (int p = 2; p <= 512; p*=2) {
-			box.setNMolecules(species,0);
-			species.setChildCount(new int [] {p});
-			box.setNMolecules(species, 1);
-			IntegratorMC integrator = new IntegratorMC(sim, null);
-			integrator.setBox(box);
-			MCMoveClusterRingRegrowOrientation move = new MCMoveClusterRingRegrowOrientation(sim.getRandom(), space, p);
-
-			for (int iTemp = 40; iTemp <= 40; iTemp+= 2) {
-				move.acc = 0;
-				move.setStiffness(Kelvin.UNIT.toSim(iTemp), species.getAtomType(0).getMass());
-				integrator.getMoveManager().addMCMove(move);
-				integrator.reset();
-				int total = 100;
-				for (int i=0; i<total; i++) {
-					integrator.doStep();
-				}
-				try{
-					FileWriter Temp = new FileWriter("acceptance.dat",true);
-					Temp.write(iTemp+" "+p+" "+move.getStiffness()+" "+((double)move.acc)/total+"\n");
-					Temp.close();
-				}
-				catch(IOException ex1){
-					throw new RuntimeException(ex1);
-				}
-				System.out.println("p = "+p+" ,Temp = "+iTemp+" ,acceptance ratio = "+((double)move.acc)/total);
-			}
-
-		}
 	}
 }
 

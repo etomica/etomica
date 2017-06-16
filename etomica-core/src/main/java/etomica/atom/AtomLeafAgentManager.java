@@ -4,18 +4,12 @@
 
 package etomica.atom;
 
+import etomica.box.*;
+import etomica.molecule.IMolecule;
+import etomica.util.Arrays;
+
 import java.io.Serializable;
 import java.lang.reflect.Array;
-
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IBoxAtomIndexEvent;
-import etomica.api.IBoxIndexEvent;
-import etomica.api.IBoxMoleculeEvent;
-import etomica.api.IMolecule;
-import etomica.box.BoxListenerAdapter;
-import etomica.util.Arrays;
 
 /**
  * AtomAgentManager acts on behalf of client classes (an AgentSource) to
@@ -26,9 +20,9 @@ import etomica.util.Arrays;
  * 
  * @author Andrew Schultz
  */
-public class AtomLeafAgentManager<E> extends BoxListenerAdapter implements Serializable {
+public class AtomLeafAgentManager<E> extends BoxEventListenerAdapter implements Serializable {
     
-    public AtomLeafAgentManager(AgentSource<E> source, IBox box, Class agentClass) {
+    public AtomLeafAgentManager(AgentSource<E> source, Box box, Class agentClass) {
         agentSource = source;
         this.agentClass = agentClass;
         this.box = box;
@@ -92,7 +86,7 @@ public class AtomLeafAgentManager<E> extends BoxListenerAdapter implements Seria
     /**
      * Convenience method to return the box the Manager is tracking.
      */
-    public IBox getBox(){
+    public Box getBox(){
         return box;
     }
     
@@ -131,7 +125,7 @@ public class AtomLeafAgentManager<E> extends BoxListenerAdapter implements Seria
         }
     }
     
-    public void boxMoleculeAdded(IBoxMoleculeEvent e) {
+    public void boxMoleculeAdded(BoxMoleculeEvent e) {
         IMolecule mole = e.getMolecule();
         // add all leaf atoms below this atom
         IAtomList childList = mole.getChildList();
@@ -141,7 +135,7 @@ public class AtomLeafAgentManager<E> extends BoxListenerAdapter implements Seria
         }
     }
     
-    public void boxMoleculeRemoved(IBoxMoleculeEvent e) {
+    public void boxMoleculeRemoved(BoxMoleculeEvent e) {
         IMolecule mole = e.getMolecule();
         // IAtomGroups don't have agents, but nuke all atoms below this atom
         IAtomList childList = mole.getChildList();
@@ -158,7 +152,7 @@ public class AtomLeafAgentManager<E> extends BoxListenerAdapter implements Seria
         }
     }
     
-    public void boxAtomLeafIndexChanged(IBoxAtomIndexEvent e) {
+    public void boxAtomLeafIndexChanged(BoxAtomIndexEvent e) {
         IAtom a = e.getAtom();
         // the atom's index changed.  assume it would get the same agent
         int oldIndex = e.getIndex();
@@ -166,7 +160,7 @@ public class AtomLeafAgentManager<E> extends BoxListenerAdapter implements Seria
         agents[oldIndex] = null;
     }
     
-    public void boxGlobalAtomLeafIndexChanged(IBoxIndexEvent e) {
+    public void boxGlobalAtomLeafIndexChanged(BoxIndexEvent e) {
         // don't use leafList.size() since the SpeciesMaster might be notifying
         // us that it's about to add leaf atoms
         int newMaxIndex = e.getIndex();
@@ -212,7 +206,7 @@ public class AtomLeafAgentManager<E> extends BoxListenerAdapter implements Seria
          * handle multiple boxes.
          * @param agentBox TODO
          */
-        public E makeAgent(IAtom a, IBox agentBox);
+        public E makeAgent(IAtom a, Box agentBox);
         
         /**
          * This informs the agent source that the agent is going away and that 
@@ -220,13 +214,13 @@ public class AtomLeafAgentManager<E> extends BoxListenerAdapter implements Seria
          * The agentBox is provided for convenience for agent sources that
          * handle multiple boxes.
          */
-        public void releaseAgent(E agent, IAtom atom, IBox agentBox);
+        public void releaseAgent(E agent, IAtom atom, Box agentBox);
     }
 
     private static final long serialVersionUID = 1L;
     protected final AgentSource<E> agentSource;
     protected E[] agents;
-    protected final IBox box;
+    protected final Box box;
     protected int reservoirSize;
     protected final Class agentClass;
     

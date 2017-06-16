@@ -7,14 +7,10 @@ package etomica.modules.multiharmonic;
 import etomica.action.SimulationDataAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.IController;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataPump;
-import etomica.data.DataSourceCountSteps;
+import etomica.data.*;
+import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.listener.IntegratorListenerAction;
@@ -26,7 +22,6 @@ import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space1d.Space1D;
 import etomica.space1d.Vector1D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.HistoryCollapsingDiscard;
 
 
 /**
@@ -36,6 +31,21 @@ import etomica.util.HistoryCollapsingDiscard;
  */
 public class MultiharmonicMC extends Simulation {
 
+    private static final long serialVersionUID = 1L;
+    MeterPotentialEnergy meterEnergy;
+    AccumulatorAverageCollapsing accumulatorEnergy;
+    AccumulatorHistory historyEnergy;
+    SpeciesSpheresMono species;
+    Box box;
+    IController controller;
+    P1Harmonic potentialA, potentialB;
+    IntegratorMC integrator;
+    ActivityIntegrate activityIntegrate;
+    MeterFreeEnergy meter;
+    AccumulatorAverageCollapsing accumulator;
+    DataPump dataPump, dataPumpEnergy;
+    SimulationDataAction resetAccumulators;
+    DataSourceCountSteps stepCounter;
     public MultiharmonicMC() {
         super(Space1D.getInstance());
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
@@ -50,10 +60,10 @@ public class MultiharmonicMC extends Simulation {
         integrator.setTemperature(1.0);
         potentialA = new P1Harmonic(space);
         integrator.getMoveManager().addMCMove(new MCMoveMultiHarmonic(potentialA, random));
-        potentialMaster.addPotential(potentialA, new IAtomType[] {species.getLeafType()});
-        
+        potentialMaster.addPotential(potentialA, new AtomType[]{species.getLeafType()});
+
         box.setNMolecules(species, 10);
-        
+
         activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
@@ -64,34 +74,18 @@ public class MultiharmonicMC extends Simulation {
         accumulator = new AccumulatorAverageCollapsing();
         dataPump = new DataPump(meter, accumulator);
         integrator.getEventManager().addListener(new IntegratorListenerAction(dataPump));
-        
+
         meterEnergy = new MeterPotentialEnergy(potentialMaster);
         meterEnergy.setBox(box);
         accumulatorEnergy = new AccumulatorAverageCollapsing();
         dataPumpEnergy = new DataPump(meterEnergy, accumulatorEnergy);
         integrator.getEventManager().addListener(new IntegratorListenerAction(dataPumpEnergy));
-        
+
         historyEnergy = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
-        accumulatorEnergy.addDataSink(historyEnergy, new AccumulatorAverage.StatType[] {accumulatorEnergy.AVERAGE});
+        accumulatorEnergy.addDataSink(historyEnergy, new AccumulatorAverage.StatType[]{AccumulatorAverage.AVERAGE});
 
         stepCounter = new DataSourceCountSteps(integrator);
-        
+
         historyEnergy.setTimeDataSource(stepCounter);
     }
-
-    private static final long serialVersionUID = 1L;
-    MeterPotentialEnergy meterEnergy;
-    AccumulatorAverageCollapsing accumulatorEnergy;
-    AccumulatorHistory historyEnergy;
-    SpeciesSpheresMono species;
-    IBox box;
-    IController controller;
-    P1Harmonic potentialA, potentialB;
-    IntegratorMC integrator;
-    ActivityIntegrate activityIntegrate;
-    MeterFreeEnergy meter;
-    AccumulatorAverageCollapsing accumulator;
-    DataPump dataPump, dataPumpEnergy;
-    SimulationDataAction resetAccumulators;
-    DataSourceCountSteps stepCounter;
 }

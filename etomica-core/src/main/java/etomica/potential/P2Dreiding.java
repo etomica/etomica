@@ -4,7 +4,7 @@
 
 package etomica.potential;
 
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Dreiding potential.
@@ -23,7 +23,7 @@ public class P2Dreiding extends Potential2SoftSpherical {
 
 	private double Re, alpha;
     
-    public P2Dreiding(ISpace space, double Re, double alpha) {
+    public P2Dreiding(Space space, double Re, double alpha) {
         super(space);
         setAlpha(alpha);
         setBondLength(Re);

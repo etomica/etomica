@@ -4,20 +4,14 @@
 
 package etomica.models.nitrogen;
 
-import java.io.File;
-
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IBox;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.config.ConfigurationFile;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
@@ -33,8 +27,12 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.Degree;
 import etomica.units.Kelvin;
+
+import java.io.File;
 
 /**
  * Direct Sampling for Rotational Perturbation
@@ -69,7 +67,7 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
 		Basis basisHCP = new BasisHcp();
 		BasisBigCell basis = new BasisBigCell(space, basisHCP, new int[]{nC,nC,nC});
         
-		IVector[] boxDim = new IVector[3];
+		Vector[] boxDim = new Vector[3];
 		boxDim[0] = space.makeVector(new double[]{nC*aDim, 0, 0});
 		boxDim[1] = space.makeVector(new double[]{-nC*aDim*Math.cos(Degree.UNIT.toSim(60)), nC*aDim*Math.sin(Degree.UNIT.toSim(60)), 0});
 		boxDim[2] = space.makeVector(new double[]{0, 0, nC*cDim});
@@ -235,9 +233,9 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
         sim.getController().actionPerformed();
 
         sim.writeConfiguration(configFileName);
-        double average = ((DataGroup)sim.boltzmannAverage.getData()).getValue(sim.boltzmannAverage.AVERAGE.index);
-        double error = ((DataGroup)sim.boltzmannAverage.getData()).getValue(sim.boltzmannAverage.ERROR.index);
-        double blockCorrelation = ((DataGroup)sim.boltzmannAverage.getData()).getValue(sim.boltzmannAverage.BLOCK_CORRELATION.index);
+        double average = sim.boltzmannAverage.getData().getValue(sim.boltzmannAverage.AVERAGE.index);
+        double error = sim.boltzmannAverage.getData().getValue(sim.boltzmannAverage.ERROR.index);
+        double blockCorrelation = sim.boltzmannAverage.getData().getValue(sim.boltzmannAverage.BLOCK_CORRELATION.index);
         
         System.out.println("blockCorrelation: " + blockCorrelation);
         System.out.println("boltzmann average: " + average + " ;err: " + error +" ;errC: "+ error*Math.sqrt((1+blockCorrelation)/(1-blockCorrelation)));
@@ -251,6 +249,6 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
     private static final long serialVersionUID = 1L;
     protected ActivityIntegrate activityIntegrate;
     protected AccumulatorAverageFixed boltzmannAverage;
-    protected IBox boxTarg;
+    protected Box boxTarg;
 
 }

@@ -4,13 +4,8 @@
 
 package etomica.models.nitrogen;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
@@ -39,11 +34,16 @@ import etomica.normalmode.MCMoveMoleculeCoupled;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.units.Degree;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
+
+import java.io.FileWriter;
+import java.io.IOException;
 
 
 
@@ -57,7 +57,7 @@ import etomica.units.Pixel;
 public class SimulationBetaNitrogenModel extends Simulation{
 
 	
-	public SimulationBetaNitrogenModel(ISpace space, int numMolecule, double temperature, double density) {
+	public SimulationBetaNitrogenModel(Space space, int numMolecule, double temperature, double density) {
 		super(space);
 		this.space = space;
 		
@@ -83,7 +83,7 @@ public class SimulationBetaNitrogenModel extends Simulation{
 		box.setNMolecules(species, numMolecule);		
 		int [] nCells = new int[]{1,1,1};
 		
-		IVector[] boxDim = new IVector[3];
+		Vector[] boxDim = new Vector[3];
 		boxDim[0] = space.makeVector(new double[]{nC*a, 0, 0});
 		boxDim[1] = space.makeVector(new double[]{-nC*a*Math.cos(Degree.UNIT.toSim(60)), nC*a*Math.sin(Degree.UNIT.toSim(60)), 0});
 		boxDim[2] = space.makeVector(new double[]{0, 0, nC*c});
@@ -345,11 +345,11 @@ public class SimulationBetaNitrogenModel extends Simulation{
 		
 //		sim.writeUdistribution(filename, meterOrient);
 		
-		double averageEnergy = ((DataGroup)energyAverage.getData()).getValue(energyAverage.AVERAGE.index);
-		double errorEnergy = ((DataGroup)energyAverage.getData()).getValue(energyAverage.ERROR.index);
+		double averageEnergy = energyAverage.getData().getValue(energyAverage.AVERAGE.index);
+		double errorEnergy = energyAverage.getData().getValue(energyAverage.ERROR.index);
 		
-		double averagePressure = ((DataGroup)pressureAverage.getData()).getValue(energyAverage.AVERAGE.index);
-		double errorPressure = ((DataGroup)pressureAverage.getData()).getValue(energyAverage.ERROR.index);
+		double averagePressure = pressureAverage.getData().getValue(energyAverage.AVERAGE.index);
+		double errorPressure = pressureAverage.getData().getValue(energyAverage.ERROR.index);
 		
 		System.out.println("Average energy (per molecule): "   + averageEnergy/numMolecule  
 				+ " ;error: " + errorEnergy/numMolecule);
@@ -388,7 +388,7 @@ public class SimulationBetaNitrogenModel extends Simulation{
 		
 	}
 	protected Box box;
-	protected ISpace space;
+	protected Space space;
 	protected PotentialMasterListMolecular potentialMaster;
 	protected IntegratorMC integrator;
 	protected ActivityIntegrate activityIntegrate;

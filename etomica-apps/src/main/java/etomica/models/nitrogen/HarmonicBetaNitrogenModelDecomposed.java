@@ -4,20 +4,15 @@
 
 package etomica.models.nitrogen;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
-import etomica.atom.MoleculePair;
 import etomica.box.Box;
 import etomica.data.types.DataTensor;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
+import etomica.molecule.MoleculePair;
 import etomica.normalmode.ArrayReader1D;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.CoordinateDefinition;
@@ -25,9 +20,14 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.units.Degree;
+
+import java.io.FileWriter;
+import java.io.IOException;
 
 
 
@@ -47,7 +47,7 @@ import etomica.units.Degree;
 public class HarmonicBetaNitrogenModelDecomposed extends Simulation{
 
 	
-	public HarmonicBetaNitrogenModelDecomposed(ISpace space, int numMolecule, double density) {
+	public HarmonicBetaNitrogenModelDecomposed(Space space, int numMolecule, double density) {
 		super(space);
 		this.space = space;
 		
@@ -62,7 +62,7 @@ public class HarmonicBetaNitrogenModelDecomposed extends Simulation{
 		Basis basisHCP = new BasisHcp();
 		BasisBigCell basis = new BasisBigCell(space, basisHCP, new int[]{nC,nC,nC});
         
-		IVector[] boxDim = new IVector[3];
+		Vector[] boxDim = new Vector[3];
 		boxDim[0] = space.makeVector(new double[]{nC*aDim, 0, 0});
 		boxDim[1] = space.makeVector(new double[]{-nC*aDim*Math.cos(Degree.UNIT.toSim(60)), nC*aDim*Math.sin(Degree.UNIT.toSim(60)), 0});
 		boxDim[2] = space.makeVector(new double[]{0, 0, nC*cDim});
@@ -342,7 +342,7 @@ public class HarmonicBetaNitrogenModelDecomposed extends Simulation{
 	
 	
 	protected Box box;
-	protected ISpace space;
+	protected Space space;
 	protected P2Nitrogen potential;
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected PotentialMaster potentialMaster;

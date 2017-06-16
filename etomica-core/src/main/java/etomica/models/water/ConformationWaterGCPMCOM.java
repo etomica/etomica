@@ -3,12 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.models.water;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Electron;
 
 /**
@@ -16,7 +16,7 @@ import etomica.units.Electron;
  */
 public class ConformationWaterGCPMCOM extends ConformationWaterGCPM {
 
-    public ConformationWaterGCPMCOM(ISpace space) {
+    public ConformationWaterGCPMCOM(Space space) {
         super(space);
     }
     
@@ -29,7 +29,7 @@ public class ConformationWaterGCPMCOM extends ConformationWaterGCPM {
                 
         IAtom h2 = list.getAtom(SpeciesWater4PCOM.indexH2);
         
-        IVectorMutable cr = list.getAtom(SpeciesWater4PCOM.indexC).getPosition();
+        Vector cr = list.getAtom(SpeciesWater4PCOM.indexC).getPosition();
         cr.Ea1Tv1(Oxygen.INSTANCE.getMass(), o.getPosition());
         cr.PEa1Tv1(Hydrogen.INSTANCE.getMass(), h1.getPosition());
         cr.PEa1Tv1(Hydrogen.INSTANCE.getMass(), h2.getPosition());

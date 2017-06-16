@@ -4,11 +4,10 @@
 
 package etomica.potential;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
 import etomica.units.Length;
@@ -24,11 +23,11 @@ import etomica.util.Debug;
  */
 public class P2HardBond extends Potential2HardSpherical {
 
-    public P2HardBond(ISpace space) {
+    public P2HardBond(Space space) {
         this(space, 1.0, 0.15, false);
     }
 
-    public P2HardBond(ISpace space, double bondLength, double bondDelta, boolean ignoreOverlap) {
+    public P2HardBond(Space space, double bondLength, double bondDelta, boolean ignoreOverlap) {
         super(space);
         setBondLength(bondLength);
         setBondDelta(bondDelta);
@@ -99,8 +98,8 @@ public class P2HardBond extends Potential2HardSpherical {
             }
         }
         
-        double rm0 = ((IAtom)atom0).getType().rm();
-        double rm1 = ((IAtom)atom1).getType().rm();
+        double rm0 = atom0.getType().rm();
+        double rm1 = atom1.getType().rm();
         
         lastCollisionVirial = 2.0 / (rm0+rm1) * bij;
         lastCollisionVirialr2 = lastCollisionVirial / r2;
@@ -191,6 +190,6 @@ public class P2HardBond extends Potential2HardSpherical {
     private double lastCollisionVirial = 0.0;
     private double lastCollisionVirialr2 = 0.0;
     private boolean ignoreOverlap;
-    private final IVectorMutable dv;
+    private final Vector dv;
     private final Tensor lastCollisionVirialTensor;
 }

@@ -24,9 +24,9 @@ import etomica.action.IAction;
 import etomica.action.IntegratorReset;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomList;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.math.function.Function;
+import etomica.space.Vector;
 import etomica.atom.DiameterHashByElementType;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverage;
@@ -72,7 +72,7 @@ import etomica.potential.P1HardMovingBoundary;
 import etomica.potential.P2HardSphere;
 import etomica.potential.P2Ideal;
 import etomica.potential.P2SquareWell;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Angstrom;
 import etomica.units.Bar;
 import etomica.units.CompoundUnit;
@@ -146,7 +146,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
      * Creates a PistonCylinder graphic instance.  init() must be called before
      * this can be used.
      */
-    public PistonCylinderGraphic(PistonCylinder sim, ISpace _space) {
+    public PistonCylinderGraphic(PistonCylinder sim, Space _space) {
     	super(sim, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, sim.getController());
     	pc = sim;
     }
@@ -413,7 +413,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         if (pc.getSpace().D() == 2) {
             scaleSliderPanel = new JPanel();
     	    ModifierFunctionWrapper scaleModulator = new ModifierFunctionWrapper(displayBox, "scale");
-    	    scaleModulator.setFunction(new etomica.util.Function.Linear(0.01, 0.0));
+    	    scaleModulator.setFunction(new Function.Linear(0.01, 0.0));
     	    scaleSlider = new DeviceSlider(null, scaleModulator);
     	    scaleSlider.setShowValues(false);
     	    scaleSliderPanel.setBorder(new TitledBorder(null, "Graphic Size", TitledBorder.CENTER, TitledBorder.TOP));
@@ -587,8 +587,8 @@ public class PistonCylinderGraphic extends SimulationGraphic {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 if(evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) return; 
                 setPotential((String)evt.getItem());
-                if((String)evt.getItem() == IDEAL_GAS ||
-                   (String)evt.getItem() == REPULSION_ONLY) {
+                if(evt.getItem() == IDEAL_GAS ||
+                   evt.getItem() == REPULSION_ONLY) {
                 	epsBox.setEditable(false);
                 	lamBox.setEditable(false);
                 }
@@ -937,7 +937,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                 }
                 newValue = maxDensity;
             }
-            IVector boxDim = pc.box.getBoundary().getBoxSize();
+            Vector boxDim = pc.box.getBoundary().getBoxSize();
             IAtomList leafList = pc.box.getLeafList();
             double yShift = 0.5*(boxDim.getX(1)-sigma);
             if (D == 2) {
@@ -946,7 +946,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
             if (newValue > oldDensity) {
                 // scale atom positions
                 for (int i=0; i<leafList.getAtomCount(); i++) {
-                    IVectorMutable pos = leafList.getAtom(i).getPosition();
+                    Vector pos = leafList.getAtom(i).getPosition();
                     double y = (pos.getX(1)+yShift) * (oldDensity / newValue) - yShift;
                     pos.setX(1, y);
                 }

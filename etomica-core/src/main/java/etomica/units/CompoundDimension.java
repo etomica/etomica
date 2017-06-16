@@ -14,8 +14,8 @@ public class CompoundDimension extends Dimension {
     
     public CompoundDimension(Dimension[] dimensions, double[] exponents, String name) {
         super(name, makeSignature(dimensions, exponents));
-        this.dimensions = (Dimension[])dimensions.clone();
-        this.exponents = (double[])exponents.clone();
+        this.dimensions = dimensions.clone();
+        this.exponents = exponents.clone();
     }
     
     // used by constructor

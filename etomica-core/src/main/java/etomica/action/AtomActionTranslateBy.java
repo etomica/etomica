@@ -6,10 +6,9 @@ package etomica.action;
 
 import java.io.Serializable;
 
-import etomica.api.IAtom;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.atom.IAtom;
+import etomica.space.Vector;
+import etomica.space.Space;
 
 /**
  * 
@@ -22,9 +21,9 @@ import etomica.space.ISpace;
 public class AtomActionTranslateBy implements AtomAction, Serializable {
     
     private static final long serialVersionUID = 1L;
-    private final IVectorMutable translationVector;
+    private final Vector translationVector;
     
-    public AtomActionTranslateBy(ISpace space) {
+    public AtomActionTranslateBy(Space space) {
         translationVector = space.makeVector();
     }
     
@@ -38,14 +37,14 @@ public class AtomActionTranslateBy implements AtomAction, Serializable {
      * instance, not a copy, so any manipulation of the returned vector will
      * affect the action of this instance.
      */
-    public IVectorMutable getTranslationVector() {
+    public Vector getTranslationVector() {
         return translationVector;
     }
     /**
      * @param translationVector The translation vector to set.  A local copy
      * is made of the given vector.
      */
-    public void setTranslationVector(IVector translationVector) {
+    public void setTranslationVector(Vector translationVector) {
         this.translationVector.E(translationVector);
     }
 }

@@ -4,13 +4,13 @@
 
 package etomica.virial;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
 import etomica.config.IConformation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
- /**
+/**
   *  Conformation for Phenanthrene
   *  Reference paper: Iwai
   * 3 site group H to the two side benzene rings , eihter 464 or 545 model
@@ -20,7 +20,7 @@ import etomica.space.ISpace;
  */
 public class ConformationPh3site implements IConformation, java.io.Serializable{
 	
-	public ConformationPh3site(ISpace space){
+	public ConformationPh3site(Space space){
 		this.space = space;
 		vector = space.makeVector();
 	}
@@ -38,11 +38,11 @@ public class ConformationPh3site implements IConformation, java.io.Serializable{
 				
 	}
 		
-	protected final ISpace space;
+	protected final Space space;
 	protected static final double bondlength = 2.42;//converst nm to angstrom
 	protected static final double half_bondlength = bondlength / 2;
 	protected static final double minus_half_sqrt_bondlength = - Math.sqrt(3) / 2 * bondlength ; 
-	protected IVectorMutable vector;
+	protected Vector vector;
 	
 	private static final long serialVersionUID = 1L;
 }

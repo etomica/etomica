@@ -4,8 +4,8 @@
 
 package etomica.virial;
 
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
 
 /**
  * Interface for a Mayer f-function, which takes 3+ atoms and
@@ -32,5 +32,5 @@ public interface MayerFunctionNonAdditive {
 	 */
 	public double f(IMoleculeList molecules, int nMolecules, int[] moleculeIndices, double[] r2, double beta);
 
-	public void setBox(IBox box);
+	public void setBox(Box box);
 }

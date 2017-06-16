@@ -1,14 +1,15 @@
 package etomica.liquidLJ;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.atom.iterator.IteratorDirective;
+
+import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.space.ISpace;
+import etomica.potential.IteratorDirective;
+import etomica.potential.PotentialMaster;
+import etomica.space.Space;
 import etomica.units.Energy;
 
 /**
@@ -21,7 +22,7 @@ import etomica.units.Energy;
  
 public class MeterPotentialEnergyCutoff implements IEtomicaDataSource {
     
-    public MeterPotentialEnergyCutoff(IPotentialMaster potentialMaster, ISpace space, double[] cutoffs) {
+    public MeterPotentialEnergyCutoff(PotentialMaster potentialMaster, Space space, double[] cutoffs) {
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("energy", Energy.DIMENSION, new int[]{cutoffs.length});
         tag = new DataTag();
         data = new DataDoubleArray(cutoffs.length);
@@ -55,21 +56,21 @@ public class MeterPotentialEnergyCutoff implements IEtomicaDataSource {
     /**
      * @return Returns the box.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     /**
      * @param box The box to set.
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
     }
 
-    protected IBox box;
+    protected Box box;
     protected final DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
     protected final DataDoubleArray data;
     protected final IteratorDirective iteratorDirective = new IteratorDirective();
     protected final PotentialCalculationEnergySumCutoff energy;
-    protected final IPotentialMaster potential;
+    protected final PotentialMaster potential;
 }

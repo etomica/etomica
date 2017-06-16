@@ -6,23 +6,23 @@ package etomica.models.nitrogen;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IMolecule;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
-import etomica.atom.MoleculePair;
 import etomica.box.Box;
 import etomica.data.types.DataTensor;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculePair;
 import etomica.normalmode.BasisBigCell;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 
 /**
  * Disordered alpha-phase
@@ -42,7 +42,7 @@ import etomica.space3d.Space3D;
 public class HarmonicDisorderedAlphaNitrogenModelPairMoleculeSequentialLS extends Simulation{
 
 	
-	public HarmonicDisorderedAlphaNitrogenModelPairMoleculeSequentialLS(ISpace space, int numMolecule, double density, double rC) {
+	public HarmonicDisorderedAlphaNitrogenModelPairMoleculeSequentialLS(Space space, int numMolecule, double density, double rC) {
 		super(space);
 		this.space = space;
 		
@@ -316,7 +316,7 @@ public class HarmonicDisorderedAlphaNitrogenModelPairMoleculeSequentialLS extend
 	
 	
 	protected Box box;
-	protected ISpace space;
+	protected Space space;
 	protected P2Nitrogen potential;
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected PotentialMaster potentialMaster;
@@ -324,7 +324,7 @@ public class HarmonicDisorderedAlphaNitrogenModelPairMoleculeSequentialLS extend
 	protected FindPairMoleculeIndex findPair;
 	protected AtomActionTranslateBy translateBy;
 	protected MoleculeChildAtomAction atomGroupActionTranslate;
-	protected IVectorMutable lsPosition;
+	protected Vector lsPosition;
 	protected double xVecBox, yVecBox, zVecBox, rC;
 	protected int nLayer;
 	protected boolean[][][][][] isFoundReverse;

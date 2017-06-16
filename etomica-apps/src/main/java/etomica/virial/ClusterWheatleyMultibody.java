@@ -4,11 +4,9 @@
 
 package etomica.virial;
 
-import etomica.api.IAtomList;
-import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
-import etomica.atom.MoleculeArrayList;
 import etomica.math.SpecialFunctions;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeArrayList;
 
 /**
  * This class uses Wheatley's recursion approach to calculating all biconnected

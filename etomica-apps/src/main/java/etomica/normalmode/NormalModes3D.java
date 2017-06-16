@@ -4,12 +4,9 @@
 
 package etomica.normalmode;
 
-import Jama.EigenvalueDecomposition;
-import Jama.Matrix;
-import etomica.api.IBox;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  *
@@ -20,7 +17,7 @@ public class NormalModes3D implements NormalModes {
 
     /**
      */
-    public NormalModes3D(ISpace _space, Primitive primitive, Basis basis) {
+    public NormalModes3D(Space _space, Primitive primitive, Basis basis) {
     	
     	this.space = _space;
     	this.primitive = primitive;
@@ -77,7 +74,7 @@ public class NormalModes3D implements NormalModes {
     protected double harmonicFudge;
     protected double temperature;
     protected Primitive primitive;
-    protected ISpace space;
+    protected Space space;
     protected Basis basis;
     protected double[][][] eigenvectors;
     protected double[][] eigenvalues;

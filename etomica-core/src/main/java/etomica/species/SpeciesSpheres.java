@@ -3,19 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.species;
-import etomica.api.IAtom;
-import etomica.api.IAtomType;
-import etomica.api.IElement;
-import etomica.api.IMolecule;
+
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
-import etomica.atom.AtomTypeLeaf;
-import etomica.atom.Molecule;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
 import etomica.chem.elements.ElementSimple;
+import etomica.chem.elements.IElement;
 import etomica.config.ConformationLinear;
 import etomica.config.IConformation;
+import etomica.molecule.IMolecule;
+import etomica.molecule.Molecule;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Species in which molecules are made of arbitrary number of spheres,
@@ -25,23 +25,30 @@ import etomica.space.ISpace;
  */
 public class SpeciesSpheres extends Species {
 
-    public SpeciesSpheres(Simulation sim, ISpace _space) {
+    private static final long serialVersionUID = 1L;
+    protected final Space space;
+    protected final AtomType leafAtomType;
+    protected boolean isDynamic;
+    protected int atomsPerGroup;
+
+    public SpeciesSpheres(Simulation sim, Space _space) {
         this(sim, _space, 1);
     }
-    public SpeciesSpheres(Simulation sim, ISpace _space, int nA) {
+
+    public SpeciesSpheres(Simulation sim, Space _space, int nA) {
         this(_space, nA, new ElementSimple(sim));
     }
-    
-    public SpeciesSpheres(ISpace _space, int nA, IElement leafElement) {
+
+    public SpeciesSpheres(Space _space, int nA, IElement leafElement) {
         this(nA, leafElement, new ConformationLinear(_space), _space);
     }
     
     public SpeciesSpheres(int nA, IElement leafElement,
-    		              IConformation conformation, ISpace _space) {
-        this(_space, nA, new AtomTypeLeaf(leafElement), conformation);
+    		              IConformation conformation, Space _space) {
+        this(_space, nA, new AtomType(leafElement), conformation);
     }
-    
-    public SpeciesSpheres(ISpace _space, int nA, IAtomType leafAtomType, IConformation conformation) {
+
+    public SpeciesSpheres(Space _space, int nA, AtomType leafAtomType, IConformation conformation) {
         super();
         this.space = _space;
         addChildType(leafAtomType);
@@ -58,10 +65,10 @@ public class SpeciesSpheres extends Species {
         return isDynamic;
     }
 
-    public IAtomType getLeafType() {
+    public AtomType getLeafType() {
         return getAtomType(0);
     }
-    
+
     /**
      * Constructs a new group.
      */
@@ -73,28 +80,22 @@ public class SpeciesSpheres extends Species {
          conformation.initializePositions(group.getChildList());
          return group;
      }
-     
-     protected IAtom makeLeafAtom() {
+
+    protected IAtom makeLeafAtom() {
          return isDynamic ? new AtomLeafDynamic(space, leafAtomType)
                           : new Atom(space, leafAtomType);
      }
 
+    public int getNumLeafAtoms() {
+        return atomsPerGroup;
+    }
+
     /**
      * Specifies the number of child atoms in each atom constructed by this factory.
-     * 
+     *
      * @param na The new number of atoms per group
      */
     public void setNumLeafAtoms(int na) {
         atomsPerGroup = na;
     }
-
-     public int getNumLeafAtoms() {
-         return atomsPerGroup;
-     }
-
-     private static final long serialVersionUID = 1L;
-     protected boolean isDynamic;
-     protected final ISpace space;
-     protected int atomsPerGroup;
-     protected final IAtomType leafAtomType;
 }

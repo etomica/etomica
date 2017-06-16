@@ -3,9 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.data.meter;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.atom.iterator.IteratorDirective;
+
+import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -14,9 +13,11 @@ import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationHyperVirialSum;
 import etomica.potential.PotentialCalculationVirialSum;
-import etomica.space.ISpace;
+import etomica.potential.PotentialMaster;
+import etomica.space.Space;
 import etomica.units.Null;
 
 /**
@@ -29,8 +30,8 @@ public class MeterHyperVirial implements IEtomicaDataSource {
     protected final DataTag tag;
     protected final IteratorDirective iteratorDirective;
     protected final PotentialCalculationHyperVirialSum hyperVirial;
-    protected IPotentialMaster potentialMaster;
-    protected IBox box;
+    protected PotentialMaster potentialMaster;
+    protected Box box;
 
     private final PotentialCalculationVirialSum virial;
     protected double temperature;
@@ -50,7 +51,7 @@ public class MeterHyperVirial implements IEtomicaDataSource {
      * @param space
      * @param doFull
      */
-    public MeterHyperVirial(ISpace space, boolean doFull) {
+    public MeterHyperVirial(Space space, boolean doFull) {
         iteratorDirective = new IteratorDirective();
         iteratorDirective.includeLrc = true;
         hyperVirial = new PotentialCalculationHyperVirialSum();
@@ -79,11 +80,11 @@ public class MeterHyperVirial implements IEtomicaDataSource {
         return tag;
     }
 
-    public void setPotentialMaster(IPotentialMaster newPotentialMaster) {
+    public void setPotentialMaster(PotentialMaster newPotentialMaster) {
         potentialMaster = newPotentialMaster;
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
 

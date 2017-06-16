@@ -4,16 +4,14 @@
 
 package etomica.association;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
-import etomica.atom.MoleculeArrayList;
+import etomica.box.Box;
 import etomica.models.OPLS.SpeciesAceticAcid;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeArrayList;
+import etomica.space.Boundary;
+import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * AssociationHelperBranched is capable of populating a list of molecules in an smer 
@@ -34,11 +32,11 @@ public class AssociationHelperMolecule implements IAssociationHelperMolecule {
     
     protected final AssociationManagerMolecule associationManager;
     protected int maxBonds;
-    protected final IBoundary boundary;
+    protected final Boundary boundary;
     protected double minR2;
-    protected final IVectorMutable dr;
+    protected final Vector dr;
 
-    public AssociationHelperMolecule(ISpace space, IBox box, AssociationManagerMolecule associationManager) {
+    public AssociationHelperMolecule(Space space, Box box, AssociationManagerMolecule associationManager) {
         this.associationManager = associationManager;
         boundary = box.getBoundary();
         dr = space.makeVector();

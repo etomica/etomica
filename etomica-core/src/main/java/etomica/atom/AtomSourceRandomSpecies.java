@@ -4,13 +4,11 @@
 
 package etomica.atom;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IRandom;
-import etomica.api.ISpecies;
+import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.species.ISpecies;
+import etomica.util.random.IRandom;
 
 /**
  * AtomSource that returns a completely random leaf atom.
@@ -43,7 +41,7 @@ public class AtomSourceRandomSpecies implements AtomSource {
         if (box != null) list = box.getMoleculeList(species);
     }
     
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         box = p;
         if (species != null) list = box.getMoleculeList(species);
     }
@@ -65,6 +63,6 @@ public class AtomSourceRandomSpecies implements AtomSource {
     
     protected IMoleculeList list = null;
     protected IRandom random;
-    protected IBox box;
+    protected Box box;
     protected ISpecies species;
 }

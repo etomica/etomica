@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.lattice.crystal;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.math.geometry.Cuboid;
 import etomica.math.geometry.Polytope;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Primitive group for an orthorhombic system.  All primitive
@@ -15,10 +15,10 @@ import etomica.space.ISpace;
  */
 public class PrimitiveOrthorhombic extends Primitive {
     
-    public PrimitiveOrthorhombic(ISpace space) {
+    public PrimitiveOrthorhombic(Space space) {
         this(space, 1.0, 1.0, 1.0);
     }
-    public PrimitiveOrthorhombic(ISpace space, double a, double b, double c) {
+    public PrimitiveOrthorhombic(Space space, double a, double b, double c) {
         super(space);
         //set up orthogonal vectors of unit size
         setSize(new double[]{a, b, c});
@@ -101,7 +101,7 @@ public class PrimitiveOrthorhombic extends Primitive {
         setSize(newSize);
     }        
     
-    public int[] latticeIndex(IVector q) {
+    public int[] latticeIndex(Vector q) {
         for(int i=0; i<D; i++) {
             double x = q.getX(i)/size[i];
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x
@@ -109,7 +109,7 @@ public class PrimitiveOrthorhombic extends Primitive {
         return idx;
     }
 
-    public int[] latticeIndex(IVector q, int[] dimensions) {
+    public int[] latticeIndex(Vector q, int[] dimensions) {
         for(int i=0; i<D; i++) {
             double x = q.getX(i)/size[i];
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x

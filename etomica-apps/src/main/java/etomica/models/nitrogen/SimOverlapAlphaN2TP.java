@@ -4,24 +4,12 @@
 
 package etomica.models.nitrogen;
 
-import java.awt.Color;
-import java.io.File;
-
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.ISpecies;
+import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCovariance;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorRatioAverageCovariance;
-import etomica.data.DataPump;
-import etomica.data.DataPumpListener;
-import etomica.data.DataSourceCountSteps;
-import etomica.data.IData;
+import etomica.data.*;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorScheme;
@@ -40,9 +28,13 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
+
+import java.awt.*;
+import java.io.File;
 
 /**
  * Temperature-perturbation simulation for alpha-phase Nitrogen
@@ -353,7 +345,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
             }
         }
         meterRotation.writeUdistribution(filename);
-		double averageOrderParameter = ((DataGroup)orderParameterAverage.getData()).getValue(sim.accumulator.AVERAGE.index);
+		double averageOrderParameter = orderParameterAverage.getData().getValue(sim.accumulator.AVERAGE.index);
 //		System.out.println("orientational order parameter: "+ averageOrderParameter/(numMolecules*numMolecules));
 		
 		System.out.println("orientational order parameter: "+ 0.5*averageOrderParameter);
@@ -364,7 +356,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
     private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
     public ActivityIntegrate activityIntegrate;
-    public IBox box;
+    public Box box;
     public Primitive primitive;
     public AccumulatorAverageFixed accumulator;
     public DataPumpListener accumulatorPump;

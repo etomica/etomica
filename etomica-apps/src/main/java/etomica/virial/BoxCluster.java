@@ -4,11 +4,11 @@
 
 package etomica.virial;
 
-import etomica.api.IAtomList;
-import etomica.api.IMoleculeList;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
 import etomica.space.BoundaryRectangularNonperiodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * @author kofke
@@ -21,7 +21,7 @@ public class BoxCluster extends Box {
 	/**
 	 * Constructor for BoxCluster.
 	 */
-	public BoxCluster(ClusterWeight cluster, ISpace _space) {
+	public BoxCluster(ClusterWeight cluster, Space _space) {
 		super(new BoundaryRectangularNonperiodic(_space), _space);
         sampleCluster = cluster;
         this.space = _space;
@@ -111,5 +111,5 @@ public class BoxCluster extends Box {
     protected AtomPairSet aPairSet;
     protected long cPairID;
 	protected final ClusterWeight sampleCluster;
-	protected final ISpace space;
+	protected final Space space;
 }

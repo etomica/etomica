@@ -4,12 +4,6 @@
 
 package etomica.models.nitrogen;
 
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.ISimulation;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -18,8 +12,13 @@ import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.molecule.IMoleculeList;
 import etomica.nbr.list.molecule.PotentialMasterListMolecular;
-import etomica.space.ISpace;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.Degree;
 import etomica.units.Null;
 
@@ -38,7 +37,7 @@ import etomica.units.Null;
 public class MeterTargetRPMolecule implements IEtomicaDataSource {
 
     protected MeterPotentialEnergy meterPotential; 
-    protected IPotentialMaster potentialMaster;
+    protected PotentialMaster potentialMaster;
     protected double latticeEnergy;
     protected double temperature;
     protected double angle;
@@ -46,7 +45,7 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
     protected DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;
     protected final DataTag tag;
-    protected final IBox pretendBox;
+    protected final Box pretendBox;
     protected CoordinateDefinitionNitrogen coordinateDefinition;
     protected final ISpecies species;
     protected double[][] alpha;
@@ -54,11 +53,11 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
     protected double alphaSpan;
     protected int numAlpha = 1;
     protected boolean doScaling = true;
-	private IVectorMutable[][] initMolecOrientation;
+	private Vector[][] initMolecOrientation;
 	protected PRotConstraint pRotConstraint;
     
-    public MeterTargetRPMolecule(IPotentialMaster potentialMasterSampled, ISpecies species, ISpace space, ISimulation sim, 
-    		CoordinateDefinitionNitrogen coordinateDef, PRotConstraint pRotConstraint) {
+    public MeterTargetRPMolecule(PotentialMaster potentialMasterSampled, ISpecies species, Space space, Simulation sim,
+                                 CoordinateDefinitionNitrogen coordinateDef, PRotConstraint pRotConstraint) {
         this.potentialMaster = potentialMasterSampled;
         this.coordinateDefinition = coordinateDef;
         this.pRotConstraint = pRotConstraint;
@@ -72,7 +71,7 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
         tag = new DataTag();
         
         int numMolec = sim.getBox(0).getNMolecules(species);
-    	initMolecOrientation = new IVectorMutable[numMolec][3];
+    	initMolecOrientation = new Vector[numMolec][3];
     	/*
 		 * initializing the initial orientation of the molecule
 		 */
@@ -81,7 +80,7 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
 			initMolecOrientation[i] = coordinateDefinition.getMoleculeOrientation(sim.getBox(0).getMoleculeList().getMolecule(i));
 		}
 		
-		IBox realBox = coordinateDef.getBox();
+		Box realBox = coordinateDef.getBox();
 		pretendBox.setBoundary(realBox.getBoundary());
         pretendBox.setNMolecules(species, realBox.getNMolecules(species));
         
@@ -101,7 +100,7 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
     }
 
     public IData getData() {
-    	IBox realBox = coordinateDefinition.getBox();
+    	Box realBox = coordinateDefinition.getBox();
         meterPotential.setBox(realBox);
         
         double energy = meterPotential.getDataAsScalar();
