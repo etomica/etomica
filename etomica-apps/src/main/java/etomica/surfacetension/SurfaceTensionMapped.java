@@ -1,9 +1,10 @@
 package etomica.surfacetension;
 
-import etomica.api.*;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.IData;
@@ -15,8 +16,12 @@ import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.integrator.Integrator.Forcible;
 import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
-import etomica.space.ISpace;
+import etomica.potential.PotentialMaster;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.Null;
 
 
@@ -31,14 +36,14 @@ public class SurfaceTensionMapped extends DataProcessor implements AgentSource<F
     protected final DataDouble data = new DataDouble();
     protected final FitTanh fit;
     protected final MeterProfileByVolume densityProfileMeter;
-    protected final IPotentialMaster potentialMaster;
+    protected final PotentialMaster potentialMaster;
     protected final PotentialCalculationForceSum pcForce;
     protected final AtomLeafAgentManager<Forcible> forceAgentManager;
-    protected final ISpace space;
-    protected final IBox box;
+    protected final Space space;
+    protected final Box box;
     protected final IteratorDirective allAtoms;
 
-    public SurfaceTensionMapped(ISpace space, IBox box, ISpecies species, IPotentialMaster potentialMaster) {
+    public SurfaceTensionMapped(Space space, Box box, ISpecies species, PotentialMaster potentialMaster) {
         this.space = space;
         this.box = box;
         densityProfileMeter = new MeterProfileByVolume(space);
@@ -93,7 +98,7 @@ public class SurfaceTensionMapped extends DataProcessor implements AgentSource<F
         double jFac = (param[1]-param[0])/(2*L) * ((tL2-tL1)*c*L + 2*Math.log(cL1/cL2))/(tL1+tL2);
         for (int i=0; i<atoms.getAtomCount(); i++) {
             IAtom atom = atoms.getAtom(i);
-            IVector f = forceAgentManager.getAgent(atom).force();
+            Vector f = forceAgentManager.getAgent(atom).force();
             double px = atom.getPosition().getX(0);
             double t1 = Math.tanh(c * (px + param[3]));
             double t2 = Math.tanh(c * (px - param[3]));
@@ -114,10 +119,10 @@ public class SurfaceTensionMapped extends DataProcessor implements AgentSource<F
         return data;
     }
 
-    public Forcible makeAgent(IAtom a, IBox agentBox) {
+    public Forcible makeAgent(IAtom a, Box agentBox) {
         return new IntegratorVelocityVerlet.MyAgent(space);
     }
 
-    public void releaseAgent(Forcible agent, IAtom atom, IBox agentBox) {}
+    public void releaseAgent(Forcible agent, IAtom atom, Box agentBox) {}
 
 }

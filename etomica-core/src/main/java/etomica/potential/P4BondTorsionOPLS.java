@@ -4,24 +4,19 @@
 
 package etomica.potential;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IRandom;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.util.random.IRandom;
+import etomica.space.Vector;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
-import etomica.box.Box;
 import etomica.box.RandomPositionSourceRectangular;
 import etomica.space.BoundaryRectangularNonperiodic;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Space3D;
-import etomica.util.RandomNumberGenerator;
+import etomica.util.random.RandomNumberGenerator;
 
 /**
  * OPLS Torsion potential.
@@ -30,7 +25,7 @@ import etomica.util.RandomNumberGenerator;
  */
 public class P4BondTorsionOPLS extends P4BondTorsion {
 
-    public P4BondTorsionOPLS(ISpace space, double a0, double a1, double a2, double a3) {
+    public P4BondTorsionOPLS(Space space, double a0, double a1, double a2, double a3) {
         super(space, a0, a1, a2, a3);
     }
 
@@ -46,7 +41,7 @@ public class P4BondTorsionOPLS extends P4BondTorsion {
         throw new RuntimeException("Implement me");
     }
 
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         return gradient(atoms);
     }
 
@@ -72,8 +67,8 @@ public class P4BondTorsionOPLS extends P4BondTorsion {
         atoms.add(atom2);
         atoms.add(atom3);
         int n = 40;
-        IVectorMutable gradient = space.makeVector();
-        IVectorRandom dr = (IVectorRandom)space.makeVector();
+        Vector gradient = space.makeVector();
+        Vector dr = space.makeVector();
         for (int i=0; i<n; i++) {
             atom0.getPosition().E(positionSource.randomPosition());
             atom1.getPosition().E(positionSource.randomPosition());

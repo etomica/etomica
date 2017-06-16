@@ -4,14 +4,13 @@
 
 package etomica.virial;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.util.random.IRandom;
 import etomica.atom.IAtomOriented;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.IOrientation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Orientation3D;
 
 /**
@@ -20,12 +19,12 @@ import etomica.space3d.Orientation3D;
  */
 public class MCMoveClusterAtomRotateMulti extends MCMoveAtom {
 
-    public MCMoveClusterAtomRotateMulti(IRandom random, ISpace _space) {
+    public MCMoveClusterAtomRotateMulti(IRandom random, Space _space) {
         super(null, random, _space, 1.0, Math.PI, false);
         setStepSize(1.2);
 	}
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         super.setBox(box);
         if (oldOrientations != null) return;
         IAtomList atoms = box.getLeafList();
@@ -54,7 +53,7 @@ public class MCMoveClusterAtomRotateMulti extends MCMoveAtom {
         if (random.nextInt(100) == 0) {
             for(int i=0; i<nAtoms; i++) {
                 IAtomOriented a = (IAtomOriented)atoms.getAtom(i);
-                ((IVectorMutable)a.getOrientation().getDirection()).normalize();
+                a.getOrientation().getDirection().normalize();
             }
         }
 		((BoxCluster)box).trialNotify();

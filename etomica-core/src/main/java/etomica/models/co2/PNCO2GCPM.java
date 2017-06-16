@@ -4,29 +4,28 @@
 
 package etomica.models.co2;
 
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IElement;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMolecular;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomTypeAgentManager;
+import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.atom.MoleculePair;
+import etomica.box.Box;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.ElementSimple;
+import etomica.chem.elements.IElement;
 import etomica.chem.elements.Oxygen;
 import etomica.config.IConformation;
 import etomica.models.co2.P2CO2Hellmann.Parameters;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculePair;
+import etomica.potential.IPotentialMolecular;
 import etomica.potential.P3AxilrodTeller;
 import etomica.potential.PotentialMolecular;
 import etomica.potential.PotentialPolarizable;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Boundary;
+import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.species.SpeciesSpheresRotating;
@@ -45,11 +44,11 @@ import etomica.units.Kelvin;
  */
 public class PNCO2GCPM extends PotentialMolecular implements PotentialPolarizable {
 
-    public PNCO2GCPM(ISpace space) {
+    public PNCO2GCPM(Space space) {
         this(space, Integer.MAX_VALUE);
     }
     
-    public PNCO2GCPM(ISpace space, int nBody) {
+    public PNCO2GCPM(Space space, int nBody) {
 	    super(nBody, space);
 	    pair = new MoleculePair();
         sigmaC = 3.193;
@@ -93,9 +92,9 @@ public class PNCO2GCPM extends PotentialMolecular implements PotentialPolarizabl
         Tunit.E(new double[][]{{1,0,0},{0,1,0},{0,0,1}});
         Tij = space.makeTensor();
 
-        Eq = new IVectorMutable[0];
-        Ep = new IVectorMutable[0];
-        mu = new IVectorMutable[0];
+        Eq = new Vector[0];
+        Ep = new Vector[0];
+        mu = new Vector[0];
         component = Component.FULL;
 	}
     
@@ -139,8 +138,8 @@ public class PNCO2GCPM extends PotentialMolecular implements PotentialPolarizabl
         IAtomList water1Atoms = molecules.getMolecule(0).getChildList();
         IAtomList water2Atoms = molecules.getMolecule(1).getChildList();
 
-        IVectorMutable C1r = water1Atoms.getAtom(0).getPosition();
-        IVectorMutable C2r = water2Atoms.getAtom(0).getPosition();
+        Vector C1r = water1Atoms.getAtom(0).getPosition();
+        Vector C2r = water2Atoms.getAtom(0).getPosition();
         
         work.Ev1Mv2(C1r, C2r);
         shift.Ea1Tv1(-1,work);
@@ -154,10 +153,10 @@ public class PNCO2GCPM extends PotentialMolecular implements PotentialPolarizabl
             return Double.POSITIVE_INFINITY;
         }
 
-        IVectorMutable O11r = water1Atoms.getAtom(1).getPosition();
-        IVectorMutable O12r = water1Atoms.getAtom(2).getPosition();
-        IVectorMutable O21r = water2Atoms.getAtom(1).getPosition();
-        IVectorMutable O22r = water2Atoms.getAtom(2).getPosition();
+        Vector O11r = water1Atoms.getAtom(1).getPosition();
+        Vector O12r = water1Atoms.getAtom(2).getPosition();
+        Vector O21r = water2Atoms.getAtom(1).getPosition();
+        Vector O22r = water2Atoms.getAtom(2).getPosition();
 
         double sum =0;
         if (zeroShift) {
@@ -176,7 +175,7 @@ public class PNCO2GCPM extends PotentialMolecular implements PotentialPolarizabl
         else {
             for (int i=0; i<3; i++) {
                 for (int j=0; j<3; j++) {
-                    IVector r1 = water1Atoms.getAtom(i).getPosition();
+                    Vector r1 = water1Atoms.getAtom(i).getPosition();
                     shift.PE(r1);
                     r2 = water2Atoms.getAtom(j).getPosition().Mv1Squared(shift);
                     shift.ME(r1);
@@ -279,9 +278,9 @@ public class PNCO2GCPM extends PotentialMolecular implements PotentialPolarizabl
         final int atomCount = molecules.getMoleculeCount();
         if (Eq.length < atomCount+1) {
             int oldSize = Eq.length;
-            Eq = (IVectorMutable[])etomica.util.Arrays.resizeArray(Eq, atomCount);
-            Ep = (IVectorMutable[])etomica.util.Arrays.resizeArray(Ep, atomCount);
-            mu= (IVectorMutable[])etomica.util.Arrays.resizeArray(mu, atomCount);
+            Eq = (Vector[])etomica.util.Arrays.resizeArray(Eq, atomCount);
+            Ep = (Vector[])etomica.util.Arrays.resizeArray(Ep, atomCount);
+            mu= (Vector[])etomica.util.Arrays.resizeArray(mu, atomCount);
             for (int i=oldSize; i<atomCount; i++) {
                 Eq[i] = space.makeVector();
                 Ep[i] = space.makeVector();
@@ -296,14 +295,14 @@ public class PNCO2GCPM extends PotentialMolecular implements PotentialPolarizabl
         
         for (int i=0; i<molecules.getMoleculeCount(); i++) {
             IAtomList iLeafAtoms = molecules.getMolecule(i).getChildList();
-            IVectorMutable C1r = iLeafAtoms.getAtom(0).getPosition();
+            Vector C1r = iLeafAtoms.getAtom(0).getPosition();
 
             for (int j=0; j<molecules.getMoleculeCount(); j++) {
                 if  (i == j) continue;
                 IAtomList jLeafAtoms = molecules.getMolecule(j).getChildList();
-                IVectorMutable Cjr = jLeafAtoms.getAtom(0).getPosition();
-                IVectorMutable Oj1r = jLeafAtoms.getAtom(1).getPosition();
-                IVectorMutable Oj2r = jLeafAtoms.getAtom(2).getPosition();
+                Vector Cjr = jLeafAtoms.getAtom(0).getPosition();
+                Vector Oj1r = jLeafAtoms.getAtom(1).getPosition();
+                Vector Oj2r = jLeafAtoms.getAtom(2).getPosition();
                 
                 work.Ev1Mv2(C1r, Cjr);
                 shift.Ea1Tv1(-1,work);
@@ -368,7 +367,7 @@ for (int iter=0; iter<maxIter; iter++) {
         double sumMu = 0;
         for (int i=0; i<molecules.getMoleculeCount(); i++) {
             IAtomList iLeafAtoms = molecules.getMolecule(i).getChildList();
-            IVectorMutable C1r = iLeafAtoms.getAtom(0).getPosition();
+            Vector C1r = iLeafAtoms.getAtom(0).getPosition();
 
             work.Ev1Mv2(C1r,iLeafAtoms.getAtom(1).getPosition());
             work.normalize();
@@ -388,11 +387,11 @@ for (int iter=0; iter<maxIter; iter++) {
         double tauK = tauAll[0][0];
         for (int i=0; i<molecules.getMoleculeCount(); i++) {
             IAtomList iLeafAtoms = molecules.getMolecule(i).getChildList();
-            IVectorMutable C1r = iLeafAtoms.getAtom(0).getPosition();
+            Vector C1r = iLeafAtoms.getAtom(0).getPosition();
 
             for (int j=i+1; j<molecules.getMoleculeCount(); j++) {
                 IAtomList jLeafAtoms = molecules.getMolecule(j).getChildList();
-                IVectorMutable Cjr = jLeafAtoms.getAtom(0).getPosition();
+                Vector Cjr = jLeafAtoms.getAtom(0).getPosition();
                 
                 rijVector.Ev1Mv2(C1r, Cjr);
         		boundary.nearestImage(rijVector);
@@ -463,7 +462,7 @@ for (int iter=0; iter<maxIter; iter++) {
         return Double.POSITIVE_INFINITY;
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
     	boundary = box.getBoundary();
     }
     
@@ -472,7 +471,7 @@ for (int iter=0; iter<maxIter; iter++) {
     }
 
     protected final MoleculePair pair;
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected final double sigmaC, sigmaO;
     protected final double[][] sigmaAll, epsilonAll;
     protected final double epsilonC, epsilonO, gamma;
@@ -481,10 +480,10 @@ for (int iter=0; iter<maxIter; iter++) {
     protected final double tauC, tauO; // sigma for water
     protected final double[][] tauAll;
     protected final double coreFac;
-    protected IVectorMutable[] Eq, Ep, mu;
-    protected IVectorMutable oldMu;
-    protected final IVectorMutable rijVector;
-    protected final IVectorMutable work, shift;
+    protected Vector[] Eq, Ep, mu;
+    protected Vector oldMu;
+    protected final Vector rijVector;
+    protected final Vector work, shift;
     protected final Tensor Tunit, Tij;
     protected final double sqrtCOtau;
     protected final double sqrtPiCOtau;
@@ -497,17 +496,17 @@ for (int iter=0; iter<maxIter; iter++) {
     
     public class P3GCPMAxilrodTeller implements IPotentialMolecular {
 
-        protected final IVectorMutable rij, rik, rjk;
-        protected final IVectorMutable bveci, bvecj, bveck;
+        protected final Vector rij, rik, rjk;
+        protected final Vector bveci, bvecj, bveck;
         protected final double[] cosg;
-        protected final IVectorMutable norm;
-        protected final IVectorMutable xveci, xvecj, xveck;
-        protected final IVectorMutable yveci, yvecj, yveck;
+        protected final Vector norm;
+        protected final Vector xveci, xvecj, xveck;
+        protected final Vector yveci, yvecj, yveck;
         protected final double[] xx, yy, zz;
         public static final double dpolx = 1.95, anx = 2.1;
         public final double nufac0;
         
-        public P3GCPMAxilrodTeller(ISpace space) {
+        public P3GCPMAxilrodTeller(Space space) {
             rij = space.makeVector();
             rik = space.makeVector();
             rjk = space.makeVector();
@@ -532,7 +531,7 @@ for (int iter=0; iter<maxIter; iter++) {
             return Double.POSITIVE_INFINITY;
         }
 
-        public void setBox(IBox box) {
+        public void setBox(Box box) {
             
         }
 
@@ -545,9 +544,9 @@ for (int iter=0; iter<maxIter; iter++) {
             IAtomList atomsi = molecules.getMolecule(0).getChildList();
             IAtomList atomsj = molecules.getMolecule(1).getChildList();
             IAtomList atomsk = molecules.getMolecule(2).getChildList();
-            IVector ri = atomsi.getAtom(0).getPosition();
-            IVector rj = atomsj.getAtom(0).getPosition();
-            IVector rk = atomsk.getAtom(0).getPosition();
+            Vector ri = atomsi.getAtom(0).getPosition();
+            Vector rj = atomsj.getAtom(0).getPosition();
+            Vector rk = atomsk.getAtom(0).getPosition();
             rij.Ev1Mv2(rj, ri);
             rik.Ev1Mv2(rk, ri);
             rjk.Ev1Mv2(rk, rj);
@@ -714,7 +713,7 @@ for (int iter=0; iter<maxIter; iter++) {
     public static void main2(String[] args) {
         double x = 0;
         double z = 4.;
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
         SpeciesSpheresHetero speciesCO2 = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
         speciesCO2.setChildCount(new int[]{1,2});
@@ -727,7 +726,7 @@ for (int iter=0; iter<maxIter; iter++) {
             }
         });
         sim.addSpecies(speciesCO2);
-        IBox box = new etomica.box.Box(space);
+        Box box = new etomica.box.Box(space);
         sim.addBox(box);
         box.setNMolecules(speciesCO2, 2);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{100,100,100}));
@@ -782,7 +781,7 @@ for (int iter=0; iter<maxIter; iter++) {
         double z1 = 5.;
         double y2 = 7.;
         double z2 = -2;
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
         SpeciesSpheresHetero speciesCO2 = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
         speciesCO2.setChildCount(new int[]{1,2});
@@ -795,7 +794,7 @@ for (int iter=0; iter<maxIter; iter++) {
             }
         });
         sim.addSpecies(speciesCO2);
-        IBox box = new etomica.box.Box(space);
+        Box box = new etomica.box.Box(space);
         sim.addBox(box);
         box.setNMolecules(speciesCO2, 3);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{100,100,100}));

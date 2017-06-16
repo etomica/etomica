@@ -3,28 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.surfacetension;
-import java.util.List;
 
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.AtomType;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataDump;
-import etomica.data.DataFork;
-import etomica.data.DataProcessor;
-import etomica.data.DataPump;
-import etomica.data.DataPumpListener;
-import etomica.data.DataSourceCountSteps;
-import etomica.data.DataTag;
+import etomica.data.*;
+import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPressureTensor;
 import etomica.data.meter.MeterProfileByVolume;
@@ -40,23 +27,25 @@ import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.HistoryCollapsingAverage;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+
+import java.util.List;
 
 public class LJMC extends Simulation {
     
     public final PotentialMasterCell potentialMaster;
     public final SpeciesSpheresMono species;
-    public final IBox box;
+    public final Box box;
     public final ActivityIntegrate activityIntegrate;
     public final IntegratorMC integrator;
     public final MCMoveAtomInRegion mcMoveAtom, mcMoveAtomBigStep;
 
-    public LJMC(ISpace _space, int numAtoms, double temperature, double aspectRatio) {
+    public LJMC(Space _space, int numAtoms, double temperature, double aspectRatio) {
         super(_space);
         double rc = 4.0;
         potentialMaster = new PotentialMasterCell(this, rc, space);
@@ -76,12 +65,12 @@ public class LJMC extends Simulation {
         //instantiate several potentials for selection in combo-box
 	    P2LennardJones potential = new P2LennardJones(space);
         P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(space, potential, rc);
-	    potentialMaster.addPotential(p2Truncated, new IAtomType[]{species.getLeafType(), species.getLeafType()});
-	    
+        potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
+
         //construct box
 	    box = new Box(space);
         addBox(box);
-        IVectorMutable dim = space.makeVector();
+        Vector dim = space.makeVector();
         box.getBoundary().setBoxSize(dim);
         integrator.setBox(box);
         
@@ -141,8 +130,8 @@ public class LJMC extends Simulation {
         box.setNMolecules(species, numAtoms);
         IAtomList atoms = box.getLeafList();
         for (int i=0; i<numAtoms-nL; i++) {
-            IVector vx = boxV.getLeafList().getAtom(i).getPosition();
-            IVectorMutable x = atoms.getAtom(nL+i).getPosition();
+            Vector vx = boxV.getLeafList().getAtom(i).getPosition();
+            Vector x = atoms.getAtom(nL+i).getPosition();
             x.E(vx);
             if (vx.getX(0) > 0) {
                 x.setX(0, vx.getX(0) + 0.5*Lx*xL);
@@ -164,7 +153,7 @@ public class LJMC extends Simulation {
         }
         else {
         }
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         int numAtoms = params.numAtoms;
         double temperature = params.temperature;
         double aspectRatio = params.aspectRatio;
@@ -200,17 +189,17 @@ public class LJMC extends Simulation {
             DataPump profilePump = new DataPump(densityProfileMeter, profileFork);
             profileFork.addDataSink(densityProfileAvg);
             DataDump profileDump = new DataDump();
-            densityProfileAvg.addDataSink(profileDump, new AccumulatorAverage.StatType[]{densityProfileAvg.AVERAGE});
+            densityProfileAvg.addDataSink(profileDump, new AccumulatorAverage.StatType[]{AccumulatorAverage.AVERAGE});
             IntegratorListenerAction profilePumpListener = new IntegratorListenerAction(profilePump);
             sim.integrator.getEventManager().addListener(profilePumpListener);
             profilePumpListener.setInterval(numAtoms);
             dataStreamPumps.add(profilePump);
 
             final FitTanh fitTanh = new FitTanh();
-            densityProfileAvg.addDataSink(fitTanh, new AccumulatorAverage.StatType[]{densityProfileAvg.AVERAGE});
+            densityProfileAvg.addDataSink(fitTanh, new AccumulatorAverage.StatType[]{AccumulatorAverage.AVERAGE});
 
             DisplayPlot profilePlot = new DisplayPlot();
-            densityProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{densityProfileAvg.AVERAGE});
+            densityProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{AccumulatorAverage.AVERAGE});
             fitTanh.setDataSink(profilePlot.getDataSet().makeDataSink());
             profilePlot.setLegend(new DataTag[]{densityProfileAvg.getTag()}, "density");
             profilePlot.setLegend(new DataTag[]{densityProfileAvg.getTag(), fitTanh.getTag()}, "fit");

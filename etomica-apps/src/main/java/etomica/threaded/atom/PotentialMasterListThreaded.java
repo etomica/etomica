@@ -4,22 +4,22 @@
 
 package etomica.threaded.atom;
 
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotential;
-import etomica.api.ISimulation;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.atom.IAtom;
+import etomica.box.Box;
 import etomica.box.BoxAgentManager;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.IMoleculePositionDefinition;
 import etomica.nbr.PotentialGroupNbr;
 import etomica.nbr.list.BoxAgentSourceCellManagerList;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.potential.IPotential;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
-import etomica.space.ISpace;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
 import etomica.threaded.IPotentialCalculationThreaded;
 import etomica.util.Debug;
 
@@ -31,35 +31,35 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
 	int ready2;
 	
 	
-	public PotentialMasterListThreaded(ISimulation sim, ISpace _space) {
+	public PotentialMasterListThreaded(Simulation sim, Space _space) {
 		super(sim, _space);
 	}
 
-	public PotentialMasterListThreaded(ISimulation sim, ISpace _space, double range) {
+	public PotentialMasterListThreaded(Simulation sim, Space _space, double range) {
 		super(sim, range, _space);
 	}
 
-	public PotentialMasterListThreaded(ISimulation sim, ISpace _space, double range,
-			IAtomPositionDefinition positionDefinition) {
+	public PotentialMasterListThreaded(Simulation sim, Space _space, double range,
+                                       IMoleculePositionDefinition positionDefinition) {
 		super(sim, range, positionDefinition, _space);
 	}
 
-	public PotentialMasterListThreaded(ISimulation sim, ISpace _space, double range,
-			BoxAgentSourceCellManagerList boxAgentSource) {
+	public PotentialMasterListThreaded(Simulation sim, Space _space, double range,
+                                       BoxAgentSourceCellManagerList boxAgentSource) {
 		super(sim, range, boxAgentSource, _space);
 	}
 
-	public PotentialMasterListThreaded(ISimulation sim, ISpace _space, double range,
-			BoxAgentSourceCellManagerList boxAgentSource,
-			BoxAgentManager agentManager) {
+	public PotentialMasterListThreaded(Simulation sim, Space _space, double range,
+                                       BoxAgentSourceCellManagerList boxAgentSource,
+                                       BoxAgentManager agentManager) {
 		super(sim, range, boxAgentSource, agentManager, _space);
 	}
 	
-    public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
+    public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled) return;
         IAtom targetAtom = id.getTargetAtom();
         IMolecule targetMolecule = id.getTargetMolecule();
-        NeighborListManager neighborManager = (NeighborListManager)neighborListAgentManager.getAgent(box);
+        NeighborListManager neighborManager = neighborListAgentManager.getAgent(box);
 
         if (targetAtom == null && targetMolecule == null) {
             //no target atoms specified -- do one-target algorithm to SpeciesMaster
@@ -113,7 +113,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
         }
     }
 
-    protected void calculateThreaded(IBox box, IteratorDirective id, IPotentialCalculationThreaded pc, NeighborListManager neighborManager) {
+    protected void calculateThreaded(Box box, IteratorDirective id, IPotentialCalculationThreaded pc, NeighborListManager neighborManager) {
 
         //cannot use AtomIterator field because of recursive call
         IMoleculeList list = box.getMoleculeList();
@@ -157,12 +157,12 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
         
     }
 	
-	public void setNumThreads(int t, IBox box){
+	public void setNumThreads(int t, Box box){
 		threads = new PotentialMasterListWorker[t];
 				
         for (int i=0; i<t; i++){
 			threads[i] = new PotentialMasterListWorker(i, rangedAgentManager, this);
-			threads[i].fillNeighborListArray(i, t, (NeighborListManager)neighborListAgentManager.getAgent(box), box);
+			threads[i].fillNeighborListArray(i, t, neighborListAgentManager.getAgent(box), box);
             threads[i].start();
 		}
            

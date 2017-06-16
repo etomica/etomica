@@ -4,24 +4,24 @@
 
 package etomica.threaded.domain;
 
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IPotential;
-import etomica.api.ISimulation;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.atom.IAtom;
+import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.lattice.CellLattice;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculePositionDefinition;
 import etomica.nbr.PotentialGroupNbr;
 import etomica.nbr.cell.Cell;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.list.BoxAgentSourceCellManagerList;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.potential.IPotential;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
-import etomica.space.ISpace;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
 import etomica.threaded.IPotentialCalculationThreaded;
 import etomica.util.Debug;
 
@@ -31,40 +31,40 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
 	BoxAgentManager agentManagerThreaded;
 	
 	
-	public PotentialMasterListThreaded(ISimulation sim, ISpace _space) {
+	public PotentialMasterListThreaded(Simulation sim, Space _space) {
 		this(sim, 0, _space);
 	}
 
-	public PotentialMasterListThreaded(ISimulation sim, double range, ISpace _space) {
-        this(sim, range, (IAtomPositionDefinition)null, _space);
+	public PotentialMasterListThreaded(Simulation sim, double range, Space _space) {
+        this(sim, range, (IMoleculePositionDefinition)null, _space);
 	}
 
-	public PotentialMasterListThreaded(ISimulation sim, double range,
-			IAtomPositionDefinition positionDefinition, ISpace _space) {
+	public PotentialMasterListThreaded(Simulation sim, double range,
+                                       IMoleculePositionDefinition positionDefinition, Space _space) {
         this(sim, range, new BoxAgentSourceCellManagerList(sim, positionDefinition, _space), _space);
 	}
 
-	public PotentialMasterListThreaded(ISimulation sim, double range,
-			BoxAgentSourceCellManagerList boxAgentSource, ISpace _space) {
+	public PotentialMasterListThreaded(Simulation sim, double range,
+                                       BoxAgentSourceCellManagerList boxAgentSource, Space _space) {
 		this(sim, range, boxAgentSource, new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class), _space);
 	}
 
-	public PotentialMasterListThreaded(ISimulation sim, double range,
-			BoxAgentSourceCellManagerList boxAgentSource,
-			BoxAgentManager<NeighborCellManager> agentManager, ISpace _space) {
+	public PotentialMasterListThreaded(Simulation sim, double range,
+                                       BoxAgentSourceCellManagerList boxAgentSource,
+                                       BoxAgentManager<NeighborCellManager> agentManager, Space _space) {
 		super(sim, range, boxAgentSource, agentManager, new NeighborListAgentSourceThreaded(range, _space), _space);
         agentManagerThreaded = new BoxAgentManager<NeighborCellManagerThreaded>(new BoxAgentSourceCellManagerThreaded(sim, null, _space), NeighborCellManagerThreaded.class, sim);
 	}
 	
-    public NeighborCellManagerThreaded getNbrCellManagerThreaded(IBox box) {
+    public NeighborCellManagerThreaded getNbrCellManagerThreaded(Box box) {
         return (NeighborCellManagerThreaded)agentManagerThreaded.getAgent(box);
     }
     
-    public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
+    public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled) return;
         IAtom targetAtom = id.getTargetAtom();
         IMolecule targetMolecule = id.getTargetMolecule();
-        NeighborListManager neighborManager = (NeighborListManager)neighborListAgentManager.getAgent(box);
+        NeighborListManager neighborManager = neighborListAgentManager.getAgent(box);
 
         if (targetAtom == null && targetMolecule == null) {
             //no target atoms specified -- do one-target algorithm to SpeciesMaster
@@ -117,7 +117,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
         }
     }
 
-    protected void calculateThreaded(IBox box, IteratorDirective id, IPotentialCalculationThreaded pc, NeighborListManager neighborManager) {
+    protected void calculateThreaded(Box box, IteratorDirective id, IPotentialCalculationThreaded pc, NeighborListManager neighborManager) {
     	
 			                            
             for(int i=0; i<threads.length; i++){
@@ -157,7 +157,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
         
     }
 	
-	public void setNumThreads(int t, IBox box){
+	public void setNumThreads(int t, Box box){
         
         //Sets the number of domains to the number of threads
 		NeighborCellManagerThreaded neighborCellManagerThreaded = (NeighborCellManagerThreaded)agentManagerThreaded.getAgent(box);
@@ -181,12 +181,12 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
     protected static class NeighborListAgentSourceThreaded extends NeighborListAgentSource{
         
         
-        public NeighborListAgentSourceThreaded(double range, ISpace _space) {
+        public NeighborListAgentSourceThreaded(double range, Space _space) {
 
             super(range, _space);
         }
 
-        public NeighborListManagerThreaded makeAgent(IBox box) {
+        public NeighborListManagerThreaded makeAgent(Box box) {
             return new NeighborListManagerThreaded((PotentialMasterListThreaded)potentialMaster, range, box, space);
         }
     }

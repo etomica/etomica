@@ -6,19 +6,15 @@ package etomica.data.meter;
 
 import etomica.action.BoxInflate;
 import etomica.action.BoxInflateDeformable;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
-import etomica.atom.iterator.IteratorDirective;
-import etomica.data.DataSourceUniform;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.box.Box;
+import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorBox;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationEnergySum;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Null;
 import etomica.units.Pressure;
 import etomica.units.Volume;
@@ -34,7 +30,7 @@ import etomica.units.Volume;
  */
 public class MeterPressureByVolumeChange implements IEtomicaDataSource, java.io.Serializable {
     
-    public MeterPressureByVolumeChange(ISpace space) {
+    public MeterPressureByVolumeChange(Space space) {
         this(space, makeDefaultDimensions(space.D()));
     }
     
@@ -46,7 +42,7 @@ public class MeterPressureByVolumeChange implements IEtomicaDataSource, java.io.
         return dim;
     }
     
-    public MeterPressureByVolumeChange(ISpace space, boolean[] dimensions) {
+    public MeterPressureByVolumeChange(Space space, boolean[] dimensions) {
         this.space = space;
         tag = new DataTag();
         setX(-0.001, 0.001, 10);
@@ -57,11 +53,11 @@ public class MeterPressureByVolumeChange implements IEtomicaDataSource, java.io.
         scale = space.makeVector();
     }
     
-    public MeterPressureByVolumeChange(ISpace space, BoxInflateDeformable pid){
+    public MeterPressureByVolumeChange(Space space, BoxInflateDeformable pid){
         this(space, makeDefaultDimensions(space.D()), pid);
     }
     
-    public MeterPressureByVolumeChange(ISpace space, boolean[] dimensions, BoxInflateDeformable pid){
+    public MeterPressureByVolumeChange(Space space, boolean[] dimensions, BoxInflateDeformable pid){
         this.space = space;
         tag = new DataTag();
         setX(-0.001, 0.001, 10);
@@ -138,7 +134,7 @@ public class MeterPressureByVolumeChange implements IEtomicaDataSource, java.io.
     
     public IData getData() {
         if (integrator == null) throw new IllegalStateException("must call setIntegrator before using meter");
-        IBox box = integrator.getBox();
+        Box box = integrator.getBox();
         inflater.setBox(box);
         energy.zeroSum();
         integrator.getPotentialMaster().calculate(box, iteratorDirective, energy);
@@ -170,12 +166,12 @@ public class MeterPressureByVolumeChange implements IEtomicaDataSource, java.io.
     private final DataTag tag;
     private double[] dataArray;
     private final BoxInflate inflater;
-    private final IVectorMutable scale;
+    private final Vector scale;
     private final boolean[] inflateDimensions;
     private final IteratorDirective iteratorDirective;
     private final PotentialCalculationEnergySum energy = new PotentialCalculationEnergySum();
     private int nDimension;
-    private final ISpace space;
+    private final Space space;
     private DataSourceUniform xDataSource;
     protected DataSourceExp vDataSource;
     private IntegratorBox integrator;

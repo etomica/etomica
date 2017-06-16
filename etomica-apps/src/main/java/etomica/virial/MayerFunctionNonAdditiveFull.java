@@ -1,8 +1,8 @@
 package etomica.virial;
 
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMolecular;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.IPotentialMolecular;
 
 public class MayerFunctionNonAdditiveFull implements MayerFunctionNonAdditive {
 
@@ -38,7 +38,7 @@ public class MayerFunctionNonAdditiveFull implements MayerFunctionNonAdditive {
         return f(molecules, r2, beta);
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         pNA.setBox(box);
     }
 }

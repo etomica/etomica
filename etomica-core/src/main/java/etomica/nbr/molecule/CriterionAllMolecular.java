@@ -4,9 +4,9 @@
 
 package etomica.nbr.molecule;
 
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
+import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 
 /**
  * Specifies that all atoms pairs are to be considered neighbors.  Should
@@ -31,7 +31,7 @@ public class CriterionAllMolecular implements NeighborCriterionMolecular, java.i
     /**
      * Performs no action.
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
     }
 
     /**

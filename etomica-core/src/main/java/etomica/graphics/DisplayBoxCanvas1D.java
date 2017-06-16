@@ -13,15 +13,13 @@ import java.awt.event.ComponentListener;
 import java.util.Iterator;
 
 import etomica.action.activity.Controller;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
+import etomica.space.Vector;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterCollective;
-import etomica.space.Boundary;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Pixel;
 
     /* History of changes
@@ -36,10 +34,10 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
     //  private int annotationHeight = font.getFontMetrics().getHeight();
     private int annotationHeight = 12;
     private int[] shiftOrigin = new int[2];     //work vector for drawing overflow images
-    private final ISpace space;
+    private final Space space;
     private final int[] atomOrigin;
     
-    public DisplayBoxCanvas1D(ISpace _space, DisplayBox _box, Controller _controller) {
+    public DisplayBoxCanvas1D(Space _space, DisplayBox _box, Controller _controller) {
         super(_controller);
         displayBox = _box;
         space = _space;
@@ -74,7 +72,7 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
 
     protected void refreshSize() {
         Dimension dim = getSize();
-        IVector boxDim = displayBox.getBox().getBoundary().getBoxSize();
+        Vector boxDim = displayBox.getBox().getBoundary().getBoxSize();
         double px = (dim.width - 1)/(boxDim.getX(0)+displayBox.getPaddingSigma());
         if (pixel != null && pixel.toPixels() == px) {
             return;
@@ -93,7 +91,7 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
        
     private void drawAtom(Graphics g, int origin[], IAtom a) {
         
-        IVectorMutable r = a.getPosition();
+        Vector r = a.getPosition();
         int sigmaP, xP, yP, baseXP, baseYP;
 
         g.setColor(displayBox.getColorScheme().getAtomColor(a));
@@ -116,7 +114,7 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
         g.fillRect(xP, yP, sigmaP, drawingHeight);
     }
             
-    protected boolean computeShiftOrigin(IAtom a, IBoundary b) {
+    protected boolean computeShiftOrigin(IAtom a, Boundary b) {
         OverflowShift overflow = new OverflowShift(space);
         double sigma = displayBox.getDiameterHash().getDiameter(a);
         if (sigma == -1) sigma = 1;

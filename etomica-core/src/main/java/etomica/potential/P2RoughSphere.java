@@ -4,13 +4,13 @@
 
 package etomica.potential;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
+import etomica.atom.AtomTypeOriented;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.atom.IAtomOrientedKinetic;
-import etomica.atom.IAtomTypeOriented;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 
 /**
@@ -28,11 +28,11 @@ public class P2RoughSphere extends P2HardSphere {
     private final Vector3D v12Perp;
     private final Vector3D impulse;
     
-    public P2RoughSphere(ISpace space) {
+    public P2RoughSphere(Space space) {
         this(space, 1.0, false);
     }
     
-    public P2RoughSphere(ISpace space, double d, boolean ignoreOverlap) {
+    public P2RoughSphere(Space space, double d, boolean ignoreOverlap) {
         super(space,d,ignoreOverlap);
         v12Surface = new Vector3D();
         v12Par = new Vector3D();
@@ -49,8 +49,8 @@ public class P2RoughSphere extends P2HardSphere {
         IAtom atom1 = pair.getAtom(1);
         IAtomOrientedKinetic coord0 = (IAtomOrientedKinetic)atom0;
         IAtomOrientedKinetic coord1 = (IAtomOrientedKinetic)atom1;
-        IVectorMutable v1 = coord0.getVelocity();
-        IVectorMutable v2 = coord1.getVelocity();
+        Vector v1 = coord0.getVelocity();
+        Vector v2 = coord1.getVelocity();
         dv.Ev1Mv2(v2, v1);
         
         dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());
@@ -61,7 +61,7 @@ public class P2RoughSphere extends P2HardSphere {
         double bij = dr.dot(dv);
         double rm0 = atom0.getType().rm();
         double rm1 = atom1.getType().rm();
-        double kappa = 4*((IAtomTypeOriented)atom0.getType()).getMomentOfInertia().getX(0)*rm0/(collisionDiameter*collisionDiameter);
+        double kappa = 4 * ((AtomTypeOriented) atom0.getType()).getMomentOfInertia().getX(0) * rm0 / (collisionDiameter * collisionDiameter);
         omegaSum.E(coord0.getAngularVelocity());
         omegaSum.PE(coord1.getAngularVelocity());
         // v12Surface should come to equal v2 - v1 - 1/2*(omega2+omega1) X (r2-r1)

@@ -4,25 +4,19 @@
 
 package etomica.normalmode;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.atom.AtomArrayList;
-import etomica.atom.AtomPair;
-import etomica.atom.AtomSetSinglet;
-import etomica.atom.AtomSource;
-import etomica.atom.AtomSourceRandomLeaf;
+import etomica.atom.*;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
+import etomica.potential.IPotentialAtomic;
+import etomica.potential.PotentialMaster;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * Standard Monte Carlo atom-displacement trial move.  Two atoms are moved at a
@@ -35,27 +29,27 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
     protected final AtomIteratorArrayListSimple affectedAtomIterator;
     protected final AtomArrayList affectedAtomList;
     protected final MeterPotentialEnergy energyMeter;
-    protected final IVectorRandom translationVector;
+    protected final Vector translationVector;
     protected IAtom atom0, atom1;
     protected double uOld;
     protected double uNew;
     protected AtomSource atomSource;
     protected final IRandom random;
-    protected IPotentialAtomic [] pairPotential;
+    protected IPotentialAtomic[] pairPotential;
     protected final AtomPair pair;
     protected final AtomSetSinglet atomSinglet;
     protected boolean doExcludeNonNeighbors;
     protected int pairPotentialIndex;
     protected IPotentialAtomic constraintPotential;
 
-    public MCMoveAtomCoupled(IPotentialMaster potentialMaster, MeterPotentialEnergy energyMeter,
-                             IRandom random, ISpace _space) {
+    public MCMoveAtomCoupled(PotentialMaster potentialMaster, MeterPotentialEnergy energyMeter,
+                             IRandom random, Space _space) {
         super(potentialMaster);
         this.random = random;
         atomSource = new AtomSourceRandomLeaf();
         ((AtomSourceRandomLeaf)atomSource).setRandomNumberGenerator(random);
         this.energyMeter = energyMeter;
-        translationVector = (IVectorRandom)_space.makeVector();
+        translationVector = _space.makeVector();
         setStepSizeMax(0.5);
         setStepSizeMin(0.0);
         setStepSize(0.1);
@@ -184,7 +178,7 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         return affectedAtomIterator;
     }
     
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         atomSource.setBox(p);

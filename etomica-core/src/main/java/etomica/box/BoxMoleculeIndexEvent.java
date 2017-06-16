@@ -4,25 +4,25 @@
 
 package etomica.box;
 
-import etomica.api.IBox;
-import etomica.api.IBoxMoleculeIndexEvent;
-import etomica.api.IMolecule;
+import etomica.molecule.IMolecule;
 
 
 /**
- * Event that conveys that an Atom's global index in a box has changed.
+ * Box event that indicates that a molecule's index has changed.
  */
-public class BoxMoleculeIndexEvent extends BoxMoleculeEvent implements IBoxMoleculeIndexEvent {
+public class BoxMoleculeIndexEvent extends BoxMoleculeEvent {
 
-    public BoxMoleculeIndexEvent(IBox box, IMolecule mole, int _index) {
+    protected final int index;
+
+    public BoxMoleculeIndexEvent(Box box, IMolecule mole, int index) {
         super(box, mole);
-        this.index = _index;
+        this.index = index;
     }
-    
+
+    /**
+     * @return the new index of the molecule
+     */
     public int getIndex() {
         return index;
     }
-    
-    protected int index = -1;
-    private static final long serialVersionUID = 1L;
 }

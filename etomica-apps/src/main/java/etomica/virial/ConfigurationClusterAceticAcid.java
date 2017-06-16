@@ -5,19 +5,14 @@
 package etomica.virial;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.atom.MoleculePair;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.molecule.*;
 import etomica.space.RotationTensor;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 public class ConfigurationClusterAceticAcid extends ConfigurationCluster {
 	 
@@ -26,18 +21,18 @@ public class ConfigurationClusterAceticAcid extends ConfigurationCluster {
 	protected MayerFunction f2;
 	protected MayerFunction f3;
 	
-	public ConfigurationClusterAceticAcid(ISpace _space, IRandom random, MayerFunction f) {
+	public ConfigurationClusterAceticAcid(Space _space, IRandom random, MayerFunction f) {
 		super(_space);
 		this.f = f;
 		this.random = random;
 	}
-	public ConfigurationClusterAceticAcid(ISpace _space, IRandom random, MayerFunction f, MayerFunction f2) {
+	public ConfigurationClusterAceticAcid(Space _space, IRandom random, MayerFunction f, MayerFunction f2) {
 		super(_space);
 		this.f = f;
 		this.f2 = f2;
 		this.random = random;
 	}
-	public ConfigurationClusterAceticAcid(ISpace _space, IRandom random, MayerFunction f, MayerFunction f2, MayerFunction f3) {
+	public ConfigurationClusterAceticAcid(Space _space, IRandom random, MayerFunction f, MayerFunction f2, MayerFunction f3) {
 		super(_space);
 		this.f = f;
 		this.f2 = f2;
@@ -45,7 +40,7 @@ public class ConfigurationClusterAceticAcid extends ConfigurationCluster {
 		this.random = random;
 	}
 
-	public void initializeCoordinates(IBox box,boolean a,boolean b) {
+	public void initializeCoordinates(Box box, boolean a, boolean b) {
 		super.initializeCoordinates(box);
 		f.setBox(box);
 		BoxCluster clusterBox =(BoxCluster) box;
@@ -85,7 +80,7 @@ public class ConfigurationClusterAceticAcid extends ConfigurationCluster {
 		System.out.println(clusterBox+" "+clusterBox.getSampleCluster().value(clusterBox));
 	}
 	 
-	public void initializeCoordinates4Mol(IBox box, char a, char b, char c, char d, char e, int molNumber, int molNumber2) {
+	public void initializeCoordinates4Mol(Box box, char a, char b, char c, char d, char e, int molNumber, int molNumber2) {
 		super.initializeCoordinates(box);
 		f.setBox(box);
 		f2.setBox(box);
@@ -168,7 +163,7 @@ public class ConfigurationClusterAceticAcid extends ConfigurationCluster {
 		System.out.println(clusterBox+" "+clusterBox.getSampleCluster().value(clusterBox));
 	}
 	 
-	public void initializeCoordinates2(IBox box,boolean a,boolean b) {
+	public void initializeCoordinates2(Box box, boolean a, boolean b) {
 		super.initializeCoordinates(box);
 		f.setBox(box);
 		f2.setBox(box);
@@ -193,22 +188,22 @@ public class ConfigurationClusterAceticAcid extends ConfigurationCluster {
 		System.out.println(clusterBox+" "+clusterBox.getSampleCluster().value(clusterBox));
 	}
 
-	public void translation2Mol(int a, double[] e, IBox box){//place molecule a at some position
+	public void translation2Mol(int a, double[] e, Box box){//place molecule a at some position
 		IMoleculeList list = box.getMoleculeList();
 		MoleculeActionTranslateTo translationB = new MoleculeActionTranslateTo(space);
-		IVectorMutable b = space.makeVector();
+		Vector b = space.makeVector();
 		b.E(e);
 		translationB.setDestination(b);
 		IMolecule mol = list.getMolecule(a);
 		translationB.actionPerformed(mol);
 	}
 	 
-	public void translation3Mol(double[] e,double[] f, IBox box){//place molecule2,3 at some position
+	public void translation3Mol(double[] e,double[] f, Box box){//place molecule2,3 at some position
 		IMoleculeList list = box.getMoleculeList(); 
 		MoleculeActionTranslateTo translationB = new MoleculeActionTranslateTo(space);
 		MoleculeActionTranslateTo translationC = new MoleculeActionTranslateTo(space);
-		IVectorMutable b = space.makeVector();
-		IVectorMutable c = space.makeVector();
+		Vector b = space.makeVector();
+		Vector c = space.makeVector();
 		b.E(e);
 		c.E(f);
 		translationB.setDestination(b);
@@ -219,10 +214,10 @@ public class ConfigurationClusterAceticAcid extends ConfigurationCluster {
 		translationC.actionPerformed(mol3);
 	}
 	
-	public void translationRandom(IMolecule mol, IBox box){
+	public void translationRandom(IMolecule mol, Box box){
 		BoxCluster clusterBox =(BoxCluster) box; 
 		while (true){
-			IVectorRandom positionAceticAcid = (IVectorRandom)space.makeVector();
+			Vector positionAceticAcid = space.makeVector();
 			positionAceticAcid.setRandomInSphere(random);
 			positionAceticAcid.TE(8.0);//place acetic acid molecule within a sphere with r = 8A
 			MoleculeActionTranslateTo translation = new MoleculeActionTranslateTo(space);
@@ -236,12 +231,12 @@ public class ConfigurationClusterAceticAcid extends ConfigurationCluster {
 		 }
 	}
 	
-	public void association(MayerFunction f, MoleculePair pair, IBox box){
+	public void association(MayerFunction f, MoleculePair pair, Box box){
 		RotationTensor rotationTensor = space.makeRotationTensor();
-		IVectorMutable r0 = space.makeVector();
-		IAtomPositionDefinition positionDefinition = new AtomPositionGeometricCenter(space); 
+		Vector r0 = space.makeVector();
+		IMoleculePositionDefinition positionDefinition = new MoleculePositionGeometricCenter(space);
 		while (true){
-			IVectorRandom positionAceticAcid = (IVectorRandom)space.makeVector();
+			Vector positionAceticAcid = space.makeVector();
 			positionAceticAcid.setRandomInSphere(random);
 			positionAceticAcid.TE(8.0);//place acetic acid molecule within a sphere with r = 8A
 			positionAceticAcid.PE(positionDefinition.position(pair.atom0));
@@ -260,7 +255,7 @@ public class ConfigurationClusterAceticAcid extends ConfigurationCluster {
 	         IAtomList childList = pair.atom1.getChildList();
 	         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {//free rotation until finding association
 	        	 IAtom a = childList.getAtom(iChild);
-	        	 IVectorMutable r = a.getPosition();
+	        	 Vector r = a.getPosition();
 	        	 r.ME(r0);
 	        	 box.getBoundary().nearestImage(r);
 	        	 rotationTensor.transform(r);

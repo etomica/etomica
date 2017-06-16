@@ -4,7 +4,7 @@
 
 package etomica.graphics;
 
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 
 /**
  * The BondManager is responsible for creation and disposal of bonds between

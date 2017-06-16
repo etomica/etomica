@@ -4,10 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.IVector;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -15,7 +12,10 @@ import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.ISpace;
+import etomica.potential.IteratorDirective;
+import etomica.potential.PotentialMaster;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Null;
 
 /**
@@ -29,7 +29,7 @@ import etomica.units.Null;
  
 public class MeterSolidDACut implements IEtomicaDataSource {
 
-    public MeterSolidDACut(ISpace space, IPotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, double[] cutoffs) {
+    public MeterSolidDACut(Space space, PotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, double[] cutoffs) {
         this.coordinteDefinition = coordinateDefinition;
         tag = new DataTag();
         this.potentialMaster = potentialMaster;
@@ -80,7 +80,7 @@ public class MeterSolidDACut implements IEtomicaDataSource {
         }
     }
 
-    public void setPotentialMasterDADv2(IPotentialMaster potentialMasterDADv2, double[] bpResDADv2) {
+    public void setPotentialMasterDADv2(PotentialMaster potentialMasterDADv2, double[] bpResDADv2) {
         this.potentialMasterDADv2 = potentialMasterDADv2;
         this.bpResDADv2 = bpResDADv2;
         latticeEnergyDADv2 = new double[latticeEnergy.length];
@@ -134,11 +134,11 @@ public class MeterSolidDACut implements IEtomicaDataSource {
     	pc.zeroSum();
         potentialMaster.calculate(box, iteratorDirective, pc);
         double[] p1 = pc.getPressure1();
-        IVector[] p1XYZ = pc.getPressure1XYZ();
+        Vector[] p1XYZ = pc.getPressure1XYZ();
         double[] virial = pc.getVirialSum();
         double[] energy = pc.getEnergySum();
         double[] dadb = pc.getDADBSum();
-        IVector[] dadbXYZ = pc.getDADBXYZ();
+        Vector[] dadbXYZ = pc.getDADBXYZ();
 
         double[] p1DADv2 = p1;
         double[] energyDADv2 = energy;
@@ -188,14 +188,14 @@ public class MeterSolidDACut implements IEtomicaDataSource {
     protected final DataTag tag;
     protected DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;
-    protected final IPotentialMaster potentialMaster;
-    protected IPotentialMaster potentialMasterDADv2;
+    protected final PotentialMaster potentialMaster;
+    protected PotentialMaster potentialMasterDADv2;
     private IteratorDirective iteratorDirective;
     private final PotentialCalculationSolidSuperCut pc, pcDADv2;
     protected double temperature;
     protected double[] latticeEnergy, latticePressure;
     protected double[] latticeEnergyDADv2, latticePressureDADv2;
-    protected final IBox box;
+    protected final Box box;
     protected double[] bpRes, bpResDADv2;
     protected final CoordinateDefinition coordinteDefinition;
 }

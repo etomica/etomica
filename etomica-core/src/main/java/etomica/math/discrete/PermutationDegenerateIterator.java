@@ -95,7 +95,7 @@ public class PermutationDegenerateIterator implements IndexIterator, java.io.Ser
      *             value of n set a construction.
      */
     public void setDegeneracy(int[] degeneracy, int length) {
-        this.degeneracy = (int[]) degeneracy.clone();
+        this.degeneracy = degeneracy.clone();
         int sum = 0;
         for (int i = 0; i < length; i++) {
             if (degeneracy[i] < 0)
@@ -127,7 +127,7 @@ public class PermutationDegenerateIterator implements IndexIterator, java.io.Ser
     }
 
     public int[] getDegeneracy() {
-        return (int[]) degeneracy.clone();
+        return degeneracy.clone();
     }
 
     /**

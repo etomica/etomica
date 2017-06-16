@@ -3,44 +3,31 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.virial.simulations;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.List;
-
-import org.json.simple.JSONObject;
-
-import etomica.api.IAtomList;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Nitrogen;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.integrator.mcmove.MCMove;
-import etomica.potential.P2NitrogenHellmann;
-import etomica.potential.P2SemiclassicalAtomic;
+import etomica.potential.*;
 import etomica.potential.P2SemiclassicalAtomic.AtomInfo;
-import etomica.potential.P3NitrogenHellmannNonAdditive;
-import etomica.potential.PotentialMolecularMonatomic;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.Kelvin;
 import etomica.units.Mole;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterWheatleyHS;
-import etomica.virial.ClusterWheatleyMultibody;
-import etomica.virial.ClusterWheatleySoft;
-import etomica.virial.MayerFunctionMolecularThreeBody;
-import etomica.virial.MayerFunctionNonAdditive;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
+import org.json.simple.JSONObject;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 public class VirialN2 {
     public static void main(String[] args) {
@@ -138,12 +125,12 @@ public class VirialN2 {
         // sim.init();
         sim.integratorOS.setNumSubSteps(1000);
         steps /= 1000;
-        final IVectorMutable[] rv = space.makeVectorArray(4);
+        final Vector[] rv = space.makeVectorArray(4);
         rv[0].setX(0, massN*blN2*blN2*0.25);
         rv[0].setX(1, massN*blN2*blN2*0.25);
         p2SCTI.setAtomInfo(speciesN2.getAtomType(0), new AtomInfo() {
             @Override
-            public IVector[] getMomentAndAxes(IAtomOriented molecule) {
+            public Vector[] getMomentAndAxes(IAtomOriented molecule) {
 
                 // rv[0,2] = 0
                 // rv[3] is the orientation
@@ -192,7 +179,7 @@ public class VirialN2 {
         if (nPoints == 3 && nonAdditive) {
             IAtomList tarList = sim.box[1].getLeafList();
             for (int i=0; i<tarList.getAtomCount(); i++) {
-                IVectorMutable p = tarList.getAtom(i).getPosition();
+                Vector p = tarList.getAtom(i).getPosition();
                 p.setX(i, 4.0);
             }
             sim.box[1].trialNotify();

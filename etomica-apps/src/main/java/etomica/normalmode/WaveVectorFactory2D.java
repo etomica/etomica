@@ -4,21 +4,18 @@
 
 package etomica.normalmode;
 
-import java.io.Serializable;
-
-import etomica.api.IBox;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
-import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveOrthorhombicHexagonal;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space2d.Space2D;
 import etomica.space2d.Vector2D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
+
+import java.io.Serializable;
 
 /**
  * Wave vector factory that returns wave vectors appropriate for a box with 
@@ -29,19 +26,19 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class WaveVectorFactory2D implements WaveVectorFactory, Serializable {
 
-    public WaveVectorFactory2D(Primitive primitive, ISpace _space) {
+    public WaveVectorFactory2D(Primitive primitive, Space _space) {
         this.primitive = primitive;
         this.space = _space;
     }
     
-    public void makeWaveVectors(IBox box) {
+    public void makeWaveVectors(Box box) {
         // If we weren't given wave vectors, determine them from the box boundary and primitve
         // assume 1-molecule basis and matchup betwen the box and the primitive
     
         double[] d = primitive.getSize();
         int[] numCells = new int[space.D()];
-        IVector[] reciprocals =  primitive.makeReciprocal().vectors();
-        IVectorMutable[] waveVectorBasis = new IVectorMutable[reciprocals.length];
+        Vector[] reciprocals =  primitive.makeReciprocal().vectors();
+        Vector[] waveVectorBasis = new Vector[reciprocals.length];
         
         for (int i=0; i<space.D(); i++) {
             waveVectorBasis[i] = space.makeVector();
@@ -140,7 +137,7 @@ outer:              for (int i=0; i<2; i++){
         }
    
     
-    public IVectorMutable[] getWaveVectors() {
+    public Vector[] getWaveVectors() {
         return waveVectors;
     }
     
@@ -152,7 +149,7 @@ outer:              for (int i=0; i<2; i++){
         int [] nCells = new int []{2,2};
         Space sp = Space2D.getInstance();
         Simulation sim = new Simulation(sp);
-        IBox box = new Box(sp);
+        Box box = new Box(sp);
         sim.addBox(box);
         Primitive primitive = new PrimitiveOrthorhombicHexagonal(sim.getSpace(), 1);
         box.getBoundary().setBoxSize(new Vector2D(primitive.getSize()[0]*nCells[0], primitive.getSize()[1]*nCells[1]));
@@ -163,7 +160,7 @@ outer:              for (int i=0; i<2; i++){
         
         WaveVectorFactory2D foo = new WaveVectorFactory2D(primitive, sp);
         foo.makeWaveVectors(box);
-        IVectorMutable[] waveVectors = foo.getWaveVectors();
+        Vector[] waveVectors = foo.getWaveVectors();
         double[] coefficients = foo.getCoefficients();
         System.out.println("number of wave vectors "+waveVectors.length);
         for (int i=0; i<waveVectors.length; i++) {
@@ -173,7 +170,7 @@ outer:              for (int i=0; i<2; i++){
 
     private static final long serialVersionUID = 1L;
     protected final Primitive primitive;
-    protected IVectorMutable[] waveVectors;
+    protected Vector[] waveVectors;
     protected double[] coefficients;
-    private final ISpace space;
+    private final Space space;
 }

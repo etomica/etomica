@@ -6,12 +6,6 @@ package etomica.modules.sam;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLatticeSimple;
@@ -20,14 +14,19 @@ import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.ISpace;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 
 public class ConfigurationSAM implements Configuration {
 
-    public ConfigurationSAM(ISimulation sim, ISpace space,
-            ISpecies speciesMolecules, ISpecies speciesSurface,
-            PotentialMasterList potentialMaster) {
+    public ConfigurationSAM(Simulation sim, Space space,
+                            ISpecies speciesMolecules, ISpecies speciesSurface,
+                            PotentialMasterList potentialMaster) {
         this.sim = sim;
         this.space = space;
         this.speciesMolecules = speciesMolecules;
@@ -45,15 +44,15 @@ public class ConfigurationSAM implements Configuration {
         conformation[iChain] = newConformation;
     }
     
-    public void setMoleculeOffset(IVectorMutable newMoleculeOffset) {
+    public void setMoleculeOffset(Vector newMoleculeOffset) {
         moleculeOffset.E(newMoleculeOffset);
     }
     
-    public IVectorMutable getMoleculeOffset() {
+    public Vector getMoleculeOffset() {
         return moleculeOffset;
     }
     
-    public void initializeCoordinates(IBox box) {
+    public void initializeCoordinates(Box box) {
         Box pretendBox = new Box(box.getBoundary(), space);
         sim.addBox(pretendBox);
         potentialMaster.getNbrCellManager(pretendBox).setDoApplyPBC(true);
@@ -63,7 +62,7 @@ public class ConfigurationSAM implements Configuration {
         int nMolecules = nCellsX*nCellsZ*basisMolecules.getScaledCoordinates().length;
         pretendBox.setNMolecules(speciesMolecules, nMolecules);
         
-        IVectorMutable dim = space.makeVector();
+        Vector dim = space.makeVector();
         dim.E(box.getBoundary().getBoxSize());
         dim.setX(0, nCellsX*cellSizeX);
         dim.setX(2, nCellsZ*cellSizeZ);
@@ -79,7 +78,7 @@ public class ConfigurationSAM implements Configuration {
         translator.getTranslationVector().E(moleculeOffset);
         MoleculeChildAtomAction groupTranslator = new MoleculeChildAtomAction(translator);
         
-        IVectorMutable offset = space.makeVector();
+        Vector offset = space.makeVector();
 
         IMoleculeList molecules = pretendBox.getMoleculeList(speciesMolecules);
         double y0 = molecules.getMolecule(0).getChildList().getAtom(0).getPosition().getX(1) + moleculeOffset.getX(1);
@@ -128,7 +127,7 @@ public class ConfigurationSAM implements Configuration {
             IMolecule molecule = molecules.getMolecule(0);
             pretendBox.removeMolecule(molecule);
             box.addMolecule(molecule);
-            IVectorMutable pos = molecule.getChildList().getAtom(0).getPosition();
+            Vector pos = molecule.getChildList().getAtom(0).getPosition();
             pos.setX(1, y0-yOffset);
         }
         sim.removeBox(pretendBox);
@@ -201,8 +200,8 @@ public class ConfigurationSAM implements Configuration {
         this.basisSurface = basisSurface;
     }
     
-    protected final ISpace space;
-    protected final ISimulation sim;
+    protected final Space space;
+    protected final Simulation sim;
     protected final ISpecies speciesMolecules;
     protected final ISpecies speciesSurface;
     protected double cellSizeX, cellSizeZ;
@@ -210,7 +209,7 @@ public class ConfigurationSAM implements Configuration {
     protected Basis basisMolecules;
     protected Basis basisSurface;
     protected double yOffset;
-    protected final IVectorMutable moleculeOffset;
+    protected final Vector moleculeOffset;
     protected ConformationChainZigZag[] conformation;
     protected PotentialMasterList potentialMaster;
 }

@@ -7,10 +7,10 @@
  */
 package etomica.data.meter;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
+import etomica.box.Box;
 import etomica.data.DataInfo;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -18,7 +18,7 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataVector;
 import etomica.data.types.DataVector.DataInfoVector;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Length;
 
 /**
@@ -28,7 +28,7 @@ import etomica.units.Length;
  */
 public class MeterPositionCOM implements IEtomicaDataSource, java.io.Serializable {
 
-    public MeterPositionCOM(ISpace space) {
+    public MeterPositionCOM(Space space) {
         data = new DataVector(space);
         positionSum = data.x;
         dataInfo = new DataInfoVector("COM momentum", Length.DIMENSION, space);
@@ -58,13 +58,13 @@ public class MeterPositionCOM implements IEtomicaDataSource, java.io.Serializabl
     /**
      * @return Returns the box.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     /**
      * @param newBox The box to set.
      */
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
     
@@ -85,8 +85,8 @@ public class MeterPositionCOM implements IEtomicaDataSource, java.io.Serializabl
     }
 
     private static final long serialVersionUID = 1L;
-    private IBox box;
-    private final IVectorMutable positionSum;
+    private Box box;
+    private final Vector positionSum;
     private final DataVector data;    
     private final DataInfo dataInfo;
     private String name;

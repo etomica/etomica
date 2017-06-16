@@ -4,8 +4,8 @@
 
 package etomica.virial;
 
-import etomica.api.IPotentialAtomic;
 import etomica.atom.AtomSetSinglet;
+import etomica.potential.IPotentialAtomic;
 
 
 public class ClusterExchange implements ClusterAbstract {

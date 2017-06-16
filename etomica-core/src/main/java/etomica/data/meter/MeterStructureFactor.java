@@ -4,21 +4,18 @@
 
 package etomica.data.meter;
 
-import etomica.api.*;
-import etomica.data.DataSourceIndependent;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
+import etomica.box.Box;
+import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.lattice.BravaisLatticeCrystal;
-import etomica.space.ISpace;
+import etomica.lattice.crystal.Primitive;
+import etomica.lattice.crystal.PrimitiveGeneral;
+import etomica.space.Space;
 import etomica.units.Null;
-
-import java.util.Arrays;
 
 /**
  * Meter for calculation of structure factor of atoms for all wave vectors less
@@ -29,10 +26,10 @@ import java.util.Arrays;
  */
 public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndependent {
 	
-	protected final ISpace space;
-    protected IBox box;
+	protected final Space space;
+    protected Box box;
     protected double[] struct;
-    protected IVectorMutable [] waveVec;
+    protected Vector[] waveVec;
     protected IAtomList atomList;
     protected DataFunction data;
     protected DataInfoFunction dataInfo;
@@ -44,12 +41,8 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
      * Creates meter with default to compute the structure factor for all atoms
      * in the box.  All wave vectors consistent with the box shape and with
      * magnitude less than cutoff are included.
-     *
-     * @param space the space
-     * @param aBox the box
-     * @param cutoff the cutoff
      */
-	public MeterStructureFactor(ISpace space, IBox aBox, double cutoff) {
+	public MeterStructureFactor(Space space, Box aBox, double cutoff) {
 	    this.space = space;
 	    this.box = aBox;
         atomList = box.getLeafList();
@@ -71,12 +64,22 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
 	protected int makeWaveVector(double cutoff) {
         int nVec = 0;
         double[] x = xData == null ? null : xData.getData();
-        IVector L = box.getBoundary().getBoxSize();
+        Vector[] edges = new Vector[3];
+        edges[0] = box.getBoundary().getEdgeVector(0);
+        edges[1] = box.getBoundary().getEdgeVector(1);
+        edges[2] = box.getBoundary().getEdgeVector(2);
+        Primitive primitiveBox = new PrimitiveGeneral(space, edges);
+        Primitive recip = primitiveBox.makeReciprocal();
+        Vector[] basis = recip.vectors();
+
         double cutoff2 = cutoff*cutoff;
 
         int[] iMax = new int[space.D()];
+        // Be aggressive when look for wave vectors.  If the box is slanty,
+        // we will need to go beyond cutoff/basis, but it's hard to know how
+        // much.
         for (int i=0; i<space.D(); i++) {
-            iMax[i] = 1+(int)(cutoff*L.getX(i)/(2*Math.PI));
+            iMax[i] = 1+2*(int)(cutoff/Math.sqrt(basis[i].squared()));
         }
 
         int[] idx = new int[space.D()];
@@ -84,7 +87,7 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
         idx[1] = 0;
         idx[2] = 1;
         while (true) {
-            IVectorMutable v = space.makeVector();
+            Vector v = space.makeVector();
             boolean success = false;
             for  (int i=idx.length-1; i>=0; i--) {
                 idx[i]++;
@@ -96,10 +99,10 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
                 idx[i] = -iMax[i];
             }
             if (!success) break;
+            v.E(0);
             for (int i=0; i<idx.length; i++) {
-                v.setX(i, 2*Math.PI/L.getX(i)*idx[i]);
+                v.PEa1Tv1(idx[i], basis[i]);
             }
-            double foo = Math.sqrt(v.squared());
             if (v.squared() > cutoff2) {
                 continue;
             }
@@ -121,7 +124,7 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
 	    waveVec = null;
 	    int nVec = makeWaveVector(cutoff);
         struct = new double[nVec];
-	    waveVec = new IVectorMutable[nVec];
+	    waveVec = new Vector[nVec];
         resetData();
         makeWaveVector(cutoff);
 	}
@@ -129,7 +132,7 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
 	/**
 	 * @param waveVec Sets a custom wave vector array.
 	 */
-	public void setWaveVec(IVectorMutable [] waveVec){
+	public void setWaveVec(Vector[] waveVec){
 	    this.waveVec = space.makeVectorArray(waveVec.length);
 	    struct = new double[waveVec.length];
 		for(int i=0; i<waveVec.length; i++){
@@ -146,20 +149,17 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
 	}
 
     public IData getData() {
-        double term1 = 0;
-        double term2 = 0;
-        double dotprod = 0;
-        int numAtoms = atomList.getAtomCount();
+        long numAtoms = atomList.getAtomCount();
+        long n2 = numAtoms*numAtoms;
         for(int k=0; k<waveVec.length; k++){
-            term1 = 0;
-            term2 = 0;
-            dotprod = 0;
+            double term1 = 0;
+            double term2 = 0;
             for(int i=0; i<numAtoms; i++){
-                dotprod = waveVec[k].dot(atomList.getAtom(i).getPosition());
+                double dotprod = waveVec[k].dot(atomList.getAtom(i).getPosition());
                 term1 += Math.cos(dotprod);
                 term2 += Math.sin(dotprod);
             }
-            struct[k] = ((term1*term1) + (term2*term2))/(numAtoms*numAtoms);
+            struct[k] = ((term1*term1) + (term2*term2))/n2;
         }
         return data;
     }

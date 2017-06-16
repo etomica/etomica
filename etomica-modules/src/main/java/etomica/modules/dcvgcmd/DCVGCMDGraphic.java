@@ -4,41 +4,27 @@
 
 package etomica.modules.dcvgcmd;
 
-import java.awt.Color;
-import java.awt.GridBagConstraints;
-
-import javax.swing.JPanel;
-import javax.swing.border.TitledBorder;
-
 import etomica.action.ActionGroupSeries;
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.api.IAtom;
-import etomica.api.IMolecule;
 import etomica.atom.AtomFilter;
 import etomica.atom.DiameterHashByType;
-import etomica.data.AccumulatorAverage;
+import etomica.atom.IAtom;
+import etomica.data.*;
 import etomica.data.AccumulatorAverage.StatType;
-import etomica.data.DataPump;
-import etomica.data.DataTableAverages;
-import etomica.data.DataTag;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterNMolecules;
-import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DeviceSlider;
-import etomica.graphics.DeviceThermoSlider;
-import etomica.graphics.DeviceToggleButton;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTable;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
 import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.space.Space;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
 
 /**
  * @author msellers and nsives
@@ -49,7 +35,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
     final static String APP_NAME = "Dual Control-volume GCMD";
     final static int REPAINT_INTERVAL = 70;
 
-    public DCVGCMDGraphic(final DCVGCMD sim, ISpace _space){
+    public DCVGCMDGraphic(final DCVGCMD sim, Space _space){
 
         super(sim, SimulationGraphic.TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, sim.getController());	
         getDisplayBox(sim.box).setPixelUnit(new Pixel(7));

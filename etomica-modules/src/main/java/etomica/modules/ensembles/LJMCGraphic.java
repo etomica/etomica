@@ -38,9 +38,9 @@ import etomica.modifier.ModifierBoolean;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
-import etomica.util.DoubleRange;
-import etomica.util.HistogramCollapsing;
-import etomica.util.HistoryCollapsingAverage;
+import etomica.math.DoubleRange;
+import etomica.data.histogram.HistogramCollapsing;
+import etomica.data.history.HistoryCollapsingAverage;
 
 public class LJMCGraphic extends SimulationGraphic {
 

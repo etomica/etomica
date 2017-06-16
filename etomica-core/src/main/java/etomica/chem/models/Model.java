@@ -3,10 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.chem.models;
-import etomica.api.IPotentialAtomic;
-import etomica.api.ISimulation;
-import etomica.api.ISpecies;
+
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
+import etomica.potential.IPotentialAtomic;
+import etomica.simulation.Simulation;
+import etomica.species.ISpecies;
 
 /**
  * Top-level class for a molecular model.
@@ -29,7 +30,7 @@ public abstract class Model implements java.io.Serializable {
     /**
      * Creates a species in the given simulation and returns it.
      */
-	public final ISpecies makeSpecies(ISimulation sim) {
+	public final ISpecies makeSpecies(Simulation sim) {
         if (species == null) {
             species = makeSpeciesInternal(sim);
             sim.addSpecies(species);
@@ -42,7 +43,7 @@ public abstract class Model implements java.io.Serializable {
      * Internal method to be implemented by subclasses to create the actual
      * Species object for the given Simulation.
      */
-    protected abstract ISpecies makeSpeciesInternal(ISimulation sim);
+    protected abstract ISpecies makeSpeciesInternal(Simulation sim);
 	
     /**
      * Internal method to be implemented by subclasses to initialize the
@@ -51,7 +52,7 @@ public abstract class Model implements java.io.Serializable {
      * an opportunity to create the potentials after the species.  This method
      * will only be called after the species has been created.
      */
-    protected abstract void initPotentials(ISimulation sim);
+    protected abstract void initPotentials(Simulation sim);
     
     /**
      * Returns an array of objects wrapping bonding Potentials and the 

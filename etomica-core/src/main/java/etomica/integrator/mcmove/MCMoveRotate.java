@@ -4,13 +4,13 @@
 
 package etomica.integrator.mcmove;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.potential.PotentialMaster;
+import etomica.util.random.IRandom;
 import etomica.atom.IAtomOriented;
 import etomica.space.IOrientation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Orientation3D;
 
 /**
@@ -22,12 +22,12 @@ public class MCMoveRotate extends MCMoveAtom {
 
     private transient IOrientation iOrientation;
 
-    public MCMoveRotate(IPotentialMaster potentialMaster, IRandom random,
-    		            ISpace _space) {
+    public MCMoveRotate(PotentialMaster potentialMaster, IRandom random,
+                        Space _space) {
         super(potentialMaster, random, _space, Math.PI/2, Math.PI, false);
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         super.setBox(box);
         if (oldOrientation != null) return;
         IAtomList atoms = box.getLeafList();

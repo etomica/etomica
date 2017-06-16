@@ -3,11 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.potential;
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
 import etomica.units.Length;
@@ -21,11 +20,11 @@ import etomica.units.Length;
  */
 public class P2Tether extends Potential2HardSpherical {
 
-    public P2Tether(ISpace space) {
+    public P2Tether(Space space) {
         this(space, 0.75, false);
     }
     
-    public P2Tether(ISpace space, double tetherLength, boolean ignoreOverlap) {
+    public P2Tether(Space space, double tetherLength, boolean ignoreOverlap) {
         super(space);
         setTetherLength(tetherLength);
         this.ignoreOverlap = ignoreOverlap;
@@ -60,8 +59,8 @@ public class P2Tether extends Potential2HardSpherical {
 
         double r2 = dr.squared();
         double bij = dr.dot(dv);
-        double rm0 = ((IAtom)atom0).getType().rm();
-        double rm1 = ((IAtom)atom1).getType().rm();
+        double rm0 = atom0.getType().rm();
+        double rm1 = atom1.getType().rm();
         lastCollisionVirial = 2.0/(rm0 + rm1)*bij;
         lastCollisionVirialr2 = lastCollisionVirial/r2;
         dv.Ea1Tv1(lastCollisionVirialr2,dr);
@@ -123,9 +122,8 @@ public class P2Tether extends Potential2HardSpherical {
     private double tetherLength, tetherLengthSquared;
     private double lastCollisionVirial = 0.0;
     private double lastCollisionVirialr2 = 0.0;
-    private final IVectorMutable dv;
+    private final Vector dv;
     private final Tensor lastCollisionVirialTensor;
     private final boolean ignoreOverlap;
    
 }//end of P2Tether
-  

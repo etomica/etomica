@@ -4,16 +4,15 @@
 
 package etomica.atom.iterator;
 
-import java.util.LinkedList;
-
-import junit.framework.TestCase;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.atom.MoleculePair;
-import etomica.atom.MoleculeSetSinglet;
-import etomica.atom.MoleculesetArray;
 import etomica.UnitTestUtil;
 import etomica.atom.MoleculesetAction;
+import etomica.molecule.*;
+import etomica.molecule.iterator.MoleculeIterator;
+import etomica.molecule.iterator.MoleculesetIterator;
+import etomica.potential.IteratorDirective;
+import junit.framework.TestCase;
+
+import java.util.LinkedList;
 
 /**
  * Provides library methods to test the basic functioning of an iterator.

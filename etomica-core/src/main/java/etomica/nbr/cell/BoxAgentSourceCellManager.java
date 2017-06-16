@@ -4,18 +4,18 @@
 
 package etomica.nbr.cell;
 
-import etomica.api.IBox;
-import etomica.api.ISimulation;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.box.Box;
 import etomica.box.BoxAgentManager.BoxAgentSource;
-import etomica.space.ISpace;
+import etomica.molecule.IMoleculePositionDefinition;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
 
 /**
  * BoxAgentSource responsible for creating a NeighborCellManager.
  */
 public class BoxAgentSourceCellManager implements BoxAgentSource<NeighborCellManager> {
 
-    public BoxAgentSourceCellManager(ISimulation sim, IAtomPositionDefinition positionDefinition, ISpace _space) {
+    public BoxAgentSourceCellManager(Simulation sim, IMoleculePositionDefinition positionDefinition, Space _space) {
         this.sim = sim;
         this.positionDefinition = positionDefinition;
         this.space = _space;
@@ -25,7 +25,7 @@ public class BoxAgentSourceCellManager implements BoxAgentSource<NeighborCellMan
         range = d;
     }
 
-    public NeighborCellManager makeAgent(IBox box) {
+    public NeighborCellManager makeAgent(Box box) {
         NeighborCellManager cellManager = new NeighborCellManager(sim, box,range,positionDefinition, space);
         box.getBoundary().getEventManager().addListener(cellManager);
         return cellManager;
@@ -34,8 +34,8 @@ public class BoxAgentSourceCellManager implements BoxAgentSource<NeighborCellMan
     public void releaseAgent(NeighborCellManager agent) {
     }
     
-    protected final ISimulation sim;
+    protected final Simulation sim;
     protected double range;
-    protected final IAtomPositionDefinition positionDefinition;
-    protected final ISpace space;
+    protected final IMoleculePositionDefinition positionDefinition;
+    protected final Space space;
 }

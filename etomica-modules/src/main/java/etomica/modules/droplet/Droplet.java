@@ -3,15 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.modules.droplet;
+
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 
@@ -23,7 +23,7 @@ import etomica.species.SpeciesSpheresMono;
 public class Droplet extends Simulation {
 
     public final SpeciesSpheresMono species;
-    public final IBox box;
+    public final Box box;
     public final IntegratorDroplet integrator;
     public final ActivityIntegrate activityIntegrate;
     public final P2Cohesion p2;
@@ -49,22 +49,22 @@ public class Droplet extends Simulation {
 	    species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
         addSpecies(species);
-        IAtomType leafType = species.getLeafType();
+        AtomType leafType = species.getLeafType();
         
         p2 = new P2Cohesion(space);
         p2.setEpsilon(1.0);
         double vol = 4.0/3.0*Math.PI;
         p2.setDv(vol/numAtoms);
-        potentialMaster.addPotential(p2, new IAtomType[]{leafType,leafType});
+        potentialMaster.addPotential(p2, new AtomType[]{leafType, leafType});
 
         p1Smash = new P1Smash(space);
         p1Smash.setG(1.0);
-        potentialMaster.addPotential(p1Smash, new IAtomType[]{leafType});
+        potentialMaster.addPotential(p1Smash, new AtomType[]{leafType});
 
         //construct box
 	    box = new Box(new BoundaryRectangularNonperiodic(space), space);
         addBox(box);
-        IVectorMutable dim = space.makeVector();
+        Vector dim = space.makeVector();
         dim.E(new double[]{4,4,4});
         box.getBoundary().setBoxSize(dim);
         box.setNMolecules(species, numAtoms);

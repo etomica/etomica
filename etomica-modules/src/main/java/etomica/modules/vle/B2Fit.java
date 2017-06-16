@@ -17,7 +17,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.units.Debye;
 import etomica.units.Kelvin;
-import etomica.util.Function;
+import etomica.math.function.Function;
 
 
 public class B2Fit extends SimulationPanel {

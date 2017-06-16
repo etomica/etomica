@@ -4,26 +4,13 @@
 
 package etomica.virial.simulations;
 
-import etomica.api.IPotentialMolecular;
-import etomica.models.water.ConformationWaterTIP4P;
-import etomica.models.water.P2WaterSPC;
-import etomica.models.water.P2WaterSPCE;
-import etomica.models.water.P2WaterTIP4P;
-import etomica.models.water.SpeciesWater3P;
-import etomica.models.water.SpeciesWater4P;
+import etomica.models.water.*;
+import etomica.potential.IPotentialMolecular;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.units.Kelvin;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterCoupledFlipped;
-import etomica.virial.ClusterSum;
-import etomica.virial.ClusterWeight;
-import etomica.virial.ClusterWeightAbs;
-import etomica.virial.MayerEGeneral;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 
 /**

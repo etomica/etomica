@@ -4,26 +4,26 @@
 
 package etomica.threaded;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
+import etomica.potential.IPotentialAtomic;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialCalculationForceSum;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.space.Vector;
 
 public class PotentialCalculationForceSumThreaded extends PotentialCalculationForceSum implements IPotentialCalculationThreaded, AgentSource<MyAgent> {
 
 	final protected PotentialCalculationForceSum[] pc;
 	protected AtomLeafAgentManager[] atomAgentManager;
-	private final ISpace space;
+	private final Space space;
     
-	public PotentialCalculationForceSumThreaded(PotentialCalculationForceSum[] pc, ISpace _space) {
+	public PotentialCalculationForceSumThreaded(PotentialCalculationForceSum[] pc, Space _space) {
 		this.pc = pc;
 		this.space = _space;
 	}
@@ -60,11 +60,11 @@ public class PotentialCalculationForceSumThreaded extends PotentialCalculationFo
 	
 	public void writeData(){
        
-		IBox box = integratorAgentManager.getBox();
+		Box box = integratorAgentManager.getBox();
         IAtomList atomArrayList = box.getLeafList();
       
         for(int j=0; j<atomArrayList.getAtomCount(); j++){
-            IVectorMutable force = integratorAgentManager.getAgent(atomArrayList.getAtom(j)).force();
+            Vector force = integratorAgentManager.getAgent(atomArrayList.getAtom(j)).force();
       
             for(int i=0; i<pc.length; i++){
                 force.PE(((IntegratorBox.Forcible)atomAgentManager[i].getAgent(atomArrayList.getAtom(j))).force());
@@ -75,11 +75,11 @@ public class PotentialCalculationForceSumThreaded extends PotentialCalculationFo
             
 	}
     
-    public final MyAgent makeAgent(IAtom a, IBox agentBox) {
+    public final MyAgent makeAgent(IAtom a, Box agentBox) {
         return new MyAgent(space);
     }
     
-    public void releaseAgent(MyAgent object, IAtom atom, IBox agentBox){
+    public void releaseAgent(MyAgent object, IAtom atom, Box agentBox){
         
     }
     

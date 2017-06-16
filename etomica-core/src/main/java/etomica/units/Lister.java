@@ -110,7 +110,7 @@ public final class Lister {
 			Class c = us.getClass();
 			Method[] methodSet = c.getDeclaredMethods();
 			for (int i=0; i<methodSet.length;i++){
-				String s = methodSet[i].invoke(us,(Object[])null).getClass().getName();
+				String s = methodSet[i].invoke(us).getClass().getName();
 				//System.out.println(s);
 				if (unitList.contains(s)){
 					unitsInSystem.add(s);

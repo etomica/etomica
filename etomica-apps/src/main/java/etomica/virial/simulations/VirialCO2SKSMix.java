@@ -4,51 +4,37 @@
 
 package etomica.virial.simulations;
 
-import java.awt.Color;
-
 import etomica.action.IAction;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.api.IElement;
-import etomica.api.IIntegratorEvent;
-import etomica.api.IIntegratorListener;
-import etomica.api.ISpecies;
+import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.atom.iterator.Atomset4IteratorIndexList;
 import etomica.chem.elements.Carbon;
+import etomica.chem.elements.IElement;
 import etomica.chem.elements.Oxygen;
 import etomica.config.IConformation;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
-import etomica.potential.P2CO2EMP2;
-import etomica.potential.P2LennardJones;
-import etomica.potential.P3BondAngle;
-import etomica.potential.P4BondTorsion;
-import etomica.potential.PotentialGroup;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
+import etomica.potential.*;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterWeight;
-import etomica.virial.ClusterWeightAbs;
-import etomica.virial.MCMoveClusterTorsionMulti;
-import etomica.virial.MCMoveClusterWiggleMulti;
-import etomica.virial.MayerEGeneral;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.SpeciesAlkane;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
+
+import java.awt.*;
 
 /**
  * LJ simulation using Mayer sampling to evaluate cluster integrals
@@ -157,20 +143,20 @@ public class VirialCO2SKSMix {
         ((MCMoveClusterWiggleMulti)sim.mcMoveWiggle[1]).setSpecies(sim.getSpecies(1));
         sim.integratorOS.setNumSubSteps(1000);
 
-        IAtomType typeCH3 = speciesAlkane.getAtomType(0);
-        IAtomType typeCH2 = speciesAlkane.getAtomType(1);
-        IAtomType typeC = speciesCO2.getAtomType(0);
-        IAtomType typeO = speciesCO2.getAtomType(1);
-        pAlkane.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH2}));
+        AtomType typeCH3 = speciesAlkane.getAtomType(0);
+        AtomType typeCH2 = speciesAlkane.getAtomType(1);
+        AtomType typeC = speciesCO2.getAtomType(0);
+        AtomType typeO = speciesCO2.getAtomType(1);
+        pAlkane.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH2, typeCH2}));
         // CH2 on molecule1 to CH3 on molecule2
-        pAlkane.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH3}));
-        pAlkane.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeCH2}));
-        pAlkane.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeCH3}));
+        pAlkane.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH2, typeCH3}));
+        pAlkane.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH3, typeCH2}));
+        pAlkane.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH3, typeCH3}));
 
-        pCO2Alkane.addPotential(pC_CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC, typeCH3}));
-        pCO2Alkane.addPotential(pC_CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC, typeCH2}));
-        pCO2Alkane.addPotential(pO_CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeO, typeCH3}));
-        pCO2Alkane.addPotential(pO_CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeO, typeCH2}));
+        pCO2Alkane.addPotential(pC_CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeCH3}));
+        pCO2Alkane.addPotential(pC_CH2, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeCH2}));
+        pCO2Alkane.addPotential(pO_CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeO, typeCH3}));
+        pCO2Alkane.addPotential(pO_CH2, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeO, typeCH2}));
 
         
         sim.integratorOS.setNumSubSteps(1000);
@@ -309,10 +295,10 @@ public class VirialCO2SKSMix {
         }
 
         if (false) {
-            IIntegratorListener progressReport = new IIntegratorListener() {
-                public void integratorInitialized(IIntegratorEvent e) {}
-                public void integratorStepStarted(IIntegratorEvent e) {}
-                public void integratorStepFinished(IIntegratorEvent e) {
+            IntegratorListener progressReport = new IntegratorListener() {
+                public void integratorInitialized(IntegratorEvent e) {}
+                public void integratorStepStarted(IntegratorEvent e) {}
+                public void integratorStepFinished(IntegratorEvent e) {
                     if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();

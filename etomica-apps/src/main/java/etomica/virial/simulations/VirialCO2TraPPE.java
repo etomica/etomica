@@ -5,8 +5,8 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.api.IIntegratorEvent;
-import etomica.api.IIntegratorListener;
+import etomica.integrator.IntegratorListener;
+import etomica.integrator.IntegratorEvent;
 import etomica.graphics.SimulationGraphic;
 import etomica.potential.P2CO2TraPPE;
 import etomica.space.Space;
@@ -141,10 +141,10 @@ public class VirialCO2TraPPE {
         }
 
         if (true) {
-            IIntegratorListener progressReport = new IIntegratorListener() {
-                public void integratorInitialized(IIntegratorEvent e) {}
-                public void integratorStepStarted(IIntegratorEvent e) {}
-                public void integratorStepFinished(IIntegratorEvent e) {
+            IntegratorListener progressReport = new IntegratorListener() {
+                public void integratorInitialized(IntegratorEvent e) {}
+                public void integratorStepStarted(IntegratorEvent e) {}
+                public void integratorStepFinished(IntegratorEvent e) {
                     if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();

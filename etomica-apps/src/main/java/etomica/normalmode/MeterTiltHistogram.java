@@ -5,25 +5,21 @@
 package etomica.normalmode;
 
 import etomica.action.IAction;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
-import etomica.data.DataSourceIndependent;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.data.*;
+import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.space.ISpace;
+import etomica.math.DoubleRange;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.Angle;
-import etomica.util.DoubleRange;
-import etomica.util.HistogramNotSoSimple;
 
 /**
  * Meter that measures the average tilt angle (not the angle of average tilt!)
@@ -32,7 +28,7 @@ import etomica.util.HistogramNotSoSimple;
  */
 public class MeterTiltHistogram implements IAction, IEtomicaDataSource, DataSourceIndependent {
 
-    public MeterTiltHistogram(ISpace space, ISpecies species) {
+    public MeterTiltHistogram(Space space, ISpecies species) {
         this.species = species;
         int nData = 180;
         dr = space.makeVector();
@@ -48,7 +44,7 @@ public class MeterTiltHistogram implements IAction, IEtomicaDataSource, DataSour
         xDataInfo.addTag(xTag);
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
     
@@ -104,8 +100,8 @@ public class MeterTiltHistogram implements IAction, IEtomicaDataSource, DataSour
 
     private static final long serialVersionUID = 1L;
     protected final ISpecies species;
-    protected IBox box;
-    protected final IVectorMutable dr;
+    protected Box box;
+    protected final Vector dr;
     protected final DataFunction data;
     protected final DataInfoFunction dataInfo;
     protected final DataDoubleArray xData;

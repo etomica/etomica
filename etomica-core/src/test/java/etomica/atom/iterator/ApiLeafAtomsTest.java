@@ -4,7 +4,7 @@
 
 package etomica.atom.iterator;
 
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.UnitTestUtil;
 
 
@@ -21,7 +21,7 @@ public class ApiLeafAtomsTest extends IteratorTestAbstract {
         int[] n0 = new int[] {10, 1, 0};
         int nA0 = 5;
         int[] n1 = new int[] {5, 0, 6};
-        ISimulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1);
+        Simulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1);
         
         ApiLeafAtoms api = new ApiLeafAtoms();
         

@@ -4,10 +4,10 @@
 
 package etomica.virial;
 
-import etomica.api.ISpecies;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.species.ISpecies;
 
 public interface SpeciesFactory {
 
-    public ISpecies makeSpecies(ISpace space);
+    public ISpecies makeSpecies(Space space);
 }

@@ -4,16 +4,14 @@
 
 package etomica.virial;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotential;
-import etomica.potential.P2HardAssociationCone;
-import etomica.space.ISpace;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.IPotential;
+import etomica.space.Space;
 
 public class MayerFunctionProductGeneral implements MayerFunction {
 
-	public MayerFunctionProductGeneral(ISpace space, MayerFunction[]functions, double []coefficients) {
+	public MayerFunctionProductGeneral(Space space, MayerFunction[]functions, double []coefficients) {
 		this.functions = functions;
 		this.coefficients = coefficients;
 	}
@@ -22,7 +20,7 @@ public class MayerFunctionProductGeneral implements MayerFunction {
 		return null;
 	}
 
-	public void setBox(IBox box) {
+	public void setBox(Box box) {
 		for (int i=0;i<functions.length;i++){
 			functions[i].setBox(box);
 			}

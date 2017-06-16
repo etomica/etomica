@@ -6,25 +6,20 @@ package etomica.normalmode;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IPotentialMolecular;
-import etomica.api.IRandom;
 import etomica.atom.AtomArrayList;
-import etomica.atom.MoleculeArrayList;
-import etomica.atom.MoleculePair;
-import etomica.atom.MoleculeSource;
-import etomica.atom.MoleculeSourceRandomMolecule;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
+import etomica.molecule.*;
 import etomica.nbr.list.molecule.PotentialMasterListMolecular;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
+import etomica.potential.IPotentialMolecular;
+import etomica.potential.PotentialMaster;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * Standard Monte Carlo molecule-displacement trial move.  Two molecules are moved at a
@@ -37,7 +32,7 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
 
     private static final long serialVersionUID = 1L;
     protected final MoleculeChildAtomAction moveMoleculeAction;
-    protected final IVectorRandom groupTransVect;
+    protected final Vector groupTransVect;
     protected IMolecule molecule0, molecule1;
     protected final MeterPotentialEnergy energyMeter;
     protected MoleculeSource moleculeSource;
@@ -50,8 +45,8 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
     protected IPotentialMolecular pairPotential;
     protected boolean doExcludeNonNeighbors, doIncludePair;
     
-    public MCMoveMoleculeCoupled(IPotentialMaster potentialMaster, IRandom nRandom,
-    		                     ISpace _space){
+    public MCMoveMoleculeCoupled(PotentialMaster potentialMaster, IRandom nRandom,
+                                 Space _space){
         super(potentialMaster);
         this.random = nRandom;
         moleculeSource = new MoleculeSourceRandomMolecule();
@@ -62,7 +57,7 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
         affectedMoleculeIterator = new AtomIteratorArrayListSimple(affectedMoleculeList);
         
         singleAction = new AtomActionTranslateBy(_space);
-        groupTransVect = (IVectorRandom)singleAction.getTranslationVector();
+        groupTransVect = singleAction.getTranslationVector();
         
         moveMoleculeAction = new MoleculeChildAtomAction(singleAction);
         
@@ -72,7 +67,7 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
         //energyMeter.setIncludeLrc(false);
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         super.setBox(newBox);
         moleculeSource.setBox(newBox);
         energyMeter.setBox(newBox);

@@ -4,15 +4,15 @@
 
 package etomica.association;
 
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
-import etomica.api.IVectorMutable;
-import etomica.atom.MoleculeArrayList;
 import etomica.integrator.mcmove.MCMoveMolecule;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeArrayList;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * Monte Carlo molecule-displacement trial move for a molecule in smer
@@ -23,19 +23,19 @@ public class MCMoveMoleculeSmer extends MCMoveMolecule {
 	protected AssociationManagerMolecule associationManager;
 	protected final MoleculeArrayList bondList, smerList;
 	public static boolean dodebug = true;;
-	protected final IVectorMutable dr;
+	protected final Vector dr;
 	protected int maxLength = Integer.MAX_VALUE;
 	protected IAssociationHelperMolecule associationHelper;
 	
 
-	public MCMoveMoleculeSmer(ISimulation sim, IPotentialMaster potentialMaster,
-			ISpace _space) {
+	public MCMoveMoleculeSmer(Simulation sim, PotentialMaster potentialMaster,
+                              Space _space) {
 		this(potentialMaster, sim.getRandom(), _space, 1.0, 15.0);
 	}
 
 
-	public MCMoveMoleculeSmer(IPotentialMaster potentialMaster, IRandom random,
-			ISpace _space, double stepSize, double stepSizeMax) {
+	public MCMoveMoleculeSmer(PotentialMaster potentialMaster, IRandom random,
+                              Space _space, double stepSize, double stepSizeMax) {
 		super(potentialMaster, random, _space, stepSize, stepSizeMax);
 		this.smerList = new MoleculeArrayList();
 		this.dr = _space.makeVector();

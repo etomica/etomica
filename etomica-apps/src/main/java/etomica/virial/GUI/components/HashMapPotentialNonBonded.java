@@ -4,13 +4,9 @@
 
 package etomica.virial.GUI.components;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
+import etomica.potential.IPotential;
 
-import etomica.api.IPotential;
+import java.util.HashMap;
 
 public class HashMapPotentialNonBonded {
 

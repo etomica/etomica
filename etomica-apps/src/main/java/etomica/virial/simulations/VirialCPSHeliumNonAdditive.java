@@ -7,8 +7,8 @@ package etomica.virial.simulations;
 
 import java.awt.Color;
 
-import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
@@ -25,7 +25,6 @@ import etomica.util.Constants;
 import etomica.util.ParameterBase;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterSumNonAdditiveTrimerEnergy;
-import etomica.virial.MayerFunction;
 import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.cluster.Standard;
@@ -159,7 +158,7 @@ public class VirialCPSHeliumNonAdditive {
         
         double r = 4;
         for (int i=1; i<nPoints; i++) {
-            IVectorMutable v = atoms.getAtom(i).getPosition();
+            Vector v = atoms.getAtom(i).getPosition();
             v.setX(0, r*Math.cos(2*(i-1)*Math.PI/(nPoints-1)));
             v.setX(1, r*Math.sin(2*(i-1)*Math.PI/(nPoints-1)));
         }

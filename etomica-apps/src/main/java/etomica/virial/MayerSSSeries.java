@@ -4,9 +4,9 @@
 
 package etomica.virial;
 
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotential;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.IPotential;
 
 /**
  * @author kofke
@@ -57,7 +57,7 @@ public class MayerSSSeries implements MayerFunction {
         exp6 = newExp/6;
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
     }
     
     public IPotential getPotential() {

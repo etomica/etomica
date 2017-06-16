@@ -4,10 +4,9 @@
 
 package etomica.action;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.data.meter.MeterTemperature;
 
 /**
@@ -32,12 +31,12 @@ public class BoxQuench extends BoxActionAdapter {
 	/**
 	 * Constructs class ready to perform quench on given box to given temperature.
 	 */
-	public BoxQuench(IBox p, double temperature) {
+	public BoxQuench(Box p, double temperature) {
 		this(temperature, p.getBoundary().getBoxSize().getD());
         setBox(p);
 	}
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         meterTemperature = new MeterTemperature(box, dim);
     }

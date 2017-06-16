@@ -4,13 +4,13 @@
 
 package etomica.util;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
 import etomica.atom.AtomPair;
-import etomica.atom.MoleculePair;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculePair;
 
 /**
  * Class holding static fields that determine whether debugging is on, how
@@ -191,7 +191,7 @@ public final class Debug {
      * @param box to be checked
      * @return true if the box is of interest
      */
-    public static boolean thisBox(IBox box) {
+    public static boolean thisBox(Box box) {
          return box.getIndex() == BOX_INDEX;
     }
     
@@ -201,7 +201,7 @@ public final class Debug {
      * the AtomPair will be null if the box does not contain an Atom 
      * with the proper global index.
      */
-    public static AtomPair getAtoms(IBox box) {
+    public static AtomPair getAtoms(Box box) {
         if (debugPair == null) {
             debugPair = new AtomPair();
         }
@@ -227,7 +227,7 @@ public final class Debug {
      * the AtomPair will be null if the box does not contain an Atom 
      * with the proper global index.
      */
-    public static MoleculePair getMolecules(IBox box) {
+    public static MoleculePair getMolecules(Box box) {
         if (debugMoleculePair == null) {
             debugMoleculePair = new MoleculePair();
         }
@@ -253,7 +253,7 @@ public final class Debug {
      * the AtomPair will be null if the box does not contain an Atom 
      * with the proper global index.
      */
-    public static IAtom getAtomLeaf1(IBox box) {
+    public static IAtom getAtomLeaf1(Box box) {
         if (ATOM1_INDEX > -1 && ATOM1_INDEX < box.getLeafList().getAtomCount()) {
             return box.getLeafList().getAtom(ATOM1_INDEX);
         }

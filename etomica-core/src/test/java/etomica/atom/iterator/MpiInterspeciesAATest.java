@@ -4,12 +4,13 @@
 
 package etomica.atom.iterator;
 
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
-import etomica.api.ISpecies;
 import etomica.UnitTestUtil;
 import etomica.atom.MoleculesetAction;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.iterator.MpiInterspeciesAA;
+import etomica.simulation.Simulation;
+import etomica.species.ISpecies;
 
 
 /**
@@ -25,7 +26,7 @@ public class MpiInterspeciesAATest extends MoleculeIteratorTestAbstract {
         int[] n0 = new int[] {10, 1, 0};
         int nA0 = 5;
         int[] n1 = new int[] {5, 1, 6};
-        ISimulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1);
+        Simulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1);
         
         ISpecies[] species = new ISpecies[sim.getSpeciesCount()];
         for(int i = 0; i < sim.getSpeciesCount(); i++) {
@@ -75,7 +76,7 @@ public class MpiInterspeciesAATest extends MoleculeIteratorTestAbstract {
     /**
      * Performs tests on different species combinations in a particular box.
      */
-    private void boxTest(IBox box, ISpecies[] species) {
+    private void boxTest(Box box, ISpecies[] species) {
         speciesTestForward(box, species, 0, 1);
         speciesTestForward(box, species, 1, 0);
     }
@@ -83,7 +84,7 @@ public class MpiInterspeciesAATest extends MoleculeIteratorTestAbstract {
     /**
      * Test iteration in various directions with different targets.
      */
-    private void speciesTestForward(IBox box, ISpecies[] species, int species0Index, int species1Index) {
+    private void speciesTestForward(Box box, ISpecies[] species, int species0Index, int species1Index) {
         MpiInterspeciesAA api = new MpiInterspeciesAA(new ISpecies[] {species[species0Index], species[species1Index]});
         MoleculesetAction speciesTest = new SpeciesTestAction();
 

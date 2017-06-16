@@ -4,18 +4,18 @@
 
 package etomica.virial;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.space.ISpace;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.PotentialMaster;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * MCMove that scales the atoms of a molecule in or out.  This is helpful
@@ -23,11 +23,11 @@ import etomica.space.ISpace;
  */
 public class MCMoveClusterRingScale extends MCMoveBox {
 
-    public MCMoveClusterRingScale(IPotentialMaster potentialMaster, IRandom random, ISpace _space) {
+    public MCMoveClusterRingScale(PotentialMaster potentialMaster, IRandom random, Space _space) {
         this(potentialMaster, random, _space, new int[0][0]);
     }
     
-    public MCMoveClusterRingScale(IPotentialMaster potentialMaster, IRandom random, ISpace _space, int[][] tangledMolecules) {
+    public MCMoveClusterRingScale(PotentialMaster potentialMaster, IRandom random, Space _space, int[][] tangledMolecules) {
         super(potentialMaster);
         this.space = _space;
         this.random = random;
@@ -42,7 +42,7 @@ public class MCMoveClusterRingScale extends MCMoveBox {
         fac = factor;
     }
     
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         leafIterator.setBox(p);
         energyMeter.setBox(p);
@@ -94,7 +94,7 @@ public class MCMoveClusterRingScale extends MCMoveBox {
         scale = scaleUp ? 1.001 : 1.0/1.001;
         double uOld = 0;
         for (int j=0; j<nAtoms; j++) {
-            IVectorMutable p = atoms.getAtom(j).getPosition();
+            Vector p = atoms.getAtom(j).getPosition();
             double uj = 0;
             if (j==0) {
                 uj += p.Mv1Squared(atoms.getAtom(nAtoms-1).getPosition());
@@ -132,7 +132,7 @@ public class MCMoveClusterRingScale extends MCMoveBox {
     public void rejectNotify() {
         int nAtoms = atoms.getAtomCount();
         for (int j=0; j<nAtoms; j++) {
-            IVectorMutable p = atoms.getAtom(j).getPosition();
+            Vector p = atoms.getAtom(j).getPosition();
             double uj = 0;
             if (j==0) {
                 uj += p.Mv1Squared(atoms.getAtom(nAtoms-1).getPosition());
@@ -163,10 +163,10 @@ public class MCMoveClusterRingScale extends MCMoveBox {
     protected double scale;
     protected double wRatio;
     protected IAtomList atoms;
-    protected final ISpace space;
+    protected final Space space;
     protected final IRandom random;
     protected double weightOld, weightNew, uOld, uNew;
-    protected final IVectorMutable com;
+    protected final Vector com;
     protected final AtomIteratorLeafAtoms leafIterator;
     protected double fac;
     protected final int[][] tangledMolecules;

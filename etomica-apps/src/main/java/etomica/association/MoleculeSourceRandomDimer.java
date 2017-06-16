@@ -4,11 +4,11 @@
 
 package etomica.association;
 
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IRandom;
-import etomica.atom.MoleculeSource;
+import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeSource;
+import etomica.util.random.IRandom;
 
 public class MoleculeSourceRandomDimer implements MoleculeSource {
 	public void setRandomNumberGenerator(IRandom newRandom) {
@@ -34,7 +34,7 @@ public class MoleculeSourceRandomDimer implements MoleculeSource {
         return molecules.getMolecule(random.nextInt(molecules.getMoleculeCount()));
 	}
 
-	public void setBox(IBox p) {
+	public void setBox(Box p) {
 
 	}
 	protected IRandom random;

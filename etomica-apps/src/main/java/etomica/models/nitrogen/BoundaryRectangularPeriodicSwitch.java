@@ -4,24 +4,23 @@
 
 package etomica.models.nitrogen;
 
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.space.Vector;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class BoundaryRectangularPeriodicSwitch extends BoundaryRectangularPeriodic{
 	
-	public BoundaryRectangularPeriodicSwitch(ISpace _space) {
+	public BoundaryRectangularPeriodicSwitch(Space _space) {
 		super(_space);
 		
 	}
-	public void nearestImage(IVectorMutable dr) {
+	public void nearestImage(Vector dr) {
 		if(doPBC){
 			super.nearestImage(dr);
 		} 
 	}
 
-	public IVector centralImage(IVector r) {
+	public Vector centralImage(Vector r) {
 		
 		if(doPBC){
 			return super.centralImage(r);

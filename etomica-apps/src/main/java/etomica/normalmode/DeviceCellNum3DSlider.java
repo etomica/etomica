@@ -4,23 +4,20 @@
 
       package etomica.normalmode;
 
-import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-
-import javax.swing.JPanel;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeListener;
-
 import etomica.action.IAction;
 import etomica.action.activity.Controller;
 import etomica.action.activity.IController;
-import etomica.api.IBox;
-import etomica.api.ISpecies;
+import etomica.box.Box;
 import etomica.graphics.Device;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.SimulationGraphic;
 import etomica.modifier.Modifier;
+import etomica.species.ISpecies;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
 
 
 /**
@@ -36,7 +33,7 @@ public class DeviceCellNum3DSlider extends Device {
 	private final int DEFAULT_MAX_nCells = 100;
 
     protected ISpecies species;
-    protected IBox box;
+    protected Box box;
     
 	
 	public DeviceCellNum3DSlider(IController cont) {
@@ -151,7 +148,7 @@ public class DeviceCellNum3DSlider extends Device {
     }
 
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
         if (species != null) {
         	setNCellModifier(new ModifierCells3D(box, species));
@@ -165,7 +162,7 @@ public class DeviceCellNum3DSlider extends Device {
         }
     }
     
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     

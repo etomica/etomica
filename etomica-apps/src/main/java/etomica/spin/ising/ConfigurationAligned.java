@@ -4,9 +4,9 @@
 
 package etomica.spin.ising;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.config.Configuration;
 
 
@@ -26,10 +26,10 @@ public class ConfigurationAligned implements Configuration, java.io.Serializable
     /**
      * Sets all spins to be aligned in the +x direction
      */
-    public void initializeCoordinates(IBox box) {
+    public void initializeCoordinates(Box box) {
         IAtomList leafAtoms = box.getLeafList();
         for (int i=0; i<leafAtoms.getAtomCount(); i++) {
-            IVectorMutable spin = leafAtoms.getAtom(i).getPosition();
+            Vector spin = leafAtoms.getAtom(i).getPosition();
             spin.E(0.0);
             spin.setX(0,1.0);
         }

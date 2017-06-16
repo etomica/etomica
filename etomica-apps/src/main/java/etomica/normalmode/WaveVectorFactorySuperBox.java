@@ -4,10 +4,10 @@
 
 package etomica.normalmode;
 
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
+import etomica.space.Vector;
+import etomica.box.Box;
 import etomica.lattice.crystal.Primitive;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class WaveVectorFactorySuperBox extends WaveVectorFactorySimple {
 
@@ -25,16 +25,16 @@ public class WaveVectorFactorySuperBox extends WaveVectorFactorySimple {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public WaveVectorFactorySuperBox(Primitive primitive, ISpace _space) {
+	public WaveVectorFactorySuperBox(Primitive primitive, Space _space) {
 		super(primitive, _space);
 		// TODO Auto-generated constructor stub
 	}
 	
-	public void makeWaveVectors(IBox box){
+	public void makeWaveVectors(Box box){
 		
-		IVectorMutable boxDimension = space.makeVector();
+		Vector boxDimension = space.makeVector();
 		boxDimension.E(box.getBoundary().getBoxSize());
-		double fraction = (double)(1.0/2);
+		double fraction = 1.0/2;
 		boxDimension.TE(fraction);
 		box.getBoundary().setBoxSize(boxDimension);
 		

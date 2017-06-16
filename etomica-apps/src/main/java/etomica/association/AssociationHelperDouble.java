@@ -4,13 +4,13 @@
 
 package etomica.association;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
+import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.atom.AtomArrayList;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * AssociationHelperDouble is capable of populating a list of atoms in an smer 
@@ -27,11 +27,11 @@ import etomica.space.ISpace;
 public class AssociationHelperDouble implements IAssociationHelper {
     
     protected final AssociationManager associationManager;
-    protected final IBoundary boundary;
+    protected final Boundary boundary;
     protected double minR2;
-    protected final IVectorMutable dr;
+    protected final Vector dr;
 
-    public AssociationHelperDouble(ISpace space, IBox box, AssociationManager associationManager) {
+    public AssociationHelperDouble(Space space, Box box, AssociationManager associationManager) {
         this.associationManager = associationManager;
         boundary = box.getBoundary();
         dr = space.makeVector();

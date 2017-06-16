@@ -4,14 +4,15 @@
 
 package etomica.atom.iterator;
 
+import etomica.action.MoleculeAction;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeArrayList;
+import etomica.molecule.MoleculeSetSinglet;
+import etomica.molecule.iterator.MoleculeIteratorArrayListSimple;
+
 import java.util.Iterator;
 import java.util.LinkedList;
-
-import etomica.action.MoleculeAction;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.atom.MoleculeArrayList;
-import etomica.atom.MoleculeSetSinglet;
 
 /**
  * Class used to test iterators by collecting a list of strings

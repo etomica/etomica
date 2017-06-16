@@ -4,16 +4,16 @@
 
 package etomica.normalmode;
 
-import etomica.api.IBox;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
+import etomica.space.Vector;
+import etomica.box.Box;
+import etomica.util.random.IRandom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class MCMoveWV extends MCMoveBoxStep {
     
-    public MCMoveWV(ISpace space, NormalModesVariable normalModes, CoordinateDefinition coordinateDefinition, IRandom random) {
+    public MCMoveWV(Space space, NormalModesVariable normalModes, CoordinateDefinition coordinateDefinition, IRandom random) {
         super(null);
         this.space = space;
         this.normalModes = normalModes;
@@ -25,13 +25,13 @@ public class MCMoveWV extends MCMoveBoxStep {
 
     protected void init() {
         oldEigenVectors = new double[normalModes.getEigenVectors().length][coordinateDefinition.getCoordinateDim()];
-        oldWaveVectors = new IVectorMutable[normalModes.getWaveVectors().length];
+        oldWaveVectors = new Vector[normalModes.getWaveVectors().length];
         for (int i=0; i<oldWaveVectors.length; i++) {
             oldWaveVectors[i] = space.makeVector();
         }
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         super.setBox(newBox);
         int nMolecules = box.getMoleculeList().getMoleculeCount();
         double L = box.getBoundary().getBoxSize().getX(0);
@@ -42,7 +42,7 @@ public class MCMoveWV extends MCMoveBoxStep {
     }
 
     public boolean doTrial() {
-        IVectorMutable[] waveVectors = normalModes.getWaveVectors();
+        Vector[] waveVectors = normalModes.getWaveVectors();
         double[][] eigenVectors = normalModes.getEigenVectors();
         if (waveVectors.length != oldWaveVectors.length) {
             init();
@@ -102,7 +102,7 @@ public class MCMoveWV extends MCMoveBoxStep {
 
     public void rejectNotify() {
 //        System.out.println("rejected");
-        IVectorMutable[] waveVectors = normalModes.getWaveVectors();
+        Vector[] waveVectors = normalModes.getWaveVectors();
         double[][] eigenVectors = normalModes.getEigenVectors();
         for (int i=0; i<waveVectors.length; i++) {
             waveVectors[i].E(oldWaveVectors[i]);
@@ -120,9 +120,9 @@ public class MCMoveWV extends MCMoveBoxStep {
         return 0;
     }
 
-    protected final ISpace space;
+    protected final Space space;
     protected final NormalModesVariable normalModes;
-    protected IVectorMutable[] oldWaveVectors;
+    protected Vector[] oldWaveVectors;
     protected double[][] oldEigenVectors;
     protected final CoordinateDefinition coordinateDefinition;
     protected final IRandom random;

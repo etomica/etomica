@@ -4,8 +4,8 @@
 
 package etomica.data.meter;
 
-import etomica.api.IAtom;
-import etomica.api.IBox;
+import etomica.atom.IAtom;
+import etomica.box.Box;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataSourceScalar;
@@ -21,7 +21,7 @@ import etomica.units.Volume;
  
 public abstract class MeterLocalDensity extends DataSourceScalar {
 
-    public MeterLocalDensity(IBox _box) {
+    public MeterLocalDensity(Box _box) {
         super("Local Density",new DimensionRatio(Quantity.DIMENSION, Volume.DIMENSION));
         box = _box;
         iterator = new AtomIteratorLeafAtoms(box);
@@ -67,7 +67,7 @@ public abstract class MeterLocalDensity extends DataSourceScalar {
     }
 
     private static final long serialVersionUID = 1L;
-    private IBox box;
+    private Box box;
     /**
      * Class variable used to specify that all species are included in number-density calculation
      */

@@ -6,9 +6,6 @@ package etomica.atom;
 
 import java.io.Serializable;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-
 public class AtomToAtomSetFixed implements AtomToAtomLeafList, AtomToIndex, Serializable {
 
     private static final long serialVersionUID = 1L;

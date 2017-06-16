@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.lattice.crystal;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.math.geometry.Polytope;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 
 /**
@@ -20,10 +20,10 @@ public class PrimitiveHexagonal extends Primitive {
     protected static final double cosGamma = Math.cos(gamma);
     protected static final double sinGamma = Math.sin(gamma);
     
-    public PrimitiveHexagonal(ISpace space) {
+    public PrimitiveHexagonal(Space space) {
         this(space, 1.0, 1.0);
     }
-    public PrimitiveHexagonal(ISpace space, double ab, double c) {
+    public PrimitiveHexagonal(Space space, double ab, double c) {
         super(space);
         setSize(new double[]{ab, ab, c});
         this.ab = ab;
@@ -88,7 +88,7 @@ public class PrimitiveHexagonal extends Primitive {
         ab = ab * scale;
     }
 
-    public int[] latticeIndex(IVector q) {
+    public int[] latticeIndex(Vector q) {
         throw new RuntimeException("latticeIndex method not implemented yet in primitive");
    /*     for(int i=0; i<D; i++) {
             double x = q.x(i)/size;
@@ -97,7 +97,7 @@ public class PrimitiveHexagonal extends Primitive {
         return idx;
    */ }
     
-    public int[] latticeIndex(IVector q, int[] dimensions) {
+    public int[] latticeIndex(Vector q, int[] dimensions) {
         throw new RuntimeException("latticeIndex method not implemented yet in primitive");
    /*     for(int i=0; i<D; i++) {
             double x = q.x(i)/size;
@@ -115,7 +115,7 @@ public class PrimitiveHexagonal extends Primitive {
     public String toString() {return "Hexagonal";}
     
     protected static class PrimitiveHexagonalReciprocal extends PrimitiveHexagonal {
-        public PrimitiveHexagonalReciprocal(ISpace space, double ab, double c) {
+        public PrimitiveHexagonalReciprocal(Space space, double ab, double c) {
             super(space, ab, c);
         }
 
@@ -131,9 +131,9 @@ public class PrimitiveHexagonal extends Primitive {
 
     public static void main(String args[]) {
         PrimitiveHexagonal primitive = new PrimitiveHexagonal(Space3D.getInstance(), 2, 2);
-        IVector[] v = primitive.vectors();
+        Vector[] v = primitive.vectors();
         Primitive reciprocal = primitive.makeReciprocal();
-        IVector[] vr = reciprocal.vectors();
+        Vector[] vr = reciprocal.vectors();
         for (int j=0; j<vr.length; j++) {
             System.out.println(j+" "+v[j]+" "+vr[j]);
         }

@@ -4,15 +4,13 @@
 
 package etomica.potential;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
+import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Space3D;
@@ -28,13 +26,13 @@ import etomica.units.Energy;
  */
 public class P3CPSNonAdditiveHeOrig extends Potential implements PotentialSoft {
 
-    public P3CPSNonAdditiveHeOrig(ISpace space) {
+    public P3CPSNonAdditiveHeOrig(Space space) {
         super(3, space);
         drAB = space.makeVector();
         drBC = space.makeVector();
         drAC = space.makeVector();
         setAngle(Math.PI);
-        gradient = new IVectorMutable[3];
+        gradient = new Vector[3];
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();
         gradient[2] = space.makeVector();
@@ -42,7 +40,7 @@ public class P3CPSNonAdditiveHeOrig extends Potential implements PotentialSoft {
         
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 
@@ -705,11 +703,11 @@ public class P3CPSNonAdditiveHeOrig extends Potential implements PotentialSoft {
         return Double.POSITIVE_INFINITY;
     }
 
-    public IVector[] gradient(IAtomList atoms) {
+    public Vector[] gradient(IAtomList atoms) {
        throw new RuntimeException("Sorry, no gradient available yet");
     }
 
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         return gradient(atoms);
     }
 
@@ -717,12 +715,12 @@ public class P3CPSNonAdditiveHeOrig extends Potential implements PotentialSoft {
         return 0;
     }
 
-    protected final IVectorMutable drAB, drAC, drBC;
-    protected IBoundary boundary;
+    protected final Vector drAB, drAC, drBC;
+    protected Boundary boundary;
     protected double angle;
     protected double epsilon;
     private static final long serialVersionUID = 1L;
-    protected final IVectorMutable[] gradient;
+    protected final Vector[] gradient;
     public static boolean bigAngle;
     protected double[][][] alpha = new double [5][5][5];
     protected double[][][] A = new double [5][5][5];
@@ -752,15 +750,15 @@ public class P3CPSNonAdditiveHeOrig extends Potential implements PotentialSoft {
         atoms.add(atom1);
         atoms.add(atom2);
         
-        double a; double U; IVector r0; IVector r1; IVector r2;
+        double a; double U; Vector r0; Vector r1; Vector r2;
         
         System.out.println("Test configurations from Table 1 of Cencek et al. (2009)");
         System.out.println();
         System.out.println("Equilateral triangle 1, rij = 4 a0");  
         a = 4.0*AngstromPerBohrRadius;
-        r0 = (IVector)space.makeVector(new double[] {0,0,0});
-        r1 = (IVector)space.makeVector(new double[] {a,0,0});
-        r2 = (IVector)space.makeVector(new double[] {a/2.0,a/2.0*Math.sqrt(3),0});
+        r0 = space.makeVector(new double[] {0,0,0});
+        r1 = space.makeVector(new double[] {a,0,0});
+        r2 = space.makeVector(new double[] {a/2.0,a/2.0*Math.sqrt(3),0});
         
         atom0.getPosition().E(r0);
         atom1.getPosition().E(r1);
@@ -776,9 +774,9 @@ public class P3CPSNonAdditiveHeOrig extends Potential implements PotentialSoft {
         
         System.out.println("Equilateral triangle 2, rij = 5.6 a0"); 
         a = 5.6*AngstromPerBohrRadius;
-        r0 = (IVector)space.makeVector(new double[] {0,0,0});
-        r1 = (IVector)space.makeVector(new double[] {a,0,0});
-        r2 = (IVector)space.makeVector(new double[] {a/2.0,a/2.0*Math.sqrt(3),0});
+        r0 = space.makeVector(new double[] {0,0,0});
+        r1 = space.makeVector(new double[] {a,0,0});
+        r2 = space.makeVector(new double[] {a/2.0,a/2.0*Math.sqrt(3),0});
         
         atom0.getPosition().E(r0);
         atom1.getPosition().E(r1);
@@ -794,9 +792,9 @@ public class P3CPSNonAdditiveHeOrig extends Potential implements PotentialSoft {
         
         System.out.println("Equilateral triangle 3, rij = 7 a0"); 
         a = 7.0*AngstromPerBohrRadius;
-        r0 = (IVector)space.makeVector(new double[] {0,0,0});
-        r1 = (IVector)space.makeVector(new double[] {a,0,0});
-        r2 = (IVector)space.makeVector(new double[] {a/2.0,a/2.0*Math.sqrt(3),0});
+        r0 = space.makeVector(new double[] {0,0,0});
+        r1 = space.makeVector(new double[] {a,0,0});
+        r2 = space.makeVector(new double[] {a/2.0,a/2.0*Math.sqrt(3),0});
         
         atom0.getPosition().E(r0);
         atom1.getPosition().E(r1);
@@ -812,9 +810,9 @@ public class P3CPSNonAdditiveHeOrig extends Potential implements PotentialSoft {
         
         System.out.println("Line 1, r12 = 5.6 a0, r13 = 11.2 a0, r23 = 5.6 a0");
         a = 5.6*AngstromPerBohrRadius;
-        r0 = (IVector)space.makeVector(new double[] {0,0,0});
-        r1 = (IVector)space.makeVector(new double[] {a,0,0});
-        r2 = (IVector)space.makeVector(new double[] {2*a,0,0});
+        r0 = space.makeVector(new double[] {0,0,0});
+        r1 = space.makeVector(new double[] {a,0,0});
+        r2 = space.makeVector(new double[] {2*a,0,0});
        
         
         atom0.getPosition().E(r0);
@@ -833,9 +831,9 @@ public class P3CPSNonAdditiveHeOrig extends Potential implements PotentialSoft {
         
         System.out.println("r12=3.0a0, r23=5.0a0, r13=4.0a0");
         a = AngstromPerBohrRadius;
-        r0 = (IVector)space.makeVector(new double[] {0,0,0});
-        r1 = (IVector)space.makeVector(new double[] {3*a,0,0});
-        r2 = (IVector)space.makeVector(new double[] {0,4*a,0});
+        r0 = space.makeVector(new double[] {0,0,0});
+        r1 = space.makeVector(new double[] {3*a,0,0});
+        r2 = space.makeVector(new double[] {0,4*a,0});
              
         atom0.getPosition().E(r0);
         atom1.getPosition().E(r1);
@@ -848,9 +846,9 @@ public class P3CPSNonAdditiveHeOrig extends Potential implements PotentialSoft {
         System.out.println();
         
         System.out.println("r12=6.0a0, r23=5.0a0; r13=5.0a0");
-        r0 = (IVector)space.makeVector(new double[] {0,0,0});
-        r1 = (IVector)space.makeVector(new double[] {6*a,0,0});
-        r2 = (IVector)space.makeVector(new double[] {3*a,4*a,0});
+        r0 = space.makeVector(new double[] {0,0,0});
+        r1 = space.makeVector(new double[] {6*a,0,0});
+        r2 = space.makeVector(new double[] {3*a,4*a,0});
           
         atom0.getPosition().E(r0);
         atom1.getPosition().E(r1);

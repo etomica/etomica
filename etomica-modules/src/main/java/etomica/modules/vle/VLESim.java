@@ -6,8 +6,7 @@ package etomica.modules.vle;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
@@ -36,22 +35,18 @@ import etomica.util.IListener;
 
 public class VLESim extends Simulation {
 
-    public final IBox boxLiquid, boxVapor;
+    public final Box boxLiquid, boxVapor;
     public final SpeciesSpheresRotating species;
     public final IntegratorMC integratorLiquid, integratorVapor;
     public final IntegratorManagerMC integratorGEMC;
     public final ActivityIntegrate activityIntegrate;
+    protected final P2LJQ p2LJQ;
+    protected final P2SoftTruncated p2Truncated;
     protected double sigma;
     protected double temperature;
     protected double epsilon;
     protected double moment;
     protected double density;
-    protected final P2LJQ p2LJQ;
-    protected final P2SoftTruncated p2Truncated;
-    
-    public static void main(String[] args) {
-        new VLESim();
-    }
     
     public VLESim() {
         super(Space3D.getInstance());
@@ -65,7 +60,7 @@ public class VLESim extends Simulation {
         density = 0.004;
 
         double initBoxSize = Math.pow(initNumMolecules/density, (1.0/3.0));
-        
+
         species = new SpeciesSpheresRotating(this, space);
         addSpecies(species);
 
@@ -89,8 +84,8 @@ public class VLESim extends Simulation {
         p2LJQ.setTemperature(temperature);
         p2Truncated = new P2SoftTruncated(p2LJQ, range, space);
 //        ((P2SoftSphericalTruncatedBox)potential).setTruncationFactor(0.35);
-        potentialMaster.addPotential(p2Truncated, new IAtomType[]{species.getLeafType(), species.getLeafType()});
-        
+        potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
+
         integratorLiquid = new IntegratorMC(potentialMaster, random, temperature);
         integratorLiquid.getMoveManager().setEquilibrating(true);
         integratorLiquid.setBox(boxLiquid);
@@ -99,7 +94,7 @@ public class VLESim extends Simulation {
         MCMoveRotate rotateMove = new MCMoveRotate(potentialMaster, random, space);
         integratorLiquid.getMoveManager().addMCMove(rotateMove);
 //        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
-        
+
         integratorVapor = new IntegratorMC(potentialMaster, random, temperature);
         integratorVapor.setBox(boxVapor);
         integratorVapor.getMoveManager().setEquilibrating(true);
@@ -119,7 +114,7 @@ public class VLESim extends Simulation {
             integratorVapor.getEventManager().addListener(pbcListener);
             pbcListener.setInterval(100);
         }
-        
+
         integratorGEMC = new IntegratorManagerMC(random);
         integratorGEMC.getMoveManager().setEquilibrating(true);
         integratorGEMC.setGlobalMoveInterval(2);
@@ -155,13 +150,21 @@ public class VLESim extends Simulation {
         getController().addAction(activityIntegrate);
 
         if (doNBR) {
-            ((NeighborCellManager)((PotentialMasterCell)potentialMaster).getCellAgentManager().getAgent(boxLiquid)).assignCellAll();
-            ((NeighborCellManager)((PotentialMasterCell)potentialMaster).getCellAgentManager().getAgent(boxVapor)).assignCellAll();
+            ((PotentialMasterCell)potentialMaster).getCellAgentManager().getAgent(boxLiquid).assignCellAll();
+            ((PotentialMasterCell)potentialMaster).getCellAgentManager().getAgent(boxVapor).assignCellAll();
             integratorLiquid.getMoveEventManager().addListener(((NeighborCellManager)((PotentialMasterCell)potentialMaster).getCellAgentManager().getAgent(boxLiquid)).makeMCMoveListener());
             integratorVapor.getMoveEventManager().addListener(((NeighborCellManager)((PotentialMasterCell)potentialMaster).getCellAgentManager().getAgent(boxVapor)).makeMCMoveListener());
         }
     }
-    
+
+    public static void main(String[] args) {
+        new VLESim();
+    }
+
+    public double getSigma() {
+        return sigma;
+    }
+
     public void setSigma(double newSigma) {
         sigma = newSigma;
         p2LJQ.setSigma(sigma);
@@ -170,8 +173,8 @@ public class VLESim extends Simulation {
         integratorVapor.reset();
     }
 
-    public double getSigma() {
-        return sigma;
+    public double getEpsilon() {
+        return p2LJQ.getEpsilon();
     }
     
     public void setEpsilon(double newEpsilon) {
@@ -179,18 +182,14 @@ public class VLESim extends Simulation {
         integratorLiquid.reset();
         integratorVapor.reset();
     }
-    
-    public double getEpsilon() {
-        return p2LJQ.getEpsilon();
+
+    public double getMoment() {
+        return Math.sqrt(p2LJQ.getQuadrupolarMomentSquare());
     }
     
     public void setMoment(double newQ) {
         p2LJQ.setQuadrupolarMomentSquare(newQ*newQ);
         integratorLiquid.reset();
         integratorVapor.reset();
-    }
-    
-    public double getMoment() {
-        return Math.sqrt(p2LJQ.getQuadrupolarMomentSquare());
     }
 }

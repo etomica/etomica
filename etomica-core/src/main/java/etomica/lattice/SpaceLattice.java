@@ -4,7 +4,7 @@
 
 package etomica.lattice;
 
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Marker interface indicating that AbstractLattice.site(int[]) returns an
@@ -16,7 +16,7 @@ import etomica.space.ISpace;
 
 public interface SpaceLattice extends AbstractLattice {
 
-    public ISpace getSpace();
+    public Space getSpace();
 
     public double[] getLatticeConstants();
 }

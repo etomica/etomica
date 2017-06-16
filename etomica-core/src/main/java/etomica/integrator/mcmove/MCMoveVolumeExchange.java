@@ -5,16 +5,16 @@
 package etomica.integrator.mcmove;
 
 import etomica.action.BoxInflate;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
+import etomica.box.Box;
+import etomica.potential.PotentialMaster;
+import etomica.util.random.IRandom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorNull;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Elementary Monte Carlo trial that exchanges volume between two boxs.  Trial
@@ -27,8 +27,8 @@ public class MCMoveVolumeExchange extends MCMoveStep {
     
     private static final long serialVersionUID = 1L;
     private final MeterPotentialEnergy energyMeter;
-    protected final IBox firstBox;
-    protected final IBox secondBox;
+    protected final Box firstBox;
+    protected final Box secondBox;
     private final IntegratorBox integrator1;
     private final IntegratorBox integrator2;
     private final BoxInflate inflate1;
@@ -43,8 +43,8 @@ public class MCMoveVolumeExchange extends MCMoveStep {
     
     private transient double hOld, v1Scale, v2Scale;
 
-    public MCMoveVolumeExchange(IPotentialMaster potentialMaster, IRandom random,
-    		                    ISpace _space,
+    public MCMoveVolumeExchange(PotentialMaster potentialMaster, IRandom random,
+                                Space _space,
                                 IntegratorBox integrator1,
                                 IntegratorBox integrator2) {
         super(potentialMaster, new MCMoveStepTracker());
@@ -130,13 +130,13 @@ public class MCMoveVolumeExchange extends MCMoveStep {
         inflate2.undo();
     }
 
-    public double energyChange(IBox box) {
+    public double energyChange(Box box) {
         if(this.firstBox == box) return uNew1 - uOld1;
         else if(this.secondBox == box) return uNew2 - uOld2;
         else return 0.0;
     }
     
-    public final AtomIterator affectedAtoms(IBox box) {
+    public final AtomIterator affectedAtoms(Box box) {
         if(this.firstBox == box) {
             return box1AtomIterator;
         } else if(this.secondBox == box) {

@@ -4,11 +4,11 @@
 
 package etomica.paracetamol;
 
-import etomica.api.IAtomList;
-import etomica.api.IAtom;
+import etomica.atom.IAtomList;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.config.IConformation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /*
  * Geometry of Paracetamol Molecule
@@ -53,7 +53,7 @@ public class ConformationParacetamol implements IConformation {
 	
 	private final AtomIteratorArrayListSimple iterator;
 	
-	public ConformationParacetamol(ISpace space) {
+	public ConformationParacetamol(Space space) {
 	    this.space = space;
 		iterator = new AtomIteratorArrayListSimple();	
 	}
@@ -120,5 +120,5 @@ public class ConformationParacetamol implements IConformation {
 	}
 
 	private static final long serialVersionUID = 1L;
-    protected final ISpace space;
+    protected final Space space;
 }

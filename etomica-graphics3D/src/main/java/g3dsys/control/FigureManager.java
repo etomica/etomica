@@ -8,7 +8,6 @@ import g3dsys.images.Ball;
 import g3dsys.images.Bond;
 import g3dsys.images.Figure;
 import g3dsys.images.ImageShell;
-
 import org.jmol.util.Point3f;
 
 /**
@@ -17,19 +16,22 @@ import org.jmol.util.Point3f;
 
 class FigureManager {
 
+  ImageShell images;
+  //stores old values while image shell is on; may cause problems
+  //with dynamic system...
+  Point3f oldmin = new Point3f();
+  Point3f oldmax = new Point3f();
   private Figure[] figs;
-
   private int idMax; //for giving Figures IDs when they are added
-
   /* Store molSpace size in Angstroms; needed for proper scaling
    * These are determined by the contents of the model, and change as atoms
    * are added and deleted.
    */
   private Point3f min = Point3f.new3(0,0,0);
   private Point3f max = Point3f.new3(0,0,0);
-
   private G3DSys gsys;
-
+  private boolean imagesOn = false;
+  private boolean wireframe = false;
   public FigureManager(G3DSys g) {
     //figs = new java.util.HashSet();
     figs = new Figure[0];
@@ -42,27 +44,35 @@ class FigureManager {
   /** Get the depth of the model in Angstroms
    *  @return depth of the model in Angstroms */
   public float getDepth() { return max.z - min.z; }
+
   /** Get the width of the model in Angstroms
    * @return width of the model in Angstroms */
   public float getWidth() { return max.x - min.x; }
+
   /** Get the height of the model in Angstroms
    * @return height of the model in Angstroms */
   public float getHeight() { return max.y - min.y; }
+
   /** Get the model's minimum x value in Angstroms
    * @return minimum x value in Angstroms */
   public float getMinX() { return min.x; }
+
   /** Get the model's minimum y value in Angstroms
    * @return minimum y value in Angstroms */
   public float getMinY() { return min.y; }
+
   /** Get the model's minimum z value in Angstroms
    * @return minimum z value in Angstroms */
   public float getMinZ() { return min.z; }
+
   /** Get the model's maximum x value in Angstroms
    * @return maximum x value in Angstroms */
   public float getMaxX() { return max.x; }
+
   /** Get the model's maximum y value in Angstroms
    * @return maximum y value in Angstroms */
   public float getMaxY() { return max.y; }
+
   /** Get the model's maximum z value in Angstroms
    * @return maximum z value in Angstroms */
   public float getMaxZ() { return max.z; }
@@ -93,6 +103,10 @@ class FigureManager {
     }
     figs[idMax] = f;
   }
+
+  /* **********************************************************
+   * Image shell code 
+   ************************************************************/
 
   /**
    * Remove a Figure from the system without resizing.
@@ -145,7 +159,7 @@ class FigureManager {
      */
     float d = min.distance(max);
     if (d == 0) {
-        d = 1;
+      d = 10;
     }
     if(imagesOn) {
       //return a different radius to account for image shell
@@ -171,13 +185,6 @@ class FigureManager {
     return average;
   }
 
-  /* **********************************************************
-   * Image shell code 
-   ************************************************************/
-
-  ImageShell images;
-  private boolean imagesOn = false;
-
   /**
    * For use only by ImageShell class for iteration
    * @return returns the array of current Figures
@@ -186,12 +193,8 @@ class FigureManager {
     return figs;
   }
 
-  //stores old values while image shell is on; may cause problems
-  //with dynamic system...
-  Point3f oldmin = new Point3f();
-  Point3f oldmax = new Point3f();
-
   public boolean isEnableImages() { return imagesOn; }
+
   public void setEnableImages(boolean b) {
     //save some array overhead with these checks
     if(imagesOn && b) return; //no change
@@ -204,18 +207,29 @@ class FigureManager {
   }
 
   /**
-   * Sets the boundary vectors for the phase; used by ImageShell
-   * @param values an array representation of the boundary vectors
-   */
-  public void setBoundaryVectors(double[] values) {
-    images.setBoundaryVectors(values);
-  }
-  /**
    * Gets the boundary vectors for the phase; used by ImageShell
    * @return returns an array representation of the vectors
    */
   public double[] getBoundaryVectors() {
     return images.getBoundaryVectors();
+  }
+
+  /**
+   * Sets the boundary vectors for the phase; used by ImageShell
+   *
+   * @param values an array representation of the boundary vectors
+   */
+  public void setBoundaryVectors(double[] values) {
+    images.setBoundaryVectors(values);
+  }
+
+  /**
+   * Gets the number of image shell layers
+   *
+   * @return returns the number of layers
+   */
+  public int getLayers() {
+    return images.getLayers();
   }
 
   /**
@@ -227,27 +241,27 @@ class FigureManager {
     gsys.setDefaultRotation();
     gsys.fastRefresh();
   }
-  /**
-   * Gets the number of image shell layers
-   * @return returns the number of layers
-   */
-  public int getLayers() { return images.getLayers(); }
-  /**
-   * Sets the boundary drawing style
-   * @param b the boundary drawing style to use
-   */
-  public void setDrawBoundaryType(int b) { images.setDrawBoundaryType(b); }
+
   /**
    * Gets the boundary drawing style
    * @return returns the boundary drawing style
    */
-  public int getDrawBoundaryType() { return images.getDrawBoundaryType(); }
+  public int getDrawBoundaryType() { return images.getDrawBoundaryType();
+  }
+
+  /**
+   * Sets the boundary drawing style
+   *
+   * @param b the boundary drawing style to use
+   */
+  public void setDrawBoundaryType(int b) {
+    images.setDrawBoundaryType(b); }
+
   /**
    * Cycles to the next boundary drawing style
    */
   public void cycleDrawBoundaryType() { images.cycleDrawBoundaryType(); }
 
-  private boolean wireframe = false;
   /**
    * Toggle wireframe on/off.
    * Turn atom drawing off, bond types to wireframe; or
@@ -262,12 +276,12 @@ class FigureManager {
     images.setWireFrame(wireframe);
   }
 
-  public void setBoundaryVectorsIterator(IndexIterator i) {
-    images.setBoundaryVectorsIterator(i);
-  }
-
   public IndexIterator getBoundaryVectorsIterator() {
     return images.getBoundaryVectorsIterator();
+  }
+
+  public void setBoundaryVectorsIterator(IndexIterator i) {
+    images.setBoundaryVectorsIterator(i);
   }
 
 }

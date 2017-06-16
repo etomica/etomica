@@ -5,16 +5,16 @@
 package etomica.modules.adsorption;
 
 import etomica.action.AtomActionRandomizeVelocity;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IRandom;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
-import etomica.atom.MoleculeArrayList;
+import etomica.box.Box;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
-import etomica.space.ISpace;
-import etomica.util.DoubleRange;
+import etomica.math.DoubleRange;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculeArrayList;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
+import etomica.util.random.IRandom;
 
 /**
  * @author kofke
@@ -26,7 +26,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 
     private static final long serialVersionUID = 1L;
     private double zFraction, sigma;
-    private IVectorMutable position;
+    private Vector position;
     private final MoleculeArrayList activeAtoms;
     private final AtomActionRandomizeVelocity randomizer;
     private final IntegratorBox integrator;
@@ -40,7 +40,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 	 * @param parent
 	 */
 	public MyMCMove(IntegratorBox integrator, IRandom random,
-			        ISpace space, double zFraction, double sigma, int dim) {
+                    Space space, double zFraction, double sigma, int dim) {
 		super(integrator.getPotentialMaster(), random, space);
 		position = space.makeVector();
 		setZFraction(zFraction, sigma);
@@ -50,7 +50,7 @@ public class MyMCMove extends MCMoveInsertDelete {
         activeAtoms = new MoleculeArrayList();
 	}
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
     }

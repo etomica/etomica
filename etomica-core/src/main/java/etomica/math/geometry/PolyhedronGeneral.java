@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.math.geometry;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.exception.MethodNotImplementedException;
 
 /**
@@ -36,7 +36,7 @@ public class PolyhedronGeneral extends Polyhedron {
     /**
      * Returns true if the given point lies inside or on an edge of the polyhedron
      */
-    public boolean contains(IVector vector) {
+    public boolean contains(Vector vector) {
         throw new MethodNotImplementedException("General formula for 'contains' not in place");
     }
 

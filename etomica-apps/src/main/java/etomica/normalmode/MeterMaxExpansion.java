@@ -4,14 +4,14 @@
 
 package etomica.normalmode;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
+import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
 import etomica.nbr.list.NeighborListManager;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Length;
 
 /**
@@ -22,11 +22,11 @@ import etomica.units.Length;
  */
 public class MeterMaxExpansion extends DataSourceScalar {
 
-    protected final IVectorMutable dr;
+    protected final Vector dr;
     protected final NeighborListManager neighborManager;
-    protected final IBox box;
+    protected final Box box;
     
-    public MeterMaxExpansion(ISpace space, IBox box, NeighborListManager neighborManager) {
+    public MeterMaxExpansion(Space space, Box box, NeighborListManager neighborManager) {
         super("displacement", Length.DIMENSION);
         this.neighborManager = neighborManager;
         this.box = box;
@@ -34,7 +34,7 @@ public class MeterMaxExpansion extends DataSourceScalar {
     }
     
     public double getDataAsScalar() {
-        IBoundary boundary = box.getBoundary();
+        Boundary boundary = box.getBoundary();
         IAtomList leafList = box.getLeafList();
         double min = 1e10;
         for (int i=0; i<leafList.getAtomCount(); i++) {

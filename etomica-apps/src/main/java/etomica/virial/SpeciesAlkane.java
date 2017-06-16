@@ -4,31 +4,37 @@
 
 package etomica.virial;
 
-import etomica.api.IAtomType;
-import etomica.api.IMolecule;
-import etomica.api.IVectorMutable;
-import etomica.atom.Molecule;
+import etomica.atom.AtomType;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConformationChainZigZag2;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.molecule.Molecule;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.species.SpeciesSpheresHetero;
 
 public class SpeciesAlkane extends SpeciesSpheresHetero {
 
-    public SpeciesAlkane(ISpace _space, int numCarbons) {
+    // parameters for TraPPE
+    protected static final double nominalBondL = 1.54;
+    protected static final double nominalBondTheta = Math.PI * 114 / 180;
+    private static final long serialVersionUID = 1L;
+
+    public SpeciesAlkane(Space _space, int numCarbons) {
         this(_space,numCarbons, new ElementSimple("CH3", 15), new ElementSimple("CH2", 14));
     }
-    public SpeciesAlkane(ISpace _space, int numCarbons, ElementSimple CH3element, ElementSimple CH2element) {
+
+    public SpeciesAlkane(Space _space, int numCarbons, ElementSimple CH3element, ElementSimple CH2element) {
     	super(_space, makeAtomTypes(new Element[]{CH3element, CH2element}));
         setTotalChildren(numCarbons);
         setConformationParameters(nominalBondL, nominalBondTheta);
     }
     
     public void setConformationParameters(double bondL, double bondTheta) {
-        IVectorMutable vector1 = space.makeVector();
+        Vector vector1 = space.makeVector();
         vector1.setX(0, bondL);
-        IVectorMutable vector2 = space.makeVector();
+        Vector vector2 = space.makeVector();
         vector2.setX(0, -bondL*Math.cos(bondTheta));
         vector2.setX(1, bondL*Math.sin(bondTheta));
         conformation = new ConformationChainZigZag2(space, vector1, vector2);
@@ -47,15 +53,15 @@ public class SpeciesAlkane extends SpeciesSpheresHetero {
         conformation.initializePositions(group.getChildList());
         return group;
     }
-    
-    public IAtomType getCH3Type() {
+
+    public AtomType getCH3Type() {
         return childTypes[0];
     }
-    
-    public IAtomType getCH2Type() {
+
+    public AtomType getCH2Type() {
         return childTypes[1];
     }
-    
+
     public void setTotalChildren(int newTotalChildren) {
         if (newTotalChildren > 1) {
             childCount[0] = 2;// CH3
@@ -66,8 +72,4 @@ public class SpeciesAlkane extends SpeciesSpheresHetero {
             childCount[1] = 0;
         }
     }
-    private static final long serialVersionUID = 1L;
-    // parameters for TraPPE
-    protected static final double nominalBondL = 1.54;
-    protected static final double nominalBondTheta = Math.PI*114/180;
 }

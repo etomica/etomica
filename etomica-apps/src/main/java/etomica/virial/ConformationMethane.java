@@ -4,10 +4,10 @@
 
 package etomica.virial;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.config.IConformation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Conformation for TraPPE-Explicit hydrogen methane
@@ -17,7 +17,7 @@ import etomica.space.ISpace;
  */
 public class ConformationMethane implements IConformation {
 
-    public ConformationMethane(ISpace space) {
+    public ConformationMethane(Space space) {
         this.space = space;
     }
     
@@ -46,6 +46,6 @@ public class ConformationMethane implements IConformation {
     }
     
     private static final long serialVersionUID = 1L;
-    protected final ISpace space;
+    protected final Space space;
 
 }

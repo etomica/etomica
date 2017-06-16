@@ -6,22 +6,21 @@ package etomica.models.nitrogen;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IMolecule;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.MoleculePair;
 import etomica.box.Box;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculePair;
 import etomica.normalmode.BasisBigCell;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.units.Degree;
 
 /**
@@ -36,7 +35,7 @@ import etomica.units.Degree;
  */
 public class HarmonicBetaNitrogenModelPairMoleculeSequential5dofLS extends Simulation{
 	
-	public HarmonicBetaNitrogenModelPairMoleculeSequential5dofLS(ISpace space, int numMolecule, double density, double rC) {
+	public HarmonicBetaNitrogenModelPairMoleculeSequential5dofLS(Space space, int numMolecule, double density, double rC) {
 		super(space);
 		this.space = space;
 		
@@ -51,7 +50,7 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequential5dofLS extends Simul
 		Basis basisHCP = new BasisHcp();
 		BasisBigCell basis = new BasisBigCell(space, basisHCP, new int[]{nCell,nCell,nCell});
         
-		IVector[] boxDim = new IVector[3];
+		Vector[] boxDim = new Vector[3];
 		boxDim[0] = space.makeVector(new double[]{nCell*aDim, 0, 0});
 		boxDim[1] = space.makeVector(new double[]{-nCell*aDim*Math.cos(Degree.UNIT.toSim(60)), nCell*aDim*Math.sin(Degree.UNIT.toSim(60)), 0});
 		boxDim[2] = space.makeVector(new double[]{0, 0, nCell*cDim});
@@ -425,7 +424,7 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequential5dofLS extends Simul
 	
 	
 	protected Box box;
-	protected ISpace space;
+	protected Space space;
 	protected P2Nitrogen potential;
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected PotentialMaster potentialMaster;
@@ -435,7 +434,7 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequential5dofLS extends Simul
 	protected FindPairMoleculeIndexBetaN2 findPair;
 	protected AtomActionTranslateBy translateBy;
 	protected MoleculeChildAtomAction atomGroupActionTranslate;
-	protected IVectorMutable lsPosition;
+	protected Vector lsPosition;
 	protected double xVecBox, yVecBox, zVecBox, rC;
 	protected int nLayer;
 	protected boolean[][][][][] isFoundReverse;

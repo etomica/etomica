@@ -4,15 +4,13 @@
 
 package etomica;
 
-import etomica.api.IBox;
-import etomica.api.ISimulation;
-import etomica.api.ISpecies;
-import etomica.atom.AtomTypeLeaf;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheres;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.species.SpeciesSpheresMono;
@@ -35,7 +33,7 @@ public class UnitTestUtil {
         super();
     }
 
-    public static ISimulation makeStandardSpeciesTree() {
+    public static Simulation makeStandardSpeciesTree() {
         return makeStandardSpeciesTree(new int[] { 5, 7 }, 3, new int[] { 10, 10 });
     }
 
@@ -60,8 +58,8 @@ public class UnitTestUtil {
      * @return root of species hierarchy
      */
 
-    public static ISimulation makeStandardSpeciesTree(int[] n0, int nA0,
-            int[] n1) {
+    public static Simulation makeStandardSpeciesTree(int[] n0, int nA0,
+                                                     int[] n1) {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
         ISpecies species0 = null;
@@ -78,7 +76,7 @@ public class UnitTestUtil {
             nBox = n1.length;
         }
         for (int i = 0; i < nBox; i++) {
-            IBox box = new Box(space);
+            Box box = new Box(space);
             sim.addBox(box);
             if (species0 != null)
                 box.setNMolecules(species0, n0[i]);
@@ -112,17 +110,17 @@ public class UnitTestUtil {
      *            type used to form a molecule.
      * @return root of the species hierarchy
      */
-    public static ISimulation makeMultitypeSpeciesTree(int[] nMolecules,
-            int[][] nAtoms) {
+    public static Simulation makeMultitypeSpeciesTree(int[] nMolecules,
+                                                      int[][] nAtoms) {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
         //        new SpeciesSpheres(sim);
-        IBox box = new Box(space);
+        Box box = new Box(space);
         sim.addBox(box);
         for (int i = 0; i < nMolecules.length; i++) {
-            AtomTypeLeaf[] leafTypes = new AtomTypeLeaf[nAtoms[i].length];
+            AtomType[] leafTypes = new AtomType[nAtoms[i].length];
             for (int j = 0; j < nAtoms[i].length; j++) {
-                leafTypes[j] = new AtomTypeLeaf(new ElementSimple(sim));
+                leafTypes[j] = new AtomType(new ElementSimple(sim));
             }
             SpeciesSpheresHetero species = new SpeciesSpheresHetero(space, leafTypes);
             species.setChildCount(nAtoms[i]);

@@ -5,16 +5,16 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.action.AtomActionRandomizeVelocity;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IRandom;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
-import etomica.atom.MoleculeArrayList;
+import etomica.box.Box;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeArrayList;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
+import etomica.util.random.IRandom;
 
 /**
  * @author kofke
@@ -29,7 +29,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 	 * @param parent
 	 */
 	public MyMCMove(IntegratorBox integrator, IRandom random,
-			        ISpace space, double zFraction) {
+                    Space space, double zFraction) {
 		super(integrator.getPotentialMaster(), random, space);
 		position = space.makeVector();
 		setZFraction(zFraction);
@@ -38,7 +38,7 @@ public class MyMCMove extends MCMoveInsertDelete {
         activeAtoms = new MoleculeArrayList();
 	}
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
     }
@@ -125,7 +125,7 @@ public class MyMCMove extends MCMoveInsertDelete {
     private static final long serialVersionUID = 1L;
 	private double zFraction;
 	private int deltaN = 0;
-	private IVectorMutable position;
+	private Vector position;
 	private boolean leftSide;
 	private final MoleculeArrayList activeAtoms;
     private IMoleculeList moleculeList;

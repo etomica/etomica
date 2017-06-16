@@ -4,13 +4,13 @@
 
 package etomica.virial;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
 import etomica.config.IConformation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
- /**
+/**
   *  Conformation for Naphthalene
   *  Reference paper: TraPPE: 4 UA description of linear and branched alkanes and alkylbenzenes, Siepmann et al
   * 
@@ -19,7 +19,7 @@ import etomica.space.ISpace;
  */
 public class ConformationNaphthaleneTraPPE implements IConformation, java.io.Serializable{
 	
-	public ConformationNaphthaleneTraPPE(ISpace space){
+	public ConformationNaphthaleneTraPPE(Space space){
 		this.space = space;
 		vector = space.makeVector();
 	}
@@ -64,13 +64,13 @@ public class ConformationNaphthaleneTraPPE implements IConformation, java.io.Ser
 	
     
 	
-	protected final ISpace space;
+	protected final Space space;
 	protected static final double halfofthebondlength = 0.7;
 	protected static final double bondlength = halfofthebondlength * 2;
 
 	protected static final double sqrt3ofhalfofthebondlength = halfofthebondlength * Math.sqrt(3);
 	protected static final double twicesqrt3ofhalfofthebondlength = sqrt3ofhalfofthebondlength * 2;
-	protected IVectorMutable vector;
+	protected Vector vector;
 	
 	private static final long serialVersionUID = 1L;
 }

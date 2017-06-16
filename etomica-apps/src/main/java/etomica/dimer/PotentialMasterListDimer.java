@@ -4,22 +4,20 @@
 
 package etomica.dimer;
 
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
-import etomica.api.ISpecies;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculation;
-import etomica.space.ISpace;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.util.Debug;
 
 public class PotentialMasterListDimer extends PotentialMasterList{
 
-    public PotentialMasterListDimer(ISimulation sim, ISpace space) {
+    public PotentialMasterListDimer(Simulation sim, Space space) {
         super(sim, space);
         
     }
@@ -28,13 +26,13 @@ public class PotentialMasterListDimer extends PotentialMasterList{
         this.species = species;
     }
     
-   public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
+   public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled) return;
         if (id.getTargetAtom() != null || id.getTargetMolecule() != null) {
             super.calculate(box, id, pc);
             return;
         }
-        NeighborListManager neighborManager = (NeighborListManager)neighborListAgentManager.getAgent(box);
+        NeighborListManager neighborManager = neighborListAgentManager.getAgent(box);
         
         if (Debug.ON && id.direction() != IteratorDirective.Direction.UP) {
             throw new IllegalArgumentException("When there is no target, iterator directive must be up");

@@ -6,8 +6,8 @@ package etomica.data;
 
 import java.io.Serializable;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
 import etomica.atom.iterator.AtomIterator;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
@@ -19,8 +19,8 @@ import etomica.units.DimensionRatio;
 import etomica.units.Length;
 import etomica.units.Null;
 import etomica.units.Time;
-import etomica.util.Histogram;
-import etomica.util.HistogramCollapsing;
+import etomica.data.histogram.Histogram;
+import etomica.data.histogram.HistogramCollapsing;
 
 /**
  * Meter for the root-mean-square velocity of a set of atoms. Useful to obtain

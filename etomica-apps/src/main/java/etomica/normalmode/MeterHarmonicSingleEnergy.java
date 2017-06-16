@@ -4,8 +4,8 @@
 
 package etomica.normalmode;
 
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
+import etomica.space.Vector;
+import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -67,11 +67,11 @@ public class MeterHarmonicSingleEnergy implements IEtomicaDataSource {
         return data;
     }
     
-    public IBox getBox() {
+    public Box getBox() {
         return coordinateDefinition.getBox();
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         
         normalModes.getWaveVectorFactory().makeWaveVectors(newBox);
@@ -87,13 +87,13 @@ public class MeterHarmonicSingleEnergy implements IEtomicaDataSource {
         imaginaryT = new double[coordinateDim];
     }
     
-    public void setWaveVectors(IVectorMutable[] newWaveVectors, double[] coefficients) {
+    public void setWaveVectors(Vector[] newWaveVectors, double[] coefficients) {
         waveVectors = newWaveVectors;
         waveVectorCoefficients = coefficients;
     }
     
     public void setEigenvectors(double[][][] eigenVectors) {
-        this.eigenvectors = (double[][][])eigenVectors.clone();
+        this.eigenvectors = eigenVectors.clone();
     }
     
     public void setOmegaSquared(double[][] omega2) {
@@ -120,7 +120,7 @@ public class MeterHarmonicSingleEnergy implements IEtomicaDataSource {
     protected DataDoubleArray data;
     private final DataTag tag;
     protected double[] realT, imaginaryT;
-    protected IVectorMutable[] waveVectors;
+    protected Vector[] waveVectors;
     protected double[] waveVectorCoefficients;
     protected double[][][] eigenvectors;
     protected double[][] omegaSquared;

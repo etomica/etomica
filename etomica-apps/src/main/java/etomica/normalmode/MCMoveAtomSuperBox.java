@@ -4,10 +4,10 @@
 
  package etomica.normalmode;
 
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
+import etomica.atom.IAtom;
+import etomica.box.Box;
+import etomica.potential.PotentialMaster;
+import etomica.util.random.IRandom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPair;
 import etomica.atom.iterator.AtomIterator;
@@ -17,8 +17,8 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.potential.Potential2;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
+import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * Standard Monte Carlo atom-displacement trial move. Two atoms are moved at a
@@ -32,8 +32,8 @@ import etomica.space.IVectorRandom;
 public class MCMoveAtomSuperBox extends MCMoveBoxStep {
 
 
-    public MCMoveAtomSuperBox(IPotentialMaster potentialMaster, IRandom random,
-    		                 ISpace _space, CoordinateDefinitionLeafSuperBox coordinateDefinition) {
+    public MCMoveAtomSuperBox(PotentialMaster potentialMaster, IRandom random,
+                              Space _space, CoordinateDefinitionLeafSuperBox coordinateDefinition) {
         super(potentialMaster);
         this.random = random;
         this.coordinateDefinition = coordinateDefinition;
@@ -41,7 +41,7 @@ public class MCMoveAtomSuperBox extends MCMoveBoxStep {
         cells = coordinateDefinition.getBasisCells();
         
         energyMeter = new MeterPotentialEnergy(potentialMaster);
-        translationVector = (IVectorRandom)_space.makeVector();
+        translationVector = _space.makeVector();
         setStepSizeMax(0.5);
         setStepSizeMin(0.0);
         setStepSize(0.1);
@@ -337,7 +337,7 @@ public class MCMoveAtomSuperBox extends MCMoveBoxStep {
         return affectedAtomIterator;
     }
     
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         potential.setBox(p);
@@ -348,7 +348,7 @@ public class MCMoveAtomSuperBox extends MCMoveBoxStep {
     protected final AtomIteratorArrayListSimple affectedAtomIterator;
     protected final AtomArrayList affectedAtomList;
     protected final MeterPotentialEnergy energyMeter;
-    protected final IVectorRandom translationVector;
+    protected final Vector translationVector;
     protected IAtom atom0, atom1, atomSpeciesA, atomSpeciesB;
     protected double uOld;
     protected double uNew;

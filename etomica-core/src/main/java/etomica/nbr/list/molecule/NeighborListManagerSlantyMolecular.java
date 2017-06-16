@@ -4,16 +4,16 @@
 
 package etomica.nbr.list.molecule;
 
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotential;
-import etomica.api.IPotentialMolecular;
-import etomica.atom.MoleculePair;
+import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculePair;
 import etomica.nbr.list.molecule.PotentialMasterListMolecular.NeighborListAgentSourceMolecular;
 import etomica.nbr.molecule.NeighborCriterionMolecular;
+import etomica.potential.IPotential;
+import etomica.potential.IPotentialMolecular;
 import etomica.potential.PotentialArrayMolecular;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Implements neighbor listing for a slanty box.  Because using slanty cells
@@ -28,8 +28,8 @@ public class NeighborListManagerSlantyMolecular extends NeighborListManagerMolec
     /**
      * Configures instance for use by the given PotentialMaster.
      */
-    public NeighborListManagerSlantyMolecular(PotentialMasterListMolecular potentialMasterList, double range, 
-            IBox box, ISpace space) {
+    public NeighborListManagerSlantyMolecular(PotentialMasterListMolecular potentialMasterList, double range,
+                                              Box box, Space space) {
         super(potentialMasterList, range, box, space);
         pair = new MoleculePair();
     }
@@ -148,11 +148,11 @@ public class NeighborListManagerSlantyMolecular extends NeighborListManagerMolec
      * PotentialMaster
      */
     public static class NeighborListSlantyAgentSourceMolecular extends NeighborListAgentSourceMolecular {
-        public NeighborListSlantyAgentSourceMolecular(double range, ISpace space) {
+        public NeighborListSlantyAgentSourceMolecular(double range, Space space) {
             super(range, space);
         }
 
-        public NeighborListManagerMolecular makeAgent(IBox box) {
+        public NeighborListManagerMolecular makeAgent(Box box) {
             return new NeighborListManagerSlantyMolecular(potentialMaster, range, box, space);
         }
     }

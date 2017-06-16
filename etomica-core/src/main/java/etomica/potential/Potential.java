@@ -4,10 +4,9 @@
 
 package etomica.potential;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotentialAtomic;
-import etomica.space.ISpace;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.space.Space;
 
 /**
  * Superclass for all Potential classes, which define how the atoms in the
@@ -19,7 +18,7 @@ import etomica.space.ISpace;
 public abstract class Potential implements IPotentialAtomic {
     
 	private final int nBody;
-	protected final ISpace space;
+	protected final Space space;
 
     /**
      * General constructor for a potential instance
@@ -27,7 +26,7 @@ public abstract class Potential implements IPotentialAtomic {
      * for example with a pair potential nBody = 2; for a single-body potential,
      * nBody = 1.
      */
-    public Potential(int nBody, ISpace space) {
+    public Potential(int nBody, Space space) {
         this.nBody = nBody;
         this.space = space;
     }
@@ -46,7 +45,7 @@ public abstract class Potential implements IPotentialAtomic {
      * coordinatePair (if it uses one), e.g.:
      * cPair.setNearestImageTransformer(box.boundary());
      */
-    public abstract void setBox(IBox box);
+    public abstract void setBox(Box box);
     
     /**
      * The number of atoms on which the potential depends.

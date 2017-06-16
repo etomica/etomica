@@ -4,18 +4,13 @@
 
 package etomica.action;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.atom.IMoleculePositioned;
-import etomica.space.ISpace;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.molecule.*;
+import etomica.space.Boundary;
+import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * Action that imposes the central-image effect of a box having periodic
@@ -30,10 +25,10 @@ public class BoxImposePbc extends BoxActionAdapter {
 	 * before action can have any effect. Default is to apply central-imaging at
 	 * the atom rather than molecule level.
 	 */
-	public BoxImposePbc(ISpace space) {
+	public BoxImposePbc(Space space) {
 		setApplyToMolecules(false);
 		this.space = space;
-		setPositionDefinition(new AtomPositionGeometricCenter(space));
+		setPositionDefinition(new MoleculePositionGeometricCenter(space));
 	}
     
     public int getPriority() {return 100;}//100-199 is priority range for classes imposing PBC
@@ -43,21 +38,21 @@ public class BoxImposePbc extends BoxActionAdapter {
 	 * 
 	 * @param box
 	 */
-	public BoxImposePbc(IBox box, ISpace space) {
+	public BoxImposePbc(Box box, Space space) {
 		this(space);
 		setBox(box);
 	}
 
 	public void actionPerformed() {
-		IBoundary boundary = box.getBoundary();
+		Boundary boundary = box.getBoundary();
         if (applyToMolecules) {
             IMoleculeList molecules = box.getMoleculeList();
             
             for (int i=0; i<molecules.getMoleculeCount(); i++) {
                 IMolecule molecule = molecules.getMolecule(i);
-                IVector shift;
+                Vector shift;
                 if (molecule instanceof IMoleculePositioned) {
-                    IVectorMutable position = ((IMoleculePositioned)molecule).getPosition();
+                    Vector position = ((IMoleculePositioned)molecule).getPosition();
                     shift = boundary.centralImage(position);
                     position.PE(shift);
                 }
@@ -74,7 +69,7 @@ public class BoxImposePbc extends BoxActionAdapter {
             IAtomList atoms = box.getLeafList();
             for (int i=0; i<atoms.getAtomCount(); i++) {
                 IAtom atom = atoms.getAtom(i);
-                IVector shift = boundary.centralImage(atom.getPosition());
+                Vector shift = boundary.centralImage(atom.getPosition());
                 if (!shift.isZero()) {
                     atom.getPosition().PE(shift);
                 }
@@ -111,19 +106,19 @@ public class BoxImposePbc extends BoxActionAdapter {
 		}
 	}
 
-    public void setPositionDefinition(IAtomPositionDefinition positionDefinition) {
+    public void setPositionDefinition(IMoleculePositionDefinition positionDefinition) {
         this.positionDefinition = positionDefinition;
     }
 
-    public IAtomPositionDefinition getPositionDefinition() {
+    public IMoleculePositionDefinition getPositionDefinition() {
         return positionDefinition;
     }
 
     private static final long serialVersionUID = 1L;
     private AtomActionTranslateBy translator;
     private MoleculeChildAtomAction moleculeTranslator;
-    private ISpace space;
-    private IAtomPositionDefinition positionDefinition;
+    private Space space;
+    private IMoleculePositionDefinition positionDefinition;
 
 	private boolean applyToMolecules;
 }

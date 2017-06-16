@@ -4,19 +4,15 @@
 
 package etomica.virial.GUI.models;
 
-import etomica.api.ISpecies;
 import etomica.potential.P2LJQ;
-import etomica.potential.P2LennardJones;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.Species;
-import etomica.species.SpeciesSpheresMono;
 import etomica.species.SpeciesSpheresRotating;
+import etomica.virial.GUI.components.SimpleElementForSimilarSpecies;
 import etomica.virial.SpeciesFactory;
 import etomica.virial.SpeciesFactoryOrientedSpheres;
-import etomica.virial.SpeciesFactorySpheres;
-import etomica.virial.GUI.components.SimpleElementForSimilarSpecies;
 
 public class MolecularModelLJQ_SpeciesLJ implements IMolecularModel_SpeciesFactory,Cloneable{
 	

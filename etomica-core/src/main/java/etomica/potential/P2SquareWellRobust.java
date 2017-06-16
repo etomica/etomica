@@ -3,20 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.potential;
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IPotential;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeafAgentManager;
+
+import etomica.atom.*;
+import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.units.Dimension;
 import etomica.units.Energy;
 import etomica.units.Length;
@@ -39,6 +34,8 @@ import etomica.util.Debug;
  */
 public class P2SquareWellRobust extends Potential2HardSpherical implements AtomLeafAgentManager.AgentSource<AtomArrayList> {
 
+    protected final boolean ignoreOverlap;
+    protected final BoxAgentManager<AtomLeafAgentManager<AtomArrayList>> boxWellManager;
     protected double coreDiameter, coreDiameterSquared;
     protected double wellDiameter, wellDiameterSquared;
     protected double lambda; //wellDiameter = coreDiameter * lambda
@@ -46,19 +43,17 @@ public class P2SquareWellRobust extends Potential2HardSpherical implements AtomL
     protected double lastCollisionVirial, lastCollisionVirialr2;
     protected Tensor lastCollisionVirialTensor;
     protected double lastEnergyChange;
-    protected IVectorMutable dv;
-    protected final boolean ignoreOverlap;
-    protected final BoxAgentManager<AtomLeafAgentManager<AtomArrayList>> boxWellManager;
+    protected Vector dv;
     protected AtomLeafAgentManager<AtomArrayList> wellManager;
     protected PotentialMasterList potentialMaster;
-    protected IAtomType[] atomTypes;
+    protected AtomType[] atomTypes;
     protected boolean suppressMakeAgent = false;
 
-    public P2SquareWellRobust(ISpace space) {
+    public P2SquareWellRobust(Space space) {
         this(space, 1.0, 2.0, 1.0, false);
     }
 
-    public P2SquareWellRobust(ISpace space, double coreDiameter, double lambda, double epsilon, boolean ignoreOverlap) {
+    public P2SquareWellRobust(Space space, double coreDiameter, double lambda, double epsilon, boolean ignoreOverlap) {
         super(space);
         setCoreDiameter(coreDiameter);
         setLambda(lambda);
@@ -85,7 +80,7 @@ public class P2SquareWellRobust extends Potential2HardSpherical implements AtomL
      * @param potentialMaster
      * @param types
      */
-    public void setPotentialMaster(PotentialMasterList potentialMaster, IAtomType[] types) {
+    public void setPotentialMaster(PotentialMasterList potentialMaster, AtomType[] types) {
         this.potentialMaster = potentialMaster;
         this.atomTypes = types;
     }
@@ -110,8 +105,8 @@ public class P2SquareWellRobust extends Potential2HardSpherical implements AtomL
 
         double r2 = dr.squared();
         double bij = dr.dot(dv);
-        double rm0 = ((IAtom)atom0).getType().rm();
-        double rm1 = ((IAtom)atom1).getType().rm();
+        double rm0 = atom0.getType().rm();
+        double rm1 = atom1.getType().rm();
         double reduced_m = 1.0/(rm0+rm1);
         if(2*r2 < (coreDiameterSquared+wellDiameterSquared) || lambda == 1) {   // Hard-core collision
             if (Debug.ON && !ignoreOverlap && Math.abs(r2 - coreDiameterSquared)/coreDiameterSquared > 1.e-9) {
@@ -291,7 +286,7 @@ public class P2SquareWellRobust extends Potential2HardSpherical implements AtomL
     }
     public Dimension getEpsilonDimension() {return Energy.DIMENSION;}
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         super.setBox(box);
         wellManager = boxWellManager.getAgent(box);
         if (wellManager == null) {
@@ -346,7 +341,7 @@ public class P2SquareWellRobust extends Potential2HardSpherical implements AtomL
         }
     }
     
-    public AtomLeafAgentManager<AtomArrayList> makeAgent(IBox box) {
+    public AtomLeafAgentManager<AtomArrayList> makeAgent(Box box) {
         suppressMakeAgent = true;
         AtomLeafAgentManager<AtomArrayList> foo = new AtomLeafAgentManager<AtomArrayList>(this, box, AtomArrayList.class);
         IAtomList leafList = box.getLeafList();
@@ -368,7 +363,7 @@ public class P2SquareWellRobust extends Potential2HardSpherical implements AtomL
         return foo;
     }
     
-    public AtomArrayList makeAgent(IAtom atom, IBox agentBox) {
+    public AtomArrayList makeAgent(IAtom atom, Box agentBox) {
         if (suppressMakeAgent) {
             // allow [box] makeAgent to find all interacting pairs
             return new AtomArrayList();
@@ -383,7 +378,7 @@ public class P2SquareWellRobust extends Potential2HardSpherical implements AtomL
         return rv;
     }
 
-    public void releaseAgent(AtomArrayList iList, IAtom atom, IBox agentBox) {
+    public void releaseAgent(AtomArrayList iList, IAtom atom, Box agentBox) {
         // atom is going away.  remove it from all of its neighbor's lists
         AtomLeafAgentManager<AtomArrayList> agentManager = boxWellManager.getAgent(agentBox);
         for (int j=0; j<iList.getAtomCount(); j++) {

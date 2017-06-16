@@ -3,10 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.modules.ljmd;
+
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorMD.ThermostatType;
@@ -18,6 +17,7 @@ import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -26,7 +26,7 @@ public class Ljmd extends Simulation {
     
     private static final long serialVersionUID = 1L;
     public SpeciesSpheresMono species;
-    public IBox box;
+    public Box box;
     public IntegratorVelocityVerlet integrator;
     public ActivityIntegrate activityIntegrate;
     
@@ -54,12 +54,12 @@ public class Ljmd extends Simulation {
         //instantiate several potentials for selection in combo-box
 	    P2LennardJones potential = new P2LennardJones(space);
         P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(space, potential,2.5);
-	    potentialMaster.addPotential(p2Truncated, new IAtomType[]{species.getLeafType(), species.getLeafType()});
-	    
+        potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
+
         //construct box
 	    box = new Box(space);
         addBox(box);
-        IVectorMutable dim = space.makeVector();
+        Vector dim = space.makeVector();
         dim.E(15);
         box.getBoundary().setBoxSize(dim);
         box.setNMolecules(species, N);

@@ -7,10 +7,7 @@ package etomica.AlkaneEH;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.ISpecies;
+import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.box.Box;
@@ -19,7 +16,6 @@ import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
-import etomica.data.meter.MeterPressure;
 import etomica.data.meter.MeterPressureMolecular;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
@@ -31,13 +27,12 @@ import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.lattice.LatticeCubicBcc;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
-import etomica.potential.P2SoftSphericalTruncated;
-import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialGroupSoft;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.Constants;
@@ -54,15 +49,15 @@ import etomica.util.ParseArgs;
 public class CH4NVT extends Simulation {
 
 	private static final long serialVersionUID = 1L;
-	protected final SpeciesMethane speciesCH4; 
-	protected final IPotentialMaster potentialMaster;
+    private final static String APP_NAME = "methane, TraPPE-EH model";
+    private static final int PIXEL_SIZE = 15;
+    public final ActivityIntegrate activityIntegrate;
+    protected final SpeciesMethane speciesCH4;
+    protected final PotentialMaster potentialMaster;
 	protected final IntegratorMC integrator;
 	protected final MCMoveMolecule moveMolecule;//translation mc move
 	protected final MCMoveRotateMolecule3D rotateMolecule;//rotation mc move
-	protected final IBox box;
-	private final static String APP_NAME = "methane, TraPPE-EH model";
-	private static final int PIXEL_SIZE = 15;
-	public final ActivityIntegrate activityIntegrate;
+	protected final Box box;
     public Controller controller; //control the simulation process
 
 	//************************************* constructor ********************************************//
@@ -93,14 +88,14 @@ public class CH4NVT extends Simulation {
         PotentialGroupSoft pCH4 = new PotentialGroupSoft(2,space,truncation);
         //PotentialGroup pCH4 = new PotentialGroup(2);
 
-        IAtomType typeC = speciesCH4.getAtomType(0);
-        IAtomType typeH = speciesCH4.getAtomType(1);
+        AtomType typeC = speciesCH4.getAtomType(0);
+        AtomType typeH = speciesCH4.getAtomType(1);
 
         // build methane potential
-        pCH4.addPotential(p2C, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC, typeC}));//C-C
-        pCH4.addPotential(p2CH, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC, typeH}));//C-H
-        pCH4.addPotential(p2CH, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeH, typeC }));//H-C
-        pCH4.addPotential(p2H, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeH, typeH}));//H-H
+        pCH4.addPotential(p2C, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeC}));//C-C
+        pCH4.addPotential(p2CH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeH}));//C-H
+        pCH4.addPotential(p2CH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeH, typeC}));//H-C
+        pCH4.addPotential(p2H, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeH, typeH}));//H-H
         
         //add potential to potential master 
         potentialMaster.addPotential(pCH4, new ISpecies[]{speciesCH4,speciesCH4});
@@ -196,10 +191,10 @@ public class CH4NVT extends Simulation {
         sim.getController().actionPerformed();
         
         // compressibility factor Z=P/rho/T(all in sim units)
-        double Z = ((DataDouble)((DataGroup)pAccumulator.getData()).getData(pAccumulator.AVERAGE.index)).x*sim.box.getBoundary().volume()/(sim.box.getMoleculeList().getMoleculeCount()*sim.integrator.getTemperature());
-        double Zerr = ((DataDouble)((DataGroup)pAccumulator.getData()).getData(pAccumulator.ERROR.index)).x*sim.box.getBoundary().volume()/(sim.box.getMoleculeList().getMoleculeCount()*sim.integrator.getTemperature());
-        double Zblock_correlation = ((DataDouble)((DataGroup)pAccumulator.getData()).getData(pAccumulator.BLOCK_CORRELATION.index)).x;
-        double avgPE = ((DataDouble)((DataGroup)energyAccumulator.getData()).getData(energyAccumulator.AVERAGE.index)).x;
+        double Z = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().getMoleculeCount() * sim.integrator.getTemperature());
+        double Zerr = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(AccumulatorAverage.ERROR.index)).x * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().getMoleculeCount() * sim.integrator.getTemperature());
+        double Zblock_correlation = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index)).x;
+        double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
         avgPE /= numberMolecules;
         System.out.println("Z="+Z);
         System.out.println( "Zerr="+Zerr);

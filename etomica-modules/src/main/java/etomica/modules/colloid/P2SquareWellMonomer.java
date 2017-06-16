@@ -4,16 +4,16 @@
 
 package etomica.modules.colloid;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.potential.P2SquareWell;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.util.Debug;
 
 public class P2SquareWellMonomer extends P2SquareWell {
-    public P2SquareWellMonomer(ISpace space, AtomLeafAgentManager bondManager) {
+    public P2SquareWellMonomer(Space space, AtomLeafAgentManager bondManager) {
         super(space, 1.0, 2.0, 1.0, true);
         this.bondManager = bondManager;
     }

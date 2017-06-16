@@ -4,16 +4,13 @@
 
 package etomica.modules.reactionequilibrium;
 
-import javax.swing.JPanel;
-
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.IController;
-import etomica.api.IAtom;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorHard;
@@ -26,13 +23,15 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space2d.Space2D;
 import etomica.species.SpeciesSpheresMono;
 
+import javax.swing.*;
+
 public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom> {
 
     public IController controller1;
     public JPanel panel = new JPanel(new java.awt.BorderLayout());
     public IntegratorHard integratorHard1;
     public java.awt.Component display;
-    public IBox box;
+    public Box box;
     public etomica.action.SimulationRestart restartAction;
     public boolean initializing = true;
     public MeterTemperature thermometer;
@@ -43,8 +42,8 @@ public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom
     public P2SquareWellBonded BBbonded;
     public MeterDimerFraction meterDimerFraction;
     public ActivityIntegrate activityIntegrate;
-    private AtomLeafAgentManager<IAtom> agentManager = null;
     public IAtom[] agents;
+    private AtomLeafAgentManager<IAtom> agentManager = null;
     
     public ReactionEquilibrium() {
         super(Space2D.getInstance());
@@ -87,11 +86,11 @@ public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom
                 2.0, //well multiplier
                 1.0, true);
         potentialMaster.addPotential(AAbonded,
-                new IAtomType[] { speciesA.getLeafType(), speciesA.getLeafType() });
+                new AtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
         potentialMaster.addPotential(ABbonded,
-                new IAtomType[] { speciesA.getLeafType(), speciesB.getLeafType() });
+                new AtomType[]{speciesA.getLeafType(), speciesB.getLeafType()});
         potentialMaster.addPotential(BBbonded,
-                new IAtomType[] { speciesB.getLeafType(), speciesB.getLeafType() });
+                new AtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
 
         meterDimerFraction = new MeterDimerFraction(agentManager);
         meterDimerFraction.setSpeciesA(speciesA);
@@ -115,11 +114,11 @@ public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom
      * @param a  ignored
      * @return Object always null
      */
-    public IAtom makeAgent(IAtom a, IBox agentBox) {
+    public IAtom makeAgent(IAtom a, Box agentBox) {
         return null;
     }
     
-    public void releaseAgent(IAtom agent, IAtom atom, IBox agentBox) {}
+    public void releaseAgent(IAtom agent, IAtom atom, Box agentBox) {}
 
 
 }

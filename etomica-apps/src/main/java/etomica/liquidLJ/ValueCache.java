@@ -1,14 +1,14 @@
 package etomica.liquidLJ;
 
-import etomica.api.IIntegrator;
+import etomica.integrator.Integrator;
 import etomica.data.DataSourceScalar;
 
 public class ValueCache {
     protected long lastStep = -1;
     protected double lastValue;
     protected final DataSourceScalar dss;
-    protected final IIntegrator integrator;
-    public ValueCache(DataSourceScalar dss, IIntegrator integrator) {
+    protected final Integrator integrator;
+    public ValueCache(DataSourceScalar dss, Integrator integrator) {
         this.dss = dss;
         this.integrator = integrator;
     }

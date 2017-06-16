@@ -5,8 +5,7 @@
 package etomica.normalmode;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.SimulationGraphic;
@@ -21,7 +20,6 @@ import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Pixel;
@@ -35,21 +33,41 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
 
     private static final long serialVersionUID = 1L;
 	private static final String APP_NAME = "3-D Harmonic Oscillator";
+    protected IntegratorHarmonic integrator;
+    protected ActivityIntegrate activityIntegrate;
+    protected Box box;
+    protected Boundary boundary;
+    protected Primitive primitive;
+    protected Basis basis;
+    protected int[] nCells;
+    protected SpeciesSpheresMono species;
+    protected NormalModes3D nm;
+    protected WaveVectorFactory waveVectorFactory;
+    protected CoordinateDefinitionLeaf coordinateDefinition;
+    protected MeterPotentialEnergy meterPE;
+    protected Space space;
+    protected double L;
+    protected int n = 3;
+    protected P2SoftSphericalTruncatedShifted pTruncated;
+    protected double truncationRadius;
+    protected double density = 1.256;
+    protected double temperature = 0.0001;
+    protected double latticeEnergy;
 
-	public NormalModeAnalysisDisplay3D(Space _space){
+    public NormalModeAnalysisDisplay3D(Space _space){
         super(_space);
         this.space = _space;
-        
+
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
-        
+
         box = new Box(space);
         addBox(box);
         box.setNMolecules(species, 4*n*n*n);
-        
+
         L = Math.pow(4.0/density, 1.0/3.0);
         primitive = new PrimitiveCubic(space, L);
-        
+
         nCells = new int[]{n, n, n};
         boundary = new BoundaryRectangularPeriodic(space, n*L);
         basis = new BasisCubicFcc();
@@ -58,26 +76,26 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
         Potential2SoftSpherical potential= new P2SoftSphere(space, 1.0, 1.0, 12);
         truncationRadius = boundary.getBoxSize().getX(0) * 0.495;
         pTruncated = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
-        IAtomType sphereType = species.getLeafType();
-        
+        AtomType sphereType = species.getLeafType();
+
         PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(this);
-        potentialMaster.addPotential(pTruncated, new IAtomType[] { sphereType, sphereType });
+        potentialMaster.addPotential(pTruncated, new AtomType[]{sphereType, sphereType});
         meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
-        
+
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
-        
+
         latticeEnergy = meterPE.getDataAsScalar();
         //String fileName = "CB_FCC_n12_T01_Mode01";
         nm = new NormalModes3D(space, primitive, basis);
         nm.setTemperature(temperature);
         nm.setNCellNum(n);
-        
-                
+
+
         waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
-                
+
         integrator = new IntegratorHarmonic(random, 0.0001, temperature, space);
 
         integrator.setOmegaSquared(nm.getOmegaSquared(), waveVectorFactory.getCoefficients());
@@ -90,16 +108,30 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
         //integrator.setWaveVectorNum(0);
         //integrator.setOneEVal(true);
         //integrator.setEValNum(4);
-        
-        
+
+
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(0);
-        
+
         getController().addAction(activityIntegrate);
         integrator.setBox(box);
-        
-	}
-	
+
+    }
+
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+
+        //instantiate simulation
+        NormalModeAnalysisDisplay3D sim = new NormalModeAnalysisDisplay3D(Space.getInstance(3));
+
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, Space.getInstance(3), sim.getController());
+        simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(50));
+        simGraphic.makeAndDisplayFrame(APP_NAME);
+
+    }
+
 	public int[] getNCells() {
 		return nCells;
 	}
@@ -108,55 +140,19 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
 		nCells = cells;
 	}
 
-	public int getN() {
+    public int getN() {
 		return n;
 	}
 
 	public void setN(int n) {
 		this.n = n;
 	}
-	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
- 
-        //instantiate simulation
-        NormalModeAnalysisDisplay3D sim = new NormalModeAnalysisDisplay3D(Space.getInstance(3));
-        
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, Space.getInstance(3), sim.getController());
-        simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(50));
-        simGraphic.makeAndDisplayFrame(APP_NAME);
-        
-	}
-	
+
 	public static class Applet extends javax.swing.JApplet{
-		
+
 		public void init(){
-	
+
 		}
 	}
-	
-	protected IntegratorHarmonic integrator;
-	protected ActivityIntegrate activityIntegrate;
-	protected IBox box;
-	protected Boundary boundary;
-	protected Primitive primitive;
-	protected Basis basis;
-	protected int[] nCells;
-	protected SpeciesSpheresMono species;
-	protected NormalModes3D nm;
-	protected WaveVectorFactory waveVectorFactory;
-	protected CoordinateDefinitionLeaf coordinateDefinition;
-	protected MeterPotentialEnergy meterPE;
-	protected ISpace space;
-	protected double L;
-	protected int n = 3;
-	protected P2SoftSphericalTruncatedShifted pTruncated;
-	protected double truncationRadius;
-	
-	protected double density = 1.256;
-	protected double temperature = 0.0001;
-	protected double latticeEnergy;
 	
 }

@@ -4,8 +4,8 @@
 
 package etomica.models.rowley;
 
-import etomica.api.ISpecies;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.virial.SpeciesFactory;
 
 /**
@@ -18,7 +18,7 @@ public class SpeciesFactoryMethanol implements SpeciesFactory, java.io.Serializa
 		
 	}
     
-    public ISpecies makeSpecies(ISpace space) {
+    public ISpecies makeSpecies(Space space) {
     	
     	// The satellite site, X, is closer to the oxygen atom in the model with point charges.
     	SpeciesMethanol species = new SpeciesMethanol(space, pointCharges);

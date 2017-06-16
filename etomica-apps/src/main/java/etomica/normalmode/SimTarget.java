@@ -4,18 +4,13 @@
 
 package etomica.normalmode;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
-import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
@@ -27,17 +22,16 @@ import etomica.lattice.crystal.PrimitiveFcc;
 import etomica.listener.IntegratorListenerAction;
 import etomica.math.SpecialFunctions;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.potential.P1HardPeriodic;
-import etomica.potential.P2HardSphere;
-import etomica.potential.Potential;
-import etomica.potential.PotentialMaster;
-import etomica.potential.PotentialMasterMonatomic;
+import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
+
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * Simulation to run sampling with the hard sphere potential, but measuring
@@ -47,6 +41,14 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class SimTarget extends Simulation {
 
+    private static final long serialVersionUID = 1L;
+    public IntegratorHard integrator;
+    public ActivityIntegrate activityIntegrate;
+    public Box box;
+    public Boundary boundary;
+    public BravaisLattice lattice;
+    public Primitive primitive;
+    public CoordinateDefinition coordinateDefinition;
     public SimTarget(Space _space, int numAtoms, double density) {
         super(_space);
 
@@ -68,8 +70,8 @@ public class SimTarget extends Simulation {
         getController().addAction(activityIntegrate);
 
         Potential potential = new P2HardSphere(space, 1.0, false);
-        IAtomType sphereType = species.getLeafType();
-        potentialMaster.addPotential(potential, new IAtomType[] { sphereType,
+        AtomType sphereType = species.getLeafType();
+        potentialMaster.addPotential(potential, new AtomType[]{sphereType,
                 sphereType });
 
         int nCells;
@@ -112,7 +114,7 @@ public class SimTarget extends Simulation {
      * @param args
      */
     public static void main(String[] args) {
-        
+
         //set up simulation parameters
         int D = 3;
         int numMolecules = 27;
@@ -141,7 +143,7 @@ public class SimTarget extends Simulation {
         if (args.length > 4) {
             harmonicFudge = Double.parseDouble(args[4]);
         }
-        
+
 
         System.out.println("Running "+(D==1 ? "1D" : (D==3 ? "FCC" : "2D hexagonal")) +" hard sphere simulation, measuring harmonic energy");
         System.out.println(numMolecules+" atoms at density "+density);
@@ -151,7 +153,7 @@ public class SimTarget extends Simulation {
 
         //instantiate simulation
         SimTarget sim = new SimTarget(Space.getInstance(D), numMolecules, density);
-        
+
         NormalModes normalModes = null;
         if(D == 1) {
             normalModes = new NormalModes1DHR(sim.boundary, numMolecules);
@@ -169,7 +171,7 @@ public class SimTarget extends Simulation {
 //        DataPump foo = new DataPump(harmonicEnergy, null);
 //        IntervalActionAdapter bar = new IntervalActionAdapter(foo, sim.integrator);
 //        bar.setActionInterval(50);
-        
+
         //this one does averaging of Boltzmann factors of each mode
         MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy(sim.coordinateDefinition, normalModes);
         harmonicSingleEnergy.setBox(sim.box);
@@ -189,7 +191,7 @@ public class SimTarget extends Simulation {
 //        boltzFork.addDataSink(boltzCorrelation);
         AccumulatorAverage harmonicSingleAvg = new AccumulatorAverageFixed(10);
         boltzFork.addDataSink(harmonicSingleAvg);
-        
+
         DataProcessorSum summer = new DataProcessorSum();
         harmonicSingleFork.addDataSink(summer);
         DataFork harmonicFork = new DataFork();
@@ -208,13 +210,13 @@ public class SimTarget extends Simulation {
         sim.getController().actionPerformed();
 
         //get averages and confidence limits for harmonic energy
-        double avgHarmonicEnergy = ((DataDouble)((DataGroup)harmonicAvg.getData()).getData(harmonicAvg.AVERAGE.index)).x;
-        double errorHarmonicEnergy = ((DataDouble)((DataGroup)harmonicAvg.getData()).getData(harmonicAvg.ERROR.index)).x;
+        double avgHarmonicEnergy = ((DataDouble) ((DataGroup) harmonicAvg.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
+        double errorHarmonicEnergy = ((DataDouble) ((DataGroup) harmonicAvg.getData()).getData(AccumulatorAverage.ERROR.index)).x;
         System.out.println("avg harmonic energy: "+avgHarmonicEnergy+" +/- "+errorHarmonicEnergy);
-        
+
         //compute free-energy quantities, independent-mode approximation
-        DataDoubleArray harmonicModesAvg = (DataDoubleArray)((DataGroup)harmonicSingleAvg.getData()).getData(harmonicSingleAvg.AVERAGE.index);
-        DataDoubleArray harmonicModesErr = (DataDoubleArray)((DataGroup)harmonicSingleAvg.getData()).getData(harmonicSingleAvg.ERROR.index);
+        DataDoubleArray harmonicModesAvg = (DataDoubleArray) ((DataGroup) harmonicSingleAvg.getData()).getData(AccumulatorAverage.AVERAGE.index);
+        DataDoubleArray harmonicModesErr = (DataDoubleArray) ((DataGroup) harmonicSingleAvg.getData()).getData(AccumulatorAverage.ERROR.index);
         double deltaA = 0;
         double deltaAerr = 0;
         int nData = harmonicModesAvg.getLength();
@@ -223,7 +225,7 @@ public class SimTarget extends Simulation {
             deltaAerr += harmonicModesErr.getValue(i)/harmonicModesAvg.getValue(i);
         }
         System.out.println("Harmonic free energy correction (independent approx): "+deltaA+" +/- "+deltaAerr);
-        
+
         double[][] omega2 = normalModes.getOmegaSquared();
         double[] coeffs = normalModes.getWaveVectorFactory().getCoefficients();
         double AHarmonic = 0;
@@ -242,15 +244,15 @@ public class SimTarget extends Simulation {
         }
 
         //results for averaging without independent-mode approximation
-        deltaA = ((DataDouble)((DataGroup)harmonicBoltzAvg.getData()).getData(harmonicBoltzAvg.AVERAGE.index)).x;
-        deltaAerr = ((DataDouble)((DataGroup)harmonicBoltzAvg.getData()).getData(harmonicBoltzAvg.ERROR.index)).x/deltaA;
+        deltaA = ((DataDouble) ((DataGroup) harmonicBoltzAvg.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
+        deltaAerr = ((DataDouble) ((DataGroup) harmonicBoltzAvg.getData()).getData(AccumulatorAverage.ERROR.index)).x / deltaA;
         deltaA = Math.log(deltaA);
-        
+
         System.out.println("Harmonic free energy correction: "+deltaA+" +/- "+deltaAerr);
         System.out.println("Harmonic free energy correction per atom: "+deltaA/numMolecules+" +/- "+deltaAerr/numMolecules);
-        
+
         System.out.println("Harmonic-reference free energy: "+AHarmonic);
-        
+
         if(D==1) {
             double AHR = -(numMolecules-1)*Math.log(numMolecules/density-numMolecules) + SpecialFunctions.lnFactorial(numMolecules) ;
             System.out.println("Hard-rod free energy: "+AHR);
@@ -275,7 +277,7 @@ public class SimTarget extends Simulation {
         catch (IOException e) {
             throw new RuntimeException("Oops, failed to write data "+e);
         }
-        
+
 //        DataDoubleArray matrix = (DataDoubleArray)boltzCorrelation.getData();
 //        try {
 //            FileWriter fileWriterEE = new FileWriter(filename+".ee");
@@ -298,13 +300,4 @@ public class SimTarget extends Simulation {
 //        }
 //        System.out.println("pair approximation to free energy correction "+deltaA/(numMolecules-1));
     }
-
-    private static final long serialVersionUID = 1L;
-    public IntegratorHard integrator;
-    public ActivityIntegrate activityIntegrate;
-    public IBox box;
-    public Boundary boundary;
-    public BravaisLattice lattice;
-    public Primitive primitive;
-    public CoordinateDefinition coordinateDefinition;
 }

@@ -4,14 +4,12 @@
 
 package etomica.liquidLJ;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
+import etomica.box.Box;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.potential.Potential2Soft;
-import etomica.space.ISpace;
-import etomica.space.Tensor;
+import etomica.space.Space;
 
 /**
  * Methods for a soft (non-impulsive), spherically-symmetric pair potential.
@@ -23,7 +21,7 @@ import etomica.space.Tensor;
  
 public class Potential2SoftSphericalLSMultiLatSlanty extends Potential2SoftSphericalLSMultiLat {
    
-    public Potential2SoftSphericalLSMultiLatSlanty(ISpace space, double[] rCut, Potential2Soft p2Soft, CoordinateDefinition coordinateDefinition, int[] nShells) {
+    public Potential2SoftSphericalLSMultiLatSlanty(Space space, double[] rCut, Potential2Soft p2Soft, CoordinateDefinition coordinateDefinition, int[] nShells) {
         super(space, rCut, p2Soft, coordinateDefinition);
         xLxyz = space.makeVector();
         yLxyz = space.makeVector();
@@ -100,7 +98,7 @@ public class Potential2SoftSphericalLSMultiLatSlanty extends Potential2SoftSpher
         return rv;
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
         p2Soft.setBox(box);
 
@@ -109,6 +107,6 @@ public class Potential2SoftSphericalLSMultiLatSlanty extends Potential2SoftSpher
         zLat.E(boundary.getEdgeVector(2));
     }
 
-    protected final IVectorMutable xLxyz, yLxyz, zLxyz;
-    protected final IVectorMutable xLat, yLat, zLat;
+    protected final Vector xLxyz, yLxyz, zLxyz;
+    protected final Vector xLat, yLat, zLat;
 }//end of Potential2SoftSpherical

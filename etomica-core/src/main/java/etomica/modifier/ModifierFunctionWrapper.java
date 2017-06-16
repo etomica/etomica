@@ -4,8 +4,8 @@
 
 package etomica.modifier;
 
-import etomica.util.Function;
-import etomica.util.FunctionInvertible;
+import etomica.math.function.Function;
+import etomica.math.function.FunctionInvertible;
 
 /**
  * Extends the configurable modifier to permit a function to be applied to

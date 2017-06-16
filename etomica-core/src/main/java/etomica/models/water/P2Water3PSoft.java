@@ -5,13 +5,12 @@
 
 package etomica.models.water;
 
-import etomica.api.IMoleculeList;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.MoleculeOrientedDynamic;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeOrientedDynamic;
 import etomica.potential.IPotentialMolecularTorque;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 
 /** 
  * 3-point potential for water that can calculate gradient and torque (for the
@@ -19,27 +18,27 @@ import etomica.space.Tensor;
  */
 public class P2Water3PSoft extends P2Water3P implements IPotentialMolecularTorque {
 
-	public P2Water3PSoft(ISpace space, double sigma, double epsilon,
-	        double chargeO, double chargeH) {
+	public P2Water3PSoft(Space space, double sigma, double epsilon,
+                         double chargeO, double chargeH) {
 		super(space, sigma, epsilon, chargeO, chargeH);
-		gradient = new IVectorMutable[2];
+		gradient = new Vector[2];
 		gradient[0] = space.makeVector();
 		gradient[1] = space.makeVector();
-        torque = new IVectorMutable[2];
+        torque = new Vector[2];
         torque[0] = space.makeVector();
         torque[1] = space.makeVector();
         fWork = space.makeVector();
-        gradientAndTorque = new IVectorMutable[][]{gradient,torque};
+        gradientAndTorque = new Vector[][]{gradient,torque};
         epsilon48 = epsilon*48.0;
 	}
 
-    public IVector[][] gradientAndTorque(IMoleculeList pair){
+    public Vector[][] gradientAndTorque(IMoleculeList pair){
 		MoleculeOrientedDynamic water1 = (MoleculeOrientedDynamic)pair.getMolecule(0);
 		MoleculeOrientedDynamic water2 = (MoleculeOrientedDynamic)pair.getMolecule(1);
 		
 		//compute O-O distance to consider truncation	
-		IVectorMutable O1r = (water1.getChildList().getAtom(2)).getPosition();
-		IVectorMutable O2r = (water2.getChildList().getAtom(2)).getPosition();
+		Vector O1r = (water1.getChildList().getAtom(2)).getPosition();
+		Vector O2r = (water2.getChildList().getAtom(2)).getPosition();
 
 		work.Ev1Mv2(O1r, O2r);
         shift.Ea1Tv1(-1,work);
@@ -59,17 +58,17 @@ public class P2Water3PSoft extends P2Water3P implements IPotentialMolecularTorqu
 	
         gradient[0].Ea1Tv1(du/r2,work);
 
-        IVectorMutable com1 = water1.getPosition();
-        IVectorMutable com2 = water2.getPosition();
+        Vector com1 = water1.getPosition();
+        Vector com2 = water2.getPosition();
 
         work.Ev1Mv2(O2r, com2);
         work.XE(gradient[0]);
         torque[1].E(work);
         
-		IVectorMutable H11r = water1.getChildList().getAtom(0).getPosition();
-		IVectorMutable H12r = water1.getChildList().getAtom(1).getPosition();
-		IVectorMutable H21r = water2.getChildList().getAtom(0).getPosition();
-		IVectorMutable H22r = water2.getChildList().getAtom(1).getPosition();
+		Vector H11r = water1.getChildList().getAtom(0).getPosition();
+		Vector H12r = water1.getChildList().getAtom(1).getPosition();
+		Vector H21r = water2.getChildList().getAtom(0).getPosition();
+		Vector H22r = water2.getChildList().getAtom(1).getPosition();
 
         // O1-H21
         work.Ev1Mv2(O1r, H21r);
@@ -180,13 +179,13 @@ public class P2Water3PSoft extends P2Water3P implements IPotentialMolecularTorqu
 		return gradientAndTorque;
 	}
     
-    public IVector[] gradient(IMoleculeList atoms) {
+    public Vector[] gradient(IMoleculeList atoms) {
         // do extra work to calculate torque
         gradientAndTorque(atoms);
         return gradient;
     }
     
-    public IVector[] gradient(IMoleculeList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IMoleculeList atoms, Tensor pressureTensor) {
         gradientAndTorque(atoms);
         //FIXME
         //pressureTensor.PEv1v2(gradient[0],dr);
@@ -207,8 +206,8 @@ public class P2Water3PSoft extends P2Water3P implements IPotentialMolecularTorqu
 	public double getEpsilon() {return epsilon;}
 	
     private static final long serialVersionUID = 1L;
-	protected final IVectorMutable[] gradient, torque;
-	protected final IVectorMutable[][] gradientAndTorque;
+	protected final Vector[] gradient, torque;
+	protected final Vector[][] gradientAndTorque;
 	protected double epsilon48;
-	protected final IVectorMutable fWork;
+	protected final Vector fWork;
 }

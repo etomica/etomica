@@ -4,15 +4,16 @@
 
 package etomica.atom.iterator;
 
-import java.util.LinkedList;
-
-import etomica.api.IAtomType;
-import etomica.api.ISpecies;
-import etomica.atom.Molecule;
-import etomica.atom.MoleculeArrayList;
 import etomica.UnitTestUtil;
+import etomica.atom.AtomType;
+import etomica.molecule.Molecule;
+import etomica.molecule.MoleculeArrayList;
+import etomica.molecule.iterator.MoleculeIteratorArrayListSimple;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresHetero;
+
+import java.util.LinkedList;
 
 /**
  * Unit test for AtomIteratorArrayList.
@@ -25,7 +26,7 @@ public class MoleculeIteratorArrayListTest extends MoleculeIteratorTestAbstract 
     }
     
     public void testListVariations() {
-        ISpecies species = new SpeciesSpheresHetero(Space3D.getInstance(), new IAtomType[0]);
+        ISpecies species = new SpeciesSpheresHetero(Space3D.getInstance(), new AtomType[0]);
         MoleculeIteratorArrayListSimple iterator = new MoleculeIteratorArrayListSimple();
         
         //make sure new iterator gives no iterates

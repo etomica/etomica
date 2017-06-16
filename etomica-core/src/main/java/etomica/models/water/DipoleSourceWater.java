@@ -4,12 +4,11 @@
 
 package etomica.models.water;
 
-import etomica.api.IMolecule;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.DipoleSource;
-import etomica.atom.MoleculeOriented;
-import etomica.space.ISpace;
+import etomica.molecule.DipoleSource;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculeOriented;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.IOrientationFull3D;
 
 /**
@@ -26,7 +25,7 @@ import etomica.space3d.IOrientationFull3D;
  */
 public class DipoleSourceWater implements DipoleSource {
 
-    public DipoleSourceWater(ISpace space) {
+    public DipoleSourceWater(Space space) {
         dipole = space.makeVector();
     }
 
@@ -44,7 +43,7 @@ public class DipoleSourceWater implements DipoleSource {
         return dipoleStrength;
     }
     
-    public IVector getDipole(IMolecule molecule) {
+    public Vector getDipole(IMolecule molecule) {
         // assume dipole points in the secondary orientation direction
         MoleculeOriented orientedMolecule = (MoleculeOriented)molecule;
         dipole.E(((IOrientationFull3D)orientedMolecule.getOrientation()).getSecondaryDirection());
@@ -53,5 +52,5 @@ public class DipoleSourceWater implements DipoleSource {
     }
 
     protected double dipoleStrength;
-    protected final IVectorMutable dipole;
+    protected final Vector dipole;
 }

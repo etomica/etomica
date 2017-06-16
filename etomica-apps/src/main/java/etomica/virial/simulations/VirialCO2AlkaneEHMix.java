@@ -4,33 +4,15 @@
 
 package etomica.virial.simulations;
 
-import java.awt.Color;
-import java.util.Map;
-import java.util.Set;
-
 import etomica.AlkaneEH.SpeciesAlkaneEH;
-import etomica.action.AtomActionTranslateBy;
 import etomica.action.IAction;
-import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.api.IElement;
-import etomica.api.IIntegratorEvent;
-import etomica.api.IIntegratorListener;
-import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionGeometricCenterAlkaneEH;
+import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.atom.iterator.Atomset4IteratorIndexList;
-import etomica.chem.elements.Carbon;
-import etomica.chem.elements.ElementSimple;
-import etomica.chem.elements.Nitrogen;
-import etomica.chem.elements.Oxygen;
-import etomica.config.IConformation;
+import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
@@ -42,48 +24,26 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
-import etomica.potential.P2CO2EMP;
-import etomica.potential.P2CO2TraPPE;
-import etomica.potential.P2LennardJones;
-import etomica.potential.P3BondAngle;
-import etomica.potential.P4BondTorsion;
-import etomica.potential.P4BondTorsionAlkaneXCCH;
-import etomica.potential.PotentialGroup;
-import etomica.space.IVectorRandom;
+import etomica.molecule.MoleculePositionGeometricCenterAlkaneEH;
+import etomica.potential.*;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresHetero;
-import etomica.units.Electron;
+import etomica.species.ISpecies;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.ReadParameters;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterSum;
-import etomica.virial.ClusterSumShell;
-import etomica.virial.ClusterWeight;
-import etomica.virial.ClusterWeightAbs;
-import etomica.virial.CoordinatePairMoleculeSet;
-import etomica.virial.MCMoveClusterMoleculeMulti;
-import etomica.virial.MCMoveClusterRotateCH3;
-import etomica.virial.MCMoveClusterRotateMoleculeMulti;
-import etomica.virial.MCMoveClusterTorsionAlkaneEH;
-import etomica.virial.MCMoveClusterTorsionMulti;
-import etomica.virial.MCMoveClusterWiggleAlkaneEH;
-import etomica.virial.MCMoveClusterWiggleMulti;
-import etomica.virial.MayerEGeneral;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.MeterVirial;
-import etomica.virial.SpeciesAlkane;
-import etomica.virial.SpeciesTraPPECO2;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 import etomica.virial.cluster.VirialDiagrams;
 import etomica.virial.cluster.VirialDiagramsMix2;
+
+import java.awt.*;
+import java.util.Map;
+import java.util.Set;
 
 /**
  *   Mayer sampling simulation for CO2(rigid, TraPPE)-alkanes(TraPPE-EH) mixture
@@ -115,7 +75,7 @@ public class VirialCO2AlkaneEHMix {
             }
             else {
                 str += " "+gs.getStore().toNumberString();
-                if (flexDiagrams.graphHasEdgeColor(gs, flexDiagrams.eBond)) {
+                if (VirialDiagramsMix2.graphHasEdgeColor(gs, flexDiagrams.eBond)) {
                     str += "p" + edgeDeleter.apply(gs, ede).getStore().toNumberString();
                 }
             }
@@ -343,30 +303,30 @@ public class VirialCO2AlkaneEHMix {
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
         System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
         steps /= 1000;
-        
-        IAtomType typeCH3 = speciesAlkaneEH.getC_3Type();// C in CH3
-        IAtomType typeCH2 = speciesAlkaneEH.getC_2Type();// C in CH2
-        IAtomType typeH   = speciesAlkaneEH.getHType();  // H
-        IAtomType typeC = speciesCO2.getAtomType(0);
-        IAtomType typeO = speciesCO2.getAtomType(1);
+
+        AtomType typeCH3 = speciesAlkaneEH.getC_3Type();// C in CH3
+        AtomType typeCH2 = speciesAlkaneEH.getC_2Type();// C in CH2
+        AtomType typeH = speciesAlkaneEH.getHType();  // H
+        AtomType typeC = speciesCO2.getAtomType(0);
+        AtomType typeO = speciesCO2.getAtomType(1);
         
         // alkane potential
-        pAlkaneEH.addPotential(pHH, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeH, typeH}));//H-H
-        pAlkaneEH.addPotential(pCH2H, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeH, typeCH2}));//H-CH2
-        pAlkaneEH.addPotential(pCH3H, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeH, typeCH3}));//H-CH3
-        pAlkaneEH.addPotential(pCH2H, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeH, typeCH2}));//CH2-H
-        pAlkaneEH.addPotential(pCH2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH2}));//CH2-CH2
-        pAlkaneEH.addPotential(pCH2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH3}));//CH2-CH3
-        pAlkaneEH.addPotential(pCH3H, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeH, typeCH3}));//CH3-H
-        pAlkaneEH.addPotential(pCH2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH3}));//CH3-CH2
-        pAlkaneEH.addPotential(pCH3CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeCH3}));//CH3-CH3
+        pAlkaneEH.addPotential(pHH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeH, typeH}));//H-H
+        pAlkaneEH.addPotential(pCH2H, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeH, typeCH2}));//H-CH2
+        pAlkaneEH.addPotential(pCH3H, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeH, typeCH3}));//H-CH3
+        pAlkaneEH.addPotential(pCH2H, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeH, typeCH2}));//CH2-H
+        pAlkaneEH.addPotential(pCH2CH2, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH2, typeCH2}));//CH2-CH2
+        pAlkaneEH.addPotential(pCH2CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH2, typeCH3}));//CH2-CH3
+        pAlkaneEH.addPotential(pCH3H, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeH, typeCH3}));//CH3-H
+        pAlkaneEH.addPotential(pCH2CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH2, typeCH3}));//CH3-CH2
+        pAlkaneEH.addPotential(pCH3CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH3, typeCH3}));//CH3-CH3
         // CO2-alkane potential
-        pCO2AlkaneEH.addPotential(pC_CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC, typeCH3}));
-        pCO2AlkaneEH.addPotential(pC_CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC, typeCH2}));
-        pCO2AlkaneEH.addPotential(pC_H, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC, typeH}));
-        pCO2AlkaneEH.addPotential(pO_CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeO, typeCH3}));
-        pCO2AlkaneEH.addPotential(pO_CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeO, typeCH2}));
-        pCO2AlkaneEH.addPotential(pO_H, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeO, typeH}));
+        pCO2AlkaneEH.addPotential(pC_CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeCH3}));
+        pCO2AlkaneEH.addPotential(pC_CH2, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeCH2}));
+        pCO2AlkaneEH.addPotential(pC_H, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeH}));
+        pCO2AlkaneEH.addPotential(pO_CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeO, typeCH3}));
+        pCO2AlkaneEH.addPotential(pO_CH2, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeO, typeCH2}));
+        pCO2AlkaneEH.addPotential(pO_H, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeO, typeH}));
         
         // create the intramolecular potential here, add to it to the "potential master" if needed
         PotentialGroup pIntra = sim.integrators[1].getPotentialMaster().makePotentialGroup(1);
@@ -379,7 +339,7 @@ public class VirialCO2AlkaneEHMix {
     	
         //*********************************** Set Geometric center *********************************//
     	// geometric center is based on all carbons, hydrogens not included
-    	AtomPositionGeometricCenterAlkaneEH center = new AtomPositionGeometricCenterAlkaneEH(space,speciesAlkaneEH);
+    	MoleculePositionGeometricCenterAlkaneEH center = new MoleculePositionGeometricCenterAlkaneEH(space,speciesAlkaneEH);
     	((MCMoveRotateMolecule3D)sim.mcMoveRotate[0]).setPositionDefinition(center);
     	((MCMoveRotateMolecule3D)sim.mcMoveRotate[1]).setPositionDefinition(center);
     	((CoordinatePairMoleculeSet)sim.box[0].getCPairSet()).setPositionDefinition(center);
@@ -827,10 +787,10 @@ public class VirialCO2AlkaneEHMix {
         }
 
         if (false) {
-            IIntegratorListener progressReport = new IIntegratorListener() {
-                public void integratorInitialized(IIntegratorEvent e) {}
-                public void integratorStepStarted(IIntegratorEvent e) {}
-                public void integratorStepFinished(IIntegratorEvent e) {
+            IntegratorListener progressReport = new IntegratorListener() {
+                public void integratorInitialized(IntegratorEvent e) {}
+                public void integratorStepStarted(IntegratorEvent e) {}
+                public void integratorStepFinished(IntegratorEvent e) {
                     if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();
@@ -848,9 +808,9 @@ public class VirialCO2AlkaneEHMix {
         sim.printResults(HSB[nPoints]);
         
         DataGroup allData = (DataGroup)sim.accumulators[1].getData();
-        IData dataAvg = allData.getData(sim.accumulators[1].AVERAGE.index);
-        IData dataErr = allData.getData(sim.accumulators[1].ERROR.index);
-        IData dataCov = allData.getData(sim.accumulators[1].BLOCK_COVARIANCE.index);
+        IData dataAvg = allData.getData(AccumulatorAverage.AVERAGE.index);
+        IData dataErr = allData.getData(AccumulatorAverage.ERROR.index);
+        IData dataCov = allData.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
         // we'll ignore block correlation -- whatever effects are here should be in the full target results
         int nTotal = (targetDiagrams.length+2);
         double oVar = dataCov.getValue(nTotal*nTotal-1);

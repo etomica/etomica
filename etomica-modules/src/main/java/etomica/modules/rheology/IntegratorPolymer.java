@@ -4,14 +4,14 @@
 
 package etomica.modules.rheology;
 
-import etomica.api.IAtomList;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
 import etomica.integrator.IntegratorMD;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.PotentialMaster;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * Integrator for Brownian dynamics of a polymer in a flow field.
@@ -20,16 +20,16 @@ import etomica.space.ISpace;
  */
 public class IntegratorPolymer extends IntegratorMD {
 
-    public IntegratorPolymer(IPotentialMaster potentialMaster, IRandom random,
-            double timeStep, double temperature, ISpace _space) {
+    public IntegratorPolymer(PotentialMaster potentialMaster, IRandom random,
+                             double timeStep, double temperature, Space _space) {
         super(potentialMaster, random, timeStep, temperature, _space);
         center = _space.makeVector();
         drPrev = _space.makeVector();
         dr = _space.makeVector();
         ds = _space.makeVector();
-        s = new IVectorMutable[0];
-        r = new IVectorMutable[0];
-        W = new IVectorMutable[0];
+        s = new Vector[0];
+        r = new Vector[0];
+        W = new Vector[0];
         fQ = new double[0];
     }
 
@@ -55,9 +55,9 @@ public class IntegratorPolymer extends IntegratorMD {
             IMolecule molecule = molecules.getMolecule(i);
             IAtomList atoms = molecule.getChildList();
             if (s.length != atoms.getAtomCount()) {
-                s = new IVectorMutable[atoms.getAtomCount()];
-                r = new IVectorMutable[atoms.getAtomCount()];
-                W = new IVectorMutable[atoms.getAtomCount()];
+                s = new Vector[atoms.getAtomCount()];
+                r = new Vector[atoms.getAtomCount()];
+                W = new Vector[atoms.getAtomCount()];
                 for (int j=0; j<atoms.getAtomCount(); j++) {
                     s[j] = space.makeVector();
                     r[j] = space.makeVector();
@@ -104,7 +104,7 @@ public class IntegratorPolymer extends IntegratorMD {
             // corrector step
             double fR = 0;
             for (int j=0; j<atoms.getAtomCount(); j++) {
-                IVectorMutable q = atoms.getAtom(j).getPosition();
+                Vector q = atoms.getAtom(j).getPosition();
                 if (a < 0) {
                     q.setX(0, srdt2*(s[j].getX(1)+r[j].getX(1)));
                     q.setX(1, a*srdt2*(s[j].getX(0)+r[j].getX(0)));
@@ -182,11 +182,11 @@ public class IntegratorPolymer extends IntegratorMD {
     }
 
     private static final long serialVersionUID = 1L;
-    protected final IVectorMutable drPrev, dr, ds, center;
+    protected final Vector drPrev, dr, ds, center;
     protected double omdth, sqdt;
     protected double shearRate;
     protected double a, b;
-    protected IVectorMutable[] W;
-    protected IVectorMutable[] s, r;
+    protected Vector[] W;
+    protected Vector[] s, r;
     protected double[] fQ;
 }

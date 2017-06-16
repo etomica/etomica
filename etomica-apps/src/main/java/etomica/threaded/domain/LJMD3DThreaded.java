@@ -7,15 +7,13 @@ package etomica.threaded.domain;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
@@ -39,7 +37,7 @@ public class LJMD3DThreaded extends Simulation {
     public IntegratorVelocityVerlet integrator;
     public MCMoveAtom mcMoveAtom;
     public SpeciesSpheresMono species;
-    public IBox box;
+    public Box box;
     public P2LennardJones p2lj;
     public P2SoftSphericalTruncated[] potential;
     public PotentialThreaded potentialThreaded;
@@ -98,7 +96,7 @@ public class LJMD3DThreaded extends Simulation {
         potentialMaster.setCellRange(1);
         potentialMaster.setRange(neighborFac * truncationRadius);
         potentialMaster.getNeighborManager(box).setQuiet(true);
-        potentialMaster.addPotential(potentialThreaded, new IAtomType[] {species.getLeafType(), species.getLeafType()});
+        potentialMaster.addPotential(potentialThreaded, new AtomType[]{species.getLeafType(), species.getLeafType()});
        
         //--------------------------------------\\
         
@@ -107,7 +105,7 @@ public class LJMD3DThreaded extends Simulation {
         integrator.setBox(box);
 //        WriteConfiguration writeConfig = new WriteConfiguration("LJMC3D"+Integer.toString(numAtoms),box,1);
 //        integrator.addListener(writeConfig);
-        integrator.getEventManager().addListener(((PotentialMasterList)potentialMaster).getNeighborManager(box));
+        integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         potentialMaster.setNumThreads(numThreads, box);
     }
 

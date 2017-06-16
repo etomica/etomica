@@ -4,9 +4,9 @@
 
 package etomica.potential; 
 
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.space.ISpace;
+import etomica.space.Boundary;
+import etomica.box.Box;
+import etomica.space.Space;
 
 /**
  * Potential acting on a single atom or atom group.
@@ -15,13 +15,13 @@ import etomica.space.ISpace;
  */
 public abstract class Potential1 extends Potential {
       
-	protected IBoundary boundary;
+	protected Boundary boundary;
 	
-    public Potential1(ISpace space) {
+    public Potential1(Space space) {
         super(1, space);
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
     	boundary = box.getBoundary();
     }
     

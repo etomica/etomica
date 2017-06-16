@@ -4,10 +4,10 @@
 
 package etomica.paracetamol;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IVector;
-import etomica.space.ISpace;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
+import etomica.space.Space;
 
 /**
  * Empirical Isotropic atom-atom repulsion-dispersion potential
@@ -25,12 +25,12 @@ import etomica.space.ISpace;
 
 public class P2ElectrostaticDreiding extends etomica.potential.P2Exp6 {
 	
-	public P2ElectrostaticDreiding(ISpace _space) {
+	public P2ElectrostaticDreiding(Space _space) {
         this(_space, 1.0, 1.0, 1.0);
        
     }
 	
-    public P2ElectrostaticDreiding(ISpace _space, double AA, double BB, double CC) {
+    public P2ElectrostaticDreiding(Space _space, double AA, double BB, double CC) {
         super(_space, AA, BB, CC);
     }
     
@@ -53,7 +53,7 @@ public class P2ElectrostaticDreiding extends etomica.potential.P2Exp6 {
         		
     }
     
-    public IVector[] gradient(IAtomList atomSet) {
+    public Vector[] gradient(IAtomList atomSet) {
     	
         IAtom atom0 = atomSet.getAtom(0);
         IAtom atom1 = atomSet.getAtom(1);

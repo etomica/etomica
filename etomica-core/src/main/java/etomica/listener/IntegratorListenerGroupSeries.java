@@ -4,36 +4,36 @@
 
 package etomica.listener;
 
-import etomica.api.IIntegratorEvent;
-import etomica.api.IIntegratorListener;
+import etomica.integrator.IntegratorListener;
+import etomica.integrator.IntegratorEvent;
 import etomica.util.Arrays;
 
-public class IntegratorListenerGroupSeries implements IIntegratorListener, java.io.Serializable {
+public class IntegratorListenerGroupSeries implements IntegratorListener, java.io.Serializable {
 
     /**
      * Constructs an action group that holds no actions.
      */
     public IntegratorListenerGroupSeries() {
-        this(new IIntegratorListener[0]);
+        this(new IntegratorListener[0]);
     }
     
     /**
      * Defines group via the given array of actions.  Copy
      * of array is made and used internally.
      */
-    public IntegratorListenerGroupSeries(IIntegratorListener[] listeners) {
+    public IntegratorListenerGroupSeries(IntegratorListener[] listeners) {
         this.listeners = listeners.clone();
         intervalCount = 0;
         interval = 1;
     }
     
-    public void integratorInitialized(IIntegratorEvent e) {
+    public void integratorInitialized(IntegratorEvent e) {
         for(int i=0; i<listeners.length; i++) {
             listeners[i].integratorInitialized(e);
         }
     }
     
-    public void integratorStepStarted(IIntegratorEvent e) {
+    public void integratorStepStarted(IntegratorEvent e) {
         intervalCount++;
         if(intervalCount >= interval) {
             for(int i=0; i<listeners.length; i++) {
@@ -42,7 +42,7 @@ public class IntegratorListenerGroupSeries implements IIntegratorListener, java.
         }
     }
     
-    public void integratorStepFinished(IIntegratorEvent e) {
+    public void integratorStepFinished(IntegratorEvent e) {
         if(intervalCount >= interval) {
             for(int i=0; i<listeners.length; i++) {
                 listeners[i].integratorStepFinished(e);
@@ -56,21 +56,21 @@ public class IntegratorListenerGroupSeries implements IIntegratorListener, java.
      * action is already in group; it is added regardless.  
      * @param newListener
      */
-    public void addListener(IIntegratorListener newListener) {
-        listeners = (IIntegratorListener[])Arrays.addObject(listeners, newListener);
+    public void addListener(IntegratorListener newListener) {
+        listeners = (IntegratorListener[])Arrays.addObject(listeners, newListener);
     }
     
     /**
      * Removes the given action from the group.  No warning or
      * error is given if action is not in the group already.
      */
-    public boolean removeListener(IIntegratorListener oldListener) {
+    public boolean removeListener(IntegratorListener oldListener) {
         int num = listeners.length;
-        listeners = (IIntegratorListener[])Arrays.removeObject(listeners, oldListener);
+        listeners = (IntegratorListener[])Arrays.removeObject(listeners, oldListener);
         return listeners.length != num; 
     }
     
-    public IIntegratorListener[] getAllListeners() {
+    public IntegratorListener[] getAllListeners() {
         return listeners.clone();
     }
     
@@ -81,5 +81,5 @@ public class IntegratorListenerGroupSeries implements IIntegratorListener, java.
     private static final long serialVersionUID = 1L;
     private int interval;
     private int intervalCount;
-    private IIntegratorListener[] listeners;
+    private IntegratorListener[] listeners;
 }

@@ -5,11 +5,11 @@
 package etomica.virial;
 
 import etomica.action.MoleculeAction;
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IRandom;
+import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
-import etomica.space.ISpace;
+import etomica.molecule.IMoleculeList;
+import etomica.space.Space;
+import etomica.util.random.IRandom;
 
 /**
  * MCMove for use in a Mayer sampling simulation that rotates all molecules in
@@ -22,12 +22,12 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
      * @param potentialMaster
      * @param space
      */
-    public MCMoveClusterRotateMoleculeMulti(IRandom random, ISpace _space) {
+    public MCMoveClusterRotateMoleculeMulti(IRandom random, Space _space) {
         super(null, random, _space);
         this.space = _space;
     }
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         IMoleculeList moleculeList = box.getMoleculeList();
         rotationAxis = new int[moleculeList.getMoleculeCount()];

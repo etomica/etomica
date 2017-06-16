@@ -4,18 +4,17 @@
 
 package etomica.models.oneDHardRods;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
-import etomica.atom.Atom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
+import etomica.potential.PotentialMaster;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * A Monte Carlo move which compares several normal modes to harmonic normal
@@ -42,7 +41,7 @@ public class MCMoveCompareMultipleWV extends MCMoveBoxStep {
     protected double energyOld,energyNew, energyEvenLater;
     protected final MeterPotentialEnergy energyMeter;
     private double[][][] eigenVectors;
-    private IVectorMutable[] waveVectors;
+    private Vector[] waveVectors;
     private double[] gaussian;
     protected double temperature;
     private double[] rRand, iRand, realT, imagT;
@@ -52,7 +51,7 @@ public class MCMoveCompareMultipleWV extends MCMoveBoxStep {
     int changedWV, howManyChangesToHardRodModes;
     int[] comparedWVs, changeableWVs;
     
-    public MCMoveCompareMultipleWV(IPotentialMaster potentialMaster,
+    public MCMoveCompareMultipleWV(PotentialMaster potentialMaster,
             IRandom random) {
         super(potentialMaster);
         this.random = random;
@@ -287,7 +286,7 @@ public class MCMoveCompareMultipleWV extends MCMoveBoxStep {
         }
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         super.setBox(newBox);
         iterator.setBox(newBox);
         energyMeter.setBox(newBox);
@@ -314,8 +313,8 @@ public class MCMoveCompareMultipleWV extends MCMoveBoxStep {
      * 
      * @param wv
      */
-    public void setWaveVectors(IVectorMutable[] wv){
-        waveVectors = new IVectorMutable[wv.length];
+    public void setWaveVectors(Vector[] wv){
+        waveVectors = new Vector[wv.length];
         waveVectors = wv;
     }
     public void setWaveVectorCoefficients(double[] newWaveVectorCoefficients) {
@@ -386,7 +385,7 @@ public class MCMoveCompareMultipleWV extends MCMoveBoxStep {
         
         if(box.getBoundary().getEdgeVector(0).getD() == 1){
             for(int i = 0; i < ats; i++){
-                System.out.println(i + "  " + ((Atom)list.getAtom(i)).getPosition().getX(0));
+                System.out.println(i + "  " + list.getAtom(i).getPosition().getX(0));
             }
         }
         
@@ -394,7 +393,7 @@ public class MCMoveCompareMultipleWV extends MCMoveBoxStep {
             for(int i = 0; i < ats; i++){
                 System.out.println("Atom " + i);
                 for(int j = 0; j < 3; j++){
-                    System.out.println(j + " " + ((Atom)list.getAtom(i)).getPosition().getX(j));
+                    System.out.println(j + " " + list.getAtom(i).getPosition().getX(j));
                 }
             }
         }

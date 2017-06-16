@@ -4,7 +4,7 @@
 
 package etomica.nbr;
 
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.PotentialMasterList;
 
@@ -20,7 +20,7 @@ public class PotentialGroupHybrid extends PotentialGroupNbr {
         super(nBody);
     }
 
-    public void setPotentialMaster(IPotentialMaster newPotentialMaster) {
+    public void setPotentialMaster(PotentialMaster newPotentialMaster) {
         // we'll get notification of each PotentialMaster instance (cell, list, 
         // hybrid), but we only care about the hyrbid one.  It will notify the
         // others.

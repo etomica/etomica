@@ -4,7 +4,7 @@
 
 package etomica.overlap;
 
-import etomica.api.IIntegrator;
+import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorManagerMC;
 
 /**
@@ -13,7 +13,7 @@ import etomica.integrator.IntegratorManagerMC;
  */
 public class IntegratorOverlap extends IntegratorManagerMC {
 
-    public IntegratorOverlap(IIntegrator[] aIntegrators) {
+    public IntegratorOverlap(Integrator[] aIntegrators) {
         super(null);
         setNumSubSteps(1000);
         for (int i=0; i<aIntegrators.length; i++) {

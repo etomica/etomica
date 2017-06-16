@@ -4,23 +4,22 @@
 
 package etomica.modules.droplet;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
+import etomica.box.Box;
+import etomica.util.random.IRandom;
 import etomica.config.Configuration;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
+import etomica.space.Space;
 
 public class ConfigurationDroplet implements Configuration {
 
-    public ConfigurationDroplet(IRandom random, ISpace space) {
+    public ConfigurationDroplet(IRandom random, Space space) {
         this.random = random;
         axis = space.makeVector();
         center = space.makeVector();
     }
     
-    public void initializeCoordinates(IBox box) {
+    public void initializeCoordinates(Box box) {
         
         double factor = (1+deformation) / (1-deformation);
         axis.E(Math.pow(factor, -1.0/3.0));
@@ -29,8 +28,8 @@ public class ConfigurationDroplet implements Configuration {
         IAtomList leafList = box.getLeafList();
         int numAtoms = leafList.getAtomCount();
         for (int i=0; i<numAtoms; i++) {
-            IVectorMutable r = leafList.getAtom(i).getPosition();
-            ((IVectorRandom)r).setRandomInSphere(random);
+            Vector r = leafList.getAtom(i).getPosition();
+            r.setRandomInSphere(random);
             r.TE(axis);
         }
 
@@ -55,5 +54,5 @@ public class ConfigurationDroplet implements Configuration {
     
     protected double deformation;
     protected final IRandom random;
-    protected final IVectorMutable axis, center;
+    protected final Vector axis, center;
 }

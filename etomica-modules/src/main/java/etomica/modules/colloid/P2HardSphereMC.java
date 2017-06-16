@@ -4,16 +4,16 @@
 
 package etomica.modules.colloid;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.potential.P2HardSphere;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.util.Debug;
 
 public class P2HardSphereMC extends P2HardSphere {
-    public P2HardSphereMC(ISpace space, AtomLeafAgentManager<? extends IAtomList> bondManager) {
+    public P2HardSphereMC(Space space, AtomLeafAgentManager<? extends IAtomList> bondManager) {
         super(space, 1.0, true);
         this.bondManager = bondManager;
     }

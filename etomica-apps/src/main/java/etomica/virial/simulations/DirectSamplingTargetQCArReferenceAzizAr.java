@@ -4,14 +4,12 @@
 
 package etomica.virial.simulations;
 
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.potential.P2ArgonAziz1993;
 import etomica.potential.P2QChem;
 import etomica.potential.Potential2SoftSpherical;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.util.ParameterBase;
 import etomica.virial.B2ForSphericallySymmetricUByTrapezoidRule;
@@ -76,10 +74,10 @@ public class DirectSamplingTargetQCArReferenceAzizAr {
         // ***********************************************************************************************************
         // Computation of the reference B2 value
         // ***********************************************************************************************************
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         P2ArgonAziz1993 p2 = new P2ArgonAziz1993(space);
         B2ForSphericallySymmetricUByTrapezoidRule b2ref = new B2ForSphericallySymmetricUByTrapezoidRule();
-        double[] results = b2ref.getResults((Potential2SoftSpherical)p2, 10, 100, temperature, false);
+        double[] results = b2ref.getResults(p2, 10, 100, temperature, false);
         double ref = results[0];
         double refError = results[1];
         

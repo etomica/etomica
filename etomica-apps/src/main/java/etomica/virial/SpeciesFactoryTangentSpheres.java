@@ -4,10 +4,10 @@
 
 package etomica.virial;
 
-import etomica.api.ISpecies;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.IConformation;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheres;
 
 /**
@@ -19,7 +19,7 @@ public class SpeciesFactoryTangentSpheres implements SpeciesFactory, java.io.Ser
         this.conformation = conformation;
     }
     
-    public ISpecies makeSpecies(ISpace space) {
+    public ISpecies makeSpecies(Space space) {
         return new SpeciesSpheres(nA, new ElementSimple("TS"), conformation, space);
     }
     

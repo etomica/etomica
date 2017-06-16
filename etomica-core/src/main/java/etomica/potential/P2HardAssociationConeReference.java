@@ -3,13 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.potential;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
+import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Angle;
 import etomica.units.Dimension;
 import etomica.units.Length;
@@ -26,10 +25,10 @@ public class P2HardAssociationConeReference extends Potential2 {
     public static boolean FLAG = false;
     private double sigma, sigmaSquared;
     private double ec2;
-    private final IVectorMutable dr;
-    private IBoundary boundary;
+    private final Vector dr;
+    private Boundary boundary;
     
-    public P2HardAssociationConeReference(ISpace space, double sigma) {
+    public P2HardAssociationConeReference(Space space, double sigma) {
         super(space);
         dr = space.makeVector();
 
@@ -58,10 +57,10 @@ public class P2HardAssociationConeReference extends Potential2 {
                 
                   
         if (r2 < sigmaSquared) {
-        	IVector e1A = atom0.getOrientation().getDirection();
+        	Vector e1A = atom0.getOrientation().getDirection();
             double er1A = e1A.dot(dr);//vector of site A on atom0
             double er1B = -1*er1A;//vector of site B on atom0
-            IVector e2A = atom1.getOrientation().getDirection();
+            Vector e2A = atom1.getOrientation().getDirection();
             double er2A = e2A.dot(dr);//vector of site A on atom1
             double er2B = -1*er2A;//vector of site B on atom1
             if(er1A*er2B < 0.0 && er1A*er1A > ec2*r2 && er2B*er2B > ec2*r2) eTot = Double.POSITIVE_INFINITY;
@@ -102,7 +101,7 @@ public class P2HardAssociationConeReference extends Potential2 {
     }
     public Dimension getThetaDimension() {return Angle.DIMENSION;}
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 

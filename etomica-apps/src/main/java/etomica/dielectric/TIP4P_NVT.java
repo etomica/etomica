@@ -1,24 +1,11 @@
 package etomica.dielectric;
-import java.awt.Color;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IPotentialMaster;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionCOM;
 import etomica.atom.DiameterHashByType;
-import etomica.atom.DipoleSource;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
@@ -41,19 +28,29 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.listener.IntegratorListenerAction;
 import etomica.models.water.P2WaterTIP4PSoft;
 import etomica.models.water.SpeciesWater4P;
+import etomica.molecule.DipoleSource;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculePositionDefinition;
+import etomica.molecule.MoleculePositionCOM;
 import etomica.potential.P2ReactionFieldDipole;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.Constants;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.RandomNumberGenerator;
+
+import java.awt.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 /**
  * Canonical ensemble Monte Carlo simulation (NVT)
  * dielectric constant (epsilon)
@@ -62,11 +59,11 @@ import etomica.util.RandomNumberGenerator;
  */
 public class TIP4P_NVT extends Simulation {
      private static final long serialVersionUID = 1L;
-     protected final IPotentialMaster potentialMaster;
+     protected final PotentialMaster potentialMaster;
      protected final IntegratorMC integrator;
      protected final MCMoveMolecule moveMolecule;//translation
      protected final MCMoveRotateMolecule3D rotateMolecule;//rotation
-     protected final IBox box;
+     protected final Box box;
      protected SpeciesWater4P species;
      protected P2WaterTIP4PSoft pWater;
      private final static String APP_NAME = "TIP4P water";
@@ -78,12 +75,12 @@ public class TIP4P_NVT extends Simulation {
      protected double chargeM, chargeH;
 
      //************************************* for reaction field ********************************************//
-     public static class DipoleSourceTIP4PWater implements DipoleSource{//for potential reaction field
-    	 protected final IVectorMutable dipole;
-         public DipoleSourceTIP4PWater(ISpace space){
+     public static class DipoleSourceTIP4PWater implements DipoleSource {//for potential reaction field
+    	 protected final Vector dipole;
+         public DipoleSourceTIP4PWater(Space space){
               dipole=space.makeVector();
          }
-         public IVector getDipole(IMolecule molecule) {// dipole = sum of position * charge on the site
+         public Vector getDipole(IMolecule molecule) {// dipole = sum of position * charge on the site
              IAtomList childList = molecule.getChildList();
              IAtom atomH1 = childList.getAtom(0);
              IAtom atomH2 = childList.getAtom(1);
@@ -112,7 +109,7 @@ public class TIP4P_NVT extends Simulation {
     //	 double mu=168.96979945736229;//in simulation unit
 
     	//for potential truncated
-    	 IAtomPositionDefinition positionDefinition = new AtomPositionCOM(space) ;
+    	 IMoleculePositionDefinition positionDefinition = new MoleculePositionCOM(space) ;
  	    	 
     	 pWater = new P2WaterTIP4PSoft(space,truncation,positionDefinition);
     	 

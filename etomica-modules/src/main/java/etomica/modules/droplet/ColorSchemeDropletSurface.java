@@ -6,7 +6,7 @@ package etomica.modules.droplet;
 
 import java.awt.Color;
 
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.atom.AtomFilterCollective;
 import etomica.graphics.ColorSchemeCollective;
 
@@ -45,4 +45,3 @@ public class ColorSchemeDropletSurface extends etomica.graphics.ColorScheme impl
     protected Color surfaceColor, interiorColor;
     protected final AtomFilterCollective liquidFilter;
 }
- 

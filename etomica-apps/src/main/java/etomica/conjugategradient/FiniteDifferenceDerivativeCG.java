@@ -5,18 +5,18 @@
 package etomica.conjugategradient;
 
 import etomica.action.Activity;
-import etomica.api.IAtom;
-import etomica.api.IBox;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.atom.IAtom;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.math.numerical.FiniteDifferenceDerivative;
 import etomica.paracetamol.AnalyticalDerivativeEnergyParacetamol;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
-import etomica.space.ISpace;
-import etomica.util.numerical.FiniteDifferenceDerivative;
+import etomica.space.Space;
 
 public class FiniteDifferenceDerivativeCG {
 	
@@ -30,7 +30,7 @@ public class FiniteDifferenceDerivativeCG {
 	 * @author Tai Tan
 	 */
 	
-	protected IBox box;
+	protected Box box;
 	protected MeterPotentialEnergy meterEnergy;
 	protected PotentialMaster potentialMaster;
 	protected IteratorDirective allAtoms;
@@ -42,11 +42,11 @@ public class FiniteDifferenceDerivativeCG {
 	protected double h;
 	protected boolean hOptimizer;
 	
-	private final ISpace space;
+	private final Space space;
 	
-	public FiniteDifferenceDerivativeCG(IBox box, PotentialMaster potentialMaster,
-			             AnalyticalDerivativeEnergyParacetamol derivativeFunction,
-			             ISpace _space){
+	public FiniteDifferenceDerivativeCG(Box box, PotentialMaster potentialMaster,
+                                        AnalyticalDerivativeEnergyParacetamol derivativeFunction,
+                                        Space _space){
 		this.box = box;
 		this.potentialMaster = potentialMaster;
 		this.space = _space;
@@ -127,15 +127,15 @@ public class FiniteDifferenceDerivativeCG {
 
 	
 	public static class MyAgentSource implements AgentSource<IntegratorVelocityVerlet.MyAgent> {
-		public MyAgentSource(ISpace space){
+		public MyAgentSource(Space space){
 			this.space = space;
 		}
-		public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, IBox agentBox){}
+		public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, Box agentBox){}
 
-		public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom atom, IBox agentBox){
+		public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom atom, Box agentBox){
 			return new IntegratorVelocityVerlet.MyAgent(space);
 		}
-		protected ISpace space;
+		protected Space space;
 	}
 
 

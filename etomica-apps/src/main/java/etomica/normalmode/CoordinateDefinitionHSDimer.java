@@ -4,28 +4,23 @@
 
 package etomica.normalmode;
 
-import java.io.Serializable;
-
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.MoleculeAgentManager;
-import etomica.atom.MoleculeArrayList;
-import etomica.atom.MoleculeListWrapper;
+import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.IConformationOriented;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.models.nitrogen.AtomActionTransformed;
+import etomica.molecule.*;
+import etomica.simulation.Simulation;
 import etomica.space.IOrientation;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.species.Species;
+
+import java.io.Serializable;
 
 /**
  * CoordinateDefinition implementation for HS Dimer. The class takes the first
@@ -37,7 +32,7 @@ import etomica.species.Species;
 public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
         implements Serializable {
 	
-    public CoordinateDefinitionHSDimer(ISimulation sim, IBox box, Primitive primitive, Basis basis, ISpace _space) {
+    public CoordinateDefinitionHSDimer(Simulation sim, Box box, Primitive primitive, Basis basis, Space _space) {
     	
     	super(sim, box, primitive, 2, basis, _space);
     	
@@ -53,8 +48,8 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
 
         int basisSize = lattice.getBasis().getScaledCoordinates().length;
 
-        IVectorMutable offset = lattice.getSpace().makeVector();
-//        IVector[] primitiveVectors = primitive.vectors();
+        Vector offset = lattice.getSpace().makeVector();
+//        Vector[] primitiveVectors = primitive.vectors();
 //        for (int i=0; i<primitiveVectors.length; i++) {
 //            offset.PEa1Tv1(nCells[i],primitiveVectors[i]);
 //        }
@@ -77,7 +72,7 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
         int iCell = -1;
         // Place molecules
         indexIterator.reset();
-        IVectorMutable position = lattice.getSpace().makeVector();
+        Vector position = lattice.getSpace().makeVector();
         MoleculeArrayList currentList = null;
 		
         if (configuration != null){
@@ -85,14 +80,14 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
         }
 
         //Scale the lattice offset
-        IVectorMutable vectorOfMax = space.makeVector();
-        IVectorMutable vectorOfMin = space.makeVector();
-        IVectorMutable site = space.makeVector();
+        Vector vectorOfMax = space.makeVector();
+        Vector vectorOfMin = space.makeVector();
+        Vector site = space.makeVector();
         vectorOfMax.E(Double.NEGATIVE_INFINITY);
         vectorOfMin.E(Double.POSITIVE_INFINITY);
         
         while (indexIterator.hasNext()) {
-            site.E((IVectorMutable) lattice.site(indexIterator.next()));
+            site.E((Vector) lattice.site(indexIterator.next()));
             for (int i=0; i<site.getD(); i++) {
                 vectorOfMax.setX(i, Math.max(site.getX(i),vectorOfMax.getX(i)));
                 vectorOfMin.setX(i, Math.min(site.getX(i),vectorOfMin.getX(i)));
@@ -110,7 +105,7 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
             
             if (configuration == null) {
             	// initialize the coordinate
-                IVectorMutable v = space.makeVector();
+                Vector v = space.makeVector();
                 int thisOrientationIndex = orientationSelector.f(iMolecule);
                 v.Ea1Tv1(cosTheta[thisOrientationIndex], axes[thisOrientationIndex][0]);
                 v.PEa1Tv1(Math.sqrt(1-cosTheta[thisOrientationIndex]*cosTheta[thisOrientationIndex]), axes[thisOrientationIndex][1]);
@@ -124,7 +119,7 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
             // ii[2] = molecule number in unit cell
         	//System.out.println(ii[0] +" " + ii[1] + " " + ii[2] + " " + ii[3] );
             
-            position.E((IVectorMutable)lattice.site(ii));
+            position.E((Vector)lattice.site(ii));
             position.PE(offset);
             
             if (configuration == null) {
@@ -144,14 +139,14 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
         }
 
         moleculeSiteManager = new MoleculeAgentManager(sim, box, new MoleculeSiteSource(space, positionDefinition));
-        siteManager = new AtomLeafAgentManager<IVectorMutable>(new SiteSource(space), box, IVectorMutable.class);
+        siteManager = new AtomLeafAgentManager<Vector>(new SiteSource(space), box, Vector.class);
     }
     
     public void setConfiguration(Configuration configuration){
         this.configuration = configuration;
     }
 
-    public void setOrientations(IVector[][] newAxes, double[] newTheta, IntegerFunction newOrientationSelector){
+    public void setOrientations(Vector[][] newAxes, double[] newTheta, IntegerFunction newOrientationSelector){
         axes = newAxes;
         orientationSelector = newOrientationSelector;
         cosTheta = new double[newTheta.length];
@@ -174,8 +169,8 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
 	    	 * Determine the Orientation of Each Molecule
 	    	 */
 	    	
-	    	IVectorMutable leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-	    	IVectorMutable leafPos1 = molecule.getChildList().getAtom(1).getPosition();
+	    	Vector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
+	    	Vector leafPos1 = molecule.getChildList().getAtom(1).getPosition();
 	    	
 	    	axis.Ev1Mv2(leafPos1, leafPos0);
 	       	axis.normalize();
@@ -209,7 +204,7 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
       * return the initial Orientation of the molecule
       */
     public IOrientation getMoleculeOrientation(IMolecule molecule) {
-        IVectorMutable v = space.makeVector();
+        Vector v = space.makeVector();
         int thisOrientationIndex = orientationSelector.f(molecule.getIndex());
         v.Ea1Tv1(cosTheta[thisOrientationIndex], axes[thisOrientationIndex][0]);
         v.PEa1Tv1(Math.sqrt(1-cosTheta[thisOrientationIndex]*cosTheta[thisOrientationIndex]), axes[thisOrientationIndex][1]);
@@ -225,7 +220,7 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
         	
         	IMolecule molecule = molecules.getMolecule(i);
             int thisOrientationIndex = orientationSelector.f(i);
-            IVector[] myAxes = axes[thisOrientationIndex];
+            Vector[] myAxes = axes[thisOrientationIndex];
 
             double myCosTheta = cosTheta[thisOrientationIndex] + newU[j];
             double mySinTheta = Math.sqrt(1-myCosTheta*myCosTheta);
@@ -256,7 +251,7 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
     	
 		IMolecule molecule = box.getMoleculeList().getMolecule(moleculei);
         int thisOrientationIndex = orientationSelector.f(moleculei);
-        IVector[] myAxes = axes[thisOrientationIndex];
+        Vector[] myAxes = axes[thisOrientationIndex];
 
         double myCosTheta = cosTheta[thisOrientationIndex] + newU[3];
         double mySinTheta = Math.sqrt(1-myCosTheta*myCosTheta);
@@ -272,7 +267,7 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
         IConformationOriented conformationOriented = (IConformationOriented)((Species)molecule.getType()).getConformation();
         conformationOriented.initializePositions(molecule.getChildList(), orientation);
 		        
-        IVectorMutable site = getLatticePosition(molecule);
+        Vector site = getLatticePosition(molecule);
         for (int k = 0; k < site.getD(); k++) {
         	work1.setX(k, site.getX(k) + newU[k]);
         }
@@ -283,10 +278,10 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
     
     private static final long serialVersionUID = 1L;
 
-    protected IVector[][] axes;
+    protected Vector[][] axes;
     protected final IOrientation orientation;
     protected IntegerFunction orientationSelector;
-    protected final IVectorMutable axis;
+    protected final Vector axis;
     protected Configuration configuration;
     protected final MoleculeChildAtomAction atomGroupAction;
     protected double[] cosTheta;

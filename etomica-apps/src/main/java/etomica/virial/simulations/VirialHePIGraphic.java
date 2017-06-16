@@ -7,10 +7,7 @@ package etomica.virial.simulations;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.IAction;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.*;
-import etomica.atom.AtomPair;
-import etomica.atom.AtomTypeLeaf;
-import etomica.atom.DiameterHashByType;
+import etomica.atom.*;
 import etomica.atom.iterator.ANIntergroupCoupled;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.ApiIntergroupCoupled;
@@ -25,10 +22,12 @@ import etomica.graph.operations.DeleteEdgeParameters;
 import etomica.graph.property.NumRootNodes;
 import etomica.graphics.*;
 import etomica.listener.IntegratorListenerAction;
+import etomica.molecule.IMoleculeList;
 import etomica.potential.*;
-import etomica.space.IVectorRandom;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheres;
 import etomica.units.*;
 import etomica.units.Dimension;
@@ -359,7 +358,7 @@ public class VirialHePIGraphic {
                     fTargetDiagramNumbers[iGraph] = Integer.parseInt(gNoEM.getStore().toNumberString());
                 }
                 else {
-                    if (flexDiagrams.graphHasEdgeColor(g, flexDiagrams.eBond)) {
+                    if (VirialDiagrams.graphHasEdgeColor(g, flexDiagrams.eBond)) {
                         Graph gNoE = edgeDeleter.apply(g, ede);
                         gnStr += "p"+gNoE.getStore().toNumberString();
                         fTargetDiagramNumbers[iGraph] = Integer.parseInt(gNoE.getStore().toNumberString());
@@ -431,7 +430,7 @@ public class VirialHePIGraphic {
             throw new RuntimeException("steps should be a multiple of 1000");
         }
         System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
-        SpeciesSpheres species = new SpeciesSpheres(space, nBeads, new AtomTypeLeaf(new ElementChemical("He", heMass, 2)), new ConformationLinear(space, 0));
+        SpeciesSpheres species = new SpeciesSpheres(space, nBeads, new AtomType(new ElementChemical("He", heMass, 2)), new ConformationLinear(space, 0));
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species}, new int[]{nPoints+(doFlex?1:0)}, temperature, new ClusterAbstract[]{refCluster, targetCluster},
                  targetDiagrams, new ClusterWeight[]{refSampleCluster,targetSampleCluster}, false);
@@ -476,7 +475,7 @@ public class VirialHePIGraphic {
 
         if (doDiff || subtractHalf || !pairOnly) {
             AtomActionTranslateBy translator = new AtomActionTranslateBy(space);
-            IVectorRandom groupTranslationVector = (IVectorRandom)translator.getTranslationVector();
+            Vector groupTranslationVector = translator.getTranslationVector();
             MoleculeChildAtomAction moveMoleculeAction = new MoleculeChildAtomAction(translator);
             IMoleculeList molecules = sim.box[1].getMoleculeList();
             double r = 4;
@@ -487,7 +486,7 @@ public class VirialHePIGraphic {
                 groupTranslationVector.setX(1, r*Math.sin(2*(i-1)*Math.PI/(nPoints-1)));
                 moveMoleculeAction.actionPerformed(molecules.getMolecule(i));
                 if (nBeads>1) {
-                    IVectorMutable v = molecules.getMolecule(i).getChildList().getAtom(1).getPosition();
+                    Vector v = molecules.getMolecule(i).getChildList().getAtom(1).getPosition();
                     v.TE(0.95);
                 }
             }
@@ -568,7 +567,7 @@ public class VirialHePIGraphic {
         }
 
 
-        IAtomType type = species.getLeafType();
+        AtomType type = species.getLeafType();
         DiameterHashByType diameterManager = (DiameterHashByType)displayBox0.getDiameterHash();
         diameterManager.setDiameter(type, 0.1+1.0/nBeads);
         displayBox1.setDiameterHash(diameterManager);
@@ -601,11 +600,12 @@ public class VirialHePIGraphic {
         tDisplay.putDataInfo(tInfo);
 
         final IAction updateT = new IAction() {
+            DataDouble data = new DataDouble();
+
             public void actionPerformed() {
                 data.x = Math.pow(10, tSlider.getValue());
                 tDisplay.putData(data);
             }
-            DataDouble data = new DataDouble();
         };
         updateT.actionPerformed();
 
@@ -636,6 +636,8 @@ public class VirialHePIGraphic {
         panelParentGroup.add(errorBox.graphic(), java.awt.BorderLayout.EAST);
 
         IAction pushAnswer = new IAction() {
+            DataDouble data = new DataDouble();
+
             public void actionPerformed() {
                 double[] ratioAndError = sim.dvo.getAverageAndError();
                 double ratio = ratioAndError[0];
@@ -645,8 +647,6 @@ public class VirialHePIGraphic {
                 data.x = error;
                 errorBox.putData(data);
             }
-
-            DataDouble data = new DataDouble();
         };
         IEtomicaDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, new CompoundDimension(new Dimension[]{new DimensionRatio(Volume.DIMENSION, Quantity.DIMENSION)}, new double[]{nPoints-1}));
         Unit unit = new CompoundUnit(new Unit[]{new UnitRatio(Liter.UNIT, Mole.UNIT)}, new double[]{nPoints-1});

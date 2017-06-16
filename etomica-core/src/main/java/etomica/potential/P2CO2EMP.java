@@ -5,12 +5,12 @@
 
 package etomica.potential;
 
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.space.Boundary;
+import etomica.space.Space;
+import etomica.space.Vector;
 
 /** 
  * 3-point potential for CO2.  Includes LJ interactions for each pair of atom types.
@@ -21,7 +21,7 @@ import etomica.space.ISpace;
  */
 public class P2CO2EMP extends PotentialMolecular {
 
-	public P2CO2EMP(ISpace space, double sigmaC, double sigmaCO, double sigmaO, double epsilonC, double epsilonCO, double epsilonO, double chargeC) {
+	public P2CO2EMP(Space space, double sigmaC, double sigmaCO, double sigmaO, double epsilonC, double epsilonCO, double epsilonO, double chargeC) {
 		super(2, null);
         this.sigmaC = sigmaC;
         sigmaC2 = sigmaC*sigmaC;
@@ -40,7 +40,7 @@ public class P2CO2EMP extends PotentialMolecular {
         chargeOO = chargeO * chargeO;
 	}
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 
@@ -50,8 +50,8 @@ public class P2CO2EMP extends PotentialMolecular {
 		IMolecule m2 = pair.getMolecule(1);
 		
 		//compute C-C distance to consider truncation	
-        IVectorMutable C1r = (m1.getChildList().getAtom(0)).getPosition();
-        IVectorMutable C2r = (m2.getChildList().getAtom(0)).getPosition();
+        Vector C1r = (m1.getChildList().getAtom(0)).getPosition();
+        Vector C2r = (m2.getChildList().getAtom(0)).getPosition();
 
 		work.Ev1Mv2(C1r, C2r);
         shift.Ea1Tv1(-1,work);
@@ -67,10 +67,10 @@ public class P2CO2EMP extends PotentialMolecular {
 		double s6 = s2*s2*s2;
 		sum += 4*epsilonC*s6*(s6 - 1.0);
 		
-        IVectorMutable O11r = (m1.getChildList().getAtom(1)).getPosition();
-        IVectorMutable O12r = (m1.getChildList().getAtom(2)).getPosition();
-        IVectorMutable O21r = (m2.getChildList().getAtom(1)).getPosition();
-        IVectorMutable O22r = (m2.getChildList().getAtom(2)).getPosition();
+        Vector O11r = (m1.getChildList().getAtom(1)).getPosition();
+        Vector O12r = (m1.getChildList().getAtom(2)).getPosition();
+        Vector O21r = (m2.getChildList().getAtom(1)).getPosition();
+        Vector O22r = (m2.getChildList().getAtom(2)).getPosition();
 
         if (zeroShift) {
             r2 = C1r.Mv1Squared(O21r);
@@ -220,7 +220,7 @@ public class P2CO2EMP extends PotentialMolecular {
     private static final long serialVersionUID = 1L;
 	public double sigmaC, sigmaC2, sigmaO, sigmaO2, sigmaCO, sigmaCO2;
 	protected double epsilonC, epsilonO, epsilonCO;
-	protected IBoundary boundary;
+	protected Boundary boundary;
 	protected final double chargeCC, chargeCO, chargeOO;
-	protected final IVectorMutable work, shift;
+	protected final Vector work, shift;
 }

@@ -6,9 +6,9 @@ package etomica.tests;
 import etomica.action.ActionIntegrate;
 import etomica.action.BoxInflate;
 import etomica.action.activity.Controller;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.atom.AtomType;
 import etomica.box.Box;
+import etomica.config.Configuration;
 import etomica.config.ConfigurationFile;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
@@ -39,11 +39,11 @@ public class TestLJMC3D extends Simulation {
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
     public SpeciesSpheresMono species;
-    public IBox box;
+    public Box box;
     public P2LennardJones potential;
     public Controller controller;
     
-    public TestLJMC3D(int numAtoms, int numSteps) {
+    public TestLJMC3D(int numAtoms, int numSteps, Configuration config) {
         super(Space3D.getInstance());
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
         double sigma = 1.0;
@@ -72,11 +72,10 @@ public class TestLJMC3D extends Simulation {
         P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
         potentialMaster.setCellRange(3);
         potentialMaster.setRange(potentialTruncated.getRange());
-        IAtomType leafType = species.getLeafType();
-        potentialMaster.addPotential(potentialTruncated, new IAtomType[] {leafType, leafType});
+        AtomType leafType = species.getLeafType();
+        potentialMaster.addPotential(potentialTruncated, new AtomType[]{leafType, leafType});
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
         
-        ConfigurationFile config = new ConfigurationFile("LJMC3D"+Integer.toString(numAtoms));
         config.initializeCoordinates(box);
         integrator.setBox(box);
         potentialMaster.getNbrCellManager(box).assignCellAll();
@@ -88,8 +87,9 @@ public class TestLJMC3D extends Simulation {
         SimParams params = new SimParams();
         ParseArgs.doParseArgs(params, args);
         int numAtoms = params.numAtoms;
+        ConfigurationFile config = new ConfigurationFile("LJMC3D"+Integer.toString(numAtoms));
 
-        TestLJMC3D sim = new TestLJMC3D(numAtoms, params.numSteps);
+        TestLJMC3D sim = new TestLJMC3D(numAtoms, params.numSteps, config);
 
         MeterPressure pMeter = new MeterPressure(sim.space);
         pMeter.setIntegrator(sim.integrator);
@@ -105,14 +105,14 @@ public class TestLJMC3D extends Simulation {
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(energyManager));
         
         sim.getController().actionPerformed();
-        
-        double Z = ((DataDouble)((DataGroup)pAccumulator.getData()).getData(pAccumulator.AVERAGE.index)).x*sim.box.getBoundary().volume()/(sim.box.getMoleculeList().getMoleculeCount()*sim.integrator.getTemperature());
-        double avgPE = ((DataDouble)((DataGroup)energyAccumulator.getData()).getData(energyAccumulator.AVERAGE.index)).x;
+
+        double Z = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().getMoleculeCount() * sim.integrator.getTemperature());
+        double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
         avgPE /= numAtoms;
         System.out.println("Z="+Z);
         System.out.println("PE/epsilon="+avgPE);
         double temp = sim.integrator.getTemperature();
-        double Cv = ((DataDouble)((DataGroup)energyAccumulator.getData()).getData(energyAccumulator.STANDARD_DEVIATION.index)).x;
+        double Cv = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(AccumulatorAverage.STANDARD_DEVIATION.index)).x;
         Cv /= temp;
         Cv *= Cv/numAtoms;
         System.out.println("Cv/k="+Cv);
