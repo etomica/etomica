@@ -22,7 +22,7 @@ public final class Momentum extends Dimension {
     /**
      * The simulation unit is A/ps.
      */
-    public static final Unit SIM_UNIT = new SimpleUnit(DIMENSION, 1, "D-angstrom/ps", "D-\u00c5/ps", Prefix.NOT_ALLOWED);
+    public static final Unit SIM_UNIT = new SimpleUnit(DIMENSION, 1, "sim momentum units", "D-\u00c5/ps", Prefix.NOT_ALLOWED);
 
     private Momentum() {
         super("Momentum", 1, 1, -1);// LMTCtNl;

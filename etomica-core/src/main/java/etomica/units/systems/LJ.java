@@ -37,8 +37,13 @@ public class LJ extends UnitSystem  {
     }
 
     /**
-     * Constructs LJ unit system with given values of sigma, epsilon, mass.
-     * 
+     * Constructs LJ unit system with given values of sigma, epsilon, mass, given in simulation units.
+     * Unit classes can be used to convert to simulation units if needed. For example, if epsilon is
+     * given as epsilon/kB in units of Kelvin, the argument would take Kelvin.UNIT.toSim(epsilon).
+     *
+     * @param sigma LJ length parameter
+     * @param epsilon LJ energy parameter
+     * @param mass characteristic mass, nominally the mass of a LJ atom
      * @param unicodeSymbols
      *            if true, Unit symbols will be constructed using unicode
      *            expressions for sigma and epsilon and other symbols; otherwise
