@@ -4,19 +4,19 @@
 
 package etomica.modules.colloid;
 
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialAtomic;
-import etomica.api.ISpecies;
+import etomica.atom.IAtom;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.ISpace;
+import etomica.potential.IPotentialAtomic;
+import etomica.space.Space;
+import etomica.species.ISpecies;
 
 public class NeighborListManagerColloid extends NeighborListManager {
 
     public NeighborListManagerColloid(PotentialMasterList potentialMasterList,
-            double range, IBox box, ISpace space) {
+                                      double range, Box box, Space space) {
         super(potentialMasterList, range, box, space);
     }
     
@@ -74,11 +74,11 @@ public class NeighborListManagerColloid extends NeighborListManager {
     protected int chainLength;
 
     public static class NeighborListAgentSourceColloid extends PotentialMasterList.NeighborListAgentSource {
-        public NeighborListAgentSourceColloid(double range, ISpace space) {
+        public NeighborListAgentSourceColloid(double range, Space space) {
             super(range, space);
         }
 
-        public NeighborListManagerColloid makeAgent(IBox box) {
+        public NeighborListManagerColloid makeAgent(Box box) {
             return new NeighborListManagerColloid(potentialMaster, range, box, space);
         }
     }

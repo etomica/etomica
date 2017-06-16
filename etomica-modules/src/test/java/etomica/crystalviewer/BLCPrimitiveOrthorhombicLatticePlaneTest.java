@@ -5,9 +5,9 @@
 package etomica.crystalviewer;
 
 import junit.framework.TestCase;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
 
 
@@ -41,7 +41,7 @@ public class BLCPrimitiveOrthorhombicLatticePlaneTest extends TestCase {
 		super.tearDown();
 	}
 
-	private double[] makeArray(IVectorMutable v) {
+	private double[] makeArray(Vector v) {
 	    return new double[] {v.getX(0), v.getX(1), v.getX(2)};
 	}
 

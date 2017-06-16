@@ -5,75 +5,35 @@
 package etomica.virial.GUI.components;
 
 
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
 import etomica.action.IAction;
-import etomica.api.IAtomType;
-import etomica.api.IIntegratorEvent;
-import etomica.api.IIntegratorListener;
-import etomica.api.IPotential;
-import etomica.api.IPotentialAtomic;
-
-import etomica.api.IPotentialMolecular;
-import etomica.api.ISpecies;
-
+import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIntergroup;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
-
-import etomica.graphics.ColorSchemeRandomByMolecule;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayBoxCanvasG3DSys;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
-
+import etomica.graphics.*;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.listener.IntegratorListenerAction;
-import etomica.potential.P2LennardJones;
-import etomica.potential.P4BondTorsion;
-import etomica.potential.Potential2Spherical;
-import etomica.potential.PotentialGroup;
+import etomica.potential.*;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.Species;
-import etomica.units.CompoundDimension;
-import etomica.units.CompoundUnit;
+import etomica.units.*;
 import etomica.units.Dimension;
-import etomica.units.DimensionRatio;
-import etomica.units.Liter;
-import etomica.units.Mole;
-import etomica.units.Quantity;
-import etomica.units.Unit;
-import etomica.units.UnitRatio;
-import etomica.units.Volume;
 import etomica.util.Constants.CompassDirection;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterWeight;
-import etomica.virial.ClusterWeightAbs;
-import etomica.virial.MCMoveClusterTorsionMulti;
-import etomica.virial.MayerEGeneral;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerESpherical;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerGeneralSpherical;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.GUI.models.ModelSimulationEnvironment;
+import etomica.virial.*;
 import etomica.virial.GUI.models.ModelSelectedSpecies;
+import etomica.virial.GUI.models.ModelSimulationEnvironment;
 import etomica.virial.cluster.Standard;
 import etomica.virial.simulations.SimulationVirialOverlap2;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.*;
+import java.util.Map.Entry;
 
 public class SimulationRunner {
 	
@@ -158,10 +118,10 @@ public class SimulationRunner {
 		    			}
 		    			
 		    			
-		    			new IIntegratorListener() {
-		    		    	public void integratorInitialized(IIntegratorEvent e) {}
-		    		    	public void integratorStepStarted(IIntegratorEvent e) {}
-		    		    	public void integratorStepFinished(IIntegratorEvent e) {
+		    			new IntegratorListener() {
+		    		    	public void integratorInitialized(IntegratorEvent e) {}
+		    		    	public void integratorStepStarted(IntegratorEvent e) {}
+		    		    	public void integratorStepFinished(IntegratorEvent e) {
 		    		    		if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
 		    		    		
 		    		    		System.out.print(sim.integratorOS.getStepCount()+" steps: ");
@@ -186,7 +146,9 @@ public class SimulationRunner {
         		        final DisplayTextBox errorBox = new DisplayTextBox();
         		        errorBox.setLabel("Error");
         			    IAction pushAnswer = new IAction() {
-        		            public void actionPerformed() {
+                            DataDouble data = new DataDouble();
+
+                            public void actionPerformed() {
         		                double[] ratioAndError = sim.dvo.getAverageAndError();
         		                double ratio = ratioAndError[0];
         		                double error = ratioAndError[1];
@@ -195,8 +157,6 @@ public class SimulationRunner {
         		                data.x = error;
         		                errorBox.putData(data);
         		            }
-        		            
-        		            DataDouble data = new DataDouble();
         		        };
 		    		    
         		        runGraphic(sim,nPoints,averageBox,errorBox,pushAnswer);
@@ -211,7 +171,7 @@ public class SimulationRunner {
         				Iterator<Entry<String[],IPotential>> potentialMapItr = potentialMapEntries.iterator();
         				
         				
-        				Map.Entry potentialEntry = (Map.Entry) potentialMapItr.next();
+        				Map.Entry potentialEntry = potentialMapItr.next();
             			potentialEntry.getKey();
             			IPotentialAtomic potential = (IPotentialAtomic) potentialEntry.getValue();
             			
@@ -233,10 +193,10 @@ public class SimulationRunner {
     					}
         				ISpecies species =  speciesDataModel.getSpecies(0);
         				final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,species,temperature,refCluster,targetCluster);
-        				new IIntegratorListener() {
-        			    	public void integratorInitialized(IIntegratorEvent e) {}
-        			    	public void integratorStepStarted(IIntegratorEvent e) {}
-        			    	public void integratorStepFinished(IIntegratorEvent e) {
+        				new IntegratorListener() {
+        			    	public void integratorInitialized(IntegratorEvent e) {}
+        			    	public void integratorStepStarted(IntegratorEvent e) {}
+        			    	public void integratorStepFinished(IntegratorEvent e) {
         			    		if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
         			    		
         			    		System.out.print(sim.integratorOS.getStepCount()+" steps: ");
@@ -260,7 +220,9 @@ public class SimulationRunner {
         		        final DisplayTextBox errorBox = new DisplayTextBox();
         		        errorBox.setLabel("Error");
         			    IAction pushAnswer = new IAction() {
-        		            public void actionPerformed() {
+                            DataDouble data = new DataDouble();
+
+                            public void actionPerformed() {
         		                double[] ratioAndError = sim.dvo.getAverageAndError();
         		                double ratio = ratioAndError[0];
         		                double error = ratioAndError[1];
@@ -269,8 +231,6 @@ public class SimulationRunner {
         		                data.x = error;
         		                errorBox.putData(data);
         		            }
-        		            
-        		            DataDouble data = new DataDouble();
         		        };
         		        runGraphic(sim,nPoints,averageBox,errorBox,pushAnswer);
         			    //showReport(sim,progressReport);
@@ -289,10 +249,10 @@ public class SimulationRunner {
 					ISpecies species =  speciesDataModel.getSpecies(0);
 					final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,species,temperature,refCluster,targetCluster);
 					
-					new IIntegratorListener() {
-				    	public void integratorInitialized(IIntegratorEvent e) {}
-				    	public void integratorStepStarted(IIntegratorEvent e) {}
-				    	public void integratorStepFinished(IIntegratorEvent e) {
+					new IntegratorListener() {
+				    	public void integratorInitialized(IntegratorEvent e) {}
+				    	public void integratorStepStarted(IntegratorEvent e) {}
+				    	public void integratorStepFinished(IntegratorEvent e) {
 				    		if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
 				    		
 				    		System.out.print(sim.integratorOS.getStepCount()+" steps: ");
@@ -316,7 +276,9 @@ public class SimulationRunner {
     		        final DisplayTextBox errorBox = new DisplayTextBox();
     		        errorBox.setLabel("Error");
     			    IAction pushAnswer = new IAction() {
-    		            public void actionPerformed() {
+                        DataDouble data = new DataDouble();
+
+                        public void actionPerformed() {
     		                double[] ratioAndError = sim.dvo.getAverageAndError();
     		                double ratio = ratioAndError[0];
     		                double error = ratioAndError[1];
@@ -325,8 +287,6 @@ public class SimulationRunner {
     		                data.x = error;
     		                errorBox.putData(data);
     		            }
-    		            
-    		            DataDouble data = new DataDouble();
     		        };
     		        
 				    //showReport(sim,progressReport);
@@ -364,7 +324,7 @@ public class SimulationRunner {
     	        			  Iterator<Entry<String[],IPotential>> potentialMapItr = potentialMapEntries.iterator();
     	        			  if(potentialMap.size() > 1){
     	        				  while(potentialMapItr.hasNext()){
-    	        					  Map.Entry potentialEntry = (Map.Entry) potentialMapItr.next();
+    	        					  Map.Entry potentialEntry = potentialMapItr.next();
     	        					  String[] potentialMapKey= (String[]) potentialEntry.getKey();
     	        					  potentialEntry.getValue();
     	        				  
@@ -374,7 +334,7 @@ public class SimulationRunner {
     	        					  }
     	        				  }
     	        			  }else{
-    	        				  Map.Entry potentialEntry = (Map.Entry) potentialMapItr.next();
+    	        				  Map.Entry potentialEntry = potentialMapItr.next();
 	        					  potentialEntry.getKey();
 	        					  potential= (IPotential) potentialEntry.getValue();
     	        			  }
@@ -440,7 +400,7 @@ public class SimulationRunner {
     	        			  
     	        			  if(potentialMap.size() > 1){
     	        				  while(potentialMapItr.hasNext()){
-    	        					  Map.Entry potentialEntry = (Map.Entry) potentialMapItr.next();
+    	        					  Map.Entry potentialEntry = potentialMapItr.next();
     	        					  String[] potentialMapKey= (String[]) potentialEntry.getKey();
     	        					  potentialEntry.getValue();
     	        				  
@@ -450,7 +410,7 @@ public class SimulationRunner {
     	        					  }
     	        				  }
     	        			  }else{
-    	        				  Map.Entry potentialEntry = (Map.Entry) potentialMapItr.next();
+    	        				  Map.Entry potentialEntry = potentialMapItr.next();
 	        					  potentialEntry.getKey();
 	        					  potential= (IPotential) potentialEntry.getValue();
     	        			  }
@@ -544,10 +504,10 @@ public class SimulationRunner {
     			  }
 			  }
 			  
-			  IIntegratorListener progressReport = new IIntegratorListener() {
-  		    	public void integratorInitialized(IIntegratorEvent e) {}
-  		    	public void integratorStepStarted(IIntegratorEvent e) {}
-  		    	public void integratorStepFinished(IIntegratorEvent e) {
+			  IntegratorListener progressReport = new IntegratorListener() {
+  		    	public void integratorInitialized(IntegratorEvent e) {}
+  		    	public void integratorStepStarted(IntegratorEvent e) {}
+  		    	public void integratorStepFinished(IntegratorEvent e) {
   		    		if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
   		    		
   		    		System.out.print(sim.integratorOS.getStepCount()+" steps: ");
@@ -572,7 +532,9 @@ public class SimulationRunner {
 	        final DisplayTextBox errorBox = new DisplayTextBox();
 	        errorBox.setLabel("Error");
 		    new IAction() {
-	            public void actionPerformed() {
+                DataDouble data = new DataDouble();
+
+                public void actionPerformed() {
 	                double[] ratioAndError = sim.dvo.getAverageAndError();
 	                double ratio = ratioAndError[0];
 	                double error = ratioAndError[1];
@@ -581,8 +543,6 @@ public class SimulationRunner {
 	                data.x = error;
 	                errorBox.putData(data);
 	            }
-	            
-	            DataDouble data = new DataDouble();
 	        };
 	        
 		    //showReport(sim,progressReport);
@@ -612,11 +572,11 @@ public class SimulationRunner {
 		Iterator<Entry<String[], IPotential>> potentialsItr = potentialsEntries.iterator();
 		
 		while(atomGroupsItr.hasNext()){
-			Map.Entry atomGroupsEntry = (Map.Entry) atomGroupsItr.next();
+			Map.Entry atomGroupsEntry = atomGroupsItr.next();
 			String[] atomGroupsMapKey= (String[]) atomGroupsEntry.getKey();
 			
 			while (bondedPotentialsItr.hasNext()) {
-				Map.Entry bondedPotentialsEntry = (Map.Entry) bondedPotentialsItr.next();
+				Map.Entry bondedPotentialsEntry = bondedPotentialsItr.next();
 				String[] bondedPotentialsMapKey= (String[]) bondedPotentialsEntry.getKey();
 				if(bondedPotentialsMapKey[0] == atomGroupsMapKey[0] && bondedPotentialsMapKey[1] == atomGroupsMapKey[1] 
 						|| bondedPotentialsMapKey[0] == atomGroupsMapKey[1] && bondedPotentialsMapKey[1] == atomGroupsMapKey[0]){
@@ -636,11 +596,11 @@ public class SimulationRunner {
 		}
 		
 		while(atomGroupsItr.hasNext()){
-			Map.Entry atomGroupsEntry = (Map.Entry) atomGroupsItr.next();
+			Map.Entry atomGroupsEntry = atomGroupsItr.next();
 			String[] atomGroupsMapKey= (String[]) atomGroupsEntry.getKey();
 			
 			while (potentialsItr.hasNext()) {
-				Map.Entry potentialsEntry = (Map.Entry) potentialsItr.next();
+				Map.Entry potentialsEntry = potentialsItr.next();
 				String[] potentialsMapKey= (String[]) potentialsEntry.getKey();
 				if(potentialsMapKey[0] == atomGroupsMapKey[0] && potentialsMapKey[1] == atomGroupsMapKey[1] 
 						|| potentialsMapKey[0] == atomGroupsMapKey[1] && potentialsMapKey[1] == atomGroupsMapKey[0]){
@@ -659,33 +619,33 @@ public class SimulationRunner {
 	}
 
 
-	private void AddPotentials(HashMap<String[], IAtomType[]> atomSet,
-			PotentialGroup interPotentialGroup, HashMap<String[], IPotential> PotentialSet) {
+    private void AddPotentials(HashMap<String[], AtomType[]> atomSet,
+                               PotentialGroup interPotentialGroup, HashMap<String[], IPotential> PotentialSet) {
 		// TODO Auto-generated method stub
-		
-		 	HashMap<String[], IAtomType[]> atomSetMap = atomSet;
-			Set<Entry<String[], IAtomType[]>> AtomEntries = atomSetMap.entrySet();
-			Iterator<Entry<String[], IAtomType[]>> AtomItr = AtomEntries.iterator();
-			
-			
-			Map<String[], IPotential> PotentialSetsMap = PotentialSet;
+
+        HashMap<String[], AtomType[]> atomSetMap = atomSet;
+        Set<Entry<String[], AtomType[]>> AtomEntries = atomSetMap.entrySet();
+        Iterator<Entry<String[], AtomType[]>> AtomItr = AtomEntries.iterator();
+
+
+        Map<String[], IPotential> PotentialSetsMap = PotentialSet;
 			Set<Entry<String[], IPotential>> PotentialEntries = PotentialSetsMap.entrySet();
 			Iterator<Entry<String[], IPotential>> PotentialItr = PotentialEntries.iterator();
 			
 			while(PotentialItr.hasNext()){
-				Map.Entry PotentialEntry = (Map.Entry) PotentialItr.next();
+				Map.Entry PotentialEntry = PotentialItr.next();
 				
 				String[] PotentialKey= (String[]) PotentialEntry.getKey();
 				while (AtomItr.hasNext()) {
-					Map.Entry AtomEntry = (Map.Entry) AtomItr.next();
+					Map.Entry AtomEntry = AtomItr.next();
 					String[] AtomKey= (String[]) AtomEntry.getKey();
 					if(AtomKey[0] == PotentialKey[0] && AtomKey[1] == PotentialKey[1] || AtomKey[0] == PotentialKey[1] && AtomKey[1] == PotentialKey[0]){
 						Object[] AtomObjects = (Object[]) AtomEntry.getValue();
 						
 						if(PotentialEntry.getValue() instanceof P2LennardJones){
 							interPotentialGroup.addPotential((P2LennardJones)PotentialEntry.getValue(),
-									ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{(IAtomType)AtomObjects[0],(IAtomType)AtomObjects[1]}));
-						}
+                                    ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{(AtomType) AtomObjects[0], (AtomType) AtomObjects[1]}));
+                        }
 						
 					}
 				}
@@ -696,7 +656,7 @@ public class SimulationRunner {
 		
 	}
 	
-	public void showReport(SimulationVirialOverlap2 sim, IIntegratorListener progressReport){
+	public void showReport(SimulationVirialOverlap2 sim, IntegratorListener progressReport){
 		sim.integratorOS.setNumSubSteps(1000);
 		sim.initRefPref(null, SimEnv.getNoOfSteps()/100);
 	        // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref

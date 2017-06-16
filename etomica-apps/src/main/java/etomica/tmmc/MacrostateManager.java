@@ -4,7 +4,7 @@
 
 package etomica.tmmc;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 
 /**
  * Interface for class that defines the macrostates.  Provides
@@ -16,11 +16,11 @@ public interface MacrostateManager {
  /**
   * Number of expected macrostates in the box.
   */
-    public int numberOfStates(IBox p);
+    public int numberOfStates(Box p);
  /**
   * Returns an index identifying the current macrostate occupied by the box.
   */
-    public int stateIndex(IBox p);
+    public int stateIndex(Box p);
     
  /**
   * Returns the value of the macrostate variable corresponding to the given index.

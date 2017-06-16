@@ -4,7 +4,6 @@
 
 package etomica.models.oneDHardRods;
 
-import etomica.api.IRandom;
 import etomica.data.DataInfo;
 import etomica.data.DataSourceScalar;
 import etomica.data.DataTag;

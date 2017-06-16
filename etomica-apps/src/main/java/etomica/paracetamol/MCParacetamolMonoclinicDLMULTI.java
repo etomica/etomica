@@ -10,9 +10,6 @@ import etomica.action.WriteConfiguration;
 import etomica.action.WriteConfigurationDLPOLY;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.data.DataLogger;
 import etomica.data.DataPump;
@@ -25,16 +22,17 @@ import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.PrimitiveMonoclinic;
 import etomica.listener.IntegratorListenerAction;
+import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.normalmode.MCMoveHarmonicStep;
 import etomica.normalmode.NormalModesFromFile;
 import etomica.normalmode.WaveVectorFactory;
-import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.potential.P2DLPOLY;
 import etomica.potential.PotentialDLPOLY;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.units.Kelvin;
 
 /**
@@ -64,7 +62,7 @@ import etomica.units.Kelvin;
 public class MCParacetamolMonoclinicDLMULTI extends Simulation{
 	private static final long serialVersionUID = 1L;
 //	private final static String APP_NAME = "MC Paracetamol Monoclinic";
-    public IBox box;
+    public Box box;
     public IntegratorMC integrator;
     public MCMoveMolecule mcMoveMolecule;
     public MCMoveRotateMolecule3D mcMoveRotateMolecule;
@@ -72,7 +70,7 @@ public class MCParacetamolMonoclinicDLMULTI extends Simulation{
     public MCMoveMoleculeCoupledDLPOLY mcMoveMoleculeCoupledDLPOLY;
     public SpeciesParacetamol species;
     public Controller controller;
-    public IPotentialMaster potentialMaster;
+    public PotentialMaster potentialMaster;
     public BravaisLatticeCrystal lattice;
     public BoundaryDeformableLattice bdry;
     public PrimitiveMonoclinic primitive;

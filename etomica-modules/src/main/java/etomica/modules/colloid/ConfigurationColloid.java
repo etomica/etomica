@@ -4,21 +4,20 @@
 
 package etomica.modules.colloid;
 
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IRandom;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.IAtom;
+import etomica.box.Box;
 import etomica.config.Configuration;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
+import etomica.molecule.IMoleculeList;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
+import etomica.util.random.IRandom;
 
 public class ConfigurationColloid implements Configuration {
 
-    public ConfigurationColloid(ISpace space, ISpecies species, ISpecies speciesColloid, IRandom random) {
+    public ConfigurationColloid(Space space, ISpecies species, ISpecies speciesColloid, IRandom random) {
         this.space = space;
         this.species = species;
         this.speciesColloid = speciesColloid;
@@ -36,7 +35,7 @@ public class ConfigurationColloid implements Configuration {
     public void setNGraft(int newNGraft) {
         if (newNGraft == nGraft) return;
         nGraft = newNGraft;
-        graftVectors = new IVectorMutable[nGraft];
+        graftVectors = new Vector[nGraft];
         for (int i=0; i<nGraft; i++) {
             graftVectors[i] = space.makeVector();
         }
@@ -63,7 +62,7 @@ public class ConfigurationColloid implements Configuration {
             graftVectors[5].setX(2,-1);
         }
         else if (nGraft == 8) {
-            IVectorMutable v = space.makeVector();
+            Vector v = space.makeVector();
             v.E(1);
             for (int i=0; i<8; i++) {
                 graftVectors[i].E(1.0/Math.sqrt(3));
@@ -154,7 +153,7 @@ public class ConfigurationColloid implements Configuration {
         colloidMonomerBondManager = newColloidMonomerBondManager;
     }
     
-    public void initializeCoordinates(IBox box) {
+    public void initializeCoordinates(Box box) {
         box.setNMolecules(species, 0);
         box.setNMolecules(species, nGraft*chainLength);
         box.setNMolecules(speciesColloid, 1);
@@ -162,7 +161,7 @@ public class ConfigurationColloid implements Configuration {
         IMoleculeList colloidList = box.getMoleculeList(speciesColloid);
         IAtom colloidAtom = colloidList.getMolecule(0).getChildList().getAtom(0);
         ((AtomArrayList)colloidMonomerBondManager.getAgent(colloidAtom)).clear();
-        IVectorMutable colloidPos = colloidAtom.getPosition();
+        Vector colloidPos = colloidAtom.getPosition();
         colloidPos.E(0);
 
         if (chainLength*nGraft == 0) {
@@ -172,9 +171,9 @@ public class ConfigurationColloid implements Configuration {
         IMoleculeList monomerList = box.getMoleculeList(species);
         IAtom previousAtom = null;
         int iMonomer = 0;
-        IVectorMutable dr = space.makeVector();
-        IVectorRandom temp = (IVectorRandom)space.makeVector();
-        IVectorMutable lastPos = space.makeVector();
+        Vector dr = space.makeVector();
+        Vector temp = space.makeVector();
+        Vector lastPos = space.makeVector();
 
         for (int j=0; j<nGraft; j++) {
             lastPos.E(colloidPos);
@@ -209,7 +208,7 @@ public class ConfigurationColloid implements Configuration {
                     dr.PEa1Tv1(Math.sin(Math.PI/4), temp);
                 }
 
-                IVectorMutable p = atom.getPosition();
+                Vector p = atom.getPosition();
                 p.E(lastPos);
                 p.PEa1Tv1(0.99*sigmaMonomer, dr);
                 iMonomer++;
@@ -219,10 +218,10 @@ public class ConfigurationColloid implements Configuration {
         }
     }
 
-    protected final ISpace space;
+    protected final Space space;
     protected ISpecies species, speciesColloid;
     protected int chainLength, nGraft;
-    protected IVectorMutable[] graftVectors;
+    protected Vector[] graftVectors;
     protected double sigmaColloid, sigmaMonomer;
     protected AtomLeafAgentManager monomerMonomerBondManager, colloidMonomerBondManager;
     protected final IRandom random;

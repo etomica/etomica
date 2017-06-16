@@ -4,16 +4,7 @@
 
 package etomica.models.nitrogen;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IBox;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -33,23 +24,15 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.listener.IntegratorListenerAction;
-import etomica.normalmode.BasisBigCell;
-import etomica.normalmode.CalcHarmonicA;
-import etomica.normalmode.MCMoveHarmonic;
-import etomica.normalmode.MCMoveMoleculeCoupled;
-import etomica.normalmode.MeterBoltzmannHarmonic;
-import etomica.normalmode.MeterBoltzmannTarget;
-import etomica.normalmode.MeterHarmonicEnergy;
-import etomica.normalmode.MeterWorkHarmonicPhaseSpace;
-import etomica.normalmode.NormalModes;
-import etomica.normalmode.NormalModesFromFile;
-import etomica.normalmode.WaveVectorFactory;
+import etomica.normalmode.*;
 import etomica.overlap.IntegratorOverlap;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.Kelvin;
 import etomica.units.Pascal;
 import etomica.units.Pixel;
@@ -57,6 +40,8 @@ import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
+
+import java.io.*;
 
 /**
  * Simulation to run sampling with the nitrogen model to find the free energy difference
@@ -112,7 +97,7 @@ public class SimOverlapNitrogenModel extends Simulation {
 		P2Nitrogen potential = new P2Nitrogen(space, rCScale);
 		potential.setBox(boxTarget);
 		System.out.println("Box Dimension(before): " + boxTarget.getBoundary().getBoxSize().toString());
-		final IVector initBox = space.makeVector(new double[]{boxTarget.getBoundary().getBoxSize().getX(0),
+		final Vector initBox = space.makeVector(new double[]{boxTarget.getBoundary().getBoxSize().getX(0),
 															  boxTarget.getBoundary().getBoxSize().getX(1),
 															  boxTarget.getBoundary().getBoxSize().getX(2)});
 		coordDefTarget.setInitVolume(initBox);
@@ -492,7 +477,7 @@ public class SimOverlapNitrogenModel extends Simulation {
     public DataSourceVirialOverlap dsvo;
     public IntegratorBox[] integrators;
     public ActivityIntegrate activityIntegrate;
-    public IBox boxTarget, boxHarmonic;
+    public Box boxTarget, boxHarmonic;
     public Boundary boundaryTarget, boundaryHarmonic;
     public NormalModes normalModes;
     public Primitive primitive, primitiveUnitCell;

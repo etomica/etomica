@@ -4,8 +4,6 @@
 
 package etomica.atom;
 
-import etomica.api.IAtom;
-
 /**
  * This provides an interface for a class that acts like a hashmap for atomic
  * diameters.

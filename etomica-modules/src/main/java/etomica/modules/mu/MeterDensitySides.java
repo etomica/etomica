@@ -4,11 +4,11 @@
 
 package etomica.modules.mu;
 
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
+import etomica.molecule.IMoleculeList;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
 import etomica.units.Quantity;
@@ -16,7 +16,7 @@ import etomica.units.Volume;
 
 public class MeterDensitySides extends DataSourceScalar {
 
-    public MeterDensitySides(IBox box, ISpecies species, boolean ig) {
+    public MeterDensitySides(Box box, ISpecies species, boolean ig) {
         super("density", new CompoundDimension(new Dimension[]{Quantity.DIMENSION, Volume.DIMENSION}, new double[]{1,-1}));
         this.box = box;
         this.species = species;
@@ -27,7 +27,7 @@ public class MeterDensitySides extends DataSourceScalar {
         IMoleculeList moleculeList = box.getMoleculeList(species);
         int n = 0;
         for (int i=0; i<moleculeList.getMoleculeCount(); i++) {
-            IVector p = moleculeList.getMolecule(i).getChildList().getAtom(0).getPosition();
+            Vector p = moleculeList.getMolecule(i).getChildList().getAtom(0).getPosition();
             if (p.getX(0) < 0 == ig) {
                 n++;
             }
@@ -36,7 +36,7 @@ public class MeterDensitySides extends DataSourceScalar {
     }
 
     private static final long serialVersionUID = 1L;
-    protected final IBox box;
+    protected final Box box;
     protected final ISpecies species;
     protected final boolean ig;
 }

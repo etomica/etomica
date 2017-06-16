@@ -4,18 +4,18 @@
 
 package etomica.modules.droplet;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
 import etomica.atom.AtomFilterCollective;
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.molecule.IMolecule;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 
 public class AtomFilterLiquidAtomic implements AtomFilterCollective, AtomLeafAgentManager.AgentSource<Boolean> {
     
-    public AtomFilterLiquidAtomic(PotentialMasterList potentialMaster, IBox box) {
+    public AtomFilterLiquidAtomic(PotentialMasterList potentialMaster, Box box) {
         leafList = box.getLeafList();
         nbrListManager = potentialMaster.getNeighborManager(box);
         setMaxNbrsVapor(80);
@@ -50,11 +50,11 @@ public class AtomFilterLiquidAtomic implements AtomFilterCollective, AtomLeafAge
         return false;
     }
 
-    public Boolean makeAgent(IAtom a, IBox agentBox) {
+    public Boolean makeAgent(IAtom a, Box agentBox) {
         return null;
     }
 
-    public void releaseAgent(Boolean agent, IAtom atom, IBox agentBox) {
+    public void releaseAgent(Boolean agent, IAtom atom, Box agentBox) {
     }
 
     private final NeighborListManager nbrListManager;

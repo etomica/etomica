@@ -7,9 +7,9 @@ package etomica.association;
 import java.awt.Color;
 import java.util.HashMap;
 
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.IRandom;
+import etomica.atom.IAtom;
+import etomica.box.Box;
+import etomica.util.random.IRandom;
 import etomica.association.ColorSchemeSmer.ColorAgent;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
@@ -23,7 +23,7 @@ import etomica.graphics.ColorScheme;
  */
 public class ColorSchemeSmer extends ColorScheme implements AtomLeafAgentManager.AgentSource<ColorAgent> {
 
-    public ColorSchemeSmer(IAssociationHelper associationHelper, IBox box, IRandom random) {
+    public ColorSchemeSmer(IAssociationHelper associationHelper, Box box, IRandom random) {
         super();
         setMonomerColor(DEFAULT_ATOM_COLOR);
         this.associationHelper = associationHelper;
@@ -170,11 +170,11 @@ public class ColorSchemeSmer extends ColorScheme implements AtomLeafAgentManager
         return monomerColor;
     }
 
-    public ColorAgent makeAgent(IAtom a, IBox agentBox) {
+    public ColorAgent makeAgent(IAtom a, Box agentBox) {
         return null;
     }
 
-    public void releaseAgent(ColorAgent agent, IAtom atom, IBox agentBox) {
+    public void releaseAgent(ColorAgent agent, IAtom atom, Box agentBox) {
     }
     
     private static final long serialVersionUID = 1L;

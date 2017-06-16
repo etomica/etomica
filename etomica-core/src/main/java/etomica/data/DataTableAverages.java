@@ -6,7 +6,7 @@ package etomica.data;
 
 import java.util.ArrayList;
 
-import etomica.api.IIntegrator;
+import etomica.integrator.Integrator;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.listener.IntegratorListenerAction;
 import etomica.listener.IntegratorListenerGroupSeries;
@@ -28,11 +28,11 @@ public class DataTableAverages extends DataSinkTable {
      * Sets up table with default types that give the current value, the
      * average, and the error bars.
      */
-    public DataTableAverages(IIntegrator integrator) {
+    public DataTableAverages(Integrator integrator) {
         this(integrator, 1000, null);
     }
     
-    public DataTableAverages(IIntegrator integrator, int blockSize, ArrayList<DataPump> dataPumps) {
+    public DataTableAverages(Integrator integrator, int blockSize, ArrayList<DataPump> dataPumps) {
         this(integrator, new StatType[] { AccumulatorAverage.MOST_RECENT,
                 AccumulatorAverage.AVERAGE, AccumulatorAverage.ERROR }, 
                 blockSize, null, dataPumps);
@@ -41,8 +41,8 @@ public class DataTableAverages extends DataSinkTable {
     /**
      * Sets up table with no sources.
      */
-    public DataTableAverages(IIntegrator integrator, StatType[] types, int blockSize, 
-            IEtomicaDataSource[] sources, ArrayList<DataPump> dataPumps) {
+    public DataTableAverages(Integrator integrator, StatType[] types, int blockSize,
+                             IEtomicaDataSource[] sources, ArrayList<DataPump> dataPumps) {
         super();
         this.dataPumps = dataPumps;
         this.types = types.clone();

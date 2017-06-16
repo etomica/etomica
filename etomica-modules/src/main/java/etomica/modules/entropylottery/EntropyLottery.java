@@ -5,8 +5,7 @@
 package etomica.modules.entropylottery;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
+import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.integrator.IntegratorMC;
 import etomica.potential.PotentialMaster;
@@ -20,7 +19,7 @@ public class EntropyLottery extends Simulation {
     
     private static final long serialVersionUID = 1L;
     public SpeciesSpheresMono species;
-    public IBox box;
+    public Box box;
     public IntegratorMC integrator;
     public ActivityIntegrate activityIntegrate;
     
@@ -44,7 +43,7 @@ public class EntropyLottery extends Simulation {
 	    box = new Box(new BoundaryRectangularNonperiodic(space), space);
         addBox(box);
         box.setNMolecules(species, N);
-        IVectorMutable dimensions = space.makeVector();
+        Vector dimensions = space.makeVector();
         dimensions.E(10);
         box.getBoundary().setBoxSize(dimensions);
         new ConfigurationZero(space).initializeCoordinates(box);

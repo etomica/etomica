@@ -4,26 +4,17 @@
 
 package etomica.nbr.cell.molecule;
 
-import etomica.api.IAtom;
-import etomica.api.IBoundary;
-import etomica.api.IBoundaryEvent;
-import etomica.api.IBoundaryListener;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.atom.MoleculeAgentManager;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIterator;
+import etomica.box.Box;
 import etomica.box.BoxCellManager;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.lattice.CellLattice;
-import etomica.space.ISpace;
+import etomica.molecule.*;
+import etomica.simulation.Simulation;
+import etomica.space.*;
 import etomica.util.Debug;
 import etomica.util.IEvent;
 import etomica.util.IListener;
@@ -41,28 +32,28 @@ import etomica.util.IListener;
 //no need for index when assigning cell
 //different iterator needed
 
-public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryListener, MoleculeAgentManager.MoleculeAgentSource, java.io.Serializable {
+public class NeighborCellManagerMolecular implements BoxCellManager, BoundaryEventListener, MoleculeAgentManager.MoleculeAgentSource, java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
-    protected final ISimulation sim;
+    protected final Simulation sim;
     protected final CellLattice lattice;
-    protected final IAtomPositionDefinition positionDefinition;
-    protected final IBox box;
+    protected final IMoleculePositionDefinition positionDefinition;
+    protected final Box box;
     protected int cellRange = 2;
     protected double range;
     protected final MoleculeAgentManager agentManager;
     protected boolean doApplyPBC;
-    protected final IVectorMutable v;
+    protected final Vector v;
     protected final int[] numCells;
-    protected IAtomPositionDefinition moleculeSite;
-    protected ISpace space;
+    protected IMoleculePositionDefinition moleculeSite;
+    protected Space space;
     
     /**
      * Constructs manager for neighbor cells in the given box.  The number of
      * cells in each dimension is given by nCells. Position definition for each
      * atom is that given by its type (it is set to null in this class).
      */
-    public NeighborCellManagerMolecular(ISimulation sim, IBox box, double potentialRange, ISpace _space) {
+    public NeighborCellManagerMolecular(Simulation sim, Box box, double potentialRange, Space _space) {
         this(sim, box, potentialRange, null, _space);
     }
     
@@ -73,7 +64,7 @@ public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryLi
      * definition given by the atom's type is used.  Position definition is
      * declared final.
      */
-    public NeighborCellManagerMolecular(ISimulation sim, IBox box, double potentialRange, IAtomPositionDefinition positionDefinition, ISpace space) {
+    public NeighborCellManagerMolecular(Simulation sim, Box box, double potentialRange, IMoleculePositionDefinition positionDefinition, Space space) {
         this.positionDefinition = positionDefinition;
         this.box = box;
         this.sim = sim;
@@ -85,7 +76,7 @@ public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryLi
         v = space.makeVector();
         agentManager = new MoleculeAgentManager(sim, box, this);
         doApplyPBC = false;
-        moleculeSite = new AtomPositionGeometricCenter(space);
+        moleculeSite = new MoleculePositionGeometricCenter(space);
     }
     
     public void setDoApplyPBC(boolean newDoApplyPBC) {
@@ -134,7 +125,7 @@ public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryLi
         checkDimensions();
     }
 
-    public void boundaryInflate(IBoundaryEvent e) {
+    public void boundaryInflate(BoundaryEvent e) {
         checkDimensions();
         // we need to reassign cells even if checkDimensions didn't resize
         // the lattice.  If the box size changed, the cell size changed,
@@ -154,7 +145,7 @@ public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryLi
             // simulation is still being constructed, don't try to do anything useful
             return false;
         }
-        IVector dimensions = box.getBoundary().getBoxSize();
+        Vector dimensions = box.getBoundary().getBoxSize();
         lattice.setDimensions(dimensions);
         int[] oldSize = lattice.getSize();
         boolean latticeNeedsUpdate = false;
@@ -255,7 +246,7 @@ public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryLi
      * cell's atom list.
      */
     public Object makeAgent(IMolecule molecule) {
-        IVectorMutable position = (IVectorMutable)moleculeSite.position(molecule);
+        Vector position = moleculeSite.position(molecule);
         v.E(position);
         if (doApplyPBC) {
             v.PE(box.getBoundary().centralImage(position));
@@ -276,10 +267,10 @@ public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryLi
     }
     
     private static class MyMCMoveListener implements IListener, java.io.Serializable {
-        public MyMCMoveListener(IBox box, NeighborCellManagerMolecular manager, ISpace space) {
+        public MyMCMoveListener(Box box, NeighborCellManagerMolecular manager, Space space) {
             this.box = box;
             neighborCellManager = manager;
-            moleculePosition = new AtomPositionGeometricCenter(space);
+            moleculePosition = new MoleculePositionGeometricCenter(space);
         }
 /*        
  * 
@@ -307,17 +298,17 @@ public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryLi
         }
 
         private void updateCell(IMolecule molecule) {
-            IBoundary boundary = box.getBoundary();
+            Boundary boundary = box.getBoundary();
             CellMolecular cell = neighborCellManager.getCell(molecule);
             cell.removeMolecule(molecule);
-            boundary.nearestImage((IVectorMutable)moleculePosition.position(molecule));
+            boundary.nearestImage(moleculePosition.position(molecule));
             neighborCellManager.assignCell(molecule);
         }
         
         private static final long serialVersionUID = 1L;
-        private final IBox box;
+        private final Box box;
         private final NeighborCellManagerMolecular neighborCellManager;
-        private IAtomPositionDefinition moleculePosition;
+        private IMoleculePositionDefinition moleculePosition;
        
     }
 

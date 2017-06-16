@@ -4,7 +4,7 @@
 
 package etomica.nbr;
 
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 
 /**
  * 

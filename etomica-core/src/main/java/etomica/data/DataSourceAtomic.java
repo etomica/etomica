@@ -4,7 +4,7 @@
 
 package etomica.data;
 
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 
 
 /**

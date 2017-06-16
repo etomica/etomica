@@ -5,19 +5,15 @@
 package etomica.integrator.mcmove;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.ISpecies;
-import etomica.atom.AtomPositionCOM;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.atom.MoleculeArrayList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.space.ISpace;
+import etomica.molecule.*;
+import etomica.potential.PotentialMaster;
+import etomica.space.Space;
+import etomica.species.ISpecies;
+import etomica.util.random.IRandom;
 
 /**
  * Basic Monte Carlo move for semigrand-ensemble simulations.  Move consists
@@ -39,7 +35,7 @@ public class MCMoveSemigrand extends MCMoveBox {
     private final AtomIteratorArrayListSimple affectedAtomIterator; 
     private final MeterPotentialEnergy energyMeter;
     private final MoleculeActionTranslateTo moleculeTranslator;
-    private IAtomPositionDefinition atomPositionDefinition;
+    private IMoleculePositionDefinition atomPositionDefinition;
     private final IRandom random;
     
     private transient IMolecule deleteMolecule, insertMolecule;
@@ -47,8 +43,8 @@ public class MCMoveSemigrand extends MCMoveBox {
     private transient double uNew = Double.NaN;
     private transient int iInsert, iDelete;
 
-    public MCMoveSemigrand(IPotentialMaster potentialMaster, IRandom random,
-    		               ISpace _space) {
+    public MCMoveSemigrand(PotentialMaster potentialMaster, IRandom random,
+                           Space _space) {
         super(potentialMaster);
         this.random = random;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
@@ -56,13 +52,13 @@ public class MCMoveSemigrand extends MCMoveBox {
         perParticleFrequency = true;
         energyMeter.setIncludeLrc(true);
         moleculeTranslator = new MoleculeActionTranslateTo(_space);
-        setAtomPositionDefinition(new AtomPositionCOM(_space));
+        setAtomPositionDefinition(new MoleculePositionCOM(_space));
     }
     
     /**
      * Extends the superclass method to initialize the exchange-set species agents for the box.
      */
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(box);
     }//end setBox
@@ -190,14 +186,14 @@ public class MCMoveSemigrand extends MCMoveBox {
     /**
      * @return Returns the positionDefinition.
      */
-    public IAtomPositionDefinition geAtomPositionDefinition() {
+    public IMoleculePositionDefinition geAtomPositionDefinition() {
         return atomPositionDefinition;
     }
 
     /**
      * @param positionDefinition The positionDefinition to set.
      */
-    public void setAtomPositionDefinition(IAtomPositionDefinition positionDefinition) {
+    public void setAtomPositionDefinition(IMoleculePositionDefinition positionDefinition) {
         this.atomPositionDefinition = positionDefinition;
         moleculeTranslator.setAtomPositionDefinition(positionDefinition);
     }

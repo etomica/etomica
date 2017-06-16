@@ -5,11 +5,14 @@
 package etomica.freeenergy.npath;
 
 import etomica.action.BoxInflate;
-import etomica.api.*;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.simulation.Simulation;
+import etomica.space.Boundary;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
@@ -22,7 +25,7 @@ import etomica.util.ParseArgs;
 public class SimLattice extends Simulation {
 
     public SpeciesSpheresMono species;
-    public IBox box;
+    public Box box;
 
     public SimLattice(int numAtoms, double temperature, double density, double w, int offsetDim) {
         super(Space3D.getInstance());
@@ -31,7 +34,7 @@ public class SimLattice extends Simulation {
         box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
-        IVectorMutable l = space.makeVector();
+        Vector l = space.makeVector();
         l.E(10);
         for (int i=0; i<=offsetDim; i++) {
             l.setX(i,20);
@@ -86,16 +89,16 @@ public class SimLattice extends Simulation {
         }
 
         final SimLattice sim = new SimLattice(numAtoms, temperature, density, w, offsetDim);
-        IBoundary boundary = sim.box.getBoundary();
-        IVectorMutable offset = sim.space.makeVector();
+        Boundary boundary = sim.box.getBoundary();
+        Vector offset = sim.space.makeVector();
         offset.setX(offsetDim, sim.box.getBoundary().getBoxSize().getX(offsetDim)*0.5);
         IAtomList atoms = sim.box.getLeafList();
         IAtom atom0 = atoms.getAtom(0);
         IAtom atom1 = atoms.getAtom(numAtoms/2);
-        IVectorMutable p0 = atom0.getPosition();
-        IVectorMutable p1 = atom1.getPosition();
+        Vector p0 = atom0.getPosition();
+        Vector p1 = atom1.getPosition();
 
-        IVectorMutable dr = sim.space.makeVector();
+        Vector dr = sim.space.makeVector();
         double betaw = w/temperature;
 
         double uSum = 0;

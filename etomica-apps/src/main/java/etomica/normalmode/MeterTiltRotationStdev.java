@@ -4,19 +4,19 @@
 
 package etomica.normalmode;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.Angle;
 
 /**
@@ -26,7 +26,7 @@ import etomica.units.Angle;
  */
 public class MeterTiltRotationStdev implements IEtomicaDataSource {
 
-    public MeterTiltRotationStdev(ISpace space, ISpecies species, int nPlanes) {
+    public MeterTiltRotationStdev(Space space, ISpecies species, int nPlanes) {
         this.species = species;
         dr = space.makeVector();
         phiSum = new double[nPlanes+1];
@@ -37,7 +37,7 @@ public class MeterTiltRotationStdev implements IEtomicaDataSource {
         dataInfo.addTag(tag);
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
 
@@ -79,8 +79,8 @@ public class MeterTiltRotationStdev implements IEtomicaDataSource {
 
     private static final long serialVersionUID = 1L;
     protected final ISpecies species;
-    protected IBox box;
-    protected final IVectorMutable dr;
+    protected Box box;
+    protected final Vector dr;
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
     protected final DataTag tag;

@@ -4,13 +4,12 @@
 
 package etomica.modules.droplet;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.potential.PotentialSoft;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 /**
@@ -18,13 +17,13 @@ import etomica.space.Tensor;
  */
 public class P1Smash implements PotentialSoft {
 
-    public P1Smash(ISpace space) {
-        gradient = new IVectorMutable[1];
+    public P1Smash(Space space) {
+        gradient = new Vector[1];
         gradient[0] = space.makeVector();
         g = 1;
     }
     
-    public void setBox(IBox newBox) {}
+    public void setBox(Box newBox) {}
     
     public int nBody() {
         return 1;
@@ -42,11 +41,11 @@ public class P1Smash implements PotentialSoft {
         return 0;
     }
 
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         return gradient(atoms);
     }
 
-    public IVector[] gradient(IAtomList atoms) {
+    public Vector[] gradient(IAtomList atoms) {
         IAtom a = atoms.getAtom(0);
         if (a.getPosition().getX(2) > 0) {
             gradient[0].setX(2, g);
@@ -66,6 +65,6 @@ public class P1Smash implements PotentialSoft {
         return Double.POSITIVE_INFINITY;
     }
     
-    protected final IVectorMutable[] gradient;
+    protected final Vector[] gradient;
     protected double g;
 }

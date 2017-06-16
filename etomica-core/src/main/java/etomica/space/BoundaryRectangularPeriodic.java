@@ -4,8 +4,6 @@
 
 package etomica.space;
 
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 
@@ -17,14 +15,14 @@ public class BoundaryRectangularPeriodic extends BoundaryRectangular {
     /**
      * Constructs cubic boundary with the default box-size given by the Simulation.
      */
-    public BoundaryRectangularPeriodic(ISpace _space) {
+    public BoundaryRectangularPeriodic(Space _space) {
         this(_space, 10.0);
     }
     
     /**
      * Constructs cubic boundary for the given Space, with each edge of length boxSize.
      */
-    public BoundaryRectangularPeriodic(ISpace _space, double boxSize) {
+    public BoundaryRectangularPeriodic(Space _space, double boxSize) {
         super(_space, boxSize);
         dimensionsHalf = space.makeVector();
         tempImage = space.makeVector();
@@ -35,7 +33,7 @@ public class BoundaryRectangularPeriodic extends BoundaryRectangular {
     /**
      * Constructs rectangular boundary for the given Space, with each edge of length boxSize.
      */
-    public BoundaryRectangularPeriodic(ISpace _space, double[] boxSize) {
+    public BoundaryRectangularPeriodic(Space _space, double[] boxSize) {
         super(_space, boxSize);
         dimensionsHalf = space.makeVector();
         tempImage = space.makeVector();
@@ -51,13 +49,13 @@ public class BoundaryRectangularPeriodic extends BoundaryRectangular {
         }
     }
     
-    public void nearestImage(IVectorMutable dr) {
+    public void nearestImage(Vector dr) {
         dr.PE(dimensionsHalf);
         dr.mod(dimensions);
         dr.ME(dimensionsHalf);
     }
 
-    public IVector centralImage(IVector r) {
+    public Vector centralImage(Vector r) {
         tempImage.E(r);
         nearestImage(tempImage);
         tempImage.ME(r);
@@ -74,6 +72,6 @@ public class BoundaryRectangularPeriodic extends BoundaryRectangular {
     }
 
     private static final long serialVersionUID = 1L;
-    protected final IVectorMutable dimensionsHalf;
-    protected final IVectorMutable tempImage;
+    protected final Vector dimensionsHalf;
+    protected final Vector tempImage;
 }

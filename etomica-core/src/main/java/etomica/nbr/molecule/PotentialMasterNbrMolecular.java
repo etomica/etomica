@@ -4,17 +4,13 @@
 
 package etomica.nbr.molecule;
 
-import etomica.api.IPotential;
-import etomica.api.IPotentialMolecular;
-import etomica.api.ISimulation;
-import etomica.api.ISpecies;
 import etomica.atom.SpeciesAgentManager;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentManager.BoxAgentSource;
 import etomica.box.BoxCellManager;
-import etomica.potential.PotentialArrayMolecular;
-import etomica.potential.PotentialGroup;
-import etomica.potential.PotentialMaster;
+import etomica.potential.*;
+import etomica.simulation.Simulation;
+import etomica.species.ISpecies;
 import etomica.util.Arrays;
 
 /**
@@ -27,8 +23,8 @@ public abstract class PotentialMasterNbrMolecular extends PotentialMaster implem
 	 * 
 	 */
 
-	protected PotentialMasterNbrMolecular(ISimulation sim, BoxAgentSource<? extends BoxCellManager> boxAgentSource, 
-            BoxAgentManager<? extends BoxCellManager> boxAgentManager) {
+	protected PotentialMasterNbrMolecular(Simulation sim, BoxAgentSource<? extends BoxCellManager> boxAgentSource,
+                                          BoxAgentManager<? extends BoxCellManager> boxAgentManager) {
         super();
         simulation = sim;
         this.boxAgentSource = boxAgentSource;
@@ -127,7 +123,7 @@ public abstract class PotentialMasterNbrMolecular extends PotentialMaster implem
     /**
      * Returns the simulation associated with this PotentialMaster
      */
-    public ISimulation getSimulation() {
+    public Simulation getSimulation() {
         return simulation;
     }
     
@@ -137,6 +133,6 @@ public abstract class PotentialMasterNbrMolecular extends PotentialMaster implem
     protected final SpeciesAgentManager speciesAgentManager;
     protected IPotential[] allPotentials = new IPotential[0];
     protected BoxAgentSource<? extends BoxCellManager> boxAgentSource;
-    protected final ISimulation simulation;
+    protected final Simulation simulation;
     protected BoxAgentManager<? extends BoxCellManager> boxAgentManager;
 }

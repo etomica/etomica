@@ -4,18 +4,18 @@
 
 package etomica.potential;
 
+import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.space.Boundary;
+import etomica.space.Space;
+import etomica.space.Vector;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Formatter;
-
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
 
 /** 
  * 
@@ -33,7 +33,7 @@ import etomica.space.ISpace;
 
 public class P2QChem extends PotentialMolecular {
 	
-	public P2QChem (ISpace space){
+	public P2QChem (Space space){
 		super(2, space);
     
 	}
@@ -45,10 +45,10 @@ public class P2QChem extends PotentialMolecular {
     	IMolecule molecule1 = atoms.getMolecule(0);
     	IMolecule molecule2 = atoms.getMolecule(1);
     	
-    	IVectorMutable atomPos1 = molecule1.getChildList().getAtom(0).getPosition();
-    	IVectorMutable atomPos2  = molecule2.getChildList().getAtom(0).getPosition();
+    	Vector atomPos1 = molecule1.getChildList().getAtom(0).getPosition();
+    	Vector atomPos2  = molecule2.getChildList().getAtom(0).getPosition();
       
-    	IVectorMutable r12Vec = space.makeVector();
+    	Vector r12Vec = space.makeVector();
     	r12Vec.Ev1Mv2(atomPos1, atomPos2);
     	
     	double r12Mag = Math.sqrt(r12Vec.squared());
@@ -140,7 +140,7 @@ public class P2QChem extends PotentialMolecular {
 		
 	}
 	
-	public void makeInputFile(IVectorMutable atomPos1, IVectorMutable atomPos2) {
+	public void makeInputFile(Vector atomPos1, Vector atomPos2) {
 		
 		String fileName = "argon.in";
 		
@@ -237,13 +237,13 @@ public void runQChem() {
 	}
 
 
-	public void setBox(IBox box) {
+	public void setBox(Box box) {
         this.box = box;
     }
 	
-	protected IBoundary boundary;
+	protected Boundary boundary;
 
-	private IBox box;
+	private Box box;
 	
 
 }

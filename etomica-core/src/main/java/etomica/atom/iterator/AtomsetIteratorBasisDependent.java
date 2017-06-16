@@ -4,8 +4,8 @@
 
 package etomica.atom.iterator;
 
-import etomica.api.IAtom;
-import etomica.api.IMoleculeList;
+import etomica.atom.IAtom;
+import etomica.molecule.IMoleculeList;
 
 /**
  * Interface for an AtomIterator that can be conditioned with

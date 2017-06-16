@@ -37,40 +37,27 @@ package etomica.potential;
 //    The potential energy is returned to the calling program in the
 //    variable potl, in units of wavenumbers.
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.zip.ZipInputStream;
-
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotential;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IPotentialMolecular;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomHydrogen;
-import etomica.atom.IAtomOriented;
-import etomica.space.ISpace;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.space.Boundary;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.units.BohrRadius;
 import etomica.units.Degree;
-import etomica.units.Kelvin;
 import etomica.util.Constants;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 
 public class P2HydrogenHinde implements IPotential {
     public static void main(String[] args) {
-        ISpace space = Space3D.getInstance();        
+        Space space = Space3D.getInstance();
         P2HydrogenHinde pHin = new P2HydrogenHinde(space);
         P2HydrogenPatkowski pPat = new P2HydrogenPatkowski(space);        
         double r0 = BohrRadius.UNIT.toSim(1.448736);
@@ -93,9 +80,9 @@ public class P2HydrogenHinde implements IPotential {
     protected final double [][][] c6 = new double [3][3][4];
     protected final double [][][] c8 = new double [3][3][4];
     protected final double [][] cten = new double [3][3];
-    protected IBoundary boundary;
-    protected final IVectorMutable dr,com0,com1,hh0,hh1,n0,n1;
-    public P2HydrogenHinde(ISpace space) {        
+    protected Boundary boundary;
+    protected final Vector dr,com0,com1,hh0,hh1,n0,n1;
+    public P2HydrogenHinde(Space space) {
         dr = space.makeVector();
         com0 = space.makeVector();
         com1 = space.makeVector();  
@@ -332,7 +319,7 @@ public class P2HydrogenHinde implements IPotential {
         return Double.POSITIVE_INFINITY;
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();    
     }
 
@@ -340,7 +327,7 @@ public class P2HydrogenHinde implements IPotential {
         return 2;
     }
     public static class P2HydrogenHindeMolecular extends P2HydrogenHinde implements IPotentialMolecular {
-        public P2HydrogenHindeMolecular(ISpace space) {
+        public P2HydrogenHindeMolecular(Space space) {
             super(space);     
         }
         public double energy(IMoleculeList molecules) {
@@ -350,10 +337,10 @@ public class P2HydrogenHinde implements IPotential {
             IAtom a01 = m0.getChildList().getAtom(1);
             IAtom a10 = m1.getChildList().getAtom(0);
             IAtom a11 = m1.getChildList().getAtom(1);
-            IVector orient00 = a00.getPosition();
-            IVector orient01 = a01.getPosition();
-            IVector orient10 = a10.getPosition();
-            IVector orient11 = a11.getPosition();
+            Vector orient00 = a00.getPosition();
+            Vector orient01 = a01.getPosition();
+            Vector orient10 = a10.getPosition();
+            Vector orient11 = a11.getPosition();
 
             com0.Ev1Pv2(orient00, orient01);
             com0.TE(0.5);        
@@ -389,17 +376,17 @@ public class P2HydrogenHinde implements IPotential {
         } 
     }
     public static class P2HydrogenHindeAtomic extends P2HydrogenHinde implements IPotentialAtomic {
-        public P2HydrogenHindeAtomic(ISpace space) {
+        public P2HydrogenHindeAtomic(Space space) {
             super(space);     
         }
 
         public double energy(IAtomList atoms) {
             AtomHydrogen m0 = (AtomHydrogen) atoms.getAtom(0);
             AtomHydrogen m1 = (AtomHydrogen) atoms.getAtom(1);            
-            IVector hh0 = m0.getOrientation().getDirection();
-            IVector hh1 = m1.getOrientation().getDirection();        
-            IVector com0 = m0.getPosition();               
-            IVector com1 = m1.getPosition();        
+            Vector hh0 = m0.getOrientation().getDirection();
+            Vector hh1 = m1.getOrientation().getDirection();
+            Vector com0 = m0.getPosition();
+            Vector com1 = m1.getPosition();
 
             dr.Ev1Mv2(com1, com0);    
             boundary.nearestImage(dr);    

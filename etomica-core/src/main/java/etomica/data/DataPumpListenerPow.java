@@ -4,8 +4,8 @@
 
 package etomica.data;
 
-import etomica.api.IIntegratorEvent;
-import etomica.api.IIntegratorListener;
+import etomica.integrator.IntegratorListener;
+import etomica.integrator.IntegratorEvent;
 
 /**
  * DataPump class that takes data at steps 2^i, i=0,1,2,3...
@@ -17,7 +17,7 @@ import etomica.api.IIntegratorListener;
  * 
  * @author Andrew Schultz
  */
-public class DataPumpListenerPow extends DataPump implements IIntegratorListener {
+public class DataPumpListenerPow extends DataPump implements IntegratorListener {
 
     protected long interval;
     protected long stepCount;
@@ -38,11 +38,11 @@ public class DataPumpListenerPow extends DataPump implements IIntegratorListener
         this.maxRatio = maxRatio;
     }
     
-    public void integratorInitialized(IIntegratorEvent e) {}
+    public void integratorInitialized(IntegratorEvent e) {}
     
-    public void integratorStepStarted(IIntegratorEvent e) {}
+    public void integratorStepStarted(IntegratorEvent e) {}
     
-    public void integratorStepFinished(IIntegratorEvent e) {
+    public void integratorStepFinished(IntegratorEvent e) {
         totalSteps++;
         if(++stepCount < interval) {
             return;

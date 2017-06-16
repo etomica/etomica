@@ -4,26 +4,16 @@
 
 package etomica.virial.simulations;
 
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.List;
-
-import etomica.api.IBox;
-import etomica.api.IFunction;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotential;
+import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.DataDistributer;
-import etomica.data.DataFork;
-import etomica.data.DataSplitter;
-import etomica.data.IData;
-import etomica.data.IDataSink;
+import etomica.data.*;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
+import etomica.math.function.IFunction;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.IPotential;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.Potential2Spherical;
@@ -34,17 +24,12 @@ import etomica.units.Pixel;
 import etomica.util.Arrays;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.CalcFFT;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterBonds;
-import etomica.virial.ClusterSum;
-import etomica.virial.MCMoveClusterAtomDiscrete;
-import etomica.virial.MCMoveClusterAtomMulti;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerGeneralSpherical;
-import etomica.virial.MayerSphericalPlus;
-import etomica.virial.PYGenerator;
+import etomica.virial.*;
 import etomica.virial.cluster.VirialDiagrams;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * LJ simulation using Mayer sampling to evaluate cluster integrals
@@ -101,7 +86,7 @@ public class VirialLJOrICPYC {
         }
     
         MayerFunction f12 = new MayerFunction() {
-            public void setBox(IBox box) {}
+            public void setBox(Box box) {}
             public IPotential getPotential() {return null;}
             
             public double f(IMoleculeList pair, double r2, double beta) {
@@ -192,7 +177,7 @@ public class VirialLJOrICPYC {
 
         if (false) {
 //            for (int i=0; i<2; i++) {
-//                IBox box = sim.box[i];
+//                Box box = sim.box[i];
 //                final IAtomList atoms = box.getLeafList();
 //                IAtom atom1 = atoms.getAtom(1);
 //                IVectorMutable p1 = atom1.getPosition();

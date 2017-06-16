@@ -4,19 +4,19 @@
 
 package etomica.action;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IRandom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.util.random.IRandom;
 
 /**
- * Randomizes the velocities of all the leaf atoms in an IBox based on the
+ * Randomizes the velocities of all the leaf atoms in a Box based on the
  * Maxwell-Boltzmann distribution.
  * 
  * @author Andrew Schultz
  */
 public class BoxRandomizeMomenta implements IAction {
 
-    public BoxRandomizeMomenta(IBox box, IRandom random) {
+    public BoxRandomizeMomenta(Box box, IRandom random) {
         this.box = box;
         atomActionRandomizeVelocity = new AtomActionRandomizeVelocity(0, random);
     }
@@ -29,7 +29,7 @@ public class BoxRandomizeMomenta implements IAction {
         return temperature;
     }
     
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     
@@ -43,6 +43,6 @@ public class BoxRandomizeMomenta implements IAction {
     }
 
     protected final AtomActionRandomizeVelocity atomActionRandomizeVelocity;
-    protected final IBox box;
+    protected final Box box;
     protected double temperature;
 }

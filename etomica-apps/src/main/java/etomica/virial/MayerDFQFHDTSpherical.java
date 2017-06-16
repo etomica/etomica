@@ -4,11 +4,11 @@
 
 package etomica.virial;
 
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotential;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.IPotential;
 import etomica.potential.P2EffectiveFeynmanHibbs;
-import etomica.potential.Potential2Spherical;
+
 /**
  * Required for computing temperature derivatives of virial coefficients computed with quadratic Feynmann-Hibbs modification 
  * to the potential.
@@ -45,7 +45,7 @@ public class MayerDFQFHDTSpherical implements MayerFunction {
 		return dfdkT;
 	}
 	
-	public void setBox(IBox newBox) {
+	public void setBox(Box newBox) {
 	    potential.setBox(newBox);
 	}
 

@@ -4,15 +4,14 @@
 
 package etomica.potential;
 
-import etomica.api.IAtomList;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.space.ISpace;
+import etomica.atom.IAtomList;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.IMoleculePositionDefinition;
+import etomica.molecule.MoleculePositionGeometricCenter;
+import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 
 /** 
  * include virial and gradient for a molecular potential
@@ -23,18 +22,18 @@ import etomica.space.Tensor;
 public class PotentialGroupSoft extends PotentialGroup implements PotentialMolecularSoft {
 
 	private static final long serialVersionUID = 1L;
-	protected final IVectorMutable[] gradients;
-	protected final IAtomPositionDefinition positionDefinition;
+	protected final Vector[] gradients;
+	protected final IMoleculePositionDefinition positionDefinition;
 	protected double truncation;
 
-	public PotentialGroupSoft(int nBody,ISpace space,double truncation) {
+	public PotentialGroupSoft(int nBody, Space space, double truncation) {
 		super(nBody,space);
-		gradients = new IVectorMutable[2];
+		gradients = new Vector[2];
         gradients[0] = space.makeVector();
         gradients[1] = space.makeVector();
 		// TODO Auto-generated constructor stub
         this.truncation=truncation;
-		positionDefinition = new AtomPositionGeometricCenter(space);
+		positionDefinition = new MoleculePositionGeometricCenter(space);
 	}
 
 	public double getTruncation() {
@@ -48,11 +47,11 @@ public class PotentialGroupSoft extends PotentialGroup implements PotentialMolec
 		// TODO Auto-generated method stub
 		IMolecule molecule_a = pair.getMolecule(0);//1st molecule in the pair
 		IMolecule molecule_b = pair.getMolecule(1);//2nd molecule in the pair
-		IVectorMutable r_a = space.makeVector();
-		IVectorMutable r_b = space.makeVector();
+		Vector r_a = space.makeVector();
+		Vector r_b = space.makeVector();
 		r_a.E(positionDefinition.position(molecule_a));
 		r_b.E(positionDefinition.position(molecule_b));
-		IVectorMutable vector = space.makeVector();
+		Vector vector = space.makeVector();
 		vector.Ev1Mv2(r_b, r_a);
 		box.getBoundary().nearestImage(vector);
 		double distance2 = vector.squared();
@@ -68,23 +67,23 @@ public class PotentialGroupSoft extends PotentialGroup implements PotentialMolec
 		// COM from atompositiondefinition 
 		IMolecule molecule_a = pair.getMolecule(0);//1st molecule in the pair
 		IMolecule molecule_b = pair.getMolecule(1);//2nd molecule in the pair
-		IVectorMutable r_a = space.makeVector();
-		IVectorMutable r_b = space.makeVector();
+		Vector r_a = space.makeVector();
+		Vector r_b = space.makeVector();
 		r_a.E(positionDefinition.position(molecule_a));
 		r_b.E(positionDefinition.position(molecule_b));
-		IVectorMutable vector = space.makeVector();
+		Vector vector = space.makeVector();
 		vector.Ev1Mv2(r_b, r_a);
 		box.getBoundary().nearestImage(vector);
 		double distance2 = vector.squared();
 		if (distance2 > truncation * truncation){
 			return 0.0;
 		}
-		IVector[] grad = gradient(pair);
+		Vector[] grad = gradient(pair);
 		return -vector.dot(grad[0]);
 
 	}
 
-	public IVector[] gradient(IMoleculeList basisAtoms) {//pass molecular pair
+	public Vector[] gradient(IMoleculeList basisAtoms) {//pass molecular pair
         if(basisAtoms.getMoleculeCount() != this.nBody()) {
             throw new IllegalArgumentException("Error: number of atoms for energy calculation inconsistent with order of potential");
         }
@@ -94,7 +93,7 @@ public class PotentialGroupSoft extends PotentialGroup implements PotentialMolec
             link.iterator.setBasis(basisAtoms);
             link.iterator.reset();
             for (IAtomList atoms = link.iterator.next(); atoms != null; atoms = link.iterator.next()) {
-            	IVector[] gradient_ = ((PotentialSoft)link.potential).gradient(atoms);
+            	Vector[] gradient_ = ((PotentialSoft)link.potential).gradient(atoms);
             	gradients[0].PE(gradient_[0]);
             }
             
@@ -104,7 +103,7 @@ public class PotentialGroupSoft extends PotentialGroup implements PotentialMolec
 	}
 
 
-	public IVector[] gradient(IMoleculeList atoms, Tensor pressureTensor) {
+	public Vector[] gradient(IMoleculeList atoms, Tensor pressureTensor) {
 		return null;
 	}
 

@@ -4,9 +4,8 @@
 
 package etomica.math.geometry;
 
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Vector;
+import etomica.space.Space;
 import etomica.space3d.Vector3D;
 
 /**
@@ -21,14 +20,14 @@ public class Cuboid extends Hexahedron implements Rectangular {
     /**
      * Constructs a cuboid with equal faces of unit size (a cube).
      */
-    public Cuboid(ISpace embeddedSpace) {
+    public Cuboid(Space embeddedSpace) {
         this(embeddedSpace, 1.0, 1.0, 1.0);
     }
 
     /**
      * Constructs a cuboid with edges of lengths having the given values.
      */
-    public Cuboid(ISpace embeddedSpace, double a, double b, double c) {
+    public Cuboid(Space embeddedSpace, double a, double b, double c) {
         super(embeddedSpace);
         setEdgeLengths(a, b, c);
     }
@@ -70,7 +69,7 @@ public class Cuboid extends Hexahedron implements Rectangular {
      * Returns <code>true</code> if the given vector lies inside (or on the
      * surface of) this cell, <code>false</code> otherwise.
      */
-    public boolean contains(IVector v) {
+    public boolean contains(Vector v) {
         double x = v.getX(0)-position.getX(0);
         double y = v.getX(1)-position.getX(1);
         double z = v.getX(2)-position.getX(2);
@@ -83,7 +82,7 @@ public class Cuboid extends Hexahedron implements Rectangular {
      * each element of the given vector for the length of
      * the corresponding cuboid edge.
      */
-    public void setEdgeLengths(IVector e) {
+    public void setEdgeLengths(Vector e) {
         setEdgeLengths(e.getX(0), e.getX(1), e.getX(2));
     }
     
@@ -93,7 +92,7 @@ public class Cuboid extends Hexahedron implements Rectangular {
      * used to represent the cuboid internally, so changing its
      * values will not affect the state of the cuboid.
      */
-    public IVector getEdgeLengths() {
+    public Vector getEdgeLengths() {
         return edgeLengths;
     }
     
@@ -110,7 +109,7 @@ public class Cuboid extends Hexahedron implements Rectangular {
         updateVertices();
     }
 
-    private final IVectorMutable edgeLengths = new Vector3D();//used only to return edge lengths as a vector
+    private final Vector edgeLengths = new Vector3D();//used only to return edge lengths as a vector
     private double pa;//p = +a/2
     private double pb;//p = +a/2
     private double pc;//p = +a/2

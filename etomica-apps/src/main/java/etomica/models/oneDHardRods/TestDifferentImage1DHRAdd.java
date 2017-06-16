@@ -5,14 +5,12 @@
 package etomica.models.oneDHardRods;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IRandom;
+import etomica.atom.AtomType;
 import etomica.box.Box;
+import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistogram;
 import etomica.data.DataPump;
-import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
@@ -23,13 +21,7 @@ import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.listener.IntegratorListenerAction;
 import etomica.math.SpecialFunctions;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.normalmode.CoordinateDefinition;
-import etomica.normalmode.CoordinateDefinitionLeaf;
-import etomica.normalmode.MCMoveAtomCoupled;
-import etomica.normalmode.NormalModes;
-import etomica.normalmode.NormalModes1DHR;
-import etomica.normalmode.P2XOrder;
-import etomica.normalmode.WaveVectorFactory;
+import etomica.normalmode.*;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2HardSpherical;
@@ -39,7 +31,6 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
-import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 
 /**
@@ -63,15 +54,14 @@ public class TestDifferentImage1DHRAdd extends Simulation {
     private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "SimDegreeFreedom1DHR";
     public Primitive primitive;
-    int[] nCells;
-    NormalModes nm;
     public IntegratorMC integrator;
     public BasisMonatomic basis;
     public ActivityIntegrate activityIntegrate;
-    
-    public IBox box;
+    public Box box;
     public Boundary bdry;
     public CoordinateDefinition coordinateDefinition;
+    int[] nCells;
+    NormalModes nm;
     MeterDifferentImageAdd1D meterdi;
     WaveVectorFactory waveVectorFactory;
     MCMoveAtomCoupled mcMoveAtom;
@@ -104,7 +94,7 @@ public class TestDifferentImage1DHRAdd extends Simulation {
         Potential2 potential = new P2HardSphere(space, 1.0, true);
         potential = new P2XOrder(space, (Potential2HardSpherical)potential);
         potential.setBox(box);
-        potentialMaster.addPotential(potential, new IAtomType[] {species.getLeafType(), species.getLeafType()});
+        potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
         primitive = new PrimitiveCubic(space, 1.0/density);
         bdry = new BoundaryRectangularPeriodic(space, numAtoms/density);
@@ -148,7 +138,7 @@ public class TestDifferentImage1DHRAdd extends Simulation {
         mcMoveMode.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
         mcMoveMode.addChangeableWV(changeable);
         
-        meterdi = new MeterDifferentImageAdd1D("MeterDI", /*potentialMaster,*/ numAtoms, density, (Simulation)this, 
+        meterdi = new MeterDifferentImageAdd1D("MeterDI", /*potentialMaster,*/ numAtoms, density, this,
                 primitive, basis, coordinateDefinition, nm, 1.0);
         
         accumulatorDI = new AccumulatorAverageFixed(blocksize);
@@ -162,14 +152,6 @@ public class TestDifferentImage1DHRAdd extends Simulation {
         getController().addAction(activityIntegrate);
     }
 
-    public Primitive getPrimitive() {
-        return primitive;
-    }
-
-    public BasisMonatomic getBasis() {
-        return basis;
-    }
-    
     /**
      * @param args
      */
@@ -185,7 +167,7 @@ public class TestDifferentImage1DHRAdd extends Simulation {
             readParameters.readParameters();
             inputFilename = params.inputfilename;
         }
-        
+
         int nA = params.numAtoms;
         double density = params.density;
         int D = params.D;
@@ -199,7 +181,7 @@ public class TestDifferentImage1DHRAdd extends Simulation {
         long nSteps = params.numSteps;
         int bs = params.blockSize;
         String outputfn = params.outputname;
-        
+
         System.out.println("Running "
                 + (D == 1 ? "1D" : (D == 3 ? "FCC" : "2D hexagonal"))
                 + " hard sphere simulation");
@@ -211,28 +193,36 @@ public class TestDifferentImage1DHRAdd extends Simulation {
         // construct simulation
         TestDifferentImage1DHRAdd sim = new TestDifferentImage1DHRAdd(Space.getInstance(D),
                 nA, density, bs, changeableWV);
-        
+
         // start simulation
         sim.activityIntegrate.setMaxSteps(nSteps/10);
         sim.getController().actionPerformed();
         System.out.println("equilibration finished");
         sim.getController().reset();
-       
+
         sim.activityIntegrate.setMaxSteps(nSteps);
         sim.getController().actionPerformed();
-        
-      //After processing...
+
+        //After processing...
         DataGroup group = (DataGroup)sim.accumulatorDI.getData();
-        double results = ((DataDouble)group.getData(sim.accumulatorDI.AVERAGE.index)).x;
+        double results = ((DataDouble) group.getData(AccumulatorAverage.AVERAGE.index)).x;
         System.out.println("results: " + results);
-        
+
         if(D==1) {
             double AHR = -(nA-1)*Math.log(nA/density-nA)
                 + SpecialFunctions.lnFactorial(nA) ;
             System.out.println("Hard-rod free energy: "+AHR);
         }
-        
+
         System.out.println("Fini.");
+    }
+
+    public Primitive getPrimitive() {
+        return primitive;
+    }
+
+    public BasisMonatomic getBasis() {
+        return basis;
     }
     
     public static class SimParam extends ParameterBase {

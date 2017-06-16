@@ -4,7 +4,7 @@
 
 package etomica.virial.simulations;
 
-import etomica.api.IVectorMutable;
+import etomica.space.Vector;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
@@ -147,7 +147,7 @@ public class VirialHeSC {
         // Such configurations will not be visited later, precisely because pi is zero.
         double r = 4;
         for (int i=1; i<nPoints; i++) {
-            IVectorMutable v = sim.box[1].getLeafList().getAtom(i).getPosition();
+            Vector v = sim.box[1].getLeafList().getAtom(i).getPosition();
             v.setX(0, r*Math.cos(2*(i-1)*Math.PI/(nPoints-1)));
             v.setX(1, r*Math.sin(2*(i-1)*Math.PI/(nPoints-1)));
         }

@@ -6,15 +6,15 @@ package etomica.modules.pistoncylinder;
 
 import etomica.modifier.Modifier;
 import etomica.potential.P1HardMovingBoundary;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Dimension;
 
 /**
  * Modifier for the piston pressure.  Should be followed by a IntegratorPistonUpdate action.
  */
 public class ModifierPistonPressure implements Modifier {
-    public ModifierPistonPressure(ISpace _space, P1HardMovingBoundary potential,
-    		                      Dimension pressureDimension) {
+    public ModifierPistonPressure(Space _space, P1HardMovingBoundary potential,
+                                  Dimension pressureDimension) {
         pistonPotential = potential;
         pressureDim = pressureDimension;
         space = _space;
@@ -42,5 +42,5 @@ public class ModifierPistonPressure implements Modifier {
     }
     private final P1HardMovingBoundary pistonPotential;
     private final Dimension pressureDim;
-    private ISpace space;
+    private Space space;
 }

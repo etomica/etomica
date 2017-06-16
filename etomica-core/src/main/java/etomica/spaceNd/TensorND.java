@@ -5,23 +5,43 @@
 package etomica.spaceNd;
 
 import Jama.Matrix;
-import etomica.api.IFunction;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.math.function.IFunction;
+import etomica.space.Vector;
 import etomica.space.Tensor;
 
+/**
+ * Implementation of the 2nd-rank tensor class for arbitrary dimension.
+ */
 public class TensorND implements Tensor {
-    public Object clone() {
-        try {
-            return super.clone();
-        } catch (CloneNotSupportedException ex) {
-            throw new InternalError(ex.toString());
-        }
-    }
+    protected final int dim;
+    protected final double[][] x;
 
+    /**
+     * Constructs tensor with specified dimension
+     * @param dim the specified dimension. For example, if dim is equal to 3 then this class is operationally equivalent to Tensor3D.
+     */
     public TensorND(int dim) {
         this.dim = dim;
         this.x = new double[dim][dim];
+    }
+
+    /**
+     * Constructs and initializes tensor to the values given in an array.  Dimension of tensor is
+     * determined by dimensions of initializing array.
+     * @param d array specifying initial values
+     * @throws IllegalArgumentException if d is not a square array
+     */
+    public TensorND(double[][] d) {
+        dim = d.length;
+        x = new double[dim][];
+        for(int i=0; i<dim; i++) {
+            if(d[i].length != dim) throw new IllegalArgumentException("TensorND constructor expects a square array");
+            x[i] = d[i].clone();
+        }
+    }
+
+    public Object clone() {
+        return new TensorND(x);
     }
 
     public int D() {
@@ -45,31 +65,21 @@ public class TensorND implements Tensor {
         }
     }
 
-    public void E(IVector[] v) {
+    public void E(Vector[] v) {
         if(v.length != dim) {
             throw new IllegalArgumentException("Tensor requires " + dim + " vectors to set its values");
         }
         for(int i=0; i<dim; i++){
             for(int j=0; j<dim; j++){
-                x[i][j] = ((VectorND)v[i]).x[j];
+                x[i][j] = ((VectorND)v[j]).x[i];
             }
         }
     }
 
-    public void assignTo(IVectorMutable[] v) {
+    public void E(double[][] d) {
         for(int i=0; i<dim; i++){
             for(int j=0; j<dim; j++){
-                ((VectorND)v[i]).x[j] = x[i][j];
-            }
-        }
-    }
-
-    public void Ev1v2(IVector v1, IVector v2) {
-        VectorND u1 = (VectorND)v1;
-        VectorND u2 = (VectorND)v2;
-        for(int i=0; i<dim; i++){
-            for(int j=0; j<dim; j++){
-                x[i][j] = u1.x[i]*u2.x[j];
+                x[i][j] = d[i][j];
             }
         }
     }
@@ -78,6 +88,31 @@ public class TensorND implements Tensor {
         for(int i=0; i<dim; i++){
             for(int j=0; j<dim; j++){
                 x[i][j] = a;
+            }
+        }
+    }
+
+    public void diagE(Vector v) {
+        this.E(0.0);
+        for(int i=0; i<dim; i++) {
+            x[i][i] = v.getX(i);
+        }
+    }
+
+    public void assignTo(Vector[] v) {
+        for(int i=0; i<dim; i++){
+            for(int j=0; j<dim; j++){
+                ((VectorND)v[i]).x[j] = x[j][i];
+            }
+        }
+    }
+
+    public void Ev1v2(Vector v1, Vector v2) {
+        VectorND u1 = (VectorND)v1;
+        VectorND u2 = (VectorND)v2;
+        for(int i=0; i<dim; i++){
+            for(int j=0; j<dim; j++){
+                x[i][j] = u1.x[i]*u2.x[j];
             }
         }
     }
@@ -100,10 +135,10 @@ public class TensorND implements Tensor {
     }
 
     public void PE(int i, int j, double a) {
-        x[i][j] += a; 
+        x[i][j] += a;
     }
 
-    public void PEv1v2(IVector v1, IVector v2) {
+    public void PEv1v2(Vector v1, Vector v2) {
         VectorND u1 = (VectorND)v1;
         VectorND u2 = (VectorND)v2;
         for(int i=0; i<dim; i++){
@@ -113,7 +148,7 @@ public class TensorND implements Tensor {
         }
     }
 
-    public void MEv1v2(IVector v1, IVector v2) {
+    public void MEv1v2(Vector v1, Vector v2) {
         VectorND u1 = (VectorND)v1;
         VectorND u2 = (VectorND)v2;
         for(int i=0; i<dim; i++){
@@ -186,10 +221,16 @@ public class TensorND implements Tensor {
 
     public void TE(Tensor u) {
         TensorND t = (TensorND)u;
-        for(int i=0; i<dim; i++){
+        double[] w = new double[dim];
+        if(u.D() != dim) throw new IllegalArgumentException("Tensor multiplication requires two tensors of same size. Dimensions instead are: "+u.D()+", "+dim);
+        for(int i=0; i<dim; i++) {
             for(int j=0; j<dim; j++){
-                x[i][j] *= t.x[i][j];
+                w[j] = 0.0;
+                for(int k=0; k<dim; k++) {
+                    w[j] += x[i][k] * t.x[k][j];
+                }
             }
+            System.arraycopy(w,0,x[i],0,dim);
         }
     }
 
@@ -203,7 +244,14 @@ public class TensorND implements Tensor {
     }
 
     public double[] toArray() {
-        return null;
+        double[] y = new double[dim*dim];
+        int k = 0;
+        for(int i=0; i<dim; i++) {
+            for(int j=0; j<dim; j++) {
+                y[k++] = x[i][j];
+            }
+        }
+        return y;
     }
 
     public String toString() {
@@ -238,16 +286,7 @@ public class TensorND implements Tensor {
         }
     }
 
-    public void E(double[][] d) {
-        for(int i=0; i<dim; i++){
-            for(int j=0; j<dim; j++){
-                x[j][j] = d[i][j];
-            }
-        }
-    }
-
-
-    public void transform(IVectorMutable A) {
+    public void transform(Vector A) {
         VectorND tmp = new VectorND(dim);
         VectorND B = (VectorND)A;
         for(int i=0; i<dim; i++){
@@ -269,11 +308,19 @@ public class TensorND implements Tensor {
     public void assignTo(double[][] d) {
         for(int i=0; i<dim; i++){
             for(int j=0; j<dim; j++){
-                d[j][j] = x[i][j];
+                d[i][j] = x[i][j];
 
             }
         }
     }
-    protected final int dim;
-    protected final double[][] x;
+
+    public boolean equals(Tensor t) {
+        TensorND A = (TensorND)t;
+        for(int i=0; i<dim; i++) {
+            for(int j=0; j<dim; j++) {
+                if(x[i][j] != A.x[i][j]) return false;
+            }
+        }
+        return true;
+    }
 }

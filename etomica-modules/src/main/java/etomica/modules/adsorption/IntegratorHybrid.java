@@ -10,8 +10,8 @@
  */
 package etomica.modules.adsorption;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD;
@@ -41,7 +41,7 @@ public class IntegratorHybrid extends IntegratorBox {
         setMDStepRepetitions(50);
     }
 	
-	public void setBox(IBox box) {
+	public void setBox(Box box) {
 	    integratorMC.setBox(box);
 	    integratorMD.setBox(box);
 	    super.setBox(box);

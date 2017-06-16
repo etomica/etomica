@@ -6,25 +6,21 @@ package etomica.models.nitrogen;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IPotentialMaster;
-import etomica.api.IPotentialMolecular;
-import etomica.api.IRandom;
-import etomica.atom.MoleculeArrayList;
-import etomica.atom.MoleculePair;
-import etomica.atom.MoleculeSource;
-import etomica.atom.MoleculeSourceRandomMolecule;
 import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.MoleculeIterator;
-import etomica.atom.iterator.MoleculeIteratorArrayListSimple;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.integrator.mcmove.MCMoveMolecular;
+import etomica.molecule.*;
+import etomica.molecule.iterator.MoleculeIterator;
+import etomica.molecule.iterator.MoleculeIteratorArrayListSimple;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
+import etomica.potential.IPotentialMolecular;
+import etomica.potential.PotentialMaster;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * Standard Monte Carlo molecule-displacement trial move for superbox. Two molecules are 
@@ -41,8 +37,8 @@ import etomica.space.IVectorRandom;
 public class MCMoveMoleculeCoupledSuperBox extends MCMoveBoxStep implements MCMoveMolecular{
 
     
-    public MCMoveMoleculeCoupledSuperBox(IPotentialMaster potentialMaster, IRandom nRandom,
-    		                     ISpace _space, IBox box, int nC, int basis, CoordinateDefinitionNitrogenSuperBox coordinateDef){
+    public MCMoveMoleculeCoupledSuperBox(PotentialMaster potentialMaster, IRandom nRandom,
+                                         Space _space, Box box, int nC, int basis, CoordinateDefinitionNitrogenSuperBox coordinateDef){
         super(potentialMaster);
         this.random = nRandom;
         this.box = box;
@@ -61,7 +57,7 @@ public class MCMoveMoleculeCoupledSuperBox extends MCMoveBoxStep implements MCMo
         affectedMoleculeList = new MoleculeArrayList();
         
         singleAction = new AtomActionTranslateBy(_space);
-        groupTransVect = (IVectorRandom)singleAction.getTranslationVector();
+        groupTransVect = singleAction.getTranslationVector();
         
         moveMoleculeAction = new MoleculeChildAtomAction(singleAction);
         
@@ -119,7 +115,7 @@ public class MCMoveMoleculeCoupledSuperBox extends MCMoveBoxStep implements MCMo
         
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
  
     }
     
@@ -135,7 +131,7 @@ public class MCMoveMoleculeCoupledSuperBox extends MCMoveBoxStep implements MCMo
         return null;
     }
 
-	public MoleculeIterator affectedMolecules(IBox aBox) {
+	public MoleculeIterator affectedMolecules(Box aBox) {
 		   if (box == aBox) {
 			   affectedMoleculeIterator.setList(affectedMoleculeList);
 			   return affectedMoleculeIterator;
@@ -273,7 +269,7 @@ public class MCMoveMoleculeCoupledSuperBox extends MCMoveBoxStep implements MCMo
     
     private static final long serialVersionUID = 1L;
     protected final MoleculeChildAtomAction moveMoleculeAction;
-    protected final IVectorRandom groupTransVect;
+    protected final Vector groupTransVect;
     protected IMolecule molecule0, molecule1;
     protected final MeterPotentialEnergy energyMeter;
     protected MoleculeSource moleculeSource;

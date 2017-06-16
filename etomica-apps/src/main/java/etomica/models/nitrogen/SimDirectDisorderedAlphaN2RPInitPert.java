@@ -4,19 +4,13 @@
 
 package etomica.models.nitrogen;
 
-import java.io.File;
-
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IBox;
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
@@ -30,8 +24,11 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.species.Species;
 import etomica.units.Kelvin;
+
+import java.io.File;
 
 /**
  * Direct Sampling for Rotational Perturbation
@@ -190,9 +187,9 @@ public class SimDirectDisorderedAlphaN2RPInitPert extends Simulation {
         sim.getController().actionPerformed();
 
         sim.writeConfiguration(configFileName);
-        double average = ((DataGroup)sim.boltzmannAverage.getData()).getValue(sim.boltzmannAverage.AVERAGE.index);
-        double error = ((DataGroup)sim.boltzmannAverage.getData()).getValue(sim.boltzmannAverage.ERROR.index);
-        double blockCorrelation = ((DataGroup)sim.boltzmannAverage.getData()).getValue(sim.boltzmannAverage.BLOCK_CORRELATION.index);
+        double average = sim.boltzmannAverage.getData().getValue(sim.boltzmannAverage.AVERAGE.index);
+        double error = sim.boltzmannAverage.getData().getValue(sim.boltzmannAverage.ERROR.index);
+        double blockCorrelation = sim.boltzmannAverage.getData().getValue(sim.boltzmannAverage.BLOCK_CORRELATION.index);
         
         System.out.println("blockCorrelation: " + blockCorrelation);
         System.out.println("boltzmann average: " + average + " ;err: " + error +" ;errC: "+ error*Math.sqrt((1+blockCorrelation)/(1-blockCorrelation)));
@@ -206,6 +203,6 @@ public class SimDirectDisorderedAlphaN2RPInitPert extends Simulation {
     private static final long serialVersionUID = 1L;
     protected ActivityIntegrate activityIntegrate;
     protected AccumulatorAverageFixed boltzmannAverage;
-    protected IBox box;
+    protected Box box;
 
 }

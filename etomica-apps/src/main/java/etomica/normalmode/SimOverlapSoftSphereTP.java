@@ -4,19 +4,12 @@
 
 package etomica.normalmode;
 
-import java.awt.Color;
-
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtom;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
-import etomica.data.AccumulatorAverageCovariance;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.DataPumpListener;
-import etomica.data.DataSourceCountSteps;
-import etomica.data.IData;
+import etomica.data.*;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPressure;
 import etomica.data.types.DataGroup;
@@ -25,20 +18,13 @@ import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBoxSize;
-import etomica.lattice.crystal.Basis;
-import etomica.lattice.crystal.BasisCubicFcc;
-import etomica.lattice.crystal.Primitive;
-import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.lattice.crystal.PrimitiveTriclinic;
+import etomica.lattice.crystal.*;
+import etomica.math.function.Function;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.list.BoxAgentSourceCellManagerList;
 import etomica.nbr.list.NeighborListManagerSlanty;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.potential.P2SoftSphere;
-import etomica.potential.P2SoftSphericalTruncated;
-import etomica.potential.P2SoftSphericalTruncatedShifted;
-import etomica.potential.Potential2SoftSpherical;
-import etomica.potential.PotentialMaster;
+import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
@@ -46,9 +32,10 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.Function;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+
+import java.awt.*;
 
 /**
  * Simulation to run sampling with the hard sphere potential, but measuring
@@ -61,9 +48,23 @@ import etomica.util.ParseArgs;
  */
 public class SimOverlapSoftSphereTP extends Simulation {
 
+    public IntegratorMC integrator;
+    public ActivityIntegrate activityIntegrate;
+    public Box box;
+    public Boundary boundary;
+    public CoordinateDefinitionLeaf coordinateDefinition;
+    public int[] nCells;
+    public Basis basis;
+    public Primitive primitive;
+    public AccumulatorAverageFixed accumulator;
+    public DataPumpListener accumulatorPump;
+    public MeterTargetTP meter;
+    protected MCMoveAtomCoupled atomMove;
+    protected PotentialMaster potentialMaster;
+    protected double latticeEnergy;
     public SimOverlapSoftSphereTP(Space _space, int numAtoms, boolean slanty, boolean flex, double density, double temperature, double[] otherTemperatures, double[] alpha, int exponent, int numAlpha, double alphaSpan, long numSteps, double rc) {
         super(_space);
-        
+
         if (slanty) {
             BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, space);
             BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class);
@@ -72,7 +73,7 @@ public class SimOverlapSoftSphereTP extends Simulation {
         else {
             potentialMaster = new PotentialMasterList(this, space);
         }
-        
+
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
@@ -90,31 +91,31 @@ public class SimOverlapSoftSphereTP extends Simulation {
         atomMove.setDoExcludeNonNeighbors(true);
         integrator.getMoveManager().addMCMove(atomMove);
 //        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
-        
+
         double nbrDistance = 0;
         if (slanty) {
             int c = (int)Math.round(Math.pow(numAtoms, 1.0/3.0));
             nCells = new int[]{c,c,c};
-            
+
             double L = Math.pow(Math.sqrt(2)/density, 1.0/3.0);
             nbrDistance = L;
             double angle = Math.PI/3;
-          
+
 //            primitive = new PrimitiveFcc(space, L*c);
             primitive = new PrimitiveTriclinic(space, L*c,L*c,L*c, angle,angle,angle);
-         
+
             boundary = new BoundaryDeformablePeriodic(space, primitive.vectors());
             ((BoundaryDeformablePeriodic)boundary).setTruncationRadius(rc);
             Basis basisSimple = new Basis(new Vector3D[]{new Vector3D(0.0, 0.0, 0.0)});
             basis = new BasisBigCell(space, basisSimple, nCells);
         }
         else {
-            
+
             double L = Math.pow(4.0/density, 1.0/3.0);
             nbrDistance = L / Math.sqrt(2);
             int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
             primitive = new PrimitiveCubic(space, n*L);
-            
+
             nCells = new int[]{n,n,n};
             boundary = new BoundaryRectangularPeriodic(space, n * L);
             Basis basisFCC = new BasisCubicFcc();
@@ -129,14 +130,14 @@ public class SimOverlapSoftSphereTP extends Simulation {
         Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, exponent);
      	if(potentialMaster instanceof PotentialMasterList){
 			potential = new P2SoftSphericalTruncated(space, potential, rc);
-		
+
 		} else {
 			potential = new P2SoftSphericalTruncatedShifted(space, potential, rc);
-			
+
 		}
         atomMove.setPotential(potential);
-        IAtomType sphereType = species.getLeafType();
-        potentialMaster.addPotential(potential, new IAtomType[] {sphereType, sphereType });
+        AtomType sphereType = species.getLeafType();
+        potentialMaster.addPotential(potential, new AtomType[]{sphereType, sphereType});
 
         if (flex) {
             MCMoveBoxSize moveBoxSize = new MCMoveBoxSize(potentialMaster, random, space);
@@ -146,7 +147,7 @@ public class SimOverlapSoftSphereTP extends Simulation {
         /*
          *  1-body Potential to Constraint the atom from moving too far
          *  	away from its lattice-site
-         *  
+         *
          */
 
         P1ConstraintNbr p1Constraint = new P1ConstraintNbr(space, nbrDistance, this);
@@ -154,7 +155,7 @@ public class SimOverlapSoftSphereTP extends Simulation {
         atomMove.setConstraint(p1Constraint);
 
         potentialMaster.lrcMaster().setEnabled(false);
-    
+
         integrator.setBox(box);
 
 		if (potentialMaster instanceof PotentialMasterList) {
@@ -168,8 +169,8 @@ public class SimOverlapSoftSphereTP extends Simulation {
                 throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
             }
 		}
-        
-		// this is the meterPE we gave to the MCMove but it hasn't called setTarget yet, so we're OK
+
+        // this is the meterPE we gave to the MCMove but it hasn't called setTarget yet, so we're OK
         latticeEnergy = meterPE.getDataAsScalar();
 
         meter = new MeterTargetTP(potentialMaster, species, space, this);
@@ -194,30 +195,18 @@ public class SimOverlapSoftSphereTP extends Simulation {
         }
         accumulatorPump = new DataPumpListener(meter, accumulator, interval);
         integrator.getEventManager().addListener(accumulatorPump);
-       
+
         activityIntegrate = new ActivityIntegrate(integrator);
-        
+
         getController().addAction(activityIntegrate);
-        
+
         if (potentialMaster instanceof PotentialMasterList) {
             // extend potential range, so that atoms that move outside the truncation range will still interact
             // atoms that move in will not interact since they won't be neighbors
             ((P2SoftSphericalTruncated)potential).setTruncationRadius(0.6*boundary.getBoxSize().getX(0));
         }
     }
-    
-    public void initialize(long initSteps) {
-        // equilibrate off the lattice to avoid anomolous contributions
-        activityIntegrate.setMaxSteps(initSteps);
-        getController().actionPerformed();
-        getController().reset();
 
-        accumulator.reset();
-
-        getController().reset();
-
-    }
-    
     /**
      * @param args filename containing simulation parameters
      * @see SimOverlapSoftSphereTP.SimOverlapParam
@@ -246,7 +235,7 @@ public class SimOverlapSoftSphereTP extends Simulation {
         double alphaSpan = params.alphaSpan;
         double rc = params.rc;
         double pEst = params.pEst;
-        
+
         System.out.println("Running soft sphere overlap simulation");
         System.out.println(numAtoms+" atoms at density "+density+" and temperature "+temperature);
         System.out.println("exponent N: "+ exponentN);
@@ -258,6 +247,8 @@ public class SimOverlapSoftSphereTP extends Simulation {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
             simGraphic.setPaintInterval(sim.box, 1000);
             ColorScheme colorScheme = new ColorScheme() {
+                protected Color[] allColors;
+
                 public Color getAtomColor(IAtom a) {
                     if (allColors==null) {
                         allColors = new Color[768];
@@ -273,16 +264,15 @@ public class SimOverlapSoftSphereTP extends Simulation {
                     }
                     return allColors[(2*a.getLeafIndex()) % 768];
                 }
-                protected Color[] allColors;
             };
             simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
-            
+
             DisplayTextBox timer = new DisplayTextBox();
             DataSourceCountSteps counter = new DataSourceCountSteps(sim.integrator);
             DataPumpListener counterPump = new DataPumpListener(counter, timer, 100);
             sim.integrator.getEventManager().addListener(counterPump);
             simGraphic.getPanel().controlPanel.add(timer.graphic());
-            
+
             simGraphic.makeAndDisplayFrame("SS");
             return;
         }
@@ -314,12 +304,12 @@ public class SimOverlapSoftSphereTP extends Simulation {
 //            System.out.println(lntheta+" "+u1+" "+u2);
 //        }
 //        System.exit(0);
-        
+
         //start simulation
 
         sim.initialize(numAtoms*50);
         System.out.flush();
-        
+
         MeterPressure meterPressure = new MeterPressure(sim.getSpace());
         meterPressure.setIntegrator(sim.integrator);
         AccumulatorAverageFixed accP = new AccumulatorAverageFixed(sim.accumulator.getBlockSize());
@@ -335,7 +325,7 @@ public class SimOverlapSoftSphereTP extends Simulation {
         AccumulatorAverageFixed accSolidP = new AccumulatorAverageFixed(sim.accumulator.getBlockSize());
         DataPumpListener pumpSolidP = new DataPumpListener(meterSolidPressure, accSolidP, numAtoms);
         sim.integrator.getEventManager().addListener(pumpSolidP);
-        
+
         MeterSolidPressure meterSolidPressureLow = new MeterSolidPressure(sim.getSpace(), sim.potentialMaster, sim.coordinateDefinition);
         meterSolidPressureLow.setPressureEstimate(pEst-1, pLattice);
         meterSolidPressureLow.setTemperature(temperature);
@@ -364,31 +354,31 @@ public class SimOverlapSoftSphereTP extends Simulation {
         AccumulatorAverageFixed accDP = new AccumulatorAverageFixed(sim.accumulator.getBlockSize());
         DataPumpListener pumpDP = new DataPumpListener(meterDP, null, numAtoms);
         sim.integrator.getEventManager().addListener(pumpDP);
-        
-        
+
+
         final long startTime = System.currentTimeMillis();
-       
+
         sim.activityIntegrate.setMaxSteps(numSteps);
 
         //MeterTargetTP.openFW("x"+numMolecules+".dat");
         sim.getController().actionPerformed();
         //MeterTargetTP.closeFW();
 
-        double avgP = accP.getData(accP.AVERAGE).getValue(0);
-        double errP = accP.getData(accP.ERROR).getValue(0);
-        double corP = accP.getData(accP.BLOCK_CORRELATION).getValue(0);
+        double avgP = accP.getData(AccumulatorAverage.AVERAGE).getValue(0);
+        double errP = accP.getData(AccumulatorAverage.ERROR).getValue(0);
+        double corP = accP.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
         System.out.println(String.format("pressure: %20.15e %10.4e %3.2f\n", avgP, errP, corP));
 
         /*
         double avgSP = accSolidP.getData(accSolidP.AVERAGE).getValue(0);
         double errSP = accSolidP.getData(accSolidP.ERROR).getValue(0);
         double corSP = accSolidP.getData(accSolidP.BLOCK_CORRELATION).getValue(0);
-        System.out.println(String.format("solid pressure: %20.15e %10.4e %3.2f\n", avgSP, errSP, corSP));        
+        System.out.println(String.format("solid pressure: %20.15e %10.4e %3.2f\n", avgSP, errSP, corSP));
 
         double avgSPL = accSolidPLow.getData(accSolidPLow.AVERAGE).getValue(0);
         double errSPL = accSolidPLow.getData(accSolidPLow.ERROR).getValue(0);
         double corSPL = accSolidPLow.getData(accSolidPLow.BLOCK_CORRELATION).getValue(0);
-        System.out.println(String.format("solid pressure (low): %20.15e %10.4e %3.2f\n", avgSPL, errSPL, corSPL));        
+        System.out.println(String.format("solid pressure (low): %20.15e %10.4e %3.2f\n", avgSPL, errSPL, corSPL));
 
         double avgSPH = accSolidPHigh.getData(accSolidPHigh.AVERAGE).getValue(0);
         double errSPH = accSolidPHigh.getData(accSolidPHigh.ERROR).getValue(0);
@@ -399,9 +389,9 @@ public class SimOverlapSoftSphereTP extends Simulation {
         System.out.println("\nratio averages:\n");
 
         DataGroup data = (DataGroup)sim.accumulator.getData();
-        IData dataErr = data.getData(sim.accumulator.ERROR.index);
-        IData dataAvg = data.getData(sim.accumulator.AVERAGE.index);
-        IData dataCorrelation = data.getData(sim.accumulator.BLOCK_CORRELATION.index);
+        IData dataErr = data.getData(AccumulatorAverage.ERROR.index);
+        IData dataAvg = data.getData(AccumulatorAverage.AVERAGE.index);
+        IData dataCorrelation = data.getData(AccumulatorAverage.BLOCK_CORRELATION.index);
         for (int i=0; i<otherTemperatures.length; i++) {
             System.out.println(otherTemperatures[i]);
             double[] iAlpha = sim.meter.getAlpha(i);
@@ -411,13 +401,13 @@ public class SimOverlapSoftSphereTP extends Simulation {
                         +" "+dataCorrelation.getValue(i*numAlpha+j));
             }
         }
-        
+
         if (otherTemperatures.length == 2) {
             // we really kinda want each covariance for every possible pair of alphas,
             // but we're going to be interpolating anyway and the covariance is almost
             // completely insensitive to choice of alpha.  so just take the covariance for
             // the middle alphas.
-            IData dataCov = data.getData(((AccumulatorAverageCovariance)sim.accumulator).BLOCK_COVARIANCE.index);
+            IData dataCov = data.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
             System.out.print("covariance "+otherTemperatures[1]+" / "+otherTemperatures[0]+"   ");
             for (int i=0; i<numAlpha; i++) {
                 i = (numAlpha-1)/2;
@@ -436,25 +426,22 @@ public class SimOverlapSoftSphereTP extends Simulation {
                 break;
             }
         }
-        
+
         long endTime = System.currentTimeMillis();
         System.out.println("Time taken: " + (endTime - startTime)/1000.0);
     }
 
-    public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
-    public IBox box;
-    public Boundary boundary;
-    public CoordinateDefinitionLeaf coordinateDefinition;
-    public int[] nCells;
-    public Basis basis;
-    public Primitive primitive;
-    public AccumulatorAverageFixed accumulator;
-    public DataPumpListener accumulatorPump;
-    public MeterTargetTP meter;
-    protected MCMoveAtomCoupled atomMove;
-    protected PotentialMaster potentialMaster;
-    protected double latticeEnergy;
+    public void initialize(long initSteps) {
+        // equilibrate off the lattice to avoid anomolous contributions
+        activityIntegrate.setMaxSteps(initSteps);
+        getController().actionPerformed();
+        getController().reset();
+
+        accumulator.reset();
+
+        getController().reset();
+
+    }
     
     /**
      * Inner class for parameters understood by the HSMD3D constructor

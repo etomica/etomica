@@ -6,13 +6,13 @@ package etomica.rotation;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IMolecule;
 import etomica.box.Box;
 import etomica.config.ConformationLinear;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerletRattle;
 import etomica.integrator.IntegratorVelocityVerletShake;
 import etomica.listener.IntegratorListenerAction;
+import etomica.molecule.IMolecule;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -38,7 +38,7 @@ public class SingleDumbellRattle {
         box.setDensity(0.01/18.0*Constants.AVOGADRO/1E24);
 //        new ConfigurationLattice(new LatticeCubicFcc(), space).initializeCoordinates(box);
         IMolecule molecule = box.getMoleculeList(species).getMolecule(0);
-        ((ConformationLinear)species.getConformation()).initializePositions(molecule.getChildList());
+        species.getConformation().initializePositions(molecule.getChildList());
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeStep = 2*Math.PI/100;
         int maxIterations = 20;

@@ -4,13 +4,13 @@
 
 package etomica.potential;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
+import etomica.space.Boundary;
+import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * Two-centered Lennard Jones molecule with a quadrupole.
@@ -19,11 +19,11 @@ import etomica.space.ISpace;
  */
 public class P22CLJQ extends PotentialMolecular {
 
-    public P22CLJQ(ISpace space) {
+    public P22CLJQ(Space space) {
         this(space, 1, 1, 1);
     }
 
-    public P22CLJQ(ISpace space, double sigma, double epsilon,  double moment) {
+    public P22CLJQ(Space space, double sigma, double epsilon, double moment) {
         super(2, space);
         setSigma(sigma);
         setEpsilon(epsilon);
@@ -40,7 +40,7 @@ public class P22CLJQ extends PotentialMolecular {
         hsdiasq=val;
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 
@@ -51,7 +51,7 @@ public class P22CLJQ extends PotentialMolecular {
     public double energy(IMoleculeList pair){
         double ener=0.0;
 
-        IAtomList mol1 = pair.getMolecule(0).getChildList(); 
+        IAtomList mol1 = pair.getMolecule(0).getChildList();
         IAtomList mol2 = pair.getMolecule(1).getChildList(); 
         IAtom bead11 = mol1.getAtom(0);
         IAtom bead12 = mol1.getAtom(1);
@@ -161,12 +161,12 @@ public class P22CLJQ extends PotentialMolecular {
     private double epsilon, epsilon4;
     private double hsdiasq=1.0/Math.sqrt(2);
     private double Q2;
-    private IBoundary boundary;
+    private Boundary boundary;
 
-    private final IVectorMutable com1;
-    private final IVectorMutable com2;
-    private final IVectorMutable v12;
-    private final IVectorMutable v1;
-    private final IVectorMutable v2;
-    private final IVectorMutable dr;
+    private final Vector com1;
+    private final Vector com2;
+    private final Vector v12;
+    private final Vector v1;
+    private final Vector v2;
+    private final Vector dr;
 }

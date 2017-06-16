@@ -3,27 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.virial;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.AtomPositionGeometricCenterAlkaneEH;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.atom.MoleculeArrayList;
+
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveStepTracker;
+import etomica.molecule.*;
 import etomica.potential.P4BondTorsion;
-import etomica.potential.P4BondTorsionAlkaneXCCH;
-import etomica.space.ISpace;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.RotationTensor3D;
+import etomica.species.ISpecies;
+import etomica.util.random.IRandom;
 
 /**
  * MC move for alkane-TraPPE-EH torsion
@@ -33,7 +28,7 @@ import etomica.space3d.RotationTensor3D;
  * Feb 2013
  */
 public class MCMoveClusterTorsionAlkaneEH extends MCMoveMolecule {
-    public MCMoveClusterTorsionAlkaneEH(ISimulation sim, IPotentialMaster potentialMaster, ISpace space, P4BondTorsion torsionPotential) {
+    public MCMoveClusterTorsionAlkaneEH(Simulation sim, PotentialMaster potentialMaster, Space space, P4BondTorsion torsionPotential) {
     this(potentialMaster, space, sim.getRandom(), 1.0,torsionPotential, 20);
         setBondLength(1.0);
     }
@@ -43,8 +38,8 @@ public class MCMoveClusterTorsionAlkaneEH extends MCMoveMolecule {
      * @param nAtoms number of atoms to move in a trial.  Number of atoms in box should be at least one greater than this value (greater
      * because first atom is never moved)
      */
-    public MCMoveClusterTorsionAlkaneEH(IPotentialMaster potentialMaster, ISpace space,
-            IRandom random, double stepSize, P4BondTorsion torsionPotential, int nBins) {
+    public MCMoveClusterTorsionAlkaneEH(PotentialMaster potentialMaster, Space space,
+                                        IRandom random, double stepSize, P4BondTorsion torsionPotential, int nBins) {
     	super(potentialMaster,random,space,stepSize,Double.POSITIVE_INFINITY);
         ((MCMoveStepTracker)getTracker()).setTunable(false);
         probabilityBins = new double[nBins+1];
@@ -61,7 +56,7 @@ public class MCMoveClusterTorsionAlkaneEH extends MCMoveMolecule {
         dr34 = space.makeVector();
         oldCenter = space.makeVector();
     }
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         ((MCMoveStepTracker)getTracker()).setTunable(false);
@@ -177,7 +172,7 @@ public class MCMoveClusterTorsionAlkaneEH extends MCMoveMolecule {
     
     public void setSpecies(ISpecies newSpecies) {
         species = newSpecies;
-        positionDefinition = new AtomPositionGeometricCenterAlkaneEH(space,species);
+        positionDefinition = new MoleculePositionGeometricCenterAlkaneEH(space,species);
 
     }
     
@@ -206,11 +201,11 @@ public class MCMoveClusterTorsionAlkaneEH extends MCMoveMolecule {
             IAtom atom1 = childList.getAtom(j+1);
             IAtom atom2 = childList.getAtom(j+2);
             IAtom atom3 = childList.getAtom(j+3);
-            IVectorMutable atom1Position = atom1.getPosition();// use for rotation tensor, the "fixed point" on the rotating axis
+            Vector atom1Position = atom1.getPosition();// use for rotation tensor, the "fixed point" on the rotating axis
 
             // axis: (j+2)-(j+1)
             RotationTensor3D rotationTensor = (RotationTensor3D)(space.makeRotationTensor());
-            IVectorMutable axis = space.makeVector();
+            Vector axis = space.makeVector();
             axis.Ev1Mv2(atom2.getPosition(), atom1Position);//r(j+2)-r(j+1)
             axis.normalize();
             dr21.Ev1Mv2(atom0.getPosition(), atom1.getPosition());
@@ -276,7 +271,7 @@ public class MCMoveClusterTorsionAlkaneEH extends MCMoveMolecule {
   //          	System.out.println("deltaphi value is : " + deltaphi);
             	
             	 IAtom atom = childList.getAtom(k);
-                 IVectorMutable atomPosition = atom.getPosition();
+                 Vector atomPosition = atom.getPosition();
                  oldPositions[i][k].E(atomPosition);
                  
                 if ( (k==(j+1)) ||  (k==(j+2)) ){//1
@@ -335,7 +330,7 @@ public class MCMoveClusterTorsionAlkaneEH extends MCMoveMolecule {
     protected void selectMolecules() {
         IMoleculeList molecules = box.getMoleculeList();
         selectedMolecules = new MoleculeArrayList();
-        oldPositions = new IVectorMutable[molecules.getMoleculeCount()][0];
+        oldPositions = new Vector[molecules.getMoleculeCount()][0];
         int i=0;
         for (int k=0; k < molecules.getMoleculeCount();k++) {
             IMolecule a = molecules.getMolecule(k);
@@ -343,7 +338,7 @@ public class MCMoveClusterTorsionAlkaneEH extends MCMoveMolecule {
             if (numChildren<14) { //at least C4H10, total atoms:14
                 continue;
             }
-            oldPositions[i] = new IVectorMutable[numChildren];
+            oldPositions[i] = new Vector[numChildren];
             for (int j=0; j<numChildren; j++) {
                 oldPositions[i][j] = space.makeVector();
             }
@@ -378,16 +373,16 @@ public class MCMoveClusterTorsionAlkaneEH extends MCMoveMolecule {
     private static final long serialVersionUID = 1L;
     protected final MeterPotentialEnergy energyMeter;
     protected final P4BondTorsion torsionPotential;
-    protected IAtomPositionDefinition positionDefinition;
+    protected IMoleculePositionDefinition positionDefinition;
     protected final double[] probabilityBins;
     protected final double[] binSize;
     protected final int[] probabilityReverseMap;
     protected MoleculeArrayList selectedMolecules;
     protected double bondLength;
-    protected final IVectorMutable work1, work2, work3;
-    protected final IVectorMutable dr21, dr23, dr34;
-    protected IVectorMutable[][] oldPositions;
-    protected final IVectorMutable oldCenter;
+    protected final Vector work1, work2, work3;
+    protected final Vector dr21, dr23, dr34;
+    protected Vector[][] oldPositions;
+    protected final Vector oldCenter;
     protected double wOld, wNew, bias;
     protected ISpecies species;
 

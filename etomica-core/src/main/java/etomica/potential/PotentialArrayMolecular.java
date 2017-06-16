@@ -8,7 +8,6 @@
  */
 package etomica.potential;
 
-import etomica.api.IPotentialMolecular;
 import etomica.nbr.molecule.NeighborCriterionMolecular;
 import etomica.util.Arrays;
 

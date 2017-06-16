@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 
 import etomica.action.IAction;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.data.AccumulatorAverageBlockless;
 import etomica.data.AccumulatorAverageBlockless.AllData;
 import etomica.data.DataTag;

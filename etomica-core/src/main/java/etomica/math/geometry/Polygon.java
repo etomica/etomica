@@ -4,8 +4,8 @@
 
 package etomica.math.geometry;
 
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Vector;
+import etomica.space.Space;
 
 /**
  * Representation of a mathematical polygon, a 2-dimensional polytope. Contains
@@ -20,7 +20,7 @@ public abstract class Polygon extends Polytope {
     /**
      * Constructs a polygon with the given number of sides arranged in a closed loop.
      */
-    protected Polygon(ISpace embeddedSpace, int nSides) {
+    protected Polygon(Space embeddedSpace, int nSides) {
         this(makeEdges(embeddedSpace, nSides));
     }
 
@@ -32,8 +32,8 @@ public abstract class Polygon extends Polytope {
         this.edges = edges;
     }
     
-    private static LineSegment[] makeEdges(ISpace embeddedSpace, int nSides) {
-        IVectorMutable[] vertices = embeddedSpace.makeVectorArray(nSides);
+    private static LineSegment[] makeEdges(Space embeddedSpace, int nSides) {
+        Vector[] vertices = embeddedSpace.makeVectorArray(nSides);
         LineSegment[] edges = new LineSegment[nSides];
         for (int i = 1; i < nSides; i++) {
             edges[i] = new LineSegment(embeddedSpace,

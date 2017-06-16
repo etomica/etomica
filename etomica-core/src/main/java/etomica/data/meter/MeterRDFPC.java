@@ -3,21 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.data.meter;
+
 import etomica.action.IAction;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.atom.iterator.IteratorDirective;
-import etomica.data.DataSourceIndependent;
-import etomica.data.DataSourceUniform;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.box.Box;
+import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.space.ISpace;
+import etomica.potential.IteratorDirective;
+import etomica.potential.PotentialMaster;
+import etomica.space.Space;
 import etomica.units.Null;
 
 /**
@@ -36,7 +32,7 @@ public class MeterRDFPC implements IAction, IEtomicaDataSource, DataSourceIndepe
 	 * Creates meter with default to compute pair correlation for all
 	 * leaf atoms in a box.
 	 */
-    public MeterRDFPC(ISpace space, IPotentialMaster potentialMaster, IBox box) {
+    public MeterRDFPC(Space space, PotentialMaster potentialMaster, Box box) {
 	    this.space = space;
 	    
 	    this.potentialMaster = potentialMaster;
@@ -141,13 +137,13 @@ public class MeterRDFPC implements IAction, IEtomicaDataSource, DataSourceIndepe
     /**
      * @return Returns the box.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     /**
      * @param box The box to set.
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         pc.setBox(box);
         this.box = box;
     }
@@ -160,8 +156,8 @@ public class MeterRDFPC implements IAction, IEtomicaDataSource, DataSourceIndepe
         this.name = name;
     }
     
-    protected IBox box;
-    protected final ISpace space;
+    protected Box box;
+    protected final Space space;
     protected DataFunction data;
     private IEtomicaDataInfo dataInfo;
     protected DataDoubleArray rData;
@@ -171,6 +167,6 @@ public class MeterRDFPC implements IAction, IEtomicaDataSource, DataSourceIndepe
     private String name;
     protected final DataTag tag;
     protected long callCount;
-    protected final IPotentialMaster potentialMaster;
+    protected final PotentialMaster potentialMaster;
     protected final PotentialCalculationRDF pc;
 }

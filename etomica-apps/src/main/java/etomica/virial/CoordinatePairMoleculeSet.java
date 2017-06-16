@@ -4,13 +4,12 @@
 
 package etomica.virial;
 
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.IMoleculePositionDefinition;
+import etomica.molecule.MoleculePositionGeometricCenter;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.util.Debug;
 
 /**
@@ -29,23 +28,23 @@ public class CoordinatePairMoleculeSet implements CoordinatePairSet {
      * Constructor for CoordinatePairLeafSet.
      * @param list The list of atoms for which the set of pairs is formed.
      */
-    public CoordinatePairMoleculeSet(IMoleculeList list, ISpace space) {
+    public CoordinatePairMoleculeSet(IMoleculeList list, Space space) {
         numAtoms = list.getMoleculeCount();
         atoms = new IMolecule[numAtoms];
         r2 = new double[numAtoms*numAtoms];
         setAtoms(list);
         dr = space.makeVector();
         iPosition = space.makeVector();
-        positionDefinition = new AtomPositionGeometricCenter(space);
+        positionDefinition = new MoleculePositionGeometricCenter(space);
     }
     
     
-    public IAtomPositionDefinition getPositionDefinition() {
+    public IMoleculePositionDefinition getPositionDefinition() {
 		return positionDefinition;
 	}
 
 
-	public void setPositionDefinition(IAtomPositionDefinition positionDefinition) {
+	public void setPositionDefinition(IMoleculePositionDefinition positionDefinition) {
 		this.positionDefinition = positionDefinition;
 	}
 
@@ -70,7 +69,7 @@ public class CoordinatePairMoleculeSet implements CoordinatePairSet {
             iPosition.E(positionDefinition.position(iAtom));
             for(int j=i+1; j<numAtoms; j++) {
                 IMolecule jAtom = atoms[j];
-                IVector jPosition = positionDefinition.position(jAtom);
+                Vector jPosition = positionDefinition.position(jAtom);
                 dr.Ev1Mv2(iPosition, jPosition);
                 r2[i*numAtoms+j] = dr.squared();
             }
@@ -93,8 +92,8 @@ public class CoordinatePairMoleculeSet implements CoordinatePairSet {
     protected final double[] r2;
     protected final IMolecule[] atoms;
     protected final int numAtoms;
-    protected final IVectorMutable dr;
-    protected final IVectorMutable iPosition;
+    protected final Vector dr;
+    protected final Vector iPosition;
     protected long ID;
-    protected IAtomPositionDefinition positionDefinition;
+    protected IMoleculePositionDefinition positionDefinition;
 }

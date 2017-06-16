@@ -1,13 +1,13 @@
 package etomica.config;
 
-import etomica.api.IAtomList;
-import etomica.api.IVector;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
 
 public class ConformationGeneric implements IConformation {
 
-	protected final IVector[] coords;
+	protected final Vector[] coords;
 	
-	public ConformationGeneric(IVector[] coords) {
+	public ConformationGeneric(Vector[] coords) {
 		this.coords = coords;
 	}
 	

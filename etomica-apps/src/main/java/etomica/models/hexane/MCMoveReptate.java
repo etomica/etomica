@@ -4,29 +4,28 @@
 
 package etomica.models.hexane;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
-import etomica.api.IVectorMutable;
-import etomica.atom.MoleculeSource;
-import etomica.atom.MoleculeSourceRandomMolecule;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomIterator;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculeSource;
+import etomica.molecule.MoleculeSourceRandomMolecule;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 public class MCMoveReptate extends MCMoveBoxStep {
     
-    public MCMoveReptate(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space){
+    public MCMoveReptate(Simulation sim, PotentialMaster potentialMaster, Space _space){
         this(potentialMaster, sim.getRandom(), 1.0, 15.0, false, _space);
     }
     
-    public MCMoveReptate(IPotentialMaster potentialMaster, IRandom random, 
-            double stepSize, double stepSizeMax, boolean fixOverlap, ISpace _space){
+    public MCMoveReptate(PotentialMaster potentialMaster, IRandom random,
+                         double stepSize, double stepSizeMax, boolean fixOverlap, Space _space){
         super(potentialMaster);
         this.space = _space;
         this.random = random;
@@ -92,10 +91,10 @@ public class MCMoveReptate extends MCMoveBoxStep {
        int numChildren = childlist.getAtomCount();
        
        if(forward){
-           IVectorMutable position = childlist.getAtom(numChildren-1).getPosition();
+           Vector position = childlist.getAtom(numChildren-1).getPosition();
            positionOld.E(position);
            for (int j = numChildren - 1; j > 0; j--) {
-               IVectorMutable position2 = childlist.getAtom(j-1).getPosition();
+               Vector position2 = childlist.getAtom(j-1).getPosition();
                position.E(position2);
                position = position2;
            }
@@ -104,10 +103,10 @@ public class MCMoveReptate extends MCMoveBoxStep {
            childlist.getAtom(0).getPosition().PE(tempV);
        }
        else {
-           IVectorMutable position = childlist.getAtom(0).getPosition();
+           Vector position = childlist.getAtom(0).getPosition();
            positionOld.E(position);
            for(int j = 0; j < numChildren-1; j++){
-               IVectorMutable position2 = childlist.getAtom(j+1).getPosition();
+               Vector position2 = childlist.getAtom(j+1).getPosition();
                position.E(position2);
                position = position2;
            }
@@ -138,18 +137,18 @@ public class MCMoveReptate extends MCMoveBoxStep {
         IAtomList childlist = atom.getChildList();
         int numChildren = childlist.getAtomCount();
         if (!forward) {
-            IVectorMutable position = childlist.getAtom(numChildren-1).getPosition();
+            Vector position = childlist.getAtom(numChildren-1).getPosition();
             for (int j=numChildren-1; j>0; j--) {
-                IVectorMutable position2 = childlist.getAtom(j-1).getPosition();
+                Vector position2 = childlist.getAtom(j-1).getPosition();
                 position.E(position2);
                 position = position2;
             }
             childlist.getAtom(0).getPosition().E(positionOld);
         }
         else {
-            IVectorMutable position = childlist.getAtom(0).getPosition();
+            Vector position = childlist.getAtom(0).getPosition();
             for (int j=0; j<numChildren-1; j++) {
-                IVectorMutable position2 = childlist.getAtom(j+1).getPosition();
+                Vector position2 = childlist.getAtom(j+1).getPosition();
                 position.E(position2);
                 position = position2;
             }
@@ -165,11 +164,11 @@ public class MCMoveReptate extends MCMoveBoxStep {
     
     public double energyChange(){return uNew - uOld;}
      
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         atomSource.setBox(p);
-        tempV = (IVectorRandom)space.makeVector();
+        tempV = space.makeVector();
         positionOld = space.makeVector();
     }
     
@@ -199,12 +198,12 @@ public class MCMoveReptate extends MCMoveBoxStep {
     protected double uNew = Double.NaN;
     protected MoleculeSource atomSource;
     protected boolean fixOverlap;
-    private IVectorRandom tempV;
-    private IVectorMutable positionOld;
+    private Vector tempV;
+    private Vector positionOld;
     private boolean forward;
     private double bondLength;
     protected final IRandom random;
-    private final ISpace space;
+    private final Space space;
     
     
 }

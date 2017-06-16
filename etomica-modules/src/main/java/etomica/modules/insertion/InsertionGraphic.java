@@ -19,9 +19,10 @@ import javax.swing.border.TitledBorder;
 
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
+import etomica.math.function.Function;
+import etomica.space.Vector;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
@@ -62,9 +63,9 @@ import etomica.units.Dimension;
 import etomica.units.Length;
 import etomica.units.Null;
 import etomica.units.Pixel;
-import etomica.util.DoubleRange;
-import etomica.util.HistogramNotSoSimple;
-import etomica.util.HistoryCollapsingDiscard;
+import etomica.math.DoubleRange;
+import etomica.data.histogram.HistogramNotSoSimple;
+import etomica.data.history.HistoryCollapsingDiscard;
 
 public class InsertionGraphic extends SimulationGraphic {
 
@@ -160,7 +161,7 @@ public class InsertionGraphic extends SimulationGraphic {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 if(evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) return; 
                 setPotential((String)evt.getItem());
-                if((String)evt.getItem() == repulsionOnly) {
+                if(evt.getItem() == repulsionOnly) {
                     lamBox.setEditable(false);
                 }
                 else {
@@ -314,7 +315,7 @@ public class InsertionGraphic extends SimulationGraphic {
         widomBoxes.setPrecision(6);
         getPanel().controlPanel.add(widomBoxes.graphic(), vertGBC);
         
-        DataProcessor dpMu = new DataProcessorFunction(new etomica.util.Function() {
+        DataProcessor dpMu = new DataProcessorFunction(new Function() {
             
             public double f(double x) {
                 if (x==0) return Double.NaN;
@@ -430,7 +431,7 @@ public class InsertionGraphic extends SimulationGraphic {
         protected double sum;
         protected int currentWells, currentCores;
         public HistogramNotSoSimple hist;
-        protected final IVectorMutable dr, dv;
+        protected final Vector dr, dv;
         
         public MeterWidom() {
             super("widom", Null.DIMENSION);

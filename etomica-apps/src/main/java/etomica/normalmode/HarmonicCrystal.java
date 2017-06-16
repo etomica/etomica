@@ -5,6 +5,7 @@
 package etomica.normalmode;
 
 import etomica.data.DataInfo;
+import etomica.data.FunctionData;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
@@ -17,13 +18,11 @@ import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.potential.P2LennardJones;
 import etomica.potential.Potential2SoftSpherical;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.statmech.LennardJones;
 import etomica.units.Energy;
-import etomica.util.FunctionGeneral;
 
 /**
  * Properties of a system of monatomic molecules occupying a lattice and interacting according
@@ -34,7 +33,7 @@ import etomica.util.FunctionGeneral;
  */
 public class HarmonicCrystal {
 
-    public HarmonicCrystal(double rho, int[] nCells, Primitive primitive, Basis basis, Potential2SoftSpherical potential, ISpace _space) {
+    public HarmonicCrystal(double rho, int[] nCells, Primitive primitive, Basis basis, Potential2SoftSpherical potential, Space _space) {
         this.potential = potential;
         this.nCells = nCells.clone();
         this.space = _space;
@@ -48,7 +47,7 @@ public class HarmonicCrystal {
     }
 
     public double getLatticeEnergy() {
-        FunctionGeneral function = new FunctionGeneral() {
+        FunctionData<Object> function = new FunctionData<Object>() {
             public IData f(Object obj) {
                 data.x = potential.u(((Vector3D)obj).squared());
                 return data;
@@ -187,5 +186,5 @@ public class HarmonicCrystal {
     private int[] nCells;
     private int maxLatticeShell;
     private Potential2SoftSpherical potential;
-    private final ISpace space;
+    private final Space space;
 }

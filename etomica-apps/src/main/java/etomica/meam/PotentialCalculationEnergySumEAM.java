@@ -4,16 +4,16 @@
 
 package etomica.meam;
 
-import etomica.api.IAtomList;
-import etomica.api.IPotentialAtomic;
-import etomica.potential.PotentialCalculation;
+import etomica.atom.IAtomList;
+import etomica.potential.IPotentialAtomic;
+import etomica.potential.PotentialCalculationEnergySum;
 
 /**
- * Evaluate the energy for the EAM model using the P2EAM potential.  The class
- * operates in 2 stages, first a pair stage and then a 1-body stage.  You must
- * call pairDone after the pair stage.
+ * Evaluate the energy for the EAM model using the P2EAM potential.  This
+ * potential calculation will explicitly include the embedding contribution
+ * from the EAM potential.
  */
-public class PotentialCalculationEnergySumEAM implements PotentialCalculation {
+public class PotentialCalculationEnergySumEAM extends PotentialCalculationEnergySum {
     
     protected final P2EAM p2;
     protected double sum;

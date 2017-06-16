@@ -4,13 +4,9 @@
 
 package etomica.atom.iterator;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.atom.AtomArrayList;
-import etomica.atom.AtomListWrapper;
-import etomica.atom.iterator.IteratorDirective.Direction;
+import etomica.atom.*;
+import etomica.box.Box;
+import etomica.potential.IteratorDirective.Direction;
 
 /**
  * Iterator for all the molecules of a set of species in a box.  Each iterate
@@ -24,12 +20,18 @@ import etomica.atom.iterator.IteratorDirective.Direction;
 public class AtomIteratorAllLeafType implements AtomsetIteratorBoxDependent,
                 AtomsetIteratorDirectable, AtomsetIteratorTargetable, java.io.Serializable {
 
+    private static final long serialVersionUID = 1L;
+    private final AtomType[] atomType;
+    private final AtomListWrapper next;
+    private Box box;
+    private int nextCursor;
+    
     /**
      * @param atomType species for which molecules are returned as iterates. Only
      * species[0] is relevant, and must not be null.
      */
-    public AtomIteratorAllLeafType(IAtomType[] atomType) {
-    	this.atomType = atomType;
+    public AtomIteratorAllLeafType(AtomType[] atomType) {
+        this.atomType = atomType;
         next = new AtomListWrapper();
     }
 
@@ -37,7 +39,7 @@ public class AtomIteratorAllLeafType implements AtomsetIteratorBoxDependent,
      * Sets the box containing the molecules for iteration. A null
      * box conditions iterator to give no iterates.
      */
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
         if (box == null) {
             throw new NullPointerException("Null box");
@@ -51,7 +53,7 @@ public class AtomIteratorAllLeafType implements AtomsetIteratorBoxDependent,
     public void setTarget(IAtom newTargetAtom) {
     }
 
-    /** 
+    /**
      * Has no effect, but is included as part of the AtomsetIteratorPDT interface.
      * Besides, you didn't really want to iterate down, did you?
      */
@@ -72,11 +74,11 @@ public class AtomIteratorAllLeafType implements AtomsetIteratorBoxDependent,
         }
         nextCursor = 0;
     }
-    
+
     public void unset() {
         next.getArrayList().clear();
     }
-    
+
     public IAtomList next() {
         if (nextCursor + 1 > next.getAtomCount()) {
             return null;
@@ -93,7 +95,7 @@ public class AtomIteratorAllLeafType implements AtomsetIteratorBoxDependent,
         nextCursor++;
         return next;
     }
-    
+
     public int nBody() {
         return Integer.MAX_VALUE;
     }
@@ -105,10 +107,4 @@ public class AtomIteratorAllLeafType implements AtomsetIteratorBoxDependent,
     public int size() {
         return next.getAtomCount();
     }
-
-    private static final long serialVersionUID = 1L;
-    private final IAtomType[] atomType;
-    private IBox box;
-    private int nextCursor;
-    private final AtomListWrapper next;
 }

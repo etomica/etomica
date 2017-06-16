@@ -4,16 +4,16 @@
 
 package etomica.action;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.space.Vector;
+import etomica.space.Space;
 import etomica.util.Debug;
 
 /**
- * Scales the momenta of all the leaf atoms in an IBox such that the kinetic
+ * Scales the momenta of all the leaf atoms in a Box such that the kinetic
  * temperature matches some value.  The net momentum is also subtracted off so
  * that there is no net momentum.
  * 
@@ -21,7 +21,7 @@ import etomica.util.Debug;
  */
 public class BoxScaleMomenta implements IAction {
 
-    public BoxScaleMomenta(IBox box, ISpace space) {
+    public BoxScaleMomenta(Box box, Space space) {
         this.box = box;
         momentum = space.makeVector();
     }
@@ -34,7 +34,7 @@ public class BoxScaleMomenta implements IAction {
         return temperature;
     }
     
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     
@@ -55,7 +55,7 @@ public class BoxScaleMomenta implements IAction {
             //set net momentum to 0
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-                double rm = ((IAtom)a).getType().rm();
+                double rm = a.getType().rm();
                 if (rm != 0) {
                     a.getVelocity().PEa1Tv1(-rm,momentum);
                 }
@@ -64,7 +64,7 @@ public class BoxScaleMomenta implements IAction {
                 momentum.E(0);
                 for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                     IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-                    double mass = ((IAtom)a).getType().getMass();
+                    double mass = a.getType().getMass();
                     if (mass != Double.POSITIVE_INFINITY) {
                         momentum.PEa1Tv1(mass,a.getVelocity());
                     }
@@ -83,7 +83,7 @@ public class BoxScaleMomenta implements IAction {
             double sum = 0.0;
             for (int iAtom = 0; iAtom<nLeaf; iAtom++) {
                 IAtomKinetic atom = (IAtomKinetic)leafList.getAtom(iAtom);
-                double mass = ((IAtom)atom).getType().getMass();
+                double mass = atom.getType().getMass();
                 if(mass == Double.POSITIVE_INFINITY) continue;
                 double v = atom.getVelocity().getX(i);
                 sum += mass*v*v;
@@ -98,13 +98,13 @@ public class BoxScaleMomenta implements IAction {
             if (s == 1) continue;
             for (int iAtom = 0; iAtom<nLeaf; iAtom++) {
                 IAtomKinetic atom = (IAtomKinetic)leafList.getAtom(iAtom);
-                IVectorMutable vel = atom.getVelocity(); 
+                Vector vel = atom.getVelocity();
                 vel.setX(i, vel.getX(i)*s); //scale momentum
             }
         }
     }
 
-    protected final IBox box;
-    protected final IVectorMutable momentum;
+    protected final Box box;
+    protected final Vector momentum;
     protected double temperature;
 }

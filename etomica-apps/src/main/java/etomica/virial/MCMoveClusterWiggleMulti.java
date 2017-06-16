@@ -4,20 +4,20 @@
 
 package etomica.virial;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
-import etomica.space.ISpace;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Vector3D;
+import etomica.species.ISpecies;
 import etomica.util.Debug;
+import etomica.util.random.IRandom;
 
 /**
  * An MC Move for cluster simulations that "wiggles" a chain molecule.  If the 
@@ -33,7 +33,7 @@ import etomica.util.Debug;
  */
 public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
 
-    public MCMoveClusterWiggleMulti(ISimulation sim, IPotentialMaster potentialMaster, int nAtoms, ISpace _space) {
+    public MCMoveClusterWiggleMulti(Simulation sim, PotentialMaster potentialMaster, int nAtoms, Space _space) {
     	this(potentialMaster,sim.getRandom(), 1.0, nAtoms, _space);
     }
     
@@ -44,8 +44,8 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
      * box should be at least one greater than this value (greater
      * because first atom is never moved)
      */
-    public MCMoveClusterWiggleMulti(IPotentialMaster potentialMaster, 
-            IRandom random, double stepSize, int nAtoms, ISpace _space) {
+    public MCMoveClusterWiggleMulti(PotentialMaster potentialMaster,
+            IRandom random, double stepSize, int nAtoms, Space _space) {
         super(potentialMaster,random,_space, stepSize,Double.POSITIVE_INFINITY);
         this.space = _space;
         setStepSizeMax(Math.PI);
@@ -55,7 +55,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
         work3 = _space.makeVector();
     }
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         selectedAtoms = new IAtom[box.getMoleculeList().getMoleculeCount()];
         translationVectors = new Vector3D[box.getMoleculeList().getMoleculeCount()];
@@ -90,7 +90,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
             }
             selectedAtoms[i] = childList.getAtom(j);
 //            System.out.println(selectedAtoms[i]+" "+j+" before "+selectedAtoms[i].coord.position());
-            IVectorMutable position = selectedAtoms[i].getPosition();
+            Vector position = selectedAtoms[i].getPosition();
             translationVectors[i].Ea1Tv1(-1,position);
             double oldBondLength1 = 0, oldBondLength2 = 0;
                 
@@ -145,8 +145,8 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
                 // j-1 - j and j - j+1 bond lengths are unaltered.
 
 //                System.out.println("middle move "+j+" "+position);
-                IVectorMutable position0 = childList.getAtom(j-1).getPosition();
-                IVectorMutable position2 = childList.getAtom(j+1).getPosition();
+                Vector position0 = childList.getAtom(j-1).getPosition();
+                Vector position2 = childList.getAtom(j+1).getPosition();
                 work1.Ev1Mv2(position0, position);
                 work2.Ev1Mv2(position2, position);
                 if (Debug.ON && Debug.DEBUG_NOW) {
@@ -242,9 +242,9 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
     private static final long serialVersionUID = 1L;
     protected final MeterPotentialEnergy energyMeter;
     protected IAtom[] selectedAtoms;
-    protected final IVectorMutable work1, work2, work3;
-    protected IVectorMutable[] translationVectors;
+    protected final Vector work1, work2, work3;
+    protected Vector[] translationVectors;
     protected double wOld, wNew;
-    protected final ISpace space;
+    protected final Space space;
     protected ISpecies species;
 }

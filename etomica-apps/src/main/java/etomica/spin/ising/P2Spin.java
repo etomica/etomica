@@ -4,40 +4,41 @@
 
 package etomica.spin.ising;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.potential.Potential2;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Magnetic spin potential, with an energy defined by
- * 
+ * <p>
  * U = -J r1 dot r2
- * 
+ * <p>
  * where J is a coupling parameter, and r1 and r2 are the vectors given by
  * atom.coord.position. It is expected (but not verified here) that these
  * vectors are normalized to unity, and that the simulation integrator's
  * algorithm enforces this constraint.
- * 
+ *
  * @author David Kofke
- *  
  */
 public class P2Spin extends Potential2 {
 
-    public P2Spin(ISpace space) {
+    private static final long serialVersionUID = 1L;
+    private double coupling;
+
+    public P2Spin(Space space) {
         this(space, 1.0);
     }
 
-    public P2Spin(ISpace space, double coupling) {
+    public P2Spin(Space space, double coupling) {
         super(space);
         setCoupling(coupling);
     }
 
     /**
      * Returns the energy for the given pair of atoms.
-     * 
-     * @throws ClassCastException
-     *             if atoms is not an instance of AtomPair
+     *
+     * @throws ClassCastException if atoms is not an instance of AtomPair
      */
     public double energy(IAtomList atoms) {
         return -coupling
@@ -62,17 +63,13 @@ public class P2Spin extends Potential2 {
     }
 
     /**
-     * @param coupling
-     *            The coupling to set.
+     * @param coupling The coupling to set.
      */
     public void setCoupling(double coupling) {
         this.coupling = coupling;
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         //does nothing
     }
-
-    private static final long serialVersionUID = 1L;
-    private double coupling;
 }

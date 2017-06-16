@@ -4,26 +4,15 @@
 
 package etomica.virial.GUI.models;
 
-import etomica.api.IAtomList;
-import etomica.api.IElement;
-import etomica.api.ISpecies;
-import etomica.chem.elements.Carbon;
-import etomica.chem.elements.ElementSimple;
-import etomica.chem.elements.Oxygen;
-import etomica.config.IConformation;
-import etomica.potential.P2CO2TraPPE;
 import etomica.potential.P2LennardJones;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresHetero;
-import etomica.units.Electron;
+import etomica.species.ISpecies;
 import etomica.units.Kelvin;
-
+import etomica.virial.GUI.components.SimpleElementForSimilarSpecies;
 import etomica.virial.SpeciesAlkane;
 import etomica.virial.SpeciesFactory;
 import etomica.virial.SpeciesFactorySiepmannSpheres;
-import etomica.virial.GUI.components.SimpleElementForSimilarSpecies;
 
 public class MolecularModelTRAPPE_SpeciesAlkane implements IMolecularModel_SpeciesFactory,Cloneable{
 	private String MoleculeDisplayName;

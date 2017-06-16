@@ -3,26 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.models.nitrogen;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IPotentialMaster;
-import etomica.api.IPotentialMolecular;
-import etomica.api.IRandom;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.atom.MoleculeArrayList;
-import etomica.atom.MoleculePair;
-import etomica.atom.iterator.MoleculeIterator;
-import etomica.atom.iterator.MoleculeIteratorArrayListSimple;
+
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveMolecular;
 import etomica.integrator.mcmove.MCMoveMolecule;
+import etomica.molecule.*;
+import etomica.molecule.iterator.MoleculeIterator;
+import etomica.molecule.iterator.MoleculeIteratorArrayListSimple;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
-import etomica.space.ISpace;
+import etomica.potential.IPotentialMolecular;
+import etomica.potential.PotentialMaster;
 import etomica.space.RotationTensor;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 
 /**
@@ -37,9 +33,9 @@ import etomica.space.RotationTensor;
 public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule implements MCMoveMolecular{
     
     private static final long serialVersionUID = 2L;
-    protected transient IVectorMutable r0;
+    protected transient Vector r0;
     protected transient RotationTensor rotationTensor;
-    protected IAtomPositionDefinition positionDefinition;
+    protected IMoleculePositionDefinition positionDefinition;
     public int count;
     public int count1;
     public boolean flag = false;
@@ -58,8 +54,8 @@ public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule implements MC
     protected double uOldPE, uNewPE;
     protected double uCorrect;
     
-    public MCMoveRotateMolecule3DSuperBox(IPotentialMaster potentialMaster, IRandom random,
-    		                      ISpace _space, int nC, int basis, CoordinateDefinitionNitrogenSuperBox coordinateDef) {
+    public MCMoveRotateMolecule3DSuperBox(PotentialMaster potentialMaster, IRandom random,
+                                          Space _space, int nC, int basis, CoordinateDefinitionNitrogenSuperBox coordinateDef) {
         super(potentialMaster, random, _space, Math.PI/2, Math.PI);
         this.basisCell = coordinateDef.getBasisCells();
         this.random = random;
@@ -69,7 +65,7 @@ public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule implements MC
         
         affectedMoleculeIterator = new MoleculeIteratorArrayListSimple();
         affectedMoleculeList = new MoleculeArrayList();
-        positionDefinition = new AtomPositionGeometricCenter(space);
+        positionDefinition = new MoleculePositionGeometricCenter(space);
         
         rotationTensor = _space.makeRotationTensor();
         r0 = _space.makeVector();
@@ -189,7 +185,7 @@ public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule implements MC
     	return -(uNew - uOld);
     }
     
-	public MoleculeIterator affectedMolecules(IBox aBox) {
+	public MoleculeIterator affectedMolecules(Box aBox) {
 	   if (box == aBox) {
 		   affectedMoleculeIterator.setList(affectedMoleculeList);
 		   return affectedMoleculeIterator;
@@ -199,11 +195,11 @@ public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule implements MC
 	   
 	}
     
-    protected void doTransform(IMolecule molecule, IVector r0) {
+    protected void doTransform(IMolecule molecule, Vector r0) {
         IAtomList childList = molecule.getChildList();
         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
             IAtom a = childList.getAtom(iChild);
-            IVectorMutable r = a.getPosition();
+            Vector r = a.getPosition();
             r.ME(r0);
             box.getBoundary().nearestImage(r);
             rotationTensor.transform(r);

@@ -4,22 +4,19 @@
 
 package etomica.normalmode;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
-import etomica.data.DataSourceScalar;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
-import etomica.data.types.DataDouble;
-import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.Angle;
 
 /**
@@ -29,11 +26,11 @@ import etomica.units.Angle;
  */
 public class MeterTiltRotation implements IEtomicaDataSource {
 
-    public MeterTiltRotation(ISpace space, ISpecies species, int nPlanes) {
+    public MeterTiltRotation(Space space, ISpecies species, int nPlanes) {
         this.species = species;
         dr = space.makeVector();
         drSum = space.makeVector();
-        drSumPlane = new IVectorMutable[nPlanes];
+        drSumPlane = new Vector[nPlanes];
         for (int i=0; i<nPlanes; i++) {
             drSumPlane[i] = space.makeVector();
         }
@@ -43,7 +40,7 @@ public class MeterTiltRotation implements IEtomicaDataSource {
         dataInfo.addTag(tag);
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
 
@@ -82,9 +79,9 @@ public class MeterTiltRotation implements IEtomicaDataSource {
 
     private static final long serialVersionUID = 1L;
     protected final ISpecies species;
-    protected IBox box;
-    protected final IVectorMutable dr, drSum;
-    protected final IVectorMutable[] drSumPlane;
+    protected Box box;
+    protected final Vector dr, drSum;
+    protected final Vector[] drSumPlane;
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
     protected final DataTag tag;

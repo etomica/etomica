@@ -5,10 +5,8 @@
 package etomica.dimer;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtom;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.chem.elements.Tin;
 import etomica.config.Configuration;
@@ -22,6 +20,7 @@ import etomica.lattice.crystal.PrimitiveTetragonal;
 import etomica.listener.IntegratorListenerAction;
 import etomica.meam.ParameterSetMEAM;
 import etomica.meam.PotentialMEAM;
+import etomica.molecule.IMolecule;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
@@ -43,7 +42,7 @@ public class EnergyMap extends Simulation{
     private static final String APP_NAME = "MEAM Md3D";
     public final PotentialMaster potentialMaster;
     public IntegratorEnergyMap integratorMAP;
-    public IBox box;
+    public Box box;
     public SpeciesSpheresMono sn, snFix, snAdatom, cu, cuFix, cuAdatom, movable;
     public PotentialMEAM potential;
     public ActivityIntegrate activityIntegrateMAP;
@@ -102,9 +101,9 @@ public class EnergyMap extends Simulation{
         potential.setParameters(sn.getLeafType(), ParameterSetMEAM.Sn);
         potential.setParameters(snAdatom.getLeafType(), ParameterSetMEAM.Sn);
         potential.setParameters(movable.getLeafType(), ParameterSetMEAM.Sn);
-        
-        this.potentialMaster.addPotential(potential, new IAtomType[]{sn.getLeafType(), snFix.getLeafType(), snAdatom.getLeafType(), movable.getLeafType()});
-		
+
+        this.potentialMaster.addPotential(potential, new AtomType[]{sn.getLeafType(), snFix.getLeafType(), snAdatom.getLeafType(), movable.getLeafType()});
+
         /**
         // Cu
         box.setNMolecules(cuFix, 64);

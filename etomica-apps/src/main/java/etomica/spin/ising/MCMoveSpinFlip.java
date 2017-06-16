@@ -4,15 +4,15 @@
 
 package etomica.spin.ising;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBox;
+import etomica.potential.PotentialMaster;
+import etomica.util.random.IRandom;
 
 
 /**
@@ -20,15 +20,22 @@ import etomica.integrator.mcmove.MCMoveBox;
  * Window - Preferences - Java - Code Style - Code Templates
  *
  * @author David Kofke
- *
  */
 public class MCMoveSpinFlip extends MCMoveBox {
+
+    private static final long serialVersionUID = 1L;
+    protected final IRandom random;
+    protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
+    protected final MeterPotentialEnergy energyMeter;
+    protected IAtom atom;
+    protected double uOld;
+    protected double uNew = Double.NaN;
 
     /**
      * @param potentialMaster
      * @param nBoxs
      */
-    public MCMoveSpinFlip(IPotentialMaster potentialMaster, IRandom random) {
+    public MCMoveSpinFlip(PotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         this.random = random;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
@@ -36,11 +43,11 @@ public class MCMoveSpinFlip extends MCMoveBox {
         energyMeter.setIncludeLrc(false);
     }
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
     }
-    
+
     /* (non-Javadoc)
      * @see etomica.integrator.MCMove#doTrial()
      */
@@ -97,12 +104,4 @@ public class MCMoveSpinFlip extends MCMoveBox {
     public double energyChange() {
         return uNew - uOld;
     }
-
-    private static final long serialVersionUID = 1L;
-    protected final IRandom random;
-    protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
-    protected final MeterPotentialEnergy energyMeter;
-    protected IAtom atom;
-    protected double uOld;
-    protected double uNew = Double.NaN;
 }

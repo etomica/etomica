@@ -5,23 +5,19 @@
 package etomica.virial.GUI.models;
 
 
-import etomica.api.IAtomList;
-import etomica.api.IElement;
-import etomica.api.ISpecies;
+import etomica.atom.IAtomList;
 import etomica.chem.elements.Carbon;
+import etomica.chem.elements.IElement;
 import etomica.chem.elements.Oxygen;
 import etomica.config.IConformation;
-import etomica.potential.P22CLJQ;
 import etomica.potential.P2CO2EMP2;
-import etomica.potential.P2LennardJones;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.virial.SpeciesFactory;
-import etomica.virial.SpeciesFactorySpheres;
 
 public class MolecularModelEMP2_SpeciesCO2 implements IMolecularModel_SpeciesFactory,Cloneable{
 	private static String MoleculeDisplayName = "CO2 - EPM";
@@ -207,7 +203,7 @@ public void setSigmaHSRef(double sigmaHSRef) {
 	//Creates the LJAtom Species
 	public ISpecies createSpecies(){
 		SpeciesFactory factory = new SpeciesFactory() {
-	        public ISpecies makeSpecies(ISpace space) {
+	        public ISpecies makeSpecies(Space space) {
 	            SpeciesSpheresHetero species = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
 	            species.setChildCount(new int[]{1,2});
 	            
@@ -233,7 +229,7 @@ public void setSigmaHSRef(double sigmaHSRef) {
 	
 	public SpeciesFactory createSpeciesFactory(){
 		SpeciesFactory factory = new SpeciesFactory() {
-	        public ISpecies makeSpecies(ISpace space) {
+	        public ISpecies makeSpecies(Space space) {
 	            SpeciesSpheresHetero species = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
 	            species.setChildCount(new int[]{1,2});
 	            

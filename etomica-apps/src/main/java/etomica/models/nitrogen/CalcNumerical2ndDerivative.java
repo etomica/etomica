@@ -4,9 +4,9 @@
 
 package etomica.models.nitrogen;
 
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.molecule.IMoleculeList;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.potential.PotentialMaster;
 
@@ -31,8 +31,8 @@ import etomica.potential.PotentialMaster;
  */
 public class CalcNumerical2ndDerivative{
 	
-	public CalcNumerical2ndDerivative(IBox box, PotentialMaster potentialMaster, 
-			CoordinateDefinition coordinateDefinition){
+	public CalcNumerical2ndDerivative(Box box, PotentialMaster potentialMaster,
+                                      CoordinateDefinition coordinateDefinition){
 		this.coordinateDefinition = coordinateDefinition;
 		meterPotential = new MeterPotentialEnergy(potentialMaster);
 		meterPotential.setBox(box);
@@ -227,7 +227,7 @@ public class CalcNumerical2ndDerivative{
 
 	protected CoordinateDefinition coordinateDefinition;
 	protected MeterPotentialEnergy meterPotential;
-	protected IBox box;
+	protected Box box;
 	protected double deltaU, errt, fac;
 	protected double [][] a;
 	double fixedDeltaU = 0.01;

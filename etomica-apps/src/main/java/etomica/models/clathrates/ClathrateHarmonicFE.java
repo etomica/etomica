@@ -4,18 +4,7 @@
 
 package etomica.models.clathrates;
 
-import java.awt.Color;
-
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomPair;
-import etomica.atom.DiameterHashByType;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.atom.*;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationFileBinary;
@@ -26,26 +15,17 @@ import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.crystal.Primitive;
-import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.lattice.crystal.PrimitiveMonoclinic;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.models.clathrates.MinimizationTIP4P.ChargeAgentSourceRPM;
 import etomica.models.water.ConfigurationFileTIP4P;
 import etomica.models.water.SpeciesWater4P;
+import etomica.molecule.IMolecule;
 import etomica.normalmode.LatticeSumMolecularCrystal.AtomicTensorAtomicPair;
 import etomica.normalmode.NormalModesMolecular;
-import etomica.potential.EwaldSummation;
+import etomica.potential.*;
 import etomica.potential.EwaldSummation.MyCharge;
-import etomica.potential.P2LennardJones;
-import etomica.potential.Potential2SoftSpherical;
-import etomica.potential.Potential2SoftSphericalLS;
-import etomica.potential.PotentialCalculationForceSum;
-import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.Boundary;
-import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ISpace;
-import etomica.space.Tensor;
+import etomica.space.*;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
 import etomica.space3d.Tensor3D;
@@ -57,17 +37,19 @@ import etomica.util.Constants;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
+import java.awt.*;
+
 public class ClathrateHarmonicFE extends Simulation{
-	protected Box box;
+    protected static double[] initialU;
+    protected Box box;
 	protected PotentialMaster potentialMaster;
 	protected SpeciesWater4P species;
 	protected MeterPotentialEnergy meterPE;
-	protected static double[] initialU;
 	protected Potential2SoftSpherical potentialLJ;
 	protected Potential2SoftSphericalLS potentialLJLS;
 	protected EwaldSummation potentialES;
 
-	public ClathrateHarmonicFE(ISpace space, int[] nC, double rCutRealES, double rCutLJ, double[] a0_sc, int numMolecule, String configFileName, boolean isIce, double kCut, boolean includeM) {
+	public ClathrateHarmonicFE(Space space, int[] nC, double rCutRealES, double rCutLJ, double[] a0_sc, int numMolecule, String configFileName, boolean isIce, double kCut, boolean includeM) {
 		super(space);
 		species = new SpeciesWater4P(space);
 		addSpecies(species);
@@ -97,9 +79,9 @@ public class ClathrateHarmonicFE extends Simulation{
 		potentialES = new EwaldSummation(box, atomAgentManager, space, kCut, rCutRealES);
 //XXXX Potential Master
 		potentialMaster = new PotentialMaster();
-		potentialMaster.addPotential(potentialLJLS, new IAtomType[]{species.getOxygenType(), species.getOxygenType()});
-		potentialMaster.addPotential(potentialES, new IAtomType[0]);
-		potentialLJLS.setBox(box);
+        potentialMaster.addPotential(potentialLJLS, new AtomType[]{species.getOxygenType(), species.getOxygenType()});
+        potentialMaster.addPotential(potentialES, new AtomType[0]);
+        potentialLJLS.setBox(box);
 
 		if(includeM){
 			ConfigurationFile config = new ConfigurationFile(configFileName);////to duplicate with M point!
@@ -205,7 +187,7 @@ public class ClathrateHarmonicFE extends Simulation{
 
 		
 		int numMolecule =nBasis*nC[0]*nC[1]*nC[2];
-		final ISpace space = Space3D.getInstance(); 
+		final Space space = Space3D.getInstance();
 		final ClathrateHarmonicFE sim = new ClathrateHarmonicFE(space, nC, rCutRealES, rCutLJ, a0_sc, numMolecule, configFile, isIce, kCut, includeM);
 		
 		
@@ -214,9 +196,9 @@ public class ClathrateHarmonicFE extends Simulation{
 		//They enable you to declare and instantiate a class at the same time! :)
 		AtomicTensorAtomicPair atomicTensorAtomicPair = new AtomicTensorAtomicPair() {
 	        final Tensor identity = new Tensor3D(new double[][] {{1.0,0.0,0.0}, {0.0,1.0,0.0}, {0.0,0.0,1.0}});
-        	IVectorMutable Lxyz = space.makeVector();
-			IVectorMutable dr = space.makeVector();
-        	IVectorMutable drTmp = space.makeVector();
+        	Vector Lxyz = space.makeVector();
+			Vector dr = space.makeVector();
+        	Vector drTmp = space.makeVector();
 			Tensor D3ESLJ = space.makeTensor();
 			Tensor tmpD3LJ = space.makeTensor();
 
@@ -282,10 +264,10 @@ public class ClathrateHarmonicFE extends Simulation{
 			PotentialCalculationForceSum pcForce = new PotentialCalculationForceSum();
 			
 			AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent> atomAgentSource = new AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent>() {
-			    public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, IBox agentBox) {
+			    public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, Box agentBox) {
 			        return new IntegratorVelocityVerlet.MyAgent(sim.space);
 			    }
-			    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, IBox agentBox) {/**do nothing**/}
+			    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, Box agentBox) {/**do nothing**/}
 	        };
 			AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> atomAgentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(atomAgentSource , sim.box , IntegratorVelocityVerlet.MyAgent.class);
 	        pcForce.setAgentManager(atomAgentManager);
@@ -294,10 +276,10 @@ public class ClathrateHarmonicFE extends Simulation{
 	        id.includeLrc = false;
 	        sim.potentialMaster.calculate(sim.box, id, pcForce);
 	        
-	        IVectorMutable fn  = sim.space.makeVector();
-	        IVectorMutable f4  = sim.space.makeVector();
-	        IVectorMutable dr = sim.space.makeVector();
-	        IVectorMutable torque = sim.space.makeVector();
+	        Vector fn  = sim.space.makeVector();
+	        Vector f4  = sim.space.makeVector();
+	        Vector dr = sim.space.makeVector();
+	        Vector torque = sim.space.makeVector();
 //
 //	        for (int m = 0; m < 46; m++){
 //		        IMolecule iMol = sim.box.getMoleculeList().getMolecule(m);
@@ -319,8 +301,8 @@ public class ClathrateHarmonicFE extends Simulation{
 //	        System.out.println("++++++");
 	        
 	        RotationTensor3D rTensor = new RotationTensor3D();
-	        IVectorMutable f4dx  = sim.space.makeVector();
-	        IVectorMutable dx = space.makeVector();
+	        Vector f4dx  = sim.space.makeVector();
+	        Vector dx = space.makeVector();
 	        dx.setX(0, 0.0001);        dx.setX(1, 0.0);        dx.setX(2, 0.0);
 	        for (int m = 0; m < 46; m++){
 		        IMolecule iMol = sim.box.getMoleculeList().getMolecule(m);
@@ -343,7 +325,7 @@ public class ClathrateHarmonicFE extends Simulation{
 //				        atoms.getAtom(j).getPosition().PE(dx);
 //			        	System.out.println(atoms.getAtom(j).getPosition());
 //			        }
-			        IVectorMutable axes = sim.space.makeVector();
+			        Vector axes = sim.space.makeVector();
 			        axes.E(new double [] {1.0, 0.0, 0.0});
 //			        axes.E(new double [] {0.0, 1.0, 0.0});
 //			        axes.E(new double [] {0.0, 0.0, 1.0});
@@ -364,8 +346,8 @@ public class ClathrateHarmonicFE extends Simulation{
 			        for(int j=0;j<4;j++){
 				        IAtom atomj = atoms.getAtom(j);	
 
-			            IVectorMutable fndx = space.makeVector();
-			            fndx.E(((IntegratorVelocityVerlet.MyAgent)atomAgentManager.getAgent(atomj)).force);
+			            Vector fndx = space.makeVector();
+			            fndx.E(atomAgentManager.getAgent(atomj).force);
 //			            System.out.println(fndx);
 			            f4dx.PE(fndx);
 	            		dr.Ev1Mv2(atomj.getPosition(), atoms.getAtom(2).getPosition());
@@ -402,22 +384,20 @@ public class ClathrateHarmonicFE extends Simulation{
     public static class SimParams extends ParameterBase {
 //    	public String configFile = "config_from_paper_HHO_shiftedL_2_sI"; 
 		public String configFile = "finalPos"; 
-
-    	int nX = 1;
-		public int[] nC = new int[] {nX, nX, nX};
 		public double rCutLJ = 400;
 		public double rCutRealES = 14.0;
 		public double[] a0 = new double[]{12.03, 12.03, 12.03};//sI
-//		public double[] a0 = new double[]{17.31, 17.31, 17.31};//sII
-//		public double[] a0 = new double[]{12.21,21.15, 10.14};//sH
-
 		public int nBasis = 46;//sI
 //		public int nBasis = 136;//sII
 //		public int nBasis = 68;//sH
 		public double kCut = 2.6;
-		public double temperature = 0.1;   
-		public boolean waveVectorMethod = true;
+        //		public double[] a0 = new double[]{17.31, 17.31, 17.31};//sII
+//		public double[] a0 = new double[]{12.21,21.15, 10.14};//sH
+        public double temperature = 0.1;
+        public boolean waveVectorMethod = true;
 		public boolean isIce =  false;
 		public boolean includeM =  true;
+        int nX = 1;
+        public int[] nC = new int[]{nX, nX, nX};
     }
 }

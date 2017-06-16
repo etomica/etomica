@@ -4,6 +4,19 @@
 
 package etomica.potential;
 
+import etomica.atom.IAtomList;
+import etomica.atom.IAtomOriented;
+import etomica.box.Box;
+import etomica.chem.elements.Nitrogen;
+import etomica.space.Boundary;
+import etomica.space.Space;
+import etomica.space.Tensor;
+import etomica.space.Vector;
+import etomica.space3d.Space3D;
+import etomica.units.Degree;
+import etomica.units.Kelvin;
+import etomica.util.Constants;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -46,25 +59,10 @@ import java.io.IOException;
 //
 //
 
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.IAtomOriented;
-import etomica.chem.elements.Nitrogen;
-import etomica.space.ISpace;
-import etomica.space.Tensor;
-import etomica.space3d.Space3D;
-import etomica.units.Degree;
-import etomica.units.Kelvin;
-import etomica.util.Constants;
-
 
 public class P2NitrogenHellmann implements IPotentialAtomic, IPotentialTorque {    
     public static void main(String[] args) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         P2NitrogenHellmann pN2 = new P2NitrogenHellmann(space);
         FileReader fileReader = null;
         String fileName = "P2NitrogenHellmann_energies.dat";
@@ -99,7 +97,7 @@ public class P2NitrogenHellmann implements IPotentialAtomic, IPotentialTorque {
         }
     }
     
-    protected IBoundary boundary;    
+    protected Boundary boundary;
     protected final double[][] A,alpha,b,c6;
     protected static final int [] siteID = {0,1,2,1,0};
     protected double[] q, pos;
@@ -117,12 +115,12 @@ public class P2NitrogenHellmann implements IPotentialAtomic, IPotentialTorque {
     protected static final double[] c6B = {0.298807116692E7, -0.608284467163E7, 0.490318811890E7, 0.146889670654E8, -0.129841807274E8, 0.107874613877E8};
     protected static final double[] sitePosB = {-0.680065710389,-0.447763006688, 0.00, 0.447763006688, 0.680065710389};
     protected static final double dHSCore = 2.0;
-    protected final ISpace space;
+    protected final Space space;
     protected static final double massN2 = 2*Nitrogen.INSTANCE.getMass();
     public static final double blN2 = 1.1014;
     protected static final double moment = 0.25*massN2*blN2*blN2;
     
-    public P2NitrogenHellmann(ISpace space) {
+    public P2NitrogenHellmann(Space space) {
         this.space = space;
         A = new double[3][3];
         alpha = new double[3][3];
@@ -130,7 +128,7 @@ public class P2NitrogenHellmann implements IPotentialAtomic, IPotentialTorque {
         c6 = new double[3][3];
         q = new double[3];
         pos = new double[5];    
-        gradientAndTorque = new IVectorMutable[2][2];
+        gradientAndTorque = new Vector[2][2];
         for (int i=0; i<2; i++) {
             for (int j=0; j<2; j++) {
                 gradientAndTorque[i][j] = space.makeVector();
@@ -164,14 +162,14 @@ public class P2NitrogenHellmann implements IPotentialAtomic, IPotentialTorque {
 
         if (R12 < dHSCore) return Double.POSITIVE_INFINITY;
         
-        IVectorMutable ex = space.makeVector();
-        IVectorMutable ey = space.makeVector();
-        IVectorMutable ez = space.makeVector();
-        IVectorMutable a0 = space.makeVector();
-        IVectorMutable a1 = space.makeVector();        
-        IVectorMutable site0 = space.makeVector();
-        IVectorMutable site1 = space.makeVector();
-        IVectorMutable dr = space.makeVector();
+        Vector ex = space.makeVector();
+        Vector ey = space.makeVector();
+        Vector ez = space.makeVector();
+        Vector a0 = space.makeVector();
+        Vector a1 = space.makeVector();
+        Vector site0 = space.makeVector();
+        Vector site1 = space.makeVector();
+        Vector dr = space.makeVector();
                 
         double cth1 = Math.cos(th1);
         double cth2 = Math.cos(th2);
@@ -214,8 +212,8 @@ public class P2NitrogenHellmann implements IPotentialAtomic, IPotentialTorque {
         
         double dth1 = Degree.UNIT.fromSim(Math.acos(a0.dot(ex)));
         double dth2 = Degree.UNIT.fromSim(Math.acos(a1.dot(ex)));
-        IVectorMutable n0 = space.makeVector();
-        IVectorMutable n1 = space.makeVector();
+        Vector n0 = space.makeVector();
+        Vector n1 = space.makeVector();
         n0.E(a0);
         n0.PEa1Tv1(-cth1, ex);
         if (n0.isZero())  n0.E(ey);
@@ -316,7 +314,7 @@ public class P2NitrogenHellmann implements IPotentialAtomic, IPotentialTorque {
         }
     }
     
-    public static void rotateBy(double cdt, double sdt, IVector axis, IVectorMutable direction) {
+    public static void rotateBy(double cdt, double sdt, Vector axis, Vector direction) {
         // consider a circle on the surface of the unit sphere.  The given axis
         // passes through the center of the circle.  The circle passes through
         // the current direction vector and the vector v4 defined below.  We
@@ -329,10 +327,10 @@ public class P2NitrogenHellmann implements IPotentialAtomic, IPotentialTorque {
         // v4 is a unit vector whose components are v1 and v3
         
         // v1 = v1overAxis * axis
-        ISpace space = Space3D.getInstance();        
+        Space space = Space3D.getInstance();
         double v1overAxis = axis.dot(direction);
-        IVectorMutable temp = space.makeVector();
-        IVectorMutable temp2 = space.makeVector();
+        Vector temp = space.makeVector();
+        Vector temp2 = space.makeVector();
         temp.Ea1Tv1(-v1overAxis, axis);
         temp.PE(direction);
         // now temp = v2
@@ -348,7 +346,7 @@ public class P2NitrogenHellmann implements IPotentialAtomic, IPotentialTorque {
         return Double.POSITIVE_INFINITY;
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 
@@ -361,12 +359,12 @@ public class P2NitrogenHellmann implements IPotentialAtomic, IPotentialTorque {
 //        int aIndex0 = a0.getLeafIndex();
         IAtomOriented a1 = (IAtomOriented)atoms.getAtom(1);
 //        int aIndex1 = a1.getLeafIndex();
-        IVectorMutable or0 = space.makeVector();
+        Vector or0 = space.makeVector();
         or0.E(a0.getOrientation().getDirection());
-        IVectorMutable or1 = space.makeVector();
+        Vector or1 = space.makeVector();
         or1.E(a1.getOrientation().getDirection());                
-        IVector com0 = a0.getPosition();
-        IVector com1 = a1.getPosition();
+        Vector com0 = a0.getPosition();
+        Vector com1 = a1.getPosition();
 //        double R12 = Math.sqrt(com0.Mv1Squared(com1));
 //        if (aIndex0 == 1 && aIndex1 == 2) {
 //            IVectorMutable p1 = space.makeVector();
@@ -376,12 +374,12 @@ public class P2NitrogenHellmann implements IPotentialAtomic, IPotentialTorque {
 //            if (r12 < dHSCore) return Double.POSITIVE_INFINITY;
 //            return 0;
 //        }
-        IVectorMutable ex = space.makeVector();
-        IVectorMutable ey = space.makeVector();
-        IVectorMutable ez = space.makeVector();
+        Vector ex = space.makeVector();
+        Vector ey = space.makeVector();
+        Vector ez = space.makeVector();
                 
-        IVectorMutable site0 = space.makeVector();
-        IVectorMutable site1 = space.makeVector();
+        Vector site0 = space.makeVector();
+        Vector site1 = space.makeVector();
         
         ex.E(0);
         ex.setX(0, 1);
@@ -396,8 +394,8 @@ public class P2NitrogenHellmann implements IPotentialAtomic, IPotentialTorque {
         double dth2 = Degree.UNIT.fromSim(th2);
         double cth1 = Math.cos(Degree.UNIT.toSim(dth1));
         double cth2 = Math.cos(Degree.UNIT.toSim(dth2));
-        IVectorMutable normal0 = space.makeVector();
-        IVectorMutable normal1 = space.makeVector();
+        Vector normal0 = space.makeVector();
+        Vector normal1 = space.makeVector();
         normal0.E(or0);
         normal0.PEa1Tv1(-cth1, ex);
         if (normal0.isZero())  normal0.E(ey);
@@ -454,14 +452,14 @@ public class P2NitrogenHellmann implements IPotentialAtomic, IPotentialTorque {
     }
     
     public class P2N2QFH implements IPotentialAtomic {        
-        protected final IVectorMutable[][] gi;
+        protected final Vector[][] gi;
         protected final Tensor tt0Tensor, tt1Tensor, rr0Tensor, rr1Tensor;
         protected final Tensor ijTensor, rTensor0, rTensor1, identity;
         protected final Tensor ijRTensor;
         protected final Tensor rot0, rot1;
-        protected final IVectorMutable or01, or11, or02, or12;
-        protected final IVector[] allOr0, allOr1;
-        protected final IVectorMutable drijRot;        
+        protected final Vector or01, or11, or02, or12;
+        protected final Vector[] allOr0, allOr1;
+        protected final Vector drijRot;
         public double[][] d2tot = new double[2][6];
         protected final double temperature, fac;        
         
@@ -476,7 +474,7 @@ public class P2NitrogenHellmann implements IPotentialAtomic, IPotentialTorque {
             rTensor1 = space.makeTensor();
             ijRTensor = space.makeTensor();
             identity.E(new double[][]{{1,0,0},{0,1,0},{0,0,1}});
-            gi = new IVectorMutable[2][5];
+            gi = new Vector[2][5];
             for (int i=0; i<5; i++) {
                 gi[0][i] = space.makeVector();
                 gi[1][i] = space.makeVector();
@@ -485,8 +483,8 @@ public class P2NitrogenHellmann implements IPotentialAtomic, IPotentialTorque {
             or11 = space.makeVector();
             or02 = space.makeVector();
             or12 = space.makeVector();
-            allOr0 = new IVectorMutable[]{null, or01, or02};
-            allOr1 = new IVectorMutable[]{null, or11, or12};
+            allOr0 = new Vector[]{null, or01, or02};
+            allOr1 = new Vector[]{null, or11, or12};
             drijRot = space.makeVector();
             rot0 = space.makeTensor();
             rot1 = space.makeTensor();            
@@ -500,14 +498,14 @@ public class P2NitrogenHellmann implements IPotentialAtomic, IPotentialTorque {
             return Double.POSITIVE_INFINITY;
         }
 
-        public void setBox(IBox box) {
+        public void setBox(Box box) {
             boundary = box.getBoundary();            
         }
 
         public int nBody() {
             return 2;
         }
-        protected void getPerp(IVector or, IVectorMutable perp1, IVectorMutable perp2) {
+        protected void getPerp(Vector or, Vector perp1, Vector perp2) {
             int max = 0;
             if (Math.abs(or.getX(1)) > Math.abs(or.getX(0))) max=1;
             if (Math.abs(or.getX(2)) > Math.abs(or.getX(max))) max=2;
@@ -527,20 +525,20 @@ public class P2NitrogenHellmann implements IPotentialAtomic, IPotentialTorque {
         public double energy(IAtomList atoms) {
             IAtomOriented atom0 = (IAtomOriented)atoms.getAtom(0);
             IAtomOriented atom1 = (IAtomOriented)atoms.getAtom(1);
-            IVector cm0 = atom0.getPosition();
-            IVector cm1 = atom1.getPosition();
+            Vector cm0 = atom0.getPosition();
+            Vector cm1 = atom1.getPosition();
             double R12 = Math.sqrt(cm0.Mv1Squared(cm1));
             if (R12 < dHSCore) return Double.POSITIVE_INFINITY;
-            IVector or0 = atom0.getOrientation().getDirection();
-            IVectorMutable site0 = space.makeVector();
-            IVectorMutable site1 = space.makeVector();
-            IVectorMutable dr = space.makeVector();
+            Vector or0 = atom0.getOrientation().getDirection();
+            Vector site0 = space.makeVector();
+            Vector site1 = space.makeVector();
+            Vector dr = space.makeVector();
             getPerp(or0, or01, or02);
             allOr0[0] = or0;
             rot0.E(allOr0);
             rot0.invert();
             
-            IVector or1 = atom1.getOrientation().getDirection();
+            Vector or1 = atom1.getOrientation().getDirection();
             getPerp(or1, or11, or12);
             allOr1[0] = or1;
             rot1.E(allOr1);
@@ -699,15 +697,15 @@ public class P2NitrogenHellmann implements IPotentialAtomic, IPotentialTorque {
             return (u + fac*sum);
         }
     }
-    protected final IVectorMutable[][] gradientAndTorque;
+    protected final Vector[][] gradientAndTorque;
     
-    public IVector[][] gradientAndTorque(IAtomList atoms) {
+    public Vector[][] gradientAndTorque(IAtomList atoms) {
         IAtomOriented atom0 = (IAtomOriented)atoms.getAtom(0);
         IAtomOriented atom1 = (IAtomOriented)atoms.getAtom(1);
-        IVector cm0 = atom0.getPosition();
-        IVector cm1 = atom1.getPosition();
-        IVector or0 = atom0.getOrientation().getDirection();
-        IVector or1 = atom1.getOrientation().getDirection();
+        Vector cm0 = atom0.getPosition();
+        Vector cm1 = atom1.getPosition();
+        Vector or0 = atom0.getOrientation().getDirection();
+        Vector or1 = atom1.getOrientation().getDirection();
         double R12 = Math.sqrt(cm0.Mv1Squared(cm1));        
         if (R12 < dHSCore) {
             gradientAndTorque[0][0].E(Double.NaN);
@@ -716,10 +714,10 @@ public class P2NitrogenHellmann implements IPotentialAtomic, IPotentialTorque {
             gradientAndTorque[1][1].E(Double.NaN);
             return gradientAndTorque;
         }
-        IVectorMutable site0 = space.makeVector();
-        IVectorMutable site1 = space.makeVector();
-        IVectorMutable drij = space.makeVector();
-        IVectorMutable torque = space.makeVector();
+        Vector site0 = space.makeVector();
+        Vector site1 = space.makeVector();
+        Vector drij = space.makeVector();
+        Vector torque = space.makeVector();
         gradientAndTorque[0][0].E(0);
         gradientAndTorque[0][1].E(0);
         gradientAndTorque[1][0].E(0);
@@ -793,12 +791,12 @@ public class P2NitrogenHellmann implements IPotentialAtomic, IPotentialTorque {
     }
 
 
-    public IVector[] gradient(IAtomList atoms) {
+    public Vector[] gradient(IAtomList atoms) {
         return gradientAndTorque(atoms)[0];
     }
 
 
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         return gradientAndTorque(atoms)[0];
     }
     

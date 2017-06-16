@@ -3,16 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.potential;
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
 import etomica.units.Energy;
 import etomica.units.Length;
-import etomica.units.Null;
 import etomica.util.Debug;
 /**
  * Basic penetrable-sphere potential.
@@ -29,16 +27,16 @@ public class P2PenetrableSphere extends Potential2HardSpherical {
     protected double lastCollisionVirial, lastCollisionVirialr2;
     protected Tensor lastCollisionVirialTensor;
     protected double lastEnergyChange;
-    protected IVectorMutable dv;
+    protected Vector dv;
 
     /**
      * Constructor with default values of unity for core diameter and core energy.
      */
-    public P2PenetrableSphere(ISpace space) {
+    public P2PenetrableSphere(Space space) {
         this(space, 1.0, 1.0);
     }
 
-    public P2PenetrableSphere(ISpace space, double coreDiameter, double epsilon) {
+    public P2PenetrableSphere(Space space, double coreDiameter, double epsilon) {
         super(space);
         setCoreDiameter(coreDiameter);
         setEpsilon(epsilon);
@@ -65,8 +63,8 @@ public class P2PenetrableSphere extends Potential2HardSpherical {
         double r2 = dr.squared();
         double bij = dr.dot(dv);
         double eps = 1.0e-10;
-        double rm0 = ((IAtom)atom0).getType().rm();
-        double rm1 = ((IAtom)atom1).getType().rm();
+        double rm0 = atom0.getType().rm();
+        double rm1 = atom1.getType().rm();
         double reduced_m = 1.0/(rm0+rm1);
         double nudge = 0;
         double ke = bij*bij*reduced_m/(2.0*r2);

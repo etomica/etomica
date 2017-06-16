@@ -4,16 +4,14 @@
 
 package etomica.rotation;
 
-import java.awt.Color;
-
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
-import etomica.api.ISpecies;
+import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.box.Box;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPump;
 import etomica.data.DataSourceCountTime;
+import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
@@ -32,11 +30,13 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.Constants;
-import etomica.util.HistoryCollapsingAverage;
+
+import java.awt.*;
 
 public class WaterDropletRattle {
 
@@ -80,30 +80,30 @@ public class WaterDropletRattle {
         
         double chargeOxygen = Electron.UNIT.toSim(-0.82);
         double chargeHydrogen = Electron.UNIT.toSim(0.41);
-        
-        IAtomType oType = species.getOxygenType();
-        IAtomType hType = species.getHydrogenType();
+
+        AtomType oType = species.getOxygenType();
+        AtomType hType = species.getHydrogenType();
         double epsOxygen = new P2WaterSPC(space).getEpsilon();
         double sigOxygen = new P2WaterSPC(space).getSigma();
         PotentialGroup pGroup = potentialMaster.makePotentialGroup(2);
         P2LennardJones potentialLJOO = new P2LennardJones(space, sigOxygen, epsOxygen);
-        pGroup.addPotential(potentialLJOO, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{oType,oType}));
+        pGroup.addPotential(potentialLJOO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{oType, oType}));
 
         P2Electrostatic potentialQHH = new P2Electrostatic(space);
         potentialQHH.setCharge1(chargeHydrogen);
         potentialQHH.setCharge2(chargeHydrogen);
-        pGroup.addPotential(potentialQHH, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{hType,hType}));
+        pGroup.addPotential(potentialQHH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{hType, hType}));
 
         P2Electrostatic potentialQOO = new P2Electrostatic(space);
         potentialQOO.setCharge1(chargeOxygen);
         potentialQOO.setCharge2(chargeOxygen);
-        pGroup.addPotential(potentialQOO, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{oType,oType}));
+        pGroup.addPotential(potentialQOO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{oType, oType}));
         
         P2Electrostatic potentialQOH = new P2Electrostatic(space);
         potentialQOH.setCharge1(chargeOxygen);
         potentialQOH.setCharge2(chargeHydrogen);
-        pGroup.addPotential(potentialQOH, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{oType,hType}));
-        pGroup.addPotential(potentialQOH, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{hType,oType}));
+        pGroup.addPotential(potentialQOH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{oType, hType}));
+        pGroup.addPotential(potentialQOH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{hType, oType}));
 
         potentialMaster.addPotential(pGroup, new ISpecies[]{species,species});
 
@@ -141,13 +141,13 @@ public class WaterDropletRattle {
     
     public static class Applet extends javax.swing.JApplet {
 
+        private static final long serialVersionUID = 1L;
+
         public void init() {
             SimulationGraphic graphic = makeWaterDroplet();
             graphic.getDisplayBox(graphic.getSimulation().getBox(0)).setPixelUnit(new Pixel(25));
 
             getContentPane().add(graphic.getPanel());
         }
-
-        private static final long serialVersionUID = 1L;
     }
 }

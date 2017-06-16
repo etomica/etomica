@@ -4,9 +4,9 @@
 
 package etomica.action;
 
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
 import etomica.atom.AtomFilter;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 
 /**
  * Deletes molecules from a box as determined by an AtomFilter. Atoms deleted

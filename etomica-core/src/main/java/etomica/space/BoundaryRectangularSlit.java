@@ -4,8 +4,6 @@
 
 package etomica.space;
 
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 
@@ -21,7 +19,7 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
      * not periodic.  Length of each box edge is given by default boxSize in
      * given Simulation.
      */
-    public BoundaryRectangularSlit(ISpace _space) {
+    public BoundaryRectangularSlit(Space _space) {
         //consumer can set appropriate slit dim later
         this(0, _space);
     }
@@ -35,7 +33,7 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
      * 1 for y-dimension, etc.).
      * @throws IllegalArgumentException if not (0 <= slitDim < space.D).
      */
-    public BoundaryRectangularSlit(int slitDim, ISpace _space) {
+    public BoundaryRectangularSlit(int slitDim, Space _space) {
         this(slitDim, 10.0, _space);
     }
     
@@ -45,7 +43,7 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
      * @param _space
      * @param slitDim slit dimension (in which PBC is not imposed).
      */
-    public BoundaryRectangularSlit(int slitDim, double boxSize, ISpace _space) {
+    public BoundaryRectangularSlit(int slitDim, double boxSize, Space _space) {
         super(_space,boxSize);
         sDim = slitDim;
         dimensionsHalf = space.makeVector();
@@ -79,7 +77,7 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
         }
     }
 
-    public void nearestImage(IVectorMutable dr) {
+    public void nearestImage(Vector dr) {
         double x = dr.getX(sDim);
         dr.PE(dimensionsHalf);
         dr.mod(dimensions);
@@ -87,7 +85,7 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
         dr.setX(sDim,x);
     }
     
-    public IVector centralImage(IVector r) {
+    public Vector centralImage(Vector r) {
         tempImage.E(r);
         nearestImage(tempImage);
         tempImage.ME(r);
@@ -104,6 +102,6 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
 
     private int sDim;
     private static final long serialVersionUID = 1L;
-    protected final IVectorMutable dimensionsHalf;
-    protected final IVectorMutable tempImage;
+    protected final Vector dimensionsHalf;
+    protected final Vector tempImage;
 }

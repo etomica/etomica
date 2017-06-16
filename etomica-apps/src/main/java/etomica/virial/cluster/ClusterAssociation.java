@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.virial.cluster;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -21,14 +20,9 @@ import etomica.graph.operations.Split;
 import etomica.graph.operations.SplitParameters;
 import etomica.graph.property.HasNoRootEdge;
 import etomica.graph.property.IsBiconnected;
-import etomica.math.SpecialFunctions;
-import etomica.util.Arrays;
-import etomica.util.Rational;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterBonds;
 import etomica.virial.ClusterSum;
-import etomica.virial.ClusterSumEF;
-import etomica.virial.ClusterSumPolarizable;
 import etomica.virial.MayerFunction;
 
 /**

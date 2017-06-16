@@ -4,11 +4,10 @@
 
 package etomica.potential;
 
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 /**
@@ -21,7 +20,7 @@ public class P1HardPeriodic extends Potential1 implements PotentialHard {
      * Returns an instance of P1HardPeriodic with sigma = NaN.  call setSigma
      * to set the value you want.
      */
-    public P1HardPeriodic(ISpace space) {
+    public P1HardPeriodic(Space space) {
         this(space, Double.NaN);
         // use NaN so they'll have to call setSigma later
     }
@@ -30,7 +29,7 @@ public class P1HardPeriodic extends Potential1 implements PotentialHard {
      * Returns an instance of P1HardPeriodic with the given value of sigma (the
      * maximum distance between two atoms where they interact)
      */
-    public P1HardPeriodic(ISpace space, double sigma) {
+    public P1HardPeriodic(Space space, double sigma) {
         super(space);
         this.sigma = sigma;
     }
@@ -51,8 +50,8 @@ public class P1HardPeriodic extends Potential1 implements PotentialHard {
     
     public double collisionTime(IAtomList a, double falseTime) {
         IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
-        IVectorMutable v = atom.getVelocity();
-        IVector dim = boundary.getBoxSize();
+        Vector v = atom.getVelocity();
+        Vector dim = boundary.getBoxSize();
         double tmin = Double.POSITIVE_INFINITY;
         double d2 = 2.0*sigma;
         int D = dim.getD();

@@ -4,13 +4,12 @@
 
 package etomica.models.nitrogen;
 
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
-import etomica.atom.MoleculePair;
+import etomica.box.Box;
 import etomica.data.types.DataTensor;
-import etomica.space.ISpace;
+import etomica.molecule.MoleculePair;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 
 /**
  *  Determine the second derivative of the atomic/ molecular potential energy w.r.t. to
@@ -25,12 +24,12 @@ import etomica.space.Tensor;
  */
 public class CalcAnalytical2ndDerivativeNitrogen{
 	
-	public CalcAnalytical2ndDerivativeNitrogen(ISpace space, IBox box, P2Nitrogen potential,CoordinateDefinitionNitrogen coordinateDefinition){
+	public CalcAnalytical2ndDerivativeNitrogen(Space space, Box box, P2Nitrogen potential, CoordinateDefinitionNitrogen coordinateDefinition){
 		this(space, box, potential, coordinateDefinition, false, potential.getRange());
 	}
 	
-	public CalcAnalytical2ndDerivativeNitrogen(ISpace space, IBox box, P2Nitrogen potential,CoordinateDefinitionNitrogen coordinateDefinition,
-			boolean doLatticeSum, double rC){
+	public CalcAnalytical2ndDerivativeNitrogen(Space space, Box box, P2Nitrogen potential, CoordinateDefinitionNitrogen coordinateDefinition,
+                                               boolean doLatticeSum, double rC){
 		this.coordinateDefinition = coordinateDefinition;
 		this.potential = potential;
 		this.doLatticeSum = doLatticeSum;
@@ -44,15 +43,15 @@ public class CalcAnalytical2ndDerivativeNitrogen{
 		
 		workVec = space.makeVector();
 		
-		secDerXr = new IVectorMutable[2][3];
+		secDerXr = new Vector[2][3];
 		for(int i=0; i<secDerXr.length; i++){
 			for(int j=0; j<secDerXr[0].length; j++){
 				secDerXr[i][j] = space.makeVector(); 
 			}	
 		}
 		
-		dUdRotA = new IVectorMutable[2];
-		dUdRotB = new IVectorMutable[2];
+		dUdRotA = new Vector[2];
+		dUdRotB = new Vector[2];
 		
 		for(int i=0; i<dUdRotA.length; i++){
 			dUdRotA[i] = space.makeVector();
@@ -60,7 +59,7 @@ public class CalcAnalytical2ndDerivativeNitrogen{
 		}	
 		
 		int numMolec = coordinateDefinition.getBox().getMoleculeList().getMoleculeCount();
-		initMolecOrientation = new IVectorMutable[numMolec][3];
+		initMolecOrientation = new Vector[numMolec][3];
 		
 		for (int i=0; i<numMolec; i++){
 			initMolecOrientation[i] = space.makeVectorArray(3);
@@ -124,14 +123,14 @@ public class CalcAnalytical2ndDerivativeNitrogen{
 		return d2r;
 	}
 	
-	protected IVectorMutable[][] initMolecOrientation;
-	protected IVectorMutable[][] secDerXr;
-	protected IVectorMutable[] dUdRotA, dUdRotB;
-	protected IBox box;
-	protected ISpace space;
+	protected Vector[][] initMolecOrientation;
+	protected Vector[][] secDerXr;
+	protected Vector[] dUdRotA, dUdRotB;
+	protected Box box;
+	protected Space space;
 	protected CoordinateDefinitionNitrogen coordinateDefinition;
 	protected P2Nitrogen potential;
-	protected IVectorMutable workVec;
+	protected Vector workVec;
 	protected boolean doLatticeSum = false;
     protected double [][] d2r = new double[5][5];
     protected MoleculePair pair = new MoleculePair();

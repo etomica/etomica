@@ -4,12 +4,12 @@
 
 package etomica.yukawa;
 
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
+import etomica.space.Vector;
+import etomica.box.Box;
 import etomica.potential.Potential2SoftSpherical;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Hard-core plus two Yukawa fluid (HC2Yukawa): A Lennard-Jones like potential.
@@ -44,11 +44,11 @@ public final class P2HC2Yukawa extends Potential2SoftSpherical {
 		throw new RuntimeException();
 	}
 
-	public P2HC2Yukawa(ISpace _space){
+	public P2HC2Yukawa(Space _space){
 		this(_space, 1.0, 1.0);
 	}
 	
-	public P2HC2Yukawa(ISpace _space, double sigma, double epsilon){
+	public P2HC2Yukawa(Space _space, double sigma, double epsilon){
 		super(_space);
 		
 		dr = space.makeVector();
@@ -59,7 +59,7 @@ public final class P2HC2Yukawa extends Potential2SoftSpherical {
 	
 	public double getRange(){return Double.POSITIVE_INFINITY;}
 	
-	public void setBox(IBox box) {
+	public void setBox(Box box) {
 		nearestImageTransformer = box.getBoundary();
 	}
 
@@ -133,6 +133,6 @@ public final class P2HC2Yukawa extends Potential2SoftSpherical {
 	private double z2;
 	private double expZ1;
 	private double expZ2; 
-	private final IVectorMutable dr;
-	private IBoundary nearestImageTransformer;
+	private final Vector dr;
+	private Boundary nearestImageTransformer;
 }	

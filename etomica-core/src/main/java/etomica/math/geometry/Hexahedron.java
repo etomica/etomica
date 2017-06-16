@@ -8,8 +8,8 @@
  */
 package etomica.math.geometry;
 
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Vector;
+import etomica.space.Space;
 
 /**
  * A polyhedron with six faces, all of which are four-sided polygons.
@@ -28,12 +28,12 @@ public abstract class Hexahedron extends Polyhedron {
      * the index of the vertices array): (0,1,2,3), (1,3,7,5), (4,5,7,6),
      * (0,4,6,2), (2,3,7,6), and (0,1,5,4) 
      */
-    public Hexahedron(ISpace embeddedSpace) {
+    public Hexahedron(Space embeddedSpace) {
         super(makeFaces(embeddedSpace));
     }
     
-    private static Polygon[] makeFaces(ISpace embeddedSpace) {
-        IVectorMutable[] vertices = embeddedSpace.makeVectorArray(8);
+    private static Polygon[] makeFaces(Space embeddedSpace) {
+        Vector[] vertices = embeddedSpace.makeVectorArray(8);
         LineSegment[] edges = new LineSegment[12];
         Polygon[] faces = new Polygon[6];
         //note that it is important that the vertices get used in order, 0, 1, 2, etc.

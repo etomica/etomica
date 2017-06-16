@@ -4,17 +4,17 @@
 
 package etomica.integrator.mcmove;
 
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
+import etomica.atom.IAtom;
+import etomica.potential.PotentialMaster;
+import etomica.space.Vector;
+import etomica.box.Box;
+import etomica.util.random.IRandom;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomLeaf;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
+import etomica.space.Space;
 
 /**
  * Standard Monte Carlo atom-displacement trial move.
@@ -25,36 +25,36 @@ public class MCMoveAtom extends MCMoveBoxStep {
 
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     protected final MeterPotentialEnergy energyMeter;
-    protected final IVectorRandom translationVector;
+    protected final Vector translationVector;
     protected IAtom atom;
     protected double uOld;
     protected double uNew = Double.NaN;
     protected AtomSource atomSource;
     protected boolean fixOverlap;
     protected final IRandom random;
-    protected ISpace space;
+    protected Space space;
 
-    public MCMoveAtom(IRandom random, IPotentialMaster potentialMaster, ISpace _space) {
+    public MCMoveAtom(IRandom random, PotentialMaster potentialMaster, Space _space) {
         this(potentialMaster, random, _space, 1.0, 15.0, false);
     }
 
-    public MCMoveAtom(IPotentialMaster potentialMaster, IRandom random,
-    		          ISpace _space, double stepSize, double stepSizeMax,
-    		          boolean fixOverlap) {
+    public MCMoveAtom(PotentialMaster potentialMaster, IRandom random,
+                      Space _space, double stepSize, double stepSizeMax,
+                      boolean fixOverlap) {
         this(potentialMaster, new MeterPotentialEnergy(potentialMaster), random, _space,
                 stepSize, stepSizeMax, fixOverlap);
     }
 
-    public MCMoveAtom(IPotentialMaster potentialMaster, MeterPotentialEnergy meterPE, IRandom random,
-            ISpace _space, double stepSize, double stepSizeMax,
-            boolean fixOverlap) {
+    public MCMoveAtom(PotentialMaster potentialMaster, MeterPotentialEnergy meterPE, IRandom random,
+                      Space _space, double stepSize, double stepSizeMax,
+                      boolean fixOverlap) {
         super(potentialMaster);
         this.random = random;
         this.space = _space;
         atomSource = new AtomSourceRandomLeaf();
         ((AtomSourceRandomLeaf)atomSource).setRandomNumberGenerator(random);
         this.energyMeter = meterPE;
-        translationVector = (IVectorRandom)space.makeVector();
+        translationVector = space.makeVector();
         setStepSizeMax(stepSizeMax);
         setStepSizeMin(0.0);
         setStepSize(stepSize);
@@ -122,7 +122,7 @@ public class MCMoveAtom extends MCMoveBoxStep {
         return affectedAtomIterator;
     }
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         atomSource.setBox(p);

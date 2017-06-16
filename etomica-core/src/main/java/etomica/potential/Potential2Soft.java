@@ -4,7 +4,7 @@
 
 package etomica.potential;
 
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 
 /**
  * Methods for properties obtained for a soft, differentiable pair potential.

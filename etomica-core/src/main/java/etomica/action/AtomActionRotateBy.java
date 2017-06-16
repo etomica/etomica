@@ -6,8 +6,8 @@ package etomica.action;
 
 import java.io.Serializable;
 
-import etomica.api.IAtom;
-import etomica.space.ISpace;
+import etomica.atom.IAtom;
+import etomica.space.Space;
 import etomica.space3d.RotationTensor3D;
 
 /**
@@ -23,7 +23,7 @@ public class AtomActionRotateBy implements AtomAction, Serializable {
     
     
     
-    public AtomActionRotateBy(ISpace space) {
+    public AtomActionRotateBy(Space space) {
 
     }
     

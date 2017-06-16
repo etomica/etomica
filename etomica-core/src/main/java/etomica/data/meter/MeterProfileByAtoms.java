@@ -3,29 +3,24 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.data.meter;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.data.DataSourceIndependent;
-import etomica.data.DataSourceMolecular;
-import etomica.data.DataSourceUniform;
+
+import etomica.box.Box;
+import etomica.data.*;
 import etomica.data.DataSourceUniform.LimitType;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.IMoleculePositionDefinition;
+import etomica.molecule.MoleculePositionGeometricCenter;
+import etomica.space.Boundary;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.Length;
 
 /**
@@ -50,7 +45,7 @@ public class MeterProfileByAtoms implements IEtomicaDataSource, DataSourceIndepe
     /**
      * Default constructor sets profile along the y-axis, with 100 histogram points.
      */
-    public MeterProfileByAtoms(ISpace space) {
+    public MeterProfileByAtoms(Space space) {
         xDataSource = new DataSourceUniform("x", Length.DIMENSION);
         nAtoms = new int[xDataSource.getNValues()];
         y = new double[xDataSource.getNValues()];
@@ -58,7 +53,7 @@ public class MeterProfileByAtoms implements IEtomicaDataSource, DataSourceIndepe
         tag = new DataTag();
         xDataSource.setTypeMax(LimitType.HALF_STEP);
         xDataSource.setTypeMin(LimitType.HALF_STEP);
-        positionDefinition = new AtomPositionGeometricCenter(space);
+        positionDefinition = new MoleculePositionGeometricCenter(space);
     }
 
     public IEtomicaDataInfo getDataInfo() {
@@ -105,7 +100,7 @@ public class MeterProfileByAtoms implements IEtomicaDataSource, DataSourceIndepe
      * Returns the profile for the current configuration.
      */
     public IData getData() {
-        IBoundary boundary = box.getBoundary();
+        Boundary boundary = box.getBoundary();
         IMoleculeList moleculeList = box.getMoleculeList();
         if (species != null) {
             moleculeList = box.getMoleculeList(species);
@@ -146,14 +141,14 @@ public class MeterProfileByAtoms implements IEtomicaDataSource, DataSourceIndepe
     /**
      * @return Returns the box.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
 
     /**
      * @param box The box to set.
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
     }
 
@@ -182,19 +177,19 @@ public class MeterProfileByAtoms implements IEtomicaDataSource, DataSourceIndepe
         }
     }
 
-    public void setPositionDefinition(IAtomPositionDefinition positionDefinition) {
+    public void setPositionDefinition(IMoleculePositionDefinition positionDefinition) {
         this.positionDefinition = positionDefinition;
     }
 
-    public IAtomPositionDefinition getPositionDefinition() {
+    public IMoleculePositionDefinition getPositionDefinition() {
         return positionDefinition;
     }
 
     private static final long serialVersionUID = 1L;
-    protected IBox box;
+    protected Box box;
     protected DataSourceUniform xDataSource;
     protected DataFunction data;
-    private IAtomPositionDefinition positionDefinition;
+    private IMoleculePositionDefinition positionDefinition;
     protected double[] y;
     protected int[] nAtoms;
     protected IEtomicaDataInfo dataInfo;
@@ -203,7 +198,7 @@ public class MeterProfileByAtoms implements IEtomicaDataSource, DataSourceIndepe
      * For example, (1,0) is along the x-axis.
      */
     protected int profileDim;
-    protected final IVectorMutable position;
+    protected final Vector position;
     /**
      * Meter that defines the property being profiled.
      */

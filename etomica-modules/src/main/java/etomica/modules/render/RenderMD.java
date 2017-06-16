@@ -4,23 +4,11 @@
 
 package etomica.modules.render;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPair;
+import etomica.atom.*;
 import etomica.box.Box;
-import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
@@ -31,11 +19,17 @@ import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2PenetrableSquareWell;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
-import etomica.util.RandomNumberGenerator;
+import etomica.util.random.RandomNumberGenerator;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 
@@ -56,7 +50,7 @@ public class RenderMD extends Simulation {
     /**
      * The Box holding the atoms. 
      */
-    public final IBox box;
+    public final Box box;
     /**
      * The Integrator performing the dynamics.
      */
@@ -78,11 +72,11 @@ public class RenderMD extends Simulation {
     /**
      * Sole public constructor, makes a simulation using a 3D space.
      */
-    public RenderMD(ISpace _space) {
+    public RenderMD(Space _space) {
         this(_space, new RenderMDParam());
     }
     
-    public RenderMD(ISpace _space, RenderMDParam params) {
+    public RenderMD(Space _space, RenderMDParam params) {
         
         // invoke the superclass constructor
         // "true" is indicating to the superclass that this is a dynamic simulation
@@ -117,15 +111,15 @@ public class RenderMD extends Simulation {
         potentialBonded.setEpsilonCore(params.epsilonCore);
         potentialBonded.setEpsilon(params.epsilon);
         potentialBonded.setLambda(params.lambda);
-        
-        IAtomType leafType = species.getLeafType();
 
-        potentialMaster.addPotential(potentialBonded,new IAtomType[]{leafType, leafType});
+        AtomType leafType = species.getLeafType();
+
+        potentialMaster.addPotential(potentialBonded, new AtomType[]{leafType, leafType});
         
         IAtomList leafList = box.getLeafList();
         for (int iLeaf=0; iLeaf<numAtoms; iLeaf++) {
             IAtom a = leafList.getAtom(iLeaf);
-            IVectorMutable pos = a.getPosition();
+            Vector pos = a.getPosition();
             pos.E(parser.vertices.get(iLeaf));
         }
         
@@ -169,11 +163,15 @@ public class RenderMD extends Simulation {
         // find neighbors now.  don't try to update later (neighbors never change)
         potentialMaster.getNeighborManager(box).reset();
     }
+
+    public static RenderMDParam getParameters() {
+        return new RenderMDParam();
+    }
     
     public static class CriterionCar implements NeighborCriterion {
 
         protected final Map<IAtom,Set<IAtom>> bondedSet;
-        public CriterionCar(ParseObj parser, IBox box) {
+        public CriterionCar(ParseObj parser, Box box) {
             bondedSet = new HashMap<IAtom,Set<IAtom>>();
             IAtomList leafList = box.getLeafList();
             for (int i=0; i<leafList.getAtomCount(); i++) {
@@ -188,26 +186,26 @@ public class RenderMD extends Simulation {
                 bondedSet.get(atom1).add(atom0);
             }
         }
-            
-        
+
+
         public boolean accept(IAtomList pair) {
             return bondedSet.get(pair.getAtom(0)).contains(pair.getAtom(1));
         }
 
         public boolean needUpdate(IAtom atom) {return false;}
 
-        public void setBox(IBox box) {}
+        public void setBox(Box box) {}
 
         public boolean unsafe() {return false;}
 
         public void reset(IAtom atom) {}
     }
-    
+
     public static class P2PenetrableCar extends P2PenetrableSquareWell {
         protected final Map<IAtomList, Double> bondMap;
         private final double epsMult = 1.0;
-        
-        public P2PenetrableCar(ISpace space, ParseObj parser, IBox box) {
+
+        public P2PenetrableCar(Space space, ParseObj parser, Box box) {
             super(space);
             bondMap = new HashMap<IAtomList, Double>();
             IAtomList leafList = box.getLeafList();
@@ -219,7 +217,7 @@ public class RenderMD extends Simulation {
                 bondMap.put(new AtomPair(atom0, atom1), bond.bondLengthSquared*0.9999);
             }
         }
-        
+
         public void bump(IAtomList pair, double falseTime) {
             IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);
             IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);
@@ -227,7 +225,7 @@ public class RenderMD extends Simulation {
 
             setCoreDiameterSquared(bondMap.get(pair));
             super.bump(pair, falseTime);
-            
+
             double v2new = atom1.getVelocity().Mv1Squared(atom0.getVelocity());
             if(v2new > 1.01*v2old) {
 //                atom0.getVelocity().TE(0.1);
@@ -240,19 +238,15 @@ public class RenderMD extends Simulation {
             setCoreDiameterSquared(bondMap.get(pair));
             return super.collisionTime(pair, falseTime);
         }
-        
-        public void setEpsilon(double eps) {
-            super.setEpsilon(epsMult*eps);
-        }
-        
+
         public double getEpsilon() {
             return super.getEpsilon()/epsMult;
         }
 
-    }
+        public void setEpsilon(double eps) {
+            super.setEpsilon(epsMult * eps);
+        }
 
-    public static RenderMDParam getParameters() {
-        return new RenderMDParam();
     }
 
     /**

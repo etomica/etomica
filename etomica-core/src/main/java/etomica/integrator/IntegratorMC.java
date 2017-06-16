@@ -4,10 +4,10 @@
 
 package etomica.integrator;
 
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.box.Box;
+import etomica.potential.PotentialMaster;
+import etomica.util.random.IRandom;
+import etomica.simulation.Simulation;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveEventManager;
@@ -31,7 +31,7 @@ import etomica.util.IEventManager;
 
 public class IntegratorMC extends IntegratorBox {
 
-    public IntegratorMC(ISimulation sim, IPotentialMaster potentialMaster) {
+    public IntegratorMC(Simulation sim, PotentialMaster potentialMaster) {
         this(potentialMaster, sim.getRandom(), 1.0);
     }
     
@@ -39,7 +39,7 @@ public class IntegratorMC extends IntegratorBox {
 	 * Constructs integrator and establishes PotentialMaster instance that
 	 * will be used by moves to calculate the energy.
 	 */
-	public IntegratorMC(IPotentialMaster potentialMaster, IRandom random, double temperature) {
+	public IntegratorMC(PotentialMaster potentialMaster, IRandom random, double temperature) {
 		super(potentialMaster,temperature);
         this.random = random;
 		setIsothermal(true); //has no practical effect, but sets value of
@@ -72,7 +72,7 @@ public class IntegratorMC extends IntegratorBox {
      * Moves are not notified if they have a number of boxs different from
      * the number of boxs handled by the integrator.
      */
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
     	super.setBox(p);
     	moveManager.setBox(p);
     }

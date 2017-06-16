@@ -4,7 +4,7 @@
 
 package etomica.models.oneDHardRods;
 
-import etomica.api.IVectorMutable;
+import etomica.space.Vector;
 import etomica.data.DataTag;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
@@ -25,7 +25,7 @@ import etomica.units.Null;
  */
 public class MeterNormalModeCoordinate implements IEtomicaDataSource {
 
-    public MeterNormalModeCoordinate(CoordinateDefinition coordinateDefinition, IVectorMutable[] wv){
+    public MeterNormalModeCoordinate(CoordinateDefinition coordinateDefinition, Vector[] wv){
         this.coordinateDefinition = coordinateDefinition;
         coordinateDim = this.coordinateDefinition.getCoordinateDim();
         this.waveVectors = wv;
@@ -96,7 +96,7 @@ public class MeterNormalModeCoordinate implements IEtomicaDataSource {
     }
 
     private double eigenVectors[][][];
-    private IVectorMutable[] waveVectors;
+    private Vector[] waveVectors;
     private CoordinateDefinition coordinateDefinition;
     private double[] realT, imagT;
     private double[][] omegaSquared;

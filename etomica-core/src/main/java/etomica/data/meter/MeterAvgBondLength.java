@@ -4,14 +4,14 @@
 
 package etomica.data.meter;
 
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
 import etomica.atom.AtomHydrogen;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
+import etomica.molecule.IMoleculeList;
 import etomica.units.Length;
 
 public class MeterAvgBondLength extends DataSourceScalar {
-    private IBox box;
+    private Box box;
 
     public MeterAvgBondLength() {
         super("BondLength",Length.DIMENSION);        
@@ -33,11 +33,11 @@ public class MeterAvgBondLength extends DataSourceScalar {
         return avgBondLength;
     }
     
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
     }
 

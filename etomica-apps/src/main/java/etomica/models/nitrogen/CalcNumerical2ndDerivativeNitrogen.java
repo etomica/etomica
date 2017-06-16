@@ -7,12 +7,12 @@ package etomica.models.nitrogen;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.MoleculePair;
+import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculePair;
+import etomica.molecule.MoleculePositionGeometricCenter;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 
 /**
@@ -36,12 +36,12 @@ import etomica.space3d.Space3D;
  */
 public class CalcNumerical2ndDerivativeNitrogen{
 	
-	public CalcNumerical2ndDerivativeNitrogen(IBox box, P2Nitrogen potential,CoordinateDefinitionNitrogen coordinateDefinition){
+	public CalcNumerical2ndDerivativeNitrogen(Box box, P2Nitrogen potential, CoordinateDefinitionNitrogen coordinateDefinition){
 		this(box, potential, coordinateDefinition, false, potential.getRange());
 	}
 	
-	public CalcNumerical2ndDerivativeNitrogen(IBox box, P2Nitrogen potential,CoordinateDefinitionNitrogen coordinateDefinition,
-			boolean doLatticeSum, double rC){
+	public CalcNumerical2ndDerivativeNitrogen(Box box, P2Nitrogen potential, CoordinateDefinitionNitrogen coordinateDefinition,
+                                              boolean doLatticeSum, double rC){
 		this.coordinateDefinition = coordinateDefinition;
 		this.potential = potential;
 		this.doLatticeSum = doLatticeSum;
@@ -54,7 +54,7 @@ public class CalcNumerical2ndDerivativeNitrogen{
 		
 		translateBy = new AtomActionTranslateBy(coordinateDefinition.getPrimitive().getSpace());
         atomGroupActionTranslate = new MoleculeChildAtomAction(translateBy); 
-        pos = new AtomPositionGeometricCenter(coordinateDefinition.getPrimitive().getSpace());
+        pos = new MoleculePositionGeometricCenter(coordinateDefinition.getPrimitive().getSpace());
         translator = new MoleculeActionTranslateTo(coordinateDefinition.getPrimitive().getSpace());
         translator.setAtomPositionDefinition(pos);
         
@@ -331,14 +331,14 @@ public class CalcNumerical2ndDerivativeNitrogen{
 		this.fixedDeltaU = fixedDeltaU;
 	}
 
-	protected IBox box;
-	protected AtomPositionGeometricCenter pos;
+	protected Box box;
+	protected MoleculePositionGeometricCenter pos;
 	protected MoleculeActionTranslateTo translator;
 	protected CoordinateDefinitionNitrogen coordinateDefinition;
 	protected P2Nitrogen potential;
 	protected AtomActionTranslateBy translateBy;
 	protected MoleculeChildAtomAction atomGroupActionTranslate;
-	protected IVectorMutable lsPosition, destination;
+	protected Vector lsPosition, destination;
 	protected double errt, fac, xVecBox, yVecBox, zVecBox, rC;
 	protected double[] deltaU = new double[2];
 	protected double [][] a, generalizedCoord;

@@ -11,7 +11,7 @@ import javax.swing.border.TitledBorder;
 
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -47,7 +47,7 @@ import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.potential.P2SquareWell;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Angstrom;
 import etomica.units.Dimension;
@@ -70,7 +70,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
     private DeviceThermoSlider temperatureSelect;
     protected final IAction resetAction;
 
-	public ReactionEquilibriumGraphic(ReactionEquilibrium simulation, ISpace space) {
+	public ReactionEquilibriumGraphic(ReactionEquilibrium simulation, Space space) {
 
 		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, space, simulation.getController());
         this.sim = simulation;

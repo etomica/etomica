@@ -9,14 +9,13 @@ import java.io.IOException;
 
 import etomica.action.IAction;
 import etomica.action.activity.ControllerEvent;
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.IIntegrator;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.box.Box;
+import etomica.integrator.Integrator;
+import etomica.space.Vector;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.listener.IntegratorListenerAction;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.util.IEvent;
 import etomica.util.IListener;
 
@@ -52,7 +51,7 @@ import etomica.util.IListener;
 
 public class MSDCoordWriter implements IAction, IListener {
 	
-	public MSDCoordWriter(ISpace _space, String fileName) throws RuntimeException {
+	public MSDCoordWriter(Space _space, String fileName) throws RuntimeException {
 	    throw new RuntimeException("MSDCoordWriter is not usable due to the removal of " +
 	                               "action priorities.");
 /*
@@ -64,7 +63,7 @@ public class MSDCoordWriter implements IAction, IListener {
 */
 	}
 	
-	public void setBox(IBox newBox){
+	public void setBox(Box newBox){
 		
 		box = newBox;
 		iterator.setBox(box);
@@ -76,7 +75,7 @@ public class MSDCoordWriter implements IAction, IListener {
         afterPBCinstance.setIterator(iterator);
     }
 	
-	public void setIntegrator(IIntegrator integrator){
+	public void setIntegrator(Integrator integrator){
 		integrator.getEventManager().addListener(new IntegratorListenerAction(this));
 //        integrator.setIntervalActionPriority(this, 50);
 		integrator.getEventManager().addListener(new IntegratorListenerAction(afterPBCinstance));
@@ -116,7 +115,7 @@ public class MSDCoordWriter implements IAction, IListener {
 	public void actionPerformed() {
 		afterPBCinstance.updateAtomOldCoord();
 		if (--intervalCount == 0){
-			IVector boxdim = box.getBoundary().getBoxSize();
+			Vector boxdim = box.getBoundary().getBoxSize();
 			// Gets atomPBIarray from AfterPBC subclass, through the subclass instance
 			int [][] atomPBIarray = afterPBCinstance.getAtomPBIarray();
 
@@ -125,7 +124,7 @@ public class MSDCoordWriter implements IAction, IListener {
 				int i=0;
 				for (IAtom atom = iterator.nextAtom();
                      atom != null; atom = iterator.nextAtom()) {
-					IVectorMutable atomPosition = atom.getPosition();
+					Vector atomPosition = atom.getPosition();
 					for (int j=0;j < boxdim.getD();j++){
 						double actualDistance;
 							
@@ -163,7 +162,7 @@ public class MSDCoordWriter implements IAction, IListener {
     }
 
 	private AfterPBC afterPBCinstance;
-	private IBox box;
+	private Box box;
 	private AtomIteratorBoxDependent iterator;
 	private int writeInterval;
 	private int intervalCount;
@@ -176,7 +175,7 @@ public class MSDCoordWriter implements IAction, IListener {
 	
 	private static class AfterPBC implements IAction {
 		
-		public AfterPBC(ISpace _space, AtomIteratorBoxDependent iterator){
+		public AfterPBC(Space _space, AtomIteratorBoxDependent iterator){
 			workVector = _space.makeVector();
 			this.iterator = iterator;
 			this.space = _space;
@@ -187,8 +186,8 @@ public class MSDCoordWriter implements IAction, IListener {
 			return atomPBIarray;
 		}
 				
-		public void setBox(IBox box){
-			atomOldCoord = new IVectorMutable[box.getLeafList().getAtomCount()];
+		public void setBox(Box box){
+			atomOldCoord = new Vector[box.getLeafList().getAtomCount()];
 			for (int j=0; j < atomOldCoord.length; j++){
 				atomOldCoord[j] = space.makeVector();
 			}
@@ -237,12 +236,12 @@ public class MSDCoordWriter implements IAction, IListener {
 			}
 		}
 		
-		private IVector boxDim;
+		private Vector boxDim;
 		private int [][] atomPBIarray;
-		private IVectorMutable workVector;
-		private IVectorMutable [] atomOldCoord;
+		private Vector workVector;
+		private Vector[] atomOldCoord;
 		private AtomIteratorBoxDependent iterator;
-		private final ISpace space;
+		private final Space space;
 	}
 	
 }

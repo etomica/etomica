@@ -3,44 +3,35 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.graphics;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.TextField;
+
+import etomica.action.activity.Controller;
+import etomica.space.Boundary;
+import etomica.atom.*;
+import etomica.math.geometry.LineSegment;
+import etomica.math.geometry.Polygon;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.units.Pixel;
+
+import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.util.Iterator;
 
-import etomica.action.activity.Controller;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomFilter;
-import etomica.atom.AtomFilterCollective;
-import etomica.atom.AtomTypeOrientedSphere;
-import etomica.atom.IAtomOriented;
-import etomica.math.geometry.LineSegment;
-import etomica.math.geometry.Polygon;
-import etomica.space.Boundary;
-import etomica.space.ISpace;
-import etomica.units.Pixel;
-
 //Class used to define canvas onto which configuration is drawn
 public class DisplayBoxCanvas2D extends DisplayCanvas {
-    
+
+    protected final Space space;
+    private final int[] atomOrigin;
+    private final Vector boundingBox;
+    Vector vec2;
     private TextField scaleText = new TextField();
     private Font font = new Font("sansserif", Font.PLAIN, 10);
     //  private int annotationHeight = font.getFontMetrics().getHeight();
     private int annotationHeight = 12;
     private int[] shiftOrigin = new int[2];     //work vector for drawing overflow images
-    private final int[] atomOrigin;
-    private final IVectorMutable boundingBox;
-    protected final ISpace space;
-        
-    public DisplayBoxCanvas2D(DisplayBox _box, ISpace _space, Controller controller) {
+
+    public DisplayBoxCanvas2D(DisplayBox _box, Space _space, Controller controller) {
         super(controller);
     	this.space = _space;
         scaleText.setVisible(true);
@@ -49,7 +40,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
         displayBox = _box;
         atomOrigin = new int[space.D()];
         boundingBox = space.makeVector();
-        
+
         addComponentListener(new ComponentListener() {
             public void componentHidden(ComponentEvent e) {}
             public void componentMoved(ComponentEvent e) {}
@@ -59,7 +50,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
     
     protected void refreshSize() {
         Dimension dim = getSize();
-        IVector boxDim = displayBox.getBox().getBoundary().getBoxSize();
+        Vector boxDim = displayBox.getBox().getBoundary().getBoxSize();
         double px = (dim.width - 1)/(boxDim.getX(0)+displayBox.getPaddingSigma());
         double py = (dim.height - 1)/(boxDim.getX(1)+displayBox.getPaddingSigma());
         if (px > py) {
@@ -72,7 +63,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
         setPixelUnit(new Pixel(px));
         displayBox.computeImageParameters();
     }
-    
+
     /**
      * Sets the size of the display to a new value and scales the image so that
      * the box fits in the canvas in the same proportion as before.
@@ -87,23 +78,23 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
             setSize(width, height);
         }
     }
-          
-    //Override superclass methods for changing size so that scale is reset with any size change  
+
+    //Override superclass methods for changing size so that scale is reset with any size change
     // this setBounds is ultimately called by all other setSize, setBounds methods
     public void setBounds(int x, int y, int width, int height) {
         if(width <= 0 || height <= 0) return;
         super.setBounds(x,y,width,height);
         createOffScreen(width,height);
     }
-       
+
     protected void drawAtom(Graphics g, int origin[], IAtom a) {
-        IVectorMutable r = a.getPosition();
+        Vector r = a.getPosition();
         int sigmaP, xP, yP, baseXP, baseYP;
 
-        boolean drawOrientation = (a.getType() instanceof AtomTypeOrientedSphere);
+        boolean drawOrientation = (a.getType() instanceof AtomTypeOriented);
 
         g.setColor(displayBox.getColorScheme().getAtomColor(a));
-        
+
         double toPixels = pixel.toPixels() * displayBox.getScale();
 
         baseXP = origin[0] + (int)(toPixels*r.getX(0));
@@ -119,7 +110,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
         g.fillOval(xP, yP, sigmaP, sigmaP);
         /* Draw the orientation line, if any */
         if(drawOrientation) {
-            IVector dir = ((IAtomOriented)a).getOrientation().getDirection();
+            Vector dir = ((IAtomOriented)a).getOrientation().getDirection();
             int dxy = (int)(toPixels*0.5*sigma);
             int dx = (int)(dxy*dir.getX(0));
             int dy = (int)(dxy*dir.getX(1));
@@ -128,9 +119,8 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
             g.drawLine(xP-dx, yP-dy, xP+dx, yP+dy);
         }
     }
-            
-    IVectorMutable vec2;  
-   /**
+
+    /**
     * Method that handles the drawing of the box to the screen.
     *
     * @param g The graphic object to which the image of the box is drawn
@@ -157,7 +147,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
             int ox = origin[0] + (int)(toPixels*boundingBox.getX(0)*0.5);
             int oy = origin[1] + (int)(toPixels*boundingBox.getX(1)*0.5);
             for(int i=0; i<edges.length; i++) {
-                IVector[] vertices = edges[i].getVertices();
+                Vector[] vertices = edges[i].getVertices();
                 int x1 = ox + (int)(toPixels*vertices[0].getX(0));
                 int y1 = oy + (int)(toPixels*vertices[0].getX(1));
                 int x2 = ox + (int)(toPixels*vertices[1].getX(0));
@@ -210,7 +200,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
             
         //Draw overflow images if so indicated
         if(displayBox.getDrawOverflow()) {
-            IBoundary boundary = displayBox.getBox().getBoundary();
+            Boundary boundary = displayBox.getBox().getBoundary();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtom a = leafList.getAtom(iLeaf);
                 OverflowShift overflow = new OverflowShift(space);

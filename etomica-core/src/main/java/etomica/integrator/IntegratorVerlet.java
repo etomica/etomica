@@ -4,20 +4,20 @@
 
 package etomica.integrator;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForcePressureSum;
-import etomica.space.ISpace;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 public final class IntegratorVerlet extends IntegratorMD implements AgentSource<IntegratorVerlet.Agent> {
 
@@ -28,16 +28,16 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource<
     protected final Tensor pressureTensor;
     protected final Tensor workTensor;
 
-    IVectorMutable work;
+    Vector work;
 
     protected AtomLeafAgentManager<Agent> agentManager;
 
-    public IntegratorVerlet(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
+    public IntegratorVerlet(Simulation sim, PotentialMaster potentialMaster, Space _space) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
     }
     
-    public IntegratorVerlet(IPotentialMaster potentialMaster, IRandom random, 
-            double timeStep, double temperature, ISpace _space) {
+    public IntegratorVerlet(PotentialMaster potentialMaster, IRandom random,
+                            double timeStep, double temperature, Space _space) {
         super(potentialMaster,random,timeStep,temperature, _space);
         // if you're motivated to throw away information earlier, you can use 
         // PotentialCalculationForceSum instead.
@@ -57,7 +57,7 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource<
         t2 = timeStep * timeStep;
     }
           
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         if (box != null) {
             // allow agentManager to de-register itself as a BoxListener
             agentManager.dispose();
@@ -83,16 +83,16 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource<
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             pressureTensor.E(forceSum.getPressureTensor());
-            IVectorMutable v = a.getVelocity();
+            Vector v = a.getVelocity();
             workTensor.Ev1v2(v,v);
-            workTensor.TE(((IAtom)a).getType().getMass());
+            workTensor.TE(a.getType().getMass());
             pressureTensor.PE(workTensor);
             
             Agent agent = agentManager.getAgent(a);
-            IVectorMutable r = a.getPosition();
+            Vector r = a.getPosition();
             work.E(r);
             r.PE(agent.rMrLast);
-            agent.force.TE(((IAtom)a).getType().rm()*t2);
+            agent.force.TE(a.getType().rm()*t2);
             r.PE(agent.force);
             agent.rMrLast.E(r);
             agent.rMrLast.ME(work);
@@ -143,22 +143,22 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource<
         agent.rMrLast.Ea1Tv1(timeStep,atom.getVelocity());//06/13/03 removed minus sign before timeStep
     }
     
-    public final Agent makeAgent(IAtom a, IBox agentBox) {
+    public final Agent makeAgent(IAtom a, Box agentBox) {
         return new Agent(space);
     }
     
-    public void releaseAgent(Agent agent, IAtom atom, IBox agentBox) {}
+    public void releaseAgent(Agent agent, IAtom atom, Box agentBox) {}
             
 	public final static class Agent implements IntegratorBox.Forcible {  //need public so to use with instanceof
-        public IVectorMutable force;
-        public IVectorMutable rMrLast;  //r - rLast
+        public Vector force;
+        public Vector rMrLast;  //r - rLast
 
-        public Agent(ISpace space) {
+        public Agent(Space space) {
             force = space.makeVector();
             rMrLast = space.makeVector();
         }
         
-        public IVectorMutable force() {return force;}
+        public Vector force() {return force;}
     }//end of Agent
     
 }//end of IntegratorVerlet

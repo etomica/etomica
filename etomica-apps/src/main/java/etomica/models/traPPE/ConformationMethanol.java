@@ -4,10 +4,10 @@
 
 package etomica.models.traPPE;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.config.IConformation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Conformation for TraPPE model of methanol: http://www.chem.umn.edu/groups/siepmann/trappe/molname.php#
@@ -18,7 +18,7 @@ import etomica.space.ISpace;
  */
 public class ConformationMethanol implements IConformation {
 
-    public ConformationMethanol(ISpace space) {
+    public ConformationMethanol(Space space) {
         this.space = space;
     }
     
@@ -42,7 +42,7 @@ public class ConformationMethanol implements IConformation {
     }
     
     private static final long serialVersionUID = 1L;
-    protected final ISpace space;
+    protected final Space space;
 
 }
 

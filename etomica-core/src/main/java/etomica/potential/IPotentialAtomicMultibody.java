@@ -4,8 +4,6 @@
 
 package etomica.potential;
 
-import etomica.api.IPotentialAtomic;
-
 /**
  * Interface for an atomic non-additive potential.  Although the potential
  * varies with the angles between the atoms, the potential is spherically

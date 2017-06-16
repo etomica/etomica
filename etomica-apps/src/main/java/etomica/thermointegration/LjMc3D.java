@@ -9,10 +9,8 @@ import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IIntegrator;
-import etomica.api.IPotentialMaster;
+import etomica.integrator.Integrator;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -26,6 +24,7 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
+import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
@@ -40,7 +39,7 @@ public class LjMc3D extends Simulation {
     private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
     public SpeciesSpheresMono species;
-    public IBox box;
+    public Box box;
     public P2LennardJones potential;
     public Controller controller;
     public MeterPotentialEnergy energy;
@@ -50,7 +49,7 @@ public class LjMc3D extends Simulation {
 
     public LjMc3D() {
         super(Space3D.getInstance());
-        IPotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         double sigma = 1.0;
         integrator = new IntegratorMC(this, potentialMaster);
         MCMoveAtom move = new MCMoveAtom(random, potentialMaster, space);
@@ -68,10 +67,10 @@ public class LjMc3D extends Simulation {
         inflater.actionPerformed();
 
         potential = new P2LennardJones(space, sigma, 1.0);
-        IAtomType leafType = species.getLeafType();
+        AtomType leafType = species.getLeafType();
         P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(space, potential, box.getBoundary().getBoxSize().getX(0)*0.45);
 
-        potentialMaster.addPotential(pTruncated,new IAtomType[]{leafType,leafType});
+        potentialMaster.addPotential(pTruncated, new AtomType[]{leafType, leafType});
         
         integrator.setBox(box);
         BoxImposePbc imposepbc = new BoxImposePbc(space);
@@ -89,8 +88,23 @@ public class LjMc3D extends Simulation {
         pumpListener.setInterval(10);
         integrator.getEventManager().addListener(pumpListener);
     }
-    
-    public IIntegrator getIntegrator() {
+
+    public static void main(String[] args) {
+        final String APP_NAME = "LjMd3D";
+        final LjMc3D sim = new LjMc3D();
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 3, sim.space, sim.getController());
+
+        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
+        simGraphic.getController().getDataStreamPumps().add(sim.pump);
+
+        simGraphic.makeAndDisplayFrame(APP_NAME);
+
+        DisplayTextBoxesCAE display = new DisplayTextBoxesCAE();
+        display.setAccumulator(sim.avgEnergy);
+        simGraphic.add(display);
+    }
+
+    public Integrator getIntegrator() {
         return integrator;
     }
 
@@ -109,21 +123,6 @@ public class LjMc3D extends Simulation {
             simGraphic.add(display);
             getContentPane().add(simGraphic.getPanel());
         }
-    }
-
-    public static void main(String[] args) {
-    	final String APP_NAME = "LjMd3D";
-    	final LjMc3D sim = new LjMc3D();
-    	final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 3, sim.space, sim.getController());
-
-        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
-        simGraphic.getController().getDataStreamPumps().add(sim.pump);
-
-        simGraphic.makeAndDisplayFrame(APP_NAME);
-
-        DisplayTextBoxesCAE display = new DisplayTextBoxesCAE();
-        display.setAccumulator(sim.avgEnergy);
-        simGraphic.add(display);
     }
 
 }

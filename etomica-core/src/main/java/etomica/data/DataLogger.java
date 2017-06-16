@@ -3,21 +3,37 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.data;
+
+import etomica.action.activity.ControllerEvent;
+import etomica.util.IEvent;
+import etomica.util.IListener;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import etomica.action.activity.ControllerEvent;
-import etomica.util.IEvent;
-import etomica.util.IListener;
-
 /**
  * DataSink that manages a FileWriter and also listens to non-interval 
  * integrator events and sends appropriate data to a DataWriter.
  */
 public class DataLogger extends DataProcessor implements IListener, java.io.Serializable {
+
+    private static final long serialVersionUID = 2L;
+    //or attach the data. Default is not overwriting.
+    protected transient FileWriter fileWriter; //this is a handle that subclass can use to write data.
+    protected String fileNameSuffix = ".dat"; //Default suffix is text file, subclass can change this.
+    private int count; //counts number of events received before calling doAction().
+    private int writeInterval; //number of times specified by the user between two actions.
+    //could be set by setUpdateInterval() method.
+    private String fileName; //output file name. This name should not have a suffix.
+    private boolean appending = true; //whether to overwrite to the existing data
+    private boolean sameFileEachTime = true; //whether to write to the same file at each INTERVAL.
+    private boolean closeFileEachTime = false; //whether to close the file and open a new one at each INTERVAL.
+    private transient boolean fileIsOpen = false; //at the beginning, it is false.
+    private IEtomicaDataSource writeOnFinishSource = null;
+    private boolean writeOnInterval = true;
     
     public DataLogger(){
         super();
@@ -35,7 +51,7 @@ public class DataLogger extends DataProcessor implements IListener, java.io.Seri
      * Gives data to DataSink for writing
      */
     public IData processData(IData data) {
- 
+
         return data;
     }
     
@@ -74,9 +90,13 @@ public class DataLogger extends DataProcessor implements IListener, java.io.Seri
         openFile();
         ((DataWriter)trueDataSink).setFileWriter(fileWriter);
         super.putData(data);
-        if(closeFileEachTime || !appending) {
+        if (closeFileEachTime) {
             closeFile();
         }
+    }
+
+    public int getWriteInterval() {
+        return writeInterval;
     }
     
     /**
@@ -87,14 +107,9 @@ public class DataLogger extends DataProcessor implements IListener, java.io.Seri
         writeInterval = newWriteInterval;
         count = writeInterval;
     }
-    
-    public int getWriteInterval() {
-        return writeInterval;
-    }
-    
-    
+
     private void openFile(){
-        try { 
+        try {
             if(sameFileEachTime && fileIsOpen) return;
             if(fileName == "") fileName = defaultFileName(); //if fileName is not defined yet, use the current date to be the fileName.
             fileWriter = new FileWriter(fileName + fileNameSuffix, appending);
@@ -107,15 +122,15 @@ public class DataLogger extends DataProcessor implements IListener, java.io.Seri
             System.err.println("Cannot open a file, caught IOException: " + e.getMessage());
         }
     }
-    
+
     protected String defaultFileName() {//now use the current date to be the fileName, subclass could change this.
         SimpleDateFormat formatter = new SimpleDateFormat("MMMd_H_mm_ss", new Locale("en","US"));
         Date now = new Date();
         String currentTime = formatter.format(now);
         return currentTime;
     }
-    
-    public void closeFile(){ 
+
+    public void closeFile() {
         try {
             if(fileIsOpen) { fileWriter.close(); fileIsOpen = false;}
             if(!sameFileEachTime) fileName = "";
@@ -123,7 +138,11 @@ public class DataLogger extends DataProcessor implements IListener, java.io.Seri
             System.err.println("Cannot close a file, caught IOException: " + e.getMessage());
         }
     }
-    
+
+    public String getFileName() {
+        return (fileName + fileNameSuffix);
+    }
+
     /**
      * Define the name of the output file.
      */
@@ -133,23 +152,23 @@ public class DataLogger extends DataProcessor implements IListener, java.io.Seri
         }
         this.fileName = fileName;
     }
-    
-    public String getFileName() {
-        return (fileName+fileNameSuffix);
+
+    public boolean isAppending() {
+        return appending;
     }
-    
+
     /**
      * Overwrite or attach the data to the file.  Default is to append, not
      * overwrite.
      */
     public void setAppending(boolean appending) {
-        this.appending = appending; 
+        this.appending = appending;
     }
-    
-    public boolean isAppending() {
-        return appending;
+
+    public boolean isSameFileEachTime() {
+        return sameFileEachTime;
     }
-    
+
     /**
      * Write to the same file at each time INTERVAL, and close the file at the
      * end of the simulation. Default is true.
@@ -157,22 +176,18 @@ public class DataLogger extends DataProcessor implements IListener, java.io.Seri
     public void setSameFileEachTime(boolean sameFileEachTime) {
         this.sameFileEachTime = sameFileEachTime;
     }
-    
-    public boolean isSameFileEachTime() {
-        return sameFileEachTime;
+
+    public boolean isCloseFileEachTime() {
+        return closeFileEachTime;
     }
-    
+
     /**
      * Close the file and open a new one at each time INTERVAL. The new file will be named by defaultFileName().
      */
     public void setCloseFileEachTime(boolean closeFileEachTime) {
         this.closeFileEachTime = closeFileEachTime;
     }
-    
-    public boolean isCloseFileEachTime() {
-        return closeFileEachTime;
-    }
-    
+
     /**
      * @return Returns the writeOnFinish.
      */
@@ -200,21 +215,6 @@ public class DataLogger extends DataProcessor implements IListener, java.io.Seri
     public void setWriteOnInterval(boolean writeOnInterval) {
         this.writeOnInterval = writeOnInterval;
     }
-
-    private static final long serialVersionUID = 2L;
-    private int count; //counts number of events received before calling doAction().
-    private int writeInterval; //number of times specified by the user between two actions.
-                                //could be set by setUpdateInterval() method.
-    private String fileName; //output file name. This name should not have a suffix.
-    private boolean appending = true; //whether to overwrite to the existing data 
-                                        //or attach the data. Default is not overwriting.
-    protected transient FileWriter fileWriter; //this is a handle that subclass can use to write data.
-    protected String fileNameSuffix = ".dat"; //Default suffix is text file, subclass can change this.
-    private boolean sameFileEachTime = true; //whether to write to the same file at each INTERVAL.
-    private boolean closeFileEachTime = false; //whether to close the file and open a new one at each INTERVAL.
-    private transient boolean fileIsOpen = false; //at the beginning, it is false.
-    private IEtomicaDataSource writeOnFinishSource = null;
-    private boolean writeOnInterval = true;
 
     private void readObject(java.io.ObjectInputStream in)
     throws IOException, ClassNotFoundException

@@ -7,9 +7,9 @@
  */
 package etomica.models.hexane;
 
-import etomica.api.IVectorMutable;
+import etomica.space.Vector;
 import etomica.config.ConformationChainZigZag;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 
 /**
@@ -20,7 +20,7 @@ import etomica.space.ISpace;
  */
 public class ConformationHexane extends ConformationChainZigZag {
 
-	public ConformationHexane(ISpace space){
+	public ConformationHexane(Space space){
 		super(space);
         
         //In sigma units
@@ -43,11 +43,11 @@ public class ConformationHexane extends ConformationChainZigZag {
 //		 v2.setX(2, 3.87292503317033);
 	}
     
-	public IVectorMutable getV1(){
+	public Vector getV1(){
 	    return v1;
     }
 
-    public IVectorMutable getV2(){
+    public Vector getV2(){
         return v2;
     }
 }

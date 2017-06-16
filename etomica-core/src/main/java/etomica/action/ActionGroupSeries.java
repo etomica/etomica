@@ -29,7 +29,7 @@ public class ActionGroupSeries implements IAction, java.io.Serializable, ActionG
      * of array is made and used internally.
      */
     public ActionGroupSeries(IAction[] actions) {
-        this.actions = (IAction[])actions.clone();
+        this.actions = actions.clone();
     }
 
     /**
@@ -62,7 +62,7 @@ public class ActionGroupSeries implements IAction, java.io.Serializable, ActionG
     }
     
     public IAction[] getAllActions() {
-    	return (IAction[])actions.clone();
+    	return actions.clone();
     }
     
     private static final long serialVersionUID = 1L;

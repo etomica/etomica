@@ -4,8 +4,8 @@
 
 package etomica.integrator.mcmove;
 
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
+import etomica.box.Box;
+import etomica.potential.PotentialMaster;
 import etomica.atom.iterator.AtomIterator;
 
 /**
@@ -24,14 +24,14 @@ public abstract class MCMove {
     /**
      * @param potentialMaster the potential master that move can use to calculate energy
      */
-	public MCMove(IPotentialMaster potentialMaster) {
+	public MCMove(PotentialMaster potentialMaster) {
         this(potentialMaster, new MCMoveTracker());
     }
 
     /**
      * @param potentialMaster the potential master that move can use to calculate energy
      */
-    public MCMove(IPotentialMaster potentialMaster, MCMoveTracker acceptanceTracker) {
+    public MCMove(PotentialMaster potentialMaster, MCMoveTracker acceptanceTracker) {
         potential = potentialMaster;
         moveTracker = acceptanceTracker;
         nominalFrequency = 100;
@@ -86,14 +86,14 @@ public abstract class MCMove {
      * move caused an atom to be removed from the box, it will not be returned
      * because that Atom is not considered an affected Atom.                    
 	 */
-	public abstract AtomIterator affectedAtoms(IBox box);
+	public abstract AtomIterator affectedAtoms(Box box);
 
 	/**
 	 * Returns the change in the energy of the given box that results from the
 	 * trial move. Should be called only after lnProbabilityRatio(); returns
 	 * Double.NaN if invoked between calls to doTrial and lnProbabilityRatio.
 	 */
-	public abstract double energyChange(IBox box);
+	public abstract double energyChange(Box box);
 
 	public MCMoveTracker getTracker() {
         return moveTracker;
@@ -118,7 +118,7 @@ public abstract class MCMove {
 	    return getClass().toString();
 	}
 
-    protected final IPotentialMaster potential;
+    protected final PotentialMaster potential;
 
     /**
 	 * Value giving nominal frequency for performing this move. Default is 100,

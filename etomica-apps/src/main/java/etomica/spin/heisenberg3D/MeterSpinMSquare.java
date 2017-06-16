@@ -4,37 +4,41 @@
 
 package etomica.spin.heisenberg3D;
 
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.data.IEtomicaDataSource;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Undefined;
 
 
 /**
  * returns the average of square of total dipole moment.
  *
- * @author  Weisong Lin
- *
+ * @author Weisong Lin
  */
 public class MeterSpinMSquare extends DataSourceScalar implements IEtomicaDataSource {
+
+    private static final long serialVersionUID = 1L;
+    private final AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
+    private final Vector sum;
+    private final double dipoleMagnitude;
+    private Box box;
 
     /**
      * @param space, box and dipoleMagnitude
      */
-	
-    public MeterSpinMSquare(ISpace space,IBox box,double dipoleMagnitude) {
-        super("Spin",Undefined.DIMENSION);
+
+    public MeterSpinMSquare(Space space, Box box, double dipoleMagnitude) {
+        super("Spin", Undefined.DIMENSION);
         sum = space.makeVector();
         this.box = box;
         this.dipoleMagnitude = dipoleMagnitude;
     }
 
     /**
-     *
      * @return <M^2> with M is the total dipole moment;
      */
     public double getDataAsScalar() {
@@ -47,28 +51,20 @@ public class MeterSpinMSquare extends DataSourceScalar implements IEtomicaDataSo
             sum.PE(atom.getOrientation().getDirection());
             count++;
         }
-        return sum.squared()*dipoleMagnitude*dipoleMagnitude;
+        return sum.squared() * dipoleMagnitude * dipoleMagnitude;
     }
-    
-    
-    
 
     /**
      * @return Returns the box.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
+
     /**
      * @param box The box to set.
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
     }
-
-    private static final long serialVersionUID = 1L;
-    private IBox box;
-    private final AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
-    private final IVectorMutable sum;
-    private final double dipoleMagnitude;
 }

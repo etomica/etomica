@@ -14,18 +14,18 @@
 package etomica.config;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionFirstAtom;
+import etomica.box.Box;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.SpaceLattice;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculePositionFirstAtom;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Vector3D;
+import etomica.species.ISpecies;
 
 /**
  * @author K.R. Schadel with help from A. Schultz
@@ -37,7 +37,7 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
      * proceeding in the order resulting from iteration through the given index
      * iterator.
      */
-    public GrainBoundaryConfiguration(BravaisLatticeCrystal latticeA, BravaisLatticeCrystal latticeB, ISpace space) {
+    public GrainBoundaryConfiguration(BravaisLatticeCrystal latticeA, BravaisLatticeCrystal latticeB, Space space) {
         super(); 
         /** Lattices A + B share same space.  Only need to getSpace() for one 
          *  of the two.
@@ -56,7 +56,7 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
             		"Dimension of index iterator and lattice are incompatible");
         }
         atomActionTranslateTo = new MoleculeActionTranslateTo(latticeA.getSpace());
-        atomActionTranslateTo.setAtomPositionDefinition(new AtomPositionFirstAtom());
+        atomActionTranslateTo.setAtomPositionDefinition(new MoleculePositionFirstAtom());
     }
 
     public void setDimensions (int nCellsAx, int nCellsAy, int nCellsAz, 
@@ -119,7 +119,7 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
      * Places the molecules in the given box on the positions of the
      * lattice.  
      */
-    public void initializeCoordinates(IBox box) {
+    public void initializeCoordinates(Box box) {
     	IMoleculeList listMobileA = box.getMoleculeList(speciesAMobile);
     	IMoleculeList listMobileB = box.getMoleculeList(speciesBMobile);
         IMoleculeList listFixedA = box.getMoleculeList(speciesAFixed);
@@ -167,7 +167,7 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
             }
             // initialize coordinates of child atoms
             a.getType().initializeConformation(a);
-            IVectorMutable site = (IVectorMutable) myLatA.site(ii);
+            Vector site = (Vector) myLatA.site(ii);
             atomActionTranslateTo.setDestination(site);
             atomActionTranslateTo.actionPerformed(a);
 //            System.out.println("A  |  " +a + "  |  " + site.x(2) + "  |  " + ii[2]);
@@ -189,7 +189,7 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
             }
             // initialize coordinates of child atoms
             a.getType().initializeConformation(a);
-            IVectorMutable site = (IVectorMutable) myLatB.site(ii);
+            Vector site = (Vector) myLatB.site(ii);
             atomActionTranslateTo.setDestination(site);
             atomActionTranslateTo.actionPerformed(a);
             //System.out.println("B  |  " +a + "  |  " + site.x(2) + "  |  " + ii[2]);
@@ -220,13 +220,13 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
      */
     private static class MyLattice implements SpaceLattice {
 
-        MyLattice(SpaceLattice l, IVectorMutable offset) {
+        MyLattice(SpaceLattice l, Vector offset) {
             lattice = l;
             this.offset = offset;
             this.site = l.getSpace().makeVector();
         }
 
-        public ISpace getSpace() {
+        public Space getSpace() {
             return lattice.getSpace();
         }
 
@@ -235,10 +235,10 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
         }
 
         /**
-         * Returns the same IVector instance with each call.
+         * Returns the same Vector instance with each call.
          */
         public Object site(int[] index) {
-            site.E((IVectorMutable) lattice.site(index));
+            site.E((Vector) lattice.site(index));
             site.PE(offset);
             return site;
         }
@@ -249,8 +249,8 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
         }
 
         SpaceLattice lattice;
-        IVectorMutable offset;
-        private final IVectorMutable site;
+        Vector offset;
+        private final Vector site;
     }
 
     private final BravaisLatticeCrystal latticeA, latticeB;
@@ -265,6 +265,6 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
     double[] latticeDimensionsB = new double[3];
     private int nCellsAx, nCellsAy, nCellsAz, nCellsBx, nCellsBy, nCellsBz;
     private MyLattice myLatA, myLatB;
-    private final ISpace space;
+    private final Space space;
     private static final long serialVersionUID = 2L;
 }

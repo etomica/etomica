@@ -8,9 +8,8 @@
  */
 package etomica.config;
 
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Vector;
+import etomica.space.Space;
 
 /**
  * Takes two vectors, and returns them in repeating order to form a zig-zag chain 
@@ -21,14 +20,14 @@ import etomica.space.ISpace;
  */
 public class ConformationChainZigZag extends ConformationChain {
 	
-    public ConformationChainZigZag(ISpace space){
+    public ConformationChainZigZag(Space space){
 		super(space);
 		
 		v1 = space.makeVector();
 		v2 = space.makeVector();
 		isVectorOne = true;
 	}
-	public ConformationChainZigZag(ISpace space, IVector vect1, IVector vect2){
+	public ConformationChainZigZag(Space space, Vector vect1, Vector vect2){
 		super(space);
 		v1 = space.makeVector();
 		v2 = space.makeVector();
@@ -49,7 +48,7 @@ public class ConformationChainZigZag extends ConformationChain {
 	/* (non-Javadoc)
 	 * @see etomica.ConformationChain#nextVector()
 	 */
-	protected IVector nextVector() {
+	protected Vector nextVector() {
 		if(isVectorOne){
 			isVectorOne = false;
 			return v1;
@@ -58,16 +57,16 @@ public class ConformationChainZigZag extends ConformationChain {
 		return v2;
 	}
 	
-	public IVectorMutable getFirstVector() {
+	public Vector getFirstVector() {
 	    return v1;
 	}
 	
-	public IVectorMutable getSecondVector() {
+	public Vector getSecondVector() {
 	    return v2;
 	}
 
     private static final long serialVersionUID = 1L;
-	protected IVectorMutable v1;
-	protected IVectorMutable v2;
+	protected Vector v1;
+	protected Vector v2;
 	boolean isVectorOne;
 }

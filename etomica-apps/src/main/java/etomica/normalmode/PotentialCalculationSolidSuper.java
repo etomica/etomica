@@ -1,15 +1,14 @@
 package etomica.normalmode;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.potential.IPotentialAtomic;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialCalculation;
-import etomica.space.ISpace;
+import etomica.space.Boundary;
+import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * Sums the force on each iterated atom and adds it to the integrator agent
@@ -18,19 +17,19 @@ import etomica.space.ISpace;
 public class PotentialCalculationSolidSuper implements PotentialCalculation {
         
     protected final CoordinateDefinition coordinateDefinition;
-    protected final IVectorMutable drSite0, drSite1, drA, dr, drB;
-    protected final ISpace space;
+    protected final Vector drSite0, drSite1, drA, dr, drB;
+    protected final Space space;
     protected double pSum, virialSum;
-    protected final IVectorMutable pSumXYZ, pTmp;
+    protected final Vector pSumXYZ, pTmp;
     protected double energySum, dadbSum;
     protected double fac1, fac2;
-    protected IBox box;
-    protected IBoundary boundary;
+    protected Box box;
+    protected Boundary boundary;
     protected boolean doD2;
     protected double d2sum;
     protected double pHarmonic, temperature;
     
-    public PotentialCalculationSolidSuper(ISpace space, CoordinateDefinition coordinateDefinition) {
+    public PotentialCalculationSolidSuper(Space space, CoordinateDefinition coordinateDefinition) {
         this.coordinateDefinition = coordinateDefinition;
         this.space = space;
         drSite0 = space.makeVector();
@@ -67,8 +66,8 @@ public class PotentialCalculationSolidSuper implements PotentialCalculation {
 //        dr.Ev1Mv2(atom0.getPosition(), atom1.getPosition());
 //        boundary.nearestImage(dr);
 //        double r = Math.sqrt(dr.squared()); // distance between atoms
-        IVector site0 = coordinateDefinition.getLatticePosition(atom0);
-        IVector site1 = coordinateDefinition.getLatticePosition(atom1);
+        Vector site0 = coordinateDefinition.getLatticePosition(atom0);
+        Vector site1 = coordinateDefinition.getLatticePosition(atom1);
 //        if (debug) {
 //            System.out.println(site0+" "+atom0.getPosition());
 //            System.out.println(site1+" "+atom1.getPosition());
@@ -144,7 +143,7 @@ public class PotentialCalculationSolidSuper implements PotentialCalculation {
         return pSum;
     }
     
-    public IVector getPressureSumXYZ() {
+    public Vector getPressureSumXYZ() {
         return pSumXYZ;
     }
     
@@ -178,7 +177,7 @@ public class PotentialCalculationSolidSuper implements PotentialCalculation {
         fac2 = (-1/vol + pHarmonic/temperature)/(D*N-D);
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
         boundary = box.getBoundary();
     }

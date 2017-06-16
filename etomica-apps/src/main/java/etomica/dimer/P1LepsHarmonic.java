@@ -4,13 +4,13 @@
 
 package etomica.dimer;
 
-import etomica.api.IAtomList;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
+
 /**
  * A combination of the basic LEPS potential describing 3 atoms moving in 1-dimension, paired with a harmonic potential.
  * @author msellers
@@ -20,7 +20,7 @@ public class P1LepsHarmonic extends Potential1 implements PotentialSoft {
 	
     private static final long serialVersionUID = 1L;
 
-    private final IVectorMutable[] force;
+    private final Vector[] force;
 	
     //LEPS Potential Parameters
     public double alpha = 1.942;
@@ -47,9 +47,9 @@ public class P1LepsHarmonic extends Potential1 implements PotentialSoft {
     public double sy1 = 0.35;
     public double sy2 = 0.7;
     
-	public P1LepsHarmonic(ISpace space){
+	public P1LepsHarmonic(Space space){
 		super(space);
-	    force = new IVectorMutable[]{space.makeVector()};
+	    force = new Vector[]{space.makeVector()};
 	}
 	
 	public double energy(IAtomList atom) {
@@ -81,7 +81,7 @@ public class P1LepsHarmonic extends Potential1 implements PotentialSoft {
 		return energy;
 	}
 		
-	public IVector[] gradient(IAtomList atom){
+	public Vector[] gradient(IAtomList atom){
 
 		double x = atom.getAtom(0).getPosition().getX(0);
 		double y = atom.getAtom(0).getPosition().getX(1);
@@ -121,7 +121,7 @@ public class P1LepsHarmonic extends Potential1 implements PotentialSoft {
 		return force;
 	}
 	
-	public IVector[] gradient(IAtomList atom, Tensor pressureTensor){
+	public Vector[] gradient(IAtomList atom, Tensor pressureTensor){
 		
 		return gradient(atom);
 	}

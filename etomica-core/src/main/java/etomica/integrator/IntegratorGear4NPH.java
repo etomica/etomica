@@ -5,19 +5,12 @@
 // includes a main method
 
 package etomica.integrator;
+
 import etomica.action.BoxInflate;
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IPotential;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -26,15 +19,13 @@ import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.modifier.ModifierBoolean;
-import etomica.potential.Potential2Soft;
-import etomica.potential.PotentialCalculationForceSum;
-import etomica.space.ISpace;
-import etomica.units.Dimension;
-import etomica.units.Energy;
-import etomica.units.Kelvin;
-import etomica.units.Null;
-import etomica.units.Pressure;
-import etomica.units.Temperature;
+import etomica.potential.*;
+import etomica.simulation.Simulation;
+import etomica.space.Boundary;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.units.*;
+import etomica.util.random.IRandom;
 
 /**
  * Gear 4th-order predictor-corrector integrator for constant enthalphy, pressure.
@@ -58,12 +49,12 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
     protected int D;
     protected MeterTemperature meterTemperature;
     
-    public IntegratorGear4NPH(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
+    public IntegratorGear4NPH(Simulation sim, PotentialMaster potentialMaster, Space _space) {
         this(potentialMaster, sim.getRandom(),0.05, 1.0, _space);
     }
     
-    public IntegratorGear4NPH(IPotentialMaster potentialMaster, IRandom random, 
-            double timeStep, double temperature, ISpace _space) {
+    public IntegratorGear4NPH(PotentialMaster potentialMaster, IRandom random,
+                              double timeStep, double temperature, Space _space) {
         super(potentialMaster, random, timeStep, temperature, _space);
         kp = 1.0/rrp/getTimeStep();
         kh = 1.0/rrh/getTimeStep();
@@ -105,7 +96,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
     public double getTargetT() {return targetT;}
     public Dimension getTargetTDimension() {return Temperature.DIMENSION;}
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         inflate.setBox(box);
         meterTemperature = new MeterTemperature(box, D);
@@ -216,7 +207,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
             integrator.setIsothermal(isothermal);
             if(!isothermal) {
                 integrator.calculateForces();
-                IBox box = integrator.getBox();
+                Box box = integrator.getBox();
                 double kineticT = integrator.getMeterTemperature().getDataAsScalar();
                 double mvsq = kineticT * dim * box.getLeafList().getAtomCount();
                 double volume = box.getBoundary().volume();
@@ -254,7 +245,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
         }
         
         public IData getData() {
-            IBox box = integrator.getBox();
+            Box box = integrator.getBox();
             double kineticT = integrator.getMeterTemperature().getDataAsScalar();
             double mvsq = kineticT* dim * box.getLeafList().getAtomCount();
             double volume = box.getBoundary().volume();
@@ -281,16 +272,16 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
         double x; //hypervirial sum
         double rvx; 
         double vf;
-        private final IVectorMutable dr;
-        private final IVectorMutable dv;
-        private IBoundary nearestImageTransformer;
+        private final Vector dr;
+        private final Vector dv;
+        private Boundary nearestImageTransformer;
 
-        public ForceSumNPH(ISpace space) {
+        public ForceSumNPH(Space space) {
             dr = space.makeVector();
             dv = space.makeVector();
         }
         
-        public void setBox(IBox box) {
+        public void setBox(Box box) {
             nearestImageTransformer = box.getBoundary();
         }
         
@@ -310,10 +301,10 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
             double hv = potentialSoft.hyperVirial(pair);
             x += hv;
             rvx += hv * dr.dot(dv)/r2;
-            IVector[] f = potentialSoft.gradient(pair);
+            Vector[] f = potentialSoft.gradient(pair);
             vf += dv.dot(f[0]); //maybe should be (-)?
-            ((Agent)integratorAgentManager.getAgent((IAtom)atom0)).force().ME(f[0]);
-            ((Agent)integratorAgentManager.getAgent((IAtom)atom1)).force().ME(f[1]);
+            integratorAgentManager.getAgent((IAtom)atom0).force().ME(f[0]);
+            integratorAgentManager.getAgent((IAtom)atom1).force().ME(f[1]);
         }
     }
 }

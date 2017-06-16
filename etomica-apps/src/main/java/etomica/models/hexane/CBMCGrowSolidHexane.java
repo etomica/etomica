@@ -4,15 +4,15 @@
 
 package etomica.models.hexane;
 
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.box.Box;
 import etomica.integrator.IntegratorMC;
-import etomica.space.ISpace;
+import etomica.potential.PotentialMaster;
+import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
+import etomica.util.random.IRandom;
 
 
 /**
@@ -27,9 +27,9 @@ import etomica.space.Tensor;
  */
 public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
 
-    public CBMCGrowSolidHexane(IPotentialMaster p, IRandom random,
-    		ISpace _space, 
-            IntegratorMC integrator, IBox phs, ISpecies species, int NTrials) {
+    public CBMCGrowSolidHexane(PotentialMaster p, IRandom random,
+                               Space _space,
+                               IntegratorMC integrator, Box phs, ISpecies species, int NTrials) {
         super(p, random, integrator, phs, species, _space, 6, NTrials);
 
         if (_space.D() != 3) {
@@ -61,7 +61,7 @@ public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
 
     // Different because we know the bond angle
     // All moves are accepted
-    protected IVectorMutable calcRandomBondWithAngle(IAtom a, IAtom b) {
+    protected Vector calcRandomBondWithAngle(IAtom a, IAtom b) {
         // temp will be the radial vector
         // vex will be the axial vector
 
@@ -120,8 +120,8 @@ public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
 
     }
 
-    protected IVectorMutable calcRandomBondWithAngleAndTorsion(IAtom a, IAtom b,
-            IAtom c) {
+    protected Vector calcRandomBondWithAngleAndTorsion(IAtom a, IAtom b,
+                                                       IAtom c) {
         // Get a random number, and place it between the limits on the new
         // atom's placement. The angle must be between lowerTorsLimit,
         // and upperTorsLimit.
@@ -172,7 +172,7 @@ public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
          */
     }
 
-    protected double calcBondTorsionalEnergy(IVectorMutable v) {
+    protected double calcBondTorsionalEnergy(Vector v) {
         throw new RuntimeException("calcBondTorsionalEnergy should not be "
                 + "called in CBMCGrowSolidHexane");
         /*
@@ -206,7 +206,7 @@ public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
      * @param vect
      * @return a unit normal to the argument vector
      */
-    protected IVectorMutable getNormal(IVectorMutable vect) {
+    protected Vector getNormal(Vector vect) {
         // Determine the smallest component
         int min = 0;
         if (vect.getX(1) < vect.getX(0)) {
@@ -240,5 +240,5 @@ public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
 
     Tensor rotor;
 
-    IVectorMutable temp2;
+    Vector temp2;
 }

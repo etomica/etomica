@@ -4,17 +4,13 @@
 
 package etomica.data.meter;
 
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.atom.iterator.IteratorDirective;
-import etomica.data.DataInfo;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.box.Box;
+import etomica.data.*;
 import etomica.data.types.DataTensor;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationPressureTensor;
-import etomica.space.ISpace;
+import etomica.potential.PotentialMaster;
+import etomica.space.Space;
 import etomica.units.Pressure;
 
 /**
@@ -26,7 +22,7 @@ import etomica.units.Pressure;
  */
 public class MeterPressureTensor implements IEtomicaDataSource {
     
-    public MeterPressureTensor(IPotentialMaster potentialMaster, ISpace space) {
+    public MeterPressureTensor(PotentialMaster potentialMaster, Space space) {
     	super();
         this.potentialMaster = potentialMaster;
         data = new DataTensor(space);
@@ -52,7 +48,7 @@ public class MeterPressureTensor implements IEtomicaDataSource {
      * calculated for the box the integrator acts on and integrator's 
      * temperature is used for the ideal gas contribution.
      */
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         pc.setBox(newBox);
         box = newBox;
     }
@@ -62,7 +58,7 @@ public class MeterPressureTensor implements IEtomicaDataSource {
      * calculated for the box the integrator acts on and integrator's 
      * temperature is used for the ideal gas contribution.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
 
@@ -104,8 +100,8 @@ public class MeterPressureTensor implements IEtomicaDataSource {
     protected final DataTag tag;
     protected final DataTensor data;
     protected final DataInfo dataInfo;
-    protected final IPotentialMaster potentialMaster;
-    protected IBox box;
+    protected final PotentialMaster potentialMaster;
+    protected Box box;
     protected IteratorDirective iteratorDirective;
     protected final PotentialCalculationPressureTensor pc;
     protected final double rD;

@@ -3,11 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.data.meter;
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.data.DataSourceAtomic;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -15,7 +15,7 @@ import etomica.data.IDataInfo;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataTensor;
 import etomica.data.types.DataTensor.DataInfoTensor;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Energy;
 
 /**
@@ -29,7 +29,7 @@ import etomica.units.Energy;
 
 public class MeterTensorVelocity implements DataSourceAtomic, java.io.Serializable {
 
-    public MeterTensorVelocity(ISpace space) {
+    public MeterTensorVelocity(Space space) {
         data = new DataTensor(space);
         dataInfo = new DataInfoTensor("pp/m",Energy.DIMENSION, space);
         atomData = new DataTensor(space);
@@ -71,7 +71,7 @@ public class MeterTensorVelocity implements DataSourceAtomic, java.io.Serializab
      * Returns the velocity dyad (mass*vv) for the given atom.
      */
     public IData getData(IAtom atom) {
-        IVectorMutable vel = ((IAtomKinetic)atom).getVelocity();
+        Vector vel = ((IAtomKinetic)atom).getVelocity();
         atomData.x.Ev1v2(vel, vel);
         atomData.TE(atom.getType().rm());
         return atomData;
@@ -80,13 +80,13 @@ public class MeterTensorVelocity implements DataSourceAtomic, java.io.Serializab
     /**
      * @return Returns the box.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     /**
      * @param box The box to set.
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
     }
 
@@ -100,7 +100,7 @@ public class MeterTensorVelocity implements DataSourceAtomic, java.io.Serializab
     
     private static final long serialVersionUID = 1L;
     private String name;
-    private IBox box;
+    private Box box;
     private final DataTensor data, atomData;
     private final DataInfoTensor dataInfo;
     protected DataTag tag;

@@ -4,15 +4,14 @@
 
 package etomica.spaceNd;
 
-import etomica.api.IFunction;
-import etomica.api.IRandom;
-import etomica.api.IVector;
-import etomica.space.IVectorRandom;
+import etomica.math.function.IFunction;
+import etomica.util.random.IRandom;
+import etomica.space.Vector;
 
 /**
  * Implementation of the Vector class for a 3-dimensional space.
  */
-public final class VectorND implements IVectorRandom, java.io.Serializable {
+public final class VectorND implements Vector, java.io.Serializable {
 
     protected final double[] x;
     private static final long serialVersionUID = 1L;
@@ -20,16 +19,13 @@ public final class VectorND implements IVectorRandom, java.io.Serializable {
     public VectorND(int D) {
         x = new double[D];
     }
+
+    public VectorND(double[] d) {
+        x = d.clone();
+    }
     
     public int getD() {
         return x.length;
-    }
-
-    public VectorND(double[] a) {
-        x = new double[a.length];
-        for (int i=0; i<a.length; i++) {
-            x[i] = a[i];
-        }
     }
 
     public String toString() {
@@ -51,7 +47,7 @@ public final class VectorND implements IVectorRandom, java.io.Serializable {
         }
     }
 
-    public boolean equals(IVector v) {
+    public boolean equals(Vector v) {
         for (int i=0; i<x.length; i++) {
             if (v.getX(i) != x[i]) return false;
         }
@@ -65,7 +61,7 @@ public final class VectorND implements IVectorRandom, java.io.Serializable {
         return true;
     }
 
-    public void E(IVector u) {
+    public void E(Vector u) {
         for (int i=0; i<x.length; i++) {
             x[i] = u.getX(i);
         }
@@ -83,19 +79,19 @@ public final class VectorND implements IVectorRandom, java.io.Serializable {
         }
     }
     
-    public void Ea1Tv1(double a1, IVector u) {
+    public void Ea1Tv1(double a1, Vector u) {
         for (int i=0; i<x.length; i++) {
             x[i] = a1 * u.getX(i);
         }
     }
 
-    public void PEa1Tv1(double a1, IVector u) {
+    public void PEa1Tv1(double a1, Vector u) {
         for (int i=0; i<x.length; i++) {
             x[i] += a1 * u.getX(i);
         }
     }
 
-    public void PE(IVector u) {
+    public void PE(Vector u) {
         for (int i=0; i<x.length; i++) {
             x[i] += u.getX(i);
         }
@@ -107,7 +103,7 @@ public final class VectorND implements IVectorRandom, java.io.Serializable {
         }
     }
 
-    public void ME(IVector u) {
+    public void ME(Vector u) {
         for (int i=0; i<x.length; i++) {
             x[i] -= u.getX(i);
         }
@@ -119,31 +115,31 @@ public final class VectorND implements IVectorRandom, java.io.Serializable {
         }
     }
 
-    public void TE(IVector u) {
+    public void TE(Vector u) {
         for (int i=0; i<x.length; i++) {
             x[i] *= u.getX(i);
         }
     }
 
-    public void DE(IVector u) {
+    public void DE(Vector u) {
         for (int i=0; i<x.length; i++) {
             x[i] /= u.getX(i);
         }
     }
 
-    public void Ev1Pv2(IVector u1, IVector u2) {
+    public void Ev1Pv2(Vector u1, Vector u2) {
         for (int i=0; i<x.length; i++) {
             x[i] = u1.getX(i) + u2.getX(i);
         }
     }
 
-    public void Ev1Mv2(IVector u1, IVector u2) {
+    public void Ev1Mv2(Vector u1, Vector u2) {
         for (int i=0; i<x.length; i++) {
             x[i] = u1.getX(i) - u2.getX(i);
         }
     }
     
-    public void mod(final IVector u) {
+    public void mod(final Vector u) {
         for (int i=0; i<x.length; i++) {
             while (x[i] > u.getX(i)) {
                 x[i] -= u.getX(i);
@@ -162,7 +158,7 @@ public final class VectorND implements IVectorRandom, java.io.Serializable {
         return s;
     }
 
-    public double Mv1Squared(IVector u) {
+    public double Mv1Squared(Vector u) {
         double s = 0;
         for (int i=0; i<x.length; i++) {
             double dx = x[i] - u.getX(i);
@@ -171,7 +167,7 @@ public final class VectorND implements IVectorRandom, java.io.Serializable {
         return s;
     }
 
-    public double dot(IVector u) {
+    public double dot(Vector u) {
         double s = 0;
         for (int i=0; i<x.length; i++) {
             s += x[i] * u.getX(i);
@@ -235,7 +231,7 @@ public final class VectorND implements IVectorRandom, java.io.Serializable {
         }
     }
 
-    public void XE(IVector u) {//cross product
+    public void XE(Vector u) {//cross product
         if (x.length == 3) {
             double xNew = x[1] * u.getX(2) - x[2] * u.getX(1);
             double yNew = x[2] * u.getX(0) - x[0] * u.getX(2);

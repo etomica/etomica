@@ -49,7 +49,6 @@ import etomica.data.meter.MeterPressureHard;
 import etomica.data.meter.MeterRDF;
 import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDouble;
-import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ActionConfigWindow;
 import etomica.graphics.ActionVelocityWindow;
@@ -97,8 +96,8 @@ import etomica.units.Unit;
 import etomica.units.UnitRatio;
 import etomica.units.systems.MKS;
 import etomica.util.Constants.CompassDirection;
-import etomica.util.DoubleRange;
-import etomica.util.HistogramSimple;
+import etomica.math.DoubleRange;
+import etomica.data.histogram.HistogramSimple;
 
 public class SwmdGraphic extends SimulationGraphic {
 
@@ -227,8 +226,8 @@ public class SwmdGraphic extends SimulationGraphic {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 if(evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) return; 
                 setPotential((String)evt.getItem());
-                if((String)evt.getItem() == idealGas ||
-                   (String)evt.getItem() == repulsionOnly) {
+                if(evt.getItem() == idealGas ||
+                   evt.getItem() == repulsionOnly) {
                     epsBox.setEditable(false);
                     lamBox.setEditable(false);
                 }
@@ -312,7 +311,7 @@ public class SwmdGraphic extends SimulationGraphic {
 		DataSourceUniform mbX = mbSource.getXSource();
 		mbX.setTypeMax(LimitType.HALF_STEP);
 		mbX.setTypeMin(LimitType.HALF_STEP);
-		mbX.setNValues(((DataInfoFunction)meterVelocity.getDataInfo()).getLength());
+		mbX.setNValues(meterVelocity.getDataInfo().getLength());
 		mbX.setXMin(vMin);
 		mbX.setXMax(vMax);
 		mbSource.update();

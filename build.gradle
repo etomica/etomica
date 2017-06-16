@@ -10,12 +10,18 @@ subprojects {
     apply plugin: 'eclipse'
     apply plugin: 'findbugs'
 
+    if(rootProject.hasProperty("main")) {
+        apply plugin: 'application'
+        mainClassName = rootProject.findProperty("main")
+    }
+
     repositories {
         // superset of maven central
         jcenter()
     }
 
     sourceCompatibility = 1.8
+    targetCompatibility = 1.8
 
     dependencies {
         testCompile 'junit:junit:4.12'

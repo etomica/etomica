@@ -1,11 +1,11 @@
 package etomica.normalmode;
 
-import etomica.api.IAtomList;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
 import etomica.liquidLJ.Potential2SoftSphericalLSMultiLat;
 import etomica.liquidLJ.Potential2SoftSphericalLSMultiLat.ReturnValue;
-import etomica.space.ISpace;
+import etomica.potential.IPotentialAtomic;
+import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * Sums the force on each iterated atom and adds it to the integrator agent
@@ -13,7 +13,7 @@ import etomica.space.ISpace;
  */
 public class PotentialCalculationSolidSuperCutLS extends PotentialCalculationSolidSuperCut {
         
-    public PotentialCalculationSolidSuperCutLS(ISpace space, CoordinateDefinition coordinateDefinition, double[] cutoffs) {
+    public PotentialCalculationSolidSuperCutLS(Space space, CoordinateDefinition coordinateDefinition, double[] cutoffs) {
         super(space, coordinateDefinition, cutoffs);
     }
     
@@ -31,8 +31,8 @@ public class PotentialCalculationSolidSuperCutLS extends PotentialCalculationSol
             virialSum = new double[n];
             sum1 = new double[n];
             dadbSum = new double[n];
-            pSumXYZ1 = new IVectorMutable[n];
-            pSumXYZ2 = new IVectorMutable[n];
+            pSumXYZ1 = new Vector[n];
+            pSumXYZ2 = new Vector[n];
             for (int i=0; i<n; i++) {
                 pSumXYZ1[i] = space.makeVector();
                 pSumXYZ2[i] = space.makeVector();

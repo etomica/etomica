@@ -4,9 +4,9 @@
 
 package etomica.data.meter;
 
-import etomica.api.IBox;
-import etomica.api.ISpecies;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
+import etomica.species.ISpecies;
 import etomica.units.Fraction;
 
 /**
@@ -37,15 +37,15 @@ public class MeterMoleFraction extends DataSourceScalar {
     /**
      * @return Returns the box.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     /**
      * @param box The box to set.
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
     }
 
-    private IBox box;
+    private Box box;
 }//end of MeterMoleFraction

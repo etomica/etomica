@@ -1,23 +1,15 @@
 package etomica.mappedvirial;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPair;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
-import etomica.potential.P2LennardJones;
-import etomica.potential.P2SoftSphericalTruncated;
-import etomica.potential.P2SoftSphericalTruncatedForceShifted;
-import etomica.potential.Potential2SoftSpherical;
-import etomica.potential.PotentialCalculation;
+import etomica.potential.*;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 
 
@@ -29,12 +21,12 @@ import etomica.space3d.Space3D;
  */
 public class PotentialCalculationMappedVirialV implements PotentialCalculation {
 
-    protected final IBox box;
+    protected final Box box;
     protected final IteratorDirective allAtoms;
     protected final AtomLeafAgentManager<MyAgent> forceManager;
-    protected final ISpace space;
+    protected final Space space;
     protected double beta;
-    protected final IVectorMutable dr;
+    protected final Vector dr;
     protected double c1;
     protected final double[] cumint;
     protected final AtomPair pair;
@@ -48,7 +40,7 @@ public class PotentialCalculationMappedVirialV implements PotentialCalculation {
     protected VFunc vf;
     protected boolean customVF;
 
-    public PotentialCalculationMappedVirialV(ISpace space, IBox box, int nbins, AtomLeafAgentManager<MyAgent> forceManager) {
+    public PotentialCalculationMappedVirialV(Space space, Box box, int nbins, AtomLeafAgentManager<MyAgent> forceManager) {
         this.space = space;
         this.box = box;
         this.nbins = nbins;
@@ -62,7 +54,7 @@ public class PotentialCalculationMappedVirialV implements PotentialCalculation {
 
     public static void main2(String[] args) {
         Simulation sim = new Simulation(Space3D.getInstance());
-        IBox box = new Box(sim.getSpace());
+        Box box = new Box(sim.getSpace());
         PotentialCalculationMappedVirialV pc = new PotentialCalculationMappedVirialV(sim.getSpace(),box, 1000000, null);
         P2LennardJones potential = new P2LennardJones(sim.getSpace());
         P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncatedForceShifted(sim.getSpace(), potential, 2.5);
@@ -74,7 +66,7 @@ public class PotentialCalculationMappedVirialV implements PotentialCalculation {
         }
     }
     public static void main(String[] args) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         P2LennardJones potential = new P2LennardJones(space);
         P2SoftSphericalTruncated p2 = new P2SoftSphericalTruncated(space, potential, 4);
         USine uSine = new USine(p2, new double[][]{{0.87624,2.17775},{0.684801,0.647015},{-0.748087,1.1296},{0.692743,-1.07915}}, 2.0);
@@ -181,8 +173,8 @@ public class PotentialCalculationMappedVirialV implements PotentialCalculation {
         double vp = vf.vp(r2,r);
         sum += r*(vp-up);
         if (r<x0) {
-            IVector fi = forceManager.getAgent(a).force;
-            IVector fj = forceManager.getAgent(b).force;
+            Vector fi = forceManager.getAgent(a).force;
+            Vector fj = forceManager.getAgent(b).force;
             double fifj = (fi.dot(dr) - fj.dot(dr))/r;
             double xs = calcXs(r);
             double wp = 0.5*fifj;

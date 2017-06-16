@@ -4,15 +4,15 @@
 
 package etomica.data.meter;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IVectorMutable;
-import etomica.atom.iterator.MoleculeIteratorAllMolecules;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.molecule.iterator.MoleculeIteratorAllMolecules;
+import etomica.space.Boundary;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Length;
 
 /**
@@ -22,7 +22,7 @@ import etomica.units.Length;
  */
 public class MeterRadiusGyration extends DataSourceScalar {
 
-    public MeterRadiusGyration(ISpace space) {
+    public MeterRadiusGyration(Space space) {
         super("Radius of Gyration", Length.DIMENSION);
         iterator = new MoleculeIteratorAllMolecules();
         cm = space.makeVector();
@@ -57,7 +57,7 @@ public class MeterRadiusGyration extends DataSourceScalar {
         if (box == null)
             throw new IllegalStateException(
                     "must call setBox before using meter");
-        IBoundary boundary = box.getBoundary();
+        Boundary boundary = box.getBoundary();
         iterator.setBox(box);
         iterator.reset();
         int nLeafAtomsTot = 0;
@@ -78,11 +78,11 @@ public class MeterRadiusGyration extends DataSourceScalar {
             int nLeafAtoms = 1;
             realPos.E(firstAtom.getPosition());
             cm.E(realPos);
-            IVectorMutable prevPosition = firstAtom.getPosition();
+            Vector prevPosition = firstAtom.getPosition();
             for (int iChild = 1; iChild < childList.getAtomCount(); iChild++) {
                 IAtom a = childList.getAtom(iChild);
                 nLeafAtoms++;
-                IVectorMutable position = a.getPosition();
+                Vector position = a.getPosition();
                 dr.Ev1Mv2(position, prevPosition);
                 //molecule might be wrapped around the box.  calculate
                 //the real difference in position
@@ -98,7 +98,7 @@ public class MeterRadiusGyration extends DataSourceScalar {
             realPos.E(firstAtom.getPosition());
             for (int iChild = 1; iChild < childList.getAtomCount(); iChild++) {
                 IAtom a = childList.getAtom(iChild);
-                IVectorMutable position = a.getPosition();
+                Vector position = a.getPosition();
                 dr.Ev1Mv2(position, prevPosition);
                 //molecule might be wrapped around the box.  calculate
                 //the real difference in position
@@ -118,7 +118,7 @@ public class MeterRadiusGyration extends DataSourceScalar {
     /**
      * @return Returns the box.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
 
@@ -126,14 +126,14 @@ public class MeterRadiusGyration extends DataSourceScalar {
      * @param box
      *            The box to set.
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
     }
 
     private static final long serialVersionUID = 1L;
-    private IBox box;
+    private Box box;
     private MoleculeIteratorAllMolecules iterator;
-    private final IVectorMutable cm, realPos;
-    private final IVectorMutable dr;
+    private final Vector cm, realPos;
+    private final Vector dr;
 
 }

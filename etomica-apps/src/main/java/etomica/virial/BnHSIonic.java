@@ -4,12 +4,6 @@
 
 package etomica.virial;
 
-import etomica.math.SpecialFunctions;
-import etomica.units.Electron;
-import etomica.units.Kelvin;
-import etomica.util.ParameterBase;
-import etomica.util.ParseArgs;
-import etomica.util.SineTransform;
 import etomica.virial.cluster.Standard;
 
 /**

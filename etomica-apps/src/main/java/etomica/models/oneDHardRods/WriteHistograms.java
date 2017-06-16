@@ -8,7 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.IAction;
-import etomica.util.Histogram;
+import etomica.data.histogram.Histogram;
 
 public class WriteHistograms implements IAction{
     

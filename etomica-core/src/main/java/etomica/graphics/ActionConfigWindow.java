@@ -10,10 +10,10 @@ import java.awt.TextArea;
 import javax.swing.JFrame;
 
 import etomica.action.IAction;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
+import etomica.box.Box;
 
 /**
  * Action that opens a new window and dumps the coordinates into the window.
@@ -22,7 +22,7 @@ import etomica.api.IVectorMutable;
 public class ActionConfigWindow implements IAction {
     private final IAtomList leafList;
     
-    public ActionConfigWindow(IBox box) {
+    public ActionConfigWindow(Box box) {
         leafList = box.getLeafList();
     }
     
@@ -35,7 +35,7 @@ public class ActionConfigWindow implements IAction {
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtom a = leafList.getAtom(iLeaf);
-            IVectorMutable pos = a.getPosition();
+            Vector pos = a.getPosition();
             String str = Double.toString(pos.getX(0));
             for (int i=1; i<pos.getD(); i++) {
                 str += " "+Double.toString(pos.getX(i));

@@ -4,13 +4,9 @@
 
 package etomica.normalmode;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPressure;
@@ -20,17 +16,12 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.potential.P2LennardJones;
-import etomica.potential.P2SoftSphere;
-import etomica.potential.P2SoftSphericalTruncated;
-import etomica.potential.Potential2SoftSpherical;
-import etomica.potential.PotentialCalculationEnergySum;
-import etomica.potential.PotentialCalculationForceSum;
+import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ISpace;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -38,11 +29,20 @@ import etomica.util.ParseArgs;
 
 public class LJVacancyMin extends Simulation {
 
+    public final CoordinateDefinitionLeaf coordinateDefinition;
+    public Box box;
+    public Boundary boundary;
+    public int[] nCells;
+    public Basis basis;
+    public Primitive primitive;
+    public PotentialMasterList potentialMaster;
+    public Potential2SoftSpherical potential;
+    public SpeciesSpheresMono species;
     public LJVacancyMin(Space _space, int numAtoms, double density, double rc, boolean ss) {
         super(_space);
-        
+
         potentialMaster = new PotentialMasterList(this, space);
-                
+
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
@@ -53,17 +53,17 @@ public class LJVacancyMin extends Simulation {
 
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
-        
+
         double L = Math.pow(4.0/density, 1.0/3.0);
         int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
         primitive = new PrimitiveCubic(space, n*L);
-        
+
         nCells = new int[]{n,n,n};
         boundary = new BoundaryRectangularPeriodic(space, n * L);
-        
+
         Basis basisFCC = new BasisCubicFcc();
         basis = new BasisBigCell(space, basisFCC, nCells);
-    
+
         box.setBoundary(boundary);
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
@@ -71,11 +71,11 @@ public class LJVacancyMin extends Simulation {
 
         potential = ss ? new P2SoftSphere(space, 1.0, 4.0, 12) : new P2LennardJones(space, 1.0, 1.0);
         potential = new P2SoftSphericalTruncated(space, potential, rc);
-        IAtomType sphereType = species.getLeafType();
-        potentialMaster.addPotential(potential, new IAtomType[] {sphereType, sphereType });
+        AtomType sphereType = species.getLeafType();
+        potentialMaster.addPotential(potential, new AtomType[]{sphereType, sphereType});
 
         potentialMaster.lrcMaster().setEnabled(false);
-    
+
         int cellRange = 7;
         potentialMaster.setRange(rc);
         potentialMaster.setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
@@ -85,12 +85,12 @@ public class LJVacancyMin extends Simulation {
         if (potentialCells < cellRange*2+1) {
             throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
         }
-        
+
         // extend potential range, so that atoms that move outside the truncation range will still interact
         // atoms that move in will not interact since they won't be neighbors
         ((P2SoftSphericalTruncated)potential).setTruncationRadius(0.6*boundary.getBoxSize().getX(0));
     }
-    
+
     /**
      * @param args filename containing simulation parameters
      * @see SimLJHTTI.SimOverlapParam
@@ -113,7 +113,7 @@ public class LJVacancyMin extends Simulation {
         final int numAtoms = params.numAtoms;
         double rc = params.rc;
         boolean verbose = params.verbose;
-        
+
         System.out.println("Minimizing "+(ss?"soft-sphere":"Lennard-Jones")+" with a vacancy");
         System.out.println(numAtoms+" atoms at density "+density);
         System.out.println("rc: "+rc);
@@ -164,8 +164,8 @@ public class LJVacancyMin extends Simulation {
             double dSum = 0;
             for (int j=0; j<numAtoms-1; j++) {
                 IAtom jAtom = sim.box.getLeafList().getAtom(j);
-                IVector fj = forceManager.getAgent(jAtom).f;
-                IVector pj = jAtom.getPosition();
+                Vector fj = forceManager.getAgent(jAtom).f;
+                Vector pj = jAtom.getPosition();
                 for (int k=0; k<pj.getD(); k++) {
                     d[3*j+k] = fj.getX(k);
                     dSum += d[3*j+k]*d[3*j+k];
@@ -183,7 +183,7 @@ public class LJVacancyMin extends Simulation {
             // take a small step
             for (int j=0; j<numAtoms-1; j++) {
                 IAtom jAtom = sim.box.getLeafList().getAtom(j);
-                IVectorMutable pj = jAtom.getPosition();
+                Vector pj = jAtom.getPosition();
                 for (int k=0; k<pj.getD(); k++) {
                     pj.setX(k, pj.getX(k)+step0*dir[3*j+k]);
                 }
@@ -194,8 +194,8 @@ public class LJVacancyMin extends Simulation {
             dSum = 0;
             for (int j=0; j<numAtoms-1; j++) {
                 IAtom jAtom = sim.box.getLeafList().getAtom(j);
-                IVector fj = forceManager.getAgent(jAtom).f;
-                IVector pj = jAtom.getPosition();
+                Vector fj = forceManager.getAgent(jAtom).f;
+                Vector pj = jAtom.getPosition();
                 for (int k=0; k<pj.getD(); k++) {
                     d[3*j+k] = fj.getX(k);
                     dSum += d[3*j+k]*d[3*j+k];
@@ -203,14 +203,14 @@ public class LJVacancyMin extends Simulation {
             }
             double dNorm1 = Math.sqrt(dSum);
             if (verbose) System.out.print(String.format(" =>  %10.4e", dNorm1));
-            
+
             // take a second step; try to jump to 0
             // dNorm2 = dNorm1 + (dNorm1-dNorm0)*step1/step0 = 0
             double step1 = -step0*dNorm1/(dNorm1-dNorm0);
             if (verbose) System.out.print(String.format("  %10.4e\n", step1));
             for (int j=0; j<numAtoms-1; j++) {
                 IAtom jAtom = sim.box.getLeafList().getAtom(j);
-                IVectorMutable pj = jAtom.getPosition();
+                Vector pj = jAtom.getPosition();
                 for (int k=0; k<pj.getD(); k++) {
                     pj.setX(k, pj.getX(k)+step1*dir[3*j+k]);
                 }
@@ -224,28 +224,18 @@ public class LJVacancyMin extends Simulation {
         double pLat1 = meterP.getDataAsScalar();
         System.out.println("deltaP: "+(pLat1-pLat));
     }
-    
+
     public static class VectorForce implements Forcible {
-        public final IVectorMutable f;
-        
-        public VectorForce(ISpace space) {
+        public final Vector f;
+
+        public VectorForce(Space space) {
             f = space.makeVector();
         }
 
-        public IVectorMutable force() {
+        public Vector force() {
             return f;
         }
     }
-
-    public IBox box;
-    public Boundary boundary;
-    public int[] nCells;
-    public Basis basis;
-    public Primitive primitive;
-    public PotentialMasterList potentialMaster;
-    public final CoordinateDefinitionLeaf coordinateDefinition;
-    public Potential2SoftSpherical potential;
-    public SpeciesSpheresMono species;
     
     /**
      * Inner class for parameters understood by the HSMD3D constructor

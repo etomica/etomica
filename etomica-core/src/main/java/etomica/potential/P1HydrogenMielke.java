@@ -4,29 +4,19 @@
 
 package etomica.potential;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IPotential;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IVector;
 import etomica.atom.AtomHydrogen;
-import etomica.atom.IAtomOriented;
-import etomica.chem.elements.Hydrogen;
-import etomica.space.ISpace;
-import etomica.space3d.Space3D;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.space.Boundary;
+import etomica.space.Space;
 import etomica.units.BohrRadius;
 import etomica.units.Hartree;
-import etomica.units.Kelvin;
 
 public class P1HydrogenMielke implements IPotential, P1IntraMolecular{
 //    1 Eh (hartree) = 27.2113961eV = 627.5096 kcal/mol = 219474.7 cm^-1 
 
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected final static double c6 = -6.499027;
     protected final static double c8 = -124.3991;
     protected final static double c10 = -3285.828;
@@ -35,14 +25,14 @@ public class P1HydrogenMielke implements IPotential, P1IntraMolecular{
     protected final static double alpha = 3.980917850296971;
     protected final static double[] xlp = {-1.709663318869429E-1,-6.675286769482015E-1,-1.101876055072129E+0,-1.106460095658282E+0,-7.414724284525231E-1,-3.487882731923523E-1,-1.276736255756598E-1,-5.875965709151867E-2,-4.030128017933840E-2,-2.038653237221007E-2,-7.639198558462706E-4,2.912954920483885E-3,-2.628273116815280E-4,-4.622088855684211E-4,1.278468948126147E-4,-1.157434070240206E-5,-2.609691840882097E-12};
 
-    public P1HydrogenMielke(ISpace space) {        
+    public P1HydrogenMielke(Space space) {
     }
 
     public double getRange() {    
         return Double.POSITIVE_INFINITY;
     }
 
-    public void setBox(IBox box) {    
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 
@@ -123,7 +113,7 @@ public class P1HydrogenMielke implements IPotential, P1IntraMolecular{
     
     
     public static class P1HydrogenMielkeAtomic extends P1HydrogenMielke implements IPotentialAtomic,P1IntraMolecular {
-        public P1HydrogenMielkeAtomic(ISpace space) {
+        public P1HydrogenMielkeAtomic(Space space) {
             super(space);     
         }
 
@@ -137,7 +127,7 @@ public class P1HydrogenMielke implements IPotential, P1IntraMolecular{
     }
     
     public static class P2HydrogenMielkeAtomic extends P1HydrogenMielke implements IPotentialAtomic {
-    	public P2HydrogenMielkeAtomic(ISpace space) {
+    	public P2HydrogenMielkeAtomic(Space space) {
     		super(space);
     	}
     	

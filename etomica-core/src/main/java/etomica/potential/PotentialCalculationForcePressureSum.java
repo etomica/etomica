@@ -4,12 +4,10 @@
 
 package etomica.potential;
 
-import etomica.api.IAtomList;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IVector;
-import etomica.integrator.IntegratorBox;
-import etomica.space.ISpace;
+import etomica.atom.IAtomList;
+import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 
 /**
  * Sums the force on each iterated atom and adds it to the integrator agent
@@ -22,7 +20,7 @@ public class PotentialCalculationForcePressureSum extends PotentialCalculationFo
     private static final long serialVersionUID = 1L;
     protected final Tensor pressureTensor;
     
-    public PotentialCalculationForcePressureSum(ISpace space) {
+    public PotentialCalculationForcePressureSum(Space space) {
         pressureTensor = space.makeTensor();
     }
     
@@ -44,21 +42,21 @@ public class PotentialCalculationForcePressureSum extends PotentialCalculationFo
 	    if (!(potential instanceof PotentialSoft)) return;
 		PotentialSoft potentialSoft = (PotentialSoft)potential;
 		int nBody = potential.nBody();
-		IVector[] f = potentialSoft.gradient(atoms, pressureTensor);
+		Vector[] f = potentialSoft.gradient(atoms, pressureTensor);
 		switch(nBody) {
 			case 1:
-				((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().ME(f[0]);
+				integratorAgentManager.getAgent(atoms.getAtom(0)).force().ME(f[0]);
 				break;
 			case 2:
-                ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().ME(f[0]);
-                ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(1))).force().ME(f[1]);
+                integratorAgentManager.getAgent(atoms.getAtom(0)).force().ME(f[0]);
+                integratorAgentManager.getAgent(atoms.getAtom(1)).force().ME(f[1]);
 		 		break;
             default:
                 //XXX atoms.count might not equal f.length.  The potential might size its 
                 //array of vectors to be large enough for one AtomSet and then not resize it
                 //back down for another AtomSet with fewer atoms.
                 for (int i=0; i<atoms.getAtomCount(); i++) {
-                    ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(i))).force().ME(f[i]);
+                    integratorAgentManager.getAgent(atoms.getAtom(i)).force().ME(f[i]);
                 }
 		}
 	}

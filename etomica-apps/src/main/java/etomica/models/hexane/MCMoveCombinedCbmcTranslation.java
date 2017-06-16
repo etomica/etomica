@@ -6,18 +6,18 @@ package etomica.models.hexane;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.MoleculeSourceRandomMolecule;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculePositionGeometricCenter;
+import etomica.molecule.MoleculeSourceRandomMolecule;
+import etomica.potential.PotentialMaster;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 
 /**
@@ -35,14 +35,14 @@ public class MCMoveCombinedCbmcTranslation extends MCMoveBox {
     protected MoleculeSourceRandomMolecule moleculeSource;
     private AtomIteratorArrayListSimple affectedAtomIterator;
     protected MoleculeChildAtomAction moveAction;
-    protected IVectorMutable oldGeo, newGeo, temp, transVect;
-    protected AtomPositionGeometricCenter centerer;
+    protected Vector oldGeo, newGeo, temp, transVect;
+    protected MoleculePositionGeometricCenter centerer;
     protected MeterPotentialEnergy energyMeter;
     protected final IRandom random;
-    private ISpace space;
+    private Space space;
     
-    public MCMoveCombinedCbmcTranslation(IPotentialMaster pm, MCMoveCBMC mv,
-            IRandom nRandom, ISpace _space){
+    public MCMoveCombinedCbmcTranslation(PotentialMaster pm, MCMoveCBMC mv,
+                                         IRandom nRandom, Space _space){
         super(pm);
         this.cbmcMove = mv;
         this.random = nRandom;
@@ -57,20 +57,20 @@ public class MCMoveCombinedCbmcTranslation extends MCMoveBox {
         AtomActionTranslateBy translator = new AtomActionTranslateBy(space);
         transVect = translator.getTranslationVector();
         moveAction = new MoleculeChildAtomAction(translator);
-        centerer = new AtomPositionGeometricCenter(space);
+        centerer = new MoleculePositionGeometricCenter(space);
         
         oldGeo = space.makeVector();
         newGeo = space.makeVector();
         temp = space.makeVector();
     }
     
-    public MCMoveCombinedCbmcTranslation(IPotentialMaster pm, MCMoveCBMC mv, 
-            IRandom nRandom, IBox ph, ISpace _space){
+    public MCMoveCombinedCbmcTranslation(PotentialMaster pm, MCMoveCBMC mv,
+                                         IRandom nRandom, Box ph, Space _space){
         this(pm, mv, nRandom, _space);
         setBox(ph);
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         super.setBox(newBox);
         moleculeSource.setBox(newBox);
         energyMeter.setBox(newBox);

@@ -4,11 +4,11 @@
 
 package etomica.models.nitrogen;
 
-import etomica.api.IMolecule;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculePositionDefinition;
+import etomica.molecule.MoleculePositionGeometricCenter;
+import etomica.space.Space;
+import etomica.space.Vector;
 
 
 /**
@@ -31,9 +31,9 @@ import etomica.space.ISpace;
  *
  */
 public class FindPairMoleculeIndex {
-	public FindPairMoleculeIndex(ISpace space, CoordinateDefinitionNitrogen coordinateDefination){
+	public FindPairMoleculeIndex(Space space, CoordinateDefinitionNitrogen coordinateDefination){
 		this.coordinateDef = coordinateDefination;
-		positionDefinition = new AtomPositionGeometricCenter(space);
+		positionDefinition = new MoleculePositionGeometricCenter(space);
 		tempVec = space.makeVector();
 		tempOrientA = space.makeVector();
 		tempOrientB = space.makeVector();
@@ -73,8 +73,8 @@ public class FindPairMoleculeIndex {
 	
 		molAVec.E(positionDefinition.position(moleculeA));
 			
-		IVectorMutable molAleafPos0 = moleculeA.getChildList().getAtom(0).getPosition();
-    	IVectorMutable molAleafPos1 = moleculeA.getChildList().getAtom(1).getPosition();
+		Vector molAleafPos0 = moleculeA.getChildList().getAtom(0).getPosition();
+    	Vector molAleafPos1 = moleculeA.getChildList().getAtom(1).getPosition();
     	 
 		tempOrientA.Ev1Mv2(molAleafPos1, molAleafPos0);
 		tempOrientA.normalize();
@@ -88,8 +88,8 @@ public class FindPairMoleculeIndex {
 		}
 		coordinateDef.getBox().getBoundary().nearestImage(tempVec);
 				
-		IVectorMutable molBleafPos0 = moleculeB.getChildList().getAtom(0).getPosition();
-	    IVectorMutable molBleafPos1 = moleculeB.getChildList().getAtom(1).getPosition();
+		Vector molBleafPos0 = moleculeB.getChildList().getAtom(0).getPosition();
+	    Vector molBleafPos1 = moleculeB.getChildList().getAtom(1).getPosition();
 	    	 
 		tempOrientB. Ev1Mv2(molBleafPos1, molBleafPos0);
 		tempOrientB.normalize();
@@ -135,7 +135,7 @@ public class FindPairMoleculeIndex {
 		}
 	}
 	
-	public int getOrientationIndex(IVectorMutable orientation){
+	public int getOrientationIndex(Vector orientation){
 		double x = orientation.getX(0);
 		double y = orientation.getX(1);
 		double z = orientation.getX(2);
@@ -161,8 +161,8 @@ public class FindPairMoleculeIndex {
 	
 	protected int[] index;
 	protected CoordinateDefinitionNitrogen coordinateDef;
-	protected IAtomPositionDefinition positionDefinition;
-	protected IVectorMutable tempVec, tempOrientA, tempOrientB, molAVec, molBVec;
+	protected IMoleculePositionDefinition positionDefinition;
+	protected Vector tempVec, tempOrientA, tempOrientB, molAVec, molBVec;
 	protected double halfUnitCellLength;
 	protected double[][][] siteDisplacement;
 	protected boolean[][][][][] isNewPair;

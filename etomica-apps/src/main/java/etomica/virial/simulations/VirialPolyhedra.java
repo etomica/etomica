@@ -1,34 +1,13 @@
 package etomica.virial.simulations;
 
-import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
 import etomica.action.IAction;
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.IFunction;
-import etomica.api.IIntegratorEvent;
-import etomica.api.IIntegratorListener;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotential;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomTypeSpheroPolyhedron;
+import etomica.atom.IAtom;
+import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorHistogram;
-import etomica.data.DataPipe;
-import etomica.data.DataProcessor;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
+import etomica.data.histogram.HistogramReweightedData;
+import etomica.data.histogram.HistogramSimple;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray;
@@ -36,41 +15,32 @@ import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.data.types.DataGroup;
-import etomica.graphics.ColorScheme;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayBoxCanvasG3DSys;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.listener.IntegratorListenerAction;
+import etomica.math.DoubleRange;
 import etomica.math.SpecialFunctions;
+import etomica.math.function.IFunction;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.IPotential;
 import etomica.potential.P2SpheroPolyhedron;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesPolyhedron;
 import etomica.units.Null;
-import etomica.util.DoubleRange;
-import etomica.util.HistogramReweightedData;
-import etomica.util.HistogramSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.CalcFFT;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterChainHS;
-import etomica.virial.ClusterSinglyConnected;
-import etomica.virial.ClusterWeightAbs;
-import etomica.virial.ClusterWeightUmbrella;
-import etomica.virial.ClusterWheatleyHS;
-import etomica.virial.ClusterWheatleyPartitionScreening;
-import etomica.virial.MCMoveClusterAtomHSChain;
-import etomica.virial.MCMoveClusterAtomHSRing;
-import etomica.virial.MCMoveClusterAtomHSTree;
-import etomica.virial.MCMoveClusterAtomQ;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerGeneralAtomic;
-import etomica.virial.MeterVirialBD;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
+
+import javax.swing.*;
+import java.awt.*;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Calculation for virial coefficients of hard spheres
@@ -123,7 +93,7 @@ public class VirialPolyhedra {
         }
         
 
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
 
         P2SpheroPolyhedron p2 = new P2SpheroPolyhedron(space);
         MayerFunction fTarget = new MayerGeneralAtomic(p2);
@@ -133,7 +103,7 @@ public class VirialPolyhedra {
 //        double vs = Math.PI/6;
 //        double lr = doResize ? Math.pow(vs/v0, 1.0/3.0) : 1;
 //
-//        List<IVector> verticesTO = new ArrayList<IVector>(24);
+//        List<Vector> verticesTO = new ArrayList<Vector>(24);
 //        for (int a=-1; a<=1; a+=2) {
 //            for (int b=-2; b<=2; b+=4) {
 //                IVectorMutable v = space.makeVector();
@@ -156,8 +126,8 @@ public class VirialPolyhedra {
 //                verticesTO.add(v);
 //            }
 //        }
-//        List<IVector> verticesSphere = new ArrayList<IVector>(0);
-//        List<IVector> verticesCube = new ArrayList<IVector>(8);
+//        List<Vector> verticesSphere = new ArrayList<Vector>(0);
+//        List<Vector> verticesCube = new ArrayList<Vector>(8);
         
 //        v0 = 8;
 //        lr = doResize ? Math.pow(vs/v0, 1.0/3.0) : 1;
@@ -192,7 +162,7 @@ public class VirialPolyhedra {
         SpeciesPolyhedron[] allSpecies = new SpeciesPolyhedron[shapes.length];
         double shsref = 0;
         for (int i=0; i<shapes.length; i++) {
-            List<IVector> vertices = ShapeParser.doParse("shape/"+shapes[i]+".dat", space).vertices;
+            List<Vector> vertices = ShapeParser.doParse("shape/"+shapes[i]+".dat", space).vertices;
             allSpecies[i] = new SpeciesPolyhedron(space, vertices, 0.0, new ElementSimple("P"+i));
             double s = 2*((AtomTypeSpheroPolyhedron)allSpecies[i].getAtomType(0)).getOuterRadius();
             shsref = shsref < s ? s : shsref;
@@ -203,7 +173,7 @@ public class VirialPolyhedra {
         double vhs = (4.0/3.0)*Math.PI*sigmaHSRef*sigmaHSRef*sigmaHSRef;
         MayerFunction fRefPos = new MayerFunction() {
 
-            public void setBox(IBox box) {}
+            public void setBox(Box box) {}
             public IPotential getPotential() {return null;}
 
             public double f(IMoleculeList pair, double r2, double beta) {
@@ -400,13 +370,13 @@ public class VirialPolyhedra {
         accHistRefRingy.putDataInfo(diRef);
         final ClusterAbstract finalTargetCluster = targetCluster;
         final ClusterAbstract finalRefCluster = refCluster;
-        IIntegratorListener histListener = new IIntegratorListener() {
+        IntegratorListener histListener = new IntegratorListener() {
             DataDoubleArray dataTarg = new DataDoubleArray(2);
             DataDouble dataRef = new DataDouble();
-            IVectorMutable com = Space3D.getInstance().makeVector();
-            public void integratorStepStarted(IIntegratorEvent e) {}
+            Vector com = Space3D.getInstance().makeVector();
+            public void integratorStepStarted(IntegratorEvent e) {}
             
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 double v = Math.abs(finalTargetCluster.value(sim.box));
 //                if (v == 0) return;
                 v /= finalRefCluster.value(sim.box);
@@ -426,16 +396,16 @@ public class VirialPolyhedra {
                 }
             }
 
-            public void integratorInitialized(IIntegratorEvent e) {
+            public void integratorInitialized(IntegratorEvent e) {
             }
         };
         if (doHist) sim.integrator.getEventManager().addListener(histListener);
-        IIntegratorListener histListenerRingy = new IIntegratorListener() {
+        IntegratorListener histListenerRingy = new IntegratorListener() {
             DataDoubleArray dataTarg = new DataDoubleArray(2);
             DataDouble dataRef = new DataDouble();
-            public void integratorStepStarted(IIntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
             
-            public void integratorStepFinished(IIntegratorEvent e) {
+            public void integratorStepFinished(IntegratorEvent e) {
                 double v = Math.abs(finalTargetCluster.value(sim.box));
 //                if (v == 0) return;
                 v /= finalRefCluster.value(sim.box);
@@ -450,7 +420,7 @@ public class VirialPolyhedra {
                 }
             }
 
-            public void integratorInitialized(IIntegratorEvent e) {
+            public void integratorInitialized(IntegratorEvent e) {
             }
         };
         if (doHist) sim.integrator.getEventManager().addListener(histListenerRingy);
@@ -502,8 +472,8 @@ public class VirialPolyhedra {
             IAction pushAnswer = new IAction() {
                 public void actionPerformed() {
                     IData avgData = sim.accumulator.getData();
-                    double ratio = ((DataGroup)avgData).getData(sim.accumulator.RATIO.index).getValue(1);
-                    double error = ((DataGroup)avgData).getData(sim.accumulator.RATIO_ERROR.index).getValue(1);
+                    double ratio = ((DataGroup)avgData).getData(AccumulatorRatioAverageCovariance.RATIO.index).getValue(1);
+                    double error = ((DataGroup)avgData).getData(AccumulatorRatioAverageCovariance.RATIO_ERROR.index).getValue(1);
                     data.x = ratio*refIntegral;
                     averageBox.putData(data);
                     data.x = error*Math.abs(refIntegral);
@@ -563,8 +533,8 @@ public class VirialPolyhedra {
         
 
         DataGroup allYourBase = (DataGroup)accumulator.getData();
-        IData averageData = allYourBase.getData(accumulator.AVERAGE.index);
-        IData errorData = allYourBase.getData(accumulator.ERROR.index);
+        IData averageData = allYourBase.getData(AccumulatorAverage.AVERAGE.index);
+        IData errorData = allYourBase.getData(AccumulatorAverage.ERROR.index);
         
         System.out.println();
         

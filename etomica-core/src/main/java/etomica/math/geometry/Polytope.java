@@ -6,9 +6,8 @@ package etomica.math.geometry;
 
 import java.util.LinkedList;
 
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Vector;
+import etomica.space.Space;
 
 /**
  * Representation of a mathematical polytope, which is a finite region of space
@@ -53,10 +52,10 @@ public abstract class Polytope implements Shape, java.io.Serializable {
     /**
      * Constructor used for the Point subclass
      */
-    Polytope(ISpace embeddedSpace, IVectorMutable vertex) {
+    Polytope(Space embeddedSpace, Vector vertex) {
         D = 0;
         this.embeddedSpace = embeddedSpace;
-        this.vertices = new IVectorMutable[] { vertex };
+        this.vertices = new Vector[] { vertex };
         position = vertex;
         this.hyperPlanes = new Polytope[0];
     }
@@ -99,14 +98,14 @@ public abstract class Polytope implements Shape, java.io.Serializable {
      * subclasses the vertices <i>are</i> the representation, so alteration of the
      * returned array will change the polytope.
      */
-    public IVector[] getVertices() {
+    public Vector[] getVertices() {
         return vertices;
     }
 
     /**
      * Sets the position of the geometric center of the polytope.
      */
-    public void setPosition(IVector r) {
+    public void setPosition(Vector r) {
         position.E(r);
         noTranslation = position.isZero();
         updateVertices();
@@ -118,7 +117,7 @@ public abstract class Polytope implements Shape, java.io.Serializable {
      * logical position of the polytope, without immediately changing the vertices.
      * Use setPosition to change the polytope position.
      */
-    public IVector getPosition() {
+    public Vector getPosition() {
         return position;
     }
 
@@ -133,7 +132,7 @@ public abstract class Polytope implements Shape, java.io.Serializable {
      * Returns <code>true</code> if the given vector lies inside the polytope,
      * <code>false</code> otherwise.
      */
-    public abstract boolean contains(IVector v);
+    public abstract boolean contains(Vector v);
 
     /**
      * Number of vertices in the polytrope. A vertex is a point where D edges
@@ -146,7 +145,7 @@ public abstract class Polytope implements Shape, java.io.Serializable {
     /**
      * The space defining the vectors used to represent the vertices.
      */
-    public ISpace getEmbeddedSpace() {
+    public Space getEmbeddedSpace() {
         return embeddedSpace;
     }
 
@@ -164,17 +163,17 @@ public abstract class Polytope implements Shape, java.io.Serializable {
      * polytopes.  Each vertex appears in the list only once.  Used
      * by constructor.
      */
-    private static IVectorMutable[] allVertices(Polytope[] hyperPlanes) {
+    private static Vector[] allVertices(Polytope[] hyperPlanes) {
         LinkedList list = new LinkedList();
         for (int i = 0; i < hyperPlanes.length; i++) {
-            IVectorMutable[] vertices = hyperPlanes[i].vertices;
+            Vector[] vertices = hyperPlanes[i].vertices;
             for (int j = 0; j < vertices.length; j++) {
                 if (!list.contains(vertices[j])) {
                     list.add(vertices[j]);
                 }
             }
         }
-        return (IVectorMutable[]) list.toArray(new IVectorMutable[0]);
+        return (Vector[]) list.toArray(new Vector[0]);
     }
     
     public abstract LineSegment[] getEdges();
@@ -190,15 +189,15 @@ public abstract class Polytope implements Shape, java.io.Serializable {
         return str.toString();
     }
 
-    protected final ISpace embeddedSpace;
+    protected final Space embeddedSpace;
     protected final int D;
 
     /**
      * These vertices are used in all external representations of the polygon.
      * Changes to them do not necessarily change the state of the polygon.
      */
-    protected final IVectorMutable[] vertices;
-    protected final IVectorMutable position;
+    protected final Vector[] vertices;
+    protected final Vector position;
     protected final Polytope[] hyperPlanes;
     private boolean noTranslation = true;
     //    protected final Orientation orientation;

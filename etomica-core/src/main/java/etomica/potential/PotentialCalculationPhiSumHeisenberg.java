@@ -1,29 +1,21 @@
 package etomica.potential;
 
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IPotentialMolecular;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.DipoleSource;
+import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.space.ISpace;
+import etomica.molecule.DipoleSource;
+import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.util.numerical.BesselFunction;
+import etomica.space.Vector;
 
 public class PotentialCalculationPhiSumHeisenberg implements PotentialCalculationMolecular {
-    protected final IVectorMutable ei, ej;
-    protected IVectorMutable dr;
+    protected final Vector ei, ej;
+    protected Vector dr;
     protected double secondDerivativeSum = 0;
     protected DipoleSource dipoleSource;
 
 
-    public PotentialCalculationPhiSumHeisenberg(ISpace space) {
+    public PotentialCalculationPhiSumHeisenberg(Space space) {
         dr = space.makeVector();
         ei = space.makeVector();
         ej = space.makeVector();
@@ -34,6 +26,8 @@ public class PotentialCalculationPhiSumHeisenberg implements PotentialCalculatio
         if (!(potential instanceof IPotentialAtomicSecondDerivative)) {
             return;
         }
+
+
         IAtomOriented atom1 = (IAtomOriented) atoms.getAtom(0);
         IAtomOriented atom2 = (IAtomOriented) atoms.getAtom(1);
         ei.E(atom1.getOrientation().getDirection());
@@ -42,14 +36,9 @@ public class PotentialCalculationPhiSumHeisenberg implements PotentialCalculatio
         //complicated way to get secondDerivativeSum, don't need the secondDerivative from p2Spin
         IPotentialAtomicSecondDerivative potentialSecondDerivative = (IPotentialAtomicSecondDerivative) potential;
         Tensor[] t = potentialSecondDerivative.secondDerivative(atoms);
-        double Cos = ei.dot(ej);
-        secondDerivativeSum += 2.0 * t[0].component(0, 0) * Cos;
+        secondDerivativeSum += 2 * t[0].component(0, 0) * (ei.dot(ej));
         secondDerivativeSum += t[1].component(0, 0);
         secondDerivativeSum += t[2].component(0, 0);
-
-//        System.out.println("ei in PhiSum = " + ei);
-//        System.out.println(t[0].component(0, 0));
-//        System.exit(2);
 
         //much easier way but need to time back coupling J in the meter and here!!!!!!!!
 //		double Cos = ei.dot(ej);

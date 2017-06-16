@@ -689,12 +689,12 @@ iLoop:  for (int i=1; i<nf-3; i++) {
                 for(int i=1; i<nf; i++) {
                     if(fAValues[i] != null) {
                         int fATable = (i%2==1) ? fAValues[i][vCount[i]] : 0;
-                        int fABTable = (i%2==1) ? fABValues[i][vCount[i]++] : (int)fC[i];
+                        int fABTable = (i%2==1) ? fABValues[i][vCount[i]++] : fC[i];
                         int fBTable = fABTable - fATable;
-                        int fAerr = (int)(fA[i]-fATable);
-                        int fBerr = (int)(fB[i]-fBTable);
-                        int fABerr = (int)(fAB[i]-fABTable);
-                        if(fAerr != 0 || fABerr != 0) System.out.println(v+"\t"+i+"\t"+(int)fA[i]+"\t"+fATable+"\t"+fAerr+"\t"+(int)fAB[i]+"\t"+fABTable+"\t"+fABerr+"\t"+(int)fB[i]+"\t"+fBTable+"\t"+fBerr);
+                        int fAerr = fA[i]-fATable;
+                        int fBerr = fB[i]-fBTable;
+                        int fABerr = fAB[i]-fABTable;
+                        if(fAerr != 0 || fABerr != 0) System.out.println(v+"\t"+i+"\t"+ fA[i] +"\t"+fATable+"\t"+fAerr+"\t"+ fAB[i] +"\t"+fABTable+"\t"+fABerr+"\t"+ fB[i] +"\t"+fBTable+"\t"+fBerr);
                     }
                 }
             } else {
@@ -740,10 +740,10 @@ iLoop:  for (int i=1; i<nf-3; i++) {
                     int fATable = fAValues[i][vCount[i]];
                     int fABTable = fABValues[i][vCount[i]]; 
                     int fBTable = fABTable - fATable;
-                    int fAerr = (int)(fA[i]-fATable);
-                    int fBerr = (int)(fB[i]-fBTable);
-                    int fABerr = (int)(fAB[i]-fABTable);
-                    if(fAerr != 0 || fABerr != 0) System.out.println(v+"\t"+i+"\t"+(int)fA[i]+"\t"+fATable+"\t"+fAerr+"\t"+(int)fAB[i]+"\t"+fABTable+"\t"+fABerr+"\t"+(int)fB[i]+"\t"+fBTable+"\t"+fBerr);
+                    int fAerr = fA[i]-fATable;
+                    int fBerr = fB[i]-fBTable;
+                    int fABerr = fAB[i]-fABTable;
+                    if(fAerr != 0 || fABerr != 0) System.out.println(v+"\t"+i+"\t"+ fA[i] +"\t"+fATable+"\t"+fAerr+"\t"+ fAB[i] +"\t"+fABTable+"\t"+fABerr+"\t"+ fB[i] +"\t"+fBTable+"\t"+fBerr);
                     vCount[i]++;
                 }//end if(checkme)
             }//end if

@@ -4,10 +4,8 @@
 
 package etomica.atom;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IRandom;
+import etomica.box.Box;
+import etomica.util.random.IRandom;
 import etomica.util.Debug;
 
 /**
@@ -29,7 +27,7 @@ public class AtomSourceRandomLeaf implements AtomSource, java.io.Serializable {
         return random;
     }
     
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         list = p.getLeafList();
     }
     

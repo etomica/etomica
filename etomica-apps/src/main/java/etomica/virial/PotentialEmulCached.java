@@ -4,10 +4,10 @@
 
 package etomica.virial;
 
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialEmul;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.virial.cluster.VirialDiagrams;
 
 /**
@@ -24,16 +24,16 @@ public class PotentialEmulCached extends PotentialEmul {
     protected final double[] lastEnergies;
     protected final int[] ids;
 
-    public PotentialEmulCached(ISpace space, String templateName, int maxNumAtoms) {
+    public PotentialEmulCached(Space space, String templateName, int maxNumAtoms) {
         this(space, templateName, 2.5, maxNumAtoms);
     }
 
-    public PotentialEmulCached(ISpace space, String templateName, double rCore, int maxNumAtoms) {
+    public PotentialEmulCached(Space space, String templateName, double rCore, int maxNumAtoms) {
         this(space, templateName, countMolecules(templateName), rCore, maxNumAtoms);
     }
 
-    public PotentialEmulCached(ISpace space, String templateName, int nBody,
-            double rCore, int maxNumAtoms) {
+    public PotentialEmulCached(Space space, String templateName, int nBody,
+                               double rCore, int maxNumAtoms) {
         super(space, templateName, nBody, rCore);
         this.maxNumAtoms = maxNumAtoms;
         ids = new int[nBody];
@@ -54,7 +54,7 @@ public class PotentialEmulCached extends PotentialEmul {
         return lastEnergies[gid];
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         boolean discard = true;
         if (newBox instanceof BoxCluster) {
             discard = lastCPairID != ((BoxCluster)newBox).getCPairID();

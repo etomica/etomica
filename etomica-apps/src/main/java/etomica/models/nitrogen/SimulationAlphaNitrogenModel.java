@@ -4,12 +4,8 @@
 
 package etomica.models.nitrogen;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.ISpecies;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
@@ -23,7 +19,6 @@ import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
-import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
@@ -35,10 +30,14 @@ import etomica.normalmode.MCMoveMoleculeCoupled;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
+
+import java.io.FileWriter;
+import java.io.IOException;
 
 
 
@@ -53,7 +52,7 @@ import etomica.units.Pixel;
 public class SimulationAlphaNitrogenModel extends Simulation{
 
 	
-	public SimulationAlphaNitrogenModel(ISpace space, int[] nC, double temperature, double density) {
+	public SimulationAlphaNitrogenModel(Space space, int[] nC, double temperature, double density) {
 		super(space);
 		this.space = space;
 
@@ -271,11 +270,11 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 		sim.activityIntegrate.setMaxSteps(simSteps);
 		sim.getController().actionPerformed();
 
-		double averageEnergy = ((DataGroup)energyAverage.getData()).getValue(energyAverage.AVERAGE.index);
-		double errorEnergy = ((DataGroup)energyAverage.getData()).getValue(energyAverage.ERROR.index);
+		double averageEnergy = energyAverage.getData().getValue(energyAverage.AVERAGE.index);
+		double errorEnergy = energyAverage.getData().getValue(energyAverage.ERROR.index);
 
-		double averagePressure = ((DataGroup)pressureAverage.getData()).getValue(energyAverage.AVERAGE.index);
-		double errorPressure = ((DataGroup)pressureAverage.getData()).getValue(energyAverage.ERROR.index);
+		double averagePressure = pressureAverage.getData().getValue(energyAverage.AVERAGE.index);
+		double errorPressure = pressureAverage.getData().getValue(energyAverage.ERROR.index);
 		
 		System.out.println("Average energy (per molecule): " + (averageEnergy)/numMolecule  
 				+ " ;error: " + errorEnergy/numMolecule);
@@ -315,7 +314,7 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 	}
 	
 	protected Box box;
-	protected ISpace space;
+	protected Space space;
 	protected PotentialMasterListMolecular potentialMaster;
 	protected IntegratorMC integrator;
 	protected ActivityIntegrate activityIntegrate;

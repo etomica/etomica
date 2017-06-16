@@ -31,7 +31,7 @@ public class BitmapUtils {
   public static byte leftmostBit(int map) {
 
     for (byte i = 0; i < SZ_INT; i++) {
-      if ((map & bitOnMask((byte) i)) > 0) {
+      if ((map & bitOnMask(i)) > 0) {
         return i;
       }
     }

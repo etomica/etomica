@@ -7,8 +7,8 @@ package etomica.virial.simulations;
 import java.util.List;
 import java.util.Set;
 
-import etomica.api.IIntegratorEvent;
-import etomica.api.IIntegratorListener;
+import etomica.integrator.IntegratorListener;
+import etomica.integrator.IntegratorEvent;
 import etomica.chem.elements.ElementSimple;
 import etomica.graph.model.Graph;
 import etomica.graph.property.FFTDecomposition;
@@ -78,7 +78,7 @@ public class VirialLJBridge {
         Set<Graph> graphs = diagrams.getMSMCGraphs(true, false);
         FFTDecomposition isFFT = new FFTDecomposition();
         List<Integer> segments = isFFT.getSegments();
-        Set<Graph> bridgeGraphs = diagrams.makeGraphList();
+        Set<Graph> bridgeGraphs = VirialDiagrams.makeGraphList();
         // 4th order: 31
         // 5th order: around 500
         // 6th order: around 16,000
@@ -152,10 +152,10 @@ public class VirialLJBridge {
 
         
         if (!isCommandLine) {
-            IIntegratorListener progressReport = new IIntegratorListener() {
-                public void integratorInitialized(IIntegratorEvent e) {}
-                public void integratorStepStarted(IIntegratorEvent e) {}
-                public void integratorStepFinished(IIntegratorEvent e) {
+            IntegratorListener progressReport = new IntegratorListener() {
+                public void integratorInitialized(IntegratorEvent e) {}
+                public void integratorStepStarted(IntegratorEvent e) {}
+                public void integratorStepFinished(IntegratorEvent e) {
                     if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();

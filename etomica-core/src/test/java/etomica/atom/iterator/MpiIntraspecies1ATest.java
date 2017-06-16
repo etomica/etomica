@@ -4,14 +4,16 @@
 
 package etomica.atom.iterator;
 
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
-import etomica.api.ISpecies;
-import etomica.atom.MoleculeArrayList;
 import etomica.UnitTestUtil;
 import etomica.atom.MoleculesetAction;
+import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeArrayList;
+import etomica.molecule.iterator.MpiIntraspecies1A;
+import etomica.potential.IteratorDirective;
+import etomica.simulation.Simulation;
+import etomica.species.ISpecies;
 
 
 /**
@@ -27,7 +29,7 @@ public class MpiIntraspecies1ATest extends MoleculeIteratorTestAbstract {
         int[] n0 = new int[] {10, 1, 0};
         int nA0 = 5;
         int[] n1 = new int[] {5, 1, 6};
-        ISimulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1);
+        Simulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1);
         
         ISpecies[] species = new ISpecies[sim.getSpeciesCount()];
         for(int i = 0; i < sim.getSpeciesCount(); i++) {
@@ -57,7 +59,7 @@ public class MpiIntraspecies1ATest extends MoleculeIteratorTestAbstract {
         assertTrue(exceptionThrown);
         exceptionThrown = false;
         try {
-            new MpiIntraspecies1A((ISpecies)null);
+            new MpiIntraspecies1A(null);
         } catch(NullPointerException e) {exceptionThrown = true;}
         assertTrue(exceptionThrown);
 
@@ -67,7 +69,7 @@ public class MpiIntraspecies1ATest extends MoleculeIteratorTestAbstract {
     /**
      * Performs tests on different species combinations in a particular box.
      */
-    private void boxTest(IBox box, ISpecies[] species) {
+    private void boxTest(Box box, ISpecies[] species) {
         speciesTestForward(box, species[0]);
         speciesTestForward(box, species[1]);
     }
@@ -76,7 +78,7 @@ public class MpiIntraspecies1ATest extends MoleculeIteratorTestAbstract {
      * Test iteration in various directions with different targets.  Iterator constructed with
      * index of first species less than index of second.
      */
-    private void speciesTestForward(IBox box, ISpecies species) {
+    private void speciesTestForward(Box box, ISpecies species) {
 
         MpiIntraspecies1A api = new MpiIntraspecies1A(species);
         MoleculesetAction speciesTest = new SpeciesTestAction(species, species);

@@ -4,10 +4,8 @@
 
 package etomica.potential;
 
-import etomica.api.IAtomList;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IPotentialMolecular;
+import etomica.atom.IAtomList;
+import etomica.molecule.IMoleculeList;
 
 /**
  * Evaluates the energy summed over all iterated atoms. Each call to doCalculate

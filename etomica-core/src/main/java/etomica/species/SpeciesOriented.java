@@ -4,13 +4,12 @@
 
 package etomica.species;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IMolecule;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionCOM;
-import etomica.space.ISpace;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculePositionCOM;
+import etomica.space.Space;
+import etomica.space.Vector;
 
 
 /**
@@ -20,7 +19,7 @@ import etomica.space.ISpace;
  */
 public abstract class SpeciesOriented extends Species implements ISpeciesOriented {
 
-    public SpeciesOriented(ISpace space) {
+    public SpeciesOriented(Space space) {
         super();
         moment = space.makeVector();
         this.space = space;
@@ -33,11 +32,11 @@ public abstract class SpeciesOriented extends Species implements ISpeciesOriente
         IMolecule molecule = makeMolecule();
         IAtomList children = molecule.getChildList();
         conformation.initializePositions(children);
-        IVectorMutable com = space.makeVector();
-        AtomPositionCOM positionCOM = new AtomPositionCOM(space);
+        Vector com = space.makeVector();
+        MoleculePositionCOM positionCOM = new MoleculePositionCOM(space);
         com.E(positionCOM.position(molecule));
         double[] I = new double[3];
-        IVectorMutable xWork = space.makeVector();
+        Vector xWork = space.makeVector();
         mass = 0;
         for (int i=0; i<children.getAtomCount(); i++) {
             IAtom atom = children.getAtom(i);
@@ -57,7 +56,7 @@ public abstract class SpeciesOriented extends Species implements ISpeciesOriente
     /* (non-Javadoc)
      * @see etomica.atom.ISpeciesOriented#getMomentOfInertia()
      */
-    public IVector getMomentOfInertia() {
+    public Vector getMomentOfInertia() {
         return moment;
     }
     
@@ -69,7 +68,7 @@ public abstract class SpeciesOriented extends Species implements ISpeciesOriente
     }
 
     private static final long serialVersionUID = 1L;
-    protected final IVectorMutable moment;
+    protected final Vector moment;
     protected double mass;
-    protected final ISpace space;
+    protected final Space space;
 }

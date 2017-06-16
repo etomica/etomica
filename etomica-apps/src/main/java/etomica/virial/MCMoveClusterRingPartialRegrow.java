@@ -4,21 +4,20 @@
 
 package etomica.virial;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
+import etomica.data.histogram.HistogramExpanding;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.space.ISpace;
-import etomica.util.HistogramExpanding;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.PotentialMaster;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * MCMove that partially regrows the beads of a ring polymer, accepting or
@@ -30,11 +29,11 @@ import etomica.util.HistogramExpanding;
  */
 public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
 
-    public MCMoveClusterRingPartialRegrow(IPotentialMaster potentialMaster, IRandom random, ISpace _space) {
+    public MCMoveClusterRingPartialRegrow(PotentialMaster potentialMaster, IRandom random, Space _space) {
         this(potentialMaster, random, _space, new int[0][0]);
     }
     
-    public MCMoveClusterRingPartialRegrow(IPotentialMaster potentialMaster, IRandom random, ISpace _space, int[][] tangledMolecules) {
+    public MCMoveClusterRingPartialRegrow(PotentialMaster potentialMaster, IRandom random, Space _space, int[][] tangledMolecules) {
         super(potentialMaster);
         this.space = _space;
         this.random = random;
@@ -48,7 +47,7 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
     
     public void setNumTrial(int newNumTrial) {
         nTrial = newNumTrial;
-        rTrial = new IVectorMutable[nTrial];
+        rTrial = new Vector[nTrial];
         for (int i=0; i<nTrial; i++) {
             rTrial[i] = space.makeVector();
         }
@@ -65,7 +64,7 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
     
     public void setNumBeads(int newNumBeads) {
         maxNumBeads = newNumBeads;
-        oldPositions = new IVectorMutable[maxNumBeads];
+        oldPositions = new Vector[maxNumBeads];
         for (int i=0; i<maxNumBeads; i++) {
             oldPositions[i] = space.makeVector();
         }
@@ -75,7 +74,7 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
         return numBeads;
     }
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         int nMolecules = box.getMoleculeList().getMoleculeCount();
@@ -136,10 +135,10 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
             kStart = random.nextInt(nAtoms);
 
             IAtom atom0 = atoms.getAtom(kStart);
-            IVector prevAtomPosition = atom0.getPosition();
+            Vector prevAtomPosition = atom0.getPosition();
             int kEnd = (kStart + numBeads + 1) % nAtoms;
             IAtom atomN = atoms.getAtom(kEnd);
-            IVector lastAtomPosition = atomN.getPosition();
+            Vector lastAtomPosition = atomN.getPosition();
 
             double pPrev = 1;
             int k = kStart;
@@ -177,7 +176,7 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
                     k = 0;
                 }
                 IAtom kAtom = atoms.getAtom(k);
-                IVectorMutable kPosition = kAtom.getPosition();
+                Vector kPosition = kAtom.getPosition();
                 dcom.ME(kPosition);
                 oldPositions[m].E(kPosition);
 
@@ -281,17 +280,17 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
     
     private static final long serialVersionUID = 1L;
     protected IAtomList atoms;
-    protected final ISpace space;
+    protected final Space space;
     protected final IRandom random;
-    protected IVectorMutable[] oldPositions;
-    protected IVectorMutable[] rTrial;
+    protected Vector[] oldPositions;
+    protected Vector[] rTrial;
     protected int nTrial;
     protected double[] pkl;
     // Rosenbluth weights
     protected double wOld, wNew;
     // cluster weights
     protected double weightOld, weightNew, uOld, uNew;
-    protected final IVectorMutable dcom;
+    protected final Vector dcom;
     protected final AtomIteratorLeafAtoms leafIterator;
     protected double fac;
     public HistogramExpanding[][] hist;

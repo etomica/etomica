@@ -4,51 +4,34 @@
 
 package etomica.virial.simulations;
 
-import java.awt.Color;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
 import etomica.action.IAction;
-import etomica.api.IIntegratorEvent;
-import etomica.api.IIntegratorListener;
-import etomica.api.ISpecies;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.graph.iterators.filters.IsomorphismFilter;
-import etomica.graphics.ColorSchemeRandomByMolecule;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayBoxCanvasG3DSys;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2HardSphere;
 import etomica.potential.P2SquareWell;
 import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
-import etomica.units.CompoundDimension;
+import etomica.units.*;
 import etomica.units.Dimension;
-import etomica.units.DimensionRatio;
-import etomica.units.Pixel;
-import etomica.units.Quantity;
-import etomica.units.Volume;
 import etomica.util.Constants.CompassDirection;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterWeight;
-import etomica.virial.ClusterWeightAbs;
-import etomica.virial.ConfigurationClusterMove;
-import etomica.virial.MayerGeneralSpherical;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.MayerSphericalPTAtt;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 import etomica.virial.cluster.VirialDiagrams;
 import etomica.virial.cluster.VirialDiagramsPT;
+
+import javax.swing.*;
+import java.awt.*;
 
 public class VirialSwsPT {
 
@@ -243,10 +226,10 @@ public class VirialSwsPT {
 
         if (false) {
             final double refIntegralF = refIntegral;
-            IIntegratorListener progressReport = new IIntegratorListener() {
-                public void integratorInitialized(IIntegratorEvent e) {}
-                public void integratorStepStarted(IIntegratorEvent e) {}
-                public void integratorStepFinished(IIntegratorEvent e) {
+            IntegratorListener progressReport = new IntegratorListener() {
+                public void integratorInitialized(IntegratorEvent e) {}
+                public void integratorStepStarted(IntegratorEvent e) {}
+                public void integratorStepFinished(IntegratorEvent e) {
                     if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();

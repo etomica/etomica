@@ -4,14 +4,13 @@
 
 package etomica.normalmode;
 
-import etomica.api.IAtomType;
-import etomica.api.IMolecule;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
-import etomica.atom.AtomTypeLeaf;
-import etomica.atom.Molecule;
+import etomica.atom.AtomType;
 import etomica.chem.elements.ElementSimple;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.molecule.Molecule;
+import etomica.space.Space;
 import etomica.species.Species;
 
 /**
@@ -24,43 +23,41 @@ import etomica.species.Species;
  */
 public class SpeciesHSDimer extends Species {
 
-    public SpeciesHSDimer(ISpace space) {
+    public final static int indexAtom1 = 0;
+    public final static int indexAtom2 = 1;
+    private static final long serialVersionUID = 1L;
+    protected final Space space;
+    protected final boolean isDynamic;
+    protected final AtomType dimerAtomType;
+    public SpeciesHSDimer(Space space) {
         this(space, false, 1.0);
     }
     
-    public SpeciesHSDimer(ISpace space, boolean isDynamic, double L) {
+    public SpeciesHSDimer(Space space, boolean isDynamic, double L) {
         super();
         this.space = space;
         this.isDynamic = isDynamic;
-        
-        dimerAtomType = new AtomTypeLeaf(new ElementSimple("P", 1.0));
+
+        dimerAtomType = new AtomType(new ElementSimple("P", 1.0));
         addChildType(dimerAtomType);
 
-        setConformation(new ConformationHSDimer(space, L)); 
+        setConformation(new ConformationHSDimer(space, L));
      }
 
      public IMolecule makeMolecule() {
          Molecule hsDimer = new Molecule(this, 2);
          hsDimer.addChildAtom(isDynamic ? new AtomLeafDynamic(space, dimerAtomType) : new Atom(space, dimerAtomType));
          hsDimer.addChildAtom(isDynamic ? new AtomLeafDynamic(space, dimerAtomType) : new Atom(space, dimerAtomType));
-         
+
          conformation.initializePositions(hsDimer.getChildList());
          return hsDimer;
      }
 
-     public IAtomType getDimerAtomType() {
+    public AtomType getDimerAtomType() {
          return dimerAtomType;
      }
 
      public int getNumLeafAtoms() {
          return 2;
      }
-    
-    public final static int indexAtom1 = 0;
-    public final static int indexAtom2 = 1;
-    
-    private static final long serialVersionUID = 1L;
-    protected final ISpace space;
-    protected final boolean isDynamic;
-    protected final AtomTypeLeaf dimerAtomType;
 }

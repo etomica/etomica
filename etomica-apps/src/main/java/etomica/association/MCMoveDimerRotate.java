@@ -4,23 +4,22 @@
 
 package etomica.association;
 
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSource;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.cell.PotentialMasterCell;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
+import etomica.potential.IPotentialAtomic;
+import etomica.simulation.Simulation;
 import etomica.space.RotationTensor;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * Standard Monte Carlo atom-displacement trial move.
@@ -39,23 +38,23 @@ public class MCMoveDimerRotate extends MCMoveBoxStep {
     protected AtomSource atomSource;
     protected boolean fixOverlap;
     protected final IRandom random;
-    protected ISpace space;
+    protected Space space;
     protected final PotentialMasterCell potentialMaster;
     protected final Api1ACell neighborIterator;
-    protected final IVectorMutable dr;
+    protected final Vector dr;
     protected final IPotentialAtomic dimerPotential;
     protected IAtom atom1;
     protected transient RotationTensor rotationTensor;
-    protected final IVectorMutable r0;
+    protected final Vector r0;
     protected AssociationManager associationManager;
 
-    public MCMoveDimerRotate(ISimulation sim, PotentialMasterCell potentialMaster, ISpace _space, IPotentialAtomic dimerPotential) {
+    public MCMoveDimerRotate(Simulation sim, PotentialMasterCell potentialMaster, Space _space, IPotentialAtomic dimerPotential) {
         this(potentialMaster, sim.getRandom(), _space, 1.0, 15.0, false, dimerPotential);
     }
     
     public MCMoveDimerRotate(PotentialMasterCell potentialMaster, IRandom random,
-    		          ISpace _space, double stepSize, double stepSizeMax,
-            boolean fixOverlap, IPotentialAtomic dimerPotential) {
+                             Space _space, double stepSize, double stepSizeMax,
+                             boolean fixOverlap, IPotentialAtomic dimerPotential) {
         super(potentialMaster);
         this.affectedAtoms = new AtomArrayList(2);
         this.affectedAtomIterator = new AtomIteratorArrayListSimple(affectedAtoms);
@@ -112,7 +111,7 @@ public class MCMoveDimerRotate extends MCMoveBoxStep {
         return true;
     }//end of doTrial
     protected void doTransform(IAtom a) {
-            IVectorMutable r = a.getPosition();
+            Vector r = a.getPosition();
             r.ME(r0);
             box.getBoundary().nearestImage(r);
             rotationTensor.transform(r);
@@ -179,7 +178,7 @@ public class MCMoveDimerRotate extends MCMoveBoxStep {
         return affectedAtomIterator;
     }
     
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         atomSource.setBox(p);

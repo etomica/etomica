@@ -4,23 +4,15 @@
 
 package etomica.virial.simulations;
 
-import java.awt.Color;
-import java.util.Map;
-import java.util.Set;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
 import etomica.action.IAction;
-import etomica.api.IAtomType;
-import etomica.api.IIntegratorEvent;
-import etomica.api.IIntegratorListener;
-import etomica.api.ISpecies;
+import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.atom.iterator.Atomset4IteratorIndexList;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
@@ -28,12 +20,9 @@ import etomica.data.types.DataGroup;
 import etomica.graph.model.Graph;
 import etomica.graph.operations.DeleteEdge;
 import etomica.graph.operations.DeleteEdgeParameters;
-import etomica.graphics.ColorSchemeRandomByMolecule;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayBoxCanvasG3DSys;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P3BondAngle;
@@ -41,34 +30,20 @@ import etomica.potential.P4BondTorsion;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.units.CompoundDimension;
-import etomica.units.CompoundUnit;
+import etomica.species.ISpecies;
+import etomica.units.*;
 import etomica.units.Dimension;
-import etomica.units.DimensionRatio;
-import etomica.units.Kelvin;
-import etomica.units.Liter;
-import etomica.units.Mole;
-import etomica.units.Pixel;
-import etomica.units.Quantity;
-import etomica.units.Unit;
-import etomica.units.UnitRatio;
-import etomica.units.Volume;
 import etomica.util.Constants.CompassDirection;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterSum;
-import etomica.virial.ClusterSumShell;
-import etomica.virial.ClusterWeight;
-import etomica.virial.ClusterWeightAbs;
-import etomica.virial.MCMoveClusterMoleculeMulti;
-import etomica.virial.MCMoveClusterRotateMoleculeMulti;
-import etomica.virial.MCMoveClusterTorsionMulti;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.SpeciesAlkane;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 import etomica.virial.cluster.VirialDiagrams;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Mayer sampling simulation for alkanes using the TraPPE-United Atoms force field.
@@ -231,14 +206,14 @@ public class VirialAlkaneFull {
         System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
         steps /= 1000;
 
-        
-        IAtomType typeCH3 = species.getAtomType(0);
-        IAtomType typeCH2 = species.getAtomType(1);
-        pTargetGroup.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH2}));
+
+        AtomType typeCH3 = species.getAtomType(0);
+        AtomType typeCH2 = species.getAtomType(1);
+        pTargetGroup.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH2, typeCH2}));
         // CH2 on molecule1 to CH3 on molecule2
-        pTargetGroup.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH3}));
-        pTargetGroup.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeCH2}));
-        pTargetGroup.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeCH3}));
+        pTargetGroup.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH2, typeCH3}));
+        pTargetGroup.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH3, typeCH2}));
+        pTargetGroup.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH3, typeCH3}));
         
         sim.integratorOS.setNumSubSteps(1000);
 
@@ -363,6 +338,8 @@ public class VirialAlkaneFull {
             simGraphic.getPanel().controlPanel.add(panelParentGroup, SimulationPanel.getVertGBC());
             
             IAction pushAnswer = new IAction() {
+                DataDouble data = new DataDouble();
+                
                 public void actionPerformed() {
                     double[] ratioAndError = sim.dvo.getAverageAndError();
                     double ratio = ratioAndError[0];
@@ -372,8 +349,6 @@ public class VirialAlkaneFull {
                     data.x = error;
                     errorBox.putData(data);
                 }
-                
-                DataDouble data = new DataDouble();
             };
             IEtomicaDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, new CompoundDimension(new Dimension[]{new DimensionRatio(Volume.DIMENSION, Quantity.DIMENSION)}, new double[]{nPoints-1}));
             Unit unit = new CompoundUnit(new Unit[]{new UnitRatio(Liter.UNIT, Mole.UNIT)}, new double[]{nPoints-1});
@@ -420,10 +395,10 @@ public class VirialAlkaneFull {
 
         if (false) {
             final double refIntegralF = refIntegral;
-            IIntegratorListener progressReport = new IIntegratorListener() {
-                public void integratorInitialized(IIntegratorEvent e) {}
-                public void integratorStepStarted(IIntegratorEvent e) {}
-                public void integratorStepFinished(IIntegratorEvent e) {
+            IntegratorListener progressReport = new IntegratorListener() {
+                public void integratorInitialized(IntegratorEvent e) {}
+                public void integratorStepStarted(IntegratorEvent e) {}
+                public void integratorStepFinished(IntegratorEvent e) {
                     if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();
@@ -443,9 +418,9 @@ public class VirialAlkaneFull {
         sim.printResults(refIntegral);
         
         DataGroup allData = (DataGroup)sim.accumulators[1].getData();
-        IData dataAvg = allData.getData(sim.accumulators[1].AVERAGE.index);
-        IData dataErr = allData.getData(sim.accumulators[1].ERROR.index);
-        IData dataCov = allData.getData(sim.accumulators[1].BLOCK_COVARIANCE.index);
+        IData dataAvg = allData.getData(AccumulatorAverage.AVERAGE.index);
+        IData dataErr = allData.getData(AccumulatorAverage.ERROR.index);
+        IData dataCov = allData.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
         // we'll ignore block correlation -- whatever effects are here should be in the full target results
         int nTotal = (targetDiagrams.length+2);
         double oVar = dataCov.getValue(nTotal*nTotal-1);

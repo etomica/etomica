@@ -4,7 +4,7 @@
 
 package etomica.paracetamol;
 
-import etomica.api.IVectorMutable;
+import etomica.space.Vector;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
@@ -32,13 +32,13 @@ public class LatticeSumCrystalParacetamol {
         //get coordinates of basis at the origin
         System.out.println("At  LatticeSumCrystalParacetamol Constructor");
         basisDim = lattice.getBasis().getScaledCoordinates().length;
-        basis0 = new IVectorMutable[basisDim];
+        basis0 = new Vector[basisDim];
         
 
         for(int j=0; j<basisDim; j++) {
             siteIndex[spaceDim] = j;
             basis0[j] = lattice.getSpace().makeVector();
-            basis0[j].E((IVectorMutable)lattice.site(siteIndex));
+            basis0[j].E((Vector)lattice.site(siteIndex));
         }
         
     }
@@ -92,7 +92,7 @@ public class LatticeSumCrystalParacetamol {
 //                //loop over sites in lattice cell
 //                for(int jp=0; jp<basisDim; jp++) {
 //                    siteIndex[spaceDim] = jp;
-//                    IVector site = (IVector)lattice.site(siteIndex);
+//                    Vector site = (Vector)lattice.site(siteIndex);
 //                    //loop over sites in origin cell
 //                    for(int j=0; j<basisDim; j++) {
 //                    	dr.Ev1Mv2(site, basis0[j]);
@@ -119,11 +119,11 @@ public class LatticeSumCrystalParacetamol {
         return new DataGroupLSCParacetamol(sumR, sumI);
     }
  
-    public void setK(IVectorMutable k) {
+    public void setK(Vector k) {
         kVector.E(k);
     }
     
-    public IVectorMutable getK() {
+    public Vector getK() {
         return kVector;
     }
     
@@ -166,10 +166,10 @@ public class LatticeSumCrystalParacetamol {
     private final BravaisLatticeCrystal lattice;
     private IndexIterator iterator;
     private IndexIteratorTriangular coreIterator;
-    private final IVectorMutable kVector;
-    private final IVectorMutable[] basis0;
+    private final Vector kVector;
+    private final Vector[] basis0;
     private final int[] siteIndex;
-//    private final IVector dr;
+//    private final Vector dr;
     private final int basisDim;
     private final int spaceDim;
     private int maxLatticeShell;

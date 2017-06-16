@@ -4,15 +4,15 @@
 
 package etomica.normalmode;
 
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
+import etomica.util.random.IRandom;
+import etomica.space.Vector;
 import etomica.atom.iterator.AtomIterator;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class MCMovePhaseAngle extends MCMoveBoxStep {
     
-    public MCMovePhaseAngle(ISpace space, NormalModesVariable normalModes, CoordinateDefinition coordinateDefinition, IRandom random) {
+    public MCMovePhaseAngle(Space space, NormalModesVariable normalModes, CoordinateDefinition coordinateDefinition, IRandom random) {
         super(null);
         this.space = space;
         this.normalModes = normalModes;
@@ -29,7 +29,7 @@ public class MCMovePhaseAngle extends MCMoveBoxStep {
     }
     
     public boolean doTrial() {
-        IVectorMutable[] waveVectors = normalModes.getWaveVectors();
+        Vector[] waveVectors = normalModes.getWaveVectors();
         double[] phaseAngles = normalModes.getPhaseAngles();
         if (phaseAngles.length != oldPhaseAngles.length) {
             init();
@@ -87,7 +87,7 @@ public class MCMovePhaseAngle extends MCMoveBoxStep {
         return 0;
     }
 
-    protected final ISpace space;
+    protected final Space space;
     protected final NormalModesVariable normalModes;
     protected double[] oldPhaseAngles;
     protected final CoordinateDefinition coordinateDefinition;

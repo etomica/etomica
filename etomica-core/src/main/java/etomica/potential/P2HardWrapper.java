@@ -4,9 +4,9 @@
 
 package etomica.potential;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.space.ISpace;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 /**
@@ -16,7 +16,7 @@ import etomica.space.Tensor;
  */
  public class P2HardWrapper implements PotentialHard {
 
-    public P2HardWrapper(ISpace space, PotentialHard potential) {
+    public P2HardWrapper(Space space, PotentialHard potential) {
         this.space = space;
         wrappedPotential = potential;
     }
@@ -29,7 +29,7 @@ import etomica.space.Tensor;
         return wrappedPotential.nBody();
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         wrappedPotential.setBox(box);
     }
     
@@ -66,6 +66,6 @@ import etomica.space.Tensor;
     }
 
     private static final long serialVersionUID = 1L;
-    protected final ISpace space;
+    protected final Space space;
     protected PotentialHard wrappedPotential;
 }

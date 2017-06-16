@@ -4,7 +4,7 @@
 
 package etomica.potential;
 
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 
 /**
  * Interface for potentials that change the bond state of an atom.

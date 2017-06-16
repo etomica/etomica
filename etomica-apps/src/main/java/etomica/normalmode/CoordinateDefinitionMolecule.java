@@ -4,23 +4,18 @@
 
 package etomica.normalmode;
 
-import java.io.Serializable;
-
 import etomica.action.BoxInflate;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.atom.MoleculeAgentManager;
-import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
+import etomica.box.Box;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
-import etomica.space.ISpace;
+import etomica.molecule.*;
+import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.space.Vector;
+
+import java.io.Serializable;
 
 /**
  * CoordinateDefinition implementation for molecules. The class takes the first
@@ -33,11 +28,11 @@ import etomica.space.ISpace;
 public class CoordinateDefinitionMolecule extends CoordinateDefinition
         implements Serializable {
 
-    public CoordinateDefinitionMolecule(ISimulation sim, IBox box, Primitive primitive, int orientationDim, ISpace space) {
+    public CoordinateDefinitionMolecule(Simulation sim, Box box, Primitive primitive, int orientationDim, Space space) {
         this(sim, box, primitive, orientationDim, new BasisMonatomic(space), space);
     }
     
-    public CoordinateDefinitionMolecule(ISimulation sim, IBox box, Primitive primitive, int orientationDim, Basis basis, ISpace space) {
+    public CoordinateDefinitionMolecule(Simulation sim, Box box, Primitive primitive, int orientationDim, Basis basis, Space space) {
         super(box, (space.D() + orientationDim)*basis.getScaledCoordinates().length, primitive, basis, space);
         this.sim = sim;
         work1 = space.makeVector();
@@ -45,7 +40,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
         inflate.setBox(box);
        
         u = new double[coordinateDim];
-        setPositionDefinition(new AtomPositionGeometricCenter(space));
+        setPositionDefinition(new MoleculePositionGeometricCenter(space));
         rScale = 1.0;
     }
     
@@ -63,8 +58,8 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
     	int j = 0;
         for (int i=0; i<molecules.getMoleculeCount(); i++) {
             IMolecule molecule = molecules.getMolecule(i);
-            IVector pos = positionDefinition.position(molecule);
-            IVectorMutable site = getLatticePosition(molecule);
+            Vector pos = positionDefinition.position(molecule);
+            Vector site = getLatticePosition(molecule);
             
             work1.Ev1Mv2(pos, site);
                
@@ -91,7 +86,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
         int j = 0;
         for (int i=0; i<molecules.getMoleculeCount(); i++) {
             IMolecule molecule = molecules.getMolecule(i);
-            IVectorMutable site = getLatticePosition(molecule);
+            Vector site = getLatticePosition(molecule);
             for (int k = 0; k < site.getD(); k++) {
                 work1.setX(k, site.getX(k) + newU[j+k]);
             }
@@ -104,44 +99,44 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
         }
     }
     
-    public IVectorMutable getLatticePosition(IMolecule molecule) {
-        return (IVectorMutable)moleculeSiteManager.getAgent(molecule);
+    public Vector getLatticePosition(IMolecule molecule) {
+        return (Vector)moleculeSiteManager.getAgent(molecule);
     }
     
-    public void setPositionDefinition(IAtomPositionDefinition positionDefinition) {
+    public void setPositionDefinition(IMoleculePositionDefinition positionDefinition) {
         this.positionDefinition = positionDefinition;
         atomActionTranslateTo.setAtomPositionDefinition(positionDefinition);
     }
 
-    public IAtomPositionDefinition getPositionDefinition() {
+    public IMoleculePositionDefinition getPositionDefinition() {
         return positionDefinition;
     }
     
-    public void setInitVolume(IVector initV){
+    public void setInitVolume(Vector initV){
     	this.initVolume = initV;
     }
     
     private static final long serialVersionUID = 1L;
-    protected final ISimulation sim;
+    protected final Simulation sim;
     protected MoleculeAgentManager moleculeSiteManager;
-    protected final IVectorMutable work1;
+    protected final Vector work1;
     protected final double[] u;
-    protected IAtomPositionDefinition positionDefinition;
+    protected IMoleculePositionDefinition positionDefinition;
     protected double rScale;
-    protected IVector initVolume;
+    protected Vector initVolume;
     protected final BoxInflate inflate;
 
     protected static class MoleculeSiteSource implements MoleculeAgentSource, Serializable {
         
-        public MoleculeSiteSource(ISpace space, IAtomPositionDefinition positionDefinition) {
+        public MoleculeSiteSource(Space space, IMoleculePositionDefinition positionDefinition) {
             this.space = space;
             this.positionDefinition = positionDefinition;
         }
         public Class getMoleculeAgentClass() {
-            return IVectorMutable.class;
+            return Vector.class;
         }
         public Object makeAgent(IMolecule molecule) {
-            IVectorMutable vector = space.makeVector();
+            Vector vector = space.makeVector();
             vector.E(positionDefinition.position(molecule));
             return vector;
         }
@@ -149,8 +144,8 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
             //nothing to do
         }
 
-        private final ISpace space;
-        protected final IAtomPositionDefinition positionDefinition;
+        private final Space space;
+        protected final IMoleculePositionDefinition positionDefinition;
         private static final long serialVersionUID = 1L;
     }
 }

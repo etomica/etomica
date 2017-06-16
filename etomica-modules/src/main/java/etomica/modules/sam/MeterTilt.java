@@ -4,19 +4,19 @@
 
 package etomica.modules.sam;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.Angle;
 
 /**
@@ -26,7 +26,7 @@ import etomica.units.Angle;
  */
 public class MeterTilt implements IEtomicaDataSource {
 
-    public MeterTilt(ISpace space, ISpecies species) {
+    public MeterTilt(Space space, ISpecies species) {
         this.species = species;
         dr = space.makeVector();
         drSum = space.makeVector();
@@ -37,7 +37,7 @@ public class MeterTilt implements IEtomicaDataSource {
                 new DataDouble.DataInfoDouble("Tilt", Angle.DIMENSION)});
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
 
@@ -70,8 +70,8 @@ public class MeterTilt implements IEtomicaDataSource {
 
     private static final long serialVersionUID = 1L;
     protected final ISpecies species;
-    protected IBox box;
-    protected final IVectorMutable dr, drSum;
+    protected Box box;
+    protected final Vector dr, drSum;
     protected final DataTag tag;
     protected final DataGroup data;
     protected final IEtomicaDataInfo dataInfo;

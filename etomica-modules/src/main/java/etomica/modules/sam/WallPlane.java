@@ -4,9 +4,9 @@
 
 package etomica.modules.sam;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.math.geometry.Plane;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Wrap a P1WCAWall and make it look like a Plane.  A boatload of
@@ -17,13 +17,13 @@ import etomica.space.ISpace;
  * @author Andrew Schultz
  */
 public class WallPlane extends Plane {
-    public WallPlane(ISpace space, P1WCAWall wallPotential) {
+    public WallPlane(Space space, P1WCAWall wallPotential) {
         super(space);
         this.wallPotential = wallPotential;
     }
     
     // DisplayBoxCanvasG3DSys calls this
-    public double distanceTo(IVector v) {
+    public double distanceTo(Vector v) {
         return v.getX(1) - wallPotential.getWallPosition()+2;
     }
     

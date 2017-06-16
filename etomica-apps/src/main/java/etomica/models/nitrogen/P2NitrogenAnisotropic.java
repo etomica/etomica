@@ -5,13 +5,13 @@
 
 package etomica.models.nitrogen;
 
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
+import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialMolecular;
-import etomica.space.ISpace;
+import etomica.space.Boundary;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Kelvin;
 
 /** 
@@ -25,15 +25,15 @@ import etomica.units.Kelvin;
  */
 public class P2NitrogenAnisotropic extends PotentialMolecular {
 
-	public P2NitrogenAnisotropic(ISpace space, double rC) {
+	public P2NitrogenAnisotropic(Space space, double rC) {
 		super(2, space);
 		work = space.makeVector();
 		shift = space.makeVector();
 		com1 = space.makeVector();
 		com2 = space.makeVector();
 		
-		zk = new IVectorMutable[2];
-		zl = new IVectorMutable[2];
+		zk = new Vector[2];
+		zl = new Vector[2];
 		
 		for(int i=0; i<2; i++){
 			zk[i] = space.makeVector();
@@ -56,7 +56,7 @@ public class P2NitrogenAnisotropic extends PotentialMolecular {
         
 	}
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 
@@ -68,14 +68,14 @@ public class P2NitrogenAnisotropic extends PotentialMolecular {
 		IMolecule nitrogenb = pair.getMolecule(1);
 		
 		// to compute the midpoint distance between the two
-		IVectorMutable pos1 = (nitrogena.getChildList().getAtom(1)).getPosition();
-		IVectorMutable pos2 = (nitrogenb.getChildList().getAtom(1)).getPosition();
+		Vector pos1 = (nitrogena.getChildList().getAtom(1)).getPosition();
+		Vector pos2 = (nitrogenb.getChildList().getAtom(1)).getPosition();
 		
 		com1.E(pos1);
 		com2.E(pos2);
 		
-		IVectorMutable diff1 = space.makeVector();
-		IVectorMutable diff2 = space.makeVector();
+		Vector diff1 = space.makeVector();
+		Vector diff2 = space.makeVector();
 		
 		diff1.Ev1Mv2(com1, nitrogena.getChildList().getAtom(0).getPosition());
 		diff2.Ev1Mv2(com2, nitrogenb.getChildList().getAtom(0).getPosition());
@@ -106,15 +106,15 @@ public class P2NitrogenAnisotropic extends PotentialMolecular {
 		 * refer to SpeciesN2.java class
 		 * 
 		 */
-        IVectorMutable Pa1l = nitrogena.getChildList().getAtom(2).getPosition();
-        IVectorMutable Pa2l = nitrogena.getChildList().getAtom(3).getPosition();                                                                        
-        IVectorMutable Pa1r = nitrogena.getChildList().getAtom(4).getPosition();
-        IVectorMutable Pa2r = nitrogena.getChildList().getAtom(5).getPosition();
+        Vector Pa1l = nitrogena.getChildList().getAtom(2).getPosition();
+        Vector Pa2l = nitrogena.getChildList().getAtom(3).getPosition();
+        Vector Pa1r = nitrogena.getChildList().getAtom(4).getPosition();
+        Vector Pa2r = nitrogena.getChildList().getAtom(5).getPosition();
         
-        IVectorMutable Pb1l = nitrogenb.getChildList().getAtom(2).getPosition();
-        IVectorMutable Pb2l = nitrogenb.getChildList().getAtom(3).getPosition();
-        IVectorMutable Pb1r = nitrogenb.getChildList().getAtom(4).getPosition();
-        IVectorMutable Pb2r = nitrogenb.getChildList().getAtom(5).getPosition();
+        Vector Pb1l = nitrogenb.getChildList().getAtom(2).getPosition();
+        Vector Pb2l = nitrogenb.getChildList().getAtom(3).getPosition();
+        Vector Pb1r = nitrogenb.getChildList().getAtom(4).getPosition();
+        Vector Pb2r = nitrogenb.getChildList().getAtom(5).getPosition();
         
         double r2QQ = 0*2.25;
         
@@ -134,7 +134,7 @@ public class P2NitrogenAnisotropic extends PotentialMolecular {
         	zl[1].Ea1Tv1(-1.0, zl[0]);
         	
     		for (int i=0; i<2; i++){
-    			IVectorMutable dist = (nitrogenb.getChildList().getAtom(i)).getPosition();
+    			Vector dist = (nitrogenb.getChildList().getAtom(i)).getPosition();
     			  			
     			for (int j=0; j<2; j++){
     				
@@ -230,7 +230,7 @@ public class P2NitrogenAnisotropic extends PotentialMolecular {
         	zl[1].Ea1Tv1(-1.0, zl[0]);
         	
     		for (int i=0; i<2; i++){
-    			IVectorMutable dist = (nitrogenb.getChildList().getAtom(i)).getPosition();
+    			Vector dist = (nitrogenb.getChildList().getAtom(i)).getPosition();
     			shift.TE(-1.0);
     			shift.PE(dist);
     			
@@ -406,7 +406,7 @@ public class P2NitrogenAnisotropic extends PotentialMolecular {
     	
     }
     
-    private double calcAnisotropicRho(IVectorMutable zk, IVectorMutable zl, IVectorMutable rkl){
+    private double calcAnisotropicRho(Vector zk, Vector zl, Vector rkl){
     	/*
     	 * rho1 and rho2 are from Refenrence 2.
     	 */
@@ -429,7 +429,7 @@ public class P2NitrogenAnisotropic extends PotentialMolecular {
     private static final long serialVersionUID = 1L;
     
     
-	protected IBoundary boundary;
+	protected Boundary boundary;
 	protected final double chargeP1 = ConformationNitrogen.Echarge[SpeciesN2.indexP1left];
 	protected final double chargeP2 = ConformationNitrogen.Echarge[SpeciesN2.indexP2left];
 	protected final double chargeP1P1, chargeP1P2, chargeP2P2;
@@ -445,9 +445,9 @@ public class P2NitrogenAnisotropic extends PotentialMolecular {
 	
 	protected double[] C;
 	
-	protected final IVectorMutable work, shift;
-	protected final IVectorMutable com1, com2;
-	protected final IVectorMutable[] zk, zl;
-	protected final IVectorMutable rkl;
+	protected final Vector work, shift;
+	protected final Vector com1, com2;
+	protected final Vector[] zk, zl;
+	protected final Vector rkl;
 	public double rC =1.0;
 }
