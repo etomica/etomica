@@ -28,11 +28,10 @@ import etomica.species.SpeciesSpheresMono;
  * for simulation of a more general magentic system.
  *
  * @author David Kofke
- *
  */
 public class Ising extends Simulation {
 
-	private static final String APP_NAME = "Ising";
+    private static final String APP_NAME = "Ising";
     private static final long serialVersionUID = 2L;
     public PotentialMasterSite potentialMaster;
     public Box box;
@@ -44,9 +43,11 @@ public class Ising extends Simulation {
     public DataPump pump;
     public AccumulatorAverageCollapsing dAcc;
     private IntegratorMC integrator;
+
     public Ising() {
-        this(Space2D.getInstance(),60);
+        this(Space2D.getInstance(), 60);
     }
+
     /**
      *
      */
@@ -85,21 +86,21 @@ public class Ising extends Simulation {
         pumpListener.setInterval(10);
         integrator.getEventManager().addListener(pumpListener);
     }
-    
+
     public static void main(String[] args) {
-    	Space sp = Space2D.getInstance();
+        Space sp = Space2D.getInstance();
         Ising sim = new Ising(sp, 60);
         SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sp, sim.getController());
-        ((SimulationRestart)simGraphic.getController().getReinitButton().getAction()).setConfiguration(null);
-		IAction repaintAction = simGraphic.getPaintAction(sim.box);
+        ((SimulationRestart) simGraphic.getController().getReinitButton().getAction()).setConfiguration(null);
+        IAction repaintAction = simGraphic.getPaintAction(sim.box);
         DisplayBox displayBox = simGraphic.getDisplayBox(sim.box);
 
         simGraphic.remove(displayBox);
         BoxAgentManager boxAgentManager = sim.potentialMaster.getCellAgentManager();
-        NeighborSiteManager neighborSiteManager = (NeighborSiteManager)boxAgentManager.getAgent(sim.box);
-        displayBox.setBoxCanvas(new DisplayBoxSpin2D(displayBox,neighborSiteManager, sp, sim.getController()));
+        NeighborSiteManager neighborSiteManager = (NeighborSiteManager) boxAgentManager.getAgent(sim.box);
+        displayBox.setBoxCanvas(new DisplayBoxSpin2D(displayBox, neighborSiteManager, sp, sim.getController()));
         simGraphic.add(displayBox);
-        DeviceSlider temperatureSlider = new DeviceSlider(sim.getController(), sim.integrator,"temperature");
+        DeviceSlider temperatureSlider = new DeviceSlider(sim.getController(), sim.integrator, "temperature");
         temperatureSlider.setMinimum(0.5);
         temperatureSlider.setMaximum(10.0);
         temperatureSlider.setShowBorder(true);
@@ -113,7 +114,7 @@ public class Ising extends Simulation {
         fieldSlider.setShowBorder(true);
         fieldSlider.setLabel("Magnetic field");
         simGraphic.add(fieldSlider);
-        
+
         DisplayTextBoxesCAE boxes = new DisplayTextBoxesCAE();
         boxes.setAccumulator(sim.dAcc);
         boxes.setLabel("Magnetization");

@@ -5,12 +5,12 @@
 package etomica.spin.ising;
 
 import etomica.atom.IAtom;
-import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.data.IEtomicaDataSource;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Undefined;
 
 
@@ -20,15 +20,19 @@ import etomica.units.Undefined;
  * vector).
  *
  * @author David Kofke
- *
  */
 public class MeterSpin extends DataSourceScalar implements IEtomicaDataSource {
 
+    private static final long serialVersionUID = 1L;
+    private final AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
+    private final Vector sum;
+    private Box box;
+
     /**
-     * 
+     *
      */
     public MeterSpin(Space space) {
-        super("Spin",Undefined.DIMENSION);
+        super("Spin", Undefined.DIMENSION);
         sum = space.makeVector();
     }
 
@@ -45,7 +49,7 @@ public class MeterSpin extends DataSourceScalar implements IEtomicaDataSource {
             sum.PE(atom.getPosition());
             count++;
         }
-        return sum.getX(0)/count;
+        return sum.getX(0) / count;
     }
 
     /**
@@ -54,15 +58,11 @@ public class MeterSpin extends DataSourceScalar implements IEtomicaDataSource {
     public Box getBox() {
         return box;
     }
+
     /**
      * @param box The box to set.
      */
     public void setBox(Box box) {
         this.box = box;
     }
-
-    private static final long serialVersionUID = 1L;
-    private Box box;
-    private final AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
-    private final Vector sum;
 }

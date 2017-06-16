@@ -6,13 +6,13 @@ package etomica.spin.ising;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
-import etomica.potential.PotentialMaster;
-import etomica.util.random.IRandom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBox;
+import etomica.potential.PotentialMaster;
+import etomica.util.random.IRandom;
 
 
 /**
@@ -20,9 +20,16 @@ import etomica.integrator.mcmove.MCMoveBox;
  * Window - Preferences - Java - Code Style - Code Templates
  *
  * @author David Kofke
- *
  */
 public class MCMoveSpinFlip extends MCMoveBox {
+
+    private static final long serialVersionUID = 1L;
+    protected final IRandom random;
+    protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
+    protected final MeterPotentialEnergy energyMeter;
+    protected IAtom atom;
+    protected double uOld;
+    protected double uNew = Double.NaN;
 
     /**
      * @param potentialMaster
@@ -40,7 +47,7 @@ public class MCMoveSpinFlip extends MCMoveBox {
         super.setBox(p);
         energyMeter.setBox(p);
     }
-    
+
     /* (non-Javadoc)
      * @see etomica.integrator.MCMove#doTrial()
      */
@@ -97,12 +104,4 @@ public class MCMoveSpinFlip extends MCMoveBox {
     public double energyChange() {
         return uNew - uOld;
     }
-
-    private static final long serialVersionUID = 1L;
-    protected final IRandom random;
-    protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
-    protected final MeterPotentialEnergy energyMeter;
-    protected IAtom atom;
-    protected double uOld;
-    protected double uNew = Double.NaN;
 }

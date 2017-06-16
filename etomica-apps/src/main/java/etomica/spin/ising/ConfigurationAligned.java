@@ -20,6 +20,8 @@ import etomica.config.Configuration;
  */
 public class ConfigurationAligned implements Configuration, java.io.Serializable {
 
+    private static final long serialVersionUID = 2L;
+
     public ConfigurationAligned() {
     }
 
@@ -34,6 +36,4 @@ public class ConfigurationAligned implements Configuration, java.io.Serializable
             spin.setX(0,1.0);
         }
     }
-
-    private static final long serialVersionUID = 2L;
 }
