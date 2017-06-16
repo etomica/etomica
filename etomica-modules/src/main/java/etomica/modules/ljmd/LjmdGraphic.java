@@ -4,74 +4,40 @@
 
 package etomica.modules.ljmd;
 
-import java.awt.GridBagConstraints;
-import java.util.ArrayList;
-
 import etomica.action.IAction;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverage;
+import etomica.data.*;
 import etomica.data.AccumulatorAverage.StatType;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataFork;
-import etomica.data.DataPipe;
-import etomica.data.DataProcessor;
-import etomica.data.DataPump;
-import etomica.data.DataSourceCountTime;
-import etomica.data.DataSourceFunction;
-import etomica.data.DataSourceRmsVelocity;
-import etomica.data.DataSourceUniform;
 import etomica.data.DataSourceUniform.LimitType;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IDataSink;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.meter.MeterDensity;
-import etomica.data.meter.MeterEnergy;
-import etomica.data.meter.MeterKineticEnergy;
-import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.meter.MeterPressureTensorFromIntegrator;
-import etomica.data.meter.MeterRDF;
-import etomica.data.meter.MeterTemperature;
+import etomica.data.histogram.HistogramSimple;
+import etomica.data.meter.*;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataTensor;
-import etomica.graphics.ActionConfigWindow;
-import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DeviceButton;
-import etomica.graphics.DeviceNSelector;
-import etomica.graphics.DeviceThermoSlider;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.DisplayTextBoxesCAE;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.listener.IntegratorListenerAction;
+import etomica.math.DoubleRange;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
 import etomica.statmech.MaxwellBoltzmann;
 import etomica.units.DimensionRatio;
-import etomica.units.Energy;
 import etomica.units.Length;
 import etomica.units.Null;
 import etomica.units.Time;
-import etomica.units.Unit;
-import etomica.units.systems.LJ;
 import etomica.util.Constants.CompassDirection;
-import etomica.math.DoubleRange;
-import etomica.data.histogram.HistogramSimple;
+
+import java.awt.*;
+import java.util.ArrayList;
 
 public class LjmdGraphic extends SimulationGraphic {
 
     private final static String APP_NAME = "Lennard-Jones Molecular Dynamics";
     private final static int REPAINT_INTERVAL = 20;
-    private DeviceThermoSlider temperatureSelect;
     protected Ljmd sim;
-    
+    private DeviceThermoSlider temperatureSelect;
     private boolean showConfig = false;
 
     public LjmdGraphic(final Ljmd simulation, Space _space) {
@@ -81,9 +47,6 @@ public class LjmdGraphic extends SimulationGraphic {
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
         
     	this.sim = simulation;
-
-        LJ unitSystem = new LJ();
-        Unit tUnit = Energy.DIMENSION.getUnit(unitSystem);
 
         sim.activityIntegrate.setSleepPeriod(1);
        
@@ -164,12 +127,10 @@ public class LjmdGraphic extends SimulationGraphic {
         temperatureHistory.setTimeDataSource(timeCounter);
 		final DisplayTextBox tBox = new DisplayTextBox();
 		temperatureFork.setDataSinks(new IDataSink[]{tBox,temperatureHistory});
-        tBox.setUnit(tUnit);
 		tBox.setLabel("Measured Temperature");
 		tBox.setLabelPosition(CompassDirection.NORTH);
 
 		dataStreamPumps.add(temperaturePump);
-        tBox.setUnit(tUnit);
 		tBox.setLabel("Measured Temperature");
 		tBox.setLabelPosition(CompassDirection.NORTH);
 
@@ -280,6 +241,9 @@ public class LjmdGraphic extends SimulationGraphic {
         // system sizes (since we're using ANDERSEN_SINGLE.  Smaller systems 
         // don't need as much thermostating.
         nSlider.setPostAction(new IAction() {
+            ConfigurationLattice config = new ConfigurationLattice((space.D() == 2) ? new LatticeOrthorhombicHexagonal(space) : new LatticeCubicFcc(space), space);
+            int oldN = sim.box.getMoleculeList().getMoleculeCount();
+
             public void actionPerformed() {
                 int n = (int)nSlider.getValue();
                 if(n == 0) {
@@ -288,7 +252,7 @@ public class LjmdGraphic extends SimulationGraphic {
                 else {
                   sim.integrator.setThermostatInterval(400/n+1);
                 }
-                
+
                 if (oldN < n) {
                     config.initializeCoordinates(sim.box);
                 }
@@ -297,9 +261,6 @@ public class LjmdGraphic extends SimulationGraphic {
                 resetDataAction.actionPerformed();
                 getDisplayBox(sim.box).repaint();
             }
-            
-            ConfigurationLattice config = new ConfigurationLattice((space.D() == 2) ? new LatticeOrthorhombicHexagonal(space) : new LatticeCubicFcc(space), space);
-            int oldN = sim.box.getMoleculeList().getMoleculeCount();
         });
 
         //************* Lay out components ****************//
@@ -314,7 +275,6 @@ public class LjmdGraphic extends SimulationGraphic {
         temperatureSelect.setMinimum(0.0);
         temperatureSelect.setMaximum(10.0);
         temperatureSelect.setSliderMajorValues(3);
-	    temperatureSelect.setUnit(tUnit);
 	    temperatureSelect.setAdiabatic();
 
         final IAction temperatureAction = new IAction() {
@@ -403,8 +363,15 @@ public class LjmdGraphic extends SimulationGraphic {
     
     public static class Applet extends javax.swing.JApplet {
 
-        public void init() {
-	        getRootPane().putClientProperty(
+        publate
+        static final long serialVersionUID = 1L;
+    }
+
+    iv
+    ic
+
+    void init() {
+        getRootPane().putClientProperty(
 	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
 	        Space sp = Space2D.getInstance();
             LjmdGraphic ljmdGraphic = new LjmdGraphic(new Ljmd(sp), sp);
@@ -412,41 +379,46 @@ public class LjmdGraphic extends SimulationGraphic {
 		    getContentPane().add(ljmdGraphic.getPanel());
 	    }
 
-        private static final long serialVersionUID = 1L;
-    }
-    
+    pr
+
     /**
      * Inner class to find the total pressure of the system from the pressure
      * tensor.
      */
     public static class DataProcessorTensorTrace extends DataProcessor {
 
-        public DataProcessorTensorTrace() {
-            data = new DataDouble();
-        }
-        
-        protected IData processData(IData inputData) {
-            // take the trace and divide by the dimensionality
-            data.x = ((DataTensor)inputData).x.trace()/((DataTensor)inputData).x.D();
-            return data;
-        }
-
-        protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
-            dataInfo = new DataDouble.DataInfoDouble(inputDataInfo.getLabel(), inputDataInfo.getDimension());
-            return dataInfo;
-        }
-
-        public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
-            if (!(inputDataInfo instanceof DataTensor.DataInfoTensor)) {
-                throw new IllegalArgumentException("Gotta be a DataInfoTensor");
-            }
-            return null;
-        }
-
-        private static final long serialVersionUID = 1L;
+        publate
+        static final long serialVersionUID = 1L;
+        pro
         protected final DataDouble data;
     }
 
 }
 
 
+    otic DataProcessorTensorTrace() {
+            data = new DataDouble();
+        }
+
+  bl
+          ected IData processData(IData inputData){
+            // take the trace and divide by the dimensionality
+            data.x = ((DataTensor)inputData).x.trace()/((DataTensor)inputData).x.D();
+            return data;
+        }
+
+          priv
+          ected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo){
+            dataInfo = new DataDouble.DataInfoDouble(inputDataInfo.getLabel(), inputDataInfo.getDimension());
+            return dataInfo;
+        }
+
+          put
+          ic DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo){
+            if (!(inputDataInfo instanceof DataTensor.DataInfoTensor)) {
+                throw new IllegalArgumentException("Gotta be a DataInfoTensor");
+            }
+            return null;
+        }
+
+          pr

@@ -21,7 +21,6 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.units.systems.LJ;
 
 
 /**
@@ -104,8 +103,6 @@ public class Heisenberg extends Simulation {
         temperatureSlider.setMinimum(0.5);
         temperatureSlider.setMaximum(10.0);
         temperatureSlider.setShowBorder(true);
-        LJ lj = new LJ();
-        temperatureSlider.setUnit(lj.temperature());
         simGraphic.add(temperatureSlider);
         temperatureSlider.setValue(sim.integrator.getTemperature());
         DeviceSlider fieldSlider = new DeviceSlider(sim.getController(), sim.field, "h");
