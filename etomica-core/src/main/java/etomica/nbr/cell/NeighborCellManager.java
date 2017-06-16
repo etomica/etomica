@@ -26,6 +26,9 @@ import etomica.util.IListener;
 /**
  * Class that defines and manages construction and use of lattice of cells 
  * for cell-based neighbor listing.
+ *
+ * Before starting the simulation, it is necessary call makeMCMoveListener and
+ * register the result with the MCMoveEventManager of the Integrator.
  */
 
 //TODO modify assignCellAll to loop through cells to get all atoms to be assigned
