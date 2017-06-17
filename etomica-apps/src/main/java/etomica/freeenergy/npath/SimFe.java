@@ -130,7 +130,7 @@ public class SimFe extends Simulation {
 
         integrator.setBox(box);
 
-        p1ImageHarmonic.setZeroForce(false);
+        p1ImageHarmonic.setZeroForce(true);
 
         SpaceLattice lat = null;
         if (crystal == Crystal.FCC) {
@@ -303,7 +303,20 @@ public class SimFe extends Simulation {
             tPlot.setUnit(Kelvin.UNIT);
             simGraphic.add(tPlot);
             tHist.addDataSink(tPlot.getDataSet().makeDataSink());
-            tPlot.setLegend(new DataTag[]{tHist.getTag()}, "T");
+            tPlot.setDoLegend(false);
+
+            MeterKineticEnergy meterKE = new MeterKineticEnergy();
+            meterKE.setBox(sim.box);
+            AccumulatorHistory keHist = new AccumulatorHistory(new HistoryCollapsingAverage());
+            keHist.setTimeDataSource(tSource);
+            DataPumpListener kePump = new DataPumpListener(meterKE, keHist, 10);
+            sim.integrator.getEventManager().addListener(kePump);
+            DisplayPlot kePlot = new DisplayPlot();
+            kePlot.setLabel("KE");
+            kePlot.setUnit(new CompoundUnit(new Unit[]{new SimpleUnit(Null.DIMENSION, 1.0 / numAtoms, "why do you want a name.  just use it.", "per atom", false)}, new double[]{-1}));
+            simGraphic.add(kePlot);
+            keHist.addDataSink(kePlot.getDataSet().makeDataSink());
+            kePlot.setDoLegend(false);
 
             MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
             meterPE.setBox(sim.box);
@@ -316,6 +329,7 @@ public class SimFe extends Simulation {
             sim.integrator.getEventManager().addListener(ePump);
             DisplayPlot tePlot = new DisplayPlot();
             tePlot.setLabel("total E");
+            tePlot.setUnit(new CompoundUnit(new Unit[]{new SimpleUnit(Null.DIMENSION, 1.0 / numAtoms, "why do you want a name.  just use it.", "per atom", false)}, new double[]{-1}));
             simGraphic.add(tePlot);
             eHist.addDataSink(tePlot.getDataSet().makeDataSink());
             tePlot.setDoLegend(false);
