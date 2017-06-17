@@ -122,6 +122,7 @@ public class SimFe extends Simulation {
         integrator.setMeterPotentialEnergy(meterPE);
         integrator.setIsothermal(true);
         integrator.setTemperature(temperature);
+        integrator.setThermostatNoDrift(true);
         integrator.getEventManager().addListener(potential.makeIntegratorListener(potentialMaster, box));
         integrator.setForceSum(new PotentialCalculationForceSum());
 
@@ -214,6 +215,7 @@ public class SimFe extends Simulation {
             params.numInnerSteps = 100;
             params.swap = true;
             params.nve = false;
+            params.rmsdFile = "rmsd.dat";
             params.thermostatInterval = 500;
         }
 
@@ -363,7 +365,9 @@ public class SimFe extends Simulation {
 
             return;
         }
-    
+
+        MeterRMSD meterRMSD = new MeterRMSD(sim.box, sim.space);
+
         sim.integrator.setThermostatInterval(10);
         sim.ai.setMaxSteps(steps/10);
         sim.getController().actionPerformed();
@@ -375,17 +379,17 @@ public class SimFe extends Simulation {
             sim.integrator.setIsothermal(false);
         }
 
-        System.out.println("equilibration finished ("+steps/20+"+"+steps/20+"+"+steps/10+" steps)");
+        System.out.println("equilibration finished (" + steps / 10 + " steps)");
 
         long t1 = System.currentTimeMillis();
 
         int interval = 10;
         if (thermostatInterval > interval * 10) interval = 20;
         int numBlocks = 100;
-        if (steps / numBlocks > thermostatInterval) numBlocks = (int) (steps / thermostatInterval);
+        if (steps / numBlocks < thermostatInterval) numBlocks = (int) (steps / thermostatInterval);
         long blockSize = steps / numBlocks / interval;
         if (blockSize==0) blockSize = 1;
-        System.out.println("block size: " + blockSize);
+        System.out.println("numBlocks: " + numBlocks);
 
         AccumulatorAverageCovariance accEnergies = new AccumulatorAverageCovariance(blockSize);
         DataPumpListener pumpEnergies = new DataPumpListener(dsEnergies, accEnergies, interval);
@@ -393,8 +397,7 @@ public class SimFe extends Simulation {
 
         if (rmsdFile != null) {
             DataLogger dataLogger = new DataLogger();
-            MeterRMSD meterRMSD = new MeterRMSD(sim.box, sim.space);
-            DataPumpListener pumpRMSD = new DataPumpListener(meterRMSD, dataLogger, interval);
+            DataPumpListener pumpRMSD = new DataPumpListener(meterRMSD, dataLogger, 5 * interval);
             sim.integrator.getEventManager().addListener(pumpRMSD);
             dataLogger.setFileName(rmsdFile);
             DataArrayWriter writer = new DataArrayWriter();
