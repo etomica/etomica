@@ -72,7 +72,9 @@ public class MCMoveAtomSwap extends MCMoveBox {
         atomIterator.reset();
         nbrList.clear();
         Vector pi = atom.getPosition();
+        int partner = p1.getPartner(atom.getLeafIndex());
         for (IAtom jAtom = atomIterator.nextAtom(); jAtom != null; jAtom = atomIterator.nextAtom()) {
+            if (jAtom.getLeafIndex() == partner) continue;
             dr.Ev1Mv2(pi, jAtom.getPosition());
             box.getBoundary().nearestImage(dr);
             double r2 = dr.squared();
@@ -87,13 +89,12 @@ public class MCMoveAtomSwap extends MCMoveBox {
         uOld = 2*p1.energy(singlet);
         singlet.atom = atom2;
         uOld += 2*p1.energy(singlet);
-    
-        int partner = p1.getPartner(atom.getLeafIndex());
+
         int partner2 = p1.getPartner(atom2.getLeafIndex());
-    
+
         p1.setPartner(atom.getLeafIndex(), partner2);
         p1.setPartner(atom2.getLeafIndex(), partner);
-        
+
         return true;
     }//end of doTrial
 
