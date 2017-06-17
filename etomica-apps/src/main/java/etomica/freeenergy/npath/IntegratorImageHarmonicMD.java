@@ -54,9 +54,6 @@ public class IntegratorImageHarmonicMD extends IntegratorVelocityVerlet {
         // IntegratorVelocityVerlet code
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
-        double w = p1.getW();
-        Vector offset = p1.getOffset();
-        int nOffset = 0; //p1.getNOffset();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             MyAgent agent = agentManager.getAgent(a);
@@ -65,13 +62,15 @@ public class IntegratorImageHarmonicMD extends IntegratorVelocityVerlet {
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
                 System.out.println("first "+a+" r="+r+", v="+v+", f="+agent.force);
             }
-            v.PEa1Tv1(0.5 * timeStep * ((IAtom) a).getType().rm(), agent.force);  // p += f(old)*dt/2
+            v.PEa1Tv1(0.5 * timeStep * a.getType().rm(), agent.force);  // p += f(old)*dt/2
         }
 
         double rm2Last = 0;
         double omega = 0;
         double sinomegat = 0;
         double cosomegat = 0;
+        Vector offset = p1.getOffset();
+        double w = p1.getW();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             int iLeaf1 = p1.getPartner(iLeaf);
             if (iLeaf1 < iLeaf) {
@@ -92,7 +91,6 @@ public class IntegratorImageHarmonicMD extends IntegratorVelocityVerlet {
             dv.Ev1Mv2(v1, v0);
 
             drTmp.E(dr);
-            // our center is offset due to thermodynamic force
             double rm0 = atom0.getType().rm();
             double rm1 = atom1.getType().rm();
             double rm2 = rm0 + rm1;
@@ -140,9 +138,9 @@ public class IntegratorImageHarmonicMD extends IntegratorVelocityVerlet {
             workTensor.TE(((IAtom) a).getType().getMass());
             pressureTensor.PE(workTensor);
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
-                System.out.println("second " + a + " v=" + velocity + ", f=" + ((MyAgent) agentManager.getAgent(a)).force);
+                System.out.println("second " + a + " v=" + velocity + ", f=" + agentManager.getAgent(a).force);
             }
-            velocity.PEa1Tv1(0.5 * timeStep * ((IAtom) a).getType().rm(), ((MyAgent) agentManager.getAgent(a)).force);  //p += f(new)*dt/2
+            velocity.PEa1Tv1(0.5 * timeStep * a.getType().rm(), agentManager.getAgent(a).force);  //p += f(new)*dt/2
         }
 
         pressureTensor.TE(1 / box.getBoundary().volume());
