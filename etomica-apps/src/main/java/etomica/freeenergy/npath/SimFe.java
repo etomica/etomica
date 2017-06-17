@@ -203,18 +203,18 @@ public class SimFe extends Simulation {
         LjMC3DParams params = new LjMC3DParams();
         ParseArgs.doParseArgs(params, args);
         if (args.length==0) {
-            params.graphics = false;
+            params.graphics = true;
             params.numAtoms = 1024;
             params.steps = 10000;
             params.density = 0.150375939849624;
-            params.T = 7011.894582745354;
-            params.w = 1741237.786686226;
+            params.T = 7947.1916;
+            params.w = 8048.485777;
             params.crystal = Crystal.BCC;
             params.offsetDim = 2;
             params.numInnerSteps = 100;
             params.swap = true;
             params.nve = false;
-            params.thermostatInterval = 100;
+            params.thermostatInterval = 500;
         }
 
         final int numAtoms = params.numAtoms;
@@ -243,7 +243,11 @@ public class SimFe extends Simulation {
 
         double L = Math.pow(numAtoms/density, 1.0/3.0);
         final SimFe sim = new SimFe(crystal, numAtoms, temperature, density, w, offsetDim, numInnerSteps, swap, doHarmonic);
-        System.out.println(Arrays.toString(sim.getRandomSeeds()));
+        if (sim.integrator instanceof IntegratorImageHarmonicMD) {
+            System.out.println("internal dimer velocity randomized: " + ((IntegratorImageHarmonicMD) sim.integrator).getRandomizeProbability());
+            int[] seeds = sim.getRandomSeeds();
+            if (seeds != null) System.out.println("random seeds: " + Arrays.toString(seeds));
+        }
 
         DataSourceEnergies dsEnergies = new DataSourceEnergies(sim.potentialMaster);
         dsEnergies.setPotentialCalculation(new DataSourceEnergies.PotentialCalculationEnergiesEAM(sim.potential));
@@ -286,12 +290,13 @@ public class SimFe extends Simulation {
 //            energyPlot.setUnit(ElectronVolt.UNIT);
             energyHist.addDataSink(energyPlot.getDataSet().makeDataSink());
             simGraphic.add(energyPlot);
+            energyPlot.setDoLegend(false);
             DisplayPlot springPlot = new DisplayPlot();
             springPlot.setLabel("spring");
             springPlot.setUnit(new CompoundUnit(new Unit[]{new SimpleUnit(Null.DIMENSION,1.0/numAtoms,"why do you want a name.  just use it.","per atom", false)},new double[]{-1}));
             springHist.addDataSink(springPlot.getDataSet().makeDataSink());
             simGraphic.add(springPlot);
-            energyPlot.setLegend(new DataTag[]{energyHist.getTag()}, "u");
+            springPlot.setDoLegend(false);
 
             MeterTemperature meterT = new MeterTemperature(sim.box, 3);
             AccumulatorHistory tHist = new AccumulatorHistory(new HistoryCollapsingAverage());
@@ -375,8 +380,12 @@ public class SimFe extends Simulation {
         long t1 = System.currentTimeMillis();
 
         int interval = 10;
-        long blockSize = steps/100/interval;
+        if (thermostatInterval > interval * 10) interval = 20;
+        int numBlocks = 100;
+        if (steps / numBlocks > thermostatInterval) numBlocks = (int) (steps / thermostatInterval);
+        long blockSize = steps / numBlocks / interval;
         if (blockSize==0) blockSize = 1;
+        System.out.println("block size: " + blockSize);
 
         AccumulatorAverageCovariance accEnergies = new AccumulatorAverageCovariance(blockSize);
         DataPumpListener pumpEnergies = new DataPumpListener(dsEnergies, accEnergies, interval);
