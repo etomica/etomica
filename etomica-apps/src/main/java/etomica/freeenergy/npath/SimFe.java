@@ -240,6 +240,7 @@ public class SimFe extends Simulation {
             int fac = (int) Math.round(0.001 / timeStep);
             thermostatInterval *= fac;
             interval *= fac;
+            steps *= fac;
         }
 
         if (!graphics) {
