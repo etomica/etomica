@@ -60,7 +60,7 @@ public class SimFe extends Simulation {
     public P1ImageHarmonic p1ImageHarmonic;
     public MCMoveAtomSwap mcMoveSwap;
 
-    public SimFe(Crystal crystal, int numAtoms, double temperature, double density, double w, int offsetDim, int numInnerSteps, boolean swap, boolean doHarmonic) {
+    public SimFe(Crystal crystal, int numAtoms, double temperature, double density, double w, int offsetDim, int numInnerSteps, boolean swap, boolean doHarmonic, double timeStep) {
         super(Space3D.getInstance());
         species = new SpeciesSpheresMono(space, Iron.INSTANCE);
         species.setIsDynamic(true);
@@ -107,15 +107,15 @@ public class SimFe extends Simulation {
 
         if (numInnerSteps > 0 && w > 0) {
             if (doHarmonic) {
-                integrator = new IntegratorImageHarmonicMD(potentialMaster, random, 0.001, temperature, space);
+                integrator = new IntegratorImageHarmonicMD(potentialMaster, random, timeStep, temperature, space);
                 ((IntegratorImageHarmonicMD) integrator).setP1Harmonic(p1ImageHarmonic);
             } else {
-                integrator = new IntegratorImageMultistepMD(potentialMaster, random, 0.001, temperature, space);
+                integrator = new IntegratorImageMultistepMD(potentialMaster, random, timeStep, temperature, space);
                 ((IntegratorImageMultistepMD) integrator).setP1Harmonic(p1ImageHarmonic);
                 ((IntegratorImageMultistepMD) integrator).setNumInnerSteps(numInnerSteps);
             }
         } else {
-            integrator = new IntegratorVelocityVerlet(potentialMaster, random, 0.001, temperature, space);
+            integrator = new IntegratorVelocityVerlet(potentialMaster, random, timeStep, temperature, space);
         }
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setPotentialCalculation(new PotentialCalculationEnergySumEAM(potential));
@@ -249,10 +249,11 @@ public class SimFe extends Simulation {
             System.out.println("w: "+w);
             if (!doHarmonic && numInnerSteps > 0) System.out.println(numInnerSteps + " inner steps");
             System.out.println("thermostat interval: " + thermostatInterval);
+            System.out.println("timeStep: " + timeStep);
         }
 
         double L = Math.pow(numAtoms/density, 1.0/3.0);
-        final SimFe sim = new SimFe(crystal, numAtoms, temperature, density, w, offsetDim, numInnerSteps, swap, doHarmonic);
+        final SimFe sim = new SimFe(crystal, numAtoms, temperature, density, w, offsetDim, numInnerSteps, swap, doHarmonic, timeStep);
         if (sim.integrator instanceof IntegratorImageHarmonicMD) {
             System.out.println("internal dimer velocity randomized: " + ((IntegratorImageHarmonicMD) sim.integrator).getRandomizeProbability());
             int[] seeds = sim.getRandomSeeds();
