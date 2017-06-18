@@ -392,7 +392,7 @@ public class SimFe extends Simulation {
 
         long t1 = System.currentTimeMillis();
 
-        if (thermostatInterval > interval * 10) interval = 20;
+        if (thermostatInterval > interval * 10) interval *= 2;
         int numBlocks = 100;
         if (steps / numBlocks < thermostatInterval) numBlocks = (int) (steps / thermostatInterval);
         long blockSize = steps / numBlocks / interval;
