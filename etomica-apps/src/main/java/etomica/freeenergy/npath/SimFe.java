@@ -234,6 +234,13 @@ public class SimFe extends Simulation {
         int thermostatInterval = params.thermostatInterval;
         boolean doHarmonic = params.doHarmonic;
         String rmsdFile = params.rmsdFile;
+        double timeStep = params.timeStep;
+        int interval = 10;
+        if (Math.abs(timeStep - 0.001) > 1e-10) {
+            int fac = (int) Math.round(0.001 / timeStep);
+            thermostatInterval *= fac;
+            interval *= fac;
+        }
 
         if (!graphics) {
             System.out.println("Running Iron MC with N="+numAtoms+" at rho="+density+" T="+temperatureK);
@@ -281,7 +288,7 @@ public class SimFe extends Simulation {
             AccumulatorHistory springHist = new AccumulatorHistory(new HistoryCollapsingAverage());
             springHist.setTimeDataSource(tSource);
             DataSplitter splitter = new DataSplitter();
-            DataPumpListener energyPump = new DataPumpListener(dsEnergies, splitter, 10);
+            DataPumpListener energyPump = new DataPumpListener(dsEnergies, splitter, interval);
             sim.integrator.getEventManager().addListener(energyPump);
             splitter.setDataSink(0, springHist);
             splitter.setDataSink(1, energyHist);
@@ -303,7 +310,7 @@ public class SimFe extends Simulation {
             MeterTemperature meterT = new MeterTemperature(sim.box, 3);
             AccumulatorHistory tHist = new AccumulatorHistory(new HistoryCollapsingAverage());
             tHist.setTimeDataSource(tSource);
-            DataPumpListener tPump = new DataPumpListener(meterT, tHist, 10);
+            DataPumpListener tPump = new DataPumpListener(meterT, tHist, interval);
             sim.integrator.getEventManager().addListener(tPump);
             DisplayPlot tPlot = new DisplayPlot();
             tPlot.setLabel("T");
@@ -316,7 +323,7 @@ public class SimFe extends Simulation {
             meterKE.setBox(sim.box);
             AccumulatorHistory keHist = new AccumulatorHistory(new HistoryCollapsingAverage());
             keHist.setTimeDataSource(tSource);
-            DataPumpListener kePump = new DataPumpListener(meterKE, keHist, 10);
+            DataPumpListener kePump = new DataPumpListener(meterKE, keHist, interval);
             sim.integrator.getEventManager().addListener(kePump);
             DisplayPlot kePlot = new DisplayPlot();
             kePlot.setLabel("KE");
@@ -332,7 +339,7 @@ public class SimFe extends Simulation {
             meterE.setPotential(meterPE);
             AccumulatorHistory eHist = new AccumulatorHistory(new HistoryScrolling(1000));
             eHist.setTimeDataSource(tSource);
-            DataPumpListener ePump = new DataPumpListener(meterE, eHist, 10);
+            DataPumpListener ePump = new DataPumpListener(meterE, eHist, interval);
             sim.integrator.getEventManager().addListener(ePump);
             DisplayPlot tePlot = new DisplayPlot();
             tePlot.setLabel("total E");
@@ -352,7 +359,7 @@ public class SimFe extends Simulation {
 
             AccumulatorAverageFixed avgSfac = new AccumulatorAverageFixed(1);
             avgSfac.setPushInterval(1);
-            DataPumpListener pumpSfac = new DataPumpListener(meterSfac, avgSfac, 1000);
+            DataPumpListener pumpSfac = new DataPumpListener(meterSfac, avgSfac, 100 * interval);
             sim.integrator.getEventManager().addListener(pumpSfac);
             DisplayPlot plotSfac = new DisplayPlot();
             avgSfac.addDataSink(plotSfac.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{AccumulatorAverage.AVERAGE});
@@ -383,7 +390,6 @@ public class SimFe extends Simulation {
 
         long t1 = System.currentTimeMillis();
 
-        int interval = 10;
         if (thermostatInterval > interval * 10) interval = 20;
         int numBlocks = 100;
         if (steps / numBlocks < thermostatInterval) numBlocks = (int) (steps / thermostatInterval);
@@ -452,6 +458,7 @@ public class SimFe extends Simulation {
         public int thermostatInterval = 10;
         public boolean doHarmonic = true;
         public String rmsdFile = null;
+        public double timeStep = 0.001;
     }
 
 }
