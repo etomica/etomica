@@ -53,7 +53,7 @@ public class IntegratorImageHarmonicMD extends IntegratorVelocityVerlet {
         double w = p1.getW();
         double rm2 = 2 / Iron.INSTANCE.getMass();
         double o = Math.sqrt(2 * w * rm2);
-        return o * timeStep / Math.PI / 10;
+        return o * timeStep / Math.PI;
     }
 
     public void doStepInternal() {
@@ -84,7 +84,7 @@ public class IntegratorImageHarmonicMD extends IntegratorVelocityVerlet {
         // will never be sampled.  Break this by randomizing
         boolean doRandomize = pRandomize > 1 || pRandomize > random.nextDouble();
         int passes = doRandomize ? 2 : 1;
-        double tStep0 = doRandomize ? timeStep * random.nextDouble() : timeStep;
+        double tStep0 = doRandomize ? timeStep * 0.5 : timeStep;
         double w = p1.getW();
         for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
             int iLeaf1 = p1.getPartner(iLeaf);
