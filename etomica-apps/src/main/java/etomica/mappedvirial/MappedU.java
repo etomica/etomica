@@ -106,7 +106,6 @@ public class MappedU extends Simulation {
         boolean graphics = params.graphics;
         int nBlocks = params.nBlocks;
         double halfBoxlength = 0;
-        double halfBoxlength2 = 0;
         double qp_q = 0;
         AccumulatorAverageFixed accMappedVirial = null;
         AccumulatorAverageFixed accU = null;
@@ -125,7 +124,6 @@ public class MappedU extends Simulation {
 
         MappedU sim = new MappedU(space, numAtoms, temperature, density, rc);
         halfBoxlength = Math.cbrt(numAtoms/density) / 2;
-        halfBoxlength2 = sim.box.getBoundary().getBoxSize().getX(0) /2;
 
         System.out.println("half box length "+halfBoxlength);
 

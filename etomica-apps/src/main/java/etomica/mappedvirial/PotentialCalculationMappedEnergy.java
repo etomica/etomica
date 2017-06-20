@@ -50,7 +50,6 @@ public class PotentialCalculationMappedEnergy implements PotentialCalculation {
         dr = space.makeVector();
         cumint = new double[nbins+1];
         vol = box.getBoundary().volume();
-        //  vol = 1e5;
     }
 
     public static void main (String[] args) throws IOException{
@@ -70,10 +69,6 @@ public class PotentialCalculationMappedEnergy implements PotentialCalculation {
         for (int i=10; i<45; i++) {
             double r = i*0.1;
             if (r>=4) r = 3.99999999;
-            //   double ulrc = potential.uInt(4);
-            //     double ulr = potential.uInt(r);
-            //  System.out.println(r+" "+pc.calcXs(r, p2Truncated.u(r*r))+" "+(pc.qp/(4*Math.PI*r*r)*(-pc.vol/ pc.q)-((ulrc-ulr)/(r*r)))+(pc.qp_q*r/3));
-
             System.out.println(r+" "+pc.calcXs(r, p2Truncated.u(r*r))+" ");
          //   fw.write(r+" "+pc.calcXs(r, p2Truncated.u(r*r))+"\n");
         }
@@ -143,11 +138,8 @@ public class PotentialCalculationMappedEnergy implements PotentialCalculation {
             double v = calcV(r,u);
             evm1 = Math.exp(-beta*v);
             cumint[i] = cumint[i-1] + (D==2 ? r : r2)*(evm1)*(v+qp_q)*c1*(r+1);
-            //   System.out.println("q "+q+" vol "+vol);
-            //  System.out.println("cumint "+i+" "+cumint[i]);
         }
 
-        //  System.out.println("cumint "+cumint[nbins]+ " nbins "+nbins);
     }
 
     protected double calcXs(double r, double u) {
@@ -189,7 +181,6 @@ public class PotentialCalculationMappedEnergy implements PotentialCalculation {
         Potential2SoftSpherical p2 = (Potential2SoftSpherical)potential;
         IAtom a = atoms.getAtom(0);
         IAtom b = atoms.getAtom(1);
-//        System.out.println("volume "+vol);
         dr.Ev1Mv2(b.getPosition(),a.getPosition());
         box.getBoundary().nearestImage(dr);
         double r2 = dr.squared();
@@ -205,7 +196,6 @@ public class PotentialCalculationMappedEnergy implements PotentialCalculation {
         if (r<x0) {
             Vector fi = forceManager.getAgent(a).force;
             Vector fj = forceManager.getAgent(b).force;
-            //  System.out.println(u+" "+r);
             double fifj = (fi.dot(dr) - fj.dot(dr))/r;
             double xs = calcXs(r, u);
             double wp = 0.5*fifj;
