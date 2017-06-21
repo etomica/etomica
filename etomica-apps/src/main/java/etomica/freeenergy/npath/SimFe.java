@@ -107,8 +107,14 @@ public class SimFe extends Simulation {
 
         if (numInnerSteps > 0 && w > 0) {
             if (doHarmonic) {
-                integrator = new IntegratorImageHarmonicMD(potentialMaster, random, timeStep, temperature, space);
-                ((IntegratorImageHarmonicMD) integrator).setP1Harmonic(p1ImageHarmonic);
+                if (w > 1e7) {
+                    integrator = new IntegratorMDHarmonicMC(potentialMaster, random, timeStep, temperature, space);
+                    ((IntegratorMDHarmonicMC) integrator).setP1Harmonic(p1ImageHarmonic);
+                    swap = false;
+                } else {
+                    integrator = new IntegratorImageHarmonicMD(potentialMaster, random, timeStep, temperature, space);
+                    ((IntegratorImageHarmonicMD) integrator).setP1Harmonic(p1ImageHarmonic);
+                }
             } else {
                 integrator = new IntegratorImageMultistepMD(potentialMaster, random, timeStep, temperature, space);
                 ((IntegratorImageMultistepMD) integrator).setP1Harmonic(p1ImageHarmonic);
@@ -417,7 +423,8 @@ public class SimFe extends Simulation {
 
         sim.getController().actionPerformed();
 
-        if (swap) System.out.println("swap acceptance: " + sim.mcMoveSwap.getTracker().acceptanceProbability());
+        if (sim.mcMoveSwap != null)
+            System.out.println("swap acceptance: " + sim.mcMoveSwap.getTracker().acceptanceProbability());
 
         IData avgEnergies = accEnergies.getData(AccumulatorAverage.AVERAGE);
         IData errEnergies = accEnergies.getData(AccumulatorAverage.ERROR);
