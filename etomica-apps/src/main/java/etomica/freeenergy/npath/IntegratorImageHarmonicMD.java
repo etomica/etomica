@@ -9,7 +9,6 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.chem.elements.Iron;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialMaster;
@@ -49,13 +48,6 @@ public class IntegratorImageHarmonicMD extends IntegratorVelocityVerlet {
         boundary = box.getBoundary();
     }
 
-    public double getRandomizeProbability() {
-        double w = p1.getW();
-        double rm2 = 2 / Iron.INSTANCE.getMass();
-        double o = Math.sqrt(2 * w * rm2);
-        return o * timeStep / Math.PI;
-    }
-
     public void doStepInternal() {
         // from IntegratorMD
         currentTime += timeStep;
@@ -73,18 +65,11 @@ public class IntegratorImageHarmonicMD extends IntegratorVelocityVerlet {
             v.PEa1Tv1(0.5 * timeStep * a.getType().rm(), agent.force);  // p += f(old)*dt/2
         }
 
+        double rm2Last = 0;
         double omega = 0;
         double sinomegat = 0;
         double cosomegat = 0;
         Vector offset = p1.getOffset();
-        double pRandomize = getRandomizeProbability();
-        // if w is very strong, our springs will oscillate multiple times
-        // during our timestep, which is mostly useless.  If the frequency
-        // happens to match our timestep, then the dimer internal coordinates
-        // will never be sampled.  Break this by randomizing
-        boolean doRandomize = pRandomize > 1 || pRandomize > random.nextDouble();
-        int passes = doRandomize ? 2 : 1;
-        double tStep0 = doRandomize ? timeStep * 0.5 : timeStep;
         double w = p1.getW();
         for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
             int iLeaf1 = p1.getPartner(iLeaf);
@@ -100,48 +85,36 @@ public class IntegratorImageHarmonicMD extends IntegratorVelocityVerlet {
 
             vTot.Ev1Pv2(v1, v0);
             vTot.TE(0.5);
+            dr.Ev1Mv2(r1, r0);
+            dr.ME(offset);
+            boundary.nearestImage(dr);
+            dv.Ev1Mv2(v1, v0);
+
+            drTmp.E(dr);
+            double rm0 = atom0.getType().rm();
+            double rm1 = atom1.getType().rm();
+            double rm2 = rm0 + rm1;
+            if (rm2 != rm2Last) {
+                omega = Math.sqrt(2 * w * rm2);
+                cosomegat = Math.cos(omega * timeStep);
+                sinomegat = Math.sin(omega * timeStep);
+                rm2Last = rm2;
+            }
+            drTmp.TE(cosomegat);
+            drTmp.PEa1Tv1(sinomegat / omega, dv);
+            drTmp.ME(dr);
+            r0.PEa1Tv1(-rm0 / rm2, drTmp);
+            r1.PEa1Tv1(+rm1 / rm2, drTmp);
+
+            dvTmp.E(dv);
+            dvTmp.TE(cosomegat);
+            dvTmp.PEa1Tv1(-omega * sinomegat, dr);
+            dvTmp.ME(dv);
+            v0.PEa1Tv1(-rm0 / rm2, dvTmp);
+            v1.PEa1Tv1(+rm1 / rm2, dvTmp);
+
             r0.PEa1Tv1(timeStep, vTot);
             r1.PEa1Tv1(timeStep, vTot);
-
-            for (int iPass = 0; iPass < passes; iPass++) {
-                double tStep = iPass == 0 ? tStep0 : (timeStep - tStep0);
-
-                dr.Ev1Mv2(r1, r0);
-                dr.ME(offset);
-                boundary.nearestImage(dr);
-                dv.Ev1Mv2(v1, v0);
-
-                drTmp.E(dr);
-                double rm0 = atom0.getType().rm();
-                double rm1 = atom1.getType().rm();
-                double rm2 = rm0 + rm1;
-                omega = Math.sqrt(2 * w * rm2);
-                cosomegat = Math.cos(omega * tStep);
-                sinomegat = Math.sin(omega * tStep);
-                drTmp.TE(cosomegat);
-                drTmp.PEa1Tv1(sinomegat / omega, dv);
-                drTmp.ME(dr);
-                r0.PEa1Tv1(-rm0 / rm2, drTmp);
-                r1.PEa1Tv1(+rm1 / rm2, drTmp);
-
-                dvTmp.E(dv);
-                dvTmp.TE(cosomegat);
-                dvTmp.PEa1Tv1(-omega * sinomegat, dr);
-                dvTmp.ME(dv);
-                v0.PEa1Tv1(-rm0 / rm2, dvTmp);
-                v1.PEa1Tv1(+rm1 / rm2, dvTmp);
-                if (iPass == 0 && passes == 2) {
-                    // randomize now
-                    for (int i = 0; i < dv.getD(); i++) {
-                        dvTmp.setX(i, random.nextGaussian());
-                    }
-                    dvTmp.TE(Math.sqrt(temperature * rm2));
-                    v0.E(vTot);
-                    v1.E(vTot);
-                    v0.PEa1Tv1(-rm0 / rm2, dvTmp);
-                    v1.PEa1Tv1(+rm1 / rm2, dvTmp);
-                }
-            }
         }
 
         eventManager.forcePrecomputed();

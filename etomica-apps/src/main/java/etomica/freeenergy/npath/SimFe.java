@@ -260,11 +260,8 @@ public class SimFe extends Simulation {
 
         double L = Math.pow(numAtoms/density, 1.0/3.0);
         final SimFe sim = new SimFe(crystal, numAtoms, temperature, density, w, offsetDim, numInnerSteps, swap, doHarmonic, timeStep);
-        if (sim.integrator instanceof IntegratorImageHarmonicMD) {
-            System.out.println("internal dimer velocity randomized: " + ((IntegratorImageHarmonicMD) sim.integrator).getRandomizeProbability());
-            int[] seeds = sim.getRandomSeeds();
-            if (seeds != null) System.out.println("random seeds: " + Arrays.toString(seeds));
-        }
+        int[] seeds = sim.getRandomSeeds();
+        if (seeds != null) System.out.println("random seeds: " + Arrays.toString(seeds));
 
         DataSourceEnergies dsEnergies = new DataSourceEnergies(sim.potentialMaster);
         dsEnergies.setPotentialCalculation(new DataSourceEnergies.PotentialCalculationEnergiesEAM(sim.potential));
