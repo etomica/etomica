@@ -390,6 +390,9 @@ public class SimFe extends Simulation {
         if (nve) {
             sim.integrator.setIsothermal(false);
         }
+        if (sim.integrator instanceof IntegratorMDHarmonicMC) {
+            ((IntegratorMDHarmonicMC) sim.integrator).resetAcceptance();
+        }
 
         System.out.println("equilibration finished (" + steps / 10 + " steps)");
 
@@ -420,8 +423,12 @@ public class SimFe extends Simulation {
 
         sim.getController().actionPerformed();
 
-        if (sim.mcMoveSwap != null)
+        if (sim.mcMoveSwap != null) {
             System.out.println("swap acceptance: " + sim.mcMoveSwap.getTracker().acceptanceProbability());
+        }
+        if (sim.integrator instanceof IntegratorMDHarmonicMC) {
+            System.out.println("MC accepted fraction " + ((IntegratorMDHarmonicMC) sim.integrator).getAcceptanceProbability());
+        }
 
         IData avgEnergies = accEnergies.getData(AccumulatorAverage.AVERAGE);
         IData errEnergies = accEnergies.getData(AccumulatorAverage.ERROR);

@@ -27,7 +27,8 @@ public class IntegratorMDHarmonicMC extends IntegratorVelocityVerlet {
     protected Boundary boundary;
     protected Vector[] drAll;
     protected boolean firstTrial = true;
-    protected int nAccepted, nAttempted;
+    protected int nAttempted;
+    protected double chiSum;
 
     public IntegratorMDHarmonicMC(PotentialMaster potentialMaster, IRandom random, double timeStep, double temperature, Space space) {
         super(potentialMaster, random, timeStep, temperature, space);
@@ -133,8 +134,9 @@ public class IntegratorMDHarmonicMC extends IntegratorVelocityVerlet {
         }
         double u = meterPE.getDataAsScalar();
         double x = u - u0 - du;
+        double chi = x < 0 ? 1 : Math.exp(-x / temperature);
         // we always accept the first move because it's really difficult
-        if (!firstTrial && x > 0 && random.nextDouble() > Math.exp(-x / temperature)) {
+        if (!firstTrial && chi < 1 && chi < random.nextDouble()) {
             for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
                 int iLeaf1 = p1.getPartner(iLeaf);
                 if (iLeaf1 < iLeaf) {
@@ -152,9 +154,8 @@ public class IntegratorMDHarmonicMC extends IntegratorVelocityVerlet {
                 r0.PEa1Tv1(-0.5, drAll[iLeaf]);
                 r1.PEa1Tv1(+0.5, drAll[iLeaf]);
             }
-        } else {
-            nAccepted++;
         }
+        chiSum += chi;
         nAttempted++;
         firstTrial = false;
 
@@ -186,10 +187,11 @@ public class IntegratorMDHarmonicMC extends IntegratorVelocityVerlet {
     }
 
     public void resetAcceptance() {
-        nAttempted = nAccepted = 0;
+        chiSum = 0;
+        nAttempted = 0;
     }
 
-    public double getAcceptedFraction() {
-        return ((double) nAccepted) / nAttempted;
+    public double getAcceptanceProbability() {
+        return chiSum / nAttempted;
     }
 }
