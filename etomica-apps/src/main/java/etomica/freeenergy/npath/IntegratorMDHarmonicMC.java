@@ -27,7 +27,7 @@ public class IntegratorMDHarmonicMC extends IntegratorVelocityVerlet {
     protected Boundary boundary;
     protected Vector[] drAll;
     protected boolean firstTrial = true;
-    protected long t0 = 0;
+    protected int nAccepted, nAttempted;
 
     public IntegratorMDHarmonicMC(PotentialMaster potentialMaster, IRandom random, double timeStep, double temperature, Space space) {
         super(potentialMaster, random, timeStep, temperature, space);
@@ -61,7 +61,6 @@ public class IntegratorMDHarmonicMC extends IntegratorVelocityVerlet {
     }
 
     public void doStepInternal() {
-        if (t0 == 0) t0 = System.currentTimeMillis();
         // from IntegratorMD
         currentTime += timeStep;
         // IntegratorVelocityVerlet code
@@ -153,7 +152,10 @@ public class IntegratorMDHarmonicMC extends IntegratorVelocityVerlet {
                 r0.PEa1Tv1(-0.5, drAll[iLeaf]);
                 r1.PEa1Tv1(+0.5, drAll[iLeaf]);
             }
+        } else {
+            nAccepted++;
         }
+        nAttempted++;
         firstTrial = false;
 
         eventManager.forcePrecomputed();
@@ -181,7 +183,13 @@ public class IntegratorMDHarmonicMC extends IntegratorVelocityVerlet {
         if (isothermal) {
             doThermostatInternal();
         }
-        long t1 = System.currentTimeMillis();
-        System.out.println("time: " + (t1 - t0) / ((double) stepCount));
+    }
+
+    public void resetAcceptance() {
+        nAttempted = nAccepted = 0;
+    }
+
+    public double getAcceptedFraction() {
+        return ((double) nAccepted) / nAttempted;
     }
 }
