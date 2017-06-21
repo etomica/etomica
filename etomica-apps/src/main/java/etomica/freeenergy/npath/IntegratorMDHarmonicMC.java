@@ -77,7 +77,7 @@ public class IntegratorMDHarmonicMC extends IntegratorVelocityVerlet {
             Vector v = a.getVelocity();
             IAtomKinetic a1 = (IAtomKinetic) leafList.getAtom(iLeaf1);
             MyAgent agent1 = agentManager.getAgent(a1);
-            Vector v1 = a.getVelocity();
+            Vector v1 = a1.getVelocity();
             fTot.Ev1Pv2(agent.force, agent1.force);
             dv.Ea1Tv1(0.25 * timeStep * a.getType().rm(), fTot);
             v.PE(dv);
