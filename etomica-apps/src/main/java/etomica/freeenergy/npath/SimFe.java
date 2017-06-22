@@ -15,6 +15,7 @@ import etomica.chem.elements.Iron;
 import etomica.config.ConfigurationLattice;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
+import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.history.HistoryScrolling;
 import etomica.data.meter.*;
 import etomica.graphics.ColorScheme;
@@ -107,7 +108,7 @@ public class SimFe extends Simulation {
 
         if (numInnerSteps > 0 && w > 0) {
             if (doHarmonic) {
-                if (w > 1e7) {
+                if (w > 3e6) {
                     integrator = new IntegratorMDHarmonicMC(potentialMaster, random, timeStep, temperature, space);
                     ((IntegratorMDHarmonicMC) integrator).setP1Harmonic(p1ImageHarmonic);
                     swap = false;
@@ -372,7 +373,25 @@ public class SimFe extends Simulation {
             plotSfac.setDoDrawLines(new DataTag[]{meterSfac.getTag()},false);
             plotSfac.getPlot().setYLog(true);
             simGraphic.add(plotSfac);
-            
+
+            if (sim.integrator instanceof IntegratorMDHarmonicMC) {
+                DataSourceScalar meterAcc = new DataSourceScalar("acc", Null.DIMENSION) {
+                    @Override
+                    public double getDataAsScalar() {
+                        return ((IntegratorMDHarmonicMC) sim.integrator).getAcceptanceProbability();
+                    }
+                };
+                AccumulatorHistory aHist = new AccumulatorHistory(new HistoryCollapsingDiscard());
+                aHist.setTimeDataSource(tSource);
+                DataPumpListener aPump = new DataPumpListener(meterAcc, aHist, interval);
+                sim.integrator.getEventManager().addListener(aPump);
+                DisplayPlot aPlot = new DisplayPlot();
+                aPlot.setLabel("Acc");
+                simGraphic.add(aPlot);
+                aHist.addDataSink(aPlot.getDataSet().makeDataSink());
+                aPlot.setDoLegend(false);
+            }
+
             simGraphic.makeAndDisplayFrame(APP_NAME);
 
             return;
