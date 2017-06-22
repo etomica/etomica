@@ -33,13 +33,13 @@ public class fep extends Simulation {
     public P2LennardJones potential1, potential2;
     public Controller controller;
 
-    public fep(int numAtoms, int numSteps){
+    public fep(int numAtoms, int numSteps, double temp, double density, double sigma2){
         super(Space3D.getInstance());
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this,space);
         double sigma1 = 1.0;
-        double sigma2 = 1.1;
+        //double sigma2 = 2.1;
         integrator = new IntegratorMC(this, potentialMaster);
-        integrator.setTemperature(2);
+        integrator.setTemperature(temp);
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
 
         integrator.getMoveManager().addMCMove(mcMoveAtom);
@@ -58,7 +58,7 @@ public class fep extends Simulation {
 
 
         BoxInflate inflater = new BoxInflate(box,space);
-        inflater.setTargetDensity(0.1);
+        inflater.setTargetDensity(density);
         inflater.actionPerformed();
         potential1 = new P2LennardJones(space, sigma1, 1);
         potential2 = new P2LennardJones(space, sigma2, 1);
@@ -93,28 +93,47 @@ public class fep extends Simulation {
         integrator.setBox(box);
         potentialMaster.getNbrCellManager(box).assignCellAll();
 
-
     }
 
     public static void main(String[] args){
         simParams params = new simParams();
-        ParseArgs.doParseArgs(params,args);
+
+        if (args.length > 0) {
+            ParseArgs.doParseArgs(params, args);
+        }
+        else {
+            params.numAtoms = 500;
+            params.numSteps = 200000;
+            params.nBlocks = 1000;
+            params.temp = 2;
+            params.density = 0.5;
+            params.sigma2 = 1.1;
+        }
+
         int numAtoms = params.numAtoms;
         int numSteps = params.numSteps;
         int nBlocks = params.nBlocks;
+        double temp = params.temp;
+        double density = params.density;
+        double sigma2 = params.sigma2;
 
         long numSamples = numSteps/numAtoms;
         long samplesPerBlock = numSamples/nBlocks;
         if (samplesPerBlock == 0) samplesPerBlock = 1;
 
-        fep sim = new fep(numAtoms,params.numSteps);
+        System.out.println("**z1_z0**");
+        System.out.println(numAtoms+" atoms, "+numSteps+" steps");
+        System.out.println("density: "+density);
+        System.out.println("temperature: "+temp);
+        System.out.println("sigma2: "+sigma2);
+        System.out.println(nBlocks+" blocks");
+
+        fep sim = new fep(numAtoms, params.numSteps, temp, density, sigma2 );
 
         MeterWidomInsertion meterinsert = new MeterWidomInsertion(sim.space,sim.getRandom());
         //meterinsert.setNInsert(50);
         meterinsert.setSpecies(sim.species2);
         meterinsert.setIntegrator(sim.integrator);
-
-
 
         AccumulatorAverageFixed accz1_z0 = new AccumulatorAverageFixed(samplesPerBlock);
         DataPumpListener pumpz1_z0 = new DataPumpListener(meterinsert, accz1_z0, numAtoms);
@@ -132,14 +151,14 @@ public class fep extends Simulation {
 
         System.out.print(String.format("avg: %13.6e   err: %11.4e   cor: % 4.2f\n", avg, err, cor));
 
-
      }
 
     public static class simParams extends ParameterBase{
         public int numAtoms = 500;
         public int numSteps = 200000;
         public int nBlocks = 1000;
+        public double temp = 2;
+        public double density = 0.2;
+        public double sigma2 = 2.0;
     }
-
-
 }
