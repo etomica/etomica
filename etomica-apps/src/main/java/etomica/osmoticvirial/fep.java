@@ -35,7 +35,7 @@ public class fep extends Simulation {
     public Controller controller;
     public ActivityIntegrate activityIntegrate;
 
-    public fep(int numAtoms, int numSteps, double temp, double density, double sigma2){
+    public fep(int numAtoms, int numSteps, double temp, double density, double sigma2, boolean computez2){
         super(Space3D.getInstance());
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this,space);
 
@@ -53,11 +53,15 @@ public class fep extends Simulation {
         addSpecies(species2);
         box = new Box(space);
         addBox(box);
+
         box.setNMolecules(species1,numAtoms);
 
         BoxInflate inflater = new BoxInflate(box,space);
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
+
+        if (computez2){box.setNMolecules(species2,1);}
+
         potential1 = new P2LennardJones(space, sigma1, 1);
         potential2 = new P2LennardJones(space, sigma2, 1);
         double truncationRadius1 = 3.0*sigma1;
@@ -101,11 +105,11 @@ public class fep extends Simulation {
         }
         else {
             params.numAtoms = 500;
-            params.numSteps = 200000;
+            params.numSteps = 5000000;
             params.nBlocks = 1000;
             params.temp = 2;
             params.density = 0.1;
-            params.sigma2 = 1.6;
+            params.sigma2 = 1.3;
         }
 
         int numAtoms = params.numAtoms;
@@ -114,12 +118,19 @@ public class fep extends Simulation {
         double temp = params.temp;
         double density = params.density;
         double sigma2 = params.sigma2;
+        boolean computez2 = params.computez2;
 
         long numSamples = numSteps/numAtoms;
         long samplesPerBlock = numSamples/nBlocks;
         if (samplesPerBlock == 0) samplesPerBlock = 1;
 
-        System.out.println("**z1_z0**");
+        if(computez2){
+            System.out.println("**z2_z1**");
+        }
+        else{
+            System.out.println("**z1_z0**");
+        }
+
         System.out.println(numAtoms+" atoms, "+numSteps+" steps");
         System.out.println("density: "+density);
         System.out.println("temperature: "+temp);
@@ -128,7 +139,7 @@ public class fep extends Simulation {
 
         long t1 = System.currentTimeMillis();
 
-        fep sim = new fep(numAtoms, params.numSteps, temp, density, sigma2 );
+        fep sim = new fep(numAtoms, params.numSteps, temp, density, sigma2, computez2);
 
         sim.activityIntegrate.setMaxSteps(numSteps/10);
         sim.getController().actionPerformed();
@@ -169,5 +180,6 @@ public class fep extends Simulation {
         public double temp = 2;
         public double density = 0.2;
         public double sigma2 = 2.0;
+        public boolean computez2 = false;
     }
 }
