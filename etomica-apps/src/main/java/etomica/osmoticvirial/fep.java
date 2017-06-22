@@ -2,6 +2,7 @@ package etomica.osmoticvirial;
 
 import etomica.action.ActionIntegrate;
 import etomica.action.BoxInflate;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -32,22 +33,20 @@ public class fep extends Simulation {
     public Box box;
     public P2LennardJones potential1, potential2;
     public Controller controller;
+    public ActivityIntegrate activityIntegrate;
 
     public fep(int numAtoms, int numSteps, double temp, double density, double sigma2){
         super(Space3D.getInstance());
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this,space);
-        double sigma1 = 1.0;
-        //double sigma2 = 2.1;
+
         integrator = new IntegratorMC(this, potentialMaster);
         integrator.setTemperature(temp);
+        activityIntegrate = new ActivityIntegrate(integrator);
+        getController().addAction(activityIntegrate);
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
-
         integrator.getMoveManager().addMCMove(mcMoveAtom);
 
-        ActionIntegrate actionIntegrate = new ActionIntegrate(integrator, false);
-        actionIntegrate.setMaxSteps(numSteps);
-
-        getController().addAction(actionIntegrate);
+        double sigma1 = 1.0;
         species1 = new SpeciesSpheresMono(this, space);
         species2 = new SpeciesSpheresMono(this, space);
         addSpecies(species1);
@@ -55,7 +54,6 @@ public class fep extends Simulation {
         box = new Box(space);
         addBox(box);
         box.setNMolecules(species1,numAtoms);
-
 
         BoxInflate inflater = new BoxInflate(box,space);
         inflater.setTargetDensity(density);
@@ -106,8 +104,8 @@ public class fep extends Simulation {
             params.numSteps = 200000;
             params.nBlocks = 1000;
             params.temp = 2;
-            params.density = 0.5;
-            params.sigma2 = 1.1;
+            params.density = 0.1;
+            params.sigma2 = 1.6;
         }
 
         int numAtoms = params.numAtoms;
@@ -128,7 +126,15 @@ public class fep extends Simulation {
         System.out.println("sigma2: "+sigma2);
         System.out.println(nBlocks+" blocks");
 
+        long t1 = System.currentTimeMillis();
+
         fep sim = new fep(numAtoms, params.numSteps, temp, density, sigma2 );
+
+        sim.activityIntegrate.setMaxSteps(numSteps/10);
+        sim.getController().actionPerformed();
+        sim.getController().reset();
+        sim.activityIntegrate.setMaxSteps(numSteps);
+        sim.integrator.getMoveManager().setEquilibrating(false);
 
         MeterWidomInsertion meterinsert = new MeterWidomInsertion(sim.space,sim.getRandom());
         //meterinsert.setNInsert(50);
@@ -150,6 +156,9 @@ public class fep extends Simulation {
         double cor = icor.getValue(0);
 
         System.out.print(String.format("avg: %13.6e   err: %11.4e   cor: % 4.2f\n", avg, err, cor));
+
+        long t2 = System.currentTimeMillis();
+        System.out.println("time: "+(t2-t1)*0.001);
 
      }
 
