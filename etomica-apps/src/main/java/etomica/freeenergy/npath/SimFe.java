@@ -392,6 +392,17 @@ public class SimFe extends Simulation {
                 aPlot.setDoLegend(false);
             }
 
+            MeterRMSD meterRMSD = new MeterRMSD(sim.box, sim.space);
+            AccumulatorHistory rmsdHist = new AccumulatorHistory(new HistoryCollapsingAverage());
+            rmsdHist.setTimeDataSource(tSource);
+            DataPumpListener rmsdPump = new DataPumpListener(meterRMSD, rmsdHist, interval);
+            sim.integrator.getEventManager().addListener(rmsdPump);
+            DisplayPlot rmsdPlot = new DisplayPlot();
+            rmsdPlot.setLabel("RMSD");
+            simGraphic.add(rmsdPlot);
+            rmsdHist.addDataSink(rmsdPlot.getDataSet().makeDataSink());
+            rmsdPlot.setDoLegend(false);
+
             simGraphic.makeAndDisplayFrame(APP_NAME);
 
             return;
