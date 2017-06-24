@@ -46,15 +46,6 @@ public class BenchSimLJGCMC3D {
     }
 
     @Benchmark
-    @BenchmarkMode(Mode.SingleShotTime)
-    @OutputTimeUnit(TimeUnit.SECONDS)
-    @Warmup(iterations = 0)
-    public double ljgcmc3d() {
-        sim.getController().actionPerformed();
-        return pMeter.getDataAsScalar() + sim.integrator.getTemperature();
-    }
-
-    @Benchmark
     @BenchmarkMode(Mode.Throughput)
     @OutputTimeUnit(TimeUnit.SECONDS)
     @Warmup(time = 1, iterations = 5)

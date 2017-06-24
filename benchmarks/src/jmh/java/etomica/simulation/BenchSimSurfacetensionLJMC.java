@@ -37,7 +37,7 @@ public class BenchSimSurfacetensionLJMC {
     @OutputTimeUnit(TimeUnit.SECONDS)
     @Warmup(time = 1, iterations = 5)
     @Measurement(time = 5, timeUnit = TimeUnit.SECONDS, iterations = 5)
-    public IData surfacetension() {
+    public IData integratorStep() {
         sim.integrator.doStep();
         return meter.getData();
     }
