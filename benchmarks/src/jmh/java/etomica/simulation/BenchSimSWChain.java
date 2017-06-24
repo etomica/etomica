@@ -23,9 +23,6 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 import java.util.concurrent.TimeUnit;
 
 @State(Scope.Benchmark)
-@BenchmarkMode(Mode.SingleShotTime)
-@OutputTimeUnit(TimeUnit.SECONDS)
-@Warmup(iterations = 0)
 @Fork(1)
 public class BenchSimSWChain {
 
@@ -56,12 +53,6 @@ public class BenchSimSWChain {
         energyAccumulator.setBlockSize(50);
         sim.integrator.getEventManager().addListener(energyPump);
         sim.integrator.reset();
-    }
-
-    @Benchmark
-    public double swChain() {
-        sim.getController().actionPerformed();
-        return pMeter.getDataAsScalar() + sim.integrator.getTemperature();
     }
 
     @Benchmark
