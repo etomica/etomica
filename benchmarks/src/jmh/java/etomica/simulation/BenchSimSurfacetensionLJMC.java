@@ -15,19 +15,19 @@ import java.util.concurrent.TimeUnit;
 public class BenchSimSurfacetensionLJMC {
 
     @Param({"1000", "20000"})
-    private int numAtoms;
+    private int numMolecules;
 
     private LJMC sim;
     private MeterPressureTensor meter;
 
     @Setup(Level.Iteration)
     public void setUp() {
-        sim = new LJMC(Space3D.getInstance(), numAtoms, 1.1, 6);
+        sim = new LJMC(Space3D.getInstance(), numMolecules, 1.1, 6);
 
         meter = new MeterPressureTensor(sim.potentialMaster, sim.space);
         meter.setBox(sim.box);
         meter.setTemperature(1.1);
-        DataPumpListener pumpListener = new DataPumpListener(meter, new AccumulatorAverageFixed(10), 2 * numAtoms);
+        DataPumpListener pumpListener = new DataPumpListener(meter, new AccumulatorAverageFixed(10), 2 * numMolecules);
         sim.integrator.getEventManager().addListener(pumpListener);
         sim.integrator.reset();
     }
