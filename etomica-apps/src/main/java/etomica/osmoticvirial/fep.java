@@ -5,10 +5,13 @@ import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
+import etomica.atom.DiameterHash;
+import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.*;
 import etomica.data.meter.MeterWidomInsertion;
+import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
@@ -31,7 +34,7 @@ public class fep extends Simulation {
     public SpeciesSpheresMono species1; //solvent
     public SpeciesSpheresMono species2; //solute
     public Box box;
-    public P2LennardJones potential1, potential2;
+    public P2LennardJones potential1, potential2, potential12;
     public Controller controller;
     public ActivityIntegrate activityIntegrate;
 
@@ -48,6 +51,9 @@ public class fep extends Simulation {
 
         double sigma1 = 1.0;
         double epsilon1 = 1.0;
+        double sigma12 = (sigma1+sigma2)/2;
+        double epsilon12 = Math.sqrt(epsilon1*epsilon2) ;
+
         species1 = new SpeciesSpheresMono(this, space);
         species2 = new SpeciesSpheresMono(this, space);
         addSpecies(species1);
@@ -65,6 +71,8 @@ public class fep extends Simulation {
 
         potential1 = new P2LennardJones(space, sigma1, epsilon1);
         potential2 = new P2LennardJones(space, sigma2, epsilon2);
+        potential12 = new P2LennardJones(space, sigma12, epsilon12);
+
         double truncationRadius1 = 3.0*sigma1;
         double truncationRadius2 = 3.0*sigma2;
 
@@ -78,15 +86,20 @@ public class fep extends Simulation {
 
         potentialMaster.setCellRange(3);
 
-        P2SoftSphericalTruncated potentialTruncated1 = new P2SoftSphericalTruncated(space, potential1, truncationRadius1);
-        potentialMaster.setRange(potentialTruncated1.getRange());
+        P2SoftSphericalTruncated potentialTruncated11 = new P2SoftSphericalTruncated(space, potential1, truncationRadius1);
+        potentialMaster.setRange(potentialTruncated11.getRange());
         AtomType leafType1 = species1.getLeafType();
-        potentialMaster.addPotential(potentialTruncated1, new AtomType[]{leafType1, leafType1});
+        potentialMaster.addPotential(potentialTruncated11, new AtomType[]{leafType1, leafType1});
 
-        P2SoftSphericalTruncated potentialTruncated2 = new P2SoftSphericalTruncated(space, potential2, truncationRadius2);
-        potentialMaster.setRange(potentialTruncated2.getRange());
+        P2SoftSphericalTruncated potentialTruncated12 = new P2SoftSphericalTruncated(space, potential12, truncationRadius2);
+        potentialMaster.setRange(potentialTruncated12.getRange());
         AtomType leafType2 = species2.getLeafType();
-        potentialMaster.addPotential(potentialTruncated2, new AtomType[]{leafType1, leafType2});
+        potentialMaster.addPotential(potentialTruncated12, new AtomType[]{leafType1, leafType2});
+
+        P2SoftSphericalTruncated potentialTruncated22 = new P2SoftSphericalTruncated(space, potential2, truncationRadius2);
+        potentialMaster.setRange(potentialTruncated22.getRange());
+        potentialMaster.addPotential(potentialTruncated22, new AtomType[]{leafType2, leafType2});
+
 
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
 
@@ -123,6 +136,7 @@ public class fep extends Simulation {
         double sigma2 = params.sigma2;
         double eps2 = params.eps2;
         boolean computez2 = params.computez2;
+        boolean graphics = false;
 
         long numSamples = numSteps/numAtoms;
         long samplesPerBlock = numSamples/nBlocks;
@@ -143,7 +157,29 @@ public class fep extends Simulation {
 
         long t1 = System.currentTimeMillis();
 
-        fep sim = new fep(numAtoms, params.numSteps, temp, density, sigma2, eps2, computez2);
+
+        fep sim = new fep(numAtoms, numSteps, temp, density, sigma2, eps2, computez2);
+
+        System.out.println(" box length "+sim.box.getBoundary().getBoxSize());
+
+        if (graphics) {
+            final String APP_NAME = "SimLJ";
+            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3, sim.getSpace(), sim.getController());
+
+            ((DiameterHashByType)simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species2.getLeafType(), sigma2);
+            simGraphic.makeAndDisplayFrame(APP_NAME);
+
+            MeterWidomInsertion meterinsert = new MeterWidomInsertion(sim.space,sim.getRandom());
+            //meterinsert.setNInsert(50);
+            meterinsert.setSpecies(sim.species2);
+            meterinsert.setIntegrator(sim.integrator);
+
+            AccumulatorAverageFixed acc = new AccumulatorAverageFixed(samplesPerBlock);
+            DataPumpListener pump = new DataPumpListener(meterinsert, acc, numAtoms);
+            sim.integrator.getEventManager().addListener(pump);
+
+            return;
+        }
 
         sim.activityIntegrate.setMaxSteps(numSteps/10);
         sim.getController().actionPerformed();
