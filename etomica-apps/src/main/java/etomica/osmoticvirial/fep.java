@@ -35,7 +35,7 @@ public class fep extends Simulation {
     public Controller controller;
     public ActivityIntegrate activityIntegrate;
 
-    public fep(int numAtoms, int numSteps, double temp, double density, double sigma2, boolean computez2){
+    public fep(int numAtoms, int numSteps, double temp, double density, double sigma2, double epsilon2, boolean computez2){
         super(Space3D.getInstance());
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this,space);
 
@@ -47,6 +47,7 @@ public class fep extends Simulation {
         integrator.getMoveManager().addMCMove(mcMoveAtom);
 
         double sigma1 = 1.0;
+        double epsilon1 = 1.0;
         species1 = new SpeciesSpheresMono(this, space);
         species2 = new SpeciesSpheresMono(this, space);
         addSpecies(species1);
@@ -62,8 +63,8 @@ public class fep extends Simulation {
 
         if (computez2){box.setNMolecules(species2,1);}
 
-        potential1 = new P2LennardJones(space, sigma1, 1);
-        potential2 = new P2LennardJones(space, sigma2, 1);
+        potential1 = new P2LennardJones(space, sigma1, epsilon1);
+        potential2 = new P2LennardJones(space, sigma2, epsilon2);
         double truncationRadius1 = 3.0*sigma1;
         double truncationRadius2 = 3.0*sigma2;
 
@@ -105,11 +106,13 @@ public class fep extends Simulation {
         }
         else {
             params.numAtoms = 500;
-            params.numSteps = 5000000;
+            params.numSteps = 500000;
             params.nBlocks = 1000;
             params.temp = 2;
-            params.density = 0.1;
-            params.sigma2 = 1.3;
+            params.density = 0.6;
+            params.sigma2 = 1.5;
+            params.eps2 = 1;
+            params.computez2 = true;
         }
 
         int numAtoms = params.numAtoms;
@@ -118,6 +121,7 @@ public class fep extends Simulation {
         double temp = params.temp;
         double density = params.density;
         double sigma2 = params.sigma2;
+        double eps2 = params.eps2;
         boolean computez2 = params.computez2;
 
         long numSamples = numSteps/numAtoms;
@@ -139,7 +143,7 @@ public class fep extends Simulation {
 
         long t1 = System.currentTimeMillis();
 
-        fep sim = new fep(numAtoms, params.numSteps, temp, density, sigma2, computez2);
+        fep sim = new fep(numAtoms, params.numSteps, temp, density, sigma2, eps2, computez2);
 
         sim.activityIntegrate.setMaxSteps(numSteps/10);
         sim.getController().actionPerformed();
@@ -152,15 +156,15 @@ public class fep extends Simulation {
         meterinsert.setSpecies(sim.species2);
         meterinsert.setIntegrator(sim.integrator);
 
-        AccumulatorAverageFixed accz1_z0 = new AccumulatorAverageFixed(samplesPerBlock);
-        DataPumpListener pumpz1_z0 = new DataPumpListener(meterinsert, accz1_z0, numAtoms);
-        sim.integrator.getEventManager().addListener(pumpz1_z0);
+        AccumulatorAverageFixed acc = new AccumulatorAverageFixed(samplesPerBlock);
+        DataPumpListener pump = new DataPumpListener(meterinsert, acc, numAtoms);
+        sim.integrator.getEventManager().addListener(pump);
 
         sim.getController().actionPerformed();
 
-        IData iavg = accz1_z0.getData(AccumulatorAverage.AVERAGE);
-        IData ierr = accz1_z0.getData(AccumulatorAverage.ERROR);
-        IData icor = accz1_z0.getData(AccumulatorAverage.BLOCK_CORRELATION);
+        IData iavg = acc.getData(AccumulatorAverage.AVERAGE);
+        IData ierr = acc.getData(AccumulatorAverage.ERROR);
+        IData icor = acc.getData(AccumulatorAverage.BLOCK_CORRELATION);
 
         double avg = iavg.getValue(0);
         double err = ierr.getValue(0);
@@ -180,6 +184,7 @@ public class fep extends Simulation {
         public double temp = 2;
         public double density = 0.2;
         public double sigma2 = 2.0;
+        public double eps2 = 1.0;
         public boolean computez2 = false;
     }
 }
