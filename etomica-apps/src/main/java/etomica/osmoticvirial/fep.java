@@ -75,6 +75,7 @@ public class fep extends Simulation {
 
         double truncationRadius1 = 3.0*sigma1;
         double truncationRadius2 = 3.0*sigma2;
+        double truncationRadius12 = 3.0*sigma12;
 
         if(truncationRadius1>0.5*box.getBoundary().getBoxSize().getX(0)){
             throw new RuntimeException(" Truncation radius is too large. Max allowed is:"+ 0.5*box.getBoundary().getBoxSize().getX(0));
@@ -91,7 +92,7 @@ public class fep extends Simulation {
         AtomType leafType1 = species1.getLeafType();
         potentialMaster.addPotential(potentialTruncated11, new AtomType[]{leafType1, leafType1});
 
-        P2SoftSphericalTruncated potentialTruncated12 = new P2SoftSphericalTruncated(space, potential12, truncationRadius2);
+        P2SoftSphericalTruncated potentialTruncated12 = new P2SoftSphericalTruncated(space, potential12, truncationRadius12);
         potentialMaster.setRange(potentialTruncated12.getRange());
         AtomType leafType2 = species2.getLeafType();
         potentialMaster.addPotential(potentialTruncated12, new AtomType[]{leafType1, leafType2});
