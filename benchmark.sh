@@ -21,4 +21,4 @@ shift $((OPTIND-1))
 
 ./gradlew jmhJar
 
-java -Djmh.ignoreLock=true -jar ./benchmarks/build/libs/benchmarks-jmh.jar BenchSim -rf JSON -rff "${OUTDIR}/${TIMESTAMP}_${COMMIT}.json"
+java -jar ./benchmarks/build/libs/benchmarks-jmh.jar BenchSim -rf JSON -rff "${OUTDIR}/${TIMESTAMP}_${COMMIT}.json"
