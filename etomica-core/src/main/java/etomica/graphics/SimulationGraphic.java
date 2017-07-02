@@ -3,33 +3,28 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.graphics;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-
-import javax.swing.JFrame;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.Controller;
 import etomica.box.Box;
-import etomica.integrator.Integrator;
-import etomica.simulation.Simulation;
 import etomica.graphics.DisplayPlot.PopupListener;
+import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorManagerMC;
 import etomica.listener.IntegratorListenerAction;
+import etomica.simulation.Simulation;
 import etomica.simulation.SimulationContainer;
 import etomica.simulation.prototypes.HSMD2D;
 import etomica.space.Space;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 /**
  * General class for graphical presentation of the elements of a molecular simulation.
@@ -488,7 +483,7 @@ public class SimulationGraphic implements SimulationContainer {
 		IAction repaintAction = simGraphic.getPaintAction(sim.getBox(0));
 
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
-        nSelector.setResetAction(new SimulationRestart(sim, space, sim.getController()));
+        nSelector.setResetAction(new SimulationRestart(sim));
         nSelector.setSpecies(sim.getSpecies(0));
         nSelector.setBox(sim.getBox(0));
         nSelector.setPostAction(repaintAction);

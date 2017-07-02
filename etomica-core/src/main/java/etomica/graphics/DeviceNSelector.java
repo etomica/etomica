@@ -105,7 +105,7 @@ public class DeviceNSelector extends DeviceSlider {
         final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME, space, sim.getController());
         
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
-        nSelector.setResetAction(new SimulationRestart(sim, space, sim.getController()));
+        nSelector.setResetAction(new SimulationRestart(sim));
         nSelector.setBox(sim.box);
         nSelector.setSpecies(sim.species1);
         nSelector.setPostAction(graphic.getPaintAction(sim.box));

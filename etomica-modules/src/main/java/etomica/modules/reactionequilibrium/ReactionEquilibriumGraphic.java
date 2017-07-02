@@ -3,45 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.modules.reactionequilibrium;
-	
-import java.awt.GridBagConstraints;
-
-import javax.swing.JPanel;
-import javax.swing.border.TitledBorder;
 
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.atom.IAtom;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.DiameterHashByType;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataFork;
-import etomica.data.DataGroupFilter;
-import etomica.data.DataPump;
-import etomica.data.DataSourceCountTime;
-import etomica.data.DataSplitter;
-import etomica.data.DataTag;
+import etomica.data.*;
 import etomica.data.types.DataTable;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DeviceBox;
-import etomica.graphics.DeviceDelaySlider;
-import etomica.graphics.DeviceNSelector;
-import etomica.graphics.DeviceSlider;
-import etomica.graphics.DeviceThermoSlider;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTable;
+import etomica.graphics.*;
 import etomica.graphics.DisplayTextBox.LabelType;
-import etomica.graphics.DisplayTextBoxesCAE;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
@@ -54,6 +29,10 @@ import etomica.units.Dimension;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.Constants.CompassDirection;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
 
 /**
  * @author William Scharmach
@@ -403,8 +382,8 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         public MySpeciesEditor(SpeciesSpheresMono s, String label) {
             super();
             nSlider = new DeviceNSelector(sim.getController());
-            nSlider.setResetAction(new SimulationRestart(sim, sim.getSpace(), sim.getController()));
-            nSlider.setSpecies(s);
+			nSlider.setResetAction(new SimulationRestart(sim));
+			nSlider.setSpecies(s);
             nSlider.setBox(sim.box);
             //nSlider.setDisplayBox(DisplayBox1);
             nSlider.setMinimum(0);
