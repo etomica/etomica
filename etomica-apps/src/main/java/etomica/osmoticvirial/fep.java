@@ -14,6 +14,7 @@ import etomica.data.meter.MeterWidomInsertion;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.integrator.mcmove.MCMoveInsertDelete;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
@@ -31,6 +32,7 @@ public class fep extends Simulation {
 
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
+  //  public MCMoveInsertDelete mcMoveInsertDelete : for converting nvt to mu-v-t. ; we are adding and removing solvent molecules (changing N)
     public SpeciesSpheresMono species1; //solvent
     public SpeciesSpheresMono species2; //solute
     public Box box;
@@ -47,7 +49,10 @@ public class fep extends Simulation {
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
+      //  mcMoveInsertDelete = new MCMoveInsertDelete(potentialMaster, random, space);
+
         integrator.getMoveManager().addMCMove(mcMoveAtom);
+      //  integrator.getMoveManager().addMCMove(mcMoveInsertDelete);
 
         double sigma1 = 1.0;
         double epsilon1 = 1.0;
@@ -60,6 +65,10 @@ public class fep extends Simulation {
         addSpecies(species2);
         box = new Box(space);
         addBox(box);
+
+       // mcMoveInsertDelete.setSpecies(species1);
+        //mcMoveInsertDelete.setMu(); //TODO
+
 
         box.setNMolecules(species1,numAtoms);
 
@@ -74,8 +83,8 @@ public class fep extends Simulation {
         potential12 = new P2LennardJones(space, sigma12, epsilon12);
 
         double truncationRadius1 = 3.0*sigma1;
-        double truncationRadius2 = 3.0*sigma2;
-        double truncationRadius12 = 3.0*sigma12;
+        double truncationRadius2 = 3.0*sigma1;
+        double truncationRadius12 = 3.0*sigma1;
 
         if(truncationRadius1>0.5*box.getBoundary().getBoxSize().getX(0)){
             throw new RuntimeException(" Truncation radius is too large. Max allowed is:"+ 0.5*box.getBoundary().getBoxSize().getX(0));
@@ -161,7 +170,7 @@ public class fep extends Simulation {
 
         fep sim = new fep(numAtoms, numSteps, temp, density, sigma2, eps2, computez2);
 
-        System.out.println(" box length "+sim.box.getBoundary().getBoxSize());
+        System.out.println("box length "+sim.box.getBoundary().getBoxSize());
 
         if (graphics) {
             final String APP_NAME = "SimLJ";
