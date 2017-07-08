@@ -12,7 +12,7 @@ import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
 import etomica.nbr.list.NeighborListManager;
 import etomica.space.Space;
-import etomica.units.Length;
+import etomica.units.dimensions.Length;
 
 /**
  * measures the maximum amount by which by which the HS diameter could increase

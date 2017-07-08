@@ -4,6 +4,8 @@
 
 package etomica.units;
 
+import etomica.units.dimensions.Dimension;
+
 /**
  * Implementation of the Unit interface formed from a base Unit (e. g., grams) 
  * and a Prefix (e. g., kilo). The base unit cannot be changed

@@ -10,6 +10,10 @@ import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Null;
 
 /**
  * Hard core with an attractive tail that goes to zero linearly with r.
@@ -81,8 +85,8 @@ public class P2TriangleWell extends Potential2 {
         wellDiameterSquared = wellDiameter*wellDiameter;
         constant = epsilon/(coreDiameter*(1.0 - lambda));
     }
-    public final etomica.units.Dimension getCoreDiameterDimension() {
-        return etomica.units.Length.DIMENSION;
+    public final Dimension getCoreDiameterDimension() {
+        return Length.DIMENSION;
     }
     
     public double getRange() {
@@ -96,8 +100,8 @@ public class P2TriangleWell extends Potential2 {
         wellDiameterSquared = wellDiameter*wellDiameter;
         constant = epsilon/(coreDiameter*(1.0 - lambda));
     }
-    public final etomica.units.Dimension getLambdaDimension() {
-        return etomica.units.Null.DIMENSION;
+    public final Dimension getLambdaDimension() {
+        return Null.DIMENSION;
     }
 
     public double getEpsilon() {return epsilon;}
@@ -105,8 +109,8 @@ public class P2TriangleWell extends Potential2 {
         epsilon = eps;
         constant = epsilon/(coreDiameter*(1.0 - lambda));
     }
-    public final etomica.units.Dimension getEpsilonDimension() {
-        return etomica.units.Energy.DIMENSION;
+    public final Dimension getEpsilonDimension() {
+        return Energy.DIMENSION;
     }
 
     public void setBox(Box box) {

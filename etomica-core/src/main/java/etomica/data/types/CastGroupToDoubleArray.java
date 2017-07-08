@@ -16,7 +16,7 @@ import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.data.types.DataVector.DataInfoVector;
 import etomica.space.Tensor;
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
 
 /**
  * A DataProcessor that converts a homogeneous DataGroup into a multidimensional DataDoubleArray. 

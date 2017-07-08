@@ -21,7 +21,7 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDoubleBDArray;
 import etomica.data.types.DataDoubleBDArray.DataInfoDoubleBDArray;
 import etomica.data.types.DataGroup;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * Measures value of clusters in a box and returns the values

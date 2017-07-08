@@ -12,8 +12,8 @@ import etomica.molecule.IMolecule;
 import etomica.molecule.MoleculeOrientedDynamic;
 import etomica.simulation.Simulation;
 import etomica.species.ISpeciesOriented;
-import etomica.units.Dimension;
-import etomica.units.Temperature;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Temperature;
 
 /**
  * Meter for measurement of the temperature based on kinetic-energy

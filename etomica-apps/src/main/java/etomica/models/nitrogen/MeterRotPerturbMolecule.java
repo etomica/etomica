@@ -13,7 +13,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.ISpecies;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * Meter that returns a Boltzmann factor difference between 2 systems: system 1 and 0

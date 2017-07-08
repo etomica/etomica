@@ -18,7 +18,7 @@ import etomica.space.BoundaryDeformableLattice;
 import etomica.space.Space;
 import etomica.species.ISpecies;
 import etomica.units.Degree;
-import etomica.units.Quantity;
+import etomica.units.dimensions.*;
 import etomica.util.Arrays;
 
 import javax.swing.*;
@@ -322,7 +322,7 @@ public class LatticeEditor {
         public double getValue() {
             return size;
         }
-        public etomica.units.Dimension getDimension() {return Quantity.DIMENSION;}
+        public etomica.units.dimensions.Dimension getDimension() {return Quantity.DIMENSION;}
         public String getLabel() {
             return "a label";
         }

@@ -30,7 +30,8 @@ import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
 import etomica.statmech.MaxwellBoltzmann;
 import etomica.units.*;
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.*;
 import etomica.units.systems.MKS;
 import etomica.util.Constants.CompassDirection;
 

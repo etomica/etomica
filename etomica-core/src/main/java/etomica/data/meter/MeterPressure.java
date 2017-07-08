@@ -11,7 +11,7 @@ import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationVirialSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
-import etomica.units.Pressure;
+import etomica.units.dimensions.Pressure;
 
 /**
  * Meter for evaluation of the soft-potential pressure in a box.

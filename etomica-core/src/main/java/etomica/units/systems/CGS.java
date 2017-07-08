@@ -75,6 +75,8 @@ public class CGS extends UnitSystem {
         return Erg.UNIT;
     }
 
+    public Unit power() { return new CompoundUnit(new Unit[] { Erg.UNIT,Second.UNIT}, new double[] {1,-1}) ; }
+
     public Unit temperature() {
         return Kelvin.UNIT;
     }

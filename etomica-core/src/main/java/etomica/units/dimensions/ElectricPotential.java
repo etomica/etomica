@@ -2,10 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.units;
+package etomica.units.dimensions;
 
 import java.io.ObjectStreamException;
 
+import etomica.units.Prefix;
+import etomica.units.SimpleUnit;
+import etomica.units.Unit;
 import etomica.units.systems.UnitSystem;
 
 /**

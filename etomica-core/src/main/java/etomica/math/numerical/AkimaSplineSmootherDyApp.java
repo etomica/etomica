@@ -42,7 +42,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.Integrator;
 import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.ModifierGeneral;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 import etomica.util.Constants.CompassDirection;
 import etomica.data.history.HistoryScrolling;
 import etomica.util.random.RandomMersenneTwister;

@@ -4,6 +4,9 @@
 
 package etomica.units;
 
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Force;
+
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.GridLayout;

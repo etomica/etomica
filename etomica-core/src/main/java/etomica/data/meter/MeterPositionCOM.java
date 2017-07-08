@@ -19,7 +19,7 @@ import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataVector;
 import etomica.data.types.DataVector.DataInfoVector;
 import etomica.space.Space;
-import etomica.units.Length;
+import etomica.units.dimensions.Length;
 
 /**
  * Returns the instantaneous center-of-mass position, summed over all

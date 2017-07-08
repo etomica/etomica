@@ -10,7 +10,7 @@ import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
-import etomica.units.Quantity;
+import etomica.units.dimensions.Quantity;
 
 public class MeterExcessAdsorbed extends DataSourceScalar {
 

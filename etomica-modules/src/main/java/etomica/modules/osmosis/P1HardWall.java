@@ -11,7 +11,8 @@ import etomica.potential.Potential1;
 import etomica.potential.PotentialHard;
 import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.units.Length;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
 
 /**
  */
@@ -91,7 +92,7 @@ public class P1HardWall extends Potential1 implements PotentialHard {
     /**
      * Indicates collision radius has dimensions of Length.
      */
-    public etomica.units.Dimension getCollisionRadiusDimension() {return Length.DIMENSION;}
+    public Dimension getCollisionRadiusDimension() {return Length.DIMENSION;}
 
 }
    

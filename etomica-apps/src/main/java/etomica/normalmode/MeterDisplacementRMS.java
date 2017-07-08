@@ -8,7 +8,7 @@ import etomica.atom.IAtomList;
 import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
 import etomica.space.Space;
-import etomica.units.Length;
+import etomica.units.dimensions.Length;
 
 public class MeterDisplacementRMS extends DataSourceScalar {
 

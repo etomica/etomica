@@ -22,7 +22,7 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.statmech.LennardJones;
-import etomica.units.Energy;
+import etomica.units.dimensions.Energy;
 
 /**
  * Properties of a system of monatomic molecules occupying a lattice and interacting according

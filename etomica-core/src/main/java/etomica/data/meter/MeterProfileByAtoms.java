@@ -21,7 +21,7 @@ import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
-import etomica.units.Length;
+import etomica.units.dimensions.Length;
 
 /**
  * Meter that takes a (scalar) Meter and records its property as a

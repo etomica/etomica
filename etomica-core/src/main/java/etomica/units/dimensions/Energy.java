@@ -2,36 +2,38 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.units;
+package etomica.units.dimensions;
 
 import java.io.ObjectStreamException;
 
+import etomica.units.Prefix;
+import etomica.units.SimpleUnit;
+import etomica.units.Unit;
 import etomica.units.systems.UnitSystem;
 
 /**
- * The dimension for the quantity of discrete things (e.g. molecules). Examples
- * include Count and Mole.
+ * Dimension for all energy units. Simulation unit of energy is D-A^2/ps^2
  */
-public final class Quantity extends Dimension {
+public final class Energy extends Dimension {
 
     /**
      * Singleton instance of this class.
      */
-    public static final Dimension DIMENSION = new Quantity();
+    public static final Dimension DIMENSION = new Energy();
     /**
-     * Simulation unit is Count.
+     * The simulation unit of energy is D-A^2/ps^2.
      */
-    public static final Unit SIM_UNIT = Count.UNIT;
+    public static final Unit SIM_UNIT = new SimpleUnit(DIMENSION, 1.0, "sim energy units", "D-A^2/ps^2", Prefix.NOT_ALLOWED);
 
-    private Quantity() {
-        super("Quantity", 0, 0, 0, 0, 0, 1, 0);
+    private Energy() {
+        super("Energy", 2, 1, -2);
     }
-
+    
     public Unit getUnit(UnitSystem unitSystem) {
-        return unitSystem.quantity();
+        return unitSystem.energy();
     }
 
-    /**
+   /**
      * Required to guarantee singleton when deserializing.
      * 
      * @return the singleton DIMENSION

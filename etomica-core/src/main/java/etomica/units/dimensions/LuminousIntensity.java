@@ -2,32 +2,34 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.units;
+package etomica.units.dimensions;
 
 import java.io.ObjectStreamException;
 
+import etomica.units.Candela;
+import etomica.units.Unit;
 import etomica.units.systems.UnitSystem;
 
 /**
- * Dimension for all units of viscosity, Mass/(Length-Time)
+ * The dimension for luminous intensity.  Simulation unit is the Candela.
  */
-public final class Viscosity extends Dimension {
+public final class LuminousIntensity extends Dimension {
 
     /**
      * Singleton instance of this class.
      */
-    public static final Dimension DIMENSION = new Viscosity();
+    public static final Dimension DIMENSION = new LuminousIntensity();
     /**
-     * The simulation unit is Dalton/(A-ps).
+     * The Candela unit.
      */
-    public static final Unit SIM_UNIT = new SimpleUnit(DIMENSION, 1, "daltons/(angstrom-ps)", "D/(\u00c5-ps)", Prefix.NOT_ALLOWED);
+    public static final Unit SIM_UNIT = Candela.UNIT;
 
-    private Viscosity() {
-        super("Viscosity", -1, 1, -1);// LMTCtNl;
+    private LuminousIntensity() {
+        super("Luminous Intensity", 0, 0, 0, 0, 0, 0, 1);// LMTCtNl
     }
-
+    
     public Unit getUnit(UnitSystem unitSystem) {
-        return unitSystem.mass();
+        return unitSystem.luminousIntensity();
     }
 
     /**
@@ -40,4 +42,5 @@ public final class Viscosity extends Dimension {
     }
 
     private static final long serialVersionUID = 1;
+
 }

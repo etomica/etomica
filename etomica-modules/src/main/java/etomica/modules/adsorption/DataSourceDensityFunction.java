@@ -12,8 +12,8 @@ import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.units.Length;
-import etomica.units.Quantity;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Quantity;
 
 public class DataSourceDensityFunction implements IEtomicaDataSource {
 

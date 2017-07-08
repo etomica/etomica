@@ -10,7 +10,7 @@ import etomica.molecule.IMoleculePositionDefinition;
 import etomica.molecule.MoleculePositionGeometricCenter;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.Length;
+import etomica.units.dimensions.Length;
 
 public class MeterDisplacementMoleculeRMS extends DataSourceScalar {
 

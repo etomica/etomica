@@ -6,7 +6,7 @@ package etomica.data.meter;
 
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorBox;
-import etomica.units.Energy;
+import etomica.units.dimensions.Energy;
 
 /**
  * Acts as a DataSource to retrieve the energy from the integrator 

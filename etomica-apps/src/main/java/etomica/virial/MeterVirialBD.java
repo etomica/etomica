@@ -13,7 +13,7 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleBDArray;
 import etomica.data.types.DataDoubleBDArray.DataInfoDoubleBDArray;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * This meter handles direct sampling with BigDecimal precision for averages.

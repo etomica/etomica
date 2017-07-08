@@ -15,7 +15,7 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.CastToDouble;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 import etomica.units.systems.UnitSystem;
 import etomica.util.Constants;
 import etomica.util.EnumeratedType;

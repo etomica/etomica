@@ -10,7 +10,7 @@ import etomica.potential.*;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
-import etomica.units.Force;
+import etomica.units.dimensions.Force;
 
 public class MeterWallForce extends DataSourceScalar {
 

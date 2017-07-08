@@ -18,7 +18,7 @@ import etomica.integrator.mcmove.MCMoveSwapConfiguration;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
 import etomica.space.Space;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 import etomica.util.IEvent;
 import etomica.util.IListener;
 

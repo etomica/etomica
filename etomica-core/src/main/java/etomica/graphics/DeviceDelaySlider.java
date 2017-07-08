@@ -13,8 +13,8 @@ import etomica.action.activity.IController;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorMD;
 import etomica.modifier.Modifier;
-import etomica.units.Dimension;
-import etomica.units.Null;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Null;
 
 public class DeviceDelaySlider {
 

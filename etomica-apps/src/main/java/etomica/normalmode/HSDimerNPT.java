@@ -41,7 +41,7 @@ import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 import etomica.util.IEvent;
 import etomica.util.IListener;
 import etomica.util.ParameterBase;

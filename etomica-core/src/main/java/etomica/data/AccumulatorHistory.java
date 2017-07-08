@@ -7,7 +7,7 @@ package etomica.data;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.units.Quantity;
+import etomica.units.dimensions.Quantity;
 import etomica.data.history.History;
 import etomica.data.history.HistoryScrolling;
 

@@ -25,9 +25,12 @@ import etomica.potential.P2SquareWell;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Angstrom;
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Null;
 import etomica.util.Constants.CompassDirection;
 
 import javax.swing.*;
@@ -460,7 +463,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		}
 
 		public Dimension getDimension() {
-			return etomica.units.Length.DIMENSION;
+			return Length.DIMENSION;
 		}
 
 		public void setValue(double d) {
@@ -507,7 +510,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		}
 
 		public Dimension getDimension() {
-			return etomica.units.Energy.DIMENSION;
+			return Energy.DIMENSION;
 		}
 
 		public void setValue(double d) {
@@ -532,7 +535,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		}
 
 		public Dimension getDimension() {
-			return etomica.units.Null.DIMENSION;
+			return Null.DIMENSION;
 		}
 
 		public synchronized void setValue(double d) {

@@ -2,26 +2,35 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.units;
+package etomica.units.dimensions;
 
 import java.io.ObjectStreamException;
 
+import etomica.units.Decimal;
+import etomica.units.Unit;
 import etomica.units.systems.UnitSystem;
 
 /**
- * Base unit for electrical dipole moment. Simulation unit is electron-Angstrom.
+ * Dimension for a quantity representing a fractional amount.  Examples
+ * include a decimal, percent, parts-per-million, etc.
  */
-public class Dipole extends Dimension {
+public final class Fraction extends Dimension {
 
-    public static final Dimension DIMENSION = new Dipole();
-    public static final Unit SIM_UNIT = new SimpleUnit(DIMENSION, 1, "sim dipole units", "e-\u00c5", Prefix.NOT_ALLOWED);
+    /**
+     * Singleton instance of this class.
+     */
+    public static final Dimension DIMENSION = Null.DIMENSION;
+    /**
+     * The simulation unit is the Decimal.
+     */
+    public static final Unit SIM_UNIT = Decimal.UNIT;
 
-    private Dipole() {
-        super("Dipole", 1, 0, 1, 1, 0, 0, 0);
+    private Fraction() {
+        super("Fraction", 0, 0, 0);
     }
     
     public Unit getUnit(UnitSystem unitSystem) {
-        return unitSystem.dipole();
+        return unitSystem.fraction();
     }
 
    /**

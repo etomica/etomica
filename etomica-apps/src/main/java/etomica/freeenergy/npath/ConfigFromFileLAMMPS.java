@@ -20,8 +20,8 @@ import etomica.space.*;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresRotating;
-import etomica.units.*;
-import etomica.units.Dimension;
+import etomica.units.dimensions.*;
+import etomica.units.dimensions.Dimension;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 

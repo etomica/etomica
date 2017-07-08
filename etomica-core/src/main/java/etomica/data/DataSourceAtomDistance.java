@@ -7,7 +7,7 @@ package etomica.data;
 import etomica.atom.IAtom;
 import etomica.space.Vector;
 import etomica.space.Space;
-import etomica.units.Length;
+import etomica.units.dimensions.Length;
 
 public class DataSourceAtomDistance extends DataSourceScalar {
 	

@@ -22,8 +22,8 @@ import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.Force;
-import etomica.units.Length;
+import etomica.units.dimensions.Force;
+import etomica.units.dimensions.Length;
 
 public class MeterMeanForce implements IEtomicaDataSource, AgentSource<IntegratorVelocityVerlet.MyAgent>, DataSourceIndependent, IAction {
 

@@ -12,13 +12,13 @@ import etomica.atom.AtomSetSinglet;
 import etomica.graphics.Drawable;
 import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.units.Dimension;
-import etomica.units.DimensionRatio;
-import etomica.units.Force;
-import etomica.units.Length;
-import etomica.units.Mass;
-import etomica.units.Pressure;
-import etomica.units.Time;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.DimensionRatio;
+import etomica.units.dimensions.Force;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Mass;
+import etomica.units.dimensions.Pressure;
+import etomica.units.dimensions.Time;
 import etomica.util.Debug;
 
 /**
@@ -264,7 +264,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     /**
      * Indicates collision radius has dimensions of Length.
      */
-    public etomica.units.Dimension getCollisionRadiusDimension() {return etomica.units.Length.DIMENSION;}
+    public Dimension getCollisionRadiusDimension() {return Length.DIMENSION;}
 
     
     public void advanceAcrossTimeStep(double tStep) {

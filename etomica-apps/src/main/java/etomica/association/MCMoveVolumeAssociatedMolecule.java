@@ -27,8 +27,8 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.units.Dimension;
-import etomica.units.Pressure;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Pressure;
 import etomica.util.random.IRandom;
 
 import java.io.FileWriter;

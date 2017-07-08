@@ -10,7 +10,7 @@ import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
 import etomica.data.IEtomicaDataSource;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * Calculates the entropy of the distribution of Atoms in a Box

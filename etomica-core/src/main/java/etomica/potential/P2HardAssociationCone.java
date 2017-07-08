@@ -9,11 +9,11 @@ import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
 import etomica.space.Space;
-import etomica.units.Angle;
-import etomica.units.Dimension;
-import etomica.units.Energy;
-import etomica.units.Length;
-import etomica.units.Null;
+import etomica.units.dimensions.Angle;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Null;
 
 /**
  * Lennard-Jones potential with a square-well cone of attraction. 

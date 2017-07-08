@@ -7,7 +7,7 @@ package etomica.normalmode;
 import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
 import etomica.data.IEtomicaDataInfo;
-import etomica.units.Length;
+import etomica.units.dimensions.Length;
 
 /**
  * 

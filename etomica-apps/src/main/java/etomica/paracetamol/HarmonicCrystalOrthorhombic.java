@@ -22,7 +22,7 @@ import etomica.paracetamol.LatticeSumCrystalParacetamol.DataGroupLSCParacetamol;
 import etomica.potential.P2DLPOLY;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.units.Energy;
+import etomica.units.dimensions.Energy;
 import etomica.units.Kelvin;
 import etomica.util.Arrays;
 

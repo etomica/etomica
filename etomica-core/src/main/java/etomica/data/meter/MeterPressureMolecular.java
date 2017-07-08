@@ -10,7 +10,7 @@ import etomica.integrator.IntegratorBox;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationMolecularVirialSum;
 import etomica.space.Space;
-import etomica.units.Pressure;
+import etomica.units.dimensions.Pressure;
 
 /**
  * Meter for evaluation of the soft-potential (molecular) pressure in a box.

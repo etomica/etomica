@@ -25,6 +25,7 @@ import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.*;
+import etomica.units.dimensions.*;
 import etomica.util.random.IRandom;
 
 /**

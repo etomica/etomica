@@ -31,7 +31,7 @@ import etomica.space.Vector;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
 import etomica.units.Degree;
-import etomica.units.Energy;
+import etomica.units.dimensions.Energy;
 
 import java.util.Arrays;
 

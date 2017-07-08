@@ -18,7 +18,7 @@ import etomica.space.Vector;
 import etomica.space3d.IOrientationFull3D;
 import etomica.space3d.RotationTensor3D;
 import etomica.species.ISpeciesOriented;
-import etomica.units.Energy;
+import etomica.units.dimensions.Energy;
 
 /**
  * Meter for the total kinetic energy in a box

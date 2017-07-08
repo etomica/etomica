@@ -11,7 +11,7 @@ import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.normalmode.CoordinateDefinition;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
 

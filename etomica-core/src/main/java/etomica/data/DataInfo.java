@@ -6,7 +6,7 @@ package etomica.data;
 
 import java.util.ArrayList;
 
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
 import etomica.util.Debug;
 
 /**

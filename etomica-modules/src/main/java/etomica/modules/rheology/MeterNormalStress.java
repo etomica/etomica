@@ -9,7 +9,7 @@ import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
 import etomica.space.Space;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * Meter to measure normal stress of a polymer in a shear field.
