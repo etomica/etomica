@@ -162,6 +162,8 @@ Temporary Items
 
 # ignore entire .idea directory for now
 .idea
+out/
+*.iml
 
 # python virtualenv
 venv

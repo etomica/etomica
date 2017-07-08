@@ -4,14 +4,14 @@
 
 //This class includes a main method to demonstrate its use
 package etomica.graphics;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.JButton;
 
 import etomica.action.IAction;
 import etomica.action.activity.IController;
 import etomica.simulation.prototypes.HSMD2D;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * Button that causes an action to be performed.
@@ -110,7 +110,7 @@ public class DeviceButton extends Device {
         final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME, sp, sim.getController());
         
         //here's the part unique to this class
-        etomica.action.SimulationRestart action = new etomica.action.SimulationRestart(sim, sp, sim.getController());
+        etomica.action.SimulationRestart action = new etomica.action.SimulationRestart(sim);
         DeviceButton button = new DeviceButton(sim.getController(),action);
         button.setLabel("Device Button");
 
