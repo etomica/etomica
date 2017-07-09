@@ -7,7 +7,7 @@ package etomica.modules.pistoncylinder;
 import etomica.modifier.Modifier;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.space.Space;
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
 
 /**
  * Modifier for the piston pressure.  Should be followed by a IntegratorPistonUpdate action.

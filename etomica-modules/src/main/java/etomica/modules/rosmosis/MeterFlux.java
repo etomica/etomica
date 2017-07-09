@@ -19,7 +19,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
-import etomica.units.*;
+import etomica.units.dimensions.*;
 
 /**
  * Meter to measure flux across a boundary or boundaries.  If an atom is on one

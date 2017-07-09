@@ -10,7 +10,7 @@ import etomica.potential.PotentialCalculation;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.Length;
+import etomica.units.dimensions.Length;
 
 /**
  * PotentialCalculation that simply does the work of collecting an RDF.

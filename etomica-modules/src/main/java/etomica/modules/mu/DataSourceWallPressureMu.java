@@ -15,7 +15,7 @@ import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorHard.CollisionListener;
 import etomica.potential.P1HardBoundary;
 import etomica.space.Space;
-import etomica.units.Pressure2D;
+import etomica.units.dimensions.Pressure2D;
 
 public class DataSourceWallPressureMu implements IEtomicaDataSource, CollisionListener {
     public DataSourceWallPressureMu(Space space) {

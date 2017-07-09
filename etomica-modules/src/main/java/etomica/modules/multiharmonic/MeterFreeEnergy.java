@@ -10,7 +10,7 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataSourceScalar;
 import etomica.data.IEtomicaDataSource;
 import etomica.potential.P1Harmonic;
-import etomica.units.Energy;
+import etomica.units.dimensions.Energy;
 
 
 /**

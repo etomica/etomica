@@ -11,8 +11,8 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.units.Dimension;
-import etomica.units.Null;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Null;
 import etomica.math.function.Function;
 
 /**

@@ -36,7 +36,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;

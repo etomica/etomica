@@ -18,7 +18,7 @@ import etomica.molecule.MoleculePositionGeometricCenter;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
-import etomica.units.Angle;
+import etomica.units.dimensions.Angle;
 
 /**
  * Meter that measures the average tilt angle (not the angle of average tilt!)

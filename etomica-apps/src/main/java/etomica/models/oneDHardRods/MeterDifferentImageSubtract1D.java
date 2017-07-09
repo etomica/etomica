@@ -22,7 +22,7 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Vector;
 import etomica.species.SpeciesSpheresMono;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 
 /**

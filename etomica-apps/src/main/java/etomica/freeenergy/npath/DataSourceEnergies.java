@@ -16,7 +16,7 @@ import etomica.potential.IPotentialAtomic;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationEnergySum;
 import etomica.potential.PotentialMaster;
-import etomica.units.Energy;
+import etomica.units.dimensions.Energy;
 
 /**
  * Created by andrew on 4/12/17.

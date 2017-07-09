@@ -16,8 +16,8 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.space.Space;
-import etomica.units.Dimension;
-import etomica.units.Pressure;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Pressure;
 import etomica.math.function.Function;
 
 /**

@@ -11,10 +11,10 @@ import etomica.data.DataSourceScalar;
 import etomica.modules.catalysis.InteractionTracker.CatalysisAgent;
 import etomica.molecule.IMoleculeList;
 import etomica.species.ISpecies;
-import etomica.units.CompoundDimension;
-import etomica.units.Dimension;
-import etomica.units.Quantity;
-import etomica.units.Volume;
+import etomica.units.dimensions.CompoundDimension;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Quantity;
+import etomica.units.dimensions.Volume;
 
 public class MeterDensityCO2 extends DataSourceScalar {
 

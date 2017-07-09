@@ -5,7 +5,7 @@
 package etomica.data;
 
 import etomica.integrator.Integrator;
-import etomica.units.Quantity;
+import etomica.units.dimensions.Quantity;
 
 /**
  * Data source that fronts the Integrator's step count as a piece of Data.

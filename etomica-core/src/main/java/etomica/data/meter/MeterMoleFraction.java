@@ -7,7 +7,7 @@ package etomica.data.meter;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.species.ISpecies;
-import etomica.units.Fraction;
+import etomica.units.dimensions.Fraction;
 
 /**
  * Meter for measurement of the species mole fraction in a box.

@@ -4,6 +4,8 @@
 
 package etomica.units;
 
+import etomica.units.dimensions.Volume;
+
 import java.io.ObjectStreamException;
 
 /**

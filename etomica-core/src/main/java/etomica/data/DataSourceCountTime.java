@@ -5,7 +5,7 @@
 package etomica.data;
 
 import etomica.integrator.IntegratorMD;
-import etomica.units.Time;
+import etomica.units.dimensions.Time;
 
 /**
  * Data source that keeps track of the elapsed simulation time of an MD

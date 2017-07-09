@@ -6,6 +6,7 @@ package etomica.units;
 
 import java.io.ObjectStreamException;
 
+import etomica.units.dimensions.Energy;
 import etomica.util.Constants;
 
 /**

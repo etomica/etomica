@@ -23,7 +23,7 @@ import etomica.lattice.crystal.Primitive;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.space.*;
 import etomica.space3d.Tensor3D;
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
 import etomica.util.Arrays;
 import etomica.math.function.Function;
 import etomica.data.FunctionData;

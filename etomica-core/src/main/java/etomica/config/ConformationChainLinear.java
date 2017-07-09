@@ -7,8 +7,8 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.space.Vector;
 import etomica.space.Space;
-import etomica.units.Dimension;
-import etomica.units.Length;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
 
 /**
  * Places atoms in a straight line.

@@ -2,29 +2,30 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.units;
+package etomica.units.dimensions;
 
 import java.io.ObjectStreamException;
 
+import etomica.units.Radian;
+import etomica.units.Unit;
 import etomica.units.systems.UnitSystem;
 
 /**
- * Base for all area units. Simulation unit of area is A^2
+ * Base for all angular units. Simulation unit for angles is radians.
  */
-public class Area extends Dimension {
-    
-    public static final Dimension DIMENSION = new Area();
-    public static final Unit SIM_UNIT = new SimpleUnit(DIMENSION, 1, "square Angstroms", "\u00c5^2", Prefix.NOT_ALLOWED);
+public class Angle extends Dimension {
 
-    private Area() {
-        super("Area", 2, 0, 0, 0, 0, 0, 0);
+    public static final Dimension DIMENSION = new Angle();
+    public static final Unit SIM_UNIT = Radian.UNIT;
+
+    private Angle() {
+        super("Angle", 0, 0, 0);
     }
 
-    public Unit getUnit(UnitSystem unitSystem) {
-        return unitSystem.area();
-//        return new CompoundUnit(new Unit[] {unitSystem.length()}, new double[] {2.0});
+     public Unit getUnit(UnitSystem unitSystem) {
+        return unitSystem.angle();
     }
-    
+
     /**
      * Required to guarantee singleton when deserializing.
      * 
@@ -33,7 +34,7 @@ public class Area extends Dimension {
     private Object readResolve() throws ObjectStreamException {
         return DIMENSION;
     }
-
+    
     private static final long serialVersionUID = 1;
 
 }

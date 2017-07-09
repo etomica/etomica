@@ -9,7 +9,7 @@ import etomica.data.types.DataTensor;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.space.Tensor;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 public class DataProcessorSurfaceTension extends DataProcessor {
     DataInfoDouble dataInfo = new DataInfoDouble("surface tension", Null.DIMENSION);

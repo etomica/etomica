@@ -18,7 +18,7 @@ import etomica.potential.PotentialCalculationHyperVirialSum;
 import etomica.potential.PotentialCalculationVirialSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * Meter for measurement of the hypervirial, r^2 d2u/dr2 + r du/dr

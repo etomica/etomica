@@ -19,10 +19,10 @@ import etomica.molecule.IMoleculeList;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.species.ISpecies;
-import etomica.units.CompoundDimension;
-import etomica.units.Dimension;
-import etomica.units.Length;
-import etomica.units.Null;
+import etomica.units.dimensions.CompoundDimension;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Null;
 
 import java.io.Serializable;
 

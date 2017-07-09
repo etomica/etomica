@@ -8,9 +8,9 @@ import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.space.Space;
 import etomica.species.ISpecies;
-import etomica.units.DimensionRatio;
-import etomica.units.Quantity;
-import etomica.units.Volume;
+import etomica.units.dimensions.DimensionRatio;
+import etomica.units.dimensions.Quantity;
+import etomica.units.dimensions.Volume;
 
 /**
  * Meter for measurement of the total molecule number density in a box

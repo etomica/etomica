@@ -15,7 +15,7 @@ import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.integrator.IntegratorHard;
 import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.units.Temperature;
+import etomica.units.dimensions.Temperature;
 
 public class MeterPressureHardTensor implements IEtomicaDataSource, IntegratorHard.CollisionListener, java.io.Serializable {
     

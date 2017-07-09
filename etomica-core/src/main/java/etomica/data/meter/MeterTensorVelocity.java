@@ -16,7 +16,7 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataTensor;
 import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.space.Space;
-import etomica.units.Energy;
+import etomica.units.dimensions.Energy;
 
 /**
  * A meter to compute the velocity component of the pressure tensor. 

@@ -8,6 +8,7 @@ import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import etomica.units.dimensions.Dimension;
 import etomica.units.systems.UnitSystem;
 
 public final class UnitFilter {

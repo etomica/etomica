@@ -30,7 +30,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.units.Energy;
+import etomica.units.dimensions.Energy;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.ReadParameters;

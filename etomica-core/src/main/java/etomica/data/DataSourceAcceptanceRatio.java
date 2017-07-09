@@ -5,7 +5,7 @@
 package etomica.data;
 import etomica.integrator.mcmove.MCMove;
 import etomica.units.Decimal;
-import etomica.units.Fraction;
+import etomica.units.dimensions.Fraction;
 import etomica.units.Unit;
 
 /**

@@ -8,7 +8,7 @@ import etomica.data.AccumulatorAverageBlockless;
 import etomica.data.DataDistributer;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.mcmove.MCMoveOverlapListener;
-import etomica.units.Pressure;
+import etomica.units.dimensions.Pressure;
 
 /**
  * Computes pressure from the grand canonical route based on measured free

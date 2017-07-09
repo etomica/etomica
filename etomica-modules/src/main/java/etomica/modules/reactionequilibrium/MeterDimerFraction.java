@@ -22,7 +22,7 @@ import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.data.types.DataTable;
 import etomica.data.types.DataTable.DataInfoTable;
 import etomica.species.ISpecies;
-import etomica.units.*;
+import etomica.units.dimensions.*;
 
 public final class MeterDimerFraction implements IEtomicaDataSource {
     public MeterDimerFraction(AtomLeafAgentManager aam) {

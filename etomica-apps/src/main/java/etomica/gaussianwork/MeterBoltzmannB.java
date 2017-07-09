@@ -14,7 +14,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorBox;
 import etomica.potential.PotentialMaster;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * Multiharmonic system

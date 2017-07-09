@@ -12,7 +12,7 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
-import etomica.units.Pressure;
+import etomica.units.dimensions.Pressure;
 
 /**
  * Meter to measure flux across a boundary or boundaries.  If an atom is on one

@@ -7,7 +7,7 @@ package etomica.data.meter;
 import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.data.DataSourceScalar;
-import etomica.units.Energy;
+import etomica.units.dimensions.Energy;
 
 /**
  * Meter for measurement of the total (potential and kinetic) energy in a box

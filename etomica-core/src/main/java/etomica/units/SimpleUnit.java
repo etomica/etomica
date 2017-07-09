@@ -4,6 +4,8 @@
 
 package etomica.units;
 
+import etomica.units.dimensions.Dimension;
+
 /**
  * Superclass for all base unit classes. These classes provide a means for
  * indicating the physical units of a given quantity, and present methods for

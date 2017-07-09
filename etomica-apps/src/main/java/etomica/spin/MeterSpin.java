@@ -11,7 +11,7 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataSourceScalar;
 import etomica.data.IEtomicaDataSource;
 import etomica.space.Space;
-import etomica.units.Undefined;
+import etomica.units.dimensions.Undefined;
 
 
 /**

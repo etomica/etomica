@@ -14,7 +14,7 @@ import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * Meter for tabulation of the atomic radial distribution function (RDF).  The

@@ -9,10 +9,10 @@ import etomica.space.Vector;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.space.Space;
-import etomica.units.Area;
-import etomica.units.DimensionRatio;
-import etomica.units.Energy;
-import etomica.units.Length;
+import etomica.units.dimensions.Area;
+import etomica.units.dimensions.DimensionRatio;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Length;
 
 /**
  * Data Processor that takes the virial components as input data and returns

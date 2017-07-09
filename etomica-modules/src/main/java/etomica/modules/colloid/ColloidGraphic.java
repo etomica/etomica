@@ -45,11 +45,11 @@ import etomica.modifier.ModifierGeneral;
 import etomica.nbr.CriterionPositionWall;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.units.Dimension;
-import etomica.units.Energy;
-import etomica.units.Length;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Length;
 import etomica.units.Pixel;
-import etomica.units.Quantity;
+import etomica.units.dimensions.Quantity;
 import etomica.math.function.Function;
 import etomica.data.history.HistoryCollapsingDiscard;
 

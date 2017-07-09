@@ -14,8 +14,8 @@ import etomica.atom.AtomSetSinglet;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentSourceAtomManager;
 import etomica.nbr.CriterionPositionWall.DoubleWrapper;
-import etomica.units.Dimension;
-import etomica.units.Length;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
 import etomica.util.Debug;
 
 /**

@@ -4,6 +4,8 @@
 
 package etomica.units;
 
+import etomica.units.dimensions.Dimension;
+
 /**
  * Interface used to specify the physical units to be used when inputting or
  * outputting a quantity. All internal calculations are performed using

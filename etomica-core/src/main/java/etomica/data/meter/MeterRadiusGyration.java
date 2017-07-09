@@ -13,7 +13,7 @@ import etomica.molecule.iterator.MoleculeIteratorAllMolecules;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.Length;
+import etomica.units.dimensions.Length;
 
 /**
  * Meter for tabulation of the radius of gyration of a set of chain molecules. 

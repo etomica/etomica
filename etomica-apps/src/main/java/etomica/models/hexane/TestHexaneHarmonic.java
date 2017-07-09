@@ -45,7 +45,7 @@ import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 import etomica.math.DoubleRange;
 import etomica.data.histogram.HistogramSimple;
 /**

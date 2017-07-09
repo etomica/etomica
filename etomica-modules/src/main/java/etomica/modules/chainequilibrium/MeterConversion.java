@@ -10,7 +10,7 @@ import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.molecule.IMoleculeList;
 import etomica.species.ISpecies;
-import etomica.units.Fraction;
+import etomica.units.dimensions.Fraction;
 
 /**
  * Meter for the reaction conversion (fraction of reacted sites).

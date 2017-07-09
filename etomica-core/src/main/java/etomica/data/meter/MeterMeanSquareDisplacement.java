@@ -12,7 +12,7 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorBox;
 import etomica.space.Space;
-import etomica.units.Undefined;
+import etomica.units.dimensions.Undefined;
 
 /**
  *  Computes the mean square displacement for a set of atoms.

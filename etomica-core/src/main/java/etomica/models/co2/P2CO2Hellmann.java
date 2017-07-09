@@ -24,7 +24,7 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.CompoundUnit;
 import etomica.units.Kelvin;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 import etomica.units.Unit;
 import etomica.util.Constants;
 import etomica.util.random.RandomMersenneTwister;

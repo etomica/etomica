@@ -16,7 +16,7 @@ import etomica.molecule.IMolecule;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.Angle;
+import etomica.units.dimensions.Angle;
 
 /**
  * Meter for collecting the molecular orientation of the dimer.  The value

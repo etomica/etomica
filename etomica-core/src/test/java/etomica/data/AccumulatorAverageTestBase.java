@@ -6,7 +6,7 @@ package etomica.data;
 
 import junit.framework.TestCase;
 import etomica.data.types.DataDouble;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 import etomica.util.random.RandomNumberGenerator;
 
 public abstract class AccumulatorAverageTestBase extends TestCase {

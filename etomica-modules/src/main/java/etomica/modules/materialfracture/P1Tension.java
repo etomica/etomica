@@ -9,7 +9,8 @@ import etomica.space.Vector;
 import etomica.potential.PotentialSoft;
 import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.units.Null;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Null;
 
 public class P1Tension implements PotentialSoft {
     
@@ -40,7 +41,7 @@ public class P1Tension implements PotentialSoft {
      * Not implemented correctly.  
      * Returns dimensionless for spring constant.  Should be energy/length^2.
      */
-    public etomica.units.Dimension getSpringConstantDimension() {
+    public Dimension getSpringConstantDimension() {
         return Null.DIMENSION;
     }
     
