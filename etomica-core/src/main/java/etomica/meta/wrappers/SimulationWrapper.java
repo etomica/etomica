@@ -33,13 +33,13 @@ public class SimulationWrapper extends Wrapper<Simulation> {
 
     }
 
-    private List<PotentialMaster> getPotentialMasters() {
+    public List<PotentialMaster> getPotentialMasters() {
         Set<PotentialMaster> set = new HashSet<>();
         getPotentialMasters(wrapped.getIntegrator(), set);
         return new ArrayList<>(set);
     }
 
-    private void getPotentialMasters(Integrator integrator, Set<PotentialMaster> set) {
+    public void getPotentialMasters(Integrator integrator, Set<PotentialMaster> set) {
         if(integrator instanceof IntegratorManagerMC) {
             for(Integrator i : ((IntegratorManagerMC) integrator).getIntegrators()) {
                 getPotentialMasters(i, set);

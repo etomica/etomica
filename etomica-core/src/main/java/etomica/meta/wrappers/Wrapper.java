@@ -2,6 +2,7 @@ package etomica.meta.wrappers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import etomica.meta.InstanceProperty;
+import etomica.meta.WrapperIndex;
 import etomica.meta.annotations.IgnoreProperty;
 import etomica.simulation.prototypes.HSMD2D;
 
@@ -38,6 +39,22 @@ public class Wrapper<T> {
         return properties;
     }
 
+    @SuppressWarnings("unchecked")
+    public List<Wrapper> getChildren() {
+        List<Wrapper> children = new ArrayList<>();
+        for(InstanceProperty prop : properties) {
+            if(prop.isIndexedProperty()) {
+                for (int i = 0; i < prop.invokeCount(); i++) {
+                    children.add(WrapperIndex.getWrapper(prop.invokeReader(i)));
+                }
+            } else {
+                children.add(WrapperIndex.getWrapper(prop.invokeReader()));
+            }
+        }
+
+        return children;
+    }
+
     private static Method propertyDescriptorMethod(PropertyDescriptor pd) {
         if(pd instanceof IndexedPropertyDescriptor) {
             return ((IndexedPropertyDescriptor) pd).getIndexedReadMethod();
@@ -49,6 +66,7 @@ public class Wrapper<T> {
     public static void main(String[] args) throws JsonProcessingException {
         SimulationWrapper simWrapper = new SimulationWrapper(new HSMD2D());
         List<InstanceProperty> props = simWrapper.getProperties();
+        List<Wrapper> tree = simWrapper.getChildren();
         System.out.println(props);
     }
 
