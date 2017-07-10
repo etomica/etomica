@@ -14,6 +14,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Specialized wrapper for Simulations.
+ *
+ * When a wrapper is created it collects the PotentialMasters in a simulation,
+ * which are associated with Integrators internally but conceptually are children of the simulation,
+ * and adds a "synthetic" method to return them to the list of the simulation's properties.
+ */
 public class SimulationWrapper extends Wrapper<Simulation> {
 
     public SimulationWrapper(Simulation wrapped) {
@@ -39,7 +46,7 @@ public class SimulationWrapper extends Wrapper<Simulation> {
         return new ArrayList<>(set);
     }
 
-    public void getPotentialMasters(Integrator integrator, Set<PotentialMaster> set) {
+    private static void getPotentialMasters(Integrator integrator, Set<PotentialMaster> set) {
         if(integrator instanceof IntegratorManagerMC) {
             for(Integrator i : ((IntegratorManagerMC) integrator).getIntegrators()) {
                 getPotentialMasters(i, set);

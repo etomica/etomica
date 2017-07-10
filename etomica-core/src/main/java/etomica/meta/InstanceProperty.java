@@ -5,6 +5,11 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+/**
+ * Container class for mapping an instance to a property.
+ * <p>
+ * Also contains additional adder and remover methods for that property if they exist.
+ */
 public class InstanceProperty {
     private final PropertyDescriptor descriptor;
     private final Class<?> propertyType;
@@ -34,7 +39,7 @@ public class InstanceProperty {
     public Object invokeReader() {
         try {
             return reader.invoke(instance);
-        } catch (IllegalAccessException | InvocationTargetException e) {
+        } catch(IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
     }
@@ -46,7 +51,7 @@ public class InstanceProperty {
     public Object invokeReader(int i) {
         try {
             return reader.invoke(instance, i);
-        } catch (IllegalAccessException | InvocationTargetException e) {
+        } catch(IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
     }
@@ -54,7 +59,7 @@ public class InstanceProperty {
     public void invokeWriter(Object... params) {
         try {
             writer.invoke(instance, params);
-        } catch (IllegalAccessException | InvocationTargetException e) {
+        } catch(IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
     }
@@ -62,7 +67,7 @@ public class InstanceProperty {
     public void invokeWriter(int i, Object... params) {
         try {
             writer.invoke(instance, i, params);
-        } catch (IllegalAccessException | InvocationTargetException e) {
+        } catch(IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
     }
@@ -70,7 +75,7 @@ public class InstanceProperty {
     public void invokeAdder(Object o) {
         try {
             adder.invoke(instance, o);
-        } catch (IllegalAccessException | InvocationTargetException e) {
+        } catch(IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
     }
@@ -78,7 +83,7 @@ public class InstanceProperty {
     public void invokeRemover(Object o) {
         try {
             remover.invoke(instance, o);
-        } catch (IllegalAccessException | InvocationTargetException e) {
+        } catch(IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
     }
@@ -86,7 +91,7 @@ public class InstanceProperty {
     public int invokeCount() {
         try {
             return (int) counter.invoke(instance);
-        } catch (IllegalAccessException | InvocationTargetException e) {
+        } catch(IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
 
@@ -119,7 +124,7 @@ public class InstanceProperty {
     private Method getMethod(String name, Class<?>... paramTypes) {
         try {
             return instance.getClass().getMethod(name, paramTypes);
-        } catch (NoSuchMethodException e) {
+        } catch(NoSuchMethodException e) {
             return null;
         }
     }
