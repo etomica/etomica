@@ -61,13 +61,13 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource<Integra
         setTimeStep(timeStep);
     }
 
-    public void setBox(Box p) {
-        if (box != null) {
+    public void setBox(Box box) {
+        if (this.box != null) {
             // allow agentManager to de-register itself as a BoxListener
             agentManager.dispose();
         }
-        super.setBox(p);
-        agentManager = new AtomLeafAgentManager<IntegratorGear4.Agent>(this,p,IntegratorGear4.Agent.class);
+        super.setBox(box);
+        agentManager = new AtomLeafAgentManager<IntegratorGear4.Agent>(this, box,IntegratorGear4.Agent.class);
         forceSum.setAgentManager(agentManager);
     }
 

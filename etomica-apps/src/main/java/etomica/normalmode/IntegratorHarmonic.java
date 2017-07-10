@@ -76,9 +76,9 @@ public class IntegratorHarmonic extends IntegratorMD {
    		eigenVectors = newEigenVectors;
     }
     
-    public void setBox(Box newBox) {
-        super.setBox(newBox);
-        iterator.setBox(newBox);
+    public void setBox(Box box) {
+        super.setBox(box);
+        iterator.setBox(box);
 
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         u = new double[coordinateDim];

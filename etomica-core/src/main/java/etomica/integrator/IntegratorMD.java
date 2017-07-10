@@ -56,23 +56,23 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
     public final double getTimeStep() {return timeStep;}
     public Dimension getTimeStepDimension() {return Time.DIMENSION;}
     
-    public void setBox(Box p) {
-        if (box != null) {
-            box.getEventManager().removeListener(this);
+    public void setBox(Box box) {
+        if (this.box != null) {
+            this.box.getEventManager().removeListener(this);
         }
-        super.setBox(p);
+        super.setBox(box);
         if (meterKE instanceof MeterKineticEnergy) {
-            ((MeterKineticEnergy)meterKE).setBox(p);
+            ((MeterKineticEnergy)meterKE).setBox(box);
         }
-        meterTemperature = new MeterTemperature(p, space.D());
+        meterTemperature = new MeterTemperature(box, space.D());
         meterTemperature.setKineticEnergyMeter(meterKE);
-        box.getEventManager().addListener(this);
+        this.box.getEventManager().addListener(this);
 
         if (thermostat == ThermostatType.HYBRID_MC) {
-            oldPositionAgentManager = new AtomLeafAgentManager<Vector>(new VectorSource(space), box, Vector.class);
+            oldPositionAgentManager = new AtomLeafAgentManager<Vector>(new VectorSource(space), this.box, Vector.class);
         }
         if (integratorMC != null) {
-            integratorMC.setBox(box);
+            integratorMC.setBox(this.box);
         }
     }
 

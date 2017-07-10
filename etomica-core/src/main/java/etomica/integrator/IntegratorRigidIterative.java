@@ -101,20 +101,20 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         meterKE = new MeterKineticEnergyRigid(space, sim);
     }
 
-    public void setBox(Box p) {
-        if (box != null) {
+    public void setBox(Box box) {
+        if (this.box != null) {
             // allow agentManager to de-register itself as a BoxListener
             leafAgentManager.dispose();
             moleculeAgentManager.dispose();
             leafAgentManager = null;
             moleculeAgentManager = null;
         }
-        super.setBox(p);
-        leafAgentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this,p,IntegratorVelocityVerlet.MyAgent.class);
-        moleculeAgentManager = new MoleculeAgentManager(sim, p, this);
+        super.setBox(box);
+        leafAgentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, box,IntegratorVelocityVerlet.MyAgent.class);
+        moleculeAgentManager = new MoleculeAgentManager(sim, box, this);
         torqueSum.setAgentManager(leafAgentManager);
         torqueSum.setMoleculeAgentManager(moleculeAgentManager);
-        ((MeterKineticEnergyRigid)meterKE).setBox(p);
+        ((MeterKineticEnergyRigid)meterKE).setBox(box);
     }
 
     public void setTorqueSum(PotentialCalculationTorqueSum pc) {
