@@ -108,13 +108,12 @@ public abstract class IntegratorBox extends Integrator {
 	/**
 	 * Performs activities needed to set up integrator to work on given box.
 	 * 
-	 * @return true if the box was successfully added to the integrator; false
-	 *         otherwise
+	 * @param box the Box to set
 	 */
-	public void setBox(Box p) {
-	    box = p;
+	public void setBox(Box box) {
+	    this.box = box;
 	    if(meterPE instanceof MeterPotentialEnergy){
-	        ((MeterPotentialEnergy)meterPE).setBox(p);
+	        ((MeterPotentialEnergy)meterPE).setBox(box);
 	    }
 	}
 

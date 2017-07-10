@@ -24,34 +24,47 @@ import etomica.util.IEventManager;
  * integrator consists of selecting a MCMove from the set, performing the trial
  * defined by the MCMove, and deciding acceptance of the trial using information
  * from the MCMove.
- * 
+ *
  * @author David Kofke
  * @see MCMove
  */
 
 public class IntegratorMC extends IntegratorBox {
 
+    public static boolean dodebug;
+    protected final IRandom random;
+    protected final IEventManager moveEventManager;
+    private final IEvent trialEvent, trialFailedEvent;
+    private final IEvent acceptedEvent, rejectedEvent;
+    protected MCMoveManager moveManager;
+
+    /**
+     * @param sim             Simulation where this integrator is used
+     * @param potentialMaster PotentialMaster instance used by moves to calculate the energy
+     */
+
     public IntegratorMC(Simulation sim, PotentialMaster potentialMaster) {
         this(potentialMaster, sim.getRandom(), 1.0);
     }
-    
-	/**
-	 * Constructs integrator and establishes PotentialMaster instance that
-	 * will be used by moves to calculate the energy.
-	 */
-	public IntegratorMC(PotentialMaster potentialMaster, IRandom random, double temperature) {
-		super(potentialMaster,temperature);
+
+    /**
+     * @param potentialMaster PotentialMaster instance used by moves to calculate the energy
+     * @param random          random number generator used to select moves and decide acceptance
+     * @param temperature     temperature of the ensemble
+     */
+    public IntegratorMC(PotentialMaster potentialMaster, IRandom random, double temperature) {
+        super(potentialMaster, temperature);
         this.random = random;
-		setIsothermal(true); //has no practical effect, but sets value of
-		// isothermal to be consistent with way integrator
-		// is sampling
+        setIsothermal(true); //has no practical effect, but sets value of
+        // isothermal to be consistent with way integrator
+        // is sampling
         moveManager = new MCMoveManager(random);
         moveEventManager = new MCMoveEventManager();
         trialEvent = new MCMoveTrialInitiatedEvent(moveManager);
         trialFailedEvent = new MCMoveTrialFailedEvent(moveManager);
         acceptedEvent = new MCMoveTrialCompletedEvent(moveManager, true);
         rejectedEvent = new MCMoveTrialCompletedEvent(moveManager, false);
-	}
+    }
 
     /**
      * @return Returns the moveManager.
@@ -66,64 +79,61 @@ public class IntegratorMC extends IntegratorBox {
     public void setMoveManager(MCMoveManager newMoveManager) {
         moveManager = newMoveManager;
     }
-    
-    /**
-     * Invokes superclass method and informs all MCMoves about the new box.
-     * Moves are not notified if they have a number of boxs different from
-     * the number of boxs handled by the integrator.
-     */
-    public void setBox(Box p) {
-    	super.setBox(p);
-    	moveManager.setBox(p);
+
+    public void setBox(Box box) {
+        super.setBox(box);
+        moveManager.setBox(box);
     }
 
     /**
-     * Method to select and perform an elementary Monte Carlo move. The type of
+     * Method to select and perform an elementary Monte Carlo move and decide acceptance. The type of
      * move performed is chosen from all MCMoves that have been added to the
-     * integrator. Each MCMove has associated with it a (unnormalized)
-     * frequency, which when weighed against the frequencies given the other
-     * MCMoves, determines the likelihood that the move is selected. After
-     * completing move, fires an MCMove event if there are any listeners.
+     * integrator. After completing move, fires an MCMove event if there are any listeners.
      */
-    public void doStepInternal() {
-    	//select the move
-    	MCMoveBox move = (MCMoveBox)moveManager.selectMove();
-    	if (move == null)
-    		return;
+    protected void doStepInternal() {
+        //select the move
+        MCMoveBox move = (MCMoveBox) moveManager.selectMove();
+        if (move == null)
+            return;
 
-    	//perform the trial
-    	//returns false if the trial cannot be attempted; for example an
-    	// atom-displacement trial in a box with no molecules
-    	if (!move.doTrial()) {
-    	    moveEventManager.fireEvent(trialFailedEvent);
-    		return;
-    	}
+        //perform the trial
+        //returns false if the trial cannot be attempted; for example an
+        // atom-displacement trial in a box with no molecules
+        if (!move.doTrial()) {
+            moveEventManager.fireEvent(trialFailedEvent);
+            return;
+        }
 
         //notify any listeners that move has been attempted
-		moveEventManager.fireEvent(trialEvent);
+        moveEventManager.fireEvent(trialEvent);
 
-    	//decide acceptance
-    	double chi = move.getA() * Math.exp(move.getB()/temperature);
-    	if (chi == 0.0 || (chi < 1.0 && chi < random.nextDouble())) {//reject
+        //decide acceptance
+        double chi = move.getA() * Math.exp(move.getB() / temperature);
+        if (chi == 0.0 || (chi < 1.0 && chi < random.nextDouble())) {//reject
             if (dodebug) {
-                System.out.println(stepCount+" move "+move+" rejected");
+                System.out.println(stepCount + " move " + move + " rejected");
             }
             move.getTracker().updateCounts(false, chi);
-    		move.rejectNotify();
+            move.rejectNotify();
             //notify listeners of outcome
             moveEventManager.fireEvent(rejectedEvent);
-    	} else {
+        } else {
             if (dodebug) {
-                System.out.println(stepCount+" move "+move+" accepted");
+                System.out.println(stepCount + " move " + move + " accepted");
             }
             move.getTracker().updateCounts(true, chi);
-    		move.acceptNotify();
-    		currentPotentialEnergy += move.energyChange();
+            move.acceptNotify();
+            currentPotentialEnergy += move.energyChange();
             //notify listeners of outcome
             moveEventManager.fireEvent(acceptedEvent);
-    	}
+        }
     }
-    
+
+    /**
+     * Notifies the IntegratorMC that the energy changed allowing
+     * the internal potential energy field to be updated.
+     * @param energyChange Change in the energy
+     */
     public void notifyEnergyChange(double energyChange) {
         currentPotentialEnergy += energyChange;
     }
@@ -138,18 +148,9 @@ public class IntegratorMC extends IntegratorBox {
     }
 
     /**
-     * Adds a listener that will be notified when a MCMove trial is attempted
-     * and when it is completed.
+     * @return moveEventManager that fires move events
      */
     public IEventManager getMoveEventManager() {
         return moveEventManager;
     }
-
-    private static final long serialVersionUID = 2L;
-    protected final IRandom random;
-    protected MCMoveManager moveManager;
-    protected final IEventManager moveEventManager;
-    private final IEvent trialEvent, trialFailedEvent;
-    private final IEvent acceptedEvent, rejectedEvent;
-    public static boolean dodebug;
 }

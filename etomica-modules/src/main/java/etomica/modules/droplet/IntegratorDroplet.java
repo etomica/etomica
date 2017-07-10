@@ -68,13 +68,13 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
         dr = space.makeVector();
     }
     
-    public void setBox(Box p) {
-        if (box != null) {
+    public void setBox(Box box) {
+        if (this.box != null) {
             // allow agentManager to de-register itself as a BoxListener
             agentManager.dispose();
         }
-        super.setBox(p);
-        agentManager = new AtomLeafAgentManager<MyAgent>(this,p,MyAgent.class);
+        super.setBox(box);
+        agentManager = new AtomLeafAgentManager<MyAgent>(this, box,MyAgent.class);
         forceSum.setAgentManager(agentManager);
     }
 

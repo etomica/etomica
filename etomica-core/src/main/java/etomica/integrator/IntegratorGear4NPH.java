@@ -97,11 +97,11 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
     public double getTargetT() {return targetT;}
     public Dimension getTargetTDimension() {return Temperature.DIMENSION;}
 
-    public void setBox(Box p) {
-        super.setBox(p);
-        inflate.setBox(box);
-        meterTemperature = new MeterTemperature(box, D);
-        forceSumNPH.setBox(box);
+    public void setBox(Box box) {
+        super.setBox(box);
+        inflate.setBox(this.box);
+        meterTemperature = new MeterTemperature(this.box, D);
+        forceSumNPH.setBox(this.box);
         forceSumNPH.setAgentManager(agentManager);
     }
     

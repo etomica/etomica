@@ -57,13 +57,13 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource<
         t2 = timeStep * timeStep;
     }
           
-    public void setBox(Box p) {
-        if (box != null) {
+    public void setBox(Box box) {
+        if (this.box != null) {
             // allow agentManager to de-register itself as a BoxListener
             agentManager.dispose();
         }
-        super.setBox(p);
-        agentManager = new AtomLeafAgentManager<Agent>(this,p,Agent.class);
+        super.setBox(box);
+        agentManager = new AtomLeafAgentManager<Agent>(this, box,Agent.class);
         forceSum.setAgentManager(agentManager);
     }
     
