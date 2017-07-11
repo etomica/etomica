@@ -7,11 +7,11 @@ package etomica.data;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.units.Null;
-import etomica.util.Histogram;
-import etomica.util.HistogramCollapsing;
-import etomica.util.HistogramNotSoSimple;
-import etomica.util.HistogramReweightedData;
+import etomica.units.dimensions.Null;
+import etomica.data.histogram.Histogram;
+import etomica.data.histogram.HistogramCollapsing;
+import etomica.data.histogram.HistogramNotSoSimple;
+import etomica.data.histogram.HistogramReweightedData;
 
 /**
  * Accumulator that keeps histogram of data.

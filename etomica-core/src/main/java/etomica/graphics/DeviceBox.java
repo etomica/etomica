@@ -16,6 +16,7 @@ import javax.swing.JTextField;
 
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifyAction;
+import etomica.units.dimensions.Null;
 import etomica.units.systems.UnitSystem;
 import etomica.util.Constants;
 import etomica.util.EnumeratedType;
@@ -72,7 +73,7 @@ public class DeviceBox extends Device implements javax.swing.event.ChangeListene
         textField.setEditable(true);
         panel.add(textField, java.awt.BorderLayout.CENTER);
         setLabelType(LabelType.STRING);
-        unit = etomica.units.Null.UNIT;
+        unit = Null.UNIT;
         setPrecision(4);
     }
 

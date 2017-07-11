@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.lattice.crystal;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.math.geometry.Polytope;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Primitive group for a trigonal system.  All primitive vectors have the same 
@@ -16,10 +16,10 @@ public class PrimitiveTrigonal extends Primitive {
 
     private static final long serialVersionUID = 1L;
 
-    public PrimitiveTrigonal(ISpace space) {
+    public PrimitiveTrigonal(Space space) {
         this(space, 1.0, rightAngle, rightAngle, rightAngle);
     }
-    public PrimitiveTrigonal(ISpace space, double cubicSize, 
+    public PrimitiveTrigonal(Space space, double cubicSize,
                              double alpha, double beta, double gamma) {
         super(space);
         setCubicSize(cubicSize);
@@ -89,7 +89,7 @@ public class PrimitiveTrigonal extends Primitive {
         setCubicSize(size[0] * scale);
     }        
     
-    public int[] latticeIndex(IVector q) {
+    public int[] latticeIndex(Vector q) {
         for(int i=0; i<D; i++) {
             double x = q.getX(i)/size[i];
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x
@@ -97,7 +97,7 @@ public class PrimitiveTrigonal extends Primitive {
         return idx;
     }
 
-    public int[] latticeIndex(IVector q, int[] dimensions) {
+    public int[] latticeIndex(Vector q, int[] dimensions) {
         for(int i=0; i<D; i++) {
             double x = q.getX(i)/size[i];
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x

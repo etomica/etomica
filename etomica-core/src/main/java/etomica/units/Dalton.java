@@ -4,6 +4,8 @@
 
 package etomica.units;
 
+import etomica.units.dimensions.Mass;
+
 import java.io.ObjectStreamException;
 
 public final class Dalton extends SimpleUnit {

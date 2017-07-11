@@ -11,11 +11,11 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.units.CompoundDimension;
-import etomica.units.Dimension;
-import etomica.units.Energy;
-import etomica.units.Quantity;
-import etomica.units.Temperature;
+import etomica.units.dimensions.CompoundDimension;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Quantity;
+import etomica.units.dimensions.Temperature;
 
 
 public class DataProcessorCvMD extends DataProcessor {

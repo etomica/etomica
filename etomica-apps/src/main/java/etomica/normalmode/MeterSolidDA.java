@@ -4,21 +4,20 @@
 
 package etomica.normalmode;
 
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationEnergySum;
 import etomica.potential.PotentialCalculationVirialSum;
-import etomica.space.ISpace;
-import etomica.units.Null;
+import etomica.potential.PotentialMaster;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.units.dimensions.Null;
 
 /**
  * Meter for evaluation of the soft-potential pressure in a box.
@@ -31,7 +30,7 @@ import etomica.units.Null;
  
 public class MeterSolidDA implements IEtomicaDataSource {
 
-    public MeterSolidDA(ISpace space, IPotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, boolean doD2) {
+    public MeterSolidDA(Space space, PotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, boolean doD2) {
         this.coordinteDefinition = coordinateDefinition;
         tag = new DataTag();
     	this.potentialMaster = potentialMaster;
@@ -86,7 +85,7 @@ public class MeterSolidDA implements IEtomicaDataSource {
     	pc.zeroSum();
         potentialMaster.calculate(box, iteratorDirective, pc);
         double p1 = pc.getPressureSum();
-        IVector pXYZ = pc.getPressureSumXYZ();
+        Vector pXYZ = pc.getPressureSumXYZ();
         System.out.println(p1+" "+pXYZ);
         double[] x = data.getData();
         double V = box.getBoundary().volume();
@@ -114,14 +113,14 @@ public class MeterSolidDA implements IEtomicaDataSource {
     protected final DataTag tag;
     protected DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;
-    protected final IPotentialMaster potentialMaster;
+    protected final PotentialMaster potentialMaster;
     private IteratorDirective iteratorDirective;
     private final PotentialCalculationSolidSuper pc;
     protected double temperature;
     protected double latticeEnergy, latticePressure;
-    protected final IBox box;
+    protected final Box box;
     protected double pRes;
     protected final boolean doD2;
     protected final CoordinateDefinition coordinteDefinition;
-    protected final IVectorMutable dr;
+    protected final Vector dr;
 }

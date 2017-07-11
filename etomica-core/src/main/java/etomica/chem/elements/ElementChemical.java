@@ -4,8 +4,8 @@
 
 package etomica.chem.elements;
 
-import etomica.units.Dimension;
-import etomica.units.Quantity;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Quantity;
 
 /**
  * Abstract structure for a class defining one of the chemical elements.

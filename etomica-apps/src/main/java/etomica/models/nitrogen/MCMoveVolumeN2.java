@@ -5,20 +5,20 @@
 package etomica.models.nitrogen;
 
 import etomica.action.BoxInflate;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.space.ISpace;
-import etomica.units.Dimension;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
+import etomica.units.dimensions.Dimension;
 import etomica.units.Kelvin;
-import etomica.units.Pressure;
+import etomica.units.dimensions.Pressure;
+import etomica.util.random.IRandom;
 
 /**
  * Monte Carlo volume-change move for simulations in the NPT ensemble.
@@ -29,8 +29,8 @@ import etomica.units.Pressure;
  */
 public class MCMoveVolumeN2 extends MCMoveBoxStep {
 
-    public MCMoveVolumeN2(ISimulation sim, IPotentialMaster potentialMaster,
-    		            ISpace _space) {
+    public MCMoveVolumeN2(Simulation sim, PotentialMaster potentialMaster,
+                          Space _space) {
         this(potentialMaster, sim.getRandom(), _space, 1.0);
     }
     
@@ -38,8 +38,8 @@ public class MCMoveVolumeN2 extends MCMoveBoxStep {
      * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
      * @param space the governing space for the simulation
      */
-    public MCMoveVolumeN2(IPotentialMaster potentialMaster, IRandom random,
-    		            ISpace _space, double pressure) {
+    public MCMoveVolumeN2(PotentialMaster potentialMaster, IRandom random,
+                          Space _space, double pressure) {
         super(potentialMaster);
         this.random = random;
         this.D = _space.D();
@@ -55,7 +55,7 @@ public class MCMoveVolumeN2 extends MCMoveBoxStep {
         rScale = _space.makeVector();
     }
     
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         inflate.setBox(p);
@@ -199,7 +199,7 @@ public class MCMoveVolumeN2 extends MCMoveBoxStep {
 		isXYZChange = true;
 	}
 	
-	private IVectorMutable rScale;
+	private Vector rScale;
 	private double[] coeff;
     private int caseNumMolec = 0;
     private ISpecies species;

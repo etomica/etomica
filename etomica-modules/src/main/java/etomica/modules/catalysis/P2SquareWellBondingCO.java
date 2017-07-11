@@ -3,19 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.modules.catalysis;
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
 import etomica.modules.catalysis.InteractionTracker.CatalysisAgent;
 import etomica.potential.Potential2HardSpherical;
-import etomica.space.ISpace;
+import etomica.space.Vector;
+import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.units.Dimension;
-import etomica.units.Energy;
-import etomica.units.Length;
-import etomica.units.Null;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Null;
 
 /**
  * Basic square-well potential.
@@ -34,8 +33,8 @@ public class P2SquareWellBondingCO extends Potential2HardSpherical {
     protected double lastCollisionVirial, lastCollisionVirialr2;
     protected final Tensor lastCollisionVirialTensor;
     protected double lastEnergyChange;
-    protected final IVectorMutable dv;
-    protected final IVectorMutable dvOO, drOO;
+    protected final Vector dv;
+    protected final Vector dvOO, drOO;
     protected final AtomLeafAgentManager agentManager;
 
     protected int nSurfaceSites;
@@ -44,8 +43,8 @@ public class P2SquareWellBondingCO extends Potential2HardSpherical {
     protected final double minOOr2;
     protected P2SquareWellSurface potentialCS;
 
-    public P2SquareWellBondingCO(ISpace space, AtomLeafAgentManager agentManager, double coreDiameter, double lambda, double epsilon,
-            int nSurfaceSites, double epsilonBarrier, double epsilonBonding, double minOOr) {
+    public P2SquareWellBondingCO(Space space, AtomLeafAgentManager agentManager, double coreDiameter, double lambda, double epsilon,
+                                 int nSurfaceSites, double epsilonBarrier, double epsilonBonding, double minOOr) {
         super(space);
         this.agentManager = agentManager;
         setCoreDiameter(coreDiameter);
@@ -82,8 +81,8 @@ public class P2SquareWellBondingCO extends Potential2HardSpherical {
         double r2 = dr.squared();
         double bij = dr.dot(dv);
         double eps = 1.0e-10;
-        double rm0 = ((IAtom)atom0).getType().rm();
-        double rm1 = ((IAtom)atom1).getType().rm();
+        double rm0 = atom0.getType().rm();
+        double rm1 = atom1.getType().rm();
         double reduced_m = 1.0/(rm0+rm1);
         double nudge = 0;
         CatalysisAgent agent0 = (CatalysisAgent)agentManager.getAgent(atom0);

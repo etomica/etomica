@@ -4,16 +4,17 @@
 
 package etomica.potential;
 
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.MoleculeOrientedDynamic;
+import etomica.box.Box;
 import etomica.models.water.P2WaterSPCSoft;
-import etomica.space.ISpace;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeOrientedDynamic;
+import etomica.space.Boundary;
+import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
 
 
 /**
@@ -22,11 +23,11 @@ import etomica.space3d.Space3D;
  */
 public class P2MoleculeSoftTruncatedSwitched extends PotentialMolecular implements IPotentialMolecularTorque {
     
-    public P2MoleculeSoftTruncatedSwitched(IPotentialMolecularTorque potential, double truncationRadius, ISpace _space) {
+    public P2MoleculeSoftTruncatedSwitched(IPotentialMolecularTorque potential, double truncationRadius, Space _space) {
         super(2, _space);
         this.potential = potential;
         setTruncationRadius(truncationRadius);
-        gradientAndTorque = new IVectorMutable[2][2];
+        gradientAndTorque = new Vector[2][2];
         for (int i=0; i<2; i++) {
             gradientAndTorque[0][i] = space.makeVector();
             gradientAndTorque[1][i] = space.makeVector();
@@ -72,12 +73,12 @@ public class P2MoleculeSoftTruncatedSwitched extends PotentialMolecular implemen
         return rCutoff;
     }
 
-    public IVector[][] gradientAndTorque(IMoleculeList atoms) {
+    public Vector[][] gradientAndTorque(IMoleculeList atoms) {
         dr.Ev1Mv2(((MoleculeOrientedDynamic)atoms.getMolecule(1)).getPosition(),((MoleculeOrientedDynamic)atoms.getMolecule(0)).getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
         if (r2 < r2Cutoff) {
-            IVector[][] gradientAndTorqueUnswitched = potential.gradientAndTorque(atoms);
+            Vector[][] gradientAndTorqueUnswitched = potential.gradientAndTorque(atoms);
             gradientAndTorque[0][0].E(gradientAndTorqueUnswitched[0][0]);
             gradientAndTorque[0][1].E(gradientAndTorqueUnswitched[0][0]);
             gradientAndTorque[1][0].E(gradientAndTorqueUnswitched[1][0]);
@@ -139,7 +140,7 @@ public class P2MoleculeSoftTruncatedSwitched extends PotentialMolecular implemen
     }
 
     public static void main(String[] args) {
-    	ISpace sp = Space3D.getInstance();
+    	Space sp = Space3D.getInstance();
         P2MoleculeSoftTruncatedSwitched p095 = new P2MoleculeSoftTruncatedSwitched(new P2WaterSPCSoft(sp), 2, sp);
         p095.setSwitchFac(0.95);
         P2MoleculeSoftTruncatedSwitched p080 = new P2MoleculeSoftTruncatedSwitched(new P2WaterSPCSoft(sp), 2, sp);
@@ -153,11 +154,11 @@ public class P2MoleculeSoftTruncatedSwitched extends PotentialMolecular implemen
         }
     }
     
-    public IVector[] gradient(IMoleculeList atoms) {
+    public Vector[] gradient(IMoleculeList atoms) {
         return gradientAndTorque(atoms)[0];
     }
 
-    public IVector[] gradient(IMoleculeList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IMoleculeList atoms, Tensor pressureTensor) {
         return gradientAndTorque(atoms)[0];
     }
     
@@ -187,9 +188,9 @@ public class P2MoleculeSoftTruncatedSwitched extends PotentialMolecular implemen
     /**
      * Returns the dimension (length) of the radial cutoff distance.
      */
-    public etomica.units.Dimension getTruncationRadiusDimension() {return etomica.units.Length.DIMENSION;}
+    public Dimension getTruncationRadiusDimension() {return Length.DIMENSION;}
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         potential.setBox(newBox);
         boundary = newBox.getBoundary();
     }
@@ -197,9 +198,9 @@ public class P2MoleculeSoftTruncatedSwitched extends PotentialMolecular implemen
     private static final long serialVersionUID = 1L;
     protected double rCutoff, r2Cutoff;
     protected final IPotentialMolecularTorque potential;
-    protected final IVectorMutable dr;
-    protected IBoundary boundary;
-    protected final IVectorMutable[][] gradientAndTorque;
+    protected final Vector dr;
+    protected Boundary boundary;
+    protected final Vector[][] gradientAndTorque;
     protected int taperOrder = 3;
     protected double switchFac, r2Switch;
 }

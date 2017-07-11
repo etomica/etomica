@@ -10,7 +10,7 @@ import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.overlap.AlphaSource;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * DataProcessor which takes in values for v/pi and pi2/pi (from MeterVirial)

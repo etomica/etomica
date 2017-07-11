@@ -5,16 +5,16 @@
 package etomica.data;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.integrator.IntegratorBox;
-import etomica.space.ISpace;
-import etomica.units.Null;
+import etomica.molecule.IMolecule;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
+import etomica.units.dimensions.Null;
 
 /**
  * Calculates the Boltzmann factor at a position within a box a molecule of a
@@ -25,7 +25,7 @@ import etomica.units.Null;
  */
 public class DataSourcePositionedBoltzmannFactor implements DataSourcePositioned {
 
-    public DataSourcePositionedBoltzmannFactor(ISpace space) {
+    public DataSourcePositionedBoltzmannFactor(Space space) {
         data = new DataDouble();
         dataInfo = new DataInfoDouble("chemical potential", Null.DIMENSION);
         tag = new DataTag();
@@ -34,7 +34,7 @@ public class DataSourcePositionedBoltzmannFactor implements DataSourcePositioned
 
     /**
      * Sets the integrator.  The integrator is used to obtain the
-     * IPotentialMaster, IBox and temperature.
+     * PotentialMaster, Box and temperature.
      */
     public void setIntegrator(IntegratorBox newIntegrator) {
         integrator = newIntegrator;
@@ -56,10 +56,10 @@ public class DataSourcePositionedBoltzmannFactor implements DataSourcePositioned
         return testMolecule.getType();
     }
 
-    public IData getData(IVector a) {
+    public IData getData(Vector a) {
         atomTranslator.setDestination(a);
         atomTranslator.actionPerformed(testMolecule);
-        IBox box = integrator.getBox();
+        Box box = integrator.getBox();
         box.addMolecule(testMolecule);
         energyMeter.setTarget(testMolecule);
         double temp = integrator.getTemperature();
@@ -70,9 +70,9 @@ public class DataSourcePositionedBoltzmannFactor implements DataSourcePositioned
         return data;
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         if (integrator != null && newBox != integrator.getBox()) {
-            throw new RuntimeException("You should really figure out which IBox is for me!");
+            throw new RuntimeException("You should really figure out which Box is for me!");
         }
     }
 

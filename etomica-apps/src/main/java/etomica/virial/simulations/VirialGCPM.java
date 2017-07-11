@@ -5,29 +5,22 @@
 package etomica.virial.simulations;
 
 
-import java.awt.Color;
-
 import etomica.action.IAction;
-import etomica.api.IPotentialMolecular;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.models.water.ConformationWaterGCPM;
 import etomica.models.water.PNWaterGCPM;
 import etomica.models.water.SpeciesWater4P;
+import etomica.potential.IPotentialMolecular;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterCoupledFlipped;
-import etomica.virial.ClusterSumPolarizable;
-import etomica.virial.ClusterWeight;
-import etomica.virial.ClusterWeightAbs;
-import etomica.virial.ClusterWheatleySoft;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
+
+import java.awt.*;
 
 
 public class VirialGCPM {

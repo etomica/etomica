@@ -4,20 +4,20 @@
 
 package etomica.normalmode;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.space.ISpace;
-import etomica.units.Angle;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
+import etomica.units.dimensions.Angle;
 
 /**
  * Meter that measures the average tilt angle (not the angle of average tilt!)
@@ -26,10 +26,10 @@ import etomica.units.Angle;
  */
 public class MeterTilt implements IEtomicaDataSource {
 
-    public MeterTilt(ISpace space, ISpecies species, int nPlanes) {
+    public MeterTilt(Space space, ISpecies species, int nPlanes) {
         this.species = species;
         dr = space.makeVector();
-        drSum = new IVectorMutable[nPlanes+1];
+        drSum = new Vector[nPlanes+1];
         for (int i=0; i<nPlanes+1; i++) {
             drSum[i] = space.makeVector();
         }
@@ -39,7 +39,7 @@ public class MeterTilt implements IEtomicaDataSource {
         dataInfo.addTag(tag);
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
 
@@ -76,9 +76,9 @@ public class MeterTilt implements IEtomicaDataSource {
 
     private static final long serialVersionUID = 1L;
     protected final ISpecies species;
-    protected IBox box;
-    protected final IVectorMutable dr;
-    protected final IVectorMutable[] drSum;
+    protected Box box;
+    protected final Vector dr;
+    protected final Vector[] drSum;
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
     protected final DataTag tag;

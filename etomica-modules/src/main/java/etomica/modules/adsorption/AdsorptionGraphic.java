@@ -12,7 +12,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
 
 import etomica.action.IAction;
-import etomica.api.IVectorMutable;
+import etomica.space.Vector;
 import etomica.atom.DiameterHashByType;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverage.StatType;
@@ -38,12 +38,12 @@ import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.math.geometry.Plane;
 import etomica.modifier.ModifierGeneral;
-import etomica.space.ISpace;
-import etomica.space3d.Space3D;
-import etomica.units.Null;
+import etomica.space.Space;
+ import etomica.space3d.Space3D;
+import etomica.units.dimensions.Null;
 import etomica.units.Pixel;
 import etomica.units.Unit;
-import etomica.util.HistoryCollapsingAverage;
+import etomica.data.history.HistoryCollapsingAverage;
 
 /**
  * Catalysis graphical app.
@@ -59,7 +59,7 @@ public class AdsorptionGraphic extends SimulationGraphic {
     protected final MeterProfileByVolumeAdsorption densityProfileMeterA, densityProfileMeterB;
     protected final Adsorption sim;
 
-    public AdsorptionGraphic(final Adsorption simulation, ISpace _space) {
+    public AdsorptionGraphic(final Adsorption simulation, Space _space) {
 
     	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
 
@@ -83,8 +83,8 @@ public class AdsorptionGraphic extends SimulationGraphic {
         getDisplayBox(sim.box).setPixelUnit(new Pixel(40/sim.box.getBoundary().getBoxSize().getX(1)));
         ((DisplayBoxCanvasG3DSys)getDisplayBox(sim.box).canvas).addPlane(new Plane(space, 0, 1, 0, sim.box.getBoundary().getBoxSize().getX(1)/2-0.00001));
         ((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.speciesA.getLeafType(), sim.p2AA.getCoreDiameter());
-        IVectorMutable rMin = space.makeVector();
-        IVectorMutable rMax = space.makeVector();
+        Vector rMin = space.makeVector();
+        Vector rMax = space.makeVector();
         double Ly = sim.box.getBoundary().getBoxSize().getX(1);
         double yMin = -0.5*Ly+0.5*sim.p1WallA.getSigma();
         double yMax = (0.5-0*sim.mcMoveIDA.getZFraction())*Ly - sim.p1WallA.getSigma();
@@ -405,7 +405,7 @@ public class AdsorptionGraphic extends SimulationGraphic {
     }
 
     public static void main(String[] args) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
 
 
         AdsorptionGraphic adsGraphic = new AdsorptionGraphic(new Adsorption(space), space);
@@ -418,7 +418,7 @@ public class AdsorptionGraphic extends SimulationGraphic {
         public void init() {
 	        getRootPane().putClientProperty(
 	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
-            ISpace sp = Space3D.getInstance();
+            Space sp = Space3D.getInstance();
             AdsorptionGraphic swmdGraphic = new AdsorptionGraphic(new Adsorption(sp), sp);
 
 		    getContentPane().add(swmdGraphic.getPanel());

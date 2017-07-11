@@ -1,16 +1,16 @@
 package etomica.normalmode;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
+import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.space.ISpace;
-import etomica.units.Null;
+import etomica.space.Space;
+import etomica.units.dimensions.Null;
 
 /**
  * Meter uses harmonically-mapped averages to compute properties and also
@@ -25,11 +25,11 @@ public class MeterSolidMirror implements IEtomicaDataSource {
     protected DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;
     protected double temperature;
-    protected final IBox box;
+    protected final Box box;
     protected final CoordinateDefinition coordinateDefinition;
-    protected final IVectorMutable dr;
+    protected final Vector dr;
 
-    public MeterSolidMirror(ISpace space, IEtomicaDataSource dataSource, CoordinateDefinition coordinateDefinition) {
+    public MeterSolidMirror(Space space, IEtomicaDataSource dataSource, CoordinateDefinition coordinateDefinition) {
         this.coordinateDefinition = coordinateDefinition;
         this.ds = dataSource;
         tag = new DataTag();

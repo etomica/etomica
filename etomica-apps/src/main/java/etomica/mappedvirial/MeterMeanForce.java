@@ -1,45 +1,40 @@
 package etomica.mappedvirial;
 
- import etomica.action.IAction;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.action.IAction;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.iterator.IteratorDirective;
-import etomica.data.DataSourceIndependent;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.data.*;
+import etomica.data.histogram.Histogram;
+import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
+import etomica.math.DoubleRange;
+import etomica.potential.IteratorDirective;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialCalculationForceSum;
-import etomica.space.ISpace;
-import etomica.units.Force;
-import etomica.units.Length;
-import etomica.util.DoubleRange;
-import etomica.util.Histogram;
-import etomica.util.HistogramNotSoSimple;
+import etomica.potential.PotentialMaster;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.units.dimensions.Force;
+import etomica.units.dimensions.Length;
 
 public class MeterMeanForce implements IEtomicaDataSource, AgentSource<IntegratorVelocityVerlet.MyAgent>, DataSourceIndependent, IAction {
 
-    protected final IPotentialMaster potentialMaster;
+    protected final PotentialMaster potentialMaster;
     protected final PotentialCalculationForceSum pcForce;
-    protected final IBox box;
+    protected final Box box;
     protected final IteratorDirective allAtoms;
     protected final AtomLeafAgentManager<MyAgent> forceManager;
-    protected final ISpace space;
+    protected final Space space;
     protected final Potential2SoftSpherical p2;
-    protected final IVectorMutable dr, fij;
+    protected final Vector dr, fij;
     protected final DataFunction data;
     protected final DataInfoFunction dataInfo;
     protected final DataTag tag, xTag;
@@ -47,7 +42,7 @@ public class MeterMeanForce implements IEtomicaDataSource, AgentSource<Integrato
     protected final DataDoubleArray xData;
     protected final DataInfoDoubleArray xDataInfo;
     
-    public MeterMeanForce(ISpace space, IPotentialMaster potentialMaster, Potential2SoftSpherical p2, IBox box, int nbins) {
+    public MeterMeanForce(Space space, PotentialMaster potentialMaster, Potential2SoftSpherical p2, Box box, int nbins) {
         this.space = space;
         this.p2 = p2;
         this.box = box;
@@ -86,11 +81,11 @@ public class MeterMeanForce implements IEtomicaDataSource, AgentSource<Integrato
         return hist2;
     }
 
-    public MyAgent makeAgent(IAtom a, IBox agentBox) {
+    public MyAgent makeAgent(IAtom a, Box agentBox) {
         return new MyAgent(space);
     }
     
-    public void releaseAgent(MyAgent agent, IAtom atom, IBox agentBox) {}
+    public void releaseAgent(MyAgent agent, IAtom atom, Box agentBox) {}
 
     public void actionPerformed() {
         pcForce.reset();
@@ -100,7 +95,7 @@ public class MeterMeanForce implements IEtomicaDataSource, AgentSource<Integrato
         int n = list.getAtomCount();
         for (int i=0; i<n; i++) {
             IAtom a = list.getAtom(i);
-            IVector fi = forceManager.getAgent(a).force;
+            Vector fi = forceManager.getAgent(a).force;
             for (int j=i+1; j<n; j++) {
                 IAtom b = list.getAtom(j);
                 dr.Ev1Mv2(b.getPosition(),a.getPosition());
@@ -108,7 +103,7 @@ public class MeterMeanForce implements IEtomicaDataSource, AgentSource<Integrato
                 double r2 = dr.squared();
                 double r = Math.sqrt(r2);
                 if (r > p2.getRange()) continue;
-                IVector fj = forceManager.getAgent(b).force;
+                Vector fj = forceManager.getAgent(b).force;
                 fij.Ev1Mv2(fj,fi);
                 double fdr = 0.5*fij.dot(dr)/r;
                 hist.addValue(r, fdr);

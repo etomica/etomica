@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.units;
+import etomica.units.dimensions.Charge;
 import etomica.util.Constants;
 
 /**
@@ -16,7 +17,7 @@ public final class Electron extends SimpleUnit {
     public static final Electron UNIT = new Electron();
     
     private Electron() {
-        super(Charge.DIMENSION, 
+        super(Charge.DIMENSION,
                 1.0/Math.sqrt(4.0 * Math.PI * Constants.EPSILON_0), //372.7; conversion to (D-A^3/ps^2)^(1/2); need only divide by sqrt(4 pi eps0) because eps0 is defined in Constants in terms of the electron charge. 
 	        "elementary charges","e", Prefix.ALLOWED
         	);   

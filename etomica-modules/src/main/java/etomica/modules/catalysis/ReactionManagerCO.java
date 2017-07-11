@@ -4,28 +4,28 @@
 
 package etomica.modules.catalysis;
 
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.IIntegratorEvent;
-import etomica.api.IIntegratorListener;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IRandom;
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.IAtom;
+import etomica.box.Box;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.modules.catalysis.InteractionTracker.CatalysisAgent;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.units.Kelvin;
+import etomica.util.random.IRandom;
 
-public class ReactionManagerCO implements IIntegratorListener {
+public class ReactionManagerCO implements IntegratorListener {
 
     public ReactionManagerCO(Catalysis sim) {
         this.sim = sim;
     }
     
-    public void integratorInitialized(IIntegratorEvent e) {
+    public void integratorInitialized(IntegratorEvent e) {
     }
 
-    public void integratorStepFinished(IIntegratorEvent e) {
-        IBox box = sim.getBox(0);
+    public void integratorStepFinished(IntegratorEvent e) {
+        Box box = sim.getBox(0);
         double temperature = sim.integrator.getTemperature();
         IRandom random = sim.getRandom();
         AtomLeafAgentManager agentManager = sim.interactionTracker.getAgentManager();
@@ -53,7 +53,7 @@ public class ReactionManagerCO implements IIntegratorListener {
         }
    }
 
-    public void integratorStepStarted(IIntegratorEvent e) {
+    public void integratorStepStarted(IntegratorEvent e) {
     }
 
     public int getnReactCO() {

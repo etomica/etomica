@@ -4,20 +4,9 @@
 
 package etomica.models.nitrogen;
 
-import java.util.Arrays;
-
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IMolecule;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.atom.MoleculeAgentManager;
-import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -26,6 +15,11 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculePositionDefinition;
+import etomica.molecule.MoleculeAgentManager;
+import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
+import etomica.molecule.MoleculePositionGeometricCenter;
 import etomica.nbr.cell.molecule.NeighborCellManagerMolecular;
 import etomica.nbr.list.molecule.BoxAgentSourceCellManagerListMolecular;
 import etomica.nbr.list.molecule.NeighborCellManagerListMolecular;
@@ -33,16 +27,17 @@ import etomica.nbr.list.molecule.NeighborListManagerSlantyMolecular;
 import etomica.nbr.list.molecule.PotentialMasterListMolecular;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MeterHarmonicEnergy;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationEnergySumBigDecimal;
 import etomica.potential.PotentialCalculationTorqueSum;
 import etomica.simulation.Simulation;
-import etomica.space.Boundary;
-import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.ISpace;
-import etomica.space.Tensor;
+import etomica.space.*;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.units.Degree;
+
+import java.util.Arrays;
 
 
 
@@ -55,7 +50,7 @@ import etomica.units.Degree;
  */
 public class MinimizationBetaNitrogenModel extends Simulation{
 
-	public MinimizationBetaNitrogenModel(ISpace space, int[] nC, double density) {
+	public MinimizationBetaNitrogenModel(Space space, int[] nC, double density) {
 		super(space);
 		this.space = space;
 		
@@ -79,7 +74,7 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 		box.setNMolecules(species, numMolecule);		
 		int [] nCells = new int[]{1,1,1};
 		
-		IVector[] boxDim = new IVector[3];
+		Vector[] boxDim = new Vector[3];
 		boxDim[0] = space.makeVector(new double[]{nC[0]*a, 0, 0});
 		boxDim[1] = space.makeVector(new double[]{-nC[1]*a*Math.cos(Degree.UNIT.toSim(60)), nC[1]*a*Math.sin(Degree.UNIT.toSim(60)), 0});
 		boxDim[2] = space.makeVector(new double[]{0, 0, nC[2]*c});
@@ -213,17 +208,17 @@ public class MinimizationBetaNitrogenModel extends Simulation{
         pcForce.setMoleculeAgentManager(molAgentManager);
         double[] d = new double[16];
         MoleculeActionTranslateTo translator = new MoleculeActionTranslateTo(sim.space);
-        AtomPositionGeometricCenter pos = new AtomPositionGeometricCenter(sim.space);
+        MoleculePositionGeometricCenter pos = new MoleculePositionGeometricCenter(sim.space);
         translator.setAtomPositionDefinition(pos);
-        IVectorMutable p = sim.space.makeVector();
+        Vector p = sim.space.makeVector();
         int nA = 16;
         double step1 = 0;
         double[] x0 = new double[12];
         
-        IVectorMutable[] orient0 = new IVectorMutable[4];
-        IVectorMutable[] orientf = new IVectorMutable[4];
-        IVectorMutable[] torques = new IVectorMutable[4];
-        IVectorMutable[] axes = new IVectorMutable[4];
+        Vector[] orient0 = new Vector[4];
+        Vector[] orientf = new Vector[4];
+        Vector[] torques = new Vector[4];
+        Vector[] axes = new Vector[4];
         for (int i=0; i<4; i++) {
             axes[i] = sim.space.makeVector();
             torques[i] = sim.space.makeVector();
@@ -245,7 +240,7 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 		            IMolecule iMol = sim.box.getMoleculeList().getMolecule(i<2 ? i : i+(nA-2));
 		            IteratorDirective id = new IteratorDirective(null, iMol);
 		            sim.potentialMaster.calculate(sim.box, id, pcForce);
-		            IVector f = ((IntegratorRigidIterative.MoleculeAgent)molAgentManager.getAgent(iMol)).force;
+		            Vector f = ((IntegratorRigidIterative.MoleculeAgent)molAgentManager.getAgent(iMol)).force;
 		            for (int j=0; j<3; j++) {
 		                g[i*3+j] = -f.getX(j);
 		                t += g[i*3+j]*g[i*3+j];
@@ -439,12 +434,12 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 
 	}
 	
-    protected static void doTransform(IMolecule molecule, IAtomPositionDefinition posDef, Tensor rotationTensor) {
+    protected static void doTransform(IMolecule molecule, IMoleculePositionDefinition posDef, Tensor rotationTensor) {
         IAtomList childList = molecule.getChildList();
-        IVector com = posDef.position(molecule);
+        Vector com = posDef.position(molecule);
         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
             IAtom a = childList.getAtom(iChild);
-            IVectorMutable r = a.getPosition();
+            Vector r = a.getPosition();
             r.ME(com);
             rotationTensor.transform(r);
             r.PE(com);
@@ -453,7 +448,7 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 
 
 	protected Box box;
-	protected ISpace space;
+	protected Space space;
 	protected PotentialMasterListMolecular potentialMaster;
 	protected P2Nitrogen potential;
 	protected CoordinateDefinitionNitrogen coordinateDef;

@@ -4,6 +4,9 @@
 
 package etomica.units;
 
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Force;
+
 public class Tester {
 
 	/**

@@ -8,12 +8,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.space.Vector;
+import etomica.space.Space;
 
 /**
  * Dumps a box's configuration to a file.  The coordinates are serialized to a
@@ -23,7 +22,7 @@ import etomica.space.ISpace;
  */
 public class WriteConfigurationBinary implements IAction {
 
-	public WriteConfigurationBinary(ISpace space) {
+	public WriteConfigurationBinary(Space space) {
         writePosition = space.makeVector();
         setDoApplyPBC(true);
 	}
@@ -50,14 +49,14 @@ public class WriteConfigurationBinary implements IAction {
     /**
      * Sets the box whose atom coordinates get written to the file.
      */
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
 
     /**
      * Returns the box whose atom coordinates get written to the file.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
 
@@ -90,7 +89,7 @@ public class WriteConfigurationBinary implements IAction {
             IAtom a = leafList.getAtom(iLeaf);
             writePosition.E(a.getPosition());
             if (doApplyPBC) {
-                IVector shift = box.getBoundary().centralImage(writePosition);
+                Vector shift = box.getBoundary().centralImage(writePosition);
                 if (!shift.isZero()) {
                     writePosition.PE(shift);
                 }
@@ -113,8 +112,8 @@ public class WriteConfigurationBinary implements IAction {
     }
 
     private String confName, fileName;
-    private IBox box;
+    private Box box;
     private boolean doApplyPBC;
-    protected final IVectorMutable writePosition;
+    protected final Vector writePosition;
 
 }

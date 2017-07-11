@@ -12,7 +12,6 @@ import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 
@@ -64,7 +63,7 @@ public class HarmonicCrystalSoftSphereHCP {
         
         Basis basis = new BasisBigCell(Space.getInstance(3), basisHCP, new int[]{nC,nC,nC});
 
-        ISpace sp = Space3D.getInstance();
+        Space sp = Space3D.getInstance();
         final Potential2SoftSpherical potential = new P2SoftSphere(sp, 1.0, 1.0, exponent);
         double rc = 15; //nC*a*0.495;//15; //(maxLatticeShell*2)*nC*Math.pow(4.0/rho, 1.0/3.0)*0.495;
         System.out.println("truncation at "+rc);

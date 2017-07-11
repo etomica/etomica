@@ -5,8 +5,8 @@
 
 package etomica.models.water;
 
-import etomica.atom.AtomPositionCOM;
-import etomica.space.ISpace;
+import etomica.molecule.MoleculePositionCOM;
+import etomica.space.Space;
 import etomica.units.Calorie;
 import etomica.units.Electron;
 import etomica.units.Mole;
@@ -25,11 +25,11 @@ public class P2WaterTIP4P extends P2Water4P {
     public static double qH = Electron.UNIT.toSim(0.52);
     
     
-    public P2WaterTIP4P(ISpace space) {
+    public P2WaterTIP4P(Space space) {
     	this(space, Double.POSITIVE_INFINITY);
     }
-    public P2WaterTIP4P(ISpace space, double rCut) {
-	    super(space, s, e, qH, rCut, new AtomPositionCOM(space));
+    public P2WaterTIP4P(Space space, double rCut) {
+	    super(space, s, e, qH, rCut, new MoleculePositionCOM(space));
     }
     
     public double getRange() {

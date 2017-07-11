@@ -9,8 +9,8 @@ import etomica.data.DataProcessor;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataInfoFactory;
-import etomica.units.Null;
-import etomica.util.Function;
+import etomica.units.dimensions.Null;
+import etomica.math.function.Function;
 
 /**
  * DataProcessor that returns the Boltzmann factor of the incoming energy.

@@ -4,13 +4,16 @@
 
 package etomica.potential;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
+import etomica.box.Box;
+import etomica.space.Vector;
+import etomica.space.Space;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Null;
 
 /**
  * Hard core with an attractive tail that goes to zero linearly with r.
@@ -20,11 +23,11 @@ import etomica.space.ISpace;
 
 public class P2TriangleWell extends Potential2 {
 
-    public P2TriangleWell(ISpace space) {
+    public P2TriangleWell(Space space) {
         this(space, 1.0, 2.0, 1.0);
     }
   
-    public P2TriangleWell(ISpace space, double coreDiameter, double lambda, double epsilon) {
+    public P2TriangleWell(Space space, double coreDiameter, double lambda, double epsilon) {
         super(space);
         setCoreDiameter(coreDiameter);
         setLambda(lambda);
@@ -55,7 +58,7 @@ public class P2TriangleWell extends Potential2 {
  
 
     // what could call this?
-    public IVector force(IAtomList pair){
+    public Vector force(IAtomList pair){
         
         IAtom atom0 = pair.getAtom(0);
         IAtom atom1 = pair.getAtom(1);
@@ -82,8 +85,8 @@ public class P2TriangleWell extends Potential2 {
         wellDiameterSquared = wellDiameter*wellDiameter;
         constant = epsilon/(coreDiameter*(1.0 - lambda));
     }
-    public final etomica.units.Dimension getCoreDiameterDimension() {
-        return etomica.units.Length.DIMENSION;
+    public final Dimension getCoreDiameterDimension() {
+        return Length.DIMENSION;
     }
     
     public double getRange() {
@@ -97,8 +100,8 @@ public class P2TriangleWell extends Potential2 {
         wellDiameterSquared = wellDiameter*wellDiameter;
         constant = epsilon/(coreDiameter*(1.0 - lambda));
     }
-    public final etomica.units.Dimension getLambdaDimension() {
-        return etomica.units.Null.DIMENSION;
+    public final Dimension getLambdaDimension() {
+        return Null.DIMENSION;
     }
 
     public double getEpsilon() {return epsilon;}
@@ -106,11 +109,11 @@ public class P2TriangleWell extends Potential2 {
         epsilon = eps;
         constant = epsilon/(coreDiameter*(1.0 - lambda));
     }
-    public final etomica.units.Dimension getEpsilonDimension() {
-        return etomica.units.Energy.DIMENSION;
+    public final Dimension getEpsilonDimension() {
+        return Energy.DIMENSION;
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 
@@ -120,9 +123,8 @@ public class P2TriangleWell extends Potential2 {
     private double lambda; //wellDiameter = coreDiameter * lambda ;lambda is well width
     private double epsilon;
     private double constant;
-    private final IVectorMutable force;
-    private final IVectorMutable dr;
-    private IBoundary boundary;
+    private final Vector force;
+    private final Vector dr;
+    private Boundary boundary;
 }
 
-  

@@ -4,17 +4,17 @@
 
 package etomica.action;
 
+import Jama.EigenvalueDecomposition;
+import Jama.Matrix;
+import etomica.box.Box;
+import etomica.math.numerical.CalcGradientDifferentiable;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.PotentialMaster;
+import etomica.space.Space;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
-
-import Jama.EigenvalueDecomposition;
-import Jama.Matrix;
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.space.ISpace;
-import etomica.util.numerical.CalcGradientDifferentiable;
 
 /**
  * Calculates the eigenvalues of an NxN matrix.  Assumes these are actually changes in
@@ -51,7 +51,7 @@ public class CalcVibrationalModes implements IAction, Serializable {
        
         }
 
-    public void setup(IBox aBox, IPotentialMaster aPotentialMaster, IMoleculeList movableSet, ISpace _space){
+    public void setup(Box aBox, PotentialMaster aPotentialMaster, IMoleculeList movableSet, Space _space){
         ms = movableSet; 
         mass = ms.getMolecule(0).getType().getAtomType(0).getMass();
         cgd = new CalcGradientDifferentiable(aBox, aPotentialMaster, ms, _space);

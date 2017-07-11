@@ -4,8 +4,8 @@
 
 package etomica.association;
 
-import etomica.api.IMolecule;
-import etomica.atom.MoleculeArrayList;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculeArrayList;
 
 /**
  * Interface for a class that is capable of populating a list of molecules in an

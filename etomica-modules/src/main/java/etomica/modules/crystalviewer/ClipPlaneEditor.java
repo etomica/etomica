@@ -10,7 +10,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
-import etomica.api.ISimulation;
+import etomica.simulation.Simulation;
 import etomica.data.types.DataDouble;
 import etomica.graphics.DeviceBox;
 import etomica.graphics.DeviceCheckBox;
@@ -22,7 +22,7 @@ import etomica.lattice.LatticePlane;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
 import etomica.space3d.Vector3D;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * Class that produces a panel with controls that presence, orientation
@@ -74,7 +74,7 @@ public class ClipPlaneEditor {
 	private final int MILLER_INDEX_MIN = -10;
 	private final int MILLER_INDEX_MAX = 10;
 
-    public ClipPlaneEditor(ISimulation sim, final LatticePlane latticePlane, final DisplayBox display) {
+    public ClipPlaneEditor(Simulation sim, final LatticePlane latticePlane, final DisplayBox display) {
 
         this.latticePlane = latticePlane;
         this.display = display;
@@ -277,7 +277,7 @@ public class ClipPlaneEditor {
                 case PLANE_SELECTION_SLIDER: return latticePlane.getPosition();
             }
         }
-        public etomica.units.Dimension getDimension() {return Null.DIMENSION;}
+        public etomica.units.dimensions.Dimension getDimension() {return Null.DIMENSION;}
     }
     
     class ClipPlaneEditorComponentListener implements java.awt.event.ComponentListener {

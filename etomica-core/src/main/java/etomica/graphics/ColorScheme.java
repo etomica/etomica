@@ -3,13 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.graphics;
-import java.awt.Color;
 
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.modifier.ModifierGeneral;
 import etomica.nbr.list.PotentialMasterList;
+
+import java.awt.*;
 
 /**
  * Class that defines the algorithm used to determine atoms colors when drawn to DisplayBox.
@@ -56,7 +57,7 @@ public abstract class ColorScheme {
       IAction repaintAction = simGraphic.getPaintAction(sim.box);
 
       DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
-      nSelector.setResetAction(new SimulationRestart(sim, sp, sim.getController()));
+        nSelector.setResetAction(new SimulationRestart(sim));
       nSelector.setSpecies(sim.species);
       nSelector.setBox(sim.box);
       nSelector.setPostAction(repaintAction);

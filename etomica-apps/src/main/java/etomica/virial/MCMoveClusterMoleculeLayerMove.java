@@ -4,14 +4,11 @@
 
 package etomica.virial;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
-import etomica.api.IVectorMutable;
-import etomica.integrator.mcmove.MCMoveMolecule;
-import etomica.space.ISpace;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
 
 /**
  * Monte Carlo molecule-displacement from 1 layer to the other layer trial move for cluster integrals.
@@ -25,8 +22,8 @@ import etomica.space.ISpace;
  */
 public class MCMoveClusterMoleculeLayerMove extends MCMoveClusterMolecule {
     private static final long serialVersionUID = 1L;
-    protected final IVectorMutable vector1 , vector2 , crossVector; //crossVector = vector1 * vector2
-    public MCMoveClusterMoleculeLayerMove(ISimulation sim, ISpace _space) {
+    protected final Vector vector1 , vector2 , crossVector; //crossVector = vector1 * vector2
+    public MCMoveClusterMoleculeLayerMove(Simulation sim, Space _space) {
     	super (sim.getRandom(), _space, 1.0); //superclass parameter stepsize
     	
     	vector1     =  space.makeVector(); // Initialize 
@@ -54,9 +51,9 @@ public class MCMoveClusterMoleculeLayerMove extends MCMoveClusterMolecule {
         IAtom atom1 = atoms.getAtom(1);
         IAtom atom2 = atoms.getAtom(2);
       //public IVectorMutable getPosition();
-        IVectorMutable position0 = atom0.getPosition();
-        IVectorMutable position1 = atom1.getPosition();
-        IVectorMutable position2 = atom2.getPosition();
+        Vector position0 = atom0.getPosition();
+        Vector position1 = atom1.getPosition();
+        Vector position2 = atom2.getPosition();
         vector1.Ev1Mv2(position1, position0);
         vector2.Ev1Mv2(position2, position1);
         crossVector.E(vector1);

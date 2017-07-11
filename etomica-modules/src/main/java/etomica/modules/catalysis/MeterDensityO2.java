@@ -4,22 +4,22 @@
 
 package etomica.modules.catalysis;
 
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.IAtom;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.modules.catalysis.InteractionTracker.CatalysisAgent;
-import etomica.units.CompoundDimension;
-import etomica.units.Dimension;
-import etomica.units.Quantity;
-import etomica.units.Volume;
+import etomica.molecule.IMoleculeList;
+import etomica.species.ISpecies;
+import etomica.units.dimensions.CompoundDimension;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Quantity;
+import etomica.units.dimensions.Volume;
 
 public class MeterDensityO2 extends DataSourceScalar {
 
-    public MeterDensityO2(IBox box, ISpecies speciesO, AtomLeafAgentManager interactionAgentManager) {
-        super("Density", new CompoundDimension(new Dimension[]{Quantity.DIMENSION, Volume.DIMENSION}, new double[]{-1,1}));
+    public MeterDensityO2(Box box, ISpecies speciesO, AtomLeafAgentManager interactionAgentManager) {
+        super("Density", new CompoundDimension(new Dimension[]{Quantity.DIMENSION, Volume.DIMENSION}, new double[]{+1,-1}));
         this.box = box;
         this.speciesO = speciesO;
         this.interactionAgentManager= interactionAgentManager;
@@ -38,7 +38,7 @@ public class MeterDensityO2 extends DataSourceScalar {
     }
     
     private static final long serialVersionUID = 1L;
-    protected final IBox box;
+    protected final Box box;
     protected final ISpecies speciesO;
     protected final AtomLeafAgentManager interactionAgentManager;
 }

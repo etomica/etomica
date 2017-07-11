@@ -4,6 +4,9 @@
 
 package etomica.units;
 
+import etomica.units.dimensions.CompoundDimension;
+import etomica.units.dimensions.Dimension;
+
 public class CompoundUnit implements Unit {
 
     public CompoundUnit(Unit[] units, double[] exponents) {

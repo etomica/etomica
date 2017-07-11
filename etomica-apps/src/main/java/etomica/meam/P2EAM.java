@@ -1,13 +1,14 @@
 package etomica.meam;
 
-import etomica.api.*;
-import etomica.atom.iterator.IteratorDirective;
-import etomica.potential.Potential2;
-import etomica.potential.PotentialCalculationEnergySum;
-import etomica.potential.PotentialMaster;
-import etomica.potential.PotentialSoft;
-import etomica.space.ISpace;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListenerMD;
+import etomica.potential.*;
+import etomica.space.Boundary;
+import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 
 /**
  * EAM (Embedded Atom Method) potential that pretends to be a pair potential.
@@ -29,14 +30,14 @@ import etomica.space.Tensor;
 public class P2EAM extends Potential2 implements PotentialSoft {
     
     protected double n2, m2, eps, a, a2, Ceps, rc12, rc22;
-    protected IBoundary boundary;
-    protected final IVectorMutable dr;
-    protected IVectorMutable[] gradient;
-    protected IVectorMutable rhograd;
+    protected Boundary boundary;
+    protected final Vector dr;
+    protected Vector[] gradient;
+    protected Vector rhograd;
     protected double[] rho;
     protected boolean energyDisabled = false;
 
-    public P2EAM(ISpace space, double n, double m, double eps, double a, double C, double rc1, double rc2) {
+    public P2EAM(Space space, double n, double m, double eps, double a, double C, double rc1, double rc2) {
         super(space);
 
         n2 = 0.5 * n;
@@ -48,7 +49,7 @@ public class P2EAM extends Potential2 implements PotentialSoft {
         rc12 = rc1 * rc1;
         rc22 = rc2 * rc2;
         dr = space.makeVector();
-        gradient = new IVectorMutable[2];
+        gradient = new Vector[2];
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();
         rhograd = space.makeVector();
@@ -85,8 +86,8 @@ public class P2EAM extends Potential2 implements PotentialSoft {
     }
 
     public double energy(IAtomList atoms) {
-        IVector pos0 = atoms.getAtom(0).getPosition();
-        IVector pos1 = atoms.getAtom(1).getPosition();
+        Vector pos0 = atoms.getAtom(0).getPosition();
+        Vector pos1 = atoms.getAtom(1).getPosition();
         dr.Ev1Mv2(pos1, pos0);
         boundary.nearestImage(dr);
         double r2 = dr.squared();
@@ -111,7 +112,7 @@ public class P2EAM extends Potential2 implements PotentialSoft {
         return sum1;
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
         if (rho.length != box.getLeafList().getAtomCount()) {
             rho = new double[box.getLeafList().getAtomCount()];
@@ -122,10 +123,10 @@ public class P2EAM extends Potential2 implements PotentialSoft {
         throw new RuntimeException("implement me");
     }
 
-    public IVector[] gradient(IAtomList atoms) {
+    public Vector[] gradient(IAtomList atoms) {
 
-        IVector pos0 = atoms.getAtom(0).getPosition();
-        IVector pos1 = atoms.getAtom(1).getPosition();
+        Vector pos0 = atoms.getAtom(0).getPosition();
+        Vector pos1 = atoms.getAtom(1).getPosition();
         dr.Ev1Mv2(pos1, pos0);
         boundary.nearestImage(dr);
         double r2 = dr.squared();
@@ -154,7 +155,7 @@ public class P2EAM extends Potential2 implements PotentialSoft {
         return gradient;
     }
 
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         throw new RuntimeException("not implemented.  use gradient");
     }
     
@@ -166,13 +167,13 @@ public class P2EAM extends Potential2 implements PotentialSoft {
      * @param box
      * @return the listener
      */
-    public IIntegratorListenerMD makeIntegratorListener(PotentialMaster potentialMaster, IBox box) {
+    public IntegratorListenerMD makeIntegratorListener(PotentialMaster potentialMaster, Box box) {
         final P2EAM p2 = this;
-        return new IIntegratorListenerMD() {
+        return new IntegratorListenerMD() {
             PotentialCalculationEnergySum pcEnergy = new PotentialCalculationEnergySum();
             IteratorDirective id = new IteratorDirective();
             @Override
-            public void integratorForcePrecomputed(IIntegratorEvent e) {
+            public void integratorForcePrecomputed(IntegratorEvent e) {
                 p2.disableEnergy();
                 p2.reset();
                 potentialMaster.calculate(box, id, pcEnergy);
@@ -181,16 +182,16 @@ public class P2EAM extends Potential2 implements PotentialSoft {
             }
         
             @Override
-            public void integratorForceComputed(IIntegratorEvent e) {}
+            public void integratorForceComputed(IntegratorEvent e) {}
         
             @Override
-            public void integratorInitialized(IIntegratorEvent e) {}
+            public void integratorInitialized(IntegratorEvent e) {}
         
             @Override
-            public void integratorStepStarted(IIntegratorEvent e) {}
+            public void integratorStepStarted(IntegratorEvent e) {}
         
             @Override
-            public void integratorStepFinished(IIntegratorEvent e) {}
+            public void integratorStepFinished(IntegratorEvent e) {}
         };
     }
 }

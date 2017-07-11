@@ -4,11 +4,11 @@
 
 package etomica.association;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.space.Boundary;
-import etomica.space.ISpace;
-import etomica.units.Fraction;
+import etomica.space.Space;
+import etomica.units.dimensions.Fraction;
 
 /**
  * Meter for measurement of species mole fraction within a specified subvolume
@@ -17,7 +17,7 @@ public class MeterDimerMoleFraction extends DataSourceScalar {
 	
     private AssociationManager associationManager;
 
-    public MeterDimerMoleFraction(ISpace space, IBox _box) {
+    public MeterDimerMoleFraction(Space space, Box _box) {
         super("Dimer Mole Fraction",Fraction.DIMENSION);
         if(!(_box.getBoundary() instanceof Boundary)) {
         	throw new RuntimeException("The box boundary must be a subclass of etomica.Space.Boundary");
@@ -41,18 +41,18 @@ public class MeterDimerMoleFraction extends DataSourceScalar {
     /**
      * @return Returns the box.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     /**
      * @param box The box to set.
      */
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
     }
 
 
     private static final long serialVersionUID = 1L;
-    private IBox box;
+    private Box box;
 }

@@ -1,18 +1,18 @@
 package etomica.potential;
 
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IVector;
-import etomica.atom.DipoleSource;
-import etomica.space.ISpace;
+import etomica.box.Box;
+import etomica.molecule.DipoleSource;
+import etomica.molecule.IMoleculeList;
+import etomica.space.Space;
+import etomica.space.Vector;
 
 public class P1ExternalField extends PotentialMolecular {
 
 	protected DipoleSource dipoleSource;
-	protected IVector externalField;
+	protected Vector externalField;
 	
 	
-	public P1ExternalField( ISpace space) {
+	public P1ExternalField( Space space) {
 		super(1,space);
 	}
 
@@ -20,19 +20,19 @@ public class P1ExternalField extends PotentialMolecular {
 		return Double.POSITIVE_INFINITY;
 	}
 	
-	public void setExternalField(IVector newExternalField){
+	public void setExternalField(Vector newExternalField){
 		externalField = newExternalField;
 	}
 	
 
 	public double energy(IMoleculeList molecules) {
-		IVector dr = dipoleSource.getDipole(molecules.getMolecule(0));
+		Vector dr = dipoleSource.getDipole(molecules.getMolecule(0));
 		double energy = -externalField.dot(dr);
 //		System.out.println("E = " + externalField + " dipole = " + dr );
 		return energy;
 	}
 
-	public void setBox(IBox box) {
+	public void setBox(Box box) {
 		
 	}
 	

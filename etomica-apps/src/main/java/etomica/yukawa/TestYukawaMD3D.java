@@ -4,13 +4,10 @@
 
 package etomica.yukawa;
 
-import java.awt.Color;
-
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.ColorSchemeByType;
@@ -25,6 +22,8 @@ import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 
+import java.awt.*;
+
 /**
  * A Yukawa MD Simulation
  * 
@@ -38,7 +37,7 @@ public class TestYukawaMD3D extends Simulation{
 
     private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "Test Yukawa MD3D";
-    public final IBox box;
+    public final Box box;
 	public final IntegratorVelocityVerlet integrator;
 	public final SpeciesSpheresMono species;
 	public final P2Yukawa potential;
@@ -80,9 +79,9 @@ public class TestYukawaMD3D extends Simulation{
 		P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
 		potentialMaster.setCellRange(3);
 		potentialMaster.setRange(potentialTruncated.getRange()*1.2);
-		potentialMaster.addPotential(potentialTruncated, new IAtomType[] {species.getLeafType(), species.getLeafType()});
-		
-		new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
+        potentialMaster.addPotential(potentialTruncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
+
+        new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
 		integrator.setBox(box);
 	}
 	
@@ -92,8 +91,8 @@ public class TestYukawaMD3D extends Simulation{
 		IAction repaintAction = simGraphic.getPaintAction(sim.box);
 
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
-        nSelector.setResetAction(new SimulationRestart(sim, sim.space, sim.getController()));
-        nSelector.setPostAction(repaintAction);
+		nSelector.setResetAction(new SimulationRestart(sim));
+		nSelector.setPostAction(repaintAction);
         nSelector.setSpecies(sim.species);
         nSelector.setBox(sim.box);
 		simGraphic.add(nSelector);

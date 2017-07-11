@@ -4,10 +4,10 @@
 
 package etomica.modifier;
 
-import etomica.api.IBox;
-import etomica.api.ISpecies;
-import etomica.units.Dimension;
-import etomica.units.Quantity;
+import etomica.box.Box;
+import etomica.species.ISpecies;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Quantity;
 
 /**
  * Modifier class that enables change of the number of molecules of a particular species
@@ -15,7 +15,7 @@ import etomica.units.Quantity;
  */
 public class ModifierNMolecule implements Modifier, java.io.Serializable {
 
-    public ModifierNMolecule(IBox box, ISpecies species) {
+    public ModifierNMolecule(Box box, ISpecies species) {
         this.box = box;
         this.species = species;
     }
@@ -38,6 +38,6 @@ public class ModifierNMolecule implements Modifier, java.io.Serializable {
     }
     
     private static final long serialVersionUID = 1L;
-    protected final IBox box;
+    protected final Box box;
     protected final ISpecies species;
 }

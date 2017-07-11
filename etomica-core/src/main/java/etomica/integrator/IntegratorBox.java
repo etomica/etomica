@@ -4,14 +4,14 @@
 
 package etomica.integrator;
 
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
+import etomica.box.Box;
+import etomica.potential.PotentialMaster;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.potential.PotentialCalculationEnergySum;
-import etomica.units.Dimension;
-import etomica.units.Temperature;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Temperature;
 
 /**
  * Integrator implements the algorithm used to move the atoms around and
@@ -25,14 +25,14 @@ import etomica.units.Temperature;
 
 public abstract class IntegratorBox extends Integrator {
 
-    protected IBox box;
+    protected Box box;
     protected double temperature;
     protected boolean isothermal = false;
     protected DataSourceScalar meterPE;
     protected double currentPotentialEnergy;
-    protected final IPotentialMaster potentialMaster;
+    protected final PotentialMaster potentialMaster;
 
-    public IntegratorBox(IPotentialMaster potentialMaster, double temperature) {
+    public IntegratorBox(PotentialMaster potentialMaster, double temperature) {
         super();
         this.potentialMaster = potentialMaster;
         if (potentialMaster != null) {
@@ -44,7 +44,7 @@ public abstract class IntegratorBox extends Integrator {
     /**
      * @return Returns the PotentialMaster.
      */
-    public IPotentialMaster getPotentialMaster() {
+    public PotentialMaster getPotentialMaster() {
         return potentialMaster;
     }
 
@@ -108,17 +108,16 @@ public abstract class IntegratorBox extends Integrator {
 	/**
 	 * Performs activities needed to set up integrator to work on given box.
 	 * 
-	 * @return true if the box was successfully added to the integrator; false
-	 *         otherwise
+	 * @param box the Box to set
 	 */
-	public void setBox(IBox p) {
-	    box = p;
+	public void setBox(Box box) {
+	    this.box = box;
 	    if(meterPE instanceof MeterPotentialEnergy){
-	        ((MeterPotentialEnergy)meterPE).setBox(p);
+	        ((MeterPotentialEnergy)meterPE).setBox(box);
 	    }
 	}
 
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
 

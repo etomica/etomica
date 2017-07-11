@@ -4,7 +4,7 @@
 
 package etomica.potential;
 
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 
@@ -13,7 +13,7 @@ import etomica.units.Kelvin;
  */
 public class P2CO2EMP1 extends P2CO2EMP {
 
-    public P2CO2EMP1(ISpace space) {
+    public P2CO2EMP1(Space space) {
         super(space, 2.785, 2.921, 3.064, Kelvin.UNIT.toSim(28.999), Kelvin.UNIT.toSim(49.060), Kelvin.UNIT.toSim(82.9997), Electron.UNIT.toSim(0.6645));
     }
 

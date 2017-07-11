@@ -4,15 +4,14 @@
 
 package etomica.models.OPLS;
 
-import etomica.api.IAtomType;
+import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.potential.P2ElectrostaticWithHardCore;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialGroup;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
-import etomica.util.Constants;
 
 /**
  * PotentialHelper class of acetic acid using improved OPLS (or TraPPE) united atom model
@@ -23,7 +22,7 @@ import etomica.util.Constants;
 public class AceticAcidModPotentialHelper {
 	
 	
-	public static void initPotential(ISpace space, SpeciesAceticAcid species, PotentialGroup p) {
+	public static void initPotential(Space space, SpeciesAceticAcid species, PotentialGroup p) {
 		double epsilonCH3 = Kelvin.UNIT.toSim(98.0); 
 		double epsilonC = Kelvin.UNIT.toSim(41.0);
 		double epsilonDBO = Kelvin.UNIT.toSim(79.0);
@@ -169,81 +168,81 @@ public class AceticAcidModPotentialHelper {
         uHH.setCharge1(qH);
         uHH.setCharge2(qH);
         uHH.setSigma(0);
-        
-		IAtomType typeCH3  = species.getCH3Type();
-		IAtomType typeC  = species.getCType();
-		IAtomType typeDBO = species.getDBOType();
-		IAtomType typeSBO = species.getSBOType(); 
-		IAtomType typeH = species.getHType();
 
-		
-		p.addPotential(uLJCH3CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeCH3}));
-		
-		p.addPotential(uLJCH3C,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeC}));
-		p.addPotential(uLJCH3C,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC, typeCH3}));
-		
-		p.addPotential(uLJCH3DBO,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeDBO}));
-		p.addPotential(uLJCH3DBO,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeDBO, typeCH3}));
-		
-		p.addPotential(uLJCH3SBO,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeSBO}));
-		p.addPotential(uLJCH3SBO,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeSBO, typeCH3}));
-		
-		p.addPotential(uLJCC, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC, typeC}));
-		
-		p.addPotential(uLJCDBO, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC, typeDBO}));
-		p.addPotential(uLJCDBO, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeDBO, typeC}));
-		
-		p.addPotential(uLJCSBO, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC, typeSBO}));
-		p.addPotential(uLJCSBO, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeSBO, typeC}));
-		
-		p.addPotential(uLJDBODBO, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeDBO, typeDBO}));
-		
-		p.addPotential(uLJDBOSBO, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeDBO, typeSBO}));
-		p.addPotential(uLJDBOSBO, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeSBO, typeDBO}));
-		
-		p.addPotential(uLJSBOSBO, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeSBO, typeSBO}));
-		        
-		p.addPotential(uCH3CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeCH3}));
-		
-		p.addPotential(uCH3C,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeC}));
-		p.addPotential(uCH3C,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC, typeCH3}));
-		
-		p.addPotential(uCH3DBO,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeDBO}));
-		p.addPotential(uCH3DBO,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeDBO, typeCH3}));
-		
-		p.addPotential(uCH3SBO,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeSBO}));
-		p.addPotential(uCH3SBO,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeSBO, typeCH3}));
-	         
-		p.addPotential(uCH3H,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeH}));
-		p.addPotential(uCH3H,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeH, typeCH3}));
-	         
-		p.addPotential(uCC,     ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC, typeC}));
-		
-		p.addPotential(uCDBO,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC, typeDBO}));
-		p.addPotential(uCDBO,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeDBO, typeC}));
-		
-		p.addPotential(uCSBO,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC, typeSBO}));
-		p.addPotential(uCSBO,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeSBO, typeC}));
-	         
-		p.addPotential(uCH,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC, typeH}));
-		p.addPotential(uCH,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeH, typeC}));
-		
-		p.addPotential(uDBODBO,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeDBO, typeDBO}));
-		
-		p.addPotential(uDBOSBO,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeDBO, typeSBO}));
-		p.addPotential(uDBOSBO,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeSBO, typeDBO}));
-	         
-		p.addPotential(uDBOH,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeDBO, typeH}));
-		p.addPotential(uDBOH,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeH, typeDBO}));
-		
-		p.addPotential(uSBOSBO,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeSBO, typeSBO}));
-        
-		p.addPotential(uSBOH,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeSBO, typeH}));
-		p.addPotential(uSBOH,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeH, typeSBO}));
-	         
-		p.addPotential(uHH,     ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeH,   typeH}));
-		
-	}
+        AtomType typeCH3 = species.getCH3Type();
+        AtomType typeC = species.getCType();
+        AtomType typeDBO = species.getDBOType();
+        AtomType typeSBO = species.getSBOType();
+        AtomType typeH = species.getHType();
+
+
+        p.addPotential(uLJCH3CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH3, typeCH3}));
+
+        p.addPotential(uLJCH3C, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH3, typeC}));
+        p.addPotential(uLJCH3C, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeCH3}));
+
+        p.addPotential(uLJCH3DBO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH3, typeDBO}));
+        p.addPotential(uLJCH3DBO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeDBO, typeCH3}));
+
+        p.addPotential(uLJCH3SBO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH3, typeSBO}));
+        p.addPotential(uLJCH3SBO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeSBO, typeCH3}));
+
+        p.addPotential(uLJCC, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeC}));
+
+        p.addPotential(uLJCDBO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeDBO}));
+        p.addPotential(uLJCDBO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeDBO, typeC}));
+
+        p.addPotential(uLJCSBO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeSBO}));
+        p.addPotential(uLJCSBO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeSBO, typeC}));
+
+        p.addPotential(uLJDBODBO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeDBO, typeDBO}));
+
+        p.addPotential(uLJDBOSBO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeDBO, typeSBO}));
+        p.addPotential(uLJDBOSBO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeSBO, typeDBO}));
+
+        p.addPotential(uLJSBOSBO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeSBO, typeSBO}));
+
+        p.addPotential(uCH3CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH3, typeCH3}));
+
+        p.addPotential(uCH3C, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH3, typeC}));
+        p.addPotential(uCH3C, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeCH3}));
+
+        p.addPotential(uCH3DBO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH3, typeDBO}));
+        p.addPotential(uCH3DBO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeDBO, typeCH3}));
+
+        p.addPotential(uCH3SBO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH3, typeSBO}));
+        p.addPotential(uCH3SBO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeSBO, typeCH3}));
+
+        p.addPotential(uCH3H, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH3, typeH}));
+        p.addPotential(uCH3H, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeH, typeCH3}));
+
+        p.addPotential(uCC, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeC}));
+
+        p.addPotential(uCDBO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeDBO}));
+        p.addPotential(uCDBO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeDBO, typeC}));
+
+        p.addPotential(uCSBO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeSBO}));
+        p.addPotential(uCSBO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeSBO, typeC}));
+
+        p.addPotential(uCH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeH}));
+        p.addPotential(uCH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeH, typeC}));
+
+        p.addPotential(uDBODBO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeDBO, typeDBO}));
+
+        p.addPotential(uDBOSBO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeDBO, typeSBO}));
+        p.addPotential(uDBOSBO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeSBO, typeDBO}));
+
+        p.addPotential(uDBOH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeDBO, typeH}));
+        p.addPotential(uDBOH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeH, typeDBO}));
+
+        p.addPotential(uSBOSBO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeSBO, typeSBO}));
+
+        p.addPotential(uSBOH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeSBO, typeH}));
+        p.addPotential(uSBOH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeH, typeSBO}));
+
+        p.addPotential(uHH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeH, typeH}));
+
+    }
 
 }
 

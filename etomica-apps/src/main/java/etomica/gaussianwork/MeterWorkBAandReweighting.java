@@ -18,11 +18,11 @@ import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.integrator.IntegratorBox;
 import etomica.potential.PotentialMaster;
-import etomica.units.Energy;
-import etomica.units.Null;
-import etomica.util.DoubleRange;
-import etomica.util.HistogramReweightedData;
-import etomica.util.HistogramSimple;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Null;
+import etomica.math.DoubleRange;
+import etomica.data.histogram.HistogramReweightedData;
+import etomica.data.histogram.HistogramSimple;
 
 /**
  * Meter used for overlap sampling in the B-sampled system.  The meter

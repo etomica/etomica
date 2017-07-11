@@ -4,9 +4,9 @@
 
 package etomica.atom;
 
-import etomica.api.IAtom;
-import etomica.api.IMolecule;
 import etomica.math.geometry.Shape;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculePositionDefinition;
 
 
 /**
@@ -54,7 +54,7 @@ public class AtomFilterInShape implements AtomFilter, java.io.Serializable {
     /**
      * @return Returns the positionDefinition.
      */
-    public IAtomPositionDefinition getPositionDefinition() {
+    public IMoleculePositionDefinition getPositionDefinition() {
         return positionDefinition;
     }
     /**
@@ -62,11 +62,11 @@ public class AtomFilterInShape implements AtomFilter, java.io.Serializable {
      * each atom's type will be used.
      * @param positionDefinition The positionDefinition to set.
      */
-    public void setPositionDefinition(IAtomPositionDefinition positionDefinition) {
+    public void setPositionDefinition(IMoleculePositionDefinition positionDefinition) {
         this.positionDefinition = positionDefinition;
     }
     
     private static final long serialVersionUID = 1L;
     private Shape shape;
-    private IAtomPositionDefinition positionDefinition;
+    private IMoleculePositionDefinition positionDefinition;
 }

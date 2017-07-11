@@ -4,9 +4,9 @@
 
 package etomica.modules.droplet;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
+import etomica.box.Box;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterStatic;
 import etomica.data.DataTag;
@@ -14,13 +14,13 @@ import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 public class MeterDeformation implements IEtomicaDataSource {
 
-    public MeterDeformation(ISpace space) {
+    public MeterDeformation(Space space) {
         data = new DataDoubleArray(2);
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("deformation", Null.DIMENSION, new int[]{2});
         tag = new DataTag();
@@ -37,11 +37,11 @@ public class MeterDeformation implements IEtomicaDataSource {
         setFilter(AtomFilterStatic.ACCEPT_ALL);
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
 
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
 
@@ -158,14 +158,14 @@ public class MeterDeformation implements IEtomicaDataSource {
         return tag;
     }
 
-    protected IBox box;
+    protected Box box;
     protected final DataDoubleArray data;
     protected final DataDoubleArray.DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
     protected final double[] f;
-    protected final IVectorMutable center;
-    protected final IVectorMutable dr;
-    protected final IVectorMutable rg;
+    protected final Vector center;
+    protected final Vector dr;
+    protected final Vector rg;
     protected final Tensor moment, workTensor;
     protected AtomFilter filter;
 }

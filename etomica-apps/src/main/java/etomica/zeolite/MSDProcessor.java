@@ -9,12 +9,12 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Vector;
+import etomica.space.Space;
 
 public class MSDProcessor {
 
-    public MSDProcessor(ISpace space, String inputFile, String outputFile){
+    public MSDProcessor(Space space, String inputFile, String outputFile){
         msdOutput = outputFile;
         msdInput = inputFile;
         try {
@@ -54,7 +54,7 @@ public class MSDProcessor {
             throw new RuntimeException("Couldn't shut down readers, caught IOException: " +e.getMessage());
         }
         
-        coordBlock1 = new IVectorMutable[numAtoms];
+        coordBlock1 = new Vector[numAtoms];
         coordVector2 = space.makeVector();
         
         for (int j=0; j<numAtoms; j++){
@@ -168,8 +168,8 @@ public class MSDProcessor {
         }
     }
     
-	private IVectorMutable [] coordBlock1;
-	private IVectorMutable coordVector2;
+	private Vector[] coordBlock1;
+	private Vector coordVector2;
 	private int numAtoms;
     private int numBlocks;
     private int deltaTmax;

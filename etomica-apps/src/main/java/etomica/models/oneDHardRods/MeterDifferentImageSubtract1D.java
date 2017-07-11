@@ -4,24 +4,15 @@
 
 package etomica.models.oneDHardRods;
 
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomArrayList;
+import etomica.util.random.IRandom;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.normalmode.CoordinateDefinition;
-import etomica.normalmode.CoordinateDefinitionLeaf;
-import etomica.normalmode.NormalModes;
-import etomica.normalmode.NormalModes1DHR;
-import etomica.normalmode.P2XOrder;
-import etomica.normalmode.WaveVectorFactory;
+import etomica.normalmode.*;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
@@ -29,8 +20,9 @@ import etomica.potential.Potential2HardSpherical;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
+import etomica.space.Vector;
 import etomica.species.SpeciesSpheresMono;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 
 /**
@@ -43,26 +35,25 @@ import etomica.units.Null;
  */
 public class MeterDifferentImageSubtract1D extends DataSourceScalar {
 
+    protected final IRandom random;
     public int nInsert, counter;
+    protected double temperature;
+    WaveVectorFactory waveVectorFactory;
     private MeterPotentialEnergy meterPE;
     private CoordinateDefinition cDef, simCDef;
     private int cDim, simCDim;
-    private IVectorMutable[] waveVectors, simWaveVectors;
+    private Vector[] waveVectors, simWaveVectors;
     private double[] simRealT, simImagT;
-    protected double temperature;
     private double[] newU;
     private double[] wvCoeff, simWVCoeff, sqrtWVC;
     private double[][][] eigenVectors, simEigenVectors;
     private double[][] simOmegaSquared;
-
-    protected final IRandom random;
-    private IBox box;
+    private Box box;
     private int numAtoms;
     private Boundary bdry;
     private NormalModes nm;
-    WaveVectorFactory waveVectorFactory;
     
-    public MeterDifferentImageSubtract1D(String string, /*IPotentialMaster potentialMaster,*/ 
+    public MeterDifferentImageSubtract1D(String string,
             int numSimAtoms, double density, Simulation sim,
             Primitive simPrimitive, Basis simBasis, CoordinateDefinition simCD,
             NormalModes simNM, double temp){
@@ -110,7 +101,7 @@ public class MeterDifferentImageSubtract1D extends DataSourceScalar {
         Potential2 potential = new P2HardSphere(sim.getSpace(), 1.0, true);
         potential = new P2XOrder(sim.getSpace(), (Potential2HardSpherical)potential);
         potential.setBox(box);
-        potentialMaster.addPotential(potential, new IAtomType[] {((SpeciesSpheresMono)sim.getSpecies(0)).getLeafType(), ((SpeciesSpheresMono)sim.getSpecies(0)).getLeafType()});
+        potentialMaster.addPotential(potential, new AtomType[]{((SpeciesSpheresMono) sim.getSpecies(0)).getLeafType(), ((SpeciesSpheresMono) sim.getSpecies(0)).getLeafType()});
         double neighborRange = 1.01/density;
         potentialMaster.setRange(neighborRange);
         //find neighbors now.  Don't hook up NeighborListManager since the

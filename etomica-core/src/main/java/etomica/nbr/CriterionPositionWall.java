@@ -4,18 +4,18 @@
 
 package etomica.nbr;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.ISimulation;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.simulation.Simulation;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.AtomSetSinglet;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentSourceAtomManager;
 import etomica.nbr.CriterionPositionWall.DoubleWrapper;
-import etomica.units.Dimension;
-import etomica.units.Length;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
 import etomica.util.Debug;
 
 /**
@@ -26,7 +26,7 @@ import etomica.util.Debug;
  */
 public class CriterionPositionWall implements NeighborCriterion, AgentSource<DoubleWrapper> {
 
-	public CriterionPositionWall(ISimulation sim) {
+	public CriterionPositionWall(Simulation sim) {
 		super();
 		this.interactionRange = Double.NaN;
         this.neighborRange = Double.NaN;
@@ -141,20 +141,20 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource<Dou
     }
 
 	public boolean needUpdate(IAtom atom) {
-        dr = Math.abs(atom.getPosition().getX(neighborDim) - ((DoubleWrapper)agentManager.getAgent(atom)).x);
+        dr = Math.abs(atom.getPosition().getX(neighborDim) - agentManager.getAgent(atom).x);
         if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.allAtoms(new AtomSetSinglet(atom))) {
             System.out.println("atom "+atom+" displacement "+dr+" "+atom.getPosition());
         }
 		if (Debug.ON && Debug.DEBUG_NOW && dr > rMaxSafe) {
 			System.out.println("atom "+atom+" exceeded safe limit ("+dr+" > "+rMaxSafe+")");
-			System.out.println("old position "+((DoubleWrapper)agentManager.getAgent(atom)).x);
+			System.out.println("old position "+ agentManager.getAgent(atom).x);
 			System.out.println("new position "+(atom).getPosition().getX(neighborDim));
             System.err.println("stop that");
 		}
 		return dr > displacementLimit;
 	}
 
-	public void setBox(IBox box) {
+	public void setBox(Box box) {
         boxSize = box.getBoundary().getBoxSize().getX(neighborDim);
         agentManager = boxAgentManager.getAgent(box);
 	}
@@ -191,11 +191,11 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource<Dou
 		agentManager.getAgent(atom).x = atom.getPosition().getX(neighborDim);
 	}
 
-    public DoubleWrapper makeAgent(IAtom atom, IBox agentBox) {
+    public DoubleWrapper makeAgent(IAtom atom, Box agentBox) {
         return new DoubleWrapper();
     }
     
-    public void releaseAgent(DoubleWrapper agent, IAtom atom, IBox agentBox) {}
+    public void releaseAgent(DoubleWrapper agent, IAtom atom, Box agentBox) {}
 
     protected static class DoubleWrapper {
         public double x;

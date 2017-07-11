@@ -4,10 +4,10 @@
 
 package etomica.models.rowley;
 
-import etomica.api.IAtomList;
-import etomica.api.IAtom;
+import etomica.atom.IAtomList;
+import etomica.atom.IAtom;
 import etomica.config.IConformation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Conformation for ethanol (positioned in standard orientation) as published in Rowley et al (2006)
@@ -16,7 +16,7 @@ import etomica.space.ISpace;
  */
 public class ConformationEthanol implements IConformation {
 
-    public ConformationEthanol(ISpace space, boolean pointCharges) {
+    public ConformationEthanol(Space space, boolean pointCharges) {
         this.space = space;
         this.pointCharges = pointCharges;
     }
@@ -94,7 +94,7 @@ public class ConformationEthanol implements IConformation {
     }
     
     private static final long serialVersionUID = 1L;
-    protected final ISpace space;
+    protected final Space space;
     protected boolean pointCharges;
 
 }

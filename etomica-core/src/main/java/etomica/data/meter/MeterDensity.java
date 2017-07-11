@@ -4,13 +4,13 @@
 
 package etomica.data.meter;
 
-import etomica.api.IBox;
-import etomica.api.ISpecies;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
-import etomica.space.ISpace;
-import etomica.units.DimensionRatio;
-import etomica.units.Quantity;
-import etomica.units.Volume;
+import etomica.space.Space;
+import etomica.species.ISpecies;
+import etomica.units.dimensions.DimensionRatio;
+import etomica.units.dimensions.Quantity;
+import etomica.units.dimensions.Volume;
 
 /**
  * Meter for measurement of the total molecule number density in a box
@@ -18,7 +18,7 @@ import etomica.units.Volume;
  */
 public class MeterDensity extends DataSourceScalar {
     
-    public MeterDensity(ISpace space) {
+    public MeterDensity(Space space) {
         super("Number Density",new DimensionRatio(Quantity.DIMENSION, Volume.dimension(space.D())));
     }
 
@@ -40,17 +40,17 @@ public class MeterDensity extends DataSourceScalar {
     /**
      * @return Returns the box.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     /**
      * @param box The box to set.
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
     }
 
     private static final long serialVersionUID = 1L;
-    private IBox box;
+    private Box box;
     private ISpecies species;
 }

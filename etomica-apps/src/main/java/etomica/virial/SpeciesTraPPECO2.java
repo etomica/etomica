@@ -4,17 +4,14 @@
 
 package etomica.virial;
 
-import etomica.api.IAtomType;
-import etomica.api.IMolecule;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
-import etomica.atom.AtomTypeLeaf;
-import etomica.atom.Molecule;
+import etomica.atom.AtomType;
 import etomica.chem.elements.Carbon;
-import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Oxygen;
-import etomica.models.nitrogen.ConformationNitrogen;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.molecule.Molecule;
+import etomica.space.Space;
 import etomica.species.Species;
 
 /**
@@ -29,53 +26,48 @@ import etomica.species.Species;
  */
 public class SpeciesTraPPECO2 extends Species {
 
-    public SpeciesTraPPECO2(ISpace space) {
+    public final static int indexC = 0;
+    public final static int indexOleft = 1;
+    public final static int indexOright = 2;
+    private static final long serialVersionUID = 1L;
+    protected final Space space;
+    protected final boolean isDynamic;
+    protected final AtomType cType, oType;
+    public SpeciesTraPPECO2(Space space) {
         this(space, false);
     }
-    
-    public SpeciesTraPPECO2(ISpace space, boolean isDynamic) {
+    public SpeciesTraPPECO2(Space space, boolean isDynamic) {
         super();
         this.space = space;
         this.isDynamic = isDynamic;
-        
-        cType = new AtomTypeLeaf(Carbon.INSTANCE);
-        oType = new AtomTypeLeaf(Oxygen.INSTANCE);
+
+        cType = new AtomType(Carbon.INSTANCE);
+        oType = new AtomType(Oxygen.INSTANCE);
         addChildType(cType);
         addChildType(oType);
 
-        setConformation(new ConformationCO2(space)); 
+        setConformation(new ConformationCO2(space));
      }
 
-     public IMolecule makeMolecule() {
+    public IMolecule makeMolecule() {
          Molecule CO2 = new Molecule(this, 3);
          CO2.addChildAtom(isDynamic ? new AtomLeafDynamic(space, cType) : new Atom(space, cType));
          CO2.addChildAtom(isDynamic ? new AtomLeafDynamic(space, oType) : new Atom(space, oType));
          CO2.addChildAtom(isDynamic ? new AtomLeafDynamic(space, oType) : new Atom(space, oType));
-              
+
          conformation.initializePositions(CO2.getChildList());
          return CO2;
      }
 
-     public IAtomType getCarbonType() {
+    public AtomType getCarbonType() {
          return cType;
      }
 
-     public IAtomType getOxygenType() {
+    public AtomType getOxygenType() {
          return oType;
      }
-
 
      public int getNumLeafAtoms() {
          return 3;
      }
-    
-    public final static int indexC = 0;
-    public final static int indexOleft = 1;
-    public final static int indexOright  = 2;
-   
-    
-    private static final long serialVersionUID = 1L;
-    protected final ISpace space;
-    protected final boolean isDynamic;
-    protected final AtomTypeLeaf cType, oType;
 }

@@ -4,25 +4,24 @@
 
 package etomica.data.meter;
 
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.math.geometry.Polytope;
 import etomica.space.Boundary;
-import etomica.space.ISpace;
-import etomica.units.Fraction;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
+import etomica.units.dimensions.Fraction;
 
 /**
  * Meter for measurement of species mole fraction within a specified subvolume
  */
 public class MeterLocalMoleFraction extends DataSourceScalar {
 
-    public MeterLocalMoleFraction(ISpace space, IBox _box) {
+    public MeterLocalMoleFraction(Space space, Box _box) {
         super("Local Mole Fraction",Fraction.DIMENSION);
         if(!(_box.getBoundary() instanceof Boundary)) {
         	throw new RuntimeException("The box boundary must be a subclass of etomica.Space.Boundary");
@@ -52,14 +51,14 @@ public class MeterLocalMoleFraction extends DataSourceScalar {
      * Sets the origin of the subvolume (Polytopes typically have their center
      * at 0).  The shape origin is 0 by default.
      */
-    public void setShapeOrigin(IVector newShapeOrigin) {
+    public void setShapeOrigin(Vector newShapeOrigin) {
         shapeOrigin = newShapeOrigin;
     }
     
     /**
      * Returns the origin of the subvolume.
      */
-    public IVector getShapeOrigin() {
+    public Vector getShapeOrigin() {
         return shapeOrigin;
     }
     
@@ -96,14 +95,14 @@ public class MeterLocalMoleFraction extends DataSourceScalar {
     /**
      * @return Returns the box.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     /**
      * @param box The box to set.
      */
 /*
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
         tempVec = space.makeVector();
         shapeOrigin = space.makeVector();
@@ -127,13 +126,13 @@ public class MeterLocalMoleFraction extends DataSourceScalar {
     }
 
     private static final long serialVersionUID = 1L;
-    private IBox box;
+    private Box box;
     /**
      * Class variable used to specify that all species are included in number-density calculation
      */
     private ISpecies species;
     private AtomIteratorBoxDependent iterator = new AtomIteratorLeafAtoms();
     private Polytope shape;
-    private IVector shapeOrigin;
-    private IVectorMutable tempVec;
+    private Vector shapeOrigin;
+    private Vector tempVec;
 }

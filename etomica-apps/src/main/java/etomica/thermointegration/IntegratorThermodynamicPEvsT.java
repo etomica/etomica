@@ -18,7 +18,7 @@ import etomica.data.types.DataGroup;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
-import etomica.units.Temperature;
+import etomica.units.dimensions.Temperature;
 
 
 public class IntegratorThermodynamicPEvsT extends IntegratorThermodynamic implements DataSourceIndependent {

@@ -4,17 +4,13 @@
 
 package etomica.normalmode;
 
-import java.util.ArrayList;
-
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
-import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
@@ -26,11 +22,7 @@ import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.lattice.crystal.PrimitiveFcc;
 import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.potential.P2HardSphere;
-import etomica.potential.Potential2;
-import etomica.potential.Potential2HardSpherical;
-import etomica.potential.PotentialMaster;
-import etomica.potential.PotentialMasterMonatomic;
+import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
@@ -39,13 +31,24 @@ import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Pixel;
 
+import java.util.ArrayList;
+
 /**
  * Simulation to sample harmonic potential
  */
 public class SimHarmonic extends Simulation {
 
 	private static final String APP_NAME = "Sim Harmonic";
-
+    private static final long serialVersionUID = 1L;
+    public IntegratorMC integrator;
+    public ActivityIntegrate activityIntegrate;
+    public Box box;
+    public Boundary boundary;
+    public SpeciesSpheresMono species;
+    public NormalModes normalModes;
+    public int[] nCells;
+    public CoordinateDefinition coordinateDefinition;
+    public Primitive primitive;
     public SimHarmonic(Space _space, int numAtoms, double density, String filename, double harmonicFudge) {
         super(_space);
 
@@ -65,7 +68,7 @@ public class SimHarmonic extends Simulation {
 
         MCMoveHarmonic move = new MCMoveHarmonic(getRandom());
         integrator.getMoveManager().addMCMove(move);
-        
+
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0/density);
             boundary = new BoundaryRectangularPeriodic(space, numAtoms/density);
@@ -82,7 +85,7 @@ public class SimHarmonic extends Simulation {
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, space);
         coordinateDefinition.initializeCoordinates(nCells);
-        
+
         if(D == 1) {
             normalModes = new NormalModes1DHR(boundary, numAtoms);
         } else {
@@ -90,7 +93,7 @@ public class SimHarmonic extends Simulation {
         }
         normalModes.setTemperature(1.0);
         normalModes.setHarmonicFudge(harmonicFudge);
-        
+
         WaveVectorFactory waveVectorFactory = normalModes.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
         move.setOmegaSquared(normalModes.getOmegaSquared());
@@ -99,9 +102,9 @@ public class SimHarmonic extends Simulation {
         move.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
         move.setCoordinateDefinition(coordinateDefinition);
         move.setTemperature(1.0);
-        
+
         move.setBox(box);
-        
+
         integrator.setBox(box);
     }
 
@@ -109,7 +112,7 @@ public class SimHarmonic extends Simulation {
      * @param args
      */
     public static void main(String[] args) {
-        
+
         //set up simulation parameters
         int D = 1;
         int nA = 27;
@@ -141,17 +144,17 @@ public class SimHarmonic extends Simulation {
         System.out.println(nA+" atoms at density "+density);
         System.out.println("harmonic fudge: "+harmonicFudge);
         System.out.println(steps+" MC steps");
-        
+
         //construct simulation
         SimHarmonic sim = new SimHarmonic(Space.getInstance(D), nA, density, filename, harmonicFudge);
-        
+
         //add hard potentials for FEP calculations.  With de novo sampling potential is not otherwise used.
         Potential2 p2 = new P2HardSphere(sim.getSpace(), 1.0, true);
         if (D == 1) {
             p2 = new P2XOrder(sim.getSpace(), (Potential2HardSpherical)p2);
         }
         PotentialMaster potentialMaster = (D == 1 ? new PotentialMasterList(sim, sim.space) : new PotentialMasterMonatomic(sim));
-        potentialMaster.addPotential(p2, new IAtomType[]{sim.species.getLeafType(),sim.species.getLeafType()});
+        potentialMaster.addPotential(p2, new AtomType[]{sim.species.getLeafType(), sim.species.getLeafType()});
 
         if (potentialMaster instanceof PotentialMasterList) {
             double neighborRange;
@@ -214,7 +217,7 @@ public class SimHarmonic extends Simulation {
 //            iaa= new IntervalActionAdapter(pump);
 //            iaa.setActionInterval(1);
 //            sim.integrator.addListener(iaa);
-            
+
             //set up measurement of S matrix, to check that configurations are generated as expected
             MeterNormalMode meterNormalMode = new MeterNormalMode();
             meterNormalMode.setCoordinateDefinition(sim.coordinateDefinition);
@@ -229,7 +232,7 @@ public class SimHarmonic extends Simulation {
             ArrayList dataStreamPumps = simG.getController().getDataStreamPumps();
             dataStreamPumps.add(pump);
             dataStreamPumps.add(pumpHarmonic);
-            
+
             DisplayTextBoxesCAE boxesPE = new DisplayTextBoxesCAE();
             boxesPE.setAccumulator(avgBoltzmann);
             boxesPE.setPrecision(6);
@@ -252,27 +255,16 @@ public class SimHarmonic extends Simulation {
             sim.activityIntegrate.setMaxSteps(steps);
 
             sim.getController().actionPerformed();
-            
+
             DataGroup boltzmannData = (DataGroup)avgBoltzmann.getData();
-            double pNotOverlap = ((DataDouble)boltzmannData.getData(avgBoltzmann.AVERAGE.index)).x;
-            double pError = ((DataDouble)boltzmannData.getData(avgBoltzmann.ERROR.index)).x;
-            
+            double pNotOverlap = ((DataDouble) boltzmannData.getData(AccumulatorAverage.AVERAGE.index)).x;
+            double pError = ((DataDouble) boltzmannData.getData(AccumulatorAverage.ERROR.index)).x;
+
             System.out.println("avg HS Boltzmann factor "+pNotOverlap+" +/- "+pError);
-            
+
             System.out.println("free energy contribution "+(-Math.log(pNotOverlap))+" +/- "+(pError/pNotOverlap));
             System.out.println("free energy contribution per molecule "+(-Math.log(pNotOverlap)/nA)+" +/- "+(pError/pNotOverlap)/nA);
         }
 
     }
-
-    private static final long serialVersionUID = 1L;
-    public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
-    public IBox box;
-    public Boundary boundary;
-    public SpeciesSpheresMono species;
-    public NormalModes normalModes;
-    public int[] nCells;
-    public CoordinateDefinition coordinateDefinition;
-    public Primitive primitive;
 }

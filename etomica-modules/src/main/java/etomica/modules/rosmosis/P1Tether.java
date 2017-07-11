@@ -4,18 +4,17 @@
 
 package etomica.modules.rosmosis;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 
 
 /**
@@ -25,14 +24,14 @@ import etomica.space.Tensor;
  * 
  * @author Andrew Schultz
  */
-public class P1Tether extends Potential1 implements AgentSource<IVectorMutable>, PotentialSoft {
+public class P1Tether extends Potential1 implements AgentSource<Vector>, PotentialSoft {
 
-    public P1Tether(IBox box, ISpecies species, ISpace _space) {
+    public P1Tether(Box box, ISpecies species, Space _space) {
         super(_space);
         this.species = species;
-        agentManager = new AtomLeafAgentManager<IVectorMutable>(this, box, IVectorMutable.class);
+        agentManager = new AtomLeafAgentManager<Vector>(this, box, Vector.class);
         work = _space.makeVector();
-        gradient = new IVectorMutable[]{work};
+        gradient = new Vector[]{work};
     }
     
     public void setEpsilon(double newEpsilon) {
@@ -50,7 +49,7 @@ public class P1Tether extends Potential1 implements AgentSource<IVectorMutable>,
         return 0.5 * epsilon * work.squared();
     }
 
-    public IVector[] gradient(IAtomList atoms) {
+    public Vector[] gradient(IAtomList atoms) {
         IAtom atom = atoms.getAtom(0);
         work.E(atom.getPosition());
         work.ME(agentManager.getAgent(atom));
@@ -58,29 +57,29 @@ public class P1Tether extends Potential1 implements AgentSource<IVectorMutable>,
         return gradient;
     }
 
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         return gradient(atoms);
     }
 
     public double virial(IAtomList atoms) {
         return 0;
     }
-    public IVectorMutable makeAgent(IAtom a, IBox agentBox) {
+    public Vector makeAgent(IAtom a, Box agentBox) {
         if (a.getType().getSpecies() == species) {
-            IVectorMutable vec = space.makeVector();
+            Vector vec = space.makeVector();
             vec.E(a.getPosition());
             return vec;
         }
         return null;
     }
 
-    public void releaseAgent(IVectorMutable agent, IAtom atom, IBox agentBox) {
+    public void releaseAgent(Vector agent, IAtom atom, Box agentBox) {
         /* do nothing */
     }
 
-    protected final AtomLeafAgentManager<IVectorMutable> agentManager;
+    protected final AtomLeafAgentManager<Vector> agentManager;
     protected final ISpecies species;
-    protected final IVectorMutable work;
-    protected final IVectorMutable[] gradient;
+    protected final Vector work;
+    protected final Vector[] gradient;
     protected double epsilon;
 }

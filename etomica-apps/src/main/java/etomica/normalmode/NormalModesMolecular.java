@@ -4,23 +4,22 @@
 
 package etomica.normalmode;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionCOM;
+import etomica.box.Box;
 import etomica.lattice.crystal.Primitive;
 import etomica.models.water.SpeciesWater4P;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculePositionCOM;
 import etomica.normalmode.LatticeSumMolecularCrystal.AtomicTensorAtomicPair;
-import etomica.space.ISpace;
+import etomica.potential.PotentialMaster;
+import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.space3d.Tensor3D;
 import etomica.spaceNd.TensorND;
+
+import java.io.IOException;
+import java.io.PrintWriter;
 
 /**
  * Uses analysis of 2nd derivatives to compute the normal modes for a Bravais lattice with a basis, 
@@ -29,7 +28,7 @@ import etomica.spaceNd.TensorND;
 
 public class NormalModesMolecular implements NormalModes {
 
-    public NormalModesMolecular(SpeciesWater4P species, boolean waveVectorMethod ,IPotentialMaster potentialMaster,IBox box, int[] nUniyCellsInSupBox, Primitive primitive, int basisDim, AtomicTensorAtomicPair atomicTensorAtomicPair, ISpace space) {
+    public NormalModesMolecular(SpeciesWater4P species, boolean waveVectorMethod , PotentialMaster potentialMaster, Box box, int[] nUniyCellsInSupBox, Primitive primitive, int basisDim, AtomicTensorAtomicPair atomicTensorAtomicPair, Space space) {
     	this.waveVectorMethod = waveVectorMethod;
         this.space = space;
         this.potentialMaster = potentialMaster;
@@ -48,7 +47,7 @@ public class NormalModesMolecular implements NormalModes {
         kFactory.makeWaveVectors(box);
         double[] kCoefficients = kFactory.getCoefficients(); //kCoefficients=0.5 non-deg.; = 1 degenerate twice!
         
-//    	IVector[] kv = kFactory.getWaveVectors();
+//    	Vector[] kv = kFactory.getWaveVectors();
 //    	for (int i=0;i<kv.length;i++){
 //        	System.out.println(kv[i]);    		
 //    	}
@@ -63,8 +62,8 @@ public class NormalModesMolecular implements NormalModes {
         Tensor tempTensor = space.makeTensor();
         Tensor inertiaTensor = space.makeTensor();
         double massH2O = species.getOxygenType().getMass() + 2.0 * species.getHydrogenType().getMass();
-    	AtomPositionCOM comi = new AtomPositionCOM(space);
-    	IVectorMutable drk = space.makeVector(); 
+    	MoleculePositionCOM comi = new MoleculePositionCOM(space);
+    	Vector drk = space.makeVector();
         Tensor identity = new Tensor3D(new double[][] {{1.0,0.0,0.0}, {0.0,1.0,0.0}, {0.0,0.0,1.0}});
 
         for(int i=0; i<basisDim; i++) {
@@ -72,7 +71,7 @@ public class NormalModesMolecular implements NormalModes {
         	for(int j=0;j<space.D();j++){ // 4 NOT 3 but that is fine as the mass of M = 0
             	Inertia[i][i].setComponent(j, j,massH2O);        		
         	}
-        	IVectorMutable comPos = (IVectorMutable)comi.position(moleculei);
+        	Vector comPos = comi.position(moleculei);
         	inertiaTensor.E(0);
         	for(int j=0; j<moleculei.getChildList().getAtomCount(); j++){
         		drk.Ev1Mv2(moleculei.getChildList().getAtom(j).getPosition(),comPos);
@@ -213,15 +212,15 @@ public class NormalModesMolecular implements NormalModes {
 	
 	
 	
-    protected final ISpace space;
+    protected final Space space;
     private boolean needToCalculateModes;
     private String fileName;
-    protected IBox box;
+    protected Box box;
     protected int basisDim;
     protected final AtomicTensorAtomicPair atomicTensorAtomicPair;
     protected final Primitive primitive;
 	protected LatticeSumMolecularCrystal summer;
-	protected IPotentialMaster potentialMaster;
+	protected PotentialMaster potentialMaster;
 	protected final boolean waveVectorMethod;
 	protected SpeciesWater4P species;
 	protected int[] nC;

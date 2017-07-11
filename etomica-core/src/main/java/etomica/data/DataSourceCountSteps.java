@@ -4,8 +4,8 @@
 
 package etomica.data;
 
-import etomica.api.IIntegrator;
-import etomica.units.Quantity;
+import etomica.integrator.Integrator;
+import etomica.units.dimensions.Quantity;
 
 /**
  * Data source that fronts the Integrator's step count as a piece of Data.
@@ -20,12 +20,12 @@ public class DataSourceCountSteps extends DataSourceScalar implements
         super("Integrator steps", Quantity.DIMENSION);
 	}
 
-    public DataSourceCountSteps(IIntegrator integrator) {
+    public DataSourceCountSteps(Integrator integrator) {
         this();
         setIntegrator(integrator);
     }
     
-    public void setIntegrator(IIntegrator newIntegrator) {
+    public void setIntegrator(Integrator newIntegrator) {
         integrator = newIntegrator;
     }
 
@@ -37,5 +37,5 @@ public class DataSourceCountSteps extends DataSourceScalar implements
 	}
     
     private static final long serialVersionUID = 2L;
-    protected IIntegrator integrator;
+    protected Integrator integrator;
 }

@@ -4,7 +4,7 @@
 
 package etomica.virial;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.potential.P2HePCKLJS;
@@ -131,9 +131,9 @@ public static void main(String[] args) {
 					
 					double integrand = 0;
 								
-					IVector r1 = (IVector)space.makeVector(new double[] {-r02,  0,  0});
-			        IVector r2 = (IVector)space.makeVector(new double[] { r02,  0,  0});
-			        IVector r3 = (IVector)space.makeVector(new double[] { x13,y13,  0});
+					Vector r1 = space.makeVector(new double[] {-r02,  0,  0});
+			        Vector r2 = space.makeVector(new double[] { r02,  0,  0});
+			        Vector r3 = space.makeVector(new double[] { x13,y13,  0});
 			        
 			        atom1.getPosition().E(r1);
 			        atom2.getPosition().E(r2);

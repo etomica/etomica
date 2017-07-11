@@ -8,7 +8,7 @@
 package etomica.models.hexane;
 
 import etomica.chem.elements.ElementSimple;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Species used to create hexane molecules per Dr. Monson's data. Hydrogen
@@ -18,7 +18,7 @@ import etomica.space.ISpace;
  */
 
 public class SpeciesHexane extends etomica.species.SpeciesSpheres {
-    public SpeciesHexane(ISpace _space){
+    public SpeciesHexane(Space _space){
         super(6, new ElementSimple("M", 1.0), 
               new ConformationHexane(_space), _space);
         

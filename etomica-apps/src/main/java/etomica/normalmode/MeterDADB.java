@@ -4,47 +4,42 @@
 
 package etomica.normalmode;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.iterator.IteratorDirective;
-import etomica.data.DataSourceScalar;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.data.*;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
-import etomica.space.ISpace;
-import etomica.units.Null;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.units.dimensions.Null;
 
 public class MeterDADB implements IEtomicaDataSource, AgentSource<MyAgent> {
 
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
-    protected final ISpace space;
+    protected final Space space;
     protected final CoordinateDefinition coordinateDefinition;
     protected final DataSourceScalar meterPE;
     protected final PotentialCalculationForceSum pcForceSum;
     protected final PotentialMaster potentialMaster;
     protected final AtomLeafAgentManager<MyAgent> forceManager;
     protected final IteratorDirective id;
-    protected final IVectorMutable dr;
+    protected final Vector dr;
     protected double latticeEnergy;
     protected final double temperature;
     public static boolean justDADB = true;
     public static boolean justU = false;
     
-    public MeterDADB(ISpace space, DataSourceScalar meterPE, PotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, double temperature) {
+    public MeterDADB(Space space, DataSourceScalar meterPE, PotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, double temperature) {
         int nData = justDADB ? 1 : 9;
         data = new DataDoubleArray(nData);
         dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{nData});
@@ -70,7 +65,7 @@ public class MeterDADB implements IEtomicaDataSource, AgentSource<MyAgent> {
     }
     
     public IData getData() {
-        IBox box = coordinateDefinition.getBox();
+        Box box = coordinateDefinition.getBox();
         
         pcForceSum.reset();
         
@@ -81,10 +76,10 @@ public class MeterDADB implements IEtomicaDataSource, AgentSource<MyAgent> {
         double sum = 0;
         for (int i=0; i<atoms.getAtomCount(); i++) {
             IAtom atom = atoms.getAtom(i);
-            IVector lPos = coordinateDefinition.getLatticePosition(atom);
-            IVector pos = atom.getPosition();
+            Vector lPos = coordinateDefinition.getLatticePosition(atom);
+            Vector pos = atom.getPosition();
             dr.Ev1Mv2(pos, lPos);
-            IVector force = forceManager.getAgent(atom).force;
+            Vector force = forceManager.getAgent(atom).force;
             sum += force.dot(dr);
         }
         if (justDADB) {
@@ -101,7 +96,7 @@ public class MeterDADB implements IEtomicaDataSource, AgentSource<MyAgent> {
 //                for (int j=0; j<99; j++) {
 //                    for (int i=0; i<atoms.getAtomCount(); i++) {
 //                        IAtom atom = atoms.getAtom(i);
-//                        IVector lPos = coordinateDefinition.getLatticePosition(atom);
+//                        Vector lPos = coordinateDefinition.getLatticePosition(atom);
 //                        IVectorMutable pos = atom.getPosition();
 //                        dr.Ev1Mv2(pos, lPos);
 //                        pos.PEa1Tv1(-1.0/(100-j), dr);
@@ -143,9 +138,9 @@ public class MeterDADB implements IEtomicaDataSource, AgentSource<MyAgent> {
         return dataInfo;
     }
 
-    public final MyAgent makeAgent(IAtom a, IBox agentBox) {
+    public final MyAgent makeAgent(IAtom a, Box agentBox) {
         return new MyAgent(space);
     }
     
-    public void releaseAgent(MyAgent agent, IAtom atom, IBox agentBox) {}
+    public void releaseAgent(MyAgent agent, IAtom atom, Box agentBox) {}
 }

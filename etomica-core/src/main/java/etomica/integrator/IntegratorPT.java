@@ -4,8 +4,8 @@
 
 package etomica.integrator;
 
-import etomica.api.IBox;
-import etomica.api.IRandom;
+import etomica.box.Box;
+import etomica.util.random.IRandom;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -17,8 +17,8 @@ import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveSwapConfiguration;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
-import etomica.space.ISpace;
-import etomica.units.Null;
+import etomica.space.Space;
+import etomica.units.dimensions.Null;
 import etomica.util.IEvent;
 import etomica.util.IListener;
 
@@ -42,13 +42,13 @@ import etomica.util.IListener;
  */
 public class IntegratorPT extends IntegratorManagerMC {
     
-    private final ISpace space;
+    private final Space space;
 
-    public IntegratorPT(IRandom random, ISpace _space) {
+    public IntegratorPT(IRandom random, Space _space) {
         this(random, MCMoveSwapConfiguration.FACTORY, _space);
     }
     
-    public IntegratorPT(IRandom random, MCMoveSwapFactory swapFactory, ISpace _space) {
+    public IntegratorPT(IRandom random, MCMoveSwapFactory swapFactory, Space _space) {
         super(random);
         this.space = _space;
         setGlobalMoveInterval(100);
@@ -87,7 +87,7 @@ public class IntegratorPT extends IntegratorManagerMC {
 	     * @param integrator1 integrator for one of the boxes being swapped
 	     * @param integrator2 integrator for the other box
 	     */
-	    public MCMove makeMCMoveSwap(IntegratorBox integrator1, IntegratorBox integrator2, ISpace _space);
+	    public MCMove makeMCMoveSwap(IntegratorBox integrator1, IntegratorBox integrator2, Space _space);
 	}
 
     /**
@@ -95,7 +95,7 @@ public class IntegratorPT extends IntegratorManagerMC {
      * the swapped boxes.
      */
     public interface MCMoveSwap {
-        public IBox[] swappedBoxes();
+        public Box[] swappedBoxes();
     }
 
 
@@ -127,7 +127,7 @@ public class IntegratorPT extends IntegratorManagerMC {
         public void actionPerformed(IEvent evt) {
             if(evt instanceof MCMoveTrialInitiatedEvent || !((MCMoveTrialCompletedEvent)evt).isAccepted()) return;
             if(!(((MCMoveEvent)evt).getMCMove() instanceof MCMoveSwap)) return;
-            IBox[] boxes = ((MCMoveSwap)((MCMoveEvent)evt).getMCMove()).swappedBoxes();
+            Box[] boxes = ((MCMoveSwap)((MCMoveEvent)evt).getMCMove()).swappedBoxes();
             int i0 = boxes[0].getIndex()-1;
             int i1 = boxes[1].getIndex()-1;
             int temp = track[i0];

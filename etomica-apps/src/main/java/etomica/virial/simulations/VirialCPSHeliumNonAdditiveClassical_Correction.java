@@ -8,18 +8,15 @@ package etomica.virial.simulations;
 import java.awt.Color;
 
 import etomica.action.IAction;
-import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
-import etomica.data.IData;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
-import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2HePCKLJS;
 import etomica.potential.P3CPSNonAdditiveHe;
 import etomica.potential.P3CPSNonAdditiveHeSimplified;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -29,7 +26,6 @@ import etomica.util.ParameterBase;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterDifference;
 import etomica.virial.ClusterSumNonAdditiveTrimerEnergy;
-import etomica.virial.MayerFunction;
 import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.SpeciesFactorySpheres;
@@ -48,10 +44,10 @@ import etomica.virial.cluster.Standard;
 
 public class VirialCPSHeliumNonAdditiveClassical_Correction {
 	
-	protected static IVectorMutable r0, r1, r2;
-	protected static IVectorMutable r01Vec, r12Vec, r02Vec;
+	protected static Vector r0, r1, r2;
+	protected static Vector r01Vec, r12Vec, r02Vec;
 	
-	public VirialCPSHeliumNonAdditiveClassical_Correction(ISpace space) {
+	public VirialCPSHeliumNonAdditiveClassical_Correction(Space space) {
         r0 = space.makeVector();
         r1 = space.makeVector();
         r2 = space.makeVector();
@@ -136,12 +132,12 @@ public class VirialCPSHeliumNonAdditiveClassical_Correction {
         
     	ClusterAbstract[] targetDiagrams2 = new ClusterAbstract[1];
     	targetDiagrams2[0] = targetCluster2;
-    	ClusterDifference targetCluster = new ClusterDifference((ClusterAbstract)targetCluster1, targetDiagrams2);
+    	ClusterDifference targetCluster = new ClusterDifference(targetCluster1, targetDiagrams2);
     	
     
     	
     	MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
-        ClusterAbstract refCluster = Standard.virialCluster(nPoints, (MayerFunction)fRef, nPoints>3, null, false);
+        ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, nPoints>3, null, false);
         refCluster.setTemperature(temperature);
 
 

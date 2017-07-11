@@ -5,43 +5,35 @@
 package etomica.integrator;
 
 import etomica.action.AtomActionRandomizeVelocity;
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IBoxAtomEvent;
-import etomica.api.IBoxAtomIndexEvent;
-import etomica.api.IBoxIndexEvent;
-import etomica.api.IBoxListener;
-import etomica.api.IBoxMoleculeCountEvent;
-import etomica.api.IBoxMoleculeEvent;
-import etomica.api.IBoxMoleculeIndexEvent;
-import etomica.api.IMolecule;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
+import etomica.box.*;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.space.ISpace;
-import etomica.units.Dimension;
-import etomica.units.Time;
+import etomica.molecule.IMolecule;
+import etomica.potential.PotentialMaster;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Time;
 import etomica.util.Debug;
 import etomica.util.EnumeratedType;
+import etomica.util.random.IRandom;
 
 /**
  * Superclass of all molecular-dynamics integrators.
  * Extends the Integrator class by adding methods that 
  * set the time step.
  */
-public abstract class IntegratorMD extends IntegratorBox implements IBoxListener {
+public abstract class IntegratorMD extends IntegratorBox implements BoxEventListener {
 
-    public IntegratorMD(IPotentialMaster potentialMaster, IRandom random, 
-            double timeStep, double temperature, ISpace _space) {
+    public IntegratorMD(PotentialMaster potentialMaster, IRandom random,
+                        double timeStep, double temperature, Space _space) {
         super(potentialMaster,temperature);
         this.random = random;
         this.space = _space;
@@ -64,23 +56,23 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
     public final double getTimeStep() {return timeStep;}
     public Dimension getTimeStepDimension() {return Time.DIMENSION;}
     
-    public void setBox(IBox p) {
-        if (box != null) {
-            box.getEventManager().removeListener(this);
+    public void setBox(Box box) {
+        if (this.box != null) {
+            this.box.getEventManager().removeListener(this);
         }
-        super.setBox(p);
+        super.setBox(box);
         if (meterKE instanceof MeterKineticEnergy) {
-            ((MeterKineticEnergy)meterKE).setBox(p);
+            ((MeterKineticEnergy)meterKE).setBox(box);
         }
-        meterTemperature = new MeterTemperature(p, space.D());
+        meterTemperature = new MeterTemperature(box, space.D());
         meterTemperature.setKineticEnergyMeter(meterKE);
-        box.getEventManager().addListener(this);
+        this.box.getEventManager().addListener(this);
 
         if (thermostat == ThermostatType.HYBRID_MC) {
-            oldPositionAgentManager = new AtomLeafAgentManager<IVectorMutable>(new VectorSource(space), box, IVectorMutable.class);
+            oldPositionAgentManager = new AtomLeafAgentManager<Vector>(new VectorSource(space), this.box, Vector.class);
         }
         if (integratorMC != null) {
-            integratorMC.setBox(box);
+            integratorMC.setBox(this.box);
         }
     }
 
@@ -112,7 +104,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
             throw overlapException;
         }
         if (thermostat == ThermostatType.HYBRID_MC && isothermal && oldPositionAgentManager == null) {
-            oldPositionAgentManager = new AtomLeafAgentManager<IVectorMutable>(new VectorSource(space), box, IVectorMutable.class);
+            oldPositionAgentManager = new AtomLeafAgentManager<Vector>(new VectorSource(space), box, Vector.class);
         }
     }
 
@@ -210,7 +202,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
     public void setThermostat(ThermostatType aThermostat) {
         thermostat = aThermostat;
         if (thermostat == ThermostatType.HYBRID_MC && box != null) {
-            oldPositionAgentManager = new AtomLeafAgentManager<IVectorMutable>(new VectorSource(space), box, IVectorMutable.class);
+            oldPositionAgentManager = new AtomLeafAgentManager<Vector>(new VectorSource(space), box, Vector.class);
         }
         else if (thermostat != ThermostatType.HYBRID_MC) {
             if (oldPositionAgentManager != null) {
@@ -332,7 +324,6 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
                     if (thermostatNoDrift) {
                         shiftMomenta();
                     }
-                    currentKineticEnergy = meterKE.getDataAsScalar();
                     reset();
                     oldPotentialEnergy = currentPotentialEnergy;
                     oldEnergy = oldPotentialEnergy;
@@ -343,7 +334,6 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
                     if (thermostatNoDrift) {
                         shiftMomenta();
                     }
-                    currentKineticEnergy = meterKE.getDataAsScalar();
                     reset();
                 }
                 else {
@@ -380,7 +370,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
                 if (atomCount > 0) {
                     int index = random.nextInt(atomList.getAtomCount());
                     IAtomKinetic a = (IAtomKinetic)atomList.getAtom(index);
-                    double m = ((IAtom)a).getType().getMass();
+                    double m = a.getType().getMass();
                     if (m == Double.POSITIVE_INFINITY) return;
                     currentKineticEnergy -= 0.5*m*a.getVelocity().squared();
                     randomizeMomentum(a);
@@ -408,7 +398,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
         double totalMass = 0;
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic atom = (IAtomKinetic)leafList.getAtom(iLeaf);
-            double mass = ((IAtom)atom).getType().getMass();
+            double mass = atom.getType().getMass();
             if(mass == Double.POSITIVE_INFINITY || mass == 0) nSkipped--;
             else totalMass += mass;
         }
@@ -493,7 +483,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
             //set net momentum to 0
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-                double rm = ((IAtom)a).getType().rm();
+                double rm = a.getType().rm();
                 if (rm != 0 && rm != Double.POSITIVE_INFINITY) {
                     a.getVelocity().ME(momentum);
                 }
@@ -502,7 +492,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
                 momentum.E(0);
                 for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                     IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-                    double mass = ((IAtom)a).getType().getMass();
+                    double mass = a.getType().getMass();
                     if (mass != Double.POSITIVE_INFINITY) {
                         momentum.PEa1Tv1(mass,a.getVelocity());
                     }
@@ -527,7 +517,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
         scaleMomenta(temperatureVec);
     }
 
-    protected void scaleMomenta(IVector t) {
+    protected void scaleMomenta(Vector t) {
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         currentKineticEnergy = 0;
@@ -539,7 +529,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
             int nLeafNotFixed = 0;
             for (int iAtom = 0; iAtom<nLeaf; iAtom++) {
                 IAtomKinetic atom = (IAtomKinetic)leafList.getAtom(iAtom);
-                double mass = ((IAtom)atom).getType().getMass();
+                double mass = atom.getType().getMass();
                 if(mass == Double.POSITIVE_INFINITY) continue;
                 double v = atom.getVelocity().getX(i);
                 sum += mass*v*v;
@@ -565,7 +555,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
             if (s == 1) continue;
             for (int iAtom = 0; iAtom<nLeaf; iAtom++) {
                 IAtomKinetic atom = (IAtomKinetic)leafList.getAtom(iAtom);
-                IVectorMutable vel = atom.getVelocity(); 
+                Vector vel = atom.getVelocity();
                 vel.setX(i, vel.getX(i)*s); //scale momentum
             }
         }
@@ -586,7 +576,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
         meterTemperature = meter;
     }
     
-    public void boxMoleculeAdded(IBoxMoleculeEvent e) {
+    public void boxMoleculeAdded(BoxMoleculeEvent e) {
 
         IMolecule mole = e.getMolecule();
         IAtomList atomList = mole.getChildList();
@@ -599,21 +589,15 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
 
     }
     
-    public void boxAtomAdded(IBoxAtomEvent e) { }
+    public void boxMoleculeRemoved(BoxMoleculeEvent e) { }
+
+    public void boxGlobalAtomLeafIndexChanged(BoxIndexEvent e) { }
     
-    public void boxAtomRemoved(IBoxAtomEvent e) { }
+    public void boxAtomLeafIndexChanged(BoxAtomIndexEvent e) { }
     
-    public void boxMoleculeRemoved(IBoxMoleculeEvent e) { }
+    public void boxMoleculeIndexChanged(BoxMoleculeIndexEvent e) { }
     
-    public void boxGlobalAtomIndexChanged(IBoxIndexEvent e) { }
-    
-    public void boxGlobalAtomLeafIndexChanged(IBoxIndexEvent e) { }
-    
-    public void boxAtomLeafIndexChanged(IBoxAtomIndexEvent e) { }
-    
-    public void boxMoleculeIndexChanged(IBoxMoleculeIndexEvent e) { }
-    
-    public void boxNumberMolecules(IBoxMoleculeCountEvent e) { }
+    public void boxNumberMolecules(BoxMoleculeCountEvent e) { }
     
     /**
      * Elementary time step for the MD simulation
@@ -626,35 +610,35 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
     protected DataSourceScalar meterKE;
     protected AtomActionRandomizeVelocity atomActionRandomizeVelocity;
     protected MeterTemperature meterTemperature;
-    protected final IVectorMutable momentum;
+    protected final Vector momentum;
     protected double currentTime;
-    protected final ISpace space;
+    protected final Space space;
     protected boolean thermostatting = false;
     protected boolean thermostatNoDrift = false;
 
     protected double oldEnergy = Double.NaN, oldPotentialEnergy = Double.NaN;
     protected long nRejected = 0, nAccepted = 0;
-    protected AtomLeafAgentManager<IVectorMutable> oldPositionAgentManager = null;
+    protected AtomLeafAgentManager<Vector> oldPositionAgentManager = null;
 
     protected IntegratorMC integratorMC;
     protected int mcSteps;
-    protected final IVectorMutable temperatureVec;
+    protected final Vector temperatureVec;
 
-    public static class VectorSource implements AgentSource<IVectorMutable> {
+    public static class VectorSource implements AgentSource<Vector> {
 
-        protected final ISpace space;
+        protected final Space space;
         
-        public VectorSource(ISpace space) {
+        public VectorSource(Space space) {
             this.space = space;
         }
 
-        public IVectorMutable makeAgent(IAtom a, IBox agentBox) {
-            IVectorMutable p = space.makeVector();
+        public Vector makeAgent(IAtom a, Box agentBox) {
+            Vector p = space.makeVector();
             p.E(a.getPosition());
             return p;
         }
 
-        public void releaseAgent(IVectorMutable agent, IAtom atom, IBox agentBox) {}
+        public void releaseAgent(Vector agent, IAtom atom, Box agentBox) {}
     }
 }
 

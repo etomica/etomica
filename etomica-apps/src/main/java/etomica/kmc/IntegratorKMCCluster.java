@@ -4,22 +4,9 @@
 
 package etomica.kmc;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.action.BoxImposePbc;
 import etomica.action.WriteConfiguration;
 import etomica.action.XYZWriter;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.atom.iterator.AtomIteratorLeafFilteredType;
@@ -31,26 +18,34 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorBox;
 import etomica.listener.IntegratorListenerAction;
+import etomica.molecule.IMoleculeList;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.ISpace;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.Joule;
+import etomica.util.random.IRandom;
+
+import java.io.*;
 
 public class IntegratorKMCCluster extends IntegratorBox{
 
     private static final long serialVersionUID = 1L;
     IntegratorDimerMin integratorMin1, integratorMin2;
-    IPotentialMaster potentialMaster;
+    PotentialMaster potentialMaster;
     double temperature;
-    private final ISpace space;
+    private final Space space;
     IRandom random;
-    ISimulation sim;
+    Simulation sim;
     ISpecies [] species;
-    IVectorMutable [] minPosition, currentSaddle, previousSaddle;
+    Vector[] minPosition, currentSaddle, previousSaddle;
     double[] saddleVib;
     double[] saddleEnergies;
     double[] rates;
     double tau;
-    IVectorMutable msd;
+    Vector msd;
     double beta;
     double massSec;
     double minEnergy;
@@ -69,7 +64,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
     BufferedReader buffReader;
     FileWriter writer;
     
-    public IntegratorKMCCluster(ISimulation _sim, IPotentialMaster _potentialMaster, double _temperature, int _totalSearches, IRandom _random, ISpecies [] _species, ISpace _space){
+    public IntegratorKMCCluster(Simulation _sim, PotentialMaster _potentialMaster, double _temperature, int _totalSearches, IRandom _random, ISpecies [] _species, Space _space){
         super(_potentialMaster, _temperature);
         
         this.potentialMaster = _potentialMaster;
@@ -236,8 +231,8 @@ public class IntegratorKMCCluster extends IntegratorBox{
         imposePbc = new BoxImposePbc(box, space);
         rates = new double[totalSearches];
         beta = 1.0/(temperature*1.3806503E-023);
-        currentSaddle = new IVectorMutable[box.getMoleculeList().getMoleculeCount()];
-        previousSaddle = new IVectorMutable[box.getMoleculeList().getMoleculeCount()];
+        currentSaddle = new Vector[box.getMoleculeList().getMoleculeCount()];
+        previousSaddle = new Vector[box.getMoleculeList().getMoleculeCount()];
         for(int i=0; i<currentSaddle.length; i++){
             currentSaddle[i] = space.makeVector();
             previousSaddle[i] = space.makeVector();
@@ -252,7 +247,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
         minVib = vibFreq;
         
         IMoleculeList loopSet2 = box.getMoleculeList();
-        minPosition = new IVectorMutable[loopSet2.getMoleculeCount()];
+        minPosition = new Vector[loopSet2.getMoleculeCount()];
         for(int i=0; i<minPosition.length; i++){
             minPosition[i] = space.makeVector();
         }
@@ -263,9 +258,9 @@ public class IntegratorKMCCluster extends IntegratorBox{
     }
     
     public void randomizePositions(){
-        IVectorMutable workVector = space.makeVector();
+        Vector workVector = space.makeVector();
         IMoleculeList loopSet3 = box.getMoleculeList(species[0]);
-        IVectorMutable [] currentPos = new IVectorMutable [loopSet3.getMoleculeCount()];
+        Vector[] currentPos = new Vector[loopSet3.getMoleculeCount()];
         double offset = 0;
         for(int i=0; i<currentPos.length; i++){
             currentPos[i] = space.makeVector();
@@ -296,7 +291,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
     
     public void msdCalc(MeterMeanSquareDisplacement msdArray){
         double sum = 0;
-        IVector [] msdVect = msdArray.getDataAsArray();
+        Vector[] msdVect = msdArray.getDataAsArray();
         for(int i=0; i<msdVect.length; i++){
             sum = msd.getX(0);
             sum += msdVect[i].getX(0)*msdVect[i].getX(0);
@@ -367,7 +362,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
     }
     
     public boolean checkMin(){
-        IVectorMutable workVector = space.makeVector();
+        Vector workVector = space.makeVector();
         double positionDiff=0;
         for(int i=0; i<box.getMoleculeList().getMoleculeCount(); i++){
             workVector.Ev1Mv2(minPosition[i],box.getMoleculeList().getMolecule(i).getChildList().getAtom(0).getPosition());

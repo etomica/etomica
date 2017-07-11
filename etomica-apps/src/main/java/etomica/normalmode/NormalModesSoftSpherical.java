@@ -6,9 +6,8 @@ package etomica.normalmode;
 
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
 import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.data.DataInfo;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
@@ -20,14 +19,14 @@ import etomica.lattice.crystal.Primitive;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Tensor3D;
 import etomica.space3d.Vector3D;
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
 import etomica.util.Arrays;
-import etomica.util.Function;
-import etomica.util.FunctionGeneral;
+import etomica.math.function.Function;
+import etomica.data.FunctionData;
 
 /**
  * Computes the normal modes for a Bravais lattice occupied by atoms that interact
@@ -37,7 +36,7 @@ import etomica.util.FunctionGeneral;
 
 public class NormalModesSoftSpherical implements NormalModes {
 
-    public NormalModesSoftSpherical(int[] nCells, Primitive primitive, Potential2SoftSpherical potential, ISpace space) {
+    public NormalModesSoftSpherical(int[] nCells, Primitive primitive, Potential2SoftSpherical potential, Space space) {
         
         needToCalculateModes = true;
         
@@ -47,7 +46,7 @@ public class NormalModesSoftSpherical implements NormalModes {
         int nSites = nCells[0]*nCells[1]*nCells[2];
         Boundary boundary = new BoundaryDeformableLattice(primitive, nCells);
         
-        IBox box = new Box(boundary, space);
+        Box box = new Box(boundary, space);
 
         System.out.println("Density: "+nSites/boundary.volume());
         kFactory = new WaveVectorFactorySimple(primitive, space);
@@ -65,7 +64,7 @@ public class NormalModesSoftSpherical implements NormalModes {
     public void calculateModes() {
         omega2 = new double[kFactory.getWaveVectors().length][lattice.D()];
         eigenvectors = new double[omega2.length][lattice.D()][lattice.D()];
-        FunctionGeneral function = new FunctionGeneral() {
+        FunctionData<Object> function = new FunctionData<Object>() {
             public IData f(Object obj) {
                 Vector3D r = (Vector3D)obj;
                 tensor.x.Ev1v2(r, r);
@@ -86,7 +85,7 @@ public class NormalModesSoftSpherical implements NormalModes {
         
         LatticeSum summer = new LatticeSum(lattice);
         summer.setMaxElement(49);
-        IVectorMutable kVector = new Vector3D();
+        Vector kVector = new Vector3D();
         kVector.E(0.0);
         summer.setK(kVector);
         System.out.println("\n k:"+kVector.toString()+"   in NormalModeSoftSpherical");

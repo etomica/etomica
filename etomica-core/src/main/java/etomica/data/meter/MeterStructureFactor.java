@@ -4,10 +4,9 @@
 
 package etomica.data.meter;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
+import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -15,8 +14,8 @@ import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveGeneral;
-import etomica.space.ISpace;
-import etomica.units.Null;
+import etomica.space.Space;
+import etomica.units.dimensions.Null;
 
 /**
  * Meter for calculation of structure factor of atoms for all wave vectors less
@@ -27,10 +26,10 @@ import etomica.units.Null;
  */
 public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndependent {
 	
-	protected final ISpace space;
-    protected IBox box;
+	protected final Space space;
+    protected Box box;
     protected double[] struct;
-    protected IVectorMutable [] waveVec;
+    protected Vector[] waveVec;
     protected IAtomList atomList;
     protected DataFunction data;
     protected DataInfoFunction dataInfo;
@@ -43,7 +42,7 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
      * in the box.  All wave vectors consistent with the box shape and with
      * magnitude less than cutoff are included.
      */
-	public MeterStructureFactor(ISpace space, IBox aBox, double cutoff) {
+	public MeterStructureFactor(Space space, Box aBox, double cutoff) {
 	    this.space = space;
 	    this.box = aBox;
         atomList = box.getLeafList();
@@ -65,13 +64,13 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
 	protected int makeWaveVector(double cutoff) {
         int nVec = 0;
         double[] x = xData == null ? null : xData.getData();
-        IVector[] edges = new IVector[3];
+        Vector[] edges = new Vector[3];
         edges[0] = box.getBoundary().getEdgeVector(0);
         edges[1] = box.getBoundary().getEdgeVector(1);
         edges[2] = box.getBoundary().getEdgeVector(2);
         Primitive primitiveBox = new PrimitiveGeneral(space, edges);
         Primitive recip = primitiveBox.makeReciprocal();
-        IVector[] basis = recip.vectors();
+        Vector[] basis = recip.vectors();
 
         double cutoff2 = cutoff*cutoff;
 
@@ -88,7 +87,7 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
         idx[1] = 0;
         idx[2] = 1;
         while (true) {
-            IVectorMutable v = space.makeVector();
+            Vector v = space.makeVector();
             boolean success = false;
             for  (int i=idx.length-1; i>=0; i--) {
                 idx[i]++;
@@ -104,7 +103,6 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
             for (int i=0; i<idx.length; i++) {
                 v.PEa1Tv1(idx[i], basis[i]);
             }
-            double foo = Math.sqrt(v.squared());
             if (v.squared() > cutoff2) {
                 continue;
             }
@@ -126,7 +124,7 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
 	    waveVec = null;
 	    int nVec = makeWaveVector(cutoff);
         struct = new double[nVec];
-	    waveVec = new IVectorMutable[nVec];
+	    waveVec = new Vector[nVec];
         resetData();
         makeWaveVector(cutoff);
 	}
@@ -134,7 +132,7 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
 	/**
 	 * @param waveVec Sets a custom wave vector array.
 	 */
-	public void setWaveVec(IVectorMutable [] waveVec){
+	public void setWaveVec(Vector[] waveVec){
 	    this.waveVec = space.makeVectorArray(waveVec.length);
 	    struct = new double[waveVec.length];
 		for(int i=0; i<waveVec.length; i++){
@@ -151,20 +149,17 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
 	}
 
     public IData getData() {
-        double term1 = 0;
-        double term2 = 0;
-        double dotprod = 0;
-        int numAtoms = atomList.getAtomCount();
+        long numAtoms = atomList.getAtomCount();
+        long n2 = numAtoms*numAtoms;
         for(int k=0; k<waveVec.length; k++){
-            term1 = 0;
-            term2 = 0;
-            dotprod = 0;
+            double term1 = 0;
+            double term2 = 0;
             for(int i=0; i<numAtoms; i++){
-                dotprod = waveVec[k].dot(atomList.getAtom(i).getPosition());
+                double dotprod = waveVec[k].dot(atomList.getAtom(i).getPosition());
                 term1 += Math.cos(dotprod);
                 term2 += Math.sin(dotprod);
             }
-            struct[k] = ((term1*term1) + (term2*term2))/(numAtoms*numAtoms);
+            struct[k] = ((term1*term1) + (term2*term2))/n2;
         }
         return data;
     }

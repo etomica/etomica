@@ -4,23 +4,24 @@
 
 package etomica.math.geometry;
 
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Vector;
+import etomica.space.Space;
 
 /**
  * A zero-dimensional polytope, a mathematical point in space.
- * 
+ *
  * @author David Kofke
- *  
  */
 public class Point extends Polytope {
 
-    public Point(ISpace embeddedSpace) {
+    private static final long serialVersionUID = 1L;
+    private final static LineSegment[] edges = new LineSegment[0];
+
+    public Point(Space embeddedSpace) {
         this(embeddedSpace, embeddedSpace.makeVector());
     }
 
-    public Point(ISpace embeddedSpace, IVectorMutable vectorRandom) {
+    public Point(Space embeddedSpace, Vector vectorRandom) {
         super(embeddedSpace, vectorRandom);
     }
 
@@ -30,9 +31,12 @@ public class Point extends Polytope {
     public void updateVertices() {
         //does nothing because vertex is the internal representation of point
     }
-    
+
+    /**
+     * @return the edges for this point, which is an empty array
+     */
     public LineSegment[] getEdges() {
-    	return edges;
+        return edges;
     }
 
     /**
@@ -46,14 +50,11 @@ public class Point extends Polytope {
      * Returns true if this point is at exactly the same location as the point
      * defined by the given vector.
      */
-    public boolean contains(IVector v) {
+    public boolean contains(Vector v) {
         return vertices[0].equals(v);
     }
-    
+
     public String toString() {
         return vertices[0].toString();
     }
-
-    private static final long serialVersionUID = 1L;
-    private final static LineSegment[] edges = new LineSegment[0];
 }

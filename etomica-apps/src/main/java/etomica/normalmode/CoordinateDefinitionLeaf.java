@@ -4,16 +4,16 @@
 
 package etomica.normalmode;
 
-import java.io.Serializable;
-
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.box.Box;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
-import etomica.space.ISpace;
+import etomica.molecule.IMoleculeList;
+import etomica.space.Space;
+import etomica.space.Vector;
+
+import java.io.Serializable;
 
 /**
  * CoordinateDefinition implementation for monatomic molecules that are simply
@@ -28,11 +28,11 @@ import etomica.space.ISpace;
 public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
         Serializable {
 
-    public CoordinateDefinitionLeaf(IBox box, Primitive primitive, ISpace space) {
+    public CoordinateDefinitionLeaf(Box box, Primitive primitive, Space space) {
         this(box, primitive, new BasisMonatomic(space), space);
     }
     
-    public CoordinateDefinitionLeaf(IBox box, Primitive primitive, Basis basis, ISpace space) {
+    public CoordinateDefinitionLeaf(Box box, Primitive primitive, Basis basis, Space space) {
         super(box, space.D()*basis.getScaledCoordinates().length, primitive, basis, space);
         workVector = space.makeVector();
         u = new double[coordinateDim];
@@ -45,8 +45,8 @@ public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
         int j = 0;
         for (int i=0; i<atoms.getMoleculeCount(); i++) {
             IAtom a = atoms.getMolecule(i).getChildList().getAtom(0);
-            IVectorMutable pos = a.getPosition();
-            IVectorMutable site = getLatticePosition(a);
+            Vector pos = a.getPosition();
+            Vector site = getLatticePosition(a);
             workVector.Ev1Mv2(pos, site);
             for (int k=0; k<workVector.getD(); k++) {
                 u[j+k] = workVector.getX(k);
@@ -67,7 +67,7 @@ public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
         int j = 0;
         for (int i=0; i<atoms.getMoleculeCount(); i++) {
             IAtom a = atoms.getMolecule(i).getChildList().getAtom(0);
-            IVectorMutable pos = a.getPosition();
+            Vector pos = a.getPosition();
             for (int k=0; k<workVector.getD(); k++) {
                 pos.setX(k, newU[j+k]);
             }
@@ -76,7 +76,7 @@ public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
         }
     }
 
-    protected final IVectorMutable workVector;
+    protected final Vector workVector;
     protected final double[] u;
     private static final long serialVersionUID = 1L;
 }

@@ -6,19 +6,19 @@ package etomica.data;
 
 import java.util.ArrayList;
 
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.units.Null;
-import etomica.units.Quantity;
+import etomica.units.dimensions.Null;
+import etomica.units.dimensions.Quantity;
 import etomica.util.Arrays;
-import etomica.util.RandomMersenneTwister;
-import etomica.util.RandomNumberGenerator;
-import etomica.util.RandomNumberGeneratorUnix;
+import etomica.util.random.RandomMersenneTwister;
+import etomica.util.random.RandomNumberGenerator;
+import etomica.util.random.RandomNumberGeneratorUnix;
 
 
 /**

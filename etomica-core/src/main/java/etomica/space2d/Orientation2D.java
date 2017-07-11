@@ -6,9 +6,8 @@ package etomica.space2d;
 
 import java.io.Serializable;
 
-import etomica.api.IRandom;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.util.random.IRandom;
+import etomica.space.Vector;
 import etomica.space.IOrientation;
 import etomica.space.Space;
 import etomica.util.Constants;
@@ -34,7 +33,7 @@ public class Orientation2D implements IOrientation2D, Serializable {
      * Constructs with orientation as specified by the given angle theta.
      * @throws Exception if vector has 0 length
      */
-    public Orientation2D(IVector direction) {
+    public Orientation2D(Vector direction) {
         this.direction = Space.makeVector(2);
         setDirection(direction);
     }
@@ -43,15 +42,11 @@ public class Orientation2D implements IOrientation2D, Serializable {
         setDirection(o.getDirection());
     }
     
-    public IVector getDirection() {
+    public Vector getDirection() {
         return direction;
     }
     
-    /**
-     * Sets this orientation to point in the given direction.
-     * @throws Exception if vector has 0 length
-     */
-    public void setDirection(IVector newDirection) {
+    public void setDirection(Vector newDirection) {
         direction.E(newDirection);
         direction.normalize();
         angle = Math.atan2(this.direction.getX(1), this.direction.getX(0));
@@ -59,7 +54,6 @@ public class Orientation2D implements IOrientation2D, Serializable {
     
     /**
      * Rotates orientation around the given axis by the given value.
-     * @throws IllegalArgumentException if index is not zer0.
      */
     public void rotateBy(double dt) {
         angle += dt;
@@ -83,5 +77,5 @@ public class Orientation2D implements IOrientation2D, Serializable {
 
     private static final long serialVersionUID = 1L;
     protected double angle;
-    protected IVectorMutable direction;
+    protected Vector direction;
 }

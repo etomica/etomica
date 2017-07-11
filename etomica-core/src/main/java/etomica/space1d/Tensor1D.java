@@ -4,9 +4,8 @@
 
 package etomica.space1d;
 
-import etomica.api.IFunction;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.math.function.IFunction;
+import etomica.space.Vector;
 import etomica.space.Tensor;
 
 /**
@@ -25,7 +24,7 @@ public class Tensor1D implements etomica.space.Tensor, java.io.Serializable {
         xx = 0.0;
     }
 
-    public Tensor1D(double[][] d) {
+    public Tensor1D(double d) {
         this.E(d);
     }
 
@@ -65,14 +64,18 @@ public class Tensor1D implements etomica.space.Tensor, java.io.Serializable {
         xx = a[0][0];
     }
     
-    public void E(IVector[] v) {
+    public void E(Vector[] v) {
         if(v.length != 1) {
             throw new IllegalArgumentException("Tensor requires 1 vector to set its values");
         }
         xx = ((Vector1D)v[0]).x;
     }
+
+    public void diagE(Vector v) {
+        xx = ((Vector1D)v).x;
+    }
     
-    public void assignTo(IVectorMutable[] v) {
+    public void assignTo(Vector[] v) {
         if(v.length != 1) {
             throw new IllegalArgumentException("Tensor requires 1 vector to set its values");
         }
@@ -92,8 +95,7 @@ public class Tensor1D implements etomica.space.Tensor, java.io.Serializable {
         return xx;
     }
 
-    public void transpose() {
-    }
+    public void transpose() {}
 
     public void invert() {
         xx = 1.0 / xx;
@@ -103,7 +105,7 @@ public class Tensor1D implements etomica.space.Tensor, java.io.Serializable {
         xx = ((Tensor1D) t).xx;
     }
 
-    public void Ev1v2(IVector u1, IVector u2) {
+    public void Ev1v2(Vector u1, Vector u2) {
         xx = ((Vector1D) u1).x * ((Vector1D) u2).x;
     }
 
@@ -111,7 +113,7 @@ public class Tensor1D implements etomica.space.Tensor, java.io.Serializable {
         xx += ((Tensor1D) t).xx;
     }
 
-    public void PEv1v2(IVector u1, IVector u2) {
+    public void PEv1v2(Vector u1, Vector u2) {
         xx += ((Vector1D) u1).x * ((Vector1D) u2).x;
     }
     
@@ -119,7 +121,7 @@ public class Tensor1D implements etomica.space.Tensor, java.io.Serializable {
         xx += a1*((Tensor1D)t1).xx;
     }
 
-    public void MEv1v2(IVector u1, IVector u2) {
+    public void MEv1v2(Vector u1, Vector u2) {
         xx -= ((Vector1D) u1).x * ((Vector1D) u2).x;
     }
 
@@ -141,13 +143,13 @@ public class Tensor1D implements etomica.space.Tensor, java.io.Serializable {
 
     public void E(double[] d) {
         if (d.length != 1)
-            throw new IllegalArgumentException("Array size incorrector for tensor");
+            throw new IllegalArgumentException("Array size incorrect for tensor");
         xx = d[0];
     }
 
     public void assignTo(double[] d) {
         if (d.length != 1)
-            throw new IllegalArgumentException("Array size incorrector for tensor");
+            throw new IllegalArgumentException("Array size incorrect for tensor");
         d[0] = xx;
     }
 
@@ -163,11 +165,15 @@ public class Tensor1D implements etomica.space.Tensor, java.io.Serializable {
         xx = f.f(xx);
     }
     
-    public void transform(IVectorMutable v) {
-        v.setX(0, xx * v.getX(1));
+    public void transform(Vector v) {
+        v.TE(xx);
     }
 
     public double determinant() {
         return xx;
+    }
+
+    public boolean equals(Tensor t) {
+        return xx == ((Tensor1D)t).xx;
     }
 }

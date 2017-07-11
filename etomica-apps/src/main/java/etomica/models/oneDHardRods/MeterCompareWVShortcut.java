@@ -4,14 +4,14 @@
 
 package etomica.models.oneDHardRods;
 
-import etomica.api.IPotential;
-import etomica.api.IPotentialMaster;
-import etomica.api.IVectorMutable;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
-import etomica.units.Null;
+import etomica.potential.IPotential;
+import etomica.potential.PotentialMaster;
+import etomica.space.Vector;
+import etomica.units.dimensions.Null;
 
 
 /**
@@ -27,7 +27,7 @@ public class MeterCompareWVShortcut extends DataSourceScalar {
     MeterPotentialEnergy meterPE;
     
     private double eigenVectors[][][];
-    private IVectorMutable[] waveVectors;
+    private Vector[] waveVectors;
     int comparedWV;
     protected double temperature;
     private double[] waveVectorCoefficients, sqrtWVC;
@@ -44,7 +44,7 @@ public class MeterCompareWVShortcut extends DataSourceScalar {
     private static final long serialVersionUID = 1L;
     MCMoveCompareMultipleWV mcmove;
     
-    public MeterCompareWVShortcut(IPotentialMaster potentialMaster, 
+    public MeterCompareWVShortcut(PotentialMaster potentialMaster,
             MCMoveCompareMultipleWV mcmove){
         super("meterComapreMode", Null.DIMENSION);
         realT = new double[coordinateDim];
@@ -122,7 +122,7 @@ public class MeterCompareWVShortcut extends DataSourceScalar {
     public void setEigenVectors(double[][][] eigenVectors) {
         this.eigenVectors = eigenVectors;
     }
-    public void setWaveVectors(IVectorMutable[] waveVectors) {
+    public void setWaveVectors(Vector[] waveVectors) {
         this.waveVectors = waveVectors;
     }
     public void setComparedWV(int comparedWV) {

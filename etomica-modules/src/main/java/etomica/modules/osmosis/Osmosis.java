@@ -18,7 +18,7 @@ import javax.swing.event.ChangeListener;
 
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.config.ConfigurationLatticeWithPlane;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
@@ -42,7 +42,6 @@ import etomica.math.geometry.Cuboid;
 import etomica.math.geometry.Plane;
 import etomica.math.geometry.Rectangle;
 import etomica.potential.P1HardBoundary;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space2d.Vector2D;
@@ -70,7 +69,7 @@ public class Osmosis extends SimulationGraphic {
     public OsmosisSim sim;
     private DeviceThermoSlider temperatureSelect;
 
-    public Osmosis(OsmosisSim simulation, ISpace _space) {
+    public Osmosis(OsmosisSim simulation, Space _space) {
 
     	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
 
@@ -160,7 +159,7 @@ public class Osmosis extends SimulationGraphic {
 
         // Right side of membrane mole fraction
         moleFractionRight = new MeterLocalMoleFraction(space, sim.box);
-        IVector dimensions = sim.box.getBoundary().getBoxSize();
+        Vector dimensions = sim.box.getBoundary().getBoxSize();
 
         if (sim.getSpace() instanceof Space2D) { // 2D
             moleFractionRight.setShape(new Rectangle(sim.getSpace(), dimensions.getX(0)*0.5, dimensions.getX(1)));

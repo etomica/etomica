@@ -4,25 +4,24 @@
 
 package etomica.models.nitrogen;
 
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.space.Vector;
 import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class BoundaryDeformablePeriodicSwitch extends BoundaryDeformablePeriodic{
 	
-	public BoundaryDeformablePeriodicSwitch(ISpace _space, IVector[] vex) {
+	public BoundaryDeformablePeriodicSwitch(Space _space, Vector[] vex) {
 		super(_space, vex);
 		temp = space.makeVector();
 		
 	}
-	public void nearestImage(IVectorMutable dr) {
+	public void nearestImage(Vector dr) {
 		if(doPBC){
 			super.nearestImage(dr);
 		} 
 	}
 
-	public IVector centralImage(IVector r) {
+	public Vector centralImage(Vector r) {
 		
 		if(doPBC){
 			return super.centralImage(r);
@@ -45,6 +44,6 @@ public class BoundaryDeformablePeriodicSwitch extends BoundaryDeformablePeriodic
 	}
 
 	private static final long serialVersionUID = 1L;
-	protected IVectorMutable temp;
+	protected Vector temp;
 	protected boolean doPBC = true;
 }

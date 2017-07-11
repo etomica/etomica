@@ -4,10 +4,10 @@
 
 package etomica.data.meter;
 
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
+import etomica.box.Box;
+import etomica.potential.PotentialMaster;
 import etomica.data.DataSourceScalar;
-import etomica.units.Energy;
+import etomica.units.dimensions.Energy;
 
 /**
  * Meter for measurement of the total (potential and kinetic) energy in a box
@@ -20,7 +20,7 @@ public final class MeterEnergy extends DataSourceScalar {
     protected DataSourceScalar kinetic;
     protected DataSourceScalar potential;
     
-    public MeterEnergy(IPotentialMaster potentialMaster, IBox box) {
+    public MeterEnergy(PotentialMaster potentialMaster, Box box) {
     	super("Energy",Energy.DIMENSION);
         kinetic = new MeterKineticEnergy();
         ((MeterKineticEnergy)kinetic).setBox(box);

@@ -6,15 +6,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomList;
-import etomica.api.IMolecule;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
-import etomica.atom.AtomTypeLeaf;
+import etomica.atom.AtomType;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
+import etomica.molecule.IMolecule;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPumpListener;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -30,8 +28,10 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresCustom;
 import etomica.units.Joule;
 import etomica.util.Constants;
@@ -53,18 +53,15 @@ import java.util.stream.StreamSupport;
  */
 public class ParmedStructure {
     private static final ObjectMapper mapper = new ObjectMapper();
-    private final JsonNode root;
-
     // We're only ever using 3D space for now
     private static final Space SPACE = Space3D.getInstance();
-
-    private Map<String, AtomTypeLeaf> atomTypes;
-    private SpeciesSpheresCustom species;
-
     /**
      * rmin = 2^(1/6) * sigma
       */
     private static final double SIGMA_FACTOR = 1 / Math.pow(2, 1/6);
+    private final JsonNode root;
+    private Map<String, AtomType> atomTypes;
+    private SpeciesSpheresCustom species;
 
     /**
      * Constructs a ParmedStructure with the data contained in root.
@@ -106,13 +103,13 @@ public class ParmedStructure {
 
         SpeciesSpheresCustom theSpecies = new SpeciesSpheresCustom(
                 SPACE,
-                atomTypes.values().toArray(new AtomTypeLeaf[]{ })
+                atomTypes.values().toArray(new AtomType[]{})
         );
 
         // LinkedHashMap keySet is guaranteed to be in insertion order
         List<String> atomTypeIndices = new ArrayList<>(atomTypes.keySet());
         List<Integer> speciesAtomTypes = new ArrayList<>();
-        List<IVector> atomPositions = new ArrayList<>();
+        List<Vector> atomPositions = new ArrayList<>();
         JsonNode speciesAtoms = root.get("residues").get(0).get("atoms");
 
         for(JsonNode atomNode : speciesAtoms) {
@@ -132,7 +129,7 @@ public class ParmedStructure {
 
         theSpecies.setConformation(atomList -> {
             for(int i = 0; i < atomList.getAtomCount(); i++) {
-                IVector atomVec = atomPositions.get(i);
+                Vector atomVec = atomPositions.get(i);
                 atomList.getAtom(i).getPosition().E(atomVec);
             }
         });
@@ -163,9 +160,9 @@ public class ParmedStructure {
                 JsonNode typeNode1 = atomTypesList.get(i);
                 JsonNode typeNode2 = atomTypesList.get(j);
 
-                AtomTypeLeaf atomType1 = atomTypes.get(typeNode1.get("name").asText());
-                AtomTypeLeaf atomType2 = atomTypes.get(typeNode2.get("name").asText());
-                AtomTypeLeaf[] typePair = new AtomTypeLeaf[] { atomType1, atomType2 };
+                AtomType atomType1 = atomTypes.get(typeNode1.get("name").asText());
+                AtomType atomType2 = atomTypes.get(typeNode2.get("name").asText());
+                AtomType[] typePair = new AtomType[]{atomType1, atomType2};
 
                 double epsilon1 = typeNode1.get("epsilon").asDouble();
                 double epsilon2 = typeNode2.get("epsilon").asDouble();
@@ -278,7 +275,7 @@ public class ParmedStructure {
                 double atomMass = atomTypeNode.get("mass").asDouble();
 
                 ElementSimple element = new ElementSimple(atomName, atomMass);
-                AtomTypeLeaf atomType = new AtomTypeLeaf(element);
+                AtomType atomType = new AtomType(element);
                 atomTypes.put(atomName, atomType);
             }
         }

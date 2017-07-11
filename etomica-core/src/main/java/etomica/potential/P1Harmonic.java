@@ -4,15 +4,14 @@
 
 package etomica.potential;
 
-import etomica.api.IAtomList;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
+import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.units.CompoundDimension;
-import etomica.units.Dimension;
-import etomica.units.Energy;
-import etomica.units.Length;
+import etomica.units.dimensions.CompoundDimension;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Length;
 
 /**
  * Potential in which attaches a harmonic spring between each affected atom and
@@ -27,12 +26,12 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
     
     private static final long serialVersionUID = 1L;
     private double w = 100.0;
-    private final IVectorMutable[] force;
-    private final IVectorMutable x0;
+    private final Vector[] force;
+    private final Vector x0;
     
-    public P1Harmonic(ISpace space) {
+    public P1Harmonic(Space space) {
         super(space);
-        force = new IVectorMutable[]{space.makeVector()};
+        force = new Vector[]{space.makeVector()};
         x0 = space.makeVector();
     }
     public void setSpringConstant(double springConstant) {
@@ -43,11 +42,11 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
         return w;
     }
     
-    public void setX0(IVector x0) {
+    public void setX0(Vector x0) {
         this.x0.E(x0);
     }
     
-    public IVector getX0() {
+    public Vector getX0() {
         return x0;
     }
     
@@ -67,15 +66,15 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
         return 0.0;
     }
 
-    public IVector[] gradient(IAtomList a){
-        IVectorMutable r = a.getAtom(0).getPosition();
+    public Vector[] gradient(IAtomList a){
+        Vector r = a.getAtom(0).getPosition();
         force[0].Ev1Mv2(r,x0);
         force[0].TE(w);
             
         return force;
     }
         
-    public IVector[] gradient(IAtomList a, Tensor pressureTensor){
+    public Vector[] gradient(IAtomList a, Tensor pressureTensor){
         return gradient(a);
     }
 }

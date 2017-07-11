@@ -5,27 +5,23 @@
 package etomica.models.oneDHardRods;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.AccumulatorHistogram;
 import etomica.data.DataPump;
 import etomica.data.DataSplitter;
+import etomica.data.histogram.Histogram;
+import etomica.data.histogram.HistogramSimple;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.listener.IntegratorListenerAction;
+import etomica.math.DoubleRange;
 import etomica.math.SpecialFunctions;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.normalmode.CoordinateDefinition;
-import etomica.normalmode.CoordinateDefinitionLeaf;
-import etomica.normalmode.MCMoveAtomCoupled;
-import etomica.normalmode.NormalModes;
-import etomica.normalmode.NormalModes1DHR;
-import etomica.normalmode.P2XOrder;
-import etomica.normalmode.WaveVectorFactory;
+import etomica.normalmode.*;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2HardSpherical;
@@ -34,9 +30,6 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.DoubleRange;
-import etomica.util.Histogram;
-import etomica.util.HistogramSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 
@@ -59,15 +52,14 @@ public class SimDegFreeBinning extends Simulation {
     private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "SimDefFreeBinning";
     public Primitive primitive;
-    int[] nCells;
-    NormalModes nm;
     public IntegratorMC integrator;
     public BasisMonatomic basis;
     public ActivityIntegrate activityIntegrate;
-    
-    public IBox box;
+    public Box box;
     public Boundary bdry;
     public CoordinateDefinition coordinateDefinition;
+    int[] nCells;
+    NormalModes nm;
     MeterNMCBaskets meternmc;
     WaveVectorFactory waveVectorFactory;
     MCMoveAtomCoupled mcMoveAtom;
@@ -99,7 +91,7 @@ public class SimDegFreeBinning extends Simulation {
         Potential2 potential = new P2HardSphere(space, 1.0, true);
         potential = new P2XOrder(space, (Potential2HardSpherical)potential);
         potential.setBox(box);
-        potentialMaster.addPotential(potential, new IAtomType[] {species.getLeafType(), species.getLeafType()});
+        potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
         primitive = new PrimitiveCubic(space, 1.0/density);
         bdry = new BoundaryRectangularPeriodic(space, numAtoms/density);
@@ -206,13 +198,6 @@ public class SimDegFreeBinning extends Simulation {
 //        }
     }
 
-    private void setHarmonicWV(int hwv){
-        harmonicWV = hwv;
-
-        System.out.println("need to fix this setHarmonicWV");
-//        mcMoveMode.setHarmonicWV(hwv);
-    }
-    
     /**
      * @param args
      */
@@ -228,7 +213,7 @@ public class SimDegFreeBinning extends Simulation {
             readParameters.readParameters();
             inputFilename = params.inputfilename;
         }
-        
+
         int nA = params.numAtoms;
         double density = params.density;
         int D = params.D;
@@ -243,10 +228,10 @@ public class SimDegFreeBinning extends Simulation {
         int bs = params.blockSize;
         int nbins = params.nBins;
         String outputfn = params.outputname;
-        
+
         // construct simulation
         SimDegFreeBinning sim = new SimDegFreeBinning(Space.getInstance(D), nA, density, bs, nbins);
-        System.out.println("Running " + sim.APP_NAME + " "
+        System.out.println("Running " + APP_NAME + " "
                 + (D == 1 ? "1D" : (D == 3 ? "FCC" : "2D hexagonal"))
                 + " hard sphere simulation");
         System.out.println(nA + " atoms at density " + density);
@@ -254,7 +239,7 @@ public class SimDegFreeBinning extends Simulation {
         System.out.println(nbins + " starting number of bins");
         System.out.println("input data from " + inputFilename);
         System.out.println("output data to " + filename);
-        
+
         // start simulation
         sim.activityIntegrate.setMaxSteps(nSteps/10);
         sim.setHarmonicWV(comparedWV);
@@ -267,14 +252,14 @@ public class SimDegFreeBinning extends Simulation {
             if(sim.skipThisMode[i]) {continue;}
             sim.hists[i].reset();
         }
-       
+
         sim.activityIntegrate.setMaxSteps(nSteps);
         sim.getController().actionPerformed();
-        
-        /* 
-         * This loop creates a new write class for each histogram from each 
+
+        /*
+         * This loop creates a new write class for each histogram from each
          * AccumulatorHistogram, changes the filename for the histogram output,
-         * connects the write class with this histogram, and 
+         * connects the write class with this histogram, and
          * writes out the results to the file.
          */
         WriteHistograms wh;
@@ -285,7 +270,7 @@ public class SimDegFreeBinning extends Simulation {
             wh.setHistogram(sim.hists[i].getHistograms());
             wh.actionPerformed();
         }
-        
+
 //        IAtomList leaflist = sim.box.getLeafList();
 //        double[] locations = new double[nA];
 //        System.out.println("final:");
@@ -293,18 +278,25 @@ public class SimDegFreeBinning extends Simulation {
 //            //one d is assumed here.
 //            locations[i] = ( ((Atom)leaflist.getAtom(i)).getPosition().x(0) );
 //        }
-//        
+//
 //        for(int i = 0; i < 32; i++){
 //            System.out.println(i + "  " + locations[i]);
 //        }
-        
+
         if(D==1) {
             double AHR = -(nA-1)*Math.log(nA/density-nA)
                 + SpecialFunctions.lnFactorial(nA) ;
             System.out.println("Hard-rod free energy: "+AHR);
         }
-        
+
         System.out.println("Fini.");
+    }
+
+    private void setHarmonicWV(int hwv) {
+        harmonicWV = hwv;
+
+        System.out.println("need to fix this setHarmonicWV");
+//        mcMoveMode.setHarmonicWV(hwv);
     }
     
     public static class SimParam extends ParameterBase {

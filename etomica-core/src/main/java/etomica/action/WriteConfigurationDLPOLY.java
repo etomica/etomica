@@ -4,26 +4,20 @@
 
 package etomica.action;
 
+import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
+import etomica.box.Box;
+import etomica.chem.elements.*;
+import etomica.molecule.IMolecule;
+import etomica.space.Boundary;
+import etomica.space.BoundaryDeformablePeriodic;
+import etomica.space.Vector;
+import etomica.space3d.BoundaryTruncatedOctahedron;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Formatter;
 import java.util.HashMap;
-
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IElement;
-import etomica.api.IMolecule;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.chem.elements.Carbon;
-import etomica.chem.elements.Hydrogen;
-import etomica.chem.elements.Nitrogen;
-import etomica.chem.elements.Oxygen;
-import etomica.space.Boundary;
-import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space3d.BoundaryTruncatedOctahedron;
 
 
 /**
@@ -65,7 +59,7 @@ public class WriteConfigurationDLPOLY implements IAction {
     /**
      * Sets the box whose atom coordinates get written to the file.
      */
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
     	if(!(box.getBoundary() instanceof Boundary)) {
     		throw new RuntimeException("The boundary within the box in WriteConfigurationDLPOLY MUST be derived from etomica.space.Boundary.");
         }
@@ -76,7 +70,7 @@ public class WriteConfigurationDLPOLY implements IAction {
     /**
      * Returns the box whose atom coordinates get written to the file.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     
@@ -120,7 +114,7 @@ public class WriteConfigurationDLPOLY implements IAction {
         	
         	Formatter formatter = new Formatter(new File(fileName));
         	
-        	IBoundary boundary = box.getBoundary();
+        	Boundary boundary = box.getBoundary();
         	int boundaryType = -1;
         	if (boundary instanceof BoundaryTruncatedOctahedron){
         		boundaryType = 4;
@@ -147,7 +141,7 @@ public class WriteConfigurationDLPOLY implements IAction {
 
 
             for (int i=0; i<3; i++){
-                IVector cell = boundary.getEdgeVector(i);
+                Vector cell = boundary.getEdgeVector(i);
         		for (int j=0; j<3; j++){
         			formatter.format("%20f",new Object[]{cell.getX(j)});
         		}
@@ -180,12 +174,12 @@ public class WriteConfigurationDLPOLY implements IAction {
 	       
 	                	formatter.format("%8s%10d\n", new Object[]{atomName, atomCount});
 	                	atomCount++;
-	                	IVectorMutable atomPos = atom.getPosition();
+	                	Vector atomPos = atom.getPosition();
 	                	formatter.format("%20.12f%20.12f%20.12f\n", new Object[]{atomPos.getX(0), atomPos.getX(1), atomPos.getX(2)});
 	                		                	
 	                	
 	                	if (writeVelocity){
-	                		IVectorMutable atomVelocity = ((IAtomKinetic)atom).getVelocity();
+	                		Vector atomVelocity = ((IAtomKinetic)atom).getVelocity();
 	                		formatter.format("%20f%20f%20f\n", 
 	                				new Object[]{atomVelocity.getX(0), atomVelocity.getX(1), atomVelocity.getX(2)});
 	                	}
@@ -200,7 +194,7 @@ public class WriteConfigurationDLPOLY implements IAction {
     }
 
     private String confName;
-    private IBox box;
+    private Box box;
     private boolean doApplyPBC;
     private boolean writeVelocity;
     private HashMap<IElement,String> elementHash;

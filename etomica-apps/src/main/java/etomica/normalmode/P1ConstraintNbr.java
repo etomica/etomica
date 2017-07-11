@@ -4,25 +4,25 @@
 
 package etomica.normalmode;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IPotentialAtomic;
-import etomica.api.ISimulation;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.box.BoxAgentManager;
-import etomica.space.ISpace;
+import etomica.potential.IPotentialAtomic;
+import etomica.simulation.Simulation;
+import etomica.space.Boundary;
+import etomica.space.Space;
+import etomica.space.Vector;
 
-public class P1ConstraintNbr implements IPotentialAtomic{
+public class P1ConstraintNbr implements IPotentialAtomic {
 
     // this could take a NeighborListManager to try to speed up finding neighbors
-    public P1ConstraintNbr(ISpace space, double neighborDistance, ISimulation sim) {
+    public P1ConstraintNbr(Space space, double neighborDistance, Simulation sim) {
         this(space, neighborDistance, sim, 3.0);
     }
     
-    public P1ConstraintNbr(ISpace space, double neighborDistance, ISimulation sim, double constraint) {
+    public P1ConstraintNbr(Space space, double neighborDistance, Simulation sim, double constraint) {
         boxManager = new BoxAgentManager<int[][]>(null, int[][].class, sim);
         
         neighborRadiusSq = neighborDistance*neighborDistance;
@@ -37,7 +37,7 @@ public class P1ConstraintNbr implements IPotentialAtomic{
      * Assigns & keeps track of a set of neighbors for each box
      * @param box
      */
-    public void initBox(IBox box){
+    public void initBox(Box box){
         //Does boxAgentManager already know what to do with this box?
         if(boxManager.getAgent(box) != null){return;}
         
@@ -75,7 +75,7 @@ public class P1ConstraintNbr implements IPotentialAtomic{
         boxManager.setAgent(box, neighborAtoms);
     }
 
-    public int[][] getNbrAtoms(IBox box) {
+    public int[][] getNbrAtoms(Box box) {
         return boxManager.getAgent(box);
     }
 
@@ -87,7 +87,7 @@ public class P1ConstraintNbr implements IPotentialAtomic{
         return Double.POSITIVE_INFINITY;
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
         leafList = box.getLeafList();
         neighborAtoms = boxManager.getAgent(box);
@@ -136,7 +136,7 @@ public class P1ConstraintNbr implements IPotentialAtomic{
 	 * neighbors (but not for i as a neighbor)
 	 */
 	public double energyi(IAtom atom) {
-	    IVectorMutable posAtom = atom.getPosition();
+	    Vector posAtom = atom.getPosition();
 
 	    int atomIndex = atom.getLeafIndex();
 	    int[] list = neighborAtoms[atomIndex];
@@ -167,7 +167,7 @@ public class P1ConstraintNbr implements IPotentialAtomic{
 	 * atom opposite from j.
 	 */
 	protected double energyij(IAtom atomi, IAtom atomj) {
-	    IVectorMutable posAtom = atomi.getPosition();
+	    Vector posAtom = atomi.getPosition();
 
 	    int atomIndex = atomi.getLeafIndex();
 	    int[] list = neighborAtoms[atomIndex];
@@ -197,9 +197,9 @@ public class P1ConstraintNbr implements IPotentialAtomic{
 	}
 
 	protected int[][] neighborAtoms;
-	protected final IVectorMutable drj, drk;
+	protected final Vector drj, drk;
 	protected double neighborRadiusSq;
-	protected IBoundary boundary;
+	protected Boundary boundary;
 	protected IAtomList leafList;
 	protected BoxAgentManager<int[][]> boxManager;
 	protected int boxIndex;

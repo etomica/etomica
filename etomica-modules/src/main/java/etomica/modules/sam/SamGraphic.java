@@ -11,8 +11,8 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import etomica.action.IAction;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.atom.DiameterHashByType;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistogram;
@@ -50,18 +50,18 @@ import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.potential.P2LennardJones;
-import etomica.units.Angle;
+import etomica.units.dimensions.Angle;
 import etomica.units.Bar;
 import etomica.units.Degree;
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
 import etomica.units.Kelvin;
-import etomica.units.Length;
-import etomica.units.Null;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Null;
 import etomica.units.Pixel;
-import etomica.util.DoubleRange;
-import etomica.util.HistogramNotSoSimple;
-import etomica.util.HistoryCollapsingAverage;
-import etomica.util.HistoryScrolling;
+import etomica.math.DoubleRange;
+import etomica.data.histogram.HistogramNotSoSimple;
+import etomica.data.history.HistoryCollapsingAverage;
+import etomica.data.history.HistoryScrolling;
 
 public class SamGraphic extends SimulationGraphic {
     

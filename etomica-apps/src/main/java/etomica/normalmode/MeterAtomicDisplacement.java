@@ -5,31 +5,27 @@
 package etomica.normalmode;
 
 import etomica.action.IAction;
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
-import etomica.data.DataSourceIndependent;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.atom.IAtom;
+import etomica.box.Box;
+import etomica.data.*;
+import etomica.data.histogram.HistogramExpanding;
 import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataFunction;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
+import etomica.molecule.IMoleculeList;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
-import etomica.space.ISpace;
-import etomica.units.Length;
-import etomica.units.Null;
-import etomica.util.HistogramExpanding;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Null;
 
 /**
  * Calculates the average atomic displacement from their lattice sites
  */
 public class MeterAtomicDisplacement implements IEtomicaDataSource, DataSourceIndependent, IAction {
 
-    public MeterAtomicDisplacement(ISpace space, CoordinateDefinition coordinateDefinition) {
+    public MeterAtomicDisplacement(Space space, CoordinateDefinition coordinateDefinition) {
     	
     	this.coordinateDefinition = coordinateDefinition;
     	this.space = space;
@@ -47,7 +43,7 @@ public class MeterAtomicDisplacement implements IEtomicaDataSource, DataSourceIn
     	
 
 
-    public IBox getBox() {
+    public Box getBox() {
         return coordinateDefinition.getBox();
     }
     
@@ -68,8 +64,8 @@ public class MeterAtomicDisplacement implements IEtomicaDataSource, DataSourceIn
     		for (int i=0; i< cell.molecules.getMoleculeCount(); i++){
     			workVector = space.makeVector();
     			IAtom a = molecules.getMolecule(i).getChildList().getAtom(0);
-    			IVectorMutable pos = a.getPosition();
-    			IVectorMutable site = coordinateDefinition.getLatticePosition(a);
+    			Vector pos = a.getPosition();
+    			Vector site = coordinateDefinition.getLatticePosition(a);
     			
     			workVector.Ev1Mv2(pos, site);
     			
@@ -148,9 +144,9 @@ public class MeterAtomicDisplacement implements IEtomicaDataSource, DataSourceIn
     private final DataTag tag, rTag;
     private DataInfoFunction dataInfoFunction;
     private DataInfoDoubleArray rDataInfo;
-    protected IVectorMutable workVector;
+    protected Vector workVector;
     private DataFunction data;
-    private ISpace space;
+    private Space space;
     private HistogramExpanding histogram;
     private DataDoubleArray distanceR;
 	

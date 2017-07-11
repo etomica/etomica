@@ -4,33 +4,17 @@
 
 package etomica.nbr.list.molecule;
 
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotential;
-import etomica.api.IPotentialMolecular;
-import etomica.api.ISimulation;
-import etomica.api.ISpecies;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.atom.MoleculeArrayList;
-import etomica.atom.MoleculePair;
-import etomica.atom.MoleculeSetSinglet;
-import etomica.atom.iterator.IteratorDirective;
-import etomica.atom.iterator.MoleculeIteratorSinglet;
+import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxCellManager;
+import etomica.molecule.*;
+import etomica.molecule.iterator.MoleculeIteratorSinglet;
 import etomica.nbr.cell.molecule.NeighborCellManagerMolecular;
-import etomica.nbr.molecule.CriterionAdapterMolecular;
-import etomica.nbr.molecule.CriterionAllMolecular;
-import etomica.nbr.molecule.CriterionSimpleMolecular;
-import etomica.nbr.molecule.CriterionSpecies;
-import etomica.nbr.molecule.CriterionSpeciesPair;
-import etomica.nbr.molecule.NeighborCriterionMolecular;
-import etomica.nbr.molecule.PotentialMasterNbrMolecular;
-import etomica.potential.PotentialArrayMolecular;
-import etomica.potential.PotentialCalculation;
-import etomica.potential.PotentialCalculationMolecular;
-import etomica.space.ISpace;
+import etomica.nbr.molecule.*;
+import etomica.potential.*;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.util.Arrays;
 import etomica.util.Debug;
 
@@ -46,15 +30,15 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
     /**
      * Default constructor uses range of 1.0.
      */
-    public PotentialMasterListMolecular(ISimulation sim, ISpace _space) {
+    public PotentialMasterListMolecular(Simulation sim, Space _space) {
         this(sim, 1.0, _space);
     }
     
     /**
      * Constructor specifying space and range for neighbor listing; uses null AtomPositionDefinition.
      */
-    public PotentialMasterListMolecular(ISimulation sim, double range, ISpace _space) {
-        this(sim, range, (IAtomPositionDefinition)null, _space);
+    public PotentialMasterListMolecular(Simulation sim, double range, Space _space) {
+        this(sim, range, (IMoleculePositionDefinition)null, _space);
     }
     
     /**
@@ -64,22 +48,22 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
      * @param positionDefinition
      *            if null, specifies use of atom type's position definition
      */
-    public PotentialMasterListMolecular(ISimulation sim, double range, IAtomPositionDefinition positionDefinition, ISpace _space) {
+    public PotentialMasterListMolecular(Simulation sim, double range, IMoleculePositionDefinition positionDefinition, Space _space) {
         this(sim, range, new BoxAgentSourceCellManagerListMolecular(sim, positionDefinition, _space), _space);
     }
 
-    public PotentialMasterListMolecular(ISimulation sim, double range, BoxAgentSourceCellManagerListMolecular boxAgentSource, ISpace _space) {
+    public PotentialMasterListMolecular(Simulation sim, double range, BoxAgentSourceCellManagerListMolecular boxAgentSource, Space _space) {
         this(sim, range, boxAgentSource, new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSource, NeighborCellManagerMolecular.class), _space);
     }
 
-    public PotentialMasterListMolecular(ISimulation sim, double range, BoxAgentSourceCellManagerListMolecular boxAgentSource, BoxAgentManager<? extends BoxCellManager> agentManager, ISpace _space){
+    public PotentialMasterListMolecular(Simulation sim, double range, BoxAgentSourceCellManagerListMolecular boxAgentSource, BoxAgentManager<? extends BoxCellManager> agentManager, Space _space){
         this(sim, range, boxAgentSource, agentManager, new NeighborListAgentSourceMolecular(range, _space), _space);
     }
 
-    public PotentialMasterListMolecular(ISimulation sim, double range,
-    		BoxAgentSourceCellManagerListMolecular boxAgentSource,
-    		BoxAgentManager<? extends BoxCellManager> agentManager,
-    		NeighborListAgentSourceMolecular neighborListAgentSource, ISpace _space) {
+    public PotentialMasterListMolecular(Simulation sim, double range,
+                                        BoxAgentSourceCellManagerListMolecular boxAgentSource,
+                                        BoxAgentManager<? extends BoxCellManager> agentManager,
+                                        NeighborListAgentSourceMolecular neighborListAgentSource, Space _space) {
         super(sim, boxAgentSource, agentManager);
         space = _space;
         this.neighborListAgentSource = neighborListAgentSource;
@@ -398,7 +382,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
      * down species hierarchy from it; if two or more atoms are specified,
      * superclass method is invoked.
      */
-    public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
+    public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled) return;
         IMolecule targetMolecule = id.getTargetMolecule();
         NeighborListManagerMolecular neighborManager = neighborListAgentManager.getAgent(box);
@@ -515,14 +499,14 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
         moleculeArrayList.clear();
     }
 
-    public NeighborListManagerMolecular getNeighborManager(IBox box) {
+    public NeighborListManagerMolecular getNeighborManager(Box box) {
         // we didn't have the simulation when we made the agent manager.
         // setting the simulation after the first time is a quick return
         return neighborListAgentManager.getAgent(box);
     }
 
     
-    public NeighborCellManagerMolecular getNbrCellManager(IBox box) {
+    public NeighborCellManagerMolecular getNbrCellManager(Box box) {
         return (NeighborCellManagerMolecular)boxAgentManager.getAgent(box);
     }
 
@@ -541,7 +525,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
         return cellRange;
     }
 
-    protected final ISpace space;
+    protected final Space space;
     private final MoleculeIteratorSinglet singletIterator;
     protected final MoleculeSetSinglet moleculeSetSinglet;
     protected final MoleculePair moleculePair;
@@ -557,7 +541,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
     private MoleculeArrayList moleculeArrayList;
     
     public static class NeighborListAgentSourceMolecular implements BoxAgentManager.BoxAgentSource<NeighborListManagerMolecular>{
-        public NeighborListAgentSourceMolecular(double range, ISpace space) {
+        public NeighborListAgentSourceMolecular(double range, Space space) {
             
             this.range = range;
             this.space = space;
@@ -571,7 +555,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
             potentialMaster = p;
         }
 
-        public NeighborListManagerMolecular makeAgent(IBox box) {
+        public NeighborListManagerMolecular makeAgent(Box box) {
             return new NeighborListManagerMolecular(potentialMaster, range, box, space);
         }
         
@@ -581,7 +565,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
         
         protected PotentialMasterListMolecular potentialMaster;
         protected double range;
-        protected final ISpace space;
+        protected final Space space;
     }
 
 

@@ -3,14 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.data.meter;
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IPotentialMaster;
-import etomica.atom.iterator.IteratorDirective;
+
+import etomica.atom.IAtom;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
+import etomica.molecule.IMolecule;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationEnergySum;
-import etomica.units.Energy;
+import etomica.potential.PotentialMaster;
+import etomica.units.dimensions.Energy;
 
 /**
  * Meter for evaluation of the potential energy in a box.
@@ -22,7 +23,7 @@ import etomica.units.Energy;
  
 public class MeterPotentialEnergy extends DataSourceScalar {
     
-    public MeterPotentialEnergy(IPotentialMaster potentialMaster) {
+    public MeterPotentialEnergy(PotentialMaster potentialMaster) {
         super("Potential Energy",Energy.DIMENSION);
         iteratorDirective.includeLrc = true;
         potential = potentialMaster;
@@ -67,13 +68,13 @@ public class MeterPotentialEnergy extends DataSourceScalar {
     /**
      * @return Returns the box.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     /**
      * @param box The box to set.
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
     }
     
@@ -81,8 +82,8 @@ public class MeterPotentialEnergy extends DataSourceScalar {
         energy = newEnergySummer;
     }
 
-    protected IBox box;
+    protected Box box;
     protected final IteratorDirective iteratorDirective = new IteratorDirective();
     protected PotentialCalculationEnergySum energy = new PotentialCalculationEnergySum();
-    protected final IPotentialMaster potential;
+    protected final PotentialMaster potential;
 }

@@ -8,11 +8,11 @@ import etomica.action.ActionGroupSeries;
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.IController;
-import etomica.api.IBox;
-import etomica.api.ISpecies;
+import etomica.box.Box;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierNMolecule;
 import etomica.simulation.prototypes.HSMD2D;
+import etomica.species.ISpecies;
 
 /**
  * Slider that selects the number of atoms of a given species in a box.
@@ -49,7 +49,7 @@ public class DeviceNSelector extends DeviceSlider {
         return resetAction;
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
         if (species != null) {
             init();
@@ -63,7 +63,7 @@ public class DeviceNSelector extends DeviceSlider {
         }
     }
     
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     
@@ -94,7 +94,7 @@ public class DeviceNSelector extends DeviceSlider {
     
     protected IAction resetAction;
     protected ISpecies species;
-    protected IBox box;
+    protected Box box;
     
     //main method to demonstrate and test class
     public static void main(String[] args) {
@@ -105,7 +105,7 @@ public class DeviceNSelector extends DeviceSlider {
         final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME, space, sim.getController());
         
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
-        nSelector.setResetAction(new SimulationRestart(sim, space, sim.getController()));
+        nSelector.setResetAction(new SimulationRestart(sim));
         nSelector.setBox(sim.box);
         nSelector.setSpecies(sim.species1);
         nSelector.setPostAction(graphic.getPaintAction(sim.box));
@@ -119,4 +119,3 @@ public class DeviceNSelector extends DeviceSlider {
     
 
 } //end of DeviceNSelector
-  

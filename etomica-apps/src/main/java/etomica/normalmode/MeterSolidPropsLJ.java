@@ -1,37 +1,33 @@
 package etomica.normalmode;
-  
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
+
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.iterator.IteratorDirective;
-import etomica.data.DataSourceScalar;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.atom.IAtom;
+import etomica.box.Box;
+import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
-import etomica.space.ISpace;
-import etomica.units.Null;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.units.dimensions.Null;
 
 public class MeterSolidPropsLJ implements IEtomicaDataSource, AgentSource<MyAgent> {
 
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
-    protected final ISpace space;
+    protected final Space space;
     protected final CoordinateDefinition coordinateDefinition;
     protected final DataSourceScalar meterPE;
     protected final PotentialMaster potentialMaster;
     protected final AtomLeafAgentManager<MyAgent> forceManager;
     protected final IteratorDirective id;
-    protected final IVectorMutable dr;
+    protected final Vector dr;
     protected double ULat, PLat;
     protected double volume, density;
     protected int nMol, nRowsA, nColumnsA, nCells, nBasis;
@@ -50,7 +46,7 @@ public class MeterSolidPropsLJ implements IEtomicaDataSource, AgentSource<MyAgen
     private final PotentialCalculation pcSolidProps;
     protected  PotentialCalculationForceSum pcForceSum;
     
-    public MeterSolidPropsLJ(ISpace space, DataSourceScalar meterPE, PotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, double temperature, double dP,double dU, double ddP, double ULat, double PLat,double dSigma, double dc11, double gamma, double ex) {
+    public MeterSolidPropsLJ(Space space, DataSourceScalar meterPE, PotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, double temperature, double dP, double dU, double ddP, double ULat, double PLat, double dSigma, double dc11, double gamma, double ex) {
         int nData = 2;
 //        int nData = 18;
         data = new DataDoubleArray(nData);
@@ -120,7 +116,7 @@ public class MeterSolidPropsLJ implements IEtomicaDataSource, AgentSource<MyAgen
 
     //U_direct is computed in the main classes using MeterPotentialEnergyFromIntegrator.
     public IData getData() {
-        IBox box = coordinateDefinition.getBox();
+        Box box = coordinateDefinition.getBox();
         double[] sum;
         ((PotentialCalculationLJSP)pcSolidProps).reset();
         potentialMaster.calculate(box, id, pcSolidProps);
@@ -321,9 +317,9 @@ public class MeterSolidPropsLJ implements IEtomicaDataSource, AgentSource<MyAgen
         return dataInfo;
     }
 
-    public final MyAgent makeAgent(IAtom a, IBox box) {
+    public final MyAgent makeAgent(IAtom a, Box box) {
         return new MyAgent(space);
     }
     
-    public void releaseAgent(MyAgent agent, IAtom atom, IBox box) {}
+    public void releaseAgent(MyAgent agent, IAtom atom, Box box) {}
 }

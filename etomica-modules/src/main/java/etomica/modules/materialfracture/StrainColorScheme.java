@@ -5,13 +5,13 @@
 package etomica.modules.materialfracture;
 import java.awt.Color;
 
-import etomica.api.IAtom;
-import etomica.api.IBox;
+import etomica.atom.IAtom;
+import etomica.box.Box;
 import etomica.graphics.ColorScheme;
 
 public class StrainColorScheme extends ColorScheme {
     protected int atomNumber;
-    protected IBox box;
+    protected Box box;
     protected boolean hex;
     protected int atomNumberMod;
 
@@ -21,10 +21,10 @@ public class StrainColorScheme extends ColorScheme {
     }
     public java.awt.Color centerAtomColor = java.awt.Color.red;
     public java.awt.Color parentColor = java.awt.Color.black;
-    public void setBox(IBox newBox){
+    public void setBox(Box newBox){
         box = newBox;
     }
-    public IBox getBox(){ return box;}
+    public Box getBox(){ return box;}
     
     public void setNumber(double n){
         atomNumber = (int)n;

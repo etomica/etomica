@@ -4,17 +4,17 @@
 
 package etomica.virial.GUI.components;
 
-import java.util.HashMap;
-
-import etomica.api.IPotential;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.atom.iterator.Atomset4IteratorIndexList;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
+import etomica.potential.IPotential;
 import etomica.potential.P3BondAngle;
 import etomica.potential.P4BondTorsion;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Kelvin;
+
+import java.util.HashMap;
 
 public class CollectionBondedPotentialAlkanes extends ACollectionBondedPotential{
 	
@@ -29,7 +29,7 @@ public class CollectionBondedPotentialAlkanes extends ACollectionBondedPotential
 
 	@Override
 	public void addBondedPotentialSets(CollectionPotentialAtomicLike pObject,
-			ISpace space, int speciesIndex) {
+                                       Space space, int speciesIndex) {
 		// TODO Auto-generated method stub
 
 		pObject.setHashMapPotentialIntraBonded(new HashMap<String[],IPotential>());

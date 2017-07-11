@@ -4,17 +4,17 @@
 
 package etomica.modules.adsorption;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
-import etomica.units.Quantity;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
+import etomica.units.dimensions.Quantity;
 
 public class MeterExcessAdsorbed extends DataSourceScalar {
 
-    protected IBox box;
+    protected Box box;
     protected int dim;
     protected double xMin, xMax;
     protected double pressure;
@@ -33,7 +33,7 @@ public class MeterExcessAdsorbed extends DataSourceScalar {
         this.xMax = xMax;
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
     }
     
@@ -47,7 +47,7 @@ public class MeterExcessAdsorbed extends DataSourceScalar {
         for (int i=0; i<list.getAtomCount(); i++) {
             IAtom atom = list.getAtom(i);
             if (atom.getParentGroup().getType() != species) continue;
-            IVector p = atom.getPosition();
+            Vector p = atom.getPosition();
             double x = p.getX(dim);
             if (x>xMin && x<xMax) n++;
         }

@@ -5,22 +5,24 @@
 package etomica.integrator.mcmove;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.ISpecies;
-import etomica.atom.MoleculeArrayList;
-import etomica.atom.MoleculeSetSinglet;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorNull;
+import etomica.box.Box;
 import etomica.box.RandomPositionSource;
 import etomica.box.RandomPositionSourceRectangular;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeArrayList;
+import etomica.molecule.MoleculeSetSinglet;
+import etomica.potential.PotentialMaster;
+import etomica.space.Space;
+import etomica.species.ISpecies;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Energy;
 import etomica.util.Debug;
+import etomica.util.random.IRandom;
 
 /**
  * Elementary Monte Carlo move in which a molecule of a specified species is
@@ -47,8 +49,8 @@ public class MCMoveInsertDelete extends MCMoveBox {
     protected IRandom random;
     protected RandomPositionSource positionSource;
 
-    public MCMoveInsertDelete(IPotentialMaster potentialMaster, IRandom random,
-    		                  ISpace _space) {
+    public MCMoveInsertDelete(PotentialMaster potentialMaster, IRandom random,
+                              Space _space) {
         super(potentialMaster);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         setMu(0.0);
@@ -69,7 +71,7 @@ public class MCMoveInsertDelete extends MCMoveBox {
     }
     public ISpecies getSpecies() {return species;}
     
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(box);
         if(species != null) {
@@ -195,6 +197,6 @@ public class MCMoveInsertDelete extends MCMoveBox {
     /**
      * Indicates that chemical potential has dimensions of energy.
      */
-    public final etomica.units.Dimension getMuDimension() {return etomica.units.Energy.DIMENSION;}
+    public final Dimension getMuDimension() {return Energy.DIMENSION;}
   
 }//end of MCMoveInsertDelete

@@ -4,15 +4,15 @@
 
 package etomica.models.oneDHardRods;
 
-import etomica.api.IBox;
-import etomica.api.IPotential;
-import etomica.api.IPotentialMaster;
-import etomica.api.IVectorMutable;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
-import etomica.units.Null;
+import etomica.potential.IPotential;
+import etomica.potential.PotentialMaster;
+import etomica.space.Vector;
+import etomica.units.dimensions.Null;
 
 /**
  * Meter which measures a hard rod energy plus a harmonic energy of a system
@@ -27,7 +27,7 @@ public class MeterCompareMultipleWVBrute extends DataSourceScalar {
     IPotential potentialTarget, potentialHarmonic;
     MeterPotentialEnergy meterPE;
     private double eigenVectors[][][];
-    private IVectorMutable[] waveVectors;
+    private Vector[] waveVectors;
     int[] comparedWVs;
     protected double temperature;
     private double[] waveVectorCoefficients, sqrtWVC;
@@ -40,13 +40,13 @@ public class MeterCompareMultipleWVBrute extends DataSourceScalar {
     private static final long serialVersionUID = 1L;
     public boolean isOnlyHardRod;
     
-    public MeterCompareMultipleWVBrute(IPotentialMaster potentialMaster, 
-            CoordinateDefinition cd, IBox box){
+    public MeterCompareMultipleWVBrute(PotentialMaster potentialMaster,
+            CoordinateDefinition cd, Box box){
         this("meterCompareMultipleModes", potentialMaster, cd, box);
     }
     
-    public MeterCompareMultipleWVBrute(String string, IPotentialMaster
-            potentialMaster, CoordinateDefinition cd, IBox box){
+    public MeterCompareMultipleWVBrute(String string, PotentialMaster
+            potentialMaster, CoordinateDefinition cd, Box box){
         super(string, Null.DIMENSION);
         setCoordinateDefinition(cd);
         realT = new double[coordinateDim];
@@ -179,7 +179,7 @@ public class MeterCompareMultipleWVBrute extends DataSourceScalar {
     public void setEigenVectors(double[][][] eigenVectors) {
         this.eigenVectors = eigenVectors;
     }
-    public void setWaveVectors(IVectorMutable[] waveVectors) {
+    public void setWaveVectors(Vector[] waveVectors) {
         this.waveVectors = waveVectors;
     }
     public void setComparedWV(int[] cwvs) {

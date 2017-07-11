@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.units;
+import etomica.units.dimensions.Temperature;
 import etomica.util.Constants;
 
 public final class Kelvin extends SimpleUnit {
@@ -13,7 +14,7 @@ public final class Kelvin extends SimpleUnit {
     public static final Kelvin UNIT = new Kelvin();
   
     private Kelvin() {
-        super(Temperature.DIMENSION, 
+        super(Temperature.DIMENSION,
         	Constants.BOLTZMANN_K,//convert to simulation energy units by multiplying by Boltzmann's constant
         	"kelvins", "K", Prefix.ALLOWED
         	);

@@ -4,14 +4,14 @@
 
 package etomica.modules.reactionequilibrium;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.potential.P2SquareWell;
-import etomica.space.ISpace;
-import etomica.units.Dimension;
-import etomica.units.Energy;
+import etomica.space.Space;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Energy;
 
 
 /**
@@ -45,7 +45,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 		// bondchange event
 //	}
 
-	public P2SquareWellBonded(ISpace space, AtomLeafAgentManager aam, double coreDiameter,double lambda, double epsilon,boolean ignoreOverlap) {
+	public P2SquareWellBonded(Space space, AtomLeafAgentManager aam, double coreDiameter, double lambda, double epsilon, boolean ignoreOverlap) {
 		super(space, coreDiameter, lambda, epsilon, ignoreOverlap);
         agentManager = aam;
 	}
@@ -75,7 +75,7 @@ public class P2SquareWellBonded extends P2SquareWell {
             IAtomKinetic atom1 = (IAtomKinetic)atoms.getAtom(1);
 
             // ** Makes 2 things, and atomPair pair, 
-            IAtom a0Partner = (IAtom)agentManager.getAgent((IAtom)atom0);
+            IAtom a0Partner = (IAtom)agentManager.getAgent(atom0);
             if (a0Partner != atom1) {
 
                 dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());

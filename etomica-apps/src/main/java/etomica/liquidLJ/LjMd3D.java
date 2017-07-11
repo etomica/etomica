@@ -4,37 +4,19 @@
 
 package etomica.liquidLJ;
 
-import java.io.File;
-
 import etomica.action.BoxInflate;
 import etomica.action.WriteConfigurationBinary;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IFunction;
-import etomica.api.IIntegrator;
+import etomica.integrator.Integrator;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationFileBinary;
 import etomica.config.ConfigurationLattice;
+import etomica.data.*;
 import etomica.data.AccumulatorAverage.StatType;
-import etomica.data.AccumulatorAverageCollapsingLog;
-import etomica.data.AccumulatorAverageCovariance;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorHistory;
-import etomica.data.AccumulatorRatioAverageCovarianceFull;
-import etomica.data.DataFork;
-import etomica.data.DataPipe;
-import etomica.data.DataProcessor;
-import etomica.data.DataProcessorFunction;
-import etomica.data.DataPumpListener;
-import etomica.data.DataSourceCountTime;
-import etomica.data.DataSourceScalar;
-import etomica.data.DataSplitter;
 import etomica.data.DataSplitter.IDataSinkFactory;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IDataSink;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.history.HistoryCollapsingAverage;
+import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPressure;
 import etomica.data.meter.MeterWidomInsertion;
@@ -51,25 +33,20 @@ import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.math.function.Function;
+import etomica.math.function.IFunction;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.potential.P2LennardJones;
-import etomica.potential.P2SoftSphere;
-import etomica.potential.P2SoftSphericalTruncated;
-import etomica.potential.P2SoftSphericalTruncatedForceShifted;
-import etomica.potential.Potential0Lrc;
-import etomica.potential.Potential2SoftSpherical;
-import etomica.potential.PotentialMasterMonatomic;
+import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.units.Energy;
-import etomica.units.Null;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Null;
 import etomica.units.SimpleUnit;
-import etomica.util.Function;
-import etomica.util.HistoryCollapsingAverage;
-import etomica.util.HistoryCollapsingDiscard;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+
+import java.io.File;
 
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 3D
@@ -82,7 +59,7 @@ public class LjMd3D extends Simulation {
     public final ActivityIntegrate ai;
     public IntegratorVelocityVerlet integrator;
     public SpeciesSpheresMono species;
-    public IBox box;
+    public Box box;
     public Potential2SoftSpherical potential;
     public IntegratorMC integratorMC;
     public MCMoveVolume mcMoveVolume;
@@ -120,10 +97,10 @@ public class LjMd3D extends Simulation {
         inflater.actionPerformed();
 
         potential = ss ? new P2SoftSphere(space, 1, 4, 12) : new P2LennardJones(space);
-        IAtomType leafType = species.getLeafType();
+        AtomType leafType = species.getLeafType();
         P2SoftSphericalTruncatedForceShifted potentialTruncatedForceShifted = new P2SoftSphericalTruncatedForceShifted(space, potential, rcShort);
 
-        potentialMasterList.addPotential(potentialTruncatedForceShifted,new IAtomType[]{leafType,leafType});
+        potentialMasterList.addPotential(potentialTruncatedForceShifted, new AtomType[]{leafType, leafType});
 
         integrator.setBox(box);
         integrator.setThermostat(ThermostatType.HYBRID_MC);
@@ -148,11 +125,11 @@ public class LjMd3D extends Simulation {
         
         P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(space, potential, rc);
 
-        potentialMasterLong.addPotential(potentialTruncated,new IAtomType[]{leafType,leafType});
+        potentialMasterLong.addPotential(potentialTruncated, new AtomType[]{leafType, leafType});
         
         potentialMasterLongCut = new PotentialMasterMonatomic(this);
-        
-        potentialMasterLongCut.addPotential(potential,new IAtomType[]{leafType,leafType});
+
+        potentialMasterLongCut.addPotential(potential, new AtomType[]{leafType, leafType});
         
         if (!Double.isNaN(pressure)) {
             integratorMC = new IntegratorMC(potentialMasterList, random, temperature);
@@ -342,7 +319,7 @@ public class LjMd3D extends Simulation {
 //        catch (IOException ex) {
 //            throw new RuntimeException(ex);
 //        }
-//        sim.integrator.getEventManager().addListener(new IIntegratorListener() {
+//        sim.integrator.getEventManager().addListener(new IntegratorListener() {
 //            
 //            public void integratorStepStarted(IIntegratorEvent e) {}
 //            
@@ -418,7 +395,7 @@ public class LjMd3D extends Simulation {
             }
             
             protected IData processData(IData inputData) {
-                data.x = ((DataGroup)inputData).getData(avgEnergy.MOST_RECENT.index).getValue(2);
+                data.x = ((DataGroup) inputData).getData(AccumulatorAverage.MOST_RECENT.index).getValue(2);
                 return data;
             }
         };
@@ -572,7 +549,7 @@ public class LjMd3D extends Simulation {
             }
             
             protected IData processData(IData inputData) {
-                double avgFast = avgWidomFast.getData(avgWidomFast.AVERAGE).getValue(0);
+                double avgFast = avgWidomFast.getData(AccumulatorAverage.AVERAGE).getValue(0);
                 data.x = avgFast;
                 if (avgFast > 0) {
                     double avgFull = inputData.getValue(0);
@@ -589,8 +566,8 @@ public class LjMd3D extends Simulation {
                 return data;
             }
         };
-        
-        avgWidomCorrection.addDataSink(dpWidomCorrection, new StatType[]{avgWidomCorrection.AVERAGE});
+
+        avgWidomCorrection.addDataSink(dpWidomCorrection, new StatType[]{AccumulatorAverage.AVERAGE});
         Function muFunction = new Function() {
             public double f(double x) {
                 if (x==0) return Double.NaN;
@@ -598,7 +575,7 @@ public class LjMd3D extends Simulation {
             }
         };
         DataProcessorFunction muFast = new DataProcessorFunction(muFunction);
-        avgWidomFast.addDataSink(muFast, new StatType[]{avgWidomFast.AVERAGE});
+        avgWidomFast.addDataSink(muFast, new StatType[]{AccumulatorAverage.AVERAGE});
         DataProcessorFunction muCorrected = new DataProcessorFunction(muFunction);
         dpWidomCorrection.setDataSink(muCorrected);
 
@@ -624,7 +601,7 @@ public class LjMd3D extends Simulation {
             }
         };
         DataProcessorFunction muDFast = new DataProcessorFunction(muFunction);
-        avgWidomDFast.addDataSink(muDFast, new StatType[]{avgWidomFast.AVERAGE});
+        avgWidomDFast.addDataSink(muDFast, new StatType[]{AccumulatorAverage.AVERAGE});
 
         
     	if (graphics) {
@@ -671,7 +648,7 @@ public class LjMd3D extends Simulation {
                     return dataInfo;
                 }
                 protected IData processData(IData inputData) {
-                    IData avg = ((DataGroup)inputData).getData(avgEnergy.AVERAGE.index);
+                    IData avg = ((DataGroup) inputData).getData(AccumulatorAverage.AVERAGE.index);
                     data.x = avg.getValue(1)/avg.getValue(2);
                     return data;
                 }
@@ -692,8 +669,8 @@ public class LjMd3D extends Simulation {
                     return dataInfo;
                 }
                 protected IData processData(IData inputData) {
-                    IData avg = ((DataGroup)inputData).getData(avgEnergy.AVERAGE.index);
-                    data.x = avg.getValue(1)/(avg.getValue(3)*avg.getValue(2)) * avgEnergyFast.getData(avgEnergyFast.AVERAGE).getValue(0);
+                    IData avg = ((DataGroup) inputData).getData(AccumulatorAverage.AVERAGE.index);
+                    data.x = avg.getValue(1) / (avg.getValue(3) * avg.getValue(2)) * avgEnergyFast.getData(AccumulatorAverage.AVERAGE).getValue(0);
                     return data;
                 }
             };
@@ -713,7 +690,7 @@ public class LjMd3D extends Simulation {
                     return dataInfo;
                 }
                 protected IData processData(IData inputData) {
-                    IData avg = ((DataGroup)inputData).getData(avgEnergy.AVERAGE.index);
+                    IData avg = ((DataGroup) inputData).getData(AccumulatorAverage.AVERAGE.index);
                     data.x = avg.getValue(0);
                     return data;
                 }
@@ -767,7 +744,7 @@ public class LjMd3D extends Simulation {
             AccumulatorAverageFixed avgRawPressure = new AccumulatorAverageFixed(bs);
             pressureFork.addDataSink(avgRawPressure);
             avgRawPressure.setPushInterval(1);
-            avgRawPressure.addDataSink(pressureAvgHistory, new StatType[]{avgRawPressure.AVERAGE});
+            avgRawPressure.addDataSink(pressureAvgHistory, new StatType[]{AccumulatorAverage.AVERAGE});
             
             AccumulatorHistory pressureHistoryFast = new AccumulatorHistory(new HistoryCollapsingAverage());
             pressureHistoryFast.setTimeDataSource(timeDataSource);
@@ -846,19 +823,19 @@ public class LjMd3D extends Simulation {
 
 
         if (!calcMu) {
-            double uFastAvg = avgEnergyFast.getData(avgEnergyFast.AVERAGE).getValue(0);
-            double uFastErr = avgEnergyFast.getData(avgEnergyFast.ERROR).getValue(0);
-            double uFastCor = avgEnergyFast.getData(avgEnergyFast.BLOCK_CORRELATION).getValue(0);
+            double uFastAvg = avgEnergyFast.getData(AccumulatorAverage.AVERAGE).getValue(0);
+            double uFastErr = avgEnergyFast.getData(AccumulatorAverage.ERROR).getValue(0);
+            double uFastCor = avgEnergyFast.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
             System.out.println(avgEnergyFast.getBlockCount()+" fast energy blocks");
     
             System.out.println(String.format("potential energy (fast): %20.15e   %10.4e   %4.2f", uFastAvg/numAtoms, uFastErr/numAtoms, uFastCor));
-    
-            IData uAvgData = avgEnergy.getData(avgEnergy.AVERAGE);
-            IData uRatioData = avgEnergy.getData(avgEnergy.RATIO);
-            IData uErrData = avgEnergy.getData(avgEnergy.ERROR);
-            IData uRatioErrData = avgEnergy.getData(avgEnergy.RATIO_ERROR);
-            IData uCorData = avgEnergy.getData(avgEnergy.BLOCK_CORRELATION);
-            IData uCovData = avgEnergy.getData(avgEnergy.BLOCK_COVARIANCE);
+
+            IData uAvgData = avgEnergy.getData(AccumulatorAverage.AVERAGE);
+            IData uRatioData = avgEnergy.getData(AccumulatorRatioAverageCovarianceFull.RATIO);
+            IData uErrData = avgEnergy.getData(AccumulatorAverage.ERROR);
+            IData uRatioErrData = avgEnergy.getData(AccumulatorRatioAverageCovarianceFull.RATIO_ERROR);
+            IData uCorData = avgEnergy.getData(AccumulatorAverage.BLOCK_CORRELATION);
+            IData uCovData = avgEnergy.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE);
     
             double uFullAvg = uAvgData.getValue(0);
             double uFullErr = uErrData.getValue(0);
@@ -918,27 +895,27 @@ public class LjMd3D extends Simulation {
 //                P0Lrc p0lrc = sim.potential.
                 P2SoftSphericalTruncated p2t = new P2SoftSphericalTruncated(sim.getSpace(), sim.potential, cutoffs[i]);
                 p2t.setBox(sim.box);
-                Potential0Lrc plrc = p2t.makeLrcPotential(new IAtomType[]{sim.species.getAtomType(0), sim.species.getAtomType(0)});
+                Potential0Lrc plrc = p2t.makeLrcPotential(new AtomType[]{sim.species.getAtomType(0), sim.species.getAtomType(0)});
                 plrc.setBox(sim.box);
                 double ulrc = plrc.energy(null);
 
                 System.out.println(String.format("rc: %3.1f  A-Afast: %20.15e   %10.4e  %4.2f (%d samples)", cutoffs[i], (ulrc + uFacCut[i] + feAvgCut)/numAtoms, feErrCut/numAtoms, feCorCut, accFECut.getNumRawData()));
             }
-            
-            double pFastAvg = avgPressureFast.getData(avgPressureFast.AVERAGE).getValue(0);
-            double pFastErr = avgPressureFast.getData(avgPressureFast.ERROR).getValue(0);
-            double pFastCor = avgPressureFast.getData(avgPressureFast.BLOCK_CORRELATION).getValue(0);
+
+            double pFastAvg = avgPressureFast.getData(AccumulatorAverage.AVERAGE).getValue(0);
+            double pFastErr = avgPressureFast.getData(AccumulatorAverage.ERROR).getValue(0);
+            double pFastCor = avgPressureFast.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
             System.out.println(avgPressureFast.getBlockCount()+" fast pressure blocks");
 
             System.out.println(String.format("pressure (fast): %20.15e   %10.4e   %4.2f", pFastAvg, pFastErr, pFastCor));
 
-            
-            IData pAvgData = avgPressure.getData(avgPressure.AVERAGE);
-            IData pRatioData = avgPressure.getData(avgPressure.RATIO);
-            IData pErrData = avgPressure.getData(avgPressure.ERROR);
-            IData pRatioErrData = avgPressure.getData(avgPressure.RATIO_ERROR);
-            IData pCorData = avgPressure.getData(avgPressure.BLOCK_CORRELATION);
-            IData pCovData = avgPressure.getData(avgPressure.BLOCK_COVARIANCE);
+
+            IData pAvgData = avgPressure.getData(AccumulatorAverage.AVERAGE);
+            IData pRatioData = avgPressure.getData(AccumulatorRatioAverageCovarianceFull.RATIO);
+            IData pErrData = avgPressure.getData(AccumulatorAverage.ERROR);
+            IData pRatioErrData = avgPressure.getData(AccumulatorRatioAverageCovarianceFull.RATIO_ERROR);
+            IData pCorData = avgPressure.getData(AccumulatorAverage.BLOCK_CORRELATION);
+            IData pCovData = avgPressure.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE);
 
             double pFullAvg = pAvgData.getValue(0);
             double pFullErr = pErrData.getValue(0);
@@ -1027,8 +1004,8 @@ public class LjMd3D extends Simulation {
     }
     
     public static class DataProcessorCorrection extends DataProcessor {
-        protected DataDoubleArray data;
         protected final int nMu;
+        protected DataDoubleArray data;
         
         public DataProcessorCorrection(int nMu) {
             this.nMu = nMu;
@@ -1057,11 +1034,11 @@ public class LjMd3D extends Simulation {
     }
 
     public static class ValueCache {
+        protected final DataSourceScalar dss;
+        protected final Integrator integrator;
         protected long lastStep = -1;
         protected double lastValue;
-        protected final DataSourceScalar dss;
-        protected final IIntegrator integrator;
-        public ValueCache(DataSourceScalar dss, IIntegrator integrator) {
+        public ValueCache(DataSourceScalar dss, Integrator integrator) {
             this.dss = dss;
             this.integrator = integrator;
         }
@@ -1075,20 +1052,20 @@ public class LjMd3D extends Simulation {
     }
     
     public static class DataProcessorReweight extends DataProcessor {
+        protected final double deltaMu, deltaP;
+        protected final Box box;
+        protected final int numMolecules0;
+        protected final double v0;
+        protected final IFunction vBias;
         private final double temperature;
         private final ValueCache energyFastCache;
         private final ValueCache energyFullCache;
         private final double uFac;
         protected DataDoubleArray data;
-        protected final double deltaMu, deltaP;
-        protected final IBox box;
-        protected final int numMolecules0;
-        protected final double v0;
-        protected final IFunction vBias;
 
         public DataProcessorReweight(double temperature,
-                ValueCache energyFastCache, ValueCache energyFullCache,
-                double uFac, double deltaMu, double deltaP, IBox box, IFunction vBias) {
+                                     ValueCache energyFastCache, ValueCache energyFullCache,
+                                     double uFac, double deltaMu, double deltaP, Box box, IFunction vBias) {
             this.temperature = temperature;
             this.energyFastCache = energyFastCache;
             this.energyFullCache = energyFullCache;

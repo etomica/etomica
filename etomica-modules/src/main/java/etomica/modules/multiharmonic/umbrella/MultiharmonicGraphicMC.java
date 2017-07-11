@@ -40,15 +40,15 @@ import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space1d.Vector1D;
-import etomica.units.Dimension;
-import etomica.units.Energy;
-import etomica.units.Length;
-import etomica.units.Null;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Null;
 import etomica.units.Pixel;
-import etomica.util.Function;
-import etomica.util.HistoryCollapsingDiscard;
+import etomica.math.function.Function;
+import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
 
@@ -62,7 +62,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
     /**
      * 
      */
-    public MultiharmonicGraphicMC(MultiharmonicMC simulation, ISpace _space) {
+    public MultiharmonicGraphicMC(MultiharmonicMC simulation, Space _space) {
         super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
         this.sim = simulation;
         final DisplayBox displayBoxA = getDisplayBox(sim.box);

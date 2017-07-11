@@ -4,13 +4,12 @@
 
 package etomica.modules.rheology;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
-import etomica.space.ISpace;
-import etomica.units.Null;
+import etomica.space.Space;
+import etomica.units.dimensions.Null;
 
 /**
  * Meter to measure the viscosity of a polymer in a shear field.
@@ -19,7 +18,7 @@ import etomica.units.Null;
  */
 public class MeterViscosity extends DataSourceScalar {
 
-    public MeterViscosity(ISpace space) {
+    public MeterViscosity(Space space) {
         super("viscosity", Null.DIMENSION);
         dr = space.makeVector();
     }
@@ -28,7 +27,7 @@ public class MeterViscosity extends DataSourceScalar {
         integrator = newIntegrator;
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
     
@@ -41,8 +40,8 @@ public class MeterViscosity extends DataSourceScalar {
         IAtomList list = box.getMoleculeList().getMolecule(0).getChildList();
         double v = 0;
         for (int i=0; i<list.getAtomCount()-1; i++) {
-            IVector p0 = list.getAtom(i).getPosition();
-            IVector p1 = list.getAtom(i+1).getPosition();
+            Vector p0 = list.getAtom(i).getPosition();
+            Vector p1 = list.getAtom(i+1).getPosition();
             dr.Ev1Mv2(p1, p0);
             v += dr.getX(0)*dr.getX(1)/(1+b*dr.squared());
         }
@@ -50,7 +49,7 @@ public class MeterViscosity extends DataSourceScalar {
     }
 
     private static final long serialVersionUID = 1L;
-    protected IBox box;
-    protected IVectorMutable dr;
+    protected Box box;
+    protected Vector dr;
     protected IntegratorPolymer integrator;
 }

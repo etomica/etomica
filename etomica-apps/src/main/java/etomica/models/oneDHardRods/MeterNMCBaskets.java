@@ -4,14 +4,14 @@
 
 package etomica.models.oneDHardRods;
 
-import etomica.api.IVectorMutable;
+import etomica.space.Vector;
 import etomica.data.DataTag;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.normalmode.CoordinateDefinition;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
 
@@ -22,7 +22,7 @@ import etomica.units.Null;
 public class MeterNMCBaskets implements IEtomicaDataSource {
 
     private double eigenVectors[][][];
-    private IVectorMutable[] waveVectors;
+    private Vector[] waveVectors;
     private CoordinateDefinition coordinateDefinition;
     private double[] realT, imagT;
     private double[][] omegaSquared;
@@ -37,13 +37,13 @@ public class MeterNMCBaskets implements IEtomicaDataSource {
     protected final DataInfoDoubleArray dataInfo;
     private static final long serialVersionUID = 1L;
 
-    public MeterNMCBaskets(CoordinateDefinition coordinateDefinition, 
-            IVectorMutable[] wv, int nBaskets){
+    public MeterNMCBaskets(CoordinateDefinition coordinateDefinition,
+                           Vector[] wv, int nBaskets){
         this(coordinateDefinition, wv, nBaskets, true);
     }
     
-    public MeterNMCBaskets(CoordinateDefinition coordinateDefinition, 
-            IVectorMutable[] wv, int nBaskets, boolean automaticBaskets){
+    public MeterNMCBaskets(CoordinateDefinition coordinateDefinition,
+                           Vector[] wv, int nBaskets, boolean automaticBaskets){
         this.coordinateDefinition = coordinateDefinition;
         coordinateDim = this.coordinateDefinition.getCoordinateDim();
         this.waveVectors = wv;

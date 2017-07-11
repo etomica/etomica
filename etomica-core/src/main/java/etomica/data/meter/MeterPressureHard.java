@@ -3,11 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.data.meter;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorHard;
-import etomica.space.ISpace;
-import etomica.units.Pressure;
+import etomica.space.Space;
+import etomica.units.dimensions.Pressure;
 
 /**
  * Meter for the pressure (given as the compressibility factor) of a hard potential.
@@ -20,7 +20,7 @@ public class MeterPressureHard extends DataSourceScalar implements
                                                 IntegratorHard.CollisionListener,
                                                 DataSourceCollisional {
     
-    public MeterPressureHard(ISpace space) {
+    public MeterPressureHard(Space space) {
         super("Pressure", Pressure.dimension(space.D()));
         dim = space.D();
     }
@@ -36,7 +36,7 @@ public class MeterPressureHard extends DataSourceScalar implements
      */
     public double getDataAsScalar() {
         if (integratorHard == null) throw new IllegalStateException("must call setIntegrator before using meter");
-        IBox box = integratorHard.getBox();
+        Box box = integratorHard.getBox();
         double currentTime = integratorHard.getCurrentTime();
         double elapsedTime = currentTime - lastTime;
         if(elapsedTime == 0.0) return Double.NaN;

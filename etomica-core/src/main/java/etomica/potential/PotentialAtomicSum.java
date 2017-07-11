@@ -1,8 +1,7 @@
 package etomica.potential;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotentialAtomic;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 
 /**
  * Atomic potential class that simply sums up contributions from multiple
@@ -26,7 +25,7 @@ public class PotentialAtomicSum implements IPotentialAtomic {
         return r;
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         for (int i=0; i<p.length; i++) {
             p[i].setBox(box);
         }

@@ -4,14 +4,14 @@
 
 package etomica.data.types;
 
-import etomica.api.IFunction;
+import etomica.math.function.IFunction;
 import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataInfoFactory;
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
 
 /**
  * Data object wrapping a single mutable value of type <tt>double</tt>. Value is

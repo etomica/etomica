@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.potential;
-import etomica.space.ISpace;
-import etomica.units.Dimension;
-import etomica.units.Energy;
-import etomica.units.Length;
+import etomica.space.Space;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Length;
 
 /**
  * Lennard-Jones interatomic potential.
@@ -18,11 +18,11 @@ import etomica.units.Length;
  */
 public class P2LennardJones extends Potential2SoftSpherical {
 
-    public P2LennardJones(ISpace space) {
+    public P2LennardJones(Space space) {
         this(space, 1.0, 1.0);
     }
     
-    public P2LennardJones(ISpace space, double sigma, double epsilon) {
+    public P2LennardJones(Space space, double sigma, double epsilon) {
         super(space);
         setSigma(sigma);
         setEpsilon(epsilon);

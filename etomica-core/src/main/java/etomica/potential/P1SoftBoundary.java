@@ -4,13 +4,12 @@
 
 package etomica.potential;
 
-import etomica.api.IAtomList;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
+import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.units.Dimension;
-import etomica.units.Length;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
 
 /**
  * @author David Kofke
@@ -22,21 +21,21 @@ import etomica.units.Length;
 public class P1SoftBoundary extends Potential1 implements PotentialSoft {
 
     private static final long serialVersionUID = 1L;
-	private final IVectorMutable[] gradient;
+	private final Vector[] gradient;
 	private double radius;
 	
-    public P1SoftBoundary(ISpace space) {
+    public P1SoftBoundary(Space space) {
         this(space, 0.5);
     }
-	public P1SoftBoundary(ISpace space, double radius) {
+	public P1SoftBoundary(Space space, double radius) {
 		super(space);
-        gradient = new IVectorMutable[1];
+        gradient = new Vector[1];
 		gradient[0] = space.makeVector();
 		setRadius(radius);
 	}
 
 	public double energy(IAtomList a) {
-		IVector dimensions = boundary.getBoxSize();
+		Vector dimensions = boundary.getBoxSize();
 		double rx = a.getAtom(0).getPosition().getX(0);
 		double ry = a.getAtom(0).getPosition().getX(1);
 		double dx1 = (dimensions.getX(0) - rx);
@@ -58,8 +57,8 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft {
 		return -12*r6*r6/r;
 	}
 	
-	public IVector[] gradient(IAtomList a) {
-		IVector dimensions = boundary.getBoxSize();
+	public Vector[] gradient(IAtomList a) {
+		Vector dimensions = boundary.getBoxSize();
 		double rx = a.getAtom(0).getPosition().getX(0);
 		double ry = a.getAtom(0).getPosition().getX(1);
 		double dx1 = (dimensions.getX(0) - rx);
@@ -71,7 +70,7 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft {
 		return gradient;
 	}
     
-    public IVector[] gradient(IAtomList a, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList a, Tensor pressureTensor) {
         return gradient(a);
     }
 	

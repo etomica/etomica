@@ -4,17 +4,16 @@
 
 package etomica.models.nitrogen;
 
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.ISimulation;
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.integrator.IntegratorMC;
-import etomica.space.ISpace;
-import etomica.units.Null;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.species.ISpecies;
+import etomica.units.dimensions.Null;
 
 /**
  * Meter that returns a Boltzmann factor difference between 2 systems: system 1 and 0
@@ -29,15 +28,15 @@ public class MeterRotPerturbMolecule extends DataSourceScalar {
 	private static final long serialVersionUID = 1L;
 	protected final MeterPotentialEnergy meterPotentialMeasured;
 	protected final MeterPotentialEnergyFromIntegrator meterPotentialSampled;
-    protected final IBox secondaryBox;
+    protected final Box secondaryBox;
     protected double latticeEnergy;
     protected CoordinateDefinitionNitrogen primaryCoordDef, secondaryCoordDef;
     
-    public MeterRotPerturbMolecule(IntegratorMC integrator, IPotentialMaster potentialMaster, ISpecies species, ISpace space, ISimulation sim, CoordinateDefinitionNitrogen coordinateDef) {
+    public MeterRotPerturbMolecule(IntegratorMC integrator, PotentialMaster potentialMaster, ISpecies species, Space space, Simulation sim, CoordinateDefinitionNitrogen coordinateDef) {
         super("Scaled Energy unit", Null.DIMENSION);
         this.primaryCoordDef = coordinateDef;
         
-        IBox realBox = coordinateDef.getBox();
+        Box realBox = coordinateDef.getBox();
         secondaryBox = new Box(space);
         sim.addBox(secondaryBox);
        

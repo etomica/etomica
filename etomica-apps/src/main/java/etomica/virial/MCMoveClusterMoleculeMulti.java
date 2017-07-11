@@ -4,14 +4,14 @@
 
 package etomica.virial;
 
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveMolecule;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 
 /**
@@ -22,11 +22,11 @@ import etomica.space.IVectorRandom;
  */
 public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
 
-    protected IVectorRandom[] translationVectors;
+    protected Vector[] translationVectors;
     protected int[] constraintMap;
     protected int startMolecule;
 
-    public MCMoveClusterMoleculeMulti(ISimulation sim, ISpace _space) {
+    public MCMoveClusterMoleculeMulti(Simulation sim, Space _space) {
     	this(null, sim.getRandom(), _space, 1.0);
     }
     
@@ -37,17 +37,17 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
      * box should be at least one greater than this value (greater
      * because first atom is never moved)
      */
-    public MCMoveClusterMoleculeMulti(IPotentialMaster potentialMaster,
-            IRandom random, ISpace _space, double stepSize) {
+    public MCMoveClusterMoleculeMulti(PotentialMaster potentialMaster,
+                                      IRandom random, Space _space, double stepSize) {
         super(potentialMaster, random, _space, stepSize, Double.POSITIVE_INFINITY);
         setStartMolecule(1);
     }
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
-        translationVectors = new IVectorRandom[box.getMoleculeList().getMoleculeCount()];
+        translationVectors = new Vector[box.getMoleculeList().getMoleculeCount()];
         for (int i=0; i<box.getMoleculeList().getMoleculeCount(); i++) {
-            translationVectors[i] = (IVectorRandom)space.makeVector();
+            translationVectors[i] = space.makeVector();
         }
         if (constraintMap == null) {
             constraintMap = new int[box.getMoleculeList().getMoleculeCount()];

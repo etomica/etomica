@@ -5,8 +5,9 @@
 package etomica.paracetamol;
 
 import etomica.action.WriteConfigurationDLPOLY;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.data.DataInfo;
+import etomica.data.FunctionData;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
@@ -17,12 +18,11 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.potential.PotentialDLPOLY;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.units.Energy;
+import etomica.units.dimensions.Energy;
 import etomica.units.Kelvin;
 import etomica.util.Arrays;
-import etomica.util.FunctionGeneral;
 
 /**
  * Properties of a system of monatomic molecules occupying a lattice and interacting according
@@ -33,9 +33,9 @@ import etomica.util.FunctionGeneral;
  */
 public class HarmonicCrystalMonoclinic {
 
-    public HarmonicCrystalMonoclinic(int[] nCells, Primitive primitive, Basis basis, IBox box, ISpace _space) {
+    public HarmonicCrystalMonoclinic(int[] nCells, Primitive primitive, Basis basis, Box box, Space _space) {
         //this.potential = potential;
-        this.nCells = (int[])nCells.clone();
+        this.nCells = nCells.clone();
         this.space = _space;
         lattice = new BravaisLatticeCrystal(primitive, basis);
         normalModes = new NormalModesPotentialParacetamol(nCells, primitive, basis, space);
@@ -46,7 +46,7 @@ public class HarmonicCrystalMonoclinic {
     
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     public double getLatticeEnergy() {
-        FunctionGeneral function = new FunctionGeneral() {
+        FunctionData<Object> function = new FunctionData<Object>() {
             public IData f(Object obj) {
                 //data.x = potential.u(((Vector3D)obj).squared());
                 return data;
@@ -223,7 +223,7 @@ public class HarmonicCrystalMonoclinic {
     private BravaisLatticeCrystal lattice;
     private int[] nCells;
     private int maxLatticeShell;
-    private final ISpace space;
+    private final Space space;
     private static final long serialVersionUID = 1L;
     
 }

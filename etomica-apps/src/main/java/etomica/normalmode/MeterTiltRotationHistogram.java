@@ -5,27 +5,22 @@
 package etomica.normalmode;
 
 import etomica.action.IAction;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
-import etomica.data.DataSourceIndependentSimple;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
-import etomica.data.types.DataDoubleArray;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.data.*;
+import etomica.data.histogram.HistogramSimple;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
-import etomica.space.ISpace;
-import etomica.units.Angle;
-import etomica.util.DoubleRange;
-import etomica.util.HistogramSimple;
+import etomica.math.DoubleRange;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
+import etomica.units.dimensions.Angle;
 
 /**
  * Meter that measures the average tilt angle (not the angle of average tilt!)
@@ -34,11 +29,11 @@ import etomica.util.HistogramSimple;
  */
 public class MeterTiltRotationHistogram implements IAction, IEtomicaDataSource {
 
-    public MeterTiltRotationHistogram(ISpace space, ISpecies species, int nPlanes) {
+    public MeterTiltRotationHistogram(Space space, ISpecies species, int nPlanes) {
         this.species = species;
         int nData = 360;
         dr = space.makeVector();
-        drSum = new IVectorMutable[nPlanes];
+        drSum = new Vector[nPlanes];
         for (int i=0; i<nPlanes; i++) {
             drSum[i] = space.makeVector();
         }
@@ -65,7 +60,7 @@ public class MeterTiltRotationHistogram implements IAction, IEtomicaDataSource {
         dataInfoGroup.addTag(groupTag);
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
     
@@ -122,9 +117,9 @@ public class MeterTiltRotationHistogram implements IAction, IEtomicaDataSource {
 
     private static final long serialVersionUID = 1L;
     protected final ISpecies species;
-    protected IBox box;
-    protected final IVectorMutable dr;
-    protected final IVectorMutable[] drSum;
+    protected Box box;
+    protected final Vector dr;
+    protected final Vector[] drSum;
     protected final DataGroup dataGroup;
     protected final DataInfoGroup dataInfoGroup;
     protected final DataFunction[] data;

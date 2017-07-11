@@ -4,22 +4,19 @@
 
 package etomica.config;
 
+import etomica.action.BoxInflate;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
+import etomica.species.SpeciesSpheresMono;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-
-import etomica.action.BoxInflate;
-import etomica.action.WriteConfigurationBinary;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.box.Box;
-import etomica.simulation.Simulation;
-import etomica.space.ISpace;
-import etomica.species.SpeciesSpheresMono;
 
 /**
  * reads configuration coordinates from a binary file and assigns them to the
@@ -32,7 +29,7 @@ public class ConfigurationFileBinary implements Configuration {
         confName = aConfName;
     }
     
-    public void initializeCoordinates(IBox box) {
+    public void initializeCoordinates(Box box) {
         String fileName = confName+".pos";
 
         double[][] x;
@@ -68,7 +65,7 @@ public class ConfigurationFileBinary implements Configuration {
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtom a = leafList.getAtom(iLeaf);
-            IVectorMutable p = a.getPosition();
+            Vector p = a.getPosition();
             for (int i=0; i<x[iLeaf].length; i++) {
                 p.setX(i,x[iLeaf][i]);
             }
@@ -81,9 +78,9 @@ public class ConfigurationFileBinary implements Configuration {
      * then written out to outFilename (also as binary).  The density and
      * original number of atoms are required as input.
      */
-    public static void replicate(Configuration config, IBox box1, int[] reps, ISpace space) {
+    public static void replicate(Configuration config, Box box1, int[] reps, Space space) {
         Simulation sim = new Simulation(space);
-        IBox box0 = new Box(space);
+        Box box0 = new Box(space);
         sim.addBox(box0);
         ISpecies species = new SpeciesSpheresMono(sim, space);
         sim.addSpecies(species);
@@ -95,7 +92,7 @@ public class ConfigurationFileBinary implements Configuration {
         }
         box0.setNMolecules(species, numAtoms0);
         
-        IVectorMutable boundaryBox0 = space.makeVector();
+        Vector boundaryBox0 = space.makeVector();
         boundaryBox0.setX(0, box1.getBoundary().getBoxSize().getX(0)/reps[0]);
         boundaryBox0.setX(1, box1.getBoundary().getBoxSize().getX(1)/reps[1]);
         boundaryBox0.setX(2, box1.getBoundary().getBoxSize().getX(2)/reps[2]);
@@ -112,8 +109,8 @@ public class ConfigurationFileBinary implements Configuration {
                     xyzShift[2] = box0.getBoundary().getBoxSize().getX(2)*(-0.5*(reps[2]-1) + k);
                     int start1 = numAtoms0*(i*reps[2]*reps[1] + j*reps[2] + k);
                     for (int iAtom = 0; iAtom<numAtoms0; iAtom++) {
-                        IVectorMutable p0 = leafList0.getAtom(iAtom).getPosition();
-                        IVectorMutable p1 = leafList1.getAtom(start1+iAtom).getPosition();
+                        Vector p0 = leafList0.getAtom(iAtom).getPosition();
+                        Vector p1 = leafList1.getAtom(start1+iAtom).getPosition();
                         for (int l=0; l<3; l++) {
                             p1.setX(l, p0.getX(l) + xyzShift[l]);
                         }
@@ -123,9 +120,9 @@ public class ConfigurationFileBinary implements Configuration {
         }
     }
 
-    public static void rescale(Configuration config, IBox box1, double density1, ISpace space) {
+    public static void rescale(Configuration config, Box box1, double density1, Space space) {
         Simulation sim = new Simulation(space);
-        IBox box0 = new Box(space);
+        Box box0 = new Box(space);
         sim.addBox(box0);
         ISpecies species = new SpeciesSpheresMono(sim, space);
         sim.addSpecies(species);

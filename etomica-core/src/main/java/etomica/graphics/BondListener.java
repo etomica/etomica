@@ -4,24 +4,23 @@
 
 package etomica.graphics;
 
+import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.atom.iterator.AtomsetIteratorBasisDependent;
+import etomica.atom.iterator.AtomsetIteratorDirectable;
+import etomica.box.Box;
+import etomica.chem.models.Model;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculeSetSinglet;
+import etomica.molecule.iterator.MoleculeIteratorMolecule;
+import etomica.potential.IPotential;
+import etomica.potential.IteratorDirective.Direction;
+import etomica.species.ISpecies;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IPotential;
-import etomica.api.ISpecies;
-import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.MoleculeSetSinglet;
-import etomica.atom.iterator.AtomsetIteratorBasisDependent;
-import etomica.atom.iterator.AtomsetIteratorDirectable;
-import etomica.atom.iterator.IteratorDirective.Direction;
-import etomica.atom.iterator.MoleculeIteratorMolecule;
-import etomica.chem.models.Model;
 
 /**
  * BondListener listens for Atoms being added to the Simulation, determines
@@ -38,7 +37,7 @@ public class BondListener implements AtomLeafAgentManager.AgentSource<ArrayList>
      * Creates a new BondListener for the given Box, using the given
      * BondManager to actually create or remove bonds.
      */
-    public BondListener(IBox box, BondManager bondManager) {
+    public BondListener(Box box, BondManager bondManager) {
         this.box = box;
         bondIteratorsHash = new HashMap<ISpecies,Model.PotentialAndIterator[]>();
         atomAgentManager = new AtomLeafAgentManager<ArrayList>(this, box, ArrayList.class);
@@ -120,7 +119,7 @@ public class BondListener implements AtomLeafAgentManager.AgentSource<ArrayList>
         return ArrayList.class;
     }
     
-    public ArrayList makeAgent(IAtom newAtom, IBox agentBox) {
+    public ArrayList makeAgent(IAtom newAtom, Box agentBox) {
         // we got a leaf atom in a mult-atom molecule
         ArrayList<Object> bondList = new ArrayList<Object>(); 
         Model.PotentialAndIterator[] bondIterators = bondIteratorsHash.
@@ -158,7 +157,7 @@ public class BondListener implements AtomLeafAgentManager.AgentSource<ArrayList>
         return bondList;
     }
     
-    public void releaseAgent(ArrayList agent, IAtom atom, IBox agentBox) {
+    public void releaseAgent(ArrayList agent, IAtom atom, Box agentBox) {
         // we only release a bond when the "up" atom from the bond goes away
         // so if only the "down" atom goes away, we would leave the bond in
         // (bad).  However, you're not allowed to mutate the model, so deleting
@@ -171,7 +170,7 @@ public class BondListener implements AtomLeafAgentManager.AgentSource<ArrayList>
     }
     
     private static final long serialVersionUID = 1L;
-    protected final IBox box;
+    protected final Box box;
     protected final AtomLeafAgentManager<ArrayList> atomAgentManager;
     protected final HashMap<ISpecies,Model.PotentialAndIterator[]> bondIteratorsHash;
     protected BondManager bondManager;

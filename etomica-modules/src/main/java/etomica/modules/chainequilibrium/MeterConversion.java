@@ -4,13 +4,13 @@
 
 package etomica.modules.chainequilibrium;
 
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.IAtom;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
-import etomica.units.Fraction;
+import etomica.molecule.IMoleculeList;
+import etomica.species.ISpecies;
+import etomica.units.dimensions.Fraction;
 
 /**
  * Meter for the reaction conversion (fraction of reacted sites).
@@ -19,7 +19,7 @@ import etomica.units.Fraction;
  */
 public class MeterConversion extends DataSourceScalar {
 
-    public MeterConversion(IBox box, AtomLeafAgentManager agentManager) {
+    public MeterConversion(Box box, AtomLeafAgentManager agentManager) {
         super("Conversion", Fraction.DIMENSION);
         this.box = box;
         this.agentManager = agentManager;
@@ -57,6 +57,6 @@ public class MeterConversion extends DataSourceScalar {
 
     protected final AtomLeafAgentManager agentManager;
     protected ISpecies[] species;
-    protected final IBox box;
+    protected final Box box;
     protected int total, nReacted;
 }

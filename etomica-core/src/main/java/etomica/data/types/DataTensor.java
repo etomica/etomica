@@ -4,16 +4,16 @@
 
 package etomica.data.types;
 
-import etomica.api.IFunction;
+import etomica.math.function.IFunction;
 import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataInfoFactory;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
 
 /**
  * Data object wrapping a single mutable value of type (Space) Tensor. Value is
@@ -35,7 +35,7 @@ public class DataTensor implements IData, java.io.Serializable {
      * @param space
      *            used to construct the wrapped Vector
      */
-    public DataTensor(ISpace space) {
+    public DataTensor(Space space) {
         super();
         x = space.makeTensor();
     }
@@ -163,7 +163,7 @@ public class DataTensor implements IData, java.io.Serializable {
     
     public static class DataInfoTensor extends DataInfo {
         
-        public DataInfoTensor(String label, Dimension dimension, ISpace space) {
+        public DataInfoTensor(String label, Dimension dimension, Space space) {
             super(label, dimension);
             this.space = space;
         }
@@ -176,7 +176,7 @@ public class DataTensor implements IData, java.io.Serializable {
             return new DataInfoTensorFactory(this);
         }
         
-        public ISpace getSpace() {
+        public Space getSpace() {
             return space;
         }
         
@@ -185,7 +185,7 @@ public class DataTensor implements IData, java.io.Serializable {
         }
         
         private static final long serialVersionUID = 1L;
-        protected final ISpace space;
+        protected final Space space;
     }
     
     public static class DataInfoTensorFactory extends DataInfoFactory {
@@ -204,18 +204,18 @@ public class DataTensor implements IData, java.io.Serializable {
         /**
          * Sets the Space
          */
-        public void setSpace(ISpace newSpace) {
+        public void setSpace(Space newSpace) {
             space = newSpace;
         }
         
         /**
          * Returns the Space
          */
-        public ISpace getSpace() {
+        public Space getSpace() {
             return space;
         }
         
         private static final long serialVersionUID = 1L;
-        protected ISpace space;
+        protected Space space;
     }
 }

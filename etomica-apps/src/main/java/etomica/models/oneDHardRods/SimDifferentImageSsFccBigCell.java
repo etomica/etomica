@@ -4,17 +4,10 @@
 
 package etomica.models.oneDHardRods;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IVector;
+import etomica.atom.AtomType;
 import etomica.box.Box;
+import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.DataPump;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -29,14 +22,7 @@ import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.normalmode.BasisBigCell;
-import etomica.normalmode.CoordinateDefinition;
-import etomica.normalmode.CoordinateDefinitionLeaf;
-import etomica.normalmode.MCMoveAtomCoupled;
-import etomica.normalmode.NormalModes;
-import etomica.normalmode.NormalModesFromFile;
-import etomica.normalmode.P1ConstraintNbr;
-import etomica.normalmode.WaveVectorFactory;
+import etomica.normalmode.*;
 import etomica.overlap.IntegratorOverlap;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -45,13 +31,16 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
+
+import java.io.*;
 
 /**
  * MC simulation
@@ -75,21 +64,20 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
 
     private static final String APP_NAME = "SimDifferentImageFCC";
     public Primitive primitive;
-    NormalModes nmRef, nmTarg;
     public Basis basis;
     public ActivityIntegrate activityIntegrate;
     public CoordinateDefinition cDefTarget, cDefRef;
-    WaveVectorFactory waveVectorFactoryRef, waveVectorFactoryTarg;
-    
-    double bennettParam;       //adjustable parameter - Bennett's parameter
     public IntegratorOverlap integratorSim; //integrator for the whole simulation
     public DataSourceVirialOverlap dsvo;
-    IntegratorMC[] integrators;
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     public DataPump[] accumulatorPumps;
     public IEtomicaDataSource[] meters;
-    public IBox boxTarget, boxRef;
+    public Box boxTarget, boxRef;
     public Boundary bdryTarget, bdryRef;
+    NormalModes nmRef, nmTarg;
+    WaveVectorFactory waveVectorFactoryRef, waveVectorFactoryTarg;
+    double bennettParam;       //adjustable parameter - Bennett's parameter
+    IntegratorMC[] integrators;
     MeterPotentialEnergy meterTargInTarg, meterRef, meterRefInRef;
     MeterDifferentImageAdd meterTargInRef;
     MeterDifferentImageSubtract meterRefInTarg;
@@ -141,12 +129,12 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         
         double primitiveLength = Math.pow(4.0 / density, 1.0 / 3.0);
         bdryRef = new BoundaryRectangularPeriodic(space, 1.0);
-        IVector edges = new Vector3D();
+        Vector edges = new Vector3D();
         double[] lengths = new double[3];
         lengths[0] = nCellsRef[0]*primitiveLength;
         lengths[1] = nCellsRef[1]*primitiveLength;
         lengths[2] = nCellsRef[2]*primitiveLength;
-        ((Vector3D)edges).E(lengths);
+        edges.E(lengths);
         bdryRef.setBoxSize(edges);
         boxRef.setBoundary(bdryRef);
         primitive = new PrimitiveOrthorhombic(space, lengths[0], lengths[1],
@@ -178,7 +166,7 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
                 1.0, exponent);
         P2SoftSphericalTruncated potential = new P2SoftSphericalTruncated(
                 space, potentialBase, neighborRange);
-        potentialMaster.addPotential(potential, new IAtomType[] {
+        potentialMaster.addPotential(potential, new AtomType[]{
                 species.getLeafType(), species.getLeafType()});
         potentialMaster.setRange(neighborRange);
         potentialMaster.lrcMaster().setEnabled(false);
@@ -227,7 +215,7 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         lengths[0] = nCellsTarget[0]*primitiveLength;
         lengths[1] = nCellsTarget[1]*primitiveLength;
         lengths[2] = nCellsTarget[2]*primitiveLength;
-        ((Vector3D)edges).E(lengths);
+        edges.E(lengths);
         bdryTarget.setBoxSize(edges);
         boxTarget.setBoundary(bdryTarget);
         primitive = new PrimitiveOrthorhombic(space, lengths[0], lengths[1],
@@ -293,7 +281,7 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         
         P1ConstraintNbr nbrConstraint = new P1ConstraintNbr(space, 
                 primitiveLength/Math.sqrt(2.0), this, constraint);
-        potentialMaster.addPotential(nbrConstraint, new IAtomType[] {
+        potentialMaster.addPotential(nbrConstraint, new AtomType[]{
                 species.getLeafType()});
         nbrConstraint.initBox(boxRef);
         nbrConstraint.initBox(boxTarget);
@@ -324,158 +312,6 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         getController().addAction(activityIntegrate);
     }
     
-    public void setBennettParameter(double benParamCenter, double span) {
-        bennettParam = benParamCenter;
-        accumulators[0].setBennetParam(benParamCenter,span);
-        accumulators[1].setBennetParam(benParamCenter,span);
-    }
-    
-    public void setBennettParameter(double newBennettParameter) {
-        System.out.println("setting ref pref (explicitly) to "+
-                newBennettParameter);
-        setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,true),0);
-        setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,false),1);
-        setBennettParameter(newBennettParameter,1);
-        
-    }
-    
-    public void initBennettParameter(String fileName, int initSteps, int initBlockSize) {
-        // benParam = -1 indicates we are searching for an appropriate value
-        bennettParam = -1.0;
-        integratorSim.getMoveManager().setEquilibrating(true);
-        
-        if (fileName != null) {
-            try { 
-                FileReader fileReader = new FileReader(fileName);
-                BufferedReader bufReader = new BufferedReader(fileReader);
-                String benParamString = bufReader.readLine();
-                bennettParam = Double.parseDouble(benParamString);
-                bufReader.close();
-                fileReader.close();
-                System.out.println("setting ref pref (from file) to "+bennettParam);
-                setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,true),0);
-                setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,false),1);
-                setBennettParameter(bennettParam,1);
-            }
-            catch (IOException e) {
-                System.out.println("Bennett parameter not from file");
-                // file not there, which is ok.
-            }
-        }
-        
-        if (bennettParam == -1) {
-            
-            // equilibrate off the lattice to avoid anomolous contributions
-            activityIntegrate.setMaxSteps(initSteps);
-            
-            getController().actionPerformed();
-            getController().reset();
-
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(initBlockSize,41,true),0);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(initBlockSize,41,false),1);
-            setBennettParameter(1,10);
-            activityIntegrate.setMaxSteps(initSteps);
-            
-            getController().actionPerformed();
-            getController().reset();
-
-            int newMinDiffLoc = dsvo.minDiffLocation();
-            bennettParam = accumulators[0].getBennetAverage(newMinDiffLoc)
-                /accumulators[1].getBennetAverage(newMinDiffLoc);
-            
-            if (Double.isNaN(bennettParam) || bennettParam == 0 || 
-                    Double.isInfinite(bennettParam)) {
-                throw new RuntimeException("Simulation failed to find a valid ref pref");
-            }
-            System.out.println("setting ref pref to "+bennettParam);
-            
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(11,true),0);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(11,false),1);
-            setBennettParameter(bennettParam,2);
-            
-            // set benParam back to -1 so that later on we know that we've been looking for
-            // the appropriate value
-            bennettParam = -1;
-            getController().reset();
-        }
-        integratorSim.getMoveManager().setEquilibrating(false);
-    }
-    
-    public void setAccumulator(AccumulatorVirialOverlapSingleAverage 
-            newAccumulator, int iBox) {
-        accumulators[iBox] = newAccumulator;
-        if (accumulatorPumps[iBox] == null) {
-            accumulatorPumps[iBox] = new DataPump(meters[iBox], newAccumulator);
-            IntegratorListenerAction pumpListener = new IntegratorListenerAction(accumulatorPumps[iBox]);
-            pumpListener.setInterval(getBox(iBox).getLeafList().getAtomCount());
-            integrators[iBox].getEventManager().addListener(pumpListener);
-        }
-        else {
-            accumulatorPumps[iBox].setDataSink(newAccumulator);
-        }
-        if (integratorSim != null && accumulators[0] != null && 
-                accumulators[1] != null) {
-            dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
-            integratorSim.setReferenceFracSource(dsvo);
-        }
-        
-    }
-    
-    public void setAccumulatorBlockSize(int newBlockSize) {
-        for (int i=0; i<2; i++) {
-            accumulators[i].setBlockSize(newBlockSize);
-        }
-        try {
-            // reset the integrator so that it will re-adjust step frequency
-            // and ensure it will take enough data for both ref and target
-            integratorSim.reset();
-        }
-        catch (ConfigurationOverlapException e) { /* meaningless */ }
-    }
-    public void equilibrate(String fileName, int initSteps, int initBlockSize) {
-        // run a short simulation to get reasonable MC Move step sizes and
-        // (if needed) narrow in on a reference preference
-        activityIntegrate.setMaxSteps(initSteps);
-        
-        integratorSim.getMoveManager().setEquilibrating(true);
-        
-        for (int i=0; i<2; i++) {
-            integrators[i].getMoveManager().setEquilibrating(true);
-        }
-        getController().actionPerformed();
-        getController().reset();
-        for (int i=0; i<2; i++) {
-            integrators[i].getMoveManager().setEquilibrating(false);
-        }
-        
-        if (bennettParam == -1) {
-            int newMinDiffLoc = dsvo.minDiffLocation();
-            bennettParam = accumulators[0].getBennetAverage(newMinDiffLoc)
-                /accumulators[1].getBennetAverage(newMinDiffLoc);
-            System.out.println("setting ref pref to "+bennettParam+" ("+newMinDiffLoc+")");
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(initBlockSize,1,true),0);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(initBlockSize,1,false),1);
-            
-            setBennettParameter(bennettParam,1);
-            if (fileName != null) {
-                try {
-                    FileWriter fileWriter = new FileWriter(fileName);
-                    BufferedWriter bufWriter = new BufferedWriter(fileWriter);
-                    bufWriter.write(String.valueOf(bennettParam)+"\n");
-                    bufWriter.close();
-                    fileWriter.close();
-                }
-                catch (IOException e) {
-                    throw new RuntimeException("couldn't write to Bennet parameter file");
-                }
-            }
-        }
-        else {
-            dsvo.reset();
-        }
-        integratorSim.getMoveManager().setEquilibrating(false);
-    }
-
     /**
      * @param args
      */
@@ -490,7 +326,7 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
             ReadParameters readParameters = new ReadParameters(inputFilename, params);
             readParameters.readParameters();
         }
-        
+
         double density = params.density;
         int D = params.D;
         String filename = params.filename;
@@ -516,12 +352,12 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         }
         nRefA *= 4;     //definitely fcc
         nTargA *= 4;    //definitely fcc
-        
+
         filename = filename + "_" + nRefA + "_" + nTargA + "_" + temperature;
-        
+
         int runBlockSize = runNumSteps / nTargA /100;
         System.out.println("RBS "+ runBlockSize);
-        
+
         // instantiate simulation
         SimDifferentImageSsFccBigCell sim = new SimDifferentImageSsFccBigCell(
                 Space.getInstance(D), refCells, targCells, density, runBlockSize,
@@ -537,40 +373,40 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         System.out.println("Target input data from " + inputFile);
         System.out.println("output data to " + filename);
         System.out.println("instantiated");
-        
+
         if(false) {
-            SimulationGraphic graphic = new SimulationGraphic(sim, sim.space, 
+            SimulationGraphic graphic = new SimulationGraphic(sim, sim.space,
                     sim.getController());
             graphic.makeAndDisplayFrame();
             return;
         }
-        
+
         //Divide out all the steps, so that the subpieces have the proper # of steps
         runNumSteps /= subBlockSize;
         eqNumSteps /= subBlockSize;
         benNumSteps /= subBlockSize;
-        
+
         System.out.println("run " + runNumSteps);
         System.out.println("ben " + benNumSteps);
         System.out.println(" ea " + eqNumSteps);
-        
+
         //start simulation & equilibrate
         sim.integratorSim.getMoveManager().setEquilibrating(true);
         sim.integratorSim.setNumSubSteps(subBlockSize);
-        
+
         System.out.println("EquilStart: " + System.currentTimeMillis());
         if(first){
             System.out.println("Init Bennett");
             sim.initBennettParameter(filename, benNumSteps, runBlockSize);
-            if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || 
+            if (Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 ||
                     Double.isInfinite(sim.bennettParam)){
                 throw new RuntimeException("Simulation failed to find a valid " +
                         "Bennett parameter");
             }
-            
+
             System.out.println("equilibrate");
             sim.equilibrate("bennett" , eqNumSteps, runBlockSize);
-            if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || 
+            if (Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 ||
                     Double.isInfinite(sim.bennettParam)){
                 throw new RuntimeException("Simulation failed to find a valid " +
                         "Bennett parameter");
@@ -583,49 +419,197 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
             sim.equilibrate(null, eqNumSteps, runBlockSize);
             System.out.println("equilibration finished.");
         }
-        
+
 //         start simulation
         long t1 = System.currentTimeMillis();
         sim.setAccumulatorBlockSize(runBlockSize);
         sim.integratorSim.getMoveManager().setEquilibrating(false);
         sim.activityIntegrate.setMaxSteps(runNumSteps);
         sim.getController().actionPerformed();
-        System.out.println("final reference optimal step frequency " + 
-                sim.integratorSim.getIdealRefStepFraction() + " (actual: " + 
+        System.out.println("final reference optimal step frequency " +
+                sim.integratorSim.getIdealRefStepFraction() + " (actual: " +
                 sim.integratorSim.getRefStepFraction() + ")");
-        
-        
-        //CALCULATION OF HARMONIC ENERGY        
+
+
+        //CALCULATION OF HARMONIC ENERGY
         long t2 = System.currentTimeMillis();
         System.out.println("Calc: " + (t2-t1)/1000.0);
         double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
         double ratio = ratioAndError[0];
         double error = ratioAndError[1];
         System.out.println("ratio average: "+ratio+", error: "+error);
-        DataGroup allYourBase = 
+        DataGroup allYourBase =
             (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
-        System.out.println("reference ratio average (unscaled): " + 
-                ((DataDoubleArray)allYourBase.getData(sim.accumulators[0].RATIO.index)).getData()[1] + " error: " + 
-                ((DataDoubleArray)allYourBase.getData(sim.accumulators[0].RATIO_ERROR.index)).getData()[1]);
-        
+        System.out.println("reference ratio average (unscaled): " +
+                ((DataDoubleArray) allYourBase.getData(AccumulatorRatioAverageCovariance.RATIO.index)).getData()[1] + " error: " +
+                ((DataDoubleArray) allYourBase.getData(AccumulatorRatioAverageCovariance.RATIO_ERROR.index)).getData()[1]);
+
         allYourBase = (DataGroup)sim.accumulators[1].getData(sim.accumulators[1]
                 .getNBennetPoints() - sim.dsvo.minDiffLocation()-1);
-        System.out.println("target ratio average (unscaled): " + 
-                ((DataDoubleArray)allYourBase.getData(sim.accumulators[1].RATIO.index)).getData()[1]
-                 + " error: " + 
-                ((DataDoubleArray)allYourBase.getData(sim.accumulators[1].RATIO_ERROR.index)).getData()[1]);
-        
+        System.out.println("target ratio average (unscaled): " +
+                ((DataDoubleArray) allYourBase.getData(AccumulatorRatioAverageCovariance.RATIO.index)).getData()[1]
+                + " error: " +
+                ((DataDoubleArray) allYourBase.getData(AccumulatorRatioAverageCovariance.RATIO_ERROR.index)).getData()[1]);
+
         System.out.println("calculated diff " + (temperature*
-                (-Math.log(ratio) 
-                - sim.meterTargInRef.getScaling() 
-                - 0.5 * sim.space.D() * (nTargA - nRefA) * Math.log(2*Math.PI*temperature) 
+                (-Math.log(ratio)
+                        - sim.meterTargInRef.getScaling()
+                        - 0.5 * sim.space.D() * (nTargA - nRefA) * Math.log(2 * Math.PI * temperature)
                 - 0.5 * sim.space.D() * Math.log(nTargA)
                 + 0.5 * sim.space.D() * Math.log(nRefA))));
-        
+
         System.out.println("Fini.");
-        
+
         System.out.println("End Time: " + System.currentTimeMillis());
         }
+
+    public void setBennettParameter(double benParamCenter, double span) {
+        bennettParam = benParamCenter;
+        accumulators[0].setBennetParam(benParamCenter, span);
+        accumulators[1].setBennetParam(benParamCenter, span);
+    }
+
+    public void setBennettParameter(double newBennettParameter) {
+        System.out.println("setting ref pref (explicitly) to " +
+                newBennettParameter);
+        setAccumulator(new AccumulatorVirialOverlapSingleAverage(1, true), 0);
+        setAccumulator(new AccumulatorVirialOverlapSingleAverage(1, false), 1);
+        setBennettParameter(newBennettParameter, 1);
+
+    }
+
+    public void initBennettParameter(String fileName, int initSteps, int initBlockSize) {
+        // benParam = -1 indicates we are searching for an appropriate value
+        bennettParam = -1.0;
+        integratorSim.getMoveManager().setEquilibrating(true);
+
+        if (fileName != null) {
+            try {
+                FileReader fileReader = new FileReader(fileName);
+                BufferedReader bufReader = new BufferedReader(fileReader);
+                String benParamString = bufReader.readLine();
+                bennettParam = Double.parseDouble(benParamString);
+                bufReader.close();
+                fileReader.close();
+                System.out.println("setting ref pref (from file) to " + bennettParam);
+                setAccumulator(new AccumulatorVirialOverlapSingleAverage(1, true), 0);
+                setAccumulator(new AccumulatorVirialOverlapSingleAverage(1, false), 1);
+                setBennettParameter(bennettParam, 1);
+            } catch (IOException e) {
+                System.out.println("Bennett parameter not from file");
+                // file not there, which is ok.
+            }
+        }
+
+        if (bennettParam == -1) {
+
+            // equilibrate off the lattice to avoid anomolous contributions
+            activityIntegrate.setMaxSteps(initSteps);
+
+            getController().actionPerformed();
+            getController().reset();
+
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(initBlockSize, 41, true), 0);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(initBlockSize, 41, false), 1);
+            setBennettParameter(1, 10);
+            activityIntegrate.setMaxSteps(initSteps);
+
+            getController().actionPerformed();
+            getController().reset();
+
+            int newMinDiffLoc = dsvo.minDiffLocation();
+            bennettParam = accumulators[0].getBennetAverage(newMinDiffLoc)
+                    / accumulators[1].getBennetAverage(newMinDiffLoc);
+
+            if (Double.isNaN(bennettParam) || bennettParam == 0 ||
+                    Double.isInfinite(bennettParam)) {
+                throw new RuntimeException("Simulation failed to find a valid ref pref");
+            }
+            System.out.println("setting ref pref to " + bennettParam);
+
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(11, true), 0);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(11, false), 1);
+            setBennettParameter(bennettParam, 2);
+
+            // set benParam back to -1 so that later on we know that we've been looking for
+            // the appropriate value
+            bennettParam = -1;
+            getController().reset();
+        }
+        integratorSim.getMoveManager().setEquilibrating(false);
+    }
+
+    public void setAccumulator(AccumulatorVirialOverlapSingleAverage
+                                       newAccumulator, int iBox) {
+        accumulators[iBox] = newAccumulator;
+        if (accumulatorPumps[iBox] == null) {
+            accumulatorPumps[iBox] = new DataPump(meters[iBox], newAccumulator);
+            IntegratorListenerAction pumpListener = new IntegratorListenerAction(accumulatorPumps[iBox]);
+            pumpListener.setInterval(getBox(iBox).getLeafList().getAtomCount());
+            integrators[iBox].getEventManager().addListener(pumpListener);
+        } else {
+            accumulatorPumps[iBox].setDataSink(newAccumulator);
+        }
+        if (integratorSim != null && accumulators[0] != null &&
+                accumulators[1] != null) {
+            dsvo = new DataSourceVirialOverlap(accumulators[0], accumulators[1]);
+            integratorSim.setReferenceFracSource(dsvo);
+        }
+
+    }
+
+    public void setAccumulatorBlockSize(int newBlockSize) {
+        for (int i = 0; i < 2; i++) {
+            accumulators[i].setBlockSize(newBlockSize);
+        }
+        try {
+            // reset the integrator so that it will re-adjust step frequency
+            // and ensure it will take enough data for both ref and target
+            integratorSim.reset();
+        } catch (ConfigurationOverlapException e) { /* meaningless */ }
+    }
+
+    public void equilibrate(String fileName, int initSteps, int initBlockSize) {
+        // run a short simulation to get reasonable MC Move step sizes and
+        // (if needed) narrow in on a reference preference
+        activityIntegrate.setMaxSteps(initSteps);
+
+        integratorSim.getMoveManager().setEquilibrating(true);
+
+        for (int i = 0; i < 2; i++) {
+            integrators[i].getMoveManager().setEquilibrating(true);
+        }
+        getController().actionPerformed();
+        getController().reset();
+        for (int i = 0; i < 2; i++) {
+            integrators[i].getMoveManager().setEquilibrating(false);
+        }
+
+        if (bennettParam == -1) {
+            int newMinDiffLoc = dsvo.minDiffLocation();
+            bennettParam = accumulators[0].getBennetAverage(newMinDiffLoc)
+                    / accumulators[1].getBennetAverage(newMinDiffLoc);
+            System.out.println("setting ref pref to " + bennettParam + " (" + newMinDiffLoc + ")");
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(initBlockSize, 1, true), 0);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(initBlockSize, 1, false), 1);
+
+            setBennettParameter(bennettParam, 1);
+            if (fileName != null) {
+                try {
+                    FileWriter fileWriter = new FileWriter(fileName);
+                    BufferedWriter bufWriter = new BufferedWriter(fileWriter);
+                    bufWriter.write(String.valueOf(bennettParam) + "\n");
+                    bufWriter.close();
+                    fileWriter.close();
+                } catch (IOException e) {
+                    throw new RuntimeException("couldn't write to Bennet parameter file");
+                }
+            }
+        } else {
+            dsvo.reset();
+        }
+        integratorSim.getMoveManager().setEquilibrating(false);
+    }
     
     public static class SimParam extends ParameterBase {
         public boolean first = false;

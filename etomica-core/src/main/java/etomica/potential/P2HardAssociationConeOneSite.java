@@ -3,19 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.potential;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
+import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.units.Angle;
-import etomica.units.Dimension;
-import etomica.units.Energy;
-import etomica.units.Length;
-import etomica.units.Null;
+import etomica.units.dimensions.Angle;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Null;
 
 /**
  * Lennard-Jones potential with a square-well cone of attraction. 
@@ -32,14 +31,14 @@ public class P2HardAssociationConeOneSite extends Potential2 implements Potentia
     private double epsilon, epsilon4, wellEpsilon;
     private double cutoffLJSquared, cutoffFactor;
     private double ec2;
-    private final IVectorMutable dr;
-    private IBoundary boundary;
+    private final Vector dr;
+    private Boundary boundary;
     
-    public P2HardAssociationConeOneSite(ISpace space) {
+    public P2HardAssociationConeOneSite(Space space) {
         this(space, 1.0, 1.0, 2.0, 8.0);
     }
     
-    public P2HardAssociationConeOneSite(ISpace space, double sigma, double epsilon, double cutoffFactorLJ, double wellConstant) {
+    public P2HardAssociationConeOneSite(Space space, double sigma, double epsilon, double cutoffFactorLJ, double wellConstant) {
         super(space);
         dr = space.makeVector();
 
@@ -81,11 +80,11 @@ public class P2HardAssociationConeOneSite extends Potential2 implements Potentia
         }
                   
         if (r2 < wellCutoffSquared) {
-            IVector e1 = atom0.getOrientation().getDirection();
+            Vector e1 = atom0.getOrientation().getDirection();
             double er1 = e1.dot(dr);
 
             if ( er1 > 0.0 && er1*er1 > ec2*r2) {
-                IVector e2 = atom1.getOrientation().getDirection();
+                Vector e2 = atom1.getOrientation().getDirection();
                 double er2 = e2.dot(dr);
                 if(er2 < 0.0 && er2*er2 > ec2*r2) eTot -= wellEpsilon;
                 //if(er2 < 0.0 && er2*er2 > ec2*r2) {
@@ -183,7 +182,7 @@ public class P2HardAssociationConeOneSite extends Potential2 implements Potentia
     }
     public Dimension getThetaDimension() {return Angle.DIMENSION;}
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 
@@ -214,11 +213,11 @@ public class P2HardAssociationConeOneSite extends Potential2 implements Potentia
         return 0;
     }
 
-	public IVector[] gradient(IAtomList atoms) {
+	public Vector[] gradient(IAtomList atoms) {
 		return null;
 	}
 
-	public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+	public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
 		return null;
 	}
 

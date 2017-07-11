@@ -10,11 +10,11 @@ import javax.swing.border.TitledBorder;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.IController;
-import etomica.api.IIntegrator;
+import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorMD;
 import etomica.modifier.Modifier;
-import etomica.units.Dimension;
-import etomica.units.Null;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Null;
 
 public class DeviceDelaySlider {
 
@@ -84,7 +84,7 @@ public class DeviceDelaySlider {
      * slept per simulation time is as desired.
      */
     public void setThreshold(int t) {
-        IIntegrator integrator = ai.getIntegrator();
+        Integrator integrator = ai.getIntegrator();
         if (integrator instanceof IntegratorMD) {
             nominalTimeStep = ((IntegratorMD)integrator).getTimeStep();
         }

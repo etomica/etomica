@@ -4,11 +4,11 @@
 
 package etomica.potential;
 
-import etomica.space.ISpace;
-import etomica.units.CompoundDimension;
-import etomica.units.Dimension;
-import etomica.units.Energy;
-import etomica.units.Length;
+import etomica.space.Space;
+import etomica.units.dimensions.CompoundDimension;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Length;
 
 /**
  * Harmonic Well interatomic potential.
@@ -25,7 +25,7 @@ public class P2Harmonic extends Potential2SoftSpherical {
 	private final boolean r0Zero;
 	private double r0;
     
-    public P2Harmonic(ISpace space, double w) {
+    public P2Harmonic(Space space, double w) {
     	this(space, w, 0.0);
     }
     /**
@@ -35,7 +35,7 @@ public class P2Harmonic extends Potential2SoftSpherical {
      * @param r0  Separation at which potential is at its minimum.  Default is
      * zero.
      */
-    public P2Harmonic(ISpace space, double w, double r0) {
+    public P2Harmonic(Space space, double w, double r0) {
         super(space);
         setSpringConstant(w);
         r0Zero = (r0 == 0.0);

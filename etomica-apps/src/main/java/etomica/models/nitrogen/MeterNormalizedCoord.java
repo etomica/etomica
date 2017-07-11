@@ -4,27 +4,27 @@
 
 package etomica.models.nitrogen;
 
-import java.io.Serializable;
-
 import etomica.action.IAction;
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
+import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
+import etomica.data.histogram.HistogramExpanding;
 import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataGroup;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
+import etomica.molecule.IMoleculeList;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
-import etomica.units.CompoundDimension;
-import etomica.units.Dimension;
-import etomica.units.Length;
-import etomica.units.Null;
-import etomica.util.HistogramExpanding;
+import etomica.species.ISpecies;
+import etomica.units.dimensions.CompoundDimension;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Null;
+
+import java.io.Serializable;
 
 /**
  * Sample the distribution of the normalized coordinate for the atoms/ molecules
@@ -36,11 +36,11 @@ import etomica.util.HistogramExpanding;
  *  	3 translation and 2 rotation motion respectively.
  */
 public class MeterNormalizedCoord implements IEtomicaDataSource, IAction, Serializable {
-	 public MeterNormalizedCoord(IBox newBox, CoordinateDefinition coordDef, ISpecies species) {
+	 public MeterNormalizedCoord(Box newBox, CoordinateDefinition coordDef, ISpecies species) {
 		 this(newBox, coordDef, species,false);
 	 }
 	
-    public MeterNormalizedCoord(IBox newBox, CoordinateDefinition coordDef, ISpecies species, boolean isVolFluctuation) {
+    public MeterNormalizedCoord(Box newBox, CoordinateDefinition coordDef, ISpecies species, boolean isVolFluctuation) {
         tag = new DataTag();
         this.coordinateDefinition = coordDef;
         this.isVolFluctuation = isVolFluctuation;

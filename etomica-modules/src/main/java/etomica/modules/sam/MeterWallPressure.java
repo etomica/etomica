@@ -4,10 +4,10 @@
 
 package etomica.modules.sam;
 
-import etomica.api.IBox;
-import etomica.api.IVector;
+import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
-import etomica.units.Pressure;
+import etomica.units.dimensions.Pressure;
 
 public class MeterWallPressure extends DataSourceScalar {
 
@@ -17,13 +17,13 @@ public class MeterWallPressure extends DataSourceScalar {
         this.pc = pc;
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
     
     public double getDataAsScalar() {
         double f = pc.getWallForce();
-        IVector dimensions = box.getBoundary().getBoxSize();
+        Vector dimensions = box.getBoundary().getBoxSize();
         double A = 1;
         for (int i=0; i<dimensions.getD(); i++) {
             if (i == pc.getWallPotential().getWallDim()) {
@@ -36,5 +36,5 @@ public class MeterWallPressure extends DataSourceScalar {
 
     private static final long serialVersionUID = 1L;
     protected final PotentialCalculationForceSumWall pc;
-    protected IBox box;
+    protected Box box;
 }

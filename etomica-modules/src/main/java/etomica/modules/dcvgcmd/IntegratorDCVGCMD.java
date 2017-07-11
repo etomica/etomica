@@ -10,19 +10,19 @@
  */
 package etomica.modules.dcvgcmd;
 
-import etomica.api.IAtomList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.ISpecies;
+import etomica.atom.IAtomList;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.mcmove.MCMoveManager;
 import etomica.modifier.Modifier;
 import etomica.nbr.PotentialMasterHybrid;
-import etomica.space.ISpace;
-import etomica.units.Dimension;
-import etomica.units.Null;
+import etomica.potential.PotentialMaster;
+import etomica.space.Space;
+import etomica.species.ISpecies;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Null;
+import etomica.util.random.IRandom;
 
 
 
@@ -41,11 +41,11 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 	private ISpecies speciesA, speciesB;
     private final PotentialMasterHybrid potentialMasterHybrid;
 	private int MDStepCount, MDStepRepetitions;
-	private ISpace space;
+	private Space space;
     
-	public IntegratorDCVGCMD(IPotentialMaster parent, double temperature,
-			                 ISpace _space,
-			                 ISpecies species1, ISpecies species2) {
+	public IntegratorDCVGCMD(PotentialMaster parent, double temperature,
+                             Space _space,
+                             ISpecies species1, ISpecies species2) {
 		super(parent, temperature);
 		this.speciesA = species1;
 		this.speciesB = species2;

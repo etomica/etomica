@@ -7,18 +7,12 @@ package etomica.spin;
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
-import etomica.graphics.DeviceSlider;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayBoxSpin2D;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.DisplayTextBoxesCAE;
-import etomica.graphics.SimulationGraphic;
+import etomica.graphics.*;
 import etomica.integrator.IntegratorMC;
 import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.site.NeighborSiteManager;
@@ -27,7 +21,6 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.units.systems.LJ;
 
 
 /**
@@ -40,13 +33,22 @@ import etomica.units.systems.LJ;
 public class Heisenberg extends Simulation {
 
 	private static final String APP_NAME = "Heisenberg";
-
+    private static final long serialVersionUID = 2L;
+    public PotentialMasterSite potentialMaster;
+    public Box box;
+    public SpeciesSpheresMono spins;
+    public P2Spin potential;
+    public P1MagneticField field;
+    public MCMoveSpinFlip mcmove;
+    public MeterSpin meter;
+    public DataPump pump;
+    public AccumulatorAverageCollapsing dAcc;
+    private IntegratorMC integrator;
     public Heisenberg() {
         this(Space2D.getInstance(),60);
     }
-    
     /**
-     * 
+     *
      */
     public Heisenberg(Space _space, int nCells) {
         super(_space);
@@ -58,22 +60,22 @@ public class Heisenberg extends Simulation {
         addSpecies(spins);
         box.setNMolecules(spins, numAtoms);
         new ConfigurationAligned().initializeCoordinates(box);
-        
+
         potential = new P2Spin(space);
         field = new P1MagneticField(space);
         integrator = new IntegratorMC(this, potentialMaster);
         mcmove = new MCMoveSpinFlip(potentialMaster, getRandom());
         integrator.getMoveManager().addMCMove(mcmove);
-        
+
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
 
-        IAtomType type = spins.getLeafType();
-        potentialMaster.addPotential(field, new IAtomType[] {type});
-        potentialMaster.addPotential(potential, new IAtomType[] {type, type});
-        
+        AtomType type = spins.getLeafType();
+        potentialMaster.addPotential(field, new AtomType[]{type});
+        potentialMaster.addPotential(potential, new AtomType[]{type, type});
+
         integrator.setBox(box);
-        
+
         meter = new MeterSpin(space);
         meter.setBox(box);
         dAcc = new AccumulatorAverageCollapsing();
@@ -83,18 +85,6 @@ public class Heisenberg extends Simulation {
         pumpListener.setInterval(10);
         integrator.getEventManager().addListener(pumpListener);
     }
-
-    private static final long serialVersionUID = 2L;
-    public PotentialMasterSite potentialMaster;
-    public IBox box;
-    public SpeciesSpheresMono spins;
-    public P2Spin potential;
-    public P1MagneticField field;
-    private IntegratorMC integrator;
-    public MCMoveSpinFlip mcmove;
-    public MeterSpin meter;
-    public DataPump pump;
-    public AccumulatorAverageCollapsing dAcc;
     
     public static void main(String[] args) {
     	Space sp = Space2D.getInstance();
@@ -113,8 +103,6 @@ public class Heisenberg extends Simulation {
         temperatureSlider.setMinimum(0.5);
         temperatureSlider.setMaximum(10.0);
         temperatureSlider.setShowBorder(true);
-        LJ lj = new LJ();
-        temperatureSlider.setUnit(lj.temperature());
         simGraphic.add(temperatureSlider);
         temperatureSlider.setValue(sim.integrator.getTemperature());
         DeviceSlider fieldSlider = new DeviceSlider(sim.getController(), sim.field, "h");

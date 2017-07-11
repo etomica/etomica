@@ -4,7 +4,7 @@
 
 package etomica.data.types;
 
-import etomica.api.IFunction;
+import etomica.math.function.IFunction;
 import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
 import etomica.data.DataTag;
@@ -12,7 +12,7 @@ import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataInfoFactory;
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
 
 
 /**
@@ -48,7 +48,7 @@ public class DataGroup implements IData, java.io.Serializable {
      */
     public DataGroup(IData[] data) {
         super();
-        this.data = (IData[])data.clone();
+        this.data = data.clone();
     }
     
     /**
@@ -107,7 +107,7 @@ public class DataGroup implements IData, java.io.Serializable {
     public static class DataInfoGroup extends DataInfo {
         public DataInfoGroup(String label, Dimension dimension, IEtomicaDataInfo[] subDataInfo) {
             super(label, dimension);
-            this.subDataInfo = (IEtomicaDataInfo[])subDataInfo.clone();
+            this.subDataInfo = subDataInfo.clone();
         }
 
         public IEtomicaDataInfoFactory getFactory() {
@@ -164,7 +164,7 @@ public class DataGroup implements IData, java.io.Serializable {
 
         protected DataInfoGroupFactory(DataInfoGroup template) {
             super(template);
-            subDataInfo = (IEtomicaDataInfo[])template.subDataInfo.clone();
+            subDataInfo = template.subDataInfo.clone();
         }
         
         public IEtomicaDataInfo makeDataInfo() {

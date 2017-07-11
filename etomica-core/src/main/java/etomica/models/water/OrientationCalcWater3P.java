@@ -4,32 +4,30 @@
 
 package etomica.models.water;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IMolecule;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.Atom;
-import etomica.atom.AtomPositionCOM;
-import etomica.atom.OrientationCalc;
-import etomica.atom.OrientationCalcQuaternion;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.exception.MethodNotImplementedException;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculePositionCOM;
+import etomica.molecule.OrientationCalc;
+import etomica.molecule.OrientationCalcQuaternion;
 import etomica.space.RotationTensor;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.IOrientationFull3D;
 import etomica.space3d.RotationTensor3D;
 
-public class OrientationCalcWater3P extends ConformationWater3P implements 
-                                             OrientationCalc, OrientationCalcQuaternion, java.io.Serializable {
+public class OrientationCalcWater3P extends ConformationWater3P implements
+        OrientationCalc, OrientationCalcQuaternion, java.io.Serializable {
 
-    public OrientationCalcWater3P(ISpace space) {
+    public OrientationCalcWater3P(Space space) {
         super(space);
         xWork = space.makeVector();
         yWork = space.makeVector();
         zWork = space.makeVector();
         com0 = space.makeVector();
         rotationTensor = (RotationTensor3D)space.makeRotationTensor();
-        atomPositionCOM = new AtomPositionCOM(space);
+        atomPositionCOM = new MoleculePositionCOM(space);
         initialized = false;
         previousTensor = space.makeRotationTensor();
         workTensor = space.makeRotationTensor();
@@ -248,25 +246,25 @@ public class OrientationCalcWater3P extends ConformationWater3P implements
     public void initializePositions(IAtomList childList) {
         super.initializePositions(childList);
         if (!initialized) {
-            com0.E(atomPositionCOM.position(((Atom)childList.getAtom(0)).getParentGroup()));
+            com0.E(atomPositionCOM.position(childList.getAtom(0).getParentGroup()));
             initialized = true;
         }
     }
     
     private static final long serialVersionUID = 1L;
 
-    protected final IVectorMutable xWork, yWork, zWork;
-    protected final IVectorMutable com0;
+    protected final Vector xWork, yWork, zWork;
+    protected final Vector com0;
     protected final RotationTensor3D rotationTensor;
-    protected final AtomPositionCOM atomPositionCOM;
+    protected final MoleculePositionCOM atomPositionCOM;
     protected boolean initialized;
     protected final RotationTensor previousTensor, workTensor;
     
-    protected static void doTransform(IMolecule molecule, IVector r0, RotationTensor rotationTensor) {
+    protected static void doTransform(IMolecule molecule, Vector r0, RotationTensor rotationTensor) {
         IAtomList childList = molecule.getChildList();
         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
             IAtom a = childList.getAtom(iChild);
-            IVectorMutable r = a.getPosition();
+            Vector r = a.getPosition();
             r.ME(r0);
             rotationTensor.transform(r);
             r.PE(r0);
@@ -305,7 +303,7 @@ public class OrientationCalcWater3P extends ConformationWater3P implements
         rotationTensor.invert();
         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
             IAtom a = childList.getAtom(iChild);
-            IVectorMutable r = a.getPosition();
+            Vector r = a.getPosition();
             r.ME(com0);
             rotationTensor.transform(r);
             r.PE(xWork);

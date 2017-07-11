@@ -7,7 +7,7 @@ package etomica.data;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroupFactory;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 import etomica.util.Arrays;
 
 /**

@@ -4,18 +4,18 @@
 
 package etomica.virial;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomIterator;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBox;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.space.Vector;
 import etomica.space3d.Vector3D;
+import etomica.util.random.IRandom;
 
 /**
  * An MC move for cluster simulations which performs reptation moves on molecules.
@@ -31,7 +31,7 @@ public class MCMoveClusterReptateMulti extends MCMoveBox {
     private final MeterPotentialEnergy energyMeter;
     protected final IRandom random;
 
-    public MCMoveClusterReptateMulti(ISimulation sim, IPotentialMaster potentialMaster, int nAtoms) {
+    public MCMoveClusterReptateMulti(Simulation sim, PotentialMaster potentialMaster, int nAtoms) {
     	this(potentialMaster, sim.getRandom(), nAtoms);
         setBondLength(1.0);
     }
@@ -43,7 +43,7 @@ public class MCMoveClusterReptateMulti extends MCMoveBox {
      * box should be at least one greater than this value (greater
      * because first atom is never moved)
      */
-    public MCMoveClusterReptateMulti(IPotentialMaster potentialMaster, IRandom random, int nAtoms) {
+    public MCMoveClusterReptateMulti(PotentialMaster potentialMaster, IRandom random, int nAtoms) {
         super(potentialMaster);
         this.random = random;
         this.nAtoms = nAtoms;
@@ -57,7 +57,7 @@ public class MCMoveClusterReptateMulti extends MCMoveBox {
         work1 = new Vector3D();
     }
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
     }
@@ -92,10 +92,10 @@ public class MCMoveClusterReptateMulti extends MCMoveBox {
                 }
             }
             if (forward[i]) {
-                IVectorMutable position = childList.getAtom(numChildren-1).getPosition();
+                Vector position = childList.getAtom(numChildren-1).getPosition();
                 oldPositions[i].E(position);
                 for (int j=numChildren-1; j>0; j--) {
-                    IVectorMutable position2 = childList.getAtom(j-1).getPosition();
+                    Vector position2 = childList.getAtom(j-1).getPosition();
                     position.E(position2);
                     position = position2;
                 }
@@ -104,10 +104,10 @@ public class MCMoveClusterReptateMulti extends MCMoveBox {
                 childList.getAtom(0).getPosition().PE(work1);
             }
             else {
-                IVectorMutable position = childList.getAtom(0).getPosition();
+                Vector position = childList.getAtom(0).getPosition();
                 oldPositions[i].E(position);
                 for (int j=0; j<numChildren-1; j++) {
-                    IVectorMutable position2 = childList.getAtom(j+1).getPosition();
+                    Vector position2 = childList.getAtom(j+1).getPosition();
                     position.E(position2);
                     position = position2;
                 }
@@ -157,18 +157,18 @@ public class MCMoveClusterReptateMulti extends MCMoveBox {
             IAtomList childList = selectedMolecules[i].getChildList();
             int numChildren = childList.getAtomCount();
             if (!forward[i]) {
-                IVectorMutable position = childList.getAtom(numChildren-1).getPosition();
+                Vector position = childList.getAtom(numChildren-1).getPosition();
                 for (int j=numChildren-1; j>0; j--) {
-                    IVectorMutable position2 = childList.getAtom(j-1).getPosition();
+                    Vector position2 = childList.getAtom(j-1).getPosition();
                     position.E(position2);
                     position = position2;
                 }
                 childList.getAtom(0).getPosition().E(oldPositions[i]);
             }
             else {
-                IVectorMutable position = childList.getAtom(0).getPosition();
+                Vector position = childList.getAtom(0).getPosition();
                 for (int j=0; j<numChildren-1; j++) {
-                    IVectorMutable position2 = childList.getAtom(j+1).getPosition();
+                    Vector position2 = childList.getAtom(j+1).getPosition();
                     position.E(position2);
                     position = position2;
                 }

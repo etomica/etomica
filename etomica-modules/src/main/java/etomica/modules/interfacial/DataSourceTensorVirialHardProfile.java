@@ -5,7 +5,7 @@
 package etomica.modules.interfacial;
 import java.util.Arrays;
 
-import etomica.api.IVector;
+import etomica.space.Vector;
 import etomica.data.DataSourceIndependent;
 import etomica.data.DataSourceTensorVirialHard;
 import etomica.data.DataTag;
@@ -19,10 +19,10 @@ import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.integrator.IntegratorHard;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.units.Energy;
-import etomica.units.Length;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Length;
 
 /**
  * A DataSource that collects the average virial tensor as a function of
@@ -33,7 +33,7 @@ import etomica.units.Length;
  */
 public class DataSourceTensorVirialHardProfile extends DataSourceTensorVirialHard implements DataSourceIndependent {
     
-    public DataSourceTensorVirialHardProfile(ISpace space) {
+    public DataSourceTensorVirialHardProfile(Space space) {
         super(space);
         profileData = new DataGroup(new IData[0]);
         profileDataInfo = new DataInfoGroup("Virial profiles", Energy.DIMENSION, new IEtomicaDataInfo[0]);
@@ -52,7 +52,7 @@ public class DataSourceTensorVirialHardProfile extends DataSourceTensorVirialHar
         double elapsedTime = currentTime - lastProfileTime;
         lastProfileTime = currentTime;
         
-        IVector boxDim = integratorHard.getBox().getBoundary().getBoxSize();
+        Vector boxDim = integratorHard.getBox().getBoundary().getBoxSize();
         if (L != boxDim.getX(0)) {
             // the data we collected is bogus.  reset and return NaN.
             setupProfileData();
@@ -159,7 +159,7 @@ public class DataSourceTensorVirialHardProfile extends DataSourceTensorVirialHar
     }
 
     protected void setupProfileData() {
-        IVector boxDim = integratorHard.getBox().getBoundary().getBoxSize();
+        Vector boxDim = integratorHard.getBox().getBoundary().getBoxSize();
         L = boxDim.getX(0);
         Li = 1.0/L;
         halfL = 0.5*L;

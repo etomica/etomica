@@ -4,78 +4,35 @@
 
 package etomica.modules.rosmosis;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.util.ArrayList;
-
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.border.TitledBorder;
-
 import etomica.action.IAction;
-import etomica.api.IBox;
-import etomica.api.ISpecies;
 import etomica.atom.DiameterHashByType;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataFork;
-import etomica.data.DataPipe;
-import etomica.data.DataProcessor;
-import etomica.data.DataPump;
-import etomica.data.DataSourceCountTime;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IDataSink;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.meter.MeterEnergy;
-import etomica.data.meter.MeterKineticEnergy;
-import etomica.data.meter.MeterNMolecules;
-import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.meter.MeterProfileByVolume;
-import etomica.data.meter.MeterTemperature;
+import etomica.box.Box;
+import etomica.data.*;
+import etomica.data.history.HistoryCollapsingAverage;
+import etomica.data.meter.*;
 import etomica.data.types.DataDouble;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DeviceBox;
-import etomica.graphics.DeviceSlider;
-import etomica.graphics.DeviceThermoSlider;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.DisplayTextBoxesCAE;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
 import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.potential.P2LennardJones;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
-import etomica.units.Angstrom;
-import etomica.units.Bar;
-import etomica.units.CompoundUnit;
-import etomica.units.Dalton;
-import etomica.units.Dimension;
-import etomica.units.Energy;
-import etomica.units.Joule;
-import etomica.units.Kelvin;
-import etomica.units.Length;
-import etomica.units.Liter;
-import etomica.units.Meter;
-import etomica.units.Mole;
-import etomica.units.Picosecond;
-import etomica.units.Pixel;
-import etomica.units.Prefix;
-import etomica.units.PrefixedUnit;
-import etomica.units.Quantity;
-import etomica.units.Unit;
-import etomica.units.UnitRatio;
+import etomica.units.*;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Quantity;
 import etomica.units.systems.MKS;
 import etomica.util.Constants.CompassDirection;
-import etomica.util.HistoryCollapsingAverage;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
+import java.util.ArrayList;
 
 /**
  * Graphical and data collection bits for reverse osmosis simulation.
@@ -662,7 +619,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
     
     public static class DataSinkExcludeOverlap extends DataProcessor {
 
-        public DataSinkExcludeOverlap(IBox box) {
+        public DataSinkExcludeOverlap(Box box) {
             myData = new DataDouble();
             this.box = box;
         }
@@ -682,7 +639,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         }
         
         protected final DataDouble myData;
-        protected final IBox box;
+        protected final Box box;
     }
 
     public static void main(String[] args) {

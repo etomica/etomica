@@ -7,11 +7,9 @@
  */
 package etomica.data.meter;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.data.DataInfo;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -19,12 +17,13 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataVector;
 import etomica.data.types.DataVector.DataInfoVector;
-import etomica.space.ISpace;
-import etomica.units.CompoundDimension;
-import etomica.units.Dimension;
-import etomica.units.Length;
-import etomica.units.Mass;
-import etomica.units.Time;
+import etomica.space.Vector;
+import etomica.space.Space;
+import etomica.units.dimensions.CompoundDimension;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Mass;
+import etomica.units.dimensions.Time;
 
 /**
  * Returns the instantaneous total center-of-mass momentum, summed over all
@@ -33,7 +32,7 @@ import etomica.units.Time;
  */
 public class MeterMomentumCOM implements IEtomicaDataSource, java.io.Serializable {
 
-    public MeterMomentumCOM(ISpace space) {
+    public MeterMomentumCOM(Space space) {
         data = new DataVector(space);
         momentumSum = data.x;
         dataInfo = new DataInfoVector("COM momentum", new CompoundDimension(
@@ -53,7 +52,7 @@ public class MeterMomentumCOM implements IEtomicaDataSource, java.io.Serializabl
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            double mass = ((IAtom)a).getType().getMass();
+            double mass = a.getType().getMass();
             momentumSum.PEa1Tv1(mass,a.getVelocity());
         }
         return data;
@@ -62,13 +61,13 @@ public class MeterMomentumCOM implements IEtomicaDataSource, java.io.Serializabl
     /**
      * @return Returns the box.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     /**
      * @param box The box to set.
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
     }
     
@@ -89,8 +88,8 @@ public class MeterMomentumCOM implements IEtomicaDataSource, java.io.Serializabl
     }
 
     private static final long serialVersionUID = 1L;
-    private IBox box;
-    private final IVectorMutable momentumSum;
+    private Box box;
+    private final Vector momentumSum;
     private final DataVector data;    
     private final DataInfo dataInfo;
     private String name;

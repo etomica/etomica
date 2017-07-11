@@ -4,13 +4,11 @@
 
 package etomica.virial.simulations;
 
-import java.awt.Color;
-
 import etomica.AlkaneEH.SpeciesMethane;
 import etomica.action.IAction;
-import etomica.api.IAtomType;
-import etomica.api.IIntegratorEvent;
-import etomica.api.IIntegratorListener;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
+import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.graphics.ColorSchemeByType;
@@ -23,12 +21,10 @@ import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.MayerEGeneral;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
+
+import java.awt.*;
 
 /**
  * TraPPE-EH methane, CH4  
@@ -100,14 +96,14 @@ public class VirialMethaneEH {
 
         steps /= 1000;
 
-        IAtomType typeC = species.getAtomType(0);
-        IAtomType typeH = species.getAtomType(1);
+        AtomType typeC = species.getAtomType(0);
+        AtomType typeH = species.getAtomType(1);
 
         // build methane potential
-        pTargetGroup.addPotential(p2C, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC, typeC}));//C-C
-        pTargetGroup.addPotential(p2CH, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC, typeH}));//C-H
-        pTargetGroup.addPotential(p2CH, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeH, typeC }));//H-C
-        pTargetGroup.addPotential(p2H, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeH, typeH}));//H-H
+        pTargetGroup.addPotential(p2C, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeC}));//C-C
+        pTargetGroup.addPotential(p2CH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeH}));//C-H
+        pTargetGroup.addPotential(p2CH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeH, typeC}));//H-C
+        pTargetGroup.addPotential(p2H, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeH, typeH}));//H-H
 
         if (false) {
             double size = 5.0;
@@ -180,10 +176,10 @@ public class VirialMethaneEH {
         }
 
         if (false) {
-            IIntegratorListener progressReport = new IIntegratorListener() {
-                public void integratorInitialized(IIntegratorEvent e) {}
-                public void integratorStepStarted(IIntegratorEvent e) {}
-                public void integratorStepFinished(IIntegratorEvent e) {
+            IntegratorListener progressReport = new IntegratorListener() {
+                public void integratorInitialized(IntegratorEvent e) {}
+                public void integratorStepStarted(IntegratorEvent e) {}
+                public void integratorStepFinished(IntegratorEvent e) {
                     if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();

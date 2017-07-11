@@ -5,7 +5,7 @@
 package etomica.data;
 
 import etomica.integrator.IntegratorHard;
-import etomica.units.Time;
+import etomica.units.dimensions.Time;
 
 /**
  * This is a data source to count the number of collisions processed by a

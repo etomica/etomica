@@ -4,7 +4,7 @@
 
 package etomica.atom.iterator;
 
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPair;
 import etomica.util.Debug;

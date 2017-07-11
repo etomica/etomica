@@ -4,11 +4,10 @@
 
 package etomica.potential;
 
-import etomica.api.IAtomList;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IVector;
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.IAtomList;
 import etomica.integrator.IntegratorBox;
+import etomica.space.Vector;
 
 /**
  * Sums the force on each iterated atom and adds it to the integrator agent
@@ -46,13 +45,13 @@ public class PotentialCalculationForceSum implements PotentialCalculation {
     public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
         PotentialSoft potentialSoft = (PotentialSoft)potential;
         int nBody = potential.nBody();
-        IVector[] f = potentialSoft.gradient(atoms);
+        Vector[] f = potentialSoft.gradient(atoms);
         if (f==null) return;
         switch(nBody) {
         	case 0:
         		IAtomList boxAtoms = integratorAgentManager.getBox().getLeafList();
         		for (int i=0; i<boxAtoms.getAtomCount(); i++) {
-        			((IntegratorBox.Forcible)integratorAgentManager.getAgent(boxAtoms.getAtom(i))).force().ME(f[i]);
+        			integratorAgentManager.getAgent(boxAtoms.getAtom(i)).force().ME(f[i]);
         		}
         		break;
 

@@ -8,11 +8,11 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 import etomica.action.activity.Controller;
-import etomica.api.IAtom;
+import etomica.atom.IAtom;
 import etomica.lattice.RectangularLattice;
 import etomica.nbr.site.AtomSite;
 import etomica.nbr.site.NeighborSiteManager;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 
 public class DisplayBoxSpin2D extends DisplayBoxCanvas2D {
@@ -20,7 +20,7 @@ public class DisplayBoxSpin2D extends DisplayBoxCanvas2D {
     /**
      * @param _box
      */
-    public DisplayBoxSpin2D(DisplayBox _box, NeighborSiteManager neighborSiteManager, ISpace space, Controller controller) {
+    public DisplayBoxSpin2D(DisplayBox _box, NeighborSiteManager neighborSiteManager, Space space, Controller controller) {
         super(_box, space, controller);
         latticeIndex = new int[displayBox.getBox().getBoundary().getBoxSize().getD()];
         spinWidth = 5;

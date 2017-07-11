@@ -8,8 +8,8 @@ import java.beans.PropertyEditorSupport;
 
 import javax.swing.JComboBox;
 
-import etomica.units.Dimension;
-import etomica.units.Null;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Null;
 import etomica.units.Prefix;
 import etomica.units.PrefixedUnit;
 import etomica.units.SimpleUnit;

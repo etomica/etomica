@@ -4,14 +4,14 @@
 
 package etomica.virial;
 
-import etomica.api.IAtomList;
+import etomica.atom.IAtomList;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * Measures value of clusters in a box and returns the values

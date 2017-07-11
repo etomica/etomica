@@ -5,22 +5,20 @@
 package etomica.normalmode;
 
 import etomica.action.BoxInflate;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.potential.PotentialMaster;
+import etomica.util.random.IRandom;
+import etomica.space.Vector;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.space.ISpace;
-import etomica.space3d.Space3D;
-import etomica.units.Dimension;
-import etomica.units.Pressure;
-import etomica.util.Function;
+import etomica.space.Space;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Pressure;
+import etomica.math.function.Function;
 
 /**
  * Monte Carlo volume-change move for simulations of crystalline solids in the
@@ -41,8 +39,8 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
     protected final AtomIteratorLeafAtoms affectedAtomIterator;
     protected double temperature;
     protected final CoordinateDefinition coordinateDefinition;
-    protected final IVectorMutable dr;
-    protected final IVectorMutable nominalBoxSize;
+    protected final Vector dr;
+    protected final Vector nominalBoxSize;
 
     private transient double uOld, vOld, vNew, vScale;
     private transient double uNew = Double.NaN, latticeScale;
@@ -55,8 +53,8 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
      * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
      * @param space the governing space for the simulation
      */
-    public MCMoveVolumeSolid(IPotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, IRandom random,
-    		            ISpace _space, double pressure) {
+    public MCMoveVolumeSolid(PotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, IRandom random,
+                             Space _space, double pressure) {
         super(potentialMaster);
 //        System.out.println("do Corti? "+doCorti);
         this.coordinateDefinition = coordinateDefinition;
@@ -75,7 +73,7 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
         affectedAtomIterator = new AtomIteratorLeafAtoms();
     }
     
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         inflate.setBox(p);
@@ -141,10 +139,10 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
         latticeScale = Math.exp((pressure*(vNew-vOld)+(uLatNew-uLatOld))/((nAtoms)*temperature*D))/rScale;
 //        System.out.println("ls "+latticeScale);
 
-        IVector boxSize = box.getBoundary().getBoxSize();
+        Vector boxSize = box.getBoundary().getBoxSize();
         for (int i=0; i<leafList.getAtomCount(); i++) {
             IAtom atomi = leafList.getAtom(i);
-            IVector site = coordinateDefinition.getLatticePosition(atomi);
+            Vector site = coordinateDefinition.getLatticePosition(atomi);
 //            if (i==0) {
 //                System.out.println("lattice 0 "+site);
 //            }
@@ -183,11 +181,11 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
     
     public void rejectNotify() {
         IAtomList leafList = box.getLeafList();
-        IVector boxSize = box.getBoundary().getBoxSize();
+        Vector boxSize = box.getBoundary().getBoxSize();
         latticeScale = 1.0 / latticeScale;
         for (int i=0; i<leafList.getAtomCount(); i++) {
             IAtom atomi = leafList.getAtom(i);
-            IVector site = coordinateDefinition.getLatticePosition(atomi);
+            Vector site = coordinateDefinition.getLatticePosition(atomi);
             dr.E(site);
             dr.TE(boxSize);
             dr.DE(nominalBoxSize);

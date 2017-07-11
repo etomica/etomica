@@ -4,22 +4,14 @@
 
 package etomica.models.nitrogen;
 
-import java.util.Arrays;
-
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.atom.MoleculePair;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.DataInfo;
+import etomica.data.FunctionData;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
@@ -29,16 +21,19 @@ import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveTriclinic;
 import etomica.models.nitrogen.LatticeSumCrystalMolecular.DataGroupLSC;
+import etomica.molecule.*;
 import etomica.normalmode.BasisBigCell;
 import etomica.paracetamol.AtomActionTransformed;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
 import etomica.units.Degree;
-import etomica.units.Energy;
-import etomica.util.FunctionGeneral;
+import etomica.units.dimensions.Energy;
+
+import java.util.Arrays;
 
 
 
@@ -51,7 +46,7 @@ import etomica.util.FunctionGeneral;
  */
 public class MinimizationBetaNitrogenModelLS extends Simulation{
 
-	public MinimizationBetaNitrogenModelLS(ISpace space,double density, double rC) {
+	public MinimizationBetaNitrogenModelLS(Space space, double density, double rC) {
 		super(space);
 		this.space = space;
 		this.density = density;
@@ -84,7 +79,7 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
 		addBox(ghostBox);
 		ghostBox.setNMolecules(ghostSpecies, 1);
 		
-		IVector[] boxDim = new IVector[3];
+		Vector[] boxDim = new Vector[3];
 		boxDim[0] = space.makeVector(new double[]{aDim, 0, 0});
 		boxDim[1] = space.makeVector(new double[]{-2*aDim*Math.cos(Degree.UNIT.toSim(60)), 2*aDim*Math.sin(Degree.UNIT.toSim(60)), 0});
 		boxDim[2] = space.makeVector(new double[]{0, 0, cDim});
@@ -119,7 +114,7 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
 		
 		this.nLayer = (int)(rC/aDim+0.5);
 		
-		FunctionGeneral function = new FunctionGeneral() {
+		FunctionData<Object> function = new FunctionData<Object>() {
 			public IData f(Object obj) {
 				data.x = potential.energy((IMoleculeList)obj);
 				return data;
@@ -176,7 +171,7 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
 		coordDef.setOrientationVectorBetaLatticeSum(space, density, param);
 		coordDef.initializeCoordinates(new int[]{1,1,1});
 		
-		FunctionGeneral function = new FunctionGeneral() {
+		FunctionData<Object> function = new FunctionData<Object>() {
 			public IData f(Object obj) {
 				data.x = potential.energy((IMoleculeList)obj);
 				return data;
@@ -217,24 +212,24 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
 		
         double[] d = new double[16];
         MoleculeActionTranslateTo translator = new MoleculeActionTranslateTo(sim.space);
-        AtomPositionGeometricCenter pos = new AtomPositionGeometricCenter(sim.space);
+        MoleculePositionGeometricCenter pos = new MoleculePositionGeometricCenter(sim.space);
         translator.setAtomPositionDefinition(pos);
-        IVectorMutable p = sim.space.makeVector();
+        Vector p = sim.space.makeVector();
 
         double step1 = 0;
         double[] x0 = new double[12];
         
-        IVector[][] gradTorq = new IVectorMutable[2][2];
+        Vector[][] gradTorq = new Vector[2][2];
         for(int i=0; i<2; i++){
         	for(int j=0; j<2; j++){
             	gradTorq[i][j] = sim.getSpace().makeVector();
             }	
         }
         
-        IVectorMutable[] orient0 = new IVectorMutable[4];
-        IVectorMutable[] orientf = new IVectorMutable[4];
-        IVectorMutable[] torques = new IVectorMutable[4];
-        IVectorMutable[] axes = new IVectorMutable[4];
+        Vector[] orient0 = new Vector[4];
+        Vector[] orientf = new Vector[4];
+        Vector[] torques = new Vector[4];
+        Vector[] axes = new Vector[4];
         for (int i=0; i<4; i++) {
             axes[i] = sim.space.makeVector();
             torques[i] = sim.space.makeVector();
@@ -262,8 +257,8 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
 		            IMolecule molecule0 = sim.box.getMoleculeList().getMolecule(i);
 		            pair.atom0 = molecule0;
 		            
-		            IVectorMutable destination = sim.getSpace().makeVector();
-		            IVectorMutable f = sim.getSpace().makeVector();
+		            Vector destination = sim.getSpace().makeVector();
+		            Vector f = sim.getSpace().makeVector();
 		            torques[i].E(0.0);
 		            
 		           	for(int jp=0; jp<4; jp++){	
@@ -501,12 +496,12 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
 
 	}
 	
-    protected static void doTransform(IMolecule molecule, IAtomPositionDefinition posDef, Tensor rotationTensor) {
+    protected static void doTransform(IMolecule molecule, IMoleculePositionDefinition posDef, Tensor rotationTensor) {
         IAtomList childList = molecule.getChildList();
-        IVector com = posDef.position(molecule);
+        Vector com = posDef.position(molecule);
         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
             IAtom a = childList.getAtom(iChild);
-            IVectorMutable r = a.getPosition();
+            Vector r = a.getPosition();
             r.ME(com);
             rotationTensor.transform(r);
             r.PE(com);
@@ -515,7 +510,7 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
 
 
 	protected Box box, ghostBox;
-	protected ISpace space;
+	protected Space space;
 	protected P2Nitrogen potential;
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected Primitive primitive;
@@ -525,9 +520,9 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
 	
 	protected AtomActionTranslateBy translateBy;
 	protected MoleculeChildAtomAction atomGroupActionTranslate;
-	protected IVectorMutable lsPosition;
+	protected Vector lsPosition;
 	protected double xVecBox, yVecBox, zVecBox, rC, density;  
-	protected IVectorMutable[] boxVec;
+	protected Vector[] boxVec;
 	protected int nLayer;
     protected MoleculeChildAtomAction atomGroupAction;
     protected double initialLatticeEnergy;

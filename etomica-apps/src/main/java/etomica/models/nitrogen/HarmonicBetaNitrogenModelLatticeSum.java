@@ -4,10 +4,9 @@
 
 package etomica.models.nitrogen;
 
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
 import etomica.box.Box;
 import etomica.data.DataInfo;
+import etomica.data.FunctionData;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
@@ -17,14 +16,13 @@ import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveTriclinic;
 import etomica.models.nitrogen.LatticeSumCrystalMolecular.DataGroupLSC;
+import etomica.molecule.IMoleculeList;
 import etomica.normalmode.BasisBigCell;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.units.Energy;
+import etomica.units.dimensions.Energy;
 import etomica.units.Joule;
-import etomica.util.FunctionGeneral;
-
 
 
 /**
@@ -37,7 +35,7 @@ import etomica.util.FunctionGeneral;
 public class HarmonicBetaNitrogenModelLatticeSum extends Simulation{
 
 	
-	public HarmonicBetaNitrogenModelLatticeSum(ISpace space, int numMolecule, double density, double rC) {
+	public HarmonicBetaNitrogenModelLatticeSum(Space space, int numMolecule, double density, double rC) {
 		super(space);
 						
 	  	double ratio = 1.631;
@@ -58,11 +56,11 @@ public class HarmonicBetaNitrogenModelLatticeSum extends Simulation{
 		ghostSpecies.setConformation(conformation);
 		addSpecies(ghostSpecies);
 		
-		IBox box = new Box(space);
+		Box box = new Box(space);
 		addBox(box);
 		box.setNMolecules(species, numMolecule);		
 		
-		IBox ghostBox = new Box(space);
+		Box ghostBox = new Box(space);
 		addBox(ghostBox);
 		ghostBox.setNMolecules(ghostSpecies, 1);
 		
@@ -81,7 +79,7 @@ public class HarmonicBetaNitrogenModelLatticeSum extends Simulation{
 		potential.setBox(box);
 		potential.setEnablePBC(false);
 		
-		FunctionGeneral function = new FunctionGeneral() {
+		FunctionData<Object> function = new FunctionData<Object>() {
 			public IData f(Object obj) {
 				data.x = potential.energy((IMoleculeList)obj);
 				return data;

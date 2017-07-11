@@ -4,57 +4,26 @@
 
 package etomica.modules.chainequilibrium;
 
-import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.util.ArrayList;
-
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.SwingConstants;
-
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.api.ISpecies;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataFork;
-import etomica.data.DataPump;
-import etomica.data.DataSourceCountTime;
-import etomica.data.DataTag;
+import etomica.data.*;
+import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterTemperature;
-import etomica.graphics.DeviceBox;
-import etomica.graphics.DeviceButton;
-import etomica.graphics.DeviceDelaySlider;
-import etomica.graphics.DeviceNSelector;
-import etomica.graphics.DeviceSlider;
-import etomica.graphics.DeviceThermoSlider;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.DisplayTextBoxesCAE;
-import etomica.graphics.DisplayTimer;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
 import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.modifier.ModifierNMolecule;
-import etomica.space.ISpace;
 import etomica.space.Space;
-import etomica.units.Dimension;
-import etomica.units.Joule;
-import etomica.units.Kelvin;
-import etomica.units.Mole;
-import etomica.units.Pixel;
-import etomica.units.Prefix;
-import etomica.units.PrefixedUnit;
-import etomica.units.Quantity;
-import etomica.units.UnitRatio;
+import etomica.species.ISpecies;
+import etomica.units.dimensions.Dimension;
+import etomica.units.*;
+import etomica.units.dimensions.Quantity;
 import etomica.util.Constants.CompassDirection;
-import etomica.util.HistoryCollapsingAverage;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
 
 /**
  * Module for chain reaction (polymerization) using ChainEquilibriumSim as the
@@ -72,7 +41,7 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
 
     protected final FreeRadicalPolymerizationSim sim;
 
-    public FreeRadicalPolymerizationGraphic(FreeRadicalPolymerizationSim simulation, ISpace _space) {
+    public FreeRadicalPolymerizationGraphic(FreeRadicalPolymerizationSim simulation, Space _space) {
 
 		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
 		getPanel().toolbar.addAuthor("Dr. William Chirdon");
@@ -103,7 +72,7 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         
         DeviceBox solventThermoFrac = new DeviceBox();
         solventThermoFrac.setController(sim.getController());
-        solventThermoFrac.setModifier(new ModifierGeneral(new P2SquareWellBonded[]{sim.p2AA}, "solventThermoFrac"));
+        solventThermoFrac.setModifier(new ModifierGeneral(sim.p2AA, "solventThermoFrac"));
         solventThermoFrac.setLabel("fraction heat transfer to solvent");
         DisplayTextBox tBox = new DisplayTextBox();
 
@@ -393,6 +362,19 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         numberRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
     }
 
+    public static void main(String[] args) {
+        int D = 2;
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].equals("-dim") && i + 1 < args.length) {
+                i++;
+                D = Integer.parseInt(args[i]);
+            }
+        }
+        FreeRadicalPolymerizationSim sim = new FreeRadicalPolymerizationSim(Space.getInstance(D));
+        FreeRadicalPolymerizationGraphic graphic = new FreeRadicalPolymerizationGraphic(sim, sim.getSpace());
+        SimulationGraphic.makeAndDisplayFrame(graphic.getPanel(), APP_NAME);
+    }
+
     public DeviceSlider sliders(int eMin, int eMax, String s, P2SquareWellBonded p){
 
         DeviceSlider AASlider = new DeviceSlider(sim.getController(), new ModifierGeneral(p, "epsilon"));
@@ -421,19 +403,6 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         AASlider.getSlider().setSnapToTicks(true);
 
         return AASlider;
-    }
-
-    public static void main(String[] args) {
-        int D = 2;
-        for (int i=0; i<args.length; i++) {
-            if (args[i].equals("-dim") && i+1<args.length) {
-                i++;
-                D = Integer.parseInt(args[i]);
-            }
-        }
-        FreeRadicalPolymerizationSim sim = new FreeRadicalPolymerizationSim(Space.getInstance(D));
-        FreeRadicalPolymerizationGraphic graphic = new FreeRadicalPolymerizationGraphic(sim, sim.getSpace());
-        SimulationGraphic.makeAndDisplayFrame(graphic.getPanel(), APP_NAME);
     }
 
     public static class Applet extends javax.swing.JApplet {

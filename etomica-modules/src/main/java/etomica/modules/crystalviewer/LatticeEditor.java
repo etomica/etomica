@@ -3,24 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.modules.crystalviewer;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.util.HashMap;
-
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.border.TitledBorder;
 
 import etomica.action.IAction;
-import etomica.api.IBox;
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.DeviceBox;
@@ -31,10 +15,22 @@ import etomica.lattice.crystal.Primitive;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.space.BoundaryDeformableLattice;
-import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.units.Degree;
-import etomica.units.Quantity;
+import etomica.units.dimensions.*;
 import etomica.util.Arrays;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.util.HashMap;
 
 /**
  * Class that produces a panel with controls that permit editing of
@@ -47,7 +43,7 @@ public class LatticeEditor {
     protected int size;
     protected BravaisLattice currentLattice;
     private JPanel panel;
-    protected IBox box;
+    protected Box box;
     protected ISpecies species;
     private DeviceBox[] angleBoxes, sizeBoxes;
     public JPanel anglePanel, sizePanel;
@@ -55,7 +51,7 @@ public class LatticeEditor {
     protected CrystalViewer viewer;
     protected final HashMap latticeNameHash;
     protected LatticeEditorBoxPropertyArray pvBox = null; 
-    private final ISpace space;
+    private final Space space;
     
     private final String[] fieldTitles = {"A", "B", "C",
                                           "Alpha", "Beta", "Gamma" };
@@ -79,7 +75,7 @@ public class LatticeEditor {
     private static final int ANGLE_END_INDEX = 5;
 
     public LatticeEditor(CrystalViewer viewer, BravaisLattice[] lattices,
-    		             String[] latticeNames, ISpace _space) {
+    		             String[] latticeNames, Space _space) {
     
         this.viewer = viewer;
         this.space = _space;
@@ -301,7 +297,7 @@ public class LatticeEditor {
 
     protected void changeBox() {
     	
-    	IBox oldBox = box;
+    	Box oldBox = box;
         double[]  boxSize = new double[] { 10.0, 10.0, 10.0 };
 
     	box = new Box(new BoundaryDeformableLattice
@@ -326,7 +322,7 @@ public class LatticeEditor {
         public double getValue() {
             return size;
         }
-        public etomica.units.Dimension getDimension() {return Quantity.DIMENSION;}
+        public etomica.units.dimensions.Dimension getDimension() {return Quantity.DIMENSION;}
         public String getLabel() {
             return "a label";
         }

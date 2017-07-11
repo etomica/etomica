@@ -5,7 +5,7 @@
 package etomica.yukawa;
 
 import etomica.potential.Potential2SoftSpherical;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Yukawa interatomic potential.
@@ -20,11 +20,11 @@ import etomica.space.ISpace;
 
 public final class P2Yukawa extends Potential2SoftSpherical {
 	
-    public P2Yukawa(ISpace _space) {
+    public P2Yukawa(Space _space) {
 		this(_space, 1.0, 1.0);
 	}
 	
-	public P2Yukawa(ISpace _space, double kappa, double vzero){
+	public P2Yukawa(Space _space, double kappa, double vzero){
 		super(_space);
 		setKappa(kappa);
 		setVZero(vzero);

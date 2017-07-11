@@ -10,7 +10,7 @@ import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
-import etomica.units.Quantity;
+import etomica.units.dimensions.Quantity;
 
 /**
  * Takes output from MeterChainLength as input and outputs the weight-average

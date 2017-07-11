@@ -3,19 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.graphics;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.util.ArrayList;
-
-import javax.swing.JPanel;
 
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.Controller;
-import etomica.api.ISimulation;
 import etomica.data.DataPump;
+import etomica.simulation.Simulation;
 import etomica.simulation.prototypes.HSMD2D;
-import etomica.space.ISpace;
+import etomica.space.Space;
+
+import javax.swing.*;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.util.ArrayList;
 
 /**
  * Device comprising three buttons: (1) attaches to a controller to toggle its pause/resume state; 
@@ -29,7 +29,7 @@ public class DeviceTrioControllerButton extends Device {
     
     private JPanel jp;
     private DeviceControllerButton startButton;
-    private ISimulation simulation;
+    private Simulation simulation;
     private DeviceButton reinitButton;
     private DeviceButton resetButton;
 	private double width;
@@ -40,7 +40,7 @@ public class DeviceTrioControllerButton extends Device {
     /**
      * Contructs device with buttons that affect the given simulation.
      */
-    public DeviceTrioControllerButton(ISimulation simulation, ISpace space, Controller _controller) {
+    public DeviceTrioControllerButton(Simulation simulation, Space space, Controller _controller) {
         this();
         setSimulation(simulation, space, _controller);
     }
@@ -71,9 +71,9 @@ public class DeviceTrioControllerButton extends Device {
     /**
      * Sets the controller that is toggled by this device.
      */
-    protected void setSimulation(ISimulation sim, ISpace space, Controller controller) {
+    protected void setSimulation(Simulation sim, Space space, Controller controller) {
         simulation = sim;
-        simRestart = new SimulationRestart(sim, space, controller);
+        simRestart = new SimulationRestart(sim);
         final Controller c = controller;
         setController(c);
         startButton.setController(c);
@@ -103,7 +103,7 @@ public class DeviceTrioControllerButton extends Device {
     /**
      * Returns the simulation affected by the buttons.
      */
-    public ISimulation getSimulation() {
+    public Simulation getSimulation() {
         return simulation;
     }
 

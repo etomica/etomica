@@ -4,41 +4,41 @@
 
 package etomica.freeenergy.npath;
 
-import etomica.api.*;
-import etomica.atom.AtomArrayList;
-import etomica.atom.AtomSetSinglet;
-import etomica.atom.AtomSource;
-import etomica.atom.AtomSourceRandomLeaf;
+import etomica.atom.*;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorAtomDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
+import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveInsertDeleteLatticeVacancy;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.ISpace;
+import etomica.potential.PotentialMaster;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * Created by andrew on 4/11/17.
  */
 public class MCMoveAtomSwap extends MCMoveBox {
     protected final AtomIteratorArrayListSimple affectedAtomIterator;
+    protected final IRandom random;
+    protected final AtomArrayList nbrList;
+    protected final Vector dr;
+    protected final P1ImageHarmonic p1;
+    protected final AtomSetSinglet singlet;
     protected IAtom atom, atom2;
     protected double uOld;
     protected double uNew = Double.NaN;
     protected AtomSource atomSource;
-    protected final IRandom random;
-    protected ISpace space;
+    protected Space space;
     protected IAtomList atoms;
     protected AtomIteratorAtomDependent atomIterator;
     protected double nbrDistance;
-    protected final AtomArrayList nbrList;
-    protected final IVectorMutable dr;
-    protected final P1ImageHarmonic p1;
-    protected final AtomSetSinglet singlet;
 
-    public MCMoveAtomSwap(IRandom random, IPotentialMaster potentialMaster, ISpace _space, P1ImageHarmonic p1) {
+    public MCMoveAtomSwap(IRandom random, PotentialMaster potentialMaster, Space _space, P1ImageHarmonic p1) {
         super(potentialMaster);
         this.random = random;
         this.space = _space;
@@ -52,12 +52,12 @@ public class MCMoveAtomSwap extends MCMoveBox {
         singlet = new AtomSetSinglet();
     }
 
-    public void setNbrDistance(double newNbrDistance) {
-        nbrDistance = newNbrDistance;
-    }
-
     public double getNbrDistance() {
         return nbrDistance;
+    }
+    
+    public void setNbrDistance(double newNbrDistance) {
+        nbrDistance = newNbrDistance;
     }
 
     /**
@@ -71,8 +71,10 @@ public class MCMoveAtomSwap extends MCMoveBox {
         ((AtomsetIteratorDirectable)atomIterator).setDirection(null);
         atomIterator.reset();
         nbrList.clear();
-        IVector pi = atom.getPosition();
-        for (IAtom jAtom = ((AtomIterator)atomIterator).nextAtom(); jAtom != null ;jAtom = ((AtomIterator)atomIterator).nextAtom()) {
+        Vector pi = atom.getPosition();
+        int partner = p1.getPartner(atom.getLeafIndex());
+        for (IAtom jAtom = atomIterator.nextAtom(); jAtom != null; jAtom = atomIterator.nextAtom()) {
+            if (jAtom.getLeafIndex() == partner) continue;
             dr.Ev1Mv2(pi, jAtom.getPosition());
             box.getBoundary().nearestImage(dr);
             double r2 = dr.squared();
@@ -88,9 +90,11 @@ public class MCMoveAtomSwap extends MCMoveBox {
         singlet.atom = atom2;
         uOld += 2*p1.energy(singlet);
 
-        dr.E(atom.getPosition());
-        atom.getPosition().E(atom2.getPosition());
-        atom2.getPosition().E(dr);
+        int partner2 = p1.getPartner(atom2.getLeafIndex());
+
+        p1.setPartner(atom.getLeafIndex(), partner2);
+        p1.setPartner(atom2.getLeafIndex(), partner);
+
         return true;
     }//end of doTrial
 
@@ -121,8 +125,7 @@ public class MCMoveAtomSwap extends MCMoveBox {
     /**
      * Method called by IntegratorMC in the event that the most recent trial is accepted.
      */
-    public void acceptNotify() {  /* do nothing */
-    }
+    public void acceptNotify() {/* do nothing */}
 
     /**
      * Method called by IntegratorMC in the event that the most recent trial move is
@@ -130,9 +133,11 @@ public class MCMoveAtomSwap extends MCMoveBox {
      * before the most recent call to doTrial.
      */
     public void rejectNotify() {
-        dr.E(atom.getPosition());
-        atom.getPosition().E(atom2.getPosition());
-        atom2.getPosition().E(dr);
+        int partner = p1.getPartner(atom.getLeafIndex());
+        int partner2 = p1.getPartner(atom2.getLeafIndex());
+    
+        p1.setPartner(atom.getLeafIndex(), partner2);
+        p1.setPartner(atom2.getLeafIndex(), partner);
     }
 
     public AtomIterator affectedAtoms() {
@@ -143,7 +148,7 @@ public class MCMoveAtomSwap extends MCMoveBox {
         return affectedAtomIterator;
     }
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         atomSource.setBox(p);
         atoms = p.getLeafList();

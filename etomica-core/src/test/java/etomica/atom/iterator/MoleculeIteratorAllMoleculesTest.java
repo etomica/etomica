@@ -4,14 +4,15 @@
 
 package etomica.atom.iterator;
 
-import java.util.LinkedList;
-
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
-import etomica.api.ISpecies;
-import etomica.atom.MoleculeArrayList;
 import etomica.UnitTestUtil;
+import etomica.box.Box;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeArrayList;
+import etomica.molecule.iterator.MoleculeIteratorAllMolecules;
+import etomica.simulation.Simulation;
+import etomica.species.ISpecies;
+
+import java.util.LinkedList;
 
 /**
  * Unit test for ApiIntraspeciesAA
@@ -26,7 +27,7 @@ public class MoleculeIteratorAllMoleculesTest extends MoleculeIteratorTestAbstra
         int[] n0 = new int[] { 10, 1, 0, 0, 0};
         int nA0 = 5;
         int[] n1 = new int[] { 5, 1, 6, 0, 1};
-        ISimulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1);
+        Simulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1);
 
         ISpecies[] species = new ISpecies[sim.getSpeciesCount()];
         for(int i = 0; i < sim.getSpeciesCount(); i++) {
@@ -41,7 +42,7 @@ public class MoleculeIteratorAllMoleculesTest extends MoleculeIteratorTestAbstra
     /**
      * Performs tests on different species combinations in a particular box.
      */
-    private void boxTest(IBox box, ISpecies[] species) {
+    private void boxTest(Box box, ISpecies[] species) {
         MoleculeIteratorAllMolecules iterator = new MoleculeIteratorAllMolecules();
 
         iterator.setBox(box);

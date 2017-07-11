@@ -3,22 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.association;
+
 import etomica.action.BoxInflate;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomType;
+import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverage;
+import etomica.data.*;
 import etomica.data.AccumulatorAverage.StatType;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataPump;
-import etomica.data.DataSourceCountSteps;
+import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
@@ -35,7 +32,6 @@ import etomica.potential.P2HardAssociationConeDoubleSites;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresRotating;
-import etomica.util.HistoryCollapsingAverage;
 import etomica.util.ParameterBase;
 
 /**
@@ -52,9 +48,8 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
     public MCMoveAtomSmer mcMoveAtomSmer;
     public MCMoveRotateAssociated mcMoveRotate;
     public SpeciesSpheresRotating species;
-    public IBox box;
+    public Box box;
     public P2HardAssociationConeDoubleSites potential;
-    double epsilon = 1.0;
     public MCMoveSmer mcMoveSmer;
     public MCMoveSmerRotate mcMoveSmerRotate;
     public MCMoveVolumeAssociated mcMoveVolume;
@@ -63,6 +58,7 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
     public AssociationManager associationManagerOriented;
     public BiasVolumeSphereOrientedDoubleSites bvso;
     public AssociationHelperDouble associationHelper;
+    double epsilon = 1.0;
         
     
     public TestLJAssociationMC3D_NPT_DoubleSites(int numAtoms, double pressure, double density, double wellConstant, double temperature,double truncationRadius,int maxChainLength, boolean useUB, long numSteps) {
@@ -141,9 +137,9 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
         mcMoveSmer.setAssociationManager(associationManagerOriented);
 	    mcMoveSmerRotate.setAssociationManager(associationManagerOriented);
         mcMoveVolume.setPressure(pressure);
-        
-        IAtomType leafType = species.getLeafType();
-        potentialMaster.addPotential(potential, new IAtomType[] {leafType, leafType});
+
+        AtomType leafType = species.getLeafType();
+        potentialMaster.addPotential(potential, new AtomType[]{leafType, leafType});
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
         integrator.getMoveManager().addMCMove(mcMoveSmer);
         integrator.getMoveManager().addMCMove(mcMoveSmerRotate);
@@ -170,7 +166,7 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
         boolean useUB = params.useUB;
         long numSteps = params.numSteps;
         if (args.length > 0) {
-            numAtoms = Integer.parseInt(args[0]);;
+            numAtoms = Integer.parseInt(args[0]);
             pressure = Double.parseDouble(args[1]);
             density = Double.parseDouble(args[2]);
             wellConstant = Double.parseDouble(args[3]);
@@ -250,21 +246,21 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
         
         if (false) {
         	SimulationGraphic graphic = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE, sim.space,sim.getController());
-        	AccumulatorHistory densityHistory = new AccumulatorHistory(new HistoryCollapsingAverage()); 
-        	rhoAccumulator.addDataSink(densityHistory, new StatType[]{rhoAccumulator.MOST_RECENT});
-        	DisplayPlot rhoPlot = new DisplayPlot();
+        	AccumulatorHistory densityHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
+            rhoAccumulator.addDataSink(densityHistory, new StatType[]{AccumulatorAverage.MOST_RECENT});
+            DisplayPlot rhoPlot = new DisplayPlot();
         	densityHistory.setDataSink(rhoPlot.getDataSet().makeDataSink());
         	rhoPlot.setLabel("density");
         	graphic.add(rhoPlot);
-        	AccumulatorHistory energyHistory = new AccumulatorHistory(new HistoryCollapsingAverage()); 
-        	energyAccumulator.addDataSink(energyHistory, new StatType[]{energyAccumulator.MOST_RECENT});
-        	DisplayPlot energyPlot = new DisplayPlot();
+        	AccumulatorHistory energyHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
+            energyAccumulator.addDataSink(energyHistory, new StatType[]{AccumulatorAverage.MOST_RECENT});
+            DisplayPlot energyPlot = new DisplayPlot();
         	energyHistory.setDataSink(energyPlot.getDataSet().makeDataSink());
         	energyPlot.setLabel("energy");
         	graphic.add(energyPlot);
-        	AccumulatorHistory smerHistory = new AccumulatorHistory(new HistoryCollapsingAverage()); 
-        	smerAccumulator.addDataSink(smerHistory, new StatType[]{smerAccumulator.MOST_RECENT});
-        	DisplayPlot smerPlot = new DisplayPlot();
+        	AccumulatorHistory smerHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
+            smerAccumulator.addDataSink(smerHistory, new StatType[]{AccumulatorAverage.MOST_RECENT});
+            DisplayPlot smerPlot = new DisplayPlot();
         	smerHistory.setDataSink(smerPlot.getDataSet().makeDataSink());
         	smerPlot.setLabel("smer fraction");
         	graphic.add(smerPlot);
@@ -272,8 +268,8 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
         	AccumulatorHistory energy2History = new AccumulatorHistory(new HistoryCollapsingAverage());
         	energyHistory.setTimeDataSource(stepCounter);
         	energy2History.setTimeDataSource(stepCounter);
-        	energy2Accumulator.addDataSink(energy2History, new StatType[]{energy2Accumulator.MOST_RECENT});
-        	//DisplayPlot energy2Plot = new DisplayPlot();
+            energy2Accumulator.addDataSink(energy2History, new StatType[]{AccumulatorAverage.MOST_RECENT});
+            //DisplayPlot energy2Plot = new DisplayPlot();
         	energy2History.setDataSink(energyPlot.getDataSet().makeDataSink());
 //        	energy2Plot.setLabel("energy2");
 //        	graphic.add(energy2Plot);
@@ -327,18 +323,18 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
         sim.getController().actionPerformed();
         
         System.out.println("numAtom=" +numAtoms);
-        double avgDensity = ((DataDouble)((DataGroup)rhoAccumulator.getData()).getData(rhoAccumulator.AVERAGE.index)).x;//average density
+        double avgDensity = ((DataDouble) ((DataGroup) rhoAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;//average density
         System.out.println("average density= " +avgDensity);
         double Z = pressure/(avgDensity*sim.integrator.getTemperature());
-        double avgPE = ((DataDouble)((DataGroup)energyAccumulator.getData()).getData(energyAccumulator.AVERAGE.index)).x;
+        double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
         System.out.println("average energy= "+avgPE);
         avgPE /= numAtoms;
         System.out.println("Z="+Z);
         System.out.println("PE/epsilon="+avgPE);
-        double avgDimerFraction = ((DataDouble)((DataGroup)smerAccumulator.getData()).getData(smerAccumulator.AVERAGE.index)).x;
+        double avgDimerFraction = ((DataDouble) ((DataGroup) smerAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
         System.out.println("average fraction of smer= "+avgDimerFraction);
         double temp = sim.integrator.getTemperature();
-        double Cv = ((DataDouble)((DataGroup)energyAccumulator.getData()).getData(energyAccumulator.STANDARD_DEVIATION.index)).x;
+        double Cv = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(AccumulatorAverage.STANDARD_DEVIATION.index)).x;
         Cv /= temp;
         Cv *= Cv/numAtoms;
         System.out.println("Cv/k="+Cv);

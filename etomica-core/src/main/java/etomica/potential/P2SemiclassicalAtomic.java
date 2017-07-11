@@ -4,15 +4,10 @@
 
 package etomica.potential;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IVector;
-import etomica.atom.AtomTypeAgentManager;
-import etomica.atom.IAtomOriented;
-import etomica.space.ISpace;
+import etomica.atom.*;
+import etomica.box.Box;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.util.Constants;
 
 /**
@@ -30,19 +25,19 @@ import etomica.util.Constants;
 public class P2SemiclassicalAtomic implements IPotentialAtomic {
 
     protected final IPotentialTorque p2Classy;
-    protected double temperature, fac;
     protected final AtomTypeAgentManager agents;
-    protected final ISpace space;
+    protected final Space space;
+    protected double temperature, fac;
     
-    public P2SemiclassicalAtomic(ISpace space, IPotentialTorque p2Classy, double temperature) {
+    public P2SemiclassicalAtomic(Space space, IPotentialTorque p2Classy, double temperature) {
         this.space = space;
         this.p2Classy = p2Classy;
         if (p2Classy.nBody() != 2) throw new RuntimeException("I would really rather have a 2-body potential");
         agents = new AtomTypeAgentManager(null);
         setTemperature(temperature);
     }
-    
-    public void setAtomInfo(IAtomType species, AtomInfo moleculeInfo) {
+
+    public void setAtomInfo(AtomType species, AtomInfo moleculeInfo) {
         agents.setAgent(species, moleculeInfo);
     }
     
@@ -56,7 +51,7 @@ public class P2SemiclassicalAtomic implements IPotentialAtomic {
         return p2Classy.getRange();
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         p2Classy.setBox(box);
     }
 
@@ -67,7 +62,7 @@ public class P2SemiclassicalAtomic implements IPotentialAtomic {
     public double energy(IAtomList molecules) {
         double uC = p2Classy.energy(molecules);
         if (uC/temperature > 100) return Double.POSITIVE_INFINITY;
-        IVector[][] gradAndTorque = p2Classy.gradientAndTorque(molecules);
+        Vector[][] gradAndTorque = p2Classy.gradientAndTorque(molecules);
         double sum = 0;
         for (int i=0; i<2; i++) {
             IAtom iMol = molecules.getAtom(i);
@@ -78,11 +73,11 @@ public class P2SemiclassicalAtomic implements IPotentialAtomic {
                 if (atomInfo == null) {
                     throw new RuntimeException("You must provide AtomInfo for oriented atoms");
                 }
-                IVector[] momentAndAxes = atomInfo.getMomentAndAxes((IAtomOriented)iMol);
-                IVector moment = momentAndAxes[0];
+                Vector[] momentAndAxes = atomInfo.getMomentAndAxes((IAtomOriented)iMol);
+                Vector moment = momentAndAxes[0];
                 for (int j=0; j<3; j++) {
                     if (moment.getX(j) < 1e-10) continue;
-                    IVector axis = momentAndAxes[j+1];
+                    Vector axis = momentAndAxes[j+1];
                     double torque = gradAndTorque[1][i].dot(axis);
                     sum += torque*torque/moment.getX(j);
                 }
@@ -100,6 +95,6 @@ public class P2SemiclassicalAtomic implements IPotentialAtomic {
          * and also the principle axes.  The 0 element is the moment of inertia
          * vector while elements 1, 2 and 3 are the principle axes.
          */
-        public IVector[] getMomentAndAxes(IAtomOriented molecule);
+        Vector[] getMomentAndAxes(IAtomOriented molecule);
     }
 }

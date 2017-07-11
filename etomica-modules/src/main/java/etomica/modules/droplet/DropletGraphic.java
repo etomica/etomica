@@ -12,9 +12,9 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import etomica.action.IAction;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
+import etomica.box.Box;
 import etomica.atom.DiameterHashByType;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
@@ -38,16 +38,15 @@ import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
 import etomica.modifier.ModifierGeneral;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
-import etomica.units.Dimension;
-import etomica.units.Length;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
 import etomica.units.Pixel;
 import etomica.units.SimpleUnit;
-import etomica.units.Time;
-import etomica.util.HistoryCollapsingDiscard;
+import etomica.units.dimensions.Time;
+import etomica.data.history.HistoryCollapsingDiscard;
 import g3dsys.images.Ellipse;
 
 /**
@@ -92,7 +91,7 @@ public class DropletGraphic extends SimulationGraphic {
                     leafList.getAtom(i).getPosition().ME(center);
                 }
             }
-            final IVectorMutable center = sim.getSpace().makeVector();
+            final Vector center = sim.getSpace().makeVector();
         };
         IntegratorListenerAction recenterActionListener = new IntegratorListenerAction(recenterAction);
         sim.integrator.getEventManager().addListener(recenterActionListener);
@@ -332,7 +331,7 @@ public class DropletGraphic extends SimulationGraphic {
     }
     
     public static class ModifierBoxSize implements Modifier {
-        public ModifierBoxSize(ISpace space, IBox box, int dim, IAction reconfig) {
+        public ModifierBoxSize(Space space, Box box, int dim, IAction reconfig) {
             this.box = box;
             this.dim = dim;
             this.reconfig = reconfig;
@@ -375,10 +374,10 @@ public class DropletGraphic extends SimulationGraphic {
             }
         }
         
-        protected final IBox box;
+        protected final Box box;
         protected final int dim;
         protected final IAction reconfig;
-        protected final IVectorMutable size;
+        protected final Vector size;
     }
 }
 

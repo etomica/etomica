@@ -12,9 +12,9 @@ import java.awt.event.ComponentListener;
 import java.util.Iterator;
 
 import etomica.action.activity.Controller;
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.IVector;
+import etomica.atom.IAtom;
+import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataSource;
@@ -49,7 +49,7 @@ public class DisplayBoxCanvas1DBins extends DisplayCanvas {
     
     protected void refreshSize() {
         Dimension dim = getSize();
-        IVector boxDim = displayBox.getBox().getBoundary().getBoxSize();
+        Vector boxDim = displayBox.getBox().getBoundary().getBoxSize();
         double px = (dim.width - 1)/(boxDim.getX(0)+displayBox.getPaddingSigma());
         if (pixel != null && pixel.toPixels() == px) {
             return;
@@ -132,8 +132,8 @@ public class DisplayBoxCanvas1DBins extends DisplayCanvas {
             ((ColorSchemeCollective)displayBox.getColorScheme()).colorAllAtoms();
         }
         
-        IBox box = displayBox.getBox();
-        IVector dimensions = box.getBoundary().getBoxSize();
+        Box box = displayBox.getBox();
+        Vector dimensions = box.getBoundary().getBoxSize();
         if (atomCount.length != (int)Math.round(dimensions.getX(0))) {
             atomCount = new int[(int)Math.round(dimensions.getX(0))];
         }

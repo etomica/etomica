@@ -4,17 +4,16 @@
 
 package etomica.modules.entropylottery;
 
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.IRandom;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.box.Box;
+import etomica.util.random.IRandom;
+import etomica.space.Vector;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomLeaf;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 
 /**
@@ -25,13 +24,13 @@ import etomica.space.ISpace;
 public class MCMoveAtomAdjacent extends MCMoveBox {
     
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
-    protected IVectorMutable translationVector;
+    protected Vector translationVector;
     protected IAtom atom;
     protected AtomSource atomSource;
     protected final IRandom random;
-    private final ISpace space;
+    private final Space space;
 
-    public MCMoveAtomAdjacent(IRandom random, ISpace _space) {
+    public MCMoveAtomAdjacent(IRandom random, Space _space) {
         super(null);
         this.random = random;
         this.space = _space;
@@ -61,8 +60,8 @@ public class MCMoveAtomAdjacent extends MCMoveBox {
      * doTrial.
      */
     public double getB() {
-        IVectorMutable position = atom.getPosition();
-        IVector dimensions = box.getBoundary().getBoxSize();
+        Vector position = atom.getPosition();
+        Vector dimensions = box.getBoundary().getBoxSize();
         for (int i=0; i<position.getD(); i++) {
             // if we're non-periodic, ensure we didn't try to jump over the boundary
             int x = (int)Math.round(position.getX(i)+dimensions.getX(i)*0.5-0.5);
@@ -107,7 +106,7 @@ public class MCMoveAtomAdjacent extends MCMoveBox {
         return affectedAtomIterator;
     }
     
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         translationVector = space.makeVector();
         atomSource.setBox(p);

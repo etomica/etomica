@@ -5,18 +5,18 @@
 package etomica.integrator.mcmove;
 
 import etomica.action.BoxInflate;
-import etomica.api.IBox;
-import etomica.api.IFunction;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
+import etomica.box.Box;
+import etomica.math.function.IFunction;
+import etomica.potential.PotentialMaster;
+import etomica.util.random.IRandom;
+import etomica.simulation.Simulation;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.space.ISpace;
-import etomica.units.Dimension;
-import etomica.units.Pressure;
-import etomica.util.Function;
+import etomica.space.Space;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Pressure;
+import etomica.math.function.Function;
 
 /**
  * Standard Monte Carlo volume-change move for simulations in the NPT ensemble.
@@ -37,8 +37,8 @@ public class MCMoveVolume extends MCMoveBoxStep {
     protected double uNew = Double.NaN;
     protected double temperature;
 
-    public MCMoveVolume(ISimulation sim, IPotentialMaster potentialMaster,
-    		            ISpace _space) {
+    public MCMoveVolume(Simulation sim, PotentialMaster potentialMaster,
+                        Space _space) {
         this(potentialMaster, sim.getRandom(), _space, 1.0);
     }
 
@@ -46,8 +46,8 @@ public class MCMoveVolume extends MCMoveBoxStep {
      * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
      * @param space the governing space for the simulation
      */
-    public MCMoveVolume(IPotentialMaster potentialMaster, IRandom random,
-    		            ISpace space, double pressure) {
+    public MCMoveVolume(PotentialMaster potentialMaster, IRandom random,
+                        Space space, double pressure) {
         super(potentialMaster);
         this.random = random;
         this.D = space.D();
@@ -67,7 +67,7 @@ public class MCMoveVolume extends MCMoveBoxStep {
         inflate.setBox(box);
     }
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         inflate.setBox(p);

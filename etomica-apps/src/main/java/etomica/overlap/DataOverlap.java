@@ -11,8 +11,8 @@ import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.overlap.IntegratorOverlap.ReferenceFracSource;
 import etomica.util.Debug;
-import etomica.util.numerical.AkimaSpline;
-import etomica.util.numerical.LinearFit;
+import etomica.math.numerical.AkimaSpline;
+import etomica.math.numerical.LinearFit;
 
 /**
  * Utility class for overlap sampling.  This class retrieves data from

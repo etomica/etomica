@@ -4,16 +4,14 @@
 
 package etomica.liquidLJ;
 
-import java.util.Arrays;
-
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * Takes incoming data, computes weight for configuration based on various
@@ -30,11 +28,11 @@ public class DataProcessorReweight extends DataProcessor {
     private final ValueCache energyFastCache;
     private final double[] uFac;
     protected DataDoubleArray data;
-    protected final IBox box;
+    protected final Box box;
     protected final int nCutoffs;
 
     public DataProcessorReweight(double temperature, ValueCache energyFastCache,
-            double[] uFac, IBox box, int nCutoffs) {
+                                 double[] uFac, Box box, int nCutoffs) {
         this.temperature = temperature;
         this.energyFastCache = energyFastCache;
         this.uFac = uFac;

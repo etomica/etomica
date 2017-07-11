@@ -4,15 +4,14 @@
 
 package etomica.normalmode;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
-import etomica.space.ISpace;
-import etomica.units.Null;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.units.dimensions.Null;
 
 /**
  * Meter that measures the average tilt angle (not the angle of average tilt!)
@@ -21,12 +20,12 @@ import etomica.units.Null;
  */
 public class MeterThetaDeviation extends DataSourceScalar {
 
-    public MeterThetaDeviation(ISpace space) {
+    public MeterThetaDeviation(Space space) {
         super("theta deviation", Null.DIMENSION);
         dr = space.makeVector();
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
 
@@ -53,7 +52,7 @@ public class MeterThetaDeviation extends DataSourceScalar {
     }
 
     private static final long serialVersionUID = 1L;
-    protected IBox box;
-    protected final IVectorMutable dr;
+    protected Box box;
+    protected final Vector dr;
     protected double nominalTheta;
 }

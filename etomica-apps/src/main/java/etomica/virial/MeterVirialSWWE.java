@@ -1,16 +1,14 @@
 package etomica.virial;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 
-import etomica.api.IAtomList;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 public class MeterVirialSWWE implements IEtomicaDataSource {
 	

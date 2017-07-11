@@ -4,21 +4,20 @@
 
 package etomica.nbr;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.ISimulation;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
+import etomica.box.Box;
+import etomica.simulation.Simulation;
+import etomica.space.Vector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.AtomSetSinglet;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentSourceAtomManager;
-import etomica.space.ISpace;
-import etomica.units.Dimension;
-import etomica.units.Length;
+import etomica.space.Space;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
 import etomica.util.Debug;
 
 /**
@@ -27,17 +26,17 @@ import etomica.util.Debug;
  * @author andrew
  *
  */
-public class CriterionSimple implements NeighborCriterion, AgentSource<IVectorMutable> {
+public class CriterionSimple implements NeighborCriterion, AgentSource<Vector> {
 
-	public CriterionSimple(ISimulation sim, ISpace _space, double interactionRange, double neighborRadius) {
+	public CriterionSimple(Simulation sim, Space _space, double interactionRange, double neighborRadius) {
 		super();
         this.space = _space;
         dr = space.makeVector();
 		this.interactionRange = interactionRange;
         neighborRadius2 = neighborRadius * neighborRadius;
         setSafetyFactor(0.4);
-        BoxAgentSourceAtomManager<IVectorMutable> basam = new BoxAgentSourceAtomManager<IVectorMutable>(this, IVectorMutable.class);
-        boxAgentManager = new BoxAgentManager<AtomLeafAgentManager<IVectorMutable>>(basam,AtomLeafAgentManager.class,sim);
+        BoxAgentSourceAtomManager<Vector> basam = new BoxAgentSourceAtomManager<Vector>(this, Vector.class);
+        boxAgentManager = new BoxAgentManager<AtomLeafAgentManager<Vector>>(basam,AtomLeafAgentManager.class,sim);
 	}
 	
 	public void setSafetyFactor(double f) {
@@ -86,7 +85,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource<IVectorMu
         if (Debug.ON && interactionRange > Math.sqrt(neighborRadius2)) {
             throw new IllegalStateException("Interaction range ("+interactionRange+") must be less than neighborRange ("+Math.sqrt(neighborRadius2)+")");
         }
-		r2 = atom.getPosition().Mv1Squared((IVector)agentManager.getAgent(atom));
+		r2 = atom.getPosition().Mv1Squared(agentManager.getAgent(atom));
         if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.allAtoms(new AtomSetSinglet(atom))) {
             System.out.println("atom "+atom+" displacement "+r2+" "+atom.getPosition());
         }
@@ -99,7 +98,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource<IVectorMu
 		return r2 > displacementLimit2;
 	}
 
-	public void setBox(IBox box) {
+	public void setBox(Box box) {
         boundary = box.getBoundary();
         agentManager = boxAgentManager.getAgent(box);
 	}
@@ -130,22 +129,22 @@ public class CriterionSimple implements NeighborCriterion, AgentSource<IVectorMu
         agentManager.getAgent(atom).E(atom.getPosition());
 	}
 
-    public IVectorMutable makeAgent(IAtom atom, IBox agentBox) {
-        IVectorMutable v = space.makeVector();
+    public Vector makeAgent(IAtom atom, Box agentBox) {
+        Vector v = space.makeVector();
         // atom isn't necessarily in the position.  but if atom-adding code is smart,
         // it will be in the appropriate position.
         v.E(atom.getPosition());
         return v;
     }
     
-    public void releaseAgent(IVectorMutable agent, IAtom atom, IBox agentBox) {}
+    public void releaseAgent(Vector agent, IAtom atom, Box agentBox) {}
 
-    protected final ISpace space;
+    protected final Space space;
     protected double interactionRange, displacementLimit2, neighborRadius2;
-	protected final IVectorMutable dr;
-    protected IBoundary boundary;
+	protected final Vector dr;
+    protected Boundary boundary;
 	protected double safetyFactor;
 	protected double r2, r2MaxSafe;
-    protected AtomLeafAgentManager<IVectorMutable> agentManager;
-    protected final BoxAgentManager<AtomLeafAgentManager<IVectorMutable>> boxAgentManager;
+    protected AtomLeafAgentManager<Vector> agentManager;
+    protected final BoxAgentManager<AtomLeafAgentManager<Vector>> boxAgentManager;
 }

@@ -4,11 +4,11 @@
 
 package etomica.normalmode;
 
-import etomica.api.IBox;
-import etomica.api.ISpecies;
+import etomica.box.Box;
 import etomica.modifier.Modifier;
-import etomica.units.Dimension;
-import etomica.units.Null;
+import etomica.species.ISpecies;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Null;
 
 /**
  * Modifier class that enables change of the number of cells in 2D
@@ -19,7 +19,7 @@ public class ModifierCells3D implements Modifier, java.io.Serializable {
     /**
      * 
      */
-    public ModifierCells3D(IBox box, ISpecies species) {
+    public ModifierCells3D(Box box, ISpecies species) {
         this.box = box;
         this.species = species;
     }
@@ -47,7 +47,7 @@ public class ModifierCells3D implements Modifier, java.io.Serializable {
     
  
     private static final long serialVersionUID = 1L;
-    protected final IBox box;
+    protected final Box box;
     protected final ISpecies species;
     protected int mostRecentValue, previousValue;
 }

@@ -13,10 +13,20 @@ package etomica.math.discrete;
  * indicated sum is equal to 3.  Number of elements in return array is set at construction.
  * 
  * @author David Kofke
- * 
  */
+// TODO: improve ergonomics (setSum? reset? implement iterable)
 public class FixedSumIterator {
 
+    private final FixedSumIterator subIterator;
+    private int targetSum;
+    private int[] array;
+    private int index;
+
+    /**
+     * Creates a FixedSumIterator with the given array length. Sum still needs to be set and reset called.
+     *
+     * @param arrayLength the length of the generated arrays.
+     */
     public FixedSumIterator(int arrayLength) {
         array = new int[arrayLength];
         if (arrayLength != 1) {
@@ -25,6 +35,15 @@ public class FixedSumIterator {
             subIterator = null;
         }
         index = -1;
+    }
+
+    public static void main(String[] args) {
+        FixedSumIterator iterator = new FixedSumIterator(5);
+        iterator.setSum(5);
+        iterator.reset();
+        for (int[] iterate = iterator.next(); iterate != null; iterate = iterator.next()) {
+            System.out.println(etomica.util.Arrays.toString(iterate));
+        }
     }
 
     /**
@@ -42,6 +61,8 @@ public class FixedSumIterator {
     /**
      * Specifies the target sum that defines the iterates.  Iterator is
      * left in an unset state, so reset is required before invoking next().
+     *
+     * @param sum the fixed target sum.
      */
     public void setSum(int sum) {
         targetSum = sum;
@@ -49,7 +70,7 @@ public class FixedSumIterator {
     }
 
     /**
-     * Returns the next iterate, or null if iterator has expired.
+     * @return the next iterate, or null if iterator has expired.
      */
     public int[] next() {
         if (index < 0) {
@@ -75,18 +96,4 @@ public class FixedSumIterator {
         subIterator.reset();
         return next();
     }
-
-    public static void main(String[] args) {
-        FixedSumIterator iterator = new FixedSumIterator(5);
-        iterator.setSum(5);
-        iterator.reset();
-        for (int[] iterate = iterator.next(); iterate != null; iterate = iterator.next()) {
-            System.out.println(etomica.util.Arrays.toString(iterate));
-        }
-    }
-
-    private int targetSum;
-    private int[] array;
-    private final FixedSumIterator subIterator;
-    private int index;
 }

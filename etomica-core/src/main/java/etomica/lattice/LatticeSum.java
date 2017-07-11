@@ -4,12 +4,11 @@
 
 package etomica.lattice;
 
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.space.Vector;
+import etomica.data.FunctionData;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataGroup;
-import etomica.util.FunctionGeneral;
 
 public class LatticeSum {
 
@@ -22,7 +21,7 @@ public class LatticeSum {
         kVector = lattice.getSpace().makeVector();
     }
 
-    public DataGroup calculateSum(FunctionGeneral function) {
+    public DataGroup calculateSum(FunctionData<Object> function) {
         IDataInfo dataInfo = function.getDataInfo();
         IData sumR = dataInfo.makeData();
         IData sumI = dataInfo.makeData();
@@ -33,7 +32,7 @@ public class LatticeSum {
             coreIterator.setMaxElementMin(m);
             iterator.reset();
             while(iterator.hasNext()) {
-                IVectorMutable site = (IVectorMutable)lattice.site(iterator.next());
+                Vector site = (Vector)lattice.site(iterator.next());
                 IData value = function.f(site);
                 double kDotr = kVector.dot(site);
                 double ckr = Math.cos(kDotr);
@@ -52,11 +51,11 @@ public class LatticeSum {
         return new DataGroup(new IData[] {sumR, sumI});
     }
     
-    public void setK(IVector k) {
+    public void setK(Vector k) {
         kVector.E(k);
     }
     
-    public IVector getK() {
+    public Vector getK() {
         return kVector;
     }
     
@@ -109,7 +108,7 @@ public class LatticeSum {
 //        System.out.println("Number of wave vectors: "+kFactory.getWaveVectors().length);
 //        LatticeSum summer = new LatticeSum(lattice);
 //        final Potential2SoftSpherical potential = new P2LennardJones(Space3D.getInstance(), 1.0, 1.0);
-//        FunctionGeneral function = new FunctionGeneral() {
+//        FunctionData function = new FunctionData() {
 //            public Data f(Object obj) {
 //                Vector3D r = (Vector3D)obj;
 //                tensor.x.Ev1v2(r, r);
@@ -128,7 +127,7 @@ public class LatticeSum {
 //            final Tensor3D identity = new Tensor3D(new double[] {1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0});
 //        };
 //
-//        IVector kVector = new Vector3D();
+//        Vector kVector = new Vector3D();
 //        kVector.E(0.0);
 //        summer.setK(kVector);
 //        System.out.println("\n k:"+kVector.toString());
@@ -155,6 +154,6 @@ public class LatticeSum {
     private SpaceLattice lattice;
     private IndexIterator iterator;
     private IndexIteratorTriangular coreIterator;
-    private final IVectorMutable kVector;
+    private final Vector kVector;
     private int maxElement;
 }

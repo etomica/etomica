@@ -5,20 +5,19 @@
 package etomica.config;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.box.Box;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.SpaceLattice;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.IMoleculePositionDefinition;
+import etomica.molecule.MoleculePositionGeometricCenter;
+import etomica.space.Boundary;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 
 /**
  * Constructs configuration that has the molecules placed on the sites of a
@@ -48,7 +47,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
      * Constructs class using instance of IndexIteratorRectangular as the default
      * index iterator.
      */
-    public ConfigurationLattice(SpaceLattice lattice, ISpace space) {
+    public ConfigurationLattice(SpaceLattice lattice, Space space) {
         this(lattice, new IndexIteratorRectangular(lattice.D()), space);
     }
 
@@ -58,7 +57,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
      * iterator.
      */
     public ConfigurationLattice(SpaceLattice lattice,
-            IndexIteratorSizable indexIterator, ISpace space) {
+            IndexIteratorSizable indexIterator, Space space) {
         if(indexIterator.getD() != lattice.D()) {
             throw new IllegalArgumentException("Dimension of index iterator and lattice are incompatible");
         }
@@ -66,7 +65,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
         this.indexIterator = indexIterator;
         this.space = space;
         atomActionTranslateTo = new MoleculeActionTranslateTo(lattice.getSpace());
-        positionDefinition = new AtomPositionGeometricCenter(space);
+        positionDefinition = new MoleculePositionGeometricCenter(space);
         atomActionTranslateTo.setAtomPositionDefinition(positionDefinition);
         setBoundaryPadding(0);
     }
@@ -83,11 +82,11 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
      * Places the molecules in the given box on the positions of the
      * lattice.  
      */
-    public void initializeCoordinates(IBox box) {
+    public void initializeCoordinates(Box box) {
         initializeCoordinates(box, null);
     }
     
-    public void initializeCoordinates(IBox box, ISpecies species) {
+    public void initializeCoordinates(Box box, ISpecies species) {
         IMoleculeList moleculeList = species == null ? box.getMoleculeList() : box.getMoleculeList(species);
         int sumOfMolecules = moleculeList.getMoleculeCount();
         if (sumOfMolecules == 0) {
@@ -101,17 +100,17 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
                 / (double) basisSize);
 
         // determine scaled shape of simulation volume
-        IVectorMutable dim = space.makeVector();
-        IBoundary boundary = box.getBoundary();
+        Vector dim = space.makeVector();
+        Boundary boundary = box.getBoundary();
         for (int i=0; i<space.D(); i++) {
-            IVector edgeVector = boundary.getEdgeVector(i);
+            Vector edgeVector = boundary.getEdgeVector(i);
             dim.setX(i,Math.sqrt(edgeVector.squared()));
         }
 
-        IVectorMutable shape = space.makeVector();
+        Vector shape = space.makeVector();
         shape.E(dim);
         shape.PE(-boundaryPadding);
-        IVectorMutable latticeConstantV = space.makeVector(lattice.getLatticeConstants());
+        Vector latticeConstantV = space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
 
         // determine number of cells in each direction
@@ -132,7 +131,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
         }
 
         // determine lattice constant
-        IVectorMutable latticeScaling = space.makeVector();
+        Vector latticeScaling = space.makeVector();
         if (rescalingToFitVolume) {
             // in favorable situations, this should be approximately equal
             // to 1.0
@@ -145,10 +144,10 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
         }
 
         // determine amount to shift lattice so it is centered in volume
-        IVectorMutable offset = space.makeVector();
-        IVectorMutable vectorOfMax = space.makeVector();
-        IVectorMutable vectorOfMin = space.makeVector();
-        IVectorMutable site = space.makeVector();
+        Vector offset = space.makeVector();
+        Vector vectorOfMax = space.makeVector();
+        Vector vectorOfMin = space.makeVector();
+        Vector site = space.makeVector();
         vectorOfMax.E(Double.NEGATIVE_INFINITY);
         vectorOfMin.E(Double.POSITIVE_INFINITY);
 
@@ -158,7 +157,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
         indexIterator.reset();
 
         while (indexIterator.hasNext()) {
-            site.E((IVectorMutable) lattice.site(indexIterator.next()));
+            site.E((Vector) lattice.site(indexIterator.next()));
             site.TE(latticeScaling);
             for (int i=0; i<site.getD(); i++) {
                 vectorOfMax.setX(i, Math.max(site.getX(i),vectorOfMax.getX(i)));
@@ -193,7 +192,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
             // initialize coordinates of child atoms
             a.getType().initializeConformation(a);
 
-            atomActionTranslateTo.setDestination((IVectorMutable)myLat.site(ii));
+            atomActionTranslateTo.setDestination((Vector)myLat.site(ii));
             atomActionTranslateTo.actionPerformed(a);
         }
         if (nSites - siteCount > Math.ceil(1.0/(1.0-voidFrac))) {
@@ -206,7 +205,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
         }
     }
 
-    protected int[] calculateLatticeDimensions(int nCells, IVector shape) {
+    protected int[] calculateLatticeDimensions(int nCells, Vector shape) {
         int dimLeft = shape.getD();
         int nCellsLeft = nCells;
         int[] latticeDimensions = new int[shape.getD()];
@@ -256,8 +255,8 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
     protected final MoleculeActionTranslateTo atomActionTranslateTo;
     protected MyLattice myLat;
     protected double boundaryPadding;
-    protected final ISpace space;
-    protected IAtomPositionDefinition positionDefinition;
+    protected final Space space;
+    protected IMoleculePositionDefinition positionDefinition;
     private static final long serialVersionUID = 3L;
 
     /**
@@ -289,14 +288,14 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
      */
     public static class MyLattice implements SpaceLattice {
 
-        public MyLattice(SpaceLattice l, IVector latticeScaling, IVector offset) {
+        public MyLattice(SpaceLattice l, Vector latticeScaling, Vector offset) {
             lattice = l;
             this.latticeScaling = latticeScaling;
             this.offset = offset;
             this.site = l.getSpace().makeVector();
         }
 
-        public ISpace getSpace() {
+        public Space getSpace() {
             return lattice.getSpace();
         }
 
@@ -305,10 +304,10 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
         }
 
         /**
-         * Returns the same instance of IVector with each call.
+         * Returns the same instance of Vector with each call.
          */
         public Object site(int[] index) {
-            site.E((IVectorMutable) lattice.site(index));
+            site.E((Vector) lattice.site(index));
             site.TE(latticeScaling);
             site.PE(offset);
 
@@ -324,9 +323,9 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
         }
 
         final SpaceLattice lattice;
-        final public IVector latticeScaling;
-        final IVector offset;
-        final IVectorMutable site;
+        final public Vector latticeScaling;
+        final Vector offset;
+        final Vector site;
 
     }
 

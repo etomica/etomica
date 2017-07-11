@@ -4,7 +4,7 @@
 
 package etomica.potential;
 
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Soft-spherical potential class that shifts both the potential energy and the
@@ -16,7 +16,7 @@ import etomica.space.ISpace;
 public class P2SoftSphericalTruncatedForceShifted extends
         P2SoftSphericalTruncatedShifted {
 
-    public P2SoftSphericalTruncatedForceShifted(ISpace _space,
+    public P2SoftSphericalTruncatedForceShifted(Space _space,
             Potential2SoftSpherical potential, double truncationRadius) {
         super(_space, potential, truncationRadius);
     }

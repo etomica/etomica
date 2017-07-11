@@ -4,28 +4,27 @@
 
 package etomica.virial;
 
-import etomica.api.IAtomList;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomOrientedQuaternion;
 import etomica.atom.AtomPair;
+import etomica.atom.IAtomList;
 import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
+import etomica.potential.IPotentialAtomic;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 public class MCMoveClusterPolyhedraChain extends MCMoveAtom {
 
-    public MCMoveClusterPolyhedraChain(IRandom random, ISpace _space, double sigma, IPotentialAtomic p2, double[][] uValues) {
+    public MCMoveClusterPolyhedraChain(IRandom random, Space _space, double sigma, IPotentialAtomic p2, double[][] uValues) {
         super(random, null, _space);
         this.sigma = sigma;
-        dr = (IVectorRandom)space.makeVector();
+        dr = space.makeVector();
         this.p2 = p2;
         pair = new AtomPair();
         this.uValues = uValues;
     }
 
-    protected void randomOrientation(IVectorMutable q) {
+    protected void randomOrientation(Vector q) {
         double u1 = random.nextDouble();
         double u2 = 2*Math.PI*random.nextDouble();
         double u3 = 2*Math.PI*random.nextDouble();
@@ -63,8 +62,8 @@ public class MCMoveClusterPolyhedraChain extends MCMoveAtom {
         for (int i=1; i<n; i++) {
             pair.atom0 = leafAtoms.getAtom(seq[i-1]);
             pair.atom1 = leafAtoms.getAtom(seq[i]);
-            IVectorRandom pos = (IVectorRandom)leafAtoms.getAtom(seq[i]).getPosition();
-            IVectorMutable q = ((AtomOrientedQuaternion)leafAtoms.getAtom(seq[i])).getQuaternion();
+            Vector pos = leafAtoms.getAtom(seq[i]).getPosition();
+            Vector q = ((AtomOrientedQuaternion)leafAtoms.getAtom(seq[i])).getQuaternion();
 
             while (true) {
                 pos.setRandomInSphere(random);
@@ -98,7 +97,7 @@ public class MCMoveClusterPolyhedraChain extends MCMoveAtom {
     }
 
     protected final double sigma;
-    protected final IVectorRandom dr;
+    protected final Vector dr;
     protected int[] seq;
     protected IPotentialAtomic p2;
     protected final AtomPair pair;

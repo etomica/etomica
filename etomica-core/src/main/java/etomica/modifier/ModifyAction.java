@@ -5,7 +5,7 @@
 package etomica.modifier;
 
 import etomica.action.IAction;
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
 
 
 /**

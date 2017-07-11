@@ -6,22 +6,22 @@ package etomica.normalmode;
 
 import etomica.action.BoxInflate;
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
+import etomica.math.function.Function;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculePositionGeometricCenter;
+import etomica.potential.PotentialMaster;
 import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.ISpace;
-import etomica.units.Dimension;
-import etomica.units.Pressure;
-import etomica.util.Function;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Pressure;
+import etomica.util.random.IRandom;
 
 /**
  * Monte Carlo volume-change move for simulations of crystalline solids in the
@@ -40,10 +40,10 @@ public class MCMoveVolumeSolidNPTMolecular extends MCMoveBoxStep {
     protected IRandom random;
     protected final AtomIteratorLeafAtoms affectedAtomIterator;
     protected double temperature;
-    protected final IVectorMutable boxSize;
-    protected final IVectorMutable dest, comOld;
+    protected final Vector boxSize;
+    protected final Vector dest, comOld;
 
-    protected final AtomPositionGeometricCenter moleculeCenter;
+    protected final MoleculePositionGeometricCenter moleculeCenter;
     protected final MoleculeActionTranslateTo translateTo;
     
     protected transient double uOld, vOld, vNew, vScale;
@@ -51,19 +51,19 @@ public class MCMoveVolumeSolidNPTMolecular extends MCMoveBoxStep {
     
     protected Function uLatFunction = uLat0;
     
-    protected IBox latticeBox;
+    protected Box latticeBox;
 
     /**
      * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
      * @param space the governing space for the simulation
      */
-    public MCMoveVolumeSolidNPTMolecular(IPotentialMaster potentialMaster, IRandom random,
-    		            ISpace space, double pressure) {
+    public MCMoveVolumeSolidNPTMolecular(PotentialMaster potentialMaster, IRandom random,
+                                         Space space, double pressure) {
         this(potentialMaster, random, space, pressure, space.D());
     }
     
-    public MCMoveVolumeSolidNPTMolecular(IPotentialMaster potentialMaster, IRandom random,
-            ISpace space, double pressure, int D) {
+    public MCMoveVolumeSolidNPTMolecular(PotentialMaster potentialMaster, IRandom random,
+                                         Space space, double pressure, int D) {
         super(potentialMaster);
         this.random = random;
         this.D = D;
@@ -79,7 +79,7 @@ public class MCMoveVolumeSolidNPTMolecular extends MCMoveBoxStep {
         dest = space.makeVector();
         comOld = space.makeVector();
         boxSize = space.makeVector();
-        moleculeCenter = new AtomPositionGeometricCenter(space);
+        moleculeCenter = new MoleculePositionGeometricCenter(space);
         translateTo = new MoleculeActionTranslateTo(space);
     }
     
@@ -87,11 +87,11 @@ public class MCMoveVolumeSolidNPTMolecular extends MCMoveBoxStep {
         inflate = newInflate;
     }
     
-    public void setLatticeBox(IBox newLatticeBox) {
+    public void setLatticeBox(Box newLatticeBox) {
         latticeBox = newLatticeBox;
     }
     
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         affectedAtomIterator.setBox(p);

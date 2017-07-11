@@ -3,34 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.meam;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
 
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.Tungsten;
+import etomica.data.*;
 import etomica.data.AccumulatorAverage.StatType;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataPump;
-import etomica.data.DataPumpListener;
-import etomica.data.DataSourceCountTime;
-import etomica.data.IDataInfo;
+import etomica.data.history.History;
+import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPressure;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.crystal.BasisCubicBcc;
 import etomica.lattice.crystal.PrimitiveCubic;
@@ -42,20 +30,14 @@ import etomica.normalmode.MeterDADB;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.units.Bar;
-import etomica.units.CompoundUnit;
-import etomica.units.ElectronVolt;
-import etomica.units.Energy;
-import etomica.units.Joule;
-import etomica.units.Kelvin;
-import etomica.units.Mole;
-import etomica.units.Pascal;
-import etomica.units.SimpleUnit;
-import etomica.units.Unit;
-import etomica.util.History;
-import etomica.util.HistoryCollapsingAverage;
+import etomica.units.*;
+import etomica.units.dimensions.Energy;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Molecular-Dynamics Simulation Using the extended Finnis-Sinclair Method 
@@ -86,7 +68,7 @@ public class EFSTungsten extends Simulation {
     public final PotentialMasterList potentialMaster;
     public IntegratorVelocityVerlet integrator;
     public SpeciesSpheresMono w;
-    public IBox box;
+    public Box box;
     public PotentialEFS potentialN;
     public Controller controller;
     public DisplayBox display;
@@ -95,12 +77,58 @@ public class EFSTungsten extends Simulation {
     public IDataInfo info2;
     public CoordinateDefinition coordinateDefinition;
 
-    public static class Params extends ParameterBase{
-        public int numatoms=2*4*4*4;
-        public double density=1.0/16.870; //2/3.151/3.151/3.151;//2/3.15961/3.15961/3.15961;//Mole.UNIT.toSim(1/16.870e24);
-        public double temperature=300;
-        public long numsteps=10000;
-        public boolean doHistory = true;
+    public EFSTungsten(int numatoms, double density, double temperature) {
+        super(Space3D.getInstance());
+        potentialMaster = new PotentialMasterList(this, space);
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
+        integrator.setTimeStep(0.001);
+        integrator.setTemperature(Kelvin.UNIT.toSim(temperature));
+        integrator.setThermostatInterval(100);
+        integrator.setIsothermal(true);
+        integrator.setThermostatNoDrift(true);
+        activityIntegrate = new ActivityIntegrate(integrator);
+        getController().addAction(activityIntegrate);
+        w = new SpeciesSpheresMono(space, Tungsten.INSTANCE);
+        w.setIsDynamic(true);
+
+        addSpecies(w);
+
+        box = new Box(space);
+        addBox(box);
+        box.setNMolecules(w, numatoms);
+
+
+        //BCC W
+
+        BoxInflate inflate = new BoxInflate(box, space);
+        inflate.setTargetDensity(density); //(atoms/A^3)
+        inflate.actionPerformed();
+        int nCells = (int) Math.round(Math.pow(numatoms / 2, 1.0 / 3.0));
+        coordinateDefinition = new CoordinateDefinitionLeaf(box, new PrimitiveCubic(space, box.getBoundary().getBoxSize().getX(0) / nCells), new BasisCubicBcc(), space);
+        coordinateDefinition.initializeCoordinates(new int[]{nCells, nCells, nCells});
+
+
+        double c, c0, c1, c2, c3, c4, A, d, B;
+
+        c = 3.25;
+        c0 = ElectronVolt.UNIT.toSim(48.52796);
+        c1 = ElectronVolt.UNIT.toSim(-33.79621);
+        c2 = ElectronVolt.UNIT.toSim(5.854334);
+        c3 = ElectronVolt.UNIT.toSim(-0.0098221);
+        c4 = ElectronVolt.UNIT.toSim(0.033338);
+        A = ElectronVolt.UNIT.toSim(1.885948);
+        d = 4.41;
+        B = 0;
+
+        potentialN = new PotentialEFS(space, c, c0, c1, c2, c3, c4, A, d, B);
+
+        this.potentialMaster.addPotential(potentialN, new AtomType[]{w.getLeafType()});
+        potentialMaster.setRange(potentialN.getRange() * 1.3);
+        potentialMaster.setCriterion(potentialN, new CriterionSimple(this, space, potentialN.getRange(), potentialN.getRange() * 1.3));
+//        integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
+
+        integrator.setBox(box);
+        potentialMaster.getNeighborManager(box).reset();
     }
 
     public static void main(String[] args) {
@@ -160,13 +188,13 @@ public class EFSTungsten extends Simulation {
             sim.integrator.getEventManager().addListener((totalEnergyPump));
             sim.integrator.getEventManager().addListener((DADBPump));
             sim.integrator.getEventManager().addListener((pressurePump));
-            
-        	accumulatorAveragePE.addDataSink(energyAccumulator, new StatType[]{accumulatorAveragePE.MOST_RECENT});
-        	accumulatorAverageKE.addDataSink(kineticAccumulator, new StatType[]{accumulatorAverageKE.MOST_RECENT});
-        	accumulatorAverageDADB.addDataSink(DADBAccumulator, new StatType[]{accumulatorAverageDADB.MOST_RECENT});
-        	accumulatorAveragePressure.addDataSink(pressureAccumulator, new StatType[]{accumulatorAveragePressure.MOST_RECENT});
-        	
-        	DisplayPlot plotPE = new DisplayPlot();
+
+            accumulatorAveragePE.addDataSink(energyAccumulator, new StatType[]{AccumulatorAverage.MOST_RECENT});
+            accumulatorAverageKE.addDataSink(kineticAccumulator, new StatType[]{AccumulatorAverage.MOST_RECENT});
+            accumulatorAverageDADB.addDataSink(DADBAccumulator, new StatType[]{AccumulatorAverage.MOST_RECENT});
+            accumulatorAveragePressure.addDataSink(pressureAccumulator, new StatType[]{AccumulatorAverage.MOST_RECENT});
+
+            DisplayPlot plotPE = new DisplayPlot();
             plotPE.setLabel("PE Plot");
             plotPE.setUnit(new SimpleUnit(Energy.DIMENSION, numatoms, "", "", false));
             DisplayPlot plotKE = new DisplayPlot();
@@ -195,9 +223,9 @@ public class EFSTungsten extends Simulation {
         	//Heat Capacity (KE)
         	DataProcessorCvMD dataProcessorKE = new DataProcessorCvMD();
         	dataProcessorKE.setIntegrator(sim.integrator);
-        	
-        	accumulatorAveragePE.addDataSink(dataProcessorPE, new StatType[]{accumulatorAveragePE.STANDARD_DEVIATION});
-        	accumulatorAverageKE.addDataSink(dataProcessorKE, new StatType[]{accumulatorAverageKE.STANDARD_DEVIATION});
+
+            accumulatorAveragePE.addDataSink(dataProcessorPE, new StatType[]{AccumulatorAverage.STANDARD_DEVIATION});
+            accumulatorAverageKE.addDataSink(dataProcessorKE, new StatType[]{AccumulatorAverage.STANDARD_DEVIATION});
            
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space, sim.getController());
             ArrayList<DataPump> dataStreamPumps = simGraphic.getController().getDataStreamPumps();
@@ -296,19 +324,19 @@ public class EFSTungsten extends Simulation {
         	}
         }
 
-    	double PE = accumulatorAveragePE.getData(accumulatorAveragePE.AVERAGE).getValue(0)
+        double PE = accumulatorAveragePE.getData(AccumulatorAverage.AVERAGE).getValue(0)
                     /sim.box.getLeafList().getAtomCount();
-        double PEerror = accumulatorAveragePE.getData(accumulatorAveragePE.ERROR).getValue(0)
+        double PEerror = accumulatorAveragePE.getData(AccumulatorAverage.ERROR).getValue(0)
                 /sim.box.getLeafList().getAtomCount();
-        double PEcor = accumulatorAveragePE.getData(accumulatorAveragePE.BLOCK_CORRELATION).getValue(0)
+        double PEcor = accumulatorAveragePE.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0)
                 /sim.box.getLeafList().getAtomCount();
         double PV = Pascal.UNIT.toSim(0)*1e9/(Mole.UNIT.toSim(1/16.870e24));
 
-    	double dadb = accumulatorAverageDADB.getData(accumulatorAveragePE.AVERAGE).getValue(0)
+        double dadb = accumulatorAverageDADB.getData(AccumulatorAverage.AVERAGE).getValue(0)
                 /sim.box.getLeafList().getAtomCount();
-    	double dadbError = accumulatorAverageDADB.getData(accumulatorAveragePE.ERROR).getValue(0)
+        double dadbError = accumulatorAverageDADB.getData(AccumulatorAverage.ERROR).getValue(0)
                 /sim.box.getLeafList().getAtomCount();
-    	double dadbCor = accumulatorAverageDADB.getData(accumulatorAveragePE.BLOCK_CORRELATION).getValue(0)
+        double dadbCor = accumulatorAverageDADB.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0)
                 /sim.box.getLeafList().getAtomCount();
 	
         System.out.println("PE(eV) "+ElectronVolt.UNIT.fromSim(PE)+" error: "+ElectronVolt.UNIT.fromSim(PEerror)+ " corrolation: "+PEcor);
@@ -316,59 +344,13 @@ public class EFSTungsten extends Simulation {
         System.out.println("dadb(eV) "+ElectronVolt.UNIT.fromSim(dadb)+" error: "+ElectronVolt.UNIT.fromSim(dadbError)+ " corrolation: "+dadbCor);
 
         System.out.println("time: "+(t2-t1)*0.001);
-    }    
-    
-    public EFSTungsten(int numatoms, double density, double temperature) {
-        super(Space3D.getInstance());
-        potentialMaster = new PotentialMasterList(this, space);
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
-        integrator.setTimeStep(0.001);
-        integrator.setTemperature(Kelvin.UNIT.toSim(temperature));
-        integrator.setThermostatInterval(100);
-        integrator.setIsothermal(true);
-        integrator.setThermostatNoDrift(true);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
-        w = new SpeciesSpheresMono(space, Tungsten.INSTANCE);
-        w.setIsDynamic(true);
-        
-        addSpecies(w);
-        
-        box = new Box(space);
-        addBox(box);
-        box.setNMolecules(w, numatoms);
-        
+    }
 
-        //BCC W
-        
-        BoxInflate inflate=new BoxInflate(box,space);
-        inflate.setTargetDensity(density); //(atoms/A^3)
-        inflate.actionPerformed();
-        int nCells=(int)Math.round(Math.pow(numatoms/2, 1.0/3.0));
-		coordinateDefinition=new CoordinateDefinitionLeaf(box, new PrimitiveCubic(space, box.getBoundary().getBoxSize().getX(0)/nCells), new BasisCubicBcc(), space);
-		coordinateDefinition.initializeCoordinates(new int[]{nCells,nCells,nCells});
-		
-		
-		double c,c0,c1,c2,c3,c4,A,d,B ;
-		
-		c=3.25;
-		c0=ElectronVolt.UNIT.toSim(48.52796);
-		c1=ElectronVolt.UNIT.toSim(-33.79621);
-		c2=ElectronVolt.UNIT.toSim(5.854334);
-		c3=ElectronVolt.UNIT.toSim(-0.0098221);
-		c4=ElectronVolt.UNIT.toSim(0.033338);
-		A=ElectronVolt.UNIT.toSim(1.885948);
-		d=4.41;
-		B=0;
-
-		potentialN = new PotentialEFS(space,c,c0,c1,c2,c3,c4,A,d,B);
-
-        this.potentialMaster.addPotential(potentialN, new IAtomType[]{w.getLeafType()});    
-        potentialMaster.setRange(potentialN.getRange()*1.3);
-        potentialMaster.setCriterion(potentialN, new CriterionSimple(this, space, potentialN.getRange(), potentialN.getRange()*1.3));
-//        integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
-
-        integrator.setBox(box);
-        potentialMaster.getNeighborManager(box).reset();
+    public static class Params extends ParameterBase {
+        public int numatoms = 2 * 4 * 4 * 4;
+        public double density = 1.0 / 16.870; //2/3.151/3.151/3.151;//2/3.15961/3.15961/3.15961;//Mole.UNIT.toSim(1/16.870e24);
+        public double temperature = 300;
+        public long numsteps = 10000;
+        public boolean doHistory = true;
     }
 }

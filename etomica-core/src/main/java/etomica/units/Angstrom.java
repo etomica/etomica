@@ -4,6 +4,8 @@
 
 package etomica.units;
 
+import etomica.units.dimensions.Length;
+
 import java.io.ObjectStreamException;
 
 public final class Angstrom extends SimpleUnit {

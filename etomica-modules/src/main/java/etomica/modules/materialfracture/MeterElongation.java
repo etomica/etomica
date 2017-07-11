@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.modules.materialfracture;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 
 public class MeterElongation extends DataSourceScalar {
@@ -17,12 +17,12 @@ public class MeterElongation extends DataSourceScalar {
     }
 
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
         originalGageLength = calcGageLength();
     }
 
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
 
@@ -68,5 +68,5 @@ public class MeterElongation extends DataSourceScalar {
     protected int aNumber;
     protected double originalGageLength;
     protected boolean hex;
-    protected IBox box;
+    protected Box box;
 }

@@ -19,14 +19,14 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
 import etomica.action.IAction;
-import etomica.api.IFunction;
+import etomica.math.function.IFunction;
 import etomica.data.DataPump;
 import etomica.data.DataSourceFunction;
 import etomica.data.DataSourcePoints;
 import etomica.data.IData;
 import etomica.modifier.ModifierGeneral;
-import etomica.units.Length;
-import etomica.units.Null;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Null;
 
 public class DevicePlotPoints {
 

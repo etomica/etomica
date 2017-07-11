@@ -5,11 +5,11 @@
 package etomica.modules.entropylottery;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
+import etomica.box.Box;
 import etomica.config.Configuration;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Configuration that simply puts all the Atoms at 0, or -0.5 if the box size
@@ -18,16 +18,16 @@ import etomica.space.ISpace;
  */
 public class ConfigurationZero implements Configuration, java.io.Serializable {
 
-	private final ISpace space;
+	private final Space space;
 
-    public ConfigurationZero(ISpace _space) {
+    public ConfigurationZero(Space _space) {
         super();
         this.space = _space;
     }
 
-    public void initializeCoordinates(IBox box) {
+    public void initializeCoordinates(Box box) {
         MoleculeActionTranslateTo atomActionTranslateTo = new MoleculeActionTranslateTo(space);
-        IVectorMutable work = space.makeVector();
+        Vector work = space.makeVector();
         work.E(0.0);
         int intD = (int)Math.round(box.getBoundary().getBoxSize().getX(0));
         if (intD % 2 == 0) {

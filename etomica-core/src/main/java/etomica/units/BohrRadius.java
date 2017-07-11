@@ -5,6 +5,8 @@
 package etomica.units;
 
 
+import etomica.units.dimensions.Length;
+
 /**
  * The Borh Radius unit of length, corresponding to the size of a Hydrogen
  * atom's electron cloud.

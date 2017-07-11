@@ -4,9 +4,7 @@
 
 package etomica.integrator;
 
-import etomica.api.IIntegrator;
-import etomica.api.IIntegratorEventManager;
-import etomica.api.IVectorMutable;
+import etomica.space.Vector;
 
 /**
  * Integrator implements the algorithm used to move the atoms around and
@@ -14,21 +12,21 @@ import etomica.api.IVectorMutable;
  * such as molecular dynamics or Monte Carlo, are implemented via subclasses of
  * this Integrator class. The Integrator's activities are managed via the
  * actions of the governing Controller.
- * 
+ *
  * @author David Kofke and Andrew Schultz
  */
-public abstract class Integrator implements IIntegrator {
+public abstract class Integrator {
 
+    protected final IntegratorEventManager eventManager;
     protected boolean initialized = false;
     protected int interval;
-    private int iieCount;
     protected long stepCount;
-    protected IntegratorEventManager eventManager;
+    private int iieCount;
 
     public Integrator() {
         setEventInterval(1);
         stepCount = 0;
-        eventManager = new IntegratorEventManager();
+        eventManager = new IntegratorEventManager(this);
     }
 
     /**
@@ -38,9 +36,10 @@ public abstract class Integrator implements IIntegrator {
     public int getEventInterval() {
         return interval;
     }
-    
+
     /**
      * Sets value of interval between successive firing of integrator interval events.
+     *
      * @param interval
      */
     public void setEventInterval(int interval) {
@@ -49,22 +48,26 @@ public abstract class Integrator implements IIntegrator {
             iieCount = interval;
         }
     }
-    
+
+    /**
+     * Performs the elementary integration step, such as a molecular dynamics
+     * time step, or a Monte Carlo trial.
+     */
     public final void doStep() {
         stepCount++;
         --iieCount;
-        if(iieCount == 0) {
+        if (iieCount == 0) {
             eventManager.stepStarted();
         }
-        
+
         doStepInternal();
-        
-        if(iieCount == 0) {
+
+        if (iieCount == 0) {
             eventManager.stepFinished();
             iieCount = interval;
         }
     }
-    
+
     /**
      * Performs the elementary integration step, such as a molecular dynamics
      * time step, or a Monte Carlo trial.
@@ -78,15 +81,15 @@ public abstract class Integrator implements IIntegrator {
     public long getStepCount() {
         return stepCount;
     }
-    
+
     /**
      * Defines the actions taken by the integrator to reset itself, such as
      * required if a perturbation is applied to the simulated box (e.g.,
      * addition or deletion of a molecule). Also invoked when the
-     * integrator is started or initialized.
+     * <p>
+     * This should be called by subclasses before they have performed their own
+     * reset integrator is started or initialized.
      */
-    //This should be called by subclasses before they have performed their own
-    //reset
     public void reset() {
         if (!initialized) {
             setup();
@@ -95,15 +98,18 @@ public abstract class Integrator implements IIntegrator {
         eventManager.initialized();
     }
 
+    /**
+     * This method resets the step counter.
+     */
     public void resetStepCount() {
         stepCount = 0;
     }
 
 
-    public IIntegratorEventManager getEventManager() {
+    public IntegratorEventManager getEventManager() {
         return eventManager;
     }
-    
+
     /**
      * Perform initialization.  Subclasses can override this method to set up
      * before integration begins.
@@ -112,19 +118,19 @@ public abstract class Integrator implements IIntegrator {
         resetStepCount();
         iieCount = interval;
     }
-    
+
     /**
      * Integrator agent that holds a force vector. Used to indicate that an atom
      * could be under the influence of a force.
      */
     public interface Forcible {
-        public IVectorMutable force();
+        Vector force();
     }
 
     /**
      * Integrator agent that holds a torque vector.
      */
     public interface Torquable {
-        public IVectorMutable torque();
+        Vector torque();
     }
 }

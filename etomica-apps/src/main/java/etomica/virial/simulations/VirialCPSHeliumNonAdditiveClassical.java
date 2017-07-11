@@ -7,15 +7,14 @@ package etomica.virial.simulations;
 
 import java.awt.Color;
 
-import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
 import etomica.chem.elements.ElementSimple;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.potential.P2HePCKLJS;
 import etomica.potential.P3CPSNonAdditiveHe;
 import etomica.potential.P3CPSNonAdditiveHeSimplified;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -42,10 +41,10 @@ import etomica.virial.cluster.VirialDiagrams;
 
 public class VirialCPSHeliumNonAdditiveClassical {
 	
-	protected static IVectorMutable r0, r1, r2;
-	protected static IVectorMutable r01Vec, r12Vec, r02Vec;
+	protected static Vector r0, r1, r2;
+	protected static Vector r01Vec, r12Vec, r02Vec;
 	
-	public VirialCPSHeliumNonAdditiveClassical(ISpace space) {
+	public VirialCPSHeliumNonAdditiveClassical(Space space) {
         r0 = space.makeVector();
         r1 = space.makeVector();
         r2 = space.makeVector();

@@ -10,8 +10,8 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import etomica.units.Dimension;
-import etomica.units.Null;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Null;
 
 /**
  * Implements the Modifier functionality using introspection to obtain the accessor methods for a property.
@@ -102,10 +102,10 @@ public class ModifierGeneral implements Modifier, java.io.Serializable {
                 Class[] argClasses = writeMethod[j].getParameterTypes();
                 // perhaps there's a better way to sniff than Class.getName().equals("int")
                 if (argClasses[0].getName().equals("double")) {
-                    writeMethod[j].invoke(object[j], new Object[] {new Double(d)});
+                    writeMethod[j].invoke(object[j], d);
                 }
                 else if (argClasses[0].getName().equals("int")) {
-                    writeMethod[j].invoke(object[j], new Object[] {new Integer((int)d)});
+                    writeMethod[j].invoke(object[j], (int) d);
                 }
             }
             catch(InvocationTargetException ex) {
@@ -126,10 +126,10 @@ public class ModifierGeneral implements Modifier, java.io.Serializable {
         try {
             Class returnType = readMethod[0].getReturnType();
             if (returnType.getName().equals("double")) {
-                value = (Double)readMethod[0].invoke(object[0], (Object[])null);
+                value = (Double)readMethod[0].invoke(object[0]);
             }
             else if (returnType.getName().equals("int")) {
-                value = (Integer)readMethod[0].invoke(object[0],  (Object[])null);
+                value = (Integer)readMethod[0].invoke(object[0]);
             }
         }
         catch(InvocationTargetException ex) {

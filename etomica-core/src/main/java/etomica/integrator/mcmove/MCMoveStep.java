@@ -4,17 +4,17 @@
 
 package etomica.integrator.mcmove;
 
-import etomica.api.IPotentialMaster;
-import etomica.units.Dimension;
-import etomica.units.Length;
+import etomica.potential.PotentialMaster;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
 
 public abstract class MCMoveStep extends MCMove implements MCMoveStepDependent {
 
-    public MCMoveStep(IPotentialMaster potentialMaster) {
+    public MCMoveStep(PotentialMaster potentialMaster) {
         this(potentialMaster, new MCMoveStepTracker());
     }
 
-    public MCMoveStep(IPotentialMaster potentialMaster,
+    public MCMoveStep(PotentialMaster potentialMaster,
             MCMoveStepTracker stepTracker) {
         super(potentialMaster, stepTracker);
         ((MCMoveStepTracker)moveTracker).setMCMove(this);

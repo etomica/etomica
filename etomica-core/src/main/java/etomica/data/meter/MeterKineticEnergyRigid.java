@@ -4,23 +4,21 @@
 
 package etomica.data.meter;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.IMoleculeKinetic;
-import etomica.atom.IMoleculeOrientedKinetic;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
-import etomica.space.ISpace;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeKinetic;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.IMoleculeOrientedKinetic;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.IOrientationFull3D;
 import etomica.space3d.RotationTensor3D;
 import etomica.species.ISpeciesOriented;
-import etomica.units.Energy;
+import etomica.units.dimensions.Energy;
 
 /**
  * Meter for the total kinetic energy in a box
@@ -32,11 +30,11 @@ import etomica.units.Energy;
  */
 public class MeterKineticEnergyRigid extends DataSourceScalar {
 
-    public MeterKineticEnergyRigid(ISpace space, ISimulation sim) {
+    public MeterKineticEnergyRigid(Space space, Simulation sim) {
         this(space, sim, null);
     }
     
-    public MeterKineticEnergyRigid(ISpace space, ISimulation sim, IBox box) {
+    public MeterKineticEnergyRigid(Space space, Simulation sim, Box box) {
         super("Kinetic Energy",Energy.DIMENSION);
         angularVelocity = space.makeVector();
         rotationTensor = (RotationTensor3D)space.makeRotationTensor();
@@ -66,7 +64,7 @@ public class MeterKineticEnergyRigid extends DataSourceScalar {
                         continue;
                     }
                     ke += 0.5*mass*((IMoleculeKinetic)molecule0).getVelocity().squared();
-                    IVector moment = ((ISpeciesOriented)molecule0.getType()).getMomentOfInertia();
+                    Vector moment = ((ISpeciesOriented)molecule0.getType()).getMomentOfInertia();
         
                     angularVelocity.E(moleculeOrientedKinetic.getAngularVelocity());
                     rotationTensor.setOrientation((IOrientationFull3D)moleculeOrientedKinetic.getOrientation());
@@ -84,10 +82,10 @@ public class MeterKineticEnergyRigid extends DataSourceScalar {
                     IAtomList children = molecule.getChildList();
                     for (int iLeaf=0; iLeaf<children.getAtomCount(); iLeaf++) {
                         IAtomKinetic a = (IAtomKinetic)children.getAtom(iLeaf);
-                        double mass = ((IAtom)a).getType().getMass();
+                        double mass = a.getType().getMass();
                         if(mass == Double.POSITIVE_INFINITY) continue;
         //                    System.out.println("force: "+((MyAgent)a.ia).force.toString());
-                        IVectorMutable velocity = a.getVelocity();
+                        Vector velocity = a.getVelocity();
                         ke += velocity.squared() * mass;
                     }
                 }
@@ -100,20 +98,20 @@ public class MeterKineticEnergyRigid extends DataSourceScalar {
     /**
      * Sets the box to the given box.
      */
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
     
     /**
      * @return Returns the box.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
 
     private static final long serialVersionUID = 1L;
-    protected final ISimulation sim;
-    protected IBox box;
-    protected final IVectorMutable angularVelocity;
+    protected final Simulation sim;
+    protected Box box;
+    protected final Vector angularVelocity;
     protected final RotationTensor3D rotationTensor;
  }

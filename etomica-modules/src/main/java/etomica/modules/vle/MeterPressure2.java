@@ -4,13 +4,13 @@
 
 package etomica.modules.vle;
 
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationVirialSum;
-import etomica.space.ISpace;
-import etomica.units.Pressure;
+import etomica.potential.PotentialMaster;
+import etomica.space.Space;
+import etomica.units.dimensions.Pressure;
 
 /**
  * Meter for evaluation of the soft-potential pressure in a box.
@@ -23,7 +23,7 @@ import etomica.units.Pressure;
  
 public class MeterPressure2 extends DataSourceScalar {
     
-    public MeterPressure2(ISpace space) {
+    public MeterPressure2(Space space) {
     	super("Pressure",Pressure.dimension(space.D()));
     	dim = space.D();
         iteratorDirective = new IteratorDirective();
@@ -36,7 +36,7 @@ public class MeterPressure2 extends DataSourceScalar {
      * calculated for the box the integrator acts on and integrator's 
      * temperature is used for the ideal gas contribution.
      */
-    public void setPotentialMaster(IPotentialMaster newPotentialMaster) {
+    public void setPotentialMaster(PotentialMaster newPotentialMaster) {
         potentialMaster = newPotentialMaster;
     }
     
@@ -45,15 +45,15 @@ public class MeterPressure2 extends DataSourceScalar {
      * calculated for the box the integrator acts on and integrator's 
      * temperature is used for the ideal gas contribution.
      */
-    public IPotentialMaster getPotentialMaster() {
+    public PotentialMaster getPotentialMaster() {
         return potentialMaster;
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
     
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
 
@@ -85,8 +85,8 @@ public class MeterPressure2 extends DataSourceScalar {
     }
 
     private static final long serialVersionUID = 1L;
-    protected IPotentialMaster potentialMaster;
-    protected IBox box;
+    protected PotentialMaster potentialMaster;
+    protected Box box;
     private IteratorDirective iteratorDirective;
     private final PotentialCalculationVirialSum virial;
     private final int dim;

@@ -4,14 +4,13 @@
 
 package etomica.meam;
 
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
+import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.potential.PotentialN;
 import etomica.potential.PotentialSoft;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.ElectronVolt;
 
@@ -19,14 +18,14 @@ public class PotentialCuLREP extends PotentialN implements PotentialSoft{
 
     protected double c0, c1, c2, c3, c4, mLREP, nLREP;
     protected double A, rC1, rC2, B, r0;
-    protected IVectorMutable dr, drij, drik, drjk;
-    protected IBoundary boundary; 
-    protected IVectorMutable[] gradient; 
-    protected IVectorMutable[] rhograd;
+    protected Vector dr, drij, drik, drjk;
+    protected Boundary boundary;
+    protected Vector[] gradient;
+    protected Vector[] rhograd;
     protected double [][] secondder;
     protected int test = 1;
     
-    public PotentialCuLREP(ISpace space) {
+    public PotentialCuLREP(Space space) {
         super(space);
         
                 this.mLREP   = 4.0;
@@ -48,8 +47,8 @@ public class PotentialCuLREP extends PotentialN implements PotentialSoft{
         drij=space.makeVector();
         drik=space.makeVector();
         drjk=space.makeVector();
-        gradient=new IVectorMutable[0];
-        rhograd=new IVectorMutable[0];
+        gradient=new Vector[0];
+        rhograd=new Vector[0];
     }
     
     public double getRange() {
@@ -70,9 +69,9 @@ public class PotentialCuLREP extends PotentialN implements PotentialSoft{
         	System.out.println(" ng: " + ng);
         	test = 0;
         }
-        IVector ipos=atoms.getAtom(0).getPosition();
+        Vector ipos=atoms.getAtom(0).getPosition();
         for(int j=1;j<ng;j++){
-          IVector jpos=atoms.getAtom(j).getPosition();
+          Vector jpos=atoms.getAtom(j).getPosition();
           dr.Ev1Mv2(ipos, jpos);
           boundary.nearestImage(dr);
           double rij=Math.sqrt(dr.squared());
@@ -94,7 +93,7 @@ public class PotentialCuLREP extends PotentialN implements PotentialSoft{
         
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary=box.getBoundary();
     }
 
@@ -102,9 +101,9 @@ public class PotentialCuLREP extends PotentialN implements PotentialSoft{
         double virial=0;
         int ng = atoms.getAtomCount();
         gradient(atoms);
-        IVector ipos=atoms.getAtom(0).getPosition();
+        Vector ipos=atoms.getAtom(0).getPosition();
         for(int j=1;j<ng;j++){
-            IVector jpos=atoms.getAtom(j).getPosition();
+            Vector jpos=atoms.getAtom(j).getPosition();
             dr.Ev1Mv2(ipos, jpos);
             boundary.nearestImage(dr);
             virial -= gradient[j].dot(dr);
@@ -112,12 +111,12 @@ public class PotentialCuLREP extends PotentialN implements PotentialSoft{
         return virial;
     }
 
-    public IVector[] gradient(IAtomList atoms) {
+    public Vector[] gradient(IAtomList atoms) {
         double v1, v2, dv1, dv2, dvdr, drhodr, dudrho, rij, rij_c, rij_d;
         int ng = atoms.getAtomCount();
         if(gradient.length<ng){
-            rhograd=new IVectorMutable[ng];
-            gradient=new IVectorMutable[ng];
+            rhograd=new Vector[ng];
+            gradient=new Vector[ng];
             
             for(int j=0;j<ng;j++){
                 gradient[j]=space.makeVector();
@@ -125,7 +124,7 @@ public class PotentialCuLREP extends PotentialN implements PotentialSoft{
             }
         }
         
-        IVector ipos= atoms.getAtom(0).getPosition();
+        Vector ipos= atoms.getAtom(0).getPosition();
         int iAtom   = atoms.getAtom(0).getLeafIndex();
         double rhoi = 0;
         gradient[0].E(0);
@@ -133,7 +132,7 @@ public class PotentialCuLREP extends PotentialN implements PotentialSoft{
         for(int j=1;j<ng;j++){
             gradient[j].E(0);
             rhograd[j].E(0);
-            IVector jpos=atoms.getAtom(j).getPosition();
+            Vector jpos=atoms.getAtom(j).getPosition();
             dr.Ev1Mv2(ipos, jpos);
             boundary.nearestImage(dr);
             rij=Math.sqrt(dr.squared());
@@ -166,7 +165,7 @@ public class PotentialCuLREP extends PotentialN implements PotentialSoft{
         return gradient;
     }
 
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         return gradient(atoms);
     }
     
@@ -175,7 +174,7 @@ public class PotentialCuLREP extends PotentialN implements PotentialSoft{
     public double [][] secondder(IAtomList atoms){
 		int ng = atoms.getAtomCount();
     	secondder = new double[3*ng][3*ng];
-        IVector ipos=atoms.getAtom(0).getPosition();
+        Vector ipos=atoms.getAtom(0).getPosition();
         double v1, v2, dv1, dv2, d2v1, d2v2;
     	double dvdr, d2vdr2, g1, g2;
         double rij, rij2 , rij3 , rij4;
@@ -189,7 +188,7 @@ public class PotentialCuLREP extends PotentialN implements PotentialSoft{
 		//rhoi
         double rhoi = 0;
         for(int j=1;j<ng;j++){
-            IVector jpos=atoms.getAtom(j).getPosition();
+            Vector jpos=atoms.getAtom(j).getPosition();
             drij.Ev1Mv2(ipos, jpos);
             boundary.nearestImage(drij);
             rij=Math.sqrt(drij.squared());
@@ -205,7 +204,7 @@ public class PotentialCuLREP extends PotentialN implements PotentialSoft{
         int iAtom = atoms.getAtom(0).getLeafIndex();
         
         for(int j=1;j<ng;j++){
-          IVector jpos=atoms.getAtom(j).getPosition();
+          Vector jpos=atoms.getAtom(j).getPosition();
           drij.Ev1Mv2(ipos, jpos);
           boundary.nearestImage(drij);
 
@@ -285,7 +284,7 @@ public class PotentialCuLREP extends PotentialN implements PotentialSoft{
             /**EAM: 1st&2nd derivative terms*/
             //k-loop:             
             for(int k=1;k<ng;k++){
-              IVector kpos=atoms.getAtom(k).getPosition();
+              Vector kpos=atoms.getAtom(k).getPosition();
               drik.Ev1Mv2(ipos, kpos);
               boundary.nearestImage(drik);
               rik=Math.sqrt(drik.squared());

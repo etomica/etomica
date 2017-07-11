@@ -4,17 +4,7 @@
 
 package etomica.modules.rosmosis;
 
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.atom.MoleculeAgentManager;
-import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
+import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -23,12 +13,13 @@ import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMD;
-import etomica.space.ISpace;
-import etomica.units.CompoundDimension;
-import etomica.units.Dimension;
-import etomica.units.Length;
-import etomica.units.Quantity;
-import etomica.units.Time;
+import etomica.molecule.*;
+import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
+import etomica.units.dimensions.*;
 
 /**
  * Meter to measure flux across a boundary or boundaries.  If an atom is on one
@@ -45,7 +36,7 @@ import etomica.units.Time;
  */
 public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource {
 
-    public MeterFlux(ISimulation sim, ISpace _space) {
+    public MeterFlux(Simulation sim, Space _space) {
         this.sim = sim;
     	this.space = _space;
         data = new DataDouble();
@@ -53,7 +44,7 @@ public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource {
                 Quantity.DIMENSION, Time.DIMENSION, Length.DIMENSION}, new double[]{1,-1,0}));
         tag = new DataTag();
         boundaries = new double[0];
-        positionDefinition = new AtomPositionGeometricCenter(space);
+        positionDefinition = new MoleculePositionGeometricCenter(space);
     }
     
     public void setBoundaries(int newDim, double[] newBoundaries, int[] newBoundaryCoefficients) {
@@ -81,7 +72,7 @@ public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource {
         return species;
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
         if (integrator != null) {
             if (integrator instanceof IntegratorMD) {
@@ -99,7 +90,7 @@ public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource {
         }
     }
     
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     
@@ -129,9 +120,9 @@ public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource {
             IMoleculeList molecules = box.getMoleculeList(species[i]);
             for (int j=0; j<molecules.getMoleculeCount(); j++) {
                 IMolecule atom = molecules.getMolecule(j);
-                IVectorMutable oldPosition = ((IVectorMutable)agentManager.getAgent(atom));
+                Vector oldPosition = ((Vector)agentManager.getAgent(atom));
                 double oldX = oldPosition.getX(dim);
-                IVector newPosition = positionDefinition.position(atom);
+                Vector newPosition = positionDefinition.position(atom);
                 double newX = newPosition.getX(dim);
                 for (int k=0; k<boundaries.length; k++) {
                     double newDelta = newX - boundaries[k];
@@ -179,14 +170,14 @@ public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource {
     }
 
     public Class getMoleculeAgentClass() {
-        return IVectorMutable.class;
+        return Vector.class;
     }
 
     public Object makeAgent(IMolecule a) {
         ISpecies thisSpecies = a.getType();
         for (int i=0; i<species.length; i++) {
             if (species[i] == thisSpecies) {
-                IVectorMutable vec = space.makeVector();
+                Vector vec = space.makeVector();
                 vec.E(positionDefinition.position(a));
                 return vec;
             }
@@ -199,12 +190,12 @@ public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource {
         /* do nothing */
     }
 
-    protected final ISimulation sim;
+    protected final Simulation sim;
     protected final DataDouble data;
     protected DataInfoDouble dataInfo;
     protected final DataTag tag;
     protected ISpecies[] species;
-    protected IBox box;
+    protected Box box;
     protected double[] boundaries;
     protected int[] boundaryCoefficients;
     protected int dim;
@@ -212,6 +203,6 @@ public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource {
     protected IntegratorBox integrator;
     protected double oldTime;
     protected long oldStep;
-    private final ISpace space;
-    protected IAtomPositionDefinition positionDefinition;
+    private final Space space;
+    protected IMoleculePositionDefinition positionDefinition;
 }

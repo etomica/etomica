@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.potential;
-import etomica.space.ISpace;
-import etomica.units.Dimension;
-import etomica.units.Energy;
-import etomica.units.Length;
+import etomica.space.Space;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Length;
 
 /**
  * Soft-sphere interatomic potential.
@@ -27,12 +27,12 @@ import etomica.units.Length;
  */
 public final class P2SoftSphere extends Potential2SoftSpherical {
 
-    public P2SoftSphere(ISpace space) {
+    public P2SoftSphere(Space space) {
         this(space, 1.0, 1.0, 12);
 
     }
     
-    public P2SoftSphere(ISpace space, double sigma, double epsilon, int n) {
+    public P2SoftSphere(Space space, double sigma, double epsilon, int n) {
 
         super(space);
         setSigma(sigma);

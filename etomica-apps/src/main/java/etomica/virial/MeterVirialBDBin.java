@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 
 import etomica.action.IAction;
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.data.AccumulatorAverageBlockless;
 import etomica.data.AccumulatorAverageBlockless.AllData;
 import etomica.data.DataTag;
@@ -21,7 +21,7 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDoubleBDArray;
 import etomica.data.types.DataDoubleBDArray.DataInfoDoubleBDArray;
 import etomica.data.types.DataGroup;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * Measures value of clusters in a box and returns the values

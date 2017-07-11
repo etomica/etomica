@@ -4,7 +4,7 @@
 
 package etomica.modules.joulethomson;
 
-import etomica.api.IRandom;
+import etomica.util.random.IRandom;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorManagerMC;
 import etomica.modifier.ModifierBoolean;

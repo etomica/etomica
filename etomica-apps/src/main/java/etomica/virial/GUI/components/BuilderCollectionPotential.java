@@ -4,25 +4,21 @@
 
 package etomica.virial.GUI.components;
 
+import etomica.atom.AtomType;
+import etomica.potential.*;
+import etomica.space.Space;
+import etomica.species.ISpecies;
+import etomica.virial.GUI.models.EnumSiteName;
+import etomica.virial.GUI.models.IMolecularModel_SpeciesFactory;
+import etomica.virial.GUI.models.ModelSelectedSpecies;
+import etomica.virial.GUI.models.ModelSimulationEnvironment;
+import etomica.virial.GUI.views.ViewAlertMsgBox;
+import etomica.virial.MCMoveClusterTorsionMulti;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
-import etomica.api.IAtomType;
-import etomica.api.IPotential;
-import etomica.api.IPotentialMolecular;
-import etomica.api.ISpecies;
-import etomica.potential.P2LJQ;
-import etomica.potential.P2LennardJones;
-import etomica.potential.PotentialSoft;
-import etomica.space.ISpace;
-import etomica.virial.MCMoveClusterTorsionMulti;
-
-import etomica.virial.GUI.models.EnumSiteName;
-import etomica.virial.GUI.models.ModelSimulationEnvironment;
-import etomica.virial.GUI.models.ModelSelectedSpecies;
-import etomica.virial.GUI.models.IMolecularModel_SpeciesFactory;
-import etomica.virial.GUI.views.ViewAlertMsgBox;
 
 public class BuilderCollectionPotential {
 
@@ -95,7 +91,7 @@ public class BuilderCollectionPotential {
 				speciesInteractionIndex[indexCount][0] = i;
 				speciesInteractionIndex[indexCount][1] = j;
 				if(i==j){
-					if (etomica.api.IPotentialMolecular.class.isAssignableFrom(speciesDataModel.getSpeciesDataModel(i).getPotential())){
+					if (IPotentialMolecular.class.isAssignableFrom(speciesDataModel.getSpeciesDataModel(i).getPotential())){
 						makeMolecularPairPotentialsLike(speciesDataModel.getSpeciesDataModel(i),i);
 					}else if(etomica.potential.Potential2SoftSpherical.class.isAssignableFrom(speciesDataModel.getSpeciesDataModel(i).getPotential()) && speciesDataModel.getSpeciesDataModel(i).getPotentialSites().length > 1){
 						makeAtomicPairPotentialsLike(speciesDataModel.getSpeciesDataModel(i),i);
@@ -158,7 +154,7 @@ public class BuilderCollectionPotential {
 			//We figure details abt each of the potential
 			
 			//If molecular or atomic
-			if (etomica.api.IPotentialMolecular.class.isAssignableFrom(speciesDM[i].getPotential())){
+			if (IPotentialMolecular.class.isAssignableFrom(speciesDM[i].getPotential())){
 
 				//If potentialsites existing are greater than 1, although we dont have a intrabonded or intra non-bonded potential, but we have 
 				//cross potentials
@@ -359,14 +355,14 @@ public class BuilderCollectionPotential {
 		
 		if(simEnvironment.getLengthAlkaneChain(speciesIndex) > 2){
 			ACollectionBondedPotential bInteractions = new CollectionBondedPotentialAlkanes(simEnvironment.getLengthAlkaneChain(speciesIndex));
-			((CollectionBondedPotentialAlkanes) bInteractions).addBondedPotentialSets(collectionPotentialAtomicLike,species1DataModel.getSpace(),1);
+			bInteractions.addBondedPotentialSets(collectionPotentialAtomicLike,species1DataModel.getSpace(),1);
 			if(simEnvironment.getLengthAlkaneChain(speciesIndex) > 3){
 				collectionPotentialAtomicLike.setMCMoveClusterTorsionMulti(new MCMoveClusterTorsionMulti[2]);
 			}
 		}
 		else if(species1DataModel.getClass().getName().contains("Methanol") || species1DataModel.getClass().getName().contains("Ethanol")){
 			ACollectionBondedPotential bInteractions = new CollectionBondedPotentialAlcohols();
-			((CollectionBondedPotentialAlcohols) bInteractions).addBondedPotentialSets(collectionPotentialAtomicLike,species1DataModel.getSpace(),1);
+			bInteractions.addBondedPotentialSets(collectionPotentialAtomicLike,species1DataModel.getSpace(),1);
 		}
 		
 		pCollectionHashMap.add(collectionPotentialAtomicLike);
@@ -381,7 +377,7 @@ public class BuilderCollectionPotential {
 	
 		@SuppressWarnings("rawtypes")
 		Class[] ParamClass = new Class[numberofParameters+1];
-		ParamClass[0] = ISpace.class;
+		ParamClass[0] = Space.class;
 		for(int j = 1;j<=numberofParameters;j++){
 			ParamClass[j] = Double.TYPE;
 		}
@@ -422,7 +418,7 @@ public class BuilderCollectionPotential {
 		Object[] ParamValueObj = new Object[numberofParameters+1];
 		@SuppressWarnings("rawtypes")
 		Class[] ParamClass = new Class[numberofParameters+1];
-		ParamClass[0] = ISpace.class;
+		ParamClass[0] = Space.class;
 		for(int j = 1;j<=numberofParameters;j++){
 			ParamClass[j] = Double.TYPE;
 		}
@@ -484,8 +480,8 @@ public class BuilderCollectionPotential {
 		
 		for(int i=0;i<sitesOnSpecies1.length;i++){
 			for(int j=0;j<sitesOnSpecies2.length;j++){
-				StringTokenizer dataString1 = new StringTokenizer((String)sitesOnSpecies1[i],"-");
-				StringTokenizer dataString2 = new StringTokenizer((String)sitesOnSpecies2[j],"-");
+				StringTokenizer dataString1 = new StringTokenizer(sitesOnSpecies1[i],"-");
+				StringTokenizer dataString2 = new StringTokenizer(sitesOnSpecies2[j],"-");
 				String potentialSite1 = dataString1.nextToken().trim();
 				String potentialSite2 = dataString2.nextToken().trim();
 				if(potentialSite1.equals(potentialSite2)){
@@ -616,7 +612,7 @@ public class BuilderCollectionPotential {
 			}
 			
 			Class[] ParamClass = new Class[ParametersForPotential.length+1];
-			ParamClass[0] = ISpace.class;
+			ParamClass[0] = Space.class;
 			for(int j1 = 1;j1<=ParametersForPotential.length;j1++){
 				ParamClass[j1] = Double.TYPE;
 			}
@@ -678,8 +674,8 @@ public class BuilderCollectionPotential {
 
 
 	@SuppressWarnings("unchecked")
-	private HashMap<String[],IAtomType[]> getPairAtomTypes(ArrayList<String[]> unLikePairs,
-			ISpecies[] species) {
+    private HashMap<String[], AtomType[]> getPairAtomTypes(ArrayList<String[]> unLikePairs,
+                                                           ISpecies[] species) {
 
 		ISpecies species1 = species[0];		
 		ISpecies species2;
@@ -691,9 +687,9 @@ public class BuilderCollectionPotential {
 			species2 = species1;}
 		String Site1Name = "";
 		String Site2Name = "";
-		IAtomType Site1Atom;
-		IAtomType Site2Atom;
-		HashMap<String[],IAtomType[]> AtomSets = new HashMap<String[],IAtomType[]>();
+        AtomType Site1Atom;
+        AtomType Site2Atom;
+        HashMap<String[], AtomType[]> AtomSets = new HashMap<String[], AtomType[]>();
 
 		for(int i=0;i<unLikePairs.size();i++){
 			String Site1 = unLikePairs.get(i)[0];
@@ -708,8 +704,8 @@ public class BuilderCollectionPotential {
 				String[] SiteB = Site2.split("-");
 				Site2 = SiteB[0];
 			}
-			IAtomType[] SiteAtoms = new IAtomType[2];
-			for(EnumSiteName site: EnumSiteName.values()){
+            AtomType[] SiteAtoms = new AtomType[2];
+            for(EnumSiteName site: EnumSiteName.values()){
 				if(site.toString().toUpperCase().equals(Site1.toUpperCase())){
 					Site1Name = site.getSite();
 				}
@@ -722,11 +718,11 @@ public class BuilderCollectionPotential {
 			
 			
 			for(int j=0;j<MethodS1.length;j++){
-				if(MethodS1[j].getReturnType().equals(IAtomType.class)){
-					if(MethodS1[j].toString().toUpperCase().contains(Site1.toUpperCase()+"TYPE")|| MethodS1[j].toString().toUpperCase().contains(Site1Name.toUpperCase()+"TYPE")){
+                if (MethodS1[j].getReturnType().equals(AtomType.class)) {
+                    if(MethodS1[j].toString().toUpperCase().contains(Site1.toUpperCase()+"TYPE")|| MethodS1[j].toString().toUpperCase().contains(Site1Name.toUpperCase()+"TYPE")){
 						try {
-							Site1Atom = (IAtomType) MethodS1[j].invoke(species1, null);
-							SiteAtoms[0] = Site1Atom;
+                            Site1Atom = (AtomType) MethodS1[j].invoke(species1);
+                            SiteAtoms[0] = Site1Atom;
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -738,12 +734,12 @@ public class BuilderCollectionPotential {
 			Method[] MethodS2 = species2.getClass().getMethods();
 			
 			for(int k=0;k<MethodS2.length;k++){
-				if(MethodS2[k].getReturnType().equals(IAtomType.class)){
-					if(MethodS2[k].toString().toUpperCase().contains(Site2.toUpperCase()+"TYPE")|| MethodS2[k].toString().toUpperCase().contains(Site2Name.toUpperCase()+"TYPE")){
+                if (MethodS2[k].getReturnType().equals(AtomType.class)) {
+                    if(MethodS2[k].toString().toUpperCase().contains(Site2.toUpperCase()+"TYPE")|| MethodS2[k].toString().toUpperCase().contains(Site2Name.toUpperCase()+"TYPE")){
 						System.out.println(Site2+" "+ MethodS2[k].toString());
 						try {
-							Site2Atom = (IAtomType) MethodS2[k].invoke(species2, null);
-							SiteAtoms[1] = Site2Atom;
+                            Site2Atom = (AtomType) MethodS2[k].invoke(species2);
+                            SiteAtoms[1] = Site2Atom;
 						} catch (Exception e) {
 							e.printStackTrace();
 						} 
@@ -984,7 +980,7 @@ public class BuilderCollectionPotential {
 			
 			for(int k=0;k<2;k++){
 				for(int l=0;l<Potential[k].getPotentialSites().length;l++){
-					StringTokenizer dataString1 = new StringTokenizer((String)Potential[k].getPotentialSiteAtIndex(l),"-");
+					StringTokenizer dataString1 = new StringTokenizer(Potential[k].getPotentialSiteAtIndex(l),"-");
 					String potentialSite = dataString1.nextToken().trim();
 					if(PotentialSite.equals(potentialSite)){
 						for(int m=0;m<Potential[k].getParametersArray().length;m++){
@@ -1009,14 +1005,9 @@ public class BuilderCollectionPotential {
 					ConfirmIndexFlag++;
 				}
 			}
-			
-			if(ConfirmIndexFlag == ParamCheck){
-				return true;
-			}
-			else{
-				return false;
-			}
-		}
+
+        return ConfirmIndexFlag == ParamCheck;
+    }
 	
 	public boolean hasSingleConstructorForPotential(Class PotentialClassName){
 		

@@ -4,14 +4,15 @@
 
 package etomica.modules.osmosis;
 
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialHard;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.units.Length;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
 
 /**
  */
@@ -21,11 +22,11 @@ public class P1HardWall extends Potential1 implements PotentialHard {
     private static final long serialVersionUID = 1L;
     private double collisionRadius;
     
-    public P1HardWall(ISpace space) {
+    public P1HardWall(Space space) {
         this(space, 1.0);
     }
     
-    public P1HardWall(ISpace space, double sigma) {
+    public P1HardWall(Space space, double sigma) {
         super(space);
         collisionRadius = sigma;
     }
@@ -42,8 +43,8 @@ public class P1HardWall extends Potential1 implements PotentialHard {
      
     public double collisionTime(IAtomList a, double falseTime) {
         IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
-        IVectorMutable r = atom.getPosition();
-        IVectorMutable v = atom.getVelocity();
+        Vector r = atom.getPosition();
+        Vector v = atom.getVelocity();
         double vx = v.getX(0);
         double rx = r.getX(0) + vx * falseTime;
         double t = (vx > 0.0) ? - collisionRadius : collisionRadius;
@@ -57,7 +58,7 @@ public class P1HardWall extends Potential1 implements PotentialHard {
 
     public void bump(IAtomList a, double falseTime) {
         IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
-        IVectorMutable v = atom.getVelocity();
+        Vector v = atom.getVelocity();
 
         v.setX(0,-v.getX(0));
 
@@ -91,7 +92,7 @@ public class P1HardWall extends Potential1 implements PotentialHard {
     /**
      * Indicates collision radius has dimensions of Length.
      */
-    public etomica.units.Dimension getCollisionRadiusDimension() {return Length.DIMENSION;}
+    public Dimension getCollisionRadiusDimension() {return Length.DIMENSION;}
 
 }
    

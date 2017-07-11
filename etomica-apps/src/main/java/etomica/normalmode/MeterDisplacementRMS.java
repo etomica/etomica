@@ -4,19 +4,18 @@
 
 package etomica.normalmode;
 
-import etomica.api.IAtomList;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
-import etomica.space.ISpace;
-import etomica.units.Length;
+import etomica.space.Space;
+import etomica.units.dimensions.Length;
 
 public class MeterDisplacementRMS extends DataSourceScalar {
 
     protected final CoordinateDefinition coordinateDefinition;
-    protected final IVectorMutable dr, boxSize0;
+    protected final Vector dr, boxSize0;
     
-    public MeterDisplacementRMS(ISpace space, CoordinateDefinition coordinateDefinition) {
+    public MeterDisplacementRMS(Space space, CoordinateDefinition coordinateDefinition) {
         super("displacement", Length.DIMENSION);
         this.coordinateDefinition = coordinateDefinition;
         dr = space.makeVector();
@@ -27,7 +26,7 @@ public class MeterDisplacementRMS extends DataSourceScalar {
     public double getDataAsScalar() {
         IAtomList leafList = coordinateDefinition.getBox().getLeafList();
         double sum = 0;
-        IVector boxSize = coordinateDefinition.getBox().getBoundary().getBoxSize();
+        Vector boxSize = coordinateDefinition.getBox().getBoundary().getBoxSize();
         for (int i=0; i<leafList.getAtomCount(); i++) {
             dr.E(coordinateDefinition.getLatticePosition(leafList.getAtom(i)));
             dr.DE(boxSize0);

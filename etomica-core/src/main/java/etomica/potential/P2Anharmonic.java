@@ -4,12 +4,12 @@
 
 package etomica.potential;
 
-import etomica.space.ISpace;
-import etomica.units.CompoundDimension;
-import etomica.units.Dimension;
-import etomica.units.DimensionRatio;
-import etomica.units.Energy;
-import etomica.units.Length;
+import etomica.space.Space;
+import etomica.units.dimensions.CompoundDimension;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.DimensionRatio;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Length;
 
 
 /**
@@ -26,7 +26,7 @@ public class P2Anharmonic extends Potential2SoftSpherical {
     private double w = 100.0;// Spring constant gives a measure of the strength of harmonic interaction
     private double a = 0;	// Anharmonic spring constant
 
-    public P2Anharmonic(ISpace space, double w) {
+    public P2Anharmonic(Space space, double w) {
         super(space);
         setSpringConstant(w);
     }
@@ -81,4 +81,3 @@ public class P2Anharmonic extends Potential2SoftSpherical {
         return new DimensionRatio(Energy.DIMENSION,Length.DIMENSION);
     }
 }//end of P2Harmonic
-  

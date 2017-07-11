@@ -4,22 +4,21 @@
 
 package etomica.normalmode;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.space.ISpace;
-import etomica.units.Angle;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.IMoleculePositionDefinition;
+import etomica.molecule.MoleculePositionGeometricCenter;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
+import etomica.units.dimensions.Angle;
 
 /**
  * Meter that measures the average tilt angle (not the angle of average tilt!)
@@ -28,10 +27,10 @@ import etomica.units.Angle;
  */
 public class MeterPlaneSlip implements IEtomicaDataSource {
 
-    public MeterPlaneSlip(ISpace space, ISpecies species, int nPlanes, int nx, int ny) {
+    public MeterPlaneSlip(Space space, ISpecies species, int nPlanes, int nx, int ny) {
         this.species = species;
-        pos = new AtomPositionGeometricCenter(space);
-        drSum = new IVectorMutable[nPlanes][2];
+        pos = new MoleculePositionGeometricCenter(space);
+        drSum = new Vector[nPlanes][2];
         for (int i=0; i<nPlanes; i++) {
             drSum[i][0] = space.makeVector();
             drSum[i][1] = space.makeVector();
@@ -45,7 +44,7 @@ public class MeterPlaneSlip implements IEtomicaDataSource {
         this.ny = ny;
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
         
         int nPlanes = drSum.length;
@@ -63,11 +62,11 @@ public class MeterPlaneSlip implements IEtomicaDataSource {
             drSum[iPlane][1].PE(atomList.getAtom(1).getPosition());
         }
         int nMoleculesPerPlane = nMolecules/nPlanes;
-        IVector ba = box.getBoundary().getEdgeVector(0);
+        Vector ba = box.getBoundary().getEdgeVector(0);
         double a0 = ba.getX(0) / nx;
-        IVector bb = box.getBoundary().getEdgeVector(1);
+        Vector bb = box.getBoundary().getEdgeVector(1);
         double b0 = bb.getX(1) / ny;
-        IVector bc = box.getBoundary().getEdgeVector(2);
+        Vector bc = box.getBoundary().getEdgeVector(2);
         
         for (int i=0; i<nPlanes; i++) {
             drSum[i][0].TE(1.0/nMoleculesPerPlane);
@@ -100,11 +99,11 @@ public class MeterPlaneSlip implements IEtomicaDataSource {
             drSum[iPlane][1].PE(atomList.getAtom(1).getPosition());
         }
         int nMoleculesPerPlane = nMolecules/nPlanes;
-        IVector ba = box.getBoundary().getEdgeVector(0);
+        Vector ba = box.getBoundary().getEdgeVector(0);
         double a = ba.getX(0) / nx;
-        IVector bb = box.getBoundary().getEdgeVector(1);
+        Vector bb = box.getBoundary().getEdgeVector(1);
         double b = bb.getX(1) / ny;
-        IVector bc = box.getBoundary().getEdgeVector(2);
+        Vector bc = box.getBoundary().getEdgeVector(2);
         
         for (int i=0; i<nPlanes; i++) {
             drSum[i][0].TE(1.0/nMoleculesPerPlane);
@@ -133,12 +132,12 @@ public class MeterPlaneSlip implements IEtomicaDataSource {
     }
 
     protected final ISpecies species;
-    protected IBox box;
-    protected final IVectorMutable[][] drSum;
+    protected Box box;
+    protected final Vector[][] drSum;
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
-    protected IAtomPositionDefinition pos;
+    protected IMoleculePositionDefinition pos;
     protected final double[][] offset0;
     protected final int nx, ny;
 }

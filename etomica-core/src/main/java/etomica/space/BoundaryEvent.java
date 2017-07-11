@@ -4,18 +4,21 @@
 
 package etomica.space;
 
-import etomica.api.IBoundary;
-import etomica.api.IBoundaryEvent;
+/**
+ * Event that informs a listener about some change to a boundary.
+ */
+public class BoundaryEvent {
 
-public class BoundaryEvent implements IBoundaryEvent {
-
-    protected IBoundary boundary = null;
+    protected Boundary boundary;
     
-    public BoundaryEvent(IBoundary _boundary) {
-        boundary = _boundary;
+    public BoundaryEvent(Boundary boundary) {
+        this.boundary = boundary;
     }
-    
-    public IBoundary getBoundary() {
+
+    /**
+     * @return the boundary which has changed.
+     */
+    public Boundary getBoundary() {
         return boundary;
     }
 }

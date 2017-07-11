@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.potential;
-import etomica.space.ISpace;
-import etomica.units.Dimension;
-import etomica.units.Energy;
-import etomica.units.Length;
+import etomica.space.Space;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Length;
 
 /*
  * Same Morse potential as in original P2Morse.java, but with different formulation
@@ -26,11 +26,11 @@ import etomica.units.Length;
 
 public final class P2Morse extends Potential2SoftSpherical {
 
-    public P2Morse(ISpace space) {
+    public P2Morse(Space space) {
         this(space, 1.0, 1.0, 1.0);
     }
     
-    public P2Morse(ISpace space, double epsilon, double re, double a) {
+    public P2Morse(Space space, double epsilon, double re, double a) {
         super(space);
         setEpsilon(epsilon);
         setRe(re);

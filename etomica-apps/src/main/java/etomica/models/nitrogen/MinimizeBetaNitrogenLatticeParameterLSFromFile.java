@@ -4,13 +4,9 @@
 
 package etomica.models.nitrogen;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
 import etomica.box.Box;
 import etomica.data.DataInfo;
+import etomica.data.FunctionData;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
@@ -20,12 +16,14 @@ import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveTriclinic;
 import etomica.models.nitrogen.LatticeSumCrystalMolecular.DataGroupLSC;
+import etomica.molecule.IMoleculeList;
 import etomica.normalmode.BasisBigCell;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
 import etomica.space.Space;
-import etomica.units.Energy;
-import etomica.util.FunctionGeneral;
+import etomica.units.dimensions.Energy;
+
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * 
@@ -46,7 +44,7 @@ import etomica.util.FunctionGeneral;
  */
 public class MinimizeBetaNitrogenLatticeParameterLSFromFile extends Simulation {
 	
-	public MinimizeBetaNitrogenLatticeParameterLSFromFile(ISpace space, double density, double[] u, double rC){
+	public MinimizeBetaNitrogenLatticeParameterLSFromFile(Space space, double density, double[] u, double rC){
 		super(space);
 		this.space = space;
 		this.density = density;
@@ -100,7 +98,7 @@ public class MinimizeBetaNitrogenLatticeParameterLSFromFile extends Simulation {
 		
 		this.nLayer = (int)(rC/aDim+0.5);
 		
-		FunctionGeneral function = new FunctionGeneral() {
+		FunctionData<Object> function = new FunctionData<Object>() {
 			public IData f(Object obj) {
 				data.x = potential.energy((IMoleculeList)obj);
 				return data;
@@ -145,7 +143,7 @@ public class MinimizeBetaNitrogenLatticeParameterLSFromFile extends Simulation {
 		coordDef.setOrientationVectorBetaLatticeSum(space, density, param);
 		coordDef.initializeCoordinates(new int[]{1,1,1});
 		
-		FunctionGeneral function = new FunctionGeneral() {
+		FunctionData<Object> function = new FunctionData<Object>() {
 			public IData f(Object obj) {
 				data.x = potential.energy((IMoleculeList)obj);
 				return data;
@@ -559,11 +557,11 @@ public class MinimizeBetaNitrogenLatticeParameterLSFromFile extends Simulation {
 	
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected P2Nitrogen potential;
-	protected IBox box, ghostBox;
+	protected Box box, ghostBox;
 	protected SpeciesN2 species;
 	protected double density;
 	protected Basis basis;
-	protected ISpace space;
+	protected Space space;
 	protected Primitive primitive;
 	protected double [] parameters;  
 	protected int[] nC;

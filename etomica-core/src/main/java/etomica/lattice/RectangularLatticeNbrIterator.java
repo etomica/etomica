@@ -4,7 +4,7 @@
 
 package etomica.lattice;
 
-import etomica.atom.iterator.IteratorDirective;
+import etomica.potential.IteratorDirective;
 
 /**
  * An abstract iterator that generates the neighboring sites of a given site.  

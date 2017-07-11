@@ -4,8 +4,8 @@
 
 package etomica.normalmode;
 
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
+import etomica.box.Box;
+import etomica.potential.PotentialMaster;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -13,7 +13,7 @@ import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * Meter whose purpose in life is to measure the overlap between systems
@@ -41,7 +41,7 @@ public class MeterOverlapSwitch implements IEtomicaDataSource {
     public int count;
     
     
-    public MeterOverlapSwitch(IPotentialMaster potentialMasterRef, IPotentialMaster potentialMasterTarget) {
+    public MeterOverlapSwitch(PotentialMaster potentialMasterRef, PotentialMaster potentialMasterTarget) {
         meterRef = new MeterPotentialEnergy(potentialMasterRef);
         meterTarget = new MeterPotentialEnergy(potentialMasterTarget);
         meterTarget.setIncludeLrc(false);
@@ -56,7 +56,7 @@ public class MeterOverlapSwitch implements IEtomicaDataSource {
         return tag;
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         meterRef.setBox(newBox);
         meterTarget.setBox(newBox);
     }

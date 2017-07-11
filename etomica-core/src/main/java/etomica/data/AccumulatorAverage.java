@@ -6,7 +6,7 @@ package etomica.data;
 
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 import etomica.util.EnumeratedType;
 
 /**

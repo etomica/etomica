@@ -4,16 +4,14 @@
 
 package etomica.models.oneDHardRods;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.IVectorMutable;
-import etomica.atom.Atom;
+import etomica.potential.PotentialMaster;
+import etomica.space.Vector;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 
 /**
@@ -29,7 +27,7 @@ public class MeterWidomModeReal extends DataSourceScalar {
     private CoordinateDefinition coordinateDefinition;
     private int coordinateDim;
     private double eigenVectors[][][];
-    private IVectorMutable[] waveVectors;
+    private Vector[] waveVectors;
     private double[] realT, imagT;
     private double[][] uOld, omegaSquared, oneOverOmega2;
     protected double temperature;
@@ -37,8 +35,8 @@ public class MeterWidomModeReal extends DataSourceScalar {
     private double[] waveVectorCoefficients, sqrtWVC;
     
     
-    public MeterWidomModeReal(String string, IPotentialMaster 
-            potentialMaster, CoordinateDefinition cd, IBox box, int awv){
+    public MeterWidomModeReal(String string, PotentialMaster
+            potentialMaster, CoordinateDefinition cd, Box box, int awv){
         super(string, Null.DIMENSION);
         setCoordinateDefinition(cd);
         realT = new double[coordinateDim];
@@ -133,7 +131,7 @@ public class MeterWidomModeReal extends DataSourceScalar {
     public void setEigenVectors(double[][][] eigenVectors) {
         this.eigenVectors = eigenVectors;
     }
-    public void setWaveVectors(IVectorMutable[] waveVectors) {
+    public void setWaveVectors(Vector[] waveVectors) {
         this.waveVectors = waveVectors;
     }
     public void setAffectedWV(int awv) {

@@ -4,19 +4,19 @@
 
 package etomica.integrator;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
-import etomica.space.ISpace;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * Constant NVT Molecular Dynamics Integrator-Constraint Method
@@ -35,17 +35,17 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource<
     private static final long serialVersionUID = 1L;
     public final PotentialCalculationForceSum forceSum;
     private final IteratorDirective allAtoms;
-    IVectorMutable work, work1, work2, work3, work4;
+    Vector work, work1, work2, work3, work4;
     double halfTime, mass;
 
     protected AtomLeafAgentManager<Agent> agentManager;
 
-    public IntegratorConNVT(ISimulation sim, IPotentialMaster potentialMaster, ISpace space) {
+    public IntegratorConNVT(Simulation sim, PotentialMaster potentialMaster, Space space) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, space);
     }
     
-    public IntegratorConNVT(IPotentialMaster potentialMaster, IRandom random, 
-            double timeStep, double temperature, ISpace space) {
+    public IntegratorConNVT(PotentialMaster potentialMaster, IRandom random,
+                            double timeStep, double temperature, Space space) {
         super(potentialMaster,random,timeStep,temperature, space);
         forceSum = new PotentialCalculationForceSum();
         allAtoms = new IteratorDirective();
@@ -59,12 +59,12 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource<
     }
 
 	
-    public void setBox(IBox p) {
-        if (box != null) {
+    public void setBox(Box box) {
+        if (this.box != null) {
             agentManager.dispose();
         }
-        super.setBox(p);
-        agentManager = new AtomLeafAgentManager<Agent>(this,p,Agent.class);
+        super.setBox(box);
+        agentManager = new AtomLeafAgentManager<Agent>(this, box,Agent.class);
         forceSum.setAgentManager(agentManager);
     }
     
@@ -102,11 +102,11 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource<
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            IVectorMutable v = a.getVelocity();
+            Vector v = a.getVelocity();
 
             work1.E(v); //work1 = v
             work2.E(agentManager.getAgent(a).force);	//work2=F
-            work1.PEa1Tv1(halfTime*((IAtom)a).getType().rm(),work2); //work1= p/m + F*Dt2/m = v + F*Dt2/m
+            work1.PEa1Tv1(halfTime* a.getType().rm(),work2); //work1= p/m + F*Dt2/m = v + F*Dt2/m
 
             k+=work1.squared();
         }   
@@ -118,11 +118,11 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource<
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             Agent agent = agentManager.getAgent(a);
-            IVectorMutable v = a.getVelocity();
+            Vector v = a.getVelocity();
 
             double scale = (2.0*chi-1.0); 
             work3.Ea1Tv1(scale,v); 
-            work4.Ea1Tv1(chi*((IAtom)a).getType().rm(),agent.force);
+            work4.Ea1Tv1(chi* a.getType().rm(),agent.force);
             work4.TE(timeStep);
             work3.PE(work4);
             v.E(work3);
@@ -130,8 +130,8 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource<
 
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            IVectorMutable r = a.getPosition();
-            IVectorMutable v = a.getVelocity();
+            Vector r = a.getPosition();
+            Vector v = a.getVelocity();
 
             work.Ea1Tv1(timeStep,v);
             work.PE(r);
@@ -140,20 +140,20 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource<
   	}
     
 
-    public Agent makeAgent(IAtom a, IBox agentBox) {
+    public Agent makeAgent(IAtom a, Box agentBox) {
         return new Agent(space);
     }
     
-    public void releaseAgent(Agent agent, IAtom atom, IBox agentBox) {}
+    public void releaseAgent(Agent agent, IAtom atom, Box agentBox) {}
             
 	public final static class Agent implements IntegratorBox.Forcible {  //need public so to use with instanceof
-        public IVectorMutable force;
+        public Vector force;
 
-        public Agent(ISpace space) {
+        public Agent(Space space) {
             force = space.makeVector();
         }
         
-        public IVectorMutable force() {return force;}
+        public Vector force() {return force;}
     }
     
 }

@@ -6,11 +6,11 @@
 package etomica.graphics;
 import java.awt.Color;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.units.Dimension;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
+import etomica.units.dimensions.Dimension;
 import etomica.units.Kelvin;
-import etomica.units.Temperature;
+import etomica.units.dimensions.Temperature;
 /**
  * Colors atoms according to their kinetic energy.
  * Atoms with high KE are colored red, and those with low KE are colored blue.

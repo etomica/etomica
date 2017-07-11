@@ -3,30 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.metastable;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IIntegratorEvent;
-import etomica.api.IIntegratorListener;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverage.StatType;
-import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
-import etomica.data.DataDump;
 import etomica.data.DataPump;
 import etomica.data.DataPumpListener;
+import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.meter.MeterPressure;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
@@ -35,27 +27,31 @@ import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.units.Energy;
+import etomica.units.dimensions.Energy;
 import etomica.units.Pixel;
 import etomica.units.SimpleUnit;
-import etomica.util.HistoryCollapsingAverage;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.RandomMersenneTwister;
+import etomica.util.random.RandomMersenneTwister;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 public class LJNVT extends Simulation {
     
     public final PotentialMasterCell potentialMaster;
     public final SpeciesSpheresMono species;
-    public final IBox box;
+    public final Box box;
     public final ActivityIntegrate activityIntegrate;
     public final IntegratorMC integrator;
     public final MCMoveAtom mcMoveAtom;
 
-    public LJNVT(ISpace _space, int numAtoms, double temperature, double density, double rc, int[] seeds) {
+    public LJNVT(Space _space, int numAtoms, double temperature, double density, double rc, int[] seeds) {
         super(_space);
         if (seeds != null) {
             setRandom(new RandomMersenneTwister(seeds));
@@ -77,8 +73,8 @@ public class LJNVT extends Simulation {
         //instantiate several potentials for selection in combo-box
 	    P2LennardJones potential = new P2LennardJones(space);
         P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(space, potential, rc);
-	    potentialMaster.addPotential(p2Truncated, new IAtomType[]{species.getLeafType(), species.getLeafType()});
-	    
+        potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
+
         //construct box
 	    box = new Box(space);
         addBox(box);
@@ -104,7 +100,7 @@ public class LJNVT extends Simulation {
         }
         else {
         }
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         final int numAtoms = params.numAtoms;
         double temperature = params.temperature;
         double temperature0 = params.temperature0;
@@ -194,15 +190,15 @@ public class LJNVT extends Simulation {
 
             sim.integrator.setTemperature(temperature);
             sim.activityIntegrate.setMaxSteps(numSteps);
-            sim.integrator.getEventManager().addListener(new IIntegratorListener() {
+            sim.integrator.getEventManager().addListener(new IntegratorListener() {
 
                 int count = 0;
                 int interval = numAtoms;
                 
-                public void integratorStepStarted(IIntegratorEvent e) {
+                public void integratorStepStarted(IntegratorEvent e) {
                 }
                 
-                public void integratorStepFinished(IIntegratorEvent e) {
+                public void integratorStepFinished(IntegratorEvent e) {
                     interval--;
                     if (interval > 0) return;
                     interval = numAtoms;
@@ -220,7 +216,7 @@ public class LJNVT extends Simulation {
                     if (U<-1) sim.activityIntegrate.setMaxSteps(0);
                 }
                 
-                public void integratorInitialized(IIntegratorEvent e) {
+                public void integratorInitialized(IntegratorEvent e) {
                 }
             });
             

@@ -10,7 +10,7 @@ import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 public class DataProcessorBoltzmannFactor extends DataProcessor {
 

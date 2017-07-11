@@ -7,12 +7,11 @@ package etomica.action;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.space.Vector;
+import etomica.space.Space;
 
 /**
  * Dumps a box's configuration to a file.  The coordinates are written in a 
@@ -22,7 +21,7 @@ import etomica.space.ISpace;
  */
 public class WriteConfiguration implements IAction {
 
-	public WriteConfiguration(ISpace space) {
+	public WriteConfiguration(Space space) {
         writePosition = space.makeVector();
         setDoApplyPBC(true);
 	}
@@ -49,14 +48,14 @@ public class WriteConfiguration implements IAction {
     /**
      * Sets the box whose atom coordinates get written to the file.
      */
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
 
     /**
      * Returns the box whose atom coordinates get written to the file.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
 
@@ -103,7 +102,7 @@ public class WriteConfiguration implements IAction {
     protected void writeAtom(FileWriter fileWriter, IAtom a) throws IOException {
         writePosition.E(a.getPosition());
         if (doApplyPBC) {
-            IVector shift = box.getBoundary().centralImage(writePosition);
+            Vector shift = box.getBoundary().centralImage(writePosition);
             if (!shift.isZero()) {
                 writePosition.PE(shift);
             }
@@ -117,8 +116,8 @@ public class WriteConfiguration implements IAction {
     }
 
     protected String confName, fileName;
-    protected IBox box;
+    protected Box box;
     protected boolean doApplyPBC;
-    protected final IVectorMutable writePosition;
+    protected final Vector writePosition;
 
 }

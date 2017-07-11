@@ -4,23 +4,21 @@
 
 package etomica.models.nitrogen;
 
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
+import etomica.molecule.IMoleculeList;
 import etomica.normalmode.BasisBigCell;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.ISpace;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.Degree;
 
 /**
@@ -41,7 +39,7 @@ import etomica.units.Degree;
 public class MinimizeBetaNitrogenLatticeParameter extends Simulation {
 	
 
-	public MinimizeBetaNitrogenLatticeParameter(ISpace space, int[] nC, double density){
+	public MinimizeBetaNitrogenLatticeParameter(Space space, int[] nC, double density){
 		super(space);
 		this.space = space;
 		this.density = density;
@@ -63,7 +61,7 @@ public class MinimizeBetaNitrogenLatticeParameter extends Simulation {
 		addBox(box);
 		box.setNMolecules(species, numMolecule);
 		
-		boxDim = new IVector[3];
+		boxDim = new Vector[3];
 		boxDim[0] = space.makeVector(new double[]{nC[0]*aDim, 0, 0});
 		boxDim[1] = space.makeVector(new double[]{-nC[1]*aDim*Math.cos(Degree.UNIT.toSim(60)), nC[1]*aDim*Math.sin(Degree.UNIT.toSim(60)), 0});
 		boxDim[2] = space.makeVector(new double[]{0, 0, nC[2]*cDim});
@@ -418,13 +416,13 @@ public class MinimizeBetaNitrogenLatticeParameter extends Simulation {
 	protected CoordinateDefinitionNitrogen coordinateDefinition;
 	protected MeterPotentialEnergy meterPotential;
 	protected PotentialMaster potentialMaster;
-	protected IBox box;
+	protected Box box;
 	protected SpeciesN2 species;
 	protected double density;
-	protected ISpace space;
+	protected Space space;
 	protected Primitive primitive;
 	protected Boundary boundary;
-	protected IVector[] boxDim; 
+	protected Vector[] boxDim;
 	protected double aDim, cDim;
 	protected double [] parameters;  
 	protected int[] nC;

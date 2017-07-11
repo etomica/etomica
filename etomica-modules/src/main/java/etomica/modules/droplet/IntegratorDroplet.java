@@ -4,26 +4,26 @@
 
 package etomica.modules.droplet;
 
-import java.io.Serializable;
-
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMD;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialCalculationForceSum;
-import etomica.space.ISpace;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.util.Debug;
+import etomica.util.random.IRandom;
+
+import java.io.Serializable;
 
 /**
  * Mesoscale integrator for Droplet module.
@@ -37,16 +37,16 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
     protected final Tensor pressureTensor;
     protected final Tensor workTensor, workTensor2;
     protected final Tensor identity;
-    protected final IVectorMutable dr;
+    protected final Vector dr;
 
     protected AtomLeafAgentManager<MyAgent> agentManager;
 
-    public IntegratorDroplet(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
+    public IntegratorDroplet(Simulation sim, PotentialMaster potentialMaster, Space _space) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
     }
 
-    public IntegratorDroplet(IPotentialMaster potentialMaster, IRandom random,
-            double timeStep, double temperature, ISpace _space) {
+    public IntegratorDroplet(PotentialMaster potentialMaster, IRandom random,
+                             double timeStep, double temperature, Space _space) {
         super(potentialMaster,random,timeStep,temperature, _space);
         // if you're motivated to throw away information earlier, you can use 
         // PotentialCalculationForceSum instead.
@@ -68,13 +68,13 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
         dr = space.makeVector();
     }
     
-    public void setBox(IBox p) {
-        if (box != null) {
+    public void setBox(Box box) {
+        if (this.box != null) {
             // allow agentManager to de-register itself as a BoxListener
             agentManager.dispose();
         }
-        super.setBox(p);
-        agentManager = new AtomLeafAgentManager<MyAgent>(this,p,MyAgent.class);
+        super.setBox(box);
+        agentManager = new AtomLeafAgentManager<MyAgent>(this, box,MyAgent.class);
         forceSum.setAgentManager(agentManager);
     }
 
@@ -99,7 +99,7 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             MyAgent agent = agentManager.getAgent(a);
-            IVectorMutable r = a.getPosition();
+            Vector r = a.getPosition();
             r.E(agent.r0);
             r.PEa1Tv1(0.5*timeStep, a.getVelocity());
             agent.rp.PEa1Tv1(timeStep/6.0, a.getVelocity());
@@ -116,7 +116,7 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             MyAgent agent = agentManager.getAgent(a);
-            IVectorMutable r = a.getPosition();
+            Vector r = a.getPosition();
             r.E(agent.r0);
             r.PEa1Tv1(0.5*timeStep, a.getVelocity());
             agent.rp.PEa1Tv1(timeStep/3.0, a.getVelocity());
@@ -133,7 +133,7 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             MyAgent agent = agentManager.getAgent(a);
-            IVectorMutable r = a.getPosition();
+            Vector r = a.getPosition();
             r.E(agent.r0);
             r.PEa1Tv1(timeStep, a.getVelocity());
             agent.rp.PEa1Tv1(timeStep/3.0, a.getVelocity());
@@ -177,12 +177,12 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            IVectorMutable v = a.getVelocity();
+            Vector v = a.getVelocity();
             v.E(0);
         }
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            IVectorMutable v = a.getVelocity();
+            Vector v = a.getVelocity();
             dr.E(0);
             stokeslet(sp);
             MyAgent iAgent = agentManager.getAgent(a);
@@ -201,7 +201,7 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
 
                 dr.Ea1Tv1(dv,iAgent.force);
                 workTensor.transform(dr);
-                IVectorMutable vj = aj.getVelocity();
+                Vector vj = aj.getVelocity();
                 vj.PE(dr);
             }
         }
@@ -255,7 +255,7 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
         if (Debug.ON && Debug.DEBUG_NOW) {
             IAtomList pair = Debug.getAtoms(box);
             if (pair != null) {
-                IVectorMutable dr = space.makeVector();
+                Vector dr = space.makeVector();
                 dr.Ev1Mv2(pair.getAtom(1).getPosition(), pair.getAtom(0).getPosition());
                 System.out.println(pair+" dr "+dr);
             }
@@ -267,25 +267,25 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
 
 //--------------------------------------------------------------
 
-    public final MyAgent makeAgent(IAtom a, IBox agentBox) {
+    public final MyAgent makeAgent(IAtom a, Box agentBox) {
         return new MyAgent(space);
     }
     
-    public void releaseAgent(MyAgent agent, IAtom atom, IBox agentBox) {}
+    public void releaseAgent(MyAgent agent, IAtom atom, Box agentBox) {}
             
     public final static class MyAgent implements IntegratorBox.Forcible, Serializable {  //need public so to use with instanceof
         private static final long serialVersionUID = 1L;
-        public IVectorMutable force;
-        public IVectorMutable r0; // position at the beginning of the timestep
-        public IVectorMutable rp;
+        public Vector force;
+        public Vector r0; // position at the beginning of the timestep
+        public Vector rp;
 
-        public MyAgent(ISpace space) {
+        public MyAgent(Space space) {
             force = space.makeVector();
             r0 = space.makeVector();
             rp = space.makeVector();
         }
         
-        public IVectorMutable force() {return force;}
+        public Vector force() {return force;}
     }
     
 }

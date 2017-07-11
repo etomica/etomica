@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.modules.materialfracture;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
-import etomica.units.Pressure2D;
+import etomica.units.dimensions.Pressure2D;
 
 /**
  * Meter that calculates the stress within the gage cell.
@@ -24,5 +24,5 @@ public class MeterLoad extends DataSourceScalar {
     }
 
     protected final PotentialCalculationForceStress pc;
-    protected IBox box;
+    protected Box box;
 }

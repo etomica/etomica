@@ -4,15 +4,15 @@
 
 package etomica.normalmode;
 
-import etomica.api.IBox;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
-import etomica.atom.iterator.MoleculeIteratorAllMolecules;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorMD;
+import etomica.molecule.iterator.MoleculeIteratorAllMolecules;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
-import etomica.space.ISpace;
-import etomica.units.Null;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.units.dimensions.Null;
+import etomica.util.random.IRandom;
 
 /**
  * 
@@ -23,7 +23,7 @@ import etomica.units.Null;
  */
 public class IntegratorHarmonic extends IntegratorMD {
 
-    public IntegratorHarmonic(IRandom random, double timeStep, double temperature, ISpace _space) {
+    public IntegratorHarmonic(IRandom random, double timeStep, double temperature, Space _space) {
         super(null,random, timeStep, temperature, _space);
         iterator = new MoleculeIteratorAllMolecules();
         // make IntergratorMD happy.
@@ -60,11 +60,11 @@ public class IntegratorHarmonic extends IntegratorMD {
         temperature = newTemperature;
     }
     
-    public void setWaveVectors(IVectorMutable[] newWaveVectors) {
+    public void setWaveVectors(Vector[] newWaveVectors) {
         waveVectors = newWaveVectors;
     }
     
-    public IVectorMutable[] getWaveVectors(){
+    public Vector[] getWaveVectors(){
     	return waveVectors;
     }
     
@@ -76,9 +76,9 @@ public class IntegratorHarmonic extends IntegratorMD {
    		eigenVectors = newEigenVectors;
     }
     
-    public void setBox(IBox newBox) {
-        super.setBox(newBox);
-        iterator.setBox(newBox);
+    public void setBox(Box box) {
+        super.setBox(box);
+        iterator.setBox(box);
 
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         u = new double[coordinateDim];
@@ -212,7 +212,7 @@ public class IntegratorHarmonic extends IntegratorMD {
     private final MoleculeIteratorAllMolecules iterator;
     private double[][] omega;
     private double[][][] eigenVectors;
-    private IVectorMutable[] waveVectors;
+    private Vector[] waveVectors;
     private double[] waveVectorCoefficients;
     protected double[] u;
     protected double[][] Qr;

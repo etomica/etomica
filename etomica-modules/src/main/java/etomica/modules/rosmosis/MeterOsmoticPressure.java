@@ -4,15 +4,15 @@
 
 package etomica.modules.rosmosis;
 
-import etomica.api.IBox;
-import etomica.api.IVector;
+import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
-import etomica.units.Pressure;
+import etomica.units.dimensions.Pressure;
 
 /**
  * Meter to measure flux across a boundary or boundaries.  If an atom is on one
@@ -29,7 +29,7 @@ import etomica.units.Pressure;
  */
 public class MeterOsmoticPressure implements IEtomicaDataSource {
 
-    public MeterOsmoticPressure(IPotentialCalculationWallForce pc, IBox box) {
+    public MeterOsmoticPressure(IPotentialCalculationWallForce pc, Box box) {
         this.pc = pc;
         this.box = box;
         data = new DataDouble();
@@ -38,7 +38,7 @@ public class MeterOsmoticPressure implements IEtomicaDataSource {
     }
     
     public IData getData() {
-        IVector dimensions = box.getBoundary().getBoxSize();
+        Vector dimensions = box.getBoundary().getBoxSize();
         data.x = -pc.getWallForce() / (dimensions.getX(1) * dimensions.getX(2));
         return data;
     }
@@ -52,7 +52,7 @@ public class MeterOsmoticPressure implements IEtomicaDataSource {
     }
 
     protected final IPotentialCalculationWallForce pc;
-    protected final IBox box;
+    protected final Box box;
     protected DataDouble data;
     protected DataInfoDouble dataInfo;
     protected DataTag tag;

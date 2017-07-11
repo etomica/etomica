@@ -4,20 +4,19 @@
 
 package etomica.models.nitrogen;
 
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.util.random.IRandom;
+import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Tensor3D;
 import etomica.units.Degree;
-import etomica.util.RandomNumberGenerator;
+import etomica.util.random.RandomNumberGenerator;
 
 public class TestRotationVector {
 
 	public TestRotationVector(){
 		space = Space.getInstance(3);
-		axis = new IVectorMutable[3];
+		axis = new Vector[3];
 		for (int i=0; i<3; i++){
 			axis[i] = space.makeVector();
 		}
@@ -34,7 +33,7 @@ public class TestRotationVector {
 		rotationAxis = space.makeVector();
 	}
 	
-	public double[] calcU(IVectorMutable vector){
+	public double[] calcU(Vector vector){
 		System.out.println("In calcU");
 		double u3 = vector.dot(axis[1]);
 		double u4 = vector.dot(axis[2]);
@@ -81,7 +80,7 @@ public class TestRotationVector {
 		return u; 
 	}
 	
-	public void setToU(double[] u, IVectorMutable r){
+	public void setToU(double[] u, Vector r){
 		System.out.println("In setToU");
 		double angle = Math.acos(r.dot(axis[0]));
 		
@@ -155,7 +154,7 @@ public class TestRotationVector {
 	public static void main (String[] args){
 		TestRotationVector testVector = new TestRotationVector();
 		
-		IVectorMutable rVector = testVector.space.makeVector();
+		Vector rVector = testVector.space.makeVector();
 		rVector.E(new double[]{-0.99, 0.01, 0.01});
 		rVector.normalize();
 		System.out.println("Initial position: " + rVector.toString());
@@ -174,11 +173,11 @@ public class TestRotationVector {
 	}
 	
 	protected double[] u;
-	protected IVectorMutable[] axis;
-	protected ISpace space;
+	protected Vector[] axis;
+	protected Space space;
 	protected Tensor3D tensor;
 	protected RotationTensor3D rotation;
-	protected IVectorMutable rotationAxis;
+	protected Vector rotationAxis;
 	
 	
 	

@@ -4,11 +4,11 @@
 
 package etomica.potential;
 
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
+import etomica.box.Box;
+import etomica.space.Vector;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
@@ -30,14 +30,14 @@ import etomica.util.Constants;
 public class P2DiscreteFeynmanHibbs implements Potential2Spherical {
 
     protected final Potential2Spherical p2Classy;
-    protected final IVectorMutable dr;
-    protected IBoundary boundary;
+    protected final Vector dr;
+    protected Boundary boundary;
     protected double temperature;
     protected double mass;
     protected double fac, stepFactor = 0.5;
     protected int nPoints = 2;
     
-    public P2DiscreteFeynmanHibbs(ISpace space, Potential2Spherical p2Classical) {
+    public P2DiscreteFeynmanHibbs(Space space, Potential2Spherical p2Classical) {
         p2Classy = p2Classical;
         dr = space.makeVector();
     }
@@ -102,7 +102,7 @@ public class P2DiscreteFeynmanHibbs implements Potential2Spherical {
         return ueff/pnorm;
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         p2Classy.setBox(box);
         boundary = box.getBoundary();
     }
@@ -112,7 +112,7 @@ public class P2DiscreteFeynmanHibbs implements Potential2Spherical {
     }
 
     public static void main(String[] args) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         double temperature = Kelvin.UNIT.toSim(1);
         final P2HePCKLJS p2 = new P2HePCKLJS(space);
         P2DiscreteFeynmanHibbs p2dfh = new P2DiscreteFeynmanHibbs(space, p2);
@@ -141,8 +141,8 @@ public class P2DiscreteFeynmanHibbs implements Potential2Spherical {
         private final double temperature;
         private final double temperatureK;
 
-        public P2HeEmpericalQuantum(ISpace space, P2HePCKLJS p2,
-                double temperature) {
+        public P2HeEmpericalQuantum(Space space, P2HePCKLJS p2,
+                                    double temperature) {
             super(space);
             this.p2 = p2;
             this.temperature = temperature;

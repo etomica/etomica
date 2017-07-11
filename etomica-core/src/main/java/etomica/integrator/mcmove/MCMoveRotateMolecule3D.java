@@ -3,37 +3,38 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.integrator.mcmove;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.space.ISpace;
+
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.molecule.IMoleculePositionDefinition;
+import etomica.molecule.MoleculePositionGeometricCenter;
+import etomica.potential.PotentialMaster;
 import etomica.space.RotationTensor;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 
 public class MCMoveRotateMolecule3D extends MCMoveMolecule {
     
     private static final long serialVersionUID = 2L;
-    protected transient IVectorMutable r0;
+    protected transient Vector r0;
     protected transient RotationTensor rotationTensor;
-    protected IAtomPositionDefinition positionDefinition;
+    protected IMoleculePositionDefinition positionDefinition;
     
-    public MCMoveRotateMolecule3D(IPotentialMaster potentialMaster, IRandom random,
-    		                      ISpace _space) {
+    public MCMoveRotateMolecule3D(PotentialMaster potentialMaster, IRandom random,
+                                  Space _space) {
         super(potentialMaster, random, _space, Math.PI/2, Math.PI);
         rotationTensor = _space.makeRotationTensor();
         r0 = _space.makeVector();
-        positionDefinition = new AtomPositionGeometricCenter(space);
+        positionDefinition = new MoleculePositionGeometricCenter(space);
     }
      
-    public IAtomPositionDefinition getPositionDefinition() {
+    public IMoleculePositionDefinition getPositionDefinition() {
 		return positionDefinition;
     }
 
-	public void setPositionDefinition(IAtomPositionDefinition positionDefinition) {
+	public void setPositionDefinition(IMoleculePositionDefinition positionDefinition) {
 		this.positionDefinition = positionDefinition;
 	}
 
@@ -63,7 +64,7 @@ public class MCMoveRotateMolecule3D extends MCMoveMolecule {
         IAtomList childList = molecule.getChildList();
         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
             IAtom a = childList.getAtom(iChild);
-            IVectorMutable r = a.getPosition();
+            Vector r = a.getPosition();
             r.ME(r0);
             box.getBoundary().nearestImage(r);
             rotationTensor.transform(r);

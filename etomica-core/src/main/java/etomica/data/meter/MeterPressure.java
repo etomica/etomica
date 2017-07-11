@@ -3,14 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.data.meter;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.atom.iterator.IteratorDirective;
+
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorBox;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationVirialSum;
-import etomica.space.ISpace;
-import etomica.units.Pressure;
+import etomica.potential.PotentialMaster;
+import etomica.space.Space;
+import etomica.units.dimensions.Pressure;
 
 /**
  * Meter for evaluation of the soft-potential pressure in a box.
@@ -23,7 +24,7 @@ import etomica.units.Pressure;
  
 public class MeterPressure extends DataSourceScalar {
     
-    public MeterPressure(ISpace space) {
+    public MeterPressure(Space space) {
     	super("Pressure",Pressure.dimension(space.D()));
     	dim = space.D();
         iteratorDirective = new IteratorDirective();
@@ -41,7 +42,7 @@ public class MeterPressure extends DataSourceScalar {
         integrator = newIntegrator;
     }
 
-    public void setPotentialMaster(IPotentialMaster newPotentialMaster) {
+    public void setPotentialMaster(PotentialMaster newPotentialMaster) {
         potentialMaster = newPotentialMaster;
     }
     
@@ -49,7 +50,7 @@ public class MeterPressure extends DataSourceScalar {
         temperature = newTemperature;
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
 
@@ -87,7 +88,7 @@ public class MeterPressure extends DataSourceScalar {
             throw new IllegalStateException("You must call setIntegrator before using this class");
         }
     	virial.zeroSum();
-    	IBox b = box;
+    	Box b = box;
     	if (b == null) {
     	    b = integrator.getBox();
     	}
@@ -105,8 +106,8 @@ public class MeterPressure extends DataSourceScalar {
     private IntegratorBox integrator;
     private IteratorDirective iteratorDirective;
     private final PotentialCalculationVirialSum virial;
-    protected IPotentialMaster potentialMaster;
+    protected PotentialMaster potentialMaster;
     protected double temperature;
-    protected IBox box;
+    protected Box box;
     private final int dim;
 }

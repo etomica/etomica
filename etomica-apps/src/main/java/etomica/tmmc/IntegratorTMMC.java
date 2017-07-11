@@ -8,9 +8,9 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
-import etomica.api.ISimulation;
-import etomica.api.IRandom;
-import etomica.api.IPotentialMaster;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.util.random.IRandom;
 
 /**
  * Integrator that implements Transition-Matrix Monte Carlo method.
@@ -19,11 +19,11 @@ import etomica.api.IPotentialMaster;
  */
 public class IntegratorTMMC extends IntegratorMC {
     
-    public IntegratorTMMC(ISimulation sim, IPotentialMaster potentialMaster) {
+    public IntegratorTMMC(Simulation sim, PotentialMaster potentialMaster) {
         this(potentialMaster, sim.getRandom(), 1.0);
     }
     
-    public IntegratorTMMC(IPotentialMaster potentialMaster, IRandom random, double temperature) {
+    public IntegratorTMMC(PotentialMaster potentialMaster, IRandom random, double temperature) {
         super(potentialMaster, random, temperature);
         setWeightUpdateInterval(1000000); //10^6
         trialEvent = new MCMoveTrialInitiatedEvent(moveManager);

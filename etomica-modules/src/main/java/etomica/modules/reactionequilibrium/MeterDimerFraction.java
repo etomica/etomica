@@ -4,12 +4,11 @@
 
 package etomica.modules.reactionequilibrium;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.ISpecies;
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -22,11 +21,8 @@ import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.data.types.DataTable;
 import etomica.data.types.DataTable.DataInfoTable;
-import etomica.units.CompoundDimension;
-import etomica.units.Dimension;
-import etomica.units.Fraction;
-import etomica.units.Quantity;
-import etomica.units.Volume;
+import etomica.species.ISpecies;
+import etomica.units.dimensions.*;
 
 public final class MeterDimerFraction implements IEtomicaDataSource {
     public MeterDimerFraction(AtomLeafAgentManager aam) {
@@ -103,13 +99,13 @@ public final class MeterDimerFraction implements IEtomicaDataSource {
     /**
      * @return Returns the box.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     /**
      * @param box The box to set.
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
         iterator.setBox(box);
     }
@@ -123,7 +119,7 @@ public final class MeterDimerFraction implements IEtomicaDataSource {
     }
 
     private String name;
-    private IBox box;
+    private Box box;
     private ISpecies speciesA;
     private final DataTable data;
     private final DataInfoTable dataInfo;

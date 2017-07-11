@@ -4,13 +4,11 @@
 
 package etomica.models.oneDHardRods;
 
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.space.Boundary;
 import etomica.box.Box;
+import etomica.util.random.IRandom;
+import etomica.simulation.Simulation;
+import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.nbr.list.PotentialMasterList;
@@ -20,8 +18,8 @@ import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.normalmode.NormalModes;
 import etomica.normalmode.WaveVectorFactory;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ISpace;
-import etomica.units.Null;
+import etomica.space.Space;
+import etomica.units.dimensions.Null;
 
 
 /**
@@ -40,7 +38,7 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
     protected MeterPotentialEnergy meterPE;
     protected CoordinateDefinition cDef, simCDef;
     protected int cDim, simCDim;
-    protected IVectorMutable[] waveVectors, simWaveVectors;
+    protected Vector[] waveVectors, simWaveVectors;
     protected double[] simRealT, simImagT;
     protected double temperature;
     protected double[] newU;
@@ -50,27 +48,27 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
     double[] gaussCoord;
     
     protected final IRandom random;
-    public IBox box;
+    public Box box;
     protected int numAtoms;
-    protected IBoundary bdry;
+    protected Boundary bdry;
     protected NormalModes nm;
     WaveVectorFactory waveVectorFactory;
     protected double etas[];
     protected double scaling;
     protected double sqrtTemperature;
     
-    public MeterDifferentImageAdd(ISimulation sim, ISpace space, double temp, 
-            CoordinateDefinition simCD, NormalModes simNM, CoordinateDefinition 
-            otherCD, PotentialMasterList potentialMaster, int[] otherNCells, 
-            NormalModes otherNM) {
+    public MeterDifferentImageAdd(Simulation sim, Space space, double temp,
+                                  CoordinateDefinition simCD, NormalModes simNM, CoordinateDefinition
+            otherCD, PotentialMasterList potentialMaster, int[] otherNCells,
+                                  NormalModes otherNM) {
         this(sim, space, temp, simCD, simNM, otherCD, potentialMaster, 
                 otherNCells, otherNM, "file");
     }
     
-    public MeterDifferentImageAdd(ISimulation sim, ISpace space, double temp, 
-            CoordinateDefinition simCD, NormalModes simNM, CoordinateDefinition 
-            otherCD, PotentialMasterList potentialMaster, int[] otherNCells, 
-            NormalModes otherNM, String otherFilename){
+    public MeterDifferentImageAdd(Simulation sim, Space space, double temp,
+                                  CoordinateDefinition simCD, NormalModes simNM, CoordinateDefinition
+            otherCD, PotentialMasterList potentialMaster, int[] otherNCells,
+                                  NormalModes otherNM, String otherFilename){
         
         super("MeterAdd", Null.DIMENSION);
         this.random = sim.getRandom();
@@ -105,7 +103,7 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
             bdry = new BoundaryRectangularPeriodic(space, numAtoms/ density);
         } else {
             bdry = new BoundaryRectangularPeriodic(space, 1.0);
-            IVector edges = otherCD.getBox().getBoundary().getBoxSize();
+            Vector edges = otherCD.getBox().getBoundary().getBoxSize();
             bdry.setBoxSize(edges);
         }
         box.setBoundary(bdry);
@@ -282,7 +280,7 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
     }
 
     
-    public IBox getBox(){
+    public Box getBox(){
         return box;
     }
     

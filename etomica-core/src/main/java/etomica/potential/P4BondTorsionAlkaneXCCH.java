@@ -4,24 +4,20 @@
 
 package etomica.potential;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IRandom;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Boundary;
+import etomica.box.Box;
+import etomica.util.random.IRandom;
+import etomica.space.Vector;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
-import etomica.box.Box;
 import etomica.box.RandomPositionSourceRectangular;
 import etomica.space.BoundaryRectangularNonperiodic;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Space3D;
-import etomica.util.RandomNumberGenerator;
+import etomica.util.random.RandomNumberGenerator;
 
 /**
  * slight modification from P4BondTorsion class(change energyAtAngle method)
@@ -32,7 +28,7 @@ import etomica.util.RandomNumberGenerator;
  * Mar 2013
  */
 public class P4BondTorsionAlkaneXCCH extends Potential implements PotentialSoft {
-	public P4BondTorsionAlkaneXCCH(ISpace space, double a0, double a1, double a2, double a3) {
+	public P4BondTorsionAlkaneXCCH(Space space, double a0, double a1, double a2, double a3) {
     	
         super(4, space);
         dr21 = space.makeVector();
@@ -47,13 +43,13 @@ public class P4BondTorsionAlkaneXCCH extends Potential implements PotentialSoft 
 
         gtmp = space.makeVector();
 
-        gradient = new IVectorMutable[4];
+        gradient = new Vector[4];
         for (int i=0; i<4; i++) {
             gradient[i] = space.makeVector();
         }
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 
@@ -97,7 +93,7 @@ public class P4BondTorsionAlkaneXCCH extends Potential implements PotentialSoft 
         return Double.POSITIVE_INFINITY;
     }
     
-    public IVector[] gradient(IAtomList atoms) {
+    public Vector[] gradient(IAtomList atoms) {
         IAtom atom0 = atoms.getAtom(0);
         IAtom atom1 = atoms.getAtom(1);
         IAtom atom2 = atoms.getAtom(2);
@@ -178,7 +174,7 @@ public class P4BondTorsionAlkaneXCCH extends Potential implements PotentialSoft 
         return gradient;
     }
 
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         return gradient(atoms);
     }
 
@@ -187,12 +183,12 @@ public class P4BondTorsionAlkaneXCCH extends Potential implements PotentialSoft 
     }
 
     private static final long serialVersionUID = 1L;
-    protected final IVectorMutable dr21, dr23, dr34;
-    protected final IVectorMutable v1, v2;
-    protected final IVectorMutable gtmp;
-    protected IBoundary boundary;
+    protected final Vector dr21, dr23, dr34;
+    protected final Vector v1, v2;
+    protected final Vector gtmp;
+    protected Boundary boundary;
     protected double a0, a1, a2, a3;
-    protected final IVectorMutable[] gradient;
+    protected final Vector[] gradient;
     
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
@@ -212,8 +208,8 @@ public class P4BondTorsionAlkaneXCCH extends Potential implements PotentialSoft 
         atoms.add(atom2);
         atoms.add(atom3);
         int n = 40;
-        IVectorMutable gradient = space.makeVector();
-        IVectorRandom dr = (IVectorRandom)space.makeVector();
+        Vector gradient = space.makeVector();
+        Vector dr = space.makeVector();
         for (int i=0; i<n; i++) {
             atom0.getPosition().E(positionSource.randomPosition());
             atom1.getPosition().E(positionSource.randomPosition());

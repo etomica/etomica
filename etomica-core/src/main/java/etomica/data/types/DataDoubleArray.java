@@ -6,14 +6,14 @@ package etomica.data.types;
 
 import java.util.Arrays;
 
-import etomica.api.IFunction;
+import etomica.math.function.IFunction;
 import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataInfoFactory;
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
 
 /**
  * Data object that wraps a mutable array of doubles. Data may be treated alternately as a simple 
@@ -63,7 +63,7 @@ public class DataDoubleArray implements IData, java.io.Serializable {
      */
     public DataDoubleArray(int[] arrayShape) {
         super();
-        this.arrayShape = (int[])arrayShape.clone();
+        this.arrayShape = arrayShape.clone();
         jumpCount = new int[arrayShape.length];
         //row-wise definition, as done in RectangularLattice
         jumpCount[arrayShape.length-1] = 1;
@@ -84,7 +84,7 @@ public class DataDoubleArray implements IData, java.io.Serializable {
     */
     public DataDoubleArray(int[] arrayShape, double[] xData) {
         super();
-        this.arrayShape = (int[])arrayShape.clone();
+        this.arrayShape = arrayShape.clone();
         jumpCount = new int[arrayShape.length];
         //row-wise definition, as done in RectangularLattice
         jumpCount[arrayShape.length-1] = 1;
@@ -359,7 +359,7 @@ public class DataDoubleArray implements IData, java.io.Serializable {
          * Returns the size of each dimension in the constructed DataDoubleArray.
          */
         public int[] getArrayShape() {
-            return (int[])arrayShape.clone();
+            return arrayShape.clone();
         }
         
         /**
@@ -388,7 +388,7 @@ public class DataDoubleArray implements IData, java.io.Serializable {
     public static class DataInfoDoubleArrayFactory extends DataInfoFactory {
         protected DataInfoDoubleArrayFactory(DataInfoDoubleArray template) {
             super(template);
-            arrayShape = (int[])template.arrayShape.clone();
+            arrayShape = template.arrayShape.clone();
         }
         
         public IEtomicaDataInfo makeDataInfo() {
@@ -403,14 +403,14 @@ public class DataDoubleArray implements IData, java.io.Serializable {
          * changes made to the given array will not be affect this factory.
          */
         public void setArrayShape(int[] newArrayShape) {
-            arrayShape = (int[])newArrayShape.clone();
+            arrayShape = newArrayShape.clone();
         }
         
         /**
          * Returns a copy of the array shape array.
          */
         public int[] getArrayShape() {
-            return (int[])arrayShape.clone();
+            return arrayShape.clone();
         }
         
         private static final long serialVersionUID = 1L;

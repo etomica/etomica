@@ -9,8 +9,7 @@ import etomica.action.IAction;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -41,7 +40,7 @@ public class TestHC2YukawaMC3D extends Simulation{
     public IntegratorMC integrator;
 	public MCMoveAtom mcMoveAtom;
 	public SpeciesSpheresMono species;
-	public IBox box;
+	public Box box;
 	public P2HC2Yukawa potential;
 	public Controller controller;
 	
@@ -77,9 +76,9 @@ public class TestHC2YukawaMC3D extends Simulation{
 		P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
 		potentialMaster.setCellRange(3);
 		potentialMaster.setRange(potentialTruncated.getRange());
-		potentialMaster.addPotential(potentialTruncated, new IAtomType[] {species.getLeafType(), species.getLeafType()});
-			
-		integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
+        potentialMaster.addPotential(potentialTruncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
+
+        integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
 		
 		new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
 		integrator.setBox(box);
@@ -106,7 +105,7 @@ public class TestHC2YukawaMC3D extends Simulation{
 		IAction repaintAction = simGraphic.getPaintAction(sim.box);
 
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
-        nSelector.setResetAction(new SimulationRestart(sim, sim.space, sim.getController()));
+        nSelector.setResetAction(new SimulationRestart(sim));
         nSelector.setPostAction(repaintAction);
         simGraphic.getController().getReinitButton().setPostAction(repaintAction);
 

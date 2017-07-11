@@ -5,11 +5,10 @@
 package etomica.tests;
 
 import etomica.action.ActionIntegrate;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.ISpecies;
+import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.box.Box;
+import etomica.config.Configuration;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConformationLinear;
 import etomica.data.AccumulatorAverage;
@@ -28,8 +27,9 @@ import etomica.potential.P2HardBond;
 import etomica.potential.P2SquareWell;
 import etomica.potential.PotentialGroup;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheres;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -42,9 +42,9 @@ import etomica.util.ParseArgs;
 public class TestSWChain extends Simulation {
 
     public IntegratorHard integrator;
-    public IBox box;
+    public Box box;
 
-    public TestSWChain(ISpace _space, int numMolecules, double simTime) {
+    public TestSWChain(Space _space, int numMolecules, double simTime, Configuration config) {
         super(_space);
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
         int chainLength = 10;
@@ -80,8 +80,8 @@ public class TestSWChain extends Simulation {
 
         P2SquareWell potential = new P2SquareWell(space,sigma,sqwLambda,0.5,false);
 
-        IAtomType sphereType = species.getLeafType();
-        potentialMaster.addPotential(potential,new IAtomType[]{sphereType,sphereType});
+        AtomType sphereType = species.getLeafType();
+        potentialMaster.addPotential(potential, new AtomType[]{sphereType, sphereType});
         CriterionInterMolecular sqwCriterion = (CriterionInterMolecular)potentialMaster.getCriterion(potential);
         CriterionBondedSimple nonBondedCriterion = new CriterionBondedSimple(new CriterionAll());
         nonBondedCriterion.setBonded(false);
@@ -94,7 +94,6 @@ public class TestSWChain extends Simulation {
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
 
         integrator.setBox(box);
-        ConfigurationFile config = new ConfigurationFile("SWChain"+Integer.toString(numMolecules));
         config.initializeCoordinates(box);
     }
     
@@ -103,9 +102,10 @@ public class TestSWChain extends Simulation {
         ParseArgs.doParseArgs(params, args);
         int numMolecules = params.numAtoms;
         double simTime = params.numSteps/numMolecules;
+        ConfigurationFile config = new ConfigurationFile("SWChain"+Integer.toString(numMolecules));
 
-        ISpace sp = Space3D.getInstance();
-        TestSWChain sim = new TestSWChain(sp, numMolecules, simTime);
+        Space sp = Space3D.getInstance();
+        TestSWChain sim = new TestSWChain(sp, numMolecules, simTime, config);
 
         MeterPressureHard pMeter = new MeterPressureHard(sim.space);
         pMeter.setIntegrator(sim.integrator);
@@ -118,12 +118,12 @@ public class TestSWChain extends Simulation {
         sim.getController().actionPerformed();
         
         double Z = pMeter.getDataAsScalar()*sim.box.getBoundary().volume()/(sim.box.getMoleculeList().getMoleculeCount()*sim.integrator.getTemperature());
-        double avgPE = ((DataDouble)((DataGroup)energyAccumulator.getData()).getData(energyAccumulator.AVERAGE.index)).x;
+        double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
         avgPE /= numMolecules;
         System.out.println("Z="+Z);
         System.out.println("PE/epsilon="+avgPE);
         double temp = sim.integrator.getTemperature();
-        double Cv = ((DataDouble)((DataGroup)energyAccumulator.getData()).getData(energyAccumulator.STANDARD_DEVIATION.index)).x;
+        double Cv = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(AccumulatorAverage.STANDARD_DEVIATION.index)).x;
         Cv /= temp;
         Cv *= Cv/numMolecules;
         System.out.println("Cv/k="+Cv);

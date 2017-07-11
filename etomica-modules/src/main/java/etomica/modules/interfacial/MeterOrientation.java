@@ -4,19 +4,19 @@
 
 package etomica.modules.interfacial;
 
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.data.DataSourceMolecular;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
-import etomica.space.ISpace;
-import etomica.units.Angle;
+import etomica.molecule.IMolecule;
+import etomica.space.Boundary;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.units.dimensions.Angle;
 
 /**
  * Meter for collecting the molecular orientation of the dimer.  The value
@@ -25,7 +25,7 @@ import etomica.units.Angle;
  */
 public class MeterOrientation implements DataSourceMolecular {
     
-    public MeterOrientation(ISpace space) {
+    public MeterOrientation(Space space) {
         dataInfo = new DataInfoDouble("orientation", Angle.DIMENSION);
         data = new DataDouble();
         tag = new DataTag();
@@ -36,7 +36,7 @@ public class MeterOrientation implements DataSourceMolecular {
         return tag;
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         boundary = newBox.getBoundary();
     }
     
@@ -57,6 +57,6 @@ public class MeterOrientation implements DataSourceMolecular {
     protected final DataInfoDouble dataInfo;
     protected final DataDouble data;
     protected final DataTag tag;
-    protected final IVectorMutable dr;
-    protected IBoundary boundary;
+    protected final Vector dr;
+    protected Boundary boundary;
 }

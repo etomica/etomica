@@ -4,12 +4,13 @@
 
 package etomica.potential;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
+import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
 import etomica.util.Debug;
 
 /**
@@ -34,13 +35,13 @@ public class P2HardSphere extends Potential2HardSpherical {
     protected double lastCollisionVirial = 0.0;
     protected double lastCollisionVirialr2 = 0.0;
     protected final boolean ignoreOverlap;
-    protected final IVectorMutable dv;
+    protected final Vector dv;
     protected final Tensor lastCollisionVirialTensor;
     
-    public P2HardSphere(ISpace space) {
+    public P2HardSphere(Space space) {
         this(space, 1.0, false);
     }
-    public P2HardSphere(ISpace space, double d, boolean ignoreOverlap) {
+    public P2HardSphere(Space space, double d, boolean ignoreOverlap) {
         super(space);
         setCollisionDiameter(d);
         lastCollisionVirialTensor = space.makeTensor();
@@ -96,8 +97,8 @@ public class P2HardSphere extends Potential2HardSpherical {
 
         double r2 = dr.squared();
         double bij = dr.dot(dv);
-        double rm0 = ((IAtom)atom0).getType().rm();
-        double rm1 = ((IAtom)atom1).getType().rm();
+        double rm0 = atom0.getType().rm();
+        double rm1 = atom1.getType().rm();
         double reducedMass = 2.0/(rm0 + rm1);
         lastCollisionVirial = reducedMass*bij;
         lastCollisionVirialr2 = lastCollisionVirial/r2;
@@ -133,8 +134,8 @@ public class P2HardSphere extends Potential2HardSpherical {
         collisionDiameter = c;
         sig2 = c*c;
     }
-    public etomica.units.Dimension getCollisionDiameterDimension() {
-        return etomica.units.Length.DIMENSION;
+    public Dimension getCollisionDiameterDimension() {
+        return Length.DIMENSION;
     }
     
     /**

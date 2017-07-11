@@ -4,15 +4,14 @@
 
 package etomica.potential;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
+import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.units.Dimension;
-import etomica.units.Energy;
-import etomica.units.Length;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Length;
 
 /**
  * Purely attractive square-well potential with no repulsive core.  Similar
@@ -23,11 +22,11 @@ import etomica.units.Length;
  */
 public class P2HardAssociation extends Potential2HardSpherical {
 
-    public P2HardAssociation(ISpace space) {
+    public P2HardAssociation(Space space) {
         this(space, 2.0, 1.0);
     }
     
-    public P2HardAssociation(ISpace space, double wellDiameter, double epsilon) {
+    public P2HardAssociation(Space space, double wellDiameter, double epsilon) {
         super(space);
         setEpsilon(epsilon);
         setWellDiameter(wellDiameter);
@@ -52,7 +51,7 @@ public class P2HardAssociation extends Potential2HardSpherical {
         double r2 = dr.squared();
         double bij = dr.dot(dv);
 
-        double reduced_m = 1/(((IAtom)atom0).getType().rm() + ((IAtom)atom1).getType().rm());
+        double reduced_m = 1/(atom0.getType().rm() + atom1.getType().rm());
         double nudge = 0;
         if (bij > 0.0) {    //Separating
             double ke = bij*bij*reduced_m/(2*r2);
@@ -186,5 +185,5 @@ public class P2HardAssociation extends Potential2HardSpherical {
     private double lastCollisionVirial, lastCollisionVirialr2;
     private final Tensor lastCollisionVirialTensor;
     private double lastEnergyChange;
-    private final IVectorMutable dv;
+    private final Vector dv;
 }

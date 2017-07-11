@@ -4,15 +4,15 @@
 
 package etomica.modules.dcvgcmd;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.data.IEtomicaDataSource;
-import etomica.units.Area;
-import etomica.units.CompoundDimension;
-import etomica.units.Dimension;
-import etomica.units.DimensionRatio;
-import etomica.units.Quantity;
-import etomica.units.Time;
+import etomica.units.dimensions.Area;
+import etomica.units.dimensions.CompoundDimension;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.DimensionRatio;
+import etomica.units.dimensions.Quantity;
+import etomica.units.dimensions.Time;
 
 public class MeterFlux extends DataSourceScalar implements IEtomicaDataSource {
     
@@ -35,17 +35,17 @@ public class MeterFlux extends DataSourceScalar implements IEtomicaDataSource {
     /**
      * @return Returns the box.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     /**
      * @param box The box to set.
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
     }
 
-    private IBox box;
+    private Box box;
     private double t0 = 0;
     private int n0 = 0;
     private MyMCMove mcMove;

@@ -4,8 +4,8 @@
 
 package etomica.meam;
 
-import etomica.api.IAtomList;
-import etomica.api.IPotentialAtomic;
+import etomica.atom.IAtomList;
+import etomica.potential.IPotentialAtomic;
 import etomica.potential.PotentialCalculationEnergySum;
 
 /**

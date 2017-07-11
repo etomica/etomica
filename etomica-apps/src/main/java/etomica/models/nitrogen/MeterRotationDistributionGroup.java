@@ -4,29 +4,29 @@
 
 package etomica.models.nitrogen;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Serializable;
-
 import etomica.action.IAction;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
+import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
+import etomica.data.histogram.HistogramExpanding;
+import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
+import etomica.math.DoubleRange;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.units.Null;
-import etomica.util.DoubleRange;
-import etomica.util.HistogramExpanding;
-import etomica.util.HistogramNotSoSimple;
+import etomica.units.dimensions.Null;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Serializable;
 
 /**
  * Meter that measures the spherical coordinate angles
@@ -39,7 +39,7 @@ import etomica.util.HistogramNotSoSimple;
  */
 public class MeterRotationDistributionGroup implements IEtomicaDataSource, IAction, Serializable {
 
-    public MeterRotationDistributionGroup(IBox newBox, CoordinateDefinitionNitrogen coordDef) {
+    public MeterRotationDistributionGroup(Box newBox, CoordinateDefinitionNitrogen coordDef) {
         tag = new DataTag();
         this.coordinateDefinition = coordDef;
  
@@ -76,8 +76,8 @@ public class MeterRotationDistributionGroup implements IEtomicaDataSource, IActi
             for (int iMol=0; iMol<numMolecules; iMol++){
             	
 	          	IMolecule molecule = molecules.getMolecule(iMol);
-	          	IVectorMutable leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-		    	IVectorMutable leafPos1 = molecule.getChildList().getAtom(1).getPosition();
+	          	Vector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
+		    	Vector leafPos1 = molecule.getChildList().getAtom(1).getPosition();
 		
 		    	molAxis.Ev1Mv2(leafPos1, leafPos0);
 		       	molAxis.normalize();
@@ -176,8 +176,8 @@ public class MeterRotationDistributionGroup implements IEtomicaDataSource, IActi
     
     private DataDoubleArray[] uDistributions;
     private DataInfoDoubleArray[] uDistributionsInfo;
-    private IVectorMutable initOrient;
-    private IVectorMutable molAxis;
+    private Vector initOrient;
+    private Vector molAxis;
     private double angle;
     
 }

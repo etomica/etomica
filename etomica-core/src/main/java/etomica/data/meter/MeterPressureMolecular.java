@@ -3,13 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.data.meter;
-import etomica.api.IBox;
-import etomica.atom.iterator.IteratorDirective;
+
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorBox;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationMolecularVirialSum;
-import etomica.space.ISpace;
-import etomica.units.Pressure;
+import etomica.space.Space;
+import etomica.units.dimensions.Pressure;
 
 /**
  * Meter for evaluation of the soft-potential (molecular) pressure in a box.
@@ -22,7 +23,7 @@ import etomica.units.Pressure;
  
 public class MeterPressureMolecular extends DataSourceScalar {
     
-    public MeterPressureMolecular(ISpace space) {
+    public MeterPressureMolecular(Space space) {
     	super("Pressure",Pressure.dimension(space.D()));
     	dim = space.D();
         iteratorDirective = new IteratorDirective();
@@ -73,7 +74,7 @@ public class MeterPressureMolecular extends DataSourceScalar {
             throw new IllegalStateException("You must call setIntegrator before using this class");
         }
     	virial.zeroSum();
-        IBox box = integrator.getBox();
+        Box box = integrator.getBox();
         integrator.getPotentialMaster().calculate(box, iteratorDirective, virial);
         return (box.getMoleculeList().getMoleculeCount() / box.getBoundary().volume())*integrator.getTemperature() - virial.getSum()/(box.getBoundary().volume()*dim);
     }

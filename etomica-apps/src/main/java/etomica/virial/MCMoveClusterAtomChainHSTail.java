@@ -4,11 +4,11 @@
 
 package etomica.virial;
 
-import etomica.api.IAtomList;
-import etomica.api.IRandom;
+import etomica.atom.IAtomList;
+import etomica.util.random.IRandom;
+import etomica.space.Vector;
 import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
+import etomica.space.Space;
 
 /**
  * Grows configurations of chains with the pair probability distribution that
@@ -16,10 +16,10 @@ import etomica.space.IVectorRandom;
  */
 public class MCMoveClusterAtomChainHSTail extends MCMoveAtom {
 
-    public MCMoveClusterAtomChainHSTail(IRandom random, ISpace _space, double sigma, double pow) {
+    public MCMoveClusterAtomChainHSTail(IRandom random, Space _space, double sigma, double pow) {
         super(random, null, _space);
         this.sigma = sigma;
-        dr = (IVectorRandom)space.makeVector();
+        dr = space.makeVector();
         this.pow = pow;
         
         totPCore = (pow-3) / pow;
@@ -31,7 +31,7 @@ public class MCMoveClusterAtomChainHSTail extends MCMoveAtom {
         int n = leafAtoms.getAtomCount();
 
         for (int i=1; i<n; i++) {
-            IVectorRandom pos = (IVectorRandom)leafAtoms.getAtom(i).getPosition();
+            Vector pos = leafAtoms.getAtom(i).getPosition();
             double rand = random.nextDouble();
             if (rand < totPCore) {
                 pos.setRandomInSphere(random);
@@ -66,7 +66,7 @@ public class MCMoveClusterAtomChainHSTail extends MCMoveAtom {
     }
 
     protected final double sigma;
-    protected final IVectorRandom dr;
+    protected final Vector dr;
     protected final double pow;
     protected final double totPCore;
 }

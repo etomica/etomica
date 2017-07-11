@@ -4,26 +4,21 @@
 
 package etomica.nbr.cell;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBoundaryEvent;
-import etomica.api.IBoundaryListener;
-import etomica.api.IBox;
-import etomica.api.ISimulation;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomIterator;
+import etomica.box.Box;
 import etomica.box.BoxCellManager;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.integrator.mcmove.MCMoveTrialFailedEvent;
 import etomica.lattice.CellLattice;
-import etomica.space.ISpace;
+import etomica.molecule.IMoleculePositionDefinition;
+import etomica.simulation.Simulation;
+import etomica.space.*;
 import etomica.util.Debug;
 import etomica.util.IEvent;
 import etomica.util.IListener;
@@ -31,31 +26,35 @@ import etomica.util.IListener;
 /**
  * Class that defines and manages construction and use of lattice of cells 
  * for cell-based neighbor listing.
+ *
+ * Before starting the simulation, it is necessary call makeMCMoveListener and
+ * register the result with the MCMoveEventManager of the Integrator.
  */
 
 //TODO modify assignCellAll to loop through cells to get all atoms to be assigned
 //no need for index when assigning cell
 //different iterator needed
 
-public class NeighborCellManager implements BoxCellManager, IBoundaryListener, AtomLeafAgentManager.AgentSource<Cell> {
+public class NeighborCellManager implements BoxCellManager, BoundaryEventListener, AtomLeafAgentManager.AgentSource<Cell> {
 
-    protected final ISimulation sim;
+    protected final Simulation sim;
     protected final CellLattice lattice;
-    protected final IAtomPositionDefinition positionDefinition;
-    protected final IBox box;
+    protected final IMoleculePositionDefinition positionDefinition;
+    protected final Box box;
     protected int cellRange = 2;
     protected double range;
     protected final AtomLeafAgentManager<Cell> agentManager;
     protected boolean doApplyPBC;
-    protected final IVectorMutable v;
+    protected final Vector v;
     protected final int[] numCells;
+    protected boolean suppressBoxLengthWarning;
     
     /**
      * Constructs manager for neighbor cells in the given box.  The number of
      * cells in each dimension is given by nCells. Position definition for each
      * atom is that given by its type (it is set to null in this class).
      */
-    public NeighborCellManager(ISimulation sim, IBox box, double potentialRange, ISpace _space) {
+    public NeighborCellManager(Simulation sim, Box box, double potentialRange, Space _space) {
         this(sim, box, potentialRange, null, _space);
     }
     
@@ -66,7 +65,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
      * definition given by the atom's type is used.  Position definition is
      * declared final.
      */
-    public NeighborCellManager(ISimulation sim, IBox box, double potentialRange, IAtomPositionDefinition positionDefinition, ISpace space) {
+    public NeighborCellManager(Simulation sim, Box box, double potentialRange, IMoleculePositionDefinition positionDefinition, Space space) {
         this.positionDefinition = positionDefinition;
         this.box = box;
         this.sim = sim;
@@ -77,6 +76,15 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
         v = space.makeVector();
         agentManager = new AtomLeafAgentManager<Cell>(this,box,Cell.class);
         doApplyPBC = false;
+    }
+
+    /**
+     * @param doSuppress warnings about box length being too small.  This is
+     *                   useful if the potential range is short enough, but the
+     *                   neighbor listing padding does not fit in the box.
+     */
+    public void setSuppressBoxLengthWarning(boolean doSuppress) {
+        suppressBoxLengthWarning = doSuppress;
     }
     
     public void setDoApplyPBC(boolean newDoApplyPBC) {
@@ -125,7 +133,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
         checkDimensions();
     }
 
-    public void boundaryInflate(IBoundaryEvent e) {
+    public void boundaryInflate(BoundaryEvent e) {
         checkDimensions();
         // we need to reassign cells even if checkDimensions didn't resize
         // the lattice.  If the box size changed, the cell size changed,
@@ -148,7 +156,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
             // simulation is still being constructed, don't try to do anything useful
             return false;
         }
-        IVector dimensions = box.getBoundary().getBoxSize();
+        Vector dimensions = box.getBoundary().getBoxSize();
         lattice.setDimensions(dimensions);
         int[] oldSize = lattice.getSize();
         boolean latticeNeedsUpdate = false;
@@ -172,7 +180,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
                 // and use 1 cell.
                 if (Debug.ON) System.err.println("bumping number of cells in direction "+i+" from "+numCells[i]+" to "+(cellRange*2+1));
                 numCells[i] = cellRange*2+1;
-                if (range > dimensions.getX(i)/2) {
+                if (range > dimensions.getX(i)/2 && !suppressBoxLengthWarning) {
                     // box was too small for the potentials too.  doh.
                     // Perhaps the direction is not periodic or we're in the middle
                     // of multiple changes which will (in the end) be happy.
@@ -244,10 +252,10 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
      * Returns the cell containing the given atom.  The atom is added to the
      * cell's atom list.
      */
-    public Cell makeAgent(IAtom atom, IBox agentBox) {
+    public Cell makeAgent(IAtom atom, Box agentBox) {
         // if we have no cells, there's no point in trying here.  cell assignment will happen later
         if (numCells[0] == 0) return null;
-        IVectorMutable position = atom.getPosition();
+        Vector position = atom.getPosition();
         v.E(position);
         v.PE(box.getBoundary().centralImage(position));
         Cell atomCell = (Cell)lattice.site(v);
@@ -261,12 +269,12 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
     /**
      * Removes the given atom from the cell.
      */
-    public void releaseAgent(Cell cell, IAtom atom, IBox agentBox) {
+    public void releaseAgent(Cell cell, IAtom atom, Box agentBox) {
         cell.removeAtom(atom);
     }
     
     private static class MyMCMoveListener implements IListener, java.io.Serializable {
-        public MyMCMoveListener(IBox box, NeighborCellManager manager) {
+        public MyMCMoveListener(Box box, NeighborCellManager manager) {
             this.box = box;
             neighborCellManager = manager;
         }
@@ -290,7 +298,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
         }
 
         private void updateCell(IAtom atom) {
-            IBoundary boundary = box.getBoundary();
+            Boundary boundary = box.getBoundary();
             Cell cell = neighborCellManager.getCell(atom);
             cell.removeAtom(atom);
             atom.getPosition().PE(boundary.centralImage(atom.getPosition()));
@@ -298,7 +306,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
         }
         
         private static final long serialVersionUID = 1L;
-        private final IBox box;
+        private final Box box;
         private final NeighborCellManager neighborCellManager;
     }
 }

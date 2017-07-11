@@ -4,15 +4,15 @@
 
 package etomica.modules.pistoncylinder;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IPotentialMaster;
-import etomica.api.ISimulation;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.atom.AtomSetSinglet;
 import etomica.integrator.IntegratorHard;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.potential.PotentialHard;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.util.Debug;
 
 /**
@@ -24,9 +24,9 @@ public class IntegratorHardPiston extends IntegratorHard {
      * @param potentialMaster
      * @param potentialMaster Potential between piston and every atom in the box
      */
-    public IntegratorHardPiston(ISimulation sim,
-    		           IPotentialMaster potentialMaster,
-    		           P1HardMovingBoundary potentialWrapper, ISpace _space) {
+    public IntegratorHardPiston(Simulation sim,
+    		           PotentialMaster potentialMaster,
+    		           P1HardMovingBoundary potentialWrapper, Space _space) {
         super(sim, potentialMaster, _space);
         setTimeStep(1.0);
         pistonPotential = potentialWrapper;
@@ -77,7 +77,7 @@ public class IntegratorHardPiston extends IntegratorHard {
         for (int iLeaf=0; iLeaf<nAtoms; iLeaf++) {
             IAtom atom1 = leafList.getAtom(iLeaf);
             atomSetSinglet.atom = atom1;
-            PotentialHard atom1Potential = ((Agent)agentManager.getAgent(atom1)).collisionPotential;
+            PotentialHard atom1Potential = agentManager.getAgent(atom1).collisionPotential;
             if (Debug.ON && Debug.DEBUG_NOW && ((Debug.allAtoms(atomSetSinglet) && Debug.LEVEL > 1) || (Debug.anyAtom(atomSetSinglet) && Debug.LEVEL > 2))) {
                 System.out.println(atom1+" thought it would collide with the piston");
             }
@@ -95,7 +95,7 @@ public class IntegratorHardPiston extends IntegratorHard {
                 System.out.println("collision down time "+collisionTime+" for atom "+atom1+" with null "+pistonPotential.getClass());
             }
             if(collisionTime < Double.POSITIVE_INFINITY) {
-                Agent aia = (Agent)agentManager.getAgent(atom1);
+                Agent aia = agentManager.getAgent(atom1);
                 if(collisionTime < aia.collisionTime()) {
                     if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || Debug.anyAtom(atomSetSinglet))) {
                         System.out.println("setting down time "+collisionTime+" for atom "+atom1+" with null");

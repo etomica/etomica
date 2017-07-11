@@ -4,10 +4,10 @@
 
 package etomica.data.meter;
 import etomica.action.IAction;
-import etomica.api.IAtom;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
+import etomica.atom.IAtom;
+import etomica.space.Boundary;
+import etomica.space.Vector;
+import etomica.box.Box;
 import etomica.atom.iterator.AtomsetIteratorBoxDependent;
 import etomica.data.DataSourceIndependent;
 import etomica.data.DataSourceUniform;
@@ -20,9 +20,9 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.space.ISpace;
-import etomica.units.Angle;
-import etomica.units.Null;
+import etomica.space.Space;
+import etomica.units.dimensions.Angle;
+import etomica.units.dimensions.Null;
 
 /**
  * Meter for tabulation of a dihedral angle distribution between nearest neighbors.  The
@@ -38,7 +38,7 @@ public class MeterDihedralAngle implements IAction, IEtomicaDataSource, DataSour
 	 * leaf atoms in a box.
 	 * @param space
 	 */
-    public MeterDihedralAngle(ISpace space) {
+    public MeterDihedralAngle(Space space) {
 	    this.space = space;
 
         xDataSource = new DataSourceUniform("phi", Angle.DIMENSION);
@@ -118,10 +118,10 @@ public class MeterDihedralAngle implements IAction, IEtomicaDataSource, DataSour
                 		boundary.nearestImage(dr3);
             			if(dr3.squared()>rMaxSquared){continue;}
             			//compute dihedral angle
-            			IVectorMutable tanY = space.makeVector();
+            			Vector tanY = space.makeVector();
             			tanY.Ea1Tv1(Math.sqrt(dr2.squared()),dr1);
-            			IVectorMutable cross12 = space.makeVector();
-            			IVectorMutable cross23 = space.makeVector();
+            			Vector cross12 = space.makeVector();
+            			Vector cross23 = space.makeVector();
             			cross12.E(dr1);
             			cross12.XE(dr2);
             			cross23.E(dr2);
@@ -181,13 +181,13 @@ public class MeterDihedralAngle implements IAction, IEtomicaDataSource, DataSour
     /**
      * @return Returns the box.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     /**
      * @param box The box to set.
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
         boundary = box.getBoundary();
     }
@@ -201,15 +201,15 @@ public class MeterDihedralAngle implements IAction, IEtomicaDataSource, DataSour
     }
     
     private static final long serialVersionUID = 1L;
-    protected IBox box;
-    protected final ISpace space;
+    protected Box box;
+    protected final Space space;
     protected long[] gSum;
     protected DataFunction data;
     private IEtomicaDataInfo dataInfo;
     protected DataDoubleArray phiData;
     protected AtomsetIteratorBoxDependent iterator;
-    private final IVectorMutable dr1, dr2, dr3;
-    private IBoundary boundary;
+    private final Vector dr1, dr2, dr3;
+    private Boundary boundary;
     protected final DataSourceUniform xDataSource;
     protected double rMax;
     private String name;

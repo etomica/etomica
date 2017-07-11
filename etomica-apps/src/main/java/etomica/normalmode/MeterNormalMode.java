@@ -7,8 +7,8 @@ package etomica.normalmode;
 import java.io.Serializable;
 
 import etomica.action.IAction;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
+import etomica.space.Vector;
+import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -17,10 +17,10 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup.DataInfoGroup;
-import etomica.units.CompoundDimension;
-import etomica.units.Dimension;
-import etomica.units.Length;
-import etomica.units.Null;
+import etomica.units.dimensions.CompoundDimension;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Null;
 
 /**
  * Calculates the S-matrix for a configuration.  This matrix is formed as T(k) T^(-k), where
@@ -66,7 +66,7 @@ public class MeterNormalMode implements IEtomicaDataSource, IAction, Serializabl
      * Sets the box, and should be called while the Atoms are in 
      * their lattice positions.
      */
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         callCount = 0;
 
         waveVectorFactory.makeWaveVectors(newBox);
@@ -89,11 +89,11 @@ public class MeterNormalMode implements IEtomicaDataSource, IAction, Serializabl
         dataInfo = new DataInfoGroup("all S", Null.DIMENSION, Sinfo);
     }
     
-    public IBox getBox() {
+    public Box getBox() {
         return coordinateDefinition.getBox();
     }
     
-    public IVectorMutable[] getWaveVectors() {
+    public Vector[] getWaveVectors() {
         return waveVectors;
     }
     
@@ -157,7 +157,7 @@ public class MeterNormalMode implements IEtomicaDataSource, IAction, Serializabl
     }
     
     private static final long serialVersionUID = 1L;
-    private IVectorMutable[] waveVectors;
+    private Vector[] waveVectors;
     private WaveVectorFactory waveVectorFactory;
     protected CoordinateDefinition coordinateDefinition;
     private int numWaveVectors;

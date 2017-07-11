@@ -3,34 +3,28 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.graphics;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Container;
+
+import etomica.action.IAction;
+import etomica.action.SimulationRestart;
+import etomica.action.activity.Controller;
+import etomica.box.Box;
+import etomica.graphics.DisplayPlot.PopupListener;
+import etomica.integrator.Integrator;
+import etomica.integrator.IntegratorBox;
+import etomica.integrator.IntegratorManagerMC;
+import etomica.listener.IntegratorListenerAction;
+import etomica.simulation.Simulation;
+import etomica.simulation.SimulationContainer;
+import etomica.simulation.prototypes.HSMD2D;
+import etomica.space.Space;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
-
-import javax.swing.JFrame;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-
-import etomica.action.IAction;
-import etomica.action.SimulationRestart;
-import etomica.action.activity.Controller;
-import etomica.api.IBox;
-import etomica.api.IIntegrator;
-import etomica.api.ISimulation;
-import etomica.graphics.DisplayPlot.PopupListener;
-import etomica.integrator.IntegratorBox;
-import etomica.integrator.IntegratorManagerMC;
-import etomica.listener.IntegratorListenerAction;
-import etomica.simulation.SimulationContainer;
-import etomica.simulation.prototypes.HSMD2D;
-import etomica.space.ISpace;
-import etomica.space.Space;
 
 /**
  * General class for graphical presentation of the elements of a molecular simulation.
@@ -52,59 +46,59 @@ public class SimulationGraphic implements SimulationContainer {
 
     private SimulationPanel simulationPanel;
     private final DeviceTrioControllerButton dcb;
-    protected final ISimulation simulation;
+    protected final Simulation simulation;
     protected final Controller controller;
     private int updateInterval = DEFAULT_UPDATE_INTERVAL;
     private final LinkedList<Display> displayList = new LinkedList<Display>();
     private final LinkedList<Device> deviceList = new LinkedList<Device>();
-    private HashMap<IBox,IntegratorListenerAction> repaintActions = new HashMap<IBox,IntegratorListenerAction>();
+    private HashMap<Box,IntegratorListenerAction> repaintActions = new HashMap<Box,IntegratorListenerAction>();
     private int graphicType = GRAPHIC_ONLY;
-    protected final ISpace space;
+    protected final Space space;
     protected final String appName;
     protected int repaintSleep = 0;
 
 
-    public SimulationGraphic(ISimulation simulation,
-                             ISpace space,
+    public SimulationGraphic(Simulation simulation,
+                             Space space,
                              Controller controller) {
     	this(simulation, GRAPHIC_ONLY, "", DEFAULT_UPDATE_INTERVAL, space, controller);
     }
 
-    public SimulationGraphic(ISimulation simulation,
+    public SimulationGraphic(Simulation simulation,
                              int graphicType,
-                             ISpace space,
+                             Space space,
                              Controller controller) {
     	this(simulation, graphicType, "", DEFAULT_UPDATE_INTERVAL, space, controller);
     }
 
-    public SimulationGraphic(ISimulation simulation,
+    public SimulationGraphic(Simulation simulation,
                              String appName,
-                             ISpace space,
+                             Space space,
                              Controller controller) {
     	this(simulation, GRAPHIC_ONLY, appName, DEFAULT_UPDATE_INTERVAL, space, controller);
     }
 
-    public SimulationGraphic(ISimulation simulation,
+    public SimulationGraphic(Simulation simulation,
                              int graphicType,
                              String appName,
-                             ISpace space,
+                             Space space,
                              Controller controller) {
     	this(simulation, graphicType, appName, DEFAULT_UPDATE_INTERVAL, space, controller);
     }
 
-    public SimulationGraphic(ISimulation simulation,
+    public SimulationGraphic(Simulation simulation,
                              String appName,
                              int updateInterval,
-                             ISpace space,
+                             Space space,
                              Controller controller) {
     	this(simulation, GRAPHIC_ONLY, appName, updateInterval, space, controller);
     }
 
-    public SimulationGraphic(ISimulation simulation,
+    public SimulationGraphic(Simulation simulation,
                              int graphicType,
                              String appName,
     		                 int updateInterval,
-    		                 ISpace space,
+    		                 Space space,
     		                 Controller controller) {
         this.simulation = simulation;
         this.controller = controller;
@@ -126,10 +120,10 @@ public class SimulationGraphic implements SimulationContainer {
         }
         dcb = new DeviceTrioControllerButton(simulation, space, controller);
         add(dcb);
-        setupDisplayBox(simulation.getIntegrator(), new LinkedList<IBox>());
+        setupDisplayBox(simulation.getIntegrator(), new LinkedList<Box>());
     }
 
-    public ISimulation getSimulation() {return simulation;}
+    public Simulation getSimulation() {return simulation;}
     
     public final LinkedList<Display> displayList() { return displayList;}
     public final LinkedList<Device> deviceList() { return deviceList; }
@@ -148,9 +142,9 @@ public class SimulationGraphic implements SimulationContainer {
 	  * a box handled by an Integrator is in BoxList, a new DisplayBox is
 	  * not created.
 	  */
-	private void setupDisplayBox(IIntegrator integrator, LinkedList<IBox> boxList) {
+	private void setupDisplayBox(Integrator integrator, LinkedList<Box> boxList) {
 	    if (integrator instanceof IntegratorBox) {
-	        IBox box = ((IntegratorBox)integrator).getBox();
+	        Box box = ((IntegratorBox)integrator).getBox();
 	        if (boxList.contains(box)) return;
 	        boxList.add(box);
 	        final DisplayBox display = new DisplayBox(simulation, box, space, controller);
@@ -176,7 +170,7 @@ public class SimulationGraphic implements SimulationContainer {
 	        repaintActions.put(box, repaintAction);
 	    }
 	    else if (integrator instanceof IntegratorManagerMC) {
-	        IIntegrator[] subIntegrators = ((IntegratorManagerMC)integrator).getIntegrators();
+	        Integrator[] subIntegrators = ((IntegratorManagerMC)integrator).getIntegrators();
 	        for (int i=0; i<subIntegrators.length; i++) {
 	            setupDisplayBox(subIntegrators[i], boxList);
 	        }
@@ -190,7 +184,7 @@ public class SimulationGraphic implements SimulationContainer {
 	  * Sets the integrator interval between repaint actions to the value
 	  * specified for the given Box.
 	  */
-    public void setPaintInterval(IBox box, int interval) {
+    public void setPaintInterval(Box box, int interval) {
         IntegratorListenerAction repaintAction = repaintActions.get(box);
 	    repaintAction.setInterval(interval);
     }
@@ -204,7 +198,7 @@ public class SimulationGraphic implements SimulationContainer {
 	  *
 	  * @return Returns the paint action associated with the given Box.
 	  */
-    public IAction getPaintAction(IBox box) {
+    public IAction getPaintAction(Box box) {
 	    return repaintActions.get(box).getAction();
     }
    
@@ -399,7 +393,7 @@ public class SimulationGraphic implements SimulationContainer {
 
     public DeviceTrioControllerButton getController() { return dcb; }
 
-    protected IAction createDisplayBoxPaintAction(IBox box) {
+    protected IAction createDisplayBoxPaintAction(Box box) {
     	IAction repaintAction = null;
 
     	final DisplayBox display = getDisplayBox(box);
@@ -459,7 +453,7 @@ public class SimulationGraphic implements SimulationContainer {
             public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
         };
         
-    public DisplayBox getDisplayBox(IBox box) {
+    public DisplayBox getDisplayBox(Box box) {
         Iterator<Display> iterator = displayList.iterator();
         while(iterator.hasNext()) {
             Object display = iterator.next();
@@ -489,7 +483,7 @@ public class SimulationGraphic implements SimulationContainer {
 		IAction repaintAction = simGraphic.getPaintAction(sim.getBox(0));
 
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
-        nSelector.setResetAction(new SimulationRestart(sim, space, sim.getController()));
+        nSelector.setResetAction(new SimulationRestart(sim));
         nSelector.setSpecies(sim.getSpecies(0));
         nSelector.setBox(sim.getBox(0));
         nSelector.setPostAction(repaintAction);

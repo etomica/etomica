@@ -5,11 +5,10 @@
 package etomica.normalmode;
 
 import Jama.Matrix;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 public class MeterJacobian extends DataSourceScalar {
 
@@ -20,7 +19,7 @@ public class MeterJacobian extends DataSourceScalar {
     }
 
     public double getDataAsScalar() {
-        IVector[] waveVectors = normalModes.getWaveVectors();
+        Vector[] waveVectors = normalModes.getWaveVectors();
         double[][] eigenVectors = normalModes.getEigenVectors();
         double[] phaseAngles = normalModes.getPhaseAngles();
 
@@ -34,7 +33,7 @@ public class MeterJacobian extends DataSourceScalar {
         int vectorPos = 0;
         for (int iMode = 0; iMode < waveVectors.length; iMode++) {
             for (int iCell = 0; iCell < cells.length; iCell++) {
-                IVectorMutable latticePosition = cells[iCell].cellPosition;
+                Vector latticePosition = cells[iCell].cellPosition;
                 double kR = waveVectors[iMode].dot(latticePosition);
                 double coskR = Math.cos(kR+phaseAngles[iMode]);
                 for (int iDim = 0; iDim < coordinateDim; iDim++) {

@@ -4,7 +4,7 @@
 
 package etomica.atom.iterator;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 
 /**
  * Iterator that will loop over all leaf atoms in a box. Can be configured to
@@ -25,7 +25,7 @@ public class AtomIteratorLeafAtoms extends AtomIteratorArrayListSimple implement
      * Creates iterator conditioned to give all leaf atoms of the specified
      * box. Call to reset() is required before beginning iteration.
      */
-    public AtomIteratorLeafAtoms(IBox box) {
+    public AtomIteratorLeafAtoms(Box box) {
         this();
         setBox(box);
     }
@@ -36,7 +36,7 @@ public class AtomIteratorLeafAtoms extends AtomIteratorArrayListSimple implement
      * be the leaf atoms of under the species in the specified box.
      * @throws NullPointerException if the Box is null
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         setList(box.getLeafList());
     }
 

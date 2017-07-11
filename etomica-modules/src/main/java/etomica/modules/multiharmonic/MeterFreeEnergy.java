@@ -4,13 +4,13 @@
 
 package etomica.modules.multiharmonic;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataSourceScalar;
 import etomica.data.IEtomicaDataSource;
 import etomica.potential.P1Harmonic;
-import etomica.units.Energy;
+import etomica.units.dimensions.Energy;
 
 
 /**
@@ -38,17 +38,17 @@ public class MeterFreeEnergy extends DataSourceScalar implements IEtomicaDataSou
         return Math.exp(-sum);
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         iterator.setBox(box);
         this.box = box;
     }
     
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
 
     private static final long serialVersionUID = 1L;
     AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
-    IBox box;
+    Box box;
     P1Harmonic reference, target;
 }

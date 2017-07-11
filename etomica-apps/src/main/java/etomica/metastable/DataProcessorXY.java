@@ -10,7 +10,7 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 public class DataProcessorXY extends DataProcessor implements DataSourceIndependent {
 

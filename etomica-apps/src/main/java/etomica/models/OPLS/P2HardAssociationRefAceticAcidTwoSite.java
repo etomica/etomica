@@ -4,10 +4,10 @@
 
 package etomica.models.OPLS;
 
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
 import etomica.association.BiasVolume2SiteAceticAcid;
+import etomica.box.Box;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialGroup;
 
 public class P2HardAssociationRefAceticAcidTwoSite extends PotentialGroup {
@@ -22,7 +22,7 @@ public class P2HardAssociationRefAceticAcidTwoSite extends PotentialGroup {
 		this.bv = bv;
 	}
 	
-	public void setBox(IBox box){
+	public void setBox(Box box){
 		super.setBox(box);
 		if (bv != null){
 			bv.setBox(box);

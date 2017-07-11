@@ -4,14 +4,6 @@
 
 package etomica.models.nitrogen;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.ISimulation;
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -20,10 +12,17 @@ import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.molecule.IMoleculeList;
 import etomica.nbr.list.molecule.PotentialMasterListMolecular;
-import etomica.space.ISpace;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.units.Kelvin;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
+
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * For molecular model, e.g., diatomic Nitrogen model, with 5 d.o.f.
@@ -48,14 +47,14 @@ import etomica.units.Null;
 public class MeterTargetTPMolecule implements IEtomicaDataSource {
 
     protected final MeterPotentialEnergy meterPotential;
-    protected final IPotentialMaster potentialMaster;
+    protected final PotentialMaster potentialMaster;
     protected double latticeEnergy;
     protected double temperature;
     protected double[] otherTemperatures;
     protected DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;
     protected final DataTag tag;
-    protected final IBox pretendBox;
+    protected final Box pretendBox;
     protected CoordinateDefinitionNitrogen coordinateDefinition;
     protected final ISpecies species;
     protected double[][] alpha;
@@ -65,7 +64,7 @@ public class MeterTargetTPMolecule implements IEtomicaDataSource {
     protected FileWriter fw;
     protected boolean isBetaPhase = false;
    
-    public MeterTargetTPMolecule(IPotentialMaster potentialMaster, ISpecies species, ISpace space, ISimulation sim) {
+    public MeterTargetTPMolecule(PotentialMaster potentialMaster, ISpecies species, Space space, Simulation sim) {
         this.potentialMaster = potentialMaster;
         meterPotential = new MeterPotentialEnergy(potentialMaster);
         this.species = species;
@@ -84,7 +83,7 @@ public class MeterTargetTPMolecule implements IEtomicaDataSource {
     }
 
     public IData getData() {
-    	IBox realBox = coordinateDefinition.getBox();
+    	Box realBox = coordinateDefinition.getBox();
         meterPotential.setBox(realBox);
         double energy = meterPotential.getDataAsScalar();
         meterPotential.setBox(pretendBox);
@@ -291,7 +290,7 @@ public class MeterTargetTPMolecule implements IEtomicaDataSource {
 
         // insert molecules into the box at their lattice sites.
         // we do this because want to find neighbors now (and then never again)
-        IBox realBox = coordinateDefinition.getBox();
+        Box realBox = coordinateDefinition.getBox();
         pretendBox.setBoundary(realBox.getBoundary());
         pretendBox.setNMolecules(species, realBox.getNMolecules(species));
         IMoleculeList pretendMolecules = pretendBox.getMoleculeList();

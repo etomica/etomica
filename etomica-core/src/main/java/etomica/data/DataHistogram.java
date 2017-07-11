@@ -8,10 +8,10 @@ import etomica.data.types.CastToDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.units.Null;
-import etomica.util.DoubleRange;
-import etomica.util.Histogram;
-import etomica.util.HistogramSimple;
+import etomica.units.dimensions.Null;
+import etomica.math.DoubleRange;
+import etomica.data.histogram.Histogram;
+import etomica.data.histogram.HistogramSimple;
 
 /**
  * DataProcessor that creates a histogram from each piece of data that comes in.
@@ -75,7 +75,7 @@ public class DataHistogram extends DataProcessor {
      */
     protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
         binnedDataInfo = inputDataInfo;
-        nData = ((DataInfoDoubleArray)inputDataInfo).getLength();
+        nData = inputDataInfo.getLength();
         setupData();
         return dataInfo;
     }

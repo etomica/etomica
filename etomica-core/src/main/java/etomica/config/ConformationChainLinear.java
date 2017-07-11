@@ -3,13 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.config;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
-import etomica.units.Dimension;
-import etomica.units.Length;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Vector;
+import etomica.space.Space;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
 
 /**
  * Places atoms in a straight line.
@@ -20,13 +19,13 @@ import etomica.units.Length;
 
 public class ConformationChainLinear implements IConformation {
     
-    public ConformationChainLinear(ISpace _space) {
+    public ConformationChainLinear(Space _space) {
         this(_space, 0.55);
     }
-    public ConformationChainLinear(ISpace _space, double bondLength) {
+    public ConformationChainLinear(Space _space, double bondLength) {
     	this(_space, bondLength, new double[] {etomica.units.Degree.UNIT.toSim(45.), 0.0});
     }
-    public ConformationChainLinear(ISpace _space, double bondLength, double[] initAngles) {
+    public ConformationChainLinear(Space _space, double bondLength, double[] initAngles) {
         space = _space;
         this.bondLength = bondLength;
         orientation = space.makeVector();
@@ -57,9 +56,9 @@ public class ConformationChainLinear implements IConformation {
         }
     }
     public double getAngle(int i) {return angle[i];}
-    public void setOrientation(IVector e) {orientation.E(e);}
+    public void setOrientation(Vector e) {orientation.E(e);}
     
-    public void setOffset(IVector v) {
+    public void setOffset(Vector v) {
         orientation.E(v);
         bondLength = Math.sqrt(v.squared());
         orientation.TE(1.0/bondLength);
@@ -80,8 +79,8 @@ public class ConformationChainLinear implements IConformation {
 
     private static final long serialVersionUID = 1L;
     private double bondLength;
-    private IVectorMutable orientation;
+    private Vector orientation;
     private double[] angle;
-    protected final ISpace space;
+    protected final Space space;
 }
       

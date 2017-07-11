@@ -1,10 +1,9 @@
 package etomica.integrator.mcmove;
 
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.potential.PotentialMaster;
+import etomica.util.random.IRandom;
+import etomica.space.Vector;
+import etomica.space.Space;
 
 /**
  * MC move that operates only on atoms within a given region of x values.
@@ -16,10 +15,10 @@ public class MCMoveAtomInRegion extends MCMoveAtom {
 
     protected int nAttempts;
     protected double xMin, xMax;
-    protected IVectorMutable oldPosition;
+    protected Vector oldPosition;
     
-    public MCMoveAtomInRegion(IRandom random, IPotentialMaster potentialMaster,
-            ISpace _space) {
+    public MCMoveAtomInRegion(IRandom random, PotentialMaster potentialMaster,
+            Space _space) {
         super(random, potentialMaster, _space);
         oldPosition = _space.makeVector();
     }
@@ -68,7 +67,7 @@ public class MCMoveAtomInRegion extends MCMoveAtom {
         translationVector.setRandomCube(random);
         translationVector.TE(stepSize);
         atom.getPosition().PE(translationVector);
-        IVector dx = box.getBoundary().centralImage(atom.getPosition());
+        Vector dx = box.getBoundary().centralImage(atom.getPosition());
         atom.getPosition().PE(dx);
         double newX = atom.getPosition().getX(0);
         if (xMin < xMax) {

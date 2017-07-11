@@ -4,21 +4,17 @@
 
 package etomica.nbr.molecule;
 
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.atom.MoleculeAgentManager;
-import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
+import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentSourceMoleculeManager;
-import etomica.space.ISpace;
-import etomica.units.Dimension;
-import etomica.units.Length;
+import etomica.molecule.*;
+import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
+import etomica.simulation.Simulation;
+import etomica.space.Boundary;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
 
 /**
  * Simple neighbor criterion based on distance between the two molecules 
@@ -31,7 +27,7 @@ import etomica.units.Length;
  */
 public class CriterionSimpleMolecular implements NeighborCriterionMolecular, MoleculeAgentSource {
 
-	public CriterionSimpleMolecular(ISimulation sim, ISpace _space, double interactionRange, double neighborRadius) {
+	public CriterionSimpleMolecular(Simulation sim, Space _space, double interactionRange, double neighborRadius) {
 		super();
         this.space = _space;
         dr = space.makeVector();
@@ -39,10 +35,10 @@ public class CriterionSimpleMolecular implements NeighborCriterionMolecular, Mol
         neighborRadius2 = neighborRadius * neighborRadius;
         setSafetyFactor(0.4);
         boxAgentManager = new BoxAgentManager<MoleculeAgentManager>(new BoxAgentSourceMoleculeManager(this, sim),MoleculeAgentManager.class, sim);
-        moleculeSite = new AtomPositionGeometricCenter(_space);
+        moleculeSite = new MoleculePositionGeometricCenter(_space);
 	}
 	
-	public void setMoleculePosition(IAtomPositionDefinition positionDefinition){
+	public void setMoleculePosition(IMoleculePositionDefinition positionDefinition){
 		moleculeSite = positionDefinition; 
 	}
 	
@@ -94,7 +90,7 @@ public class CriterionSimpleMolecular implements NeighborCriterionMolecular, Mol
 //        }
         
         
-		r2 = moleculeSite.position(molecule).Mv1Squared((IVectorMutable)agentManager.getAgent(molecule));
+		r2 = moleculeSite.position(molecule).Mv1Squared((Vector)agentManager.getAgent(molecule));
 		
 //        if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.allAtoms(new AtomSetSinglet(atom))) {
 //            System.out.println("atom "+atom+" displacement "+r2+" "+atom.getPosition());
@@ -112,7 +108,7 @@ public class CriterionSimpleMolecular implements NeighborCriterionMolecular, Mol
 	
 	}
 
-	public void setBox(IBox box) {
+	public void setBox(Box box) {
         boundary = box.getBoundary();
         agentManager = boxAgentManager.getAgent(box);
 	}
@@ -142,7 +138,7 @@ public class CriterionSimpleMolecular implements NeighborCriterionMolecular, Mol
 	}
 	
 	public void reset(IMolecule molecule) {
-		((IVectorMutable)agentManager.getAgent(molecule)).E(moleculeSite.position(molecule));
+		((Vector)agentManager.getAgent(molecule)).E(moleculeSite.position(molecule));
 	}
 
     public Class getMoleculeAgentClass() {
@@ -155,14 +151,14 @@ public class CriterionSimpleMolecular implements NeighborCriterionMolecular, Mol
     
     public void releaseAgent(Object agent, IMolecule molecule) {}
 
-    protected final ISpace space;
+    protected final Space space;
     protected double interactionRange, displacementLimit2, neighborRadius2;
-	protected final IVectorMutable dr;
-    protected IBoundary boundary;
+	protected final Vector dr;
+    protected Boundary boundary;
 	protected double safetyFactor;
 	protected double r2, r2MaxSafe;
     protected MoleculeAgentManager agentManager;
     protected final BoxAgentManager<MoleculeAgentManager> boxAgentManager;
-    protected IAtomPositionDefinition moleculeSite;
+    protected IMoleculePositionDefinition moleculeSite;
 
 }

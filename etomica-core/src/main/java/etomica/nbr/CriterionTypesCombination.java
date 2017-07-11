@@ -5,8 +5,8 @@
 
 package etomica.nbr;
 
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
+import etomica.atom.AtomType;
+import etomica.atom.IAtomList;
 
 /**
  * Filters AtomSets to match a given set of AtomTypes.  CriterionType and
@@ -16,15 +16,18 @@ import etomica.api.IAtomType;
  */
 public class CriterionTypesCombination extends CriterionAdapter {
 
-    public CriterionTypesCombination(NeighborCriterion criterion, 
-            IAtomType[] types) {
+    private static final long serialVersionUID = 1L;
+    private final AtomType[] types;
+
+    public CriterionTypesCombination(NeighborCriterion criterion,
+                                     AtomType[] types) {
         super(criterion);
         this.types = types.clone();
     }
     
     /**
-     * Returns true if the AtomTypes for the pair of atoms match the AtomTypes 
-     * given at construction (without regard to the order of the AtomSet), and 
+     * Returns true if the AtomTypes for the pair of atoms match the AtomTypes
+     * given at construction (without regard to the order of the AtomSet), and
      * if the wrapped criterion also accepts the AtomSet.
      */
     public boolean accept(IAtomList atoms) {
@@ -42,14 +45,11 @@ public class CriterionTypesCombination extends CriterionAdapter {
         }
         return subCriterion.accept(atoms);
     }
-    
+
     /**
      * Returns the AtomTypes accepted by this NeighborCriterion
      */
-    public IAtomType[] getTypes() {
+    public AtomType[] getTypes() {
         return types;
     }
-    
-    private static final long serialVersionUID = 1L;
-    private final IAtomType[] types;
 }

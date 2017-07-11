@@ -16,7 +16,7 @@ import etomica.simulation.Simulation;
 import etomica.simulation.prototypes.HSMD3D;
 import etomica.units.Kelvin;
 import etomica.units.PrefixedUnit;
-import etomica.units.Temperature;
+import etomica.units.dimensions.Temperature;
 import etomica.units.Unit;
 
 /**

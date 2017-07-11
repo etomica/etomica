@@ -3,8 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.statmech;
-import etomica.space.ISpace;
-import etomica.units.Mass;
+import etomica.math.function.Function;
+import etomica.space.Space;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Mass;
+import etomica.units.dimensions.Temperature;
 
 /**
  * Non-instantiable class with static methods for implementing features of the 
@@ -19,13 +22,13 @@ public final class MaxwellBoltzmann {
     /**
      * Function giving the Maxwell-Boltzmann distribution of speeds.
      */
-    public static class Distribution implements etomica.util.Function, java.io.Serializable {
+    public static class Distribution implements Function, java.io.Serializable {
         private double temperature;
         private double mass;
-        private ISpace space;
+        private Space space;
         private double a, c;
 
-        public Distribution(ISpace space, double temperature, double mass) {
+        public Distribution(Space space, double temperature, double mass) {
             this.temperature = temperature;
             this.mass = mass;
             this.space = space;
@@ -61,14 +64,14 @@ public final class MaxwellBoltzmann {
          //   c /= space.sphereArea(1.0);
         }
         public double getTemperature() {return temperature;}
-        public etomica.units.Dimension getTemperatureDimension() {return etomica.units.Temperature.DIMENSION;}
+        public Dimension getTemperatureDimension() {return Temperature.DIMENSION;}
 
         public void setMass(double m) {
             mass = m;
             update();
         }
         public double getMass() {return mass;}
-        public etomica.units.Dimension getMassDimension() {return Mass.DIMENSION;}
+        public Dimension getMassDimension() {return Mass.DIMENSION;}
     }//end of Distribution
         
     

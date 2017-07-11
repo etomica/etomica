@@ -4,24 +4,20 @@
 
 package etomica.virial;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.atom.MoleculeArrayList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveStepTracker;
+import etomica.molecule.*;
 import etomica.potential.P4BondTorsion;
-import etomica.space.ISpace;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.species.ISpecies;
+import etomica.util.random.IRandom;
 
 /**
  * An MC Move for cluster simulations that performs torsion moves on a chain
@@ -36,7 +32,7 @@ import etomica.space.ISpace;
  */
 public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
 
-    public MCMoveClusterTorsionMulti(ISimulation sim, IPotentialMaster potentialMaster, ISpace space,
+    public MCMoveClusterTorsionMulti(Simulation sim, PotentialMaster potentialMaster, Space space,
                                      P4BondTorsion torsionPotential) {
     	this(potentialMaster, space, sim.getRandom(), 1.0,torsionPotential, 20);
         setBondLength(1.0);
@@ -49,11 +45,11 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
      * box should be at least one greater than this value (greater
      * because first atom is never moved)
      */
-    public MCMoveClusterTorsionMulti(IPotentialMaster potentialMaster, ISpace space,
-            IRandom random, double stepSize, P4BondTorsion torsionPotential, int nBins) {
+    public MCMoveClusterTorsionMulti(PotentialMaster potentialMaster, Space space,
+                                     IRandom random, double stepSize, P4BondTorsion torsionPotential, int nBins) {
         super(potentialMaster,random,space,stepSize,Double.POSITIVE_INFINITY);
         ((MCMoveStepTracker)getTracker()).setTunable(false);
-        positionDefinition = new AtomPositionGeometricCenter(space);
+        positionDefinition = new MoleculePositionGeometricCenter(space);
         probabilityBins = new double[nBins+1];
         binSize = new double[nBins];
         probabilityReverseMap = new int[nBins+1];
@@ -69,7 +65,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
         oldCenter = space.makeVector();
     }
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         ((MCMoveStepTracker)getTracker()).setTunable(false);
@@ -367,7 +363,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
     protected void selectMolecules() {
         IMoleculeList molecules = box.getMoleculeList();
         selectedMolecules = new MoleculeArrayList();
-        oldPositions = new IVectorMutable[molecules.getMoleculeCount()][0];
+        oldPositions = new Vector[molecules.getMoleculeCount()][0];
     	int i=0;
         for (int k=0; k < molecules.getMoleculeCount();k++) {
         	IMolecule a = molecules.getMolecule(k);
@@ -375,7 +371,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
             if (numChildren<4) {
             	continue;
             }
-            oldPositions[i] = new IVectorMutable[numChildren];
+            oldPositions[i] = new Vector[numChildren];
             for (int j=0; j<numChildren; j++) {
                 oldPositions[i][j] = space.makeVector();
             }
@@ -411,16 +407,16 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
     private static final long serialVersionUID = 1L;
     protected final MeterPotentialEnergy energyMeter;
     protected final P4BondTorsion torsionPotential;
-    protected IAtomPositionDefinition positionDefinition;
+    protected IMoleculePositionDefinition positionDefinition;
     protected final double[] probabilityBins;
     protected final double[] binSize;
     protected final int[] probabilityReverseMap;
     protected MoleculeArrayList selectedMolecules;
     protected double bondLength;
-    protected final IVectorMutable work1, work2, work3;
-    protected final IVectorMutable dr21, dr23, dr34;
-    protected IVectorMutable[][] oldPositions;
-    protected final IVectorMutable oldCenter;
+    protected final Vector work1, work2, work3;
+    protected final Vector dr21, dr23, dr34;
+    protected Vector[][] oldPositions;
+    protected final Vector oldCenter;
     protected double wOld, wNew, bias;
     protected ISpecies species;
 

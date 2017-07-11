@@ -4,14 +4,14 @@
 
 package etomica.nbr.site;
 
-import etomica.api.IAtom;
-import etomica.api.IBox;
+import etomica.atom.IAtom;
+import etomica.box.Box;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.BoxCellManager;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Neighbor manager for system in which there is an unchanging, one-to-one
@@ -41,7 +41,7 @@ public class NeighborSiteManager implements BoxCellManager, AgentSource<AtomSite
      * cells in each dimension is given by nCells. Position definition for each
      * atom is that given by its type (it is set to null in this class).
      */
-    public NeighborSiteManager(final IBox box, int nCells, ISpace _space) {
+    public NeighborSiteManager(final Box box, int nCells, Space _space) {
         space = _space;
 
         lattice = new CellLattice(space, box.getBoundary().getBoxSize(),
@@ -78,16 +78,16 @@ public class NeighborSiteManager implements BoxCellManager, AgentSource<AtomSite
         return agentManager.getAgent(atom);
     }
 
-    public AtomSite makeAgent(IAtom atom, IBox agentBox) {
+    public AtomSite makeAgent(IAtom atom, Box agentBox) {
         AtomSite site = (AtomSite)siteIterator.next();
         site.setAtom(atom);
         return site;
     }
     
-    public void releaseAgent(AtomSite agent, IAtom atom, IBox agentBox) {}
+    public void releaseAgent(AtomSite agent, IAtom atom, Box agentBox) {}
 
     private final CellLattice lattice;
-    private final ISpace space;
+    private final Space space;
     private final RectangularLattice.Iterator siteIterator;
     private final AtomLeafAgentManager<AtomSite> agentManager;
 }
