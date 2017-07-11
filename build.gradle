@@ -10,6 +10,8 @@ subprojects {
     apply plugin: 'eclipse'
     apply plugin: 'findbugs'
 
+    apply from: "${rootDir}/gradle/ColoredTestOutput.gradle"
+
     if(rootProject.hasProperty("main")) {
         apply plugin: 'application'
         mainClassName = rootProject.findProperty("main")
@@ -48,8 +50,11 @@ subprojects {
 
     test {
         testLogging {
-            events 'failed'
-            exceptionFormat 'short'
+            events 'standardOut'
+            showExceptions true
+            exceptionFormat 'full'
+            showCauses true
+            showStackTraces true
         }
 
     }
