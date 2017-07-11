@@ -43,6 +43,10 @@ public class Wrapper<T> {
     public List<Wrapper> getChildren() {
         List<Wrapper> children = new ArrayList<>();
         for(InstanceProperty prop : properties) {
+            if(prop.getPropertyType().isPrimitive() || prop.getPropertyType().equals(String.class)) {
+                continue;
+            }
+
             if(prop.isIndexedProperty()) {
                 for (int i = 0; i < prop.invokeCount(); i++) {
                     children.add(WrapperIndex.getWrapper(prop.invokeReader(i)));
