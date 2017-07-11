@@ -4,16 +4,12 @@
 
 package etomica.integrator;
 
-import etomica.util.random.IRandom;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.integrator.mcmove.MCMove;
-import etomica.integrator.mcmove.MCMoveEventManager;
-import etomica.integrator.mcmove.MCMoveManager;
-import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
-import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
+import etomica.integrator.mcmove.*;
 import etomica.util.Arrays;
 import etomica.util.IEvent;
 import etomica.util.IEventManager;
+import etomica.util.random.IRandom;
 
 /**
  * Integrator manages other Integrators which either act on a Box, or manage
@@ -120,7 +116,7 @@ public class IntegratorManagerMC extends Integrator {
      * between two "adjacent" boxes, or instructs all integrators to perform
      * a single doStep.
      */
-    public void doStepInternal() {
+    protected void doStepInternal() {
         if(random.nextDouble() < globalMoveProbability) {
             doGlobalMoves();
         } else {

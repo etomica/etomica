@@ -126,7 +126,7 @@ public class IntegratorHard extends IntegratorMD
     /** 
      * Steps all atoms across time interval timeStep, handling all intervening collisions.
      */
-    public void doStepInternal() {
+    protected void doStepInternal() {
         if (Double.isInfinite(currentPotentialEnergy)) {
             // we were overlapped at some point.  try recalculating the PE now
             // so we can start re-tracking the PE once we aren't overlapped.

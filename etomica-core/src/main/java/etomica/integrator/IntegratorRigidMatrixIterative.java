@@ -126,7 +126,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
 // steps all particles across time interval tStep
 
     // assumes one box
-    public void doStepInternal() {
+    protected void doStepInternal() {
         super.doStepInternal();
         currentKineticEnergy = 0;
         int iterationsTotal = 0;

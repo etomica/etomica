@@ -41,7 +41,7 @@ public class IntegratorImageMultistepMD extends IntegratorVelocityVerlet {
         this.numInnerSteps = numInnerSteps;
     }
 
-    public void doStepInternal() {
+    protected void doStepInternal() {
         // from IntegratorMD
         currentTime += timeStep;
         // IntegratorVelocityVerlet code

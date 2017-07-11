@@ -145,9 +145,9 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Inte
 	public void setFileName(String fileName){
 		file = fileName;
 	}
-	
-	
-	public void doStepInternal(){
+
+
+	protected void doStepInternal() {
 		
 		//System.out.println("rotating...");
 		

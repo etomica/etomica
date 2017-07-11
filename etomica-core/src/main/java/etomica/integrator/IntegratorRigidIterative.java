@@ -137,7 +137,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
 // steps all particles across time interval tStep
 
     // assumes one box
-    public void doStepInternal() {
+    protected void doStepInternal() {
         super.doStepInternal();
         currentKineticEnergy = 0;
         int iterationsTotal = 0;

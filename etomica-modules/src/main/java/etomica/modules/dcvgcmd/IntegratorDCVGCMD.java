@@ -82,10 +82,10 @@ public class IntegratorDCVGCMD extends IntegratorBox {
     	super.setIsothermal(b);
     	integratormd.setIsothermal(b);
     }
-	
-	public void doStepInternal() {
-        if (potentialMasterHybrid != null) {
-            potentialMasterHybrid.setUseNbrLists(MDStepCount > 0);
+
+	protected void doStepInternal() {
+		if (potentialMasterHybrid != null) {
+			potentialMasterHybrid.setUseNbrLists(MDStepCount > 0);
         }
 		if(MDStepCount == 0){
 		    MDStepCount = MDStepRepetitions;
@@ -169,9 +169,6 @@ public class IntegratorDCVGCMD extends IntegratorBox {
         mcMove4.setMu(mu1);
     }
 		
-	/**
-	 * @see etomica.integrator.IntegratorBox#doReset()
-	 */
 	public void reset() {
 	    super.reset();
         potentialMasterHybrid.setUseNbrLists(false);

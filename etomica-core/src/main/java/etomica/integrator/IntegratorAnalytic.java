@@ -7,9 +7,9 @@ package etomica.integrator;
 import etomica.action.AtomAction;
 import etomica.atom.IAtomList;
 import etomica.potential.PotentialMaster;
-import etomica.util.random.IRandom;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.util.random.IRandom;
 
 /**
  * Integrator that generates atom trajectories from an analytic formula.
@@ -33,8 +33,8 @@ public class IntegratorAnalytic extends IntegratorMD {
                               double timeStep, Space _space) {
         super(potentialMaster,random,timeStep,0, _space);
     }
-    
-    public void doStepInternal() {
+
+    protected void doStepInternal() {
         super.doStepInternal();
         action.setTime(currentTime);
         IAtomList leafList = box.getLeafList();

@@ -4,14 +4,14 @@
 
 package etomica.modules.pistoncylinder;
 
+import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
-import etomica.atom.AtomSetSinglet;
 import etomica.integrator.IntegratorHard;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.potential.PotentialHard;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.util.Debug;
 
@@ -41,8 +41,8 @@ public class IntegratorHardPiston extends IntegratorHard {
             pistonPotential.setWallPosition(-box.getBoundary().getBoxSize().getX(1)*0.5);
         }
     }
-    
-    public void doStepInternal() {
+
+    protected void doStepInternal() {
         if (pistonUpdateRequested) {
             pistonUpdateRequested = false;
             updatePiston();

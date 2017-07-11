@@ -58,7 +58,7 @@ public class IntegratorTMMC extends IntegratorMC {
      * the likelihood that the move is selected.
      * After completing move, fires an MCMove event if there are any listeners.
      */
-    public void doStepInternal() {
+    protected void doStepInternal() {
         //select the move
         MCMove move = moveManager.selectMove();
         if(move == null) return;

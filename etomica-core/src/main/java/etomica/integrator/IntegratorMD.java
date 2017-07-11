@@ -108,7 +108,7 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
         }
     }
 
-    public void doStepInternal() {
+    protected void doStepInternal() {
         currentTime += timeStep;
     }
     

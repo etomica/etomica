@@ -194,7 +194,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
     }
 
     // assumes one box
-    public void doStepInternal() {
+    protected void doStepInternal() {
         super.doStepInternal();
         double KE = 0;
         double PE = 0;

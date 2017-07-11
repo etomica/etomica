@@ -24,7 +24,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.*;
+import etomica.units.Kelvin;
 import etomica.units.dimensions.*;
 import etomica.util.random.IRandom;
 
@@ -109,7 +109,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
 //--------------------------------------------------------------
 // steps all particles across time interval tStep
 
-    public void doStepInternal() {
+    protected void doStepInternal() {
         super.doStepInternal();
         predictor();
         calculateForces();

@@ -53,7 +53,7 @@ public class IntegratorMDHarmonicMC extends IntegratorVelocityVerlet {
         }
     }
 
-    public void doStepInternal() {
+    protected void doStepInternal() {
         // from IntegratorMD
         currentTime += timeStep;
         // IntegratorVelocityVerlet code

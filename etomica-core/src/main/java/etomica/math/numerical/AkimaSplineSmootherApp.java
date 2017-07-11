@@ -4,23 +4,6 @@
 
 package etomica.math.numerical;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-
-import javax.swing.AbstractAction;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
@@ -28,25 +11,30 @@ import etomica.data.AccumulatorHistory;
 import etomica.data.DataSourceCountSteps;
 import etomica.data.DataSourceIndependentSimple;
 import etomica.data.IDataSink;
+import etomica.data.history.HistoryScrolling;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.graphics.DeviceBox;
+import etomica.graphics.*;
 import etomica.graphics.DeviceBox.LabelType;
-import etomica.graphics.DeviceControllerButton;
-import etomica.graphics.DeviceSlider;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.SimulationGraphic;
 import etomica.integrator.Integrator;
 import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.ModifierGeneral;
 import etomica.units.dimensions.Null;
 import etomica.util.Constants.CompassDirection;
-import etomica.data.history.HistoryScrolling;
 import etomica.util.random.RandomMersenneTwister;
 import etomica.util.random.RandomNumberGeneratorUnix;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * App to drive AkimaSplineSmoother
@@ -420,8 +408,8 @@ public class AkimaSplineSmootherApp {
         public IntegratorSmoother(AkimaSplineSmoother fitter) {
             this.fitter = fitter;
         }
-        
-        public void doStepInternal() {
+
+        protected void doStepInternal() {
             fitter.doStep();
         }
     }
