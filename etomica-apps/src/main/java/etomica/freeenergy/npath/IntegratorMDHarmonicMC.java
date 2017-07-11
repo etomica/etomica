@@ -8,7 +8,6 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.chem.elements.Iron;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialMaster;
 import etomica.space.Boundary;
@@ -52,13 +51,6 @@ public class IntegratorMDHarmonicMC extends IntegratorVelocityVerlet {
             drAll = space.makeVectorArray(box.getLeafList().getAtomCount());
             firstTrial = true;
         }
-    }
-
-    public double getRandomizeProbability() {
-        double w = p1.getW();
-        double rm2 = 2 / Iron.INSTANCE.getMass();
-        double o = Math.sqrt(2 * w * rm2);
-        return o * timeStep / Math.PI;
     }
 
     public void doStepInternal() {
