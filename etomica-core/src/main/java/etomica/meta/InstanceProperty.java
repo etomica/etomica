@@ -1,5 +1,8 @@
 package etomica.meta;
 
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Dimensioned;
+
 import java.beans.IndexedPropertyDescriptor;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
@@ -127,5 +130,24 @@ public class InstanceProperty {
         } catch(NoSuchMethodException e) {
             return null;
         }
+    }
+
+    private Class<? extends Dimension> getDimension() {
+        Class<?> cls = instance.getClass();
+        Dimensioned ann = null;
+
+        while(cls != null) {
+            ann = cls.getAnnotation(Dimensioned.class);
+            if(ann != null) {
+                break;
+            }
+            cls = cls.getSuperclass();
+        }
+
+        if(ann == null) {
+            return null;
+        }
+
+        return ann.dimension();
     }
 }
