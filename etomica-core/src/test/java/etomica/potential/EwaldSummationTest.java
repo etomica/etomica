@@ -10,15 +10,13 @@ import etomica.graphics.SimulationGraphic;
 import etomica.models.water.P2WaterSPCE;
 import etomica.models.water.SpeciesWater3P;
 import etomica.simulation.Simulation;
-import etomica.space.Boundary;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 import etomica.units.Kelvin;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by Navneeth on 7/12/2017.
