@@ -27,7 +27,7 @@ public class EwaldSummation implements PotentialSoft{
     protected final Space space;
     protected final AtomLeafAgentManager<MyCharge> atomAgentManager;
     protected final Box box;
-    protected final double alpha, alpha2,alpha3;//sqrt of the Frenkel's alpha, follow other authors' convention
+    protected double alpha, alpha2,alpha3;//sqrt of the Frenkel's alpha, follow other authors' convention
     protected final double[] boxSize, basis;
     protected final double volume;
     protected final int[] nKs, nRealShells; 
@@ -248,6 +248,12 @@ public class EwaldSummation implements PotentialSoft{
             }
         }		
         return uCorr;
+    }
+
+    public void setAlpha(double alpha){
+        this.alpha = alpha;
+        alpha2 = alpha*alpha;
+        alpha3 = alpha2 * alpha;
     }
 
     public double getRange() {
