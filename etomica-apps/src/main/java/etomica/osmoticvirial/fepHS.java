@@ -78,7 +78,7 @@ public class fepHS extends Simulation {
 
         potential1 = new P2HardSphere(space, sigma1, false);
         potential2 = new P2HardSphere(space, sigma2, false);
-        potential12 = new P2SquareWell(space, sigma1, sigma12, -1000, false);
+        potential12 = new P2SquareWell(space, Math.min(sigma1,sigma2), Math.max(sigma1,sigma2), -1000, false);
 
         potentialMaster.setCellRange(3);
 
@@ -113,8 +113,8 @@ public class fepHS extends Simulation {
             params.nBlocks = 1000;
             params.temp = 2;
             params.density = 0.6;
-            params.sigma2 = 1.5;
-            params.computez2 = false;
+            params.sigma2 = 0.5;
+            params.computez2 = true;
         }
 
         int numAtoms = params.numAtoms;
@@ -124,11 +124,13 @@ public class fepHS extends Simulation {
         double density = params.density;
         double sigma2 = params.sigma2;
         boolean computez2 = params.computez2;
-        boolean graphics = false;
+        boolean graphics = true;
 
         long numSamples = numSteps/numAtoms;
         long samplesPerBlock = numSamples/nBlocks;
         if (samplesPerBlock == 0) samplesPerBlock = 1;
+
+        System.out.println("Hard Sphere OV");
 
         if(computez2){
             System.out.println("**z2_z1**");
