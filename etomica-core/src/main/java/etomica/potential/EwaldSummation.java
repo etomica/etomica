@@ -154,7 +154,7 @@ public class EwaldSummation implements PotentialSoft{
                             double r2 = drTmp.squared();
                             if(r2 > rCutSquared) continue;
                             double drTmpM = Math.sqrt(r2);
-                            double tmepReal = chargeA * chargeB * Erf.erfc(alpha * drTmpM) / drTmpM;//Don't worry about 1/2 factor;j>i
+                            double tmepReal = chargeA * chargeB * Erf.erfc(alpha * drTmpM) / drTmpM; //Don't worry about 1/2 factor;j>i
                             uReal+= (isSelf ? 0.5 : 1.0)*tmepReal;
                         }
                     }
