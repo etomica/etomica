@@ -49,21 +49,24 @@ public class EwaldSummationTest {
     }
     @Before
     public void setup(){
+        int numofmolecules = 750;
+        double boxlength = 30;
+        double kcut = Math.sqrt(26.999)*2*Math.PI/boxlength;
+        double rCutRealES = 10;
         Space space = Space.getInstance(3);
         box = new Box(space);
         SpeciesWater3P species = new SpeciesWater3P(space,false);
         ChargeAgentSourceSPCE agentSource = new ChargeAgentSourceSPCE(species);
         AtomLeafAgentManager<EwaldSummation.MyCharge> atomAgentManager = new AtomLeafAgentManager<EwaldSummation.MyCharge>(agentSource, box,EwaldSummation.MyCharge.class);
-        double kcut = 5;
-        double rCutRealES = 10;
-        es = new EwaldSummation(box,atomAgentManager,space,kcut,rCutRealES);
-        es.setAlpha(5.6/30);
         sim = new Simulation(space);
 
         sim.addSpecies(species);
         sim.addBox(box);
-        box.setNMolecules(species,750);
-        box.getBoundary().setBoxSize(new Vector3D(30,30,30));
+        box.setNMolecules(species,numofmolecules);
+        box.getBoundary().setBoxSize(new Vector3D(boxlength,boxlength,boxlength));
+
+        es = new EwaldSummation(box,atomAgentManager,space,kcut,rCutRealES);
+        es.setAlpha(5.6/boxlength);
 
         Configuration config = new ConfigurationResourceFile(
                 String.format("etomica/potential/spce4.pos"),
@@ -89,7 +92,7 @@ public class EwaldSummationTest {
         double testval = es.uReal();
         double shouldbe = Kelvin.UNIT.toSim(-3.57226E+06);
 
-        assertEquals(shouldbe,testval,1);
+        assertEquals(shouldbe,testval,10);
 
     }
     @Test
@@ -104,6 +107,14 @@ public class EwaldSummationTest {
     public void testUSelf() throws Exception {
         double testval = es.uSelf();
         double shouldbe = Kelvin.UNIT.toSim(-1.42235E+07);
+
+        assertEquals(shouldbe,testval,100);
+
+    }
+    @Test
+    public void testUBondCorr() throws Exception {
+        double testval = es.uBondCorr();
+        double shouldbe = Kelvin.UNIT.toSim(1.41483E+07);
 
         assertEquals(shouldbe,testval,100);
 

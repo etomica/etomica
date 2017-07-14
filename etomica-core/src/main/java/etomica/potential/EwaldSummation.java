@@ -175,13 +175,13 @@ public class EwaldSummation implements PotentialSoft{
         int nAtoms = atoms.getAtomCount();
 
         // loop over vectors in k-space. (1)k=(0,0,0) is excluded, (2)within sphere with kCutoff as its radius
-        for (int xAxis = -nKs[0]; xAxis < nKs[0]+1; xAxis++){
-            kVector.setX(0, (xAxis * basis[0]));// assign value to the x-axis
-            for (int yAxis = -nKs[1]; yAxis < nKs[1]+1; yAxis++ ){
-                kVector.setX(1, (yAxis * basis[1]));// assign value to the y-axis
-                for (int zAxis = -nKs[2]; zAxis < nKs[2]+1; zAxis++ ){
-                    if( (xAxis * xAxis + yAxis * yAxis + zAxis * zAxis) == 0) continue;// first check: k is a non-zero vector
-                    kVector.setX(2, (zAxis * basis[2]));// assign value to the z-axis, now the vector is specified
+        for (int kX = -nKs[0]; kX < nKs[0]+1; kX++){
+            kVector.setX(0, (kX * basis[0]));// assign value to the x-axis
+            for (int kY = -nKs[1]; kY < nKs[1]+1; kY++ ){
+                kVector.setX(1, (kY * basis[1]));// assign value to the y-axis
+                for (int kZ = -nKs[2]; kZ < nKs[2]+1; kZ++ ){
+                    if( (kX * kX + kY * kY + kZ * kZ) == 0) continue;// first check: k is a non-zero vector
+                    kVector.setX(2, (kZ * basis[2]));// assign value to the z-axis, now the vector is specified
                     double kSquared = kVector.squared();
 
                     if (kSquared > kCutSquared) continue;// k-vector should be within the sphere with kCutoff as the radius
@@ -241,9 +241,10 @@ public class EwaldSummation implements PotentialSoft{
                     double chargeB = atomAgentManager.getAgent(atomB).charge;
                     if (chargeB==0) continue;
                     rAB.Ev1Mv2(positionA, positionB);
+                    box.getBoundary().nearestImage(rAB);
                     double rABMagnitudeSquared = rAB.squared();
                     double rABMagnitude = Math.sqrt(rABMagnitudeSquared);
-                    uCorr += chargeA*chargeB*Erf.erf(alpha*rABMagnitude)/rABMagnitude;
+                    uCorr -= chargeA*chargeB*Erf.erf(alpha*rABMagnitude)/rABMagnitude;
                 }
             }
         }		
