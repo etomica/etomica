@@ -6,7 +6,9 @@
 package etomica.models.water;
 
 import etomica.space.Space;
-import etomica.units.*;
+import etomica.units.Electron;
+import etomica.units.Joule;
+import etomica.units.Mole;
 
 /**
  * SPC/E potential for water.  Uses P2Water3P to do all the real work.
@@ -15,8 +17,8 @@ import etomica.units.*;
  */
 public class P2WaterSPCE extends P2Water3P {
 
-    public final static double B = 0.3428; //(kJ/mol)^1/12 . nm
-    public final static double A = 0.37122; //(kJ/mol)^1/6 . nm
+    private final static double B = 0.3428; //(kJ/mol)^1/12 . nm
+    private final static double A = 0.37122; //(kJ/mol)^1/6 . nm
     public final static double EPSILON = Mole.UNIT.fromSim(Joule.UNIT.toSim(Math.pow((A/B),12)/4))*1000;
     public final static double SIGMA = 10*B*B/A;
     public final static double QH = Electron.UNIT.toSim(0.4238);
