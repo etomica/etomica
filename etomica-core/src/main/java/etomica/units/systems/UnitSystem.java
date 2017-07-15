@@ -19,28 +19,103 @@ import etomica.units.Unit;
  * various types of quantities.
  */
 public abstract class UnitSystem  {
-    
+
+    /**
+     * @return unit defining an amount in this unit system, typically a direct count or a mole
+     */
     public abstract Unit quantity();
+
+    /**
+     * @return unit defining a fractional amount in this unit system, typically a decimal or percent
+     */
     public abstract Unit fraction();
+
+    /**
+     * @return mass unit defined in this unit system
+     */
     public abstract Unit mass();
+
+    /**
+     * @return length unit defined in this unit system
+     */
     public abstract Unit length();
+
+    /**
+     * @return time unit defined in this unit system
+     */
     public abstract Unit time();
+
+    /**
+     * @return angle unit defined in this unit system, typically radians or degrees
+     */
     public abstract Unit angle();
+
+    /**
+     * @return electric-charge unit defined in this unit system
+     */
     public abstract Unit charge();
+
+    /**
+     * @return electric-current unit defined in this unit system
+     */
     public abstract Unit current();
+
+    /**
+     * @return electric-dipole unit defined in this unit system
+     */
     public abstract Unit dipole();
+
+    /**
+     * @return force unit defined in this unit system
+     */
     public abstract Unit force();
+
+    /**
+     * @return energy unit defined in this unit system
+     */
     public abstract Unit energy();
+
+    /**
+     * @return power (energy/time) unit defined in this unit system
+     */
     public abstract Unit power();
+
+    /**
+     * @return temperature unit defined in this unit system
+     */
     public abstract Unit temperature();
+
+    /**
+     * @return pressure unit defined in this unit system
+     */
     public abstract Unit pressure();
+
+    /**
+     * @return volume unit defined in this unit system
+     */
     public abstract Unit volume();
+
+    /**
+     * @return area unit defined in this unit system
+     */
     public abstract Unit area();
+
+    /**
+     * @return viscosity unit defined in this unit system
+     */
     public abstract Unit viscosity();
+
+    /**
+     * @return luminous intensity unit defined in this unit system
+     */
     public Unit luminousIntensity() {
         return Candela.UNIT;
     }
-    
+
+    /**
+     * Base dimensions are {length, mass, time, current, temperature, quantity, luminous intensity}
+     * @return a list of the base units defined for this unit system
+     */
     public Unit[] baseUnits() {
         return new Unit[] {length(), mass(), time(), current(), temperature(), quantity(), luminousIntensity()};
     }
@@ -69,5 +144,9 @@ public abstract class UnitSystem  {
         public Unit area() {return Area.SIM_UNIT;}
         public Unit viscosity() {return Viscosity.SIM_UNIT;}
     }
+
+    /**
+     * Instance of simulation units, the unit system used for internal calculations.
+     */
     public static final UnitSystem SIM = new Sim();
 }

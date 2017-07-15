@@ -19,16 +19,4 @@ public final class Kelvin extends SimpleUnit {
         	"kelvins", "K", Prefix.ALLOWED
         	);
     }
-    
-    /**
-     * Required to guarantee singleton when deserializing.
-     * 
-     * @return the singleton UNIT
-     */
-    private Object readResolve() {
-        return UNIT;
-    }
-    
-    private static final long serialVersionUID = 1;
-
 }

@@ -15,12 +15,7 @@ import etomica.units.dimensions.Dimension;
  * @see SimpleUnit
  * @see Prefix
  */
-
-/* History
- * 03/11/04 (DAK) new, from Unit
- */
-
-public class PrefixedUnit implements Unit, java.io.Serializable {
+public class PrefixedUnit {
     
     /**
      * Scaling prefix for the baseUnit (e.g., milli, micro, kilo, etc.).
@@ -40,7 +35,9 @@ public class PrefixedUnit implements Unit, java.io.Serializable {
         this(Prefix.NULL, base);
     }
     /**
-     * Constructs a PrefixedUnit using the given prefix and base
+     * Constructs a PrefixedUnit using the given prefix and base. If
+     * base.prefixAllowed() is false, unit is constructed with Null prefix
+     * and given prefix is ignored.
      */
     public PrefixedUnit(Prefix prefix, Unit base) {
         baseUnit = base;
@@ -54,7 +51,9 @@ public class PrefixedUnit implements Unit, java.io.Serializable {
      public Dimension dimension() {return baseUnit.dimension();}
      
     /**
-     * Changes prefix to given instance if prefixAllowed flag is true
+     * Changes prefix to given instance if prefixAllowed flag is true. If
+     * prefixAllowed is false, prefix is left as Prefix.NULL.
+     * @param pre the new prefix for the unit
      */
     public final void setPrefix(Prefix pre) {
         prefix = baseUnit.prefixAllowed() ? pre : Prefix.NULL;
@@ -63,15 +62,18 @@ public class PrefixedUnit implements Unit, java.io.Serializable {
         name = prefix.toString() + baseUnit.toString();
         symbol = prefix.symbol() + baseUnit.symbol();
     }
-    
+
+    /**
+     * @return the prefix of the baseUnit.
+     */
     public Prefix getPrefix() {return prefix;}
     
     /**
-     * Returns the prefix of the baseUnit.  Equivalent to getPrefix().
+     * @return the prefix of the baseUnit.  Equivalent to getPrefix().
      */
     public Prefix prefix() {return prefix;}
     /**
-     * Returns the base baseUnit of the baseUnit.
+     * @return the base baseUnit of the baseUnit.
      */
     public Unit unit() {return baseUnit;}
     
@@ -90,23 +92,20 @@ public class PrefixedUnit implements Unit, java.io.Serializable {
     public final double fromSim(double x) {return from*x;}
     
     /**
-     * Accessor for common name of baseUnit
+     * @return the common name of baseUnit
      */
     public String toString() {return name;}
     
     /**
-     * Accessor for symbol of baseUnit
+     * @return the symbol of the baseUnit
      */
     public String symbol() {return symbol;};
     
     /**
-     * Returns false to indicate that a prefix cannot be applied to an already
+     * @return false to indicate that a prefix cannot be applied to an already
      * prefixed baseUnit.
      * @see etomica.units.Unit#prefixAllowed()
      */
     public boolean prefixAllowed() {return false;}
-    
-    private static final long serialVersionUID = 1;
-
 
 }

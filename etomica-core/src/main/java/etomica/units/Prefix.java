@@ -149,148 +149,106 @@ public abstract class Prefix implements java.io.Serializable {
         public double value() {return 1.0e-24;}
         public String toString() {return "yocto";}
         public String symbol() {return "y";}
-        private Object readResolve() throws ObjectStreamException {return YOCTO;}
-        private static final long serialVersionUID = 1;
     }
     private final static class Zepto extends Prefix {
         public double value() {return 1.0e-21;}
         public String toString() {return "zepto";}
         public String symbol() {return "z";}
-        private Object readResolve() throws ObjectStreamException {return ZEPTO;}
-        private static final long serialVersionUID = 1;
    }
     private final static class Atto extends Prefix {
         public double value() {return 1.0e-18;}
         public String toString() {return "atto";}
         public String symbol() {return "a";}
-        private Object readResolve() throws ObjectStreamException {return ATTO;}
-        private static final long serialVersionUID = 1;
     }
     private final static class Femto extends Prefix {
         public double value() {return 1.0e-15;}
         public String toString() {return "femto";}
         public String symbol() {return "f";}
-        private Object readResolve() throws ObjectStreamException {return FEMTO;}
-        private static final long serialVersionUID = 1;
     }
     private final static class Pico extends Prefix {
         public double value() {return 1.0e-12;}
         public String toString() {return "pico";}
         public String symbol() {return "p";}
-        private Object readResolve() throws ObjectStreamException {return PICO;}
-        private static final long serialVersionUID = 1;
     }
     private final static class Nano extends Prefix {
         public double value() {return 1.0e-9;}
         public String toString() {return "nano";}
         public String symbol() {return "n";}
-        private Object readResolve() throws ObjectStreamException {return NANO;}
-        private static final long serialVersionUID = 1;
    }
     private final static class Micro extends Prefix {
         public double value() {return 1.0e-6;}
         public String toString() {return "micro";}
         public String symbol() {return "\u00B5";} //unicode for micro sign
-        private Object readResolve() throws ObjectStreamException {return MICRO;}
-        private static final long serialVersionUID = 1;
    }
     private final static class Milli extends Prefix {
         public double value() {return 1.0e-3;}
         public String toString() {return "milli";}
         public String symbol() {return "m";}
-        private Object readResolve() throws ObjectStreamException {return MILLI;}
-        private static final long serialVersionUID = 1;
     }
     private final static class Centi extends Prefix {
         public double value() {return 1.0e-2;}
         public String toString() {return "centi";}
         public String symbol() {return "c";}
-        private Object readResolve() throws ObjectStreamException {return CENTI;}
-        private static final long serialVersionUID = 1;
     }
     private final static class Deci extends Prefix {
         public double value() {return 1.0e-1;}
         public String toString() {return "deci";}
         public String symbol() {return "d";}
-        private Object readResolve() throws ObjectStreamException {return DECI;}
-        private static final long serialVersionUID = 1;
     }
     private final static class Null extends Prefix {
         public double value() {return 1.0;}
         public String toString() {return "";}
         public String symbol() {return "";}
-        private Object readResolve() throws ObjectStreamException {return NULL;}
-        private static final long serialVersionUID = 1;
     }
     private final static class Deka extends Prefix {
         public double value() {return 1.0e+1;}
         public String toString() {return "deka";}
         public String symbol() {return "da";}
-        private Object readResolve() throws ObjectStreamException {return DEKA;}
-        private static final long serialVersionUID = 1;
     }
     private final static class Hecto extends Prefix {
         public double value() {return 1.0e+2;}
         public String toString() {return "hecto";}
         public String symbol() {return "h";}
-        private Object readResolve() throws ObjectStreamException {return HECTO;}
-        private static final long serialVersionUID = 1;
     }
     private final static class Kilo extends Prefix {
         public double value() {return 1.0e+3;}
         public String toString() {return "kilo";}
         public String symbol() {return "k";}
-        private Object readResolve() throws ObjectStreamException {return KILO;}
-        private static final long serialVersionUID = 1;
     }
     private final static class Mega extends Prefix {
         public double value() {return 1.0e+6;}
         public String toString() {return "mega";}
         public String symbol() {return "M";}
-        private Object readResolve() throws ObjectStreamException {return MEGA;}
-        private static final long serialVersionUID = 1;
     }
     private final static class Giga extends Prefix {
         public double value() {return 1.0e+9;}
         public String toString() {return "giga";}
         public String symbol() {return "G";}
-        private Object readResolve() throws ObjectStreamException {return GIGA;}
-        private static final long serialVersionUID = 1;
     }
     private final static class Tera extends Prefix {
         public double value() {return 1.0e+12;}
         public String toString() {return "tera";}
         public String symbol() {return "T";}
-        private Object readResolve() throws ObjectStreamException {return TERA;}
-        private static final long serialVersionUID = 1;
     }
     private final static class Peta extends Prefix {
         public double value() {return 1.0e+15;}
         public String toString() {return "peta";}
         public String symbol() {return "P";}
-        private Object readResolve() throws ObjectStreamException {return PETA;}
-        private static final long serialVersionUID = 1;
     }
     private final static class Exa extends Prefix {
         public double value() {return 1.0e+18;}
         public String toString() {return "exa";}
         public String symbol() {return "E";}
-        private Object readResolve() throws ObjectStreamException {return EXA;}
-        private static final long serialVersionUID = 1;
     }
     private final static class Zetta extends Prefix {
         public double value() {return 1.0e+21;}
         public String toString() {return "zetta";}
         public String symbol() {return "Z";}
-        private Object readResolve() throws ObjectStreamException {return ZETTA;}
-        private static final long serialVersionUID = 1;
     }
     private final static class Yotta extends Prefix {
         public double value() {return 1.0e+24;}
         public String toString() {return "yotta";}
         public String symbol() {return "Y";}
-        private Object readResolve() throws ObjectStreamException {return YOTTA;}
-        private static final long serialVersionUID = 1;
     }
 
     /**

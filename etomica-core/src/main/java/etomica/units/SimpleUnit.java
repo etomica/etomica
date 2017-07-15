@@ -23,12 +23,9 @@ import etomica.units.dimensions.Dimension;
  * dimensioned quantity can be accessed by the handle BaseUnit.Energy.Sim.UNIT
  * (e.g. for the energy unit).
  */
-
-public class SimpleUnit implements Unit, java.io.Serializable {
+public class SimpleUnit implements Unit {
 
     /**
-     * Constructor.
-     * 
      * @param toSim
      *            conversion factor from this unit to simulation units
      * @param name
@@ -38,7 +35,6 @@ public class SimpleUnit implements Unit, java.io.Serializable {
      * @param prefixAllowed
      *            flag indicating if this unit is suitable for use with a prefix
      *            (e.g., kilo, nano)
-     * 
      */
     public SimpleUnit(Dimension dimension, double toSim, String name, String symbol, boolean prefixAllowed) {
         this.dimension = dimension;
@@ -79,25 +75,26 @@ public class SimpleUnit implements Unit, java.io.Serializable {
     }
 
     /**
-     * Accessor for common name of unit
+     * @return the common name of this unit
      */
     public String toString() {
         return name;
     }
 
     /**
-     * Accessor for symbol of unit
+     * @return a symbol of this unit
      */
     public String symbol() {
         return symbol;
     };
 
     /**
-     * Returns flag indicating whether a prefix is allowed with this unit. Some
-     * units (such as Angstroms) are not normally defined with a prefix
+     * Some units (such as Angstroms) are not normally defined with a prefix
      * attached, and for such units this flag can be set to false to prohibit
      * the application of a prefix. This indication is usually made in the
      * constructor of the base unit class.
+     *
+     * @return flag indicating whether a prefix is allowed with this unit
      */
     public boolean prefixAllowed() {
         return prefixAllowed;
@@ -107,19 +104,19 @@ public class SimpleUnit implements Unit, java.io.Serializable {
      * Conversion factor from simulation units to the class unit. Set in
      * constructor of subclass.
      */
-    private transient double fromSim;
+    private double fromSim;
 
     /**
      * A common name for the unit (e.g., Kelvins). Written in plural. Set in
      * constructor of subclass.
      */
-    private transient final String name;
+    private final String name;
 
     /**
      * A symbol for the unit (e.g., K for Kelvins) Set in constructor of
      * subclass.
      */
-    private transient final String symbol;
+    private final String symbol;
 
     /**
      * Flag indicating whether setting a prefix (other than Null) is allowed.
@@ -128,14 +125,12 @@ public class SimpleUnit implements Unit, java.io.Serializable {
      * (prefix is allowed). Value is modified appropriately in concrete subclass
      * of Unit.
      */
-    private transient final boolean prefixAllowed;
+    private final boolean prefixAllowed;
     
     /**
      * The physical dimension of the unit, e.g., mass, length, time.
      */
-    private transient final Dimension dimension;
-
-    private static final long serialVersionUID = 1;
+    private final Dimension dimension;
 
     // ***** end of methods and fields of SimpleUnit class *****//
 
