@@ -15,7 +15,7 @@ import etomica.units.dimensions.Dimension;
  * @see SimpleUnit
  * @see Prefix
  */
-public class PrefixedUnit {
+public class PrefixedUnit implements Unit {
     
     /**
      * Scaling prefix for the baseUnit (e.g., milli, micro, kilo, etc.).
