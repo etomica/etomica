@@ -17,7 +17,9 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.space.Space;
 
 /**
- * Standard Monte Carlo atom-displacement trial move.
+ * Standard Monte Carlo atom-displacement trial move. Selects an atom at random, displaces it to a new position selected at random
+ * on a cube centered on its current position. The set of atoms subject to the trial can be configured;
+ * default is all leaf-atoms.
  *
  * @author David Kofke
  */
@@ -26,33 +28,59 @@ public class MCMoveAtom extends MCMoveBoxStep {
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     protected final MeterPotentialEnergy energyMeter;
     protected final Vector translationVector;
+    protected final IRandom random;
     protected IAtom atom;
     protected double uOld;
     protected double uNew = Double.NaN;
     protected AtomSource atomSource;
     protected boolean fixOverlap;
-    protected final IRandom random;
     protected Space space;
 
-    public MCMoveAtom(IRandom random, PotentialMaster potentialMaster, Space _space) {
-        this(potentialMaster, random, _space, 1.0, 15.0, false);
+    /**
+     * Constructs the move with default stepSize = 1.0, stepSizeMax = 15.0, fixOverlap = false
+     *
+     * @param random          random number generator used to select the atom and its displacement
+     * @param potentialMaster used to construct MeterPotentialEnergy required by full constructor
+     * @param space           space of the simulation
+     */
+    public MCMoveAtom(IRandom random, PotentialMaster potentialMaster, Space space) {
+        this(random, potentialMaster, space, 1.0, 15.0, false);
     }
 
-    public MCMoveAtom(PotentialMaster potentialMaster, IRandom random,
-                      Space _space, double stepSize, double stepSizeMax,
+    /**
+     * @param random          random number generator used to select the atom and its displacement
+     * @param potentialMaster used to construct MeterPotentialEnergy required by full constructor
+     * @param space           space of the simulation
+     * @param stepSize        starting step size for the trial
+     * @param stepSizeMax     maximum allowable value of stepSize
+     * @param fixOverlap      flag specifying whether trial throws an exception if the configuration
+     *                        at the start of the trial has an overlap
+     */
+    public MCMoveAtom(IRandom random, PotentialMaster potentialMaster,
+                      Space space, double stepSize, double stepSizeMax,
                       boolean fixOverlap) {
-        this(potentialMaster, new MeterPotentialEnergy(potentialMaster), random, _space,
-                stepSize, stepSizeMax, fixOverlap);
+        this(random, potentialMaster, space, stepSize, stepSizeMax, fixOverlap,
+                new MeterPotentialEnergy(potentialMaster));
     }
 
-    public MCMoveAtom(PotentialMaster potentialMaster, MeterPotentialEnergy meterPE, IRandom random,
-                      Space _space, double stepSize, double stepSizeMax,
-                      boolean fixOverlap) {
+    /**
+     * @param random          random number generator used to select the atom and its displacement
+     * @param potentialMaster not directly used
+     * @param space           space of the simulation
+     * @param stepSize        starting step size for the trial
+     * @param stepSizeMax     maximum allowable value of stepSize
+     * @param fixOverlap      flag specifying whether trial throws an exception if the configuration
+     *                        at the start of the trial has an overlap
+     * @param meterPE         used to compute energies before and after displacement
+     */
+    public MCMoveAtom(IRandom random, PotentialMaster potentialMaster,
+                      Space space, double stepSize, double stepSizeMax,
+                      boolean fixOverlap, MeterPotentialEnergy meterPE) {
         super(potentialMaster);
         this.random = random;
-        this.space = _space;
+        this.space = space;
         atomSource = new AtomSourceRandomLeaf();
-        ((AtomSourceRandomLeaf)atomSource).setRandomNumberGenerator(random);
+        ((AtomSourceRandomLeaf) atomSource).setRandomNumberGenerator(random);
         this.energyMeter = meterPE;
         translationVector = space.makeVector();
         setStepSizeMax(stepSizeMax);
@@ -63,16 +91,13 @@ public class MCMoveAtom extends MCMoveBoxStep {
         this.fixOverlap = fixOverlap;
     }
 
-    /**
-     * Method to perform trial move.
-     */
     public boolean doTrial() {
         atom = atomSource.getAtom();
         if (atom == null) return false;
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();
-        if(uOld > 1e8 && !fixOverlap) {
-            throw new RuntimeException("atom "+atom+" in box "+box+" has an overlap");
+        if (uOld > 1e8 && !fixOverlap) {
+            throw new RuntimeException("atom " + atom + " in box " + box + " has an overlap");
         }
         translationVector.setRandomCube(random);
         translationVector.TE(stepSize);
@@ -82,16 +107,18 @@ public class MCMoveAtom extends MCMoveBoxStep {
 
     /**
      * Returns log of the ratio of the trial probabilities, ln(Tij/Tji) for the
-     * states encountered before (i) and after (j) the most recent call to doTrial(). 
+     * states encountered before (i) and after (j) the most recent call to doTrial().
      * Tij is the probability that this move would generate state j from state i, and
      * Tji is the probability that a subsequent call to doTrial would return to state i
      * from state j.
      */
-    public double getA() {return 1.0;}
+    public double getA() {
+        return 1.0;
+    }
 
     /**
-     * Returns the log of the limiting-distribution probabilities of states, ln(Pj/Pi), 
-     * for the states encountered before (i) and after (j) the most recent call to 
+     * Returns the log of the limiting-distribution probabilities of states, ln(Pj/Pi),
+     * for the states encountered before (i) and after (j) the most recent call to
      * doTrial.
      */
     public double getB() {
@@ -99,19 +126,13 @@ public class MCMoveAtom extends MCMoveBoxStep {
         return -(uNew - uOld);
     }
 
-    public double energyChange() {return uNew - uOld;}
+    public double energyChange() {
+        return uNew - uOld;
+    }
 
-    /**
-     * Method called by IntegratorMC in the event that the most recent trial is accepted.
-     */
     public void acceptNotify() {  /* do nothing */
     }
 
-    /**
-     * Method called by IntegratorMC in the event that the most recent trial move is
-     * rejected.  This method should cause the system to be restored to the condition
-     * before the most recent call to doTrial.
-     */
     public void rejectNotify() {
         translationVector.TE(-1);
         atom.getPosition().PE(translationVector);
@@ -129,7 +150,9 @@ public class MCMoveAtom extends MCMoveBoxStep {
     }
 
     /**
-     * @return Returns the atomSource.
+     * The AtomSource is used to select the atom at the beginning of the trial
+     *
+     * @return the atomSource.
      */
     public AtomSource getAtomSource() {
         return atomSource;

@@ -31,7 +31,7 @@ public class MCMoveAtomMonomer extends MCMoveAtom {
 	public MCMoveAtomMonomer(PotentialMaster potentialMaster, IRandom random,
                              Space _space, double stepSize, double stepSizeMax,
                              boolean fixOverlap) {
-		super(potentialMaster, random, _space, stepSize, stepSizeMax,
+		super(random, potentialMaster, _space, stepSize, stepSizeMax,
 				fixOverlap);
 		this.smerList = new AtomArrayList();
 		this.dr = _space.makeVector();

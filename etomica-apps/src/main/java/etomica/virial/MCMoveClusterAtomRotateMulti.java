@@ -20,7 +20,7 @@ import etomica.space3d.Orientation3D;
 public class MCMoveClusterAtomRotateMulti extends MCMoveAtom {
 
     public MCMoveClusterAtomRotateMulti(IRandom random, Space _space) {
-        super(null, random, _space, 1.0, Math.PI, false);
+        super(random, null, _space, 1.0, Math.PI, false);
         setStepSize(1.2);
 	}
 
