@@ -89,7 +89,7 @@ public class VLESim extends Simulation {
         integratorLiquid = new IntegratorMC(potentialMaster, random, temperature);
         integratorLiquid.getMoveManager().setEquilibrating(true);
         integratorLiquid.setBox(boxLiquid);
-        MCMoveAtom atomMove = new MCMoveAtom(potentialMaster, random, space, 0.5, 5.0, true);
+        MCMoveAtom atomMove = new MCMoveAtom(random, potentialMaster, space, 0.5, 5.0, true);
         integratorLiquid.getMoveManager().addMCMove(atomMove);
         MCMoveRotate rotateMove = new MCMoveRotate(potentialMaster, random, space);
         integratorLiquid.getMoveManager().addMCMove(rotateMove);
@@ -98,7 +98,7 @@ public class VLESim extends Simulation {
         integratorVapor = new IntegratorMC(potentialMaster, random, temperature);
         integratorVapor.setBox(boxVapor);
         integratorVapor.getMoveManager().setEquilibrating(true);
-        atomMove = new MCMoveAtom(potentialMaster, random, space, 0.5, 5.0, true);
+        atomMove = new MCMoveAtom(random, potentialMaster, space, 0.5, 5.0, true);
         integratorVapor.getMoveManager().addMCMove(atomMove);
         rotateMove = new MCMoveRotate(potentialMaster, random, space);
         integratorVapor.getMoveManager().addMCMove(rotateMove);

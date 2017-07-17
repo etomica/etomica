@@ -31,7 +31,7 @@ public class MCMoveRotateAssociated extends MCMoveAtom {
 
     public MCMoveRotateAssociated(PotentialMaster potentialMaster, IRandom random,
                                   Space _space) {
-        super(potentialMaster, random, _space, Math.PI/2, Math.PI, false);
+        super(random, potentialMaster, _space, Math.PI/2, Math.PI, false);
         oldOrientation = _space.makeOrientation();
         this.smerList = new AtomArrayList();
         this.dr = _space.makeVector();
