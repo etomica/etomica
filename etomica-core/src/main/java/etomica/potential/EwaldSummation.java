@@ -268,7 +268,7 @@ public class EwaldSummation implements PotentialSoft{
         double self = uSelf();
         double bondCorr = uBondCorr();
 
-        double totalEnergy = real + fourier + self - bondCorr;       
+        double totalEnergy = real + fourier + self + bondCorr;
         if (false) {
             int numMolecules = moleculeList.getMoleculeCount();
             System.out.println("total:               "+ totalEnergy/numMolecules);
