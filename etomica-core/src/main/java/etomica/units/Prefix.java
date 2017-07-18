@@ -56,18 +56,15 @@ public enum Prefix {
     }
 
     /**
-     * Returns a prefix corresponding to the given key.
-     * For example, 'm' gives MILLI, 'M' give MEGA, 'f' gives FEMTO, etc.
-     * Note that " " (space) returns the NULL prefix, and 'D' returns DEKA
-     * (which has a two-letter symbol "da").
-     * Returns null if the char does not correspond to any Prefix.
+     * Allows specifying a Prefix from its symbol.
+     * For example, "m" gives MILLI, "M" give MEGA, "f" gives FEMTO, etc.
+     *
+     * @param aKey the String specifying the desired Prefix
+     * @return the Prefix with symbol matching the String, or null if the String does not correspond to any Prefix.
      */
-    public static Prefix keySelect(char aKey) {
-        if(aKey == ' ') return NULL;
-        if(aKey == 'D') return DEKA;//DEKA.symbol() is "da", so use 'D' for it here
-        String sKey = Character.toString(aKey);
+    public static Prefix keySelect(String aKey) {
         for(Prefix prefix : values()) {
-            if(prefix.symbol().equals(sKey)) return prefix;
+            if(prefix.symbol().equals(aKey)) return prefix;
         }
         return null;
     }
@@ -98,12 +95,12 @@ public enum Prefix {
 
 /*
     public static void main(String[] args) {
-        System.out.println(keySelect('k'));
-        System.out.println(keySelect('M'));
-        System.out.println(keySelect(' '));
-        System.out.println(keySelect('D'));
-        System.out.println(keySelect('Y'));
-        System.out.println(keySelect('y'));
+        System.out.println(keySelect("k"));
+        System.out.println(keySelect("M"));
+        System.out.println(keySelect(""));
+        System.out.println(keySelect("da"));
+        System.out.println(keySelect("Y"));
+        System.out.println(keySelect("y"));
     }
 */
 
