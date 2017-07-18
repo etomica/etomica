@@ -53,6 +53,8 @@ subprojects {
         }
 
     }
+
+    task allDeps(type: DependencyReportTask) {}
 }
 
 project(':etomica-core') {
@@ -62,6 +64,8 @@ project(':etomica-core') {
         compile 'gov.nist.math:jama:1.0.3'
         compile 'org.apache.commons:commons-math3:3.3'
         compile "org.reflections:reflections:0.9.11"
+        compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.6'
+
         compile files("$rootProject.projectDir/libs/ptolemy.jar")
 
         compile project(':etomica-graphics3D')

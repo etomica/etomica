@@ -27,6 +27,9 @@ public class WrapperIndex {
 
 
     public static Wrapper getWrapper(Object o) {
+        if (o == null) {
+            return null;
+        }
         return getWrapper(o, o.getClass());
     }
 

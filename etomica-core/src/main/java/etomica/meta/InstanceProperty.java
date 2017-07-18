@@ -120,6 +120,10 @@ public class InstanceProperty {
         return remover != null;
     }
 
+    public boolean canCount() {
+        return counter != null;
+    }
+
     public Class<?> getPropertyType() {
         return propertyType;
     }
