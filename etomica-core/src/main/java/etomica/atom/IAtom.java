@@ -4,6 +4,7 @@
 
 package etomica.atom;
 
+import etomica.meta.annotations.IgnoreProperty;
 import etomica.molecule.IMolecule;
 import etomica.space.Vector;
 
@@ -53,6 +54,7 @@ public interface IAtom {
     /**
      * @return the parent molecule of this IAtom.
      */
+    @IgnoreProperty
     IMolecule getParentGroup();
 
     /**

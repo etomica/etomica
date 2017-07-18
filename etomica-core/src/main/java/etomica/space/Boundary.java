@@ -7,6 +7,7 @@ package etomica.space;
 import etomica.box.Box;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.math.geometry.Polytope;
+import etomica.meta.annotations.IgnoreProperty;
 
 /**
  * Parent class of boundary objects that describe the size and periodic nature
@@ -45,6 +46,7 @@ public abstract class Boundary {
      * @return the boundary's Box.  Might be null if the boundary is not
      * associated with a box.
      */
+    @IgnoreProperty
     public Box getBox() {
         return box;
     }
@@ -160,6 +162,7 @@ public abstract class Boundary {
      * @param d the dimension of the desired edge vector
      * @return the edge vector
      */
+    @IgnoreProperty
     public abstract Vector getEdgeVector(int d);
 
     /**
@@ -169,5 +172,6 @@ public abstract class Boundary {
      * @param d the dimension of the desired periodicity
      * @return the periodicity of dimension d
      */
+    @IgnoreProperty
     public abstract boolean getPeriodicity(int d);
 }
