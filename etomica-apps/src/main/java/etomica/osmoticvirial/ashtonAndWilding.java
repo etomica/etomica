@@ -12,12 +12,16 @@ import etomica.atom.iterator.AtomsetIteratorBoxDependent;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
+import etomica.data.*;
+import etomica.data.histogram.HistogramSimple;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicBcc;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.listener.IntegratorListenerAction;
+import etomica.math.DoubleRange;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2HardSphere;
 import etomica.potential.PotentialMaster;
@@ -26,11 +30,12 @@ import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheres;
 import etomica.species.SpeciesSpheresMono;
+import etomica.units.Meter;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
 /**
- * Created by Lenovo on 07-11-2017.
+ * Created by aksharag on 07-11-2017.
  */
 
 
@@ -43,7 +48,6 @@ public class ashtonAndWilding extends Simulation {
     public MCMoveAtom mcMoveAtom;
     public SpeciesSpheresMono species1;
     public ActivityIntegrate activityIntegrate;
-    public AtomsetIteratorBoxDependent iterator;
 
 
     public ashtonAndWilding(double temp, int numAtoms, double density){
@@ -88,8 +92,6 @@ public class ashtonAndWilding extends Simulation {
         integrator.setBox(box);
         potentialMaster.getNbrCellManager(box).assignCellAll();
 
-        iterator = new ApiLeafAtoms();
-
     }
 
     public static void main(String[] args){
@@ -99,10 +101,10 @@ public class ashtonAndWilding extends Simulation {
             ParseArgs.doParseArgs(params, args);
         }
         else{
-            params.numAtoms = 500;
+            params.numAtoms = 2;
             params.numSteps = 50000;
             params.nBlocks = 100;
-            params.density = 0.5;
+            params.density = 0.005;
             params.temp = 2.0;
         }
 
@@ -111,7 +113,7 @@ public class ashtonAndWilding extends Simulation {
         int nBlocks = params.nBlocks;
         double density = params.density;
         double temp = params.temp;
-        boolean graphics = true;
+        boolean graphics = false;
 
         long numSamples = numSteps / numAtoms;
         long samplesPerBlock = numSamples / nBlocks;
@@ -136,27 +138,25 @@ public class ashtonAndWilding extends Simulation {
             return;
         }
 
-
         sim.activityIntegrate.setMaxSteps(numSteps/10);
         sim.getController().actionPerformed();
         sim.getController().reset();
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.integrator.getMoveManager().setEquilibrating(false);
 
-        double min = 100;
-        final Vector dr = sim.space.makeVector();
-        AtomType type1, type2;
+        MeterRmin meterRmin = new MeterRmin(sim.space, sim.box);
+        AccumulatorHistogram accRmin = new AccumulatorHistogram(new HistogramSimple(new DoubleRange(0, 4*sim.potential1.getRange())));
+        DataPumpListener pumpRmin = new DataPumpListener(meterRmin,accRmin,numAtoms);
+        sim.integrator.getEventManager().addListener(pumpRmin);
+        sim.getController().actionPerformed();
+        double[] histRmin = accRmin.getHistograms().getHistogram();
+        double[] r = accRmin.getHistograms().xValues();
 
-        for (IAtomList pair = sim.iterator.next(); pair != null;
-             pair = sim.iterator.next()) {
-            if (type1 != null && (pair.getAtom(0).getType() != type1 || pair.getAtom(1).getType() != type2)) continue;
-           // dr.Ev1Mv2(pair.getAtom(1).getPosition(),pair.getAtom(0).getPosition());
-           // boundary.nearestImage(dr);
-            double r2 = dr.squared();
-            if(min > r2) min = r2;
+        for (int i = 0; i < histRmin.length; i++)
+
+        {
+            System.out.println("rmin "+r[i]+" P2rmin "+histRmin[i]);
         }
-
-
 
         long t2 = System.currentTimeMillis();
         System.out.println("time: "+ (t2-t1)*0.001);
@@ -164,7 +164,7 @@ public class ashtonAndWilding extends Simulation {
     }
 
     public static class simParams extends ParameterBase{
-        public int numAtoms = 500;
+        public int numAtoms = 20;
         public int numSteps = 10000;
         public int nBlocks = 100;
         public double temp = 1.0;
