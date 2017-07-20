@@ -20,7 +20,7 @@ import etomica.util.random.IRandom;
  */
 public class IntegratorMDHarmonicMC extends IntegratorVelocityVerlet {
 
-    protected final Vector dr, drTmp, dv, dvTmp, df;
+    protected final Vector dr, drTmp, dv, dvTmp;
     protected final Vector fTot, vTot;
     protected P1ImageHarmonic p1;
     protected Boundary boundary;
@@ -35,7 +35,6 @@ public class IntegratorMDHarmonicMC extends IntegratorVelocityVerlet {
         drTmp = space.makeVector();
         dv = space.makeVector();
         dvTmp = space.makeVector();
-        df = space.makeVector();
         fTot = space.makeVector();
         vTot = space.makeVector();
     }
@@ -103,11 +102,6 @@ public class IntegratorMDHarmonicMC extends IntegratorVelocityVerlet {
             boundary.nearestImage(dr);
             drAll[iLeaf].E(dr);
             du -= w * dr.squared();
-
-            MyAgent agent0 = agentManager.getAgent(atom0);
-            MyAgent agent1 = agentManager.getAgent(atom1);
-
-            df.Ev1Mv2(agent1.force, agent0.force);
 
             // f = -2 w (x-x0) + f_iron
             // f = -2 w ((x-x0) - f_iron/2w)
