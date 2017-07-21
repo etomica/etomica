@@ -4,10 +4,10 @@
 
 package etomica.virial;
 
-import etomica.util.random.IRandom;
-import etomica.simulation.Simulation;
 import etomica.integrator.mcmove.MCMoveMolecule;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.util.random.IRandom;
 
 /**
  * Standard Monte Carlo molecule-displacement trial move for cluster integrals.
@@ -40,10 +40,8 @@ public class MCMoveClusterMolecule extends MCMoveMolecule {
         uNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         return true;
     }
-    
-    public double getB() {return 0.0;}
-    
-    public double getA() {
+
+    public double getChi(double temperature) {
         return (uOld==0.0) ? Double.POSITIVE_INFINITY : uNew/uOld;
     }
     

@@ -5,10 +5,10 @@
 package etomica.virial;
 
 import etomica.atom.IAtomList;
-import etomica.util.random.IRandom;
-import etomica.space.Vector;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 public class MCMoveClusterAtomHSChain extends MCMoveAtom {
 
@@ -47,15 +47,11 @@ public class MCMoveClusterAtomHSChain extends MCMoveAtom {
 		((BoxCluster)box).trialNotify();
 		return true;
 	}
-	
-    public double getA() {
+
+    public double getChi(double temperature) {
         return 1;
     }
 
-    public double getB() {
-    	return 0.0;
-    }
-    
     public void rejectNotify() {
         throw new RuntimeException("nope");
     }

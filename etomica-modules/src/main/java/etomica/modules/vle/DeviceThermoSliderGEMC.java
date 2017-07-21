@@ -4,18 +4,6 @@
 
 package etomica.modules.vle;
 
-import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.ButtonGroup;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeListener;
-
 import etomica.action.IAction;
 import etomica.action.activity.Controller;
 import etomica.action.activity.IController;
@@ -23,12 +11,20 @@ import etomica.graphics.Device;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorBox;
+import etomica.integrator.IntegratorManagerMC;
 import etomica.modifier.Modifier;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
+import etomica.units.Unit;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Temperature;
-import etomica.units.Unit;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * Custom temperature slider for GEMC simulations.  The only real difference is
@@ -44,6 +40,7 @@ public class DeviceThermoSliderGEMC extends Device {
 	private JRadioButton  buttonAdiabatic;   // Do not make make accessible
 	private JRadioButton  buttonIsothermal;  // Do not make make accessible
 	protected IntegratorBox    integrator1, integrator2;
+    protected IntegratorManagerMC integrator3;
 
 	private final int DEFAULT_MIN_TEMPERATURE = 0;
 	private final int DEFAULT_MAX_TEMPERATURE = 300;
@@ -260,7 +257,7 @@ public class DeviceThermoSliderGEMC extends Device {
         if (integrator1 != null && integrator2 != null) {
             // invoke setIntegartor again so that the isothermal/adiabatic
             // listener gets updated
-            setIntegrators(integrator1, integrator2);
+            setIntegrators(integrator1, integrator2, integrator3);
         }
     }
 
@@ -278,11 +275,13 @@ public class DeviceThermoSliderGEMC extends Device {
      * of integrator passed in.
      * @param newIntegrator1
      * @param newIntegrator2
+     * @param newIntegrator3
      */
-    public void setIntegrators(IntegratorBox newIntegrator1, IntegratorBox newIntegrator2) {
+    public void setIntegrators(IntegratorBox newIntegrator1, IntegratorBox newIntegrator2, IntegratorManagerMC newIntegrator3) {
         integrator1 = newIntegrator1;
     	integrator2 = newIntegrator2;
-    	temperatureSlider.setModifier(new Modifier() {
+        integrator3 = newIntegrator3;
+        temperatureSlider.setModifier(new Modifier() {
 
             public Dimension getDimension() {
                 return Temperature.DIMENSION;
@@ -299,6 +298,7 @@ public class DeviceThermoSliderGEMC extends Device {
             public void setValue(double newValue) {
                 integrator1.setTemperature(newValue);
                 integrator2.setTemperature(newValue);
+                integrator3.setTemperature(newValue);
             }
     	});
 

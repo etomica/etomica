@@ -90,25 +90,11 @@ public class MCMoveMolecule extends MCMoveBoxStep implements MCMoveMolecular {
         moveMoleculeAction.actionPerformed(molecule);
         return true;
     }
-    
-    /**
-     * Returns log of the ratio of the trial probabilities, ln(Tij/Tji) for the
-     * states encountered before (i) and after (j) the most recent call to doTrial(). 
-     * Tij is the probability that this move would generate state j from state i, and
-     * Tji is the probability that a subsequent call to doTrial would return to state i
-     * from state j.
-     */
-    public double getA() {return 1.0;}
-    
-    /**
-     * Returns the log of the limiting-distribution probabilities of states, ln(Pj/Pi), 
-     * for the states encountered before (i) and after (j) the most recent call to 
-     * doTrial.
-     */
-    public double getB() {
+
+    public double getChi(double temperature) {
         uNew = energyMeter.getDataAsScalar();
         //System.out.println("Translation uNew: "+uNew+ " uOld: "+uOld+" re "+energyMeter.getDataAsScalar());
-        return -(uNew - uOld);
+        return Math.exp(-(uNew - uOld) / temperature);
     }
     
     public double energyChange() {return uNew - uOld;}

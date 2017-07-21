@@ -49,8 +49,8 @@ public class MCMoveMoleculeMonomer extends MCMoveMolecule {
 		setMoleculeSource(moleculeSourceRandomMonomer);
 	}
 
-	public double getA(){
-		if (associationHelper.populateList(smerList,molecule,true)){
+    public double getChi(double temperature) {
+        if (associationHelper.populateList(smerList,molecule,true)){
     		return 0;
     	}
 		if (associationManager.getAssociatedMolecules(molecule).getMoleculeCount() > 0) {
@@ -59,8 +59,8 @@ public class MCMoveMoleculeMonomer extends MCMoveMolecule {
 		if (smerList.getMoleculeCount() > maxLength) {
     		return 0.0;
 		}
-		return 1.0;
-	}
+        return super.getChi(temperature);
+    }
 
 	
 }

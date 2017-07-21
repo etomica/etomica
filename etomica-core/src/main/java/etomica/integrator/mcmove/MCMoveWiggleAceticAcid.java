@@ -8,8 +8,8 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.util.Debug;
 import etomica.util.random.IRandom;
 
@@ -130,8 +130,8 @@ public class MCMoveWiggleAceticAcid extends MCMoveMolecule {
         childList.getAtom(selectedAtoms).getPosition().ME(translationVectors);
     }
 
-    public double getB() {
-        return -(uNew - uOld);
+    public double getChi(double temperature) {
+        return Math.exp(-(uNew - uOld) / temperature);
     }
 	
     private static final long serialVersionUID = 1L;

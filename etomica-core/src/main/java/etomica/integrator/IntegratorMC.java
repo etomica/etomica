@@ -5,18 +5,12 @@
 package etomica.integrator;
 
 import etomica.box.Box;
+import etomica.integrator.mcmove.*;
 import etomica.potential.PotentialMaster;
-import etomica.util.random.IRandom;
 import etomica.simulation.Simulation;
-import etomica.integrator.mcmove.MCMove;
-import etomica.integrator.mcmove.MCMoveBox;
-import etomica.integrator.mcmove.MCMoveEventManager;
-import etomica.integrator.mcmove.MCMoveManager;
-import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
-import etomica.integrator.mcmove.MCMoveTrialFailedEvent;
-import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
 import etomica.util.IEvent;
 import etomica.util.IEventManager;
+import etomica.util.random.IRandom;
 
 /**
  * Integrator to perform Metropolis Monte Carlo sampling. Works with a set of
@@ -108,7 +102,7 @@ public class IntegratorMC extends IntegratorBox {
         moveEventManager.fireEvent(trialEvent);
 
         //decide acceptance
-        double chi = move.getA() * Math.exp(move.getB() / temperature);
+        double chi = move.getChi(temperature);
         if (chi == 0.0 || (chi < 1.0 && chi < random.nextDouble())) {//reject
             if (dodebug) {
                 System.out.println(stepCount + " move " + move + " rejected");

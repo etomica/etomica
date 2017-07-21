@@ -4,9 +4,9 @@
 
 package etomica.integrator.mcmove;
 
+import etomica.atom.iterator.AtomIterator;
 import etomica.box.Box;
 import etomica.potential.PotentialMaster;
-import etomica.atom.iterator.AtomIterator;
 
 /**
  * Parent class for all elementary Monte Carlo move classes, as used by
@@ -49,18 +49,13 @@ public abstract class MCMove {
 	public abstract boolean doTrial();
 
 	/**
-     * Returns the temperature-independent part of the acceptance probability.  
-     * The actual acceptance probility is calculated as max(1,A*exp(-B/T))
-     * where T is the IntegratorBox's temperature.
-	 */
-	public abstract double getA();
-
-	/**
-	 * Returns the temperature-dependent part of the acceptance probability.  
-     * The actual acceptance probility is calculated as max(1,A*exp(-B/T))
-     * where T is the IntegratorBox's temperature.
-	 */
-	public abstract double getB();
+     * Chi is the parameter within standard Metropolis Monte Carlo.  The
+     * probability of accepting the move is given by min(1,chi).
+     *
+     * @param temperature used to compute chi
+     * @return chi
+     */
+    public abstract double getChi(double temperature);
 
 	/**
 	 * Method called by IntegratorMC in the event that the most recent trial is

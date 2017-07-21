@@ -18,10 +18,6 @@ import etomica.util.random.IRandom;
  */
 public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
 
-    /**
-     * @param potentialMaster
-     * @param space
-     */
     public MCMoveClusterRotateMoleculeMulti(IRandom random, Space _space) {
         super(null, random, _space);
         this.space = _space;
@@ -79,11 +75,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
         return true;
     }
 
-    public double getB() {
-        return 0.0;
-    }
-    
-    public double getA() {
+    public double getChi(double temperature) {
         return uNew/uOld;
     }
     

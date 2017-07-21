@@ -4,23 +4,23 @@
 
 package etomica.integrator.mcmove;
 
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.integrator.Integrator;
+import etomica.nbr.list.NeighborListManager;
+import etomica.nbr.list.PotentialMasterList;
+import etomica.potential.PotentialMaster;
+import etomica.space.Boundary;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.IEvent;
+import etomica.util.IListener;
+import etomica.util.random.IRandom;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
-import etomica.space.Boundary;
-import etomica.integrator.Integrator;
-import etomica.potential.PotentialMaster;
-import etomica.util.random.IRandom;
-import etomica.space.Vector;
-import etomica.nbr.list.NeighborListManager;
-import etomica.nbr.list.PotentialMasterList;
-import etomica.space.Space;
-import etomica.util.IEvent;
-import etomica.util.IListener;
 
 /**
  * Looks for atoms without a full set of first nearest neighbors and attempts
@@ -326,7 +326,7 @@ public class MCMoveInsertDeleteVacancy extends MCMoveInsertDeleteBiased implemen
         lastStepCount = integrator.getStepCount();
     }
 
-    public double getA() {
+    public double getChi(double temperature) {
         double lna = getLnBiasDiff();
 
         double shellV = 4.0/3.0*Math.PI*(maxInsertDistance*maxInsertDistance*maxInsertDistance - minDistance*minDistance*minDistance);
@@ -366,10 +366,7 @@ public class MCMoveInsertDeleteVacancy extends MCMoveInsertDeleteBiased implemen
             System.out.println(insert+" lnbias "+lna+" log(c) "+Math.log(c)+" log(a) "+oldLnA);
         }
 //        System.out.println(insert+" log(c) = "+lc);
-        return Math.exp(lna)*c;
-    }
 
-    public double getB() {
         double b = uOld - uNew;
         if (false) System.out.println(insert+" b = "+b);
         if (forced==2) {
@@ -382,7 +379,8 @@ public class MCMoveInsertDeleteVacancy extends MCMoveInsertDeleteBiased implemen
             return -Double.POSITIVE_INFINITY;
         }
         oldB = b;
-        return b;
+
+        return Math.exp(lna) * c * Math.exp(b / temperature);
     }
 
     public void myAcceptNotify() {

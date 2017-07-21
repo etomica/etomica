@@ -120,13 +120,9 @@ public class MCMoveReptate extends MCMoveBoxStep {
        return true;
     }
 
-    public double getA(){
-        return 1.0;
-    }
-    
-    public double getB(){
+    public double getChi(double temperature) {
         uNew = energyMeter.getDataAsScalar();
-        return -(uNew - uOld);
+        return Math.exp(-(uNew - uOld) / temperature);
     }
     
     public void acceptNotify(){

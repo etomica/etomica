@@ -30,13 +30,6 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
     	this(null, sim.getRandom(), _space, 1.0);
     }
     
-    /**
-     * Constructor for MCMoveAtomMulti.
-     * @param parentIntegrator
-     * @param nAtoms number of atoms to move in a trial.  Number of atoms in
-     * box should be at least one greater than this value (greater
-     * because first atom is never moved)
-     */
     public MCMoveClusterMoleculeMulti(PotentialMaster potentialMaster,
                                       IRandom random, Space _space, double stepSize) {
         super(potentialMaster, random, _space, stepSize, Double.POSITIVE_INFINITY);
@@ -101,12 +94,8 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
     public void acceptNotify() {
         ((BoxCluster)box).acceptNotify();
     }
-    
-    public double getB() {
-        return 0.0;
-    }
-    
-    public double getA() {
+
+    public double getChi(double temperature) {
         return uNew/uOld;
     }
 	

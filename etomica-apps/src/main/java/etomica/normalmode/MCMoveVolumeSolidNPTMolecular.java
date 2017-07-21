@@ -191,16 +191,12 @@ public class MCMoveVolumeSolidNPTMolecular extends MCMoveBoxStep {
         }
         
     }
-    
-    public double getA() {
-        return 1;
-    }
-    
-    public double getB() {
+
+    public double getChi(double temperature) {
         int nMolecules = box.getMoleculeList().getMoleculeCount();
         double uLatOld = nMolecules*uLatFunction.f(nMolecules/vOld);
         double uLatNew = nMolecules*uLatFunction.f(nMolecules/vNew);
-        return -((uNew-uLatNew) - (uOld-uLatOld));
+        return Math.exp(-((uNew - uLatNew) - (uOld - uLatOld)) / temperature);
     }
     
     public void acceptNotify() {

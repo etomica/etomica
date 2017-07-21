@@ -6,9 +6,9 @@ package etomica.virial;
 
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.util.random.IRandom;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.Space;
+import etomica.util.random.IRandom;
 
 
 /**
@@ -35,12 +35,8 @@ public class MCMoveClusterAtom extends MCMoveAtom {
         uNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 		return true;
 	}
-	
-    public double getB() {
-    	return 0;
-    }
-    
-    public double getA() {
+
+    public double getChi() {
         return (uOld==0.0) ? Double.POSITIVE_INFINITY : uNew/uOld;
     }
 

@@ -5,16 +5,16 @@
 package etomica.models.oneDHardRods;
 
 import etomica.atom.IAtomList;
-import etomica.box.Box;
-import etomica.potential.PotentialMaster;
-import etomica.util.random.IRandom;
-import etomica.space.Vector;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
+import etomica.potential.PotentialMaster;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * A Monte Carlo move which selects a wave vector and mode(s), and changes the normal mode
@@ -187,13 +187,9 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
         
         return true;
     }
-    
-    public double getA() {
-        return 1;
-    }
 
-    public double getB() {
-        return -(energyNew - energyOld);
+    public double getChi(double temperature) {
+        return Math.exp(-(energyNew - energyOld) / temperature);
     }
     
     public void acceptNotify() {

@@ -5,18 +5,18 @@
 package etomica.integrator.mcmove;
 
 import etomica.action.BoxInflate;
-import etomica.box.Box;
-import etomica.math.function.IFunction;
-import etomica.potential.PotentialMaster;
-import etomica.util.random.IRandom;
-import etomica.simulation.Simulation;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.math.function.Function;
+import etomica.math.function.IFunction;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Pressure;
-import etomica.math.function.Function;
+import etomica.util.random.IRandom;
 
 /**
  * Standard Monte Carlo volume-change move for simulations in the NPT ensemble.
@@ -35,7 +35,6 @@ public class MCMoveVolume extends MCMoveBoxStep {
 
     protected double biasOld, uOld, hOld, vNew, vScale, hNew;
     protected double uNew = Double.NaN;
-    protected double temperature;
 
     public MCMoveVolume(Simulation sim, PotentialMaster potentialMaster,
                         Space _space) {
@@ -78,18 +77,6 @@ public class MCMoveVolume extends MCMoveBoxStep {
         this.vBias = vBias;
     }
 
-    /**
-     * Sets the temperature so that chi can be compted in getA, avoiding
-     * potential roundoff.  B and the exponential argument in A can both be
-     * very large for a large system, but they tend to cancel.  Returned
-     * separately, they might be 0 and infinity, causing big trouble.  If 
-     * the move knows the temperature, all can be computed in getA without
-     * risk of roundoff.
-     */
-    public void setTemperature(double newTemperature) {
-        temperature = newTemperature;
-    }
-
     public boolean doTrial() {
         double vOld = box.getBoundary().volume();
         uOld = energyMeter.getDataAsScalar();
@@ -106,19 +93,11 @@ public class MCMoveVolume extends MCMoveBoxStep {
         return true;
     }//end of doTrial
 
-    public double getA() {
+    public double getChi(double temperature) {
         // N, not N+1 here because of the shell volume
         // D. S. Corti, Mol. Phys. 100, 1887 (2002).
         double biasNew = vBias.f(box.getBoundary().volume());
-        if (temperature != 0) {
-            return biasNew/biasOld*Math.exp(box.getMoleculeList().getMoleculeCount()*vScale - (hNew-hOld)/temperature);
-        }
-        return biasNew/biasOld*Math.exp(box.getMoleculeList().getMoleculeCount()*vScale);
-    }
-
-    public double getB() {
-        if (temperature > 0) return 0;
-        return -(hNew - hOld);
+        return biasNew / biasOld * Math.exp(box.getMoleculeList().getMoleculeCount() * vScale - (hNew - hOld) / temperature);
     }
 
     public void acceptNotify() {  /* do nothing */}

@@ -6,11 +6,11 @@ package etomica.normalmode;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.util.random.IRandom;
-import etomica.space.Vector;
 import etomica.atom.iterator.AtomIterator;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * MC move whose purpose in life is to sample an  Einstein crystal.
@@ -90,9 +90,9 @@ public class MCMoveEinsteinCrystal extends MCMoveBox {
 
     public double energyChange() {return 0;}
 
-    public double getA() {return 1;}
-
-    public double getB() {return 0;}
+    public double getChi(double temperature) {
+        return 1;
+    }
 
     public void acceptNotify() {}
 

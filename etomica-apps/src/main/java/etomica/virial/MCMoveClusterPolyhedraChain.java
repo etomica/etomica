@@ -79,15 +79,11 @@ public class MCMoveClusterPolyhedraChain extends MCMoveAtom {
 		((BoxCluster)box).trialNotify();
 		return true;
 	}
-	
-    public double getA() {
+
+    public double getChi(double temperature) {
         return 1;
     }
 
-    public double getB() {
-    	return 0.0;
-    }
-    
     public void rejectNotify() {
         throw new RuntimeException("nope");
     }

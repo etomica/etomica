@@ -5,13 +5,13 @@
 package etomica.virial;
 
 import etomica.atom.IAtomList;
-import etomica.box.Box;
-import etomica.util.random.IRandom;
 import etomica.atom.IAtomOriented;
+import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.IOrientation;
 import etomica.space.Space;
 import etomica.space3d.Orientation3D;
+import etomica.util.random.IRandom;
 
 /**
  * Extension of MCMoveAtom that does trial in which several atom orientations are
@@ -60,13 +60,9 @@ public class MCMoveClusterAtomRotateMulti extends MCMoveAtom {
         uNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 		return true;
 	}
-	
-    public double getA() {
-        return uNew/uOld;
-    }
 
-    public double getB() {
-    	return 0.0;
+    public double getChi(double temperature) {
+        return uNew/uOld;
     }
 
     public void rejectNotify() {

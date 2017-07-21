@@ -4,21 +4,21 @@
 
  package etomica.normalmode;
 
-import etomica.atom.IAtom;
-import etomica.box.Box;
-import etomica.potential.PotentialMaster;
-import etomica.util.random.IRandom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPair;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.potential.Potential2;
+import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * Standard Monte Carlo atom-displacement trial move. Two atoms are moved at a
@@ -286,24 +286,10 @@ public class MCMoveAtomSuperBox extends MCMoveBoxStep {
         
         return true; 
     }//end of doTrial
-    
-    
-    /**
-     * Returns log of the ratio of the trial probabilities, ln(Tij/Tji) for the
-     * states encountered before (i) and after (j) the most recent call to doTrial(). 
-     * Tij is the probability that this move would generate state j from state i, and
-     * Tji is the probability that a subsequent call to doTrial would return to state i
-     * from state j.
-     */
-    public double getA() {return 1.0;}
-    
-    /**
-     * Returns the log of the limiting-distribution probabilities of states, ln(Pj/Pi), 
-     * for the states encountered before (i) and after (j) the most recent call to 
-     * doTrial.
-     */
-    public double getB() {
-        return -(uNew - uOld);
+
+
+    public double getChi(double temperature) {
+        return Math.exp(-(uNew - uOld) / temperature);
     }
     
     public double energyChange() {return uNew - uOld;}

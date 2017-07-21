@@ -166,14 +166,10 @@ public class MCMoveClusterAngleBendAceticAcid extends MCMoveBoxStep {
         ((BoxCluster)box).rejectNotify();
     }
 
-    public double getB() {
-        return -(uNew - uOld);
+    public double getChi(double temperature) {
+        return (wOld == 0 ? 1 : wNew / wOld) * Math.exp(-(uNew - uOld) / temperature);
     }
-    
-    public double getA() {
-        return wOld == 0 ? 1 : wNew/wOld;
-    }
-	
+
     public double energyChange() {return uNew - uOld;}
 
     public AtomIterator affectedAtoms() {
@@ -188,7 +184,7 @@ public class MCMoveClusterAngleBendAceticAcid extends MCMoveBoxStep {
         return moleculeSource;
     }
     /**
-     * @param atomSource The atomSource to set.
+     * @param source The atomSource to set.
      */
     public void setMoleculeSource(MoleculeSource source) {
         moleculeSource = source;

@@ -116,6 +116,7 @@ public class VLESim extends Simulation {
         }
 
         integratorGEMC = new IntegratorManagerMC(random);
+        integratorGEMC.setTemperature(temperature);
         integratorGEMC.getMoveManager().setEquilibrating(true);
         integratorGEMC.setGlobalMoveInterval(2);
         integratorGEMC.addIntegrator(integratorLiquid);

@@ -131,9 +131,7 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         return true;
     }
 
-    public double getA() {return 1.0;}
-    
-    public double getB() {
+    public double getChi(double temperature) {
         uNew = energyMeter.getDataAsScalar();
         energyMeter.setTarget(atom0);
         uNew += energyMeter.getDataAsScalar();

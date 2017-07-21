@@ -80,7 +80,7 @@ public class IntegratorTMMC extends IntegratorMC {
         int iStateNew = macrostateManager.stateIndex(box);//new to tmmc
         int iDelta = iStateNew - iStateOld + 1;// 0, 1, 2  new to tmmc
         double weightDifference = weight[iStateNew] - weight[iStateOld]; //new to tmmc
-        double lnChi = move.getA() + move.getB();
+        double lnChi = move.getChi(temperature);
         double r = (lnChi < 0.0) ? Math.exp(lnChi) : 1.0; //new to tmmc
         C[iStateOld][iDelta] += r;  //new to tmmc
         C[iStateOld][1] += (1.0 - r); //new to tmmc

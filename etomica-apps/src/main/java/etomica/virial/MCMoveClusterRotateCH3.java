@@ -160,12 +160,8 @@ public class MCMoveClusterRotateCH3 extends MCMoveMolecule {
         ((BoxCluster)box).rejectNotify();
     }
 
-    public double getB() {
-        return -(uNew - uOld);
-    }
-    
-    public double getA() {
-        return wNew/wOld;
+    public double getChi(double temperature) {
+        return wNew / wOld * Math.exp(-(uNew - uOld) / temperature);
     }
 	
     private static final long serialVersionUID = 1L;

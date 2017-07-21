@@ -209,16 +209,12 @@ public class MCMoveClusterRingRegrow extends MCMoveBox {
         weightNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 		return true;
 	}
-	
-    public double getA() {
+
+    public double getChi(double temperature) {
         // we skip calculation of wOld because we're the only intramolecular move in town.
         return wNew/wOld * weightNew/weightOld;
     }
 
-    public double getB() {
-    	return 0.0;
-    }
-    
     public void rejectNotify() {
         IMoleculeList molecules = box.getMoleculeList();
 

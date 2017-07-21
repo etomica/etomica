@@ -26,13 +26,6 @@ import etomica.util.random.IRandom;
  */
 public class MCMoveClusterTorsionAceticAcid extends MCMoveMolecule {
    
-    /**
-     * Constructor for MCMoveAtomMulti.
-     * @param parentIntegrator
-     * @param nAtoms number of atoms to move in a trial.  Number of atoms in
-     * box should be at least one greater than this value (greater
-     * because first atom is never moved)
-     */
     public MCMoveClusterTorsionAceticAcid(PotentialMaster potentialMaster, Space space,
                                           IRandom random) {
         super(potentialMaster,random,space,1,Double.POSITIVE_INFINITY);//we don't need stepsize-> put 1
@@ -111,13 +104,9 @@ public class MCMoveClusterTorsionAceticAcid extends MCMoveMolecule {
     public void acceptNotify() {
         ((BoxCluster)box).acceptNotify();
     }
-    
-    public double getB() {
-        return -(uNew - uOld);
-    }
-    
-    public double getA() {
-    	return wNew/wOld;
+
+    public double getChi(double temperature) {
+        return wNew / wOld * Math.exp(-(uNew - uOld) / temperature);
     }
 	
     private static final long serialVersionUID = 1L;
