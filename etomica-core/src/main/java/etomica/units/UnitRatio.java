@@ -45,7 +45,5 @@ public UnitRatio(Unit numerator, Unit denominator) {
                 symbol // symbol
         );
     }
-    
-    private static final long serialVersionUID = 1;
-    
+
 }

@@ -15,11 +15,11 @@
  * which holds a DataInfo instance describing the Data; part of the information given in DataInfo
  * is a Dimension instance which specifies the physical dimensions of the data.
  * <li>the convention
- * of defining set/get methods to access and change fields of an object is extended to include
- * a method that provides a Dimension instance appropriate to the field.  For example, a class
+ * of defining set/get methods to access and change fields of an object is supplemented with an annotation
+ * on the get method specifying the dimension of the value.  For example, a class
  * that defines setSize and getSize methods to access the field <i>size</i>
- * (which represents, say, the diameter of a sphere) will also have a method named
- * getSizeDimension which returns an instance of Dimension indicating dimensions of length.
+ * (which represents, say, the diameter of a sphere) will also have an annotation on getSize indicating
+ * dimensions of length.
  * </ul>
  * Dimensions are specified via a <i>signature</i>, which is an array of seven values indicating the
  * exponents of the fundamental dimensions that are combined to form the specified dimension.

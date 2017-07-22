@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.units;
+package etomica.units.gui;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,7 +14,10 @@ import java.util.StringTokenizer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
+import etomica.units.CompoundUnit;
+import etomica.units.SimpleUnit;
 import etomica.units.dimensions.Dimension;
+import etomica.units.gui.UnitFilter;
 import etomica.units.systems.UnitSystem;
 
 public final class Lister {

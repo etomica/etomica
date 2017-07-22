@@ -66,27 +66,44 @@ public class LJ extends UnitSystem  {
         }
     }
 
-    //accessor and mutator methods
+    /**
+     * @return the LJ length parameter for this unit system
+     */
     public double getSigma() {
         return sigma;
     }
 
+    /**
+     * @param s new value of the LJ length parameter to be used to define this unit system
+     */
     public void setSigma(double s) {
         sigma = s;
     }
 
+    /**
+     * @return the LJ energy parameter for this unit system
+     */
     public double getEpsilon() {
         return epsilon;
     }
 
+    /**
+     * @param e new value of the LJ energy parameter to be used to define this unit system
+     */
     public void setEpsilon(double e) {
         epsilon = e;
     }
 
+    /**
+     * @return the LJ mass parameter for this unit system
+     */
     public double getMass() {
         return mass;
     }
 
+    /**
+     * @param m new value of the LJ mass parameter to be used to define this unit system
+     */
     public void setMass(double m) {
         mass = m;
     }
@@ -159,8 +176,7 @@ public class LJ extends UnitSystem  {
     protected double sigma = 1.0;
     protected double epsilon = 1.0;
     protected double mass = 1.0;
-    private static final long serialVersionUID = 1;
-    
+
     // \u03B5 is unicode for epsilon
     // \u03C3 is unicode for sigma
     // \u00BD is unicode for "1/2"
@@ -183,7 +199,7 @@ public class LJ extends UnitSystem  {
     private final Unit viscosityUnit = new Viscosity(this);
     private final Unit currentUnit = new Current(this);
 
-    //definitions of the LJ units
+    //*************** definitions of the LJ units *********************//
     
 
     //parent class for the LJ units
@@ -234,8 +250,6 @@ public class LJ extends UnitSystem  {
         public double fromSim(double x) {
             return x / lj.mass;
         }
-
-        private static final long serialVersionUID = 1;
     }
 
     private static final class Length extends LJUnit {
@@ -254,8 +268,6 @@ public class LJ extends UnitSystem  {
         public double fromSim(double x) {
             return x / lj.sigma;
         }
-
-        private static final long serialVersionUID = 1;
     }
 
     private static final class Time extends LJUnit {
@@ -272,10 +284,8 @@ public class LJ extends UnitSystem  {
         }
 
         public double fromSim(double x) {
-            return x * Math.sqrt(lj.epsilon / lj.mass) / lj.sigma;
+            return x / (lj.sigma * Math.sqrt(lj.mass / lj.epsilon));
         }
-
-        private static final long serialVersionUID = 1;
     }
 
     private static final class Current extends LJUnit {
@@ -292,10 +302,8 @@ public class LJ extends UnitSystem  {
         }
 
         public double fromSim(double x) {
-            return x * Electron.UNIT.fromSim(1.0)/(Math.sqrt(lj.epsilon / lj.mass) / lj.sigma);
+            return Electron.UNIT.fromSim(x)/lj.timeUnit.fromSim(1.0);
         }
-
-        private static final long serialVersionUID = 1;
     }
 
 
@@ -313,10 +321,8 @@ public class LJ extends UnitSystem  {
         }
 
         public double fromSim(double x) {
-            return Electron.UNIT.fromSim(x) / lj.sigma;
+            return Electron.UNIT.fromSim(x) * lj.lengthUnit.fromSim(1.0);
         }
-
-        private static final long serialVersionUID = 1;
     }
 
     private static final class Force extends LJUnit {
@@ -335,8 +341,6 @@ public class LJ extends UnitSystem  {
         public double fromSim(double x) {
             return x * lj.sigma / lj.epsilon;
         }
-
-        private static final long serialVersionUID = 1;
     }
 
     private static final class Energy extends LJUnit {
@@ -355,8 +359,6 @@ public class LJ extends UnitSystem  {
         public double fromSim(double x) {
             return x / lj.epsilon;
         }
-
-        private static final long serialVersionUID = 1;
     }
 
     private static final class Power extends LJUnit {
@@ -371,10 +373,8 @@ public class LJ extends UnitSystem  {
         }
 
         public double fromSim(double x) {
-            return x/(lj.epsilon * Math.sqrt(lj.epsilon / lj.mass) / lj.sigma );
+            return lj.energyUnit.fromSim(x)/lj.timeUnit.fromSim(1.0);
         }
-
-        private static final long serialVersionUID = 1;
     }
 
     private static final class Temperature extends LJUnit {
@@ -393,8 +393,6 @@ public class LJ extends UnitSystem  {
         public double fromSim(double x) {
             return x / lj.epsilon;
         }
-
-        private static final long serialVersionUID = 1;
     }
 
     private static final class Pressure extends LJUnit {
@@ -413,8 +411,6 @@ public class LJ extends UnitSystem  {
         public double fromSim(double x) {
             return x * lj.sigma * lj.sigma * lj.sigma / lj.epsilon;
         }
-
-        private static final long serialVersionUID = 1;
     }
 
     private static final class Volume extends LJUnit {
@@ -433,8 +429,6 @@ public class LJ extends UnitSystem  {
         public double fromSim(double x) {
             return x / (lj.sigma * lj.sigma * lj.sigma);
         }
-
-        private static final long serialVersionUID = 1;
     }
 
     private static final class Area extends LJUnit {
@@ -453,8 +447,6 @@ public class LJ extends UnitSystem  {
         public double fromSim(double x) {
             return x / (lj.sigma * lj.sigma);
         }
-
-        private static final long serialVersionUID = 1;
     }
     
     private static final class Viscosity extends LJUnit {
@@ -473,8 +465,6 @@ public class LJ extends UnitSystem  {
         public double fromSim(double x) {
             return x * lj.sigma * lj.sigma / Math.sqrt(lj.epsilon * lj.mass);
         }
-
-        private static final long serialVersionUID = 1;
     }
 
 
