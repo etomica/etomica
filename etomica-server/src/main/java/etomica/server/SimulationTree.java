@@ -1,6 +1,7 @@
 package etomica.server;
 
 import etomica.meta.InstanceProperty;
+import etomica.meta.wrappers.CollectionWrapper;
 import etomica.meta.wrappers.Wrapper;
 
 import java.util.ArrayList;
@@ -10,39 +11,36 @@ import java.util.Map;
 
 public class SimulationTree {
     private final List<SimulationTree> children = new ArrayList<>();
-    private Wrapper<?> data;
-    private String propName;
+    protected Wrapper<?> wrapper;
 
-    public SimulationTree(Wrapper<?> data, String propName, Map<Class, List<InstanceProperty>> classes) {
-        this.data = data;
-        this.propName = propName;
+    public SimulationTree(Wrapper<?> wrapper, Map<Class, List<InstanceProperty>> classes) {
+        this.wrapper = wrapper;
 
-        if (data != null) {
+        if (wrapper != null) {
             findChildren(classes);
         }
     }
 
-    public String getPropName() {
-        return propName;
-    }
-
-    public Wrapper<?> getData() {
-        return data;
+    public Wrapper<?> getWrapper() {
+        return wrapper;
     }
 
     public List<SimulationTree> getChildren() {
         return children;
     }
 
-    private void findChildren(Map<Class, List<InstanceProperty>> classes) {
-        classes.putIfAbsent(this.data.getWrappedClass(), this.data.getProperties());
+    protected void findChildren(Map<Class, List<InstanceProperty>> classes) {
 
-        data.getChildren().forEach((propName, wrapper) -> {
-            if (wrapper != null) {
-                classes.putIfAbsent(wrapper.getWrappedClass(), wrapper.getProperties());
-            }
+        classes.putIfAbsent(this.wrapper.getWrappedClass(), this.wrapper.getProperties());
 
-            children.add(new SimulationTree(wrapper, propName, classes));
-        });
+        if(wrapper instanceof CollectionWrapper) {
+            ((CollectionWrapper<?>) wrapper).getElements().forEach(wrapper -> {
+                children.add(new SimulationTree(wrapper, classes));
+            });
+        } else {
+            wrapper.getChildren().forEach((propName, wrapper) -> {
+                children.add(new PropertyTree(wrapper, propName, classes));
+            });
+        }
     }
 }

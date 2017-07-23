@@ -4,6 +4,7 @@
 
 package etomica.math.geometry;
 
+import etomica.meta.annotations.IgnoreProperty;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space1d.Vector1D;
@@ -103,7 +104,8 @@ public class LineSegment extends Polytope implements Rectangular {
     public Vector getEdgeLengths() {
         return new Vector1D(getLength());
     }
-    
+
+    @IgnoreProperty
     public LineSegment[] getEdges() {
     	return edges;
     }

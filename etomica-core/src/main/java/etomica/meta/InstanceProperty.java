@@ -109,7 +109,7 @@ public class InstanceProperty {
     }
 
     public boolean canWrite() {
-        return reader != null;
+        return writer != null;
     }
 
     public boolean canAdd() {

@@ -3,10 +3,9 @@ package etomica.server;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import etomica.meta.InstanceProperty;
+import etomica.meta.wrappers.CollectionWrapper;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.Map.Entry;
 
 public class SimulationTreeSerializer extends StdSerializer<SimulationTree> {
@@ -17,19 +16,25 @@ public class SimulationTreeSerializer extends StdSerializer<SimulationTree> {
 
     @Override
     public void serialize(SimulationTree value, JsonGenerator gen, SerializerProvider provider) throws IOException {
-        gen.writeStartObject();
-        gen.writeStringField("class", value.getData().getWrappedClass().getName());
-        for(Entry<String, Object> e : value.getData().getValues().entrySet()) {
-            gen.writeObjectField(e.getKey(), e.getValue());
-        }
-        for(SimulationTree tree : value.getChildren()) {
-            if(tree.getData() == null) {
-                gen.writeNullField(tree.getPropName());
-            } else {
-                gen.writeObjectField(tree.getPropName(), tree);
+
+        if(value.getWrapper() instanceof CollectionWrapper<?>) {
+            gen.writeObject(value.getChildren());
+        } else {
+            gen.writeStartObject();
+            gen.writeStringField("class", value.getWrapper().getWrappedClass().getName());
+            for(Entry<String, Object> e : value.getWrapper().getValues().entrySet()) {
+                gen.writeObjectField(e.getKey(), e.getValue());
             }
+            for(SimulationTree tree : value.getChildren()) {
+                if(tree.getWrapper() == null) {
+                    gen.writeNullField(((PropertyTree) tree).getPropName());
+                } else {
+                    gen.writeObjectField(((PropertyTree) tree).getPropName(), tree);
+                }
+            }
+            gen.writeEndObject();
         }
-        gen.writeEndObject();
+
     }
 
 

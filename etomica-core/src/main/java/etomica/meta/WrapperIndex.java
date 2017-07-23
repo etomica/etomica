@@ -1,5 +1,6 @@
 package etomica.meta;
 
+import etomica.meta.wrappers.ArrayWrapper;
 import etomica.meta.wrappers.Wrapper;
 
 import java.lang.reflect.Constructor;
@@ -23,12 +24,15 @@ public class WrapperIndex {
 
         wrapperMap.put(Object.class, Wrapper.class.getDeclaredConstructors()[0]);
 
+
     }
 
 
     public static Wrapper getWrapper(Object o) {
         if (o == null) {
             return null;
+        } else if(o.getClass().isArray()) {
+            return new ArrayWrapper((Object[]) o);
         }
         return getWrapper(o, o.getClass());
     }

@@ -14,7 +14,7 @@ public class SimulationModel {
 
     public SimulationModel(SimulationWrapper base) {
         this.classes = new HashMap<>();
-        this.tree = new SimulationTree(base, base.getWrappedClass().getSimpleName(), classes);
+        this.tree = new PropertyTree(base, base.getWrappedClass().getSimpleName(), classes);
     }
 
     public Map<Class, List<InstanceProperty>> getClasses() {
