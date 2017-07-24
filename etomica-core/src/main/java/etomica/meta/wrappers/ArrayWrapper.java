@@ -1,25 +1,21 @@
 package etomica.meta.wrappers;
 
-import etomica.meta.WrapperIndex;
+import etomica.meta.properties.CollectionElementProperty;
+import etomica.meta.SimulationModel;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+/**
+ * Wraps an array of objects, such that the getChildProps gives property instances for each element of the collection.
+ */
+public class ArrayWrapper extends Wrapper<Object[]> {
 
-public class ArrayWrapper extends CollectionWrapper<Object[]> {
+    public ArrayWrapper(Object[] wrapped, SimulationModel simModel) {
+        super(wrapped, simModel);
 
-    public ArrayWrapper(Object[] wrapped) {
-        super(wrapped);
-    }
-
-    @Override
-    public List<Wrapper<?>> getElements() {
-        List<Wrapper<?>> elements = new ArrayList<>();
         for(Object el : wrapped) {
-            Wrapper<?> wrapper = WrapperIndex.getWrapper(el);
-            elements.add(wrapper);
+            properties.add(new CollectionElementProperty(el));
         }
 
-        return elements;
+        childProps.addAll(properties);
+
     }
 }

@@ -1,4 +1,4 @@
-package etomica.meta;
+package etomica.meta.properties;
 
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Dimensioned;
@@ -13,7 +13,7 @@ import java.lang.reflect.Method;
  * <p>
  * Also contains additional adder and remover methods for that property if they exist.
  */
-public class InstanceProperty {
+public class InstanceProperty implements Property {
     private final PropertyDescriptor descriptor;
     private final Class<?> propertyType;
     private final Object instance;
@@ -39,6 +39,7 @@ public class InstanceProperty {
         counter = getMethod("get" + baseName + "Count");
     }
 
+    @Override
     public Object invokeReader() {
         try {
             return reader.invoke(instance);
@@ -47,10 +48,12 @@ public class InstanceProperty {
         }
     }
 
+    @Override
     public String getName() {
         return descriptor.getName();
     }
 
+    @Override
     public Object invokeReader(int i) {
         try {
             return reader.invoke(instance, i);
@@ -59,6 +62,7 @@ public class InstanceProperty {
         }
     }
 
+    @Override
     public void invokeWriter(Object... params) {
         try {
             writer.invoke(instance, params);
@@ -67,6 +71,7 @@ public class InstanceProperty {
         }
     }
 
+    @Override
     public void invokeWriter(int i, Object... params) {
         try {
             writer.invoke(instance, i, params);
@@ -75,6 +80,7 @@ public class InstanceProperty {
         }
     }
 
+    @Override
     public void invokeAdder(Object o) {
         try {
             adder.invoke(instance, o);
@@ -83,6 +89,7 @@ public class InstanceProperty {
         }
     }
 
+    @Override
     public void invokeRemover(Object o) {
         try {
             remover.invoke(instance, o);
@@ -91,6 +98,7 @@ public class InstanceProperty {
         }
     }
 
+    @Override
     public int invokeCount() {
         try {
             return (int) counter.invoke(instance);
@@ -100,30 +108,37 @@ public class InstanceProperty {
 
     }
 
-    public boolean isIndexedProperty() {
+    @Override
+    public final boolean isIndexedProperty() {
         return descriptor instanceof IndexedPropertyDescriptor;
     }
 
+    @Override
     public boolean canRead() {
         return reader != null;
     }
 
+    @Override
     public boolean canWrite() {
         return writer != null;
     }
 
+    @Override
     public boolean canAdd() {
         return adder != null;
     }
 
+    @Override
     public boolean canRemove() {
         return remover != null;
     }
 
+    @Override
     public boolean canCount() {
         return counter != null;
     }
 
+    @Override
     public Class<?> getPropertyType() {
         return propertyType;
     }

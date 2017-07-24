@@ -3,18 +3,18 @@ package etomica.server;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import etomica.meta.InstanceProperty;
+import etomica.meta.properties.Property;
 
 import java.io.IOException;
 
-public class PropertySerializer extends StdSerializer<InstanceProperty>{
+public class PropertySerializer extends StdSerializer<Property>{
 
-    protected PropertySerializer(Class<InstanceProperty> t) {
+    protected PropertySerializer(Class<Property> t) {
         super(t);
     }
 
     @Override
-    public void serialize(InstanceProperty value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+    public void serialize(Property value, JsonGenerator gen, SerializerProvider provider) throws IOException {
 
         gen.writeStartObject();
 
@@ -28,6 +28,7 @@ public class PropertySerializer extends StdSerializer<InstanceProperty>{
         if(value.canRemove()) { gen.writeString("remove"); }
         if(value.canCount()) { gen.writeString("count"); }
         gen.writeEndArray();
+//        if(value.canRead()) { gen.writeNumberField("value");
 
         gen.writeEndObject();
 

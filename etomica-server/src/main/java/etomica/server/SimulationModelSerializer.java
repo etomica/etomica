@@ -3,11 +3,11 @@ package etomica.server;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import etomica.meta.InstanceProperty;
+import etomica.meta.SimulationModel;
+import etomica.meta.wrappers.Wrapper;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import java.util.Collection;
 
 public class SimulationModelSerializer extends StdSerializer<SimulationModel> {
 
@@ -18,28 +18,28 @@ public class SimulationModelSerializer extends StdSerializer<SimulationModel> {
 
     @Override
     public void serialize(SimulationModel value, JsonGenerator gen, SerializerProvider provider) throws IOException {
-        gen.writeStartObject();
+//        gen.writeStartObject();
 
         // Write "classes" field
-        Map<Class, List<InstanceProperty>> classes = value.getClasses();
-        gen.writeFieldName("classes");
-        gen.writeStartObject();
-        for (Map.Entry<Class, List<InstanceProperty>> entry : classes.entrySet()) {
-            gen.writeFieldName(entry.getKey().getSimpleName());
+//        Map<Class, List<Property>> classes = value.getClasses();
+//        gen.writeFieldName("classes");
 
-            gen.writeStartObject();
-            for(InstanceProperty property : entry.getValue()) {
-                gen.writeObjectField(property.getName(), property);
-            }
-            gen.writeEndObject();
+        Collection<Wrapper> allWrappers = value.allWrappers();
+//        gen.writeStartObject();
+        for (Wrapper wrapper : allWrappers) {
+//            gen.writeFieldName(entry.getKey().getSimpleName());
+
+//            gen.writeStartObject();
+            gen.writeObject(wrapper);
+//            for(Property property : entry.getValue()) {
+//                gen.writeObjectField(property.getName(), property);
+//            }
+//            gen.writeEndObject();
 
         }
-        gen.writeEndObject();
+//        gen.writeEndObject();
 
-        // Write "tree" field
-        gen.writeObjectField("tree", value.getTree());
-
-        gen.writeEndObject();
+//        gen.writeEndObject();
 
 
     }

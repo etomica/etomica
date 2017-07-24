@@ -3,7 +3,8 @@ package etomica.meta.wrappers;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorManagerMC;
-import etomica.meta.InstanceProperty;
+import etomica.meta.properties.InstanceProperty;
+import etomica.meta.SimulationModel;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 
@@ -21,10 +22,10 @@ import java.util.Set;
  * which are associated with Integrators internally but conceptually are children of the simulation,
  * and adds a "synthetic" method to return them to the list of the simulation's properties.
  */
-public class SimulationWrapper extends Wrapper<Simulation> {
+public class SimulationWrapper extends ObjectWrapper<Simulation> {
 
-    public SimulationWrapper(Simulation wrapped) {
-        super(wrapped);
+    public SimulationWrapper(Simulation wrapped, SimulationModel simModel) {
+        super(wrapped, simModel);
 
         try {
             PropertyDescriptor descriptor = new PropertyDescriptor(

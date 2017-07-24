@@ -1,89 +1,62 @@
 package etomica.meta.wrappers;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerator;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import etomica.meta.InstanceProperty;
-import etomica.meta.WrapperIndex;
-import etomica.meta.annotations.IgnoreProperty;
-import etomica.simulation.prototypes.HSMD2D;
-import org.apache.commons.lang3.reflect.MethodUtils;
+import etomica.meta.properties.Property;
+import etomica.meta.SimulationModel;
 
-import java.beans.IndexedPropertyDescriptor;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 import java.util.*;
 
-
-public class Wrapper<T> {
+/**
+ * Surrogate for an instance of an object that is part of a simulation, providing greater control over which
+ * fields are made accessible in the simulation model.
+ * @param <T> the class of the wrapped object
+ */
+public abstract class Wrapper<T> {
     protected final T wrapped;
     protected final Class wrappedClass;
+    protected final long wrappedId;
+    protected final SimulationModel simModel;
 
-    protected final List<InstanceProperty> properties = new ArrayList<>();
+    protected final List<Property> properties = new ArrayList<>();
+    protected final List<Property> childProps = new ArrayList<>();
+    protected final List<Property> valueProps = new ArrayList<>();
 
-    protected final List<InstanceProperty> childProps = new ArrayList<>();
-    protected final List<InstanceProperty> valueProps = new ArrayList<>();
-
-
-    public Wrapper(T wrapped) {
+    //SimulationModel is needed for information about wrapper id, both for this instance and regarding child instances
+    public Wrapper(T wrapped, SimulationModel simModel) {
         this.wrapped = wrapped;
         this.wrappedClass = wrapped.getClass();
+        this.simModel = simModel;
+        wrappedId = simModel.getNewId();
 
-        try {
-            Arrays.stream(Introspector.getBeanInfo(wrappedClass).getPropertyDescriptors())
-                    .filter(propertyDescriptor -> !propertyDescriptor.getName().equalsIgnoreCase("class"))
-                    .filter(propertyDescriptor -> propertyDescriptorMethod(propertyDescriptor) != null)
-                    .filter(propertyDescriptor -> !hasAnnotation(propertyDescriptorMethod(propertyDescriptor), IgnoreProperty.class))
-                    .filter(propertyDescriptor -> !propertyDescriptor.getName().toLowerCase().endsWith("dimension"))
-                    .forEach(propertyDescriptor -> properties.add(new InstanceProperty(wrapped, propertyDescriptor)));
-
-            for (InstanceProperty p : properties) {
-                Class<?> type = p.getPropertyType();
-                if (type.isPrimitive() || type.equals(String.class) || type.equals(Class.class)
-                        || (type.isArray() && (type.getComponentType().isPrimitive() || type.getComponentType().equals(String.class)))) {
-                    valueProps.add(p);
-                } else {
-                    childProps.add(p);
-                }
-            }
-        } catch (IntrospectionException e) {
-            e.printStackTrace();
-        }
     }
 
-    private static Method propertyDescriptorMethod(PropertyDescriptor pd) {
-        if (pd instanceof IndexedPropertyDescriptor) {
-            return ((IndexedPropertyDescriptor) pd).getIndexedReadMethod();
-        } else {
-            return pd.getReadMethod();
-        }
-    }
-
-    private static boolean hasAnnotation(Method method, Class<? extends Annotation> ann) {
-        return MethodUtils.getAnnotation(method, ann, true, true) != null;
-    }
-
-    public static void main(String[] args) throws JsonProcessingException {
-        SimulationWrapper simWrapper = new SimulationWrapper(new HSMD2D());
-        List<InstanceProperty> props = simWrapper.getProperties();
-        System.out.println(props);
-    }
-
+    /**
+     *
+     * @return the class of the object contained in this wrapper
+     */
     public Class getWrappedClass() {
         return wrappedClass;
     }
 
-    public List<InstanceProperty> getProperties() {
+    public long getWrappedId() {
+        return wrappedId;
+    }
+
+    public String toString() {
+        return "#"+Long.toString(wrappedId);
+    }
+
+    public List<Property> getProperties() {
         return properties;
     }
 
+    /**
+     *
+     * @return a Map from the property name to the current value held in the wrapped instance for all properties.
+     * Values of child properties are given by their wrapper id
+     */
     public Map<String, Object> getValues() {
         Map<String, Object> values = new HashMap<>();
-        for (InstanceProperty prop : valueProps) {
+        for (Property prop : valueProps) {
             if (prop.isIndexedProperty()) {
                 if(!prop.canCount()) {
                     continue;
@@ -102,9 +75,24 @@ public class Wrapper<T> {
             }
         }
 
+        for (Property prop : childProps) {
+            if(prop.isIndexedProperty()) continue;//revisit this
+            Wrapper wrapper = simModel.getWrapper(prop.invokeReader());
+            if(wrapper != null) values.put(prop.getName(), wrapper.toString());
+        }
+
         return values;
     }
 
+    /**
+     *
+     * @return a list of all the properties that are themselves objects
+     */
+    public List<Property> getChildProps() {
+        return childProps;
+    }
+
+/*
     @SuppressWarnings("unchecked")
     public Map<String, Wrapper<?>> getChildren() {
         Map<String, Wrapper<?>> children = new HashMap<>();
@@ -134,5 +122,6 @@ public class Wrapper<T> {
 
         return children;
     }
+*/
 
 }

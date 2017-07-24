@@ -6,6 +6,7 @@ package etomica.space;
 
 
 import etomica.math.function.IFunction;
+import etomica.meta.annotations.IgnoreProperty;
 import etomica.util.random.IRandom;
 
 /**
@@ -47,6 +48,7 @@ public interface Vector {
     /**
      * Returns true if all components of this vector are zero; false otherwise.
      */
+    @IgnoreProperty
     public boolean isZero();
 
     /**
@@ -57,6 +59,7 @@ public interface Vector {
     /**
      * Returns true if any element of the vector is not-a-number.
      */
+    @IgnoreProperty
     public boolean isNaN();
 
     /**
