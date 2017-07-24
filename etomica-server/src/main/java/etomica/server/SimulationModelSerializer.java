@@ -24,19 +24,21 @@ public class SimulationModelSerializer extends StdSerializer<SimulationModel> {
 //        Map<Class, List<Property>> classes = value.getClasses();
 //        gen.writeFieldName("classes");
 
-        Collection<Wrapper> allWrappers = value.allWrappers();
+        gen.writeObject(value.allWrappers());
+
+//        Collection<Wrapper> allWrappers = value.allWrappers();
 //        gen.writeStartObject();
-        for (Wrapper wrapper : allWrappers) {
+//        for (Wrapper wrapper : allWrappers) {
 //            gen.writeFieldName(entry.getKey().getSimpleName());
 
 //            gen.writeStartObject();
-            gen.writeObject(wrapper);
+//            gen.writeObject(wrapper);
 //            for(Property property : entry.getValue()) {
 //                gen.writeObjectField(property.getName(), property);
 //            }
 //            gen.writeEndObject();
 
-        }
+//        }
 //        gen.writeEndObject();
 
 //        gen.writeEndObject();
