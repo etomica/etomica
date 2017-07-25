@@ -1,9 +1,12 @@
 package etomica.meta.wrappers;
 
-import etomica.meta.properties.Property;
 import etomica.meta.SimulationModel;
+import etomica.meta.properties.Property;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Surrogate for an instance of an object that is part of a simulation, providing greater control over which
@@ -41,10 +44,6 @@ public abstract class Wrapper<T> {
         return wrappedId;
     }
 
-    public String toString() {
-        return "#"+Long.toString(wrappedId);
-    }
-
     public List<Property> getProperties() {
         return properties;
     }
@@ -76,9 +75,27 @@ public abstract class Wrapper<T> {
         }
 
         for (Property prop : childProps) {
-            if(prop.isIndexedProperty()) continue;//revisit this
-            Wrapper wrapper = simModel.getWrapper(prop.invokeReader());
-            if(wrapper != null) values.put(prop.getName(), wrapper.toString());
+            if (prop.isIndexedProperty()) {
+                if (!prop.canCount()) {
+                    continue;
+                }
+                else {
+                    int count = prop.invokeCount();
+                    Object[] propValues = new Object[count];
+                    for (int i = 0; i < count; i++) {
+                        Wrapper wrapper = simModel.getWrapper(prop.invokeReader(i));
+                        if (wrapped != null) propValues[i] = wrapper.getWrappedId();
+                    }
+
+                    values.put("#" + prop.getName(), propValues);
+                }
+            }
+            else {
+                Wrapper wrapper = simModel.getWrapper(prop.invokeReader());
+                if (wrapper != null) {
+                    values.put("#" + prop.getName(), wrapper.getWrappedId());
+                }
+            }
         }
 
         return values;
