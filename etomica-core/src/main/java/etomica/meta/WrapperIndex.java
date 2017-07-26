@@ -39,9 +39,11 @@ public class WrapperIndex {
             return null;
         } else if(o.getClass().isArray()) {
             return new ArrayWrapper((Object[]) o, simModel);
-        } else if(Collection.class.isAssignableFrom(o.getClass())) {
+        }
+        else if (o instanceof Collection) {
             return new CollectionWrapper((Collection) o, simModel);
-        } else if(Vector.class.isAssignableFrom(o.getClass())) {    //would like a more extensible way to handle interface wrappers
+        }
+        else if (o instanceof Vector) {
             return new VectorWrapper((Vector) o, simModel);
         }
         return getWrapper(o, o.getClass(), simModel);
