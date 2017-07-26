@@ -1,6 +1,5 @@
 package etomica.meta;
 
-import etomica.meta.wrappers.ArrayWrapper;
 import etomica.meta.wrappers.ObjectWrapper;
 import etomica.meta.wrappers.Wrapper;
 
@@ -37,9 +36,9 @@ public class WrapperIndex {
     public static Wrapper getWrapper(Object o, SimulationModel simModel) {
         if (o == null) {
             return null;
-        } else if(o.getClass().isArray()) {
+        } /*else if(o.getClass().isArray()) {
             return new ArrayWrapper((Object[]) o, simModel, false);
-        }
+        }*/
         return getWrapper(o, o.getClass(), simModel);
     }
 

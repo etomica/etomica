@@ -1,11 +1,10 @@
 package etomica.meta.wrappers;
 
+import etomica.atom.IAtomList;
 import etomica.meta.SimulationModel;
 import etomica.meta.annotations.IgnoreProperty;
-import etomica.meta.properties.ArrayProperty;
-import etomica.meta.properties.InstanceProperty;
-import etomica.meta.properties.Property;
-import etomica.meta.properties.VectorProperty;
+import etomica.meta.properties.*;
+import etomica.molecule.IMoleculeList;
 import etomica.space.Vector;
 import org.apache.commons.lang3.reflect.MethodUtils;
 
@@ -48,6 +47,12 @@ public class ObjectWrapper<T> extends Wrapper<T> {
         Class propertyType = propertyDescriptor.getPropertyType();
         if (propertyType != null && Vector.class.isAssignableFrom(propertyType)) {
             return new VectorProperty(o, propertyDescriptor);
+        }
+        if (propertyType != null && IAtomList.class.isAssignableFrom(propertyType)) {
+            return new AtomListProperty(o, propertyDescriptor);
+        }
+        if (propertyType != null && IMoleculeList.class.isAssignableFrom(propertyType)) {
+            return new MoleculeListProperty(o, propertyDescriptor);
         }
         if (!(propertyDescriptor instanceof IndexedPropertyDescriptor) && propertyType.isArray() &&
                 !(propertyType.getComponentType().isPrimitive() || propertyType.getComponentType().equals(String.class))) {

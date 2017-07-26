@@ -1,23 +1,23 @@
 package etomica.meta.properties;
 
+import etomica.atom.IAtomList;
+
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * Container class for mapping an instance to an array property.
- *
+ * Created by kofke on 7/24/17.
  */
-public class ArrayProperty implements Property {
-    private final PropertyDescriptor descriptor;
-    private final Class<?> propertyType;
+public class AtomListProperty implements Property {
+
     private final Object instance;
+    private final String name;
     private final Method reader;
 
-    public ArrayProperty(Object instance, PropertyDescriptor descriptor) {
-        this.descriptor = descriptor;
+    public AtomListProperty(Object instance, PropertyDescriptor descriptor) {
+        this.name = descriptor.getName();
         this.instance = instance;
-        this.propertyType = descriptor.getPropertyType().getComponentType();
 
         reader = descriptor.getReadMethod();
     }
@@ -29,13 +29,13 @@ public class ArrayProperty implements Property {
 
     @Override
     public String getName() {
-        return descriptor.getName();
+        return name;
     }
 
     @Override
     public Object invokeReader(int i) {
         try {
-            return ((Object[]) reader.invoke(instance))[i];
+            return ((IAtomList) reader.invoke(instance)).getAtom(i);
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
@@ -64,20 +64,20 @@ public class ArrayProperty implements Property {
     @Override
     public int invokeCount() {
         try {
-            return ((Object[]) reader.invoke(instance)).length;
+            return ((IAtomList) reader.invoke(instance)).getAtomCount();
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public final boolean isIndexedProperty() {
+    public boolean isIndexedProperty() {
         return true;
     }
 
     @Override
     public boolean canRead() {
-        return reader != null;
+        return true;
     }
 
     @Override
@@ -102,7 +102,7 @@ public class ArrayProperty implements Property {
 
     @Override
     public Class<?> getPropertyType() {
-        return propertyType;
+        return IAtomList.class;
     }
 
     public boolean isValueProperty() {

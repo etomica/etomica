@@ -84,7 +84,7 @@ public class VectorProperty implements Property {
 
     @Override
     public boolean canWrite() {
-        return true;
+        return false;
     }
 
     @Override
