@@ -1,9 +1,10 @@
 package etomica.meta.wrappers;
 
-import etomica.meta.properties.InstanceProperty;
-import etomica.meta.properties.Property;
 import etomica.meta.SimulationModel;
 import etomica.meta.annotations.IgnoreProperty;
+import etomica.meta.properties.ArrayProperty;
+import etomica.meta.properties.InstanceProperty;
+import etomica.meta.properties.Property;
 import org.apache.commons.lang3.reflect.MethodUtils;
 
 import java.beans.IndexedPropertyDescriptor;
@@ -25,7 +26,7 @@ public class ObjectWrapper<T> extends Wrapper<T> {
                     .filter(propertyDescriptor -> propertyDescriptorMethod(propertyDescriptor) != null)
                     .filter(propertyDescriptor -> !hasAnnotation(propertyDescriptorMethod(propertyDescriptor), IgnoreProperty.class))
                     .filter(propertyDescriptor -> !propertyDescriptor.getName().toLowerCase().endsWith("dimension"))
-                    .forEach(propertyDescriptor -> properties.add(new InstanceProperty(wrapped, propertyDescriptor)));
+                    .forEach(propertyDescriptor -> properties.add(makeProperty(wrapped, propertyDescriptor)));
 
             for (Property p : properties) {
                 Class<?> type = p.getPropertyType();
@@ -39,6 +40,15 @@ public class ObjectWrapper<T> extends Wrapper<T> {
         } catch (IntrospectionException e) {
             e.printStackTrace();
         }
+    }
+
+    private static Property makeProperty(Object o, PropertyDescriptor propertyDescriptor) {
+        Class propertyType = propertyDescriptor.getPropertyType();
+        if (!(propertyDescriptor instanceof IndexedPropertyDescriptor) && propertyType.isArray() &&
+                !(propertyType.getComponentType().isPrimitive() || propertyType.getComponentType().equals(String.class))) {
+            return new ArrayProperty(o, propertyDescriptor);
+        }
+        return new InstanceProperty(o, propertyDescriptor);
     }
 
     private static Method propertyDescriptorMethod(PropertyDescriptor pd) {
