@@ -9,8 +9,8 @@ import etomica.space.Vector;
  */
 public class VectorWrapper extends Wrapper<Vector> {
 
-    public VectorWrapper(Vector vector, SimulationModel simModel) {
-        super(vector, simModel);
+    public VectorWrapper(Vector vector, SimulationModel simModel, boolean doSerialize) {
+        super(vector, simModel, doSerialize);
 
         properties.add(new VectorProperty(vector));
  //       double[] x = new double[vector.getD()];

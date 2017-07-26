@@ -6,8 +6,8 @@ import etomica.potential.PotentialMaster;
 public class PotentialMasterWrapper extends Wrapper<PotentialMaster> {
 
 
-    public PotentialMasterWrapper(PotentialMaster wrapped, SimulationModel simModel) {
-        super(wrapped, simModel);
+    public PotentialMasterWrapper(PotentialMaster wrapped, SimulationModel simModel, boolean doSerialize) {
+        super(wrapped, simModel, doSerialize);
     }
 
 }

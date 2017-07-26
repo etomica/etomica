@@ -38,13 +38,13 @@ public class WrapperIndex {
         if (o == null) {
             return null;
         } else if(o.getClass().isArray()) {
-            return new ArrayWrapper((Object[]) o, simModel);
+            return new ArrayWrapper((Object[]) o, simModel, false);
         }
         else if (o instanceof Collection) {
-            return new CollectionWrapper((Collection) o, simModel);
+            return new CollectionWrapper((Collection) o, simModel, false);
         }
         else if (o instanceof Vector) {
-            return new VectorWrapper((Vector) o, simModel);
+            return new VectorWrapper((Vector) o, simModel, true);
         }
         return getWrapper(o, o.getClass(), simModel);
     }
@@ -53,7 +53,7 @@ public class WrapperIndex {
     private static Wrapper getWrapper(Object o, Class cls, SimulationModel simModel) {
         if(wrapperMap.containsKey(cls)) {
             try {
-                return (Wrapper) wrapperMap.get(cls).newInstance(o, simModel);
+                return (Wrapper) wrapperMap.get(cls).newInstance(o, simModel, true);
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }

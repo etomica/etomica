@@ -48,7 +48,7 @@ public class SimulationModel {
         if(o == null || wrappers.containsKey(o)) return;
 
         Wrapper newWrapper = WrapperIndex.getWrapper(o, this);
-        wrappers.put(o, newWrapper);
+        if (newWrapper.doSerialize()) wrappers.put(o, newWrapper);
 
         List<Property> childProps = newWrapper.getChildProps();
         for (Property prop : childProps) {

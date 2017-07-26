@@ -1,8 +1,8 @@
 package etomica.meta.wrappers;
 
 
-import etomica.meta.properties.CollectionElementProperty;
 import etomica.meta.SimulationModel;
+import etomica.meta.properties.CollectionElementProperty;
 
 import java.util.Collection;
 
@@ -11,8 +11,8 @@ import java.util.Collection;
  */
 public class CollectionWrapper extends Wrapper<Collection> {
 
-    public CollectionWrapper(Collection wrapped, SimulationModel simModel) {
-        super(wrapped, simModel);
+    public CollectionWrapper(Collection wrapped, SimulationModel simModel, boolean doSerialize) {
+        super(wrapped, simModel, doSerialize);
 
         for(Object el : wrapped) {
             properties.add(new CollectionElementProperty(el));

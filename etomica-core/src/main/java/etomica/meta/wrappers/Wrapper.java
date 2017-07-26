@@ -23,13 +23,19 @@ public abstract class Wrapper<T> {
     protected final List<Property> childProps = new ArrayList<>();
     protected final List<Property> valueProps = new ArrayList<>();
 
+    protected final boolean doSerialize;
+
     //SimulationModel is needed for information about wrapper id, both for this instance and regarding child instances
-    public Wrapper(T wrapped, SimulationModel simModel) {
+    public Wrapper(T wrapped, SimulationModel simModel, boolean doSerialize) {
         this.wrapped = wrapped;
         this.wrappedClass = wrapped.getClass();
         this.simModel = simModel;
         wrappedId = simModel.getNewId();
+        this.doSerialize = doSerialize;
+    }
 
+    public boolean doSerialize() {
+        return doSerialize;
     }
 
     /**

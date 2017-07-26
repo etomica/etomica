@@ -3,8 +3,8 @@ package etomica.meta.wrappers;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorManagerMC;
-import etomica.meta.properties.InstanceProperty;
 import etomica.meta.SimulationModel;
+import etomica.meta.properties.InstanceProperty;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 
@@ -25,7 +25,7 @@ import java.util.Set;
 public class SimulationWrapper extends ObjectWrapper<Simulation> {
 
     public SimulationWrapper(Simulation wrapped, SimulationModel simModel) {
-        super(wrapped, simModel);
+        super(wrapped, simModel, true);
 
         try {
             PropertyDescriptor descriptor = new PropertyDescriptor(

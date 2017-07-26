@@ -17,8 +17,8 @@ import java.util.Arrays;
 
 public class ObjectWrapper<T> extends Wrapper<T> {
 
-    public ObjectWrapper(T wrapped, SimulationModel simModel) {
-        super(wrapped, simModel);
+    public ObjectWrapper(T wrapped, SimulationModel simModel, boolean doSerialize) {
+        super(wrapped, simModel, doSerialize);
 
         try {
             Arrays.stream(Introspector.getBeanInfo(wrappedClass).getPropertyDescriptors())
