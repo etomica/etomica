@@ -19,7 +19,6 @@ public abstract class Wrapper<T> {
     protected final long wrappedId;
     protected final SimulationModel simModel;
 
-    protected final List<Property> properties = new ArrayList<>();
     protected final List<Property> childProps = new ArrayList<>();
     protected final List<Property> valueProps = new ArrayList<>();
 
@@ -48,10 +47,6 @@ public abstract class Wrapper<T> {
 
     public long getWrappedId() {
         return wrappedId;
-    }
-
-    public List<Property> getProperties() {
-        return properties;
     }
 
     /**
@@ -111,40 +106,8 @@ public abstract class Wrapper<T> {
      *
      * @return a list of all the properties that are themselves objects
      */
-    public List<Property> getChildProps() {
+    public List<Property> getChildProperties() {
         return childProps;
     }
-
-/*
-    @SuppressWarnings("unchecked")
-    public Map<String, Wrapper<?>> getChildren() {
-        Map<String, Wrapper<?>> children = new HashMap<>();
-        for (InstanceProperty prop : childProps) {
-            System.out.printf("%s -> %s (%s)\n", this.wrappedClass.getSimpleName(), prop.getName(), prop.getPropertyType().getSimpleName());
-
-            if (prop.isIndexedProperty()) {
-                if (!prop.canCount()) {
-                    continue;
-                }
-
-                int count = prop.invokeCount();
-                Object[] propValues = new Object[count];
-                for (int i = 0; i < count; i++) {
-                    propValues[i] = prop.invokeReader(i);
-                }
-                children.put(prop.getName(), new ArrayWrapper(propValues));
-            } else if (List.class.isAssignableFrom(prop.getPropertyType())) {
-                List childList = (List) prop.invokeReader();
-                for (Object o : childList) {
-                    children.put(prop.getName(), WrapperIndex.getWrapper(o));
-                }
-            } else {
-                children.put(prop.getName(), WrapperIndex.getWrapper(prop.invokeReader()));
-            }
-        }
-
-        return children;
-    }
-*/
 
 }

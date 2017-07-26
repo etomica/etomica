@@ -53,7 +53,7 @@ public class SimulationModel {
         Wrapper newWrapper = WrapperIndex.getWrapper(o, this);
         if (newWrapper.doSerialize()) wrappers.put(o, newWrapper);
 
-        List<Property> childProps = newWrapper.getChildProps();
+        List<Property> childProps = newWrapper.getChildProperties();
         for (Property prop : childProps) {
             if(prop.isIndexedProperty()) {
                 if(!prop.canCount()) continue;

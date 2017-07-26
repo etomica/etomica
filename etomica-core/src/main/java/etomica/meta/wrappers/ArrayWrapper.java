@@ -4,7 +4,7 @@ import etomica.meta.SimulationModel;
 import etomica.meta.properties.CollectionElementProperty;
 
 /**
- * Wraps an array of objects, such that the getChildProps gives property instances for each element of the collection.
+ * Wraps an array of objects, such that the getChildProperties gives property instances for each element of the collection.
  */
 public class ArrayWrapper extends Wrapper<Object[]> {
 
@@ -12,10 +12,8 @@ public class ArrayWrapper extends Wrapper<Object[]> {
         super(wrapped, simModel, doSerialize);
 
         for(Object el : wrapped) {
-            properties.add(new CollectionElementProperty(el));
+            childProps.add(new CollectionElementProperty(el));
         }
-
-        childProps.addAll(properties);
 
     }
 }

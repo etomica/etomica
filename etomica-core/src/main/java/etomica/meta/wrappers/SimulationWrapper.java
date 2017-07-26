@@ -34,7 +34,7 @@ public class SimulationWrapper extends ObjectWrapper<Simulation> {
                     null
             );
 
-            this.properties.add(new InstanceProperty(this, descriptor));
+            this.childProps.add(new InstanceProperty(this, descriptor));
         } catch (IntrospectionException | NoSuchMethodException e) {
             e.printStackTrace();
         }

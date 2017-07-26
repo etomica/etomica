@@ -15,13 +15,15 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class ObjectWrapper<T> extends Wrapper<T> {
 
     public ObjectWrapper(T wrapped, SimulationModel simModel, boolean doSerialize) {
         super(wrapped, simModel, doSerialize);
-
+        List<Property> properties = new ArrayList<>();
         try {
             Arrays.stream(Introspector.getBeanInfo(wrappedClass).getPropertyDescriptors())
                     .filter(propertyDescriptor -> !propertyDescriptor.getName().equalsIgnoreCase("class"))
