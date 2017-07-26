@@ -5,6 +5,8 @@ import etomica.meta.annotations.IgnoreProperty;
 import etomica.meta.properties.ArrayProperty;
 import etomica.meta.properties.InstanceProperty;
 import etomica.meta.properties.Property;
+import etomica.meta.properties.VectorProperty;
+import etomica.space.Vector;
 import org.apache.commons.lang3.reflect.MethodUtils;
 
 import java.beans.IndexedPropertyDescriptor;
@@ -29,9 +31,7 @@ public class ObjectWrapper<T> extends Wrapper<T> {
                     .forEach(propertyDescriptor -> properties.add(makeProperty(wrapped, propertyDescriptor)));
 
             for (Property p : properties) {
-                Class<?> type = p.getPropertyType();
-                if (type.isPrimitive() || type.equals(String.class) || type.equals(Class.class)
-                        || (type.isArray() && (type.getComponentType().isPrimitive() || type.getComponentType().equals(String.class)))) {
+                if (p.isValueProperty()) {
                     valueProps.add(p);
                 } else {
                     childProps.add(p);
@@ -44,6 +44,9 @@ public class ObjectWrapper<T> extends Wrapper<T> {
 
     private static Property makeProperty(Object o, PropertyDescriptor propertyDescriptor) {
         Class propertyType = propertyDescriptor.getPropertyType();
+        if (propertyType != null && Vector.class.isAssignableFrom(propertyType)) {
+            return new VectorProperty(o, propertyDescriptor);
+        }
         if (!(propertyDescriptor instanceof IndexedPropertyDescriptor) && propertyType.isArray() &&
                 !(propertyType.getComponentType().isPrimitive() || propertyType.getComponentType().equals(String.class))) {
             return new ArrayProperty(o, propertyDescriptor);

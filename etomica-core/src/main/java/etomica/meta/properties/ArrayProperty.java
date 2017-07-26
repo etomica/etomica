@@ -104,4 +104,8 @@ public class ArrayProperty implements Property {
     public Class<?> getPropertyType() {
         return propertyType;
     }
+
+    public boolean isValueProperty() {
+        return false;
+    }
 }

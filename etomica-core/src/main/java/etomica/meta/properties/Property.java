@@ -33,4 +33,6 @@ public interface Property {
     boolean canCount();
 
     Class<?> getPropertyType();
+
+    boolean isValueProperty();
 }

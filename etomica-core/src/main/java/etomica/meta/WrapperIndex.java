@@ -1,11 +1,11 @@
 package etomica.meta;
 
-import etomica.meta.wrappers.*;
-import etomica.space.Vector;
+import etomica.meta.wrappers.ArrayWrapper;
+import etomica.meta.wrappers.ObjectWrapper;
+import etomica.meta.wrappers.Wrapper;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,12 +39,6 @@ public class WrapperIndex {
             return null;
         } else if(o.getClass().isArray()) {
             return new ArrayWrapper((Object[]) o, simModel, false);
-        }
-        else if (o instanceof Collection) {
-            return new CollectionWrapper((Collection) o, simModel, false);
-        }
-        else if (o instanceof Vector) {
-            return new VectorWrapper((Vector) o, simModel, true);
         }
         return getWrapper(o, o.getClass(), simModel);
     }

@@ -151,6 +151,11 @@ public class InstanceProperty implements Property {
         }
     }
 
+    public boolean isValueProperty() {
+        return (propertyType.isPrimitive() || propertyType.equals(String.class) || propertyType.equals(Class.class)
+                || (propertyType.isArray() && (propertyType.getComponentType().isPrimitive() || propertyType.getComponentType().equals(String.class))));
+    }
+
     private Class<? extends Dimension> getDimension() {
         Class<?> cls = instance.getClass();
         Dimensioned ann = null;

@@ -1,56 +1,75 @@
 package etomica.meta.properties;
 
-import etomica.meta.properties.Property;
 import etomica.space.Vector;
+
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * Created by kofke on 7/24/17.
  */
 public class VectorProperty implements Property {
 
-    private final Vector v;
-    public VectorProperty(Vector v) {
-        this.v = v;
+    private final Object instance;
+    private final String name;
+    private final Method reader;
+    private final Method writer;
+
+    public VectorProperty(Object instance, PropertyDescriptor descriptor) {
+        this.name = descriptor.getName();
+        this.instance = instance;
+
+        reader = descriptor.getReadMethod();
+        writer = descriptor.getWriteMethod();
     }
 
     @Override
     public Object invokeReader() {
-        throw new RuntimeException();
+        throw new RuntimeException("not a simple property");
     }
 
     @Override
     public String getName() {
-        return "Vector name";  //don't know what to put here
+        return name;
     }
 
     @Override
     public Object invokeReader(int i) {
-        return v.getX(i);
+        try {
+            return ((Vector) reader.invoke(instance)).getX(i);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void invokeWriter(Object... params) {
-        throw new RuntimeException();
+        throw new RuntimeException("not a simple property");
     }
 
     @Override
     public void invokeWriter(int i, Object... params) {
-        v.setX(i, ((Number)params[0]).doubleValue());//is this right?
+        throw new RuntimeException("not a simple property");
     }
 
     @Override
     public void invokeAdder(Object o) {
-        throw new RuntimeException();
+        throw new RuntimeException("not a addable property");
     }
 
     @Override
     public void invokeRemover(Object o) {
-        throw new RuntimeException();
+        throw new RuntimeException("not a removable property");
     }
 
     @Override
     public int invokeCount() {
-        return v.getD();
+        try {
+            return ((Vector) reader.invoke(instance)).getD();
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -86,5 +105,9 @@ public class VectorProperty implements Property {
     @Override
     public Class<?> getPropertyType() {
         return Vector.class;
+    }
+
+    public boolean isValueProperty() {
+        return true;
     }
 }

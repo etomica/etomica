@@ -24,8 +24,8 @@ import java.util.Set;
  */
 public class SimulationWrapper extends ObjectWrapper<Simulation> {
 
-    public SimulationWrapper(Simulation wrapped, SimulationModel simModel) {
-        super(wrapped, simModel, true);
+    public SimulationWrapper(Simulation wrapped, SimulationModel simModel, boolean doSerialize) {
+        super(wrapped, simModel, doSerialize);
 
         try {
             PropertyDescriptor descriptor = new PropertyDescriptor(

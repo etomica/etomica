@@ -4,7 +4,10 @@ import etomica.meta.properties.Property;
 import etomica.meta.wrappers.Wrapper;
 import etomica.simulation.Simulation;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SimulationModel {
 
@@ -54,12 +57,10 @@ public class SimulationModel {
         for (Property prop : childProps) {
             if(prop.isIndexedProperty()) {
                 if(!prop.canCount()) continue;
-                ArrayList list = new ArrayList();
                 int count = prop.invokeCount();
                 for(int i=0; i<count; i++) {
-                    list.add(prop.invokeReader(i));
+                    makeWrapper(prop.invokeReader(i));
                 }
-                makeWrapper(list);
             } else {
                 makeWrapper(prop.invokeReader());
             }
