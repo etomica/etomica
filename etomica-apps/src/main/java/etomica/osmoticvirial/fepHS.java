@@ -41,12 +41,11 @@ public class fepHS extends Simulation {
     public Controller controller;
     public ActivityIntegrate activityIntegrate;
 
-    public fepHS(int numAtoms, double temp, double density, double sigma2, boolean computez2){
+    public fepHS(int numAtoms, double density, double sigma2, boolean computez2){
         super(Space3D.getInstance());
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this,space);
 
         integrator = new IntegratorMC(this, potentialMaster);
-        integrator.setTemperature(temp);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
@@ -111,7 +110,6 @@ public class fepHS extends Simulation {
             params.numAtoms = 500;
             params.numSteps = 500000;
             params.nBlocks = 1000;
-            params.temp = 2;
             params.density = 0.6;
             params.sigma2 = 0.5;
             params.computez2 = true;
@@ -120,11 +118,10 @@ public class fepHS extends Simulation {
         int numAtoms = params.numAtoms;
         int numSteps = params.numSteps;
         int nBlocks = params.nBlocks;
-        double temp = params.temp;
         double density = params.density;
         double sigma2 = params.sigma2;
         boolean computez2 = params.computez2;
-        boolean graphics = true;
+        boolean graphics = false;
 
         long numSamples = numSteps/numAtoms;
         long samplesPerBlock = numSamples/nBlocks;
@@ -141,13 +138,12 @@ public class fepHS extends Simulation {
 
         System.out.println(numAtoms+" atoms, "+numSteps+" steps");
         System.out.println("density: "+density);
-        System.out.println("temperature: "+temp);
         System.out.println("sigma2: "+sigma2);
         System.out.println(nBlocks+" blocks");
 
         long t1 = System.currentTimeMillis();
 
-        fepHS sim = new fepHS(numAtoms, temp, density, sigma2, computez2);
+        fepHS sim = new fepHS(numAtoms, density, sigma2, computez2);
 
         System.out.println("box length "+sim.box.getBoundary().getBoxSize());
 
@@ -206,7 +202,6 @@ public class fepHS extends Simulation {
         public int numAtoms = 500;
         public int numSteps = 200000;
         public int nBlocks = 1000;
-        public double temp = 2;
         public double density = 0.2;
         public double sigma2 = 2.0;
         public boolean computez2 = false;
