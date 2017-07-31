@@ -157,7 +157,7 @@ public class ashtonAndWilding extends Simulation {
         public int numSteps = 10000;
         public int nBlocks = 100;
         public double density = 0.1;
-        boolean computeIdeal = true;
+        public boolean computeIdeal = true;
 
     }
 }

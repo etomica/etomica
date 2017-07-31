@@ -67,7 +67,7 @@ public class aWLJ extends Simulation {
 
         potential = new P2LennardJones(space, sigma1, 1);
 
-        double truncationRadius1 = 3.0*sigma1;
+        double truncationRadius1 = 4.0*sigma1;
 
         if(truncationRadius1>0.5*box.getBoundary().getBoxSize().getX(0)){
             throw new RuntimeException(" Truncation radius is too large. Max allowed is:"+ 0.5*box.getBoundary().getBoxSize().getX(0));
@@ -100,10 +100,10 @@ public class aWLJ extends Simulation {
             ParseArgs.doParseArgs(params, args);
         }
         else{
-            params.numAtoms = 3;
-            params.numSteps = 1000000000;
+            params.numAtoms = 2;
+            params.numSteps = 1000000;
             params.nBlocks = 100;
-            params.density = 0.01;
+            params.density = 0.003;
             params.computeIdeal = true;
             params.temp = 1;
         }
@@ -148,7 +148,7 @@ public class aWLJ extends Simulation {
         sim.integrator.setTemperature(temp);
 
         MeterRmin meterRmin = new MeterRmin(sim.space, sim.box);
-        AccumulatorHistogram accRmin = new AccumulatorHistogram(new HistogramSimple(new DoubleRange(0, 0.5*sim.box.getBoundary().getBoxSize().getX(0))));
+        AccumulatorHistogram accRmin = new AccumulatorHistogram(new HistogramSimple(new DoubleRange(0, 0.9*sim.box.getBoundary().getBoxSize().getX(0))));
         DataPumpListener pumpRmin = new DataPumpListener(meterRmin,accRmin,numAtoms);
         sim.integrator.getEventManager().addListener(pumpRmin);
         sim.getController().actionPerformed();
@@ -172,7 +172,7 @@ public class aWLJ extends Simulation {
         public int nBlocks = 100;
         public double density = 0.1;
         public double temp = 1;
-        boolean computeIdeal = true;
+        public boolean computeIdeal = true;
 
     }
 }
