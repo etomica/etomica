@@ -7,11 +7,13 @@ import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.data.*;
+import etomica.data.AccumulatorHistogram;
+import etomica.data.DataPumpListener;
 import etomica.data.histogram.HistogramSimple;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.integrator.mcmove.MCMoveInsertDelete;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.math.DoubleRange;
 import etomica.nbr.cell.PotentialMasterCell;
@@ -27,18 +29,19 @@ import etomica.util.ParseArgs;
  */
 
 
-public class ashtonAndWilding extends Simulation {
+public class awHSov extends Simulation {
 
     public Box box;
     public P2HardSphere potential1;
     public Controller controller;
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
-    public SpeciesSpheresMono species1;
+    public MCMoveInsertDelete mcMoveInsertDelete;
+    public SpeciesSpheresMono species1, species2;
     public ActivityIntegrate activityIntegrate;
 
 
-    public ashtonAndWilding(int numAtoms, double density, boolean computeIdeal){
+    public awHSov(int numAtoms, double vf, double q, boolean computeIdeal){
 
         super(Space3D.getInstance());
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
@@ -47,19 +50,29 @@ public class ashtonAndWilding extends Simulation {
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
+        mcMoveInsertDelete = new MCMoveInsertDelete(potentialMaster, random, space);
 
         integrator.getMoveManager().addMCMove(mcMoveAtom);
+        integrator.getMoveManager().addMCMove(mcMoveInsertDelete);
 
         double sigma1 = 1.0;
+        double sigma2 = q * sigma1;
 
+        species1 = new SpeciesSpheresMono(this, space);
+        species2 = new SpeciesSpheresMono(this, space);
+        addSpecies(species1);
+        addSpecies(species2);
         box = new Box(space);
         addBox(box);
-        species1 = new SpeciesSpheresMono(this, space);
-        addSpecies(species1);
-        box.setNMolecules(species1, numAtoms);
+
+        mcMoveInsertDelete.setSpecies(species1);
+        double mu = (8*vf-9*vf*vf+3*vf*vf*vf) / Math.pow((1-vf),3); //Configurational chemical potential from Carnahan–Starling equation of state
+        mcMoveInsertDelete.setMu(mu);
+
+        box.setNMolecules(species2, numAtoms);
 
         BoxInflate inflater = new BoxInflate(box, space);
-        inflater.setTargetDensity(density);
+       // inflater.setTargetDensity(vf);
         inflater.actionPerformed();
 
         potential1 = new P2HardSphere(space, sigma1, false);
@@ -89,18 +102,20 @@ public class ashtonAndWilding extends Simulation {
             ParseArgs.doParseArgs(params, args);
         }
         else{
-            params.numAtoms = 3;
+            params.numAtoms = 2;
             params.numSteps = 50000;
             params.nBlocks = 100;
-            params.density = 0.069;
+            params.vf = 0.1;
             params.computeIdeal = false;
+            params.q = 0.1;
         }
 
 
         int numAtoms = params.numAtoms;
         int numSteps = params.numSteps;
         int nBlocks = params.nBlocks;
-        double density = params.density;
+        double vf = params.vf;
+        double q = params.q;
         boolean computeIdeal = params.computeIdeal;
         boolean graphics = false;
 
@@ -110,12 +125,12 @@ public class ashtonAndWilding extends Simulation {
         if(samplesPerBlock == 0) samplesPerBlock = 1;
 
         System.out.println(numAtoms + " atoms, "+ numSteps + " steps" );
-        System.out.println("density: "+ density);
+        System.out.println("density: "+ vf);
         System.out.println("nBlocks "+ nBlocks);
 
         long t1 = System.currentTimeMillis();
 
-        ashtonAndWilding sim = new ashtonAndWilding(numAtoms, density, computeIdeal);
+        awHSov sim = new awHSov(numAtoms, vf, q, computeIdeal);
 
         if(graphics){
             final String appName = "Ashton-Wilding";
@@ -156,8 +171,9 @@ public class ashtonAndWilding extends Simulation {
         public int numAtoms = 20;
         public int numSteps = 10000;
         public int nBlocks = 100;
-        public double density = 0.1;
-        boolean computeIdeal = true;
+        public double vf = 0.1;
+        public double q = 0.2;
+        public boolean computeIdeal = true;
 
     }
 }
