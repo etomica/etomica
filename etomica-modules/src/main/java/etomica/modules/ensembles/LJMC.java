@@ -11,6 +11,7 @@ import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
+import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
@@ -68,6 +69,8 @@ public class LJMC extends Simulation {
         
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
+        ((MCMoveStepTracker) mcMoveAtom.getTracker()).setMaxAdjustInterval(50000);
+        ((MCMoveStepTracker) mcMoveAtom.getTracker()).setMinAdjustStep(1.05);
 
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
 
