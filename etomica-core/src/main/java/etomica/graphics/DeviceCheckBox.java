@@ -4,9 +4,11 @@
 
 //This class includes a main method to demonstrate its use
 package etomica.graphics;
-import javax.swing.JCheckBox;
 
 import etomica.modifier.ModifierBoolean;
+import etomica.modifier.ModifyBooleanAction;
+
+import javax.swing.*;
 
 /**
  * Button that toggles a boolean value via a check box.  This device can connect to any object
@@ -17,7 +19,8 @@ import etomica.modifier.ModifierBoolean;
  * @author David Kofke
  */
 public class DeviceCheckBox extends Device {
-    
+
+    protected ModifyBooleanAction modifyAction;
     private ModifierBoolean modifier;
     private JCheckBox box;
     private boolean currentValue = false;
@@ -32,6 +35,7 @@ public class DeviceCheckBox extends Device {
     
     private void init(String label, ModifierBoolean modifier) {
         this.modifier = modifier;
+        modifyAction = new ModifyBooleanAction(modifier);
         currentValue = modifier.getBoolean();
         box = new JCheckBox(label,currentValue);
         box.addActionListener( new java.awt.event.ActionListener() {
@@ -57,7 +61,8 @@ public class DeviceCheckBox extends Device {
      */
     public void toggle() {
         currentValue = !currentValue;
-        modifier.setBoolean(currentValue);
+        modifyAction.setValueForAction(currentValue);
+        doAction(modifyAction);
         box.setSelected(currentValue);
     }
     
@@ -85,35 +90,4 @@ public class DeviceCheckBox extends Device {
      * @return a handle to the JCheckBox instance used by this device
      */
     public JCheckBox getCheckBox() {return box;}
-        
-    /**
-     * Method to demonstrate and test the use of this class.  
-     */
-//    public static void main(String[] args) {
-//        
-//        final etomica.simulation.prototypes.HSMD2D sim = new etomica.simulation.prototypes.HSMD2D();
-//        Simulation.instance = sim;
-//        
-//        //here's the part unique to this class
-//        //sets up box to toggle atoms between red and blue
-//        final ColorSchemeByType colorScheme = new ColorSchemeByType();
-//        sim.display.setColorScheme(colorScheme);
-//        ModifierBoolean modifier = new ModifierBoolean() {
-//            public void setBoolean(boolean b) {
-//                if(b) ColorSchemeByType.setColor((SpeciesSpheresMono)sim.species, java.awt.Color.blue);
-//                else ColorSchemeByType.setColor((SpeciesSpheresMono)sim.species, java.awt.Color.red);
-////                if(b) sim.species.allAtoms(new AtomAction() {public void actionPerformed(Atom a) {a.setColor(java.awt.Color.red);}});
-////                else  sim.species.allAtoms(new AtomAction() {public void actionPerformed(Atom a) {a.setColor(java.awt.Color.blue);}});
-//                sim.panel().repaint();
-//            }
-//            public boolean getBoolean() {return colorScheme.atomColor(sim.box.firstAtom()) == java.awt.Color.blue;}
-//        };
-//        modifier.setBoolean(true);
-//        DeviceCheckBox button = new DeviceCheckBox(sim, "Blue", modifier);
-//        //end of unique part
-// 
-//        sim.elementCoordinator.go();
-//        SimulationGraphic.makeAndDisplayFrame(sim);
-//    }
-//    */
 }
