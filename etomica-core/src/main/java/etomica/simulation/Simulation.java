@@ -41,6 +41,8 @@ public class Simulation {
 
     /**
      * Creates a new simulation using the given space
+     *
+     * @param space the space used to construct Vectors etc.
      */
     public Simulation(Space space) {
         this.space = space;
@@ -55,7 +57,7 @@ public class Simulation {
     }
 
     /**
-     * Returns the seeds that were used for the random number generator at
+     * @return the seeds that were used for the random number generator at
      * construction.  If the random number generator has been set manually
      * since then, this method returns null.
      */
@@ -64,8 +66,10 @@ public class Simulation {
     }
 
     /**
-     * Adds a Box to the simulation.  This method should not be called if
-     * newBox is already held by the simulation.
+     * Adds a Box to the simulation.
+     *
+     * @param newBox the Box being added.
+     * @throws IllegalArgumentException if newBox was already added to the simulation.
      */
     public final void addBox(Box newBox) {
         for (int i = 0; i < boxList.length; i++) {
@@ -82,8 +86,10 @@ public class Simulation {
     }
 
     /**
-     * Removes a Box to the simulation.  This method should not be called if
-     * oldBox is not held by the simulation.
+     * Removes a Box to the simulation.
+     *
+     * @param oldBox the Box being removed.
+     * @throws IllegalArgumentException if oldBox was not previously added to the simulation.
      */
     public final void removeBox(Box oldBox) {
         boolean found = false;
@@ -111,21 +117,25 @@ public class Simulation {
     }
 
     /**
-     * Returns an array of Boxs contained in the Simulation
+     * Returns one of the simulation Boxes. Boxes are numbered in
+     * the order that they are added, beginning with 0.
+     *
+     * @param index specifies the Box to be returned.
+     * @return the specified Box.
      */
     public final Box getBox(int index) {
         return boxList[index];
     }
 
     /**
-     * Returns number of boxes contained in the Simulation
+     * @return the number of boxes that have been added to the Simulation.
      */
     public int getBoxCount() {
         return boxList.length;
     }
 
     /**
-     * Returns the Controller used to run the simulation's Actions and
+     * @return the Controller used to run the simulation's Actions and
      * Activities.
      */
     public Controller getController() {
@@ -133,14 +143,14 @@ public class Simulation {
     }
 
     /**
-     * @return the space
+     * @return the Space that was specified in the constructor.
      */
     public final Space getSpace() {
         return space;
     }
 
     /**
-     * Returns the Simulation's random number generator.
+     * @return the Simulation's random number generator.
      */
     public IRandom getRandom() {
         return random;
@@ -148,6 +158,8 @@ public class Simulation {
 
     /**
      * Set the simulation's random number generator to the given one.
+     *
+     * @param newRandom the new random number generator.
      */
     public void setRandom(IRandom newRandom) {
         seeds = null;
@@ -155,7 +167,7 @@ public class Simulation {
     }
 
     /**
-     * Returns the Simulation's event manager, which fires events for
+     * @return the Simulation's event manager, which fires events for
      * Boxes and Species being added and removed.
      */
     public SimulationEventManager getEventManager() {
@@ -164,7 +176,10 @@ public class Simulation {
 
     /**
      * Adds species to the list of all ISpecies in the simulation, and
-     * adds notifies all IBoxes of the new ISpecies.
+     * notifies all Boxes of the addition.
+     *
+     * @param species the Species being added.
+     * @throws IllegalArgumentException if species was already added (and not removed).
      */
     public void addSpecies(ISpecies species) {
 
@@ -195,6 +210,9 @@ public class Simulation {
 
     /**
      * Removes the given ISpecies from the Simulation.
+     *
+     * @param removedSpecies the Species to be removed.
+     * @throws IllegalArgumentException if species is not in the Simulation.
      */
     public void removeSpecies(ISpecies removedSpecies) {
 
@@ -239,14 +257,18 @@ public class Simulation {
     }
 
     /**
-     * Returns the number of Species in the Simulation.
+     * @return the number of Species in the Simulation.
      */
     public int getSpeciesCount() {
         return speciesList.length;
     }
 
     /**
-     * Returns the Species in the Simulation for the specified index.
+     * Returns one of the simulation ISpecies. ISpecies are numbered in
+     * the order that they are added, beginning with 0.
+     *
+     * @param index specifies the ISpecies to be returned.
+     * @return the specified ISpecies.
      */
     public ISpecies getSpecies(int index) {
         return speciesList[index];
@@ -277,7 +299,10 @@ public class Simulation {
     }
 
     /**
-     * Returns an Element symbol starting with symbolBase that does not yet
+     * Method to allow generation of unique string to identify Elements in the Simulation.
+     *
+     * @param symbolBase the base string.
+     * @return an Element symbol starting with symbolBase that does not yet
      * exist in the Simulation.  Return values will be like "base0, base1, base2..."
      */
     public String makeUniqueElementSymbol(String symbolBase) {
@@ -292,11 +317,11 @@ public class Simulation {
     }
 
     /**
-     * Returns the Simulation's primary integrator.  If the controller holds
+     * @return the Simulation's primary integrator.  If the controller holds
      * multiple integrators, the first is returned.  If the first integrator
      * holds sub-integrators, the top-level integrator is still returned.  This
      * method assumes the controller holds an ActivityIntegrate or an
-     * ActionIntegrate.
+     * ActionIntegrate. Returns null if no integrator is found.
      */
     public Integrator getIntegrator() {
         Integrator integrator = null;
