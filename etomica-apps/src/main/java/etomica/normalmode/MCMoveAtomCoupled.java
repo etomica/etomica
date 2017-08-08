@@ -148,7 +148,7 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
             uNew += constraintPotential.energy(atomSinglet);
         }
 
-        return -(uNew - uOld);
+        return Math.exp(-(uNew - uOld) / temperature);
     }
     
     public double energyChange() {return uNew - uOld;}
@@ -192,7 +192,7 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         return atomSource;
     }
     /**
-     * @param atomSource The atomSource to set.
+     * @param source The atomSource to set.
      */
     public void setAtomSource(AtomSource source) {
         atomSource = source;
