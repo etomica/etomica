@@ -29,12 +29,12 @@ import java.util.Calendar;
 
 
 /**
- * Compute  the dielectric constant of  2D Heisenberg model in conventional way and mapped averaging.
+ * Compute  the dielectric constant of  3D Heisenberg model in conventional way and mapped averaging.
  * Conventional way: get the -bt*bt*<M^2> with M is the total dipole moment;
  * Mapped averaging: get the A_EE secondDerivative of free energy w.r.t electric field E when E is zero
  * Prototype for simulation of a more general magnetic system.
  *
- * @author David Kofke & Weisong Lin
+ * @author Weisong Lin
  */
 public class Heisenberg3D extends Simulation {
 
@@ -198,7 +198,7 @@ public class Heisenberg3D extends Simulation {
         public boolean mSquare = true;
         public boolean aEE = true;
         public double temperature = 10;// Kelvin
-        public int nCells = 20;//number of atoms is nCells*nCells
+        public int nCells = 10;//number of atoms is nCells*nCells
         public double interactionS = 1;
         public double dipoleMagnitude = 1;
         public int steps = 1000000;
