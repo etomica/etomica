@@ -95,20 +95,20 @@ public class MeterMappedAveraging implements IEtomicaDataSource, AgentSource<Met
         dr.E(0);
 
         //torque square sum is zero so don't need it here.
-//		 for (int i = 0;i < nM; i++){
-//			 MoleculeAgent torqueAgent = (MoleculeAgent) leafAgentManager.getAgent(leafList.getAtom(i));
-//			 dr.PE(torqueAgent.torque);
-////            System.out.println(torqueAgent.torque);
-//
-//			 //test for <f(1-x^2)> the result is zero!!!!!
-////			 IAtomOriented atom = (IAtomOriented)leafList.getAtom(0);
-////			 double ex = atom.getOrientation().getDirection().getX(0);
-////			 double ey = atom.getOrientation().getDirection().getX(1);
-////			 torqueSum.PEa1Tv1((ex+ey),torqueAgent.torque);
-//		 }//i loop
+		 for (int i = 0;i < nM; i++){
+			 MoleculeAgent torqueAgent = (MoleculeAgent) leafAgentManager.getAgent(leafList.getAtom(i));
+			 dr.PE(torqueAgent.torque);
+//            System.out.println(torqueAgent.torque);
 
-//		x[0] = -nM*bt2*mu2 - 0.25*bt2*bt2*mu2*dr.squared()+ 0.25*J*bt*bt2*mu2*secondDerivativeSum.getSum();
-        x[0] = -nM * bt2 * mu2 + 0.25 * J * bt * bt2 * mu2 * secondDerivativeSum.getSum();
+			 //test for <f(1-x^2)> the result is zero!!!!!
+//			 IAtomOriented atom = (IAtomOriented)leafList.getAtom(0);
+//			 double ex = atom.getOrientation().getDirection().getX(0);
+//			 double ey = atom.getOrientation().getDirection().getX(1);
+//			 torqueSum.PEa1Tv1((ex+ey),torqueAgent.torque);
+		 }//i loop
+
+		x[0] = -nM*bt2*mu2 - 0.25*bt2*bt2*mu2*dr.squared()+ 0.25*J*bt*bt2*mu2*secondDerivativeSum.getSum();
+//        x[0] = -nM * bt2 * mu2 + 0.25 * J * bt * bt2 * mu2 * secondDerivativeSum.getSum();
 
 //		test for <f(1-x^2)>  the result is zero!!!!!
 //		x[0] = dr.squared();
