@@ -175,11 +175,16 @@ public class Heisenberg extends Simulation {
         sim.activityIntegrate.setMaxSteps(steps / 5);//TODO
         sim.getController().actionPerformed();
         sim.getController().reset();
-        int blockNumber = 1000;
+        int blockNumber = 100;//TODO
+
+
         int sampleAtInterval = numberMolecules;
         int samplePerBlock = steps / sampleAtInterval / blockNumber;
         System.out.println("number of blocks is : " + blockNumber);
         System.out.println("sample per block is : " + samplePerBlock);
+        System.out.println("number of molecules are: " + nCells*nCells);
+        System.out.println("interacitonS= " + interactionS);
+        System.out.println("dipoleStrength= " + dipoleMagnitude);
 
         System.out.println("equilibration finished");
         long equilibrationTime = System.currentTimeMillis();
@@ -238,17 +243,17 @@ public class Heisenberg extends Simulation {
 
         double totalTime = (endTime - startTime) / (1000.0 * 60.0);
         if (mSquare) {
-            System.out.println("-<M^2>*bt*bt:\t" + (-dipoleSumSquared / temperature / temperature)
-                    + " mSquareErr:\t" + (dipoleSumSquaredERR / temperature / temperature)
-                    + " mSquareDifficulty:\t" + (dipoleSumSquaredERR / temperature / temperature) * Math.sqrt(totalTime)
+            System.out.println("-<M^2>*bt*bt:\t" + (-dipoleSumSquared / temperature / temperature/nCells/nCells)
+                    + " mSquareErr:\t" + (dipoleSumSquaredERR / temperature / temperature /nCells/nCells)
+                    + " mSquareDifficulty:\t" + (dipoleSumSquaredERR / temperature / temperature /nCells/nCells) * Math.sqrt(totalTime)
                     + " dipolesumCor= " + dipoleSumCor);
             System.out.println("mSquare_Time: " + (endTime - startTime) / (1000.0 * 60.0));
         }
 
         if (aEE) {
-            System.out.println("AEE_new:\t" + (AEE)
-                    + " AEEErr:\t" + AEEER
-                    + " AEEDifficulty:\t" + AEEER * Math.sqrt(totalTime)
+            System.out.println("AEE_new:\t" + (AEE/nCells/nCells)
+                    + " AEEErr:\t" + (AEEER/nCells/nCells)
+                    + " AEEDifficulty:\t" + (AEEER * Math.sqrt(totalTime)/nCells/nCells)
                     + " AEECor= " + AEECor);
             System.out.println("AEE_Time: " + (endTime - startTime) / (1000.0 * 60.0));
         }
@@ -261,10 +266,10 @@ public class Heisenberg extends Simulation {
         public boolean isGraphic = false;
         public boolean mSquare = true;
         public boolean aEE = true;
-        public double temperature = 10;// Kelvin
-        public int nCells = 10;//number of atoms is nCells*nCells
-        public double interactionS = 1.5;
-        public double dipoleMagnitude = 1.5;
+        public double temperature = 20;// Kelvin
+        public int nCells = 20;//number of atoms is nCells*nCells
+        public double interactionS = 1.0;
+        public double dipoleMagnitude = 1.0;
         public int steps = 10000000;
     }
 }
