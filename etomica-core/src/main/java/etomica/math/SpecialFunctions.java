@@ -4,9 +4,6 @@
 
 package etomica.math;
 
-import java.math.BigDecimal;
-
-import etomica.units.Dalton;
 import etomica.units.Mole;
 
 /**
@@ -18,12 +15,16 @@ public final class SpecialFunctions {
     
     /**
      * Complementary error function, computed using the approximant 7.1.26 of Abramowitz & Stegun.
-     * Defined for x >= 0
-     *
-     * Consider using {@link org.apache.commons.math3.special.Erf#erfc} if more precision is required.
-     * This method is substantially faster (~10x - 100x), but only accurate to ~10^-7.
+     * Absolute accuracy to within ~10^-7. If more precision is required,
+     * consider using {@link org.apache.commons.math3.special.Erf#erfc}, which is more accurate
+     * but substantially slower (~10x - 100x) than the method given here.
+     * @return value of complementary error function.
+     * @param x argument to function, may take values from  Double.NEGATIVE_INFINITY to Double.POSITIVE_INFINITY.
      */
     public static double erfc(double x) {
+        if (x < 0) {
+            return 2 - erfc(-x);
+        }
         double t = 1.0/(1.0 + 0.3275911*x);
         return (t * (
                   0.254829592 + t * (
@@ -80,13 +81,6 @@ public final class SpecialFunctions {
         return sum;
     }
 
-    /**
-     * The sign function, returning -1 if x < 0, zero if x == 0, and +1 if x > 0.
-     */
-    // TODO: all usages can just be converted to Math.signum
-    public static double sgn(double x) {
-        return (x < 0.0) ? -1.0 : ((x > 0.0) ? +1.0 : 0.0);
-    }
 
     /**
      * Returns the ln(gamma), the natural logarithm of the gamma function.
@@ -101,7 +95,7 @@ public final class SpecialFunctions {
             throw new IllegalArgumentException("x must not be negative");
         }
         if (x == 0) {
-            return 0;
+            return Double.POSITIVE_INFINITY;
         }
         if (x < 0.5) {
             return Math.log(Math.PI / (Math.sin(Math.PI*x))) - lnGamma(1-x);
