@@ -4,12 +4,63 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by alex on 4/24/17.
  */
 public class SpecialFunctionsTest {
+    private double epislon = 1E-7;
+
+    @Test
+    public void testErfc() throws Exception {
+        for (double x = -10; x < 10.0001; x += 0.1) {
+            assertEquals(org.apache.commons.math3.special.Erf.erfc(x), SpecialFunctions.erfc(x), 2E-7);
+        }
+
+    }
+
+
+    @Test
+    public void testLnGamma() throws Exception {
+        for (double x = 0.1; x < 10.01; x += 0.1) {
+            if (Math.abs(SpecialFunctions.lnGamma(x)) < 1.0) {
+                assertEquals(org.apache.commons.math3.special.Gamma.logGamma(x), SpecialFunctions.lnGamma(x), 1E-14);
+            } else {
+                assertEquals(1.0, org.apache.commons.math3.special.Gamma.logGamma(x) / SpecialFunctions.lnGamma(x), 1E-14);
+            }
+        }
+    }
+
+    @Test
+    public void testGamma() throws Exception {
+    }
+
+    @Test
+    public void testGammaQ() throws Exception {
+    }
+
+    @Test
+    public void testConfluentHypergeometric1F1() throws Exception {
+    }
+
+    @Test
+    public void testCalcLegendrePolynomial() throws Exception {
+    }
+
+    @Test
+    public void testWigner3J() throws Exception {
+    }
+
+    @Test
+    public void testPascal() throws Exception {
+    }
+
+    @Test
+    public void testBesselI() throws Exception {
+    }
+
+
     private static final double EPSILON = 1e-10;
 
     @Rule
