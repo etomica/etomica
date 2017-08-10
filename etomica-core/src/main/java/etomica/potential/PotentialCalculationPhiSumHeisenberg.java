@@ -27,21 +27,18 @@ public class PotentialCalculationPhiSumHeisenberg implements PotentialCalculatio
             return;
         }
 
-
-
-
-        //complicated way to get secondDerivativeSum, don't need the secondDerivative from p2Spin
         IPotentialAtomicSecondDerivative potentialSecondDerivative = (IPotentialAtomicSecondDerivative) potential;
         Tensor[] t = potentialSecondDerivative.secondDerivative(atoms);
-        secondDerivativeSum += 2 * t[0].component(0, 0) * (ei.dot(ej));
-        secondDerivativeSum += t[1].component(0, 0);
-        secondDerivativeSum += t[2].component(0, 0);
 
-        //much easier way but need to time back coupling J in the meter and here!!!!!!!!
         IAtomOriented atom1 = (IAtomOriented) atoms.getAtom(0);
         IAtomOriented atom2 = (IAtomOriented) atoms.getAtom(1);
         ei.E(atom1.getOrientation().getDirection());
         ej.E(atom2.getOrientation().getDirection());
+
+        secondDerivativeSum += 2 * t[0].component(0, 0) * (ei.dot(ej));
+        secondDerivativeSum += t[1].component(0, 0);
+        secondDerivativeSum += t[2].component(0, 0);
+
 //		double Cos = ei.dot(ej);
 //		secondDerivativeSum += -2*Cos*Cos+2*Cos;
 //		double diff = 2*t[0].component(0,0)*(ei.dot(ej))+t[1].component(0,0)+t[2].component(0,0)-1.5*( -2*Cos*Cos+2*Cos);
