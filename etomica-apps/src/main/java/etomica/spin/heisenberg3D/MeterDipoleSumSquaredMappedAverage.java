@@ -130,10 +130,9 @@ public class MeterDipoleSumSquaredMappedAverage implements IEtomicaDataSource, A
             vectorSum.PE(dr);
         }//i loop
 
-        //TODO
         //x[0] = -0.25*bt2*bt2*mu2*vectorSum.squared(); //This part is zero
-        x[0] = -nM * bt2 * mu2 + 0.25 * bt3 * mu2 * secondDerivativeSum.getSum();
-//		x[0] = -nM*bt2*mu2 - 0.25*bt2*bt2*mu2*vectorSum.squared()+ 0.25*bt3*mu2*secondDerivativeSum.getSum();
+//        x[0] = -nM * bt2 * mu2 + 0.25 * bt3 * mu2 * secondDerivativeSum.getSum();
+		x[0] = -nM*bt2*mu2 - 0.25*bt2*bt2*mu2*vectorSum.squared()+ 0.25*bt3*mu2*secondDerivativeSum.getSum();
         return data;
     }
 

@@ -9,9 +9,11 @@ import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.*;
+import etomica.data.meter.MeterDipoleSumSquared1site;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
+import etomica.integrator.mcmove.MCMoveRotate;
 import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.site.PotentialMasterSite;
 import etomica.simulation.Simulation;
@@ -29,12 +31,12 @@ import java.util.Calendar;
 
 
 /**
- * Compute  the dielectric constant of  2D Heisenberg model in conventional way and mapped averaging.
+ * Compute  the dielectric constant of  3D Heisenberg model in conventional way and mapped averaging.
  * Conventional way: get the -bt*bt*<M^2> with M is the total dipole moment;
  * Mapped averaging: get the A_EE secondDerivative of free energy w.r.t electric field E when E is zero
  * Prototype for simulation of a more general magnetic system.
  *
- * @author David Kofke & Weisong Lin
+ * @author Weisong Lin
  */
 public class Heisenberg3D extends Simulation {
 
@@ -57,8 +59,7 @@ public class Heisenberg3D extends Simulation {
      */
     public Heisenberg3D(Space space, int nCells, double temperature, double interactionS, double dipoleMagnitude) {
         super(Space3D.getInstance());
-        setRandom(new RandomNumberGenerator(1)); //debug only TODO
-
+//        setRandom(new RandomNumberGenerator(1)); //debug only TODO
 
         potentialMaster = new PotentialMasterSite(this, nCells, space);
         box = new Box(space);
@@ -119,7 +120,7 @@ public class Heisenberg3D extends Simulation {
         long equilibrationTime = System.currentTimeMillis();
         System.out.println("equilibrationTime: " + (equilibrationTime - startTime) / (1000.0 * 60.0));
 
-        //mSquare //TODO!!!!
+        //mSquare
         MeterDipoleSumSquared1site meterMSquare = null;
 //		MeterSpinMSquare meterMSquare = null;
         AccumulatorAverage dipoleSumSquaredAccumulator = null;
@@ -154,9 +155,9 @@ public class Heisenberg3D extends Simulation {
         double dipoleSumSquaredERR = 0;
         double dipoleSumCor = 0;
         if (mSquare) {
-            dipoleSumSquared = ((DataDouble) ((DataGroup) dipoleSumSquaredAccumulator.getData()).getData(dipoleSumSquaredAccumulator.AVERAGE.index)).x;
-            dipoleSumSquaredERR = ((DataDouble) ((DataGroup) dipoleSumSquaredAccumulator.getData()).getData(dipoleSumSquaredAccumulator.ERROR.index)).x;
-            dipoleSumCor = ((DataDouble) ((DataGroup) dipoleSumSquaredAccumulator.getData()).getData(dipoleSumSquaredAccumulator.BLOCK_CORRELATION.index)).x;
+            dipoleSumSquared = ((DataDouble) ((DataGroup) dipoleSumSquaredAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
+            dipoleSumSquaredERR = ((DataDouble) ((DataGroup) dipoleSumSquaredAccumulator.getData()).getData(AccumulatorAverage.ERROR.index)).x;
+            dipoleSumCor = ((DataDouble) ((DataGroup) dipoleSumSquaredAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index)).x;
         }
 
 
@@ -164,10 +165,10 @@ public class Heisenberg3D extends Simulation {
         double AEEER = 0;
         double AEECor = 0;
         if (aEE) {
-            AEE = ((DataGroup) AEEAccumulator.getData()).getData(AEEAccumulator.AVERAGE.index).getValue(0);
-            AEEER = ((DataGroup) AEEAccumulator.getData()).getData(AEEAccumulator.ERROR.index).getValue(0);
-            AEECor = ((DataGroup) AEEAccumulator.getData()).getData(AEEAccumulator.BLOCK_CORRELATION.index).getValue(0);
-            IData covariance = ((DataGroup) AEEAccumulator.getData()).getData(AEEAccumulator.BLOCK_COVARIANCE.index);
+            AEE = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(0);
+            AEEER = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(0);
+            AEECor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(0);
+            IData covariance = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
             covariance.getValue(1);
         }
 
@@ -197,8 +198,8 @@ public class Heisenberg3D extends Simulation {
     public static class Param extends ParameterBase {
         public boolean mSquare = true;
         public boolean aEE = true;
-        public double temperature = 10;// Kelvin
-        public int nCells = 20;//number of atoms is nCells*nCells
+        public double temperature = 100000;// Kelvin
+        public int nCells = 10;//number of atoms is nCells*nCells*nCells
         public double interactionS = 1;
         public double dipoleMagnitude = 1;
         public int steps = 1000000;

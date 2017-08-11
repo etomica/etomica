@@ -9,7 +9,7 @@ import etomica.space.Tensor;
 import etomica.space.Vector;
 
 public class PotentialCalculationPhiSumHeisenberg implements PotentialCalculationMolecular {
-    protected final Vector ei, ej;
+    protected Vector ei, ej;
     protected Vector dr;
     protected double secondDerivativeSum = 0;
     protected DipoleSource dipoleSource;
@@ -27,20 +27,18 @@ public class PotentialCalculationPhiSumHeisenberg implements PotentialCalculatio
             return;
         }
 
+        IPotentialAtomicSecondDerivative potentialSecondDerivative = (IPotentialAtomicSecondDerivative) potential;
+        Tensor[] t = potentialSecondDerivative.secondDerivative(atoms);
 
         IAtomOriented atom1 = (IAtomOriented) atoms.getAtom(0);
         IAtomOriented atom2 = (IAtomOriented) atoms.getAtom(1);
         ei.E(atom1.getOrientation().getDirection());
         ej.E(atom2.getOrientation().getDirection());
 
-        //complicated way to get secondDerivativeSum, don't need the secondDerivative from p2Spin
-        IPotentialAtomicSecondDerivative potentialSecondDerivative = (IPotentialAtomicSecondDerivative) potential;
-        Tensor[] t = potentialSecondDerivative.secondDerivative(atoms);
         secondDerivativeSum += 2 * t[0].component(0, 0) * (ei.dot(ej));
         secondDerivativeSum += t[1].component(0, 0);
         secondDerivativeSum += t[2].component(0, 0);
 
-        //much easier way but need to time back coupling J in the meter and here!!!!!!!!
 //		double Cos = ei.dot(ej);
 //		secondDerivativeSum += -2*Cos*Cos+2*Cos;
 //		double diff = 2*t[0].component(0,0)*(ei.dot(ej))+t[1].component(0,0)+t[2].component(0,0)-1.5*( -2*Cos*Cos+2*Cos);

@@ -103,8 +103,8 @@ public class MeterMappedAveraging implements IEtomicaDataSource, AgentSource<Met
             IAtomOriented atom = (IAtomOriented) leafList.getAtom(i);
             dr.PEa1Tv1(torqueScalar, atom.getOrientation().getDirection());
 
-            sumx += (torqueAgent.torque).getX(0) * atom.getOrientation().getDirection().getX(0);//<sum[f*cos]> turns out to be zero
-            sumy += (torqueAgent.torque).getX(0) * atom.getOrientation().getDirection().getX(1);//<sum[f*Sin]> turns out to be zero
+//            sumx += (torqueAgent.torque).getX(0) * atom.getOrientation().getDirection().getX(0);//<sum[f*cos]> turns out to be zero
+//            sumy += (torqueAgent.torque).getX(0) * atom.getOrientation().getDirection().getX(1);//<sum[f*Sin]> turns out to be zero
 
 
 //			 double exi = atom.getOrientation().getDirection().getX(0);

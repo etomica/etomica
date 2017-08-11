@@ -136,9 +136,8 @@ public class P2Spin extends Potential2 implements IPotentialTorque, IPotentialAt
         Vector ej = atom2.getOrientation().getDirection();
 
         //torque_ij = j ei cross ej
-        torque[0].E(ei);
+        torque[0].Ea1Tv1(coupling,ei);
         torque[0].XE(ej);
-        torque[0].TE(coupling);
         torque[1].Ea1Tv1(-1, torque[0]);
 //		System.out.println("torque1 = "  + torque[0]);
         return gradientAndTorque;
@@ -238,7 +237,6 @@ public class P2Spin extends Potential2 implements IPotentialTorque, IPotentialAt
 //		System.out.println("out=====================debug in p2Spin3D==========================");
 //		System.out.println("=====================compare with mathematica==========================");
 //		System.out.println("ei = " + ei);
-//		//TODO I notice that one component of ei or ej would be close to one!!!!
 //		System.out.println("ej = " + ej);
 //		System.out.println("Tij = "	+ secondDerivative[0]);
 //		System.out.println("Tii = "	+ secondDerivative[1]);
