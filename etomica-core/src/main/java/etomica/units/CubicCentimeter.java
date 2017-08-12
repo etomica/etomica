@@ -22,16 +22,4 @@ public final class CubicCentimeter extends SimpleUnit {
         super(Volume.DIMENSION, 1e+24, // conversion from cm^3 to Angstroms^3
                 "cubic centimeters", "cc", Prefix.NOT_ALLOWED);
     }
-
-    /**
-     * Required to guarantee singleton when deserializing.
-     * 
-     * @return the singleton UNIT
-     */
-    private Object readResolve() throws ObjectStreamException {
-        return UNIT;
-    }
-
-    private static final long serialVersionUID = 1;
-
 }

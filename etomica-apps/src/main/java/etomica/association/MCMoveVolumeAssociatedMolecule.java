@@ -281,11 +281,10 @@ public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements Mol
 		r.Ea1Tv1(rScale, box.getBoundary().getBoxSize());
         box.getBoundary().setBoxSize(r);//scale the boundary
     }
-    
 
-    
-    public double getA() {
-    	IMoleculeList moleculeList = box.getMoleculeList();
+
+    public double getChi(double temperature) {
+        IMoleculeList moleculeList = box.getMoleculeList();
     	for (int i=0; i< moleculeList.getMoleculeCount(); i++){
         	IMolecule molecule = moleculeList.getMolecule(i);
         	if(associationHelper.populateList(smerList, molecule, true)){
@@ -299,14 +298,9 @@ public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements Mol
         		}
         	}
     	}
-        return Math.exp((numMer+1)*vScale);
+        return Math.exp((numMer + 1) * vScale - (hNew - hOld) / temperature);
     }
-    
-    
-    public double getB() {
-        return -(hNew - hOld);
-    }
-    
+
     public void acceptNotify() {  /* do nothing */}
     
     public void rejectNotify() {

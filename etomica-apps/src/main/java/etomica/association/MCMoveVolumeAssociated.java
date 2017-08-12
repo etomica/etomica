@@ -4,24 +4,24 @@
 
 package etomica.association;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.action.WriteConfiguration;
 import etomica.atom.*;
-import etomica.box.Box;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.space.Vector;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Pressure;
 import etomica.util.random.IRandom;
+
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * Standard Monte Carlo volume-change move for simulations in the NPT ensemble.
@@ -55,7 +55,7 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
     
     /**
      * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
-     * @param space the governing space for the simulation
+     * @param _space the governing space for the simulation
      */
     public MCMoveVolumeAssociated(PotentialMaster potentialMaster, IRandom random,
                                   Space _space, double pressure) {
@@ -412,8 +412,8 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
     public void setAssociationManager(AssociationManager associationManager) {
     	this.associationManager = associationManager;
     }
-    
-    public double getA() {
+
+    public double getChi(double temperature) {
 //    	int newnumAssociatedAtoms = associationManager.getAssociatedAtoms().getAtomCount();
 //    	associationManager.initialize();
 //    	if (newnumAssociatedAtoms != associationManager.getAssociatedAtoms().getAtomCount()){
@@ -436,14 +436,9 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
         		}
         	}
     	}
-        return Math.exp((numMer+1)*vScale);
+        return Math.exp((numMer + 1) * vScale - (hNew - hOld) / temperature);
     }
-    
-    
-    public double getB() {
-        return -(hNew - hOld);
-    }
-    
+
     public void acceptNotify() {  /* do nothing */
     	//System.out.println("accepted volume moving ");
     	//System.out.println("position 388 "+((IAtomPositioned)box.getLeafList().getAtom(388)).getPosition()+"position 115 "+((IAtomPositioned)box.getLeafList().getAtom(115)).getPosition());

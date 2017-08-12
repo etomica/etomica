@@ -3,12 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.thermointegration;
-import java.util.ArrayList;
 
 import etomica.action.ResetAccumulators;
-import etomica.integrator.Integrator;
 import etomica.data.DataPump;
 import etomica.exception.ConfigurationOverlapException;
+import etomica.integrator.Integrator;
+
+import java.util.ArrayList;
 
 
 /**
@@ -76,7 +77,7 @@ public abstract class IntegratorThermodynamic extends Integrator {
      * performed since the last advance of the thermodynamic parameter(s),
      * the parameters are advanced again.
      */
-    public void doStepInternal() {
+    protected void doStepInternal() {
         iSubstep++;
         subIntegrator.doStep();
         if (iSubstep > numEquilibrationSubsteps) {

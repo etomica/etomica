@@ -4,16 +4,16 @@
 
 package etomica.association;
 
+import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.potential.PotentialMaster;
-import etomica.util.random.IRandom;
-import etomica.space.Vector;
-import etomica.atom.AtomArrayList;
 import etomica.atom.IAtomOriented;
 import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.potential.PotentialMaster;
 import etomica.space.IOrientation;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * Performs a rotation of an atom (not a molecule) that has an orientation coordinate.
@@ -31,7 +31,7 @@ public class MCMoveRotateAssociated extends MCMoveAtom {
 
     public MCMoveRotateAssociated(PotentialMaster potentialMaster, IRandom random,
                                   Space _space) {
-        super(potentialMaster, random, _space, Math.PI/2, Math.PI, false);
+        super(random, potentialMaster, _space, Math.PI/2, Math.PI, false);
         oldOrientation = _space.makeOrientation();
         this.smerList = new AtomArrayList();
         this.dr = _space.makeVector();
@@ -53,16 +53,16 @@ public class MCMoveRotateAssociated extends MCMoveAtom {
         
         return true;
     }
-    
-    public double getA(){
-    	if (populateList(smerList) == 0){
+
+    public double getChi(double temperature) {
+        if (populateList(smerList) == 0){
     		return 0.0;
     	}
     	if (smerList.getAtomCount() > maxLength) {
     		return 0.0;
 		}
-		return 1.0;
-	}
+        return super.getChi(temperature);
+    }
     
     protected int populateList(AtomArrayList mySmerList){
     	mySmerList.clear();

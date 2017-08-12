@@ -27,16 +27,4 @@ public final class Debye extends SimpleUnit {
         	        "D",
                  Prefix.ALLOWED);   
     }
-    
-    /**
-     * Required to guarantee singleton when deserializing.
-     * 
-     * @return the singleton UNIT
-     */
-    private Object readResolve() throws ObjectStreamException {
-        return UNIT;
-    }
-    
-    private static final long serialVersionUID = 1;
-
 }

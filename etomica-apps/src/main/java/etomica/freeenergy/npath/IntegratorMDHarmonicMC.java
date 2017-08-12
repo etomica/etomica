@@ -8,7 +8,6 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.chem.elements.Iron;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialMaster;
 import etomica.space.Boundary;
@@ -21,7 +20,7 @@ import etomica.util.random.IRandom;
  */
 public class IntegratorMDHarmonicMC extends IntegratorVelocityVerlet {
 
-    protected final Vector dr, drTmp, dv, dvTmp, df;
+    protected final Vector dr, drTmp, dv, dvTmp;
     protected final Vector fTot, vTot;
     protected P1ImageHarmonic p1;
     protected Boundary boundary;
@@ -36,7 +35,6 @@ public class IntegratorMDHarmonicMC extends IntegratorVelocityVerlet {
         drTmp = space.makeVector();
         dv = space.makeVector();
         dvTmp = space.makeVector();
-        df = space.makeVector();
         fTot = space.makeVector();
         vTot = space.makeVector();
     }
@@ -54,14 +52,7 @@ public class IntegratorMDHarmonicMC extends IntegratorVelocityVerlet {
         }
     }
 
-    public double getRandomizeProbability() {
-        double w = p1.getW();
-        double rm2 = 2 / Iron.INSTANCE.getMass();
-        double o = Math.sqrt(2 * w * rm2);
-        return o * timeStep / Math.PI;
-    }
-
-    public void doStepInternal() {
+    protected void doStepInternal() {
         // from IntegratorMD
         currentTime += timeStep;
         // IntegratorVelocityVerlet code
@@ -111,11 +102,6 @@ public class IntegratorMDHarmonicMC extends IntegratorVelocityVerlet {
             boundary.nearestImage(dr);
             drAll[iLeaf].E(dr);
             du -= w * dr.squared();
-
-            MyAgent agent0 = agentManager.getAgent(atom0);
-            MyAgent agent1 = agentManager.getAgent(atom1);
-
-            df.Ev1Mv2(agent1.force, agent0.force);
 
             // f = -2 w (x-x0) + f_iron
             // f = -2 w ((x-x0) - f_iron/2w)

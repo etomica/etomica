@@ -7,8 +7,8 @@ package etomica.integrator.mcmove;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.potential.PotentialMaster;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.util.random.IRandom;
 
 /**
@@ -85,9 +85,9 @@ public class MCMoveTorsionAceticAcid extends MCMoveMolecule {
             atomk.getPosition().PEa1Tv1(-0.2, secondaryDirection);
         }
     }
-    
-    public double getB() {
-        return -(uNew - uOld);
+
+    public double getChi(double temperature) {
+        return Math.exp(-(uNew - uOld) / temperature);
     }
 
 	

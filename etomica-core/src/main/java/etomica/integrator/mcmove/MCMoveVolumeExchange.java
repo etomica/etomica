@@ -5,16 +5,16 @@
 package etomica.integrator.mcmove;
 
 import etomica.action.BoxInflate;
-import etomica.box.Box;
-import etomica.potential.PotentialMaster;
-import etomica.util.random.IRandom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorNull;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
+import etomica.potential.PotentialMaster;
 import etomica.space.Space;
+import etomica.util.random.IRandom;
 
 /**
  * Elementary Monte Carlo trial that exchanges volume between two boxs.  Trial
@@ -89,8 +89,8 @@ public class MCMoveVolumeExchange extends MCMoveStep {
         inflate2.actionPerformed();
         return true;
     }//end of doTrial
-    
-    public double getA() {
+
+    public double getChi(double temperature) {
         energyMeter.setBox(firstBox);
         uNew1 = energyMeter.getDataAsScalar();
         energyMeter.setBox(secondBox);
@@ -98,14 +98,8 @@ public class MCMoveVolumeExchange extends MCMoveStep {
         double hNew = uNew1 + uNew2;
         double B = -(hNew - hOld);
         // assume both integrators have the same temperature
-        double T = integrator1.getTemperature();
-        return Math.exp(B/T) * Math.pow(v1Scale,(firstBox.getMoleculeList().getMoleculeCount()+1))
+        return Math.exp(B / temperature) * Math.pow(v1Scale, (firstBox.getMoleculeList().getMoleculeCount() + 1))
                 * Math.pow(v2Scale,(secondBox.getMoleculeList().getMoleculeCount()+1));
-    }
-        
-    public double getB() {
-        //IntegratorManagerMC only calls getA since it doesn't have a temperature
-        throw new IllegalStateException("You shouldn't be calling this method");
     }
     
     public void acceptNotify() {

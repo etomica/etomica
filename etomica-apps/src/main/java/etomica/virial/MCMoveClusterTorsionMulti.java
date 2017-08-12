@@ -38,13 +38,6 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
         setBondLength(1.0);
     }
     
-    /**
-     * Constructor for MCMoveAtomMulti.
-     * @param parentIntegrator
-     * @param nAtoms number of atoms to move in a trial.  Number of atoms in
-     * box should be at least one greater than this value (greater
-     * because first atom is never moved)
-     */
     public MCMoveClusterTorsionMulti(PotentialMaster potentialMaster, Space space,
                                      IRandom random, double stepSize, P4BondTorsion torsionPotential, int nBins) {
         super(potentialMaster,random,space,stepSize,Double.POSITIVE_INFINITY);
@@ -395,13 +388,9 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
     public void acceptNotify() {
         ((BoxCluster)box).acceptNotify();
     }
-    
-    public double getB() {
-        return -(uNew - uOld);
-    }
-    
-    public double getA() {
-    	return bias*wNew/wOld;
+
+    public double getChi(double temperature) {
+        return bias * wNew / wOld * Math.exp(-(uNew - uOld) / temperature);
     }
 	
     private static final long serialVersionUID = 1L;

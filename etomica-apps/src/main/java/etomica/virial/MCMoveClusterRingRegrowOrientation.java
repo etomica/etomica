@@ -400,19 +400,14 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 	}
 
 	@Override
-	public double getA() {
-		if (firstMove) {
+    public double getChi(double temperature) {
+        if (firstMove) {
 			return weightNew/weightOld;
 		}
 		else {
 			return pacc*weightNew/weightOld;
 		}
 
-	}
-
-	@Override
-	public double getB() {
-		return 0.0;
 	}
 
 	@Override

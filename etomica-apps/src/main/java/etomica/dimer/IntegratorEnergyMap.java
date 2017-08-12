@@ -4,19 +4,19 @@
 
 package etomica.dimer;
 
-import java.io.IOException;
-import java.util.Formatter;
-
-import etomica.atom.IAtom;
-import etomica.space.Vector;
-import etomica.box.Box;
-import etomica.simulation.Simulation;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
+import etomica.atom.IAtom;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
+
+import java.io.IOException;
+import java.util.Formatter;
 
 public class IntegratorEnergyMap extends IntegratorBox implements AgentSource{
 
@@ -33,8 +33,8 @@ public class IntegratorEnergyMap extends IntegratorBox implements AgentSource{
         this.adatom = aAdatom;
         this.space = _space;
     }
-    
-    public void doStepInternal(){
+
+    protected void doStepInternal() {
         try {
            
             Formatter formatter = new Formatter("energy-"+fileTail);

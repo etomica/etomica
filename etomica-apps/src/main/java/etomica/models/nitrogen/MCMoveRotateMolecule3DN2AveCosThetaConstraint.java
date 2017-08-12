@@ -113,9 +113,9 @@ public class MCMoveRotateMolecule3DN2AveCosThetaConstraint extends MCMoveMolecul
 
         return true;
     }
-    
-    public double getB() {
-        return -(uNew - uOld);
+
+    public double getChi(double temperature) {
+        return Math.exp(-(uNew - uOld));
         
     }
     

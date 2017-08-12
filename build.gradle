@@ -10,6 +10,8 @@ subprojects {
     apply plugin: 'eclipse'
     apply plugin: 'findbugs'
 
+    apply from: "${rootDir}/gradle/ColoredTestOutput.gradle"
+
     if(rootProject.hasProperty("main")) {
         apply plugin: 'application'
         mainClassName = rootProject.findProperty("main")
@@ -48,8 +50,11 @@ subprojects {
 
     test {
         testLogging {
-            events 'failed'
-            exceptionFormat 'short'
+            events 'standardOut'
+            showExceptions true
+            exceptionFormat 'full'
+            showCauses true
+            showStackTraces true
         }
 
     }
@@ -60,7 +65,7 @@ subprojects {
 project(':etomica-core') {
     
     dependencies {
-        compile 'com.fasterxml.jackson.core:jackson-databind:2.9.0.pr1'
+        compile 'com.fasterxml.jackson.core:jackson-databind:2.9.0'
         compile 'gov.nist.math:jama:1.0.3'
         compile 'org.apache.commons:commons-math3:3.3'
         compile "org.reflections:reflections:0.9.11"

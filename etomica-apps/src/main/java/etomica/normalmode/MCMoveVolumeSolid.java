@@ -7,18 +7,18 @@ package etomica.normalmode;
 import etomica.action.BoxInflate;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
-import etomica.potential.PotentialMaster;
-import etomica.util.random.IRandom;
-import etomica.space.Vector;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
+import etomica.math.function.Function;
+import etomica.potential.PotentialMaster;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Pressure;
-import etomica.math.function.Function;
+import etomica.util.random.IRandom;
 
 /**
  * Monte Carlo volume-change move for simulations of crystalline solids in the
@@ -51,7 +51,7 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
 
     /**
      * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
-     * @param space the governing space for the simulation
+     * @param _space the governing space for the simulation
      */
     public MCMoveVolumeSolid(PotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, IRandom random,
                              Space _space, double pressure) {
@@ -163,18 +163,15 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
         uNew = energyMeter.getDataAsScalar();
         return true;
     }
-    
-    public double getA() {
-        return doCorti ? 1.0 : vNew/vOld;
-    }
-    
-    public double getB() {
+
+    public double getChi(double temperature) {
         int nAtoms = box.getLeafList().getAtomCount();
         double uLatOld = nAtoms*uLatTruncFunction.f(nAtoms/vOld);
         double uLatNew = nAtoms*uLatTruncFunction.f(nAtoms/vNew);
-        return -((uNew-uLatNew) - (uOld-uLatOld));
+
+        return (doCorti ? 1.0 : vNew / vOld) * Math.exp(-((uNew - uLatNew) - (uOld - uLatOld)) / temperature);
     }
-    
+
     public void acceptNotify() {
         /* do nothing */
     }

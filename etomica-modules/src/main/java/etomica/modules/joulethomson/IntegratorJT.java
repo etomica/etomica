@@ -4,10 +4,10 @@
 
 package etomica.modules.joulethomson;
 
-import etomica.util.random.IRandom;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorManagerMC;
 import etomica.modifier.ModifierBoolean;
+import etomica.util.random.IRandom;
 
 public class IntegratorJT extends IntegratorManagerMC {
     
@@ -30,7 +30,7 @@ public class IntegratorJT extends IntegratorManagerMC {
         nveCount = 100;
     }
 
-    public void doStepInternal() {
+    protected void doStepInternal() {
         if(random.nextDouble() < globalMoveProbability) {
             doGlobalMoves();
         } else {

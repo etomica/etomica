@@ -24,7 +24,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.*;
+import etomica.units.Kelvin;
 import etomica.units.dimensions.*;
 import etomica.util.random.IRandom;
 
@@ -97,11 +97,11 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
     public double getTargetT() {return targetT;}
     public Dimension getTargetTDimension() {return Temperature.DIMENSION;}
 
-    public void setBox(Box p) {
-        super.setBox(p);
-        inflate.setBox(box);
-        meterTemperature = new MeterTemperature(box, D);
-        forceSumNPH.setBox(box);
+    public void setBox(Box box) {
+        super.setBox(box);
+        inflate.setBox(this.box);
+        meterTemperature = new MeterTemperature(this.box, D);
+        forceSumNPH.setBox(this.box);
         forceSumNPH.setAgentManager(agentManager);
     }
     
@@ -109,7 +109,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
 //--------------------------------------------------------------
 // steps all particles across time interval tStep
 
-    public void doStepInternal() {
+    protected void doStepInternal() {
         super.doStepInternal();
         predictor();
         calculateForces();

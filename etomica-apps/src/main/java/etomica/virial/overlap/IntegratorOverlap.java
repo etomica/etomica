@@ -4,9 +4,9 @@
 
 package etomica.virial.overlap;
 
-import etomica.integrator.Integrator;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
+import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorManagerMC;
 import etomica.util.Debug;
 
@@ -91,7 +91,7 @@ public class IntegratorOverlap extends IntegratorManagerMC {
 
     // Override superclass so we can run the integrators for different lenghts
     // of time.  There are no global moves.
-    public void doStepInternal() {
+    protected void doStepInternal() {
         for (int i=0; i<nIntegrators; i++) {
             long iSubSteps = (int)(numSubSteps*stepFreq[i]);
             if (doAdjustStepFreq) {

@@ -212,13 +212,13 @@ public class MCMoveRotateMolecule3DFixedAngle extends MCMoveMolecule {
             r.PE(r0);
         }
     }
-    
-    public double getB() {
+
+    public double getChi(double temperature) {
 //    	double energy = energyMeter.getDataAsScalar();
 //    	if(Double.isInfinite(energy)){
 //    		return -1.0;
 //    	}
-        return 0.0; //always accept the rotational move, See the acceptance criteria in IntegratorMC
+        return 1.0; //always accept the rotational move, See the acceptance criteria in IntegratorMC
     }
     
     public double energyChange() { return 0.0;}

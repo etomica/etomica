@@ -26,7 +26,7 @@ public class Charge extends Dimension {
     /**
      * Simulation unit of charge.
      */
-    public static final Unit SIM_UNIT = new SimpleUnit(DIMENSION, 1.0, "sim charge units", "(D-\u00c5^3/ps^2)^(1/2)(4\u03C0\u03B50)^(1/2)", Prefix.NOT_ALLOWED);//unicode is Anstroms, and 4 pi epsilon0
+    public static final Unit SIM_UNIT = new SimpleUnit(DIMENSION, 1.0, "sim charge units", "(D-\u00c5^3/ps^2)^(1/2)(4\u03C0\u03B50)^(1/2)", Prefix.NOT_ALLOWED);//unicode is Angstroms, and 4 pi epsilon0
 
     private Charge() {
         super("Charge", 0, 0, 1, 1, 0, 0, 0);
@@ -35,16 +35,4 @@ public class Charge extends Dimension {
     public Unit getUnit(UnitSystem unitSystem) {
         return unitSystem.charge();
     }
-
-    /**
-     * Required to guarantee singleton when deserializing.
-     * 
-     * @return the singleton DIMENSION
-     */
-    private Object readResolve() throws ObjectStreamException {
-        return DIMENSION;
-    }
-
-    private static final long serialVersionUID = 1;
-
 }

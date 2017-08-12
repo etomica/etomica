@@ -217,13 +217,9 @@ public class MCMoveVolumeMonoclinicScaled extends MCMoveBoxStep {
         }
         
     }
-    
-    public double getA() {
-        return 1;
-    }
-    
-    public double getB() {
-        return -(uNew - uOld);
+
+    public double getChi(double temp) {
+        return Math.exp(-(uNew - uOld) / temp);
     }
     
     public void acceptNotify() {

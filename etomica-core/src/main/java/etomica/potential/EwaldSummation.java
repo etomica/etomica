@@ -27,12 +27,11 @@ public class EwaldSummation implements PotentialSoft{
     protected final Space space;
     protected final AtomLeafAgentManager<MyCharge> atomAgentManager;
     protected final Box box;
-    protected final double alpha, alpha2,alpha3;//sqrt of the Frenkel's alpha, follow other authors' convention
+    protected double alpha, alpha2,alpha3;//sqrt of the Frenkel's alpha, follow other authors' convention
     protected final double[] boxSize, basis;
     protected final double volume;
     protected final int[] nKs, nRealShells; 
     protected final IMoleculeList moleculeList;
-    protected final int numMolecules;
     protected Vector[] gradient;
     protected double[] sinkrj, coskrj;
     protected final Tensor secondDerivative;
@@ -57,7 +56,6 @@ public class EwaldSummation implements PotentialSoft{
         this.kCut = kCut;
 
         moleculeList = box.getMoleculeList();
-        numMolecules = moleculeList.getMoleculeCount();
         boxSize = new double[] {box.getBoundary().getBoxSize().getX(0),  box.getBoundary().getBoxSize().getX(1),  box.getBoundary().getBoxSize().getX(2)};
         volume = box.getBoundary().volume();
         Lxyz = space.makeVector();
@@ -70,19 +68,7 @@ public class EwaldSummation implements PotentialSoft{
 		double s = Math.sqrt(rCutRealES*kCut/2);
 		
 		alpha = s/rCutRealES; //=0.2406189232882774  //nX=1
-		
-		
-        int nAtoms = box.getLeafList().getAtomCount();
-        double Q2=0;
-        for (int i=0; i < nAtoms; i++){//H
-            IAtom atom = box.getLeafList().getAtom(i);
-            double charge = atomAgentManager.getAgent(atom).charge;
-            Q2 += charge*charge;
-        }
-        Q2 /= numMolecules;
-        
-
-        alpha2 = alpha*alpha;
+		alpha2 = alpha*alpha;
         alpha3 = alpha*alpha2;
 
         basis = new double[]{2*Math.PI/boxSize[0], 2*Math.PI/boxSize[1], 2*Math.PI/boxSize[2]};
@@ -154,7 +140,7 @@ public class EwaldSummation implements PotentialSoft{
                             double r2 = drTmp.squared();
                             if(r2 > rCutSquared) continue;
                             double drTmpM = Math.sqrt(r2);
-                            double tmepReal = chargeA * chargeB * Erf.erfc(alpha * drTmpM) / drTmpM;//Don't worry about 1/2 factor;j>i
+                            double tmepReal = chargeA * chargeB * Erf.erfc(alpha * drTmpM) / drTmpM; //Don't worry about 1/2 factor;j>i
                             uReal+= (isSelf ? 0.5 : 1.0)*tmepReal;
                         }
                     }
@@ -175,13 +161,13 @@ public class EwaldSummation implements PotentialSoft{
         int nAtoms = atoms.getAtomCount();
 
         // loop over vectors in k-space. (1)k=(0,0,0) is excluded, (2)within sphere with kCutoff as its radius
-        for (int xAxis = -nKs[0]; xAxis < nKs[0]+1; xAxis++){
-            kVector.setX(0, (xAxis * basis[0]));// assign value to the x-axis
-            for (int yAxis = -nKs[1]; yAxis < nKs[1]+1; yAxis++ ){
-                kVector.setX(1, (yAxis * basis[1]));// assign value to the y-axis
-                for (int zAxis = -nKs[2]; zAxis < nKs[2]+1; zAxis++ ){
-                    if( (xAxis * xAxis + yAxis * yAxis + zAxis * zAxis) == 0) continue;// first check: k is a non-zero vector
-                    kVector.setX(2, (zAxis * basis[2]));// assign value to the z-axis, now the vector is specified
+        for (int kX = -nKs[0]; kX < nKs[0]+1; kX++){
+            kVector.setX(0, (kX * basis[0]));// assign value to the x-axis
+            for (int kY = -nKs[1]; kY < nKs[1]+1; kY++ ){
+                kVector.setX(1, (kY * basis[1]));// assign value to the y-axis
+                for (int kZ = -nKs[2]; kZ < nKs[2]+1; kZ++ ){
+                    if( (kX * kX + kY * kY + kZ * kZ) == 0) continue;// first check: k is a non-zero vector
+                    kVector.setX(2, (kZ * basis[2]));// assign value to the z-axis, now the vector is specified
                     double kSquared = kVector.squared();
 
                     if (kSquared > kCutSquared) continue;// k-vector should be within the sphere with kCutoff as the radius
@@ -227,7 +213,7 @@ public class EwaldSummation implements PotentialSoft{
 
     public double uBondCorr(){
         double uCorr = 0.0;
-        for (int i=0; i< numMolecules; i++){
+        for (int i=0; i< moleculeList.getMoleculeCount(); i++){
             IMolecule molecule = moleculeList.getMolecule(i);
             int numSites = molecule.getChildList().getAtomCount();
             for (int siteA=0; siteA<numSites; siteA++){
@@ -241,13 +227,20 @@ public class EwaldSummation implements PotentialSoft{
                     double chargeB = atomAgentManager.getAgent(atomB).charge;
                     if (chargeB==0) continue;
                     rAB.Ev1Mv2(positionA, positionB);
+                    box.getBoundary().nearestImage(rAB);
                     double rABMagnitudeSquared = rAB.squared();
                     double rABMagnitude = Math.sqrt(rABMagnitudeSquared);
-                    uCorr += chargeA*chargeB*Erf.erf(alpha*rABMagnitude)/rABMagnitude;
+                    uCorr -= chargeA*chargeB*Erf.erf(alpha*rABMagnitude)/rABMagnitude;
                 }
             }
         }		
         return uCorr;
+    }
+
+    public void setAlpha(double alpha){
+        this.alpha = alpha;
+        alpha2 = alpha*alpha;
+        alpha3 = alpha2 * alpha;
     }
 
     public double getRange() {
@@ -275,8 +268,9 @@ public class EwaldSummation implements PotentialSoft{
         double self = uSelf();
         double bondCorr = uBondCorr();
 
-        double totalEnergy = real + fourier + self - bondCorr;       
-        if (false) { 
+        double totalEnergy = real + fourier + self + bondCorr;
+        if (false) {
+            int numMolecules = moleculeList.getMoleculeCount();
             System.out.println("total:               "+ totalEnergy/numMolecules);
             System.out.println("real   : "+ real/numMolecules);
             System.out.println("fourier: "+ fourier/numMolecules);
@@ -394,7 +388,7 @@ public class EwaldSummation implements PotentialSoft{
         }//End loop over ks
 
         //Intra-Molecular  gradient:
-        for (int i=0; i< numMolecules; i++){
+        for (int i=0; i< moleculeList.getMoleculeCount(); i++){
             IMolecule molecule = moleculeList.getMolecule(i);	
             int numSites = molecule.getChildList().getAtomCount();
             for (int siteA=0; siteA<numSites; siteA++){

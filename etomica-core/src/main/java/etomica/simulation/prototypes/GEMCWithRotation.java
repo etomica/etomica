@@ -43,6 +43,7 @@ public class GEMCWithRotation extends Simulation {
         double sigma = 1.2;
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         integrator = new IntegratorGEMC(getRandom(), space);
+        integrator.setTemperature(0.420);
         integrator.setEventInterval(400);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);

@@ -4,18 +4,18 @@
 
 package etomica.virial;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.util.random.IRandom;
-import etomica.space.Vector;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Vector3D;
+import etomica.util.random.IRandom;
 import etomica.util.random.RandomMersenneTwister;
 import etomica.util.random.RandomNumberGeneratorUnix;
+
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class MCMoveClusterAtomHSRing extends MCMoveAtom {
 
@@ -704,14 +704,10 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
         return 0.5 * Math.log((x+1)/(x-1));
     }
 
-    public double getA() {
+    public double getChi(double temperature) {
         return 1;
     }
 
-    public double getB() {
-    	return 0.0;
-    }
-    
     public void rejectNotify() {
         throw new RuntimeException("nope");
     }

@@ -4,11 +4,10 @@
 
 package etomica.virial;
 
-import etomica.box.Box;
-import etomica.potential.PotentialMaster;
-
 import etomica.atom.iterator.AtomIterator;
+import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBox;
+import etomica.potential.PotentialMaster;
 
 /**
  * Move that attempts to perform changes in the cluster diagram.
@@ -41,18 +40,14 @@ public class MCMoveClusterDiagram extends MCMoveBox {
         uNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         return true;
     }
-    
-    public double getA() {
+
+    public double getChi(double temperature) {
 //        System.out.println("uNew "+uNew+" uOld "+uOld);
         foo += uNew * uOld;
         foo2 += uOld * uOld;
         return uNew/uOld;
     }
-    
-    public double getB() {
-        return 0;
-    }
-    
+
     public void acceptNotify() {
   //      System.out.println("accepted"+(uNew == uOld ? " no change" : ""));
         // do nothing

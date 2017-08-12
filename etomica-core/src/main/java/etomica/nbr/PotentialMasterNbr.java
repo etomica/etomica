@@ -151,12 +151,4 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
 
     public void releaseAgent(Object agent, ISpecies type) {
     }
-
-    /**
-     * Returns the simulation associated with this PotentialMaster
-     */
-    @IgnoreProperty
-    public Simulation getSimulation() {
-        return simulation;
-    }
 }

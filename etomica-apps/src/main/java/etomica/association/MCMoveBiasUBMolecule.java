@@ -136,12 +136,9 @@ public class MCMoveBiasUBMolecule extends MCMoveBox implements MCMoveMolecular{
         affectedAtomIterator.setList(moleculeA.getChildList());
         return true;
     }//end doTrial
-    public double getB() {
-    	uNew = meterPotentialEnergy.getDataAsScalar();
-    	return uOld - uNew;
-    }
-    public double getA() {
-    	int Naj = associationManager.getAssociatedMolecules().getMoleculeCount();
+
+    public double getChi(double temperature) {
+        int Naj = associationManager.getAssociatedMolecules().getMoleculeCount();
     	int N = box.getMoleculeList().getMoleculeCount();
     	double phi = biasVolume.biasVolume()/box.getBoundary().volume()*N;
 
@@ -153,7 +150,8 @@ public class MCMoveBiasUBMolecule extends MCMoveBox implements MCMoveMolecular{
         if (associationHelper.populateList(smerList,moleculeA,true)){
         	return 0;
         }
-        return ((N-1)*phi*deltaj/Naj + ni)/((N-1)*phi*deltai/Nai + nj);    
+        uNew = meterPotentialEnergy.getDataAsScalar();
+        return ((N - 1) * phi * deltaj / Naj + ni) / ((N - 1) * phi * deltai / Nai + nj) * Math.exp(-(uNew - uOld) / temperature);
     }
     
    	public AtomIterator affectedAtoms() {

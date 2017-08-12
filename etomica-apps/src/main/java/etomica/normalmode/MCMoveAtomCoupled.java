@@ -131,9 +131,7 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         return true;
     }
 
-    public double getA() {return 1.0;}
-    
-    public double getB() {
+    public double getChi(double temperature) {
         uNew = energyMeter.getDataAsScalar();
         energyMeter.setTarget(atom0);
         uNew += energyMeter.getDataAsScalar();
@@ -150,7 +148,7 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
             uNew += constraintPotential.energy(atomSinglet);
         }
 
-        return -(uNew - uOld);
+        return Math.exp(-(uNew - uOld) / temperature);
     }
     
     public double energyChange() {return uNew - uOld;}
@@ -194,7 +192,7 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         return atomSource;
     }
     /**
-     * @param atomSource The atomSource to set.
+     * @param source The atomSource to set.
      */
     public void setAtomSource(AtomSource source) {
         atomSource = source;

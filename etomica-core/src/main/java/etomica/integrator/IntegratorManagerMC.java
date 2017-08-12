@@ -4,16 +4,12 @@
 
 package etomica.integrator;
 
-import etomica.util.random.IRandom;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.integrator.mcmove.MCMove;
-import etomica.integrator.mcmove.MCMoveEventManager;
-import etomica.integrator.mcmove.MCMoveManager;
-import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
-import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
+import etomica.integrator.mcmove.*;
 import etomica.util.Arrays;
 import etomica.util.IEvent;
 import etomica.util.IEventManager;
+import etomica.util.random.IRandom;
 
 /**
  * Integrator manages other Integrators which either act on a Box, or manage
@@ -25,6 +21,18 @@ import etomica.util.IEventManager;
 
 public class IntegratorManagerMC extends Integrator {
 
+    private static final long serialVersionUID = 2L;
+    protected final IEventManager eventManager;
+    protected final IRandom random;
+    private final IEvent trialEvent;
+    private final IEvent acceptedEvent, rejectedEvent;
+    protected double globalMoveProbability;
+    protected MCMoveManager moveManager;
+    protected Integrator[] integrators;
+    protected int nIntegrators;
+    protected double temperature;
+    private double globalMoveInterval;
+    
     public IntegratorManagerMC(IRandom random) {
         super();
         this.random = random;
@@ -53,7 +61,7 @@ public class IntegratorManagerMC extends Integrator {
         if (overlapException != null) {
             throw overlapException;
         }
-    }        
+    }
     
     /**
      * Causes recalculation of move frequencies and zero of selection counts for
@@ -96,7 +104,7 @@ public class IntegratorManagerMC extends Integrator {
         nIntegrators--;
         return true;
     }
-    
+
     public Integrator[] getIntegrators() {
         return integrators.clone();
     }
@@ -120,7 +128,7 @@ public class IntegratorManagerMC extends Integrator {
      * between two "adjacent" boxes, or instructs all integrators to perform
      * a single doStep.
      */
-    public void doStepInternal() {
+    protected void doStepInternal() {
         if(random.nextDouble() < globalMoveProbability) {
             doGlobalMoves();
         } else {
@@ -129,7 +137,7 @@ public class IntegratorManagerMC extends Integrator {
             }
         }
     }
-    
+
     /**
      * Method to select and perform an elementary Monte Carlo move. The type of
      * move performed is chosen from all MCMoves that have been added to the
@@ -154,7 +162,7 @@ public class IntegratorManagerMC extends Integrator {
         eventManager.fireEvent(trialEvent);
 
         //decide acceptance
-        double chi = move.getA();
+        double chi = move.getChi(temperature);
         if (chi == 0.0 || (chi < 1.0 && chi < random.nextDouble())) {
             //reject
             move.rejectNotify();
@@ -173,9 +181,16 @@ public class IntegratorManagerMC extends Integrator {
     public IEventManager getMoveEventManager() {
         return eventManager;
     }
-    
+
     /**
-     * Sets the average interval between box-swap trials.  With each 
+     * Accessor method for the average interval between box-swap trials.
+     */
+    public double getGlobalMoveInterval() {
+        return globalMoveInterval;
+    }
+
+    /**
+     * Sets the average interval between box-swap trials.  With each
      * call to doStep of this integrator, there will be a probability of
      * 1/globalMoveInterval that a swap trial will be attempted.  A swap is attempted
      * for only one pair of boxs.  Default is 2.
@@ -192,20 +207,16 @@ public class IntegratorManagerMC extends Integrator {
             globalMoveProbability = 1.0/globalMoveInterval;
         }
     }
-    
+
+    public double getTemperature() {
+        return temperature;
+    }
+
     /**
-     * Accessor method for the average interval between box-swap trials.
+     * Sets the temperature for this integrator if that's relevant
+     * @param temperature
      */
-    public double getGlobalMoveInterval() {return globalMoveInterval;}
-    
-    private static final long serialVersionUID = 2L;
-    private double globalMoveInterval;
-    protected double globalMoveProbability;
-    protected MCMoveManager moveManager;
-    protected final IEventManager eventManager;
-    protected Integrator[] integrators;
-    protected int nIntegrators;
-    private final IEvent trialEvent;
-    private final IEvent acceptedEvent, rejectedEvent;
-    protected final IRandom random;
+    public void setTemperature(double temperature) {
+        this.temperature = temperature;
+    }
 }

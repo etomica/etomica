@@ -1,14 +1,14 @@
 package etomica.virial;
 
-import etomica.atom.IAtomList;
-import etomica.space.Vector;
-import etomica.box.Box;
-import etomica.util.random.IRandom;
 import etomica.atom.AtomOrientedQuaternion;
 import etomica.atom.AtomSource;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomIterator;
+import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 public class MCMoveClusterAtomQ extends MCMoveAtom {
 
@@ -43,12 +43,8 @@ public class MCMoveClusterAtomQ extends MCMoveAtom {
         mcMove.setBox(p);
     }
 
-    public double getB() {
-        return mcMove.getB();
-    }
-
-    public double getA() {
-        return mcMove.getA();
+    public double getChi(double temperature) {
+        return mcMove.getChi(temperature);
     }
 
     public void rejectNotify() {

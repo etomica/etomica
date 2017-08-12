@@ -688,13 +688,10 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
         ((BoxCluster)box).rejectNotify();
     }
 
-    public double getB() {
-        return -(uNew - uOld);
+    public double getChi(double temperature) {
+        return wNew / wOld * Math.exp(-(uNew - uOld) / temperature);
     }
 
-    public double getA() {
-        return wNew/wOld;
-    }
     private static final long serialVersionUID = 1L;
     protected final MeterPotentialEnergy energyMeter;
     protected IAtom[][] selectedAtoms;
