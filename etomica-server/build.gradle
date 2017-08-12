@@ -1,0 +1,25 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'io.dropwizard:dropwizard-core:1.2.0-rc1'
+    compile 'com.liveperson:dropwizard-websockets:1.1.0'
+
+    compile project(":etomica-core")
+    compile project(":etomica-apps")
+    compile project(":etomica-modules")
+}
+
+mainClassName = 'etomica.server.EtomicaServer'
+
+run {
+    args = ['server', 'config.yml']
+}
+
+sourceSets.main.resources {
+    srcDirs = ["config"]
+}
