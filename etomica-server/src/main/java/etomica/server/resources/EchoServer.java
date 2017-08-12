@@ -1,4 +1,4 @@
-package etomica.serverdw.resources;
+package etomica.server.resources;
 
 import com.codahale.metrics.annotation.Metered;
 import com.codahale.metrics.annotation.Timed;

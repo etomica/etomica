@@ -14,12 +14,14 @@ public class SimulationModel {
     private final Map<Class, List<Property>> classes;
     private final Map<Object, Wrapper> wrappers;
     private long objectCount = 0;
+    private final Simulation simulation;
 
     public SimulationModel(Simulation sim) {
         this.classes = new HashMap<>();
         this.wrappers = new HashMap<>();
         makeWrapper(sim);
 //        this.tree = new PropertyTree(base, base.getWrappedClass().getSimpleName(), classes);
+        simulation = sim;
     }
 
     public Map<Class, List<Property>> getClasses() {
@@ -72,4 +74,7 @@ public class SimulationModel {
         return wrappers.values();
     }
 
+    public Simulation getSimulation() {
+        return simulation;
+    }
 }

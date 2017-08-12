@@ -1,4 +1,4 @@
-package etomica.serverdw.representations;
+package etomica.server.representations;
 
 import java.util.Map;
 

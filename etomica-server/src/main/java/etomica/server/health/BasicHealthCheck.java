@@ -1,4 +1,4 @@
-package etomica.serverdw.health;
+package etomica.server.health;
 
 import com.codahale.metrics.health.HealthCheck;
 

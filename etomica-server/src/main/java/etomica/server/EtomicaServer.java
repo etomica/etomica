@@ -1,27 +1,31 @@
-package etomica.serverdw;
+package etomica.server;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import etomica.meta.ComponentIndex;
 import etomica.meta.SimulationModel;
 import etomica.meta.properties.Property;
 import etomica.meta.wrappers.Wrapper;
-import etomica.serverdw.health.BasicHealthCheck;
-import etomica.serverdw.resources.EchoServer;
-import etomica.serverdw.resources.SimulationResource;
-import etomica.serverdw.resources.SimulationsIndexResource;
-import etomica.serverdw.serializers.PropertySerializer;
-import etomica.serverdw.serializers.SimulationModelSerializer;
-import etomica.serverdw.serializers.WrapperSerializer;
+import etomica.server.health.BasicHealthCheck;
+import etomica.server.resources.ControlResource;
+import etomica.server.resources.EchoServer;
+import etomica.server.resources.SimulationResource;
+import etomica.server.resources.SimulationsIndexResource;
+import etomica.server.serializers.PropertySerializer;
+import etomica.server.serializers.SimulationModelSerializer;
+import etomica.server.serializers.WrapperSerializer;
 import etomica.simulation.Simulation;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.websockets.WebsocketBundle;
 
-import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class EtomicaServer extends Application<EtomicaServerConfig> {
+    private final Map<UUID, SimulationModel> simStore = new ConcurrentHashMap<>();
+
     @Override
     public String getName() {
         return "EtomicaServer";
@@ -47,7 +51,8 @@ public class EtomicaServer extends Application<EtomicaServerConfig> {
         environment.healthChecks().register("basic", new BasicHealthCheck());
 
         environment.jersey().register(new SimulationsIndexResource(new ComponentIndex<>(Simulation.class)));
-        environment.jersey().register(new SimulationResource(new ConcurrentHashMap<>()));
+        environment.jersey().register(new SimulationResource(simStore));
+        environment.jersey().register(new ControlResource(simStore));
 
     }
 

@@ -14,7 +14,7 @@ dependencies {
     compile project(":etomica-modules")
 }
 
-mainClassName = 'etomica.serverdw.EtomicaServer'
+mainClassName = 'etomica.server.EtomicaServer'
 
 run {
     args = ['server', 'config.yml']

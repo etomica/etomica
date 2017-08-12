@@ -1,4 +1,4 @@
-package etomica.serverdw.dao;
+package etomica.server.dao;
 
 import etomica.meta.SimulationModel;
 

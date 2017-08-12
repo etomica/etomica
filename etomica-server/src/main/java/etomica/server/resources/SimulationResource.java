@@ -1,7 +1,7 @@
-package etomica.serverdw.resources;
+package etomica.server.resources;
 
 import etomica.meta.SimulationModel;
-import etomica.serverdw.representations.SimulationConstructor;
+import etomica.server.representations.SimulationConstructor;
 import etomica.simulation.Simulation;
 
 import javax.validation.constraints.NotNull;

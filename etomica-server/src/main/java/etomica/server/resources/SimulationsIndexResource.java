@@ -1,4 +1,4 @@
-package etomica.serverdw.resources;
+package etomica.server.resources;
 
 import etomica.meta.ComponentIndex;
 import etomica.simulation.Simulation;

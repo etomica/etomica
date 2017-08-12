@@ -1,4 +1,4 @@
-package etomica.serverdw;
+package etomica.server;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.Configuration;

@@ -1,4 +1,4 @@
-package etomica.serverdw.serializers;
+package etomica.server.serializers;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
