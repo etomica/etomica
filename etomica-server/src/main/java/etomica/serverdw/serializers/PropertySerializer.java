@@ -1,4 +1,4 @@
-package etomica.server;
+package etomica.serverdw.serializers;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public class PropertySerializer extends StdSerializer<Property>{
 
-    protected PropertySerializer(Class<Property> t) {
+    public PropertySerializer(Class<Property> t) {
         super(t);
     }
 

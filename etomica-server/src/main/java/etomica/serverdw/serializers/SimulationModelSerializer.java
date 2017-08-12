@@ -1,4 +1,4 @@
-package etomica.server;
+package etomica.serverdw.serializers;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public class SimulationModelSerializer extends StdSerializer<SimulationModel> {
 
 
-    protected SimulationModelSerializer(Class<SimulationModel> t) {
+    public SimulationModelSerializer(Class<SimulationModel> t) {
         super(t);
     }
 

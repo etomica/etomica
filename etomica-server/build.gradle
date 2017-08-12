@@ -1,43 +1,25 @@
-buildscript {
-    ext {
-        joobyVersion = "1.1.3"
-        shadowVersion = "2.0.1"
-    }
-
-    repositories {
-        mavenCentral()
-        jcenter()
-    }
-
-    dependencies {
-        classpath "org.jooby:jooby-gradle-plugin:$joobyVersion"
-        classpath "com.github.jengelman.gradle.plugins:shadow:$shadowVersion"
-    }
-}
-
 apply plugin: 'java'
 apply plugin: 'application'
-apply plugin: 'jooby'
-apply plugin: 'com.github.johnrengelman.shadow'
-
-mainClassName = 'etomica.server.EtomicaServer'
-sourceCompatibility = 1.8
 
 repositories {
-    mavenCentral()
+    jcenter()
 }
 
 dependencies {
-    compile "org.jooby:jooby:$joobyVersion"
-    compile "org.jooby:jooby-undertow:1.1.3"
-    compile 'org.jooby:jooby-jackson:1.1.3'
+    compile 'io.dropwizard:dropwizard-core:1.2.0-rc1'
+    compile 'com.liveperson:dropwizard-websockets:1.1.0'
 
+    compile project(":etomica-core")
+    compile project(":etomica-apps")
+    compile project(":etomica-modules")
+}
 
-    compile project(':etomica-core')
-    compile project(':etomica-apps')
-    compile project(':etomica-modules')
+mainClassName = 'etomica.serverdw.EtomicaServer'
+
+run {
+    args = ['server', 'config.yml']
 }
 
 sourceSets.main.resources {
-    srcDirs = ["conf"]
+    srcDirs = ["config"]
 }
