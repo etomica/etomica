@@ -5,6 +5,7 @@
 package etomica.molecule;
 
 import etomica.box.Box;
+import etomica.meta.annotations.IgnoreProperty;
 import etomica.util.random.IRandom;
 
 /**
@@ -33,6 +34,7 @@ public class MoleculeSourceRandomMolecule implements MoleculeSource, java.io.Ser
     /**
      * returns a random molecule from the box
      */
+    @IgnoreProperty
     public IMolecule getMolecule() {
         return box.getMoleculeList().getMolecule(random.nextInt(box.getMoleculeList().getMoleculeCount()));
     }
