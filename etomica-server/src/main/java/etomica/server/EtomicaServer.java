@@ -6,10 +6,7 @@ import etomica.meta.SimulationModel;
 import etomica.meta.properties.Property;
 import etomica.meta.wrappers.Wrapper;
 import etomica.server.health.BasicHealthCheck;
-import etomica.server.resources.ControlResource;
-import etomica.server.resources.EchoServer;
-import etomica.server.resources.SimulationResource;
-import etomica.server.resources.SimulationsIndexResource;
+import etomica.server.resources.*;
 import etomica.server.serializers.PropertySerializer;
 import etomica.server.serializers.SimulationModelSerializer;
 import etomica.server.serializers.WrapperSerializer;
@@ -19,12 +16,15 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.websockets.WebsocketBundle;
 
+import javax.websocket.server.ServerEndpointConfig;
 import java.util.Map;
+import java.util.Timer;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class EtomicaServer extends Application<EtomicaServerConfig> {
     private final Map<UUID, SimulationModel> simStore = new ConcurrentHashMap<>();
+    private final Timer timer = new Timer();
 
     @Override
     public String getName() {
@@ -41,7 +41,17 @@ public class EtomicaServer extends Application<EtomicaServerConfig> {
 
         bootstrap.getObjectMapper().registerModule(mod);
 
-        bootstrap.addBundle(new WebsocketBundle(EchoServer.class));
+        final ServerEndpointConfig wsConfig = ServerEndpointConfig.Builder
+                .create(ConfigurationStreamResource.class, "/simulations/{id}/configuration")
+                .build();
+
+        wsConfig.getUserProperties().put("simStore", simStore);
+        wsConfig.getUserProperties().put("timer", timer);
+
+        WebsocketBundle wsBundle = new WebsocketBundle(wsConfig);
+        wsBundle.addEndpoint(EchoServer.class);
+
+        bootstrap.addBundle(wsBundle);
 
         super.initialize(bootstrap);
     }
