@@ -2,8 +2,10 @@ package etomica.server.resources;
 
 import etomica.action.activity.Controller;
 import etomica.meta.SimulationModel;
+import etomica.server.dao.SimulationStore;
 import etomica.server.representations.StatusAction;
 
+import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -15,9 +17,10 @@ import java.util.UUID;
 @Consumes(MediaType.APPLICATION_JSON)
 public class ControlResource {
 
-    private final Map<UUID, SimulationModel> simStore;
+    private final SimulationStore simStore;
 
-    public ControlResource(Map<UUID, SimulationModel> simStore) {
+    @Inject
+    public ControlResource(SimulationStore simStore) {
         this.simStore = simStore;
     }
 

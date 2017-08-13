@@ -7,8 +7,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.meta.SimulationModel;
+import etomica.server.dao.SimulationStore;
 import etomica.simulation.Simulation;
 
+import javax.inject.Inject;
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
@@ -24,15 +26,20 @@ import java.util.UUID;
 @Metered
 @Timed
 public class ConfigurationStreamResource {
+    private final SimulationStore simStore;
 
+    @Inject
+    public ConfigurationStreamResource(SimulationStore store) {
+        this.simStore = store;
+    }
 
     @OnOpen
     public void onOpen(final Session session, @PathParam("id") String id) {
-        Map<UUID, SimulationModel> simStore = (Map<UUID, SimulationModel>) session.getUserProperties().get("simStore");
-        Timer timer = (Timer) session.getUserProperties().get("timer");
+        Timer timer = new Timer();
         SimulationModel model = simStore.get(UUID.fromString(id));
 
         timer.schedule(new ConfigurationTimerTask(session, model.getSimulation()), 0, 33);
+        Map<UUID, SimulationModel> simStore = (Map<UUID, SimulationModel>) session.getUserProperties().get("simStore");
 
     }
 

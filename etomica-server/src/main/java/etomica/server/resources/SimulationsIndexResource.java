@@ -3,6 +3,7 @@ package etomica.server.resources;
 import etomica.meta.ComponentIndex;
 import etomica.simulation.Simulation;
 
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -16,6 +17,7 @@ public class SimulationsIndexResource {
 
     private final ComponentIndex<Simulation> simIndex;
 
+    @Inject
     public SimulationsIndexResource(ComponentIndex<Simulation> simIndex) {
         this.simIndex = simIndex;
     }

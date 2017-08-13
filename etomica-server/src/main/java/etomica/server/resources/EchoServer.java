@@ -2,7 +2,9 @@ package etomica.server.resources;
 
 import com.codahale.metrics.annotation.Metered;
 import com.codahale.metrics.annotation.Timed;
+import etomica.server.dao.SimulationStore;
 
+import javax.inject.Inject;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
@@ -12,6 +14,12 @@ import javax.websocket.server.ServerEndpoint;
 @Metered
 @Timed
 public class EchoServer {
+    private final SimulationStore store;
+
+    @Inject
+    public EchoServer(SimulationStore test) {
+        store = test;
+    }
 
     @OnOpen
     public void onOpen(final Session session) {

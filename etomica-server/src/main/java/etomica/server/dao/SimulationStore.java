@@ -2,9 +2,11 @@ package etomica.server.dao;
 
 import etomica.meta.SimulationModel;
 
+import javax.inject.Singleton;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
-public interface SimulationStore {
-    public SimulationModel get(UUID id);
-    public void put(UUID id, SimulationModel model);
+@Singleton
+public class SimulationStore extends ConcurrentHashMap<UUID, SimulationModel> {
+
 }
