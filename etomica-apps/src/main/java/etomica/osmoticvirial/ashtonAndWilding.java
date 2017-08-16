@@ -23,6 +23,8 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
 /**
+ * Implements Ashton and Wilding method for calculation of gas virial coefficient for Hard-Sphere model
+ * as described in the paper.
  * Created by aksharag on 07-11-2017.
  */
 

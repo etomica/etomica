@@ -78,6 +78,7 @@ public class fepLJ extends Simulation {
 
         if (computez2){box.setNMolecules(species2,1);}
 
+
         potential1 = new P2LennardJones(space, sigma1, epsilon1);
         potential2 = new P2LennardJones(space, sigma2, epsilon2);
         potential12 = new P2LennardJones(space, sigma12, epsilon12);

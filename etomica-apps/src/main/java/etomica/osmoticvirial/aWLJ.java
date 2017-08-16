@@ -25,6 +25,7 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
 /**
+ * Extends Ashton and Wilding method for calculation of gas virial coefficient for Lennard-Jones model
  * Created by aksharag on 07-11-2017.
  */
 

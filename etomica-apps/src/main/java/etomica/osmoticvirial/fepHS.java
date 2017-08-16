@@ -41,7 +41,7 @@ public class fepHS extends Simulation {
     public Controller controller;
     public ActivityIntegrate activityIntegrate;
 
-    public fepHS(int numAtoms, double density, double sigma2, boolean computez2){
+    public fepHS(int numAtoms, double density, double sigma2, boolean computez2z1, boolean computez3z2){
         super(Space3D.getInstance());
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this,space);
 
@@ -73,7 +73,8 @@ public class fepHS extends Simulation {
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
 
-        if (computez2){box.setNMolecules(species2,1);}
+        if (computez2z1){box.setNMolecules(species2,1);}
+        else if (computez3z2){box.setNMolecules(species2,2);}
 
         potential1 = new P2HardSphere(space, sigma1, false);
         potential2 = new P2HardSphere(space, sigma2, false);
@@ -112,7 +113,8 @@ public class fepHS extends Simulation {
             params.nBlocks = 1000;
             params.density = 0.6;
             params.sigma2 = 0.5;
-            params.computez2 = true;
+            params.computez2z1 = false;
+            params.computez3z2 = true;
         }
 
         int numAtoms = params.numAtoms;
@@ -120,7 +122,8 @@ public class fepHS extends Simulation {
         int nBlocks = params.nBlocks;
         double density = params.density;
         double sigma2 = params.sigma2;
-        boolean computez2 = params.computez2;
+        boolean computez2z1 = params.computez2z1;
+        boolean computez3z2 = params.computez3z2;
         boolean graphics = false;
 
         long numSamples = numSteps/numAtoms;
@@ -129,8 +132,11 @@ public class fepHS extends Simulation {
 
         System.out.println("Hard Sphere OV");
 
-        if(computez2){
+        if(computez2z1){
             System.out.println("**z2_z1**");
+        }
+        else if(computez3z2){
+            System.out.println("**z3_z2**");
         }
         else{
             System.out.println("**z1_z0**");
@@ -143,7 +149,7 @@ public class fepHS extends Simulation {
 
         long t1 = System.currentTimeMillis();
 
-        fepHS sim = new fepHS(numAtoms, density, sigma2, computez2);
+        fepHS sim = new fepHS(numAtoms, density, sigma2, computez2z1, computez3z2);
 
         System.out.println("box length "+sim.box.getBoundary().getBoxSize());
 
@@ -204,6 +210,8 @@ public class fepHS extends Simulation {
         public int nBlocks = 1000;
         public double density = 0.2;
         public double sigma2 = 2.0;
-        public boolean computez2 = false;
+        public boolean computez2z1 = false;
+        public boolean computez3z2 = false;
+
     }
 }

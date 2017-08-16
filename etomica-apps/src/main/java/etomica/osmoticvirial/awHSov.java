@@ -7,9 +7,12 @@ import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistogram;
 import etomica.data.DataPumpListener;
 import etomica.data.histogram.HistogramSimple;
+import etomica.data.meter.MeterNMolecules;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
@@ -19,6 +22,7 @@ import etomica.math.DoubleRange;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2HardSphere;
 import etomica.simulation.Simulation;
+import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
@@ -32,7 +36,7 @@ import etomica.util.ParseArgs;
 public class awHSov extends Simulation {
 
     public Box box;
-    public P2HardSphere potential1;
+    public P2HardSphere potential1, potential2, potential12;
     public Controller controller;
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
@@ -55,8 +59,9 @@ public class awHSov extends Simulation {
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         integrator.getMoveManager().addMCMove(mcMoveInsertDelete);
 
-        double sigma1 = 1.0;
-        double sigma2 = q * sigma1;
+        double sigma1 = 1.0; //solute
+        double sigma2 = q * sigma1; //solvent
+        double sigma12 = (sigma1+sigma2)/2;
 
         species1 = new SpeciesSpheresMono(this, space);
         species2 = new SpeciesSpheresMono(this, space);
@@ -64,25 +69,31 @@ public class awHSov extends Simulation {
         addSpecies(species2);
         box = new Box(space);
         addBox(box);
+        box.setBoundary(new BoundaryRectangularPeriodic(space, 4*sigma1));
 
-        mcMoveInsertDelete.setSpecies(species1);
-        double mu = (8*vf-9*vf*vf+3*vf*vf*vf) / Math.pow((1-vf),3); //Configurational chemical potential from Carnahan–Starling equation of state
+        mcMoveInsertDelete.setSpecies(species2);
+        double mu = (8*vf-9*vf*vf+3*vf*vf*vf) / Math.pow((1-vf),3)+Math.log(6*vf/(Math.PI*Math.pow(sigma2,3))); //Configurational chemical potential from Carnahan–Starling equation of state
+        System.out.println("mu "+ mu+" muig "+Math.log(6*vf/(Math.PI*Math.pow(sigma2,3))));
         mcMoveInsertDelete.setMu(mu);
 
-        box.setNMolecules(species2, numAtoms);
-
-        BoxInflate inflater = new BoxInflate(box, space);
-       // inflater.setTargetDensity(vf);
-        inflater.actionPerformed();
+        box.setNMolecules(species1, numAtoms);
 
         potential1 = new P2HardSphere(space, sigma1, false);
+        potential2 = new P2HardSphere(space, sigma2, false);
+        potential12 = new P2HardSphere(space, sigma12, false);
 
         potentialMaster.setCellRange(3);
         potentialMaster.setRange(potential1.getRange());
 
         AtomType leafType1 = species1.getLeafType();
+        AtomType leafType2 = species2.getLeafType();
 
-       if(!computeIdeal) potentialMaster.addPotential(potential1, new AtomType[]{leafType1, leafType1});
+       if(!computeIdeal){
+           potentialMaster.addPotential(potential1, new AtomType[]{leafType1, leafType1});
+           potentialMaster.addPotential(potential12, new AtomType[]{leafType1, leafType2});
+           potentialMaster.addPotential(potential2, new AtomType[]{leafType2, leafType2});
+       }
+
        if(computeIdeal) System.out.println("P_ideal");
 
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
@@ -102,30 +113,30 @@ public class awHSov extends Simulation {
             ParseArgs.doParseArgs(params, args);
         }
         else{
-            params.numAtoms = 2;
-            params.numSteps = 50000;
+            params.numAtoms = 3;
+            params.numSteps = 10000000;
             params.nBlocks = 100;
             params.vf = 0.1;
             params.computeIdeal = false;
-            params.q = 0.1;
+            params.sizeRatio = 0.2;
         }
 
 
         int numAtoms = params.numAtoms;
-        int numSteps = params.numSteps;
+        long numSteps = params.numSteps;
         int nBlocks = params.nBlocks;
         double vf = params.vf;
-        double q = params.q;
+        double q = params.sizeRatio;
         boolean computeIdeal = params.computeIdeal;
         boolean graphics = false;
+        AccumulatorAverageFixed accNm = null;
 
-
-        long numSamples = numSteps / numAtoms;
+        long numSamples = numSteps / numAtoms ;
         long samplesPerBlock = numSamples / nBlocks;
         if(samplesPerBlock == 0) samplesPerBlock = 1;
 
-        System.out.println(numAtoms + " atoms, "+ numSteps + " steps" );
-        System.out.println("density: "+ vf);
+        System.out.println(numAtoms + " Atoms, "+ numSteps + " Steps" );
+        System.out.println("Volume fraction: "+ vf);
         System.out.println("nBlocks "+ nBlocks);
 
         long t1 = System.currentTimeMillis();
@@ -137,6 +148,7 @@ public class awHSov extends Simulation {
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, appName, 3, sim.getSpace(), sim.getController());
 
             ((DiameterHashByType)simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species1.getLeafType(), 1);
+            ((DiameterHashByType)simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species2.getLeafType(), q);
             simGraphic.makeAndDisplayFrame(appName);
 
             return;
@@ -148,10 +160,18 @@ public class awHSov extends Simulation {
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.integrator.getMoveManager().setEquilibrating(false);
 
-        MeterRmin meterRmin = new MeterRmin(sim.space, sim.box);
+        MeterRminSpecies meterRmin = new MeterRminSpecies(sim.space, sim.box, sim.species1);
         AccumulatorHistogram accRmin = new AccumulatorHistogram(new HistogramSimple(new DoubleRange(0, 4*sim.potential1.getRange())));
         DataPumpListener pumpRmin = new DataPumpListener(meterRmin,accRmin,numAtoms);
         sim.integrator.getEventManager().addListener(pumpRmin);
+
+        MeterNMolecules meterNMolecules = new MeterNMolecules();
+        meterNMolecules.setSpecies(sim.species2);
+        meterNMolecules.setBox(sim.box);
+        accNm = new AccumulatorAverageFixed(samplesPerBlock);
+        DataPumpListener pumpNm = new DataPumpListener(meterNMolecules, accNm);
+        sim.integrator.getEventManager().addListener(pumpNm);
+
         sim.getController().actionPerformed();
         double[] histRmin = accRmin.getHistograms().getHistogram();
         double[] r = accRmin.getHistograms().xValues();
@@ -162,6 +182,16 @@ public class awHSov extends Simulation {
             System.out.println(r[i]+" "+histRmin[i]);
         }
 
+        double NmAvg = accNm.getData(AccumulatorAverage.AVERAGE).getValue(0);
+        double NmErr = accNm.getData(AccumulatorAverage.ERROR).getValue(0);
+        double NmCor = accNm.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
+
+        double VfBox = NmAvg*q*q*q*Math.PI/6/sim.box.getBoundary().volume();
+        double VfErr = NmErr*q*q*q*Math.PI/6/sim.box.getBoundary().volume();
+
+        System.out.print(String.format("No. of molecules avg: %13.6e  err: %11.4e   cor: % 4.2f\n", NmAvg, NmErr, NmCor));
+        System.out.print(String.format("Volume frac avg: %13.6e  err: %11.4e\n", VfBox, VfErr));
+
         long t2 = System.currentTimeMillis();
         System.out.println("time: "+ (t2-t1)*0.001);
 
@@ -169,10 +199,10 @@ public class awHSov extends Simulation {
 
     public static class simParams extends ParameterBase{
         public int numAtoms = 20;
-        public int numSteps = 10000;
+        public long numSteps = 10000;
         public int nBlocks = 100;
-        public double vf = 0.1;
-        public double q = 0.2;
+        public double vf = 0.2;
+        public double sizeRatio = 0.2;
         public boolean computeIdeal = true;
 
     }
