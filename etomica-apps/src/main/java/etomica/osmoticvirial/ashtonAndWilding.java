@@ -16,6 +16,7 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.math.DoubleRange;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2HardSphere;
+import etomica.potential.Potential2;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -32,7 +33,7 @@ import etomica.util.ParseArgs;
 public class ashtonAndWilding extends Simulation {
 
     public Box box;
-    public P2HardSphere potential1;
+    public Potential2 potential1;
     public Controller controller;
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
@@ -40,7 +41,7 @@ public class ashtonAndWilding extends Simulation {
     public ActivityIntegrate activityIntegrate;
 
 
-    public ashtonAndWilding(int numAtoms, double density, boolean computeIdeal){
+    public ashtonAndWilding(int numAtoms, double density, boolean computeIdeal, boolean computeDepletion){
 
         super(Space3D.getInstance());
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
@@ -64,7 +65,10 @@ public class ashtonAndWilding extends Simulation {
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
 
-        potential1 = new P2HardSphere(space, sigma1, false);
+        if(!computeDepletion) potential1 = new P2HardSphere(space, sigma1, false);
+        if(computeDepletion) {
+            potential1 = new PotentialDepletion(space, "/usr/users/aksharag/osmoticvirials/ashtonWilding/additiveHS/mi+me/more steps/10e10/g3");
+        }
 
         potentialMaster.setCellRange(3);
         potentialMaster.setRange(potential1.getRange());
@@ -92,12 +96,11 @@ public class ashtonAndWilding extends Simulation {
         }
         else{
             params.numAtoms = 3;
-            params.numSteps = 50000;
+            params.numSteps = 1000000;
             params.nBlocks = 100;
-            params.density = 0.069;
+            params.density = 0.01;
             params.computeIdeal = false;
         }
-
 
         int numAtoms = params.numAtoms;
         int numSteps = params.numSteps;
@@ -105,7 +108,7 @@ public class ashtonAndWilding extends Simulation {
         double density = params.density;
         boolean computeIdeal = params.computeIdeal;
         boolean graphics = false;
-
+        boolean computeDep = true;
 
         long numSamples = numSteps / numAtoms;
         long samplesPerBlock = numSamples / nBlocks;
@@ -117,7 +120,7 @@ public class ashtonAndWilding extends Simulation {
 
         long t1 = System.currentTimeMillis();
 
-        ashtonAndWilding sim = new ashtonAndWilding(numAtoms, density, computeIdeal);
+        ashtonAndWilding sim = new ashtonAndWilding(numAtoms, density, computeIdeal, computeDep);
 
         if(graphics){
             final String appName = "Ashton-Wilding";
