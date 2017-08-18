@@ -1,6 +1,6 @@
 package etomica.osmoticvirial;
 
-import etomica.action.BoxInflate;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
@@ -29,6 +29,8 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
 /**
+ * Implements Ashton and Wilding method for calculation of osmotic virial coefficient for Hard-Sphere model
+ * as described in the paper. Solvent is treated grand-canonically.
  * Created by aksharag on 07-11-2017.
  */
 

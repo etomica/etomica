@@ -26,6 +26,8 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
 /**
+ * Implements Free-Energy Perturbation Approach (Widom's Insertion method) for calculation of osmotic virial coefficient
+ * for Hard-Sphere potential.
  * Created by aksharag on 6/16/17.
  */
 public class fepHS extends Simulation {
@@ -68,13 +70,12 @@ public class fepHS extends Simulation {
         //mcMoveInsertDelete.setMu(); //TODO
 
         box.setNMolecules(species1,numAtoms);
+        if (computez2z1){box.setNMolecules(species2,1);}
+        else if (computez3z2){box.setNMolecules(species2,2);}
 
         BoxInflate inflater = new BoxInflate(box,space);
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
-
-        if (computez2z1){box.setNMolecules(species2,1);}
-        else if (computez3z2){box.setNMolecules(species2,2);}
 
         potential1 = new P2HardSphere(space, sigma1, false);
         potential2 = new P2HardSphere(space, sigma2, false);
@@ -109,10 +110,10 @@ public class fepHS extends Simulation {
         }
         else {
             params.numAtoms = 500;
-            params.numSteps = 500000;
+            params.numSteps = 50000;
             params.nBlocks = 1000;
             params.density = 0.6;
-            params.sigma2 = 0.5;
+            params.sigma2 = 0.2;
             params.computez2z1 = false;
             params.computez3z2 = true;
         }

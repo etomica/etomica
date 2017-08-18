@@ -26,6 +26,8 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
 /**
+ * Implements Free-Energy Perturbation Approach (Widom's Insertion method) for calculation of osmotic virial coefficient
+ * for Lennard-Jones potential.
  * Created by aksharag on 6/16/17.
  */
 public class fepLJ extends Simulation {
@@ -71,13 +73,11 @@ public class fepLJ extends Simulation {
 
 
         box.setNMolecules(species1,numAtoms);
+        if (computez2){box.setNMolecules(species2,1);}
 
         BoxInflate inflater = new BoxInflate(box,space);
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
-
-        if (computez2){box.setNMolecules(species2,1);}
-
 
         potential1 = new P2LennardJones(space, sigma1, epsilon1);
         potential2 = new P2LennardJones(space, sigma2, epsilon2);
