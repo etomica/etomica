@@ -1,11 +1,9 @@
 package etomica.osmoticvirial;
 
-import etomica.action.ActionIntegrate;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
-import etomica.atom.DiameterHash;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -14,7 +12,6 @@ import etomica.data.meter.MeterWidomInsertion;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.integrator.mcmove.MCMoveInsertDelete;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
@@ -27,10 +24,10 @@ import etomica.util.ParseArgs;
 
 /**
  * Implements Free-Energy Perturbation Approach (Widom's Insertion method) for calculation of osmotic virial coefficient
- * for Lennard-Jones potential.
+ * for Lennard-Jones potential. NVT ensemble
  * Created by aksharag on 6/16/17.
  */
-public class fepLJ extends Simulation {
+public class fepLJnvt extends Simulation {
 
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
@@ -42,7 +39,7 @@ public class fepLJ extends Simulation {
     public Controller controller;
     public ActivityIntegrate activityIntegrate;
 
-    public fepLJ(int numAtoms, int numSteps, double temp, double density, double sigma2, double epsilon2, boolean computez2){
+    public fepLJnvt(int numAtoms, int numSteps, double temp, double density, double sigma2, double epsilon2, boolean computez2){
         super(Space3D.getInstance());
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this,space);
 
@@ -171,7 +168,7 @@ public class fepLJ extends Simulation {
         long t1 = System.currentTimeMillis();
 
 
-        fepLJ sim = new fepLJ(numAtoms, numSteps, temp, density, sigma2, eps2, computez2);
+        fepLJnvt sim = new fepLJnvt(numAtoms, numSteps, temp, density, sigma2, eps2, computez2);
 
         System.out.println("box length "+sim.box.getBoundary().getBoxSize());
 
