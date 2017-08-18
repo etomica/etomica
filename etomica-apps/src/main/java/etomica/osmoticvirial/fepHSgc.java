@@ -108,7 +108,7 @@ public class fepHSgc extends Simulation {
         }
         else {
             params.numAtoms = 3;
-            params.numSteps = 50000;
+            params.numSteps = 5000;
             params.nBlocks = 1000;
             params.vf = 0.1;
             params.q = 0.2;
@@ -165,7 +165,7 @@ public class fepHSgc extends Simulation {
             meterinsert.setIntegrator(sim.integrator);
 
             AccumulatorAverageFixed acc = new AccumulatorAverageFixed(samplesPerBlock);
-            DataPumpListener pump = new DataPumpListener(meterinsert, acc, 500);
+            DataPumpListener pump = new DataPumpListener(meterinsert, acc, numAtoms);
             sim.integrator.getEventManager().addListener(pump);
 
             return;
