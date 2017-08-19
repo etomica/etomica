@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.meta.SimulationModel;
+import etomica.meta.wrappers.SimulationWrapper;
 import etomica.server.dao.SimulationStore;
 import etomica.simulation.Simulation;
 
@@ -38,42 +39,33 @@ public class ConfigurationStreamResource {
         Timer timer = new Timer();
         SimulationModel model = simStore.get(UUID.fromString(id));
 
-        timer.schedule(new ConfigurationTimerTask(session, model.getSimulation()), 0, 33);
-        Map<UUID, SimulationModel> simStore = (Map<UUID, SimulationModel>) session.getUserProperties().get("simStore");
+        timer.schedule(new ConfigurationTimerTask(session, model), 0, 33);
 
     }
 
     private static class ConfigurationTimerTask extends TimerTask {
         private final Session session;
-        private final Simulation simulation;
 
-        private ConfigurationTimerTask(Session session, Simulation simulation) {
+        private final SimulationWrapper wrapper;
+        private final Simulation sim;
+
+        private ConfigurationTimerTask(Session session, SimulationModel model) {
             this.session = session;
-            this.simulation = simulation;
+            this.wrapper = (SimulationWrapper) model.getWrapper(model.getSimulation());
+            this.sim = model.getSimulation();
+
         }
 
         @Override
         public void run() {
-            if(simulation.getController().isPaused() || !simulation.getController().isActive()) {
+            if(sim.getController().isPaused() || !sim.getController().isActive()) {
                 return;
             }
 
 
-            // an array of vector coordinates for each box
-            double[][][] boxes = new double[simulation.getBoxCount()][][];
-            simulation.getController().doActionNow(() -> {
-                for (int i = 0; i < simulation.getBoxCount(); i++) {
-                    Box box = simulation.getBox(i);
-                    IAtomList atomList = box.getLeafList();
-                    boxes[i] = new double[atomList.getAtomCount()][simulation.getSpace().D()];
-
-                    for (int j = 0; j < atomList.getAtomCount(); j++) {
-                        atomList.getAtom(j).getPosition().assignTo(boxes[i][j]);
-                    }
-                }
+            sim.getController().doActionNow(() -> {
+                session.getAsyncRemote().sendObject(wrapper.getAllCoordinates());
             });
-
-            session.getAsyncRemote().sendObject(boxes);
         }
     }
 
