@@ -33,12 +33,12 @@ public class SimulationResource {
     }
 
     @POST
-    public Response createSimulation(@NotNull SimulationConstructor constructionParams) {
+    public UUID createSimulation(@NotNull SimulationConstructor constructionParams) {
         UUID id = UUID.randomUUID();
         try {
             Simulation sim = (Simulation) Class.forName(constructionParams.className).newInstance();
             simStore.put(id, new SimulationModel(sim));
-            return Response.created(URI.create(id.toString())).build();
+            return id;
         } catch (IllegalAccessException | InstantiationException | ClassNotFoundException e) {
             throw new ServerErrorException("No simulation instance with that id", Response.Status.NOT_FOUND);
         }
