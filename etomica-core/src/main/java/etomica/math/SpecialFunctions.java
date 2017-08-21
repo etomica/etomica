@@ -269,14 +269,18 @@ public final class SpecialFunctions {
 
 
     /**
-     * Calculates the modified Bessel function of the first kind (I).
+     * Calculates the modified(or unmodified) Bessel function of the first kind (I or J).
      * Reference: http://mathworld.wolfram.com/ModifiedBesselFunctionoftheFirstKind.html
+     * https://en.wikipedia.org/wiki/Bessel_function#Bessel_functions_of_the_first_kind:_J.CE.B1
      *
-     * @param order of the Bessel function and it's a real number.
-     * @param x     the argument of the Bessel function
-     * @return modified Bessel function of the first kind to machine precision
+     * @param modified true return the modified Bessel function of the first kind I and
+     *                 false return the unmodified Bessel function of the first kind J.
+     * @param order    of the Bessel function and it's a real number.
+     * @param x        the argument of the Bessel function
+     * @return modified Bessel function of the first kind to machine precision or
+     * unmodified Bessel function of the first kind to the precision of 10E-13.
      */
-    public static double besselI(double order, double x) {
+    public static double bessel(boolean modified, double order, double x) {
         double sum = 0;
         double gammaValue = 0;
         double kTerms = 0;
@@ -284,48 +288,20 @@ public final class SpecialFunctions {
         double s1 = Math.pow(x / 2.0, order);
 
         for (int k = 0; true; k++) {
-            factorial *= (k == 0) ? 1 : k;
+            factorial *= (k == 0) ? 1 : (modified ? k : -k);
             gammaValue = gamma(k + order + 1);
             kTerms = s1 * Math.pow((x * x) / 4.0, k) / factorial / gammaValue;
             sum += kTerms;
-            if ((kTerms / sum) < 1E-15) {
+            if (Math.abs(kTerms / sum) < 1E-15) {
                 break;
             }
-        }
-        return sum;
-    }
-
-
-    /**
-     * Calculates the Bessel function of the first kind (J).
-     * Reference: https://en.wikipedia.org/wiki/Bessel_function#Bessel_functions_of_the_first_kind:_J.CE.B1
-     *
-     * @param order of the Bessel function.
-     * @param x     the argument of the Bessel function.
-     * @return Bessel function of the first kind to machine precision.
-     */
-    public static double besselJ(double order, double x) {
-        double sum = 0;
-        double gammaValue = 0;
-        double kTerms = 0;
-        double factorial = 1;
-
-        for (int k = 0; true; k++) {
-            factorial *= (k == 0) ? 1 : -k;
-            gammaValue = gamma(k + order + 1);
-            kTerms = Math.pow(x / 2.0, 2 * k + order) / factorial / gammaValue;
-            sum += kTerms;
-            if ((Math.abs(kTerms / sum)) < 1E-15) {
-                break;
-            }
-
         }
         return sum;
     }
 
 
     public static void main(String[] args) {
-        System.out.println(SpecialFunctions.besselJ(1.0,3));
+        System.out.println(SpecialFunctions.bessel(false, 1.0, 0.2));
         System.exit(2);
 
 
