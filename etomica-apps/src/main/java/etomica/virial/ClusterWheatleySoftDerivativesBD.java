@@ -31,11 +31,12 @@ public class ClusterWheatleySoftDerivativesBD implements ClusterAbstract, Cluste
     protected double beta;
     public static boolean pushme = false;
     protected double tol;
-    protected ClusterWheatleySoftBD clusterBD;
+    protected ClusterWheatleySoftDerivativesBD clusterBD;
     protected boolean debug = false;
     protected boolean doCaching = true;
     protected final BigDecimal[][] binomial;
     protected BigDecimal BDbeta;
+    protected int precisionLimit;
 
     public ClusterWheatleySoftDerivativesBD(int nPoints, MayerFunction f, int precision, int nDer) {
         this.n = nPoints;
@@ -62,6 +63,12 @@ public class ClusterWheatleySoftDerivativesBD implements ClusterAbstract, Cluste
                 binomial[m][l] = new BigDecimal(SpecialFunctions.factorial(m) / (SpecialFunctions.factorial(l) * SpecialFunctions.factorial(m - l)));
             }
         }
+    }
+
+    public void setPrecisionLimit(int newLimit) {
+        if (newLimit > 300) newLimit = 300;
+        precisionLimit = newLimit;
+        clusterBD = null;
     }
 
     public void setDoCaching(boolean newDoCaching) {

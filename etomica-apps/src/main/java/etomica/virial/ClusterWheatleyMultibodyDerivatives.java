@@ -82,7 +82,7 @@ public class ClusterWheatleyMultibodyDerivatives extends ClusterWheatleySoftDeri
         r2 = new double[nPoints*(nPoints-1)/2];
         // pairwise shouldn't try to use BD
         clusterBD = null;
-        setTolerance(tol);
+        if(tol!=0){setTolerance(tol);}
         molecules = new MoleculeArrayList(nPoints);
         rCut2 = Double.POSITIVE_INFINITY;
         fQmulti = new double[1<<n];
@@ -92,9 +92,14 @@ public class ClusterWheatleyMultibodyDerivatives extends ClusterWheatleySoftDeri
     }
 
     public void setTolerance(double newTol) {
-        clusterMultiBD = new ClusterWheatleyMultibodyDerivativesBD(n, f,fNonAdditive, fMulti, -3*(int)Math.log10(newTol),nDer,doTotal);
-        clusterMultiBD.setDoCaching(false);
-        clusterMultiBD.setPrecisionLimit(300);
+        if(newTol!=0){
+            clusterMultiBD = new ClusterWheatleyMultibodyDerivativesBD(n, f,fNonAdditive, fMulti, -3*(int)Math.log10(newTol),nDer,doTotal);
+            clusterMultiBD.setDoCaching(false);
+            clusterMultiBD.setPrecisionLimit(300);
+        }
+        else{
+            clusterMultiBD = null;
+        }
         multiTol = newTol;
     }
 

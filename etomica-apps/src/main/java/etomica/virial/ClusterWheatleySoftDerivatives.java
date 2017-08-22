@@ -47,9 +47,8 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
     	}
         fA = new double[nf][nDer+1];
         fB = new double[nf][nDer+1];
-        this.tol = tol;
+        if(tol!=0){setTolerance(tol);}
         this.nDer = nDer;
-        clusterBD = tol == 0 ? null : new ClusterWheatleySoftDerivativesBD(nPoints, f, -3*(int)Math.log10(tol),nDer);
         this.binomial = new int[nDer+1][]; 
         for(int m=0;m<=nDer;m++){
             binomial[m] = new int[m+1];
@@ -57,6 +56,18 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
                 binomial[m][l] = (int)(SpecialFunctions.factorial(m)/(SpecialFunctions.factorial(l)*SpecialFunctions.factorial(m-l)));
             }
         }
+    }
+
+    public void setTolerance(double newTol) {
+        if(newTol!=0){
+            clusterBD = new ClusterWheatleySoftDerivativesBD(n, f, -3*(int)Math.log10(newTol),nDer);
+            clusterBD.setDoCaching(false);
+            clusterBD.setPrecisionLimit(300);
+        }
+        else{
+            clusterBD = null;
+        }
+        tol = newTol;
     }
 
     public void setDoCaching(boolean newDoCaching) {
