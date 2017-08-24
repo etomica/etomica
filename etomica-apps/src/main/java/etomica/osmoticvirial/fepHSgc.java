@@ -42,7 +42,7 @@ public class fepHSgc extends Simulation {
     public Controller controller;
     public ActivityIntegrate activityIntegrate;
 
-    public fepHSgc(int numAtoms, double vf, double q, boolean computez2z1, boolean computez3z2){
+    public fepHSgc(double vf, double q, boolean computez2z1, boolean computez3z2){
         super(Space3D.getInstance());
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this,space);
 
@@ -107,16 +107,14 @@ public class fepHSgc extends Simulation {
             ParseArgs.doParseArgs(params, args);
         }
         else {
-            params.numAtoms = 3;
-            params.numSteps = 5000;
+            params.numSteps = 50000;
             params.nBlocks = 1000;
-            params.vf = 0.1;
+            params.vf = 0.01;
             params.q = 0.2;
-            params.computez2z1 = true;
-            params.computez3z2 = false;
+            params.computez2z1 = false;
+            params.computez3z2 = true;
         }
 
-        int numAtoms = params.numAtoms;
         int numSteps = params.numSteps;
         int nBlocks = params.nBlocks;
         double vf = params.vf;
@@ -125,7 +123,7 @@ public class fepHSgc extends Simulation {
         boolean computez3z2 = params.computez3z2;
         boolean graphics = false;
 
-        long numSamples = numSteps/numAtoms;
+        long numSamples = numSteps/3;
         long samplesPerBlock = numSamples/nBlocks;
         if (samplesPerBlock == 0) samplesPerBlock = 1;
 
@@ -141,14 +139,14 @@ public class fepHSgc extends Simulation {
             System.out.println("**z1_z0**");
         }
 
-        System.out.println(numAtoms+" atoms, "+numSteps+" steps");
+        System.out.println(numSteps+" steps");
         System.out.println("vol fraction: "+vf);
         System.out.println("q: "+q);
         System.out.println(nBlocks+" blocks");
 
         long t1 = System.currentTimeMillis();
 
-        fepHSgc sim = new fepHSgc(numAtoms, vf, q, computez2z1, computez3z2);
+        fepHSgc sim = new fepHSgc(vf, q, computez2z1, computez3z2);
 
         System.out.println("box length "+sim.box.getBoundary().getBoxSize());
 
@@ -165,7 +163,7 @@ public class fepHSgc extends Simulation {
             meterinsert.setIntegrator(sim.integrator);
 
             AccumulatorAverageFixed acc = new AccumulatorAverageFixed(samplesPerBlock);
-            DataPumpListener pump = new DataPumpListener(meterinsert, acc, numAtoms);
+            DataPumpListener pump = new DataPumpListener(meterinsert, acc);
             sim.integrator.getEventManager().addListener(pump);
 
             return;
@@ -183,7 +181,7 @@ public class fepHSgc extends Simulation {
         meterinsert.setIntegrator(sim.integrator);
 
         AccumulatorAverageFixed acc = new AccumulatorAverageFixed(samplesPerBlock);
-        DataPumpListener pump = new DataPumpListener(meterinsert, acc, numAtoms);
+        DataPumpListener pump = new DataPumpListener(meterinsert, acc);
         sim.integrator.getEventManager().addListener(pump);
 
         sim.getController().actionPerformed();

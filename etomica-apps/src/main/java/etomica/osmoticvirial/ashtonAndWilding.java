@@ -67,7 +67,8 @@ public class ashtonAndWilding extends Simulation {
 
         if(!computeDepletion) potential1 = new P2HardSphere(space, sigma1, false);
         if(computeDepletion) {
-            potential1 = new PotentialDepletion(space, "/usr/users/aksharag/osmoticvirials/ashtonWilding/additiveHS/mi+me/more steps/10e10/g3");
+            System.out.println("Depletion Potential");
+            potential1 = new PotentialDepletion(space, "/usr/users/aksharag/osmoticvirials/ashtonWilding/additiveHS/mi+me/moreSteps/10e10/awHSov/w");
         }
 
         potentialMaster.setCellRange(3);
@@ -98,7 +99,7 @@ public class ashtonAndWilding extends Simulation {
             params.numAtoms = 3;
             params.numSteps = 1000000;
             params.nBlocks = 100;
-            params.density = 0.01;
+            params.density = 0.001;
             params.computeIdeal = false;
         }
 

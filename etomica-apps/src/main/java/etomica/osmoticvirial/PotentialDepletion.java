@@ -57,9 +57,10 @@ public class PotentialDepletion extends Potential2 implements Potential2Spherica
     @Override
     public double u(double r2) {
         double r = Math.sqrt(r2);
-        if(r>2.74) return 0;
+        if(r>2.5) return 0;
+        if(r<1.02) return Double.POSITIVE_INFINITY;
         double[][] rInterpolation = new double[2][2];
-        int lookup = (int)((r-0.02)/0.04);
+        int lookup = (int)((r-1.02)/0.04);
         rInterpolation[0] = rwList.get(lookup);
         rInterpolation[1] = rwList.get(lookup+1);
         return (rInterpolation[1][1]-rInterpolation[0][1]) / (rInterpolation[0][0] - rInterpolation[1][0]) * (r - rInterpolation[1][0]) + r;
