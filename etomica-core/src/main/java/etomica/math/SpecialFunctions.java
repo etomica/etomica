@@ -280,7 +280,7 @@ public final class SpecialFunctions {
      * @return modified Bessel function of the first kind to machine precision or
      * unmodified Bessel function of the first kind to the precision of 10E-13.
      */
-    public static double bessel(boolean modified, double order, double x) {
+    private static double bessel(boolean modified, double order, double x) {
         double sum = 0;
         double gammaValue = gamma(order);
         double kTerms = 0;
@@ -299,6 +299,29 @@ public final class SpecialFunctions {
         return sum;
     }
 
+    /**
+     * The modified Bessel function of the first kind, I
+     * Reference: http://mathworld.wolfram.com/ModifiedBesselFunctionoftheFirstKind.html
+     *
+     * @param order of the Bessel function
+     * @param x     the argument of the Bessel function
+     * @return modified Bessel function of the first kind, to machine precision.
+     */
+    public static double besselI(double order, double x) {
+        return bessel(true, order, x);
+    }
+
+    /**
+     * The unmodified Bessel function of the first kind, J.
+     * https://en.wikipedia.org/wiki/Bessel_function#Bessel_functions_of_the_first_kind:_J.CE.B1
+     *
+     * @param order of the Bessel function
+     * @param x     the argument of the Bessel function
+     * @return unmodified Bessel function of the first kind, to the precision of 1E-13.
+     */
+    public static double besselJ(double order, double x) {
+        return bessel(false, order, x);
+    }
 
     public static void main(String[] args) {
         System.out.println(SpecialFunctions.bessel(false, 1.0, 0.2));
