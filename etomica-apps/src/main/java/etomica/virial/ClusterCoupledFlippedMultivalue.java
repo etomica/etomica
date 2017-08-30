@@ -28,6 +28,7 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
     protected long flipcount = 0;
     protected long BDcount = 0;
     protected long totcount = 0;
+    protected boolean pushme=true;
     private Vector childAtomVector;
     
     /**
@@ -97,7 +98,7 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
         for (int i=0; i<pointCount; i++) {
             for (int j=i+1; j<pointCount; j++) {
                 if (box.getCPairSet().getr2(i,j) > minR2) {
-                    if (debugme && box.getCPairSet().getr2(i,j)>maxR2) maxR2 = box.getCPairSet().getr2(i,j);
+                    if (box.getCPairSet().getr2(i,j)>maxR2) maxR2 = box.getCPairSet().getr2(i,j);
                     if (false && box.getCPairSet().getr2(i,j) > 2*minR2) debugme=true;
                     flipit=true;
                     if(countflips)flipcount+=1;
@@ -106,6 +107,11 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
         }
 //        if (debugme)System.out.println("FLIPIT " + flipit);
 
+        if(pushme&&maxR2<minR2){
+            value[0] = 1e-20;
+            return value[0];
+        }
+
         ClusterAbstractMultivalue currentcluster = wrappedCluster;
 
         for (int pass=0; pass<2; pass++){
@@ -113,6 +119,7 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
                 currentcluster = wrappedClusterBD;
             }
 
+            double doubleval = value[0];
             double[] v = currentcluster.getAllLastValues(box);
             for (int m = 0; m < value.length; m++) {
                 value[m] = v[m];
@@ -160,7 +167,7 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
                 value[m] /= (1<<pointCount);
             }
             if (debugme) System.out.print(String.format("%10.4e\n", value[0]));
-
+            if(pass==1)System.out.println(Math.sqrt(maxR2)+" "+ doubleval+" "+value[0]);
 
             //        if (debugme) System.out.println("5 "+"clusterSum "+cPairID+" returning NEW "+value[0]);
             if ( Math.abs(value[0])>tol) {
@@ -168,6 +175,7 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
             }
             if(pass==0)BDcount+=1<<pointCount;
         }
+
         return value[0];
     }
 

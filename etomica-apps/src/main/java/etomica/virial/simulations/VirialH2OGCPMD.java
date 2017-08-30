@@ -63,9 +63,9 @@ public class VirialH2OGCPMD {
             params.sigmaHSRef = 5;
             params.nonAdditive = Nonadditive.TOTAL;
             params.seed = null;
-            params.doHist = true;
+            params.doHist = false;
             isCommandline = true;
-            params.dorefpref = true;
+            params.dorefpref = false;
         }
 
         final int nPoints = params.nPoints;
@@ -88,7 +88,7 @@ public class VirialH2OGCPMD {
         
         double temperature = Kelvin.UNIT.toSim(temperatureK);
         
-        final double tol = 1e-12;
+        final double tol = 1e-10;
         final int precision = -3*(int)Math.log10(tol);
         
         System.out.println("Reference diagram: B"+nPoints+" for hard spheres with diameter " + sigmaHSRef + " Angstroms");
