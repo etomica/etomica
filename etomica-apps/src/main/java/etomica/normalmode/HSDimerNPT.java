@@ -330,7 +330,7 @@ public class HSDimerNPT extends Simulation {
         long blockSize = (nData + 99) / 100;
         final AccumulatorAverage volumeAvg = doGraphics ? new AccumulatorAverageCollapsing() : new AccumulatorAverageFixed(blockSize);
         if (doGraphics) {
-            volumeAvg.setDoIncludeACInError(true);
+            volumeAvg.setIncludeACInError(true);
         }
         volumeFork.addDataSink(volumeAvg);
 
