@@ -45,6 +45,10 @@ public abstract class Wrapper<T> {
         return wrappedClass;
     }
 
+    public T getWrapped() {
+        return wrapped;
+    }
+
     public long getWrappedId() {
         return wrappedId;
     }
