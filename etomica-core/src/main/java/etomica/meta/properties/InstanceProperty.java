@@ -44,7 +44,9 @@ public class InstanceProperty implements Property {
         try {
             return reader.invoke(instance);
         } catch(IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+            // @TODO: decide whether to keep this
+            return null;
+//            throw new RuntimeException(e);
         }
     }
 
