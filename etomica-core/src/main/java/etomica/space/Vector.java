@@ -27,6 +27,12 @@ public interface Vector {
      */
     public void assignTo(double[] array);
 
+    default double[] toArray() {
+        double[] arr = new double[this.getD()];
+        this.assignTo(arr);
+        return arr;
+    }
+
     /**
      * Returns true if all corresponding elements of this and the given vector
      * are equal; returns false otherwise.
