@@ -63,9 +63,10 @@ public class HSMD3D extends Simulation {
 
     public final PotentialMaster potentialMaster;
 
-    /**
-     * Sole public constructor, makes a simulation using a 3D space.
-     */
+    public HSMD3D() {
+        this(Space3D.getInstance());
+    }
+
     public HSMD3D(Space _space) {
         this(_space, new HSMD3DParam());
     }
