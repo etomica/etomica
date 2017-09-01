@@ -11,9 +11,9 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataSourceScalar;
 import etomica.math.geometry.Polytope;
 import etomica.space.Boundary;
-import etomica.units.DimensionRatio;
-import etomica.units.Quantity;
-import etomica.units.Volume;
+import etomica.units.dimensions.DimensionRatio;
+import etomica.units.dimensions.Quantity;
+import etomica.units.dimensions.Volume;
 
 /**
  * Meter for measurement of density within a specified subvolume

@@ -40,7 +40,7 @@ import etomica.math.geometry.Plane;
 import etomica.modifier.ModifierGeneral;
 import etomica.space.Space;
  import etomica.space3d.Space3D;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 import etomica.units.Pixel;
 import etomica.units.Unit;
 import etomica.data.history.HistoryCollapsingAverage;

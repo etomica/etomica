@@ -15,9 +15,9 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.units.Null;
-import etomica.units.Pressure;
-import etomica.units.Quantity;
+import etomica.units.dimensions.Null;
+import etomica.units.dimensions.Pressure;
+import etomica.units.dimensions.Quantity;
 
 /**
  * DataSource that returns measured pressure as a function of N

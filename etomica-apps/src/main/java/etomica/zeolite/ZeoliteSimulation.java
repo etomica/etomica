@@ -201,7 +201,7 @@ public class ZeoliteSimulation extends Simulation {
         zeoliteSimGraphic simGraphic = new zeoliteSimGraphic(sim, sim.space, APP_NAME);
         int num = sim.species.length;
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
-        nSelector.setResetAction(new SimulationRestart(sim, sim.space, sim.getController()));
+        nSelector.setResetAction(new SimulationRestart(sim));
         nSelector.setSpecies(sim.species[num-1]);
         nSelector.setBox(sim.box);
         simGraphic.add(nSelector);

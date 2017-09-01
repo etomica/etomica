@@ -15,7 +15,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space1d.Space1D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.units.Energy;
+import etomica.units.dimensions.Energy;
 
 /**
  * Meter that calculates the harmonic energy of a configuration given

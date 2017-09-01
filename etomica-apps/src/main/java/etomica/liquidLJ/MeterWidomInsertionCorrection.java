@@ -15,7 +15,7 @@ import etomica.math.function.IFunction;
 import etomica.molecule.IMolecule;
 import etomica.space.Space;
 import etomica.species.ISpecies;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 import etomica.util.random.IRandom;
 
 /**

@@ -4,7 +4,7 @@
 
 package etomica.data;
 
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
 
 public interface IEtomicaDataInfoFactory {
 

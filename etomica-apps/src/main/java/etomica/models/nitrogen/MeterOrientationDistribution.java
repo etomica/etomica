@@ -22,6 +22,10 @@ import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.units.*;
+import etomica.units.dimensions.CompoundDimension;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Null;
 
 import java.io.FileWriter;
 import java.io.IOException;

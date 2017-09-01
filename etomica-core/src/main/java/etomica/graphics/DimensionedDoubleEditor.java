@@ -8,8 +8,8 @@ import java.beans.PropertyEditorSupport;
 
 import javax.swing.JComboBox;
 
-import etomica.units.Dimension;
-import etomica.units.Null;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Null;
 import etomica.units.Prefix;
 import etomica.units.PrefixedUnit;
 import etomica.units.SimpleUnit;
@@ -111,7 +111,11 @@ public class DimensionedDoubleEditor extends PropertyEditorSupport
 	  */
 	 public int selectionForKey(char aKey, javax.swing.ComboBoxModel aModel) {
         Object value = getValue();
-	    Prefix newPrefix = Prefix.keySelect(aKey);
+        String sKey;
+        if(aKey == ' ') sKey = "";
+        else if(aKey == 'D') sKey = "da";
+        else sKey = Character.toString(aKey);
+	    Prefix newPrefix = Prefix.keySelect(sKey);
 	    if(newPrefix != null) { //update unit if an appropriate key was pressed
 	        prefix = newPrefix;
 	        unit = new PrefixedUnit(prefix, baseUnit);

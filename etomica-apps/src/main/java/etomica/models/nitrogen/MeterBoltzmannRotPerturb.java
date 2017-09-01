@@ -18,7 +18,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.ISpecies;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * Meter used for overlap sampling in the target-sampled system.  The meter

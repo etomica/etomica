@@ -12,7 +12,7 @@ import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataInfoFactory;
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
 
 
 /**

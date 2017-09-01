@@ -10,9 +10,9 @@ import etomica.data.DataSourceScalar;
 import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.CompoundDimension;
-import etomica.units.Dimension;
-import etomica.units.Length;
+import etomica.units.dimensions.CompoundDimension;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
 
 /**
  * Meter that measures that end to end distance of the molecules

@@ -5,11 +5,11 @@
 package etomica.virial;
 
 import etomica.atom.IAtomList;
-import etomica.space.Vector;
 import etomica.box.Box;
-import etomica.util.random.IRandom;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * Extension of MCMoveClusterAtom that moves only the second atom and only
@@ -80,8 +80,8 @@ public class MCMoveClusterAtomDiscrete extends MCMoveAtom {
         return ratio;
     }
 
-    public double getB() {
-        return 0;
+    public double getChi(double temperature) {
+        return 1;
     }
     
     public void rejectNotify() {

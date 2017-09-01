@@ -7,7 +7,7 @@ package etomica.modules.sam;
 import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
-import etomica.units.Pressure;
+import etomica.units.dimensions.Pressure;
 
 public class MeterWallPressure extends DataSourceScalar {
 

@@ -173,15 +173,15 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         }
     }
 
-    public void setBox(Box p) {
-        if (box != null) {
+    public void setBox(Box box) {
+        if (this.box != null) {
             // allow agentManager to de-register itself as a BoxListener
             leafAgentManager.dispose();
             moleculeAgentManager.dispose();
         }
-        super.setBox(p);
-        leafAgentManager = new AtomLeafAgentManager<AtomAgent>(this,p,AtomAgent.class);
-        moleculeAgentManager = new MoleculeAgentManager(sim, box, this);
+        super.setBox(box);
+        leafAgentManager = new AtomLeafAgentManager<AtomAgent>(this, box,AtomAgent.class);
+        moleculeAgentManager = new MoleculeAgentManager(sim, this.box, this);
         forceSum.setAgentManager(leafAgentManager);
     }
 
@@ -194,7 +194,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
     }
 
     // assumes one box
-    public void doStepInternal() {
+    protected void doStepInternal() {
         super.doStepInternal();
         double KE = 0;
         double PE = 0;

@@ -5,6 +5,7 @@
 package etomica.units;
 import java.io.ObjectStreamException;
 
+import etomica.units.dimensions.Current;
 import etomica.util.Constants;
 
 /**
@@ -24,16 +25,4 @@ public final class Ampere extends SimpleUnit {
                 Math.sqrt(1/4/Math.PI/8.854e-12*1e20*1000*Constants.AVOGADRO*1e10*1e-36), //2.326e11; conversion from Coulombs to (amu-A^3/ps^2)^(1/2)
                 "amperes", "A", Prefix.ALLOWED);   
     }
-    
-    /**
-     * Required to guarantee singleton when deserializing.
-     * 
-     * @return the singleton UNIT
-     */
-    private Object readResolve() throws ObjectStreamException {
-        return UNIT;
-    }
-    
-    private static final long serialVersionUID = 1;
-
 }

@@ -7,9 +7,6 @@ package etomica.normalmode;
 import etomica.action.BoxInflate;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.integrator.IntegratorListener;
-import etomica.integrator.IntegratorEvent;
-import etomica.space.Boundary;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
@@ -23,6 +20,8 @@ import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPressure;
 import etomica.graphics.*;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.*;
 import etomica.lattice.crystal.Basis;
@@ -35,14 +34,15 @@ import etomica.nbr.cell.PotentialMasterCell;
 import etomica.normalmode.DataSourceMuRoot.DataSourceMuRootVacancyConcentration;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
+import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.statmech.LennardJones;
-import etomica.units.Dimension;
-import etomica.units.Null;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -693,10 +693,10 @@ public class SimLJVacancy extends Simulation {
         System.out.println("delta bmu: "+deltaMu);
         System.out.println("vacancy fraction: "+vRoot);
         double lnTot = dsmr.getLastLnTot();
-        double deltaA = -(1-vRoot)*lnTot/numAtoms - vRoot/density*deltaP/temperature;
+        double deltaA = -lnTot / numAtoms - pRoot * vRoot / density;
         // free energy change per lattice site
         System.out.println("delta betaA: "+deltaA);
-        
+
         System.out.println("time: "+(t2-t1)/1000.0+" seconds");
     }
     

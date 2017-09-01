@@ -136,7 +136,7 @@ public class SimEinStep2HCP extends Simulation {
         meterPEComposite.setBox(box);
         meterPEComposite.setLambda(lambda);
         if (false) {
-            atomMove = new MCMoveAtom(null, meterPEComposite, random, space, 0.1, 1, false);
+            atomMove = new MCMoveAtom(random, null, space, 0.1, 1, false, meterPEComposite);
         }
         else {
             atomMove = new MCMoveAtomCoupled(potentialMaster, lambda==0 ? meterPE : meterPEComposite, getRandom(), space);

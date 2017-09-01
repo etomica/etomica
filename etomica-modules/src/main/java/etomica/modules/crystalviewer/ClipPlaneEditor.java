@@ -22,7 +22,7 @@ import etomica.lattice.LatticePlane;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
 import etomica.space3d.Vector3D;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * Class that produces a panel with controls that presence, orientation
@@ -277,7 +277,7 @@ public class ClipPlaneEditor {
                 case PLANE_SELECTION_SLIDER: return latticePlane.getPosition();
             }
         }
-        public etomica.units.Dimension getDimension() {return Null.DIMENSION;}
+        public etomica.units.dimensions.Dimension getDimension() {return Null.DIMENSION;}
     }
     
     class ClipPlaneEditorComponentListener implements java.awt.event.ComponentListener {

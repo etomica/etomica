@@ -31,6 +31,8 @@ import etomica.modifier.ModifierGeneral;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.*;
+import etomica.units.dimensions.Pressure;
+import etomica.units.dimensions.Temperature;
 import etomica.units.systems.MKS;
 
 import javax.swing.*;
@@ -146,7 +148,7 @@ public class JouleThomson extends SimulationGraphic {
         sim.activityIntegrate.setSleepPeriod(1);
 
         //set-pressure history
-        IEtomicaDataSource targetPressureDataSource = new DataSourceScalar("Set-Pressure",Pressure.DIMENSION) {
+        IEtomicaDataSource targetPressureDataSource = new DataSourceScalar("Set-Pressure", Pressure.DIMENSION) {
             public double getDataAsScalar() {
                 return pUnit.toSim(pSlider.getValue());
             }
@@ -159,7 +161,7 @@ public class JouleThomson extends SimulationGraphic {
         pumpListener.setInterval(20);
 
         //set-pressure history
-        IEtomicaDataSource targetTemperatureDataSource = new DataSourceScalar("Set-Temperature",Temperature.DIMENSION) {
+        IEtomicaDataSource targetTemperatureDataSource = new DataSourceScalar("Set-Temperature", Temperature.DIMENSION) {
             public double getDataAsScalar() {
                 return tUnit.toSim(tSlider.getValue());
             }
@@ -371,7 +373,7 @@ public class JouleThomson extends SimulationGraphic {
             sigma[0] = currentSig;
             epsilon[0] = currentEps;
             mass[0] = currentMass;
-            simRestart = new SimulationRestart(sim, space, sim.getController());
+            simRestart = new SimulationRestart(sim);
         }
 
         public void itemStateChanged(java.awt.event.ItemEvent evt) {

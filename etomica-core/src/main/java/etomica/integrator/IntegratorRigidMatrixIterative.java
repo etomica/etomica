@@ -100,18 +100,18 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
         meterKE = new MeterKineticEnergyRigid(space, sim);
     }
     
-    public void setBox(Box p) {
-        if (box != null) {
+    public void setBox(Box box) {
+        if (this.box != null) {
             // allow agentManager to de-register itself as a BoxListener
             leafAgentManager.dispose();
             moleculeAgentManager.dispose();
         }
-        super.setBox(p);
-        leafAgentManager = new AtomLeafAgentManager<IntegratorRigidMatrixIterative.AtomAgent>(this,p,IntegratorVelocityVerlet.MyAgent.class);
-        moleculeAgentManager = new MoleculeAgentManager(sim, box, this);
+        super.setBox(box);
+        leafAgentManager = new AtomLeafAgentManager<IntegratorRigidMatrixIterative.AtomAgent>(this, box,IntegratorVelocityVerlet.MyAgent.class);
+        moleculeAgentManager = new MoleculeAgentManager(sim, this.box, this);
         torqueSum.setAgentManager(leafAgentManager);
         torqueSum.setMoleculeAgentManager(moleculeAgentManager);
-        ((MeterKineticEnergyRigid)meterKE).setBox(p);
+        ((MeterKineticEnergyRigid)meterKE).setBox(box);
     }
 
     public void setOrientationCalc(ISpecies species, OrientationCalc calcer) {
@@ -126,7 +126,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
 // steps all particles across time interval tStep
 
     // assumes one box
-    public void doStepInternal() {
+    protected void doStepInternal() {
         super.doStepInternal();
         currentKineticEnergy = 0;
         int iterationsTotal = 0;

@@ -105,7 +105,7 @@ public class TestHC2YukawaMC3D extends Simulation{
 		IAction repaintAction = simGraphic.getPaintAction(sim.box);
 
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
-        nSelector.setResetAction(new SimulationRestart(sim, sim.space, sim.getController()));
+        nSelector.setResetAction(new SimulationRestart(sim));
         nSelector.setPostAction(repaintAction);
         simGraphic.getController().getReinitButton().setPostAction(repaintAction);
 

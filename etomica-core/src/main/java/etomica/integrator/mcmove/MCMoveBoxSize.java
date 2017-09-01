@@ -6,16 +6,16 @@ package etomica.integrator.mcmove;
 
 import etomica.action.BoxInflate;
 import etomica.action.BoxInflateDeformable;
-import etomica.potential.PotentialMaster;
-import etomica.space.Vector;
-import etomica.box.Box;
-import etomica.util.random.IRandom;
-import etomica.simulation.Simulation;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * Monte Carlo move for changing the box dimensions at constant volume. 
@@ -91,34 +91,12 @@ public class MCMoveBoxSize extends MCMoveBoxStep {
         uNew = energyMeter.getDataAsScalar();
         return true;
     }//end of doTrial
-    
-    public double getA() {
-        return 1;
-    }
-    
-    public double getB() {
-        return -(uNew - uOld);
+
+    public double getChi(double temperature) {
+        return Math.exp(-(uNew - uOld) / temperature);
     }
     
     public void acceptNotify() {
-//        if (box.getBoundary() instanceof BoundaryDeformablePeriodic) {
-//            System.out.print(" => (");
-//            double covera = 1;
-//            for (int i=0; i<space.D(); i++) {
-//                double l = Math.sqrt(((BoundaryDeformablePeriodic)box.getBoundary()).getEdgeVector(i).squared());
-//                if (i==2) {
-//                    covera *= l;
-//                }
-//                else {
-//                    covera /= Math.sqrt(l);
-//                }
-//                System.out.print(l+" ");
-//            }
-//            System.out.println(") "+covera);
-//        }
-//        else {
-//            System.out.println(" => "+box.getBoundary().getBoxSize());
-//        }
     }
     
     public void rejectNotify() {

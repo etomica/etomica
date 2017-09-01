@@ -31,6 +31,7 @@ import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.*;
+import etomica.units.dimensions.Energy;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 

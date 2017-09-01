@@ -11,7 +11,7 @@ import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
-import etomica.units.Energy;
+import etomica.units.dimensions.Energy;
 
 public class MeterMappedU extends DataSourceScalar implements  AgentSource<IntegratorVelocityVerlet.MyAgent> {
 

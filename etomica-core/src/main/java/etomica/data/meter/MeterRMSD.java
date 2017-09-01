@@ -6,7 +6,7 @@ import etomica.data.DataSourceScalar;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.Length;
+import etomica.units.dimensions.Length;
 
 /**
  * Measured root mean squared displacement of all atoms in the box.  This meter

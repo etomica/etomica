@@ -38,9 +38,9 @@ import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
 import etomica.units.Angstrom;
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
 import etomica.units.Kelvin;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 import etomica.units.Pixel;
 import etomica.data.history.HistoryCollapsingAverage;
 

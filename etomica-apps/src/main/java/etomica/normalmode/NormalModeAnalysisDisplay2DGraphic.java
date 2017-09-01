@@ -35,8 +35,8 @@ import etomica.listener.IntegratorListenerAction;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
-import etomica.units.Energy;
-import etomica.units.Null;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Null;
 
 /**
  * 

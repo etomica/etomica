@@ -2,9 +2,9 @@ package etomica.virial.simulations;
 
 import etomica.integrator.IntegratorBox;
 import etomica.modifier.Modifier;
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
 import etomica.units.Kelvin;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 import etomica.util.Constants;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.MCMoveClusterRingRegrow;

@@ -16,10 +16,10 @@ import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.space.Space;
-import etomica.units.Area;
-import etomica.units.DimensionRatio;
-import etomica.units.Energy;
-import etomica.units.Length;
+import etomica.units.dimensions.Area;
+import etomica.units.dimensions.DimensionRatio;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Length;
 
 public class DataProcessorInterfacialTensionProfile extends DataProcessor {
 

@@ -9,6 +9,8 @@ import etomica.atom.IAtomList;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
 import etomica.util.Debug;
 
 /**
@@ -132,8 +134,8 @@ public class P2HardSphere extends Potential2HardSpherical {
         collisionDiameter = c;
         sig2 = c*c;
     }
-    public etomica.units.Dimension getCollisionDiameterDimension() {
-        return etomica.units.Length.DIMENSION;
+    public Dimension getCollisionDiameterDimension() {
+        return Length.DIMENSION;
     }
     
     /**

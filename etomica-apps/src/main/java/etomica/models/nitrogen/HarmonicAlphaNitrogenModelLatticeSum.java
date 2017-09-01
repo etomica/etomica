@@ -21,7 +21,7 @@ import etomica.normalmode.BasisBigCell;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.units.Energy;
+import etomica.units.dimensions.Energy;
 import etomica.units.Joule;
 
 

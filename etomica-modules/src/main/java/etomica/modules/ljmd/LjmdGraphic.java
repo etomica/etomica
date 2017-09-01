@@ -23,10 +23,10 @@ import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
 import etomica.statmech.MaxwellBoltzmann;
-import etomica.units.DimensionRatio;
-import etomica.units.Length;
-import etomica.units.Null;
-import etomica.units.Time;
+import etomica.units.dimensions.DimensionRatio;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Null;
+import etomica.units.dimensions.Time;
 import etomica.util.Constants.CompassDirection;
 
 import java.awt.*;

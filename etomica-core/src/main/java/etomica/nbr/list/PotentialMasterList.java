@@ -243,7 +243,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
         if (atomType.length == 2) {
             NeighborCriterion rangedCriterion;
             if (potential.getRange() < Double.POSITIVE_INFINITY) {
-                rangedCriterion = new CriterionSimple(getSimulation(), space, potential.getRange(), 0.0);
+                rangedCriterion = new CriterionSimple(simulation, space, potential.getRange(), 0.0);
             }
             else {
                 rangedCriterion = new CriterionAll();

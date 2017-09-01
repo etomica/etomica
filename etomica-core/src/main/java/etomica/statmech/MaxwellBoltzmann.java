@@ -5,7 +5,9 @@
 package etomica.statmech;
 import etomica.math.function.Function;
 import etomica.space.Space;
-import etomica.units.Mass;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Mass;
+import etomica.units.dimensions.Temperature;
 
 /**
  * Non-instantiable class with static methods for implementing features of the 
@@ -62,14 +64,14 @@ public final class MaxwellBoltzmann {
          //   c /= space.sphereArea(1.0);
         }
         public double getTemperature() {return temperature;}
-        public etomica.units.Dimension getTemperatureDimension() {return etomica.units.Temperature.DIMENSION;}
+        public Dimension getTemperatureDimension() {return Temperature.DIMENSION;}
 
         public void setMass(double m) {
             mass = m;
             update();
         }
         public double getMass() {return mass;}
-        public etomica.units.Dimension getMassDimension() {return Mass.DIMENSION;}
+        public Dimension getMassDimension() {return Mass.DIMENSION;}
     }//end of Distribution
         
     

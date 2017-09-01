@@ -59,12 +59,12 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource<
     }
 
 	
-    public void setBox(Box p) {
-        if (box != null) {
+    public void setBox(Box box) {
+        if (this.box != null) {
             agentManager.dispose();
         }
-        super.setBox(p);
-        agentManager = new AtomLeafAgentManager<Agent>(this,p,Agent.class);
+        super.setBox(box);
+        agentManager = new AtomLeafAgentManager<Agent>(this, box,Agent.class);
         forceSum.setAgentManager(agentManager);
     }
     
@@ -81,7 +81,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource<
 //--------------------------------------------------------------
 // steps all particles across time interval tStep
 
-  	public void doStepInternal() {
+    protected void doStepInternal() {
         super.doStepInternal();
 
         double dim = space.D();  //get the dimension

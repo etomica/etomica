@@ -62,13 +62,13 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         
     }
 
-    public void setBox(Box p) {
-        if (box != null) {
+    public void setBox(Box box) {
+        if (this.box != null) {
             // allow agentManager to de-register itself as a BoxListener
             agentManager.dispose();
         }
-        super.setBox(p);
-        agentManager = new AtomLeafAgentManager<MyAgent>(this,p,MyAgent.class);
+        super.setBox(box);
+        agentManager = new AtomLeafAgentManager<MyAgent>(this, box,MyAgent.class);
         forceSum.setAgentManager(agentManager);
     }
 
@@ -76,7 +76,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
 // steps all particles across time interval tStep
 
     // assumes one box
-    public void doStepInternal() {
+    protected void doStepInternal() {
         super.doStepInternal();
         if (Debug.ON && Debug.DEBUG_NOW) {
             IAtomList pair = Debug.getAtoms(box);

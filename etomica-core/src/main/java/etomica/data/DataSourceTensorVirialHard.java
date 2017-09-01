@@ -8,7 +8,7 @@ import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.integrator.IntegratorHard;
 import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.units.Energy;
+import etomica.units.dimensions.Energy;
 
 /**
  * A MeterTensor that returns the virial component of the pressure tensor for a hard potential.  

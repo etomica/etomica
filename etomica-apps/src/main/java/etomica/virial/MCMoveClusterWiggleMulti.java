@@ -37,13 +37,6 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
     	this(potentialMaster,sim.getRandom(), 1.0, nAtoms, _space);
     }
     
-    /**
-     * Constructor for MCMoveAtomMulti.
-     * @param parentIntegrator
-     * @param nAtoms number of atoms to move in a trial.  Number of atoms in
-     * box should be at least one greater than this value (greater
-     * because first atom is never moved)
-     */
     public MCMoveClusterWiggleMulti(PotentialMaster potentialMaster,
             IRandom random, double stepSize, int nAtoms, Space _space) {
         super(potentialMaster,random,_space, stepSize,Double.POSITIVE_INFINITY);
@@ -231,12 +224,8 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
         ((BoxCluster)box).rejectNotify();
     }
 
-    public double getB() {
-        return -(uNew - uOld);
-    }
-    
-    public double getA() {
-        return wNew/wOld;
+    public double getChi(double temperature) {
+        return wNew / wOld * Math.exp(-(uNew - uOld) / temperature);
     }
 	
     private static final long serialVersionUID = 1L;

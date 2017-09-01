@@ -5,22 +5,22 @@
 package etomica.virial;
 
 import Jama.EigenvalueDecomposition;
-import etomica.atom.IAtomList;
-import etomica.box.Box;
-import etomica.potential.PotentialMaster;
-import etomica.util.random.IRandom;
-import etomica.space.Vector;
 import etomica.atom.AtomHydrogen;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
+import etomica.data.histogram.HistogramSimple;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
+import etomica.math.DoubleRange;
 import etomica.potential.P1IntraMolecular;
+import etomica.potential.PotentialMaster;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.BohrRadius;
 import etomica.util.Constants;
-import etomica.math.DoubleRange;
-import etomica.data.histogram.HistogramSimple;
+import etomica.util.random.IRandom;
 
 public class MCMoveChangeBondLength extends MCMoveBoxStep {
 
@@ -541,9 +541,8 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
 		return kHarmonic;
 	}
 
-	@Override
-	public double getA() {
-		int nMolecules = box.getMoleculeList().getMoleculeCount();
+    public double getChi(double temperature) {
+        int nMolecules = box.getMoleculeList().getMoleculeCount();
 		for (int i=0; i<nMolecules; i++) {
 			IAtomList atoms = box.getMoleculeList().getMolecule(i).getChildList();
 			for (int j=0; j<P; j++) {
@@ -554,11 +553,6 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
 		return wNew*pRatio/wOld;
 	}
 
-
-	@Override
-	public double getB() {
-		return 0.00;
-	}
 
 	@Override
 	public void acceptNotify() {

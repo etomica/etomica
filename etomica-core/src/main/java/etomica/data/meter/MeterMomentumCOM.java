@@ -19,11 +19,11 @@ import etomica.data.types.DataVector;
 import etomica.data.types.DataVector.DataInfoVector;
 import etomica.space.Vector;
 import etomica.space.Space;
-import etomica.units.CompoundDimension;
-import etomica.units.Dimension;
-import etomica.units.Length;
-import etomica.units.Mass;
-import etomica.units.Time;
+import etomica.units.dimensions.CompoundDimension;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Mass;
+import etomica.units.dimensions.Time;
 
 /**
  * Returns the instantaneous total center-of-mass momentum, summed over all

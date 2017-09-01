@@ -11,7 +11,7 @@ import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.potential.IPotential;
 import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 
 /**

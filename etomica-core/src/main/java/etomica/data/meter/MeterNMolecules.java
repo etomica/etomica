@@ -11,7 +11,7 @@ import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.molecule.IMolecule;
 import etomica.species.ISpecies;
-import etomica.units.Quantity;
+import etomica.units.dimensions.Quantity;
 
 /**
  * Meter for recording the total number of molecules in the box

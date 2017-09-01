@@ -41,8 +41,8 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
         super(sim, potentialMaster,random,timeStep,temperature, _space);
         dv = space.makeVector();
     }
-    
-    public void doStepInternal() {
+
+    protected void doStepInternal() {
         currentTime += timeStep;
 
         IMoleculeList molecules = box.getMoleculeList();

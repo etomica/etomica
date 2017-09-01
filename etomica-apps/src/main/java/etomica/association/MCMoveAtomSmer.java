@@ -4,14 +4,14 @@
 
 package etomica.association;
 
+import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
+import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.atom.AtomArrayList;
-import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.util.random.IRandom;
 
 public class MCMoveAtomSmer extends MCMoveAtom {
@@ -32,7 +32,7 @@ public class MCMoveAtomSmer extends MCMoveAtom {
 	public MCMoveAtomSmer(PotentialMaster potentialMaster, IRandom random,
                           Space _space, double stepSize, double stepSizeMax,
                           boolean fixOverlap) {
-		super(potentialMaster, random, _space, stepSize, stepSizeMax,
+		super(random, potentialMaster, _space, stepSize, stepSizeMax,
 				fixOverlap);
 		this.smerList = new AtomArrayList();
 		this.dr = _space.makeVector();
@@ -71,8 +71,9 @@ public class MCMoveAtomSmer extends MCMoveAtom {
 //        }
         return true;
     }//end of doTrial
-	public double getA(){
-		if (populateList(smerList)== 0){
+
+    public double getChi(double temperature) {
+        if (populateList(smerList)== 0){
     		return 0;
     	}
 		IAtomList newBondList = associationManager.getAssociatedAtoms(atom);
@@ -92,8 +93,8 @@ public class MCMoveAtomSmer extends MCMoveAtom {
 				return 0;
 			}
 		}
-		return 1.0;
-	}
+        return super.getChi(temperature);
+    }
 	
 	public void setMaxLength(int i){
     	maxLength = i;

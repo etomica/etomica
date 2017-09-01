@@ -4,6 +4,8 @@
 
 package etomica.units;
 
+import etomica.units.dimensions.Time;
+
 import java.io.ObjectStreamException;
 
 /**
@@ -19,16 +21,4 @@ public final class Picosecond extends SimpleUnit {
     private Picosecond() {
         super(Time.DIMENSION, 1.0, "picoseconds", "ps", Prefix.NOT_ALLOWED);
     }
-
-    /**
-     * Required to guarantee singleton when deserializing.
-     * 
-     * @return the singleton UNIT
-     */
-    private Object readResolve() throws ObjectStreamException {
-        return UNIT;
-    }
-
-    private static final long serialVersionUID = 1;
-
 }

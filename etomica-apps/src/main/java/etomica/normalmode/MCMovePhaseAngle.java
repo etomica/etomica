@@ -4,11 +4,11 @@
 
 package etomica.normalmode;
 
-import etomica.util.random.IRandom;
-import etomica.space.Vector;
 import etomica.atom.iterator.AtomIterator;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 public class MCMovePhaseAngle extends MCMoveBoxStep {
     
@@ -59,12 +59,8 @@ public class MCMovePhaseAngle extends MCMoveBoxStep {
         return true;
     }
 
-    public double getA() {
+    public double getChi(double temperature) {
         return jNew/jOld;
-    }
-
-    public double getB() {
-        return 0;
     }
 
     public void acceptNotify() {

@@ -4,24 +4,7 @@
 
 package etomica.units.systems;
 
-import etomica.units.Ampere;
-import etomica.units.Bar;
-import etomica.units.CompoundUnit;
-import etomica.units.Coulomb;
-import etomica.units.CubicMeter;
-import etomica.units.Decimal;
-import etomica.units.Gram;
-import etomica.units.Joule;
-import etomica.units.Kelvin;
-import etomica.units.Meter;
-import etomica.units.Mole;
-import etomica.units.Newton;
-import etomica.units.Pascal;
-import etomica.units.Prefix;
-import etomica.units.PrefixedUnit;
-import etomica.units.Radian;
-import etomica.units.Second;
-import etomica.units.Unit;
+import etomica.units.*;
 
 /**
  * Meter-Kilogram-Second system of units
@@ -74,6 +57,8 @@ public class MKS extends UnitSystem {
     public Unit energy() {
         return Joule.UNIT;
     }
+
+    public Unit power(){return Watt.UNIT;}
 
     public Unit temperature() {
         return Kelvin.UNIT;

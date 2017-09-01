@@ -4,7 +4,7 @@
 
 package etomica.modifier;
 
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
 
 /**
  * A Modifier object permits changes to be made to a property of another object.

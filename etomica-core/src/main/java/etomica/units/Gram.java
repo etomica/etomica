@@ -5,6 +5,7 @@
 package etomica.units;
 import java.io.ObjectStreamException;
 
+import etomica.units.dimensions.Mass;
 import etomica.util.Constants;
 
 public final class Gram extends SimpleUnit {
@@ -20,16 +21,4 @@ public final class Gram extends SimpleUnit {
         	"grams", "g", Prefix.ALLOWED
         	);   
     }
-    
-    /**
-     * Required to guarantee singleton when deserializing.
-     * 
-     * @return the singleton UNIT
-     */
-    private Object readResolve() throws ObjectStreamException {
-        return UNIT;
-    }
-    
-    private static final long serialVersionUID = 1;
-
 }

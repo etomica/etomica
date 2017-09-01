@@ -15,8 +15,8 @@ import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.integrator.mcmove.MCMoveInsertDeleteBiased;
 import etomica.integrator.mcmove.MCMoveOverlapListener;
-import etomica.units.Null;
-import etomica.units.Quantity;
+import etomica.units.dimensions.Null;
+import etomica.units.dimensions.Quantity;
 
 /**
  * Like DataSourceFEHistogram, returns a probability histogram for N based on

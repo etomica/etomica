@@ -14,7 +14,7 @@ import etomica.molecule.IMolecule;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * Calculates the Boltzmann factor at a position within a box a molecule of a

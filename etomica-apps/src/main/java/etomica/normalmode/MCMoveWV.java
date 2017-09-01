@@ -4,12 +4,12 @@
 
 package etomica.normalmode;
 
-import etomica.space.Vector;
-import etomica.box.Box;
-import etomica.util.random.IRandom;
 import etomica.atom.iterator.AtomIterator;
+import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 public class MCMoveWV extends MCMoveBoxStep {
     
@@ -88,12 +88,8 @@ public class MCMoveWV extends MCMoveBoxStep {
         return true;
     }
 
-    public double getA() {
+    public double getChi(double temperature) {
         return jNew/jOld;
-    }
-
-    public double getB() {
-        return 0;
     }
 
     public void acceptNotify() {

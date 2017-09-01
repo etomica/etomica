@@ -23,7 +23,7 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Tensor3D;
 import etomica.space3d.Vector3D;
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
 import etomica.util.Arrays;
 import etomica.math.function.Function;
 import etomica.data.FunctionData;

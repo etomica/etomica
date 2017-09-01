@@ -8,10 +8,10 @@ import etomica.atom.IAtomList;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.units.CompoundDimension;
-import etomica.units.Dimension;
-import etomica.units.Energy;
-import etomica.units.Length;
+import etomica.units.dimensions.CompoundDimension;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Length;
 
 /**
  * Potential in which attaches a harmonic spring between each affected atom and

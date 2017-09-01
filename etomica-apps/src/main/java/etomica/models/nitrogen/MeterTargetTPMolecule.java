@@ -19,7 +19,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.ISpecies;
 import etomica.units.Kelvin;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 import java.io.FileWriter;
 import java.io.IOException;

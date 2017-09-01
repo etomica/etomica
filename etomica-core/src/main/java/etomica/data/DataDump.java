@@ -6,7 +6,7 @@ package etomica.data;
 
 
 /**
- * DataPump acts both as a DataSink and a DataSource.  DataDump takes the Data
+ * DataDump acts both as a DataSink and a DataSource.  DataDump takes the Data
  * it receives as a DataSink and exposes that as a DataSource.  This is useful
  * as a way to combine multiple Data streams (with the caveat that this
  * DataDump might be returning Data from the previous integrator step).

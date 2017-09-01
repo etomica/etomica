@@ -5,6 +5,8 @@
 package etomica.units;
 
 
+import etomica.units.dimensions.Length;
+
 /**
  * The Borh Radius unit of length, corresponding to the size of a Hydrogen
  * atom's electron cloud.
@@ -22,16 +24,4 @@ public final class BohrRadius extends SimpleUnit {
     	            "Bohr Radii", "a0", Prefix.ALLOWED
     	    );
     }
-    
-    /**
-     * Required to guarantee singleton when deserializing.
-     * 
-     * @return the singleton UNIT
-     */
-    private Object readResolve() {
-        return UNIT;
-    }
-    
-    private static final long serialVersionUID = 1;
-
 }

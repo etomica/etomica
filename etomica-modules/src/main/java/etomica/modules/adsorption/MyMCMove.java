@@ -35,10 +35,6 @@ public class MyMCMove extends MCMoveInsertDelete {
     protected final int dim;
     protected boolean bothSides;
 
-    /**
-	 * Constructor for MyMCMove.
-	 * @param parent
-	 */
 	public MyMCMove(IntegratorBox integrator, IRandom random,
                     Space space, double zFraction, double sigma, int dim) {
 		super(integrator.getPotentialMaster(), random, space);
@@ -102,10 +98,22 @@ public class MyMCMove extends MCMoveInsertDelete {
 		return true;
 	}//end of doTrial
 
-	public double getA() {//note that moleculeCount() gives the number of molecules after the trial is attempted
-		return insert ? zFraction*box.getBoundary().volume()/(activeAtoms.getMoleculeCount()+1) 
-					  : activeAtoms.getMoleculeCount()/zFraction/box.getBoundary().volume();        
-	}
+    public double getChi(double temperature) {//note that moleculeCount() gives the number of molecules after the trial is attempted
+        if (insert) {
+            energyMeter.setTarget(testMolecule);
+            uNew = energyMeter.getDataAsScalar();
+        }
+        else {
+            uNew = 0;
+        }
+        double b = uOld - uNew;
+        if (insert) b += mu;
+        else b -= mu;
+
+        double a = insert ? zFraction * box.getBoundary().volume() / (activeAtoms.getMoleculeCount() + 1)
+                : activeAtoms.getMoleculeCount() / zFraction / box.getBoundary().volume();
+        return a * Math.exp(b / temperature);
+    }
 
 	public void rejectNotify() {
 //        if(!insert) {
@@ -165,9 +173,6 @@ public class MyMCMove extends MCMoveInsertDelete {
 	    return zFraction;
 	}
 
-	/**
-	 * @see etomica.MCMoveInsertDelete#setSpecies(etomica.Species)
-	 */
 	public void setSpecies(ISpecies s) {
 		super.setSpecies(s);
 		if (box != null) {

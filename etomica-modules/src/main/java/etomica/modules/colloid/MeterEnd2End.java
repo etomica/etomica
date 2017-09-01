@@ -9,9 +9,9 @@ import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
 import etomica.space.Space;
-import etomica.units.CompoundDimension;
-import etomica.units.Dimension;
-import etomica.units.Length;
+import etomica.units.dimensions.CompoundDimension;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
 
 /**
  * Measures the end-to-end squared distance for the colloid system, averaged

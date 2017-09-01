@@ -198,7 +198,7 @@ public class TestSetToUHexane extends Simulation {
 
             //make a bunch of moves
             for(int i = 0; i < chainLength*2; i++){
-                integrator.doStepInternal();
+                integrator.doStep();
             }
 
             //Store the current positions for later use.

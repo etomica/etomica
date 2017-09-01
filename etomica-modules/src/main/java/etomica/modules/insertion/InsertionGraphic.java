@@ -4,68 +4,40 @@
 
 package etomica.modules.insertion;
 
-import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.event.ItemListener;
-import java.util.ArrayList;
-
-import javax.swing.JComboBox;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.border.TitledBorder;
-
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
-import etomica.math.function.Function;
-import etomica.space.Vector;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataPipe;
-import etomica.data.DataProcessor;
-import etomica.data.DataProcessorFunction;
-import etomica.data.DataPump;
-import etomica.data.DataPumpListener;
-import etomica.data.DataSourceCountTime;
-import etomica.data.DataSourceScalar;
-import etomica.data.HistogramDataSource;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
+import etomica.data.histogram.HistogramNotSoSimple;
+import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.graphics.ColorScheme;
-import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DeviceBox;
-import etomica.graphics.DeviceDelaySlider;
-import etomica.graphics.DeviceNSelector;
-import etomica.graphics.DeviceThermoSlider;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTextBoxesCAE;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorHard.Agent;
 import etomica.integrator.IntegratorMD;
+import etomica.math.DoubleRange;
+import etomica.math.function.Function;
 import etomica.modifier.Modifier;
 import etomica.potential.P2HardSphere;
 import etomica.potential.P2SquareWell;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
-import etomica.units.Dimension;
-import etomica.units.Length;
-import etomica.units.Null;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Null;
 import etomica.units.Pixel;
-import etomica.math.DoubleRange;
-import etomica.data.histogram.HistogramNotSoSimple;
-import etomica.data.history.HistoryCollapsingDiscard;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
+import java.awt.event.ItemListener;
+import java.util.ArrayList;
 
 public class InsertionGraphic extends SimulationGraphic {
 
@@ -226,7 +198,7 @@ public class InsertionGraphic extends SimulationGraphic {
 
         final DeviceNSelector nSlider = new DeviceNSelector(sim.getController());
         nSlider.setResetAction(new IAction() {
-            SimulationRestart simRestart = new SimulationRestart(sim, space, sim.getController());   
+            SimulationRestart simRestart = new SimulationRestart(sim);
 
             public void actionPerformed() {
                 sim.box.setNMolecules(sim.speciesGhost, 0);

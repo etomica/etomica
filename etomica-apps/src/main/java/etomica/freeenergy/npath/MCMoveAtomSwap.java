@@ -72,7 +72,9 @@ public class MCMoveAtomSwap extends MCMoveBox {
         atomIterator.reset();
         nbrList.clear();
         Vector pi = atom.getPosition();
+        int partner = p1.getPartner(atom.getLeafIndex());
         for (IAtom jAtom = atomIterator.nextAtom(); jAtom != null; jAtom = atomIterator.nextAtom()) {
+            if (jAtom.getLeafIndex() == partner) continue;
             dr.Ev1Mv2(pi, jAtom.getPosition());
             box.getBoundary().nearestImage(dr);
             double r2 = dr.squared();
@@ -87,36 +89,21 @@ public class MCMoveAtomSwap extends MCMoveBox {
         uOld = 2*p1.energy(singlet);
         singlet.atom = atom2;
         uOld += 2*p1.energy(singlet);
-    
-        int partner = p1.getPartner(atom.getLeafIndex());
+
         int partner2 = p1.getPartner(atom2.getLeafIndex());
-    
+
         p1.setPartner(atom.getLeafIndex(), partner2);
         p1.setPartner(atom2.getLeafIndex(), partner);
-        
+
         return true;
     }//end of doTrial
 
-    /**
-     * Returns log of the ratio of the trial probabilities, ln(Tij/Tji) for the
-     * states encountered before (i) and after (j) the most recent call to doTrial().
-     * Tij is the probability that this move would generate state j from state i, and
-     * Tji is the probability that a subsequent call to doTrial would return to state i
-     * from state j.
-     */
-    public double getA() {return 1.0;}
-
-    /**
-     * Returns the log of the limiting-distribution probabilities of states, ln(Pj/Pi),
-     * for the states encountered before (i) and after (j) the most recent call to
-     * doTrial.
-     */
-    public double getB() {
+    public double getChi(double temperature) {
         singlet.atom = atom;
         uNew = 2*p1.energy(singlet);
         singlet.atom = atom2;
         uNew += 2*p1.energy(singlet);
-        return -(uNew - uOld);
+        return Math.exp(-(uNew - uOld) / temperature);
     }
 
     public double energyChange() {return uNew - uOld;}

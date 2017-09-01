@@ -36,13 +36,6 @@ public class MCMoveClusterReptateMulti extends MCMoveBox {
         setBondLength(1.0);
     }
     
-    /**
-     * Constructor for MCMoveAtomMulti.
-     * @param parentIntegrator
-     * @param nAtoms number of atoms to move in a trial.  Number of atoms in
-     * box should be at least one greater than this value (greater
-     * because first atom is never moved)
-     */
     public MCMoveClusterReptateMulti(PotentialMaster potentialMaster, IRandom random, int nAtoms) {
         super(potentialMaster);
         this.random = random;
@@ -186,9 +179,9 @@ public class MCMoveClusterReptateMulti extends MCMoveBox {
     public double getB() {
         return -(uNew - uOld);
     }
-    
-    public double getA() {
-        return (wOld==0.0) ? Double.POSITIVE_INFINITY : wNew/wOld;
+
+    public double getChi(double temperature) {
+        return ((wOld == 0.0) ? 1 : wNew / wOld) * Math.exp(-(uNew - uOld) / temperature);
     }
     
     public double energyChange() {

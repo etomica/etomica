@@ -16,7 +16,7 @@ import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 public class MeterDeformation implements IEtomicaDataSource {
 

@@ -12,7 +12,7 @@ import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.potential.IPotential;
 import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * Meter which measures a hard rod energy plus a harmonic energy of a system

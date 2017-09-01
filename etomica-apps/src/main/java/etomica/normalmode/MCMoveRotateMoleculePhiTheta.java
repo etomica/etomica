@@ -144,8 +144,8 @@ public class MCMoveRotateMoleculePhiTheta extends MCMoveRotateMolecule3D {
         }
     }
 
-    
-    public double getA() {
+
+    public double getChi(double temperature) {
         int nPlanes = drSum.length;
         int iPlane = (molecule.getIndex()/2)%nPlanes;
         Vector drSumi = drSum[iPlane];
@@ -158,7 +158,7 @@ public class MCMoveRotateMoleculePhiTheta extends MCMoveRotateMolecule3D {
         if (Math.abs(phi) > maxAngle) {
             return 0;
         }
-        return 1;
+        return super.getChi(temperature);
     }
 
     public void acceptNotify() {

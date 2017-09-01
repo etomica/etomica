@@ -4,6 +4,8 @@
 
 package etomica.units;
 
+import etomica.units.dimensions.Mass;
+
 import java.io.ObjectStreamException;
 
 public final class Dalton extends SimpleUnit {
@@ -16,16 +18,4 @@ public final class Dalton extends SimpleUnit {
     private Dalton() {
         super(Mass.DIMENSION, 1.0, "daltons", "Da", Prefix.ALLOWED);
     }
-    
-    /**
-     * Required to guarantee singleton when deserializing.
-     * 
-     * @return the singleton UNIT
-     */
-    private Object readResolve() throws ObjectStreamException {
-        return UNIT;
-    }
-    
-    private static final long serialVersionUID = 1;
-
 }

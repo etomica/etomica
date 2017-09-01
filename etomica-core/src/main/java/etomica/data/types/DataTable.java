@@ -12,7 +12,7 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataInfoFactory;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArrayFactory;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 import etomica.util.Arrays;
 
 /**

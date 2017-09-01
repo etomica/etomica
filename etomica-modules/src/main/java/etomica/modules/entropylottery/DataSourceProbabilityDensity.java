@@ -15,7 +15,7 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.units.Quantity;
+import etomica.units.dimensions.Quantity;
 
 public class DataSourceProbabilityDensity implements IEtomicaDataSource, IAction {
 

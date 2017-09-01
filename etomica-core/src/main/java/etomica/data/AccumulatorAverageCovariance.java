@@ -7,8 +7,8 @@ package etomica.data;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
-import etomica.units.CompoundDimension;
-import etomica.units.Dimension;
+import etomica.units.dimensions.CompoundDimension;
+import etomica.units.dimensions.Dimension;
 
 /**
  * Class that does the work of AccumulatorAverageFixed and also calculates the

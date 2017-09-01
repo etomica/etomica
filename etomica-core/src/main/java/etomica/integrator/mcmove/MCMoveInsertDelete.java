@@ -19,6 +19,8 @@ import etomica.molecule.MoleculeSetSinglet;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.species.ISpecies;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Energy;
 import etomica.util.Debug;
 import etomica.util.random.IRandom;
 
@@ -125,14 +127,11 @@ public class MCMoveInsertDelete extends MCMoveBox {
         uNew = Double.NaN;
         return true;
     }//end of doTrial
-    
-    public double getA() {//note that moleculeCount() gives the number of molecules after the trial is attempted
+
+    public double getChi(double temperature) {//note that moleculeCount() gives the number of molecules after the trial is attempted
         int numMolecules = box.getNMolecules(species);
         double a = box.getBoundary().volume()/numMolecules;
-        return insert ? a : 1.0/a;
-    }
-    
-    public double getB() {
+
         if(insert) {
             energyMeter.setTarget(testMolecule);
             uNew = energyMeter.getDataAsScalar();
@@ -143,9 +142,10 @@ public class MCMoveInsertDelete extends MCMoveBox {
         double b = uOld - uNew;
         if (insert) b += mu;
         else b -= mu;
-        return b;
+
+        return (insert ? a : 1.0 / a) * Math.exp(b / temperature);
     }
-    
+
     public void acceptNotify() {
         if (insert && Debug.ON && Debug.DEBUG_NOW && Debug.allAtoms(new MoleculeSetSinglet(testMolecule))) System.out.println("accepted insertion of "+testMolecule);
         if(!insert) {
@@ -195,6 +195,6 @@ public class MCMoveInsertDelete extends MCMoveBox {
     /**
      * Indicates that chemical potential has dimensions of energy.
      */
-    public final etomica.units.Dimension getMuDimension() {return etomica.units.Energy.DIMENSION;}
+    public final Dimension getMuDimension() {return Energy.DIMENSION;}
   
 }//end of MCMoveInsertDelete

@@ -25,8 +25,8 @@ import etomica.data.DataSourceFunction;
 import etomica.data.DataSourcePoints;
 import etomica.data.IData;
 import etomica.modifier.ModifierGeneral;
-import etomica.units.Length;
-import etomica.units.Null;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Null;
 
 public class DevicePlotPoints {
 

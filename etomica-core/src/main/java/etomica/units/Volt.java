@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.units;
+import etomica.units.dimensions.ElectricPotential;
+
 import java.io.ObjectStreamException;
 
 /**
@@ -18,21 +20,10 @@ public final class Volt extends SimpleUnit {
     public static final Volt UNIT = new Volt();
     
     private Volt() {
-        super(ElectricPotential.DIMENSION, 
+        super(ElectricPotential.DIMENSION,
                 Joule.UNIT.toSim(1.0)/Coulomb.UNIT.toSim(1.0), //25.885, conversion to (Angstrom^2 D/ps^2)*(4 pi eps0); 
 	        "volts","V", Prefix.ALLOWED
         	);   
     }
-    
-    /**
-     * Required to guarantee singleton when deserializing.
-     * 
-     * @return the singleton UNIT
-     */
-    private Object readResolve() throws ObjectStreamException {
-        return UNIT;
-    }
-    
-    private static final long serialVersionUID = 1;
 
 }

@@ -19,8 +19,8 @@ import etomica.potential.PotentialMaster;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.Dimension;
-import etomica.units.Pressure;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Pressure;
 import etomica.util.random.IRandom;
 
 /**
@@ -191,16 +191,12 @@ public class MCMoveVolumeSolidNPTMolecular extends MCMoveBoxStep {
         }
         
     }
-    
-    public double getA() {
-        return 1;
-    }
-    
-    public double getB() {
+
+    public double getChi(double temperature) {
         int nMolecules = box.getMoleculeList().getMoleculeCount();
         double uLatOld = nMolecules*uLatFunction.f(nMolecules/vOld);
         double uLatNew = nMolecules*uLatFunction.f(nMolecules/vNew);
-        return -((uNew-uLatNew) - (uOld-uLatOld));
+        return Math.exp(-((uNew - uLatNew) - (uOld - uLatOld)) / temperature);
     }
     
     public void acceptNotify() {

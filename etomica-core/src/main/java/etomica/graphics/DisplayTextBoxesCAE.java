@@ -11,7 +11,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPipe;
 import etomica.data.DataPump;
@@ -24,7 +23,7 @@ import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.graphics.DisplayTextBox.LabelType;
 import etomica.listener.IntegratorListenerAction;
 import etomica.simulation.prototypes.HSMD2D;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 import etomica.units.Unit;
 import etomica.units.systems.UnitSystem;
 import etomica.util.Constants;

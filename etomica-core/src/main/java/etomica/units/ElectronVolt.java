@@ -5,10 +5,11 @@
 package etomica.units;
 import java.io.ObjectStreamException;
 
+import etomica.units.dimensions.Energy;
 import etomica.util.Constants;
 
 /**
- * The electronvolt unit of energy, equal to approximately 1.602e-19 Joules.
+ * The electronVolt unit of energy, equal to approximately 1.602e-19 Joules.
  */
 public final class ElectronVolt extends SimpleUnit {
 
@@ -25,16 +26,4 @@ public final class ElectronVolt extends SimpleUnit {
         	"ElectronVolts", "eV", Prefix.ALLOWED
         	);   
     }
-    
-    /**
-     * Required to guarantee singleton when deserializing.
-     * 
-     * @return the singleton UNIT
-     */
-    private Object readResolve() throws ObjectStreamException {
-        return UNIT;
-    }
-    
-    private static final long serialVersionUID = 1;
-
 }

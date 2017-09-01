@@ -6,8 +6,8 @@ package etomica.atom;
 
 import etomica.chem.elements.IElement;
 import etomica.species.ISpecies;
-import etomica.units.Dimension;
-import etomica.units.Mass;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Mass;
 
 /**
  * Identifies a set of atoms and defines properties of those atoms.
