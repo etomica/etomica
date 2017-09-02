@@ -1,6 +1,5 @@
 package etomica.osmoticvirial;
 
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
@@ -29,13 +28,10 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
 /**
- * Implements Ashton and Wilding method for calculation of osmotic virial coefficient for Hard-Sphere model
- * as described in the paper. Solvent is treated grand-canonically.
- * Created by aksharag on 07-11-2017.
+ * Implements Ashton and Wilding method for calculation of osmotic virial coefficient (B2, B3)
+ * for Hard-Sphere model as described in the paper DOI: 10.1063/1.4883718.
  */
-
-
-public class awHSov extends Simulation {
+public class AshtonWildingOsmoticVirial extends Simulation {
 
     public Box box;
     public P2HardSphere potential1, potential2, potential12;
@@ -46,8 +42,13 @@ public class awHSov extends Simulation {
     public SpeciesSpheresMono species1, species2;
     public ActivityIntegrate activityIntegrate;
 
-
-    public awHSov(int numAtoms, double vf, double q, boolean computeIdeal){
+    /**
+     * @param numAtoms no. of solute atoms in the box
+     * @param vf reservoir volume fraction of solvent
+     * @param q size of solvent divided by size of solute
+     * @param computeIdeal whether to compute histograms for ideal gas
+     */
+    public AshtonWildingOsmoticVirial(int numAtoms, double vf, double q, boolean computeIdeal){
 
         super(Space3D.getInstance());
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
@@ -95,17 +96,13 @@ public class awHSov extends Simulation {
            potentialMaster.addPotential(potential12, new AtomType[]{leafType1, leafType2});
            potentialMaster.addPotential(potential2, new AtomType[]{leafType2, leafType2});
        }
-
-       if(computeIdeal) System.out.println("P_ideal");
+        if(computeIdeal) System.out.println("P_ideal");
 
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
-
         ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         configuration.initializeCoordinates(box);
-
         integrator.setBox(box);
         potentialMaster.getNbrCellManager(box).assignCellAll();
-
     }
 
     public static void main(String[] args){
@@ -122,8 +119,6 @@ public class awHSov extends Simulation {
             params.computeIdeal = false;
             params.sizeRatio = 0.2;
         }
-
-
         int numAtoms = params.numAtoms;
         long numSteps = params.numSteps;
         int nBlocks = params.nBlocks;
@@ -143,7 +138,7 @@ public class awHSov extends Simulation {
 
         long t1 = System.currentTimeMillis();
 
-        awHSov sim = new awHSov(numAtoms, vf, q, computeIdeal);
+        AshtonWildingOsmoticVirial sim = new AshtonWildingOsmoticVirial(numAtoms, vf, q, computeIdeal);
 
         if(graphics){
             final String appName = "Ashton-Wilding";
@@ -178,9 +173,7 @@ public class awHSov extends Simulation {
         double[] histRmin = accRmin.getHistograms().getHistogram();
         double[] r = accRmin.getHistograms().xValues();
 
-        for (int i = 0; i < histRmin.length; i++)
-
-        {
+        for (int i = 0; i < histRmin.length; i++) {
             System.out.println(r[i]+" "+histRmin[i]);
         }
 

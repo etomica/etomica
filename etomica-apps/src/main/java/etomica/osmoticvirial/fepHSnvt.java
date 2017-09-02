@@ -26,9 +26,8 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
 /**
- * Implements Free-Energy Perturbation Approach (Widom's Insertion method) for calculation of osmotic virial coefficient
- * for Hard-Sphere potential. NVT ensemble
- * Created by aksharag on 6/16/17.
+ * Calculate osmotic virial coefficients for Hard-Sphere potential in Canonical ensemble
+ * from Free-Energy Perturbation Approach utilizing Widom's Insertion.
  */
 public class fepHSnvt extends Simulation {
 
@@ -42,6 +41,13 @@ public class fepHSnvt extends Simulation {
     public Controller controller;
     public ActivityIntegrate activityIntegrate;
 
+    /**
+     * @param numAtoms no. of solvent atoms in the box
+     * @param density density of box
+     * @param sigma2 diameter of solute
+     * @param computez2z1 whether to compute z2/z1
+     * @param computez3z2 whether to compute z3/z2
+     */
     public fepHSnvt(int numAtoms, double density, double sigma2, boolean computez2z1, boolean computez3z2){
         super(Space3D.getInstance());
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this,space);
@@ -62,10 +68,6 @@ public class fepHSnvt extends Simulation {
         addSpecies(species2);
         box = new Box(space);
         addBox(box);
-
-       // mcMoveInsertDelete.setSpecies(species1);
-        //mcMoveInsertDelete.setMu(); //TODO
-
         box.setNMolecules(species1,numAtoms);
         if (computez2z1){box.setNMolecules(species2,1);}
         else if (computez3z2){box.setNMolecules(species2,2);}
@@ -79,7 +81,6 @@ public class fepHSnvt extends Simulation {
         potential12 = new P2SquareWell(space, Math.min(sigma1,sigma2), Math.max(sigma1,sigma2), -1000, false);
 
         potentialMaster.setCellRange(3);
-
         potentialMaster.setRange(potential1.getRange());
 
         AtomType leafType1 = species1.getLeafType();
@@ -159,7 +160,6 @@ public class fepHSnvt extends Simulation {
             simGraphic.makeAndDisplayFrame(APP_NAME);
 
             MeterWidomInsertion meterinsert = new MeterWidomInsertion(sim.space,sim.getRandom());
-            //meterinsert.setNInsert(50);
             meterinsert.setSpecies(sim.species2);
             meterinsert.setIntegrator(sim.integrator);
 
@@ -177,7 +177,6 @@ public class fepHSnvt extends Simulation {
         sim.integrator.getMoveManager().setEquilibrating(false);
 
         MeterWidomInsertion meterinsert = new MeterWidomInsertion(sim.space,sim.getRandom());
-        //meterinsert.setNInsert(50);
         meterinsert.setSpecies(sim.species2);
         meterinsert.setIntegrator(sim.integrator);
 

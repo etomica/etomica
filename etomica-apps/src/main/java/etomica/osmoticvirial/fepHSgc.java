@@ -26,9 +26,8 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
 /**
- * Implements Free-Energy Perturbation Approach (Widom's Insertion method) for calculation of osmotic virial coefficient
- * for Hard-Sphere potential. GC ensemble
- * Created by aksharag on 6/16/17.
+ * Calculate osmotic virial coefficients for Hard-Sphere potential in Grand Canonical ensemble for solvent
+ * from Free-Energy Perturbation Approach utilizing Widom's Insertion.
  */
 public class fepHSgc extends Simulation {
 
@@ -42,6 +41,12 @@ public class fepHSgc extends Simulation {
     public Controller controller;
     public ActivityIntegrate activityIntegrate;
 
+    /**
+     * @param vf reservoir volume fraction of solvent
+     * @param q size of solvent divided by size of solute
+     * @param computez2z1 whether to compute z2/z1
+     * @param computez3z2 whether to compute z3/z2
+     */
     public fepHSgc(double vf, double q, boolean computez2z1, boolean computez3z2){
         super(Space3D.getInstance());
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this,space);
@@ -78,9 +83,7 @@ public class fepHSgc extends Simulation {
         potential1 = new P2HardSphere(space, sigma1, false);
         potential2 = new P2HardSphere(space, sigma2, false);
         potential12 = new P2HardSphere(space, sigma12, false);
-
         potentialMaster.setCellRange(3);
-
         potentialMaster.setRange(potential1.getRange());
 
         AtomType leafType1 = species1.getLeafType();
@@ -158,14 +161,12 @@ public class fepHSgc extends Simulation {
             simGraphic.makeAndDisplayFrame(APP_NAME);
 
             MeterWidomInsertion meterinsert = new MeterWidomInsertion(sim.space,sim.getRandom());
-            //meterinsert.setNInsert(50);
             meterinsert.setSpecies(sim.species1);
             meterinsert.setIntegrator(sim.integrator);
 
             AccumulatorAverageFixed acc = new AccumulatorAverageFixed(samplesPerBlock);
             DataPumpListener pump = new DataPumpListener(meterinsert, acc);
             sim.integrator.getEventManager().addListener(pump);
-
             return;
         }
 
@@ -176,14 +177,12 @@ public class fepHSgc extends Simulation {
         sim.integrator.getMoveManager().setEquilibrating(false);
 
         MeterWidomInsertion meterinsert = new MeterWidomInsertion(sim.space,sim.getRandom());
-        //meterinsert.setNInsert(50);
         meterinsert.setSpecies(sim.species1);
         meterinsert.setIntegrator(sim.integrator);
 
         AccumulatorAverageFixed acc = new AccumulatorAverageFixed(samplesPerBlock);
         DataPumpListener pump = new DataPumpListener(meterinsert, acc);
         sim.integrator.getEventManager().addListener(pump);
-
         sim.getController().actionPerformed();
 
         IData iavg = acc.getData(AccumulatorAverage.AVERAGE);
@@ -195,7 +194,6 @@ public class fepHSgc extends Simulation {
         double cor = icor.getValue(0);
 
         System.out.print(String.format("avg: %13.6e   err: %11.4e   cor: % 4.2f\n", avg, err, cor));
-
         long t2 = System.currentTimeMillis();
         System.out.println("time: "+(t2-t1)*0.001);
 

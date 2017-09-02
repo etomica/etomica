@@ -7,8 +7,7 @@ import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorHistogram;
-import etomica.data.DataPumpListener;
+import etomica.data.*;
 import etomica.data.histogram.HistogramSimple;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
@@ -16,8 +15,8 @@ import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.math.DoubleRange;
 import etomica.nbr.cell.PotentialMasterCell;
-import etomica.potential.P2LennardJones;
-import etomica.potential.P2SoftSphericalTruncated;
+import etomica.potential.P2HardSphere;
+import etomica.potential.Potential2;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -25,24 +24,28 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
 /**
- * Extends Ashton and Wilding method for calculation of gas virial coefficient for Lennard-Jones model
- * Created by aksharag on 07-11-2017.
+ * Implements Ashton and Wilding method for calculation of gas virial coefficients (B2, B3)
+ * for Hard-Sphere model as described in the paper DOI: 10.1063/1.4883718.
+ * Also calculates B2, B3 for depletion potential separately.
  */
+public class AshtonWildingVirial extends Simulation {
 
+    public Box box;
+    public Potential2 potential1;
+    public Controller controller;
+    public IntegratorMC integrator;
+    public MCMoveAtom mcMoveAtom;
+    public SpeciesSpheresMono species1;
+    public ActivityIntegrate activityIntegrate;
 
-public class aWLJ extends Simulation {
-
-    protected Box box;
-    protected P2LennardJones potential;
-    protected Controller controller;
-    protected IntegratorMC integrator;
-    protected MCMoveAtom mcMoveAtom;
-    protected SpeciesSpheresMono species1;
-    protected ActivityIntegrate activityIntegrate;
-    protected P2SoftSphericalTruncated potentialTruncated11;
-
-
-    public aWLJ(int numAtoms, double density, boolean computeIdeal){
+    /**
+     *
+     * @param numAtoms number of atoms in the box
+     * @param density density of the box
+     * @param computeIdeal whether to compute histograms for ideal gas
+     * @param computeDepletion whether to compute B2, B3 for depletion potential
+     */
+    public AshtonWildingVirial(int numAtoms, double density, boolean computeIdeal, boolean computeDepletion){
 
         super(Space3D.getInstance());
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
@@ -66,23 +69,19 @@ public class aWLJ extends Simulation {
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
 
-        potential = new P2LennardJones(space, sigma1, 1);
-
-        double truncationRadius1 = 4.0*sigma1;
-
-        if(truncationRadius1>0.5*box.getBoundary().getBoxSize().getX(0)){
-            throw new RuntimeException(" Truncation radius is too large. Max allowed is:"+ 0.5*box.getBoundary().getBoxSize().getX(0));
+        if(!computeDepletion) potential1 = new P2HardSphere(space, sigma1, false);
+        if(computeDepletion) {
+            System.out.println("Depletion Potential");
+            potential1 = new PotentialDepletion(space, "/usr/users/aksharag/osmoticvirials/ashtonWilding/additiveHS/mi+me/moreSteps/10e10/awHSov/w");
         }
 
         potentialMaster.setCellRange(3);
-
-        P2SoftSphericalTruncated potentialTruncated11 = new P2SoftSphericalTruncated(space, potential, truncationRadius1);
-        potentialMaster.setRange(potentialTruncated11.getRange());
+        potentialMaster.setRange(potential1.getRange());
 
         AtomType leafType1 = species1.getLeafType();
 
-        if(!computeIdeal) potentialMaster.addPotential(potentialTruncated11, new AtomType[]{leafType1, leafType1});
-        if(computeIdeal) System.out.println("P_ideal");
+       if(!computeIdeal) potentialMaster.addPotential(potential1, new AtomType[]{leafType1, leafType1});
+       if(computeIdeal) System.out.println("P_ideal");
 
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
 
@@ -101,23 +100,20 @@ public class aWLJ extends Simulation {
             ParseArgs.doParseArgs(params, args);
         }
         else{
-            params.numAtoms = 2;
+            params.numAtoms = 3;
             params.numSteps = 1000000;
             params.nBlocks = 100;
-            params.density = 0.003;
-            params.computeIdeal = true;
-            params.temp = 1;
+            params.density = 0.001;
+            params.computeIdeal = false;
         }
-
 
         int numAtoms = params.numAtoms;
         int numSteps = params.numSteps;
         int nBlocks = params.nBlocks;
         double density = params.density;
-        double temp = params.temp;
         boolean computeIdeal = params.computeIdeal;
         boolean graphics = false;
-
+        boolean computeDep = true;
 
         long numSamples = numSteps / numAtoms;
         long samplesPerBlock = numSamples / nBlocks;
@@ -129,7 +125,7 @@ public class aWLJ extends Simulation {
 
         long t1 = System.currentTimeMillis();
 
-        aWLJ sim = new aWLJ(numAtoms, density, computeIdeal);
+        AshtonWildingVirial sim = new AshtonWildingVirial(numAtoms, density, computeIdeal, computeDep);
 
         if(graphics){
             final String appName = "Ashton-Wilding";
@@ -137,7 +133,6 @@ public class aWLJ extends Simulation {
 
             ((DiameterHashByType)simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species1.getLeafType(), 1);
             simGraphic.makeAndDisplayFrame(appName);
-
             return;
         }
 
@@ -146,25 +141,19 @@ public class aWLJ extends Simulation {
         sim.getController().reset();
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.integrator.getMoveManager().setEquilibrating(false);
-        sim.integrator.setTemperature(temp);
 
         MeterRmin meterRmin = new MeterRmin(sim.space, sim.box);
-        AccumulatorHistogram accRmin = new AccumulatorHistogram(new HistogramSimple(new DoubleRange(0, 0.9*sim.box.getBoundary().getBoxSize().getX(0))));
+        AccumulatorHistogram accRmin = new AccumulatorHistogram(new HistogramSimple(new DoubleRange(0, 4*sim.potential1.getRange())));
         DataPumpListener pumpRmin = new DataPumpListener(meterRmin,accRmin,numAtoms);
         sim.integrator.getEventManager().addListener(pumpRmin);
         sim.getController().actionPerformed();
         double[] histRmin = accRmin.getHistograms().getHistogram();
         double[] r = accRmin.getHistograms().xValues();
-
-        for (int i = 0; i < histRmin.length; i++)
-
-        {
+        for (int i = 0; i < histRmin.length; i++) {
             System.out.println(r[i]+" "+histRmin[i]);
         }
-
         long t2 = System.currentTimeMillis();
         System.out.println("time: "+ (t2-t1)*0.001);
-
     }
 
     public static class simParams extends ParameterBase{
@@ -172,7 +161,6 @@ public class aWLJ extends Simulation {
         public int numSteps = 10000;
         public int nBlocks = 100;
         public double density = 0.1;
-        public double temp = 1;
         public boolean computeIdeal = true;
 
     }

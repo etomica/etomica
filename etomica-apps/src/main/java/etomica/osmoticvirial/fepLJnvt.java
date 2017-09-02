@@ -23,15 +23,13 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
 /**
- * Implements Free-Energy Perturbation Approach (Widom's Insertion method) for calculation of osmotic virial coefficient
- * for Lennard-Jones potential. NVT ensemble
- * Created by aksharag on 6/16/17.
+ * Calculate osmotic virial coefficients for Lennard-Jones potential in Canonical ensemble
+ * from Free-Energy Perturbation Approach utilizing Widom's Insertion.
  */
 public class fepLJnvt extends Simulation {
 
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
-  //  public MCMoveInsertDelete mcMoveInsertDelete : for converting nvt to mu-v-t. ; we are adding and removing solvent molecules (changing N)
     public SpeciesSpheresMono species1; //solvent
     public SpeciesSpheresMono species2; //solute
     public Box box;
@@ -39,7 +37,7 @@ public class fepLJnvt extends Simulation {
     public Controller controller;
     public ActivityIntegrate activityIntegrate;
 
-    public fepLJnvt(int numAtoms, int numSteps, double temp, double density, double sigma2, double epsilon2, boolean computez2){
+    public fepLJnvt(int numAtoms, double temp, double density, double sigma2, double epsilon2, boolean computez2){
         super(Space3D.getInstance());
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this,space);
 
@@ -48,10 +46,7 @@ public class fepLJnvt extends Simulation {
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
-      //  mcMoveInsertDelete = new MCMoveInsertDelete(potentialMaster, random, space);
-
         integrator.getMoveManager().addMCMove(mcMoveAtom);
-      //  integrator.getMoveManager().addMCMove(mcMoveInsertDelete);
 
         double sigma1 = 1.0;
         double epsilon1 = 1.0;
@@ -64,11 +59,6 @@ public class fepLJnvt extends Simulation {
         addSpecies(species2);
         box = new Box(space);
         addBox(box);
-
-       // mcMoveInsertDelete.setSpecies(species1);
-        //mcMoveInsertDelete.setMu(); //TODO
-
-
         box.setNMolecules(species1,numAtoms);
         if (computez2){box.setNMolecules(species2,1);}
 
@@ -87,13 +77,11 @@ public class fepLJnvt extends Simulation {
         if(truncationRadius1>0.5*box.getBoundary().getBoxSize().getX(0)){
             throw new RuntimeException(" Truncation radius is too large. Max allowed is:"+ 0.5*box.getBoundary().getBoxSize().getX(0));
         }
-
         if(truncationRadius2>0.5*box.getBoundary().getBoxSize().getX(0)){
             throw new RuntimeException(" Truncation radius is too large. Max allowed is:"+ 0.5*box.getBoundary().getBoxSize().getX(0));
         }
 
         potentialMaster.setCellRange(3);
-
         P2SoftSphericalTruncated potentialTruncated11 = new P2SoftSphericalTruncated(space, potential1, truncationRadius1);
         potentialMaster.setRange(potentialTruncated11.getRange());
         AtomType leafType1 = species1.getLeafType();
@@ -108,14 +96,9 @@ public class fepLJnvt extends Simulation {
         potentialMaster.setRange(potentialTruncated22.getRange());
         potentialMaster.addPotential(potentialTruncated22, new AtomType[]{leafType2, leafType2});
 
-        // potentialMaster.setRange should pass the max of the three truncation radii as the parameter
-
-
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
-
         ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         configuration.initializeCoordinates(box);
-
         integrator.setBox(box);
         potentialMaster.getNbrCellManager(box).assignCellAll();
 
@@ -166,9 +149,7 @@ public class fepLJnvt extends Simulation {
         System.out.println(nBlocks+" blocks");
 
         long t1 = System.currentTimeMillis();
-
-
-        fepLJnvt sim = new fepLJnvt(numAtoms, numSteps, temp, density, sigma2, eps2, computez2);
+        fepLJnvt sim = new fepLJnvt(numAtoms, temp, density, sigma2, eps2, computez2);
 
         System.out.println("box length "+sim.box.getBoundary().getBoxSize());
 
@@ -180,14 +161,12 @@ public class fepLJnvt extends Simulation {
             simGraphic.makeAndDisplayFrame(APP_NAME);
 
             MeterWidomInsertion meterinsert = new MeterWidomInsertion(sim.space,sim.getRandom());
-            //meterinsert.setNInsert(50);
             meterinsert.setSpecies(sim.species2);
             meterinsert.setIntegrator(sim.integrator);
 
             AccumulatorAverageFixed acc = new AccumulatorAverageFixed(samplesPerBlock);
             DataPumpListener pump = new DataPumpListener(meterinsert, acc, numAtoms);
             sim.integrator.getEventManager().addListener(pump);
-
             return;
         }
 
@@ -198,14 +177,12 @@ public class fepLJnvt extends Simulation {
         sim.integrator.getMoveManager().setEquilibrating(false);
 
         MeterWidomInsertion meterinsert = new MeterWidomInsertion(sim.space,sim.getRandom());
-        //meterinsert.setNInsert(50);
         meterinsert.setSpecies(sim.species2);
         meterinsert.setIntegrator(sim.integrator);
 
         AccumulatorAverageFixed acc = new AccumulatorAverageFixed(samplesPerBlock);
         DataPumpListener pump = new DataPumpListener(meterinsert, acc, numAtoms);
         sim.integrator.getEventManager().addListener(pump);
-
         sim.getController().actionPerformed();
 
         IData iavg = acc.getData(AccumulatorAverage.AVERAGE);
@@ -217,7 +194,6 @@ public class fepLJnvt extends Simulation {
         double cor = icor.getValue(0);
 
         System.out.print(String.format("avg: %13.6e   err: %11.4e   cor: % 4.2f\n", avg, err, cor));
-
         long t2 = System.currentTimeMillis();
         System.out.println("time: "+(t2-t1)*0.001);
 

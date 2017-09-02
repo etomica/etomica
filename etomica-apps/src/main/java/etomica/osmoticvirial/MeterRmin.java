@@ -1,29 +1,19 @@
 package etomica.osmoticvirial;
-
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorBoxDependent;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
-import etomica.data.DataSourceUniform;
-import etomica.data.IData;
-import etomica.data.IDataSource;
-import etomica.data.types.DataDoubleArray;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.action.IAction;
-import etomica.units.Length;
-
+import etomica.units.dimensions.Length;
 
 /**
- * Calculates minimum pair distance of all the possible pairs
- *
- * Created by aksharag on 07-17-2017.
+ * Calculates minimum pair distance from all the possible pairs of atoms as required by
+ * Ashton and Wilding's method
  */
-
 public class MeterRmin extends DataSourceScalar {
 
     protected AtomType type1, type2;

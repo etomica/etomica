@@ -1,18 +1,20 @@
 package etomica.osmoticvirial;
 
 import etomica.atom.AtomType;
-import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
-import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.iterator.MpiIntraspeciesAA;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
-import etomica.units.Length;
+import etomica.units.dimensions.Length;
 
+/**
+ * Calculates minimum pair distance from all the possible pairs of atoms of a particular species
+ * as required by Ashton and Wilding's method
+ */
 public class MeterRminSpecies extends DataSourceScalar {
     protected AtomType type1, type2;
     protected MpiIntraspeciesAA iterator;
@@ -25,7 +27,6 @@ public class MeterRminSpecies extends DataSourceScalar {
         iterator = new MpiIntraspeciesAA(species);
         iterator.setBox(box);
         boundary = box.getBoundary();
-
     }
 
     @Override
@@ -39,9 +40,7 @@ public class MeterRminSpecies extends DataSourceScalar {
             boundary.nearestImage(dr);
             double r2 = dr.squared();
             if (rminSq > r2) rminSq = r2;
-
         }
         return Math.sqrt(rminSq);
     }
-
 }

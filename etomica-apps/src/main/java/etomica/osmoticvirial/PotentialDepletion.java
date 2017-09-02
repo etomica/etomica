@@ -15,6 +15,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *
+ */
 public class PotentialDepletion extends Potential2 implements Potential2Spherical {
 
     protected final Vector dr;
@@ -51,7 +54,6 @@ public class PotentialDepletion extends Potential2 implements Potential2Spherica
         } catch(IOException e) {
             throw new RuntimeException("Problem reading from "+fileName+", caught IOException: " + e.getMessage());
         }
-
      }
 
     @Override
@@ -87,7 +89,5 @@ public class PotentialDepletion extends Potential2 implements Potential2Spherica
         boundary = box.getBoundary();
 
     }
-
-
 }
 
