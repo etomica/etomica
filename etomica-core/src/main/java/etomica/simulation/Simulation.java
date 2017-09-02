@@ -13,6 +13,7 @@ import etomica.box.Box;
 import etomica.chem.elements.IElement;
 import etomica.integrator.Integrator;
 import etomica.meta.annotations.IgnoreProperty;
+import etomica.meta.javadoc.KeepSimJavadoc;
 import etomica.space.Space;
 import etomica.species.ISpecies;
 import etomica.util.Arrays;
@@ -29,6 +30,7 @@ import java.util.LinkedList;
  * It contains boxes, species, an integrator, a random number generator,
  * and a controller.
  */
+@KeepSimJavadoc
 public class Simulation {
 
     protected final Space space;
