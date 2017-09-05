@@ -5,6 +5,9 @@
 package etomica.virial;
 
 import etomica.atom.IAtomList;
+import etomica.data.histogram.HistogramExpanding;
+import etomica.math.DoubleRange;
+import etomica.math.SpecialFunctions;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.IMoleculePositionDefinition;
@@ -30,6 +33,7 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
     protected long totcount = 0;
     protected boolean pushme=true;
     private Vector childAtomVector;
+    public HistogramExpanding histe;
     
     /**
      * cluster must have caching disabled
@@ -48,7 +52,8 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
         lastValue = new double[nDer+1];
         this.nDer = nDer;
         this.tol = tol;
-        }
+        histe = new HistogramExpanding(1.0,new DoubleRange(-40,0));
+    }
 
     public ClusterAbstract makeCopy() {
         return new ClusterCoupledFlippedMultivalue((ClusterAbstractMultivalue)wrappedCluster.makeCopy(),(ClusterAbstractMultivalue)wrappedClusterBD.makeCopy(), space, minFlipDistance, nDer, tol);
@@ -101,18 +106,20 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
                     if (box.getCPairSet().getr2(i,j)>maxR2) maxR2 = box.getCPairSet().getr2(i,j);
                     if (false && box.getCPairSet().getr2(i,j) > 2*minR2) debugme=true;
                     flipit=true;
-                    if(countflips)flipcount+=1;
                 }
             }
         }
 //        if (debugme)System.out.println("FLIPIT " + flipit);
-
+        if(flipit&&countflips) flipcount++;
         if(pushme&&maxR2<minR2){
             value[0] = 1e-20;
             return value[0];
         }
 
         ClusterAbstractMultivalue currentcluster = wrappedCluster;
+
+        int n = wrappedCluster.pointCount();
+        double bfac = (1.0-n)/ SpecialFunctions.factorial(n);
 
         for (int pass=0; pass<2; pass++){
             if(pass==1){
@@ -126,7 +133,7 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
             }
 
             if (!flipit) {
-                if (Math.abs(value[0])<tol && pass==0){
+                if (Math.abs(value[0]/bfac)<tol && pass==0){
                     BDcount++;
                     continue;
                 }
@@ -166,11 +173,13 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
             for (int m = 0; m < value.length; m++) {
                 value[m] /= (1<<pointCount);
             }
+            if(pass==0)histe.addValue(Math.log(Math.abs(value[0]/bfac)));
             if (debugme) System.out.print(String.format("%10.4e\n", value[0]));
-            if(pass==1)System.out.println(Math.sqrt(maxR2)+" "+ doubleval+" "+value[0]);
+
+            if(false&&pushme&&pass==1)System.out.println(Math.sqrt(maxR2)+" "+ doubleval+" "+value[0]);
 
             //        if (debugme) System.out.println("5 "+"clusterSum "+cPairID+" returning NEW "+value[0]);
-            if ( Math.abs(value[0])>tol) {
+            if ( Math.abs(value[0]/bfac)>tol) {
                 break;
             }
             if(pass==0)BDcount+=1<<pointCount;

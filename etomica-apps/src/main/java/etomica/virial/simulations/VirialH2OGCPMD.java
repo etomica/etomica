@@ -63,7 +63,7 @@ public class VirialH2OGCPMD {
             params.sigmaHSRef = 5;
             params.nonAdditive = Nonadditive.TOTAL;
             params.seed = null;
-            params.doHist = false;
+            params.doHist = true;
             isCommandline = true;
             params.dorefpref = false;
         }
@@ -88,7 +88,7 @@ public class VirialH2OGCPMD {
         
         double temperature = Kelvin.UNIT.toSim(temperatureK);
         
-        final double tol = 1e-10;
+        final double tol = 1e-12;
         final int precision = -3*(int)Math.log10(tol);
         
         System.out.println("Reference diagram: B"+nPoints+" for hard spheres with diameter " + sigmaHSRef + " Angstroms");
@@ -356,6 +356,13 @@ public class VirialH2OGCPMD {
                         ClusterCoupledFlippedMultivalue foo = (ClusterCoupledFlippedMultivalue)tempcluster;
                         System.out.println("BDcount: " + foo.getBDcount() + " BDfrac: " + foo.getBDfrac() + " totBDcount: " + foo.getBDtotcount());
                         System.out.println("FlipCount: " + foo.getflipcount() + " Flipfrac: " + foo.getflipfrac() + " FlipTotcount: " + foo.gettotcount());
+                        xValues= foo.histe.xValues();
+                        h=foo.histe.getHistogram();
+                        for (int i=0; i<xValues.length; i++) {
+                            if (h[i]!=0) {
+                                System.out.println(Math.exp(xValues[i]) + " " + h[i]);
+                            }
+                        }
                     }
                     System.out.println("time: "+(System.currentTimeMillis()-t11)/1000.0);
                 }
