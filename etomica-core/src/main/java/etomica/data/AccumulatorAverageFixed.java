@@ -10,6 +10,7 @@ import etomica.math.function.IFunction;
 
 /**
  * AccumulatorAverage that maintains a fixed block size.
+ * This is standard accumulator for collecting averages in production runs.
  * <p>
  * This accumulator accepts any type of Data
  */

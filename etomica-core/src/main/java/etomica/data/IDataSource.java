@@ -9,7 +9,7 @@ public interface IDataSource {
     /**
      * @return the data given by this source
      */
-    public IData getData();
+    IData getData();
 
     /**
      * Returns the DataInfo instance that will be held by Data
