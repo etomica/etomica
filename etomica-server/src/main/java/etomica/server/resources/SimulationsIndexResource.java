@@ -6,6 +6,8 @@ import com.github.therapi.runtimejavadoc.RuntimeJavadoc;
 import etomica.meta.ComponentIndex;
 import etomica.server.representations.SimClassInfo;
 import etomica.simulation.Simulation;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -40,8 +42,9 @@ public class SimulationsIndexResource {
                 })
                 .map(cls -> {
                     Optional<ClassJavadoc> javadoc = RuntimeJavadoc.getJavadoc(cls);
-                    Optional<String> comment = javadoc.map(ClassJavadoc::getComment).map(Comment::toString);
-                    return new SimClassInfo(cls.getCanonicalName(), comment.orElse(""));
+                    String comment = javadoc.map(ClassJavadoc::getComment).map(Comment::toString).orElse("");
+                    String sanitizedComment = Jsoup.clean(comment, Whitelist.basic());
+                    return new SimClassInfo(cls.getCanonicalName(), sanitizedComment);
                 })
                 .collect(Collectors.toList());
     }

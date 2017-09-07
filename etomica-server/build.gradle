@@ -9,6 +9,7 @@ dependencies {
     compile 'io.dropwizard:dropwizard-core:1.2.0-rc1'
     compile 'com.liveperson:dropwizard-websockets:1.1.0'
     compile 'ru.vyarus:dropwizard-guicey:4.1.0'
+    compile 'org.jsoup:jsoup:1.10.3'
 
     compile project(":etomica-core")
     compile project(":etomica-apps")
