@@ -312,9 +312,6 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
         System.out.println("numPoint: " +sim.accumulators[0].getNBennetPoints()+ "\n");
 
 
-//        DataGroup data = (DataGroup)sim.accumulators[0].getData(0);
-//        double refError = ((DataDoubleArray)data.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1];
-//        double refErrorRatio = refError/Math.abs(((DataDoubleArray)data.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]);
         System.out.println("ratio averages: \n");
         System.out.println(exponentN[0] + " to " + exponentN[1]);
         //System.out.println("    i\t  alpha_set\t       alpha\t         ratio0\t            ratio0_err\t         ratio1\t          ratio1_err");
