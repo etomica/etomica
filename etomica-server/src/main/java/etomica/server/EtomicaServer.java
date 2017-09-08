@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.google.inject.Provides;
+import etomica.data.IEtomicaDataSource;
 import etomica.meta.ComponentIndex;
+import etomica.meta.DataSourceIndex;
 import etomica.meta.SimulationModel;
 import etomica.meta.properties.Property;
 import etomica.meta.wrappers.Wrapper;
@@ -127,6 +129,11 @@ public class EtomicaServer extends Application<EtomicaServerConfig> {
         @Provides @Singleton
         ComponentIndex<Simulation> provideSimulationIndex() {
             return new ComponentIndex<>(Simulation.class);
+        }
+
+        @Provides @Singleton
+        DataSourceIndex provideDataSourceIndex() {
+            return new DataSourceIndex(IEtomicaDataSource.class);
         }
     }
 }
