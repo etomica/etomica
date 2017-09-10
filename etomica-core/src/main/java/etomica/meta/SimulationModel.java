@@ -13,12 +13,14 @@ public class SimulationModel {
 
     private final Map<Class, List<Property>> classes;
     private final Map<Object, Wrapper> wrappers;
+    private final Map<Long, Wrapper> wrappersById;
     private long objectCount = 0;
     private final Simulation simulation;
 
     public SimulationModel(Simulation sim) {
         this.classes = new HashMap<>();
         this.wrappers = new HashMap<>();
+        wrappersById = new HashMap<>();
         makeWrapper(sim);
 //        this.tree = new PropertyTree(base, base.getWrappedClass().getSimpleName(), classes);
         simulation = sim;
@@ -43,6 +45,10 @@ public class SimulationModel {
         return wrappers.get(o);
     }
 
+    public Wrapper getWrapperById(long id) {
+        return wrappersById.get(id);
+    }
+
     /**
      * Ensures that a wrapper is defined for the given object and, recursively, all other objects referenced by it.
      * If wrapper for object exists, takes no action; otherwise, creates new wrapper for it and adds to map.
@@ -53,7 +59,10 @@ public class SimulationModel {
         if(o == null || wrappers.containsKey(o)) return;
 
         Wrapper<?> newWrapper = WrapperIndex.getWrapper(o, this);
-        if (newWrapper.doSerialize()) wrappers.put(o, newWrapper);
+        if (newWrapper.doSerialize()) {
+            wrappers.put(o, newWrapper);
+            wrappersById.put(newWrapper.getWrappedId(), newWrapper);
+        }
 
         List<Property> childProps = newWrapper.getChildProperties();
         for (Property prop : childProps) {
