@@ -28,15 +28,16 @@ import java.util.UUID;
 @Timed
 public class ConfigurationStreamResource {
     private final SimulationStore simStore;
+    private final Timer timer;
 
     @Inject
-    public ConfigurationStreamResource(SimulationStore store) {
+    public ConfigurationStreamResource(SimulationStore store, Timer timer) {
         this.simStore = store;
+        this.timer = timer;
     }
 
     @OnOpen
     public void onOpen(final Session session, @PathParam("id") String id) {
-        Timer timer = new Timer();
         SimulationModel model = simStore.get(UUID.fromString(id));
 
         timer.schedule(new ConfigurationTimerTask(session, model), 0, 33);

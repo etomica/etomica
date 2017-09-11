@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class SimulationModel {
 
@@ -47,6 +48,13 @@ public class SimulationModel {
 
     public Wrapper getWrapperById(long id) {
         return wrappersById.get(id);
+    }
+
+    public List<Long> getAllIdsOfType(Class cls) {
+        return this.allWrappers().stream()
+                .filter(wrapper -> cls.isAssignableFrom(wrapper.getWrappedClass()))
+                .map(Wrapper::getWrappedId)
+                .collect(Collectors.toList());
     }
 
     /**

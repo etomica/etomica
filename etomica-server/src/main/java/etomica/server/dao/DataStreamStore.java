@@ -1,11 +1,30 @@
 package etomica.server.dao;
 
-import etomica.data.DataPump;
+import etomica.data.DataDump;
+import etomica.data.DataPumpListener;
 
 import javax.inject.Singleton;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Singleton
-public class DataStreamStore extends ConcurrentHashMap<UUID, DataPump> {
+public class DataStreamStore extends ConcurrentHashMap<UUID, DataStreamStore.DataPlumbing> {
+    public static class DataPlumbing {
+        private final DataPumpListener pump;
+        private final DataDump dump;
+
+        public DataPlumbing(DataPumpListener pump, DataDump dump) {
+            this.pump = pump;
+            this.dump = dump;
+        }
+
+        public DataPumpListener getPump() {
+            return pump;
+        }
+
+        public DataDump getDump() {
+            return dump;
+        }
+    }
 }
+

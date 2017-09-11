@@ -12,6 +12,7 @@ import etomica.meta.properties.Property;
 import etomica.meta.wrappers.Wrapper;
 import etomica.server.health.BasicHealthCheck;
 import etomica.server.resources.*;
+import etomica.server.resources.data.DataStreamWebsocket;
 import etomica.server.serializers.PropertySerializer;
 import etomica.server.serializers.SimulationModelSerializer;
 import etomica.server.serializers.WrapperSerializer;
@@ -59,16 +60,10 @@ public class EtomicaServer extends Application<EtomicaServerConfig> {
 
         bootstrap.getObjectMapper().registerModule(mod);
 
-        final ServerEndpointConfig wsConfig = ServerEndpointConfig.Builder
-                .create(ConfigurationStreamResource.class, "/simulations/{id}/configuration")
-                .build();
-
-        wsConfig.getUserProperties().put("simStore", simStore);
-        wsConfig.getUserProperties().put("timer", timer);
-
         WebsocketBundle wsBundle = new WebsocketBundle(new WSConfigurator());
         wsBundle.addEndpoint(EchoServer.class);
         wsBundle.addEndpoint(ConfigurationStreamResource.class);
+        wsBundle.addEndpoint(DataStreamWebsocket.class);
 
         bootstrap.addBundle(wsBundle);
 
@@ -134,6 +129,11 @@ public class EtomicaServer extends Application<EtomicaServerConfig> {
         @Provides @Singleton
         DataSourceIndex provideDataSourceIndex() {
             return new DataSourceIndex(IEtomicaDataSource.class);
+        }
+
+        @Provides @Singleton
+        Timer provideTimer() {
+            return new Timer();
         }
     }
 }
