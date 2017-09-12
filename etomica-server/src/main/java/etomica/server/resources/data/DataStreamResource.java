@@ -10,10 +10,11 @@ import etomica.integrator.mcmove.MCMove;
 import etomica.meta.DataSourceIndex;
 import etomica.meta.SimulationModel;
 import etomica.potential.PotentialMaster;
+import etomica.server.core.construction.Construction;
 import etomica.server.dao.DataStreamStore;
 import etomica.server.dao.SimulationStore;
-import etomica.server.representations.MeterConstructor;
-import etomica.server.representations.MeterInfo;
+import etomica.server.representations.ConstructionParams;
+import etomica.server.representations.ConstructionInfo;
 import etomica.space.Space;
 import etomica.species.Species;
 import etomica.util.random.IRandom;
@@ -29,19 +30,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Path("/simulations/{simId}/data")
 @Produces(MediaType.APPLICATION_JSON)
 public class DataStreamResource {
-    private static final Set<Class> SIM_CONTEXT_CLASSES = new HashSet<>(Arrays.asList(
-            Box.class,
-            Integrator.class,
-            Species.class,
-            Space.class,
-            PotentialMaster.class,
-            MCMove.class,
-            IRandom.class
-    ));
     private final SimulationStore simStore;
     private final DataStreamStore dataStore;
     private final DataSourceIndex index;
@@ -53,38 +46,14 @@ public class DataStreamResource {
         this.index = index;
     }
 
-    static Optional<Constructor> getMeterConstructor(Class meterClass) {
-        Constructor[] constructors = meterClass.getConstructors();
-        List<Constructor> eligibleConstructors = new ArrayList<>();
-        constructorLoop:
-        for (Constructor constructor : constructors) {
-            for (Class paramClass : constructor.getParameterTypes()) {
-                if (!containsAssignableFrom(SIM_CONTEXT_CLASSES, paramClass)) {
-                    continue constructorLoop;
-                }
-            }
-            eligibleConstructors.add(constructor);
-        }
-
-        eligibleConstructors.sort(Comparator.comparingInt(Constructor::getParameterCount));
-        if (eligibleConstructors.size() == 0) {
-            return Optional.empty();
-        } else {
-            return Optional.of(eligibleConstructors.get(0));
-        }
-    }
-
-    private static boolean containsAssignableFrom(Set<Class> classes, Class cls) {
-        return classes.stream().anyMatch(c -> c.isAssignableFrom(cls));
-    }
 
     @POST
-    public UUID createDataStream(@NotNull MeterConstructor constructionParams, @PathParam("simId") String simId) {
+    public UUID createDataStream(@NotNull ConstructionParams constructionParams, @PathParam("simId") String simId) {
         SimulationModel simModel = simStore.get(UUID.fromString(simId));
         UUID dataId = UUID.randomUUID();
 
         try {
-            Constructor constructor = getMeterConstructor(Class.forName(constructionParams.className)).orElse(null);
+            Constructor constructor = Construction.getEligibleConstructor(Class.forName(constructionParams.className)).orElse(null);
             Object[] params = constructionParams.constructorParams.stream()
                     .map(o -> simModel.getWrapperById((Long) o)).toArray();
 
@@ -92,7 +61,7 @@ public class DataStreamResource {
 
             constructionParams.paramsMap.forEach((propName, prop) -> {
                 try {
-                    if(containsAssignableFrom(SIM_CONTEXT_CLASSES, PropertyUtils.getPropertyType(meter, propName))) {
+                    if(Construction.isContextClass(PropertyUtils.getPropertyType(meter, propName))) {
                         PropertyUtils.setSimpleProperty(
                                 meter,
                                 propName,
@@ -120,68 +89,15 @@ public class DataStreamResource {
     }
 
     @GET
-    public List<MeterInfo> list(@PathParam("simId") String simId) {
+    public List<ConstructionInfo> list(@PathParam("simId") String simId) {
         SimulationModel model = this.simStore.get(UUID.fromString(simId));
 
         Set<Class> dataSources = index.getComponentSet().stream()
                 .filter(cls -> !IDataSink.class.isAssignableFrom(cls)).collect(Collectors.toSet());
 
-        List<MeterInfo> meterInfos = new ArrayList<>();
-        // use flatMap
-        meterInfosLoop:
-        for (Class dataSource : dataSources) {
-            Constructor constructor = getMeterConstructor(dataSource).orElse(null);
-            if (constructor != null) {
-                List<String> constructorParamTypes = Arrays.stream(constructor.getParameterTypes())
-                        .map(Class::getCanonicalName)
-                        .collect(Collectors.toList());
-
-                Map<String, List<Long>> classOptions = new HashMap<>();
-                for (Class paramClass : constructor.getParameterTypes()) {
-                    List<Long> ids = model.getAllIdsOfType(paramClass);
-                    if (ids.isEmpty()) {
-                        continue meterInfosLoop;
-                    }
-                    classOptions.put(
-                            paramClass.getCanonicalName(),
-                            ids
-                    );
-                }
-
-                PropertyDescriptor[] propertyDescriptors = PropertyUtils.getPropertyDescriptors(dataSource);
-                Map<String, String> propertyMap = new HashMap<>();
-                if (propertyDescriptors != null && propertyDescriptors.length != 0) {
-                    Arrays.stream(propertyDescriptors)
-                            .filter(propertyDescriptor -> {
-                                return propertyDescriptor.getWriteMethod() != null &&
-                                        !(propertyDescriptor instanceof IndexedPropertyDescriptor);
-                            })
-                            .filter(propertyDescriptor -> {
-                                return propertyDescriptor.getPropertyType().isPrimitive()
-                                        || propertyDescriptor.getPropertyType().equals(String.class)
-                                        || containsAssignableFrom(SIM_CONTEXT_CLASSES, propertyDescriptor.getPropertyType());
-                            })
-                            .forEach(propertyDescriptor -> {
-                                propertyMap.put(propertyDescriptor.getName(), propertyDescriptor.getPropertyType().getCanonicalName());
-                                if(containsAssignableFrom(SIM_CONTEXT_CLASSES, propertyDescriptor.getPropertyType())) {
-                                    classOptions.put(
-                                            propertyDescriptor.getPropertyType().getCanonicalName(),
-                                            model.getAllIdsOfType(propertyDescriptor.getPropertyType())
-                                    );
-                                }
-                            });
-                }
-
-                MeterInfo info = new MeterInfo(
-                        dataSource.getCanonicalName(),
-                        constructorParamTypes,
-                        classOptions,
-                        propertyMap
-                );
-
-                meterInfos.add(info);
-            }
-        }
-        return meterInfos;
+        return dataSources.stream()
+                .map(cls -> Construction.getConstructionInfo(cls, model))
+                .flatMap(opt -> opt.map(Stream::of).orElseGet(Stream::empty))
+                .collect(Collectors.toList());
     }
 }
