@@ -10,7 +10,10 @@ import etomica.util.Arrays;
  * AccumulatorAverage that adjusts the block size during the simulation.  When
  * a certain number of blocks of data have been collected, the blocks are
  * collapsed such that each new block contains the data from two of the old
- * blocks.  This allows the accumulator to yield reasonable estimates of the
+ * blocks. In other words, with each collapse, the number of blocks currently holding
+ * data is cut in half and the size of each block is doubled.
+ * <p>
+ * This allows the accumulator to yield reasonable estimates of the
  * average and uncertainty during the beginning of the simulation and still
  * produce accurate estimates of the uncertainty for longer simulation runs.
  * <p>
@@ -19,17 +22,31 @@ import etomica.util.Arrays;
 public class AccumulatorAverageCollapsing extends AccumulatorAverage {
 
     /**
-     * Default constructor sets block size to Default value, and sets the
-     * interval for pushing the output data (pushInterval) to 100.
+     * Default constructor sets the maximum number of blocks (maxBlocks) to a default value of 20,
+     * the initial block size (blockSize) to 1 and the interval for pushing the output data (pushInterval)
+     * to 100.
      */
     public AccumulatorAverageCollapsing() {
         this(20);
     }
-    
+
+    /**
+     * Constructor with default pushInterval of 100 and initial blockSize of 1.
+     *
+     * @param maxBlocks the largest number of blocks. Adding new data beyond this triggers
+     *                  collapsing of blocks
+     */
     public AccumulatorAverageCollapsing(int maxBlocks) {
         this(maxBlocks, 1);
     }
-    
+
+    /**
+     * Constructor with default pushInterval of 100.
+     * @param maxBlocks the largest number of blocks. Adding new data beyond this triggers
+     *                  collapsing of blocks
+     * @param blockSize the initial number of terms that contribute to each block. Doubles
+     *                 with each collapse of the blocks.
+     */
     public AccumulatorAverageCollapsing(int maxBlocks, int blockSize) {
         super(blockSize);
         blockSums = new double[0];
@@ -38,6 +55,13 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
         setPushInterval(100);
     }
 
+    /**
+     * Changes the maximum number of blocks. If the new value is less than the
+     * current number of blocks, collapsing is done until number of blocks is
+     * less than or equal to the given value.
+     * @param newMaxBlocks new value for maxBlocks
+     * @throws RuntimeException if newMaxBlocks is less than 4 or an odd number.
+     */
     public void setMaxBlocks(int newMaxBlocks) {
         // count is declared to be a long, but we know we can cast it to an int
         // because maxBlocks is an int
