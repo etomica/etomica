@@ -6,6 +6,7 @@ import etomica.integrator.mcmove.MCMove;
 import etomica.meta.SimulationModel;
 import etomica.potential.PotentialMaster;
 import etomica.server.representations.ConstructionInfo;
+import etomica.server.representations.ConstructionParams;
 import etomica.space.Space;
 import etomica.species.Species;
 import etomica.util.random.IRandom;
@@ -14,6 +15,7 @@ import org.apache.commons.beanutils.PropertyUtils;
 import java.beans.IndexedPropertyDescriptor;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,8 +34,8 @@ public class Construction {
         return SIM_CONTEXT_CLASSES.stream().anyMatch(c -> c.isAssignableFrom(cls));
     }
 
-    public static Optional<Constructor> getEligibleConstructor(Class meterClass) {
-        Constructor[] constructors = meterClass.getConstructors();
+    public static Optional<Constructor<?>> getEligibleConstructor(Class meterClass) {
+        Constructor<?>[] constructors = meterClass.getConstructors();
         return Arrays.stream(constructors)
                 .filter(constructor -> Arrays.stream(constructor.getParameterTypes()).allMatch(Construction::isContextClass))
                 .sorted(Comparator.comparingInt(Constructor::getParameterCount))
@@ -78,6 +80,35 @@ public class Construction {
                     classOptions,
                     propertyMap
             ));
+        });
+    }
+
+    public static <T> Optional<T> createInstance(ConstructionParams params, SimulationModel model) throws ClassNotFoundException {
+        return getEligibleConstructor(Class.forName(params.className)).flatMap(constructor -> {
+            Object[] constructorParams = params.constructorParams.stream()
+                    .map(o -> model.getWrapperById((Long) o)).toArray();
+
+            try {
+                T obj = (T) constructor.newInstance(constructorParams);
+                for(Map.Entry<String, Object> prop : params.paramsMap.entrySet()) {
+
+                    if(isContextClass(PropertyUtils.getPropertyType(obj, prop.getKey()))) {
+                        PropertyUtils.setSimpleProperty(
+                                obj,
+                                prop.getKey(),
+                                model.getWrapperById(((Integer) prop.getValue()).longValue()).getWrapped()
+                        );
+                    } else {
+                        PropertyUtils.setSimpleProperty(obj, prop.getKey(), prop.getValue());
+                    }
+
+                }
+
+                return Optional.of(obj);
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                e.printStackTrace();
+                return Optional.empty();
+            }
         });
     }
 
