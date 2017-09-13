@@ -1,9 +1,7 @@
 package etomica.server.resources.data;
 
-import etomica.data.DataDump;
-import etomica.data.DataPumpListener;
-import etomica.data.IDataSink;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
+import etomica.meta.ComponentIndex;
 import etomica.meta.DataSourceIndex;
 import etomica.meta.SimulationModel;
 import etomica.server.core.construction.Construction;
@@ -19,6 +17,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -30,13 +29,15 @@ import java.util.stream.Stream;
 public class DataStreamResource {
     private final SimulationStore simStore;
     private final DataStreamStore dataStore;
-    private final DataSourceIndex index;
+    private final ComponentIndex<IEtomicaDataSource> dataSourceIndex;
+    private final ComponentIndex<DataAccumulator> accumulatorIndex;
 
     @Inject
     public DataStreamResource(SimulationStore simStore, DataStreamStore dataStore, DataSourceIndex index) {
         this.simStore = simStore;
         this.dataStore = dataStore;
-        this.index = index;
+        this.dataSourceIndex = new ComponentIndex<>(IEtomicaDataSource.class);
+        accumulatorIndex = new ComponentIndex<>(DataAccumulator.class);
     }
 
 
@@ -61,13 +62,27 @@ public class DataStreamResource {
     }
 
     @GET
-    public List<ConstructionInfo> list(@PathParam("simId") String simId) {
+    @Path("meters")
+    public List<ConstructionInfo> listMeters(@PathParam("simId") String simId) {
         SimulationModel model = this.simStore.get(UUID.fromString(simId));
 
-        Set<Class> dataSources = index.getComponentSet().stream()
+        Set<Class> dataSources = dataSourceIndex.getComponentSet().stream()
                 .filter(cls -> !IDataSink.class.isAssignableFrom(cls)).collect(Collectors.toSet());
 
         return dataSources.stream()
+                .map(cls -> Construction.getConstructionInfo(cls, model))
+                .flatMap(opt -> opt.map(Stream::of).orElseGet(Stream::empty))
+                .collect(Collectors.toList());
+    }
+
+    @GET
+    @Path("accumulators")
+    public List<ConstructionInfo> listAccumulators(@PathParam("simId") String simId) {
+        SimulationModel model = this.simStore.get(UUID.fromString(simId));
+
+        Set<Class<? extends DataAccumulator>> accumulators = accumulatorIndex.getComponentSet();
+
+        return accumulators.stream()
                 .map(cls -> Construction.getConstructionInfo(cls, model))
                 .flatMap(opt -> opt.map(Stream::of).orElseGet(Stream::empty))
                 .collect(Collectors.toList());
