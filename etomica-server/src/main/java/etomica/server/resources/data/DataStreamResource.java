@@ -15,6 +15,7 @@ import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -84,7 +85,10 @@ public class DataStreamResource {
         SimulationModel model = this.simStore.get(UUID.fromString(simId));
 
         Set<Class> dataSources = dataSourceIndex.getComponentSet().stream()
-                .filter(cls -> !IDataSink.class.isAssignableFrom(cls)).collect(Collectors.toSet());
+                .filter(cls -> !IDataSink.class.isAssignableFrom(cls))
+                .filter(cls -> !Modifier.isInterface(cls.getModifiers()))
+                .filter(cls -> !cls.isInterface())
+                .collect(Collectors.toSet());
 
         return dataSources.stream()
                 .map(cls -> Construction.getConstructionInfo(cls, model))
@@ -97,7 +101,10 @@ public class DataStreamResource {
     public List<ConstructionInfo> listAccumulators(@PathParam("simId") String simId) {
         SimulationModel model = this.simStore.get(UUID.fromString(simId));
 
-        Set<Class<? extends DataAccumulator>> accumulators = accumulatorIndex.getComponentSet();
+        Set<Class<? extends DataAccumulator>> accumulators = accumulatorIndex.getComponentSet().stream()
+                .filter(cls -> !Modifier.isInterface(cls.getModifiers()))
+                .filter(cls -> !cls.isInterface())
+                .collect(Collectors.toSet());
 
         return accumulators.stream()
                 .map(cls -> Construction.getConstructionInfo(cls, model))
