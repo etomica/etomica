@@ -6,18 +6,15 @@ import etomica.meta.DataSourceIndex;
 import etomica.meta.SimulationModel;
 import etomica.server.core.construction.Construction;
 import etomica.server.dao.DataStreamStore;
+import static etomica.server.dao.DataStreamStore.DataPlumbing;
 import etomica.server.dao.SimulationStore;
 import etomica.server.representations.ConstructionInfo;
 import etomica.server.representations.ConstructionParams;
-import org.apache.commons.beanutils.PropertyUtils;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -61,6 +58,26 @@ public class DataStreamResource {
         }
     }
 
+    @POST
+    @Path("{dataId}/accumulator")
+    public void addAccumulator(@NotNull ConstructionParams params, @PathParam("simId") String simID, @PathParam("dataId") String dataId) {
+        SimulationModel model = simStore.get(UUID.fromString(simID));
+
+        try {
+            DataAccumulator accumulator = Construction.<DataAccumulator>createInstance(params, model)
+                    .orElseThrow(() -> new WebApplicationException("Unable to create accumulator"));
+
+            DataPlumbing plumbing = this.dataStore.get(UUID.fromString(dataId));
+            DataPump pump = plumbing.getPump();
+            DataDump dump = plumbing.getDump();
+            pump.setDataSink(accumulator);
+            accumulator.addDataSink(dump);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            throw new WebApplicationException("Unable to create accumulator");
+        }
+    }
+
     @GET
     @Path("meters")
     public List<ConstructionInfo> listMeters(@PathParam("simId") String simId) {
@@ -86,5 +103,12 @@ public class DataStreamResource {
                 .map(cls -> Construction.getConstructionInfo(cls, model))
                 .flatMap(opt -> opt.map(Stream::of).orElseGet(Stream::empty))
                 .collect(Collectors.toList());
+    }
+
+    @GET
+    @Path("{dataId}")
+    public IEtomicaDataInfo getDataInfo(@PathParam("simId") String simId, @PathParam("dataId") String dataId) {
+        //TODO: serializers
+        return this.dataStore.get(UUID.fromString(dataId)).getDump().getDataInfo();
     }
 }
