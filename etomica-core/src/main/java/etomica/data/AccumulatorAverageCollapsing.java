@@ -21,6 +21,14 @@ import etomica.util.Arrays;
  */
 public class AccumulatorAverageCollapsing extends AccumulatorAverage {
 
+    protected int maxBlocks;
+    protected double[] blockSums;
+    protected double currentBlockSum, totalSumSquare;
+    protected double totalSumBlockSq;
+    protected double correlationSum;
+    protected double totalBlockSum;
+    protected long nominalBlockSize;
+
     /**
      * Default constructor sets the maximum number of blocks (maxBlocks) to a default value of 20,
      * the initial block size (blockSize) to 1 and the interval for pushing the output data (pushInterval)
@@ -42,10 +50,11 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
 
     /**
      * Constructor with default pushInterval of 100.
+     *
      * @param maxBlocks the largest number of blocks. Adding new data beyond this triggers
      *                  collapsing of blocks
      * @param blockSize the initial number of terms that contribute to each block. Doubles
-     *                 with each collapse of the blocks.
+     *                  with each collapse of the blocks.
      */
     public AccumulatorAverageCollapsing(int maxBlocks, int blockSize) {
         super(blockSize);
@@ -56,9 +65,17 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
     }
 
     /**
+     * @return the current value of maxBlocks.
+     */
+    public int getMaxBlocks() {
+        return maxBlocks;
+    }
+
+    /**
      * Changes the maximum number of blocks. If the new value is less than the
      * current number of blocks, collapsing is done until number of blocks is
      * less than or equal to the given value.
+     *
      * @param newMaxBlocks new value for maxBlocks
      * @throws RuntimeException if newMaxBlocks is less than 4 or an odd number.
      */
@@ -79,15 +96,14 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
         // blocks so they should all be 0.
         blockSums = Arrays.resizeArray(blockSums, maxBlocks);
     }
-    
-    public int getMaxBlocks() {
-        return maxBlocks;
-    }
-    
+
     /**
      * Checks that incoming Data implements Data, and returns null if
-     * this is so. Otherwise throws a ClassCastException, as there is no data
+     * this is so. Otherwise throws an exception, as there is no data
      * caster to Data.
+     *
+     * @param incomingDataInfo
+     * @throws RuntimeException when length of incoming data is greater than 1
      */
     public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
         if (incomingDataInfo.getLength() > 1) {
@@ -99,6 +115,8 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
     /**
      * Add the given values to the sums and block sums. If any of the given data
      * values is NaN, method returns with no effect on accumulation sums.
+     *
+     * @param data Data to be added.
      */
     public boolean addData(IData data) {
         if (data.isNaN())
@@ -108,26 +126,26 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
         totalSumSquare += value * value;
         mostRecent.E(value);
         if (--blockCountDown == 0) {//count down to zero to determine
-                                    // completion of block
+            // completion of block
             doBlockSum();
         }
         return true;
     }
-    
+
     /**
      * Performs the block sum after <tt>blockSize</tt> calls to addData.
      */
     protected void doBlockSum() {
-        
+
         totalBlockSum += currentBlockSum;
         currentBlockSum /= blockSize;
         if (count > 0) {
-            correlationSum += blockSums[(int)count-1] * currentBlockSum;
+            correlationSum += blockSums[(int) count - 1] * currentBlockSum;
         }
-        blockSums[(int)count] = currentBlockSum;
+        blockSums[(int) count] = currentBlockSum;
         totalSumBlockSq += currentBlockSum * currentBlockSum;
         currentBlockSum = 0;
-        
+
         count++;
         blockCountDown = blockSize;
 
@@ -136,29 +154,29 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
         }
 
     }
-    
+
     protected void collapseBlocks() {
-        int intCount = (int)count;
+        int intCount = (int) count;
         if (intCount % 2 == 1) {
             // if we have an odd number of blocks, the last block will get
             // dropped.  So add its contribution to the "current" block.
-            currentBlockSum += blockSums[intCount-1];
-            totalBlockSum -= blockSums[intCount-1];
+            currentBlockSum += blockSums[intCount - 1];
+            totalBlockSum -= blockSums[intCount - 1];
         }
         totalSumBlockSq = 0;
         count /= 2;
-        intCount = (int)count;
+        intCount = (int) count;
         correlationSum = 0;
         // the first half of the blocks contain all previous data
-        for (int i=0; i<intCount; i++) {
-            blockSums[i] = (blockSums[2*i] + blockSums[2*i+1]) / 2;
+        for (int i = 0; i < intCount; i++) {
+            blockSums[i] = (blockSums[2 * i] + blockSums[2 * i + 1]) / 2;
             totalSumBlockSq += blockSums[i] * blockSums[i];
-            if (i>0) {
-                correlationSum += blockSums[i-1]*blockSums[i];
+            if (i > 0) {
+                correlationSum += blockSums[i - 1] * blockSums[i];
             }
         }
         // the last half are 0
-        for (int i=intCount; i<maxBlocks; i++) {
+        for (int i = intCount; i < maxBlocks; i++) {
             blockSums[i] = 0;
         }
         blockCountDown += blockSize;
@@ -166,44 +184,43 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
     }
 
     /**
-     * Returns a DataGroup with Data instances holding the statistics kept by
+     * @return a DataGroup with Data instances holding the statistics kept by
      * this accumulator (as described in general comments for this class).
      */
     public IData getData() {
-    	if (dataGroup == null) {
+        if (dataGroup == null) {
             return null;
         }
-    	
+
         if (count > 1) {
             // calculate block properties (these require 2 or more blocks)
-            double blockAvg = totalBlockSum / (count*blockSize);
+            double blockAvg = totalBlockSum / (count * blockSize);
             double err = totalSumBlockSq / count - blockAvg * blockAvg;
             if (err < 0) {
                 err = 0;
             }
-            error.E(Math.sqrt(err / (count-1)));
+            error.E(Math.sqrt(err / (count - 1)));
 
-            double bc = (((2 * totalBlockSum / blockSize - blockSums[0] - blockSums[(int)count-1]) * blockAvg - correlationSum) / 
-                    (1-count) + blockAvg * blockAvg) / err;
+            double bc = (((2 * totalBlockSum / blockSize - blockSums[0] - blockSums[(int) count - 1]) * blockAvg - correlationSum) /
+                    (1 - count) + blockAvg * blockAvg) / err;
             // sanity check
             bc = (Double.isNaN(bc) || bc <= -1 || bc >= 1) ? 0 : bc;
             blockCorrelation.E(bc);
 
             if (doIncludeACInError && count > 3) {
                 double c = blockCorrelation.getValue(0);
-                error.TE(Math.sqrt((1+c)/(1-c)));
+                error.TE(Math.sqrt((1 + c) / (1 - c)));
             }
-        }
-        else {
+        } else {
             error.E(Double.NaN);
             blockCorrelation.E(Double.NaN);
         }
 
-    	long nTotalData = count*blockSize + (blockSize-blockCountDown);
+        long nTotalData = count * blockSize + (blockSize - blockCountDown);
         if (nTotalData > 0) {
-            double avg = (totalBlockSum+currentBlockSum) / nTotalData;
+            double avg = (totalBlockSum + currentBlockSum) / nTotalData;
             average.E(avg);
-            double variance = totalSumSquare / nTotalData - avg*avg;
+            double variance = totalSumSquare / nTotalData - avg * avg;
             if (variance < 0) {
                 variance = 0;
             }
@@ -229,21 +246,11 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
     /**
      * Sets the size of the block used to group data for error analysis. Resets
      * statistics accumulated so far.  Default is 1.
-     * 
-     * @param newBlockSize
-     *            new block size.
+     *
+     * @param newBlockSize new block size.
      */
     public void setBlockSize(long newBlockSize) {
         nominalBlockSize = newBlockSize;
         super.setBlockSize(newBlockSize);
     }
-
-    private static final long serialVersionUID = 1L;
-    protected int maxBlocks;
-    protected double[] blockSums;
-    protected double currentBlockSum, totalSumSquare;
-    protected double totalSumBlockSq;
-    protected double correlationSum;
-    protected double totalBlockSum;
-    protected long nominalBlockSize;
 }
