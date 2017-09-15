@@ -26,16 +26,20 @@ import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheres;
 
+/**
+ * Molecular dynamics of chains of hard spheres.
+ * <p>
+ * Each chain has 4 spheres, joined by a hard tether potential.
+ */
 public class ChainHSMD3D extends Simulation {
 
-    private static final long serialVersionUID = 2L;
     public Box box;
     public IntegratorHard integrator;
     public SpeciesSpheres species;
     public P2HardSphere potential;
     private ModelChain model;
 
-    private ChainHSMD3D() {
+    public ChainHSMD3D() {
         super(Space3D.getInstance());
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
         int numAtoms = 108;
@@ -91,4 +95,4 @@ public class ChainHSMD3D extends Simulation {
 
         simGraphic.makeAndDisplayFrame();
     }
-}//end of class
+}
