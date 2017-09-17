@@ -11,13 +11,21 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;
 
+/**
+ * Class that samples molecule positions based on a tree of hard spheres of
+ * diameter sigma.  The tree structure is chosen randomly as a Prüfer sequence.
+ * <p>
+ * https://en.wikipedia.org/wiki/Pr%C3%BCfer_sequence#Algorithm_to_convert_a_Pr.C3.BCfer_sequence_into_a_tree
+ *
+ * @author Andrew
+ */
 public class MCMoveClusterAtomHSTree extends MCMoveAtom {
 
     public MCMoveClusterAtomHSTree(IRandom random, Space _space, double sigma) {
         super(random, null, _space);
         this.sigma = sigma;
     }
-    
+
     public void setBox(Box box) {
         super.setBox(box);
         int n = box.getLeafList().getAtomCount();
@@ -28,7 +36,7 @@ public class MCMoveClusterAtomHSTree extends MCMoveAtom {
     }
 
     public boolean doTrial() {
-        
+
         IAtomList leafAtoms = box.getLeafList();
         int n = leafAtoms.getAtomCount();
         for (int i=0; i<n; i++) {
@@ -58,8 +66,7 @@ public class MCMoveClusterAtomHSTree extends MCMoveAtom {
             if (degree[i] == 1) {
                 if (u==-1) {
                     u = i;
-                }
-                else {
+                } else {
                     v = i;
                 }
             }
@@ -83,11 +90,9 @@ public class MCMoveClusterAtomHSTree extends MCMoveAtom {
                 int nbr2 = -1;
                 if (b[0] == nbr) {
                     nbr2 = b[1];
-                }
-                else if (b[1] == nbr) {
+                } else if (b[1] == nbr) {
                     nbr2 = b[0];
-                }
-                else {
+                } else {
                     continue;
                 }
                 if ((coordinatedMask & (1<<nbr2)) != 0) {
@@ -98,16 +103,21 @@ public class MCMoveClusterAtomHSTree extends MCMoveAtom {
                 Vector pos = leafAtoms.getAtom(nbr2).getPosition();
 
                 pos.setRandomInSphere(random);
-                pos.TE(sigma);
+                pos.TE(getSigma(nbr, nbr2));
                 pos.PE(leafAtoms.getAtom(nbr).getPosition());
                 inserted[numInserted] = nbr2;
                 numInserted++;
             }
         }
 
-		((BoxCluster)box).trialNotify();
-		return true;
-	}
+        ((BoxCluster)box).trialNotify();
+        return true;
+    }
+
+    // override this to do a mixture
+    protected double getSigma(int i, int j) {
+        return sigma;
+    }
 
     public double getChi(double temperature) {
         return 1;
@@ -116,9 +126,9 @@ public class MCMoveClusterAtomHSTree extends MCMoveAtom {
     public void rejectNotify() {
         throw new RuntimeException("nope");
     }
-    
+
     public void acceptNotify() {
-    	((BoxCluster)box).acceptNotify();
+        ((BoxCluster)box).acceptNotify();
     }
 
     protected final double sigma;
