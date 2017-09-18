@@ -79,7 +79,7 @@ public class VirialSQWBinMultiThreaded {
             
             public double f(IMoleculeList pair, double r2, double beta) {
                 if (r2 < sigma2 || r2 > well2) return 0;
-                return 1;
+                return Y;
             }
         };
         MayerFunction fRefPos = new MayerFunction() {
@@ -241,6 +241,8 @@ public class VirialSQWBinMultiThreaded {
 	            double sumErrNum = E0a2 - sum*sum*nThreads*steps;
 	            double finalErr = Math.sqrt(sumErrStdev + sumErrNum)*Math.abs(refIntegral)/(nThreads*steps);
                 sum *= refIntegral;
+                sum /= Math.pow(Y, i);
+                finalErr /= Math.pow(Y, i);
 
                 System.out.print(String.format("%2d average: %21.14e   error: %11.5e   # var frac: %5.3f\n", i, sum, finalErr, sumErrNum/(sumErrStdev + sumErrNum)));
             }
@@ -331,6 +333,7 @@ public class VirialSQWBinMultiThreaded {
         
         public void run() {
             long t1 = System.currentTimeMillis();
+            double Y = targetTemp == 0 ? 1 : Math.exp(1 / targetTemp) - 1;
             final ClusterWheatleyExtendSW targetCluster = new ClusterWheatleyExtendSW(nPoints, fTargetf1, fTargete2);
             targetCluster.setTemperature(1.0);
             
@@ -338,7 +341,9 @@ public class VirialSQWBinMultiThreaded {
             ClusterChainHS cr = new ClusterChainHS(nPoints, fRefPos, true);
             long numRingDiagrams = cr.numDiagrams();
             double ringIntegral = numRingDiagrams*Standard.ringHS(nPoints)*Math.pow(lambda, 3*(nPoints-1));
-            double chainIntegral = (SpecialFunctions.factorial(nPoints)/2)*Math.pow(vhs, nPoints-1);
+            double vCore = space.sphereVolume(1);
+            double vIntegral = vCore + (vhs - vCore) * Y;
+            double chainIntegral = (SpecialFunctions.factorial(nPoints) / 2) * Math.pow(vIntegral, nPoints - 1);
             ClusterChainHS crc = new ClusterChainHS(nPoints, fRefPos, chainFrac/chainIntegral, ringFrac/ringIntegral);
             ClusterSinglyConnected ct = new ClusterSinglyConnected(nPoints, fRefPos);
             refCluster = new ClusterWeightUmbrella(new ClusterAbstract[]{crc, ct});
@@ -347,7 +352,7 @@ public class VirialSQWBinMultiThreaded {
                 numTreeDiagrams *= nPoints;
             }
 
-            double treeIntegral = numTreeDiagrams*Math.pow(vhs, nPoints-1);
+            double treeIntegral = numTreeDiagrams * Math.pow(vIntegral, nPoints - 1);
 
             // weighting for chain and ring are handled internally
             ((ClusterWeightUmbrella)refCluster).setWeightCoefficients(new double[]{1,(1-ringFrac-chainFrac)/treeIntegral});
