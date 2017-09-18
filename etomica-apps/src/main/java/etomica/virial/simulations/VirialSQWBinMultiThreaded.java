@@ -51,7 +51,7 @@ public class VirialSQWBinMultiThreaded {
         final int nPoints = params.nPoints;
         long steps = params.numSteps;
         double targetTemp = params.targetTemp;
-        final double Y = Math.exp(1 / targetTemp) - 1;
+        final double Y = targetTemp == 0 ? 1 : (Math.exp(1 / targetTemp) - 1);
         final double chainFrac = params.chainFrac;
         final double ringFrac = targetTemp == 0 ? params.ringFrac : 0;
         final double lambda = params.lambda;
@@ -266,7 +266,7 @@ public class VirialSQWBinMultiThreaded {
                     else {
                         cor = 0;
                     }
-                    System.out.print(String.format(" % 5.3f", cor));
+                    System.out.print(String.format(" % 6.4f", cor));
                 }
                 System.out.print("\n");
             }
@@ -333,11 +333,10 @@ public class VirialSQWBinMultiThreaded {
         
         public void run() {
             long t1 = System.currentTimeMillis();
-            double Y = targetTemp == 0 ? 1 : Math.exp(1 / targetTemp) - 1;
+            double Y = targetTemp == 0 ? 1 : (Math.exp(1 / targetTemp) - 1);
             final ClusterWheatleyExtendSW targetCluster = new ClusterWheatleyExtendSW(nPoints, fTargetf1, fTargete2);
             targetCluster.setTemperature(1.0);
             
-            ClusterAbstract refCluster = null;
             ClusterChainHS cr = new ClusterChainHS(nPoints, fRefPos, true);
             long numRingDiagrams = cr.numDiagrams();
             double ringIntegral = numRingDiagrams*Standard.ringHS(nPoints)*Math.pow(lambda, 3*(nPoints-1));
@@ -346,7 +345,7 @@ public class VirialSQWBinMultiThreaded {
             double chainIntegral = (SpecialFunctions.factorial(nPoints) / 2) * Math.pow(vIntegral, nPoints - 1);
             ClusterChainHS crc = new ClusterChainHS(nPoints, fRefPos, chainFrac/chainIntegral, ringFrac/ringIntegral);
             ClusterSinglyConnected ct = new ClusterSinglyConnected(nPoints, fRefPos);
-            refCluster = new ClusterWeightUmbrella(new ClusterAbstract[]{crc, ct});
+            ClusterAbstract refCluster = new ClusterWeightUmbrella(new ClusterAbstract[]{crc, ct});
             long numTreeDiagrams = 1;
             for (int i=0; i<nPoints-2; i++) {
                 numTreeDiagrams *= nPoints;

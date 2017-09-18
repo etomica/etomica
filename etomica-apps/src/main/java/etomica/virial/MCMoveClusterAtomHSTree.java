@@ -103,7 +103,15 @@ public class MCMoveClusterAtomHSTree extends MCMoveAtom {
                 Vector pos = leafAtoms.getAtom(nbr2).getPosition();
 
                 pos.setRandomInSphere(random);
-                pos.TE(getSigma(nbr, nbr2));
+                double sig = getSigma(nbr, nbr2);
+                if (sig < 0) {
+                    // we want to force the position to be in the well (between 1 and sigma)
+                    sig = -sig;
+                    while (pos.squared() < 1 / (sig * sig)) {
+                        pos.setRandomInSphere(random);
+                    }
+                }
+                pos.TE(sig);
                 pos.PE(leafAtoms.getAtom(nbr).getPosition());
                 inserted[numInserted] = nbr2;
                 numInserted++;

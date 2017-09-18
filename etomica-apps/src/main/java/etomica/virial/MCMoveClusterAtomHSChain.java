@@ -50,7 +50,15 @@ public class MCMoveClusterAtomHSChain extends MCMoveAtom {
             Vector pos = leafAtoms.getAtom(seq[i]).getPosition();
 
             pos.setRandomInSphere(random);
-            pos.TE(getSigma(seq[i - 1], seq[i]));
+            double sig = getSigma(seq[i - 1], seq[i]);
+            if (sig < 0) {
+                // we want to force the position to be in the well (between 1 and sigma)
+                sig = -sig;
+                while (pos.squared() < 1 / (sig * sig)) {
+                    pos.setRandomInSphere(random);
+                }
+            }
+            pos.TE(sig);
             pos.PE(leafAtoms.getAtom(seq[i-1]).getPosition());
         }
 
