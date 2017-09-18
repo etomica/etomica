@@ -508,11 +508,10 @@ public class SimLJVacancy extends Simulation {
             DataSourceMuRoot1 dsmr1 = null;
             final AccumulatorHistory dsmr1History;
             dsmr1 = new DataSourceMuRoot1(mcMoveOverlapMeter, mu, pSplitter, Double.NaN, density, numAtoms/density);
-            dsmr1.setMinMu(10);
             dsmr1History = new AccumulatorHistory(new HistoryCollapsingDiscard());
             dsmr1History.setTimeDataSource(timeDataSource);
             DataPumpListener dsmr1Pump = new DataPumpListener(dsmr1, dsmr1History, numAtoms);
-//            sim.integrator.getEventManager().addListener(dsmr1Pump);
+            sim.integrator.getEventManager().addListener(dsmr1Pump);
             dsmr1History.setDataSink(dsmrPlot.getDataSet().makeDataSink());
             dsmrPlot.setLegend(new DataTag[]{dsmr1.getTag()},"v1");
             
@@ -543,12 +542,35 @@ public class SimLJVacancy extends Simulation {
             vPlot.setLegend(new DataTag[]{dsmrvc.getTag()}, "avg");
             simGraphic.add(vPlot);
 
+            DataSourceMuRoot.DataSourceMuRootDPressure dsmrDP = dsmr.new DataSourceMuRootDPressure();
+            final AccumulatorHistory dsmrDPHistory = new AccumulatorHistory(new HistoryCollapsingDiscard());
+            dsmrDPHistory.setTimeDataSource(timeDataSource);
+            DataPumpListener dsmrDPPump = new DataPumpListener(dsmrDP, dsmrDPHistory, numAtoms);
+            sim.integrator.getEventManager().addListener(dsmrDPPump);
+            DisplayPlot dpPlot = new DisplayPlot();
+            dpPlot.setLabel("deltaP");
+            dsmrDPHistory.setDataSink(dpPlot.getDataSet().makeDataSink());
+            dpPlot.setDoLegend(false);
+            simGraphic.add(dpPlot);
+
+            dsmr.setUSplitter(uSplitter);
+            DataSourceMuRoot.DataSourceMuRootDU dsmrDU = dsmr.new DataSourceMuRootDU();
+            final AccumulatorHistory dsmrDUHistory = new AccumulatorHistory(new HistoryCollapsingDiscard());
+            dsmrDUHistory.setTimeDataSource(timeDataSource);
+            DataPumpListener dsmrDUPump = new DataPumpListener(dsmrDU, dsmrDUHistory, numAtoms);
+            sim.integrator.getEventManager().addListener(dsmrDUPump);
+            DisplayPlot duPlot = new DisplayPlot();
+            duPlot.setLabel("deltaU");
+            dsmrDUHistory.setDataSink(duPlot.getDataSet().makeDataSink());
+            duPlot.setDoLegend(false);
+            simGraphic.add(duPlot);
+
             final AccumulatorHistory dsmrvc1History;
             DataSourceMuRoot1.DataSourceMuRootVacancyConcentration dsmrvc1 = dsmr1.new DataSourceMuRootVacancyConcentration();
             dsmrvc1History = new AccumulatorHistory(new HistoryCollapsingDiscard());
             dsmrvc1History.setTimeDataSource(timeDataSource);
             DataPumpListener dsmrvc1Pump = new DataPumpListener(dsmrvc1, dsmrvc1History, numAtoms);
-//            sim.integrator.getEventManager().addListener(dsmrvc1Pump);
+            sim.integrator.getEventManager().addListener(dsmrvc1Pump);
             dsmrvc1History.setDataSink(vPlot.getDataSet().makeDataSink());
             vPlot.setLegend(new DataTag[]{dsmrvc1.getTag()}, "v1");
 
@@ -566,6 +588,8 @@ public class SimLJVacancy extends Simulation {
                             dsmr1History.reset();
                             dsmrvc1History.reset();
                         }
+                        dsmrDPHistory.reset();
+                        dsmrDUHistory.reset();
                         dsmrvcHistory.reset();
                         for (int i=0; i<pSplitter.getNumDataSinks(); i++) {
                             AccumulatorAverageBlockless avg = (AccumulatorAverageBlockless)pSplitter.getDataSink(i);
@@ -766,9 +790,9 @@ public class SimLJVacancy extends Simulation {
             params.steps = 1000000;
             params.density = 1.;
             params.numV = 4;
-            params.temperature = 1.08;
-            params.mu = 1.741248580731481;
-            params.daDef = 6.39953903744669;
+            params.temperature = 1.0;
+            params.mu = 0.952366259576;
+            params.daDef = 7.661325924964285;
             params.rc = 4;
 
             final int numAtoms = params.numAtoms;
@@ -1068,7 +1092,6 @@ public class SimLJVacancy extends Simulation {
             DataSourceMuRoot1 dsmr1 = null;
             final AccumulatorHistory dsmr1History;
             dsmr1 = new DataSourceMuRoot1(mcMoveOverlapMeter, mu, pSplitter, Double.NaN, density, numAtoms/density);
-            dsmr1.setMinMu(10);
             dsmr1History = new AccumulatorHistory(new HistoryCollapsingDiscard());
             dsmr1History.setTimeDataSource(timeDataSource);
             DataPumpListener dsmr1Pump = new DataPumpListener(dsmr1, dsmr1History, numAtoms);
