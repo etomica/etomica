@@ -27,7 +27,7 @@ public class DataSourceMuRoot1 extends DataSourceScalar {
     protected double bmu;
     protected double bALattice, volume, latticeDensity;
     protected double lastP, lastVacancyConcentration;
-    protected double minMu;
+    protected double lastDP, lastLnTot;
     
     public DataSourceMuRoot1(MCMoveOverlapListener mcMoveOverlapMeter, double bmu, DataDistributer pSplitter, double bALattice, double latticeDensity, double volume) {
         super("mu", Null.DIMENSION);
@@ -37,11 +37,6 @@ public class DataSourceMuRoot1 extends DataSourceScalar {
         this.latticeDensity = latticeDensity;
         this.bALattice = bALattice;
         this.volume = volume;
-        minMu = Double.NaN;
-    }
-    
-    public void setMinMu(double minMu) {
-        this.minMu = minMu;
     }
     
     public synchronized double getDataAsScalar() {
@@ -52,25 +47,48 @@ public class DataSourceMuRoot1 extends DataSourceScalar {
         double myMu = bmu;
         double lastMu = bmu;
         double maxMu = Double.POSITIVE_INFINITY;
+        double minMu = Double.NEGATIVE_INFINITY;
         double thisMinMu = Double.isNaN(minMu) ? Double.NEGATIVE_INFINITY : minMu;
         int n0 = mcMoveOverlapMeter.getMinNumAtoms();
         int nLatticeAtoms = n0 + ratios.length;
         while (true) {
 
             double p = 1;
-            double tot = 0;
+            double totMinus1 = 0;
             double vAvg = 0;
-            for (int i=0; p/tot > 1e-14; i++) {
-                tot += p;
+            double l = Math.exp(myMu);
+            for (int i = 0; p > 1e-14; i++) {
                 double x = Math.exp(daDef+myMu)/(nLatticeAtoms-i)*(i+1);
                 if (Double.isInfinite(x) || Double.isInfinite(p/x)) throw new RuntimeException("oops "+p+" "+x+" "+daDef+" "+myMu+" "+thisMinMu+" "+i);
                 p /= Math.exp(daDef+myMu)/(nLatticeAtoms-i)*(i+1);
                 if (Double.isInfinite(p)) throw new RuntimeException("oops");
                 if (i>nLatticeAtoms/10) return Double.NaN;
+                totMinus1 += p;
             }
-            tot += p;
+
+            double tot = totMinus1 + 1;
+            if (totMinus1 > 0.5) {
+                // probably only happens for large systems where multiple vacanacies are happy
+                lastLnTot = Math.log(tot);
+            } else {
+                // ln(1+x) = x - x^2/2 + x^3/3 + ...
+                lastLnTot = 0;
+                double xn = totMinus1;
+                for (int i = 1; i < 100; i++) {
+                    if (Math.abs(xn / i) < lastLnTot * 1e-15) break;
+                    lastLnTot += xn / i;
+                    xn *= -totMinus1;
+                }
+            }
+
             p = 1;
             double pressure1 = 0;
+            double oneMinusP0 = 0;
+            for (int i = 0; i <= ratios.length; i++) {
+                if (i > 0) oneMinusP0 += p / tot;
+                p /= Math.exp(daDef + myMu) / (nLatticeAtoms - i) * (i + 1);
+            }
+            p = 1;
             AccumulatorAverageBlockless acc0 = (AccumulatorAverageBlockless)pSplitter.getDataSink(0);
             AccumulatorAverageBlockless acc1 = (AccumulatorAverageBlockless)pSplitter.getDataSink(1);
             if (acc0 == null || acc1 == null || acc0.getSampleCount() == 0 || acc1.getSampleCount() == 0) return Double.NaN;
@@ -81,6 +99,11 @@ public class DataSourceMuRoot1 extends DataSourceScalar {
             for (int i=0; p/tot > 1e-14; i++) {
                 double pi = p/tot;
                 double iPressure = p0 + dp*i;
+                if (i == 0) {
+                    lastDP = -oneMinusP0 * iPressure;
+                } else {
+                    lastDP += pi * iPressure;
+                }
                 pressure1 += pi*iPressure;
                 if (Double.isNaN(pressure1)) {
                     throw new RuntimeException("oops "+pi+" "+iPressure);
@@ -92,37 +115,30 @@ public class DataSourceMuRoot1 extends DataSourceScalar {
 
             // we could take pLattice from the data collected when nVacancy=0,
             // but for a large system, that might rarely happen
-            double pressure2 = (myMu-bALattice)*latticeDensity+Math.log(tot)/volume;
-            lastP = pressure2;
-            if (Double.isNaN(pressure2) || Double.isInfinite(pressure2)) {
-                throw new RuntimeException("oops "+myMu+" "+bALattice+" "+latticeDensity+" "+tot+" "+volume);
-            }
+            double dmu = lastDP / latticeDensity - lastLnTot / volume;
+            lastP = pressure1;
             // calculate a new estimate of mu
-            double newMu = myMu - (pressure2-pressure1)/latticeDensity;
+            double newMu = bmu + dmu;
             if (Double.isNaN(newMu) || Double.isInfinite(newMu)) {
-                throw new RuntimeException("oops "+myMu+" "+pressure1+" "+pressure2+" "+latticeDensity);
+                throw new RuntimeException("oops " + myMu + " " + lastDP + " " + dmu + " " + latticeDensity);
             }
-//            if (newMu < 15) {
-//                System.out.println("oops");
-//            }
-            if (newMu == myMu || newMu == lastMu || newMu > maxMu || newMu < thisMinMu) {
+            if (newMu == myMu || newMu == lastMu) {
                 return newMu;
             }
-            if (((newMu-myMu)*(lastMu-myMu) > 0 && (Math.abs(newMu-myMu) >= Math.abs(lastMu-myMu))) || newMu > maxMu || newMu < thisMinMu) {
-                // getting worse
-                return myMu;
+            if (newMu > maxMu) {
+                return maxMu;
             }
-            if (newMu < myMu) {
-                // myMu was too large
-                if (maxMu > myMu) maxMu = myMu;
+            if (newMu < minMu) {
+                return minMu;
+            }
+            if (newMu > lastMu) {
+                minMu = lastMu;
             }
             else {
-                // myMu was too small
-                if (thisMinMu < myMu) thisMinMu = myMu;
+                maxMu = lastMu;
             }
             lastMu = myMu;
             myMu = newMu;
-            if (!Double.isNaN(thisMinMu) && myMu < thisMinMu) return Double.NaN;
         }
     }
     
