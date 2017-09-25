@@ -470,7 +470,7 @@ public class SimulationGraphic implements SimulationContainer {
     public static void main(String[] args) {
 //        etomica.simulation.prototypes.SwMd2D sim = new etomica.simulation.prototypes.SwMd2D();
 //        etomica.simulation.prototypes.LjMd2D sim = new etomica.simulation.prototypes.LjMd2D();
-//        etomica.simulation.prototypes.HsMc2d sim = new etomica.simulation.prototypes.HsMc2d();
+//        etomica.simulation.prototypes.HSMC2D sim = new etomica.simulation.prototypes.HSMC2D();
 //        etomica.simulation.prototypes.SWMD3D sim = new etomica.simulation.prototypes.SWMD3D();
 //        etomica.simulation.prototypes.HSMD3D sim = new etomica.simulation.prototypes.HSMD3D();
 //        final etomica.simulation.prototypes.HSMD3DNoNbr sim = new etomica.simulation.prototypes.HSMD3DNoNbr();

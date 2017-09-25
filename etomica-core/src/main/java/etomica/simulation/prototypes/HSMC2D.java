@@ -11,6 +11,7 @@ import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.DataSourceCountSteps;
+import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
@@ -23,23 +24,25 @@ import etomica.space2d.Space2D;
 import etomica.species.SpeciesSpheresMono;
 
 /**
- * Simple hard-sphere Monte Carlo simulation in 2D.
+ * Hard sphere Monte Carlo Simulation of two species in 2D.
+ * <p>
+ * Species have the same sphere diameter but non-additive cross interactions.
+ * (sigma12 = 1.2)
  *
  * @author David Kofke
  */
 
-public class HsMc2d extends Simulation {
+public class HSMC2D extends Simulation {
 
-    private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
     public SpeciesSpheresMono species, species2;
     public Box box;
-    public P2HardSphere potential;
+    public P2HardSphere potential11, potential12, potential22;
     public Controller controller;
     public DataSourceCountSteps meterCycles;
 
-    public HsMc2d() {
+    public HSMC2D() {
         super(Space2D.getInstance());
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         integrator = new IntegratorMC(this, potentialMaster);
@@ -55,24 +58,27 @@ public class HsMc2d extends Simulation {
         box.setNMolecules(species, 20);
         box.setNMolecules(species2, 20);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
-        potential = new P2HardSphere(space);
+        potential11 = new P2HardSphere(space);
+        potential12 = new P2HardSphere(space, 1.2, false);
+        potential22 = new P2HardSphere(space);
         AtomType type1 = species.getLeafType();
         AtomType type2 = species2.getLeafType();
-        potentialMaster.addPotential(potential, new AtomType[]{type1, type1});
-        potentialMaster.addPotential(potential, new AtomType[]{type1, type2});
-        potentialMaster.addPotential(potential, new AtomType[]{type2, type2});
+        potentialMaster.addPotential(potential11, new AtomType[]{type1, type1});
+        potentialMaster.addPotential(potential12, new AtomType[]{type1, type2});
+        potentialMaster.addPotential(potential22, new AtomType[]{type2, type2});
         meterCycles = new DataSourceCountSteps(integrator);
 
         integrator.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
 
-//	    LatticeRenderer.ColorSchemeCell colorSchemeCell = new LatticeRenderer.ColorSchemeCell();
-//	    display.setColorScheme(colorSchemeCell);
+    }
 
-//		elementCoordinator.go();
-//	    etomica.lattice.BravaisLattice lattice = ((IteratorFactoryCell)this.getIteratorFactory()).getLattice(box);
-//        colorSchemeCell.setLattice(lattice);
+    public static void main(String[] args) {
+
+        final HSMC2D sim = new HSMC2D();
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+        simGraphic.makeAndDisplayFrame();
     }
 
 }
