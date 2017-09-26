@@ -1,5 +1,6 @@
 package etomica.server;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
@@ -49,7 +50,7 @@ public class EtomicaServer extends Application<EtomicaServerConfig> {
 
         bootstrap.addBundle(GuiceBundle.builder()
                 .enableAutoConfig(getClass().getPackage().getName())
-                .modules(new WebSocketModule(), new EtomicaServerModule())
+                .modules(new WebSocketModule(), new EtomicaServerModule(bootstrap.getObjectMapper()))
                 .build()
         );
 
@@ -117,6 +118,12 @@ public class EtomicaServer extends Application<EtomicaServerConfig> {
 
     private static class EtomicaServerModule extends AbstractModule {
 
+        private final ObjectMapper mapper;
+
+        public EtomicaServerModule(ObjectMapper mapper) {
+            this.mapper = mapper;
+        }
+
         @Override
         protected void configure() {
         }
@@ -134,6 +141,11 @@ public class EtomicaServer extends Application<EtomicaServerConfig> {
         @Provides @Singleton
         Timer provideTimer() {
             return new Timer();
+        }
+
+        @Provides @Singleton
+        ObjectMapper provideObjectMapper() {
+            return mapper;
         }
     }
 }

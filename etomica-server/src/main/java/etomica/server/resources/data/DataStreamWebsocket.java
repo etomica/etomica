@@ -43,7 +43,7 @@ public class DataStreamWebsocket {
         DataStreamStore.DataPlumbing dataPlumbing = dataStore.get(UUID.fromString(dataId));
 
         model.getSimulation().getIntegrator().getEventManager().addListener(dataPlumbing.getPump());
-        timer.schedule(new DataStreamTimerTask(session, dataPlumbing.getDump(), model.getSimulation()), 0, 33);
+        timer.schedule(new DataStreamTimerTask(session, dataPlumbing.getDump(), model.getSimulation()), 0, 333);
     }
 
     public static class DataStreamTimerTask extends TimerTask {

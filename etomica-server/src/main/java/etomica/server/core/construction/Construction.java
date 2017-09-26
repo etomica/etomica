@@ -86,7 +86,7 @@ public class Construction {
     public static <T> Optional<T> createInstance(ConstructionParams params, SimulationModel model) throws ClassNotFoundException {
         return getEligibleConstructor(Class.forName(params.className)).flatMap(constructor -> {
             Object[] constructorParams = params.constructorParams.stream()
-                    .map(o -> model.getWrapperById((Long) o)).toArray();
+                    .map(o -> model.getWrapperById(((Integer) o).longValue()).getWrapped()).toArray();
 
             try {
                 T obj = (T) constructor.newInstance(constructorParams);
