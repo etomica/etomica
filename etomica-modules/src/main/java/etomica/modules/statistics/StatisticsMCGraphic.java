@@ -90,66 +90,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         d.height = d.height * 2 + 40;
         historyPane.setPreferredSize(d);
 
-        JPanel pePanel = new JPanel(new GridLayout(0, 1));
-        JScrollPane pePane = new JScrollPane(pePanel);
-        pePane.setPreferredSize(d);
-
-        // Add plots page to tabbed pane
-        addAsTab(pePane, "Potential Energy", true);
-
-        DataCollector collectorErr = new DataCollector();
-        DataCollector collectorCor = new DataCollector();
-        DataCollector collectorDifficulty = new DataCollector();
-        DataCollector collectorSamples = new DataCollector();
-        DataCollector collectorErrCorrected = new DataCollector();
-        for (int i = 0; i < 30; i++) {
-            AccumulatorAverageFixed acc = new AccumulatorAverageFixed(1L << i);
-            peFork.addDataSink(acc);
-            acc.addDataSink(new DataAccPusher(i, collectorErr), new AccumulatorAverage.StatType[]{acc.ERROR});
-            acc.addDataSink(new DataAccPusher(i, collectorCor), new AccumulatorAverage.StatType[]{acc.BLOCK_CORRELATION});
-            acc.addDataSink(new DataAccDifficultyPusher(i, collectorDifficulty, acc), new AccumulatorAverage.StatType[]{acc.ERROR});
-            acc.addDataSink(new DataAccSamplesPusher(i, collectorSamples, acc), new AccumulatorAverage.StatType[]{acc.STANDARD_DEVIATION, acc.ERROR});
-            acc.addDataSink(new DataAccCorrectedPusher(i, collectorErrCorrected), new AccumulatorAverage.StatType[]{acc.ERROR, acc.BLOCK_CORRELATION});
-        }
-        DisplayPlot peErrorPlot = new DisplayPlot();
-        DataPumpListener peAccPumpErr = new DataPumpListener(collectorErr, peErrorPlot.getDataSet().makeDataSink(), 100);
-        sim.integrator.getEventManager().addListener(peAccPumpErr);
-        peErrorPlot.setLabel("PE Error");
-        peErrorPlot.setLegend(new DataTag[]{collectorErr.getTag()}, "Computed");
-        peErrorPlot.getPlot().setXLog(true);
-        peErrorPlot.getPlot().setYLog(true);
-        peErrorPlot.getPlot().setYLabel("Error");
-        pePanel.add(peErrorPlot.graphic());
-        DisplayPlot peCorPlot = new DisplayPlot();
-        DataPumpListener peAccPumpCor = new DataPumpListener(collectorCor, peCorPlot.getDataSet().makeDataSink(), 100);
-        sim.integrator.getEventManager().addListener(peAccPumpCor);
-        peCorPlot.setLabel("PE Correlation");
-        peCorPlot.setDoLegend(false);
-        peCorPlot.getPlot().setYLabel("Correlation");
-        peCorPlot.getPlot().setXLog(true);
-        peCorPlot.getPlot().setYRange(-1, 1);
-        pePanel.add(peCorPlot.graphic());
-        DisplayPlot peDifficultyPlot = new DisplayPlot();
-        DataPumpListener peAccPumpDifficulty = new DataPumpListener(collectorDifficulty, peDifficultyPlot.getDataSet().makeDataSink(), 100);
-        sim.integrator.getEventManager().addListener(peAccPumpDifficulty);
-        peDifficultyPlot.setLabel("PE Difficulty");
-        peDifficultyPlot.setDoLegend(false);
-        peDifficultyPlot.getPlot().setYLabel("Difficulty");
-        peDifficultyPlot.getPlot().setXLog(true);
-        peDifficultyPlot.getPlot().setYLog(true);
-        pePanel.add(peDifficultyPlot.graphic());
-        DisplayPlot peSamplesPlot = new DisplayPlot();
-        DataPumpListener peAccPumpSamples = new DataPumpListener(collectorSamples, peSamplesPlot.getDataSet().makeDataSink(), 100);
-        sim.integrator.getEventManager().addListener(peAccPumpSamples);
-        peSamplesPlot.setLabel("PE Samples");
-        peSamplesPlot.setDoLegend(false);
-        peSamplesPlot.getPlot().setYLabel("Steps per Sample");
-        peSamplesPlot.getPlot().setXLog(true);
-        peSamplesPlot.getPlot().setYLog(true);
-        pePanel.add(peSamplesPlot.graphic());
-        DataPumpListener peAccPumpErrCorrected = new DataPumpListener(collectorErrCorrected, peErrorPlot.getDataSet().makeDataSink(), 100);
-        sim.integrator.getEventManager().addListener(peAccPumpErrCorrected);
-        peErrorPlot.setLegend(new DataTag[]{collectorErrCorrected.getTag()}, "Corrected");
+        addAsTab(createStatPanel(peFork, d, null), "Potential Energy", true);
 
         DisplayPlot ePlot = new DisplayPlot();
         peHistory.setDataSink(ePlot.getDataSet().makeDataSink());
@@ -177,6 +118,27 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         pPlot.setLabel("Pressure");
         historyPanel.add(pPlot.graphic());
 
+        MeterWidomInsertion meterWidom = new MeterWidomInsertion(space, sim.getRandom());
+        meterWidom.setNInsert(1);
+        meterWidom.setSpecies(sim.species);
+        meterWidom.setResidual(false);
+        meterWidom.setEnergyMeter(new MeterPotentialEnergy(sim.integrator.getPotentialMaster()));
+        meterWidom.setBox(sim.box);
+        meterWidom.setTemperature(sim.integrator.getTemperature());
+        DataFork widomFork = new DataFork();
+        final DataPumpListener widomPump = new DataPumpListener(meterWidom, widomFork, 1);
+//        widomPump.setInterval(1L<<60);
+        sim.integrator.getEventManager().addListener(widomPump);
+        dataStreamPumps.add(widomPump);
+        AccumulatorFactory muFactory = new AccumulatorFactory() {
+            @Override
+            public AccumulatorAverageFixed makeAccumulator() {
+                return new AccumulatorMimicMu(sim.integrator);
+            }
+        };
+        addAsTab(createStatPanel(widomFork, d, muFactory), "Chemical Potential", true);
+
+
         final DisplayTextBoxesCAE dDisplay = new DisplayTextBoxesCAE();
         dDisplay.setAccumulator(dAccumulator);
         final DisplayTextBoxesCAE pDisplay = new DisplayTextBoxesCAE();
@@ -198,6 +160,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
 
         IAction resetAction = new IAction() {
             public void actionPerformed() {
+                meterWidom.setTemperature(sim.integrator.getTemperature());
 
                 double dMin = ((int) (densityMeter.getDataAsScalar() * 100)) * 0.01;
                 if (dMin > 0) dMin -= 0.005;
@@ -219,6 +182,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
             }
         };
 
+        temperatureSelect.setSliderPostAction(resetAction);
         this.getController().getReinitButton().setPostAction(resetAction);
         this.getController().getResetAveragesButton().setPostAction(resetAction);
 
@@ -333,6 +297,79 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         });
         slowButton.setLabel("Slow");
         add(slowButton);
+    }
+
+    protected JScrollPane createStatPanel(DataFork fork, Dimension paneSize, AccumulatorFactory accFactory) {
+
+        JPanel panel = new JPanel(new GridLayout(0, 1));
+        JScrollPane pane = new JScrollPane(panel);
+        pane.setPreferredSize(paneSize);
+
+        DataCollector collectorErr = new DataCollector();
+        DataCollector collectorCor = new DataCollector();
+        DataCollector collectorDifficulty = new DataCollector();
+        DataCollector collectorSamples = new DataCollector();
+        DataCollector collectorErrCorrected = new DataCollector();
+        DataCollector collectorDiffCorrected = new DataCollector();
+        for (int i = 0; i < 30; i++) {
+            AccumulatorAverageFixed acc = new AccumulatorAverageFixed(1L << i);
+            fork.addDataSink(acc);
+            AccumulatorAverageFixed bit = acc;
+            if (accFactory != null) {
+                bit = accFactory.makeAccumulator();
+                acc.addDataSink(bit);
+            }
+            bit.addDataSink(new DataAccPusher(i, collectorErr), new AccumulatorAverage.StatType[]{acc.ERROR});
+            bit.addDataSink(new DataAccPusher(i, collectorCor), new AccumulatorAverage.StatType[]{acc.BLOCK_CORRELATION});
+            bit.addDataSink(new DataAccDifficultyPusher(i, collectorDifficulty, acc), new AccumulatorAverage.StatType[]{acc.ERROR});
+            bit.addDataSink(new DataAccSamplesPusher(i, collectorSamples, acc), new AccumulatorAverage.StatType[]{acc.STANDARD_DEVIATION, acc.ERROR});
+            bit.addDataSink(new DataAccCorrectedPusher(i, collectorErrCorrected), new AccumulatorAverage.StatType[]{acc.ERROR, acc.BLOCK_CORRELATION});
+            bit.addDataSink(new DataAccDiffCorrectedPusher(i, collectorDiffCorrected, acc), new AccumulatorAverage.StatType[]{acc.ERROR, acc.BLOCK_CORRELATION});
+        }
+        DisplayPlot peErrorPlot = new DisplayPlot();
+        DataPumpListener peAccPumpErr = new DataPumpListener(collectorErr, peErrorPlot.getDataSet().makeDataSink(), 100);
+        sim.integrator.getEventManager().addListener(peAccPumpErr);
+        peErrorPlot.setLabel("PE Error");
+        peErrorPlot.setLegend(new DataTag[]{collectorErr.getTag()}, "Computed");
+        peErrorPlot.getPlot().setXLog(true);
+        peErrorPlot.getPlot().setYLog(true);
+        peErrorPlot.getPlot().setYLabel("Error");
+        panel.add(peErrorPlot.graphic());
+        DisplayPlot peCorPlot = new DisplayPlot();
+        DataPumpListener peAccPumpCor = new DataPumpListener(collectorCor, peCorPlot.getDataSet().makeDataSink(), 100);
+        sim.integrator.getEventManager().addListener(peAccPumpCor);
+        peCorPlot.setLabel("PE Correlation");
+        peCorPlot.setDoLegend(false);
+        peCorPlot.getPlot().setYLabel("Correlation");
+        peCorPlot.getPlot().setXLog(true);
+        peCorPlot.getPlot().setYRange(-1, 1);
+        panel.add(peCorPlot.graphic());
+        DisplayPlot peDifficultyPlot = new DisplayPlot();
+        DataPumpListener peAccPumpDifficulty = new DataPumpListener(collectorDifficulty, peDifficultyPlot.getDataSet().makeDataSink(), 100);
+        sim.integrator.getEventManager().addListener(peAccPumpDifficulty);
+        peDifficultyPlot.setLabel("PE Difficulty");
+        peDifficultyPlot.setLegend(new DataTag[]{collectorDifficulty.getTag()}, "Computed");
+        peDifficultyPlot.getPlot().setYLabel("Difficulty");
+        peDifficultyPlot.getPlot().setXLog(true);
+        peDifficultyPlot.getPlot().setYLog(true);
+        panel.add(peDifficultyPlot.graphic());
+        DisplayPlot peSamplesPlot = new DisplayPlot();
+        DataPumpListener peAccPumpSamples = new DataPumpListener(collectorSamples, peSamplesPlot.getDataSet().makeDataSink(), 100);
+        sim.integrator.getEventManager().addListener(peAccPumpSamples);
+        peSamplesPlot.setLabel("PE Samples");
+        peSamplesPlot.setDoLegend(false);
+        peSamplesPlot.getPlot().setYLabel("Steps per Sample");
+        peSamplesPlot.getPlot().setXLog(true);
+        peSamplesPlot.getPlot().setYLog(true);
+        panel.add(peSamplesPlot.graphic());
+        DataPumpListener peAccPumpErrCorrected = new DataPumpListener(collectorErrCorrected, peErrorPlot.getDataSet().makeDataSink(), 100);
+        sim.integrator.getEventManager().addListener(peAccPumpErrCorrected);
+        peErrorPlot.setLegend(new DataTag[]{collectorErrCorrected.getTag()}, "Corrected");
+        DataPumpListener peAccPumpDiffCorrected = new DataPumpListener(collectorDiffCorrected, peDifficultyPlot.getDataSet().makeDataSink(), 100);
+        sim.integrator.getEventManager().addListener(peAccPumpDiffCorrected);
+        peDifficultyPlot.setLegend(new DataTag[]{collectorDiffCorrected.getTag()}, "Corrected");
+
+        return pane;
     }
 
     public static void main(String[] args) {
