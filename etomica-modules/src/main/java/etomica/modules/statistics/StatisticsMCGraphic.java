@@ -137,7 +137,10 @@ public class StatisticsMCGraphic extends SimulationGraphic {
             }
         };
         addAsTab(createStatPanel(widomFork, d, muFactory), "Chemical Potential", true);
-
+        AccumulatorAverageCollapsing widomAvg = new AccumulatorAverageCollapsing();
+        widomFork.addDataSink(widomAvg);
+        AccumulatorMimicMu accMu = new AccumulatorMimicMu(sim.integrator);
+        widomAvg.addDataSink(accMu);
 
         final DisplayTextBoxesCAE dDisplay = new DisplayTextBoxesCAE();
         dDisplay.setAccumulator(dAccumulator);
@@ -145,6 +148,9 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         pDisplay.setAccumulator(pAccumulator);
         final DisplayTextBoxesCAE peDisplay = new DisplayTextBoxesCAE();
         peDisplay.setAccumulator(peAccumulator);
+        final DisplayTextBoxesCAE muDisplay = new DisplayTextBoxesCAE();
+        muDisplay.setAccumulator(accMu);
+        muDisplay.setDoShowCurrent(false);
 
         //************* Lay out components ****************//
 
@@ -285,6 +291,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         add(dDisplay);
         add(pDisplay);
         add(peDisplay);
+        add(muDisplay);
 
         final DeviceButton slowButton = new DeviceButton(sim.getController(), null);
         slowButton.setAction(new IAction() {
