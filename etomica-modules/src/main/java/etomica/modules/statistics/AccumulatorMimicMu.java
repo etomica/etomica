@@ -26,8 +26,8 @@ public class AccumulatorMimicMu extends AccumulatorAverageFixed {
         DataDouble avg = (DataDouble) g.getData(AVERAGE.index);
         DataDouble err = (DataDouble) g.getData(ERROR.index);
         DataDouble stdev = (DataDouble) g.getData(STANDARD_DEVIATION.index);
-        err.x = err.x / avg.x;
-        stdev.x = stdev.x / avg.x;
+        err.x = temperature * err.x / avg.x;
+        stdev.x = temperature * stdev.x / avg.x;
         avg.x = -temperature * Math.log(avg.x);
         return data;
     }
