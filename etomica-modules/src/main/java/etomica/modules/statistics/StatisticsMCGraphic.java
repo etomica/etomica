@@ -8,23 +8,16 @@ import etomica.action.IAction;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.*;
-import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataFunction;
 import etomica.graphics.*;
-import etomica.integrator.IntegratorEvent;
-import etomica.integrator.IntegratorListener;
 import etomica.modifier.ModifierBoolean;
 import etomica.modules.ensembles.LJMC;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
-import etomica.units.dimensions.Null;
-import etomica.units.dimensions.Quantity;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.List;
 
 public class StatisticsMCGraphic extends SimulationGraphic {
 
@@ -83,18 +76,25 @@ public class StatisticsMCGraphic extends SimulationGraphic {
 
         DataCollector collectorErr = new DataCollector();
         DataCollector collectorCor = new DataCollector();
+        DataCollector collectorDifficulty = new DataCollector();
+        DataCollector collectorSamples = new DataCollector();
+        DataCollector collectorErrCorrected = new DataCollector();
         for (int i = 0; i < 30; i++) {
             AccumulatorAverageFixed acc = new AccumulatorAverageFixed(1L << i);
             peFork.addDataSink(acc);
             acc.addDataSink(new DataAccPusher(i, collectorErr), new AccumulatorAverage.StatType[]{acc.ERROR});
             acc.addDataSink(new DataAccPusher(i, collectorCor), new AccumulatorAverage.StatType[]{acc.BLOCK_CORRELATION});
+            acc.addDataSink(new DataAccDifficultyPusher(i, collectorDifficulty, acc), new AccumulatorAverage.StatType[]{acc.ERROR});
+            acc.addDataSink(new DataAccSamplesPusher(i, collectorSamples, acc), new AccumulatorAverage.StatType[]{acc.STANDARD_DEVIATION, acc.ERROR});
+            acc.addDataSink(new DataAccCorrectedPusher(i, collectorErrCorrected), new AccumulatorAverage.StatType[]{acc.ERROR, acc.BLOCK_CORRELATION});
         }
         DisplayPlot peErrorPlot = new DisplayPlot();
         DataPumpListener peAccPumpErr = new DataPumpListener(collectorErr, peErrorPlot.getDataSet().makeDataSink(), 100);
         sim.integrator.getEventManager().addListener(peAccPumpErr);
         peErrorPlot.setLabel("PE Error");
-        peErrorPlot.setDoLegend(false);
+        peErrorPlot.setLegend(new DataTag[]{collectorErr.getTag()}, "Error");
         peErrorPlot.getPlot().setXLog(true);
+        peErrorPlot.getPlot().setYLog(true);
         add(peErrorPlot);
         DisplayPlot peCorPlot = new DisplayPlot();
         DataPumpListener peAccPumpCor = new DataPumpListener(collectorCor, peCorPlot.getDataSet().makeDataSink(), 100);
@@ -104,6 +104,25 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         peCorPlot.getPlot().setXLog(true);
         peCorPlot.getPlot().setYRange(-1, 1);
         add(peCorPlot);
+        DisplayPlot peDifficultyPlot = new DisplayPlot();
+        DataPumpListener peAccPumpDifficulty = new DataPumpListener(collectorDifficulty, peDifficultyPlot.getDataSet().makeDataSink(), 100);
+        sim.integrator.getEventManager().addListener(peAccPumpDifficulty);
+        peDifficultyPlot.setLabel("PE Difficulty");
+        peDifficultyPlot.setDoLegend(false);
+        peDifficultyPlot.getPlot().setXLog(true);
+        peDifficultyPlot.getPlot().setYLog(true);
+        add(peDifficultyPlot);
+        DisplayPlot peSamplesPlot = new DisplayPlot();
+        DataPumpListener peAccPumpSamples = new DataPumpListener(collectorSamples, peSamplesPlot.getDataSet().makeDataSink(), 100);
+        sim.integrator.getEventManager().addListener(peAccPumpSamples);
+        peSamplesPlot.setLabel("PE Samples");
+        peSamplesPlot.setDoLegend(false);
+        peSamplesPlot.getPlot().setXLog(true);
+        peSamplesPlot.getPlot().setYLog(true);
+        add(peSamplesPlot);
+        DataPumpListener peAccPumpErrCorrected = new DataPumpListener(collectorErrCorrected, peErrorPlot.getDataSet().makeDataSink(), 100);
+        sim.integrator.getEventManager().addListener(peAccPumpErrCorrected);
+        peErrorPlot.setLegend(new DataTag[]{collectorErrCorrected.getTag()}, "Error (corrected)");
 
         DisplayPlot ePlot = new DisplayPlot();
         peHistory.setDataSink(ePlot.getDataSet().makeDataSink());
@@ -127,7 +146,6 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         pPlot.setDoLegend(false);
 
         pPlot.setLabel("Pressure");
-
 
         final DisplayTextBoxesCAE dDisplay = new DisplayTextBoxesCAE();
         dDisplay.setAccumulator(dAccumulator);
@@ -325,125 +343,6 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         private static final long serialVersionUID = 1L;
     }
 
-    public static class AccumulatorAdder implements IntegratorListener {
-
-        protected final DataFork fork;
-        protected final List<AccumulatorAverageFixed> accumulators;
-        protected final DataCollector collector;
-        protected final AccumulatorAverageFixed.StatType stat;
-
-        public AccumulatorAdder(DataFork fork, DataCollector collector) {
-            this.fork = fork;
-            accumulators = new ArrayList<>();
-            this.collector = collector;
-            this.stat = AccumulatorAverage.ERROR;
-        }
-
-        @Override
-        public void integratorInitialized(IntegratorEvent e) {
-            if (accumulators.size() == 0) {
-                AccumulatorAverageFixed acc1 = new AccumulatorAverageFixed(1);
-                fork.addDataSink(acc1);
-                accumulators.add(acc1);
-                acc1.addDataSink(new DataAccPusher(0, collector), new AccumulatorAverage.StatType[]{stat});
-            }
-        }
-
-        @Override
-        public void integratorStepStarted(IntegratorEvent e) {
-        }
-
-        @Override
-        public void integratorStepFinished(IntegratorEvent e) {
-            long n = accumulators.get(0).getSampleCount();
-            int nAcc = 64 - Long.numberOfLeadingZeros(n);
-            System.out.println(n + " " + nAcc);
-            if (nAcc > accumulators.size()) {
-                System.out.println("adding acc for bs=" + (1L << (nAcc - 1)));
-                AccumulatorAverageFixed acc = new AccumulatorAverageFixed(1L << (nAcc - 1));
-                fork.addDataSink(acc);
-                accumulators.add(acc);
-                acc.addDataSink(new DataAccPusher(accumulators.size() - 1, collector), new AccumulatorAverage.StatType[]{stat});
-            }
-        }
-    }
-
-    public static class DataAccPusher implements IDataSink {
-
-        protected final int idx;
-        protected final DataCollector collector;
-
-        public DataAccPusher(int idx, DataCollector collector) {
-            this.idx = idx;
-            this.collector = collector;
-        }
-
-        @Override
-        public void putData(IData data) {
-            collector.setData(idx, data.getValue(0));
-        }
-
-        @Override
-        public void putDataInfo(IEtomicaDataInfo dataInfo) {
-            // don't care!
-        }
-
-        @Override
-        public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
-            return null;
-        }
-    }
-
-    public static class DataCollector implements IEtomicaDataSource {
-
-        protected DataFunction data;
-        protected DataFunction.DataInfoFunction dataInfo;
-        protected final DataTag tag;
-
-        public DataCollector() {
-            tag = new DataTag();
-            setLength(0);
-        }
-
-        public void setData(int i, double x) {
-            if (data.getLength() <= i) {
-                setLength(i + 1);
-            }
-            data.getData()[i] = x;
-        }
-
-        protected void setLength(int newLength) {
-            double[] oldY = null;
-            int oldSize = 0;
-            if (dataInfo != null) {
-                oldY = data.getData();
-            }
-            data = new DataFunction(new int[]{newLength});
-            if (oldY != null) System.arraycopy(oldY, 0, data.getData(), 0, oldY.length);
-            double[] xData = new double[newLength];
-            for (int j = 0; j < newLength; j++) {
-                xData[j] = 1L << j;
-            }
-            DataDoubleArray.DataInfoDoubleArray xDataInfo = new DataDoubleArray.DataInfoDoubleArray("block size", Quantity.DIMENSION, new int[]{newLength});
-            dataInfo = new DataFunction.DataInfoFunction("stuff", Null.DIMENSION, new DataSourceIndependentSimple(xData, xDataInfo));
-            dataInfo.addTag(tag);
-        }
-
-        @Override
-        public DataTag getTag() {
-            return tag;
-        }
-
-        @Override
-        public IEtomicaDataInfo getDataInfo() {
-            return dataInfo;
-        }
-
-        @Override
-        public IData getData() {
-            return data;
-        }
-    }
 }
 
 
