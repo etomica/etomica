@@ -75,7 +75,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         final DataPumpListener pePump = new DataPumpListener(peMeter, null, 1);
 
         JPanel historyPanel = new JPanel(new GridLayout(0, 1));
-        makeHistoryPlot(dataStreamPumps, timeCounter, historyPanel, peAccumulator, pePump, "Pressure");
+        DataFork peFork = makeHistoryPlot(dataStreamPumps, timeCounter, historyPanel, peAccumulator, pePump, "Potential Energy");
 
         historyPanel.add(dPlot.graphic());
         JScrollPane historyPane = new JScrollPane(historyPanel);
@@ -96,7 +96,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         pMeter.setBox(sim.box);
         final AccumulatorAverageCollapsing pAccumulator = new AccumulatorAverageCollapsing();
         final DataPumpListener pPump = new DataPumpListener(pMeter, null, 1000);
-        DataFork peFork = makeHistoryPlot(dataStreamPumps, timeCounter, historyPanel, pAccumulator, pPump, "Potential Energy");
+        DataFork pFork = makeHistoryPlot(dataStreamPumps, timeCounter, historyPanel, pAccumulator, pPump, "Pressure");
 
         addAsTab(createStatPanel(peFork, d, null, true), "Potential Energy", true);
 
