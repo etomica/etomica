@@ -362,7 +362,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
             panel.add(blockHistoryPlot.graphic());
             blockHistoryPlot.getDataSet().setUpdatingOnAnyChange(true);
         }
-        for (int i = 0; i < 0; i++) {
+        for (int i = 0; i < 30; i++) {
             AccumulatorAverageFixed acc = new AccumulatorAverageFixed(1L << i);
             fork.addDataSink(acc);
             AccumulatorAverageFixed bit = acc;
