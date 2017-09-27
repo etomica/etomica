@@ -9,6 +9,7 @@ import etomica.action.ResetAccumulators;
 import etomica.action.SimulationDataAction;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
+import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.meter.*;
 import etomica.graphics.*;
 import etomica.modifier.ModifierBoolean;
@@ -71,13 +72,11 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         peHistory.setTimeDataSource(timeCounter);
         final AccumulatorAverageCollapsing peAccumulator = new AccumulatorAverageCollapsing();
         peAccumulator.setPushInterval(10);
-        DataFork peFork = new DataFork(new IDataSink[]{peHistory, peAccumulator});
-        final DataPumpListener pePump = new DataPumpListener(peMeter, peFork, 1);
-        sim.integrator.getEventManager().addListener(pePump);
-        peHistory.setPushInterval(1);
-        dataStreamPumps.add(pePump);
+        final DataPumpListener pePump = new DataPumpListener(peMeter, null, 1);
 
         JPanel historyPanel = new JPanel(new GridLayout(0, 1));
+        makeHistoryPlot(dataStreamPumps, timeCounter, historyPanel, peAccumulator, pePump, "Pressure");
+
         historyPanel.add(dPlot.graphic());
         JScrollPane historyPane = new JScrollPane(historyPanel);
 
@@ -92,33 +91,14 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         d.height = d.height * 2 + 40;
         historyPane.setPreferredSize(d);
 
-        addAsTab(createStatPanel(peFork, d, null, true), "Potential Energy", true);
-
-        DisplayPlot ePlot = new DisplayPlot();
-        peHistory.setDataSink(ePlot.getDataSet().makeDataSink());
-        ePlot.setDoLegend(false);
-        ePlot.getPlot().setYLabel("Potential Energy");
-        ePlot.setLabel("Energy");
-        historyPanel.add(ePlot.graphic());
-
         MeterPressure pMeter = new MeterPressure(space);
         pMeter.setIntegrator(sim.integrator);
         pMeter.setBox(sim.box);
         final AccumulatorAverageCollapsing pAccumulator = new AccumulatorAverageCollapsing();
-        AccumulatorHistory pHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
-        pHistory.setTimeDataSource(timeCounter);
-        DataFork pFork = new DataFork(new IDataSink[]{pHistory, pAccumulator});
-        final DataPumpListener pPump = new DataPumpListener(pMeter, pFork, 1000);
-        sim.integrator.getEventManager().addListener(pPump);
-        pAccumulator.setPushInterval(1);
-        dataStreamPumps.add(pPump);
+        final DataPumpListener pPump = new DataPumpListener(pMeter, null, 1000);
+        DataFork peFork = makeHistoryPlot(dataStreamPumps, timeCounter, historyPanel, pAccumulator, pPump, "Potential Energy");
 
-        DisplayPlot pPlot = new DisplayPlot();
-        pHistory.setDataSink(pPlot.getDataSet().makeDataSink());
-        pPlot.setDoLegend(false);
-        pPlot.getPlot().setYLabel("Pressure");
-        pPlot.setLabel("Pressure");
-        historyPanel.add(pPlot.graphic());
+        addAsTab(createStatPanel(peFork, d, null, true), "Potential Energy", true);
 
         MeterWidomInsertion meterWidom = new MeterWidomInsertion(space, sim.getRandom());
         meterWidom.setNInsert(1);
@@ -310,6 +290,36 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         ((SimulationDataAction) getController().getResetAveragesButton().getAction()).setStreamAction(new ResetAccumulators());
     }
 
+    protected DataFork makeHistoryPlot(ArrayList<DataPump> dataStreamPumps, DataSourceCountSteps timeCounter, JPanel historyPanel, AccumulatorAverageCollapsing pAccumulator, DataPumpListener pPump, String name) {
+        AccumulatorHistory pHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
+        pHistory.setTimeDataSource(timeCounter);
+        DataFork pFork = new DataFork(new IDataSink[]{pHistory, pAccumulator});
+        pPump.setDataSink(pFork);
+        sim.integrator.getEventManager().addListener(pPump);
+        pAccumulator.setPushInterval(1);
+        dataStreamPumps.add(pPump);
+
+        DisplayPlot pPlot = new DisplayPlot();
+        pHistory.setDataSink(pPlot.getDataSet().makeDataSink());
+        pPlot.setDoLegend(false);
+        pPlot.getPlot().setYLabel(name);
+        pPlot.setLabel(name);
+        historyPanel.add(pPlot.graphic());
+        AccumulatorHistory[] pSinks = new AccumulatorHistory[3];
+        for (int i = 0; i < pSinks.length; i++) {
+            pSinks[i] = new AccumulatorHistory(new HistoryCollapsingDiscard());
+            pSinks[i].setTimeDataSource(timeCounter);
+        }
+        DataProcessorBounds dpBounds = new DataProcessorBounds(pSinks);
+        pAccumulator.addDataSink(dpBounds, new AccumulatorAverage.StatType[]{pAccumulator.AVERAGE, pAccumulator.ERROR});
+        String[] labels = new String[]{"avg-", "avg", "avg+"};
+        for (int i = 0; i < pSinks.length; i++) {
+            pSinks[i].addDataSink(pPlot.getDataSet().makeDataSink());
+            pPlot.setLegend(new DataTag[]{pSinks[i].getTag()}, labels[i]);
+        }
+        return pFork;
+    }
+
     protected JScrollPane createStatPanel(DataFork fork, Dimension paneSize, AccumulatorFactory accFactory, boolean doHistory) {
 
         JPanel panel = new JPanel(new GridLayout(0, 1));
@@ -322,9 +332,12 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         DataCollector collectorSamples = new DataCollector();
         DataCollector collectorErrCorrected = new DataCollector();
         DataCollector collectorDiffCorrected = new DataCollector();
-        DisplayPlot blockHistoryPlot = new DisplayPlot();
-        panel.add(blockHistoryPlot.graphic());
-        blockHistoryPlot.getDataSet().setUpdatingOnAnyChange(true);
+        DisplayPlot blockHistoryPlot = doHistory ? new DisplayPlot() : null;
+        if (doHistory) {
+            blockHistoryPlot.getPlot().setYLabel("Block Averages");
+            panel.add(blockHistoryPlot.graphic());
+            blockHistoryPlot.getDataSet().setUpdatingOnAnyChange(true);
+        }
         for (int i = 0; i < 30; i++) {
             AccumulatorAverageFixed acc = new AccumulatorAverageFixed(1L << i);
             fork.addDataSink(acc);
@@ -339,7 +352,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
             bit.addDataSink(new DataAccSamplesPusher(i, collectorSamples, acc), new AccumulatorAverage.StatType[]{acc.STANDARD_DEVIATION, acc.ERROR});
             bit.addDataSink(new DataAccCorrectedPusher(i, collectorErrCorrected), new AccumulatorAverage.StatType[]{acc.ERROR, acc.BLOCK_CORRELATION});
             bit.addDataSink(new DataAccDiffCorrectedPusher(i, collectorDiffCorrected, acc), new AccumulatorAverage.StatType[]{acc.ERROR, acc.BLOCK_CORRELATION});
-            if (i % 5 == 0) {
+            if (doHistory && i % 5 == 0) {
                 AccumulatorHistory accBlockHistory = new AccumulatorHistory(new HistoryStatistics(100));
                 bit.setBlockDataSink(accBlockHistory);
                 accBlockHistory.addDataSink(blockHistoryPlot.getDataSet().makeDataSink());
@@ -409,23 +422,9 @@ public class StatisticsMCGraphic extends SimulationGraphic {
             sp = Space3D.getInstance();
         }
 
-        StatisticsMCGraphic ljmdGraphic = new StatisticsMCGraphic(new LJMC(sp), sp);
+        StatisticsMCGraphic ljmcGraphic = new StatisticsMCGraphic(new LJMC(sp), sp);
         SimulationGraphic.makeAndDisplayFrame
-                (ljmdGraphic.getPanel(), APP_NAME);
-    }
-
-    public static class Applet extends JApplet {
-
-        public void init() {
-            getRootPane().putClientProperty(
-                    "defeatSystemEventQueueCheck", Boolean.TRUE);
-            Space sp = Space3D.getInstance();
-            StatisticsMCGraphic ljmdGraphic = new StatisticsMCGraphic(new LJMC(sp), sp);
-
-            getContentPane().add(ljmdGraphic.getPanel());
-        }
-
-        private static final long serialVersionUID = 1L;
+                (ljmcGraphic.getPanel(), APP_NAME);
     }
 
 }
