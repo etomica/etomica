@@ -7,11 +7,10 @@ import etomica.data.*;
 import etomica.data.types.DataDouble;
 import etomica.units.dimensions.Null;
 
-public class DataProcessorBounds extends DataProcessor {
+public class DataProcessorBounds extends DataProcessorForked {
 
     protected final DataDouble[] x;
     protected final DataDouble.DataInfoDouble[] xInfo;
-    protected IDataSink[] sinks;
     protected DataTag[] tags;
 
     public DataProcessorBounds(IDataSink[] sinks) {
@@ -26,8 +25,8 @@ public class DataProcessorBounds extends DataProcessor {
             tags[i] = new DataTag();
             xInfo[i].addTag(tags[i]);
             sinks[i].putDataInfo(xInfo[i]);
+            addDataSink(sinks[i]);
         }
-        this.sinks = sinks;
     }
 
     public DataTag getTag(int i) {
@@ -38,6 +37,7 @@ public class DataProcessorBounds extends DataProcessor {
     protected IData processData(IData inputData) {
         double avg = inputData.getValue(0);
         double err = inputData.getValue(1);
+        IDataSink[] sinks = getDataSinks();
         for (int i = 0; i < 3; i++) {
             x[i].x = avg + (i - 1) * err;
             sinks[i].putData(x[i]);

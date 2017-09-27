@@ -49,35 +49,23 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         // Number density box
         final MeterDensity densityMeter = new MeterDensity(sim.getSpace());
         densityMeter.setBox(sim.box);
-        AccumulatorHistory dHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
-        dHistory.setTimeDataSource(timeCounter);
-        final AccumulatorAverageCollapsing dAccumulator = new AccumulatorAverageCollapsing();
-        dAccumulator.setPushInterval(10);
-        double dmin = ((int) (densityMeter.getDataAsScalar() * 100)) * 0.01;
-        if (dmin > 0) dmin -= 0.005;
-        DataFork dFork = new DataFork(new IDataSink[]{dHistory, dAccumulator});
-        final DataPumpListener dPump = new DataPumpListener(densityMeter, dFork, 100);
-        sim.integrator.getEventManager().addListener(dPump);
-        dHistory.setPushInterval(1);
+        final DataPumpListener dPump = new DataPumpListener(densityMeter, null, 100);
         dataStreamPumps.add(dPump);
 
-        DisplayPlot dPlot = new DisplayPlot();
-        dHistory.setDataSink(dPlot.getDataSet().makeDataSink());
-        dPlot.setDoLegend(false);
-        dPlot.getPlot().setYLabel("Density");
-        dPlot.setLabel("Density");
+        JPanel historyPanel = new JPanel(new GridLayout(0, 1));
+        HistoryPlotBits dHPB = makeHistoryPlot(dataStreamPumps, timeCounter, historyPanel, dPump, "Density");
+        DisplayPlot dPlot = dHPB.plot;
+        dHPB.avg.setPushInterval(10);
 
         MeterPotentialEnergyFromIntegrator peMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         AccumulatorHistory peHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
         peHistory.setTimeDataSource(timeCounter);
-        final AccumulatorAverageCollapsing peAccumulator = new AccumulatorAverageCollapsing();
-        peAccumulator.setPushInterval(10);
         final DataPumpListener pePump = new DataPumpListener(peMeter, null, 1);
 
-        JPanel historyPanel = new JPanel(new GridLayout(0, 1));
-        DataFork peFork = makeHistoryPlot(dataStreamPumps, timeCounter, historyPanel, peAccumulator, pePump, "Potential Energy");
+        HistoryPlotBits peHPB = makeHistoryPlot(dataStreamPumps, timeCounter, historyPanel, pePump, "Potential Energy");
+        DataFork peFork = peHPB.fork;
+        peHPB.avg.setPushInterval(10);
 
-        historyPanel.add(dPlot.graphic());
         JScrollPane historyPane = new JScrollPane(historyPanel);
 
         // Add plots page to tabbed pane
@@ -94,9 +82,8 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         MeterPressure pMeter = new MeterPressure(space);
         pMeter.setIntegrator(sim.integrator);
         pMeter.setBox(sim.box);
-        final AccumulatorAverageCollapsing pAccumulator = new AccumulatorAverageCollapsing();
         final DataPumpListener pPump = new DataPumpListener(pMeter, null, 1000);
-        DataFork pFork = makeHistoryPlot(dataStreamPumps, timeCounter, historyPanel, pAccumulator, pPump, "Pressure");
+        HistoryPlotBits pHPB = makeHistoryPlot(dataStreamPumps, timeCounter, historyPanel, pPump, "Pressure");
 
         addAsTab(createStatPanel(peFork, d, null, true), "Potential Energy", true);
 
@@ -107,10 +94,8 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         meterWidom.setEnergyMeter(new MeterPotentialEnergy(sim.integrator.getPotentialMaster()));
         meterWidom.setBox(sim.box);
         meterWidom.setTemperature(sim.integrator.getTemperature());
-        DataFork widomFork = new DataFork();
-        final DataPumpListener widomPump = new DataPumpListener(meterWidom, widomFork, 1);
-//        widomPump.setInterval(1L<<60);
-        sim.integrator.getEventManager().addListener(widomPump);
+        final DataPumpListener widomPump = new DataPumpListener(meterWidom, null, 1);
+        HistoryPlotBits widomHPB = makeMuHistoryPlot(dataStreamPumps, timeCounter, historyPanel, widomPump, "Chemical Potential");
         dataStreamPumps.add(widomPump);
         AccumulatorFactory muFactory = new AccumulatorFactory() {
             @Override
@@ -118,20 +103,20 @@ public class StatisticsMCGraphic extends SimulationGraphic {
                 return new AccumulatorMimicMu(sim.integrator);
             }
         };
-        addAsTab(createStatPanel(widomFork, d, muFactory, false), "Chemical Potential", true);
-        AccumulatorAverageCollapsing widomAvg = new AccumulatorAverageCollapsing();
-        widomFork.addDataSink(widomAvg);
-        AccumulatorMimicMu accMu = new AccumulatorMimicMu(sim.integrator);
-        widomAvg.addDataSink(accMu);
+        addAsTab(createStatPanel(widomHPB.fork, d, muFactory, false), "Chemical Potential", true);
+//        AccumulatorAverageCollapsing widomAvg = new AccumulatorAverageCollapsing();
+//        widomHPB.fork.addDataSink(widomAvg);
+//        AccumulatorMimicMu accMu = new AccumulatorMimicMu(sim.integrator);
+//        widomAvg.addDataSink(accMu);
 
         final DisplayTextBoxesCAE dDisplay = new DisplayTextBoxesCAE();
-        dDisplay.setAccumulator(dAccumulator);
+        dDisplay.setAccumulator(dHPB.avg);
         final DisplayTextBoxesCAE pDisplay = new DisplayTextBoxesCAE();
-        pDisplay.setAccumulator(pAccumulator);
+        pDisplay.setAccumulator(pHPB.avg);
         final DisplayTextBoxesCAE peDisplay = new DisplayTextBoxesCAE();
-        peDisplay.setAccumulator(peAccumulator);
+        peDisplay.setAccumulator(peHPB.avg);
         final DisplayTextBoxesCAE muDisplay = new DisplayTextBoxesCAE();
-        muDisplay.setAccumulator(accMu);
+        muDisplay.setAccumulator(widomHPB.avg);
         muDisplay.setDoShowCurrent(false);
 
         //************* Lay out components ****************//
@@ -150,20 +135,17 @@ public class StatisticsMCGraphic extends SimulationGraphic {
             public void actionPerformed() {
                 meterWidom.setTemperature(sim.integrator.getTemperature());
 
-                double dMin = ((int) (densityMeter.getDataAsScalar() * 100)) * 0.01;
-                if (dMin > 0) dMin -= 0.005;
-
                 // Reset density (Density is set and won't change, but
                 // do this anyway)
-                dDisplay.putData(dAccumulator.getData());
+                dDisplay.putData(dHPB.avg.getData());
                 dDisplay.repaint();
 
                 // IS THIS WORKING?
                 pPump.actionPerformed();
-                pDisplay.putData(pAccumulator.getData());
+                pDisplay.putData(pHPB.avg.getData());
                 pDisplay.repaint();
                 pePump.actionPerformed();
-                peDisplay.putData(peAccumulator.getData());
+                peDisplay.putData(peHPB.avg.getData());
                 peDisplay.repaint();
 
                 getDisplayBox(sim.box).graphic().repaint();
@@ -290,34 +272,76 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         ((SimulationDataAction) getController().getResetAveragesButton().getAction()).setStreamAction(new ResetAccumulators());
     }
 
-    protected DataFork makeHistoryPlot(ArrayList<DataPump> dataStreamPumps, DataSourceCountSteps timeCounter, JPanel historyPanel, AccumulatorAverageCollapsing pAccumulator, DataPumpListener pPump, String name) {
-        AccumulatorHistory pHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
-        pHistory.setTimeDataSource(timeCounter);
-        DataFork pFork = new DataFork(new IDataSink[]{pHistory, pAccumulator});
-        pPump.setDataSink(pFork);
-        sim.integrator.getEventManager().addListener(pPump);
-        pAccumulator.setPushInterval(1);
-        dataStreamPumps.add(pPump);
+    public static class HistoryPlotBits {
+        public DisplayPlot plot;
+        public DataFork fork;
+        public AccumulatorHistory history;
+        public AccumulatorAverage avg;
+    }
 
-        DisplayPlot pPlot = new DisplayPlot();
-        pHistory.setDataSink(pPlot.getDataSet().makeDataSink());
-        pPlot.setDoLegend(false);
-        pPlot.getPlot().setYLabel(name);
-        pPlot.setLabel(name);
-        historyPanel.add(pPlot.graphic());
+    protected HistoryPlotBits makeHistoryPlot(ArrayList<DataPump> dataStreamPumps, DataSourceCountSteps timeCounter, JPanel historyPanel, DataPumpListener pump, String name) {
+        HistoryPlotBits rv = new HistoryPlotBits();
+        rv.history = new AccumulatorHistory(new HistoryCollapsingAverage());
+        rv.history.setTimeDataSource(timeCounter);
+        rv.avg = new AccumulatorAverageCollapsing(100);
+        rv.fork = new DataFork(new IDataSink[]{rv.history, rv.avg});
+        pump.setDataSink(rv.fork);
+        sim.integrator.getEventManager().addListener(pump);
+        rv.avg.setPushInterval(1);
+        dataStreamPumps.add(pump);
+
+        rv.plot = new DisplayPlot();
+        rv.history.setDataSink(rv.plot.getDataSet().makeDataSink());
+        rv.plot.setDoLegend(false);
+        rv.plot.getPlot().setYLabel(name);
+        rv.plot.setLabel(name);
+        historyPanel.add(rv.plot.graphic());
         AccumulatorHistory[] pSinks = new AccumulatorHistory[3];
         for (int i = 0; i < pSinks.length; i++) {
             pSinks[i] = new AccumulatorHistory(new HistoryCollapsingDiscard());
             pSinks[i].setTimeDataSource(timeCounter);
         }
         DataProcessorBounds dpBounds = new DataProcessorBounds(pSinks);
-        pAccumulator.addDataSink(dpBounds, new AccumulatorAverage.StatType[]{pAccumulator.AVERAGE, pAccumulator.ERROR});
+        rv.avg.addDataSink(dpBounds, new AccumulatorAverage.StatType[]{rv.avg.AVERAGE, rv.avg.ERROR});
         String[] labels = new String[]{"avg-", "avg", "avg+"};
         for (int i = 0; i < pSinks.length; i++) {
-            pSinks[i].addDataSink(pPlot.getDataSet().makeDataSink());
-            pPlot.setLegend(new DataTag[]{pSinks[i].getTag()}, labels[i]);
+            pSinks[i].addDataSink(rv.plot.getDataSet().makeDataSink());
+            rv.plot.setLegend(new DataTag[]{pSinks[i].getTag()}, labels[i]);
         }
-        return pFork;
+        return rv;
+    }
+
+    protected HistoryPlotBits makeMuHistoryPlot(ArrayList<DataPump> dataStreamPumps, DataSourceCountSteps timeCounter, JPanel historyPanel, DataPumpListener pump, String name) {
+        HistoryPlotBits rv = new HistoryPlotBits();
+        AccumulatorAverageCollapsing avg1 = new AccumulatorAverageCollapsing(100);
+        AccumulatorMimicMu accMu = new AccumulatorMimicMu(sim.integrator);
+        avg1.addDataSink(accMu);
+        rv.avg = accMu;
+        rv.fork = new DataFork(new IDataSink[]{rv.history, avg1});
+        pump.setDataSink(rv.fork);
+        sim.integrator.getEventManager().addListener(pump);
+        accMu.setPushInterval(1);
+        rv.avg.setPushInterval(1);
+        dataStreamPumps.add(pump);
+
+        rv.plot = new DisplayPlot();
+        rv.plot.setDoLegend(false);
+        rv.plot.getPlot().setYLabel(name);
+        rv.plot.setLabel(name);
+        historyPanel.add(rv.plot.graphic());
+        AccumulatorHistory[] pSinks = new AccumulatorHistory[3];
+        for (int i = 0; i < pSinks.length; i++) {
+            pSinks[i] = new AccumulatorHistory(new HistoryCollapsingDiscard());
+            pSinks[i].setTimeDataSource(timeCounter);
+        }
+        DataProcessorBounds dpBounds = new DataProcessorBounds(pSinks);
+        rv.avg.addDataSink(dpBounds, new AccumulatorAverage.StatType[]{rv.avg.AVERAGE, rv.avg.ERROR});
+        String[] labels = new String[]{"avg-", "avg", "avg+"};
+        for (int i = 0; i < pSinks.length; i++) {
+            pSinks[i].addDataSink(rv.plot.getDataSet().makeDataSink());
+            rv.plot.setLegend(new DataTag[]{pSinks[i].getTag()}, labels[i]);
+        }
+        return rv;
     }
 
     protected JScrollPane createStatPanel(DataFork fork, Dimension paneSize, AccumulatorFactory accFactory, boolean doHistory) {
@@ -338,7 +362,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
             panel.add(blockHistoryPlot.graphic());
             blockHistoryPlot.getDataSet().setUpdatingOnAnyChange(true);
         }
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 0; i++) {
             AccumulatorAverageFixed acc = new AccumulatorAverageFixed(1L << i);
             fork.addDataSink(acc);
             AccumulatorAverageFixed bit = acc;

@@ -62,7 +62,7 @@ public abstract class DataProcessor implements DataPipe {
     public void putDataInfo(IEtomicaDataInfo inputDataInfo) {
         dataInfo = processDataInfo(inputDataInfo);
         insertTransformerIfNeeded();
-        if (dataSink != null) {
+        if (dataSink != null && dataInfo != null) {
             dataSink.putDataInfo(dataInfo);
         }
     }
