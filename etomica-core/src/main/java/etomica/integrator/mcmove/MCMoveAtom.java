@@ -11,6 +11,7 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.potential.PotentialCalculationEnergySum;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -97,6 +98,8 @@ public class MCMoveAtom extends MCMoveBoxStep {
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();
         if (uOld > 1e8 && !fixOverlap) {
+            PotentialCalculationEnergySum.debug = true;
+            uOld = energyMeter.getDataAsScalar();
             throw new RuntimeException("atom " + atom + " in box " + box + " has an overlap");
         }
         translationVector.setRandomCube(random);
