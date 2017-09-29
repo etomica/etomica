@@ -1,8 +1,9 @@
 package etomica.osmoticvirial;
 
 import etomica.atom.*;
-import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.AtomIterator;
+import etomica.atom.iterator.AtomIteratorArrayList;
+import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.box.Box;
 import etomica.box.RandomPositionSource;
 import etomica.box.RandomPositionSourceRectangular;
@@ -14,7 +15,6 @@ import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.IPotential;
 import etomica.potential.IPotentialAtomic;
-import etomica.potential.Potential;
 import etomica.potential.PotentialArray;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -37,67 +37,90 @@ public class MCMoveGeometricCluster extends MCMoveBox {
     protected final IRandom random;
     protected IPotentialAtomic[][] potentials;
     protected final AtomPair atomPair;
+    protected final AtomIteratorArrayListSimple atomIterator;
 
     public MCMoveGeometricCluster(PotentialMasterCell potentialMaster, Space space, IRandom random,
                                   double neighborRange, IntegratorMC integratorMC) {
+
         super(potentialMaster);
-        oldPosition = space.makeVector();
-        positionSource = new RandomPositionSourceRectangular(space, random);
-        atomSource = new AtomSourceRandomLeaf();
-        ((AtomSourceRandomLeaf)atomSource).setRandomNumberGenerator(random);
         clusterAtoms = new HashSet<>();
         jNeighbors = new HashSet<>();
         neighbors = new Api1ACell(space.D(),neighborRange,potentialMaster.getCellAgentManager());
         atomPairs = new AtomArrayList();
+        oldPosition = space.makeVector();
+        positionSource = new RandomPositionSourceRectangular(space, random);
+        atomSource = new AtomSourceRandomLeaf();
+        ((AtomSourceRandomLeaf)atomSource).setRandomNumberGenerator(random);
         neighbors.setDirection(null);
         this.integratorMC = integratorMC;
         this.random = random;
         potentials = new IPotentialAtomic[0][0];
         atomPair = new AtomPair();
+        atomIterator = new AtomIteratorArrayListSimple();
     }
 
     @Override
     public AtomIterator affectedAtoms() {
-        return null;
+        AtomArrayList atomList = (AtomArrayList) atomIterator.getList();
+        atomList.clear();
+        for(IAtom atom: clusterAtoms){
+            atomList.add(atom);
+        }
+        return atomIterator;
     }
 
     @Override
     public double energyChange() {
         return 0;
-    }
+    } //this isn't correct in general
 
     @Override
     public boolean doTrial() {
+        NeighborCellManager ncm = ((PotentialMasterCell) potential).getNbrCellManager(box);
         pivot = positionSource.randomPosition();
         IAtom atomI = atomSource.getAtom();
+
         if (atomI == null) return false;
         clusterAtoms.clear();
-        NeighborCellManager ncm = ((PotentialMasterCell) potential).getNbrCellManager(box);
+        clusterAtoms.add(atomI);
+       // System.out.println("molecule count "+box.getMoleculeList().getMoleculeCount());
         outer: while(true){
             jNeighbors.clear();
             gatherNeighbors(atomI);
             moveAtom(atomI.getPosition());
-            ncm.assignCell(atomI);
+            check12(atomI);
+            ncm.updateCell(atomI);
+            check12(atomI);
             gatherNeighbors(atomI);
             for (IAtom atomJ:jNeighbors) {
                 atomPairs.add(atomI);
                 atomPairs.add(atomJ);
-            }
+                 }
             while(atomPairs.getAtomCount() > 0){
                 IAtom atomJ = atomPairs.remove(atomPairs.getAtomCount()-1);
                 atomI = atomPairs.remove(atomPairs.getAtomCount()-1);
                 double E = computeEnergy(atomI, atomJ);
+                check12(atomJ);
                 moveAtom(atomJ.getPosition());
+
                 E -= computeEnergy(atomI, atomJ);
                 double p = 1-Math.exp(-E/integratorMC.getTemperature());
                 moveAtom(atomJ.getPosition());
+                check12(atomJ);
                 if(p<0 || p<random.nextDouble()) continue;
                 atomI = atomJ;
+                clusterAtoms.add(atomI);
                 continue outer;
             }
             break;
         }
         return true;
+    }
+
+    private void check12(IAtom atomI){
+        if(true)
+            return;
+       // System.out.println("position "+atomI.getPosition());
     }
 
     private double computeEnergy(IAtom atomI, IAtom atomJ){
@@ -143,6 +166,7 @@ public class MCMoveGeometricCluster extends MCMoveBox {
         super.setBox(box);
         neighbors.setBox(box);
         positionSource.setBox(box);
+        atomSource.setBox(box);
     }
 
     private void moveAtom(Vector position){

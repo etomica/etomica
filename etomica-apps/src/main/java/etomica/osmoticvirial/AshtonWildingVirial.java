@@ -35,6 +35,7 @@ public class AshtonWildingVirial extends Simulation {
     public Controller controller;
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
+    public MCMoveGeometricCluster mcMoveGeometricCluster;
     public SpeciesSpheresMono species1;
     public ActivityIntegrate activityIntegrate;
 
@@ -54,8 +55,9 @@ public class AshtonWildingVirial extends Simulation {
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
-
+        mcMoveGeometricCluster = new MCMoveGeometricCluster(potentialMaster, space, random, 2, integrator);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
+        integrator.getMoveManager().addMCMove(mcMoveGeometricCluster);
 
         double sigma1 = 1.0;
 
@@ -100,10 +102,10 @@ public class AshtonWildingVirial extends Simulation {
             ParseArgs.doParseArgs(params, args);
         }
         else{
-            params.numAtoms = 3;
-            params.numSteps = 1000000;
+            params.numAtoms = 300;
+            params.numSteps = 100;
             params.nBlocks = 100;
-            params.density = 0.001;
+            params.density = 0.8;
             params.computeIdeal = false;
         }
 
@@ -112,8 +114,8 @@ public class AshtonWildingVirial extends Simulation {
         int nBlocks = params.nBlocks;
         double density = params.density;
         boolean computeIdeal = params.computeIdeal;
-        boolean graphics = false;
-        boolean computeDep = true;
+        boolean graphics = true;
+        boolean computeDep = false;
 
         long numSamples = numSteps / numAtoms;
         long samplesPerBlock = numSamples / nBlocks;

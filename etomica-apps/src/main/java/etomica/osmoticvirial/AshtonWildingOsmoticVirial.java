@@ -26,6 +26,7 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+import etomica.util.random.RandomMersenneTwister;
 
 /**
  * Implements Ashton and Wilding method for calculation of osmotic virial coefficient (B2, B3)
@@ -39,6 +40,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
     public MCMoveInsertDelete mcMoveInsertDelete;
+    public MCMoveGeometricCluster mcMoveGeometricCluster;
     public SpeciesSpheresMono species1, species2;
     public ActivityIntegrate activityIntegrate;
 
@@ -51,6 +53,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
     public AshtonWildingOsmoticVirial(int numAtoms, double vf, double q, boolean computeIdeal){
 
         super(Space3D.getInstance());
+        setRandom(new RandomMersenneTwister(4));
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
 
         integrator = new IntegratorMC(this, potentialMaster);
@@ -58,7 +61,8 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         getController().addAction(activityIntegrate);
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         mcMoveInsertDelete = new MCMoveInsertDelete(potentialMaster, random, space);
-
+        mcMoveGeometricCluster = new MCMoveGeometricCluster(potentialMaster, space, random, 1.5, integrator);
+        integrator.getMoveManager().addMCMove(mcMoveGeometricCluster);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         integrator.getMoveManager().addMCMove(mcMoveInsertDelete);
 
@@ -77,9 +81,11 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         mcMoveInsertDelete.setSpecies(species2);
         double mu = (8*vf-9*vf*vf+3*vf*vf*vf) / Math.pow((1-vf),3)+Math.log(6*vf/(Math.PI*Math.pow(sigma2,3))); //Configurational chemical potential from Carnahan–Starling equation of state
         System.out.println("mu "+ mu+" muig "+Math.log(6*vf/(Math.PI*Math.pow(sigma2,3))));
+       // mu = Double.MAX_VALUE;
         mcMoveInsertDelete.setMu(mu);
 
-        box.setNMolecules(species1, numAtoms);
+        box.setNMolecules(species1, 3);
+        box.setNMolecules(species2, 20);
 
         potential1 = new P2HardSphere(space, sigma1, false);
         potential2 = new P2HardSphere(space, sigma2, false);
@@ -113,7 +119,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         }
         else{
             params.numAtoms = 3;
-            params.numSteps = 10000000;
+            params.numSteps = 100;
             params.nBlocks = 100;
             params.vf = 0.1;
             params.computeIdeal = false;
@@ -147,10 +153,8 @@ public class AshtonWildingOsmoticVirial extends Simulation {
             ((DiameterHashByType)simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species1.getLeafType(), 1);
             ((DiameterHashByType)simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species2.getLeafType(), q);
             simGraphic.makeAndDisplayFrame(appName);
-
             return;
         }
-
         sim.activityIntegrate.setMaxSteps(numSteps/10);
         sim.getController().actionPerformed();
         sim.getController().reset();

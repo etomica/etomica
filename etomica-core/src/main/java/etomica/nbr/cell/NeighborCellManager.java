@@ -243,6 +243,14 @@ public class NeighborCellManager implements BoxCellManager, BoundaryEventListene
         atomCell.addAtom(atom);
         agentManager.setAgent(atom, atomCell);
     }
+
+    public void updateCell(IAtom atom) {
+        Boundary boundary = box.getBoundary();
+        Cell cell = getCell(atom);
+        cell.removeAtom(atom);
+        atom.getPosition().PE(boundary.centralImage(atom.getPosition()));
+        assignCell(atom);
+    }
     
     public IListener makeMCMoveListener() {
         return new MyMCMoveListener(box,this);
@@ -292,18 +300,12 @@ public class NeighborCellManager implements BoxCellManager, BoundaryEventListene
                 AtomIterator iterator = move.affectedAtoms(box);
                 iterator.reset();
                 for (IAtom atom = iterator.nextAtom(); atom != null; atom = iterator.nextAtom()) {
-                    updateCell(atom);
+                    neighborCellManager.updateCell(atom);
                 }
             }
         }
 
-        private void updateCell(IAtom atom) {
-            Boundary boundary = box.getBoundary();
-            Cell cell = neighborCellManager.getCell(atom);
-            cell.removeAtom(atom);
-            atom.getPosition().PE(boundary.centralImage(atom.getPosition()));
-            neighborCellManager.assignCell(atom);
-        }
+
         
         private static final long serialVersionUID = 1L;
         private final Box box;
