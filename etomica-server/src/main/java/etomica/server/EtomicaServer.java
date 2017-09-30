@@ -14,15 +14,18 @@ import etomica.meta.wrappers.Wrapper;
 import etomica.server.health.BasicHealthCheck;
 import etomica.server.resources.*;
 import etomica.server.resources.data.DataStreamWebsocket;
+import etomica.server.serializers.DataSerializer;
 import etomica.server.serializers.PropertySerializer;
 import etomica.server.serializers.SimulationModelSerializer;
 import etomica.server.serializers.WrapperSerializer;
 import etomica.simulation.Simulation;
 import io.dropwizard.Application;
+import io.dropwizard.jackson.Jackson;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.websockets.WebsocketBundle;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.eclipse.jetty.websocket.jsr356.server.BasicServerEndpointConfig;
 import ru.vyarus.dropwizard.guice.GuiceBundle;
 
 import javax.inject.Inject;
@@ -39,6 +42,16 @@ import java.util.concurrent.ConcurrentHashMap;
 public class EtomicaServer extends Application<EtomicaServerConfig> {
     private final Map<UUID, SimulationModel> simStore = new ConcurrentHashMap<>();
     private final Timer timer = new Timer();
+    private final ObjectMapper mapper = Jackson.newObjectMapper();
+
+    {
+        SimpleModule mod = new SimpleModule("Etomica Module");
+        mod.addSerializer(new PropertySerializer(Property.class));
+        mod.addSerializer(new WrapperSerializer(Wrapper.class));
+        mod.addSerializer(new SimulationModelSerializer(SimulationModel.class));
+        mod.addSerializer(new DataSerializer());
+        mapper.registerModule(mod);
+    }
 
     @Override
     public String getName() {
@@ -47,19 +60,13 @@ public class EtomicaServer extends Application<EtomicaServerConfig> {
 
     @Override
     public void initialize(Bootstrap<EtomicaServerConfig> bootstrap) {
+        bootstrap.setObjectMapper(mapper);
 
         bootstrap.addBundle(GuiceBundle.builder()
                 .enableAutoConfig(getClass().getPackage().getName())
                 .modules(new WebSocketModule(), new EtomicaServerModule(bootstrap.getObjectMapper()))
                 .build()
         );
-
-        SimpleModule mod = new SimpleModule("Etomica Module");
-        mod.addSerializer(new PropertySerializer(Property.class));
-        mod.addSerializer(new WrapperSerializer(Wrapper.class));
-        mod.addSerializer(new SimulationModelSerializer(SimulationModel.class));
-
-        bootstrap.getObjectMapper().registerModule(mod);
 
         WebsocketBundle wsBundle = new WebsocketBundle(new WSConfigurator());
         wsBundle.addEndpoint(EchoServer.class);
