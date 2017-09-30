@@ -4,6 +4,7 @@
 
 package etomica.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import etomica.units.dimensions.Dimension;
 
 public interface IEtomicaDataInfo extends IDataInfo {
@@ -40,12 +41,14 @@ public interface IEtomicaDataInfo extends IDataInfo {
      * instance of the array can be returned each time the method is called,
      * so the array elements should not be modified.
      */
+    @JsonIgnore
     public DataTag[] getTags();
 
     /**
      * Returns a mutable factory that can make copies of this instance of
      * DataInfo.
      */
+    @JsonIgnore
     public IEtomicaDataInfoFactory getFactory();
 
 }
