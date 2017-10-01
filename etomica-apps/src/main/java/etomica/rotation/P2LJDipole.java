@@ -7,6 +7,7 @@ package etomica.rotation;
 import etomica.atom.IAtomOriented;
 import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
+import etomica.molecule.IMoleculeOriented;
 import etomica.potential.IPotentialMolecularTorque;
 import etomica.potential.PotentialMolecular;
 import etomica.simulation.Simulation;
@@ -74,8 +75,8 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
     }
 
     public double energy(IMoleculeList pair){
-        IAtomOriented atom1 = (IAtomOriented)pair.getMolecule(0);
-        IAtomOriented atom2 = (IAtomOriented)pair.getMolecule(1);
+        IMoleculeOriented atom1 = (IMoleculeOriented)pair.getMolecule(0);
+        IMoleculeOriented atom2 = (IMoleculeOriented)pair.getMolecule(1);
 
         // LJ contributation
 
@@ -146,8 +147,8 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
 
     public double virial(IMoleculeList atoms) {
         gradient(atoms);
-        IAtomOriented atom1 = (IAtomOriented)atoms.getMolecule(0);
-        IAtomOriented atom2 = (IAtomOriented)atoms.getMolecule(1);
+        IMoleculeOriented atom1 = (IMoleculeOriented)atoms.getMolecule(0);
+        IMoleculeOriented atom2 = (IMoleculeOriented)atoms.getMolecule(1);
 
         // LJ contributation
 
@@ -162,8 +163,8 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
 
 
     public Vector[][] gradientAndTorque(IMoleculeList atoms) {
-        IAtomOriented atom1 = (IAtomOriented)atoms.getMolecule(0);
-        IAtomOriented atom2 = (IAtomOriented)atoms.getMolecule(1);
+        IMoleculeOriented atom1 = (IMoleculeOriented)atoms.getMolecule(0);
+        IMoleculeOriented atom2 = (IMoleculeOriented)atoms.getMolecule(1);
 
         // LJ contributation
 
