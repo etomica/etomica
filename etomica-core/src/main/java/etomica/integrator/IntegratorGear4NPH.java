@@ -13,8 +13,8 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
+import etomica.data.IDataSource;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
@@ -226,7 +226,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
 
     //meter for enthalpy, obtaining values from
     //most recent call to the ForceSumNPH instance
-    public static final class MeterEnthalpy implements IEtomicaDataSource, java.io.Serializable {
+    public static final class MeterEnthalpy implements IDataSource, java.io.Serializable {
         
         public MeterEnthalpy(IntegratorGear4NPH integrator, int D) {
             data = new DataDouble();

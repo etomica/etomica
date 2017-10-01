@@ -4,8 +4,8 @@
 
 package etomica.data;
 
-import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 
 /**
  * DataPump class that takes data at steps pow^i, i=0,1,2,3...
@@ -19,12 +19,12 @@ public class DataPumpListenerPowStrict extends DataPump implements IntegratorLis
     protected long interval;
     protected long intervalCount;
     protected int pow;
-    
-    public DataPumpListenerPowStrict(IEtomicaDataSource dataSource, IDataSink dataSink) {
+
+    public DataPumpListenerPowStrict(IDataSource dataSource, IDataSink dataSink) {
         this(dataSource, dataSink, 2);
     }
 
-    public DataPumpListenerPowStrict(IEtomicaDataSource dataSource, IDataSink dataSink, int pow) {
+    public DataPumpListenerPowStrict(IDataSource dataSource, IDataSink dataSink, int pow) {
         super(dataSource, dataSink);
         this.pow = pow;
         reset();

@@ -4,25 +4,21 @@
 
 package etomica.gaussianwork;
 
-import etomica.data.DataSourceIndependentSimple;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
+import etomica.data.histogram.HistogramReweightedData;
+import etomica.data.histogram.HistogramSimple;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDouble;
-import etomica.data.types.DataFunction;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.integrator.IntegratorBox;
+import etomica.math.DoubleRange;
 import etomica.potential.PotentialMaster;
 import etomica.units.dimensions.Energy;
 import etomica.units.dimensions.Null;
-import etomica.math.DoubleRange;
-import etomica.data.histogram.HistogramReweightedData;
-import etomica.data.histogram.HistogramSimple;
 
 /**
  * Meter used for multiharmonic overlap sampling in the A-sampled system.  \
@@ -43,7 +39,7 @@ import etomica.data.histogram.HistogramSimple;
  * 
  * @author Tai Boon Tan
  */
-public class MeterWorkABandReweighting implements IEtomicaDataSource {
+public class MeterWorkABandReweighting implements IDataSource {
     
     public MeterWorkABandReweighting(IntegratorBox integratorA, PotentialMaster potentialMasterB, double ref) {
     	meterA = new MeterPotentialEnergyFromIntegrator(integratorA);

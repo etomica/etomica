@@ -38,7 +38,7 @@ import etomica.units.dimensions.Length;
  * @author Rob Riggleman
  * @author Andrew Schultz
  */
-public class MeterProfileByVolume implements IEtomicaDataSource, DataSourceIndependent, java.io.Serializable {
+public class MeterProfileByVolume implements IDataSource, DataSourceIndependent, java.io.Serializable {
     
     /**
      * Default constructor sets profile along the y-axis, with 100 histogram points.

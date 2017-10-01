@@ -5,13 +5,13 @@
 package etomica.modules.rosmosis;
 
 import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.data.DataTag;
 import etomica.data.IData;
+import etomica.data.IDataSource;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
+import etomica.space.Vector;
 import etomica.units.dimensions.Pressure;
 
 /**
@@ -27,7 +27,7 @@ import etomica.units.dimensions.Pressure;
  *
  * @author Andrew Schultz
  */
-public class MeterOsmoticPressure implements IEtomicaDataSource {
+public class MeterOsmoticPressure implements IDataSource {
 
     public MeterOsmoticPressure(IPotentialCalculationWallForce pc, Box box) {
         this.pc = pc;

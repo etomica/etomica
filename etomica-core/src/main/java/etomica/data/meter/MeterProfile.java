@@ -5,25 +5,19 @@
 package etomica.data.meter;
 
 import etomica.box.Box;
-import etomica.util.random.IRandom;
-import etomica.space.Vector;
 import etomica.box.RandomPositionSource;
 import etomica.box.RandomPositionSourceRectangular;
-import etomica.data.DataSourceIndependent;
-import etomica.data.DataSourcePositioned;
-import etomica.data.DataSourceUniform;
+import etomica.data.*;
 import etomica.data.DataSourceUniform.LimitType;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.dimensions.Length;
+import etomica.util.random.IRandom;
 
 /**
  * Meter that takes a (scalar) Meter and records its property as a
@@ -34,7 +28,7 @@ import etomica.units.dimensions.Length;
  * @author Rob Riggleman
  * @author Andrew Schultz
  */
-public class MeterProfile implements IEtomicaDataSource, DataSourceIndependent, java.io.Serializable {
+public class MeterProfile implements IDataSource, DataSourceIndependent, java.io.Serializable {
     
     /**
      * Default constructor sets profile along the x-axis, with 100 points in

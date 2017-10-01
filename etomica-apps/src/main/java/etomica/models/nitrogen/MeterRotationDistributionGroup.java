@@ -8,8 +8,8 @@ import etomica.action.IAction;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
+import etomica.data.IDataSource;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.histogram.HistogramExpanding;
 import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.types.DataDoubleArray;
@@ -37,7 +37,7 @@ import java.io.Serializable;
  * @author Tai Boon Tan
  *
  */
-public class MeterRotationDistributionGroup implements IEtomicaDataSource, IAction, Serializable {
+public class MeterRotationDistributionGroup implements IDataSource, IAction, Serializable {
 
     public MeterRotationDistributionGroup(Box newBox, CoordinateDefinitionNitrogen coordDef) {
         tag = new DataTag();

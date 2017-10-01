@@ -7,8 +7,8 @@ package etomica.modules.rosmosis;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
+import etomica.data.IDataSource;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.integrator.IntegratorBox;
@@ -34,7 +34,7 @@ import etomica.units.dimensions.*;
  *
  * @author Andrew Schultz
  */
-public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource {
+public class MeterFlux implements IDataSource, MoleculeAgentSource {
 
     public MeterFlux(Simulation sim, Space _space) {
         this.sim = sim;

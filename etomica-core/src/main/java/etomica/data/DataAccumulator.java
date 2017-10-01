@@ -13,7 +13,7 @@ package etomica.data;
  * average or other statistics, updating a histogram).  After a specified number of times,
  * this instance will push the accumulated data to DataSink(s) that have been added to it.
  */
-public abstract class DataAccumulator extends DataProcessorForked implements IEtomicaDataSource {
+public abstract class DataAccumulator extends DataProcessorForked implements IDataSource {
 
     /**
      * Constructs accumulator with no initial DataSink.

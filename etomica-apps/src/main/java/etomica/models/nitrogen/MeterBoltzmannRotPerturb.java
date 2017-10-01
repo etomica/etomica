@@ -7,8 +7,8 @@ package etomica.models.nitrogen;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
+import etomica.data.IDataSource;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDoubleArray;
@@ -27,7 +27,7 @@ import etomica.units.dimensions.Null;
  * 
  * @author Tai Boon Tan
  */
-public class MeterBoltzmannRotPerturb implements IEtomicaDataSource {
+public class MeterBoltzmannRotPerturb implements IDataSource {
     
     public MeterBoltzmannRotPerturb(IntegratorMC integrator, PotentialMaster potentialMaster, ISpecies species,
                                     Space space, Simulation sim, CoordinateDefinitionNitrogen coordinateDef) {

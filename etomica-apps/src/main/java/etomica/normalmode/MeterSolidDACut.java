@@ -7,8 +7,8 @@ package etomica.normalmode;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
+import etomica.data.IDataSource;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.nbr.list.PotentialMasterList;
@@ -26,8 +26,8 @@ import etomica.units.dimensions.Null;
  *
  * @author David Kofke
  */
- 
-public class MeterSolidDACut implements IEtomicaDataSource {
+
+public class MeterSolidDACut implements IDataSource {
 
     public MeterSolidDACut(Space space, PotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, double[] cutoffs) {
         this.coordinteDefinition = coordinateDefinition;

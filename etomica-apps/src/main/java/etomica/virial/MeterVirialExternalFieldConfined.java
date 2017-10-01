@@ -7,8 +7,8 @@ package etomica.virial;
 import etomica.atom.IAtomList;
 import etomica.data.DataTag;
 import etomica.data.IData;
+import etomica.data.IDataSource;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.units.dimensions.Null;
@@ -17,7 +17,7 @@ import etomica.units.dimensions.Null;
  * Measures value of clusters in a box and returns the values
  * divided by the sampling bias from the sampling cluster.
  */
-public class MeterVirialExternalFieldConfined implements IEtomicaDataSource, java.io.Serializable {
+public class MeterVirialExternalFieldConfined implements IDataSource, java.io.Serializable {
 
     /**
 	 * Constructor for MeterVirial.

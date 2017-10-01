@@ -6,8 +6,8 @@ package etomica.gaussianwork;
 
 import etomica.data.DataTag;
 import etomica.data.IData;
+import etomica.data.IDataSource;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDoubleArray;
@@ -25,7 +25,7 @@ import etomica.units.dimensions.Null;
  * 
  * @author Tai Boon Tan
  */
-public class MeterBoltzmannB implements IEtomicaDataSource {
+public class MeterBoltzmannB implements IDataSource {
     
     public MeterBoltzmannB(IntegratorBox integratorB, PotentialMaster potentialMasterA) {
     	meterEnergyB = new MeterPotentialEnergyFromIntegrator(integratorB);

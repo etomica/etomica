@@ -4,9 +4,9 @@
 
 package etomica.paracetamol;
 
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
 
-public interface LatticeEnergyParacetamol extends IEtomicaDataSource{
+public interface LatticeEnergyParacetamol extends IDataSource {
 
 	public void setMolecule(int indexj, int indexjp);
 

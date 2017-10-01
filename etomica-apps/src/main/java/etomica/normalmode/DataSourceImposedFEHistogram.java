@@ -4,11 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.data.DataSourceIndependent;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
@@ -31,7 +27,7 @@ import etomica.units.dimensions.Quantity;
  * 
  * @author Andrew Schultz
  */
-public class DataSourceImposedFEHistogram implements IEtomicaDataSource, DataSourceIndependent {
+public class DataSourceImposedFEHistogram implements IDataSource, DataSourceIndependent {
 
     protected final MCMoveOverlapListener mcMoveOverlapMeter;
     protected DataFunction data;

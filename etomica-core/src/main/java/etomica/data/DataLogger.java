@@ -32,7 +32,7 @@ public class DataLogger extends DataProcessor implements IListener, java.io.Seri
     private boolean sameFileEachTime = true; //whether to write to the same file at each INTERVAL.
     private boolean closeFileEachTime = false; //whether to close the file and open a new one at each INTERVAL.
     private transient boolean fileIsOpen = false; //at the beginning, it is false.
-    private IEtomicaDataSource writeOnFinishSource = null;
+    private IDataSource writeOnFinishSource = null;
     private boolean writeOnInterval = true;
     
     public DataLogger(){
@@ -191,14 +191,14 @@ public class DataLogger extends DataProcessor implements IListener, java.io.Seri
     /**
      * @return Returns the writeOnFinish.
      */
-    public IEtomicaDataSource getWriteOnFinishDataSource() {
+    public IDataSource getWriteOnFinishDataSource() {
         return writeOnFinishSource;
     }
 
     /**
      * @param newWriteOnFinishSource The writeOnFinish to set.
      */
-    public void setWriteOnFinish(IEtomicaDataSource newWriteOnFinishSource) {
+    public void setWriteOnFinish(IDataSource newWriteOnFinishSource) {
         writeOnFinishSource = newWriteOnFinishSource;
     }
 

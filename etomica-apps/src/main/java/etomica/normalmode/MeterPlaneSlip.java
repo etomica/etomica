@@ -8,8 +8,8 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
+import etomica.data.IDataSource;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.molecule.IMoleculeList;
@@ -25,7 +25,7 @@ import etomica.units.dimensions.Angle;
  *
  * @author Andrew Schultz
  */
-public class MeterPlaneSlip implements IEtomicaDataSource {
+public class MeterPlaneSlip implements IDataSource {
 
     public MeterPlaneSlip(Space space, ISpecies species, int nPlanes, int nx, int ny) {
         this.species = species;

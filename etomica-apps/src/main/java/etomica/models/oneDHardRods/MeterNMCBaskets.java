@@ -4,13 +4,13 @@
 
 package etomica.models.oneDHardRods;
 
-import etomica.space.Vector;
 import etomica.data.DataTag;
+import etomica.data.IDataSource;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.normalmode.CoordinateDefinition;
+import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 
 /**
@@ -19,7 +19,7 @@ import etomica.units.dimensions.Null;
  * @author cribbasket
  *
  */
-public class MeterNMCBaskets implements IEtomicaDataSource {
+public class MeterNMCBaskets implements IDataSource {
 
     private double eigenVectors[][][];
     private Vector[] waveVectors;

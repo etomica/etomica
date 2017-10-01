@@ -6,8 +6,8 @@ package etomica.virial;
 
 import etomica.data.DataTag;
 import etomica.data.IData;
+import etomica.data.IDataSource;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.units.dimensions.Null;
@@ -15,7 +15,7 @@ import etomica.units.dimensions.Null;
 /**
  * Returns cluster and distribution function values from ClusterSumIC 
  */
-public class MeterVirialIC implements IEtomicaDataSource, java.io.Serializable {
+public class MeterVirialIC implements IDataSource, java.io.Serializable {
     protected static int count;
     protected final ClusterSumIC targetCluster;
     private final DataDoubleArray data;

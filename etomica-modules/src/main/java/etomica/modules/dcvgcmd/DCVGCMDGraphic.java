@@ -125,8 +125,8 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 
 		// Data table tab page
         DataTableAverages dataTable = new DataTableAverages(sim.integratorDCV.integratormd, new StatType[]{AccumulatorAverage.AVERAGE, AccumulatorAverage.ERROR},
-                1000, new IEtomicaDataSource[0], getController().getDataStreamPumps());
-        dataTable.addDataSource(sim.meterFlux0);
+				1000, new IDataSource[0], getController().getDataStreamPumps());
+		dataTable.addDataSource(sim.meterFlux0);
         dataTable.addDataSource(sim.meterFlux1);
         dataTable.addDataSource(sim.meterFlux2);
         dataTable.addDataSource(sim.meterFlux3);

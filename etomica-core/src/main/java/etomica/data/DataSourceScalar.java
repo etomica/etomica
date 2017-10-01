@@ -11,8 +11,8 @@ import etomica.units.dimensions.Dimension;
 /**
  * Particular data source for which the data is a simple scalar of type double.
  */
- 
-public abstract class DataSourceScalar implements IEtomicaDataSource {
+
+public abstract class DataSourceScalar implements IDataSource {
     
     public DataSourceScalar(String label, Dimension dimension) {
         data = new DataDouble();

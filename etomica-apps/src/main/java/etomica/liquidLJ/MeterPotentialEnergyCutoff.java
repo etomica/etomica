@@ -3,8 +3,8 @@ package etomica.liquidLJ;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
+import etomica.data.IDataSource;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.potential.IteratorDirective;
@@ -19,8 +19,8 @@ import etomica.units.dimensions.Energy;
  *
  * @author David Kofke
  */
- 
-public class MeterPotentialEnergyCutoff implements IEtomicaDataSource {
+
+public class MeterPotentialEnergyCutoff implements IDataSource {
     
     public MeterPotentialEnergyCutoff(PotentialMaster potentialMaster, Space space, double[] cutoffs) {
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("energy", Energy.DIMENSION, new int[]{cutoffs.length});

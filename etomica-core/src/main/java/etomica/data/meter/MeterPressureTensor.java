@@ -20,7 +20,7 @@ import etomica.units.dimensions.Pressure;
  *
  * @author Andrew Schultz
  */
-public class MeterPressureTensor implements IEtomicaDataSource {
+public class MeterPressureTensor implements IDataSource {
     
     public MeterPressureTensor(PotentialMaster potentialMaster, Space space) {
     	super();

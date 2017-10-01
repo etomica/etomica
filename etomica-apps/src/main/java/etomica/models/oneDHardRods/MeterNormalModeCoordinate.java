@@ -4,13 +4,13 @@
 
 package etomica.models.oneDHardRods;
 
-import etomica.space.Vector;
 import etomica.data.DataTag;
+import etomica.data.IDataSource;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.normalmode.CoordinateDefinition;
+import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 
 /**
@@ -23,7 +23,7 @@ import etomica.units.dimensions.Null;
  * @author cribbin
  *
  */
-public class MeterNormalModeCoordinate implements IEtomicaDataSource {
+public class MeterNormalModeCoordinate implements IDataSource {
 
     public MeterNormalModeCoordinate(CoordinateDefinition coordinateDefinition, Vector[] wv){
         this.coordinateDefinition = coordinateDefinition;

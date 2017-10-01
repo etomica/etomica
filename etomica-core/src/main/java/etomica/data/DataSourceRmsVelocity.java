@@ -4,11 +4,11 @@
 
 package etomica.data;
 
-import java.io.Serializable;
-
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.iterator.AtomIterator;
+import etomica.data.histogram.Histogram;
+import etomica.data.histogram.HistogramCollapsing;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray;
@@ -19,8 +19,8 @@ import etomica.units.dimensions.DimensionRatio;
 import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Null;
 import etomica.units.dimensions.Time;
-import etomica.data.histogram.Histogram;
-import etomica.data.histogram.HistogramCollapsing;
+
+import java.io.Serializable;
 
 /**
  * Meter for the root-mean-square velocity of a set of atoms. Useful to obtain
@@ -29,7 +29,7 @@ import etomica.data.histogram.HistogramCollapsing;
  * @author David Kofke
  */
 
-public class DataSourceRmsVelocity implements IEtomicaDataSource, DataSourceAtomic, DataSourceIndependent, Serializable {
+public class DataSourceRmsVelocity implements IDataSource, DataSourceAtomic, DataSourceIndependent, Serializable {
 
     public DataSourceRmsVelocity() {
         this(new HistogramCollapsing());

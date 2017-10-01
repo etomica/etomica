@@ -18,7 +18,7 @@ public class DataPump extends DataProcessor implements IAction {
      * be null and must be identified via setDataSink if DataPump
      * is to have any effect.
 	 */
-    public DataPump(IEtomicaDataSource dataSource, IDataSink dataSink) {
+    public DataPump(IDataSource dataSource, IDataSink dataSink) {
         if(dataSource == null) throw new NullPointerException("Error: cannot construct data pump without a data source");
         this.dataSource = dataSource;
         dataSourceInfo = dataSource.getDataInfo();
@@ -69,10 +69,10 @@ public class DataPump extends DataProcessor implements IAction {
     /**
      * @return Returns the dataSource.
      */
-    public IEtomicaDataSource getDataSource() {
+    public IDataSource getDataSource() {
         return dataSource;
     }
 
     protected IEtomicaDataInfo dataSourceInfo;
-    protected final IEtomicaDataSource dataSource;
+    protected final IDataSource dataSource;
 }

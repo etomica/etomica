@@ -6,8 +6,8 @@ import etomica.box.RandomPositionSource;
 import etomica.box.RandomPositionSourceRectangular;
 import etomica.data.DataTag;
 import etomica.data.IData;
+import etomica.data.IDataSource;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -38,7 +38,7 @@ import etomica.util.random.IRandom;
  * 
  * @author David Kofke
  */
-public class MeterWidomInsertionCorrection implements IEtomicaDataSource {
+public class MeterWidomInsertionCorrection implements IDataSource {
 
     public MeterWidomInsertionCorrection(Space space, IRandom random) {
         tag = new DataTag();

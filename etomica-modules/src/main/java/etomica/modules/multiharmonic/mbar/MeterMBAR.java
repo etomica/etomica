@@ -4,18 +4,14 @@
 
 package etomica.modules.multiharmonic.mbar;
 
-import etomica.integrator.IntegratorEvent;
-import etomica.integrator.IntegratorListener;
-import etomica.data.DataSourceScalar;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.units.dimensions.Null;
 
-public class MeterMBAR implements IEtomicaDataSource, IntegratorListener {
+public class MeterMBAR implements IDataSource, IntegratorListener {
 
     protected double[] alphaSpan, alphaCenter;
     protected int nAlpha;

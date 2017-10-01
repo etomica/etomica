@@ -5,14 +5,14 @@
 package etomica.normalmode;
 
 import etomica.box.Box;
-import etomica.potential.PotentialMaster;
 import etomica.data.DataTag;
 import etomica.data.IData;
+import etomica.data.IDataSource;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.potential.PotentialMaster;
 import etomica.units.dimensions.Null;
 
 /**
@@ -23,7 +23,7 @@ import etomica.units.dimensions.Null;
  *
  * @author Andrew Schultz
  */
-public class MeterOverlapSwitch implements IEtomicaDataSource {
+public class MeterOverlapSwitch implements IDataSource {
 
     protected DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;

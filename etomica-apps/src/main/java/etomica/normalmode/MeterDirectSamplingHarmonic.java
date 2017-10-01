@@ -6,8 +6,8 @@ package etomica.normalmode;
 
 import etomica.data.DataTag;
 import etomica.data.IData;
+import etomica.data.IDataSource;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
@@ -21,7 +21,7 @@ import etomica.units.dimensions.Null;
  * 
  * @author Andrew Schultz & Tai Boon Tan
  */
-public class MeterDirectSamplingHarmonic implements IEtomicaDataSource {
+public class MeterDirectSamplingHarmonic implements IDataSource {
     
     public MeterDirectSamplingHarmonic(MCMoveHarmonic mcMoveHarmonic, PotentialMaster potentialMaster) {
         this.mcMoveHarmonic = mcMoveHarmonic;

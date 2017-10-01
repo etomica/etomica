@@ -9,7 +9,7 @@ import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDoubleArray;
@@ -60,7 +60,7 @@ public class SimOverlapNitrogenModel extends Simulation {
         
         integrators = new IntegratorBox[2];
         accumulatorPumps = new DataPump[2];
-        meters = new IEtomicaDataSource[2];
+        meters = new IDataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
 
         double unitCellLength = scale*5.661;
@@ -484,7 +484,7 @@ public class SimOverlapNitrogenModel extends Simulation {
     public double refPref;
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     public DataPump[] accumulatorPumps;
-    public IEtomicaDataSource[] meters;
+    public IDataSource[] meters;
     public String fname;
     protected MCMoveHarmonic moveHarmonic;
     protected PotentialMaster potentialMasterTarget;

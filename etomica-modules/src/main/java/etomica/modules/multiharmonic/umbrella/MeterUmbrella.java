@@ -5,17 +5,17 @@
 package etomica.modules.multiharmonic.umbrella;
 
 import etomica.data.DataTag;
+import etomica.data.IDataSource;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.units.dimensions.Null;
 
 
-public class MeterUmbrella implements IEtomicaDataSource {
+public class MeterUmbrella implements IDataSource {
     protected DataTag tag;
     protected IEtomicaDataInfo dataInfo;
-    protected IEtomicaDataSource dataSourceA, dataSourceB;
+    protected IDataSource dataSourceA, dataSourceB;
     protected double temperature;
     protected DataDoubleArray dda;
     protected double alpha, alphaFac;
@@ -30,8 +30,8 @@ public class MeterUmbrella implements IEtomicaDataSource {
      *    system not being sampled
      * @param temperature - the temperature
      */
-    public MeterUmbrella(IEtomicaDataSource dataSourceSame,
-            IEtomicaDataSource dataSourceDifferent, double temperature){
+    public MeterUmbrella(IDataSource dataSourceSame,
+                         IDataSource dataSourceDifferent, double temperature) {
         dataInfo = new DataInfoDoubleArray("umbrella", Null.DIMENSION, new int[]{2});
         tag = new DataTag();
         dataInfo.addTag(tag);

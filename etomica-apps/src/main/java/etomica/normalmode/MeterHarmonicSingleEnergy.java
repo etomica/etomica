@@ -4,14 +4,14 @@
 
 package etomica.normalmode;
 
-import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
+import etomica.data.IDataSource;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.space.Vector;
 import etomica.units.dimensions.Energy;
 
 /**
@@ -20,7 +20,7 @@ import etomica.units.dimensions.Energy;
  * 
  * @author Andrew Schultz
  */
-public class MeterHarmonicSingleEnergy implements IEtomicaDataSource {
+public class MeterHarmonicSingleEnergy implements IDataSource {
 
     public MeterHarmonicSingleEnergy(CoordinateDefinition coordinateDefinition, NormalModes normalModes) {
         this.coordinateDefinition = coordinateDefinition;

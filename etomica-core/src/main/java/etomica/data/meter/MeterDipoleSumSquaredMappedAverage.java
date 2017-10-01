@@ -5,8 +5,8 @@ import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
+import etomica.data.IDataSource;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorRigidIterative.MoleculeAgent;
@@ -27,7 +27,7 @@ import etomica.units.dimensions.Null;
  * 
  * @author Weisong
  */
-public class MeterDipoleSumSquaredMappedAverage implements IEtomicaDataSource,MoleculeAgentSource  {
+public class MeterDipoleSumSquaredMappedAverage implements IDataSource, MoleculeAgentSource {
 
 	protected final DataDoubleArray data;
 	protected final DataInfoDoubleArray dataInfo;

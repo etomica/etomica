@@ -8,8 +8,8 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.data.DataTag;
 import etomica.data.IData;
+import etomica.data.IDataSource;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorHard;
@@ -21,7 +21,7 @@ import etomica.space.Vector;
 import etomica.species.ISpecies;
 import etomica.units.dimensions.Pressure;
 
-public class DataSourceWallPressureCatalysis implements IEtomicaDataSource, CollisionListener {
+public class DataSourceWallPressureCatalysis implements IDataSource, CollisionListener {
     public DataSourceWallPressureCatalysis(Space space, ISpecies speciesC, ISpecies speciesO, AtomLeafAgentManager interactionAgentManager) {
         this.space = space;
         this.speciesC = speciesC;

@@ -6,18 +6,18 @@ package etomica.modules.entropylottery;
 
 import etomica.action.IAction;
 import etomica.atom.IAtom;
-import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
+import etomica.data.IDataSource;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.space.Vector;
 import etomica.units.dimensions.Quantity;
 
-public class DataSourceProbabilityDensity implements IEtomicaDataSource, IAction {
+public class DataSourceProbabilityDensity implements IDataSource, IAction {
 
     public DataSourceProbabilityDensity() {
         dataInfo = new DataInfoDoubleArray("probability density", Quantity.DIMENSION, new int[]{0});

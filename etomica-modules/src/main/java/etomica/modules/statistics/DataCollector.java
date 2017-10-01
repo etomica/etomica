@@ -6,7 +6,7 @@ import etomica.data.types.DataFunction;
 import etomica.units.dimensions.Null;
 import etomica.units.dimensions.Quantity;
 
-public class DataCollector implements IEtomicaDataSource {
+public class DataCollector implements IDataSource {
 
     protected DataFunction data;
     protected DataFunction.DataInfoFunction dataInfo;

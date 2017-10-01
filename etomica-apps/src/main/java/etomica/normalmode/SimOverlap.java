@@ -57,7 +57,7 @@ public class SimOverlap extends Simulation {
     public double refPref;
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     public DataPump[] accumulatorPumps;
-    public IEtomicaDataSource[] meters;
+    public IDataSource[] meters;
     public MCMoveHarmonic move;
     public IntegratorHard integratorTarget;
     public PotentialMasterList potentialMasterTarget;
@@ -67,7 +67,7 @@ public class SimOverlap extends Simulation {
 
         integrators = new IntegratorBox[2];
         accumulatorPumps = new DataPump[2];
-        meters = new IEtomicaDataSource[2];
+        meters = new IDataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
@@ -277,7 +277,7 @@ public class SimOverlap extends Simulation {
 
         System.out.println("equilibration finished");
 
-        IEtomicaDataSource[] workMeters = new IEtomicaDataSource[2];
+        IDataSource[] workMeters = new IDataSource[2];
 
         //Harmonic
         MeterWorkHarmonicPhaseSpace meterWorkHarmonic = new MeterWorkHarmonicPhaseSpace(sim.move, sim.potentialMasterTarget);

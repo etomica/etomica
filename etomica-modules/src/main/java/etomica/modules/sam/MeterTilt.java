@@ -8,8 +8,8 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
+import etomica.data.IDataSource;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.molecule.IMolecule;
@@ -24,7 +24,7 @@ import etomica.units.dimensions.Angle;
  *
  * @author Andrew Schultz
  */
-public class MeterTilt implements IEtomicaDataSource {
+public class MeterTilt implements IDataSource {
 
     public MeterTilt(Space space, ISpecies species) {
         this.species = species;

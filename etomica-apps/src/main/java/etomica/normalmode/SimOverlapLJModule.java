@@ -9,7 +9,7 @@ import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.DataPump;
 import etomica.data.DataSourceScalar;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.integrator.IntegratorBox;
@@ -53,7 +53,7 @@ public class SimOverlapLJModule {
     public double refPref;
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     public DataPump[] accumulatorPumps;
-    public IEtomicaDataSource[] meters;
+    public IDataSource[] meters;
 
     /**
      * @param args filename containing simulation parameters

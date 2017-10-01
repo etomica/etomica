@@ -4,20 +4,20 @@
 
 package etomica.modules.mu;
 
-import etomica.space.Vector;
 import etomica.data.DataTag;
 import etomica.data.IData;
+import etomica.data.IDataSource;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorHard.CollisionListener;
 import etomica.potential.P1HardBoundary;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.dimensions.Pressure2D;
 
-public class DataSourceWallPressureMu implements IEtomicaDataSource, CollisionListener {
+public class DataSourceWallPressureMu implements IDataSource, CollisionListener {
     public DataSourceWallPressureMu(Space space) {
         this.space = space;
         data = new DataDoubleArray(2);

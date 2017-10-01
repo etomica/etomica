@@ -9,8 +9,8 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
+import etomica.data.IDataSource;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.histogram.HistogramCollapsing;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
@@ -31,7 +31,7 @@ import etomica.units.dimensions.Null;
  * @author Tai Boon Tan
  *
  */
-public class MeterBoltzmannHTTP implements IEtomicaDataSource {
+public class MeterBoltzmannHTTP implements IDataSource {
 
     protected final MeterPotentialEnergy meterPotential;
     protected final PotentialMaster potentialMaster;

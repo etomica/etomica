@@ -4,19 +4,29 @@
 
 package etomica.data;
 
+/**
+ * Interface for an object that can provide IData objects
+ * on request.  Normally an IDataSource heads a stream that processes
+ * and/or records the IData as it passes through different segments.
+ * IData is pulled from the IDataSource by a DataPump and pushed down the
+ * data stream.
+ */
 public interface IDataSource {
 
     /**
      * @return the data given by this source
      */
-    public IData getData();
+    IData getData();
 
     /**
-     * Returns the DataInfo instance that will be held by Data
-     * given by this source.  This information is useful for
-     * setting up the data stream and for providing annotation when
-     * displaying or writing the Data.
+     * @return a tag that uniquely identifies the IDataInfo
      */
-//    public IDataInfo getDataInfo();
+    DataTag getTag();
 
+    /**
+     * @returns the IEtomicaDataInfo instance associated with this source.
+     * This information is useful for setting up the data stream and for
+     * providing annotation when displaying or writing the IData.
+     */
+    IEtomicaDataInfo getDataInfo();
 }

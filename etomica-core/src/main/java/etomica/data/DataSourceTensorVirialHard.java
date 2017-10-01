@@ -16,7 +16,7 @@ import etomica.units.dimensions.Energy;
  *
  * @author Rob Riggleman
  */
-public class DataSourceTensorVirialHard implements IEtomicaDataSource, IntegratorHard.CollisionListener, java.io.Serializable {
+public class DataSourceTensorVirialHard implements IDataSource, IntegratorHard.CollisionListener, java.io.Serializable {
 
     public DataSourceTensorVirialHard(Space space) {
         data = new DataTensor(space);

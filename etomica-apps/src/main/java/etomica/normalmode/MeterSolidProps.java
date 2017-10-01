@@ -15,7 +15,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 
-public class MeterSolidProps implements IEtomicaDataSource, AgentSource<MyAgent> {
+public class MeterSolidProps implements IDataSource, AgentSource<MyAgent> {
 
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;

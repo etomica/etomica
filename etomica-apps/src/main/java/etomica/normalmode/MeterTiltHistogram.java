@@ -26,7 +26,7 @@ import etomica.units.dimensions.Angle;
  *
  * @author Andrew Schultz
  */
-public class MeterTiltHistogram implements IAction, IEtomicaDataSource, DataSourceIndependent {
+public class MeterTiltHistogram implements IAction, IDataSource, DataSourceIndependent {
 
     public MeterTiltHistogram(Space space, ISpecies species) {
         this.species = species;

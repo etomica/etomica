@@ -4,16 +4,16 @@
 
 package etomica.data;
 
-import etomica.data.types.DataFunction;
+import etomica.data.histogram.Histogram;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.units.dimensions.Null;
-import etomica.data.histogram.Histogram;
 
 /**
  * DataSource that simply exposes a Histogram as a DataFunction.
  */
-public class HistogramDataSource implements IEtomicaDataSource {
+public class HistogramDataSource implements IDataSource {
 
     protected final Histogram histogram;
     protected DataSourceIndependentSimple xDataSource;

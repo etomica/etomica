@@ -13,7 +13,7 @@ package etomica.data;
  *
  * @author Andrew Schultz
  */
-public class DataDump implements IDataSink, IEtomicaDataSource {
+public class DataDump implements IDataSink, IDataSource {
 
     public DataDump() {
         tag = new DataTag();

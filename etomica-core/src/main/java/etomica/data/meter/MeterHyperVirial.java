@@ -7,8 +7,8 @@ package etomica.data.meter;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
+import etomica.data.IDataSource;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray;
@@ -23,7 +23,7 @@ import etomica.units.dimensions.Null;
 /**
  * Meter for measurement of the hypervirial, r^2 d2u/dr2 + r du/dr
  */
-public class MeterHyperVirial implements IEtomicaDataSource {
+public class MeterHyperVirial implements IDataSource {
 
     protected final IEtomicaDataInfo dataInfo;
     protected final IData data;

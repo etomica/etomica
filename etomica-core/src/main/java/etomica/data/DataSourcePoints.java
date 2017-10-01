@@ -10,7 +10,7 @@ import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.units.dimensions.Dimension;
 
-public class DataSourcePoints implements IEtomicaDataSource, DataSourceIndependent {
+public class DataSourcePoints implements IDataSource, DataSourceIndependent {
 
     private static final long serialVersionUID = 1L;
     private DataTag tag, independentTag;

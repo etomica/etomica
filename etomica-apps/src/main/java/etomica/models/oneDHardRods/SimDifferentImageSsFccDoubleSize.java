@@ -10,7 +10,7 @@ import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.DataPump;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
@@ -74,7 +74,7 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
     public DataSourceVirialOverlap dsvo;
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     public DataPump[] accumulatorPumps;
-    public IEtomicaDataSource[] meters;
+    public IDataSource[] meters;
     public Box boxTarget, boxRef;
     public Boundary bdryTarget, bdryRef;
     NormalModes nmRef, nmTarg;
@@ -119,7 +119,7 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
         
         integrators = new IntegratorMC[2];
         accumulatorPumps = new DataPump[2];
-        meters = new IEtomicaDataSource[2];
+        meters = new IDataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
         
 //REFERENCE

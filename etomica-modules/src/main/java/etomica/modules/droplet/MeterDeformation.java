@@ -4,21 +4,21 @@
 
 package etomica.modules.droplet;
 
-import etomica.atom.IAtomList;
-import etomica.space.Vector;
-import etomica.box.Box;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterStatic;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
+import etomica.data.IDataSource;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 
-public class MeterDeformation implements IEtomicaDataSource {
+public class MeterDeformation implements IDataSource {
 
     public MeterDeformation(Space space) {
         data = new DataDoubleArray(2);

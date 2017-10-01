@@ -8,8 +8,8 @@ import etomica.action.IAction;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
+import etomica.data.IDataSource;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.histogram.HistogramExpanding;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -21,7 +21,7 @@ import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.units.*;
+import etomica.units.Degree;
 import etomica.units.dimensions.CompoundDimension;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Length;
@@ -40,7 +40,7 @@ import java.io.Serializable;
  * @author Tai Boon Tan
  *
  */
-public class MeterOrientationDistribution implements IEtomicaDataSource, IAction, Serializable {
+public class MeterOrientationDistribution implements IDataSource, IAction, Serializable {
 
     public MeterOrientationDistribution(Box newBox, CoordinateDefinitionNitrogen coordDef, ISpecies species) {
         tag = new DataTag();

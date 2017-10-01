@@ -18,11 +18,11 @@ import etomica.integrator.IntegratorBox;
  */
 public class DataProcessorChemicalPotential extends DataProcessor {
 
-    public void setDensityProfileDump(IEtomicaDataSource newDensityProfileSource) {
+    public void setDensityProfileDump(IDataSource newDensityProfileSource) {
         densityProfileSource = newDensityProfileSource;
     }
 
-    public IEtomicaDataSource getDenstiyProfileDump() {
+    public IDataSource getDenstiyProfileDump() {
         return densityProfileSource;
     }
     
@@ -59,7 +59,7 @@ public class DataProcessorChemicalPotential extends DataProcessor {
         return null;
     }
 
-    protected IEtomicaDataSource densityProfileSource;
+    protected IDataSource densityProfileSource;
     protected DataFunction data;
     protected IntegratorBox integrator;
 }
