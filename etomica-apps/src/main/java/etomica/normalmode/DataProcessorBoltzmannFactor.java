@@ -4,10 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.data.DataPipe;
-import etomica.data.DataProcessor;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.units.dimensions.Null;
@@ -25,12 +22,12 @@ public class DataProcessorBoltzmannFactor extends DataProcessor {
 		return data;
 	}
 
-	protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+	protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
 		
 		return dataInfo;
 	}
 
-	public DataPipe getDataCaster(IEtomicaDataInfo dataInfo) {
+	public DataPipe getDataCaster(IDataInfo dataInfo) {
 		return null;
 	}
 	

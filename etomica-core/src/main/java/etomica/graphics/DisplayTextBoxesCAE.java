@@ -10,13 +10,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.DataPipe;
-import etomica.data.DataPump;
-import etomica.data.IData;
-import etomica.data.IDataSink;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
 import etomica.data.meter.MeterPressureHard;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
@@ -83,14 +77,14 @@ public class DisplayTextBoxesCAE extends Display implements IDataSink {
         return doShowCurrent;
     }
 
-    public DataPipe getDataCaster(IEtomicaDataInfo dataInfo) {
+    public DataPipe getDataCaster(IDataInfo dataInfo) {
         if(!(dataInfo instanceof DataInfoGroup)) {
             throw new IllegalArgumentException("DisplayBoxesCAE strangely is being given something other than a DataGroup");
         }
         return null;
     }
 
-    public void putDataInfo(IEtomicaDataInfo dataInfo) {
+    public void putDataInfo(IDataInfo dataInfo) {
         if(getLabel().equals("")) {
             setLabel(dataInfo.getLabel());
         }

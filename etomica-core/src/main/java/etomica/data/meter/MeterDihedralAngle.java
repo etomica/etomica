@@ -53,7 +53,7 @@ public class MeterDihedralAngle implements IAction, IDataSource, DataSourceIndep
         dataInfo.addTag(tag);
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -201,7 +201,7 @@ public class MeterDihedralAngle implements IAction, IDataSource, DataSourceIndep
     protected final Space space;
     protected long[] gSum;
     protected DataFunction data;
-    private IEtomicaDataInfo dataInfo;
+    private IDataInfo dataInfo;
     protected DataDoubleArray phiData;
     protected AtomsetIteratorBoxDependent iterator;
     private final Vector dr1, dr2, dr3;

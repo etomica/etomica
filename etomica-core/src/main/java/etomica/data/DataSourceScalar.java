@@ -21,7 +21,7 @@ public abstract class DataSourceScalar implements IDataSource {
         dataInfo.addTag(tag);
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -53,6 +53,6 @@ public abstract class DataSourceScalar implements IDataSource {
     }
 	
 	protected final DataDouble data;
-    protected final IEtomicaDataInfo dataInfo;
+    protected final IDataInfo dataInfo;
     protected final DataTag tag;
 }

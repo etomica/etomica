@@ -19,7 +19,7 @@ public class DataDump implements IDataSink, IDataSource {
         tag = new DataTag();
     }
 
-    public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
+    public DataPipe getDataCaster(IDataInfo inputDataInfo) {
         return null;
     }
 
@@ -31,11 +31,11 @@ public class DataDump implements IDataSink, IDataSource {
         return data;
     }
 
-    public void putDataInfo(IEtomicaDataInfo inputDataInfo) {
+    public void putDataInfo(IDataInfo inputDataInfo) {
         dataInfo = inputDataInfo;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 
@@ -44,6 +44,6 @@ public class DataDump implements IDataSink, IDataSource {
     }
 
     protected IData data;
-    protected IEtomicaDataInfo dataInfo;
+    protected IDataInfo dataInfo;
     protected final DataTag tag;
 }

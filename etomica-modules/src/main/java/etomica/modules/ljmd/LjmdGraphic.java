@@ -392,12 +392,12 @@ public class LjmdGraphic extends SimulationGraphic {
             return data;
         }
 
-        protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+        protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
             dataInfo = new DataDouble.DataInfoDouble(inputDataInfo.getLabel(), inputDataInfo.getDimension());
             return dataInfo;
         }
 
-        public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
+        public DataPipe getDataCaster(IDataInfo inputDataInfo) {
             if (!(inputDataInfo instanceof DataTensor.DataInfoTensor)) {
                 throw new IllegalArgumentException("Gotta be a DataInfoTensor");
             }

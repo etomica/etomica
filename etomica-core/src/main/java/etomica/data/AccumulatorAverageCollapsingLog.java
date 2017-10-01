@@ -98,7 +98,7 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
      * this is so. Otherwise throws a ClassCastException, as there is no data
      * caster to Data.
      */
-    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
+    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
         if (incomingDataInfo.getLength() > 1) {
             throw new RuntimeException("AccumulatorAverageCollapsingLog can only handle single data");
         }
@@ -620,7 +620,7 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
         nRawData = 0;
     }
 
-    public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo incomingDataInfo) {
+    public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
         dataInfo = new DataInfoFunction(incomingDataInfo.getLabel(), incomingDataInfo.getDimension(), this);
         reset();
         return dataInfo;

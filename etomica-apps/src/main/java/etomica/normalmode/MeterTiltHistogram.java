@@ -74,7 +74,7 @@ public class MeterTiltHistogram implements IAction, IDataSource, DataSourceIndep
         return data;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

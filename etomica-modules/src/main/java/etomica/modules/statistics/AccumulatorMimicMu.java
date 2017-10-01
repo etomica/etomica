@@ -2,7 +2,7 @@ package etomica.modules.statistics;
 
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorBox;
@@ -16,7 +16,7 @@ public class AccumulatorMimicMu extends AccumulatorAverageFixed {
         this.integrator = integrator;
     }
 
-    public void putDataInfo(IEtomicaDataInfo dataInfo) {
+    public void putDataInfo(IDataInfo dataInfo) {
         dataSink.putDataInfo(dataInfo);
     }
 

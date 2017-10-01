@@ -3,10 +3,7 @@ package etomica.normalmode;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IDataSource;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.space.Space;
@@ -34,7 +31,7 @@ public class MeterSolidMirror implements IDataSource {
         this.coordinateDefinition = coordinateDefinition;
         this.ds = dataSource;
         tag = new DataTag();
-        IEtomicaDataInfo di = dataSource.getDataInfo();
+        IDataInfo di = dataSource.getDataInfo();
         box = coordinateDefinition.getBox();
         
         int n = di.getLength();
@@ -44,7 +41,7 @@ public class MeterSolidMirror implements IDataSource {
         dr = space.makeVector();
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     

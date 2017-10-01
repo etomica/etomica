@@ -6,10 +6,7 @@ package etomica.modules.sam;
 
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IDataSource;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.molecule.IMolecule;
@@ -32,7 +29,7 @@ public class MeterTilt implements IDataSource {
         drSum = space.makeVector();
         tag = new DataTag();
         data = new DataGroup(new IData[]{new DataDouble(), new DataDouble()});
-        dataInfo = new DataGroup.DataInfoGroup("Tilt", Angle.DIMENSION, new IEtomicaDataInfo[]{
+        dataInfo = new DataGroup.DataInfoGroup("Tilt", Angle.DIMENSION, new IDataInfo[]{
                 new DataDouble.DataInfoDouble("Tilt", Angle.DIMENSION),
                 new DataDouble.DataInfoDouble("Tilt", Angle.DIMENSION)});
     }
@@ -60,7 +57,7 @@ public class MeterTilt implements IDataSource {
         return data;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 
@@ -74,5 +71,5 @@ public class MeterTilt implements IDataSource {
     protected final Vector dr, drSum;
     protected final DataTag tag;
     protected final DataGroup data;
-    protected final IEtomicaDataInfo dataInfo;
+    protected final IDataInfo dataInfo;
 }

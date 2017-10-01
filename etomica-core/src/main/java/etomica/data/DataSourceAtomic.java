@@ -14,7 +14,7 @@ public interface DataSourceAtomic {
     
     public IData getData(IAtom a);
     
-    public IEtomicaDataInfo getAtomDataInfo();
+    public IDataInfo getAtomDataInfo();
     
     public DataTag getTag();
 }

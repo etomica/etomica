@@ -105,7 +105,7 @@ public class MeterMBAR implements IDataSource, IntegratorListener {
         return tag;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     

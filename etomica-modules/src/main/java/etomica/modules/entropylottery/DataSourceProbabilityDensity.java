@@ -11,7 +11,7 @@ import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IDataSource;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.space.Vector;
@@ -32,7 +32,7 @@ public class DataSourceProbabilityDensity implements IDataSource, IAction {
         return data;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

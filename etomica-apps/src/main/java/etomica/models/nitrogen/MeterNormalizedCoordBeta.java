@@ -9,7 +9,7 @@ import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IDataSource;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.IDataInfo;
 import etomica.data.histogram.HistogramExpanding;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -59,7 +59,7 @@ public class MeterNormalizedCoordBeta implements IDataSource, IAction, Serializa
         }
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -194,7 +194,7 @@ public class MeterNormalizedCoordBeta implements IDataSource, IAction, Serializa
     private static final long serialVersionUID = 1L;
     protected CoordinateDefinition coordinateDefinition;
     private final DataTag tag;
-    private IEtomicaDataInfo dataInfo;
+    private IDataInfo dataInfo;
     private DataGroup data;
     private HistogramExpanding[] histogramU;
     private DataDoubleArray[] uDistributions;

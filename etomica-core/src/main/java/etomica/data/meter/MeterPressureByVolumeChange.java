@@ -86,7 +86,7 @@ public class MeterPressureByVolumeChange implements IDataSource, java.io.Seriali
         return integrator;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -162,7 +162,7 @@ public class MeterPressureByVolumeChange implements IDataSource, java.io.Seriali
 
     private static final long serialVersionUID = 1L;
     private DataDoubleArray data;
-    private IEtomicaDataInfo dataInfo;
+    private IDataInfo dataInfo;
     private final DataTag tag;
     private double[] dataArray;
     private final BoxInflate inflater;
@@ -193,7 +193,7 @@ public class MeterPressureByVolumeChange implements IDataSource, java.io.Seriali
             return tag;
         }
         
-        public IEtomicaDataInfo getDataInfo() {
+        public IDataInfo getDataInfo() {
             return dataInfo;
         }
         

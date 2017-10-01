@@ -65,7 +65,7 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
      * this is so. Otherwise throws a ClassCastException, as there is no data
      * caster to Data.
      */
-    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
+    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
         if (incomingDataInfo.getLength() > 1) {
             throw new RuntimeException("AccumulatorAverageCollapsing can only handle single data");
         }

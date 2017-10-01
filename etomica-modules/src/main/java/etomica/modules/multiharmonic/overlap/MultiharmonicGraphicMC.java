@@ -138,7 +138,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             forkA.addDataSink(new IDataSink() {
                 final DataDouble myData = new DataDouble();
                 final DataInfoDouble myDataInfo = new DataInfoDouble("dAW", Energy.DIMENSION);
-                public void putDataInfo(IEtomicaDataInfo inputDataInfo) {
+                public void putDataInfo(IDataInfo inputDataInfo) {
                     dAW.putDataInfo(myDataInfo);
                 }
                 
@@ -147,7 +147,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
                     dAW.putData(myData);
                 }
                 
-                public DataPipe getDataCaster(IEtomicaDataInfo dataInfo) {
+                public DataPipe getDataCaster(IDataInfo dataInfo) {
                     return null;
                 }
             });
@@ -158,7 +158,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             forkB.addDataSink(new IDataSink() {
                 final DataDouble myData = new DataDouble();
                 final DataInfoDouble myDataInfo = new DataInfoDouble("dBW", Energy.DIMENSION);
-                public void putDataInfo(IEtomicaDataInfo inputDataInfo) {
+                public void putDataInfo(IDataInfo inputDataInfo) {
                     dBW.putDataInfo(myDataInfo);
                 }
                 
@@ -167,7 +167,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
                     dBW.putData(myData);
                 }
                 
-                public DataPipe getDataCaster(IEtomicaDataInfo dataInfo) {
+                public DataPipe getDataCaster(IDataInfo dataInfo) {
                     return null;
                 }
             });
@@ -1088,11 +1088,11 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             dataInfo = new DataInfoDouble("a", Null.DIMENSION);
         }
 
-        public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
+        public DataPipe getDataCaster(IDataInfo inputDataInfo) {
             return null;
         }
 
-        protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+        protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
             return dataInfo;
         }
 
@@ -1129,7 +1129,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         public int getIndependentArrayDimension() {return 1;}
         public DataTag getIndependentTag() {return xTag;}
         public DataTag getTag() {return tag;}
-        public IEtomicaDataInfo getDataInfo() {return dataInfo;}
+        public IDataInfo getDataInfo() {return dataInfo;}
     }
 
     public static class DataSourceAlphaFE implements IDataSource, DataSourceIndependent {
@@ -1255,7 +1255,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             return tag;
         }
 
-        public IEtomicaDataInfo getDataInfo() {
+        public IDataInfo getDataInfo() {
             return dataInfo;
         }
 
@@ -1446,7 +1446,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             return chiTag;
         }
 
-        public IEtomicaDataInfo getDataInfo() {
+        public IDataInfo getDataInfo() {
             int numAlpha = dsvo.getAlphaSource().getNumAlpha();
             if (chiInfo == null || chiInfo.getLength() != numAlpha) {
                 chiData = new DataFunction(new int[]{numAlpha});
@@ -1516,7 +1516,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             return chiTag;
         }
 
-        public IEtomicaDataInfo getDataInfo() {
+        public IDataInfo getDataInfo() {
             int numAlpha = dsvo.getAlphaSource().getNumAlpha();
             if (chiInfo == null || chiInfo.getLength() != numAlpha) {
                 chiData = new DataFunction(new int[]{numAlpha});
@@ -1711,12 +1711,12 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             }
         }
 
-        public void putDataInfo(IEtomicaDataInfo dataInfo) {
+        public void putDataInfo(IDataInfo dataInfo) {
             sum = new double[dataInfo.getLength()];
             sumWeights = new double[sum.length];
         }
 
-        public DataPipe getDataCaster(IEtomicaDataInfo dataInfo) {
+        public DataPipe getDataCaster(IDataInfo dataInfo) {
             return null;
         }
     }

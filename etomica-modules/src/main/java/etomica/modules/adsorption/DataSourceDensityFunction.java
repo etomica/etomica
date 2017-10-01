@@ -58,7 +58,7 @@ public class DataSourceDensityFunction implements IDataSource {
         return tag;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

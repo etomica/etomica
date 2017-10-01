@@ -39,7 +39,7 @@ public class MeterPressureTensor implements IDataSource {
         return tag;
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     

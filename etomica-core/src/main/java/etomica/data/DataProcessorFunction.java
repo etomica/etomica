@@ -32,7 +32,7 @@ public class DataProcessorFunction extends DataProcessor {
     /**
      * Returns a copy of the given dataInfo
      */
-    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         dataInfo = inputDataInfo.getFactory().makeDataInfo();
         dataInfo.addTag(tag);
         data = dataInfo.makeData();
@@ -42,7 +42,7 @@ public class DataProcessorFunction extends DataProcessor {
     /**
      * Always returns null.
      */
-    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
+    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
         return null;
     }
 

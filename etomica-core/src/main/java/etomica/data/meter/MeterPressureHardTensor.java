@@ -7,10 +7,7 @@ package etomica.data.meter;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IDataSource;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
 import etomica.data.types.DataTensor;
 import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.integrator.IntegratorHard;
@@ -29,7 +26,7 @@ public class MeterPressureHardTensor implements IDataSource, IntegratorHard.Coll
         dataInfo.addTag(tag);
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -99,7 +96,7 @@ public class MeterPressureHardTensor implements IDataSource, IntegratorHard.Coll
     private String name;
     private Box box;
     private final DataTensor data;
-    private final IEtomicaDataInfo dataInfo;
+    private final IDataInfo dataInfo;
     protected final DataTag tag;
     private final int dim;
 }

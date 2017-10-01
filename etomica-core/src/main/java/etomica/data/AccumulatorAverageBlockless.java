@@ -55,7 +55,7 @@ public class AccumulatorAverageBlockless extends DataAccumulator {
     /**
      * Returns null (any data is good data)
      */
-    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
+    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
         return null;
     }
 
@@ -134,7 +134,7 @@ public class AccumulatorAverageBlockless extends DataAccumulator {
      *            the DataInfo instance for the data that will be given to
      *            addData
      */
-    public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo incomingDataInfo) {
+    public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
         sum = incomingDataInfo.makeData();
         sumSquare = incomingDataInfo.makeData();
         work = incomingDataInfo.makeData();
@@ -146,19 +146,19 @@ public class AccumulatorAverageBlockless extends DataAccumulator {
         
         reset();
         
-        IEtomicaDataInfoFactory factory = incomingDataInfo.getFactory();
+        IDataInfoFactory factory = incomingDataInfo.getFactory();
         String incomingLabel = incomingDataInfo.getLabel();
         factory.setLabel(incomingLabel+" most recent");
-        IEtomicaDataInfo mostRecentInfo = factory.makeDataInfo();
+        IDataInfo mostRecentInfo = factory.makeDataInfo();
         mostRecentInfo.addTag(mostRecentTag);
         factory.setLabel(incomingLabel+" avg");
-        IEtomicaDataInfo averageInfo = factory.makeDataInfo();
+        IDataInfo averageInfo = factory.makeDataInfo();
         averageInfo.addTag(averageTag);
         factory.setLabel(incomingLabel+" stddev");
-        IEtomicaDataInfo standardDeviationInfo = factory.makeDataInfo();
+        IDataInfo standardDeviationInfo = factory.makeDataInfo();
         standardDeviationInfo.addTag(standardDeviationTag);
         
-        dataInfo = new DataInfoGroup(incomingLabel, incomingDataInfo.getDimension(), new IEtomicaDataInfo[]{
+        dataInfo = new DataInfoGroup(incomingLabel, incomingDataInfo.getDimension(), new IDataInfo[]{
             mostRecentInfo, averageInfo, standardDeviationInfo});
         dataInfo.addTags(incomingDataInfo.getTags());
         dataInfo.addTag(tag);

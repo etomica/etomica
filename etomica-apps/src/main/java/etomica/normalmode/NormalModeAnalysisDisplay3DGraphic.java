@@ -8,18 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import etomica.action.IAction;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataFork;
-import etomica.data.DataInfo;
-import etomica.data.DataPipe;
-import etomica.data.DataProcessor;
-import etomica.data.DataPump;
-import etomica.data.DataSourceCountTime;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IDataSink;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataTable;
@@ -101,11 +90,11 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
 			 * 
 			 */
 			private static final long serialVersionUID = 1L;
-			public DataPipe getDataCaster(IEtomicaDataInfo dataInfo) {
+			public DataPipe getDataCaster(IDataInfo dataInfo) {
 				return null;
 			}
 		
-			protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+			protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
 				dataInfo = new DataInfoDouble("Potential Energy",Energy.DIMENSION);
 				data = new DataDouble();
 								
@@ -119,7 +108,7 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
 				return data;
 			}
 			
-			IEtomicaDataInfo dataInfo;
+			IDataInfo dataInfo;
 			DataDouble data;
 		};
 		

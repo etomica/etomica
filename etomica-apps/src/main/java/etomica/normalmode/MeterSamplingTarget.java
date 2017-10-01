@@ -7,7 +7,7 @@ package etomica.normalmode;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IDataSource;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.integrator.IntegratorBox;
@@ -46,7 +46,7 @@ public class MeterSamplingTarget implements IDataSource {
     }
 
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

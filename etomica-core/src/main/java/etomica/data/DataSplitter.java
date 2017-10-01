@@ -51,7 +51,7 @@ public class DataSplitter implements IDataSink {
         }
     }
 
-    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
+    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
         return null;
     }
 
@@ -64,7 +64,7 @@ public class DataSplitter implements IDataSink {
         }
     }
 
-    public void putDataInfo(IEtomicaDataInfo incomingDataInfo) {
+    public void putDataInfo(IDataInfo incomingDataInfo) {
         if (dataSinks.length != incomingDataInfo.getLength()) {
             dataSinks = new IDataSink[incomingDataInfo.getLength()];
             if (dataSinkFactory != null) {

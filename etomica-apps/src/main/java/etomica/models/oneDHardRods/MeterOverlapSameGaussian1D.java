@@ -66,7 +66,7 @@ public class MeterOverlapSameGaussian1D implements IDataSource {
         return dda;
     }
     
-    public IEtomicaDataInfo getDataInfo(){
+    public IDataInfo getDataInfo(){
         return dataInfo;
     }
     public DataTag getTag() {

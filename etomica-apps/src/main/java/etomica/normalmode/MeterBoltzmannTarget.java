@@ -51,7 +51,7 @@ public class MeterBoltzmannTarget implements IDataSource {
         temperature = newTemperature;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

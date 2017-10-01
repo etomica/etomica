@@ -18,7 +18,7 @@ public class HistogramDataSource implements IDataSource {
     protected final Histogram histogram;
     protected DataSourceIndependentSimple xDataSource;
     private DataFunction data;
-    private IEtomicaDataInfo dataInfo;
+    private IDataInfo dataInfo;
     protected final DataTag tag;
 
     public HistogramDataSource(Histogram histogram) {
@@ -66,7 +66,7 @@ public class HistogramDataSource implements IDataSource {
     /**
      * Returns the DataInfo for the output Data.
      */
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 }

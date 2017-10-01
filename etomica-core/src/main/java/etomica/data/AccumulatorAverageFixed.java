@@ -73,7 +73,7 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
     /**
      * Returns null (any data is good data)
      */
-    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
+    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
         return null;
     }
 
@@ -100,7 +100,7 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
         return true;
     }
     
-    public void putDataInfo(IEtomicaDataInfo inputDataInfo) {
+    public void putDataInfo(IDataInfo inputDataInfo) {
         super.putDataInfo(inputDataInfo);
         if (blockDataSink != null) {
             blockDataSink.putDataInfo(inputDataInfo);
@@ -238,7 +238,7 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
      *            the DataInfo instance for the data that will be given to
      *            addData
      */
-    public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo incomingDataInfo) {
+    public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
         sum = incomingDataInfo.makeData();
         sumBlockSquare = incomingDataInfo.makeData();
         currentBlockSum = incomingDataInfo.makeData();

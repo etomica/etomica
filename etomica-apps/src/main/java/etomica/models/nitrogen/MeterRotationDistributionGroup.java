@@ -9,7 +9,7 @@ import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IDataSource;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.IDataInfo;
 import etomica.data.histogram.HistogramExpanding;
 import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.types.DataDoubleArray;
@@ -55,7 +55,7 @@ public class MeterRotationDistributionGroup implements IDataSource, IAction, Ser
         
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -168,7 +168,7 @@ public class MeterRotationDistributionGroup implements IDataSource, IAction, Ser
     private static final long serialVersionUID = 1L;
     protected CoordinateDefinitionNitrogen coordinateDefinition;
     private final DataTag tag;
-    private IEtomicaDataInfo dataInfo;
+    private IDataInfo dataInfo;
     private DataGroup data;
     private HistogramNotSoSimple histogramNotSimple;
     private HistogramExpanding histogramExpanding;

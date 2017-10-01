@@ -55,13 +55,13 @@ public class DataLogger extends DataProcessor implements IListener, java.io.Seri
         return data;
     }
     
-    public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo newDataInfo) {
+    public IDataInfo processDataInfo(IDataInfo newDataInfo) {
         dataInfo = newDataInfo.getFactory().makeDataInfo();
         dataInfo.addTag(tag);
         return dataInfo;
     }
     
-    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
+    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
         // we don't care about the type although the DataWriter might
         return null;
     }

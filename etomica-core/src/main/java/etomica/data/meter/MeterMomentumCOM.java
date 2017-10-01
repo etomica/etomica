@@ -75,7 +75,7 @@ public class MeterMomentumCOM implements IDataSource, java.io.Serializable {
         return tag;
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

@@ -485,9 +485,9 @@ public class VirialPolyhedra {
                 
                 DataDouble data = new DataDouble();
             };
-            IEtomicaDataInfo dataInfoSteps = new DataDouble.DataInfoDouble("B"+nPoints, Null.DIMENSION);
+            IDataInfo dataInfoSteps = new DataDouble.DataInfoDouble("B"+nPoints, Null.DIMENSION);
             stepsBox.putDataInfo(dataInfoSteps);
-            IEtomicaDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, Null.DIMENSION);
+            IDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, Null.DIMENSION);
             averageBox.putDataInfo(dataInfo);
             averageBox.setLabel("average");
             errorBox.putDataInfo(dataInfo);
@@ -588,11 +588,11 @@ public class VirialPolyhedra {
     public static class DataProcessorR2 extends DataProcessor {
         DataFunction data;
 
-        public DataPipe getDataCaster(IEtomicaDataInfo inDataInfo) {
+        public DataPipe getDataCaster(IDataInfo inDataInfo) {
             return null;
         }
 
-        protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+        protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
             dataInfo = new DataInfoFunction("hist2", Null.DIMENSION, ((DataInfoFunction)inputDataInfo).getXDataSource());
             dataInfo.addTags(inputDataInfo.getTags());
             dataInfo.addTag(tag);

@@ -20,7 +20,7 @@ import etomica.data.DataSourceCountTime;
 import etomica.data.DataSourceScalar;
 import etomica.data.DataSplitter;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.IDataInfo;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;
 import etomica.graphics.DeviceButton;
@@ -200,11 +200,11 @@ public class DropletAtomicGraphic extends SimulationGraphic {
         meterPE.setBox(sim.box);
         DataProcessor foo = new DataProcessor() {
         
-            public DataPipe getDataCaster(IEtomicaDataInfo dataInfo) {
+            public DataPipe getDataCaster(IDataInfo dataInfo) {
                 return null;
             }
         
-            protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+            protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
                 return inputDataInfo;
             }
         

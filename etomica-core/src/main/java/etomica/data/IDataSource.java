@@ -24,9 +24,9 @@ public interface IDataSource {
     DataTag getTag();
 
     /**
-     * @returns the IEtomicaDataInfo instance associated with this source.
+     * @returns the IDataInfo instance associated with this source.
      * This information is useful for setting up the data stream and for
      * providing annotation when displaying or writing the IData.
      */
-    IEtomicaDataInfo getDataInfo();
+    IDataInfo getDataInfo();
 }

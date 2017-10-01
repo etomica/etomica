@@ -8,7 +8,7 @@ import etomica.box.Box;
 import etomica.data.DataSourceMolecular;
 import etomica.data.DataSourceScalar;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.IDataInfo;
 import etomica.molecule.IMolecule;
 import etomica.species.ISpecies;
 import etomica.units.dimensions.Quantity;
@@ -38,7 +38,7 @@ public class MeterNMolecules extends DataSourceScalar implements DataSourceMolec
         return data;
     }
     
-    public IEtomicaDataInfo getMoleculeDataInfo() {
+    public IDataInfo getMoleculeDataInfo() {
         return dataInfo;
     }
     

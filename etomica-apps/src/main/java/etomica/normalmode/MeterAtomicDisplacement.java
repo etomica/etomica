@@ -47,7 +47,7 @@ public class MeterAtomicDisplacement implements IDataSource, DataSourceIndepende
         return coordinateDefinition.getBox();
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfoFunction;
     }
 

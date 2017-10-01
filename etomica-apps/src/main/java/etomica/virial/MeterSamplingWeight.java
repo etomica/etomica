@@ -26,7 +26,7 @@ public class MeterSamplingWeight implements IDataSource, java.io.Serializable {
         dataInfo.addTag(tag);
 	}
 
-	public IEtomicaDataInfo getDataInfo() {
+	public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -51,7 +51,7 @@ public class MeterSamplingWeight implements IDataSource, java.io.Serializable {
 
     protected final DataSourceAtomDistance dataDistance;
 	private final DataDoubleArray data;
-	private final IEtomicaDataInfo dataInfo;
+	private final IDataInfo dataInfo;
     private final DataTag tag;
     private BoxCluster box;
     private static final long serialVersionUID = 1L;

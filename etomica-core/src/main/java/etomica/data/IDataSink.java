@@ -19,7 +19,7 @@ public interface IDataSink {
     /**
      * Informs the DataSink of the type of Data it should expect to receive.
      */
-    public void putDataInfo(IEtomicaDataInfo dataInfo);
+    public void putDataInfo(IDataInfo dataInfo);
 
     /**
      * Returns a DataProcessor that casts the data that will be given 
@@ -30,5 +30,5 @@ public interface IDataSink {
      * 
      * @param inputDataInfo the DataInfo for the Data that will fed to the sink's putData method
      */
-    public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo);
+    public DataPipe getDataCaster(IDataInfo inputDataInfo);
 }

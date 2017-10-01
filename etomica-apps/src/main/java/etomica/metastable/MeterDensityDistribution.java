@@ -90,7 +90,7 @@ public class MeterDensityDistribution implements IDataSource {
         return histogram.getTag();
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return histogram.getDataInfo();
     }
 

@@ -44,7 +44,7 @@ public class DataSourceFunction implements IDataSource, DataSourceIndependent, S
         dataInfo.addTag(tag);
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -137,7 +137,7 @@ public class DataSourceFunction implements IDataSource, DataSourceIndependent, S
     
     private static final long serialVersionUID = 1L;
     private DataFunction data;
-    private IEtomicaDataInfo dataInfo;
+    private IDataInfo dataInfo;
     private final DataSourceUniform xSource;
     private DataDoubleArray xData;
     private IFunction function;

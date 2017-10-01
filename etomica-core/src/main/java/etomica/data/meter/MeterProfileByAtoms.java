@@ -56,7 +56,7 @@ public class MeterProfileByAtoms implements IDataSource, DataSourceIndependent, 
         positionDefinition = new MoleculePositionGeometricCenter(space);
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 
@@ -192,7 +192,7 @@ public class MeterProfileByAtoms implements IDataSource, DataSourceIndependent, 
     private IMoleculePositionDefinition positionDefinition;
     protected double[] y;
     protected int[] nAtoms;
-    protected IEtomicaDataInfo dataInfo;
+    protected IDataInfo dataInfo;
     /**
      * Vector describing the orientation of the profile.
      * For example, (1,0) is along the x-axis.

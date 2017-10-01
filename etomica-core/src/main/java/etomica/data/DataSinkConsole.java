@@ -28,14 +28,14 @@ public class DataSinkConsole implements IDataSink, java.io.Serializable {
     /**
      * Returns null, indicating that any type of Data can be put here without casting.
      */
-    public DataPipe getDataCaster(IEtomicaDataInfo dataInfo) {
+    public DataPipe getDataCaster(IDataInfo dataInfo) {
         return null;
     }
     
     /**
      * Causes the given DataInfo to be written to the print stream.
      */
-    public void putDataInfo(IEtomicaDataInfo dataInfo) {
+    public void putDataInfo(IDataInfo dataInfo) {
         out.println(dataInfo.toString());
     }
     

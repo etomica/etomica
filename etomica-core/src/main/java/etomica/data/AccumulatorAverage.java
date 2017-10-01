@@ -158,7 +158,7 @@ public abstract class AccumulatorAverage extends DataAccumulator {
      *                         addData
      * @return dataInfo object for the output of this accumulator.
      */
-    public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo incomingDataInfo) {
+    public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
         standardDeviation = incomingDataInfo.makeData();
         average = incomingDataInfo.makeData();
         error = incomingDataInfo.makeData();
@@ -170,26 +170,26 @@ public abstract class AccumulatorAverage extends DataAccumulator {
 
         reset();
 
-        IEtomicaDataInfoFactory factory = incomingDataInfo.getFactory();
+        IDataInfoFactory factory = incomingDataInfo.getFactory();
         String incomingLabel = incomingDataInfo.getLabel();
         factory.setLabel(incomingLabel + " most recent");
-        IEtomicaDataInfo mostRecentInfo = factory.makeDataInfo();
+        IDataInfo mostRecentInfo = factory.makeDataInfo();
         mostRecentInfo.addTag(mostRecentTag);
         factory.setLabel(incomingLabel + " avg");
-        IEtomicaDataInfo averageInfo = factory.makeDataInfo();
+        IDataInfo averageInfo = factory.makeDataInfo();
         averageInfo.addTag(averageTag);
         factory.setLabel(incomingLabel + " error");
-        IEtomicaDataInfo errorInfo = factory.makeDataInfo();
+        IDataInfo errorInfo = factory.makeDataInfo();
         errorInfo.addTag(errorTag);
         factory.setLabel(incomingLabel + " stddev");
-        IEtomicaDataInfo standardDeviationInfo = factory.makeDataInfo();
+        IDataInfo standardDeviationInfo = factory.makeDataInfo();
         standardDeviationInfo.addTag(standardDeviationTag);
         factory.setLabel(incomingLabel + " blk correlation");
         factory.setDimension(Null.DIMENSION);
-        IEtomicaDataInfo correlationInfo = factory.makeDataInfo();
+        IDataInfo correlationInfo = factory.makeDataInfo();
         correlationInfo.addTag(blockCorrelationTag);
 
-        dataInfo = new DataInfoGroup(incomingLabel, incomingDataInfo.getDimension(), new IEtomicaDataInfo[]{
+        dataInfo = new DataInfoGroup(incomingLabel, incomingDataInfo.getDimension(), new IDataInfo[]{
                 mostRecentInfo, averageInfo, errorInfo, standardDeviationInfo, correlationInfo});
         dataInfo.addTags(incomingDataInfo.getTags());
         dataInfo.addTag(tag);

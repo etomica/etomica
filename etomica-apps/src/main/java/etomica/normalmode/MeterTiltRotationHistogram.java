@@ -99,7 +99,7 @@ public class MeterTiltRotationHistogram implements IAction, IDataSource {
         return dataGroup;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfoGroup;
     }
 

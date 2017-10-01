@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 
 import etomica.action.IAction;
 import etomica.chem.elements.ElementSimple;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.graphics.ColorSchemeRandomByMolecule;
 import etomica.graphics.DisplayBox;
@@ -167,7 +167,7 @@ public class VirialSW {
                 
                 DataDouble data = new DataDouble();
             };
-            IEtomicaDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, new CompoundDimension(new Dimension[]{new DimensionRatio(Volume.DIMENSION, Quantity.DIMENSION)}, new double[]{nPoints-1}));
+            IDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, new CompoundDimension(new Dimension[]{new DimensionRatio(Volume.DIMENSION, Quantity.DIMENSION)}, new double[]{nPoints-1}));
             Unit unit = new CompoundUnit(new Unit[]{new UnitRatio(Liter.UNIT, Mole.UNIT)}, new double[]{nPoints-1});
             averageBox.putDataInfo(dataInfo);
             averageBox.setLabel("average");

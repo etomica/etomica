@@ -92,7 +92,7 @@ public class DataSourceFE implements IDataSource, DataSourceIndependent {
         return tag;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         double[] ratios = mcMoveOverlapMeter.getRatios();
         if (ratios == null) return dataInfo;
         if (ratios.length != dataInfo.getLength()) {

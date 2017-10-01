@@ -53,7 +53,7 @@ public class DataPump extends DataProcessor implements IAction {
     /**
      * Returns the given DataInfo.
      */
-    public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+    public IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         dataInfo = inputDataInfo.getFactory().makeDataInfo();
         dataInfo.addTag(tag);
         return dataInfo;
@@ -62,7 +62,7 @@ public class DataPump extends DataProcessor implements IAction {
     /**
      * Returns null, indicating that this DataSink can handle any type of Data without casting.
      */
-    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
+    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
         return null;
     }
     
@@ -73,6 +73,6 @@ public class DataPump extends DataProcessor implements IAction {
         return dataSource;
     }
 
-    protected IEtomicaDataInfo dataSourceInfo;
+    protected IDataInfo dataSourceInfo;
     protected final IDataSource dataSource;
 }

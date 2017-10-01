@@ -4,10 +4,7 @@
 
 package etomica.virial.overlap;
 
-import etomica.data.DataPipe;
-import etomica.data.DataProcessor;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.overlap.AlphaSource;
 import etomica.units.dimensions.Null;
@@ -26,7 +23,7 @@ public class DataProcessorVirialOverlap extends DataProcessor implements AlphaSo
         setBennetParam(1.0,5);
     }
 
-    public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
+    public DataPipe getDataCaster(IDataInfo inputDataInfo) {
         numIncomingValues = inputDataInfo.getLength();
         if (numIncomingValues < 2) {
             throw new RuntimeException("must have at least 2 values");
@@ -34,7 +31,7 @@ public class DataProcessorVirialOverlap extends DataProcessor implements AlphaSo
         return null;
     }
 
-    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         setup();
         return dataInfo;
     }

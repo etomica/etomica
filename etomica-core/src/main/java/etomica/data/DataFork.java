@@ -44,7 +44,7 @@ public class DataFork implements DataPipeForked, java.io.Serializable {
     /**
      * Returns null, indicating that this DataSink can accept any type of Data.
      */
-    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
+    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
         return null;
     }
     
@@ -64,7 +64,7 @@ public class DataFork implements DataPipeForked, java.io.Serializable {
      * Puts the given DataInfo through into all DataSinks, inserting
      * a data caster before any sinks needing one.
      */
-    public void putDataInfo(IEtomicaDataInfo incomingDataInfo) {
+    public void putDataInfo(IDataInfo incomingDataInfo) {
         dataInfo = incomingDataInfo.getFactory().makeDataInfo();
         dataInfo.addTag(tag);
         for(int i=dataSinkList.length-1; i>=0; i--) {
@@ -146,7 +146,7 @@ public class DataFork implements DataPipeForked, java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
     protected DataSinkWrapper[] dataSinkList = new DataSinkWrapper[0];
-    protected IEtomicaDataInfo dataInfo;
+    protected IDataInfo dataInfo;
     protected final DataTag tag;
     
     private static class DataSinkWrapper implements Serializable {

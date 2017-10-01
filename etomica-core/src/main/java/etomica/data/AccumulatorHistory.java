@@ -53,7 +53,7 @@ public class AccumulatorHistory extends DataAccumulator {
     /**
      * Returns null.  AccumulatorHistogram can take an type of Data.
      */
-    public DataPipe getDataCaster(IEtomicaDataInfo newInputDataInfo) {
+    public DataPipe getDataCaster(IDataInfo newInputDataInfo) {
         return null;
     }
     
@@ -62,7 +62,7 @@ public class AccumulatorHistory extends DataAccumulator {
      * 
      * @param newInputDataInfo
      */
-    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo newInputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo newInputDataInfo) {
         if (newInputDataInfo.getLength() != 1) {
             throw new IllegalArgumentException("AccumulatorHistory only handles single-value data");
         }
@@ -126,7 +126,7 @@ public class AccumulatorHistory extends DataAccumulator {
         history.reset();
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 
@@ -135,7 +135,7 @@ public class AccumulatorHistory extends DataAccumulator {
     private DataFunction data;
     protected int nData;
     private DataSourceScalar timeDataSource;
-    private IEtomicaDataInfo inputDataInfo;
+    private IDataInfo inputDataInfo;
 
     /**
      * Simple DataSource to use as a default time DataSource.  It just returns

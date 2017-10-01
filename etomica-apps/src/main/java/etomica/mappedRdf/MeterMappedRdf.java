@@ -33,7 +33,7 @@ public class MeterMappedRdf implements IAction, IDataSource, DataSourceIndepende
     protected double xMax;
     protected long callCount;
     protected AtomType type1, type2;
-    private IEtomicaDataInfo dataInfo;
+    private IDataInfo dataInfo;
     private Boundary boundary;
     private String name;
 
@@ -55,7 +55,7 @@ public class MeterMappedRdf implements IAction, IDataSource, DataSourceIndepende
         dataInfo.addTag(tag);
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

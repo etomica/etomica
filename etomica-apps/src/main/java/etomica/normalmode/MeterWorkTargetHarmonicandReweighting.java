@@ -96,7 +96,7 @@ public class MeterWorkTargetHarmonicandReweighting implements IDataSource {
         latticeEnergy = newLatticeEnergy;
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 
@@ -110,7 +110,7 @@ public class MeterWorkTargetHarmonicandReweighting implements IDataSource {
     	return dataHistogram;
     }
     
-    public IEtomicaDataInfo getDataInfoHistogramBetaUBWf(){
+    public IDataInfo getDataInfoHistogramBetaUBWf(){
     	DataInfoDoubleArray independentInfo = new DataInfoDoubleArray("Energy", Energy.DIMENSION, new int[]{histogramUBWf.getNBins()});
     	xDataSource = new DataSourceIndependentSimple(histogramUBWf.xValues(), independentInfo);
     	dataInfoHistogram = new DataInfoFunction("Energy Histogram", Null.DIMENSION,xDataSource);
@@ -122,7 +122,7 @@ public class MeterWorkTargetHarmonicandReweighting implements IDataSource {
     	return dataHistogram;
     }
     
-    public IEtomicaDataInfo getDataInfoHistogramBetaUBWr(){
+    public IDataInfo getDataInfoHistogramBetaUBWr(){
     	DataInfoDoubleArray independentInfo = new DataInfoDoubleArray("Energy", Energy.DIMENSION, new int[]{histogramUBWr.getNBins()});
     	xDataSource = new DataSourceIndependentSimple(histogramUBWr.xValues(), independentInfo);
     	dataInfoHistogram = new DataInfoFunction("Energy Histogram", Null.DIMENSION,xDataSource);

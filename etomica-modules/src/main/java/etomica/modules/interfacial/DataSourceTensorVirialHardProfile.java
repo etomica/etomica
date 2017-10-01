@@ -32,7 +32,7 @@ public class DataSourceTensorVirialHardProfile extends DataSourceTensorVirialHar
     public DataSourceTensorVirialHardProfile(Space space) {
         super(space);
         profileData = new DataGroup(new IData[0]);
-        profileDataInfo = new DataInfoGroup("Virial profiles", Energy.DIMENSION, new IEtomicaDataInfo[0]);
+        profileDataInfo = new DataInfoGroup("Virial profiles", Energy.DIMENSION, new IDataInfo[0]);
         profileDataInfo.addTag(tag);
         binSize = 0.1;
         virialProfile = new double[space.D()][0];
@@ -221,7 +221,7 @@ public class DataSourceTensorVirialHardProfile extends DataSourceTensorVirialHar
             return meter.getVirialProfile();
         }
 
-        public IEtomicaDataInfo getDataInfo() {
+        public IDataInfo getDataInfo() {
             return meter.getProfileDataInfo();
         }
 

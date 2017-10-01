@@ -6,10 +6,7 @@ package etomica.normalmode;
 
 import etomica.action.IAction;
 import etomica.box.Box;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IDataSource;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup;
@@ -97,7 +94,7 @@ public class MeterNormalMode implements IDataSource, IAction, Serializable {
         return waveVectors;
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -163,7 +160,7 @@ public class MeterNormalMode implements IDataSource, IAction, Serializable {
     private int numWaveVectors;
     private String name;
     private final DataTag tag;
-    private IEtomicaDataInfo dataInfo;
+    private IDataInfo dataInfo;
     private DataGroup data;
     private int callCount;
 

@@ -5,10 +5,7 @@
 package etomica.data.meter;
 
 import etomica.box.Box;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IDataSource;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray;
@@ -25,7 +22,7 @@ import etomica.units.dimensions.Null;
  */
 public class MeterHyperVirial implements IDataSource {
 
-    protected final IEtomicaDataInfo dataInfo;
+    protected final IDataInfo dataInfo;
     protected final IData data;
     protected final DataTag tag;
     protected final IteratorDirective iteratorDirective;
@@ -72,7 +69,7 @@ public class MeterHyperVirial implements IDataSource {
         dataInfo.addTag(tag);
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

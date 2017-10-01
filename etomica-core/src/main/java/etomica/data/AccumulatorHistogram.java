@@ -79,7 +79,7 @@ public class AccumulatorHistogram extends DataAccumulator {
     /**
      * Sets up data and histograms, discarding any previous results.
      */
-    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         binnedDataInfo = inputDataInfo;
         if (inputDataInfo.getLength() != 1 && inputDataInfo.getLength() != 2) {
             throw new IllegalArgumentException("AccumulatorHistogram can only handle single data");
@@ -91,7 +91,7 @@ public class AccumulatorHistogram extends DataAccumulator {
     /**
      * Returns null.  AccumulatorHistory can take an type of Data.
      */
-    public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
+    public DataPipe getDataCaster(IDataInfo inputDataInfo) {
         return null;
     }
 
@@ -156,13 +156,13 @@ public class AccumulatorHistogram extends DataAccumulator {
     /**
      * Returns the DataInfo for the output Data.
      */
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
     protected Histogram histogram;
     protected DataSourceIndependentSimple xDataSource;
     private DataFunction data;
-    private IEtomicaDataInfo binnedDataInfo;
+    private IDataInfo binnedDataInfo;
     private int nBins;
 }

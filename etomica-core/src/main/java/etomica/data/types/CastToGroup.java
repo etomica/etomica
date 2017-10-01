@@ -7,7 +7,7 @@ package etomica.data.types;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataGroup.DataInfoGroup;
 
 /**
@@ -28,7 +28,7 @@ public class CastToGroup extends DataProcessor {
     public CastToGroup() {
     }
 
-    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         Class inputClass = inputDataInfo.getClass();
         dataGroup = null;
         if (inputClass == DataGroup.class) {
@@ -38,7 +38,7 @@ public class CastToGroup extends DataProcessor {
         }
         inputType = 1;
         dataGroup = null;
-        DataInfoGroup outputDataInfo = new DataInfoGroup(inputDataInfo.getLabel(), inputDataInfo.getDimension(), new IEtomicaDataInfo[]{inputDataInfo});
+        DataInfoGroup outputDataInfo = new DataInfoGroup(inputDataInfo.getLabel(), inputDataInfo.getDimension(), new IDataInfo[]{inputDataInfo});
         return outputDataInfo;
     }
     
@@ -69,7 +69,7 @@ public class CastToGroup extends DataProcessor {
     /**
      * Returns null, indicating that this DataProcessor can accept any Data type.
      */
-    public DataPipe getDataCaster(IEtomicaDataInfo info) {
+    public DataPipe getDataCaster(IDataInfo info) {
         return null;
     }
 

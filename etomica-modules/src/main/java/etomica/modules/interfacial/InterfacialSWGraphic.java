@@ -34,7 +34,6 @@ import etomica.units.dimensions.Dimension;
 import etomica.units.*;
 import etomica.units.dimensions.Energy;
 import etomica.units.dimensions.Length;
-import etomica.units.systems.LJ;
 import etomica.util.Constants.CompassDirection;
 
 import javax.swing.*;
@@ -773,12 +772,12 @@ public class InterfacialSWGraphic extends SimulationGraphic {
             return data;
         }
 
-        protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+        protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
             dataInfo = new DataDoubleArray.DataInfoDoubleArray(inputDataInfo.getLabel(), inputDataInfo.getDimension(), new int[]{inputDataInfo.getLength()});
             return dataInfo;
         }
 
-        public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
+        public DataPipe getDataCaster(IDataInfo inputDataInfo) {
             if (!(inputDataInfo instanceof DataTensor.DataInfoTensor)) {
                 throw new IllegalArgumentException("Gotta be a DataInfoTensor");
             }

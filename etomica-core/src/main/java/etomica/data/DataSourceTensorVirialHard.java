@@ -31,7 +31,7 @@ public class DataSourceTensorVirialHard implements IDataSource, IntegratorHard.C
         setIntegrator(integrator);
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

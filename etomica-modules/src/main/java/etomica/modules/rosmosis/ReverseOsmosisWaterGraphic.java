@@ -700,7 +700,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
             this.box = box;
         }
         
-        public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
+        public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
             return null;
         }
         
@@ -710,7 +710,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
             return myData;
         }
 
-        protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+        protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
             return inputDataInfo;
         }
         

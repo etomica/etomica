@@ -57,7 +57,7 @@ public class DataDistributer implements IDataSink {
         }
     }
 
-    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
+    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
         return null;
     }
 
@@ -69,7 +69,7 @@ public class DataDistributer implements IDataSink {
         dataSinks[idx].putData(data);
     }
 
-    public void putDataInfo(IEtomicaDataInfo incomingDataInfo) {
+    public void putDataInfo(IDataInfo incomingDataInfo) {
         dataInfo = incomingDataInfo;
         for (int i=0; i<dataSinks.length; i++) {
             if (dataSinks[i] != null) {
@@ -80,7 +80,7 @@ public class DataDistributer implements IDataSink {
 
     protected IDataSink[] dataSinks;
     protected DataDouble[] outData;
-    protected IEtomicaDataInfo dataInfo;
+    protected IDataInfo dataInfo;
     protected final DataTag tag;
     protected final IDataSinkFactory dataSinkFactory;
     protected final Indexer indexer;

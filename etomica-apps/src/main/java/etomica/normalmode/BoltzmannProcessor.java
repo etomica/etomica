@@ -4,11 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.data.DataPipe;
-import etomica.data.DataProcessor;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataInfoFactory;
+import etomica.data.*;
 import etomica.units.dimensions.Null;
 import etomica.math.function.Function;
 
@@ -21,9 +17,9 @@ public class BoltzmannProcessor extends DataProcessor {
     public BoltzmannProcessor() {
     }
     
-    public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo incomingDataInfo) {
+    public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
         data = incomingDataInfo.makeData();
-        IEtomicaDataInfoFactory factory = incomingDataInfo.getFactory();
+        IDataInfoFactory factory = incomingDataInfo.getFactory();
         // we get energy in, spit out unitless
         factory.setDimension(Null.DIMENSION);
         dataInfo = factory.makeDataInfo();
@@ -42,7 +38,7 @@ public class BoltzmannProcessor extends DataProcessor {
         return data;
     }
     
-    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
+    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
         return null;
     }
     

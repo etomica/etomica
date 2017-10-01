@@ -4,12 +4,7 @@
 
 package etomica.modules.multiharmonic;
 
-import etomica.data.DataPipe;
-import etomica.data.DataProcessor;
-import etomica.data.DataSourceIndependent;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
@@ -29,11 +24,11 @@ public class DataProcessorDyDLnx extends DataProcessor implements DataSourceInde
         nTag = new DataTag();
     }
 
-    public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
+    public DataPipe getDataCaster(IDataInfo inputDataInfo) {
         return null;
     }
 
-    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         nDataSource = ((DataInfoFunction)inputDataInfo).getXDataSource();
         int myLength = inputDataInfo.getLength()-1;
         if (myLength < 0) {

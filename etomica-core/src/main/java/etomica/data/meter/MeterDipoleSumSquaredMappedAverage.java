@@ -3,10 +3,7 @@ package etomica.data.meter;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IDataSource;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorRigidIterative.MoleculeAgent;
@@ -161,7 +158,7 @@ public class MeterDipoleSumSquaredMappedAverage implements IDataSource, Molecule
 		return tag;
 	}
 
-	public IEtomicaDataInfo getDataInfo() {
+	public IDataInfo getDataInfo() {
 		return dataInfo;
 	}
 

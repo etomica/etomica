@@ -22,13 +22,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import etomica.data.DataProcessor;
-import etomica.data.DataSet;
+import etomica.data.*;
 import etomica.data.DataSet.DataCasterJudge;
-import etomica.data.DataSetListener;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.data.types.DataGroup.DataInfoGroup;
@@ -165,7 +160,7 @@ public class DisplayPlot extends Display implements DataSetListener {
             units = (Unit[])Arrays.resizeArray(units, newDataCount);
             Dimension xDimension = null;
             if (units.length > 0) {
-                IEtomicaDataInfo xDataInfo = ((DataInfoFunction)dataSet.getDataInfo(0)).getXDataSource().getIndependentDataInfo(0);
+                IDataInfo xDataInfo = ((DataInfoFunction)dataSet.getDataInfo(0)).getXDataSource().getIndependentDataInfo(0);
                 xDimension = xDataInfo.getDimension();
                 if (xUnit == null) {
                     xUnit = xDimension.getUnit(UnitSystem.SIM);
@@ -517,7 +512,7 @@ public class DisplayPlot extends Display implements DataSetListener {
 
     protected static class DataCasterJudgeFunction implements DataCasterJudge, Serializable {
 
-        public DataProcessor getDataCaster(IEtomicaDataInfo dataInfo) {
+        public DataProcessor getDataCaster(IDataInfo dataInfo) {
             if (dataInfo instanceof DataInfoFunction) {
                 return null;
             }

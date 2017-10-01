@@ -134,7 +134,7 @@ public class MeterDADB implements IDataSource, AgentSource<MyAgent> {
         return tag;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

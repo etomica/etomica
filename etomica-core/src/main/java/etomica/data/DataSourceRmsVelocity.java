@@ -46,7 +46,7 @@ public class DataSourceRmsVelocity implements IDataSource, DataSourceAtomic, Dat
         setupData();
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -54,7 +54,7 @@ public class DataSourceRmsVelocity implements IDataSource, DataSourceAtomic, Dat
         return tag;
     }
 
-    public IEtomicaDataInfo getAtomDataInfo() {
+    public IDataInfo getAtomDataInfo() {
         return atomDataInfo;
     }
 
@@ -138,8 +138,8 @@ public class DataSourceRmsVelocity implements IDataSource, DataSourceAtomic, Dat
     private static final long serialVersionUID = 1L;
 	private AtomIterator iterator;
     private final DataDouble atomData;
-    private final IEtomicaDataInfo atomDataInfo;
-    private IEtomicaDataInfo dataInfo;
+    private final IDataInfo atomDataInfo;
+    private IDataInfo dataInfo;
     protected DataDoubleArray xData;
     protected DataInfoDoubleArray xDataInfo;
     private final Histogram histogramRMS;

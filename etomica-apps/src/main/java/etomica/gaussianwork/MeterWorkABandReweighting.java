@@ -110,7 +110,7 @@ public class MeterWorkABandReweighting implements IDataSource {
         return temperature;
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 
@@ -124,7 +124,7 @@ public class MeterWorkABandReweighting implements IDataSource {
     	return dataHistogram;
     }
     
-    public IEtomicaDataInfo getDataInfoHistogramBetaUAWf(){
+    public IDataInfo getDataInfoHistogramBetaUAWf(){
     	DataInfoDoubleArray independentInfo = new DataInfoDoubleArray("Energy", Energy.DIMENSION, new int[]{histogramUAWf.getNBins()});
     	xDataSource = new DataSourceIndependentSimple(histogramUAWf.xValues(), independentInfo);
     	dataInfoHistogram = new DataInfoFunction("Energy Histogram", Null.DIMENSION,xDataSource);
@@ -136,7 +136,7 @@ public class MeterWorkABandReweighting implements IDataSource {
     	return dataHistogram;
     }
     
-    public IEtomicaDataInfo getDataInfoHistogramBetaUAWr(){
+    public IDataInfo getDataInfoHistogramBetaUAWr(){
     	DataInfoDoubleArray independentInfo = new DataInfoDoubleArray("Energy", Energy.DIMENSION, new int[]{histogramUAWr.getNBins()});
     	xDataSource = new DataSourceIndependentSimple(histogramUAWr.xValues(), independentInfo);
     	dataInfoHistogram = new DataInfoFunction("Energy Histogram", Null.DIMENSION,xDataSource);

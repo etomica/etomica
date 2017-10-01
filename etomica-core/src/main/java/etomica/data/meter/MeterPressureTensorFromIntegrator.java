@@ -24,7 +24,7 @@ public class MeterPressureTensorFromIntegrator implements IDataSource, java.io.S
         this.space = space;
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     

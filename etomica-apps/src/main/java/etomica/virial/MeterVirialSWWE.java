@@ -1,9 +1,6 @@
 package etomica.virial;
 
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IDataSource;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.units.dimensions.Null;
@@ -17,7 +14,7 @@ public class MeterVirialSWWE implements IDataSource {
 	protected final int n, npairs;
 	protected final ClusterWheatleyExtendSW clusters;
 	private final DataDoubleArray data;
-	private final IEtomicaDataInfo dataInfo;
+	private final IDataInfo dataInfo;
     private final DataTag tag;
     private BoxCluster box;
 	
@@ -31,7 +28,7 @@ public class MeterVirialSWWE implements IDataSource {
         dataInfo.addTag(tag);
 	}
 	
-	public IEtomicaDataInfo getDataInfo() {
+	public IDataInfo getDataInfo() {
         return dataInfo;
     }
 	

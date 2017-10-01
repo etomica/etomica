@@ -13,18 +13,10 @@ import javax.swing.JTabbedPane;
 
 import etomica.action.IAction;
 import etomica.atom.IAtomList;
+import etomica.data.*;
 import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.atom.DiameterHashByType;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataFork;
-import etomica.data.DataPipe;
-import etomica.data.DataProcessor;
-import etomica.data.DataPump;
-import etomica.data.DataSourceCountTime;
-import etomica.data.DataSplitter;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataTensor;
 import etomica.graphics.DeviceNSelector;
@@ -314,12 +306,12 @@ public class DropletGraphic extends SimulationGraphic {
             return data;
         }
 
-        protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+        protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
             dataInfo = new DataDoubleArray.DataInfoDoubleArray(inputDataInfo.getLabel(), inputDataInfo.getDimension(), new int[]{inputDataInfo.getLength()});
             return dataInfo;
         }
 
-        public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
+        public DataPipe getDataCaster(IDataInfo inputDataInfo) {
             if (!(inputDataInfo instanceof DataTensor.DataInfoTensor)) {
                 throw new IllegalArgumentException("Gotta be a DataInfoTensor");
             }

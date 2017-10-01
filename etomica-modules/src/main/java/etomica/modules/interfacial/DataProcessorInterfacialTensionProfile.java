@@ -9,8 +9,8 @@ import etomica.space.Vector;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataInfoFactory;
+import etomica.data.IDataInfo;
+import etomica.data.IDataInfoFactory;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.data.types.DataGroup;
@@ -75,16 +75,16 @@ public class DataProcessorInterfacialTensionProfile extends DataProcessor {
         return data;
     }
 
-    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         DataInfoFunction dataInfo0 = (DataInfoFunction)((DataInfoGroup)inputDataInfo).getSubDataInfo(0);
         data = (DataFunction)dataInfo0.makeData();
-        IEtomicaDataInfoFactory dataInfoFactory = dataInfo0.getFactory();
+        IDataInfoFactory dataInfoFactory = dataInfo0.getFactory();
         dataInfoFactory.setDimension(new DimensionRatio(Energy.DIMENSION, ((DataInfoGroup)inputDataInfo).getNDataInfo() == 2 ? Length.DIMENSION : Area.DIMENSION));
         dataInfoFactory.setLabel("Interfacial tension profile");
         return dataInfoFactory.makeDataInfo();
     }
 
-    public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
+    public DataPipe getDataCaster(IDataInfo inputDataInfo) {
         return null;
     }
 

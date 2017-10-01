@@ -26,7 +26,7 @@ public class DataSourceGroup implements IDataSource, java.io.Serializable {
      */
     public DataSourceGroup() {
         data = new DataGroup(new IData[0]);
-        dataInfo = new DataInfoGroup("Data Group", Null.DIMENSION, new IEtomicaDataInfo[0]);
+        dataInfo = new DataInfoGroup("Data Group", Null.DIMENSION, new IDataInfo[0]);
         dataSources = new IDataSource[0];
         tag = new DataTag();
         dataInfo.addTag(tag);
@@ -45,7 +45,7 @@ public class DataSourceGroup implements IDataSource, java.io.Serializable {
         }
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -85,8 +85,8 @@ public class DataSourceGroup implements IDataSource, java.io.Serializable {
         data = new DataGroup(latestData);
     }
     
-    protected IEtomicaDataInfo[] getSubDataInfo() {
-        IEtomicaDataInfo[] subDataInfo = new IEtomicaDataInfo[dataSources.length];
+    protected IDataInfo[] getSubDataInfo() {
+        IDataInfo[] subDataInfo = new IDataInfo[dataSources.length];
         for (int i=0; i<subDataInfo.length; i++) {
             subDataInfo[i] = dataSources[i].getDataInfo();
         }
@@ -97,6 +97,6 @@ public class DataSourceGroup implements IDataSource, java.io.Serializable {
     private IDataSource[] dataSources = new IDataSource[0];
     private IData[] latestData = new IData[0];
     private DataGroup data;
-    private IEtomicaDataInfo dataInfo;
+    private IDataInfo dataInfo;
     protected final DataTag tag;
 }

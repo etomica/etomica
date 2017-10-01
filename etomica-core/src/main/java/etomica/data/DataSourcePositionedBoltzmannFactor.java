@@ -76,7 +76,7 @@ public class DataSourcePositionedBoltzmannFactor implements DataSourcePositioned
         }
     }
 
-    public IEtomicaDataInfo getPositionDataInfo() {
+    public IDataInfo getPositionDataInfo() {
         return dataInfo;
     }
 

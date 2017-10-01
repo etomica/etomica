@@ -8,10 +8,7 @@ import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterStatic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IDataSource;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -150,7 +147,7 @@ public class MeterDeformation implements IDataSource {
         return data;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

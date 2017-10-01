@@ -391,7 +391,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             return chiTag;
         }
 
-        public IEtomicaDataInfo getDataInfo() {
+        public IDataInfo getDataInfo() {
             if (chiInfo == null || chiInfo.getLength() != dsvo.getAccumulators()[0].getNBennetPoints()) {
                 chiData = new DataFunction(new int[]{dsvo.getAccumulators()[0].getNBennetPoints()});
                 alphaData = new DataDoubleArray(chiData.getLength());
@@ -458,7 +458,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             return chiTag;
         }
 
-        public IEtomicaDataInfo getDataInfo() {
+        public IDataInfo getDataInfo() {
             if (chiInfo == null || chiInfo.getLength() != dsvo.getAccumulators()[0].getNBennetPoints()) {
                 chiData = new DataFunction(new int[]{dsvo.getAccumulators()[0].getNBennetPoints()});
                 alphaData = new DataDoubleArray(chiData.getLength());

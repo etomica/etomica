@@ -47,7 +47,7 @@ public class DataCollector implements IDataSource {
     }
 
     @Override
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

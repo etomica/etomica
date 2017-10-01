@@ -32,7 +32,7 @@ public class AccumulatorAverageBlocklessSlim extends DataAccumulator {
     /**
      * Returns null (any data is good data)
      */
-    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
+    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
         return null;
     }
 
@@ -110,7 +110,7 @@ public class AccumulatorAverageBlocklessSlim extends DataAccumulator {
      *            the DataInfo instance for the data that will be given to
      *            addData
      */
-    public void putDataInfo(IEtomicaDataInfo inputDataInfo) {
+    public void putDataInfo(IDataInfo inputDataInfo) {
         inDataInfo = inputDataInfo;
         sum = inputDataInfo.makeData();
         sumSquare = inputDataInfo.makeData();
@@ -119,7 +119,7 @@ public class AccumulatorAverageBlocklessSlim extends DataAccumulator {
         reset();
     }
 
-    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         return null;
     }
     
@@ -160,7 +160,7 @@ public class AccumulatorAverageBlocklessSlim extends DataAccumulator {
         sumSquare.E(ad.sumSquare);
     }
 
-    protected IEtomicaDataInfo inDataInfo;
+    protected IDataInfo inDataInfo;
     protected long count;
 
     protected IData sum; //sum(value)

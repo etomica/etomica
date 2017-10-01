@@ -4,10 +4,7 @@
 
 package etomica.virial;
 
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IDataSource;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
 import etomica.data.types.DataDoubleBDArray;
 import etomica.data.types.DataDoubleBDArray.DataInfoDoubleBDArray;
 import etomica.units.dimensions.Null;
@@ -35,7 +32,7 @@ public class MeterVirialBD implements IDataSource {
         DataDoubleBDArray.addBDZero(BDZERO);
 	}
 
-	public IEtomicaDataInfo getDataInfo() {
+	public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -74,7 +71,7 @@ public class MeterVirialBD implements IDataSource {
     protected final ClusterAbstract clusters[];
 	private final DataDoubleBDArray data;
 	private final MathContext mc;
-	private final IEtomicaDataInfo dataInfo;
+	private final IDataInfo dataInfo;
     private final DataTag tag;
     private BoxCluster box;
 }

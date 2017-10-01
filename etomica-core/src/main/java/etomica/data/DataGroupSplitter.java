@@ -55,7 +55,7 @@ public class DataGroupSplitter implements IDataSink {
         }
     }
 
-    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
+    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
         if (!(incomingDataInfo instanceof DataInfoGroup)) {
             throw new RuntimeException("I want to take a DataGroup");
         }
@@ -71,7 +71,7 @@ public class DataGroupSplitter implements IDataSink {
         }
     }
 
-    public void putDataInfo(IEtomicaDataInfo incomingDataInfo) {
+    public void putDataInfo(IDataInfo incomingDataInfo) {
         dataInfoGroup = (DataInfoGroup)incomingDataInfo;
         if (dataSinks.length != dataInfoGroup.getNDataInfo()) {
             dataSinks = new IDataSink[dataInfoGroup.getNDataInfo()];

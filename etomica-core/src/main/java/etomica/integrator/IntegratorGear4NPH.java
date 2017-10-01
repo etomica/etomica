@@ -11,10 +11,7 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IDataSource;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
 import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
@@ -237,7 +234,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
             dim = D;
         }
         
-        public IEtomicaDataInfo getDataInfo() {
+        public IDataInfo getDataInfo() {
             return dataInfo;
         }
         
@@ -260,7 +257,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
         private static final long serialVersionUID = 1L;
         private DataDouble data;
         private IntegratorGear4NPH integrator;
-        private IEtomicaDataInfo dataInfo;
+        private IDataInfo dataInfo;
         private DataTag tag;
         private final int dim;
     }

@@ -11,7 +11,7 @@ import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.DataSourceScalar;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.IDataInfo;
 
 /**
  * Data Processor which calculates the bias in the incoming data based on the
@@ -25,11 +25,11 @@ public class DataProcessorBias extends DataProcessor {
         this.trueDataSource = trueDataSource;
     }
     
-    public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
+    public DataPipe getDataCaster(IDataInfo inputDataInfo) {
         return null;
     }
 
-    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         dataInfo = inputDataInfo.getFactory().makeDataInfo();
         dataInfo.addTag(tag);
         data = inputDataInfo.makeData();
@@ -48,6 +48,6 @@ public class DataProcessorBias extends DataProcessor {
 
     private static final long serialVersionUID = 1L;
     protected IData data;
-    protected IEtomicaDataInfo dataInfo;
+    protected IDataInfo dataInfo;
     protected DataSourceScalar trueDataSource;
 }

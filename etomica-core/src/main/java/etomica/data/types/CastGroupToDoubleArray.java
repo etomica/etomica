@@ -9,7 +9,7 @@ import etomica.space.Vector;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup.DataInfoGroup;
@@ -59,7 +59,7 @@ public class CastGroupToDoubleArray extends DataProcessor {
      *             if DataInfo does not indicate a DataGroup, or if DataInfo
      *             indicates that expected DataGroup will not be homogeneous
      */
-    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         if (!(inputDataInfo instanceof DataInfoGroup)) {
             throw new IllegalArgumentException("can only cast from DataGroup");
         }
@@ -69,11 +69,11 @@ public class CastGroupToDoubleArray extends DataProcessor {
         if (numSubData == 0) {
             inputType = 0;
             outputData = new DataDoubleArray(0);
-            IEtomicaDataInfo outputDataInfo = new DataInfoDoubleArray(label, dimension, new int[]{0});
+            IDataInfo outputDataInfo = new DataInfoDoubleArray(label, dimension, new int[]{0});
             outputDataInfo.addTags(inputDataInfo.getTags());
             return outputDataInfo;
         }
-        IEtomicaDataInfo subDataInfo = ((DataInfoGroup)inputDataInfo).getSubDataInfo(0);
+        IDataInfo subDataInfo = ((DataInfoGroup)inputDataInfo).getSubDataInfo(0);
 
         Class subDataInfoClass = subDataInfo.getClass();
         for (int i = 1; i<numSubData; i++) {
@@ -194,7 +194,7 @@ public class CastGroupToDoubleArray extends DataProcessor {
     /**
      * Returns null.
      */
-    public DataPipe getDataCaster(IEtomicaDataInfo info) {
+    public DataPipe getDataCaster(IDataInfo info) {
         return null;
     }
 

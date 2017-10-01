@@ -532,7 +532,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             return chiTag;
         }
 
-        public IEtomicaDataInfo getDataInfo() {
+        public IDataInfo getDataInfo() {
             if (chiInfo == null || chiInfo.getLength() != meterOverlapA.getNumAlpha()) {
                 chiData = new DataFunction(new int[]{meterOverlapA.getNumAlpha()});
                 alphaData = new DataDoubleArray(chiData.getLength());

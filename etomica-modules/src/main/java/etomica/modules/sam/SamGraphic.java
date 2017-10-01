@@ -14,19 +14,7 @@ import etomica.action.IAction;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.DiameterHashByType;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorHistogram;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataFork;
-import etomica.data.DataPipe;
-import etomica.data.DataProcessor;
-import etomica.data.DataPump;
-import etomica.data.DataSourceCountTime;
-import etomica.data.DataSourceScalar;
-import etomica.data.DataSplitter;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
 import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -473,7 +461,7 @@ public class SamGraphic extends SimulationGraphic {
             this.sim = sim;
         }
 
-        public DataPipe getDataCaster(IEtomicaDataInfo dataInfo) {
+        public DataPipe getDataCaster(IDataInfo dataInfo) {
             return null;
         }
 
@@ -485,7 +473,7 @@ public class SamGraphic extends SimulationGraphic {
             return data;
         }
 
-        protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+        protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
             data = new DataDoubleArray(2);
             dataInfo = new DataInfoDoubleArray("Strain and Stress", Null.DIMENSION, new int[]{2});
             return dataInfo;

@@ -51,7 +51,7 @@ public class MeterRDFPC implements IAction, IDataSource, DataSourceIndependent {
         dataInfo.addTag(tag);
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -159,7 +159,7 @@ public class MeterRDFPC implements IAction, IDataSource, DataSourceIndependent {
     protected Box box;
     protected final Space space;
     protected DataFunction data;
-    private IEtomicaDataInfo dataInfo;
+    private IDataInfo dataInfo;
     protected DataDoubleArray rData;
     protected IteratorDirective allAtoms;
     protected final DataSourceUniform xDataSource;

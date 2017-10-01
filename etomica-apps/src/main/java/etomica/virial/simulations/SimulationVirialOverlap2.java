@@ -308,11 +308,11 @@ public class SimulationVirialOverlap2 extends Simulation {
             
             DataDoubleArray data = new DataDoubleArray(extraTargetClusters.length+1);
             
-            public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
+            public DataPipe getDataCaster(IDataInfo inputDataInfo) {
                 return null;
             }
             
-            protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+            protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
                 dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{extraTargetClusters.length+1});
                 return dataInfo;
             }

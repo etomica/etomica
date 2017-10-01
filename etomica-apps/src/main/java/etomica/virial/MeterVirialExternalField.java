@@ -5,10 +5,7 @@
 package etomica.virial;
 
 import etomica.atom.IAtomList;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IDataSource;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.units.dimensions.Null;
@@ -31,7 +28,7 @@ public class MeterVirialExternalField implements IDataSource, java.io.Serializab
         dataInfo.addTag(tag);
 	}
 
-	public IEtomicaDataInfo getDataInfo() {
+	public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -76,7 +73,7 @@ public class MeterVirialExternalField implements IDataSource, java.io.Serializab
 
     protected final ClusterAbstract cluster;
 	private final DataDoubleArray data;
-	private final IEtomicaDataInfo dataInfo;
+	private final IDataInfo dataInfo;
     private final DataTag tag;
     private final double [] wallPosition;
     private BoxCluster box;

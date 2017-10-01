@@ -42,7 +42,7 @@ public class MeterProfile implements IDataSource, DataSourceIndependent, java.io
         positionSource = new RandomPositionSourceRectangular(space, random);
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -170,7 +170,7 @@ public class MeterProfile implements IDataSource, DataSourceIndependent, java.io
     private Box box;
     private DataSourceUniform xDataSource;
     private DataFunction data;
-    private IEtomicaDataInfo dataInfo;
+    private IDataInfo dataInfo;
     protected RandomPositionSource positionSource;
     /**
      * Vector describing the orientation of the profile.

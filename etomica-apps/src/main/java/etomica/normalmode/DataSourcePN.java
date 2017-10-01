@@ -60,7 +60,7 @@ public class DataSourcePN implements IDataSource, DataSourceIndependent {
         return tag;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         if (dataInfo != null && pSplitter.getNumDataSinks() > dataInfo.getLength()) {
             xDataInfo = new DataInfoDoubleArray("N", Quantity.DIMENSION, new int[]{pSplitter.getNumDataSinks()});
             xDataInfo.addTag(tag);

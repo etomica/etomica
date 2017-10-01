@@ -4,10 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IDataSource;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.integrator.IntegratorBox;
@@ -56,7 +53,7 @@ public class MeterWorkUmbrellaHarmonic implements IDataSource {
     	return numSum/denomSum;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

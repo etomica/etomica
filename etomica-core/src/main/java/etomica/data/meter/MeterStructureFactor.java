@@ -168,7 +168,7 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
         return tag;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     

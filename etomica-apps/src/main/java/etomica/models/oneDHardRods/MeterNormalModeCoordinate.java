@@ -6,7 +6,7 @@ package etomica.models.oneDHardRods;
 
 import etomica.data.DataTag;
 import etomica.data.IDataSource;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.normalmode.CoordinateDefinition;
@@ -88,7 +88,7 @@ public class MeterNormalModeCoordinate implements IDataSource {
     }
 
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     public DataTag getTag() {

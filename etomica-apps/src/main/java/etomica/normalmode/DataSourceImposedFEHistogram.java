@@ -81,7 +81,7 @@ public class DataSourceImposedFEHistogram implements IDataSource, DataSourceInde
         return tag;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         double[] ratios = mcMoveOverlapMeter.getRatios();
         if (ratios == null) return dataInfo;
         if (ratios.length != dataInfo.getLength()-1) {

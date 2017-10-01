@@ -9,10 +9,7 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IDataSource;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray;
@@ -35,10 +32,10 @@ public final class MeterDimerFraction implements IDataSource {
         dataDensity = new DataDouble();
         dataGroup = new DataGroup(new IData[] {data, dataDensity});
         DataDouble.DataInfoDouble dataInfoDouble = new DataInfoDouble("rho", new CompoundDimension(new Dimension[] {Quantity.DIMENSION, Volume.DIMENSION},new double[] {1,-1}));
-        dataInfoGroup = new DataInfoGroup("x and rho", Dimension.MIXED, new IEtomicaDataInfo[] {dataInfo, dataInfoDouble});
+        dataInfoGroup = new DataInfoGroup("x and rho", Dimension.MIXED, new IDataInfo[] {dataInfo, dataInfoDouble});
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfoGroup;
     }
 

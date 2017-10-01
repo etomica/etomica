@@ -97,7 +97,7 @@ public class AccumulatorRatioAverage extends AccumulatorAverageFixed {
         ratioStandardDeviation.E(Double.NaN);
     }
     
-    public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo incomingDataInfo) {
+    public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
         super.processDataInfo(incomingDataInfo);
 
         ratio = incomingDataInfo.makeData();
@@ -118,16 +118,16 @@ public class AccumulatorRatioAverage extends AccumulatorAverageFixed {
         DataInfoGroupFactory groupFactory = (DataInfoGroupFactory)dataInfo.getFactory();
         IDataInfo[] subDataInfo = groupFactory.getSubDataInfo();
 
-        IEtomicaDataInfoFactory factory = incomingDataInfo.getFactory();
+        IDataInfoFactory factory = incomingDataInfo.getFactory();
         String incomingLabel = incomingDataInfo.getLabel();
         factory.setLabel(incomingLabel+" ratio");
-        IEtomicaDataInfo ratioInfo = factory.makeDataInfo();
+        IDataInfo ratioInfo = factory.makeDataInfo();
         ratioInfo.addTag(ratioTag);
         factory.setLabel(incomingLabel+" ratio error");
-        IEtomicaDataInfo ratioErrorInfo = factory.makeDataInfo();
+        IDataInfo ratioErrorInfo = factory.makeDataInfo();
         ratioErrorInfo.addTag(ratioErrorTag);
         factory.setLabel(incomingLabel+" ratio");
-        IEtomicaDataInfo ratioStandardDeviationInfo = factory.makeDataInfo();
+        IDataInfo ratioStandardDeviationInfo = factory.makeDataInfo();
         ratioStandardDeviationInfo.addTag(ratioStandardDeviationTag);
         
         subDataInfo = (IDataInfo[])Arrays.addObject(subDataInfo, ratioInfo);

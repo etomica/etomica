@@ -22,7 +22,7 @@ public class AccumulatorCounter extends DataAccumulator {
     /**
      * Returns null, indicating that any Data type is acceptable for input.
      */
-    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
+    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
         return null;
     }
 
@@ -31,7 +31,7 @@ public class AccumulatorCounter extends DataAccumulator {
      * 
      * @return the DataInfo for the output DataInteger
      */
-    public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo incomingDataInfo) {
+    public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
         dataInfo.clearTags();
         dataInfo.addTags(incomingDataInfo.getTags());
         dataInfo.addTag(tag);

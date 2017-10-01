@@ -318,11 +318,11 @@ public class InsertionGraphic extends SimulationGraphic {
         
         DataProcessor widomWeight = new DataProcessor() {
             DataFunction data;
-            public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
+            public DataPipe getDataCaster(IDataInfo inputDataInfo) {
                 return null;
             }
             
-            protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+            protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
                 data = (DataFunction)inputDataInfo.makeData();
                 dataInfo = inputDataInfo.getFactory().makeDataInfo();
                 dataInfo.addTag(tag);

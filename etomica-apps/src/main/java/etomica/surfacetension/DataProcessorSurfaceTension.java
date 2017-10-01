@@ -3,7 +3,7 @@ package etomica.surfacetension;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataTensor;
 import etomica.data.types.DataDouble.DataInfoDouble;
@@ -16,12 +16,12 @@ public class DataProcessorSurfaceTension extends DataProcessor {
 
     DataDouble data = new DataDouble();
 
-    public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
+    public DataPipe getDataCaster(IDataInfo inputDataInfo) {
         if (!(inputDataInfo instanceof DataInfoTensor)) throw new RuntimeException("I want a DataTensor");
         return null;
     }
 
-    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         return dataInfo;
     }
 

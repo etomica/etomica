@@ -98,7 +98,7 @@ public class DataSinkTable extends DataSet {
 
         private static final long serialVersionUID = 1L;
 
-        public DataProcessor getDataCaster(IEtomicaDataInfo dataInfo) {
+        public DataProcessor getDataCaster(IDataInfo dataInfo) {
             if (dataInfo instanceof DataInfoTable) {
                 return null;
             } else if(dataInfo instanceof DataInfoGroup) {

@@ -123,7 +123,7 @@ public class MeterMeanForce implements IDataSource, AgentSource<IntegratorVeloci
         return tag;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

@@ -3,7 +3,7 @@ package etomica.modules.statistics;
 import etomica.data.DataPipe;
 import etomica.data.IData;
 import etomica.data.IDataSink;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.IDataInfo;
 
 public class DataAccPusher implements IDataSink {
 
@@ -21,12 +21,12 @@ public class DataAccPusher implements IDataSink {
     }
 
     @Override
-    public void putDataInfo(IEtomicaDataInfo dataInfo) {
+    public void putDataInfo(IDataInfo dataInfo) {
         // don't care!
     }
 
     @Override
-    public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
+    public DataPipe getDataCaster(IDataInfo inputDataInfo) {
         return null;
     }
 }

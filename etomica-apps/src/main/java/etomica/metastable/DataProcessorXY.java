@@ -6,7 +6,7 @@ import etomica.data.DataProcessor;
 import etomica.data.DataSourceIndependent;
 import etomica.data.DataTag;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
@@ -22,7 +22,7 @@ public class DataProcessorXY extends DataProcessor implements DataSourceIndepend
         this.dumpX = dumpX;
     }
 
-    public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
+    public DataPipe getDataCaster(IDataInfo inputDataInfo) {
         return null;
     }
 
@@ -34,7 +34,7 @@ public class DataProcessorXY extends DataProcessor implements DataSourceIndepend
         return data;
     }
 
-    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         dataInfo = new DataFunction.DataInfoFunction("XY", Null.DIMENSION, this);
         data = new DataFunction(new int[]{dumpX.getDataInfo().getLength()});
         return dataInfo;

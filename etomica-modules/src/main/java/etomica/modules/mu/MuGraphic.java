@@ -550,15 +550,15 @@ public class MuGraphic extends SimulationGraphic {
             return data;
         }
 
-        protected IEtomicaDataInfo processDataInfo(
-                IEtomicaDataInfo inputDataInfo) {
+        protected IDataInfo processDataInfo(
+                IDataInfo inputDataInfo) {
             dataInfo = new DataInfoFunction("chemical potential", Energy.DIMENSION, ((DataInfoFunction)inputDataInfo).getXDataSource());
             data = new DataFunction(new int[]{inputDataInfo.getLength()});
             dataInfo.addTag(tag);
             return dataInfo;
         }
 
-        public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
+        public DataPipe getDataCaster(IDataInfo inputDataInfo) {
             return null;
         }
     }
@@ -707,7 +707,7 @@ public class MuGraphic extends SimulationGraphic {
             this.box = box;
         }
         
-        public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
+        public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
             return null;
         }
         
@@ -721,7 +721,7 @@ public class MuGraphic extends SimulationGraphic {
             return myData;
         }
 
-        protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+        protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
             return inputDataInfo;
         }
         

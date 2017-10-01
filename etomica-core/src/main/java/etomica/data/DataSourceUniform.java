@@ -99,7 +99,7 @@ public class DataSourceUniform implements IDataSource, java.io.Serializable {
         typeMax = newTypeMax;
     }//end of calculateX
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
