@@ -135,12 +135,9 @@ public class StatisticsMCGraphic extends SimulationGraphic {
             public void actionPerformed() {
                 meterWidom.setTemperature(sim.integrator.getTemperature());
 
-                // Reset density (Density is set and won't change, but
-                // do this anyway)
                 dDisplay.putData(dHPB.avg.getData());
                 dDisplay.repaint();
 
-                // IS THIS WORKING?
                 pPump.actionPerformed();
                 pDisplay.putData(pHPB.avg.getData());
                 pDisplay.repaint();
