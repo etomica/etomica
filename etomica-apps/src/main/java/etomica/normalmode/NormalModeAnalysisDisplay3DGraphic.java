@@ -4,30 +4,25 @@
 
 package etomica.normalmode;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
 import etomica.action.IAction;
 import etomica.data.*;
+import etomica.data.history.HistoryScrolling;
 import etomica.data.types.DataDouble;
-import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataTable;
 import etomica.data.types.DataDouble.DataInfoDouble;
+import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.data.types.DataTable;
 import etomica.data.types.DataTable.DataInfoTable;
-import etomica.graphics.DeviceThermoSlider;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTable;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.DisplayTextBoxesCAE;
-import etomica.graphics.SimulationGraphic;
+import etomica.graphics.*;
 import etomica.listener.IntegratorListenerAction;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.units.dimensions.Energy;
 import etomica.units.dimensions.Null;
-import etomica.data.history.HistoryScrolling;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * Harmonic Oscillator 3D
@@ -603,8 +598,7 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
  
         displayTableWV = new DisplayTable();
         displayTableWV.setTransposed(false);
-        sinkWV = displayTableWV.getDataTable().makeDataSink();
-                
+
         dataWV = new DataDoubleArray[3];
         dataWV[0] = new DataDoubleArray(new int[]{numWV}, wavevectorx);
         dataWV[1] = new DataDoubleArray(new int[]{numWV}, wavevectory);
@@ -617,6 +611,7 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
         
         DataInfo dataInfoTableWV = new DataInfoTable("Wave Vector", 
         		new DataInfoDoubleArray[]{columnInfoWVx,columnInfoWVy,columnInfoWVz}, numWV, stringiWV);
+        sinkWV = displayTableWV.getDataTable().makeDataSink(dataInfoTableWV);
         sinkWV.putDataInfo(dataInfoTableWV);
         sinkWV.putData(wvTable);
         
@@ -683,7 +678,6 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
         
       
         displayTableEigen = new DisplayTable();
-        sinkEigen = displayTableEigen.getDataTable().makeDataSink();
         displayTableEigen.setTransposed(false);
         
         dataEVec = new DataDoubleArray[1];
@@ -692,6 +686,7 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
                   
         DataInfoDoubleArray columnInfoEigen = new DataInfoDoubleArray("Eigenvector", Null.DIMENSION, new int[]{numEval*numEval});
         DataInfo dataInfoTableEigen = new DataInfoTable("Eigenvector", new DataInfoDoubleArray[]{columnInfoEigen}, (numEval*numEval), so2);
+        sinkEigen = displayTableEigen.getDataTable().makeDataSink(dataInfoTableEigen);
         sinkEigen.putDataInfo(dataInfoTableEigen);
         sinkEigen.putData(eigenTable);
         

@@ -4,8 +4,6 @@
 
 package etomica.data;
 
-import java.io.Serializable;
-
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.util.Arrays;
@@ -18,27 +16,25 @@ import etomica.util.Arrays;
  * @author David Kofke
  */
 
-public class DataSet implements Serializable {
+public class DataSet {
+
+    protected DataSetListener[] listeners = new DataSetListener[0];
+    protected DataSetSink[] psuedoSinks;
+    protected int[] forwardDataMap;
+    protected int[] backwardDataMap;
+    private boolean updatingOnAnyChange;
+    private int[] dataChangedBits = new int[0];
 
     public DataSet() {
-        this(null);
-    }
-    
-    public DataSet(DataCasterJudge dataCasterJudge) {
         psuedoSinks = new DataSetSink[0];
-        this.dataCasterJudge = dataCasterJudge;
         backwardDataMap = new int[0];
         forwardDataMap = new int[0];
     }
-    
-    public DataCasterJudge getDataCasterJudge() {
-        return dataCasterJudge;
-    }
 
     public DataSetSink makeDataSink() {
-        return new DataSetSink(dataCasterJudge, this);
+        return new DataSetSink(this);
     }
-    
+
     public void reset() {
         for (int i=0; i<psuedoSinks.length; i++) {
             psuedoSinks[i].index = -1;
@@ -47,7 +43,7 @@ public class DataSet implements Serializable {
         backwardDataMap = new int[0];
         forwardDataMap = new int[0];
     }
-    
+
     /**
      * Returns the ith Data from the set.
      */
@@ -58,8 +54,8 @@ public class DataSet implements Serializable {
             data = ((DataGroup)data).getData(i-forwardDataMap[iData]);
         }
         return data;
-    }        
-    
+    }
+
     /**
      * Returns the ith DataInfo from the set.
      */
@@ -95,7 +91,7 @@ public class DataSet implements Serializable {
     }
 
     /**
-     * Notifies the DataSet that new Data has arrived for the given psuedo 
+     * Notifies the DataSet that new Data has arrived for the given psuedo
      * DataSink.
      */
     protected void dataChanged(DataSetSink dataSetSink) {
@@ -103,7 +99,7 @@ public class DataSet implements Serializable {
         int index = dataSetSink.index;
         if (index == -1) {
             newData = true;
-            index = psuedoSinks.length; 
+            index = psuedoSinks.length;
 
             dataSetSink.index = index;
             psuedoSinks = (DataSetSink[])Arrays.addObject(psuedoSinks, dataSetSink);
@@ -151,7 +147,7 @@ public class DataSet implements Serializable {
     }
 
     /**
-     * Notifies the DataSet that new DataInfo has arrived for the given 
+     * Notifies the DataSet that new DataInfo has arrived for the given
      * psuedo DataSink.
      */
     protected void dataInfoChanged(DataSetSink dataSetSink) {
@@ -179,7 +175,7 @@ public class DataSet implements Serializable {
                 dataCount++;
             }
         }
-        
+
         //backward maps the ith Data element to the appropriate psuedoDataSink
         backwardDataMap = new int[dataCount];
         for (int i=0; i<psuedoSinks.length-1; i++) {
@@ -213,20 +209,6 @@ public class DataSet implements Serializable {
         listeners = (DataSetListener[]) Arrays.removeObject(listeners,
                 oldListener);
     }
-
-    private static final long serialVersionUID = 1L;
-    protected DataSetListener[] listeners = new DataSetListener[0];
-    private boolean updatingOnAnyChange;
-    private int[] dataChangedBits = new int[0];
-    private final DataCasterJudge dataCasterJudge;
-    protected DataSetSink[] psuedoSinks;
-    
-    protected int[] forwardDataMap;
-    protected int[] backwardDataMap;
-    
-    public interface DataCasterJudge {
-        public DataProcessor getDataCaster(IDataInfo inputDataInfo);
-    }
     
     /**
      * A special DataSink used by the DataSet to receive Data and DataInfo 
@@ -235,8 +217,15 @@ public class DataSet implements Serializable {
      * @author Andrew Schultz
      */
     protected static class DataSetSink implements IDataSink {
-        public DataSetSink(DataCasterJudge dataCasterJudge, DataSet dataSet) {
-            this.dataCasterJudge = dataCasterJudge;
+        private final DataSet dataSet;
+        // index exists solely to indicate whether this DataSetSink is not in
+        // the array of DataSetSinks (index=-1) or its position in the array so
+        // the DataSet doesn't have to go looking to find it.
+        protected int index;
+        private IDataInfo incomingDataInfo;
+        private IData data;
+
+        public DataSetSink(DataSet dataSet) {
             this.dataSet = dataSet;
             index = -1;
         }
@@ -245,35 +234,22 @@ public class DataSet implements Serializable {
             incomingDataInfo = newDataInfo;
             dataSet.dataInfoChanged(this);
         }
-        
+
         public void putData(IData incomingData) {
             data = incomingData;
             dataSet.dataChanged(this);
         }
-        
+
         public DataPipe getDataCaster(IDataInfo newIncomingDataInfo) {
-            if (dataCasterJudge == null) {
-                return null;
-            }
-            return dataCasterJudge.getDataCaster(newIncomingDataInfo);
+            return null;
         }
-        
+
         public IDataInfo getDataInfo() {
             return incomingDataInfo;
         }
-        
+
         public IData getData() {
             return data;
         }
-
-        private static final long serialVersionUID = 1L;
-        private final DataCasterJudge dataCasterJudge;
-        private IDataInfo incomingDataInfo;
-        private final DataSet dataSet;
-        private IData data;
-        // index exists solely to indicate whether this DataSetSink is not in
-        // the array of DataSetSinks (index=-1) or its position in the array so
-        // the DataSet doesn't have to go looking to find it.
-        protected int index;
     }
 }

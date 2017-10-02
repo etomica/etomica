@@ -3,41 +3,35 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.graphics;
-import java.awt.Color;
-import java.awt.TextArea;
+
+import etomica.data.*;
+import etomica.data.types.DataFunction;
+import etomica.data.types.DataFunction.DataInfoFunction;
+import etomica.units.Unit;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Null;
+import etomica.units.systems.UnitSystem;
+import etomica.util.Arrays;
+
+import javax.swing.*;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.LinkedList;
-
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
-
-import etomica.data.*;
-import etomica.data.DataSet.DataCasterJudge;
-import etomica.data.types.DataFunction;
-import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.data.types.DataGroup.DataInfoGroup;
-import etomica.units.dimensions.Dimension;
-import etomica.units.dimensions.Null;
-import etomica.units.Unit;
-import etomica.units.systems.UnitSystem;
-import etomica.util.Arrays;
 
 /**
  * Class for creating a plot of simulation data.  Data for plot is taken
- * from a DataSinkTable instance, which can be obtained via the getDataTable
+ * from a DataSet instance, which can be obtained via the getDataSet
  * method.  Data sets are added to the plot by piping the data to a new DataSink
- * obtained from the makeColumn method of the data table.  
+ * obtained from the makeDataSink method in DataSet.  The incoming data must be
+ * either a DataFunction or a DataGroup of DataFunctions.  A DataGroup of
+ * DataFunctions will be plotted as separate sets of data in the plot.
  *
  * @author David Kofke
  */
@@ -48,7 +42,7 @@ public class DisplayPlot extends Display implements DataSetListener {
      * Creates a plot with a new, empty, DataSinkTable.
      */
     public DisplayPlot() {
-        this(new DataSet(new DataCasterJudgeFunction()));
+        this(new DataSet());
     }
     
     /**
@@ -57,10 +51,6 @@ public class DisplayPlot extends Display implements DataSetListener {
     public DisplayPlot(final DataSet dataSet) {
         super();
         this.dataSet = dataSet;
-        if (!(dataSet.getDataCasterJudge() instanceof DataCasterJudgeFunction)) {
-            // consider just calling the default constructor if you're hitting this exception
-            throw new IllegalArgumentException("DisplayPlot a DataSet with a DataCasterJudgeFunction");
-        }
         dataSet.addDataListener(this);
         plot = new EtomicaPlot(this);
         panel = new JPanel();
@@ -97,8 +87,7 @@ public class DisplayPlot extends Display implements DataSetListener {
                         dataLabel = (String)tagLabel.object;
                     }
                     JMenuItem rawDataMenuItem = new JMenuItem(dataLabel);
-                    final int kk = k;
-                    rawDataMenuItem.addActionListener(new RawDataWindowOpener(kk, DisplayPlot.this));
+                    rawDataMenuItem.addActionListener(new RawDataWindowOpener(k, DisplayPlot.this));
                     rawMenu.add(rawDataMenuItem);
                 }
             }
@@ -122,8 +111,7 @@ public class DisplayPlot extends Display implements DataSetListener {
                         dataLabel = (String)tagLabel.object;
                     }
                     JMenuItem writeDataMenuItem = new JMenuItem(dataLabel);
-                    final int kk = k;
-                    writeDataMenuItem.addActionListener(new DataWriter(kk, DisplayPlot.this));
+                    writeDataMenuItem.addActionListener(new DataWriter(k, DisplayPlot.this));
                     writeMenu.add(writeDataMenuItem);
                 }
             }
@@ -236,7 +224,7 @@ public class DisplayPlot extends Display implements DataSetListener {
                 DataTagBag tagDrawLine = DataTagBag.getDataTagBag(drawLineList, dataSet.getDataInfo(k).getTags());
                 if (tagDrawLine != null) {
                     // don't (or perhaps do) draw lines for this data set
-                    plot.setConnected(((Boolean)tagDrawLine.object).booleanValue(), k);
+                    plot.setConnected((Boolean) tagDrawLine.object, k);
                 }
                 boolean drawLine = false;
                 for(int i=0; i<data.length && i<xValues.length; i++) {
@@ -510,24 +498,6 @@ public class DisplayPlot extends Display implements DataSetListener {
         }
     }
 
-    protected static class DataCasterJudgeFunction implements DataCasterJudge, Serializable {
-
-        public DataProcessor getDataCaster(IDataInfo dataInfo) {
-            if (dataInfo instanceof DataInfoFunction) {
-                return null;
-            }
-            else if(dataInfo instanceof DataInfoGroup) {
-                for (int i = 0; i<((DataInfoGroup)dataInfo).getNDataInfo(); i++) {
-                    if (!(((DataInfoGroup)dataInfo).getSubDataInfo(i) instanceof DataInfoFunction)) {
-                        throw new IllegalArgumentException("DisplayPlot can only handle homogeneous groups of DataFunctions");
-                    }
-                }
-                return null;
-            }
-            throw new RuntimeException("DisplayPlot can only handle DataFunctions");
-        }
-    }
-
     public static class PopupListener extends MouseAdapter {
         
         public PopupListener(JPopupMenu popupMenu) {
@@ -550,6 +520,6 @@ public class DisplayPlot extends Display implements DataSetListener {
         }
         
         protected final JPopupMenu popupMenu;
-    };
+    }
 
 }

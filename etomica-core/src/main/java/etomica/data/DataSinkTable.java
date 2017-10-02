@@ -4,14 +4,8 @@
 
 package etomica.data;
 
-import java.io.Serializable;
-
-import etomica.data.types.CastGroupOfTablesToDataTable;
-import etomica.data.types.CastGroupToDoubleArray;
-import etomica.data.types.CastToTable;
-import etomica.data.types.DataDoubleArray;
+import etomica.data.types.*;
 import etomica.data.types.DataGroup.DataInfoGroup;
-import etomica.data.types.DataTable;
 import etomica.data.types.DataTable.DataInfoTable;
 
 /**
@@ -26,9 +20,36 @@ import etomica.data.types.DataTable.DataInfoTable;
 public class DataSinkTable extends DataSet {
 
     public DataSinkTable() {
-        super(new DataCasterJudgeTable());
+        super();
         backwardDataMap = new int[0];
         forwardDataMap = new int[0];
+    }
+
+    public IDataSink makeDataSink(IDataInfo inputDataInfo) {
+        DataSetSink sink = super.makeDataSink();
+        if (inputDataInfo instanceof DataInfoTable) {
+            return sink;
+        }
+        if (inputDataInfo instanceof DataInfoGroup) {
+            for (int i = 1; i < ((DataInfoGroup) inputDataInfo).getNDataInfo(); i++) {
+                if (((DataInfoGroup) inputDataInfo).getSubDataInfo(i).getClass() != ((DataInfoGroup) inputDataInfo).getSubDataInfo(0).getClass()) {
+                    throw new IllegalArgumentException("DataSinkTable can only handle homoegeneous groups");
+                }
+            }
+            if (((DataInfoGroup) inputDataInfo).getSubDataInfo(0) instanceof DataInfoTable) {
+                CastGroupOfTablesToDataTable caster = new CastGroupOfTablesToDataTable();
+                caster.setDataSink(sink);
+                return caster;
+            }
+            CastGroupToDoubleArray caster0 = new CastGroupToDoubleArray();
+            CastToTable caster = new CastToTable();
+            caster0.setDataSink(caster);
+            caster.setDataSink(sink);
+            return caster0;
+        }
+        CastToTable caster = new CastToTable();
+        caster.setDataSink(sink);
+        return caster;
     }
     
     public String getRowHeader(int i) {
@@ -93,27 +114,4 @@ public class DataSinkTable extends DataSet {
     
     private static final long serialVersionUID = 1L;
     private int rowCount;
-    
-    protected static class DataCasterJudgeTable implements DataCasterJudge, Serializable {
-
-        private static final long serialVersionUID = 1L;
-
-        public DataProcessor getDataCaster(IDataInfo dataInfo) {
-            if (dataInfo instanceof DataInfoTable) {
-                return null;
-            } else if(dataInfo instanceof DataInfoGroup) {
-                for (int i = 1; i<((DataInfoGroup)dataInfo).getNDataInfo(); i++) {
-                    if (((DataInfoGroup)dataInfo).getSubDataInfo(i).getClass() != ((DataInfoGroup)dataInfo).getSubDataInfo(0).getClass()) {
-                        throw new IllegalArgumentException("DataSinkTable can only handle homoegeneous groups");
-                    }
-                }
-                if(((DataInfoGroup)dataInfo).getSubDataInfo(0) instanceof DataInfoTable) {
-                    return new CastGroupOfTablesToDataTable();
-                }
-                return new CastGroupToDoubleArray();
-            }
-            return new CastToTable();
-        }
-
-    }
 }
