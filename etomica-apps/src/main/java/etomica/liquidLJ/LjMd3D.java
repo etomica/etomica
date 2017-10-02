@@ -7,7 +7,6 @@ package etomica.liquidLJ;
 import etomica.action.BoxInflate;
 import etomica.action.WriteConfigurationBinary;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.integrator.Integrator;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationFileBinary;
@@ -28,6 +27,7 @@ import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.integrator.IntegratorVelocityVerlet;
@@ -40,9 +40,9 @@ import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
+import etomica.units.SimpleUnit;
 import etomica.units.dimensions.Energy;
 import etomica.units.dimensions.Null;
-import etomica.units.SimpleUnit;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -345,10 +345,6 @@ public class LjMd3D extends Simulation {
         DataProcessor energyReweight = new DataProcessor() {
             protected final DataDoubleArray data = new DataDoubleArray(4);
             
-            public DataPipe getDataCaster(IDataInfo inputDataInfo) {
-                return null;
-            }
-            
             protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
                 dataInfo = new DataInfoDoubleArray("energy", Energy.DIMENSION, new int[]{4});
                 return dataInfo;
@@ -385,10 +381,6 @@ public class LjMd3D extends Simulation {
         DataProcessor dpFE = new DataProcessor() {
             DataDouble data = new DataDouble();
 
-            public DataPipe getDataCaster(IDataInfo inputDataInfo) {
-                return null;
-            }
-            
             protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
                 dataInfo = new DataInfoDouble("FE", Null.DIMENSION);
                 return dataInfo;
@@ -425,10 +417,6 @@ public class LjMd3D extends Simulation {
         }
         DataProcessor energyReweightCut = new DataProcessor() {
             protected DataDoubleArray data;
-            
-            public DataPipe getDataCaster(IDataInfo inputDataInfo) {
-                return null;
-            }
             
             protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
                 data = new DataDoubleArray(inputDataInfo.getLength());
@@ -538,10 +526,6 @@ public class LjMd3D extends Simulation {
         DataProcessor dpWidomCorrection = new DataProcessor() {
             protected final DataDouble data = new DataDouble();
             
-            public DataPipe getDataCaster(IDataInfo inputDataInfo) {
-                return null;
-            }
-            
             protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
                 dataInfo = new DataInfoDouble("mu", Null.DIMENSION);
                 dataInfo.addTags(inputDataInfo.getTags());
@@ -641,7 +625,6 @@ public class LjMd3D extends Simulation {
             DataProcessor dpAvgEnergyCorrected = new DataProcessor() {
                 protected final DataDouble data = new DataDouble();
                 
-                public DataPipe getDataCaster(IDataInfo inputDataInfo) {return null;}
                 protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
                     dataInfo = new DataInfoDouble("energy", Energy.DIMENSION);
                     dataInfo.addTags(inputDataInfo.getTags());
@@ -662,7 +645,6 @@ public class LjMd3D extends Simulation {
             DataProcessor dpAvgEnergyCorrected2 = new DataProcessor() {
                 protected final DataDouble data = new DataDouble();
                 
-                public DataPipe getDataCaster(IDataInfo inputDataInfo) {return null;}
                 protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
                     dataInfo = new DataInfoDouble("energy", Energy.DIMENSION);
                     dataInfo.addTags(inputDataInfo.getTags());
@@ -683,7 +665,6 @@ public class LjMd3D extends Simulation {
             DataProcessor dpAvgEnergy = new DataProcessor() {
                 protected final DataDouble data = new DataDouble();
                 
-                public DataPipe getDataCaster(IDataInfo inputDataInfo) {return null;}
                 protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
                     dataInfo = new DataInfoDouble("energy", Energy.DIMENSION);
                     dataInfo.addTags(inputDataInfo.getTags());
@@ -1011,8 +992,6 @@ public class LjMd3D extends Simulation {
             this.nMu = nMu;
         }
 
-        public DataPipe getDataCaster(IDataInfo inputDataInfo) {return null;}
-
         protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
             dataInfo = new DataInfoDoubleArray("foo", Null.DIMENSION, new int[]{((DataInfoGroup)inputDataInfo).getSubDataInfo(AccumulatorAverageCovariance.AVERAGE.index).getLength()-nMu});
             data = new DataDoubleArray(dataInfo.getLength());
@@ -1076,10 +1055,6 @@ public class LjMd3D extends Simulation {
             this.v0 = box.getBoundary().volume();
             this.numMolecules0 = box.getMoleculeList().getMoleculeCount();
             this.vBias = vBias;
-        }
-
-        public DataPipe getDataCaster(IDataInfo inputDataInfo) {
-            return null;
         }
 
         protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {

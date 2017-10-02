@@ -4,7 +4,6 @@
 
 package etomica.data.types;
 
-import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
@@ -22,12 +21,9 @@ import etomica.data.types.DataGroup.DataInfoGroup;
  */
 public class CastToGroup extends DataProcessor {
 
-    /**
-     * Sole constructor.
-     */
-    public CastToGroup() {
-    }
-
+    private DataGroup dataGroup;
+    private int inputType;
+    
     protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         Class inputClass = inputDataInfo.getClass();
         dataGroup = null;
@@ -41,12 +37,12 @@ public class CastToGroup extends DataProcessor {
         DataInfoGroup outputDataInfo = new DataInfoGroup(inputDataInfo.getLabel(), inputDataInfo.getDimension(), new IDataInfo[]{inputDataInfo});
         return outputDataInfo;
     }
-    
+
     /**
      * Processes the input Data to update the output DataGroup.  If the input is
      * a DataGroup, is is simply returned; otherwise it values are copied to the
      * wrapped Data, and the wrapping DataGroup is returned.
-     * 
+     *
      * @param data
      *            a Data instance of the type indicated by the DataInfo at
      *            the most recent call to processDataInfo
@@ -65,15 +61,4 @@ public class CastToGroup extends DataProcessor {
             throw new Error("Assertion error.  Input type out of range: "+inputType);
         }
     }
-    
-    /**
-     * Returns null, indicating that this DataProcessor can accept any Data type.
-     */
-    public DataPipe getDataCaster(IDataInfo info) {
-        return null;
-    }
-
-    private static final long serialVersionUID = 1L;
-    private DataGroup dataGroup;
-    private int inputType;
 }

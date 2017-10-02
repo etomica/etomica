@@ -4,33 +4,33 @@
 
 package etomica.normalmode;
 
-import etomica.data.*;
+import etomica.data.DataProcessor;
+import etomica.data.IData;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.units.dimensions.Null;
 
 public class DataProcessorBoltzmannFactor extends DataProcessor {
 
+    protected final DataDouble data;
+    protected final DataInfoDouble dataInfo;
+    protected double temperature;
+
 	public DataProcessorBoltzmannFactor() {
-		
 		data = new DataDouble();
 		dataInfo = new DataInfoDouble("Boltzmann Factor", Null.DIMENSION);
 	}
 
-	protected IData processData(IData inputData) {
+    protected IData processData(IData inputData) {
 		data.x = Math.exp(-inputData.getValue(0)/temperature);
 		return data;
 	}
 
 	protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
-		
 		return dataInfo;
 	}
 
-	public DataPipe getDataCaster(IDataInfo dataInfo) {
-		return null;
-	}
-	
 	public double getTemperature() {
 		return temperature;
 	}
@@ -38,9 +38,5 @@ public class DataProcessorBoltzmannFactor extends DataProcessor {
 	public void setTemperature(double temperature) {
 		this.temperature = temperature;
 	}
-
-	protected final DataDouble data;  
-	protected final DataInfoDouble dataInfo;
-	protected double temperature;
 
 }

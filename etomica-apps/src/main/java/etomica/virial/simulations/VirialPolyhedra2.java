@@ -419,10 +419,6 @@ public class VirialPolyhedra2 {
     public static class DataProcessorR2 extends DataProcessor {
         DataFunction data;
 
-        public DataPipe getDataCaster(IDataInfo inDataInfo) {
-            return null;
-        }
-
         protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
             dataInfo = new DataInfoFunction("hist2", Null.DIMENSION, ((DataInfoFunction)inputDataInfo).getXDataSource());
             dataInfo.addTags(inputDataInfo.getTags());

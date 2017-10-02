@@ -413,9 +413,6 @@ public class HSNPT extends Simulation {
                         throw new RuntimeException(e);
                     }
                 }
-                
-                public DataPipe getDataCaster(IDataInfo dataInfo) {return null;}
-                
             });
         }
         else {

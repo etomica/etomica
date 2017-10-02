@@ -4,7 +4,10 @@
 
 package etomica.modules.multiharmonic;
 
-import etomica.data.*;
+import etomica.data.AccumulatorAverageCollapsingLog;
+import etomica.data.DataProcessor;
+import etomica.data.IData;
+import etomica.data.IDataInfo;
 
 /**
  * Calculates upper or lower bound of the incoming data based on the standard
@@ -14,10 +17,11 @@ import etomica.data.*;
  */
 public class DataProcessorBounds extends DataProcessor {
 
-    public DataPipe getDataCaster(IDataInfo inputDataInfo) {
-        return null;
-    }
-
+    protected IData data;
+    protected IDataInfo dataInfo;
+    protected AccumulatorAverageCollapsingLog ac;
+    protected boolean isUpperBound;
+    
     protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         dataInfo = inputDataInfo.getFactory().makeDataInfo();
         dataInfo.addTag(tag);
@@ -43,14 +47,8 @@ public class DataProcessorBounds extends DataProcessor {
     public void setAccumulator(AccumulatorAverageCollapsingLog newAc) {
         ac = newAc;
     }
-    
+
     public void setIsUpperBound(boolean newIsUpperBound) {
         isUpperBound = newIsUpperBound;
     }
-    
-    private static final long serialVersionUID = 1L;
-    protected IData data;
-    protected IDataInfo dataInfo;
-    protected AccumulatorAverageCollapsingLog ac;
-    protected boolean isUpperBound;
 }

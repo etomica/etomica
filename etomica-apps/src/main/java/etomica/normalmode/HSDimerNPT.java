@@ -537,10 +537,6 @@ public class HSDimerNPT extends Simulation {
                     DataInfoDouble dataInfo = new DataInfoDouble("foo", Null.DIMENSION);
                     DataDouble data = new DataDouble();
 
-                    public DataPipe getDataCaster(IDataInfo dataInfo) {
-                        return null;
-                    }
-
                     protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
                         return dataInfo;
                     }

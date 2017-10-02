@@ -4,7 +4,10 @@
 
 package etomica.modules.multiharmonic;
 
-import etomica.data.*;
+import etomica.data.AccumulatorAverageCollapsingLog;
+import etomica.data.DataProcessor;
+import etomica.data.IData;
+import etomica.data.IDataInfo;
 
 /**
  * Data Processor whose sole purpose in life is to discard the incoming data
@@ -16,9 +19,8 @@ import etomica.data.*;
  */
 public class DataProcessorVar extends DataProcessor {
 
-    public DataPipe getDataCaster(IDataInfo inputDataInfo) {
-        return null;
-    }
+    protected AccumulatorAverageCollapsingLog ac;
+    protected IData dataVar;
 
     protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         dataInfo = inputDataInfo.getFactory().makeDataInfo();
@@ -36,8 +38,4 @@ public class DataProcessorVar extends DataProcessor {
     public void setAccumulator(AccumulatorAverageCollapsingLog newAc) {
         ac = newAc;
     }
-    
-    private static final long serialVersionUID = 1L;
-    protected AccumulatorAverageCollapsingLog ac;
-    protected IData dataVar;
 }

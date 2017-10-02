@@ -18,13 +18,6 @@ public class AccumulatorCounter extends DataAccumulator {
         dataInfo = new DataInfoDouble("Counter", Quantity.DIMENSION);
         data = new DataDouble();
     }
-    
-    /**
-     * Returns null, indicating that any Data type is acceptable for input.
-     */
-    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
-        return null;
-    }
 
     /**
      * Does nothing.

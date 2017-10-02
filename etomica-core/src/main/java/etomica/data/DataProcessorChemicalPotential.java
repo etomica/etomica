@@ -55,10 +55,6 @@ public class DataProcessorChemicalPotential extends DataProcessor {
         return dataInfo;
     }
 
-    public DataPipe getDataCaster(IDataInfo inputDataInfo) {
-        return null;
-    }
-
     protected IDataSource densityProfileSource;
     protected DataFunction data;
     protected IntegratorBox integrator;

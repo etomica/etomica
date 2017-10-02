@@ -4,26 +4,70 @@
 
 package etomica.surfacetension;
 
+import etomica.data.DataProcessor;
+import etomica.data.IData;
+import etomica.data.IDataInfo;
+import etomica.data.IDataInfoFactory;
+import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataFunction;
+import etomica.data.types.DataFunction.DataInfoFunction;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import etomica.data.*;
-import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataFunction;
-import etomica.data.types.DataFunction.DataInfoFunction;
-
 public class FitTanh extends DataProcessor {
 
-    private boolean debug = false;    
+    protected double tolerance = 1.e-10;
+    protected int maxIterations = 20;
+    protected DataFunction fitData;
+    protected DataInfoFunction fitDataInfo;
+    protected double[] param = new double[4];
+    private boolean debug = false;
 
-    public void setTolerance(double newTolerance) {
-        tolerance = newTolerance;
+    public static void main(String[] args) {
+        FileReader fileReader;
+        try {
+            fileReader = new FileReader("d.dat");
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot open d.dat, caught IOException: " + e.getMessage());
+        }
+        ArrayList<Double> xList = new ArrayList<Double>();
+        ArrayList<Double> yList = new ArrayList<Double>();
+        try {
+            BufferedReader bufReader = new BufferedReader(fileReader);
+            while (true) {
+                String line = bufReader.readLine();
+                if (line == null) {
+                    break;
+                }
+                String[] xy = line.split(" +");
+                xList.add(Double.parseDouble(xy[0]));
+                yList.add(Double.parseDouble(xy[1]));
+            }
+            fileReader.close();
+        } catch (IOException e) {
+            throw new RuntimeException("Problem reading d.dat, caught IOException: " + e.getMessage());
+        }
+
+        double[] x = new double[xList.size()];
+        double[] y = new double[yList.size()];
+        for (int i = 0; i < x.length; i++) {
+            x[i] = xList.get(i);
+            y[i] = yList.get(i);
+        }
+        FitTanh fitter = new FitTanh();
+        double[] params = fitter.doFit(x, y);
+        System.out.println("Final: " + params[0] + " " + params[1] + " " + params[2]);
     }
     
     public double getTolerance() {
         return tolerance;
+    }
+
+    public void setTolerance(double newTolerance) {
+        tolerance = newTolerance;
     }
     
     public void setMaxIterations(int newMaxIterations) {
@@ -95,10 +139,10 @@ public class FitTanh extends DataProcessor {
             }
             sumSqErr = newSumSqErr;
         }
-        
+
         return param;
     }
-    
+
     protected double getSqErr(double[] x, double[] y) {
         int nValues = x.length;
         double sumSqErr = 0;
@@ -112,48 +156,9 @@ public class FitTanh extends DataProcessor {
         }
         return sumSqErr;
     }
-    
+
     public double[] getLastBestParam() {
         return param;
-    }
-    
-    protected double tolerance = 1.e-10;
-    protected int maxIterations = 20;
-    
-    public static void main(String[] args) {
-        FileReader fileReader;
-        try {
-            fileReader = new FileReader("d.dat");
-        }catch(IOException e) {
-            throw new RuntimeException("Cannot open d.dat, caught IOException: " + e.getMessage());
-        }
-        ArrayList<Double> xList = new ArrayList<Double>();
-        ArrayList<Double> yList = new ArrayList<Double>();
-        try {
-            BufferedReader bufReader = new BufferedReader(fileReader);
-            while (true) {
-                String line = bufReader.readLine();
-                if (line == null) {
-                    break;
-                }
-                String[] xy = line.split(" +");
-                xList.add(Double.parseDouble(xy[0]));
-                yList.add(Double.parseDouble(xy[1]));
-            }
-            fileReader.close();
-        } catch(IOException e) {
-            throw new RuntimeException("Problem reading d.dat, caught IOException: " + e.getMessage());
-        }
-
-        double[] x = new double[xList.size()];
-        double[] y = new double[yList.size()];
-        for (int i=0; i<x.length; i++) {
-            x[i] = xList.get(i);
-            y[i] = yList.get(i);
-        }
-        FitTanh fitter = new FitTanh();
-        double[] params = fitter.doFit(x, y);
-        System.out.println("Final: "+params[0]+" "+params[1]+" "+params[2]);
     }
 
     protected IData processData(IData inputData) {
@@ -188,12 +193,4 @@ public class FitTanh extends DataProcessor {
         fitData = new DataFunction(fitDataInfo.getArrayShape());
         return fitDataInfo;
     }
-
-    public DataPipe getDataCaster(IDataInfo intputDataInfo) {
-        return null;
-    }
-    
-    protected DataFunction fitData;
-    protected DataInfoFunction fitDataInfo;
-    protected double[] param = new double[4];
 }

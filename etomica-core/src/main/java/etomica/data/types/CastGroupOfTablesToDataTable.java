@@ -4,7 +4,9 @@
 
 package etomica.data.types;
 
-import etomica.data.*;
+import etomica.data.DataProcessor;
+import etomica.data.IData;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.data.types.DataTable.DataInfoTable;
@@ -33,6 +35,9 @@ import etomica.util.Arrays;
  */
 public class CastGroupOfTablesToDataTable extends DataProcessor {
 
+    private DataTable outputData;
+    private DataInfoTable outputDataInfo;
+    
     /**
      * Sole constructor.
      */
@@ -42,11 +47,11 @@ public class CastGroupOfTablesToDataTable extends DataProcessor {
     /**
      * Prepares processor to handle Data. Uses given DataInfo to determine the
      * type of Data to expect in subsequent calls to processData.
-     * 
+     *
      * @throws ClassCastException
-     *             if DataInfo does not indicate a DataGroup or its sub-groups 
+     *             if DataInfo does not indicate a DataGroup or its sub-groups
      *             are not DataTables
-     *             
+     *
      * @throws IllegalArgumentException
      *             if DataInfo indicates that the DataTables have different
      *             numbers of rows
@@ -77,17 +82,17 @@ public class CastGroupOfTablesToDataTable extends DataProcessor {
                 }
             }
         }
-        
+
         outputData = null;
-        
+
         outputDataInfo = new DataInfoTable(inputDataInfo.getLabel(), columnDataInfo, nRows, rowHeaders);
         return outputDataInfo;
     }
-    
+
     /**
      * Converts data in given group to a DataDoubleArray as described in the
      * general comments for this class.
-     * 
+     *
      * @throws ClassCastException
      *             if the given Data is not a DataGroup with Data elements of
      *             the type indicated by the most recent call to
@@ -107,18 +112,4 @@ public class CastGroupOfTablesToDataTable extends DataProcessor {
         }
         return outputData;
     }
-    
-    /**
-     * Returns null.
-     */
-    public DataPipe getDataCaster(IDataInfo info) {
-        if (!(info instanceof DataInfoGroup)) {
-            throw new IllegalArgumentException("can only cast from DataGroup");
-        }
-        return null;
-    }
-
-    private static final long serialVersionUID = 1L;
-    private DataTable outputData;
-    private DataInfoTable outputDataInfo;
 }

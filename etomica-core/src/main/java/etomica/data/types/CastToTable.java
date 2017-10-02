@@ -4,9 +4,10 @@
 
 package etomica.data.types;
 
-import java.io.Serializable;
-
-import etomica.data.*;
+import etomica.data.DataProcessor;
+import etomica.data.DataSourceIndependent;
+import etomica.data.IData;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
@@ -15,6 +16,8 @@ import etomica.data.types.DataTable.DataInfoTable;
 import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.data.types.DataVector.DataInfoVector;
 import etomica.space.Tensor;
+
+import java.io.Serializable;
 
 /**
  * 
@@ -47,6 +50,10 @@ import etomica.space.Tensor;
  */
 public class CastToTable extends DataProcessor implements Serializable {
 
+    private DataTable outputData;
+    private int inputType;
+    private DataSourceIndependent xDataSource;
+
     /**
      * Sole constructor.
      */
@@ -56,12 +63,16 @@ public class CastToTable extends DataProcessor implements Serializable {
     /**
      * Prepares processor to perform cast. Given DataInfo is examined to see
      * what data type will be given to processor.
-     * 
+     *
      * @throws IllegalArgumentException
      *             if DataInfo is not one of the acceptable types, as described
      *             in general comments for this class
      */
     public IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+        if (inputDataInfo instanceof DataInfoGroup) {
+            throw new IllegalArgumentException("Cannot cast to DataTable from "
+                    + inputDataInfo.getClass());
+        }
         int nRows, nColumns;
         String[] rowHeaders = null;
         IDataInfo[] columnInfo = new IDataInfo[]{inputDataInfo};
@@ -131,11 +142,11 @@ public class CastToTable extends DataProcessor implements Serializable {
 
     /**
      * Copies input Data to a DataTable and returns it (the DataTable).
-     * 
+     *
      * @throws ClassCastException
      *             if input Data is not of the type indicated by the most recent
      *             call to processDataInfo
-     *  
+     *
      */
     protected IData processData(IData data) {
         switch (inputType) {
@@ -172,21 +183,4 @@ public class CastToTable extends DataProcessor implements Serializable {
         }
         return outputData;
     }
-
-    /**
-     * Returns null, indicating the this DataProcessor can handle (almost) any
-     * Data type.
-     */
-    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
-        if (incomingDataInfo instanceof DataInfoGroup) {
-            throw new IllegalArgumentException("Cannot cast to DataTable from "
-                    + incomingDataInfo.getClass());
-        }
-        return null;
-    }
-
-    private static final long serialVersionUID = 1L;
-    private DataTable outputData;
-    private int inputType;
-    private DataSourceIndependent xDataSource;
 }

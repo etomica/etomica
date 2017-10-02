@@ -24,7 +24,7 @@ public class DataArrayWriter implements DataWriter {
     private IDataInfo dataInfo;
     private boolean includeHeader;
     private IDataSink internalDataSink;
-    
+
     public DataArrayWriter() {
         super();
         setIncludeHeader(true);
@@ -43,10 +43,6 @@ public class DataArrayWriter implements DataWriter {
      */
     public void setIncludeHeader(boolean newIncludeHeader) {
         includeHeader = newIncludeHeader;
-    }
-
-    public DataPipe getDataCaster(IDataInfo newDataInfo) {
-        return null;
     }
 
     protected IDataSink makeTerminalSink() {
@@ -104,7 +100,7 @@ public class DataArrayWriter implements DataWriter {
         putDataInternal(data);
     }
 
-    public void putDataInternal(IData data) {
+    protected void putDataInternal(IData data) {
         DataDoubleArray dataArray = (DataDoubleArray)data;
         try {
             int dim = dataArray.getArrayDimension();

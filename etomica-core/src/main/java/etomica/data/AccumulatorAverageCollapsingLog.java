@@ -4,9 +4,6 @@
 
 package etomica.data;
 
-import java.util.ArrayList;
-
-import etomica.util.random.IRandom;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray;
@@ -16,9 +13,12 @@ import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.units.dimensions.Null;
 import etomica.units.dimensions.Quantity;
 import etomica.util.Arrays;
+import etomica.util.random.IRandom;
 import etomica.util.random.RandomMersenneTwister;
 import etomica.util.random.RandomNumberGenerator;
 import etomica.util.random.RandomNumberGeneratorUnix;
+
+import java.util.ArrayList;
 
 
 /**
@@ -46,29 +46,48 @@ import etomica.util.random.RandomNumberGeneratorUnix;
  */
 public class AccumulatorAverageCollapsingLog extends DataAccumulator implements DataSourceIndependent {
 
+    protected final DataTag nTag;
+    protected final IRandom random;
+    protected final int nMoments;
+    protected final boolean withReplacement = true;
+    protected long count;
+    protected double[] blockSums;
+    protected double[][] sums, lSums;
+    protected DataFunction averages, stdev, skew;
+    protected DataInfoDoubleArray nDataInfo;
+    protected DataDoubleArray nData;
+    protected double[] rawData, rawData2, rawData3;
+    protected int nRawData, rawDataBlockSize;
+    protected int nRawDataDoubles;
+    protected ArrayList<Integer> intArrayList;
+    protected int initialSeed;
+    protected AccumulatorAverageCollapsing lAvg;
+    protected DataDouble lData;
+    protected DataInfoDouble lDataInfo;
+
     public AccumulatorAverageCollapsingLog() {
         this(2);
     }
-    
+
     /**
      * With this constructor, the accumulator will use an internal RNG with a
      * set seed such that each resampling of the data will be identical (the
      * same set of samples will go into the averages and the standard
      * deviations, etc).
-     * @param nMoments the number of moments handled by the accumulator. 
+     * @param nMoments the number of moments handled by the accumulator.
      *           should be 2 (standard deviation) or 3 (stdev + skew).
      */
     public AccumulatorAverageCollapsingLog(int nMoments) {
         this(new RandomMersenneTwister(RandomNumberGeneratorUnix.getRandSeedArray()), nMoments);
         initialSeed = random.nextInt(1<<30);
     }
-    
+
     public AccumulatorAverageCollapsingLog(IRandom random) {
         this(random, 2);
     }
-    
+
     /**
-     * @param nMoments the number of moments handled by the accumulator. 
+     * @param nMoments the number of moments handled by the accumulator.
      *           should be 2 (standard deviation) or 3 (stdev + skew).
      */
     public AccumulatorAverageCollapsingLog(IRandom random, int nMoments) {
@@ -83,6 +102,21 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
         nTag = new DataTag();
     }
 
+    public static void main(String[] args) {
+        AccumulatorAverageCollapsingLog ac = new AccumulatorAverageCollapsingLog(new RandomNumberGenerator());
+        ac.putDataInfo(new DataInfoDouble("foo", Null.DIMENSION));
+        DataDouble d = new DataDouble();
+        RandomNumberGenerator rng = new RandomNumberGenerator();
+        for (long i = 0; i < 1L << 25; i++) {
+            d.x = Math.exp(rng.nextGaussian());
+            ac.putData(d);
+        }
+        System.out.println(ac.getAverages().getValue(0) + " " + ac.getAverages().getValue(1) + " " + ac.getAverages().getValue(2) + " " + ac.getAverages().getValue(3));
+        System.out.println(ac.getStdev().getValue(0) + " " + ac.getStdev().getValue(1) + " " + ac.getStdev().getValue(2) + " " + ac.getStdev().getValue(3));
+        System.out.println(ac.getAverageLogs().getValue(0) + " " + ac.getAverageLogs().getValue(1) + " " + ac.getAverageLogs().getValue(2) + " " + ac.getAverageLogs().getValue(3));
+        System.out.println(ac.getStdevLog().getValue(0) + " " + ac.getStdevLog().getValue(1) + " " + ac.getStdevLog().getValue(2) + " " + ac.getStdevLog().getValue(3));
+    }
+    
     /**
      * Sets the number of times the random block generation method is used.
      * The number of blocks used will be 2^numRawDataDoubles.
@@ -91,18 +125,6 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
         nRawDataDoubles = newNumRawDataDoubles;
         intArrayList = new ArrayList<Integer>(1<<nRawDataDoubles);
         reset();
-    }
-
-    /**
-     * Checks that incoming Data implements Data, and returns null if
-     * this is so. Otherwise throws a ClassCastException, as there is no data
-     * caster to Data.
-     */
-    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
-        if (incomingDataInfo.getLength() > 1) {
-            throw new RuntimeException("AccumulatorAverageCollapsingLog can only handle single data");
-        }
-        return null;
     }
 
     public IData processData(IData inputData) {
@@ -223,7 +245,7 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
         for (int i=0; i<n.length; i++) {
             n[i] = 1L<<i;
         }
-        
+
         if (dataSink != null) {
             dataSink.putDataInfo(dataInfo);
         }
@@ -293,7 +315,7 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
     }
 
     /**
-     * Reblock data from rawData2 into rawData3, then copy it back to rawData2 
+     * Reblock data from rawData2 into rawData3, then copy it back to rawData2
      */
     protected void reblockData() {
         if (!withReplacement) {
@@ -341,7 +363,6 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
         }
     }
 
-
     /**
      * Refills inArrayList if it's empty.
      */
@@ -352,7 +373,7 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
             }
         }
     }
-    
+
     /**
      * Returns the standard deviation of the block averages, for all block
      * sizes.
@@ -413,7 +434,7 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
         }
         return stdev;
     }
-    
+
     /**
      * Returns the standard deviation of the log of the block averages, for all
      * block sizes.
@@ -560,12 +581,12 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
         avg2 *= avg2;
         double var = (lSum2/nRawData - avg2);
         if (var <= 0) return 0;
-        
+
         double blockCorrelation = (((Math.log(rawData[0]) -2*lSum + Math.log(rawData[nRawData-1])) * (lSum/nRawData) + cSum)/(nRawData-1) + avg2)/var;
         blockCorrelation = (Double.isNaN(blockCorrelation) || blockCorrelation <= -1 || blockCorrelation >= 1) ? 0 : blockCorrelation;
         return blockCorrelation;
     }
-    
+
     public double getSampleVariance() {
         if (rawDataBlockSize > 0) {
             return (count*sums[0][1] - sums[0][0]*sums[0][0])/(count*(count-1));
@@ -577,7 +598,7 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
         }
         return (count*sums1 - sums0*sums0)/(count*(count-1));
     }
-    
+
     public double getSampleLogVariance() {
         if (rawDataBlockSize > 0) {
             return (count*lSums[0][1] - lSums[0][0]*lSums[0][0])/(count*(count-1));
@@ -594,7 +615,7 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
     public int getRawDataBlockSize() {
         return rawDataBlockSize;
     }
-    
+
     /**
      * Resets all sums to zero. All statistics are cleared.
      */
@@ -621,11 +642,14 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
     }
 
     public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
+        if (incomingDataInfo.getLength() > 1) {
+            throw new RuntimeException("AccumulatorAverageCollapsingLog can only handle single data");
+        }
         dataInfo = new DataInfoFunction(incomingDataInfo.getLabel(), incomingDataInfo.getDimension(), this);
         reset();
         return dataInfo;
     }
-    
+
     public int getIndependentArrayDimension() {
         return 1;
     }
@@ -641,7 +665,7 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
     public DataTag getIndependentTag() {
         return nTag;
     }
-    
+
     public void enableRawLogStatistics() {
         lAvg = new AccumulatorAverageCollapsing(200);
         lData = new DataDouble();
@@ -652,39 +676,5 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
     
     public AccumulatorAverage getRawLogAccumulator() {
         return lAvg;
-    }
-
-    protected long count;
-    protected double[] blockSums;
-    protected double[][] sums, lSums;
-    protected DataFunction averages, stdev, skew;
-    protected DataInfoDoubleArray nDataInfo;
-    protected DataDoubleArray nData;
-    protected final DataTag nTag;
-    protected double[] rawData, rawData2, rawData3;
-    protected int nRawData, rawDataBlockSize;
-    protected int nRawDataDoubles;
-    protected ArrayList<Integer> intArrayList;
-    protected final IRandom random;
-    protected final int nMoments;
-    protected int initialSeed;
-    protected final boolean withReplacement = true;
-    protected AccumulatorAverageCollapsing lAvg;
-    protected DataDouble lData;
-    protected DataInfoDouble lDataInfo;
-    
-    public static void main(String[] args) {
-        AccumulatorAverageCollapsingLog ac = new AccumulatorAverageCollapsingLog(new RandomNumberGenerator());
-        ac.putDataInfo(new DataInfoDouble("foo", Null.DIMENSION));
-        DataDouble d = new DataDouble();
-        RandomNumberGenerator rng = new RandomNumberGenerator();
-        for (long i=0; i<1L<<25; i++) {
-            d.x = Math.exp(rng.nextGaussian());
-            ac.putData(d);
-        }
-        System.out.println(ac.getAverages().getValue(0)+" "+ac.getAverages().getValue(1)+" "+ac.getAverages().getValue(2)+" "+ac.getAverages().getValue(3));
-        System.out.println(ac.getStdev().getValue(0)+" "+ac.getStdev().getValue(1)+" "+ac.getStdev().getValue(2)+" "+ac.getStdev().getValue(3));
-        System.out.println(ac.getAverageLogs().getValue(0)+" "+ac.getAverageLogs().getValue(1)+" "+ac.getAverageLogs().getValue(2)+" "+ac.getAverageLogs().getValue(3));
-        System.out.println(ac.getStdevLog().getValue(0)+" "+ac.getStdevLog().getValue(1)+" "+ac.getStdevLog().getValue(2)+" "+ac.getStdevLog().getValue(3));
     }
 }

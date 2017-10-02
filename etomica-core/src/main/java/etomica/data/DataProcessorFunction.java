@@ -39,14 +39,6 @@ public class DataProcessorFunction extends DataProcessor {
         return dataInfo;
     }
 
-    /**
-     * Always returns null.
-     */
-    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
-        return null;
-    }
-
-    private static final long serialVersionUID = 1L;
     private final IFunction function;
     protected IData data;
 }

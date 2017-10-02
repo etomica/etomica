@@ -20,12 +20,15 @@ import etomica.units.dimensions.Quantity;
  */
 public class DataProcessorDyDLnx extends DataProcessor implements DataSourceIndependent {
 
+    protected final DataTag nTag;
+    protected DataFunction data;
+    protected DataInfoFunction dataInfo;
+    protected DataDoubleArray outNData;
+    protected DataInfoDoubleArray outNDataInfo;
+    protected DataSourceIndependent nDataSource;
+
     public DataProcessorDyDLnx() {
         nTag = new DataTag();
-    }
-
-    public DataPipe getDataCaster(IDataInfo inputDataInfo) {
-        return null;
     }
 
     protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
@@ -81,12 +84,4 @@ public class DataProcessorDyDLnx extends DataProcessor implements DataSourceInde
     public DataTag getIndependentTag() {
         return nTag;
     }
-
-    private static final long serialVersionUID = 1L;
-    protected DataFunction data;
-    protected DataInfoFunction dataInfo;
-    protected DataDoubleArray outNData;
-    protected DataInfoDoubleArray outNDataInfo;
-    protected DataSourceIndependent nDataSource;
-    protected final DataTag nTag;
 }

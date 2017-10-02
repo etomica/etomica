@@ -80,16 +80,8 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
         DataFork peFork = new DataFork(new IDataSink[]{peHistory, peQHistory});
         
         DataProcessor dataProcessor = new DataProcessor() {
-		
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-			public DataPipe getDataCaster(IDataInfo dataInfo) {
-				return null;
-			}
-		
-			protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+
+            protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
 				dataInfo = new DataInfoDouble("Potential Energy",Energy.DIMENSION);
 				data = new DataDouble();
 								

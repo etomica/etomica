@@ -287,10 +287,6 @@ public class TestHexaneHarmonic extends Simulation {
      */
     public static class DataProcessorFoo extends DataProcessor {
 
-        public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
-            return null;
-        }
-        
         public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
             dataInfo = new DataInfoDouble("free energy difference", Null.DIMENSION);
             data = new DataDouble();

@@ -61,11 +61,6 @@ public class DataLogger extends DataProcessor implements IListener, java.io.Seri
         return dataInfo;
     }
     
-    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
-        // we don't care about the type although the DataWriter might
-        return null;
-    }
-    
     /**
      * Close file when integrator is done.
      */
@@ -88,7 +83,7 @@ public class DataLogger extends DataProcessor implements IListener, java.io.Seri
      */
     public void putData(IData data) {
         openFile();
-        ((DataWriter)trueDataSink).setFileWriter(fileWriter);
+        ((DataWriter) dataSink).setFileWriter(fileWriter);
         super.putData(data);
         if (closeFileEachTime) {
             closeFile();
@@ -114,7 +109,7 @@ public class DataLogger extends DataProcessor implements IListener, java.io.Seri
             if(fileName == "") fileName = defaultFileName(); //if fileName is not defined yet, use the current date to be the fileName.
             fileWriter = new FileWriter(fileName + fileNameSuffix, appending);
             if (!appending) {
-                ((DataWriter)trueDataSink).reset();
+                ((DataWriter) dataSink).reset();
             }
             fileIsOpen = true;
         }

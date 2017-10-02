@@ -240,10 +240,6 @@ public class DataSet {
             dataSet.dataChanged(this);
         }
 
-        public DataPipe getDataCaster(IDataInfo newIncomingDataInfo) {
-            return null;
-        }
-
         public IDataInfo getDataInfo() {
             return incomingDataInfo;
         }

@@ -59,17 +59,12 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
     public int getMaxBlocks() {
         return maxBlocks;
     }
-    
-    /**
-     * Checks that incoming Data implements Data, and returns null if
-     * this is so. Otherwise throws a ClassCastException, as there is no data
-     * caster to Data.
-     */
-    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
+
+    public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
         if (incomingDataInfo.getLength() > 1) {
             throw new RuntimeException("AccumulatorAverageCollapsing can only handle single data");
         }
-        return null;
+        return super.processDataInfo(incomingDataInfo);
     }
 
     /**

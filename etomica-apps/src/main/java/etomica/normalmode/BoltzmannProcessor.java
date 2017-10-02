@@ -4,18 +4,22 @@
 
 package etomica.normalmode;
 
-import etomica.data.*;
-import etomica.units.dimensions.Null;
+import etomica.data.DataProcessor;
+import etomica.data.IData;
+import etomica.data.IDataInfo;
+import etomica.data.IDataInfoFactory;
 import etomica.math.function.Function;
+import etomica.units.dimensions.Null;
 
 /**
  * DataProcessor that returns the Boltzmann factor of the incoming energy.
  * @author Andrew Schultz
  */
 public class BoltzmannProcessor extends DataProcessor {
-    
-    public BoltzmannProcessor() {
-    }
+
+    private IData data;
+    private double temperature;
+    private double energyBase;
     
     public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
         data = incomingDataInfo.makeData();
@@ -37,21 +41,12 @@ public class BoltzmannProcessor extends DataProcessor {
         data.map(Function.Exp.INSTANCE);
         return data;
     }
-    
-    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
-        return null;
-    }
-    
-    public void setTemperature(double newTemperature) {
-        temperature = newTemperature;
-    }
-    
+
     public double getTemperature() {
         return temperature;
     }
-    
-    private static final long serialVersionUID = 1L;
-    private IData data;
-    private double temperature;
-    private double energyBase;
+
+    public void setTemperature(double newTemperature) {
+        temperature = newTemperature;
+    }
 }

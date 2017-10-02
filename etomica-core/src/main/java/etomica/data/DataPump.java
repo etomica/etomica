@@ -58,14 +58,7 @@ public class DataPump extends DataProcessor implements IAction {
         dataInfo.addTag(tag);
         return dataInfo;
     }
-    
-    /**
-     * Returns null, indicating that this DataSink can handle any type of Data without casting.
-     */
-    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
-        return null;
-    }
-    
+
     /**
      * @return Returns the dataSource.
      */

@@ -554,10 +554,6 @@ public class MuGraphic extends SimulationGraphic {
             dataInfo.addTag(tag);
             return dataInfo;
         }
-
-        public DataPipe getDataCaster(IDataInfo inputDataInfo) {
-            return null;
-        }
     }
 
     public static class ModifierLambda implements Modifier {
@@ -702,10 +698,6 @@ public class MuGraphic extends SimulationGraphic {
         public DataSinkExcludeOverlap(Box box) {
             myData = new DataDouble();
             this.box = box;
-        }
-        
-        public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
-            return null;
         }
         
         public IData processData(IData data) {

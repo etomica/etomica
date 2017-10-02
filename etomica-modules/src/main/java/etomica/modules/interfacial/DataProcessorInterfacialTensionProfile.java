@@ -5,8 +5,6 @@
 package etomica.modules.interfacial;
 
 import etomica.box.Box;
-import etomica.space.Vector;
-import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
@@ -16,6 +14,7 @@ import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.dimensions.Area;
 import etomica.units.dimensions.DimensionRatio;
 import etomica.units.dimensions.Energy;
@@ -23,24 +22,29 @@ import etomica.units.dimensions.Length;
 
 public class DataProcessorInterfacialTensionProfile extends DataProcessor {
 
+    protected final double[][] virialData;
+    protected DataFunction data;
+    protected Box box;
+    protected int profileDim;
+
     public DataProcessorInterfacialTensionProfile(Space space) {
         virialData = new double[space.D()][0];
-    }
-    
-    public void setBox(Box newBox) {
-        box = newBox;
     }
 
     public Box getBox() {
         return box;
     }
 
-    public void setProfileDim(int newProfileDim) {
-        profileDim = newProfileDim;
+    public void setBox(Box newBox) {
+        box = newBox;
     }
 
     public int getProfileDim() {
         return profileDim;
+    }
+
+    public void setProfileDim(int newProfileDim) {
+        profileDim = newProfileDim;
     }
 
     protected IData processData(IData inputData) {
@@ -83,13 +87,4 @@ public class DataProcessorInterfacialTensionProfile extends DataProcessor {
         dataInfoFactory.setLabel("Interfacial tension profile");
         return dataInfoFactory.makeDataInfo();
     }
-
-    public DataPipe getDataCaster(IDataInfo inputDataInfo) {
-        return null;
-    }
-
-    protected DataFunction data;
-    protected final double[][] virialData;
-    protected Box box;
-    protected int profileDim;
 }

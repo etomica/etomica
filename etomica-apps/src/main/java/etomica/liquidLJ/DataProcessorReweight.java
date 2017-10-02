@@ -5,7 +5,6 @@
 package etomica.liquidLJ;
 
 import etomica.box.Box;
-import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
@@ -38,10 +37,6 @@ public class DataProcessorReweight extends DataProcessor {
         this.uFac = uFac;
         this.box = box;
         this.nCutoffs = nCutoffs;
-    }
-
-    public DataPipe getDataCaster(IDataInfo inputDataInfo) {
-        return null;
     }
 
     protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {

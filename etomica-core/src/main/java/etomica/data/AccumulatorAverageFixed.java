@@ -4,9 +4,9 @@
 
 package etomica.data;
 
-import etomica.math.function.IFunction;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.math.function.Function;
+import etomica.math.function.IFunction;
 
 /**
  * AccumulatorAverage that maintains a fixed block size.
@@ -68,13 +68,6 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
     
     public IDataSink getBlockDataSink() {
         return blockDataSink;
-    }
-
-    /**
-     * Returns null (any data is good data)
-     */
-    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
-        return null;
     }
 
     /**

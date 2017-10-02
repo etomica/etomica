@@ -4,11 +4,11 @@
 
 package etomica.data;
 
-import etomica.math.function.IFunction;
 import etomica.data.AccumulatorAverageBlockless.AllData;
 import etomica.data.types.DataGroup;
-import etomica.util.EnumeratedType;
 import etomica.math.function.Function;
+import etomica.math.function.IFunction;
+import etomica.util.EnumeratedType;
 
 /**
  * AccumulatorAverage that does not use blocks (best used when each sample
@@ -29,13 +29,6 @@ public class AccumulatorAverageBlocklessSlim extends DataAccumulator {
         };
     }
     
-    /**
-     * Returns null (any data is good data)
-     */
-    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
-        return null;
-    }
-
     /**
      * Add the given values to the sums and block sums. If any of the given data
      * values is NaN, method returns with no effect on accumulation sums.

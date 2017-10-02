@@ -83,10 +83,6 @@ public class DataTableWriter implements DataWriter {
         internalDataSink.putDataInfo(newDataInfo);
     }
 
-    public DataPipe getDataCaster(IDataInfo newDataInfo) {
-        return null;
-    }
-
     protected IDataSink makeTerminalSink() {
         return new IDataSink() {
             @Override

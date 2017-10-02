@@ -4,13 +4,7 @@
 
 package etomica.metastable;
 
-import etomica.data.DataDump;
-import etomica.data.DataPipe;
-import etomica.data.DataProcessor;
-import etomica.data.DataSourceIndependent;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IDataInfo;
+import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
@@ -24,10 +18,6 @@ public class DataProcessorXY extends DataProcessor implements DataSourceIndepend
     
     public DataProcessorXY(DataDump dumpX) {
         this.dumpX = dumpX;
-    }
-
-    public DataPipe getDataCaster(IDataInfo inputDataInfo) {
-        return null;
     }
 
     protected IData processData(IData inputData) {

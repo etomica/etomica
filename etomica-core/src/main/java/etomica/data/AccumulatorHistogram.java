@@ -4,14 +4,14 @@
 
 package etomica.data;
 
-import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.data.types.DataFunction;
-import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.units.dimensions.Null;
 import etomica.data.histogram.Histogram;
 import etomica.data.histogram.HistogramCollapsing;
 import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.histogram.HistogramReweightedData;
+import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.data.types.DataFunction;
+import etomica.data.types.DataFunction.DataInfoFunction;
+import etomica.units.dimensions.Null;
 
 /**
  * Accumulator that keeps histogram of data.
@@ -20,6 +20,12 @@ import etomica.data.histogram.HistogramReweightedData;
  */
 public class AccumulatorHistogram extends DataAccumulator {
 
+    protected Histogram histogram;
+    protected DataSourceIndependentSimple xDataSource;
+    private DataFunction data;
+    private IDataInfo binnedDataInfo;
+    private int nBins;
+    
     /**
      * Creates instance using HistogramSimple factory and specifying histograms
      * having 100 bins.
@@ -72,7 +78,7 @@ public class AccumulatorHistogram extends DataAccumulator {
                 xDataSource.getIndependentData(0).getData() != histogram.xValues()) {
             setupData();
         }
-        
+
         return data;
     }
     
@@ -86,13 +92,6 @@ public class AccumulatorHistogram extends DataAccumulator {
         }
         setupData();
         return dataInfo;
-    }
-    
-    /**
-     * Returns null.  AccumulatorHistory can take an type of Data.
-     */
-    public DataPipe getDataCaster(IDataInfo inputDataInfo) {
-        return null;
     }
 
     /**
@@ -114,7 +113,7 @@ public class AccumulatorHistogram extends DataAccumulator {
             dataSink.putDataInfo(dataInfo);
         }
     }
-    
+
     /**
      * @return the number of bins in each histogram.
      */
@@ -137,13 +136,13 @@ public class AccumulatorHistogram extends DataAccumulator {
     }
 
     /**
-     * Zeros histograms, discarding any previous contributions. 
+     * Zeros histograms, discarding any previous contributions.
      */
     public void reset() {
         histogram.reset();
         setupData();
     }
-    
+
     public Histogram getHistograms() {
         return histogram;
     }
@@ -159,10 +158,4 @@ public class AccumulatorHistogram extends DataAccumulator {
     public IDataInfo getDataInfo() {
         return dataInfo;
     }
-    
-    protected Histogram histogram;
-    protected DataSourceIndependentSimple xDataSource;
-    private DataFunction data;
-    private IDataInfo binnedDataInfo;
-    private int nBins;
 }

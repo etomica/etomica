@@ -15,11 +15,17 @@ import etomica.data.types.DataDouble;
  */
 public class DataSplitter implements IDataSink {
 
+    protected final DataTag tag;
+    protected IDataSink[] dataSinks;
+    protected DataDouble[] outData;
+    protected DataInfo dataInfo;
+    protected IDataSinkFactory dataSinkFactory;
+
     public DataSplitter() {
         tag = new DataTag();
         dataSinks = new IDataSink[0];
     }
- 
+
     /**
      * Returns the DataTag associated with this DataSplitter
      * @return
@@ -39,7 +45,7 @@ public class DataSplitter implements IDataSink {
     public int getNumDataSinks() {
         return dataSinks.length;
     }
-    
+
     /**
      * Sets the DataSink for the ith output stream (corresponding to the ith
      * numerical value coming in).
@@ -49,10 +55,6 @@ public class DataSplitter implements IDataSink {
         if (dataSinks[i] != null && dataInfo != null) {
             dataSinks[i].putDataInfo(dataInfo);
         }
-    }
-
-    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
-        return null;
     }
 
     public void putData(IData data) {
@@ -79,9 +81,9 @@ public class DataSplitter implements IDataSink {
                 outData[i] = new DataDouble();
             }
         }
-        
+
         dataInfo = new DataDouble.DataInfoDouble(incomingDataInfo.getLabel(), incomingDataInfo.getDimension());
-        
+
         for (int i=0; i<dataSinks.length; i++) {
             if (dataSinks[i] != null) {
                 dataSinks[i].putDataInfo(dataInfo);
@@ -93,13 +95,7 @@ public class DataSplitter implements IDataSink {
         dataSinkFactory = factory;
     }
 
-    protected IDataSink[] dataSinks;
-    protected DataDouble[] outData;
-    protected DataInfo dataInfo;
-    protected final DataTag tag;
-    protected IDataSinkFactory dataSinkFactory;
-
-    public static interface IDataSinkFactory {
-        public IDataSink makeDataSink(int i);
+    public interface IDataSinkFactory {
+        IDataSink makeDataSink(int i);
     }
 }

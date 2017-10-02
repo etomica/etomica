@@ -4,20 +4,16 @@
 
 package etomica.meam;
 
-import etomica.data.*;
+import etomica.data.DataProcessor;
+import etomica.data.IData;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.units.dimensions.CompoundDimension;
-import etomica.units.dimensions.Dimension;
-import etomica.units.dimensions.Energy;
-import etomica.units.dimensions.Quantity;
-import etomica.units.dimensions.Temperature;
+import etomica.units.dimensions.*;
 
 
 public class DataProcessorCvMD extends DataProcessor {
-
-    private static final long serialVersionUID = 1L;
 
     IntegratorVelocityVerlet integrator;
 
@@ -35,10 +31,6 @@ public class DataProcessorCvMD extends DataProcessor {
 		data.x /= systemTemp;
 		data.x *= data.x/integrator.getBox().getMoleculeList().getMoleculeCount();
 		return data;
-	}
-
-	public DataPipe getDataCaster(IDataInfo inputDataInfo){
-		return null;
 	}
 
 	public IDataInfo processDataInfo(IDataInfo inputDataInfo){

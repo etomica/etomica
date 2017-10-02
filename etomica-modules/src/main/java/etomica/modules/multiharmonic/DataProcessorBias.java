@@ -7,7 +7,6 @@
  */
 package etomica.modules.multiharmonic;
 
-import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.DataSourceScalar;
 import etomica.data.IData;
@@ -21,12 +20,12 @@ import etomica.data.IDataInfo;
  */
 public class DataProcessorBias extends DataProcessor {
 
+    protected IData data;
+    protected IDataInfo dataInfo;
+    protected DataSourceScalar trueDataSource;
+
     public DataProcessorBias(DataSourceScalar trueDataSource) {
         this.trueDataSource = trueDataSource;
-    }
-    
-    public DataPipe getDataCaster(IDataInfo inputDataInfo) {
-        return null;
     }
 
     protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
@@ -45,9 +44,4 @@ public class DataProcessorBias extends DataProcessor {
         data.PE(-trueDataSource.getDataAsScalar());
         return data;
     }
-
-    private static final long serialVersionUID = 1L;
-    protected IData data;
-    protected IDataInfo dataInfo;
-    protected DataSourceScalar trueDataSource;
 }

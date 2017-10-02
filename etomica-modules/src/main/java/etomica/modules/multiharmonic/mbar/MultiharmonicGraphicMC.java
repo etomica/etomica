@@ -363,7 +363,6 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
 //        DataProcessorFunction ndAdlnx = new DataProcessorFunction(new Function() {
 //            public double f(double x) {return -x;}
 //        });
-//        ndAdlnx.getDataCaster(null);
 //        dAdlnx.setDataSink(ndAdlnx);
 //        DataFork ndAdlnxFork = new DataFork();
 //        ndAdlnx.setDataSink(ndAdlnxFork);

@@ -9,7 +9,9 @@ import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.data.*;
+import etomica.data.DataProcessor;
+import etomica.data.IData;
+import etomica.data.IDataInfo;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterProfileByVolume;
 import etomica.data.types.DataDouble;
@@ -61,10 +63,6 @@ public class SurfaceTensionMapped extends DataProcessor implements AgentSource<F
         forceAgentManager = new AtomLeafAgentManager<Forcible>(this, box, Forcible.class);
         pcForce.setAgentManager(forceAgentManager);
         allAtoms = new IteratorDirective();
-    }
-    
-    public DataPipe getDataCaster(IDataInfo inputDataInfo) {
-        return null;
     }
 
     protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {

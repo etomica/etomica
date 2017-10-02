@@ -4,10 +4,9 @@
 
 package etomica.modules.statistics;
 
-import etomica.data.DataPipe;
 import etomica.data.IData;
-import etomica.data.IDataSink;
 import etomica.data.IDataInfo;
+import etomica.data.IDataSink;
 
 public class DataAccPusher implements IDataSink {
 
@@ -29,8 +28,4 @@ public class DataAccPusher implements IDataSink {
         // don't care!
     }
 
-    @Override
-    public DataPipe getDataCaster(IDataInfo inputDataInfo) {
-        return null;
-    }
 }

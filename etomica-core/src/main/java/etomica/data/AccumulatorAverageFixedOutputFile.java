@@ -4,11 +4,11 @@
 
 package etomica.data;
 
+import etomica.math.function.Function;
+import etomica.math.function.IFunction;
+
 import java.io.FileWriter;
 import java.io.IOException;
-
-import etomica.math.function.IFunction;
-import etomica.math.function.Function;
 
 /**
  * AccumulatorAverage that maintains a fixed block size.
@@ -35,13 +35,6 @@ public class AccumulatorAverageFixedOutputFile extends AccumulatorAverage {
                 return x > 0 ? x : 0;
             }
         };
-    }
-
-    /**
-     * Returns null (any data is good data)
-     */
-    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
-        return null;
     }
 
     /**

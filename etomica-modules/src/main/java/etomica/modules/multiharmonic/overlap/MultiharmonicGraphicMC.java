@@ -146,10 +146,6 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
                     myData.x = Math.log(inputData.getValue((inputData.getLength()-1)/2));
                     dAW.putData(myData);
                 }
-                
-                public DataPipe getDataCaster(IDataInfo dataInfo) {
-                    return null;
-                }
             });
             dAW.setPushInterval(100000);
             dAW.addDataSink(dWPlot.getDataSet().makeDataSink());
@@ -165,10 +161,6 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
                 public void putData(IData inputData) {
                     myData.x = Math.log(inputData.getValue((inputData.getLength()-1)/2));
                     dBW.putData(myData);
-                }
-                
-                public DataPipe getDataCaster(IDataInfo dataInfo) {
-                    return null;
                 }
             });
             dBW.setPushInterval(100000);
@@ -1088,10 +1080,6 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             dataInfo = new DataInfoDouble("a", Null.DIMENSION);
         }
 
-        public DataPipe getDataCaster(IDataInfo inputDataInfo) {
-            return null;
-        }
-
         protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
             return dataInfo;
         }
@@ -1714,10 +1702,6 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         public void putDataInfo(IDataInfo dataInfo) {
             sum = new double[dataInfo.getLength()];
             sumWeights = new double[sum.length];
-        }
-
-        public DataPipe getDataCaster(IDataInfo dataInfo) {
-            return null;
         }
     }
 

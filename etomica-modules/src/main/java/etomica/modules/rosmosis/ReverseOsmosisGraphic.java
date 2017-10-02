@@ -624,10 +624,6 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
             this.box = box;
         }
         
-        public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
-            return null;
-        }
-        
         public IData processData(IData data) {
             myData.E(data);
             myData.TE(1.0/box.getLeafList().getAtomCount());

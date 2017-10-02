@@ -4,18 +4,17 @@
 
 //class includes a main method to demonstrate and test its use
 package etomica.graphics;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
 
-import etomica.data.*;
-import etomica.data.types.CastToDouble;
+import etomica.data.IData;
+import etomica.data.IDataInfo;
+import etomica.data.IDataSink;
 import etomica.data.types.DataDouble;
-import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.units.dimensions.Null;
 import etomica.units.systems.UnitSystem;
 import etomica.util.Constants;
 import etomica.util.EnumeratedType;
+
+import javax.swing.*;
 
 /**
  * A simple display of a single value in a textbox with an associated label.
@@ -82,6 +81,9 @@ public class DisplayTextBox extends Display implements IDataSink, javax.swing.ev
     }//end of constructor
     
     public void putDataInfo(IDataInfo dataInfo) {
+        if (dataInfo.getLength() != 1) {
+            throw new RuntimeException("DisplayTextBox wants only 1 value");
+        }
         if(unit == Null.UNIT) {
             unit = dataInfo.getDimension().getUnit(UnitSystem.SIM);
         }
@@ -89,16 +91,8 @@ public class DisplayTextBox extends Display implements IDataSink, javax.swing.ev
             setLabel(dataInfo.getLabel());
         }
     }
-    
-    /**
-     * Returns caster needed to convert type indicated by DataInfo to a DataDouble.
-     */
-    public DataPipe getDataCaster(IDataInfo dataInfo) {
-        if(dataInfo instanceof DataInfoDouble) return null;
-        return new CastToDouble();
-    }
 
-    /** 
+    /**
      * calls doUpdate method.  Implementation of ChangeListener interface.
      */
     public void stateChanged(javax.swing.event.ChangeEvent evt) {

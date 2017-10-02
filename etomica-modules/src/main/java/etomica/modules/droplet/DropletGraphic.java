@@ -4,42 +4,33 @@
 
 package etomica.modules.droplet;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.util.ArrayList;
-
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-
 import etomica.action.IAction;
-import etomica.atom.IAtomList;
-import etomica.data.*;
-import etomica.space.Vector;
-import etomica.box.Box;
 import etomica.atom.DiameterHashByType;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.data.*;
+import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataTensor;
-import etomica.graphics.DeviceNSelector;
-import etomica.graphics.DeviceSlider;
-import etomica.graphics.DeviceToggleButton;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTimer;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
 import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
 import etomica.modifier.ModifierGeneral;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
-import etomica.units.dimensions.Dimension;
-import etomica.units.dimensions.Length;
 import etomica.units.Pixel;
 import etomica.units.SimpleUnit;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Time;
-import etomica.data.history.HistoryCollapsingDiscard;
 import g3dsys.images.Ellipse;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
 
 /**
  * Graphic UI for Droplet module.  Design by Ludwig Nitsche.
@@ -284,8 +275,6 @@ public class DropletGraphic extends SimulationGraphic {
 
 		    getContentPane().add(simGraphic.getPanel());
 	    }
-
-        private static final long serialVersionUID = 1L;
     }
     
     /**
@@ -307,18 +296,13 @@ public class DropletGraphic extends SimulationGraphic {
         }
 
         protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+            if (!(inputDataInfo instanceof DataTensor.DataInfoTensor)) {
+                throw new IllegalArgumentException("Gotta be a DataInfoTensor");
+            }
             dataInfo = new DataDoubleArray.DataInfoDoubleArray(inputDataInfo.getLabel(), inputDataInfo.getDimension(), new int[]{inputDataInfo.getLength()});
             return dataInfo;
         }
 
-        public DataPipe getDataCaster(IDataInfo inputDataInfo) {
-            if (!(inputDataInfo instanceof DataTensor.DataInfoTensor)) {
-                throw new IllegalArgumentException("Gotta be a DataInfoTensor");
-            }
-            return null;
-        }
-
-        private static final long serialVersionUID = 1L;
         protected final DataDoubleArray data;
     }
     

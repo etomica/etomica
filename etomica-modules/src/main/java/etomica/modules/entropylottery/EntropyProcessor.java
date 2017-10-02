@@ -4,12 +4,12 @@
 
 package etomica.modules.entropylottery;
 
-import etomica.data.*;
-import etomica.data.types.CastToDoubleArray;
+import etomica.data.DataProcessor;
+import etomica.data.IData;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.units.dimensions.Null;
 
 /**
@@ -19,19 +19,12 @@ import etomica.units.dimensions.Null;
  */
 public class EntropyProcessor extends DataProcessor {
 
+    protected DataDouble data;
+    
     public EntropyProcessor() {
         super();
     }
-    
-    public DataPipe getDataCaster(IDataInfo newDataInfo) {
-        // we actually just want DataArithmetic, but array is probably
-        // reasonable
-        if (!(newDataInfo instanceof DataInfoDoubleArray)) {
-            return new CastToDoubleArray();
-        }
-        return null;
-    }
-    
+
     public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
         data = new DataDouble();
         dataInfo = new DataInfoDouble("entropy", Null.DIMENSION);
@@ -39,7 +32,6 @@ public class EntropyProcessor extends DataProcessor {
         dataInfo.addTag(tag);
         return dataInfo;
     }
-        
 
     public IData processData(IData incomingData) {
         double sum = 0;
@@ -58,7 +50,4 @@ public class EntropyProcessor extends DataProcessor {
         data.x = -sum;
         return data;
     }
-
-    private static final long serialVersionUID = 1L;
-    protected DataDouble data;
 }

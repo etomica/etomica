@@ -16,13 +16,20 @@ import etomica.util.Arrays;
  */
 public class DataDistributer implements IDataSink {
 
+    protected final DataTag tag;
+    protected final IDataSinkFactory dataSinkFactory;
+    protected final Indexer indexer;
+    protected IDataSink[] dataSinks;
+    protected DataDouble[] outData;
+    protected IDataInfo dataInfo;
+
     public DataDistributer(Indexer indexer, IDataSinkFactory dataSinkFactory) {
         tag = new DataTag();
         dataSinks = new IDataSink[0];
         this.indexer = indexer;
         this.dataSinkFactory = dataSinkFactory;
     }
- 
+
     /**
      * Returns the DataTag associated with this DataSplitter
      * @return
@@ -42,7 +49,7 @@ public class DataDistributer implements IDataSink {
     public int getNumDataSinks() {
         return dataSinks.length;
     }
-    
+
     /**
      * Sets the DataSink for the ith output stream (corresponding to the ith
      * numerical value coming in).
@@ -55,10 +62,6 @@ public class DataDistributer implements IDataSink {
         if (dataSinks[i] != null && dataInfo != null) {
             dataSinks[i].putDataInfo(dataInfo);
         }
-    }
-
-    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
-        return null;
     }
 
     public void putData(IData data) {
@@ -78,14 +81,7 @@ public class DataDistributer implements IDataSink {
         }
     }
 
-    protected IDataSink[] dataSinks;
-    protected DataDouble[] outData;
-    protected IDataInfo dataInfo;
-    protected final DataTag tag;
-    protected final IDataSinkFactory dataSinkFactory;
-    protected final Indexer indexer;
-
-    public static interface Indexer {
-        public int getIndex();
+    public interface Indexer {
+        int getIndex();
     }
 }

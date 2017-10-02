@@ -15,12 +15,12 @@ package etomica.data;
  */
 public class DataDump implements IDataSink, IDataSource {
 
+    protected final DataTag tag;
+    protected IData data;
+    protected IDataInfo dataInfo;
+
     public DataDump() {
         tag = new DataTag();
-    }
-
-    public DataPipe getDataCaster(IDataInfo inputDataInfo) {
-        return null;
     }
 
     public void putData(IData inputData) {
@@ -42,8 +42,4 @@ public class DataDump implements IDataSink, IDataSource {
     public DataTag getTag() {
         return tag;
     }
-
-    protected IData data;
-    protected IDataInfo dataInfo;
-    protected final DataTag tag;
 }

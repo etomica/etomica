@@ -30,8 +30,8 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
+import etomica.units.Pixel;
 import etomica.units.dimensions.Dimension;
-import etomica.units.*;
 import etomica.units.dimensions.Energy;
 import etomica.units.dimensions.Length;
 import etomica.util.Constants.CompassDirection;
@@ -773,15 +773,11 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         }
 
         protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
-            dataInfo = new DataDoubleArray.DataInfoDoubleArray(inputDataInfo.getLabel(), inputDataInfo.getDimension(), new int[]{inputDataInfo.getLength()});
-            return dataInfo;
-        }
-
-        public DataPipe getDataCaster(IDataInfo inputDataInfo) {
             if (!(inputDataInfo instanceof DataTensor.DataInfoTensor)) {
                 throw new IllegalArgumentException("Gotta be a DataInfoTensor");
             }
-            return null;
+            dataInfo = new DataDoubleArray.DataInfoDoubleArray(inputDataInfo.getLabel(), inputDataInfo.getDimension(), new int[]{inputDataInfo.getLength()});
+            return dataInfo;
         }
     }
     

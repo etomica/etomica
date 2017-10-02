@@ -4,35 +4,23 @@
 
 package etomica.modules.materialfracture;
 
-import java.awt.GridBagConstraints;
-
-import javax.swing.border.TitledBorder;
-
 import etomica.action.IAction;
 import etomica.atom.DiameterHashByType;
 import etomica.data.*;
+import etomica.data.history.HistoryScrolling;
 import etomica.data.meter.MeterPressureTensorFromIntegrator;
 import etomica.data.types.DataDouble;
-import etomica.graphics.DeviceSlider;
-import etomica.graphics.DeviceThermoSlider;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTextBoxesCAE;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
 import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
+import etomica.units.*;
 import etomica.units.dimensions.Dimension;
-import etomica.units.Joule;
-import etomica.units.Mole;
 import etomica.units.dimensions.Null;
-import etomica.units.Pixel;
-import etomica.units.Prefix;
-import etomica.units.PrefixedUnit;
 import etomica.units.dimensions.Pressure2D;
-import etomica.units.Second;
-import etomica.units.UnitRatio;
-import etomica.data.history.HistoryScrolling;
+
+import javax.swing.border.TitledBorder;
+import java.awt.*;
 
 /**
  * Graphical components for Material Fracture module
@@ -98,8 +86,6 @@ public class MaterialFractureGraphic extends SimulationGraphic {
         final MeterPressureTensorFromIntegrator meterPressure = new MeterPressureTensorFromIntegrator(space);
         meterPressure.setIntegrator(sim.integrator);
         DataProcessor pressureToStress = new DataProcessor(){
-            public DataPipe getDataCaster(IDataInfo incomingDataInfo) { return null; }
-        
             protected IDataInfo processDataInfo(IDataInfo inputDataInfo) { return dataInfo; }
         
             protected IData processData(IData inputData) {

@@ -558,10 +558,6 @@ public class SwmdGraphic extends SimulationGraphic {
             myData = new DataDouble();
         }
         
-        public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
-            return null;
-        }
-        
         public IData processData(IData data) {
             if (Double.isInfinite(data.getValue(0))) {
                 return null;

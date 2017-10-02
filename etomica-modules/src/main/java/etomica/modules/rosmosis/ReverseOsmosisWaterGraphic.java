@@ -24,11 +24,8 @@ import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.*;
+import etomica.units.dimensions.*;
 import etomica.units.dimensions.Dimension;
-import etomica.units.dimensions.Charge;
-import etomica.units.dimensions.Energy;
-import etomica.units.dimensions.Length;
-import etomica.units.dimensions.Quantity;
 import etomica.units.systems.MKS;
 import etomica.util.Constants.CompassDirection;
 
@@ -698,10 +695,6 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         public DataSinkExcludeOverlap(Box box) {
             myData = new DataDouble();
             this.box = box;
-        }
-        
-        public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
-            return null;
         }
         
         public IData processData(IData data) {

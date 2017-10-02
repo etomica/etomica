@@ -51,8 +51,4 @@ public class DataProcessorBounds extends DataProcessorForked {
         return null;
     }
 
-    @Override
-    public DataPipe getDataCaster(IDataInfo inputDataInfo) {
-        return null;
-    }
 }
