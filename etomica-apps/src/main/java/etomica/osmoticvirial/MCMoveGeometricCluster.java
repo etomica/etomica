@@ -88,9 +88,7 @@ public class MCMoveGeometricCluster extends MCMoveBox {
             jNeighbors.clear();
             gatherNeighbors(atomI);
             moveAtom(atomI.getPosition());
-            check12(atomI);
             ncm.updateCell(atomI);
-            check12(atomI);
             gatherNeighbors(atomI);
             for (IAtom atomJ:jNeighbors) {
                 atomPairs.add(atomI);
@@ -100,13 +98,10 @@ public class MCMoveGeometricCluster extends MCMoveBox {
                 IAtom atomJ = atomPairs.remove(atomPairs.getAtomCount()-1);
                 atomI = atomPairs.remove(atomPairs.getAtomCount()-1);
                 double E = computeEnergy(atomI, atomJ);
-                check12(atomJ);
                 moveAtom(atomJ.getPosition());
-
                 E -= computeEnergy(atomI, atomJ);
                 double p = 1-Math.exp(-E/integratorMC.getTemperature());
                 moveAtom(atomJ.getPosition());
-                check12(atomJ);
                 if(p<0 || p<random.nextDouble()) continue;
                 atomI = atomJ;
                 clusterAtoms.add(atomI);
@@ -115,12 +110,6 @@ public class MCMoveGeometricCluster extends MCMoveBox {
             break;
         }
         return true;
-    }
-
-    private void check12(IAtom atomI){
-        if(true)
-            return;
-       // System.out.println("position "+atomI.getPosition());
     }
 
     private double computeEnergy(IAtom atomI, IAtom atomJ){
