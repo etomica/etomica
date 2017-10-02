@@ -60,19 +60,26 @@ public class Construction {
 
             PropertyDescriptor[] descriptors = PropertyUtils.getPropertyDescriptors(cls);
             Map<String, String> propertyMap = new HashMap<>();
-            Arrays.stream(descriptors)
+            List<PropertyDescriptor> eligibleDescriptors =  Arrays.stream(descriptors)
                     .filter(desc -> !(desc instanceof IndexedPropertyDescriptor))
                     .filter(desc -> desc.getWriteMethod() != null)
                     .filter(desc -> desc.getPropertyType().isPrimitive() || desc.getPropertyType().equals(String.class) || isContextClass(desc.getPropertyType()))
-                    .forEach(desc -> {
-                        propertyMap.put(desc.getName(), desc.getPropertyType().getCanonicalName());
-                        if(isContextClass(desc.getPropertyType())) {
-                            classOptions.put(
-                                    desc.getPropertyType().getCanonicalName(),
-                                    model.getAllIdsOfType(desc.getPropertyType())
-                            );
-                        }
-                    });
+                    .collect(Collectors.toList());
+
+            for(PropertyDescriptor desc : eligibleDescriptors) {
+                propertyMap.put(desc.getName(), desc.getPropertyType().getCanonicalName());
+                if(isContextClass(desc.getPropertyType())) {
+                    List<Long> ids = model.getAllIdsOfType(desc.getPropertyType());
+                    if(ids.isEmpty()) {
+                        return Optional.empty();
+                    } else {
+                        classOptions.put(
+                                desc.getPropertyType().getCanonicalName(),
+                                ids
+                        );
+                    }
+                }
+            }
 
             return Optional.of(new ConstructionInfo(
                     cls.getCanonicalName(),
