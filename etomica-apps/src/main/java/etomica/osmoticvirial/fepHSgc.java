@@ -34,6 +34,7 @@ public class fepHSgc extends Simulation {
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
     public MCMoveInsertDelete mcMoveInsertDelete ;
+    public MCMoveGeometricCluster mcMoveGeometricCluster;
     public SpeciesSpheresMono species1;
     public SpeciesSpheresMono species2;
     public Box box;
@@ -56,6 +57,8 @@ public class fepHSgc extends Simulation {
         getController().addAction(activityIntegrate);
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         mcMoveInsertDelete = new MCMoveInsertDelete(potentialMaster, random, space);
+        mcMoveGeometricCluster = new MCMoveGeometricCluster(potentialMaster, space, random, 1.5, integrator);
+        integrator.getMoveManager().addMCMove(mcMoveGeometricCluster);
 
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         integrator.getMoveManager().addMCMove(mcMoveInsertDelete);
@@ -112,7 +115,7 @@ public class fepHSgc extends Simulation {
         else {
             params.numSteps = 50000;
             params.nBlocks = 1000;
-            params.vf = 0.01;
+            params.vf = 0.3;
             params.q = 0.2;
             params.computez2z1 = false;
             params.computez3z2 = true;
