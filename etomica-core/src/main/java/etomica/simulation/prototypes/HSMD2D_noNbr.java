@@ -11,6 +11,7 @@ import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.*;
+import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.meter.MeterTemperature;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorHard;
@@ -22,7 +23,6 @@ import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
-import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.species.SpeciesSpheresMono;
 
@@ -34,7 +34,6 @@ import etomica.species.SpeciesSpheresMono;
 
 public class HSMD2D_noNbr extends Simulation {
 
-    private static final long serialVersionUID = 1L;
     public ActivityIntegrate activityIntegrate;
     public AccumulatorAverage pressureAverage;
     public AccumulatorHistory pressureHistory;
@@ -43,9 +42,10 @@ public class HSMD2D_noNbr extends Simulation {
     public Box box;
     public SpeciesSpheresMono species;
     public IntegratorHard integrator;
+    public DataPump temperaturePump;
 
-    public HSMD2D_noNbr(Space _space) {
-        super(_space);
+    public HSMD2D_noNbr() {
+        super(Space2D.getInstance());
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         integrator = new IntegratorHard(this, potentialMaster, space);
         integrator.setIsothermal(false);
@@ -84,14 +84,14 @@ public class HSMD2D_noNbr extends Simulation {
 
         MeterTemperature meterTemperature = new MeterTemperature(box, space.D());
         temperatureAverage = new AccumulatorAverageCollapsing();
-        DataPump temperaturePump = new DataPump(meterTemperature, temperatureAverage);
+        temperaturePump = new DataPump(meterTemperature, temperatureAverage);
         integrator.getEventManager().addListener(new IntegratorListenerAction(temperaturePump));
 
 //        pressureHistory = new AccumulatorHistory();
 //        pressureAverage.makeDataPusher(
 //          new AccumulatorAverage.Type[] {AccumulatorAverage.AVERAGE}).
 //                                      addDataSink(pressureHistory);
-        temperatureHistory = new AccumulatorHistory();
+        temperatureHistory = new AccumulatorHistory(new HistoryCollapsingDiscard());
         temperatureAverage.addDataSink(temperatureHistory, new AccumulatorAverage.StatType[]{AccumulatorAverage.AVERAGE});
         DataSourceCountTime timeCounter = new DataSourceCountTime(integrator);
         temperatureHistory.setTimeDataSource(timeCounter);
@@ -103,8 +103,7 @@ public class HSMD2D_noNbr extends Simulation {
     public static void main(String[] args) {
         final String APP_NAME = "HSMD2D no Nbr";
 
-        Space sp = Space2D.getInstance();
-        final HSMD2D_noNbr sim = new HSMD2D_noNbr(sp);
+        final HSMD2D_noNbr sim = new HSMD2D_noNbr();
         final SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space, sim.getController());
         sim.activityIntegrate.setSleepPeriod(10);
 //        DisplayTextBoxesCAE pressureDisplay = new DisplayTextBoxesCAE();
@@ -117,13 +116,16 @@ public class HSMD2D_noNbr extends Simulation {
         temperaturePlot.setLabel("Temp");
         sim.temperatureHistory.setDataSink(temperaturePlot.getDataSet().makeDataSink());
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
-        nSelector.setResetAction(new SimulationRestart(sim));
+        SimulationRestart simr = new SimulationRestart(sim);
+        simr.getDataResetAction().getDataStreamPumps().add(sim.temperaturePump);
+        nSelector.setResetAction(simr);
         nSelector.setSpecies(sim.species);
         nSelector.setBox(sim.box);
         IAction repaintAction = graphic.getPaintAction(sim.box);
 
         nSelector.setPostAction(repaintAction);
         graphic.getController().getReinitButton().setPostAction(repaintAction);
+        graphic.getController().getDataStreamPumps().add(sim.temperaturePump);
 
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(repaintAction));
 
