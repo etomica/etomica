@@ -20,6 +20,8 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.math.DoubleRange;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2HardSphere;
+import etomica.potential.P2Ideal;
+import etomica.potential.Potential2;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space3d.Space3D;
@@ -35,7 +37,7 @@ import etomica.util.random.RandomMersenneTwister;
 public class AshtonWildingOsmoticVirial extends Simulation {
 
     public Box box;
-    public P2HardSphere potential1, potential2, potential12;
+    public Potential2 potential1, potential2, potential12;
     public Controller controller;
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
@@ -53,7 +55,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
     public AshtonWildingOsmoticVirial(int numAtoms, double vf, double q, boolean computeIdeal){
 
         super(Space3D.getInstance());
-        setRandom(new RandomMersenneTwister(4));
+       // setRandom(new RandomMersenneTwister(4));
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
 
         integrator = new IntegratorMC(this, potentialMaster);
@@ -77,6 +79,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         box = new Box(space);
         addBox(box);
         box.setBoundary(new BoundaryRectangularPeriodic(space, 4*sigma1));
+        System.out.println("vol: "+box.getBoundary().volume());
 
         mcMoveInsertDelete.setSpecies(species2);
         double mu = (8*vf-9*vf*vf+3*vf*vf*vf) / Math.pow((1-vf),3)+Math.log(6*vf/(Math.PI*Math.pow(sigma2,3))); //Configurational chemical potential from Carnahan–Starling equation of state
@@ -84,12 +87,20 @@ public class AshtonWildingOsmoticVirial extends Simulation {
        // mu = Double.MAX_VALUE;
         mcMoveInsertDelete.setMu(mu);
 
-        box.setNMolecules(species1, 3);
-        box.setNMolecules(species2, 20);
+        box.setNMolecules(species1, numAtoms);
 
-        potential1 = new P2HardSphere(space, sigma1, false);
-        potential2 = new P2HardSphere(space, sigma2, false);
-        potential12 = new P2HardSphere(space, sigma12, false);
+        if(computeIdeal) {
+            potential1 = new P2Ideal(space);
+            potential2 = new P2Ideal(space);
+            potential12 = new P2Ideal(space);
+            ((P2Ideal) potential1).setRange(1);
+            System.out.println("P_ideal");
+        }
+        else{
+            potential1 = new P2HardSphere(space, sigma1, false);
+            potential2 = new P2HardSphere(space, sigma2, false);
+            potential12 = new P2HardSphere(space, sigma12, false);
+        }
 
         potentialMaster.setCellRange(3);
         potentialMaster.setRange(potential1.getRange());
@@ -97,12 +108,9 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         AtomType leafType1 = species1.getLeafType();
         AtomType leafType2 = species2.getLeafType();
 
-       if(!computeIdeal){
-           potentialMaster.addPotential(potential1, new AtomType[]{leafType1, leafType1});
-           potentialMaster.addPotential(potential12, new AtomType[]{leafType1, leafType2});
-           potentialMaster.addPotential(potential2, new AtomType[]{leafType2, leafType2});
-       }
-        if(computeIdeal) System.out.println("P_ideal");
+        potentialMaster.addPotential(potential1, new AtomType[]{leafType1, leafType1});
+        potentialMaster.addPotential(potential12, new AtomType[]{leafType1, leafType2});
+        potentialMaster.addPotential(potential2, new AtomType[]{leafType2, leafType2});
 
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
         ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
@@ -119,10 +127,10 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         }
         else{
             params.numAtoms = 3;
-            params.numSteps = 100;
+            params.numSteps = 10000;
             params.nBlocks = 100;
             params.vf = 0.1;
-            params.computeIdeal = false;
+            params.computeIdeal = true;
             params.sizeRatio = 0.2;
         }
         int numAtoms = params.numAtoms;

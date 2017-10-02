@@ -16,6 +16,7 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.math.DoubleRange;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2HardSphere;
+import etomica.potential.P2Ideal;
 import etomica.potential.Potential2;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
@@ -55,7 +56,7 @@ public class AshtonWildingVirial extends Simulation {
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
-        mcMoveGeometricCluster = new MCMoveGeometricCluster(potentialMaster, space, random, 2, integrator);
+        mcMoveGeometricCluster = new MCMoveGeometricCluster(potentialMaster, space, random, 1, integrator);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         integrator.getMoveManager().addMCMove(mcMoveGeometricCluster);
 
@@ -71,8 +72,16 @@ public class AshtonWildingVirial extends Simulation {
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
 
-        if(!computeDepletion) potential1 = new P2HardSphere(space, sigma1, false);
-        if(computeDepletion) {
+        System.out.println("vol "+box.getBoundary().volume());
+
+        if(computeIdeal) {
+            potential1 = new P2Ideal(space);
+            ((P2Ideal) potential1).setRange(1);
+            System.out.println("P_ideal");
+        }
+
+        else if(!computeDepletion) potential1 = new P2HardSphere(space, sigma1, false);
+        else {
             System.out.println("Depletion Potential");
             potential1 = new PotentialDepletion(space, "/usr/users/aksharag/osmoticvirials/ashtonWilding/additiveHS/mi+me/moreSteps/10e10/awHSov/w");
         }
@@ -82,8 +91,7 @@ public class AshtonWildingVirial extends Simulation {
 
         AtomType leafType1 = species1.getLeafType();
 
-       if(!computeIdeal) potentialMaster.addPotential(potential1, new AtomType[]{leafType1, leafType1});
-       if(computeIdeal) System.out.println("P_ideal");
+        potentialMaster.addPotential(potential1, new AtomType[]{leafType1, leafType1});
 
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
 
@@ -102,11 +110,11 @@ public class AshtonWildingVirial extends Simulation {
             ParseArgs.doParseArgs(params, args);
         }
         else{
-            params.numAtoms = 300;
-            params.numSteps = 100;
+            params.numAtoms = 3;
+            params.numSteps = 1000000;
             params.nBlocks = 100;
-            params.density = 0.8;
-            params.computeIdeal = false;
+            params.density = 0.06997;
+            params.computeIdeal = true;
         }
 
         int numAtoms = params.numAtoms;
@@ -114,7 +122,7 @@ public class AshtonWildingVirial extends Simulation {
         int nBlocks = params.nBlocks;
         double density = params.density;
         boolean computeIdeal = params.computeIdeal;
-        boolean graphics = true;
+        boolean graphics = false;
         boolean computeDep = false;
 
         long numSamples = numSteps / numAtoms;
