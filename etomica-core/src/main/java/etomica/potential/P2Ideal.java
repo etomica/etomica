@@ -33,11 +33,15 @@ public class P2Ideal extends Potential2 implements Potential2Soft,
     public void setBox(Box box) {
     }
 
+    public void setRange(double range){
+        this.range = range;
+    }
+
     /**
      * Returns zero.
      */
     public double getRange() {
-        return 0;
+        return range;
     }
 
     /**
@@ -133,4 +137,5 @@ public class P2Ideal extends Potential2 implements Potential2Soft,
     private static final long serialVersionUID = 1L;
     private final Vector[] zeroVector;
     private final Tensor zeroTensor;
+    protected double range;
 }
