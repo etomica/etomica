@@ -4,6 +4,7 @@
 
 package etomica.space;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import etomica.box.Box;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.math.geometry.Polytope;
@@ -46,7 +47,7 @@ public abstract class Boundary {
      * @return the boundary's Box.  Might be null if the boundary is not
      * associated with a box.
      */
-    @IgnoreProperty
+    @JsonIgnore
     public Box getBox() {
         return box;
     }

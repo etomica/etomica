@@ -5,13 +5,16 @@
 package etomica.space;
 
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import etomica.math.function.IFunction;
 import etomica.meta.annotations.IgnoreProperty;
+import etomica.meta.serializers.VectorSerializer;
 import etomica.util.random.IRandom;
 
 /**
  * Interface containing vector operations, accessor, and mutator methods.
  */
+@JsonSerialize(using = VectorSerializer.class)
 public interface Vector {
 
     /**

@@ -4,6 +4,8 @@
 
 package etomica.math.geometry;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonValue;
 import etomica.meta.annotations.IgnoreProperty;
 import etomica.space.Vector;
 import etomica.space.Space;
@@ -34,7 +36,13 @@ public class LineSegment extends Polytope implements Rectangular {
     public void updateVertices() {
         //does nothing, becuse in this case the vertices are the representation of the polytope
     }
-    
+
+    @Override
+    @JsonValue
+    public Vector[] getVertices() {
+        return super.getVertices();
+    }
+
     /**
      * Returns true if the given vector lies between the ends of the segment, on
      * the line joining them. Point must lie exactly on the line to return true,
@@ -105,7 +113,7 @@ public class LineSegment extends Polytope implements Rectangular {
         return new Vector1D(getLength());
     }
 
-    @IgnoreProperty
+    @JsonIgnore
     public LineSegment[] getEdges() {
     	return edges;
     }
