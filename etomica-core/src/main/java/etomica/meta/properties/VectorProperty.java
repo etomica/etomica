@@ -5,6 +5,7 @@ import etomica.space.Vector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 
 /**
  * Created by kofke on 7/24/17.
@@ -45,7 +46,23 @@ public class VectorProperty implements Property {
 
     @Override
     public void invokeWriter(Object... params) {
-        throw new RuntimeException("not a simple property");
+        try {
+            Vector v = (Vector) reader.invoke(instance);
+            if(double[].class.isAssignableFrom(params[0].getClass())) {
+                v.E((double[]) params[0]);
+            } else if(List.class.isAssignableFrom(params[0].getClass())) {
+                List<Double> l = (List<Double>) params[0];
+                double[] d = new double[l.size()];
+                for (int i = 0; i < l.size(); i++) {
+                    d[i] = l.get(i);
+                }
+                v.E(d);
+
+            }
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override

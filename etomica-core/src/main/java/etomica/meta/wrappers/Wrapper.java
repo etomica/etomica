@@ -114,4 +114,8 @@ public abstract class Wrapper<T> {
         return childProps;
     }
 
+    public List<Property> getValueProperties() {
+        return valueProps;
+    }
+
 }
