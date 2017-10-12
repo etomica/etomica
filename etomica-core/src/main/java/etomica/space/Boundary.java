@@ -89,10 +89,12 @@ public abstract class Boundary {
      * @return the event manager, which fires notifications about changes to
      * this boundary to any added listener.
      */
+    @JsonIgnore
     public BoundaryEventManager getEventManager() {
         return eventManager;
     }
 
+    @JsonIgnore
     public abstract IndexIteratorSizable getIndexIterator();
 
     /**

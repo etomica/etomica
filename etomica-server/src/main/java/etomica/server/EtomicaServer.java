@@ -1,6 +1,7 @@
 package etomica.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
@@ -40,17 +41,19 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class EtomicaServer extends Application<EtomicaServerConfig> {
-    private final Map<UUID, SimulationModel> simStore = new ConcurrentHashMap<>();
-    private final Timer timer = new Timer();
-    private final ObjectMapper mapper = Jackson.newObjectMapper();
+    private static final ObjectMapper mapper = Jackson.newObjectMapper();
 
-    {
+    static {
         SimpleModule mod = new SimpleModule("Etomica Module");
         mod.addSerializer(new PropertySerializer(Property.class));
         mod.addSerializer(new WrapperSerializer(Wrapper.class));
         mod.addSerializer(new SimulationModelSerializer(SimulationModel.class));
         mod.addSerializer(new DataSerializer());
         mapper.registerModule(mod);
+    }
+
+    public static ObjectWriter objectWriter() {
+        return mapper.writer();
     }
 
     @Override

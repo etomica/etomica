@@ -4,36 +4,48 @@ import com.codahale.metrics.annotation.Metered;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.meta.SimulationModel;
 import etomica.meta.wrappers.SimulationWrapper;
+import etomica.meta.wrappers.Wrapper;
 import etomica.server.dao.SimulationStore;
+import etomica.server.representations.ConfigurationUpdate;
 import etomica.simulation.Simulation;
+import etomica.space.Boundary;
+import etomica.space.BoundaryEvent;
+import etomica.space.BoundaryEventListener;
 
 import javax.inject.Inject;
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 
+import static etomica.server.EtomicaServer.objectWriter;
+
 @ServerEndpoint(
         value="/simulations/{id}/configuration",
-        encoders = {ConfigurationStreamResource.ConfigurationEncoder.class}
+        encoders = {ConfigurationStreamResource.ConfigurationUpdateEncoder.class}
 )
 @Metered
 @Timed
 public class ConfigurationStreamResource {
     private final SimulationStore simStore;
     private final Timer timer;
+    private final ObjectMapper mapper;
 
     @Inject
-    public ConfigurationStreamResource(SimulationStore store, Timer timer) {
+    public ConfigurationStreamResource(SimulationStore store, Timer timer, ObjectMapper mapper) {
         this.simStore = store;
         this.timer = timer;
+        this.mapper = mapper;
     }
 
     @OnOpen
@@ -41,6 +53,11 @@ public class ConfigurationStreamResource {
         SimulationModel model = simStore.get(UUID.fromString(id));
 
         timer.schedule(new ConfigurationTimerTask(session, model), 0, 33);
+//        for (int i = 0; i < model.getSimulation().getBoxCount(); i++) {
+//            model.getSimulation().getBox(i).getBoundary().getEventManager().addListener(
+//                    new WSBoundaryListener(session, model, mapper)
+//            );
+//        }
 
     }
 
@@ -65,22 +82,27 @@ public class ConfigurationStreamResource {
 
 
             sim.getController().doActionNow(() -> {
-                session.getAsyncRemote().sendObject(wrapper.getAllCoordinates());
+                Boundary[] boundaries = new Boundary[sim.getBoxCount()];
+                for (int i = 0; i < sim.getBoxCount(); i++) {
+                    boundaries[i] = sim.getBox(i).getBoundary();
+                }
+
+                ConfigurationUpdate update = new ConfigurationUpdate(
+                        wrapper.getAllCoordinates(),
+                        boundaries
+                );
+                session.getAsyncRemote().sendObject(update);
             });
         }
     }
 
-    public static class ConfigurationEncoder implements Encoder.Text<double[][][]> {
-        // TODO: inject this from application, should be ok for now
-        private static final ObjectMapper mapper = new ObjectMapper();
+    public static class ConfigurationUpdateEncoder implements Encoder.TextStream<ConfigurationUpdate> {
+        private static ObjectWriter objectWriter = objectWriter();
 
         @Override
-        public String encode(double[][][] object) throws EncodeException {
-            try {
-                return mapper.writeValueAsString(object);
-            } catch (JsonProcessingException e) {
-                throw new EncodeException(object, "Json error", e);
-            }
+        public void encode(ConfigurationUpdate object, Writer writer) throws EncodeException, IOException {
+            objectWriter.writeValue(writer, object);
+
         }
 
         @Override
