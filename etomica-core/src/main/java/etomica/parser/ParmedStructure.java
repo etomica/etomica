@@ -12,6 +12,8 @@ import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
+import etomica.integrator.IntegratorMD;
+import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.molecule.IMolecule;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPumpListener;
@@ -34,6 +36,7 @@ import etomica.space3d.Vector3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresCustom;
 import etomica.units.Joule;
+import etomica.units.Kelvin;
 import etomica.util.Constants;
 
 import java.io.IOException;
@@ -286,6 +289,7 @@ public class ParmedStructure {
         ParmedStructure structure = ParmedParser.parseGromacsResourceFiles("test.top", "test.gro");
         Simulation sim = new Simulation(Space3D.getInstance());
         SpeciesSpheresCustom species = structure.getSpecies();
+        species.setIsDynamic(true);
         sim.addBox(structure.getBox());
         sim.addSpecies(species);
         structure.getMolecules().forEach(sim.getBox(0)::addMolecule);
@@ -294,11 +298,15 @@ public class ParmedStructure {
         pm.addPotential(structure.getIntermolecularPotential(), new ISpecies[] {species, species});
         pm.addPotential(structure.getIntramolecularPotential(), new ISpecies[] {species});
 
-        IntegratorMC integrator = new IntegratorMC(sim, pm);
+//        IntegratorMC integrator = new IntegratorMC(sim, pm);
+//        integrator.setBox(sim.getBox(0));
+//        integrator.getMoveManager().addMCMove(new MCMoveAtom(sim.getRandom(), pm, sim.getSpace()));
+//        integrator.getMoveManager().addMCMove(new MCMoveMolecule(sim, pm, sim.getSpace()));
+//        integrator.getMoveManager().addMCMove(new MCMoveRotateMolecule3D(pm, sim.getRandom(), sim.getSpace()));
+        IntegratorVelocityVerlet integrator = new IntegratorVelocityVerlet(sim, pm, sim.getSpace());
+        integrator.setTemperature(Kelvin.UNIT.toSim(300));
         integrator.setBox(sim.getBox(0));
-        integrator.getMoveManager().addMCMove(new MCMoveAtom(sim.getRandom(), pm, sim.getSpace()));
-        integrator.getMoveManager().addMCMove(new MCMoveMolecule(sim, pm, sim.getSpace()));
-        integrator.getMoveManager().addMCMove(new MCMoveRotateMolecule3D(pm, sim.getRandom(), sim.getSpace()));
+        integrator.setTimeStep(.001);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         sim.getController().addAction(activityIntegrate);
 
@@ -314,7 +322,7 @@ public class ParmedStructure {
         ah.addDataSink(plot.getDataSet().makeDataSink());
 
 
-        SimulationGraphic graphics = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.getSpace(), sim.getController());
+        SimulationGraphic graphics = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "app", 1, sim.getSpace(), sim.getController());
         graphics.add(plot);
         graphics.makeAndDisplayFrame();
 
