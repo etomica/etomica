@@ -24,8 +24,7 @@ import etomica.species.SpeciesSpheresMono;
 /**
  * Simple square-well molecular dynamics simulation in 2D
  */
-
-public class SwMd2D extends Simulation {
+public class SWMD2D extends Simulation {
 
     private static final long serialVersionUID = 1L;
     public IntegratorHard integrator;
@@ -35,7 +34,7 @@ public class SwMd2D extends Simulation {
     public Controller controller;
     public DisplayBox display;
 
-    public SwMd2D() {
+    public SWMD2D() {
         super(Space2D.getInstance());
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         double sigma = 0.8;
