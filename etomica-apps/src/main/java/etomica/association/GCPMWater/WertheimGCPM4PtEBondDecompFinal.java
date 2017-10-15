@@ -346,8 +346,8 @@ public class WertheimGCPM4PtEBondDecompFinal {
 
 		sim.printResults(HSB[nBody]);
 	}
-    
-	
+
+
 	public static class VirialAssociatingFluidParam extends ParameterBase {
 		public double temperature = 630;//reduced temperature
 		public double sigmaHSRef = 5.0;

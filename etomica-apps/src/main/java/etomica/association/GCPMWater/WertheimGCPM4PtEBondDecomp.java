@@ -328,8 +328,8 @@ public class WertheimGCPM4PtEBondDecomp {
 
 		sim.printResults(HSB[nBody]);
 	}
-    
-	
+
+
 	public static class WertheimAssociatingFluidParam extends ParameterBase {
 		public double temperature = 630;//reduced temperature
 		public double sigmaHSRef = 5.0;

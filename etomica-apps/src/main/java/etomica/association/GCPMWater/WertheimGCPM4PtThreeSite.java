@@ -588,8 +588,8 @@ public class WertheimGCPM4PtThreeSite {
 
 		sim.printResults(HSB[nBody]);
 	}
-    
-	
+
+
 	public static class VirialAssociatingFluidParam extends ParameterBase {
 		public double temperature = 600;
 		public double sigmaHSRef = 3.2;

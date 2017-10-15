@@ -300,10 +300,10 @@ public class WertheimGCPM3PtThreeSite {
         System.out.println("final reference step frequency "+sim.integratorOS.getStepFreq0());
         System.out.println("actual reference step frequency "+sim.integratorOS.getActualStepFreq0());
 
-        sim.printResults(HSB[nBody]);
-    }
-    
-	
+		sim.printResults(HSB[nBody]);
+	}
+
+
 	public static class VirialAssociatingFluidParam extends ParameterBase {
 		public double temperature = 630;//reduced temperature
 		public double sigmaHSRef = 3.2;
