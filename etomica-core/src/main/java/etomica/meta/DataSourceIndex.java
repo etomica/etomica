@@ -1,14 +1,14 @@
 package etomica.meta;
 
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
 
-public class DataSourceIndex extends ComponentIndex<IEtomicaDataSource> {
+public class DataSourceIndex extends ComponentIndex<IDataSource> {
 
-    public DataSourceIndex(Class<IEtomicaDataSource> componentClass) {
+    public DataSourceIndex(Class<IDataSource> componentClass) {
         super(componentClass);
     }
 
     public static void main(String[] args) {
-        System.out.println(new DataSourceIndex(IEtomicaDataSource.class).getComponentSet());
+        System.out.println(new DataSourceIndex(IDataSource.class).getComponentSet());
     }
 }

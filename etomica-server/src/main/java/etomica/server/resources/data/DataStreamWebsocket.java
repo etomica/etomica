@@ -52,11 +52,11 @@ public class DataStreamWebsocket {
 
     public static class DataStreamTimerTask extends TimerTask {
         private final Session session;
-        private final IEtomicaDataSource dump;
+        private final IDataSource dump;
         private final Simulation sim;
         private final DataAndInfo dataAndInfo;
 
-        private DataStreamTimerTask(Session session, IEtomicaDataSource dump, Simulation sim) {
+        private DataStreamTimerTask(Session session, IDataSource dump, Simulation sim) {
             this.session = session;
             this.dump = dump;
             this.sim = sim;
@@ -106,13 +106,13 @@ public class DataStreamWebsocket {
 
     private static class DataAndInfo {
         private @JsonProperty IData data;
-        private @JsonProperty IEtomicaDataInfo dataInfo;
+        private @JsonProperty IDataInfo dataInfo;
 
-        public IEtomicaDataInfo getDataInfo() {
+        public IDataInfo getDataInfo() {
             return dataInfo;
         }
 
-        public void setDataInfo(IEtomicaDataInfo dataInfo) {
+        public void setDataInfo(IDataInfo dataInfo) {
             this.dataInfo = dataInfo;
         }
 

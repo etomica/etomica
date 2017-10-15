@@ -27,14 +27,14 @@ import java.util.stream.Stream;
 public class DataStreamResource {
     private final SimulationStore simStore;
     private final DataStreamStore dataStore;
-    private final ComponentIndex<IEtomicaDataSource> dataSourceIndex;
+    private final ComponentIndex<IDataSource> dataSourceIndex;
     private final ComponentIndex<DataAccumulator> accumulatorIndex;
 
     @Inject
     public DataStreamResource(SimulationStore simStore, DataStreamStore dataStore, DataSourceIndex index) {
         this.simStore = simStore;
         this.dataStore = dataStore;
-        this.dataSourceIndex = new ComponentIndex<>(IEtomicaDataSource.class);
+        this.dataSourceIndex = new ComponentIndex<>(IDataSource.class);
         accumulatorIndex = new ComponentIndex<>(DataAccumulator.class);
     }
 
@@ -45,7 +45,7 @@ public class DataStreamResource {
         UUID dataId = UUID.randomUUID();
 
         try {
-            IEtomicaDataSource meter = Construction.<IEtomicaDataSource>createInstance(constructionParams, simModel)
+            IDataSource meter = Construction.<IDataSource>createInstance(constructionParams, simModel)
                     .orElseThrow(() -> new WebApplicationException("Unable to create meter"));
 
             DataDump dump = new DataDump();
@@ -114,7 +114,7 @@ public class DataStreamResource {
 
     @GET
     @Path("{dataId}")
-    public IEtomicaDataInfo getDataInfo(@PathParam("simId") String simId, @PathParam("dataId") String dataId) {
+    public IDataInfo getDataInfo(@PathParam("simId") String simId, @PathParam("dataId") String dataId) {
         //TODO: serializers
         return this.dataStore.get(UUID.fromString(dataId)).getDump().getDataInfo();
     }
