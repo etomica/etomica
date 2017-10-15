@@ -171,7 +171,7 @@ public class SimBennet extends Simulation {
         //construct simulation
         SimBennet sim = new SimBennet(Space.getInstance(D), numAtoms, density, temperature, filename, exponentN);
 
-        IEtomicaDataSource[] workMeters = new IEtomicaDataSource[2];
+        IDataSource[] workMeters = new IDataSource[2];
 
         // Bennet's Overlap ---> Harmonic
         MeterWorkBennetHarmonic meterWorkBennetHarmonic = new MeterWorkBennetHarmonic(sim.integrator, sim.meterHarmonicEnergy);

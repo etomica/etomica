@@ -26,7 +26,7 @@ import etomica.virial.*;
 public class SimulationVirial extends Simulation {
 
 
-    public IEtomicaDataSource meter;
+    public IDataSource meter;
     public AccumulatorRatioAverageCovariance accumulator;
     public IDataSink dataSink;
     public DataPumpListener accumulatorPump;
@@ -153,8 +153,8 @@ public class SimulationVirial extends Simulation {
         setAccumulator(new AccumulatorRatioAverageCovariance());
 	}
 
-	public void setMeter(IEtomicaDataSource newMeter) {
-		meter = newMeter;
+    public void setMeter(IDataSource newMeter) {
+        meter = newMeter;
         if (accumulator != null) { 
             if (accumulatorPump != null) {
                 integrator.getEventManager().removeListener(accumulatorPump);

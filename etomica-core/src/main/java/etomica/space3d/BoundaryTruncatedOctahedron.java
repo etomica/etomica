@@ -4,17 +4,16 @@
 
 package etomica.space3d;
 
-import etomica.space.Vector;
 import etomica.exception.MethodNotImplementedException;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
-import etomica.math.SpecialFunctions;
 import etomica.math.geometry.Plane;
 import etomica.math.geometry.Polygon;
 import etomica.math.geometry.Polyhedron;
 import etomica.math.geometry.TruncatedOctahedron;
 import etomica.space.Boundary;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * This class enables creation of a periodic truncated-octahedron boundary.
@@ -269,7 +268,7 @@ public class BoundaryTruncatedOctahedron extends Boundary {
             double corr = 0.5 * n * aint;
 
             for (int i=0; i<3; i++) {
-                rrounded.setX(i,SpecialFunctions.sgn(rrounded.getX(i)));
+                rrounded.setX(i, Math.signum(rrounded.getX(i)));
             }
             
             intoTruncatedOctahedron.PEa1Tv1(-corr, rrounded);

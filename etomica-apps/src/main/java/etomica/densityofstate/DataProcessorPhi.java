@@ -4,14 +4,13 @@
 
 package etomica.densityofstate;
 
-import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.DataTag;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
-import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDouble.DataInfoDouble;
+import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.units.dimensions.Null;
 
@@ -60,19 +59,16 @@ public class DataProcessorPhi extends DataProcessor {
 	public void setTemperature(double newTemperature){
 		temperature = newTemperature;
 	}
-	protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
-		// TODO Auto-generated method stub
-		dataInfo = new DataInfoDoubleArray("phi", Null.DIMENSION, new int []{20});
-		data = new DataDoubleArray(20);
+	protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+        if (!(inputDataInfo instanceof DataInfoDouble)) {
+            throw new IllegalArgumentException("i only want double");
+        }
+        dataInfo = new DataInfoDoubleArray("phi", Null.DIMENSION, new int []{20});
+        dataInfo.addTag(tag);
+        data = new DataDoubleArray(20);
 		return dataInfo;
 	}
 
-	public DataPipe getDataCaster(IEtomicaDataInfo dataInfo) { //hook up to meter to the Dataprocessor
-		if (dataInfo instanceof DataInfoDouble)
-			return null;
-		throw new IllegalArgumentException("i only want double");
-	}
-	
 	private DataTag tag;
 	private DataInfoDoubleArray dataInfo;
 	private DataDoubleArray data;

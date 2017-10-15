@@ -38,7 +38,7 @@ import etomica.units.dimensions.Length;
  * @author Rob Riggleman
  * @author Andrew Schultz
  */
-public class MeterProfileByVolume implements IEtomicaDataSource, DataSourceIndependent, java.io.Serializable {
+public class MeterProfileByVolume implements IDataSource, DataSourceIndependent, java.io.Serializable {
     
     /**
      * Default constructor sets profile along the y-axis, with 100 histogram points.
@@ -52,7 +52,7 @@ public class MeterProfileByVolume implements IEtomicaDataSource, DataSourceIndep
         positionDefinition = new MoleculePositionGeometricCenter(space);
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -192,7 +192,7 @@ public class MeterProfileByVolume implements IEtomicaDataSource, DataSourceIndep
     protected Box box;
     protected DataSourceUniform xDataSource;
     protected DataFunction data;
-    protected IEtomicaDataInfo dataInfo;
+    protected IDataInfo dataInfo;
     /**
      * Vector describing the orientation of the profile.
      * For example, (1,0) is along the x-axis.

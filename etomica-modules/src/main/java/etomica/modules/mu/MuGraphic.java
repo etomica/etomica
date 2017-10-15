@@ -30,12 +30,9 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.SpeciesSpheresMono;
+import etomica.units.Pixel;
 import etomica.units.dimensions.Dimension;
-import etomica.units.*;
-import etomica.units.dimensions.Energy;
-import etomica.units.dimensions.Fraction;
-import etomica.units.dimensions.Length;
-import etomica.units.dimensions.Null;
+import etomica.units.dimensions.*;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -308,7 +305,7 @@ public class MuGraphic extends SimulationGraphic {
         AccumulatorHistogram muHistogramA = new AccumulatorHistogram(new HistogramDiscrete(1e-10));
         uProcessorA.setDataSink(muHistogramA);
         DisplayTable muHistogramTableA = new DisplayTable();
-        muHistogramA.setDataSink(muHistogramTableA.getDataTable().makeDataSink());
+        muHistogramA.setDataSink(muHistogramTableA.getDataTable().makeDataSink(muHistogramA.getDataInfo()));
         muHistogramTableA.setColumnHeader(new DataTag[]{((DataInfoFunction)muHistogramA.getDataInfo()).getXDataSource().getIndependentTag()}, "E");
         muHistogramTableA.setColumnHeader(new DataTag[]{muHistogramA.getTag()}, "probability");
         muHistogramTableA.setLabel("Insertion Energy (A)");
@@ -354,7 +351,7 @@ public class MuGraphic extends SimulationGraphic {
         AccumulatorHistogram muHistogramB = new AccumulatorHistogram(new HistogramDiscrete(1e-10));
         uProcessorB.setDataSink(muHistogramB);
         DisplayTable muHistogramTableB = new DisplayTable();
-        muHistogramB.setDataSink(muHistogramTableB.getDataTable().makeDataSink());
+        muHistogramB.setDataSink(muHistogramTableB.getDataTable().makeDataSink(muHistogramB.getDataInfo()));
         muHistogramTableB.setColumnHeader(new DataTag[]{((DataInfoFunction)muHistogramB.getDataInfo()).getXDataSource().getIndependentTag()}, "E");
         muHistogramTableB.setColumnHeader(new DataTag[]{muHistogramB.getTag()}, "probability");
         muHistogramTableB.setLabel("Insertion Energy (B)");
@@ -394,14 +391,14 @@ public class MuGraphic extends SimulationGraphic {
         
         DisplayTable metricsTable = new DisplayTable();
         metricsTable.setTransposed(true);
-        muAvgA.addDataSink(metricsTable.getDataTable().makeDataSink(), new StatType[]{muAvgA.AVERAGE, muAvgA.ERROR});
-        muAvgB.addDataSink(metricsTable.getDataTable().makeDataSink(), new StatType[]{muAvgB.AVERAGE, muAvgB.ERROR});
-        accumulatorDensityIGA.addDataSink(metricsTable.getDataTable().makeDataSink(), new StatType[]{accumulatorDensityIGA.AVERAGE, accumulatorDensityIGA.ERROR});
-        accumulatorDensityIGB.addDataSink(metricsTable.getDataTable().makeDataSink(), new StatType[]{accumulatorDensityIGB.AVERAGE, accumulatorDensityIGB.ERROR});
-        accumulatorDensitySQWA.addDataSink(metricsTable.getDataTable().makeDataSink(), new StatType[]{accumulatorDensitySQWA.AVERAGE, accumulatorDensitySQWA.ERROR});
-        accumulatorDensitySQWB.addDataSink(metricsTable.getDataTable().makeDataSink(), new StatType[]{accumulatorDensitySQWB.AVERAGE, accumulatorDensitySQWB.ERROR});
-        accumulatorPressureIG.addDataSink(metricsTable.getDataTable().makeDataSink(), new StatType[]{accumulatorPressureIG.AVERAGE, accumulatorPressureIG.ERROR});
-        accumulatorPressureSQW.addDataSink(metricsTable.getDataTable().makeDataSink(), new StatType[]{accumulatorPressureSQW.AVERAGE, accumulatorPressureSQW.ERROR});
+        muAvgA.addDataSink(metricsTable.getDataTable().makeDataSink(muAvgA.getDataInfo()), new StatType[]{muAvgA.AVERAGE, muAvgA.ERROR});
+        muAvgB.addDataSink(metricsTable.getDataTable().makeDataSink(muAvgB.getDataInfo()), new StatType[]{muAvgB.AVERAGE, muAvgB.ERROR});
+        accumulatorDensityIGA.addDataSink(metricsTable.getDataTable().makeDataSink(accumulatorDensityIGA.getDataInfo()), new StatType[]{accumulatorDensityIGA.AVERAGE, accumulatorDensityIGA.ERROR});
+        accumulatorDensityIGB.addDataSink(metricsTable.getDataTable().makeDataSink(accumulatorDensityIGB.getDataInfo()), new StatType[]{accumulatorDensityIGB.AVERAGE, accumulatorDensityIGB.ERROR});
+        accumulatorDensitySQWA.addDataSink(metricsTable.getDataTable().makeDataSink(accumulatorDensitySQWA.getDataInfo()), new StatType[]{accumulatorDensitySQWA.AVERAGE, accumulatorDensitySQWA.ERROR});
+        accumulatorDensitySQWB.addDataSink(metricsTable.getDataTable().makeDataSink(accumulatorDensitySQWB.getDataInfo()), new StatType[]{accumulatorDensitySQWB.AVERAGE, accumulatorDensitySQWB.ERROR});
+        accumulatorPressureIG.addDataSink(metricsTable.getDataTable().makeDataSink(accumulatorPressureIG.getDataInfo()), new StatType[]{accumulatorPressureIG.AVERAGE, accumulatorPressureIG.ERROR});
+        accumulatorPressureSQW.addDataSink(metricsTable.getDataTable().makeDataSink(accumulatorPressureSQW.getDataInfo()), new StatType[]{accumulatorPressureSQW.AVERAGE, accumulatorPressureSQW.ERROR});
         metricsTable.setColumnHeader(new DataTag[]{muAvgA.getTag()}, "exp(-E/kT) (A)");
         metricsTable.setColumnHeader(new DataTag[]{muAvgB.getTag()}, "exp(-E/kT) (B)");
         metricsTable.setColumnHeader(new DataTag[]{accumulatorDensityIGA.getTag()}, "IG Phase Density (A)");
@@ -550,16 +547,12 @@ public class MuGraphic extends SimulationGraphic {
             return data;
         }
 
-        protected IEtomicaDataInfo processDataInfo(
-                IEtomicaDataInfo inputDataInfo) {
+        protected IDataInfo processDataInfo(
+                IDataInfo inputDataInfo) {
             dataInfo = new DataInfoFunction("chemical potential", Energy.DIMENSION, ((DataInfoFunction)inputDataInfo).getXDataSource());
             data = new DataFunction(new int[]{inputDataInfo.getLength()});
             dataInfo.addTag(tag);
             return dataInfo;
-        }
-
-        public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
-            return null;
         }
     }
 
@@ -707,10 +700,6 @@ public class MuGraphic extends SimulationGraphic {
             this.box = box;
         }
         
-        public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
-            return null;
-        }
-        
         public IData processData(IData data) {
             if (Double.isInfinite(data.getValue(0))) {
                 return null;
@@ -721,7 +710,7 @@ public class MuGraphic extends SimulationGraphic {
             return myData;
         }
 
-        protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+        protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
             return inputDataInfo;
         }
         

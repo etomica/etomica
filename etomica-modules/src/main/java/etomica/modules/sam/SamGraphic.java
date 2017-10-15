@@ -4,29 +4,14 @@
 
 package etomica.modules.sam;
 
-import java.awt.Color;
-import java.awt.GridBagLayout;
-
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-
 import etomica.action.IAction;
+import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.DiameterHashByType;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorHistogram;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataFork;
-import etomica.data.DataPipe;
-import etomica.data.DataProcessor;
-import etomica.data.DataPump;
-import etomica.data.DataSourceCountTime;
-import etomica.data.DataSourceScalar;
-import etomica.data.DataSplitter;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
+import etomica.data.histogram.HistogramNotSoSimple;
+import etomica.data.history.HistoryCollapsingAverage;
+import etomica.data.history.HistoryScrolling;
 import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -34,34 +19,23 @@ import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DeviceButton;
-import etomica.graphics.DeviceSlider;
-import etomica.graphics.DeviceThermoSlider;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayBoxCanvasG3DSys;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.DisplayTextBoxesCAE;
-import etomica.graphics.DisplayTimer;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
 import etomica.listener.IntegratorListenerAction;
+import etomica.math.DoubleRange;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.potential.P2LennardJones;
-import etomica.units.dimensions.Angle;
 import etomica.units.Bar;
 import etomica.units.Degree;
-import etomica.units.dimensions.Dimension;
 import etomica.units.Kelvin;
+import etomica.units.Pixel;
+import etomica.units.dimensions.Angle;
+import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Null;
-import etomica.units.Pixel;
-import etomica.math.DoubleRange;
-import etomica.data.histogram.HistogramNotSoSimple;
-import etomica.data.history.HistoryCollapsingAverage;
-import etomica.data.history.HistoryScrolling;
+
+import javax.swing.*;
+import java.awt.*;
 
 public class SamGraphic extends SimulationGraphic {
     
@@ -473,10 +447,6 @@ public class SamGraphic extends SimulationGraphic {
             this.sim = sim;
         }
 
-        public DataPipe getDataCaster(IEtomicaDataInfo dataInfo) {
-            return null;
-        }
-
         protected IData processData(IData inputData) {
             double[] xy = data.getData();
             double surfacePosition = sim.box.getMoleculeList(sim.speciesSurface).getMolecule(0).getChildList().getAtom(0).getPosition().getX(1);
@@ -485,7 +455,7 @@ public class SamGraphic extends SimulationGraphic {
             return data;
         }
 
-        protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+        protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
             data = new DataDoubleArray(2);
             dataInfo = new DataInfoDoubleArray("Strain and Stress", Null.DIMENSION, new int[]{2});
             return dataInfo;

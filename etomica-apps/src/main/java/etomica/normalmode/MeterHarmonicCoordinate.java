@@ -4,9 +4,9 @@
 
 package etomica.normalmode;
 
+import etomica.data.IDataInfo;
 import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
-import etomica.data.IEtomicaDataInfo;
 import etomica.units.dimensions.Length;
 
 /**
@@ -28,7 +28,7 @@ public class MeterHarmonicCoordinate extends DataSourceScalar {
         return coordinateDefinition;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     

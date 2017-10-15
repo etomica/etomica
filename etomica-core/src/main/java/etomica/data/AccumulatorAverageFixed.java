@@ -4,9 +4,9 @@
 
 package etomica.data;
 
-import etomica.math.function.IFunction;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.math.function.Function;
+import etomica.math.function.IFunction;
 
 /**
  * AccumulatorAverage that maintains a fixed block size.
@@ -71,13 +71,6 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
     }
 
     /**
-     * Returns null (any data is good data)
-     */
-    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
-        return null;
-    }
-
-    /**
      * Add the given values to the sums and block sums. If any of the given data
      * values is NaN, method returns with no effect on accumulation sums.
      */
@@ -100,7 +93,7 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
         return true;
     }
     
-    public void putDataInfo(IEtomicaDataInfo inputDataInfo) {
+    public void putDataInfo(IDataInfo inputDataInfo) {
         super.putDataInfo(inputDataInfo);
         if (blockDataSink != null) {
             blockDataSink.putDataInfo(inputDataInfo);
@@ -238,7 +231,7 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
      *            the DataInfo instance for the data that will be given to
      *            addData
      */
-    public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo incomingDataInfo) {
+    public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
         sum = incomingDataInfo.makeData();
         sumBlockSquare = incomingDataInfo.makeData();
         currentBlockSum = incomingDataInfo.makeData();

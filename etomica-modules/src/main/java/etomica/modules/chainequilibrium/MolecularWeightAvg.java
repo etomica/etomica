@@ -4,10 +4,9 @@
 
 package etomica.modules.chainequilibrium;
 
-import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.units.dimensions.Quantity;
@@ -19,6 +18,9 @@ import etomica.units.dimensions.Quantity;
  * @author Andrew Schultz
  */
 public class MolecularWeightAvg extends DataProcessor {
+
+    protected final DataDouble data;
+    protected final DataInfoDouble dataInfo;
 
     public MolecularWeightAvg() {
         data = new DataDouble();
@@ -36,14 +38,7 @@ public class MolecularWeightAvg extends DataProcessor {
         return data;
     }
 
-    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         return dataInfo;
     }
-
-    public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
-        return null;
-    }
-
-    protected final DataDouble data;
-    protected final DataInfoDouble dataInfo;
 }

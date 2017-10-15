@@ -50,8 +50,10 @@ public class VirialSQWBinMultiThreaded {
 
         final int nPoints = params.nPoints;
         long steps = params.numSteps;
+        double targetTemp = params.targetTemp;
+        final double Y = targetTemp == 0 ? 1 : (Math.exp(1 / targetTemp) - 1);
         final double chainFrac = params.chainFrac;
-        final double ringFrac = params.ringFrac;
+        final double ringFrac = targetTemp == 0 ? params.ringFrac : 0;
         final double lambda = params.lambda;
         final double sigmaHS = lambda;
         final int nThreads = params.nThreads;
@@ -77,7 +79,7 @@ public class VirialSQWBinMultiThreaded {
             
             public double f(IMoleculeList pair, double r2, double beta) {
                 if (r2 < sigma2 || r2 > well2) return 0;
-                return 1;
+                return Y;
             }
         };
         MayerFunction fRefPos = new MayerFunction() {
@@ -87,7 +89,7 @@ public class VirialSQWBinMultiThreaded {
             public IPotential getPotential() {return null;}
             
             public double f(IMoleculeList pair, double r2, double beta) {
-                return r2 < sigmaHS*sigmaHS ? 1 : 0;
+                return r2 < 1 ? 1 : (r2 < sigmaHS * sigmaHS ? Y : 0);
             }
         };
 
@@ -144,7 +146,7 @@ public class VirialSQWBinMultiThreaded {
             if (mySeeds != null) {
                 System.arraycopy(allRandomSeeds, allRandomSeeds.length/nThreads*it, mySeeds, 0, mySeeds.length);
             }
-            sw[it] = new SimulationWorker(it, nPoints, fTargetf1, fTargete2, fRefPos, lambda, vhs, chainFrac, ringFrac, steps, space, params.runName, tRatio, allMyData, w, totalCount, doReweight, mySeeds, doCov);
+            sw[it] = new SimulationWorker(it, nPoints, fTargetf1, fTargete2, fRefPos, lambda, vhs, chainFrac, ringFrac, steps, space, params.runName, tRatio, allMyData, w, totalCount, doReweight, mySeeds, doCov, targetTemp);
         }
         for (int it=0; it<nThreads; it++) {
             sw[it].start();
@@ -239,6 +241,8 @@ public class VirialSQWBinMultiThreaded {
 	            double sumErrNum = E0a2 - sum*sum*nThreads*steps;
 	            double finalErr = Math.sqrt(sumErrStdev + sumErrNum)*Math.abs(refIntegral)/(nThreads*steps);
                 sum *= refIntegral;
+                sum /= Math.pow(Y, i);
+                finalErr /= Math.pow(Y, i);
 
                 System.out.print(String.format("%2d average: %21.14e   error: %11.5e   # var frac: %5.3f\n", i, sum, finalErr, sumErrNum/(sumErrStdev + sumErrNum)));
             }
@@ -262,7 +266,7 @@ public class VirialSQWBinMultiThreaded {
                     else {
                         cor = 0;
                     }
-                    System.out.print(String.format(" % 5.3f", cor));
+                    System.out.print(String.format(" % 6.4f", cor));
                 }
                 System.out.print("\n");
             }
@@ -297,13 +301,14 @@ public class VirialSQWBinMultiThreaded {
         protected final boolean doReweight;
         protected final int[] mySeeds;
         protected final boolean doCov;
+        protected final double targetTemp;
         public MeterVirialEBinMultiThreaded meter;
         
         public SimulationWorker(int iThread, int nPoints, MayerFunction fTargetf1, MayerFunction fTargete2,
                                 MayerFunction fRefPos, double lambda, double vhs, double chainFrac, double ringFrac,
                                 long steps, Space space, String runName, double tRatio,
                                 Map<IntSet,MeterVirialEBinMultiThreaded.MyData> allMyData, double w, long[] totalCount,
-                                boolean doReweight, int[] mySeeds, boolean doCov) {
+                                boolean doReweight, int[] mySeeds, boolean doCov, double targetTemp) {
             this.iThread = iThread;
             this.nPoints = nPoints;
             this.fTargetf1 = fTargetf1;
@@ -323,27 +328,30 @@ public class VirialSQWBinMultiThreaded {
             this.doReweight = doReweight;
             this.mySeeds = mySeeds;
             this.doCov = doCov;
+            this.targetTemp = targetTemp;
         }
         
         public void run() {
             long t1 = System.currentTimeMillis();
+            double Y = targetTemp == 0 ? 1 : (Math.exp(1 / targetTemp) - 1);
             final ClusterWheatleyExtendSW targetCluster = new ClusterWheatleyExtendSW(nPoints, fTargetf1, fTargete2);
             targetCluster.setTemperature(1.0);
             
-            ClusterAbstract refCluster = null;
             ClusterChainHS cr = new ClusterChainHS(nPoints, fRefPos, true);
             long numRingDiagrams = cr.numDiagrams();
             double ringIntegral = numRingDiagrams*Standard.ringHS(nPoints)*Math.pow(lambda, 3*(nPoints-1));
-            double chainIntegral = (SpecialFunctions.factorial(nPoints)/2)*Math.pow(vhs, nPoints-1);
+            double vCore = space.sphereVolume(1);
+            double vIntegral = vCore + (vhs - vCore) * Y;
+            double chainIntegral = (SpecialFunctions.factorial(nPoints) / 2) * Math.pow(vIntegral, nPoints - 1);
             ClusterChainHS crc = new ClusterChainHS(nPoints, fRefPos, chainFrac/chainIntegral, ringFrac/ringIntegral);
             ClusterSinglyConnected ct = new ClusterSinglyConnected(nPoints, fRefPos);
-            refCluster = new ClusterWeightUmbrella(new ClusterAbstract[]{crc, ct});
+            ClusterAbstract refCluster = new ClusterWeightUmbrella(new ClusterAbstract[]{crc, ct});
             long numTreeDiagrams = 1;
             for (int i=0; i<nPoints-2; i++) {
                 numTreeDiagrams *= nPoints;
             }
 
-            double treeIntegral = numTreeDiagrams*Math.pow(vhs, nPoints-1);
+            double treeIntegral = numTreeDiagrams * Math.pow(vIntegral, nPoints - 1);
 
             // weighting for chain and ring are handled internally
             ((ClusterWeightUmbrella)refCluster).setWeightCoefficients(new double[]{1,(1-ringFrac-chainFrac)/treeIntegral});
@@ -501,6 +509,8 @@ public class VirialSQWBinMultiThreaded {
                 }
             };
             PropertyBin[] myPODs= new PropertyBin[11];
+            myPODs[2] = pod;
+            myPODs[3] = pod;
             myPODs[4] = podOD5;
             myPODs[5] = podODCliq;
             myPODs[6] = podODCliqDoodad;
@@ -528,13 +538,15 @@ public class VirialSQWBinMultiThreaded {
             
             sim.integrator.getMoveManager().removeMCMove(sim.mcMoveTranslate);
 
-            MCMoveClusterAtomHSRing mcMoveHSR = new MCMoveClusterAtomHSRing(sim.getRandom(), space, lambda);
-            sim.integrator.getMoveManager().addMCMove(mcMoveHSR);
-            sim.integrator.getMoveManager().setFrequency(mcMoveHSR, ringFrac);
-            MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), space, lambda);
+            if (targetTemp == 0) {
+                MCMoveClusterAtomHSRing mcMoveHSR = new MCMoveClusterAtomHSRing(sim.getRandom(), space, lambda);
+                sim.integrator.getMoveManager().addMCMove(mcMoveHSR);
+                sim.integrator.getMoveManager().setFrequency(mcMoveHSR, ringFrac);
+            }
+            MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomSQWChain(sim.getRandom(), space, lambda, targetTemp);
             sim.integrator.getMoveManager().addMCMove(mcMoveHSC);
             sim.integrator.getMoveManager().setFrequency(mcMoveHSC, chainFrac);
-            MCMoveClusterAtomHSTree mcMoveHST = new MCMoveClusterAtomHSTree(sim.getRandom(), space, lambda);
+            MCMoveClusterAtomHSTree mcMoveHST = new MCMoveClusterAtomSQWTree(sim.getRandom(), space, lambda, targetTemp);
             sim.integrator.getMoveManager().addMCMove(mcMoveHST);
             sim.integrator.getMoveManager().setFrequency(mcMoveHST, 1-ringFrac-chainFrac);
             MeterVirialEBinMultiThreaded.setTRatio(tRatio);
@@ -561,6 +573,7 @@ public class VirialSQWBinMultiThreaded {
         public int[] randomSeeds = new int[0];
         public boolean shareData = true;
         public boolean doCov = false;
+        public double targetTemp = 0;
     }
     
 }

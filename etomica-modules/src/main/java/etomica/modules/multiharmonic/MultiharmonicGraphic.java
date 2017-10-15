@@ -4,43 +4,26 @@
 
 package etomica.modules.multiharmonic;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.util.ArrayList;
-
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-
 import etomica.action.IAction;
 import etomica.atom.DiameterHashByType;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCollapsingLog;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataFork;
-import etomica.data.DataProcessorFunction;
-import etomica.data.DataPump;
-import etomica.data.DataSourceFunction;
-import etomica.data.DataSourceScalar;
-import etomica.data.DataTag;
-import etomica.graphics.Device;
-import etomica.graphics.DeviceNSelector;
-import etomica.graphics.DeviceSlider;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.data.*;
+import etomica.data.history.HistoryCollapsingDiscard;
+import etomica.graphics.*;
 import etomica.listener.IntegratorListenerAction;
+import etomica.math.function.Function;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.space.Space;
 import etomica.space1d.Vector1D;
+import etomica.units.Pixel;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Energy;
 import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Null;
-import etomica.units.Pixel;
-import etomica.math.function.Function;
-import etomica.data.history.HistoryCollapsingDiscard;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
 
 public class MultiharmonicGraphic extends SimulationGraphic {
 
@@ -301,7 +284,6 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         DataProcessorFunction ndAdlnx = new DataProcessorFunction(new Function() {
             public double f(double x) {return -x;}
         });
-        ndAdlnx.getDataCaster(null);
         dAdlnx.setDataSink(ndAdlnx);
         DataFork ndAdlnxFork = new DataFork();
         ndAdlnx.setDataSink(ndAdlnxFork);

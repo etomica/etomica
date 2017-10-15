@@ -10,8 +10,7 @@ import etomica.data.DataInfoFactory;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataInfoFactory;
+import etomica.data.IDataInfoFactory;
 import etomica.units.dimensions.Dimension;
 
 
@@ -105,12 +104,12 @@ public class DataGroup implements IData, java.io.Serializable {
     protected final IData[] data;
     
     public static class DataInfoGroup extends DataInfo {
-        public DataInfoGroup(String label, Dimension dimension, IEtomicaDataInfo[] subDataInfo) {
+        public DataInfoGroup(String label, Dimension dimension, IDataInfo[] subDataInfo) {
             super(label, dimension);
             this.subDataInfo = subDataInfo.clone();
         }
 
-        public IEtomicaDataInfoFactory getFactory() {
+        public IDataInfoFactory getFactory() {
             return new DataInfoGroupFactory(this);
         }
         
@@ -130,7 +129,7 @@ public class DataGroup implements IData, java.io.Serializable {
          * Returns the DataInfo corresponding to the group's given wrapped 
          * Data object.
          */
-        public IEtomicaDataInfo getSubDataInfo(int i) {
+        public IDataInfo getSubDataInfo(int i) {
             return subDataInfo[i];
         }
         
@@ -157,7 +156,7 @@ public class DataGroup implements IData, java.io.Serializable {
         }
 
         private static final long serialVersionUID = 1L;
-        protected final IEtomicaDataInfo[] subDataInfo;
+        protected final IDataInfo[] subDataInfo;
     }
     
     public static class DataInfoGroupFactory extends DataInfoFactory {
@@ -167,7 +166,7 @@ public class DataGroup implements IData, java.io.Serializable {
             subDataInfo = template.subDataInfo.clone();
         }
         
-        public IEtomicaDataInfo makeDataInfo() {
+        public IDataInfo makeDataInfo() {
             DataInfoGroup dataInfo = new DataInfoGroup(label, dimension, subDataInfo);
             DataTag[] tagArray = new DataTag[tags.size()];
             dataInfo.addTags((DataTag[])tags.toArray(tagArray));
@@ -175,7 +174,7 @@ public class DataGroup implements IData, java.io.Serializable {
         }
      
         public void setSubDataInfo(IDataInfo[] newSubDataInfo) {
-            subDataInfo = (IEtomicaDataInfo[])newSubDataInfo.clone();
+            subDataInfo = (IDataInfo[])newSubDataInfo.clone();
         }
         
         public IDataInfo[] getSubDataInfo() {
@@ -183,7 +182,7 @@ public class DataGroup implements IData, java.io.Serializable {
         }
         
         private static final long serialVersionUID = 1L;
-        protected IEtomicaDataInfo[] subDataInfo;
+        protected IDataInfo[] subDataInfo;
     }
 
     public void assignTo(double[] array) {

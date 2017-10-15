@@ -28,7 +28,7 @@ import etomica.units.dimensions.Volume;
  * and deltaV is the change in volume associated with that x value.  deltaV = s * V
  * where s is the scaling factor (available via getScalingDataSource)
  */
-public class MeterPressureByVolumeChange implements IEtomicaDataSource, java.io.Serializable {
+public class MeterPressureByVolumeChange implements IDataSource, java.io.Serializable {
     
     public MeterPressureByVolumeChange(Space space) {
         this(space, makeDefaultDimensions(space.D()));
@@ -86,7 +86,7 @@ public class MeterPressureByVolumeChange implements IEtomicaDataSource, java.io.
         return integrator;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -128,7 +128,7 @@ public class MeterPressureByVolumeChange implements IEtomicaDataSource, java.io.
     /**
      * Returns the data source for volume scalings.
      */
-    public IEtomicaDataSource getScalingDataSource() {
+    public IDataSource getScalingDataSource() {
         return vDataSource;
     }
     
@@ -162,7 +162,7 @@ public class MeterPressureByVolumeChange implements IEtomicaDataSource, java.io.
 
     private static final long serialVersionUID = 1L;
     private DataDoubleArray data;
-    private IEtomicaDataInfo dataInfo;
+    private IDataInfo dataInfo;
     private final DataTag tag;
     private double[] dataArray;
     private final BoxInflate inflater;
@@ -179,7 +179,7 @@ public class MeterPressureByVolumeChange implements IEtomicaDataSource, java.io.
     /**
      * Transforms the scaling from linear (-s to +s) to exponential (exp(-s) to exp(+s))
      */
-    protected static class DataSourceExp implements IEtomicaDataSource {
+    protected static class DataSourceExp implements IDataSource {
         public DataSourceExp(DataSourceUniform wrappedDataSource) {
             this.wrappedDataSource = wrappedDataSource;
             tag = new DataTag();
@@ -193,7 +193,7 @@ public class MeterPressureByVolumeChange implements IEtomicaDataSource, java.io.
             return tag;
         }
         
-        public IEtomicaDataInfo getDataInfo() {
+        public IDataInfo getDataInfo() {
             return dataInfo;
         }
         

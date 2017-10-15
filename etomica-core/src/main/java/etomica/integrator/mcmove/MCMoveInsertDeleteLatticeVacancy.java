@@ -197,6 +197,8 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         else {
             insert = (random.nextInt(2) == 0);
         }
+        if (insert && numAtoms == maxN) return false;
+        if (!insert && numAtoms == minN) return false;
         numNewDeleteCandidates = 0;
         if (dirty || lastStepCount != integrator.getStepCount()) findCandidates();
         if (insert) {
@@ -416,7 +418,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         lastStepCount = integrator.getStepCount();
     }
 
-    public double getA() {
+    public double getChi(double temperature) {
         double lna = getLnBiasDiff();
 
         double shellV = nbrVectors.length*4.0/3.0*Math.PI*maxInsertDistance*maxInsertDistance*maxInsertDistance;
@@ -441,10 +443,8 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         if (false) {
             System.out.println(insert+" lnbias "+lna+" log(c) "+Math.log(c)+" log(a) "+oldLnA);
         }
-        return Math.exp(lna)*c;
-    }
+        double A = Math.exp(lna) * c;
 
-    public double getB() {
         double b = uOld - uNew;
         if (false) System.out.println(insert+" b = "+b);
         if (forced==2) {
@@ -461,7 +461,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
             return -Double.POSITIVE_INFINITY;
         }
         oldB = b;
-        return b;
+        return A * Math.exp(b / temperature);
     }
 
     public void myAcceptNotify() {

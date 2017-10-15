@@ -14,7 +14,7 @@ public interface DataSourceMolecular {
     
     public IData getData(IMolecule a);
     
-    public IEtomicaDataInfo getMoleculeDataInfo();
+    public IDataInfo getMoleculeDataInfo();
     
     public DataTag getTag();
 }

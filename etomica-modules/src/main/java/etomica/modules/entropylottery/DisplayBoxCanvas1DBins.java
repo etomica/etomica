@@ -4,25 +4,23 @@
 
 package etomica.modules.entropylottery;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.util.Iterator;
-
 import etomica.action.activity.Controller;
 import etomica.atom.IAtom;
-import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
 import etomica.graphics.ColorSchemeCollective;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayCanvas;
 import etomica.graphics.Drawable;
+import etomica.space.Vector;
 import etomica.units.Pixel;
+
+import java.awt.*;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.util.Iterator;
 
 /**
  * Class used to define canvas onto which configuration is drawn
@@ -31,7 +29,7 @@ public class DisplayBoxCanvas1DBins extends DisplayCanvas {
     private double yScale = 0.4;
     private final AtomIteratorLeafAtoms atomIterator = new AtomIteratorLeafAtoms();
     private int[] atomCount;
-    private IEtomicaDataSource extraDataSource;
+    private IDataSource extraDataSource;
     
     public DisplayBoxCanvas1DBins(DisplayBox _box, Controller controller) {
         super(controller);
@@ -94,7 +92,7 @@ public class DisplayBoxCanvas1DBins extends DisplayCanvas {
      * Sets a data source used to draw an extra set of "atoms".  The extra set
      * is drawn as thin blue bars.
      */
-    public void setExtraData(IEtomicaDataSource newExtraDataSource) {
+    public void setExtraData(IDataSource newExtraDataSource) {
         extraDataSource = newExtraDataSource;
     }
     

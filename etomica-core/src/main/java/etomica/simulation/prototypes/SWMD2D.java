@@ -4,17 +4,17 @@
 
 package etomica.simulation.prototypes;
 
+import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.data.meter.MeterEnergy;
 import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayPlot;
-import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.potential.P2LennardJones;
+import etomica.listener.IntegratorListenerAction;
+import etomica.potential.P2SquareWell;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
@@ -22,52 +22,41 @@ import etomica.space2d.Space2D;
 import etomica.species.SpeciesSpheresMono;
 
 /**
- * Simple Lennard-Jones molecular dynamics simulation in 2D
+ * Simple square-well molecular dynamics simulation in 2D
  */
-
-public class LjMd2D extends Simulation {
+public class SWMD2D extends Simulation {
 
     private static final long serialVersionUID = 1L;
-    public IntegratorVelocityVerlet integrator;
+    public IntegratorHard integrator;
     public SpeciesSpheresMono species;
     public Box box;
-    public P2LennardJones potential;
+    public P2SquareWell potential;
     public Controller controller;
     public DisplayBox display;
-    public DisplayPlot plot;
-    public MeterEnergy energy;
 
-    public LjMd2D() {
+    public SWMD2D() {
         super(Space2D.getInstance());
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
-        integrator.setTimeStep(0.01);
+        double sigma = 0.8;
+        integrator = new IntegratorHard(this, potentialMaster, space);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setSleepPeriod(2);
+        activityIntegrate.setSleepPeriod(1);
+        integrator.setTimeStep(0.02);
+        integrator.setTemperature(1.);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
         addSpecies(species);
+        AtomType leafType = species.getLeafType();
         box = new Box(space);
         addBox(box);
         box.setNMolecules(species, 50);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
-        potential = new P2LennardJones(space);
-        potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
+        potential = new P2SquareWell(space);
+        potential.setCoreDiameter(sigma);
+        potentialMaster.addPotential(potential, new AtomType[]{leafType, leafType});
 
-//      elementCoordinator.go();
-        //explicit implementation of elementCoordinator activities
         integrator.setBox(box);
-
-        energy = new MeterEnergy(potentialMaster, box);
-//		energy.setHistorying(true);
-//		
-//		energy.getHistory().setHistoryLength(500);
-//		
-//		plot = new DisplayPlot(this);
-//		plot.setLabel("Energy");
-//		plot.setDataSources(energy.getHistory());
-
+        integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
     }
-
 }

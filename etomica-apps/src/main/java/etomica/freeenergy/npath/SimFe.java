@@ -212,7 +212,7 @@ public class SimFe extends Simulation {
         LjMC3DParams params = new LjMC3DParams();
         ParseArgs.doParseArgs(params, args);
         if (args.length==0) {
-            params.graphics = true;
+            params.graphics = false;
             params.numAtoms = 1024;
             params.steps = 10000;
             params.density = 0.150375939849624;

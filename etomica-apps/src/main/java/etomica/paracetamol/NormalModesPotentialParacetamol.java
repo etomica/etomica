@@ -12,7 +12,7 @@ import etomica.space.Vector;
 import etomica.data.DataInfo;
 import etomica.data.DataTag;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.Basis;
@@ -274,7 +274,7 @@ public class NormalModesPotentialParacetamol implements NormalModes {
 			this.indexjp = indexjp;
 		}
 
-		public IEtomicaDataInfo getDataInfo() {
+		public IDataInfo getDataInfo() {
 			 return dataInfo;
 		}
 

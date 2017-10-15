@@ -44,8 +44,8 @@ public class SimulationVirialPT extends Simulation {
         accumulatorPump = new DataPumpListener[temperature.length];
         mcMoveMulti = new MCMoveBoxStep[temperature.length];
         mcMoveRotate = new MCMoveBoxStep[temperature.length];
-        meterAccept = new IEtomicaDataSource[temperature.length-1];
-        meterAcceptP = new IEtomicaDataSource[temperature.length-1];
+        meterAccept = new IDataSource[temperature.length - 1];
+        meterAcceptP = new IDataSource[temperature.length - 1];
         
         // Parallel tempering would sorta work without separate instances of the clusters
         // but the value caching based on coordinate pair set ID would be confused because
@@ -107,9 +107,9 @@ public class SimulationVirialPT extends Simulation {
 	}
 	
 	public MeterVirial[] meter;
-    public IEtomicaDataSource[] meterAccept;
-    public IEtomicaDataSource[] meterAcceptP;
-	public DataAccumulator[] accumulator;
+    public IDataSource[] meterAccept;
+    public IDataSource[] meterAcceptP;
+    public DataAccumulator[] accumulator;
 	public DataPumpListener[] accumulatorPump;
 	public ISpecies species;
 	public ActivityIntegrate ai;

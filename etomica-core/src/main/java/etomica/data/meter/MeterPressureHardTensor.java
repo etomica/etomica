@@ -3,13 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.data.meter;
+
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.types.DataTensor;
 import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.integrator.IntegratorHard;
@@ -17,7 +15,7 @@ import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.dimensions.Temperature;
 
-public class MeterPressureHardTensor implements IEtomicaDataSource, IntegratorHard.CollisionListener, java.io.Serializable {
+public class MeterPressureHardTensor implements IDataSource, IntegratorHard.CollisionListener, java.io.Serializable {
     
     public MeterPressureHardTensor(Space space) {
     	dim = space.D();
@@ -28,7 +26,7 @@ public class MeterPressureHardTensor implements IEtomicaDataSource, IntegratorHa
         dataInfo.addTag(tag);
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -98,7 +96,7 @@ public class MeterPressureHardTensor implements IEtomicaDataSource, IntegratorHa
     private String name;
     private Box box;
     private final DataTensor data;
-    private final IEtomicaDataInfo dataInfo;
+    private final IDataInfo dataInfo;
     protected final DataTag tag;
     private final int dim;
 }

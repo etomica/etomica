@@ -13,11 +13,11 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 
 import etomica.action.IAction;
+import etomica.data.IDataInfo;
 import etomica.util.random.IRandom;
 import etomica.data.AccumulatorAverageBlockless;
 import etomica.data.AccumulatorAverageBlockless.AllData;
 import etomica.data.DataTag;
-import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDoubleBDArray;
 import etomica.data.types.DataDoubleBDArray.DataInfoDoubleBDArray;
 import etomica.data.types.DataGroup;
@@ -33,7 +33,7 @@ public class MeterVirialBDBin implements IAction {
     protected final ClusterWheatley targetCluster;
     private final DataDoubleBDArray data;
     private final MathContext mc;
-    private final IEtomicaDataInfo dataInfo;
+    private final IDataInfo dataInfo;
     private final DataTag tag;
     private BoxCluster box;
     protected final AccumulatorAverageBlockless[] accumulators;
@@ -80,7 +80,7 @@ public class MeterVirialBDBin implements IAction {
 	    nextReweightStep = Long.MAX_VALUE;
 	}
 
-	public IEtomicaDataInfo getDataInfo() {
+	public IDataInfo getDataInfo() {
         return dataInfo;
     }
     

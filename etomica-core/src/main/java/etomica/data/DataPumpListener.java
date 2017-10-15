@@ -4,19 +4,19 @@
 
 package etomica.data;
 
-import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 
 public class DataPumpListener extends DataPump implements IntegratorListener {
 
     protected long interval;
     protected long intervalCount;
-    
-    public DataPumpListener(IEtomicaDataSource dataSource, IDataSink dataSink) {
+
+    public DataPumpListener(IDataSource dataSource, IDataSink dataSink) {
         this(dataSource, dataSink, 1);
     }
-    
-    public DataPumpListener(IEtomicaDataSource dataSource, IDataSink dataSink, int interval) {
+
+    public DataPumpListener(IDataSource dataSource, IDataSink dataSink, int interval) {
         super(dataSource, dataSink);
         setInterval(interval);
     }

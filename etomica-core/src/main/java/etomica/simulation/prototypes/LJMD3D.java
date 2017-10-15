@@ -28,10 +28,8 @@ import etomica.species.SpeciesSpheresMono;
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 3D
  */
+public class LJMD3D extends Simulation {
 
-public class LjMd3D extends Simulation {
-
-    private static final long serialVersionUID = 1L;
     public IntegratorVelocityVerlet integrator;
     public SpeciesSpheresMono species;
     public Box box;
@@ -42,7 +40,7 @@ public class LjMd3D extends Simulation {
     public DataPump pump;
 
 
-    public LjMd3D() {
+    public LJMD3D() {
         super(Space3D.getInstance());
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         double sigma = 1.0;
@@ -80,8 +78,8 @@ public class LjMd3D extends Simulation {
     }
 
     public static void main(String[] args) {
-        final String APP_NAME = "LjMd3D";
-        final LjMd3D sim = new LjMd3D();
+        final String APP_NAME = "LJMD3D";
+        final LJMD3D sim = new LJMD3D();
         final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 3, sim.space, sim.getController());
 
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
@@ -97,8 +95,8 @@ public class LjMd3D extends Simulation {
     public static class Applet extends javax.swing.JApplet {
 
         public void init() {
-            final String APP_NAME = "LjMd3D";
-            LjMd3D sim = new LjMd3D();
+            final String APP_NAME = "LJMD3D";
+            LJMD3D sim = new LJMD3D();
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, APP_NAME, 3, sim.getSpace(), sim.getController());
 
             simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));

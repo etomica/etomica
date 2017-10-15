@@ -6,11 +6,7 @@ package etomica.data.types;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import etomica.data.DataSourceIndependent;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataInfoFactory;
+import etomica.data.*;
 import etomica.units.dimensions.Dimension;
 
 
@@ -87,7 +83,7 @@ public class DataFunction extends DataDoubleArray {
         }
 
         @JsonIgnore
-        public IEtomicaDataInfoFactory getFactory() {
+        public IDataInfoFactory getFactory() {
             return new DataInfoFunctionFactory(this);
         }
         
@@ -103,7 +99,7 @@ public class DataFunction extends DataDoubleArray {
         }
 
         @JsonProperty
-        private IEtomicaDataInfo getIndependentDataInfo() {
+        private IDataInfo getIndependentDataInfo() {
             return getXDataSource().getIndependentDataInfo(0);
         }
     }
@@ -114,7 +110,7 @@ public class DataFunction extends DataDoubleArray {
             xDataSource = template.xDataSource;
         }
         
-        public IEtomicaDataInfo makeDataInfo() {
+        public IDataInfo makeDataInfo() {
             DataInfoFunction dataInfo = new DataInfoFunction(label, dimension, xDataSource);
             DataTag[] tagArray = new DataTag[tags.size()];
             dataInfo.addTags((DataTag[])tags.toArray(tagArray));

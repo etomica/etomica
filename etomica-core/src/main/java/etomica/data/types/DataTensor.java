@@ -4,13 +4,8 @@
 
 package etomica.data.types;
 
+import etomica.data.*;
 import etomica.math.function.IFunction;
-import etomica.data.DataInfo;
-import etomica.data.DataInfoFactory;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataInfoFactory;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.dimensions.Dimension;
@@ -172,7 +167,7 @@ public class DataTensor implements IData, java.io.Serializable {
             return space.D()*space.D();
         }
         
-        public IEtomicaDataInfoFactory getFactory() {
+        public IDataInfoFactory getFactory() {
             return new DataInfoTensorFactory(this);
         }
         
@@ -194,7 +189,7 @@ public class DataTensor implements IData, java.io.Serializable {
             space = template.space;
         }
         
-        public IEtomicaDataInfo makeDataInfo() {
+        public IDataInfo makeDataInfo() {
             DataInfoTensor dataInfo = new DataInfoTensor(label, dimension, space);
             DataTag[] tagArray = new DataTag[tags.size()];
             dataInfo.addTags((DataTag[])tags.toArray(tagArray));

@@ -7,8 +7,8 @@ package etomica.liquidLJ;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.potential.IteratorDirective;
@@ -24,8 +24,8 @@ import etomica.units.dimensions.Null;
  *
  * @author David Kofke
  */
- 
-public class MeterPUCut implements IEtomicaDataSource {
+
+public class MeterPUCut implements IDataSource {
     
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
@@ -119,7 +119,7 @@ public class MeterPUCut implements IEtomicaDataSource {
         return tag;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

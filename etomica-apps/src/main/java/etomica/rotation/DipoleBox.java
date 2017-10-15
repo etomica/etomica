@@ -14,10 +14,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorRigidIterative;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.listener.IntegratorListenerAction;
-import etomica.molecule.IMolecule;
-import etomica.molecule.IMoleculeList;
-import etomica.molecule.IMoleculePositioned;
-import etomica.molecule.OrientationCalcAtom;
+import etomica.molecule.*;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -50,7 +47,7 @@ public class DipoleBox extends Simulation {
         for (int i=0; i<nAtoms; i++) {
             IMolecule molecule = molecules.getMolecule(i);
             ((IMoleculePositioned)molecule).getPosition().E(molecule.getChildList().getAtom(0).getPosition());
-            IOrientationFull3D orientation = (IOrientationFull3D)((IAtomOriented)molecule).getOrientation();
+            IOrientationFull3D orientation = (IOrientationFull3D)((IMoleculeOriented)molecule).getOrientation();
             for (int j=0; j<20; j++) {
                 orientation.randomRotation(getRandom(), 1);
             }
