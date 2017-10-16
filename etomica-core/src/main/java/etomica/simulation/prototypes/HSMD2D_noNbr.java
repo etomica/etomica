@@ -5,6 +5,7 @@
 package etomica.simulation.prototypes;
 
 import etomica.action.IAction;
+import etomica.action.SimulationDataAction;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
@@ -12,6 +13,7 @@ import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingDiscard;
+import etomica.data.meter.MeterPressureHard;
 import etomica.data.meter.MeterTemperature;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorHard;
@@ -35,14 +37,16 @@ import etomica.species.SpeciesSpheresMono;
 public class HSMD2D_noNbr extends Simulation {
 
     public ActivityIntegrate activityIntegrate;
-    public AccumulatorAverage pressureAverage;
+    public AccumulatorAverageCollapsing pressureAverage;
     public AccumulatorHistory pressureHistory;
     public AccumulatorAverageCollapsing temperatureAverage;
     public AccumulatorHistory temperatureHistory;
     public Box box;
     public SpeciesSpheresMono species;
     public IntegratorHard integrator;
+    public DataPump pressurePump;
     public DataPump temperaturePump;
+    public MeterPressureHard meterPressure;
 
     public HSMD2D_noNbr() {
         super(Space2D.getInstance());
@@ -69,32 +73,30 @@ public class HSMD2D_noNbr extends Simulation {
 //        potentialBoundary.setActive(1,false,true);
 
         integrator.setBox(box);
-//        integrator.setIsothermal(true);
+        integrator.setIsothermal(true);
 
-//        MeterPressureHard meterPressure = new MeterPressureHard(integrator);
-//        meterPressure.setBox(box);
-//        pressureAverage = new AccumulatorAverage();
-//        DataPump pressurePump = new DataPump(meterPressure, pressureAverage);
+        meterPressure = new MeterPressureHard(space);
+        meterPressure.setIntegrator(integrator);
+        pressureAverage = new AccumulatorAverageCollapsing();
+        pressurePump = new DataPump(meterPressure, pressureAverage);
 //        IntervalActionAdapter pressureAction = new IntervalActionAdapter(pressurePump, integrator);
-//
-//        pressureHistory = new AccumulatorHistory();
-//        pressureAverage.makeDataPusher(
-//          new AccumulatorAverage.Type[] {AccumulatorAverage.AVERAGE}).
-//                                      addDataSink(pressureHistory);
+        integrator.getEventManager().addListener(new IntegratorListenerAction(pressurePump));
+
+        pressureHistory = new AccumulatorHistory(new HistoryCollapsingDiscard());
+        pressureAverage.addDataSink(pressureHistory, new AccumulatorAverage.StatType[]{AccumulatorAverage.AVERAGE});
 
         MeterTemperature meterTemperature = new MeterTemperature(box, space.D());
         temperatureAverage = new AccumulatorAverageCollapsing();
         temperaturePump = new DataPump(meterTemperature, temperatureAverage);
         integrator.getEventManager().addListener(new IntegratorListenerAction(temperaturePump));
 
-//        pressureHistory = new AccumulatorHistory();
-//        pressureAverage.makeDataPusher(
-//          new AccumulatorAverage.Type[] {AccumulatorAverage.AVERAGE}).
-//                                      addDataSink(pressureHistory);
+
         temperatureHistory = new AccumulatorHistory(new HistoryCollapsingDiscard());
         temperatureAverage.addDataSink(temperatureHistory, new AccumulatorAverage.StatType[]{AccumulatorAverage.AVERAGE});
         DataSourceCountTime timeCounter = new DataSourceCountTime(integrator);
+
         temperatureHistory.setTimeDataSource(timeCounter);
+        pressureHistory.setTimeDataSource(timeCounter);
     }
 
     /**
@@ -106,18 +108,33 @@ public class HSMD2D_noNbr extends Simulation {
         final HSMD2D_noNbr sim = new HSMD2D_noNbr();
         final SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space, sim.getController());
         sim.activityIntegrate.setSleepPeriod(10);
-//        DisplayTextBoxesCAE pressureDisplay = new DisplayTextBoxesCAE();
-//        pressureDisplay.setAccumulator(sim.pressureAverage);
-//        DisplayPlot pressurePlot = new DisplayPlot();
-//        sim.pressureHistory.addDataSink(pressurePlot.makeDataSink());
+
+        DisplayTextBoxesCAE pressureDisplay = new DisplayTextBoxesCAE();
+        pressureDisplay.setAccumulator(sim.pressureAverage);
+        DisplayPlot pressurePlot = new DisplayPlot();
+        pressurePlot.setLabel("Pressure");
+        sim.pressureHistory.setDataSink(pressurePlot.getDataSet().makeDataSink());
+
         DisplayTextBoxesCAE temperatureDisplay = new DisplayTextBoxesCAE();
         temperatureDisplay.setAccumulator(sim.temperatureAverage);
         DisplayPlot temperaturePlot = new DisplayPlot();
         temperaturePlot.setLabel("Temp");
         sim.temperatureHistory.setDataSink(temperaturePlot.getDataSet().makeDataSink());
+
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         SimulationRestart simr = new SimulationRestart(sim);
-        simr.getDataResetAction().getDataStreamPumps().add(sim.temperaturePump);
+        SimulationDataAction ra = simr.getDataResetAction();
+        ra.getDataStreamPumps().add(sim.temperaturePump);
+        ra.getDataStreamPumps().add(sim.pressurePump);
+
+        IAction resetmeter = new IAction() {
+            @Override
+            public void actionPerformed() {
+                sim.meterPressure.reset();
+            }
+        };
+
+        simr.setPostAction(resetmeter);
         nSelector.setResetAction(simr);
         nSelector.setSpecies(sim.species);
         nSelector.setBox(sim.box);
@@ -125,7 +142,9 @@ public class HSMD2D_noNbr extends Simulation {
 
         nSelector.setPostAction(repaintAction);
         graphic.getController().getReinitButton().setPostAction(repaintAction);
+        graphic.getController().getReinitButton().setAction(simr);
         graphic.getController().getDataStreamPumps().add(sim.temperaturePump);
+        graphic.getController().getDataStreamPumps().add(sim.pressurePump);
 
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(repaintAction));
 
@@ -137,8 +156,8 @@ public class HSMD2D_noNbr extends Simulation {
 
         graphic.add(nSelector);
         graphic.add(thermo);
-//        graphic.add(pressureDisplay);
-//        graphic.add(pressurePlot);
+        graphic.add(pressureDisplay);
+        graphic.add(pressurePlot);
         graphic.add(temperatureDisplay);
         graphic.add(temperaturePlot);
         graphic.makeAndDisplayFrame(APP_NAME);
