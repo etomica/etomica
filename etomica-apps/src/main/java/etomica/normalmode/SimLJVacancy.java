@@ -786,14 +786,14 @@ public class SimLJVacancy extends Simulation {
     	public void init() {
             LJParams params = new LJParams();
             params.graphics = true;
-            params.numAtoms = 864;
+            params.numAtoms = 500;
             params.steps = 1000000;
             params.density = 1.;
-            params.numV = 4;
+            params.numV = 3;
             params.temperature = 1.0;
-            params.mu = 0.952366259576;
-            params.daDef = 7.661325924964285;
-            params.rc = 4;
+            params.mu = 1.2835796847982366;
+            params.daDef = 7.429228433782964;
+            params.rc = 3;
 
             final int numAtoms = params.numAtoms;
             final double density = params.density;
