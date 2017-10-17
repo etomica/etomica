@@ -5,6 +5,7 @@ import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorManagerMC;
 import etomica.meta.SimulationModel;
+import etomica.meta.properties.ArrayProperty;
 import etomica.meta.properties.InstanceProperty;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -37,16 +38,16 @@ public class SimulationWrapper extends ObjectWrapper<Simulation> {
                     null
             );
 
-            this.childProps.add(new InstanceProperty(this, descriptor));
+            this.childProps.add(new ArrayProperty(this, descriptor));
         } catch (IntrospectionException | NoSuchMethodException e) {
             e.printStackTrace();
         }
     }
 
-    public List<PotentialMaster> getPotentialMasters() {
+    public PotentialMaster[] getPotentialMasters() {
         Set<PotentialMaster> set = new HashSet<>();
         getPotentialMasters(wrapped.getIntegrator(), set);
-        return new ArrayList<>(set);
+        return set.toArray(new PotentialMaster[set.size()]);
     }
 
     private static void getPotentialMasters(Integrator integrator, Set<PotentialMaster> set) {
