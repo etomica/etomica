@@ -42,7 +42,6 @@ public class HSMD3D extends Simulation {
     //the following fields are made accessible for convenience to permit simple
     //mutation of the default behavior
 
-    private static final long serialVersionUID = 1L;
     /**
      * The Box holding the atoms.
      */
@@ -63,17 +62,18 @@ public class HSMD3D extends Simulation {
     public final PotentialMaster potentialMaster;
 
     /**
-     * Sole public constructor, makes a simulation using a 3D space.
+     * Makes a simulation using a 3D space and the default parameters.
      */
     public HSMD3D() {
         this(new HSMD3DParam());
     }
 
+    /**
+     * Makes a simulation according to the specified parameters.
+     * @param params Parameters as defined by the inner class HSMD3DParam
+     */
     public HSMD3D(HSMD3DParam params) {
 
-        // invoke the superclass constructor
-        // "true" is indicating to the superclass that this is a dynamic simulation
-        // the PotentialMaster is selected such as to implement neighbor listing
         super(Space3D.getInstance());
 
         double neighborRangeFac = 1.6;
@@ -151,8 +151,17 @@ public class HSMD3D extends Simulation {
      * Inner class for parameters understood by the HSMD3D constructor
      */
     public static class HSMD3DParam extends ParameterBase {
+        /**
+         * Number of atoms, default = 256
+         */
         public int nAtoms = 256;
+        /**
+         * Packing fraction, default = 0.35
+         */
         public double eta = 0.35;
+        /**
+         * Flag indicating whether neighbor list is to be used, default = true
+         */
         public boolean useNeighborLists = true;
     }
 }
