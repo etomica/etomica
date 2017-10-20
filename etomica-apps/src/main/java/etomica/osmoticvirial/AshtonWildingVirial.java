@@ -36,7 +36,6 @@ public class AshtonWildingVirial extends Simulation {
     public Controller controller;
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
-    public MCMoveGeometricCluster mcMoveGeometricCluster;
     public SpeciesSpheresMono species1;
     public ActivityIntegrate activityIntegrate;
 
@@ -51,14 +50,11 @@ public class AshtonWildingVirial extends Simulation {
 
         super(Space3D.getInstance());
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
-
         integrator = new IntegratorMC(this, potentialMaster);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
-        mcMoveGeometricCluster = new MCMoveGeometricCluster(potentialMaster, space, random, 1, integrator);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
-        integrator.getMoveManager().addMCMove(mcMoveGeometricCluster);
 
         double sigma1 = 1.0;
 

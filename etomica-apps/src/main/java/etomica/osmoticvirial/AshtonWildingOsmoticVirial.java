@@ -63,10 +63,9 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         getController().addAction(activityIntegrate);
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         mcMoveInsertDelete = new MCMoveInsertDelete(potentialMaster, random, space);
-        mcMoveGeometricCluster = new MCMoveGeometricCluster(potentialMaster, space, random, 1.5, integrator);
-        integrator.getMoveManager().addMCMove(mcMoveGeometricCluster);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         integrator.getMoveManager().addMCMove(mcMoveInsertDelete);
+
 
         double sigma1 = 1.0; //solute
         double sigma2 = q * sigma1; //solvent
@@ -98,8 +97,13 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         }
         else{
             potential1 = new P2HardSphere(space, sigma1, false);
-            potential2 = new P2HardSphere(space, sigma2, false);
+//            potential2 = new P2HardSphere(space, sigma2, false);
+            potential2 = new P2Ideal(space);
             potential12 = new P2HardSphere(space, sigma12, false);
+            System.out.println("AO");
+            mcMoveGeometricCluster = new MCMoveGeometricCluster(potentialMaster, space, random, 1.5, integrator, species1);
+            integrator.getMoveManager().addMCMove(mcMoveGeometricCluster);
+            System.out.println("seed Geometric cluster move");
         }
 
         potentialMaster.setCellRange(3);
@@ -130,7 +134,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
             params.numSteps = 10000;
             params.nBlocks = 100;
             params.vf = 0.1;
-            params.computeIdeal = true;
+            params.computeIdeal = false;
             params.sizeRatio = 0.2;
         }
         int numAtoms = params.numAtoms;
@@ -139,7 +143,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         double vf = params.vf;
         double q = params.sizeRatio;
         boolean computeIdeal = params.computeIdeal;
-        boolean graphics = false;
+        boolean graphics = true;
         AccumulatorAverageFixed accNm = null;
 
         long numSamples = numSteps / numAtoms ;

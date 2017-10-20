@@ -18,6 +18,8 @@ import etomica.integrator.mcmove.MCMoveInsertDelete;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2HardSphere;
+import etomica.potential.P2Ideal;
+import etomica.potential.Potential2;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space3d.Space3D;
@@ -38,7 +40,8 @@ public class fepHSgc extends Simulation {
     public SpeciesSpheresMono species1;
     public SpeciesSpheresMono species2;
     public Box box;
-    public P2HardSphere potential1, potential2, potential12;
+    public P2HardSphere potential1, potential12;
+    public Potential2 potential2;
     public Controller controller;
     public ActivityIntegrate activityIntegrate;
 
@@ -57,9 +60,6 @@ public class fepHSgc extends Simulation {
         getController().addAction(activityIntegrate);
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         mcMoveInsertDelete = new MCMoveInsertDelete(potentialMaster, random, space);
-        mcMoveGeometricCluster = new MCMoveGeometricCluster(potentialMaster, space, random, 1.5, integrator);
-        integrator.getMoveManager().addMCMove(mcMoveGeometricCluster);
-
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         integrator.getMoveManager().addMCMove(mcMoveInsertDelete);
 
@@ -83,8 +83,14 @@ public class fepHSgc extends Simulation {
         if (computez2z1){box.setNMolecules(species1,1);}
         else if (computez3z2){box.setNMolecules(species1,2);}
 
+        mcMoveGeometricCluster = new MCMoveGeometricCluster(potentialMaster, space, random, 1.5, integrator, species1);
+        integrator.getMoveManager().addMCMove(mcMoveGeometricCluster);
+        System.out.println("Seeded Geometric Cluster move");
+
         potential1 = new P2HardSphere(space, sigma1, false);
-        potential2 = new P2HardSphere(space, sigma2, false);
+        potential2 = new P2Ideal(space);
+        System.out.println("AO");
+//        potential2 = new P2HardSphere(space, sigma2, false);
         potential12 = new P2HardSphere(space, sigma12, false);
         potentialMaster.setCellRange(3);
         potentialMaster.setRange(potential1.getRange());
@@ -113,9 +119,9 @@ public class fepHSgc extends Simulation {
             ParseArgs.doParseArgs(params, args);
         }
         else {
-            params.numSteps = 50000;
+            params.numSteps = 5000;
             params.nBlocks = 1000;
-            params.vf = 0.3;
+            params.vf = 0.5;
             params.q = 0.2;
             params.computez2z1 = false;
             params.computez3z2 = true;
@@ -127,7 +133,7 @@ public class fepHSgc extends Simulation {
         double q = params.q;
         boolean computez2z1 = params.computez2z1;
         boolean computez3z2 = params.computez3z2;
-        boolean graphics = false;
+        boolean graphics = true;
 
         long numSamples = numSteps/3;
         long samplesPerBlock = numSamples/nBlocks;
