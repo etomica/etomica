@@ -130,7 +130,11 @@ public class StatisticsMCGraphic extends SimulationGraphic {
                 return new DataProcessorMu(sim.integrator);
             }
         };
-        addAsTab(createHistogramPanel(widomFork, d, muFactory), "Chemical Potential", true);
+        if (moduleNum == 1) {
+            addAsTab(createStatPanel(widomFork, d, muFactory, false), "Chemical Potential", true);
+        } else {
+            addAsTab(createHistogramPanel(widomFork, d, muFactory), "Chemical Potential", true);
+        }
 //        AccumulatorAverageCollapsing widomAvg = new AccumulatorAverageCollapsing();
 //        widomHPB.fork.addDataSink(widomAvg);
 //        AccumulatorMimicMu accMu = new AccumulatorMimicMu(sim.integrator);
