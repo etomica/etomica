@@ -5,7 +5,10 @@
 package etomica.modules.statistics;
 
 import etomica.data.AccumulatorAverageFixed;
+import etomica.data.DataProcessor;
 
 public interface AccumulatorFactory {
     public AccumulatorAverageFixed makeAccumulator();
+
+    public DataProcessor makeDataProcessor();
 }
