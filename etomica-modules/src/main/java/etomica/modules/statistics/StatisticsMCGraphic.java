@@ -344,7 +344,8 @@ public class StatisticsMCGraphic extends SimulationGraphic {
 
         rv.plot = new DisplayPlot();
         rv.history.setDataSink(rv.plot.getDataSet().makeDataSink());
-        rv.plot.setDoLegend(false);
+        rv.plot.setLegend(new DataTag[]{rv.history.getTag()}, "history");
+        rv.plot.setDoLegend(true);
         rv.plot.getPlot().setYLabel(name);
         rv.plot.setLabel(name);
         historyPanel.add(rv.plot.graphic());
