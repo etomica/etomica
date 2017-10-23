@@ -493,21 +493,13 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         JScrollPane pane = new JScrollPane(panel);
         pane.setPreferredSize(paneSize);
 
-        DataCollector collectorErr = new DataCollector();
-        DataCollector collectorCor = new DataCollector();
-        DataCollector collectorDifficulty = new DataCollector();
-        DataCollector collectorSamples = new DataCollector();
-        DataCollector collectorErrCorrected = new DataCollector();
-        DataCollector collectorDiffCorrected = new DataCollector();
-        DisplayPlot blockHistogramPlot = new DisplayPlot();
-        blockHistogramPlot.getPlot().setYLabel("Block Histogram");
-        panel.add(blockHistogramPlot.graphic());
-        blockHistogramPlot.getDataSet().setUpdatingOnAnyChange(true);
-        if (accFactory != null) {
-            blockHistogramPlot.getPlot().setYLog(true);
-            blockHistogramPlot.getPlot().setXLog(true);
-        }
         for (int i = 0; i < 30; i += 5) {
+            DisplayPlot blockHistogramPlot = new DisplayPlot();
+            blockHistogramPlot.getPlot().setYLabel("Block Histogram (" + (1L << i) + " samples)");
+            panel.add(blockHistogramPlot.graphic());
+            blockHistogramPlot.getDataSet().setUpdatingOnAnyChange(true);
+            blockHistogramPlot.getPlot().setYLog(true);
+
             AccumulatorAverageFixed acc = new AccumulatorAverageFixed(1L << i);
             fork.addDataSink(acc);
             AccumulatorAverageFixed bit = acc;
@@ -515,21 +507,12 @@ public class StatisticsMCGraphic extends SimulationGraphic {
                 bit = accFactory.makeAccumulator();
                 acc.addDataSink(bit);
             }
-            DataFork blockFork = new DataFork();
-            if (accFactory != null && false) {
-                DataProcessor dp = accFactory.makeDataProcessor();
-                acc.setBlockDataSink(dp);
-                dp.setDataSink(blockFork);
-            } else {
-                acc.setBlockDataSink(blockFork);
-            }
-
-            int nBins = 100 << ((30 - i) / 5);
+            int nBins = 100 << ((30 - i) / 10);
             AccumulatorHistogram accBlockHistogram = new AccumulatorHistogram(new HistogramCollapsing(nBins), nBins);
-            blockFork.addDataSink(accBlockHistogram);
+            acc.setBlockDataSink(accBlockHistogram);
             accBlockHistogram.addDataSink(blockHistogramPlot.getDataSet().makeDataSink());
             accBlockHistogram.setPushInterval(1 + 2000 / (1L << i));
-            blockHistogramPlot.setLegend(new DataTag[]{accBlockHistogram.getTag()}, "" + (1L << i));
+            blockHistogramPlot.setDoLegend(false);
         }
         return pane;
     }
@@ -554,6 +537,6 @@ public class StatisticsMCGraphic extends SimulationGraphic {
 
     public static class StatsParams extends ParameterBase {
         public int D = 3;
-        public int moduleNum = 1;
+        public int moduleNum = 2;
     }
 }
