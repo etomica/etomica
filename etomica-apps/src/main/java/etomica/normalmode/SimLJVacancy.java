@@ -44,6 +44,7 @@ import etomica.species.SpeciesSpheresMono;
 import etomica.statmech.LennardJones;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Null;
+import etomica.util.Arrays;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -233,6 +234,7 @@ public class SimLJVacancy extends Simulation {
 
 
         final SimLJVacancy sim = new SimLJVacancy(numAtoms, temperature, density, rc, numV, mu, ss, shifted);
+        System.out.println("random seeds: " + Arrays.toString(sim.seeds));
         if (shifted) {
             System.out.println("Shifting the potential (and then correcting by "+sim.uShift+")");
         }
@@ -687,6 +689,7 @@ public class SimLJVacancy extends Simulation {
 
                 public void integratorStepFinished(IntegratorEvent e) {
                     if (!reenabled && sim.integrator.getStepCount() >= finalSteps/40) {
+                        System.err.println("It's not nice to mess with the event manager's listeners while being called as a listener");
                         sim.integrator.getEventManager().addListener(mcMoveBiasListener);
                         reenabled = true;
                     }
