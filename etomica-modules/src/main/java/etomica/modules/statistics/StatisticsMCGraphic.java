@@ -12,12 +12,16 @@ import etomica.data.histogram.HistogramCollapsing;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.meter.*;
+import etomica.data.types.DataDouble;
+import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataFunction;
 import etomica.graphics.*;
 import etomica.modifier.ModifierBoolean;
 import etomica.modules.ensembles.LJMC;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
+import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -493,28 +497,118 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         JScrollPane pane = new JScrollPane(panel);
         pane.setPreferredSize(paneSize);
 
+        DisplayPlot blockHistogramPlotAll = new DisplayPlot();
+        blockHistogramPlotAll.getPlot().setYLabel("Block Histogram");
+        panel.add(blockHistogramPlotAll.graphic());
+        blockHistogramPlotAll.getDataSet().setUpdatingOnAnyChange(true);
+        blockHistogramPlotAll.getPlot().setXLog(true);
+        blockHistogramPlotAll.getPlot().setYLog(true);
         for (int i = 0; i < 30; i += 5) {
+
             DisplayPlot blockHistogramPlot = new DisplayPlot();
             blockHistogramPlot.getPlot().setYLabel("Block Histogram (" + (1L << i) + " samples)");
             panel.add(blockHistogramPlot.graphic());
-            blockHistogramPlot.getDataSet().setUpdatingOnAnyChange(true);
             blockHistogramPlot.getPlot().setYLog(true);
 
             AccumulatorAverageFixed acc = new AccumulatorAverageFixed(1L << i);
             fork.addDataSink(acc);
-            AccumulatorAverageFixed bit = acc;
-            if (accFactory != null) {
-                bit = accFactory.makeAccumulator();
-                acc.addDataSink(bit);
-            }
-            int nBins = 100 << ((30 - i) / 10);
+            final double c = 0.5;
+            DataProcessor foo = new DataProcessor() {
+                DataDouble data = new DataDouble();
+
+                @Override
+                protected IData processData(IData inputData) {
+                    data.x = Math.log(c + inputData.getValue(0));
+                    return data;
+                }
+
+                @Override
+                protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+                    return inputDataInfo;
+                }
+            };
+            acc.setBlockDataSink(foo);
+            int nBins = 100;
             AccumulatorHistogram accBlockHistogram = new AccumulatorHistogram(new HistogramCollapsing(nBins), nBins);
-            acc.setBlockDataSink(accBlockHistogram);
-            accBlockHistogram.addDataSink(blockHistogramPlot.getDataSet().makeDataSink());
-            accBlockHistogram.setPushInterval(1 + 2000 / (1L << i));
+            foo.setDataSink(accBlockHistogram);
+            DataProcessorUndo bar = new DataProcessorUndo(c);
+            accBlockHistogram.addDataSink(bar);
+            DataFork barFork = new DataFork();
+            bar.setDataSink(barFork);
+            barFork.addDataSink(blockHistogramPlot.getDataSet().makeDataSink());
+            barFork.addDataSink(blockHistogramPlotAll.getDataSet().makeDataSink());
+            accBlockHistogram.setPushInterval(1 + 10000 / (1L << i));
             blockHistogramPlot.setDoLegend(false);
+            blockHistogramPlotAll.setLegend(new DataTag[]{accBlockHistogram.getTag()}, "" + (1L << i));
         }
         return pane;
+    }
+
+    public static class DataProcessorUndo extends DataProcessor implements DataSourceIndependent {
+        protected DataFunction data;
+        protected DataDoubleArray xData;
+        protected DataDoubleArray.DataInfoDoubleArray xDataInfo;
+        protected DataTag xTag = new DataTag();
+        protected DataFunction.DataInfoFunction inputDataInfo;
+        protected double c;
+
+        public DataProcessorUndo(double c) {
+            this.c = c;
+        }
+
+        @Override
+        protected IData processData(IData inputData) {
+            double[] y = data.getData();
+            makeX();
+            for (int i = 0; i < y.length; i++) {
+                // X = log(x+c)
+                // dX/dx = 1/(x+c)
+                double x = xData.getValue(i);
+                double dXdx = 1 / (x + c);
+                y[i] = inputData.getValue(i) * dXdx;
+            }
+            return data;
+        }
+
+        @Override
+        protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+            this.inputDataInfo = (DataFunction.DataInfoFunction) inputDataInfo;
+            xData = new DataDoubleArray(inputDataInfo.getLength());
+            xDataInfo = new DataDoubleArray.DataInfoDoubleArray("other stuff", Null.DIMENSION, new int[]{inputDataInfo.getLength()});
+            dataInfo = new DataFunction.DataInfoFunction("stuff", Null.DIMENSION, this);
+            xDataInfo.addTag(xTag);
+            data = new DataFunction(new int[]{inputDataInfo.getLength()});
+            makeX();
+            return dataInfo;
+        }
+
+        protected void makeX() {
+            IData xInput = inputDataInfo.getXDataSource().getIndependentData(0);
+            double[] xOut = xData.getData();
+            for (int i = 0; i < xOut.length; i++) {
+                xOut[i] = Math.exp(xInput.getValue(i)) - c;
+            }
+        }
+
+        @Override
+        public DataDoubleArray getIndependentData(int i) {
+            return xData;
+        }
+
+        @Override
+        public DataDoubleArray.DataInfoDoubleArray getIndependentDataInfo(int i) {
+            return xDataInfo;
+        }
+
+        @Override
+        public int getIndependentArrayDimension() {
+            return 1;
+        }
+
+        @Override
+        public DataTag getIndependentTag() {
+            return xTag;
+        }
     }
 
     public static void main(String[] args) {
@@ -537,6 +631,6 @@ public class StatisticsMCGraphic extends SimulationGraphic {
 
     public static class StatsParams extends ParameterBase {
         public int D = 3;
-        public int moduleNum = 2;
+        public int moduleNum = 1;
     }
 }
