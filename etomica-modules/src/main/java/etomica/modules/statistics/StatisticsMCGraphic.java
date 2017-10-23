@@ -55,7 +55,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
 
         // Number density box
         JPanel historyPanel = null;
-        java.awt.Dimension d = new Dimension(600, 400);
+        java.awt.Dimension d = new Dimension(550, 650);
 
         final HistoryPlotBits dHPB, peHPB, pHPB, widomHPB;
         final DataPumpListener pPump, dPump, pePump;
@@ -525,6 +525,9 @@ public class StatisticsMCGraphic extends SimulationGraphic {
 
                 @Override
                 protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+                    dataInfo = new DataDouble.DataInfoDouble(inputDataInfo.getLabel(), inputDataInfo.getDimension());
+                    dataInfo.addTags(inputDataInfo.getTags());
+                    dataInfo.addTag(tag);
                     return inputDataInfo;
                 }
             };
@@ -575,8 +578,10 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
             this.inputDataInfo = (DataFunction.DataInfoFunction) inputDataInfo;
             xData = new DataDoubleArray(inputDataInfo.getLength());
-            xDataInfo = new DataDoubleArray.DataInfoDoubleArray("other stuff", Null.DIMENSION, new int[]{inputDataInfo.getLength()});
+            xDataInfo = new DataDoubleArray.DataInfoDoubleArray(((DataFunction.DataInfoFunction) inputDataInfo).getXDataSource().getIndependentDataInfo(0).getLabel(), Null.DIMENSION, new int[]{inputDataInfo.getLength()});
             dataInfo = new DataFunction.DataInfoFunction("stuff", Null.DIMENSION, this);
+            dataInfo.addTags(inputDataInfo.getTags());
+            dataInfo.addTag(tag);
             xDataInfo.addTag(xTag);
             data = new DataFunction(new int[]{inputDataInfo.getLength()});
             makeX();

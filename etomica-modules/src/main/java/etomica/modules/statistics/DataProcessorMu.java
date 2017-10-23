@@ -25,7 +25,10 @@ public class DataProcessorMu extends DataProcessor {
         data = new DataDouble();
     }
 
-    public IDataInfo processDataInfo(IDataInfo dataInfo) {
+    public IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+        dataInfo = new DataDouble.DataInfoDouble(inputDataInfo.getLabel(), inputDataInfo.getDimension());
+        dataInfo.addTags(inputDataInfo.getTags());
+        dataInfo.addTag(tag);
         if (dataSink != null) dataSink.putDataInfo(dataInfo);
         return dataInfo;
     }
