@@ -1,5 +1,6 @@
 package etomica.meta;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import etomica.meta.properties.Property;
 import etomica.meta.wrappers.Wrapper;
 import etomica.simulation.Simulation;
@@ -14,7 +15,10 @@ public class SimulationModel {
 
     private final Map<Class, List<Property>> classes;
     private final Map<Object, Wrapper> wrappers;
+
+    @JsonValue
     private final Map<Long, Wrapper> wrappersById;
+
     private long objectCount = 0;
     private final Simulation simulation;
 

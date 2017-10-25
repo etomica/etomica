@@ -9,15 +9,11 @@ import com.google.inject.Provides;
 import etomica.data.IDataSource;
 import etomica.meta.ComponentIndex;
 import etomica.meta.DataSourceIndex;
-import etomica.meta.SimulationModel;
-import etomica.meta.properties.Property;
-import etomica.meta.wrappers.Wrapper;
 import etomica.server.health.BasicHealthCheck;
-import etomica.server.resources.*;
+import etomica.server.resources.ConfigurationStreamResource;
+import etomica.server.resources.EchoServer;
 import etomica.server.resources.data.DataStreamWebsocket;
 import etomica.server.serializers.DataSerializer;
-import etomica.server.serializers.PropertySerializer;
-import etomica.server.serializers.SimulationModelSerializer;
 import etomica.server.serializers.WrapperSerializer;
 import etomica.simulation.Simulation;
 import io.dropwizard.Application;
@@ -26,28 +22,24 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.websockets.WebsocketBundle;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
-import org.eclipse.jetty.websocket.jsr356.server.BasicServerEndpointConfig;
 import ru.vyarus.dropwizard.guice.GuiceBundle;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
+import javax.websocket.HandshakeResponse;
+import javax.websocket.server.HandshakeRequest;
 import javax.websocket.server.ServerEndpointConfig;
 import java.util.EnumSet;
-import java.util.Map;
 import java.util.Timer;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class EtomicaServer extends Application<EtomicaServerConfig> {
     private static final ObjectMapper mapper = Jackson.newObjectMapper();
 
     static {
         SimpleModule mod = new SimpleModule("Etomica Module");
-        mod.addSerializer(new PropertySerializer(Property.class));
-        mod.addSerializer(new WrapperSerializer(Wrapper.class));
-        mod.addSerializer(new SimulationModelSerializer(SimulationModel.class));
+        mod.addSerializer(new WrapperSerializer());
         mod.addSerializer(new DataSerializer());
         mapper.registerModule(mod);
     }
@@ -71,7 +63,8 @@ public class EtomicaServer extends Application<EtomicaServerConfig> {
                 .build()
         );
 
-        WebsocketBundle wsBundle = new WebsocketBundle(new WSConfigurator());
+        WSConfigurator wsConfigurator = new WSConfigurator();
+        WebsocketBundle wsBundle = new WebsocketBundle(wsConfigurator);
         wsBundle.addEndpoint(EchoServer.class);
         wsBundle.addEndpoint(ConfigurationStreamResource.class);
         wsBundle.addEndpoint(DataStreamWebsocket.class);
@@ -111,6 +104,10 @@ public class EtomicaServer extends Application<EtomicaServerConfig> {
     private static class WSConfigurator extends ServerEndpointConfig.Configurator {
         @Inject
         private static Injector injector;
+
+        @Override
+        public void modifyHandshake(ServerEndpointConfig sec, HandshakeRequest request, HandshakeResponse response) {
+        }
 
         @Override
         public <T> T getEndpointInstance(Class<T> endpointClass) throws InstantiationException {

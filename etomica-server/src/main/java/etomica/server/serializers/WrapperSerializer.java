@@ -10,8 +10,8 @@ import java.io.IOException;
 
 public class WrapperSerializer extends StdSerializer<Wrapper<?>> {
 
-    public WrapperSerializer(Class<Wrapper> t) {
-        super(t, true);
+    public WrapperSerializer() {
+        super(Wrapper.class, true);
     }
 
     @Override
