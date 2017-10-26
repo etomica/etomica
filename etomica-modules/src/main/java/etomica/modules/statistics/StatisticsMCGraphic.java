@@ -16,6 +16,11 @@ import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.graphics.*;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorEventManager;
+import etomica.integrator.IntegratorListener;
+import etomica.math.function.FunctionDifferentiable;
+import etomica.math.function.FunctionInvertible;
 import etomica.modifier.ModifierBoolean;
 import etomica.modules.ensembles.LJMC;
 import etomica.space.Space;
@@ -24,6 +29,7 @@ import etomica.space3d.Space3D;
 import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+import etomica.util.random.IRandom;
 
 import javax.swing.*;
 import java.awt.*;
@@ -55,7 +61,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
 
         // Number density box
         JPanel historyPanel = null;
-        java.awt.Dimension d = new Dimension(550, 650);
+        java.awt.Dimension d = new Dimension(600, 650);
 
         final HistoryPlotBits dHPB, peHPB, pHPB, widomHPB;
         final DataPumpListener pPump, dPump, pePump;
@@ -137,7 +143,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         if (moduleNum == 1) {
             addAsTab(createStatPanel(widomFork, d, muFactory, false), "Chemical Potential", true);
         } else {
-            addAsTab(createHistogramPanel(widomFork, d, muFactory), "Chemical Potential", true);
+            addAsTab(createHistogramPanel(widomFork, d, sim.getRandom(), sim.integrator.getEventManager()), "Chemical Potential", true);
         }
 //        AccumulatorAverageCollapsing widomAvg = new AccumulatorAverageCollapsing();
 //        widomHPB.fork.addDataSink(widomAvg);
@@ -158,7 +164,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
             resetDisplays = new IAction() {
                 public void actionPerformed() {
                     dPump.actionPerformed();
-                    ;
+
                     dDisplay.putData(dHPB.avg.getData());
                     dDisplay.repaint();
 
@@ -493,7 +499,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         return pane;
     }
 
-    protected JScrollPane createHistogramPanel(DataFork fork, Dimension paneSize, AccumulatorFactory accFactory) {
+    protected JScrollPane createHistogramPanel(DataFork fork, Dimension paneSize, IRandom random, IntegratorEventManager eventManager) {
         JPanel panel = new JPanel(new GridLayout(0, 1));
         JScrollPane pane = new JScrollPane(panel);
         pane.setPreferredSize(paneSize);
@@ -504,8 +510,20 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         blockHistogramPlotAll.getDataSet().setUpdatingOnAnyChange(true);
         blockHistogramPlotAll.getPlot().setXLog(true);
         blockHistogramPlotAll.getPlot().setYLog(true);
+        DisplayPlot blockHistogramPlotAllBS = new DisplayPlot();
+        blockHistogramPlotAllBS.getPlot().setYLabel("Block Histogram (BS)");
+        panel.add(blockHistogramPlotAllBS.graphic());
+        blockHistogramPlotAllBS.getDataSet().setUpdatingOnAnyChange(true);
+        blockHistogramPlotAllBS.getPlot().setXLog(true);
+        blockHistogramPlotAllBS.getPlot().setYLog(true);
+        final double c = 0.5;
+        AccumulatorAverageCollapsingLog accBS = new AccumulatorAverageCollapsingLog(random);
+        accBS.setTransformFunction(new MyFunctionInvertible(c));
+        fork.addDataSink(accBS);
+        accBS.setUntransformHistograms(true);
+        accBS.setNumRawDataDoubles(14);
+        accBS.setWithReplacement(false);
         for (int i = 0; i < 30; i += 5) {
-
             DisplayPlot blockHistogramPlot = new DisplayPlot();
             blockHistogramPlot.getPlot().setYLabel("Block Histogram (" + (1L << i) + " samples)");
             panel.add(blockHistogramPlot.graphic());
@@ -513,7 +531,6 @@ public class StatisticsMCGraphic extends SimulationGraphic {
 
             AccumulatorAverageFixed acc = new AccumulatorAverageFixed(1L << i);
             fork.addDataSink(acc);
-            final double c = 0.5;
             DataProcessor foo = new DataProcessor() {
                 DataDouble data = new DataDouble();
 
@@ -528,7 +545,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
                     dataInfo = new DataDouble.DataInfoDouble(inputDataInfo.getLabel(), inputDataInfo.getDimension());
                     dataInfo.addTags(inputDataInfo.getTags());
                     dataInfo.addTag(tag);
-                    return inputDataInfo;
+                    return dataInfo;
                 }
             };
             acc.setBlockDataSink(foo);
@@ -543,8 +560,27 @@ public class StatisticsMCGraphic extends SimulationGraphic {
             barFork.addDataSink(blockHistogramPlotAll.getDataSet().makeDataSink());
             accBlockHistogram.setPushInterval(1 + 10000 / (1L << i));
             blockHistogramPlot.setDoLegend(false);
+            accBS.setHistogramSink(i, blockHistogramPlotAllBS.getDataSet().makeDataSink());
             blockHistogramPlotAll.setLegend(new DataTag[]{accBlockHistogram.getTag()}, "" + (1L << i));
         }
+        eventManager.addListener(new IntegratorListener() {
+            long interval = 100000;
+            long countDown = interval;
+
+            public void integratorInitialized(IntegratorEvent e) {
+            }
+
+            public void integratorStepStarted(IntegratorEvent e) {
+            }
+
+            public void integratorStepFinished(IntegratorEvent e) {
+                if (--countDown == 0) {
+                    accBS.pushHistograms();
+                    countDown = interval;
+                }
+            }
+        });
+
         return pane;
     }
 
@@ -637,6 +673,31 @@ public class StatisticsMCGraphic extends SimulationGraphic {
 
     public static class StatsParams extends ParameterBase {
         public int D = 3;
-        public int moduleNum = 1;
+        public int moduleNum = 2;
+    }
+
+    public static class MyFunctionInvertible implements FunctionInvertible, FunctionDifferentiable {
+        private final double c;
+
+        public MyFunctionInvertible(double c) {
+            this.c = c;
+        }
+
+        @Override
+        public double inverse(double y) {
+            return Math.exp(y) - c;
+        }
+
+        @Override
+        public double f(double x) {
+            return Math.log(c + x);
+        }
+
+        @Override
+        public double df(int n, double x) {
+            if (n == 0) return x;
+            if (n == 1) return 1 / (c + x);
+            throw new RuntimeException("nope");
+        }
     }
 }
