@@ -517,7 +517,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         blockHistogramPlotAllBS.getPlot().setXLog(true);
         blockHistogramPlotAllBS.getPlot().setYLog(true);
         final double c = 0.5;
-        AccumulatorAverageCollapsingLog accBS = new AccumulatorAverageCollapsingLog(random);
+        AccumulatorAverageBootstrap accBS = new AccumulatorAverageBootstrap(random);
         accBS.setTransformFunction(new MyFunctionInvertible(c));
         fork.addDataSink(accBS);
         accBS.setUntransformHistograms(true);
