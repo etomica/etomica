@@ -76,7 +76,7 @@ public class AccumulatorAverageBootstrap extends DataAccumulator implements Data
     protected DataDoubleArray nData;
     protected double[] rawData, rawData2, rawData3;
     protected int nRawData, rawDataBlockSize;
-    protected int nRawDataDoubles;
+    protected int nRawDataDoubles, maxNumBlocks;
     protected List<Integer> intArrayList;
     protected int initialSeed;
     protected AccumulatorAverageCollapsing lAvg;
@@ -124,7 +124,8 @@ public class AccumulatorAverageBootstrap extends DataAccumulator implements Data
         this.random = random;
         initialSeed = -1;
         setPushInterval(100);
-        setNumRawDataDoubles(14);
+        setNumRawDataDoubles(20);
+        setMaxNumBlocks(12);
         nTag = new DataTag();
         histogramList = new ArrayList<>();
         histogramFactory = new HistogramFactory() {
@@ -139,10 +140,16 @@ public class AccumulatorAverageBootstrap extends DataAccumulator implements Data
         histogramSinks = new ArrayList<>();
     }
 
+    /**
+     * @param newFunction the transform function, which block averages are passed through.
+     */
     public void setTransformFunction(IFunction newFunction) {
         transformFunction = newFunction;
     }
 
+    /**
+     * @param doUntransform causes histograms to be untransformed once they are constructed
+     */
     public void setUntransformHistograms(boolean doUntransform) {
         this.doUntransform = doUntransform;
     }
@@ -151,15 +158,24 @@ public class AccumulatorAverageBootstrap extends DataAccumulator implements Data
         public Histogram makeHistogram();
     }
 
+    /**
+     * @param newFactory the factory that makes histograms
+     */
     public void setHistogramFactory(HistogramFactory newFactory) {
         this.histogramFactory = newFactory;
     }
 
+    /**
+     * Sets the sink that will receive histograms for a block when pushHistograms is called.
+     */
     public void setHistogramSink(int blockSize, IDataSink sink) {
         while (histogramSinks.size() <= blockSize) histogramSinks.add(null);
         histogramSinks.set(blockSize, sink);
     }
 
+    /**
+     * @param newWithReplacement enables sampling with replacement
+     */
     public void setWithReplacement(boolean newWithReplacement) {
         withReplacement = newWithReplacement;
     }
@@ -186,6 +202,14 @@ public class AccumulatorAverageBootstrap extends DataAccumulator implements Data
     public void setNumRawDataDoubles(int newNumRawDataDoubles) {
         nRawDataDoubles = newNumRawDataDoubles;
         intArrayList = new ArrayList<Integer>(1 << nRawDataDoubles);
+        reset();
+    }
+
+    /**
+     * Sets the maximum number of blocks of raw data to be 1<<maxNumBlocks
+     */
+    public void setMaxNumBlocks(int newMaxNumBlocks) {
+        maxNumBlocks = newMaxNumBlocks;
         reset();
     }
 
@@ -230,7 +254,7 @@ public class AccumulatorAverageBootstrap extends DataAccumulator implements Data
             if (nDoubles >= averages.getLength()) {
                 resizeData(nDoubles + 1);
             }
-            if (nRawData == 1 << nRawDataDoubles) {
+            if (nRawData == 1 << maxNumBlocks) {
                 // we filled our raw data.  do summation for blockSize=0,
                 // prepare for blockSize=1
                 histogramList.add(histogramFactory.makeHistogram());
@@ -264,7 +288,7 @@ public class AccumulatorAverageBootstrap extends DataAccumulator implements Data
                 rawData[nRawData] = blockSums[i];
                 blockSums[i] = 0;
                 nRawData++;
-                if (nRawData == 1 << nRawDataDoubles) {
+                if (nRawData == 1 << maxNumBlocks) {
                     // we filled our raw data
                     histogramList.add(histogramFactory.makeHistogram());
                     resizeData(nDoubles + 1);
@@ -353,6 +377,9 @@ public class AccumulatorAverageBootstrap extends DataAccumulator implements Data
         }
     }
 
+    /**
+     * Constructs and pushes histograms to any histogram data sink.
+     */
     public void pushHistograms() {
         for (int blockSize = 0; blockSize <= rawDataBlockSize; blockSize++) {
             if (histogramSinks.size() < blockSize + 1) return;
@@ -397,13 +424,9 @@ public class AccumulatorAverageBootstrap extends DataAccumulator implements Data
             rawData2[j] = rawData[j];
         }
 
-        for (int i = rawDataBlockSize + 1; i < rawDataBlockSize + (32 - Integer.numberOfLeadingZeros(nRawData)); i++) {
+        for (int i = rawDataBlockSize + 1; i < rawDataBlockSize + nRawDataDoubles; i++) {
             if (histogramSinks.size() < i + 1) return;
-            if (withReplacement) {
-                reblockData(1 << (i - rawDataBlockSize));
-            } else {
-                reblockData();
-            }
+            reblockData();
             while (histograms.size() <= i) {
                 histograms.add(null);
                 histogramsInfo.add(null);
@@ -489,11 +512,7 @@ public class AccumulatorAverageBootstrap extends DataAccumulator implements Data
         av[rawDataBlockSize] = lSum / nRawData;
         for (int i = rawDataBlockSize + 1; i < rawDataBlockSize + (32 - Integer.numberOfLeadingZeros(nRawData)); i++) {
             lSum = 0;
-            if (withReplacement) {
-                reblockData(1 << (i - rawDataBlockSize));
-            } else {
-                reblockData();
-            }
+            reblockData();
             for (int j = 0; j < nRawData; j++) {
                 lSum += transformFunction.f(rawData2[j]);
             }
@@ -536,7 +555,8 @@ public class AccumulatorAverageBootstrap extends DataAccumulator implements Data
     }
 
     /**
-     * Reblock data from rawData into rawData2, taking blocks of size n
+     * Brute-force reblock data from rawData into rawData2,
+     * taking blocks of size n
      */
     protected void reblockData(int n) {
         // with replacement
@@ -598,11 +618,7 @@ public class AccumulatorAverageBootstrap extends DataAccumulator implements Data
         for (int i = rawDataBlockSize + 1; i < rawDataBlockSize + (32 - Integer.numberOfLeadingZeros(nRawData)); i++) {
             iSum = 0;
             iSum2 = 0;
-            if (withReplacement) {
-                reblockData(1 << (i - rawDataBlockSize));
-            } else {
-                reblockData();
-            }
+            reblockData();
             for (int j = 0; j < nRawData; j++) {
                 iSum += rawData2[j];
                 iSum2 += rawData2[j] * rawData2[j];
@@ -647,11 +663,7 @@ public class AccumulatorAverageBootstrap extends DataAccumulator implements Data
         for (int i = rawDataBlockSize + 1; i < rawDataBlockSize + (32 - Integer.numberOfLeadingZeros(nRawData)); i++) {
             iSum = 0;
             iSum2 = 0;
-            if (withReplacement) {
-                reblockData(1 << (i - rawDataBlockSize));
-            } else {
-                reblockData();
-            }
+            reblockData();
             for (int j = 0; j < nRawData; j++) {
                 double l = transformFunction.f(rawData2[j]);
                 iSum += l;
@@ -698,11 +710,7 @@ public class AccumulatorAverageBootstrap extends DataAccumulator implements Data
             iSum = 0;
             iSum2 = 0;
             iSum3 = 0;
-            if (withReplacement) {
-                reblockData(1 << (i - rawDataBlockSize));
-            } else {
-                reblockData();
-            }
+            reblockData();
             for (int j = 0; j < nRawData; j++) {
                 double l = transformFunction.f(rawData2[j]);
                 iSum += l;
@@ -783,9 +791,9 @@ public class AccumulatorAverageBootstrap extends DataAccumulator implements Data
         }
         nDataInfo = new DataInfoDoubleArray("block size", Quantity.DIMENSION, new int[]{0});
         nDataInfo.addTag(nTag);
-        rawData = new double[1 << nRawDataDoubles];
-        rawData2 = new double[1 << nRawDataDoubles];
-        rawData3 = new double[1 << nRawDataDoubles];
+        rawData = new double[1 << maxNumBlocks];
+        rawData2 = new double[1 << maxNumBlocks];
+        rawData3 = new double[1 << maxNumBlocks];
         rawDataBlockSize = 0;
         nRawData = 0;
     }
