@@ -20,10 +20,12 @@ public class DataStreamStore extends ConcurrentHashMap<UUID, DataStreamStore.Dat
     public static class DataPlumbing {
         private final DataPumpListener pump;
         private final DataDump dump;
+        private final UUID simId;
 
-        public DataPlumbing(DataPumpListener pump, DataDump dump) {
+        public DataPlumbing(DataPumpListener pump, DataDump dump, UUID simId) {
             this.pump = pump;
             this.dump = dump;
+            this.simId = simId;
         }
 
         public DataPumpListener getPump() {
@@ -32,6 +34,10 @@ public class DataStreamStore extends ConcurrentHashMap<UUID, DataStreamStore.Dat
 
         public DataDump getDump() {
             return dump;
+        }
+
+        public UUID getSimId() {
+            return simId;
         }
     }
 }

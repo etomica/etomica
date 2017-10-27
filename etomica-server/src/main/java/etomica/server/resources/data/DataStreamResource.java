@@ -17,6 +17,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.lang.reflect.Modifier;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -38,6 +39,15 @@ public class DataStreamResource {
         accumulatorIndex = new ComponentIndex<>(DataAccumulator.class);
     }
 
+    @GET
+    public List<UUID> getStreamsForSim(@PathParam("simId") String simId) {
+        UUID id = UUID.fromString(simId);
+        return dataStore.entrySet().stream()
+                .filter(entry -> entry.getValue().getSimId().equals(id))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+    }
+
 
     @POST
     public UUID createDataStream(@NotNull ConstructionParams constructionParams, @PathParam("simId") String simId) {
@@ -50,7 +60,7 @@ public class DataStreamResource {
 
             DataDump dump = new DataDump();
             DataPumpListener pump = new DataPumpListener(meter, dump, 100);
-            this.dataStore.put(dataId, new DataStreamStore.DataPlumbing(pump, dump));
+            this.dataStore.put(dataId, new DataStreamStore.DataPlumbing(pump, dump, UUID.fromString(simId)));
             return dataId;
 
         } catch (ClassNotFoundException e) {

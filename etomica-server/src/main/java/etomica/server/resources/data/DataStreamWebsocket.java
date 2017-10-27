@@ -2,14 +2,13 @@ package etomica.server.resources.data;
 
 import com.codahale.metrics.annotation.Metered;
 import com.codahale.metrics.annotation.Timed;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import etomica.data.*;
 import etomica.meta.SimulationModel;
 import etomica.server.dao.DataStreamStore;
 import etomica.server.dao.SimulationStore;
+import etomica.server.representations.DataAndInfo;
 import etomica.simulation.Simulation;
 
 import javax.inject.Inject;
@@ -104,24 +103,4 @@ public class DataStreamWebsocket {
         }
     }
 
-    private static class DataAndInfo {
-        private @JsonProperty IData data;
-        private @JsonProperty IDataInfo dataInfo;
-
-        public IDataInfo getDataInfo() {
-            return dataInfo;
-        }
-
-        public void setDataInfo(IDataInfo dataInfo) {
-            this.dataInfo = dataInfo;
-        }
-
-        public IData getData() {
-            return data;
-        }
-
-        public void setData(IData data) {
-            this.data = data;
-        }
-    }
 }

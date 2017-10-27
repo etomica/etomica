@@ -1,6 +1,9 @@
 package etomica.server.resources;
 
+import etomica.data.DataDump;
+import etomica.data.DataPipeForked;
 import etomica.meta.SimulationModel;
+import etomica.server.dao.DataStreamStore;
 import etomica.server.dao.SimulationStore;
 import etomica.server.representations.SimulationConstructor;
 import etomica.simulation.Simulation;
@@ -19,10 +22,12 @@ import java.util.UUID;
 @Consumes(MediaType.APPLICATION_JSON)
 public class SimulationResource {
     private final SimulationStore simStore;
+    private final DataStreamStore dataStore;
 
     @Inject
-    public SimulationResource(SimulationStore simStore) {
+    public SimulationResource(SimulationStore simStore, DataStreamStore dataStore) {
         this.simStore = simStore;
+        this.dataStore = dataStore;
     }
 
     @GET
@@ -37,10 +42,21 @@ public class SimulationResource {
         UUID id = UUID.randomUUID();
         try {
             Simulation sim = (Simulation) Class.forName(constructionParams.className).newInstance();
-            simStore.put(id, new SimulationModel(sim));
+            SimulationModel model = new SimulationModel(sim);
+            simStore.put(id, model);
+
+            model.getAllIdsOfType(DataPipeForked.class).stream()
+                    .map(model::getWrapperById)
+                    .forEach(wrapper -> {
+                        DataPipeForked pipe = (DataPipeForked) wrapper.getWrapped();
+                        DataDump dump = new DataDump();
+                        pipe.addDataSink(dump);
+                        this.dataStore.put(UUID.randomUUID(), new DataStreamStore.DataPlumbing(null, dump, id));
+                    });
+
             return id;
         } catch (IllegalAccessException | InstantiationException | ClassNotFoundException e) {
-            throw new ServerErrorException("No simulation instance with that id", Response.Status.NOT_FOUND);
+            throw new ServerErrorException("Simulation class not found", Response.Status.NOT_FOUND);
         }
     }
 
