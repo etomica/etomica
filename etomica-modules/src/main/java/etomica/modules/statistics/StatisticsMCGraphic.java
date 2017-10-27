@@ -521,8 +521,9 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         accBS.setTransformFunction(new MyFunctionInvertible(c));
         fork.addDataSink(accBS);
         accBS.setUntransformHistograms(true);
-        accBS.setNumRawDataDoubles(14);
-        accBS.setWithReplacement(false);
+        accBS.setNumRawDataDoubles(20);
+        accBS.setMaxNumBlocks(13);
+        accBS.setWithReplacement(true);
         for (int i = 0; i < 30; i += 5) {
             DisplayPlot blockHistogramPlot = new DisplayPlot();
             blockHistogramPlot.getPlot().setYLabel("Block Histogram (" + (1L << i) + " samples)");
