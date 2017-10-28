@@ -34,6 +34,9 @@ public class SimulationResource {
     @Path("{id}")
     public SimulationModel structure(@PathParam("id") String id) {
         UUID uuid = UUID.fromString(id);
+        if(!simStore.containsKey(uuid)) {
+            throw new WebApplicationException("Simulation instance not found", Response.Status.NOT_FOUND);
+        }
         return simStore.get(uuid);
     }
 

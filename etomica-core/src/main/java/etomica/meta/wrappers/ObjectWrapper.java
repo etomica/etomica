@@ -1,5 +1,6 @@
 package etomica.meta.wrappers;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import etomica.atom.IAtomList;
 import etomica.meta.SimulationModel;
 import etomica.meta.annotations.IgnoreProperty;
@@ -28,6 +29,7 @@ public class ObjectWrapper<T> extends Wrapper<T> {
                     .filter(propertyDescriptor -> !propertyDescriptor.getName().equalsIgnoreCase("class"))
                     .filter(propertyDescriptor -> propertyDescriptorMethod(propertyDescriptor) != null)
                     .filter(propertyDescriptor -> !hasAnnotation(propertyDescriptorMethod(propertyDescriptor), IgnoreProperty.class))
+                    .filter(propertyDescriptor -> !hasAnnotation(propertyDescriptorMethod(propertyDescriptor), JsonIgnore.class))
                     .filter(propertyDescriptor -> !propertyDescriptor.getName().toLowerCase().endsWith("dimension"))
                     .forEach(propertyDescriptor -> properties.add(makeProperty(wrapped, propertyDescriptor)));
 

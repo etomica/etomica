@@ -89,7 +89,7 @@ public abstract class Wrapper<T> {
                     Object[] propValues = new Object[count];
                     for (int i = 0; i < count; i++) {
                         Wrapper wrapper = simModel.getWrapper(prop.invokeReader(i));
-                        if (wrapped != null) propValues[i] = wrapper.getWrappedId();
+                        if (wrapper != null) propValues[i] = wrapper.getWrappedId();
                     }
 
                     values.put("#" + prop.getName(), propValues);
