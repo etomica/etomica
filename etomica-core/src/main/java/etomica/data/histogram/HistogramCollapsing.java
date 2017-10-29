@@ -44,6 +44,7 @@ public class HistogramCollapsing extends HistogramSimple {
 	}
 	
     public void addValue(double x) {     //takes new value and updates histogram
+        if (Double.isNaN(x)) return;
         if (sum == 0 && firstValueCount == 0) {
             firstValue = x;
             sum = 1;
