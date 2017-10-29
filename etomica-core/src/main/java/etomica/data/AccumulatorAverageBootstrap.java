@@ -371,6 +371,9 @@ public class AccumulatorAverageBootstrap extends DataAccumulator implements Data
         DataInfoDoubleArray xDataInfo = new DataInfoDoubleArray("x bs " + (1L << blockSize), Null.DIMENSION, new int[]{0});
         DataSourceIndependentSimple xDataSource = new DataSourceIndependentSimple(oldX, xDataInfo);
         DataInfoFunction histogramDataInfo = new DataInfoFunction("bs " + (1L << blockSize), Null.DIMENSION, xDataSource);
+        // XXX we need to add incoming tags
+        // XXX we should have a separate tag (additional) for each block size
+        histogramDataInfo.addTag(tag);
         histogramsInfo.set(blockSize, histogramDataInfo);
         if (sink != null) {
             sink.putDataInfo(histogramDataInfo);
