@@ -550,6 +550,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
                 blockHistogramPlot.getPlot().setYLabel("Block Histogram (" + (1L << i) + " samples)");
                 panelLinear.add(blockHistogramPlot.graphic());
                 blockHistogramPlot.getPlot().setYLog(true);
+                blockHistogramPlot.setXLabel("exp(-\u03BC/kT)");
             }
 
             AccumulatorAverageFixed acc = new AccumulatorAverageFixed(1L << i);
