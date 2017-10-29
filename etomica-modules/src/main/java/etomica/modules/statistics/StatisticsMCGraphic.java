@@ -143,7 +143,8 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         if (moduleNum == 1) {
             addAsTab(createStatPanel(widomFork, d, muFactory, false), "Chemical Potential", true);
         } else {
-            createHistograms(widomFork, d, sim.getRandom(), sim.integrator.getEventManager());
+            createHistograms(widomFork, d, sim.getRandom(), sim.integrator.getEventManager(), true);
+            createHistograms(widomFork, d, sim.getRandom(), sim.integrator.getEventManager(), false);
         }
 //        AccumulatorAverageCollapsing widomAvg = new AccumulatorAverageCollapsing();
 //        widomHPB.fork.addDataSink(widomAvg);
@@ -499,39 +500,57 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         return pane;
     }
 
-    protected void createHistograms(DataFork fork, Dimension paneSize, IRandom random, IntegratorEventManager eventManager) {
+    protected void createHistograms(DataFork fork, Dimension paneSize, IRandom random, IntegratorEventManager eventManager, boolean untransform) {
         JPanel panelLog = new JPanel(new GridLayout(0, 1));
-        JPanel panelLinear = new JPanel(new GridLayout(0, 1));
+        JPanel panelLinear = null;
+        if (untransform) {
+            panelLinear = new JPanel(new GridLayout(0, 1));
+            JScrollPane paneLinear = new JScrollPane(panelLinear);
+            paneLinear.setPreferredSize(paneSize);
+            addAsTab(paneLinear, "histograms", true);
+        }
         JScrollPane paneLog = new JScrollPane(panelLog);
-        JScrollPane paneLinear = new JScrollPane(panelLinear);
         paneLog.setPreferredSize(paneSize);
-        paneLinear.setPreferredSize(paneSize);
+        addAsTab(paneLog, "histograms (" + (untransform ? "log scale" : "-\u03BC/kT") + ")", true);
 
         DisplayPlot blockHistogramPlotAll = new DisplayPlot();
         blockHistogramPlotAll.getPlot().setYLabel("Block Histogram");
         panelLog.add(blockHistogramPlotAll.graphic());
         blockHistogramPlotAll.getDataSet().setUpdatingOnAnyChange(true);
-        blockHistogramPlotAll.getPlot().setXLog(true);
+        if (untransform) {
+            blockHistogramPlotAll.getPlot().setXLog(true);
+        }
+        else {
+            blockHistogramPlotAll.setXLabel("-\u03BC/kT");
+        }
         blockHistogramPlotAll.getPlot().setYLog(true);
         DisplayPlot blockHistogramPlotAllBS = new DisplayPlot();
         blockHistogramPlotAllBS.getPlot().setYLabel("Block Histogram (BS)");
         panelLog.add(blockHistogramPlotAllBS.graphic());
         blockHistogramPlotAllBS.getDataSet().setUpdatingOnAnyChange(true);
-        blockHistogramPlotAllBS.getPlot().setXLog(true);
+        if (untransform) {
+            blockHistogramPlotAllBS.getPlot().setXLog(true);
+        }
+        else {
+            blockHistogramPlotAllBS.setXLabel("-\u03BC/kT");
+        }
         blockHistogramPlotAllBS.getPlot().setYLog(true);
-        final double c = 0.5;
+        final double c = untransform ? 0.5 : 0;
         AccumulatorAverageBootstrap accBS = new AccumulatorAverageBootstrap(random);
         accBS.setTransformFunction(new MyFunctionInvertible(c));
         fork.addDataSink(accBS);
-        accBS.setUntransformHistograms(true);
+        accBS.setUntransformHistograms(untransform);
         accBS.setNumRawDataDoubles(20);
         accBS.setMaxNumBlocks(13);
         accBS.setWithReplacement(true);
         for (int i = 0; i < 30; i += 5) {
-            DisplayPlot blockHistogramPlot = new DisplayPlot();
-            blockHistogramPlot.getPlot().setYLabel("Block Histogram (" + (1L << i) + " samples)");
-            panelLinear.add(blockHistogramPlot.graphic());
-            blockHistogramPlot.getPlot().setYLog(true);
+            DisplayPlot blockHistogramPlot = null;
+            if (untransform) {
+                blockHistogramPlot = new DisplayPlot();
+                blockHistogramPlot.getPlot().setYLabel("Block Histogram (" + (1L << i) + " samples)");
+                panelLinear.add(blockHistogramPlot.graphic());
+                blockHistogramPlot.getPlot().setYLog(true);
+            }
 
             AccumulatorAverageFixed acc = new AccumulatorAverageFixed(1L << i);
             fork.addDataSink(acc);
@@ -541,6 +560,9 @@ public class StatisticsMCGraphic extends SimulationGraphic {
                 @Override
                 protected IData processData(IData inputData) {
                     data.x = Math.log(c + inputData.getValue(0));
+                    if (data.x == Double.NEGATIVE_INFINITY) {
+                        data.x = Double.NaN;
+                    }
                     return data;
                 }
 
@@ -556,19 +578,28 @@ public class StatisticsMCGraphic extends SimulationGraphic {
             int nBins = 100;
             AccumulatorHistogram accBlockHistogram = new AccumulatorHistogram(new HistogramCollapsing(nBins), nBins);
             foo.setDataSink(accBlockHistogram);
-            DataProcessorUndo bar = new DataProcessorUndo(c);
-            accBlockHistogram.addDataSink(bar);
             DataFork barFork = new DataFork();
-            bar.setDataSink(barFork);
-            barFork.addDataSink(blockHistogramPlot.getDataSet().makeDataSink());
+            if (untransform) {
+                DataProcessorUndo bar = new DataProcessorUndo(c);
+                accBlockHistogram.addDataSink(bar);
+                bar.setDataSink(barFork);
+            }
+            else {
+                accBlockHistogram.addDataSink(barFork);
+            }
+            if (untransform) {
+                barFork.addDataSink(blockHistogramPlot.getDataSet().makeDataSink());
+                blockHistogramPlot.setLegend(new DataTag[]{accBlockHistogram.getTag()}, "raw");
+            }
             barFork.addDataSink(blockHistogramPlotAll.getDataSet().makeDataSink());
             accBlockHistogram.setPushInterval(1 + 10000 / (1L << i));
-            blockHistogramPlot.setLegend(new DataTag[]{accBlockHistogram.getTag()}, "raw");
             DataFork fooFork = new DataFork();
             accBS.setHistogramSink(i, fooFork);
             fooFork.addDataSink(blockHistogramPlotAllBS.getDataSet().makeDataSink());
-            fooFork.addDataSink(blockHistogramPlot.getDataSet().makeDataSink());
-            blockHistogramPlot.setLegend(new DataTag[]{accBS.getTag()}, "BS");
+            if (untransform) {
+                fooFork.addDataSink(blockHistogramPlot.getDataSet().makeDataSink());
+                blockHistogramPlot.setLegend(new DataTag[]{accBS.getTag()}, "BS");
+            }
             blockHistogramPlotAll.setLegend(new DataTag[]{accBlockHistogram.getTag()}, "" + (1L << i));
             blockHistogramPlotAllBS.setLegend(new DataTag[]{fooFork.getTag()}, "" + (1L << i));
         }
@@ -590,8 +621,6 @@ public class StatisticsMCGraphic extends SimulationGraphic {
             }
         });
 
-        addAsTab(paneLog, "histograms (log)", true);
-        addAsTab(paneLinear, "histograms (linear)", true);
     }
 
     public static class DataProcessorUndo extends DataProcessor implements DataSourceIndependent {
@@ -683,7 +712,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
 
     public static class StatsParams extends ParameterBase {
         public int D = 3;
-        public int moduleNum = 1;
+        public int moduleNum = 2;
     }
 
     public static class MyFunctionInvertible implements FunctionInvertible, FunctionDifferentiable {
