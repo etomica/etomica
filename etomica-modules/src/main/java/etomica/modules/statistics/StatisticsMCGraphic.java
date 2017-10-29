@@ -519,6 +519,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         blockHistogramPlotAll.getDataSet().setUpdatingOnAnyChange(true);
         if (untransform) {
             blockHistogramPlotAll.getPlot().setXLog(true);
+            blockHistogramPlotAll.setXLabel("exp(-\u03BC/kT)");
         }
         else {
             blockHistogramPlotAll.setXLabel("-\u03BC/kT");
@@ -530,6 +531,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         blockHistogramPlotAllBS.getDataSet().setUpdatingOnAnyChange(true);
         if (untransform) {
             blockHistogramPlotAllBS.getPlot().setXLog(true);
+            blockHistogramPlotAllBS.setXLabel("exp(-\u03BC/kT)");
         }
         else {
             blockHistogramPlotAllBS.setXLabel("-\u03BC/kT");
