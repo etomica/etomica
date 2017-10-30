@@ -4,13 +4,8 @@
 
 package etomica.virial.simulations;
 
-import java.util.Arrays;
-
 import etomica.action.IAction;
 import etomica.chem.elements.ElementSimple;
-import etomica.data.AccumulatorRatioAverage;
-import etomica.data.IData;
-import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.Potential2Spherical;
@@ -19,13 +14,10 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerGeneralSpherical;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.MayerSSSeries;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
+
+import java.util.Arrays;
 
 /**
  * LJ simulation using Mayer sampling to integrals that show up in series

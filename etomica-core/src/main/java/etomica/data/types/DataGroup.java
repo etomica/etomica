@@ -5,13 +5,8 @@
 package etomica.data.types;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import etomica.data.*;
 import etomica.math.function.IFunction;
-import etomica.data.DataInfo;
-import etomica.data.DataInfoFactory;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IDataInfo;
-import etomica.data.IDataInfoFactory;
 import etomica.units.dimensions.Dimension;
 
 
@@ -189,8 +184,12 @@ public class DataGroup implements IData, java.io.Serializable {
     }
 
     public void assignTo(double[] array) {
+        int j = 0;
         for (int i=0; i<data.length; i++) {
-            data[i].assignTo(array);
+            for (int k = 0; k < data[i].getLength(); k++) {
+                array[j] = data[i].getValue(k);
+                j++;
+            }
         }
     }
 

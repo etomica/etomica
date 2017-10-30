@@ -8,15 +8,28 @@ import etomica.action.IAction;
 import etomica.action.ResetAccumulators;
 import etomica.action.SimulationDataAction;
 import etomica.data.*;
+import etomica.data.histogram.HistogramCollapsing;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.meter.*;
+import etomica.data.types.DataDouble;
+import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataFunction;
 import etomica.graphics.*;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorEventManager;
+import etomica.integrator.IntegratorListener;
+import etomica.math.function.FunctionDifferentiable;
+import etomica.math.function.FunctionInvertible;
 import etomica.modifier.ModifierBoolean;
 import etomica.modules.ensembles.LJMC;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
+import etomica.units.dimensions.Null;
+import etomica.util.ParameterBase;
+import etomica.util.ParseArgs;
+import etomica.util.random.IRandom;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,9 +44,9 @@ public class StatisticsMCGraphic extends SimulationGraphic {
     protected boolean volumeChanges = false;
     protected boolean constMu = false;
 
-    public StatisticsMCGraphic(final LJMC simulation, Space _space) {
+    public StatisticsMCGraphic(final LJMC simulation, int moduleNum) {
 
-        super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
+        super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, simulation.getSpace(), simulation.getController());
 
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
 
@@ -47,45 +60,55 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         DataSourceCountSteps timeCounter = new DataSourceCountSteps(sim.integrator);
 
         // Number density box
-        final MeterDensity densityMeter = new MeterDensity(sim.getSpace());
-        densityMeter.setBox(sim.box);
-        final DataPumpListener dPump = new DataPumpListener(densityMeter, null, 100);
-        dataStreamPumps.add(dPump);
+        JPanel historyPanel = null;
+        java.awt.Dimension d = new Dimension(600, 650);
 
-        JPanel historyPanel = new JPanel(new GridLayout(0, 1));
-        HistoryPlotBits dHPB = makeHistoryPlot(dataStreamPumps, timeCounter, historyPanel, dPump, "Density");
-        DisplayPlot dPlot = dHPB.plot;
-        dHPB.avg.setPushInterval(10);
+        final HistoryPlotBits dHPB, peHPB, pHPB, widomHPB;
+        final DataPumpListener pPump, dPump, pePump;
+        if (moduleNum == 1) {
+            MeterDensity densityMeter = new MeterDensity(sim.getSpace());
+            densityMeter.setBox(sim.box);
+            dPump = new DataPumpListener(densityMeter, null, 100);
+            dataStreamPumps.add(dPump);
 
-        MeterPotentialEnergyFromIntegrator peMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
-        AccumulatorHistory peHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
-        peHistory.setTimeDataSource(timeCounter);
-        final DataPumpListener pePump = new DataPumpListener(peMeter, null, 1);
+            historyPanel = new JPanel(new GridLayout(0, 1));
+            dHPB = makeHistoryPlot(dataStreamPumps, timeCounter, historyPanel, dPump, "Density");
+            DisplayPlot dPlot = dHPB.plot;
+            dHPB.avg.setPushInterval(10);
 
-        HistoryPlotBits peHPB = makeHistoryPlot(dataStreamPumps, timeCounter, historyPanel, pePump, "Potential Energy");
-        DataFork peFork = peHPB.fork;
-        peHPB.avg.setPushInterval(10);
+            MeterPotentialEnergyFromIntegrator peMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
+            AccumulatorHistory peHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
+            peHistory.setTimeDataSource(timeCounter);
+            pePump = new DataPumpListener(peMeter, null, 1);
 
-        JScrollPane historyPane = new JScrollPane(historyPanel);
+            peHPB = makeHistoryPlot(dataStreamPumps, timeCounter, historyPanel, pePump, "Potential Energy");
+            DataFork peFork = peHPB.fork;
+            peHPB.avg.setPushInterval(10);
 
-        // Add plots page to tabbed pane
-        addAsTab(historyPane, "History", true);
+            JScrollPane historyPane = new JScrollPane(historyPanel);
 
-        // Set the size of the plots and the scoll pane containing the plots.
-        // Want 2 of the 3 plots displayed
-        java.awt.Dimension d = dPlot.getPlot().getPreferredSize();
+            // Add plots page to tabbed pane
+            addAsTab(historyPane, "History", true);
 
-        d.width += 40;
-        d.height = d.height * 2 + 40;
-        historyPane.setPreferredSize(d);
+            // Set the size of the plots and the scoll pane containing the plots.
+            // Want 2 of the 3 plots displayed
+            d = dPlot.getPlot().getPreferredSize();
 
-        MeterPressure pMeter = new MeterPressure(space);
-        pMeter.setIntegrator(sim.integrator);
-        pMeter.setBox(sim.box);
-        final DataPumpListener pPump = new DataPumpListener(pMeter, null, 1000);
-        HistoryPlotBits pHPB = makeHistoryPlot(dataStreamPumps, timeCounter, historyPanel, pPump, "Pressure");
+            d.width += 40;
+            d.height = d.height * 2 + 40;
+            historyPane.setPreferredSize(d);
 
-        addAsTab(createStatPanel(peFork, d, null, true), "Potential Energy", true);
+            MeterPressure pMeter = new MeterPressure(space);
+            pMeter.setIntegrator(sim.integrator);
+            pMeter.setBox(sim.box);
+            pPump = new DataPumpListener(pMeter, null, 1000);
+            pHPB = makeHistoryPlot(dataStreamPumps, timeCounter, historyPanel, pPump, "Pressure");
+
+            addAsTab(createStatPanel(peFork, d, null, true), "Potential Energy", true);
+        } else {
+            dPump = pPump = pePump = null;
+            dHPB = pHPB = peHPB = null;
+        }
 
         MeterWidomInsertion meterWidom = new MeterWidomInsertion(space, sim.getRandom());
         meterWidom.setNInsert(1);
@@ -95,29 +118,72 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         meterWidom.setBox(sim.box);
         meterWidom.setTemperature(sim.integrator.getTemperature());
         final DataPumpListener widomPump = new DataPumpListener(meterWidom, null, 1);
-        HistoryPlotBits widomHPB = makeMuHistoryPlot(dataStreamPumps, timeCounter, historyPanel, widomPump, "Chemical Potential");
+        DataFork widomFork = null;
+        if (moduleNum == 1) {
+            widomHPB = makeMuHistoryPlot(dataStreamPumps, timeCounter, historyPanel, widomPump, "Chemical Potential");
+            widomFork = widomHPB.fork;
+        } else {
+            widomHPB = null;
+            widomFork = new DataFork();
+            widomPump.setDataSink(widomFork);
+            sim.integrator.getEventManager().addListener(widomPump);
+            dataStreamPumps.add(widomPump);
+        }
         dataStreamPumps.add(widomPump);
         AccumulatorFactory muFactory = new AccumulatorFactory() {
             @Override
             public AccumulatorAverageFixed makeAccumulator() {
                 return new AccumulatorMimicMu(sim.integrator);
             }
+
+            public DataProcessor makeDataProcessor() {
+                return new DataProcessorMu(sim.integrator);
+            }
         };
-        addAsTab(createStatPanel(widomHPB.fork, d, muFactory, false), "Chemical Potential", true);
+        if (moduleNum == 1) {
+            addAsTab(createStatPanel(widomFork, d, muFactory, false), "Chemical Potential", true);
+        } else {
+            createHistograms(widomFork, d, sim.getRandom(), sim.integrator.getEventManager(), true);
+            createHistograms(widomFork, d, sim.getRandom(), sim.integrator.getEventManager(), false);
+        }
 //        AccumulatorAverageCollapsing widomAvg = new AccumulatorAverageCollapsing();
 //        widomHPB.fork.addDataSink(widomAvg);
 //        AccumulatorMimicMu accMu = new AccumulatorMimicMu(sim.integrator);
 //        widomAvg.addDataSink(accMu);
 
-        final DisplayTextBoxesCAE dDisplay = new DisplayTextBoxesCAE();
-        dDisplay.setAccumulator(dHPB.avg);
-        final DisplayTextBoxesCAE pDisplay = new DisplayTextBoxesCAE();
-        pDisplay.setAccumulator(pHPB.avg);
-        final DisplayTextBoxesCAE peDisplay = new DisplayTextBoxesCAE();
-        peDisplay.setAccumulator(peHPB.avg);
-        final DisplayTextBoxesCAE muDisplay = new DisplayTextBoxesCAE();
-        muDisplay.setAccumulator(widomHPB.avg);
-        muDisplay.setDoShowCurrent(false);
+        final IAction resetDisplays;
+        if (moduleNum == 1) {
+            final DisplayTextBoxesCAE dDisplay = new DisplayTextBoxesCAE();
+            dDisplay.setAccumulator(dHPB.avg);
+            final DisplayTextBoxesCAE pDisplay = new DisplayTextBoxesCAE();
+            pDisplay.setAccumulator(pHPB.avg);
+            final DisplayTextBoxesCAE peDisplay = new DisplayTextBoxesCAE();
+            peDisplay.setAccumulator(peHPB.avg);
+            final DisplayTextBoxesCAE muDisplay = new DisplayTextBoxesCAE();
+            muDisplay.setAccumulator(widomHPB.avg);
+            muDisplay.setDoShowCurrent(false);
+            resetDisplays = new IAction() {
+                public void actionPerformed() {
+                    dPump.actionPerformed();
+
+                    dDisplay.putData(dHPB.avg.getData());
+                    dDisplay.repaint();
+
+                    pPump.actionPerformed();
+                    pDisplay.putData(pHPB.avg.getData());
+                    pDisplay.repaint();
+                    pePump.actionPerformed();
+                    peDisplay.putData(peHPB.avg.getData());
+                    peDisplay.repaint();
+                }
+            };
+            add(dDisplay);
+            add(pDisplay);
+            add(peDisplay);
+            add(muDisplay);
+        } else {
+            resetDisplays = null;
+        }
 
         //************* Lay out components ****************//
 
@@ -131,23 +197,24 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         temperatureSelect.setSliderMajorValues(4);
         temperatureSelect.setIsothermalButtonsVisibility(false);
 
-        IAction resetAction = new IAction() {
-            public void actionPerformed() {
-                meterWidom.setTemperature(sim.integrator.getTemperature());
+        IAction resetAction = null;
+        if (moduleNum == 1) {
+            resetAction = new IAction() {
+                public void actionPerformed() {
+                    meterWidom.setTemperature(sim.integrator.getTemperature());
 
-                dDisplay.putData(dHPB.avg.getData());
-                dDisplay.repaint();
-
-                pPump.actionPerformed();
-                pDisplay.putData(pHPB.avg.getData());
-                pDisplay.repaint();
-                pePump.actionPerformed();
-                peDisplay.putData(peHPB.avg.getData());
-                peDisplay.repaint();
-
-                getDisplayBox(sim.box).graphic().repaint();
-            }
-        };
+                    resetDisplays.actionPerformed();
+                    getDisplayBox(sim.box).graphic().repaint();
+                }
+            };
+        } else {
+            resetAction = new IAction() {
+                public void actionPerformed() {
+                    meterWidom.setTemperature(sim.integrator.getTemperature());
+                    getDisplayBox(sim.box).graphic().repaint();
+                }
+            };
+        }
 
         temperatureSelect.setSliderPostAction(resetAction);
         this.getController().getReinitButton().setPostAction(resetAction);
@@ -249,11 +316,6 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         vnPanel.add(nBox.graphic(), horizGBC);
         getPanel().controlPanel.add(vnPanel, vertGBC);
 
-        add(dDisplay);
-        add(pDisplay);
-        add(peDisplay);
-        add(muDisplay);
-
         final DeviceButton slowButton = new DeviceButton(sim.getController(), null);
         slowButton.setAction(new IAction() {
             public void actionPerformed() {
@@ -289,7 +351,8 @@ public class StatisticsMCGraphic extends SimulationGraphic {
 
         rv.plot = new DisplayPlot();
         rv.history.setDataSink(rv.plot.getDataSet().makeDataSink());
-        rv.plot.setDoLegend(false);
+        rv.plot.setLegend(new DataTag[]{rv.history.getTag()}, "history");
+        rv.plot.setDoLegend(true);
         rv.plot.getPlot().setYLabel(name);
         rv.plot.setLabel(name);
         historyPanel.add(rv.plot.graphic());
@@ -342,7 +405,6 @@ public class StatisticsMCGraphic extends SimulationGraphic {
     }
 
     protected JScrollPane createStatPanel(DataFork fork, Dimension paneSize, AccumulatorFactory accFactory, boolean doHistory) {
-
         JPanel panel = new JPanel(new GridLayout(0, 1));
         JScrollPane pane = new JScrollPane(panel);
         pane.setPreferredSize(paneSize);
@@ -373,12 +435,23 @@ public class StatisticsMCGraphic extends SimulationGraphic {
             bit.addDataSink(new DataAccSamplesPusher(i, collectorSamples, acc), new AccumulatorAverage.StatType[]{acc.STANDARD_DEVIATION, acc.ERROR});
             bit.addDataSink(new DataAccCorrectedPusher(i, collectorErrCorrected), new AccumulatorAverage.StatType[]{acc.ERROR, acc.BLOCK_CORRELATION});
             bit.addDataSink(new DataAccDiffCorrectedPusher(i, collectorDiffCorrected, acc), new AccumulatorAverage.StatType[]{acc.ERROR, acc.BLOCK_CORRELATION});
-            if (doHistory && i % 5 == 0) {
-                AccumulatorHistory accBlockHistory = new AccumulatorHistory(new HistoryStatistics(100));
-                bit.setBlockDataSink(accBlockHistory);
-                accBlockHistory.addDataSink(blockHistoryPlot.getDataSet().makeDataSink());
-                accBlockHistory.setPushInterval(1 + 2000 / (1L << i));
-                blockHistoryPlot.setLegend(new DataTag[]{accBlockHistory.getTag()}, "" + (1L << i));
+            if (i % 5 == 0) {
+                DataFork blockFork = new DataFork();
+                if (accFactory != null && false) {
+                    DataProcessor dp = accFactory.makeDataProcessor();
+                    acc.setBlockDataSink(dp);
+                    dp.setDataSink(blockFork);
+                } else {
+                    acc.setBlockDataSink(blockFork);
+                }
+
+                if (doHistory) {
+                    AccumulatorHistory accBlockHistory = new AccumulatorHistory(new HistoryStatistics(100));
+                    blockFork.addDataSink(accBlockHistory);
+                    accBlockHistory.addDataSink(blockHistoryPlot.getDataSet().makeDataSink());
+                    accBlockHistory.setPushInterval(1 + 2000 / (1L << i));
+                    blockHistoryPlot.setLegend(new DataTag[]{accBlockHistory.getTag()}, "" + (1L << i));
+                }
             }
         }
         DisplayPlot peErrorPlot = new DisplayPlot();
@@ -427,27 +500,246 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         return pane;
     }
 
-    public static void main(String[] args) {
-        Space sp = null;
-        if (args.length != 0) {
-            try {
-                int D = Integer.parseInt(args[0]);
-                if (D == 3) {
-                    sp = Space3D.getInstance();
-                } else {
-                    sp = Space2D.getInstance();
-                }
-            } catch (NumberFormatException e) {
+    protected void createHistograms(DataFork fork, Dimension paneSize, IRandom random, IntegratorEventManager eventManager, boolean untransform) {
+        JPanel panelLog = new JPanel(new GridLayout(0, 1));
+        JPanel panelLinear = null;
+        if (untransform) {
+            panelLinear = new JPanel(new GridLayout(0, 1));
+            JScrollPane paneLinear = new JScrollPane(panelLinear);
+            paneLinear.setPreferredSize(paneSize);
+            addAsTab(paneLinear, "histograms", true);
+        }
+        JScrollPane paneLog = new JScrollPane(panelLog);
+        paneLog.setPreferredSize(paneSize);
+        addAsTab(paneLog, "histograms (" + (untransform ? "log scale" : "-\u03BC/kT") + ")", true);
+
+        DisplayPlot blockHistogramPlotAll = new DisplayPlot();
+        blockHistogramPlotAll.getPlot().setYLabel("Block Histogram");
+        panelLog.add(blockHistogramPlotAll.graphic());
+        blockHistogramPlotAll.getDataSet().setUpdatingOnAnyChange(true);
+        if (untransform) {
+            blockHistogramPlotAll.getPlot().setXLog(true);
+            blockHistogramPlotAll.setXLabel("exp(-\u03BC/kT)");
+        }
+        else {
+            blockHistogramPlotAll.setXLabel("-\u03BC/kT");
+        }
+        blockHistogramPlotAll.getPlot().setYLog(true);
+        DisplayPlot blockHistogramPlotAllBS = new DisplayPlot();
+        blockHistogramPlotAllBS.getPlot().setYLabel("Block Histogram (BS)");
+        panelLog.add(blockHistogramPlotAllBS.graphic());
+        blockHistogramPlotAllBS.getDataSet().setUpdatingOnAnyChange(true);
+        if (untransform) {
+            blockHistogramPlotAllBS.getPlot().setXLog(true);
+            blockHistogramPlotAllBS.setXLabel("exp(-\u03BC/kT)");
+        }
+        else {
+            blockHistogramPlotAllBS.setXLabel("-\u03BC/kT");
+        }
+        blockHistogramPlotAllBS.getPlot().setYLog(true);
+        final double c = untransform ? 0.5 : 0;
+        AccumulatorAverageBootstrap accBS = new AccumulatorAverageBootstrap(random);
+        accBS.setTransformFunction(new MyFunctionInvertible(c));
+        fork.addDataSink(accBS);
+        accBS.setUntransformHistograms(untransform);
+        accBS.setNumRawDataDoubles(20);
+        accBS.setMaxNumBlocks(13);
+        accBS.setWithReplacement(true);
+        for (int i = 0; i < 30; i += 5) {
+            DisplayPlot blockHistogramPlot = null;
+            if (untransform) {
+                blockHistogramPlot = new DisplayPlot();
+                blockHistogramPlot.getPlot().setYLabel("Block Histogram (" + (1L << i) + " samples)");
+                panelLinear.add(blockHistogramPlot.graphic());
+                blockHistogramPlot.getPlot().setYLog(true);
+                blockHistogramPlot.setXLabel("exp(-\u03BC/kT)");
             }
+
+            AccumulatorAverageFixed acc = new AccumulatorAverageFixed(1L << i);
+            fork.addDataSink(acc);
+            DataProcessor foo = new DataProcessor() {
+                DataDouble data = new DataDouble();
+
+                @Override
+                protected IData processData(IData inputData) {
+                    data.x = Math.log(c + inputData.getValue(0));
+                    if (data.x == Double.NEGATIVE_INFINITY) {
+                        data.x = Double.NaN;
+                    }
+                    return data;
+                }
+
+                @Override
+                protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+                    dataInfo = new DataDouble.DataInfoDouble(inputDataInfo.getLabel(), inputDataInfo.getDimension());
+                    dataInfo.addTags(inputDataInfo.getTags());
+                    dataInfo.addTag(tag);
+                    return dataInfo;
+                }
+            };
+            acc.setBlockDataSink(foo);
+            int nBins = 100;
+            AccumulatorHistogram accBlockHistogram = new AccumulatorHistogram(new HistogramCollapsing(nBins), nBins);
+            foo.setDataSink(accBlockHistogram);
+            DataFork barFork = new DataFork();
+            if (untransform) {
+                DataProcessorUndo bar = new DataProcessorUndo(c);
+                accBlockHistogram.addDataSink(bar);
+                bar.setDataSink(barFork);
+            }
+            else {
+                accBlockHistogram.addDataSink(barFork);
+            }
+            if (untransform) {
+                barFork.addDataSink(blockHistogramPlot.getDataSet().makeDataSink());
+                blockHistogramPlot.setLegend(new DataTag[]{accBlockHistogram.getTag()}, "raw");
+            }
+            barFork.addDataSink(blockHistogramPlotAll.getDataSet().makeDataSink());
+            accBlockHistogram.setPushInterval(1 + 10000 / (1L << i));
+            DataFork fooFork = new DataFork();
+            accBS.setHistogramSink(i, fooFork);
+            fooFork.addDataSink(blockHistogramPlotAllBS.getDataSet().makeDataSink());
+            if (untransform) {
+                fooFork.addDataSink(blockHistogramPlot.getDataSet().makeDataSink());
+                blockHistogramPlot.setLegend(new DataTag[]{accBS.getTag()}, "BS");
+            }
+            blockHistogramPlotAll.setLegend(new DataTag[]{accBlockHistogram.getTag()}, "" + (1L << i));
+            blockHistogramPlotAllBS.setLegend(new DataTag[]{fooFork.getTag()}, "" + (1L << i));
+        }
+        eventManager.addListener(new IntegratorListener() {
+            long interval = 100000;
+            long countDown = interval;
+
+            public void integratorInitialized(IntegratorEvent e) {
+            }
+
+            public void integratorStepStarted(IntegratorEvent e) {
+            }
+
+            public void integratorStepFinished(IntegratorEvent e) {
+                if (--countDown == 0) {
+                    accBS.pushHistograms();
+                    countDown = interval;
+                }
+            }
+        });
+
+    }
+
+    public static class DataProcessorUndo extends DataProcessor implements DataSourceIndependent {
+        protected DataFunction data;
+        protected DataDoubleArray xData;
+        protected DataDoubleArray.DataInfoDoubleArray xDataInfo;
+        protected DataTag xTag = new DataTag();
+        protected DataFunction.DataInfoFunction inputDataInfo;
+        protected double c;
+
+        public DataProcessorUndo(double c) {
+            this.c = c;
+        }
+
+        @Override
+        protected IData processData(IData inputData) {
+            double[] y = data.getData();
+            makeX();
+            for (int i = 0; i < y.length; i++) {
+                // X = log(x+c)
+                // dX/dx = 1/(x+c)
+                double x = xData.getValue(i);
+                double dXdx = 1 / (x + c);
+                y[i] = inputData.getValue(i) * dXdx;
+            }
+            return data;
+        }
+
+        @Override
+        protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+            this.inputDataInfo = (DataFunction.DataInfoFunction) inputDataInfo;
+            xData = new DataDoubleArray(inputDataInfo.getLength());
+            xDataInfo = new DataDoubleArray.DataInfoDoubleArray(((DataFunction.DataInfoFunction) inputDataInfo).getXDataSource().getIndependentDataInfo(0).getLabel(), Null.DIMENSION, new int[]{inputDataInfo.getLength()});
+            dataInfo = new DataFunction.DataInfoFunction("stuff", Null.DIMENSION, this);
+            dataInfo.addTags(inputDataInfo.getTags());
+            dataInfo.addTag(tag);
+            xDataInfo.addTag(xTag);
+            data = new DataFunction(new int[]{inputDataInfo.getLength()});
+            makeX();
+            return dataInfo;
+        }
+
+        protected void makeX() {
+            IData xInput = inputDataInfo.getXDataSource().getIndependentData(0);
+            double[] xOut = xData.getData();
+            for (int i = 0; i < xOut.length; i++) {
+                xOut[i] = Math.exp(xInput.getValue(i)) - c;
+            }
+        }
+
+        @Override
+        public DataDoubleArray getIndependentData(int i) {
+            return xData;
+        }
+
+        @Override
+        public DataDoubleArray.DataInfoDoubleArray getIndependentDataInfo(int i) {
+            return xDataInfo;
+        }
+
+        @Override
+        public int getIndependentArrayDimension() {
+            return 1;
+        }
+
+        @Override
+        public DataTag getIndependentTag() {
+            return xTag;
+        }
+    }
+
+    public static void main(String[] args) {
+        StatsParams params = new StatsParams();
+        if (args.length > 0) {
+            ParseArgs.doParseArgs(params, args);
+        }
+        int D = params.D;
+        int moduleNum = params.moduleNum;
+        Space sp;
+        if (D == 2) {
+            sp = Space2D.getInstance();
         } else {
             sp = Space3D.getInstance();
         }
 
-        StatisticsMCGraphic ljmcGraphic = new StatisticsMCGraphic(new LJMC(sp), sp);
-        SimulationGraphic.makeAndDisplayFrame
-                (ljmcGraphic.getPanel(), APP_NAME);
+        StatisticsMCGraphic ljmcGraphic = new StatisticsMCGraphic(new LJMC(sp), moduleNum);
+        SimulationGraphic.makeAndDisplayFrame(ljmcGraphic.getPanel(), APP_NAME);
     }
 
+    public static class StatsParams extends ParameterBase {
+        public int D = 3;
+        public int moduleNum = 2;
+    }
+
+    public static class MyFunctionInvertible implements FunctionInvertible, FunctionDifferentiable {
+        private final double c;
+
+        public MyFunctionInvertible(double c) {
+            this.c = c;
+        }
+
+        @Override
+        public double inverse(double y) {
+            return Math.exp(y) - c;
+        }
+
+        @Override
+        public double f(double x) {
+            return Math.log(c + x);
+        }
+
+        @Override
+        public double df(int n, double x) {
+            if (n == 0) return x;
+            if (n == 1) return 1 / (c + x);
+            throw new RuntimeException("nope");
+        }
+    }
 }
-
-

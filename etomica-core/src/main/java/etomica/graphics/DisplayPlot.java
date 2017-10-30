@@ -309,6 +309,7 @@ public class DisplayPlot extends Display implements DataSetListener {
             labelList.remove(bag);
         }
         labelList.add(new DataTagBag(dataTags, label));
+        if (doLegend) setDoLegend(true);
     }
 
     public void setDoClear(boolean newDoClear) {
