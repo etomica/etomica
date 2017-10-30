@@ -45,7 +45,8 @@ public class DataStreamWebsocket {
         SimulationModel model = simStore.get(UUID.fromString(simId));
         DataStreamStore.DataPlumbing dataPlumbing = dataStore.get(UUID.fromString(dataId));
 
-        model.getSimulation().getIntegrator().getEventManager().addListener(dataPlumbing.getPump());
+        // add on construction
+//        model.getSimulation().getIntegrator().getEventManager().addListener(dataPlumbing.getPump());
         timer.schedule(new DataStreamTimerTask(session, dataPlumbing.getDump(), model.getSimulation()), 0, 333);
     }
 

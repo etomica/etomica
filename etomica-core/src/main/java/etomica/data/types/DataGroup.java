@@ -4,6 +4,7 @@
 
 package etomica.data.types;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import etomica.math.function.IFunction;
 import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
@@ -156,6 +157,8 @@ public class DataGroup implements IData, java.io.Serializable {
         }
 
         private static final long serialVersionUID = 1L;
+
+        @JsonProperty
         protected final IDataInfo[] subDataInfo;
     }
     

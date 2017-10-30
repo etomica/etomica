@@ -10,6 +10,7 @@ import static etomica.server.dao.DataStreamStore.DataPlumbing;
 import etomica.server.dao.SimulationStore;
 import etomica.server.representations.ConstructionInfo;
 import etomica.server.representations.ConstructionParams;
+import io.dropwizard.jersey.params.UUIDParam;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
