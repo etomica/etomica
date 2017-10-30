@@ -53,6 +53,7 @@ public class MCMoveGeometricCluster extends MCMoveBox {
         if (species == null) {
             atomSource = new AtomSourceRandomLeaf();
             ((AtomSourceRandomLeaf) atomSource).setRandomNumberGenerator(random);
+            System.out.println("Non-Seeded Geometric Cluster move");
         } else atomSource = new AtomSourceRandomSpecies(random, species);
         neighbors.setDirection(null);
         this.integratorMC = integratorMC;

@@ -29,6 +29,7 @@ public class AtomSourceRandomLeaf implements AtomSource, java.io.Serializable {
     
     public void setBox(Box p) {
         list = p.getLeafList();
+//        System.out.println("setBox for getAtom"+p);
     }
     
     /**
@@ -38,7 +39,8 @@ public class AtomSourceRandomLeaf implements AtomSource, java.io.Serializable {
         if (Debug.ON && list== null) throw new IllegalStateException("must set the box before calling getAtom");
         int n = list.getAtomCount();
         if (n == 0) return null;
-        return list.getAtom(random.nextInt(n));
+        IAtom returnAtom = list.getAtom(random.nextInt(n));
+        return returnAtom;
     }
     
     private static final long serialVersionUID = 1L;

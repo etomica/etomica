@@ -103,7 +103,6 @@ public class AshtonWildingOsmoticVirial extends Simulation {
             System.out.println("AO");
             mcMoveGeometricCluster = new MCMoveGeometricCluster(potentialMaster, space, random, 1.5, integrator, species1);
             integrator.getMoveManager().addMCMove(mcMoveGeometricCluster);
-            System.out.println("seed Geometric cluster move");
         }
 
         potentialMaster.setCellRange(3);
@@ -131,7 +130,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         }
         else{
             params.numAtoms = 3;
-            params.numSteps = 10000;
+            params.numSteps = 1000;
             params.nBlocks = 100;
             params.vf = 0.1;
             params.computeIdeal = false;
@@ -143,7 +142,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         double vf = params.vf;
         double q = params.sizeRatio;
         boolean computeIdeal = params.computeIdeal;
-        boolean graphics = true;
+        boolean graphics = false;
         AccumulatorAverageFixed accNm = null;
 
         long numSamples = numSteps / numAtoms ;

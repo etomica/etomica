@@ -93,8 +93,12 @@ public class MCMoveAtom extends MCMoveBoxStep {
     }
 
     public boolean doTrial() {
+        System.out.println(this);
+
         atom = atomSource.getAtom();
+
         if (atom == null) return false;
+        System.out.println("move atom "+atom+" "+atom.hashCode());
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();
         if (uOld > 1e8 && !fixOverlap) {
@@ -102,6 +106,7 @@ public class MCMoveAtom extends MCMoveBoxStep {
             uOld = energyMeter.getDataAsScalar();
             throw new RuntimeException("atom " + atom + " in box " + box + " has an overlap");
         }
+
         translationVector.setRandomCube(random);
         translationVector.TE(stepSize);
         atom.getPosition().PE(translationVector);

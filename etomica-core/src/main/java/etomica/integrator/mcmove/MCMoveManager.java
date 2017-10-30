@@ -109,6 +109,7 @@ public class MCMoveManager {
      * probability in proportion to the frequency value assigned to the move.
      */
     public MCMove selectMove() {
+//        System.out.println("select move");
         if (mcMoveList.size() == 0) return null;
         int i = random.nextInt(frequencyTotal);
         int pos = 0;

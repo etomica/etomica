@@ -83,14 +83,13 @@ public class fepHSgc extends Simulation {
         if (computez2z1){box.setNMolecules(species1,1);}
         else if (computez3z2){box.setNMolecules(species1,2);}
 
-        mcMoveGeometricCluster = new MCMoveGeometricCluster(potentialMaster, space, random, 1.5, integrator, species1);
+        mcMoveGeometricCluster = new MCMoveGeometricCluster(potentialMaster, space, random, 1.5, integrator, null);
         integrator.getMoveManager().addMCMove(mcMoveGeometricCluster);
-        System.out.println("Seeded Geometric Cluster move");
 
         potential1 = new P2HardSphere(space, sigma1, false);
-        potential2 = new P2Ideal(space);
-        System.out.println("AO");
-//        potential2 = new P2HardSphere(space, sigma2, false);
+//        potential2 = new P2Ideal(space);
+//        System.out.println("AO");
+        potential2 = new P2HardSphere(space, sigma2, false);
         potential12 = new P2HardSphere(space, sigma12, false);
         potentialMaster.setCellRange(3);
         potentialMaster.setRange(potential1.getRange());
@@ -133,7 +132,7 @@ public class fepHSgc extends Simulation {
         double q = params.q;
         boolean computez2z1 = params.computez2z1;
         boolean computez3z2 = params.computez3z2;
-        boolean graphics = true;
+        boolean graphics = false;
 
         long numSamples = numSteps/3;
         long samplesPerBlock = numSamples/nBlocks;

@@ -129,8 +129,8 @@ public class fepHSgcRGE extends Simulation {
         }
         else {
             params.numAtoms = 2;
-            params.numSteps = 50;
-            params.nBlocks = 1000;
+            params.numSteps = 5000;
+            params.nBlocks = 100;
             params.vf = 0.1;
             params.q = 0.2;
         }
@@ -140,7 +140,7 @@ public class fepHSgcRGE extends Simulation {
         int nBlocks = params.nBlocks;
         double vf = params.vf;
         double q = params.q;
-        boolean graphics = true;
+        boolean graphics = false;
 
         long numSamples = numSteps/3;
         long samplesPerBlock = numSamples/nBlocks;
@@ -152,6 +152,7 @@ public class fepHSgcRGE extends Simulation {
         System.out.println("q: "+q);
         System.out.println(nBlocks+" blocks");
         System.out.println("total no of solutes"+ numAtoms);
+        System.setErr(System.out);
 
         long t1 = System.currentTimeMillis();
 
