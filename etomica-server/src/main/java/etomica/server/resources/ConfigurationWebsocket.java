@@ -2,20 +2,16 @@ package etomica.server.resources;
 
 import com.codahale.metrics.annotation.Metered;
 import com.codahale.metrics.annotation.Timed;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.meta.SimulationModel;
 import etomica.meta.wrappers.SimulationWrapper;
-import etomica.meta.wrappers.Wrapper;
 import etomica.server.dao.SimulationStore;
 import etomica.server.representations.ConfigurationUpdate;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
-import etomica.space.BoundaryEvent;
-import etomica.space.BoundaryEventListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.websocket.*;
@@ -23,7 +19,6 @@ import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -32,17 +27,19 @@ import static etomica.server.EtomicaServer.objectWriter;
 
 @ServerEndpoint(
         value="/simulations/{id}/configuration",
-        encoders = {ConfigurationStreamResource.ConfigurationUpdateEncoder.class}
+        encoders = {ConfigurationWebsocket.ConfigurationUpdateEncoder.class}
 )
 @Metered
 @Timed
-public class ConfigurationStreamResource {
+public class ConfigurationWebsocket {
     private final SimulationStore simStore;
     private final Timer timer;
     private final ObjectMapper mapper;
 
+    private final Logger log = LoggerFactory.getLogger(ConfigurationWebsocket.class);
+
     @Inject
-    public ConfigurationStreamResource(SimulationStore store, Timer timer, ObjectMapper mapper) {
+    public ConfigurationWebsocket(SimulationStore store, Timer timer, ObjectMapper mapper) {
         this.simStore = store;
         this.timer = timer;
         this.mapper = mapper;
@@ -58,7 +55,16 @@ public class ConfigurationStreamResource {
 //                    new WSBoundaryListener(session, model, mapper)
 //            );
 //        }
+    }
 
+    @OnClose
+    public void onClose(Session session) {
+        log.warn("Closing websocket");
+    }
+
+    @OnError
+    public void onError(Session session, Throwable reason) {
+        log.warn("Error in websocket", reason);
     }
 
     private static class ConfigurationTimerTask extends TimerTask {

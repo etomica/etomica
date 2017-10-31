@@ -10,7 +10,7 @@ import etomica.data.IDataSource;
 import etomica.meta.ComponentIndex;
 import etomica.meta.DataSourceIndex;
 import etomica.server.health.BasicHealthCheck;
-import etomica.server.resources.ConfigurationStreamResource;
+import etomica.server.resources.ConfigurationWebsocket;
 import etomica.server.resources.EchoServer;
 import etomica.server.resources.data.DataStreamWebsocket;
 import etomica.server.serializers.DataSerializer;
@@ -22,20 +22,23 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.websockets.WebsocketBundle;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.vyarus.dropwizard.guice.GuiceBundle;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
+import javax.websocket.Extension;
 import javax.websocket.HandshakeResponse;
 import javax.websocket.server.HandshakeRequest;
 import javax.websocket.server.ServerEndpointConfig;
-import java.util.EnumSet;
-import java.util.Timer;
+import java.util.*;
 
 public class EtomicaServer extends Application<EtomicaServerConfig> {
     private static final ObjectMapper mapper = Jackson.newObjectMapper();
+    private static final Logger log = LoggerFactory.getLogger(EtomicaServer.class);
 
     static {
         SimpleModule mod = new SimpleModule("Etomica Module");
@@ -66,7 +69,7 @@ public class EtomicaServer extends Application<EtomicaServerConfig> {
         WSConfigurator wsConfigurator = new WSConfigurator();
         WebsocketBundle wsBundle = new WebsocketBundle(wsConfigurator);
         wsBundle.addEndpoint(EchoServer.class);
-        wsBundle.addEndpoint(ConfigurationStreamResource.class);
+        wsBundle.addEndpoint(ConfigurationWebsocket.class);
         wsBundle.addEndpoint(DataStreamWebsocket.class);
 
         bootstrap.addBundle(wsBundle);
@@ -104,6 +107,12 @@ public class EtomicaServer extends Application<EtomicaServerConfig> {
     private static class WSConfigurator extends ServerEndpointConfig.Configurator {
         @Inject
         private static Injector injector;
+
+        @Override
+        public List<Extension> getNegotiatedExtensions(List<Extension> installed, List<Extension> requested) {
+            // permessage-deflate is causing problems with the deflater being closed. Nuke it until I can figure out how to fix it.
+            return Collections.emptyList();
+        }
 
         @Override
         public void modifyHandshake(ServerEndpointConfig sec, HandshakeRequest request, HandshakeResponse response) {
