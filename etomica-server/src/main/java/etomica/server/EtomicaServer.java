@@ -34,7 +34,10 @@ import javax.websocket.Extension;
 import javax.websocket.HandshakeResponse;
 import javax.websocket.server.HandshakeRequest;
 import javax.websocket.server.ServerEndpointConfig;
+import javax.ws.rs.Produces;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 public class EtomicaServer extends Application<EtomicaServerConfig> {
     private static final ObjectMapper mapper = Jackson.newObjectMapper();
@@ -157,6 +160,11 @@ public class EtomicaServer extends Application<EtomicaServerConfig> {
         @Provides @Singleton
         Timer provideTimer() {
             return new Timer();
+        }
+
+        @Provides @Singleton
+        ScheduledThreadPoolExecutor provideExecutor() {
+            return new ScheduledThreadPoolExecutor(3);
         }
 
         @Provides @Singleton

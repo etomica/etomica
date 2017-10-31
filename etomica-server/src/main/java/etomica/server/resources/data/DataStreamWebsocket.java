@@ -10,6 +10,8 @@ import etomica.server.dao.DataStreamStore;
 import etomica.server.dao.SimulationStore;
 import etomica.server.representations.DataAndInfo;
 import etomica.simulation.Simulation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.websocket.*;
@@ -18,6 +20,9 @@ import javax.websocket.server.ServerEndpoint;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 @ServerEndpoint(
         value="/simulations/{simId}/data/{dataId}",
@@ -28,56 +33,59 @@ import java.util.UUID;
 public class DataStreamWebsocket {
     private final SimulationStore simStore;
     private final DataStreamStore dataStore;
-    private final Timer timer;
     private final ObjectMapper mapper;
+    private final ScheduledThreadPoolExecutor executor;
+
+    private final Logger log = LoggerFactory.getLogger(DataStreamWebsocket.class);
 
     @Inject
-    public DataStreamWebsocket(SimulationStore simStore, DataStreamStore dataStore, Timer timer, ObjectMapper mapper) {
+    public DataStreamWebsocket(SimulationStore simStore, DataStreamStore dataStore, ObjectMapper mapper, ScheduledThreadPoolExecutor executor) {
         this.simStore = simStore;
         this.dataStore = dataStore;
-        this.timer = timer;
         this.mapper = mapper;
+        this.executor = executor;
     }
 
     @OnOpen
     public void onOpen(final Session session, @PathParam("simId") String simId, @PathParam("dataId") String dataId) {
         session.getUserProperties().put("mapper", mapper);
         SimulationModel model = simStore.get(UUID.fromString(simId));
+        Simulation sim = model.getSimulation();
         DataStreamStore.DataPlumbing dataPlumbing = dataStore.get(UUID.fromString(dataId));
+        DataDump dump = dataPlumbing.getDump();
+        final DataAndInfo dataAndInfo = new DataAndInfo();
 
-        // add on construction
-//        model.getSimulation().getIntegrator().getEventManager().addListener(dataPlumbing.getPump());
-        timer.schedule(new DataStreamTimerTask(session, dataPlumbing.getDump(), model.getSimulation()), 0, 333);
-    }
-
-    public static class DataStreamTimerTask extends TimerTask {
-        private final Session session;
-        private final IDataSource dump;
-        private final Simulation sim;
-        private final DataAndInfo dataAndInfo;
-
-        private DataStreamTimerTask(Session session, IDataSource dump, Simulation sim) {
-            this.session = session;
-            this.dump = dump;
-            this.sim = sim;
-            this.dataAndInfo = new DataAndInfo();
-        }
-
-        @Override
-        public void run() {
+        Runnable sendData = () -> {
             if(sim.getController().isPaused() || !sim.getController().isActive()) {
                 return;
             }
 
             sim.getController().doActionNow(() -> {
                 IData data = dump.getData();
-                this.dataAndInfo.setData(dump.getData());
-                this.dataAndInfo.setDataInfo(dump.getDataInfo());
+                dataAndInfo.setData(dump.getData());
+                dataAndInfo.setDataInfo(dump.getDataInfo());
                 if(data != null) {
-                     session.getAsyncRemote().sendObject(this.dataAndInfo);
+                    session.getAsyncRemote().sendObject(dataAndInfo);
                 }
             });
-        }
+        };
+
+        ScheduledFuture<?> task = executor.scheduleWithFixedDelay(sendData, 0, 333, TimeUnit.MILLISECONDS);
+        session.getUserProperties().put("task", task);
+        // add on construction
+//        model.getSimulation().getIntegrator().getEventManager().addListener(dataPlumbing.getPump());
+    }
+
+    @OnClose
+    public void onClose(Session session) {
+        log.warn("Closing websocket");
+        ((ScheduledFuture<?>) session.getUserProperties().get("task")).cancel(false);
+    }
+
+    @OnError
+    public void onError(Session session, Throwable reason) {
+        log.warn("Error in websocket", reason);
+        ((ScheduledFuture<?>) session.getUserProperties().get("task")).cancel(false);
     }
 
     public static class DataAndInfoEncoder implements Encoder.Text<DataAndInfo> {

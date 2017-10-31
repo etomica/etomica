@@ -22,6 +22,9 @@ import java.io.Writer;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import static etomica.server.EtomicaServer.objectWriter;
 
@@ -33,55 +36,25 @@ import static etomica.server.EtomicaServer.objectWriter;
 @Timed
 public class ConfigurationWebsocket {
     private final SimulationStore simStore;
-    private final Timer timer;
     private final ObjectMapper mapper;
+    private final ScheduledThreadPoolExecutor executor;
 
     private final Logger log = LoggerFactory.getLogger(ConfigurationWebsocket.class);
 
     @Inject
-    public ConfigurationWebsocket(SimulationStore store, Timer timer, ObjectMapper mapper) {
+    public ConfigurationWebsocket(SimulationStore store, ObjectMapper mapper, ScheduledThreadPoolExecutor executor) {
         this.simStore = store;
-        this.timer = timer;
         this.mapper = mapper;
+        this.executor = executor;
     }
 
     @OnOpen
     public void onOpen(final Session session, @PathParam("id") String id) {
         SimulationModel model = simStore.get(UUID.fromString(id));
+        Simulation sim = model.getSimulation();
+        SimulationWrapper wrapper = (SimulationWrapper) model.getWrapper(sim);
 
-        timer.schedule(new ConfigurationTimerTask(session, model), 0, 33);
-//        for (int i = 0; i < model.getSimulation().getBoxCount(); i++) {
-//            model.getSimulation().getBox(i).getBoundary().getEventManager().addListener(
-//                    new WSBoundaryListener(session, model, mapper)
-//            );
-//        }
-    }
-
-    @OnClose
-    public void onClose(Session session) {
-        log.warn("Closing websocket");
-    }
-
-    @OnError
-    public void onError(Session session, Throwable reason) {
-        log.warn("Error in websocket", reason);
-    }
-
-    private static class ConfigurationTimerTask extends TimerTask {
-        private final Session session;
-
-        private final SimulationWrapper wrapper;
-        private final Simulation sim;
-
-        private ConfigurationTimerTask(Session session, SimulationModel model) {
-            this.session = session;
-            this.wrapper = (SimulationWrapper) model.getWrapper(model.getSimulation());
-            this.sim = model.getSimulation();
-
-        }
-
-        @Override
-        public void run() {
+        Runnable sendConfigurationUpdate = () -> {
             if(sim.getController().isPaused() || !sim.getController().isActive()) {
                 return;
             }
@@ -99,8 +72,25 @@ public class ConfigurationWebsocket {
                 );
                 session.getAsyncRemote().sendObject(update);
             });
-        }
+
+        };
+
+        ScheduledFuture<?> task = executor.scheduleWithFixedDelay(sendConfigurationUpdate, 0, 33, TimeUnit.MILLISECONDS);
+        session.getUserProperties().put("task", task);
     }
+
+    @OnClose
+    public void onClose(Session session) {
+        log.warn("Closing websocket");
+        ((ScheduledFuture<?>) session.getUserProperties().get("task")).cancel(false);
+    }
+
+    @OnError
+    public void onError(Session session, Throwable reason) {
+        log.warn("Error in websocket", reason);
+        ((ScheduledFuture<?>) session.getUserProperties().get("task")).cancel(false);
+    }
+
 
     public static class ConfigurationUpdateEncoder implements Encoder.TextStream<ConfigurationUpdate> {
         private static ObjectWriter objectWriter = objectWriter();
