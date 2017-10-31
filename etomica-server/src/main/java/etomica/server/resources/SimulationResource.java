@@ -5,6 +5,7 @@ import etomica.data.DataPipeForked;
 import etomica.meta.SimulationModel;
 import etomica.server.dao.DataStreamStore;
 import etomica.server.dao.SimulationStore;
+import etomica.server.representations.SimClassInfo;
 import etomica.server.representations.SimulationConstructor;
 import etomica.simulation.Simulation;
 
@@ -14,6 +15,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -32,12 +35,17 @@ public class SimulationResource {
 
     @GET
     @Path("{id}")
-    public SimulationModel structure(@PathParam("id") String id) {
+    public Map<String, Object> structure(@PathParam("id") String id) {
         UUID uuid = UUID.fromString(id);
         if(!simStore.containsKey(uuid)) {
             throw new WebApplicationException("Simulation instance not found", Response.Status.NOT_FOUND);
         }
-        return simStore.get(uuid);
+        SimulationModel model = simStore.get(uuid);
+        SimClassInfo classInfo = SimClassInfo.forClass(model.getSimulation().getClass());
+        Map<String, Object> map = new HashMap<>();
+        map.put("model", model);
+        map.put("classInfo", classInfo);
+        return map;
     }
 
     @POST

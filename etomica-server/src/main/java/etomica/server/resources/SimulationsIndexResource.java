@@ -1,13 +1,8 @@
 package etomica.server.resources;
 
-import com.github.therapi.runtimejavadoc.ClassJavadoc;
-import com.github.therapi.runtimejavadoc.Comment;
-import com.github.therapi.runtimejavadoc.RuntimeJavadoc;
 import etomica.meta.ComponentIndex;
 import etomica.server.representations.SimClassInfo;
 import etomica.simulation.Simulation;
-import org.jsoup.Jsoup;
-import org.jsoup.safety.Whitelist;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -15,7 +10,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Path("/simulations")
@@ -40,12 +34,7 @@ public class SimulationsIndexResource {
                         return false;
                     }
                 })
-                .map(cls -> {
-                    Optional<ClassJavadoc> javadoc = RuntimeJavadoc.getJavadoc(cls);
-                    String comment = javadoc.map(ClassJavadoc::getComment).map(Comment::toString).orElse("");
-                    String sanitizedComment = Jsoup.clean(comment, Whitelist.basic());
-                    return new SimClassInfo(cls.getCanonicalName(), sanitizedComment);
-                })
+                .map(SimClassInfo::forClass)
                 .collect(Collectors.toList());
     }
 }
