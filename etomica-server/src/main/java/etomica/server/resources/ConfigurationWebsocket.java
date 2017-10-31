@@ -50,6 +50,8 @@ public class ConfigurationWebsocket {
 
     @OnOpen
     public void onOpen(final Session session, @PathParam("id") String id) {
+        session.setMaxIdleTimeout(-1);
+
         SimulationModel model = simStore.get(UUID.fromString(id));
         Simulation sim = model.getSimulation();
         SimulationWrapper wrapper = (SimulationWrapper) model.getWrapper(sim);

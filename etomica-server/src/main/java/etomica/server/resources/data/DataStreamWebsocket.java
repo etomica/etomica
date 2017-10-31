@@ -48,6 +48,8 @@ public class DataStreamWebsocket {
 
     @OnOpen
     public void onOpen(final Session session, @PathParam("simId") String simId, @PathParam("dataId") String dataId) {
+        session.setMaxIdleTimeout(-1);
+
         session.getUserProperties().put("mapper", mapper);
         SimulationModel model = simStore.get(UUID.fromString(simId));
         Simulation sim = model.getSimulation();
