@@ -6,7 +6,8 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.data.DataSourceCountSteps;
+import etomica.data.*;
+import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveVolume;
@@ -71,6 +72,25 @@ public class DemoSim extends Simulation {
         MCMoveVolume mcMoveVolume = new MCMoveVolume(potentialMaster, this.getRandom(), this.getSpace(), 1);
         integrator.getMoveManager().addMCMove(mcMoveVolume);
 
+        MeterPotentialEnergy energy = new MeterPotentialEnergy(potentialMaster);
+        energy.setBox(box);
+
+        AccumulatorHistogram hist = new AccumulatorHistogram();
+        DataPump histPump = new DataPump(energy, hist);
+        IntegratorListenerAction histAct = new IntegratorListenerAction(histPump);
+        integrator.getEventManager().addListener(histAct);
+
+        AccumulatorAverageCollapsing avgEnergy = new AccumulatorAverageCollapsing();
+        avgEnergy.setPushInterval(10);
+        DataPump pump = new DataPump(energy, avgEnergy);
+        IntegratorListenerAction pumpListener = new IntegratorListenerAction(pump);
+        pumpListener.setInterval(10);
+        integrator.getEventManager().addListener(pumpListener);
+
+        AccumulatorHistory h = new AccumulatorHistory();
+        DataPump hp = new DataPump(energy, h);
+        IntegratorListenerAction ha = new IntegratorListenerAction(hp);
+        integrator.getEventManager().addListener(ha);
 
     }
 
