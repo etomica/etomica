@@ -19,6 +19,8 @@ import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculationEnergySum;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.space2d.Vector2D;
+import etomica.space3d.Vector3D;
 import etomica.util.Arrays;
 import etomica.util.random.IRandom;
 
@@ -43,7 +45,8 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
     protected final AtomIteratorArrayListSimple atomIterator;
     protected final Box box1, box2;
     protected double temperature;
-    MeterPotentialEnergy energyMeter;
+    protected MeterPotentialEnergy energyMeter;
+    protected IAtom atom;
 
     public MCMoveGeometricClusterRestrictedGE(PotentialMasterCell potentialMaster, Space space, IRandom random,
                                               double neighborRange, Box box1, Box box2) {
@@ -77,13 +80,14 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
         NeighborCellManager ncm1 = ((PotentialMasterCell) potential).getNbrCellManager(box1);
         NeighborCellManager ncm2 = ((PotentialMasterCell) potential).getNbrCellManager(box2);
 
+        Box box=box1;
+
         Box boxI = box1; //change this to random in future
         atomSource.setBox(boxI);
         positionSource.setBox(boxI);
         pivot = positionSource.randomPosition();
 //        System.out.println("pivot "+pivot);
         IAtom atomI = atomSource.getAtom();
-        IAtom atom1 = atomI;
         if (atomI == null) return false;
 //        System.out.println(box1 +" "+box1.getLeafList());
 //        System.out.println(box2 +" "+box2.getLeafList());
@@ -97,7 +101,7 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
 //            if(!((Cell) sites2[i]).occupants().isEmpty())System.out.println(i+" "+ ((Cell) sites2[i]).occupants());
 //        }
 
-        System.out.println(atomI +" "+atomI.hashCode()+ " initial "+boxI+" "+atomI.getPosition());
+        System.out.println(atomI +" "+atomI.hashCode()+ " initial "+boxI);
         clusterAtoms1.clear();
         clusterAtoms2.clear();
         clusterAtoms2.add(atomI);
@@ -115,10 +119,12 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
             }
             jNeighbors.clear();
             moveAtom(atomI,boxI);
+            System.out.println(atomI.getPosition());
 //            System.out.println(box1 +" "+box1.getLeafList());
 //            System.out.println(box2 +" "+box2.getLeafList());
 
             Box otherBoxI = boxI==box1?box2:box1;
+
             gatherNeighbors(atomI, otherBoxI);
             for (IAtom atomJ:jNeighbors) {
                 atomPairs.add(atomI);
@@ -146,7 +152,14 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
                 if(p<0 || p<random.nextDouble()) continue;
                 atomI = atomJ;
                 boxI = boxJ;
-//                System.out.println("neighbor selected for move"+atomI+" "+atomI.hashCode()+ " "+boxI);
+                System.out.println("neighbor selected for move"+atomI+" "+atomI.hashCode()+ " "+boxI);
+
+                if(atomI.getParentGroup().getIndex() == 0){
+                    atom = atomI;
+                    box = boxI== box1?box2:box1;
+                    energyMeter.setTarget(atomI);
+                    energyMeter.setBox(box);
+                }
 
                 HashSet<IAtom> clusterAtoms = boxI==box1?clusterAtoms2:clusterAtoms1;
                 clusterAtoms.add(atomI);
@@ -166,19 +179,17 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
 //        for(int i=0; i<sites2.length; i++){
 //            if(!((Cell) sites2[i]).occupants().isEmpty())System.out.println(i+" "+ ((Cell) sites2[i]).occupants());
 //        }
-
-        
-        energyMeter.setBox(box1);
-        energyMeter.setIncludeLrc(false);
-        energyMeter.setTarget(atomI);
-        double uOld = energyMeter.getDataAsScalar();
-        boolean fixOverlap = false;
-        if (uOld > 1e8 && !fixOverlap) {
-            PotentialCalculationEnergySum.debug = true;
-            uOld = energyMeter.getDataAsScalar();
-            throw new RuntimeException("atom " + atomI + " in box " + box1 + " has an overlap");
-        }
-
+            if(atom!=null) {
+            System.out.println("check energy "+atom+" ");
+                double uOld = energyMeter.getDataAsScalar();
+                boolean fixOverlap = false;
+                if (uOld > 1e8 && !fixOverlap) {
+                    PotentialCalculationEnergySum.debug = true;
+                    uOld = energyMeter.getDataAsScalar();
+                    throw new RuntimeException("GE atom " + atom + " in box " + box + " has an overlap");
+                }
+                atom = null;
+            }
 
         return true;
 

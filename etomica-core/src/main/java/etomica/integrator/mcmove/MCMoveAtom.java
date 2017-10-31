@@ -98,7 +98,7 @@ public class MCMoveAtom extends MCMoveBoxStep {
         atom = atomSource.getAtom();
 
         if (atom == null) return false;
-        System.out.println("move atom "+atom+" "+atom.hashCode());
+        System.out.println("move atom "+atom+" "+atom.hashCode()+" "+atom.getPosition());
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();
         if (uOld > 1e8 && !fixOverlap) {

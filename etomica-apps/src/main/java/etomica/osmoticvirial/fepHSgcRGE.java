@@ -152,7 +152,7 @@ public class fepHSgcRGE extends Simulation {
         System.out.println("q: "+q);
         System.out.println(nBlocks+" blocks");
         System.out.println("total no of solutes"+ numAtoms);
-        System.setErr(System.out);
+//        System.setErr(System.out);
 
         long t1 = System.currentTimeMillis();
 
