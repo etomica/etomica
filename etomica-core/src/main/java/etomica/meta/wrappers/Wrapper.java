@@ -75,7 +75,7 @@ public abstract class Wrapper<T> {
                 }
 
             } else {
-                values.put(prop.getName(), prop.invokeReader());
+                values.put((prop.canWrite() ? "$" : "") + prop.getName(), prop.invokeReader());
             }
         }
 

@@ -7,6 +7,7 @@ import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.*;
+import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
@@ -87,10 +88,9 @@ public class DemoSim extends Simulation {
         pumpListener.setInterval(10);
         integrator.getEventManager().addListener(pumpListener);
 
-        AccumulatorHistory h = new AccumulatorHistory();
-        DataPump hp = new DataPump(energy, h);
-        IntegratorListenerAction ha = new IntegratorListenerAction(hp);
-        integrator.getEventManager().addListener(ha);
+        AccumulatorHistory h = new AccumulatorHistory(new HistoryCollapsingAverage());
+        DataPumpListener l = new DataPumpListener(energy, h, 100);
+        integrator.getEventManager().addListener(l);
 
     }
 
