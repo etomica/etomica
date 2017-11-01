@@ -20,7 +20,7 @@ dependencies {
 mainClassName = 'etomica.server.EtomicaServer'
 
 run {
-    args = ['server', 'config.yml']
+    args = ['server', "${projectDir}/config.yml"]
 }
 
 sourceSets.main.resources {

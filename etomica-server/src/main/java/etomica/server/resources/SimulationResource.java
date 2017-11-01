@@ -71,5 +71,14 @@ public class SimulationResource {
         }
     }
 
+    @DELETE
+    @Path("{simId}")
+    public void deleteInstance(@PathParam("simId") String simId) {
+        UUID id = UUID.fromString(simId);
+        SimulationModel model = simStore.get(id);
+        model.getSimulation().getController().halt();
+        simStore.remove(id);
+    }
+
 
 }
