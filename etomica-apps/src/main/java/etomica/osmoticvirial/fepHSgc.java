@@ -33,17 +33,17 @@ import etomica.util.ParseArgs;
  */
 public class fepHSgc extends Simulation {
 
-    public IntegratorMC integrator;
-    public MCMoveAtom mcMoveAtom;
-    public MCMoveInsertDelete mcMoveInsertDelete ;
-    public MCMoveGeometricCluster mcMoveGeometricCluster;
-    public SpeciesSpheresMono species1;
-    public SpeciesSpheresMono species2;
-    public Box box;
-    public P2HardSphere potential1, potential12;
-    public Potential2 potential2;
-    public Controller controller;
-    public ActivityIntegrate activityIntegrate;
+    protected IntegratorMC integrator;
+    protected MCMoveAtom mcMoveAtom;
+    protected MCMoveInsertDelete mcMoveInsertDelete ;
+    protected MCMoveGeometricCluster mcMoveGeometricCluster;
+    protected SpeciesSpheresMono species1;
+    protected SpeciesSpheresMono species2;
+    protected Box box;
+    protected P2HardSphere potential1, potential12;
+    protected Potential2 potential2;
+    protected Controller controller;
+    protected ActivityIntegrate activityIntegrate;
 
     /**
      * @param vf reservoir volume fraction of solvent

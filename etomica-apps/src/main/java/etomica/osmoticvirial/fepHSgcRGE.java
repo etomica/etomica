@@ -19,6 +19,8 @@ import etomica.integrator.mcmove.MCMoveRotate;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2HardSphere;
+import etomica.potential.P2Ideal;
+import etomica.potential.Potential2;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space3d.Space3D;
@@ -33,16 +35,17 @@ import etomica.util.random.RandomMersenneTwister;
  */
 public class fepHSgcRGE extends Simulation {
 
-    public IntegratorMC integrator1, integrator2;
-    public IntegratorRGEMC integrator;
-    public MCMoveAtom mcMoveAtom;
-    public MCMoveInsertDelete mcMoveInsertDelete1, mcMoveInsertDelete2;
-    public SpeciesSpheresMono species1;
-    public SpeciesSpheresMono species2;
-    public Box box1, box2;
-    public P2HardSphere potential1, potential2, potential12;
-    public Controller controller;
-    public ActivityIntegrate activityIntegrate;
+    protected IntegratorMC integrator1, integrator2;
+    protected IntegratorRGEMC integrator;
+    protected MCMoveAtom mcMoveAtom;
+    protected MCMoveInsertDelete mcMoveInsertDelete1, mcMoveInsertDelete2;
+    protected SpeciesSpheresMono species1;
+    protected SpeciesSpheresMono species2;
+    protected Box box1, box2;
+    protected P2HardSphere potential1, potential12;
+    protected Potential2 potential2;
+    protected Controller controller;
+    protected ActivityIntegrate activityIntegrate;
 
     /**
      * @param vf reservoir volume fraction of solvent
@@ -98,6 +101,7 @@ public class fepHSgcRGE extends Simulation {
 
         potential1 = new P2HardSphere(space, sigma1, false);
         potential2 = new P2HardSphere(space, sigma2, false);
+//        potential2 = new P2Ideal(space);
         potential12 = new P2HardSphere(space, sigma12, false);
         potentialMaster.setCellRange(3);
         potentialMaster.setRange(potential1.getRange());
@@ -111,6 +115,8 @@ public class fepHSgcRGE extends Simulation {
 
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box1).makeMCMoveListener());
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box2).makeMCMoveListener());
+        integrator1.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box1).makeMCMoveListener());
+        integrator2.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box2).makeMCMoveListener());
 
         ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         configuration.initializeCoordinates(box1);
@@ -129,7 +135,7 @@ public class fepHSgcRGE extends Simulation {
         }
         else {
             params.numAtoms = 2;
-            params.numSteps = 5000;
+            params.numSteps = 1000;
             params.nBlocks = 100;
             params.vf = 0.1;
             params.q = 0.2;
@@ -152,13 +158,15 @@ public class fepHSgcRGE extends Simulation {
         System.out.println("q: "+q);
         System.out.println(nBlocks+" blocks");
         System.out.println("total no of solutes"+ numAtoms);
-//        System.setErr(System.out);
+        System.setErr(System.out);
 
         long t1 = System.currentTimeMillis();
 
         fepHSgcRGE sim = new fepHSgcRGE(vf, q, numAtoms);
 
         System.out.println("box length "+sim.box1.getBoundary().getBoxSize());
+        System.out.println("species1 " +sim.species1.getLeafType().getIndex());
+        System.out.println("species2 " +sim.species2.getLeafType().getIndex());
 
         if (graphics) {
             final String APP_NAME = "SimHard";

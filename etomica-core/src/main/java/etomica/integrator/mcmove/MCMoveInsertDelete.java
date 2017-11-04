@@ -103,8 +103,6 @@ public class MCMoveInsertDelete extends MCMoveBox {
      * or deletion.
      */
     public boolean doTrial() {
-        System.out.println(this);
-        System.out.println(box +" "+box.getLeafList());
         insert = (random.nextInt(2) == 0);
         if(insert) {
             uOld = 0.0;
@@ -115,11 +113,9 @@ public class MCMoveInsertDelete extends MCMoveBox {
             atomTranslator.setDestination(positionSource.randomPosition());
             atomTranslator.actionPerformed(testMolecule);
             box.addMolecule(testMolecule);
-            System.out.println("insert "+insert+" "+testMolecule.getChildList().getAtom(0)+" "+testMolecule.getChildList().getAtom(0).hashCode());
-        } else {//delete
+      } else {//delete
             if(box.getNMolecules(species) == 0) {
                 testMolecule = null;
-                System.out.println("delete move");
                 return false;
             }
             testMolecule = moleculeList.getMolecule(random.nextInt(moleculeList.getMoleculeCount()));
@@ -158,9 +154,9 @@ public class MCMoveInsertDelete extends MCMoveBox {
             // accepted deletion - remove from box and add to reservoir
             box.removeMolecule(testMolecule);
             reservoir.add(testMolecule);
-            System.out.println("delete accept "+testMolecule.getChildList().getAtom(0)+ " "+testMolecule.getChildList().getAtom(0).hashCode());
+//            System.out.println("delete accept "+testMolecule.getChildList().getAtom(0)+ " "+testMolecule.getChildList().getAtom(0).hashCode());
         }
-        else System.out.println("insert accept");
+//        else System.out.println("insert accept");
 //        System.out.println(box +" "+box.getLeafList());
     }
     
@@ -172,9 +168,9 @@ public class MCMoveInsertDelete extends MCMoveBox {
             // test molecule is no longer in the simulation and should not be 
             // returned by affectedAtoms
             testMolecule = null;
-            System.out.println("insert reject");
+//            System.out.println("insert reject");
         }
-        else System.out.println("delete reject");
+//        else System.out.println("delete reject");
 //        System.out.println(box +" "+box.getLeafList());
     }
     

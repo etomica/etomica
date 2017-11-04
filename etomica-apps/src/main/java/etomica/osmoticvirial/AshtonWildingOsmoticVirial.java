@@ -36,15 +36,15 @@ import etomica.util.random.RandomMersenneTwister;
  */
 public class AshtonWildingOsmoticVirial extends Simulation {
 
-    public Box box;
-    public Potential2 potential1, potential2, potential12;
-    public Controller controller;
-    public IntegratorMC integrator;
-    public MCMoveAtom mcMoveAtom;
-    public MCMoveInsertDelete mcMoveInsertDelete;
-    public MCMoveGeometricCluster mcMoveGeometricCluster;
-    public SpeciesSpheresMono species1, species2;
-    public ActivityIntegrate activityIntegrate;
+    protected Box box;
+    protected Potential2 potential1, potential2, potential12;
+    protected Controller controller;
+    protected IntegratorMC integrator;
+    protected MCMoveAtom mcMoveAtom;
+    protected MCMoveInsertDelete mcMoveInsertDelete;
+    protected MCMoveGeometricCluster mcMoveGeometricCluster;
+    protected SpeciesSpheresMono species1, species2;
+    protected ActivityIntegrate activityIntegrate;
 
     /**
      * @param numAtoms no. of solute atoms in the box
@@ -97,10 +97,10 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         }
         else{
             potential1 = new P2HardSphere(space, sigma1, false);
-//            potential2 = new P2HardSphere(space, sigma2, false);
-            potential2 = new P2Ideal(space);
+            potential2 = new P2HardSphere(space, sigma2, false);
+//            potential2 = new P2Ideal(space);
             potential12 = new P2HardSphere(space, sigma12, false);
-            System.out.println("AO");
+//            System.out.println("AO");
             mcMoveGeometricCluster = new MCMoveGeometricCluster(potentialMaster, space, random, 1.5, integrator, species1);
             integrator.getMoveManager().addMCMove(mcMoveGeometricCluster);
         }
@@ -151,6 +151,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
 
         System.out.println(numAtoms + " Atoms, "+ numSteps + " Steps" );
         System.out.println("Volume fraction: "+ vf);
+        System.out.println("Size ratio: "+ q);
         System.out.println("nBlocks "+ nBlocks);
 
         long t1 = System.currentTimeMillis();
