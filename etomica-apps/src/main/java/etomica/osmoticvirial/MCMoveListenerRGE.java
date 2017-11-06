@@ -1,9 +1,15 @@
 package etomica.osmoticvirial;
 
+import etomica.atom.IAtom;
+import etomica.atom.iterator.AtomIterator;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataInfo;
 import etomica.data.types.DataDoubleArray;
+import etomica.integrator.mcmove.MCMove;
+import etomica.integrator.mcmove.MCMoveEvent;
+import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
+import etomica.integrator.mcmove.MCMoveTrialFailedEvent;
 import etomica.species.Species;
 import etomica.util.IEvent;
 import etomica.util.IListener;
@@ -27,7 +33,11 @@ public class MCMoveListenerRGE implements IListener {
     }
 
     @Override
-    public void actionPerformed(IEvent event) {
+    public void actionPerformed(IEvent evt) {
+        if (!(evt instanceof MCMoveTrialCompletedEvent)) {
+            return;
+        }
+
         double[] x = data.getData();
         int index = box.getNMolecules(species);
         for(int i=0; i<x.length; i++){
@@ -35,5 +45,6 @@ public class MCMoveListenerRGE implements IListener {
         }
         x[index] = 1;
         accumulatorAverage.putData(data);
+
     }
 }

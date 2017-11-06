@@ -82,7 +82,7 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
         pivot = positionSource.randomPosition();
         IAtom atomI = atomSource.getAtom();
         if (atomI == null) return false;
-
+//        System.out.println(this);
         clusterAtoms1.clear();
         clusterAtoms2.clear();
         clusterAtoms2.add(atomI);
@@ -92,6 +92,7 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
         outer: while(true){
             jNeighbors.clear();
             gatherNeighbors(atomI, boxI);
+
             for (IAtom atomJ:jNeighbors) {
                 atomPairs.add(atomI);
                 atomPairs.add(atomJ);
@@ -100,6 +101,7 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
             jNeighbors.clear();
             moveAtom(atomI,boxI);
             Box otherBoxI = boxI==box1?box2:box1;
+//            if(atomI.getType().getIndex() == 0)System.out.println(atomI+" "+boxI+" "+otherBoxI);
 
             gatherNeighbors(atomI, otherBoxI);
             for (IAtom atomJ:jNeighbors) {

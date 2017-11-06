@@ -53,10 +53,15 @@ public class fepHSgcRGE extends Simulation {
      */
     public fepHSgcRGE(double vf, double q, int numAtoms){
         super(Space3D.getInstance());
-        setRandom(new RandomMersenneTwister(1));
+//        setRandom(new RandomMersenneTwister(1));
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this,space);
         mcMoveInsertDelete1 = new MCMoveInsertDelete(potentialMaster, random, space);
         mcMoveInsertDelete2 = new MCMoveInsertDelete(potentialMaster, random, space);
+        species1 = new SpeciesSpheresMono(this, space);
+        species2 = new SpeciesSpheresMono(this, space);
+        addSpecies(species1);
+        addSpecies(species2);
+
         integrator = new IntegratorRGEMC(random,space);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
@@ -67,11 +72,6 @@ public class fepHSgcRGE extends Simulation {
 
         double mu = (8*vf-9*vf*vf+3*vf*vf*vf) / Math.pow((1-vf),3)+Math.log(6*vf/(Math.PI*Math.pow(sigma2,3))); //Configurational chemical potential from Carnahan–Starling equation of state
         System.out.println("mu "+ mu+" muig "+Math.log(6*vf/(Math.PI*Math.pow(sigma2,3))));
-
-        species1 = new SpeciesSpheresMono(this, space);
-        species2 = new SpeciesSpheresMono(this, space);
-        addSpecies(species1);
-        addSpecies(species2);
 
         box1 = new Box(space);
         addBox(box1);
@@ -135,10 +135,10 @@ public class fepHSgcRGE extends Simulation {
         }
         else {
             params.numAtoms = 2;
-            params.numSteps = 1000;
+            params.numSteps = 100000;
             params.nBlocks = 100;
-            params.vf = 0.1;
-            params.q = 0.2;
+            params.vf = 0.004;
+            params.q = 0.5;
         }
 
         int numAtoms = params.numAtoms;
@@ -173,6 +173,7 @@ public class fepHSgcRGE extends Simulation {
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3, sim.getSpace(), sim.getController());
 
             ((DiameterHashByType)simGraphic.getDisplayBox(sim.box1).getDiameterHash()).setDiameter(sim.species2.getLeafType(), q);
+            ((DiameterHashByType)simGraphic.getDisplayBox(sim.box2).getDiameterHash()).setDiameter(sim.species2.getLeafType(), q);
             simGraphic.makeAndDisplayFrame(APP_NAME);
 
 
@@ -197,11 +198,17 @@ public class fepHSgcRGE extends Simulation {
         IData ierr = acc.getData(AccumulatorAverage.ERROR);
         IData icor = acc.getData(AccumulatorAverage.BLOCK_CORRELATION);
 
-        double avg = iavg.getValue(0);
-        double err = ierr.getValue(0);
-        double cor = icor.getValue(0);
+        double[] avg = new double[numAtoms+1];
+        double[] err = new double[numAtoms+1];
+        double[] cor = new double[numAtoms+1];
 
-        System.out.print(String.format("avg: %13.6e   err: %11.4e   cor: % 4.2f\n", avg, err, cor));
+        for(int i=0; i<numAtoms+1; i++){
+            avg[i] = iavg.getValue(i);
+            err[i] = ierr.getValue(i);
+            cor[i] = icor.getValue(i);
+            System.out.print(String.format("%d avg: %13.6e   err: %11.4e   cor: % 4.2f\n",i, avg[i], err[i], cor[i]));
+        }
+
         long t2 = System.currentTimeMillis();
         System.out.println("time: "+(t2-t1)*0.001);
 
