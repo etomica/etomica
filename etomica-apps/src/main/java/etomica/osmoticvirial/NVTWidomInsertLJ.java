@@ -26,7 +26,7 @@ import etomica.util.ParseArgs;
  * Calculate osmotic virial coefficients for Lennard-Jones potential in Canonical ensemble
  * from Free-Energy Perturbation Approach utilizing Widom's Insertion.
  */
-public class fepLJnvt extends Simulation {
+public class NVTWidomInsertLJ extends Simulation {
 
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
@@ -37,7 +37,7 @@ public class fepLJnvt extends Simulation {
     public Controller controller;
     public ActivityIntegrate activityIntegrate;
 
-    public fepLJnvt(int numAtoms, double temp, double density, double sigma2, double epsilon2, boolean computez2){
+    public NVTWidomInsertLJ(int numAtoms, double temp, double density, double sigma2, double epsilon2, boolean computez2){
         super(Space3D.getInstance());
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this,space);
 
@@ -149,7 +149,7 @@ public class fepLJnvt extends Simulation {
         System.out.println(nBlocks+" blocks");
 
         long t1 = System.currentTimeMillis();
-        fepLJnvt sim = new fepLJnvt(numAtoms, temp, density, sigma2, eps2, computez2);
+        NVTWidomInsertLJ sim = new NVTWidomInsertLJ(numAtoms, temp, density, sigma2, eps2, computez2);
 
         System.out.println("box length "+sim.box.getBoundary().getBoxSize());
 

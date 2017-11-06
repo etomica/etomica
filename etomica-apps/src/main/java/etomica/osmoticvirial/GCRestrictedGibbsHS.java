@@ -8,18 +8,15 @@ import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
-import etomica.data.DataPumpListener;
 import etomica.data.IData;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
 import etomica.integrator.mcmove.MCMoveManager;
-import etomica.integrator.mcmove.MCMoveRotate;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2HardSphere;
-import etomica.potential.P2Ideal;
 import etomica.potential.Potential2;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -27,13 +24,12 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.random.RandomMersenneTwister;
 
 /**
  * Calculate osmotic virial coefficients for Hard-Sphere potential in Grand Canonical ensemble for solvent
  * from Free-Energy Perturbation Approach in restricted grand canonical ensemble
  */
-public class fepHSgcRGE extends Simulation {
+public class GCRestrictedGibbsHS extends Simulation {
 
     protected IntegratorMC integrator1, integrator2;
     protected IntegratorRGEMC integrator;
@@ -51,7 +47,7 @@ public class fepHSgcRGE extends Simulation {
      * @param vf reservoir volume fraction of solvent
      * @param q size of solvent divided by size of solute
      */
-    public fepHSgcRGE(double vf, double q, int numAtoms){
+    public GCRestrictedGibbsHS(double vf, double q, int numAtoms){
         super(Space3D.getInstance());
 //        setRandom(new RandomMersenneTwister(1));
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this,space);
@@ -137,7 +133,7 @@ public class fepHSgcRGE extends Simulation {
             params.numAtoms = 2;
             params.numSteps = 100000;
             params.nBlocks = 100;
-            params.vf = 0.004;
+            params.vf = 0.005;
             params.q = 0.5;
         }
 
@@ -162,7 +158,7 @@ public class fepHSgcRGE extends Simulation {
 
         long t1 = System.currentTimeMillis();
 
-        fepHSgcRGE sim = new fepHSgcRGE(vf, q, numAtoms);
+        GCRestrictedGibbsHS sim = new GCRestrictedGibbsHS(vf, q, numAtoms);
 
         System.out.println("box length "+sim.box1.getBoundary().getBoxSize());
         System.out.println("species1 " +sim.species1.getLeafType().getIndex());
