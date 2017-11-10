@@ -12,6 +12,7 @@ import org.apache.commons.beanutils.PropertyUtils;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,7 +33,7 @@ public class PropertiesResource {
         Wrapper<?> wrapper = model.getWrapperById(propUpdate.getId());
         Property wrapperProp = wrapper.getValueProperties().stream()
                 .filter(p -> p.getName().equalsIgnoreCase(propUpdate.getProperty()))
-                .findFirst().get();
+                .findFirst().orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
         model.getSimulation().getController().doActionNow(() -> {
             wrapperProp.invokeWriter(propUpdate.getNewValue());
         });
