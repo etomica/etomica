@@ -4,9 +4,6 @@
 
 package etomica.virial.simulations;
 
-import java.util.Set;
-
-import etomica.space.Vector;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
 import etomica.data.IData;
@@ -21,20 +18,17 @@ import etomica.potential.P2EffectiveFeynmanHibbs;
 import etomica.potential.P2HydrogenPatkowskiIso;
 import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-
-import etomica.virial.ClusterSum;
-
-import etomica.virial.MayerGeneralSpherical;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.PYGenerator;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 import etomica.virial.cluster.VirialDiagrams;
+
+import java.util.Set;
 
 /**
  * Computes corrections to Percus-Yevick approximations of B4 and B5 for a hydrogen pair potential.
