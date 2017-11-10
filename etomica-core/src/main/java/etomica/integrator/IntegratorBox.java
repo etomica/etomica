@@ -84,6 +84,9 @@ public abstract class IntegratorBox extends Integrator {
      * @param t the new temperature
      */
     public void setTemperature(double t) {
+        if(t < 0) {
+            throw new IllegalArgumentException("Temperature cannot be negative");
+        }
         temperature = t;
     }
 
