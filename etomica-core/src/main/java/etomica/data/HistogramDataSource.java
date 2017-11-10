@@ -4,21 +4,21 @@
 
 package etomica.data;
 
-import etomica.data.types.DataFunction;
+import etomica.data.histogram.Histogram;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.units.dimensions.Null;
-import etomica.data.histogram.Histogram;
 
 /**
  * DataSource that simply exposes a Histogram as a DataFunction.
  */
-public class HistogramDataSource implements IEtomicaDataSource {
+public class HistogramDataSource implements IDataSource {
 
     protected final Histogram histogram;
     protected DataSourceIndependentSimple xDataSource;
     private DataFunction data;
-    private IEtomicaDataInfo dataInfo;
+    private IDataInfo dataInfo;
     protected final DataTag tag;
 
     public HistogramDataSource(Histogram histogram) {
@@ -66,7 +66,7 @@ public class HistogramDataSource implements IEtomicaDataSource {
     /**
      * Returns the DataInfo for the output Data.
      */
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 }

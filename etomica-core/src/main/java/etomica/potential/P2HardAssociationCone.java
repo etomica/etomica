@@ -3,17 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.potential;
+
 import etomica.atom.IAtomList;
-import etomica.space.Boundary;
-import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
+import etomica.box.Box;
+import etomica.space.Boundary;
 import etomica.space.Space;
-import etomica.units.dimensions.Angle;
-import etomica.units.dimensions.Dimension;
-import etomica.units.dimensions.Energy;
-import etomica.units.dimensions.Length;
-import etomica.units.dimensions.Null;
+import etomica.space.Vector;
+import etomica.units.dimensions.*;
 
 /**
  * Lennard-Jones potential with a square-well cone of attraction. 
@@ -170,7 +167,9 @@ public class P2HardAssociationCone extends Potential2 {
     /**
      * Accessor method for angle describing width of cone.
      */
-    public double getTheta() {return Math.acos(ec2);}
+    public double getTheta() {
+        return Math.acos(Math.sqrt(ec2));
+    }
     
     /**
      * Accessor method for angle (in radians) describing width of cone.

@@ -9,16 +9,12 @@ package etomica.data.meter;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.space.Vector;
 import etomica.box.Box;
-import etomica.data.DataInfo;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.types.DataVector;
 import etomica.data.types.DataVector.DataInfoVector;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.dimensions.Length;
 
 /**
@@ -26,7 +22,7 @@ import etomica.units.dimensions.Length;
  * leaf atoms in a box, dividing by the number of atoms.
  *
  */
-public class MeterPositionCOM implements IEtomicaDataSource, java.io.Serializable {
+public class MeterPositionCOM implements IDataSource, java.io.Serializable {
 
     public MeterPositionCOM(Space space) {
         data = new DataVector(space);
@@ -80,7 +76,7 @@ public class MeterPositionCOM implements IEtomicaDataSource, java.io.Serializabl
         return tag;
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

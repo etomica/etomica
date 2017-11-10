@@ -4,13 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.data.AccumulatorAverageBlockless;
-import etomica.data.DataDistributer;
-import etomica.data.DataSourceIndependent;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
@@ -30,7 +24,7 @@ import etomica.units.dimensions.Pressure;
  * 
  * @author Andrew Schultz
  */
-public class DataSourcePMu implements IEtomicaDataSource, DataSourceIndependent {
+public class DataSourcePMu implements IDataSource, DataSourceIndependent {
 
     protected final MCMoveOverlapListener mcMoveOverlapMeter;
     protected final DataDistributer pSplitter;
@@ -131,7 +125,7 @@ public class DataSourcePMu implements IEtomicaDataSource, DataSourceIndependent 
         return tag;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

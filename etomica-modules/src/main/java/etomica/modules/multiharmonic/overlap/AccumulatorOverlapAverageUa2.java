@@ -4,10 +4,9 @@
 
 package etomica.modules.multiharmonic.overlap;
 
-import etomica.data.DataPipe;
 import etomica.data.IData;
+import etomica.data.IDataInfo;
 import etomica.data.IDataSink;
-import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDoubleArray;
 
 /**
@@ -24,11 +23,7 @@ public class AccumulatorOverlapAverageUa2 implements IDataSink {
         blockCounter = 0;
     }
 
-    public DataPipe getDataCaster(IEtomicaDataInfo info) {
-        return null;
-    }
-
-    public void putDataInfo(IEtomicaDataInfo info) {
+    public void putDataInfo(IDataInfo info) {
     }
 	
 	/**

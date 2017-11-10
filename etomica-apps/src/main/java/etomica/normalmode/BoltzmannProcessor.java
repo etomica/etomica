@@ -4,26 +4,26 @@
 
 package etomica.normalmode;
 
-import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataInfoFactory;
-import etomica.units.dimensions.Null;
+import etomica.data.IDataInfo;
+import etomica.data.IDataInfoFactory;
 import etomica.math.function.Function;
+import etomica.units.dimensions.Null;
 
 /**
  * DataProcessor that returns the Boltzmann factor of the incoming energy.
  * @author Andrew Schultz
  */
 public class BoltzmannProcessor extends DataProcessor {
+
+    private IData data;
+    private double temperature;
+    private double energyBase;
     
-    public BoltzmannProcessor() {
-    }
-    
-    public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo incomingDataInfo) {
+    public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
         data = incomingDataInfo.makeData();
-        IEtomicaDataInfoFactory factory = incomingDataInfo.getFactory();
+        IDataInfoFactory factory = incomingDataInfo.getFactory();
         // we get energy in, spit out unitless
         factory.setDimension(Null.DIMENSION);
         dataInfo = factory.makeDataInfo();
@@ -41,21 +41,12 @@ public class BoltzmannProcessor extends DataProcessor {
         data.map(Function.Exp.INSTANCE);
         return data;
     }
-    
-    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
-        return null;
-    }
-    
-    public void setTemperature(double newTemperature) {
-        temperature = newTemperature;
-    }
-    
+
     public double getTemperature() {
         return temperature;
     }
-    
-    private static final long serialVersionUID = 1L;
-    private IData data;
-    private double temperature;
-    private double energyBase;
+
+    public void setTemperature(double newTemperature) {
+        temperature = newTemperature;
+    }
 }

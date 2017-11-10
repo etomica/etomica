@@ -9,8 +9,8 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
+import etomica.data.IDataInfo;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -37,7 +37,7 @@ import java.io.IOException;
  * ep/(e0 + alpha*ep)  if  Tp > T0
  * e0/(ep + alpha*e0)  if  T0 > Tp
  */
-public class MeterTargetTP implements IEtomicaDataSource {
+public class MeterTargetTP implements IDataSource {
 
     protected final MeterPotentialEnergy meterPotential;
     protected final PotentialMaster potentialMaster;
@@ -67,7 +67,7 @@ public class MeterTargetTP implements IEtomicaDataSource {
         tag = new DataTag();
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

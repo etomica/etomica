@@ -21,7 +21,7 @@ import etomica.util.Debug;
  * 
  * @see IData
  */
-public abstract class DataInfo implements java.io.Serializable, IEtomicaDataInfo {
+public abstract class DataInfo implements java.io.Serializable, IDataInfo {
 
     /**
      * Constructs new instance with descriptive label and dimension.

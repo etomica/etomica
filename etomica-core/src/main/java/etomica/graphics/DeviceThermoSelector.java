@@ -3,10 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.graphics;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.util.Iterator;
-import java.util.LinkedList;
 
 import etomica.action.IAction;
 import etomica.action.activity.IController;
@@ -16,8 +12,13 @@ import etomica.simulation.Simulation;
 import etomica.simulation.prototypes.HSMD3D;
 import etomica.units.Kelvin;
 import etomica.units.PrefixedUnit;
-import etomica.units.dimensions.Temperature;
 import etomica.units.Unit;
+import etomica.units.dimensions.Temperature;
+
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 /**
  * Permits selection of temperature from a discrete set of values.  Also has option
@@ -166,9 +167,8 @@ public class DeviceThermoSelector extends Device {
     public static void main(String[] args) {
         final String APP_NAME = "Device Thermo Selector";
 
-        etomica.space.Space sp = etomica.space3d.Space3D.getInstance();
-        final HSMD3D sim = new HSMD3D(sp);
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME, sp, sim.getController());
+        final HSMD3D sim = new HSMD3D();
+        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME, sim.getSpace(), sim.getController());
         
         DeviceThermoSelector device = new DeviceThermoSelector(sim, sim.integrator);
         device.setTemperatures(new double[] {0.5, 1.0, 2.0, 5.0});

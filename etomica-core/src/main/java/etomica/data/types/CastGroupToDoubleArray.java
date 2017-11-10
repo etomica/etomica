@@ -5,17 +5,16 @@
 package etomica.data.types;
 
 
-import etomica.space.Vector;
-import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.data.types.DataVector.DataInfoVector;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.units.dimensions.Dimension;
 
 /**
@@ -45,6 +44,9 @@ import etomica.units.dimensions.Dimension;
  */
 public class CastGroupToDoubleArray extends DataProcessor {
 
+    private DataDoubleArray outputData;
+    private int inputType;
+    
     /**
      * Sole constructor.
      */
@@ -54,12 +56,12 @@ public class CastGroupToDoubleArray extends DataProcessor {
     /**
      * Prepares processor to handle Data. Uses given DataInfo to determine the
      * type of Data to expect in subsequent calls to processData.
-     * 
+     *
      * @throws IllegalArgumentException
      *             if DataInfo does not indicate a DataGroup, or if DataInfo
      *             indicates that expected DataGroup will not be homogeneous
      */
-    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         if (!(inputDataInfo instanceof DataInfoGroup)) {
             throw new IllegalArgumentException("can only cast from DataGroup");
         }
@@ -69,11 +71,11 @@ public class CastGroupToDoubleArray extends DataProcessor {
         if (numSubData == 0) {
             inputType = 0;
             outputData = new DataDoubleArray(0);
-            IEtomicaDataInfo outputDataInfo = new DataInfoDoubleArray(label, dimension, new int[]{0});
+            IDataInfo outputDataInfo = new DataInfoDoubleArray(label, dimension, new int[]{0});
             outputDataInfo.addTags(inputDataInfo.getTags());
             return outputDataInfo;
         }
-        IEtomicaDataInfo subDataInfo = ((DataInfoGroup)inputDataInfo).getSubDataInfo(0);
+        IDataInfo subDataInfo = ((DataInfoGroup)inputDataInfo).getSubDataInfo(0);
 
         Class subDataInfoClass = subDataInfo.getClass();
         for (int i = 1; i<numSubData; i++) {
@@ -81,7 +83,7 @@ public class CastGroupToDoubleArray extends DataProcessor {
                 throw new IllegalArgumentException("CastGroupToDoubleArray can only handle homogeneous groups");
             }
         }
-        
+
         int[] outputArrayShape;
         if (subDataInfo instanceof DataInfoDoubleArray) {
             int[] arrayShape = ((DataInfoDoubleArray)subDataInfo).getArrayShape();
@@ -130,11 +132,11 @@ public class CastGroupToDoubleArray extends DataProcessor {
         outputDataInfo.addTags(inputDataInfo.getTags());
         return outputDataInfo;
     }
-    
+
     /**
      * Converts data in given group to a DataDoubleArray as described in the
      * general comments for this class.
-     * 
+     *
      * @throws ClassCastException
      *             if the given Data is not a DataGroup with Data elements of
      *             the type indicated by the most recent call to
@@ -144,7 +146,7 @@ public class CastGroupToDoubleArray extends DataProcessor {
         DataGroup group = (DataGroup)data;
         //we don't add ourselves
         switch (inputType) {
-        case 0:  // empty group 
+            case 0:  // empty group
             return outputData;
         case 1:  // a single DataDoubleArray
             return ((DataGroup)data).getData(0);
@@ -190,15 +192,4 @@ public class CastGroupToDoubleArray extends DataProcessor {
             throw new Error("Assertion error.  Input type out of range: "+inputType);
         }
     }
-    
-    /**
-     * Returns null.
-     */
-    public DataPipe getDataCaster(IEtomicaDataInfo info) {
-        return null;
-    }
-
-    private static final long serialVersionUID = 1L;
-    private DataDoubleArray outputData;
-    private int inputType;
 }

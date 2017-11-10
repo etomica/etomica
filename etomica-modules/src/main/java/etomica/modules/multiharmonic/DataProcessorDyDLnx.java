@@ -4,12 +4,7 @@
 
 package etomica.modules.multiharmonic;
 
-import etomica.data.DataPipe;
-import etomica.data.DataProcessor;
-import etomica.data.DataSourceIndependent;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
@@ -25,15 +20,18 @@ import etomica.units.dimensions.Quantity;
  */
 public class DataProcessorDyDLnx extends DataProcessor implements DataSourceIndependent {
 
+    protected final DataTag nTag;
+    protected DataFunction data;
+    protected DataInfoFunction dataInfo;
+    protected DataDoubleArray outNData;
+    protected DataInfoDoubleArray outNDataInfo;
+    protected DataSourceIndependent nDataSource;
+
     public DataProcessorDyDLnx() {
         nTag = new DataTag();
     }
 
-    public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
-        return null;
-    }
-
-    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         nDataSource = ((DataInfoFunction)inputDataInfo).getXDataSource();
         int myLength = inputDataInfo.getLength()-1;
         if (myLength < 0) {
@@ -86,12 +84,4 @@ public class DataProcessorDyDLnx extends DataProcessor implements DataSourceInde
     public DataTag getIndependentTag() {
         return nTag;
     }
-
-    private static final long serialVersionUID = 1L;
-    protected DataFunction data;
-    protected DataInfoFunction dataInfo;
-    protected DataDoubleArray outNData;
-    protected DataInfoDoubleArray outNDataInfo;
-    protected DataSourceIndependent nDataSource;
-    protected final DataTag nTag;
 }

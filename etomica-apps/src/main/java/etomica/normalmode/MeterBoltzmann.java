@@ -4,10 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDoubleArray;
@@ -22,7 +19,7 @@ import etomica.units.dimensions.Null;
  * 
  * @author Tai Boon Tan
  */
-public class MeterBoltzmann implements IEtomicaDataSource {
+public class MeterBoltzmann implements IDataSource {
     
     public MeterBoltzmann(IntegratorBox integrator, MeterPotentialEnergy meterPotentialEnergy, double ulatSampled, double ulatMeasured) {
         meterEnergy = new MeterPotentialEnergyFromIntegrator(integrator);
@@ -43,7 +40,7 @@ public class MeterBoltzmann implements IEtomicaDataSource {
         return data;
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

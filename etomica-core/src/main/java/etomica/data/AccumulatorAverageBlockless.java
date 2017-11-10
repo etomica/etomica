@@ -4,11 +4,11 @@
 
 package etomica.data;
 
-import etomica.math.function.IFunction;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
-import etomica.util.EnumeratedType;
 import etomica.math.function.Function;
+import etomica.math.function.IFunction;
+import etomica.util.EnumeratedType;
 
 /**
  * AccumulatorAverage that does not use blocks (best used when each sample
@@ -19,6 +19,18 @@ import etomica.math.function.Function;
  */
 public class AccumulatorAverageBlockless extends DataAccumulator {
 
+    public static final StatType MOST_RECENT = new StatType("Latest value", 0);
+    public static final StatType AVERAGE = new StatType("Average", 1);
+    public static final StatType STANDARD_DEVIATION = new StatType("Standard deviation", 2);
+    protected final IFunction negativeChop;
+    private final DataTag mostRecentTag, averageTag, standardDeviationTag;
+    protected IData mostRecent;//most recent value
+    protected IData average, standardDeviation;
+    protected DataGroup dataGroup;
+    protected long count;
+    protected IData sum; //sum(value)
+    protected IData sumSquare;//sum(value^2)
+    protected IData work;
     /**
      * Default constructor sets block size to Default value, and sets the
      * interval for pushing the output data (pushInterval) to 100.
@@ -38,7 +50,11 @@ public class AccumulatorAverageBlockless extends DataAccumulator {
             }
         };
     }
-    
+
+    public static StatType[] statChoices() {
+        return new StatType[]{MOST_RECENT, AVERAGE, STANDARD_DEVIATION};
+    }
+
     public DataTag getTag(StatType statType) {
         if (statType == MOST_RECENT) {
             return mostRecentTag;
@@ -49,13 +65,6 @@ public class AccumulatorAverageBlockless extends DataAccumulator {
         if (statType == STANDARD_DEVIATION) {
             return standardDeviationTag;
         }
-        return null;
-    }
-
-    /**
-     * Returns null (any data is good data)
-     */
-    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
         return null;
     }
 
@@ -127,14 +136,14 @@ public class AccumulatorAverageBlockless extends DataAccumulator {
     }
 
     /**
-     * Prepares the accumulator for input data.  Discards any previous 
+     * Prepares the accumulator for input data.  Discards any previous
      * contributions to statistics.
-     * 
+     *
      * @param incomingDataInfo
      *            the DataInfo instance for the data that will be given to
      *            addData
      */
-    public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo incomingDataInfo) {
+    public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
         sum = incomingDataInfo.makeData();
         sumSquare = incomingDataInfo.makeData();
         work = incomingDataInfo.makeData();
@@ -143,22 +152,22 @@ public class AccumulatorAverageBlockless extends DataAccumulator {
         mostRecent = incomingDataInfo.makeData();
 
         dataGroup = new DataGroup(new IData[] { mostRecent, average, standardDeviation});
-        
+
         reset();
-        
-        IEtomicaDataInfoFactory factory = incomingDataInfo.getFactory();
+
+        IDataInfoFactory factory = incomingDataInfo.getFactory();
         String incomingLabel = incomingDataInfo.getLabel();
         factory.setLabel(incomingLabel+" most recent");
-        IEtomicaDataInfo mostRecentInfo = factory.makeDataInfo();
+        IDataInfo mostRecentInfo = factory.makeDataInfo();
         mostRecentInfo.addTag(mostRecentTag);
         factory.setLabel(incomingLabel+" avg");
-        IEtomicaDataInfo averageInfo = factory.makeDataInfo();
+        IDataInfo averageInfo = factory.makeDataInfo();
         averageInfo.addTag(averageTag);
         factory.setLabel(incomingLabel+" stddev");
-        IEtomicaDataInfo standardDeviationInfo = factory.makeDataInfo();
+        IDataInfo standardDeviationInfo = factory.makeDataInfo();
         standardDeviationInfo.addTag(standardDeviationTag);
-        
-        dataInfo = new DataInfoGroup(incomingLabel, incomingDataInfo.getDimension(), new IEtomicaDataInfo[]{
+
+        dataInfo = new DataInfoGroup(incomingLabel, incomingDataInfo.getDimension(), new IDataInfo[]{
             mostRecentInfo, averageInfo, standardDeviationInfo});
         dataInfo.addTags(incomingDataInfo.getTags());
         dataInfo.addTag(tag);
@@ -171,7 +180,7 @@ public class AccumulatorAverageBlockless extends DataAccumulator {
      * that has only the specified statistics in it. The output of this
      * accumulator is passed through a DataGroupFilter that removes the unwanted
      * Data.
-     * 
+     *
      * @param newDataSink
      *            the new DataSink
      * @param types
@@ -192,30 +201,6 @@ public class AccumulatorAverageBlockless extends DataAccumulator {
         return count;
     }
 
-    /**
-     * Enumerated type that can be used to indicated the statistic to be taken
-     * from the accumulator (e.g., average, error, current value, etc.). An
-     * array of these types can be given to the addDataSink method to specify
-     * the type of statistics to be given to the DataSink.
-     */
-    public static class StatType extends EnumeratedType {
-
-        protected StatType(String label, int index) {
-            super(label);
-            this.index = index;
-        }
-
-        private static final long serialVersionUID = 1L;
-        public final int index;
-    }
-
-    public static final StatType MOST_RECENT = new StatType("Latest value", 0);
-    public static final StatType AVERAGE = new StatType("Average", 1);
-    public static final StatType STANDARD_DEVIATION = new StatType("Standard deviation", 2);
-    public static StatType[] statChoices() {
-        return new StatType[] {MOST_RECENT,AVERAGE,STANDARD_DEVIATION};
-    }
-
     public AllData getRawData() {
         return new AllData(count, sum, sumSquare);
     }
@@ -224,6 +209,22 @@ public class AccumulatorAverageBlockless extends DataAccumulator {
         count = ad.count;
         sum.E(ad.sum);
         sumSquare.E(ad.sumSquare);
+    }
+
+    /**
+     * Enumerated type that can be used to indicated the statistic to be taken
+     * from the accumulator (e.g., average, error, current value, etc.). An
+     * array of these types can be given to the addDataSink method to specify
+     * the type of statistics to be given to the DataSink.
+     */
+    public static class StatType extends EnumeratedType {
+
+        private static final long serialVersionUID = 1L;
+        public final int index;
+        protected StatType(String label, int index) {
+            super(label);
+            this.index = index;
+        }
     }
 
     public static class AllData {
@@ -235,15 +236,4 @@ public class AccumulatorAverageBlockless extends DataAccumulator {
             this.count = count;
         }
     }
-
-    protected IData mostRecent;//most recent value
-    protected IData average, standardDeviation;
-    protected DataGroup dataGroup;
-    protected long count;
-    private final DataTag mostRecentTag, averageTag, standardDeviationTag;
-
-    protected IData sum; //sum(value)
-    protected IData sumSquare;//sum(value^2)
-    protected IData work;
-    protected final IFunction negativeChop;
 }

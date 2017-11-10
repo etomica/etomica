@@ -4,10 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
@@ -20,7 +17,7 @@ import etomica.units.dimensions.Null;
  * 
  * @author Andrew Schultz & Tai Boon Tan
  */
-public class MeterWorkHarmonicUmbrella implements IEtomicaDataSource {
+public class MeterWorkHarmonicUmbrella implements IDataSource {
     
     public MeterWorkHarmonicUmbrella(IntegratorBox integrator, MeterHarmonicEnergy meterHarmonic) {
         meterTarget= new MeterPotentialEnergy(integrator.getPotentialMaster());
@@ -61,7 +58,7 @@ public class MeterWorkHarmonicUmbrella implements IEtomicaDataSource {
         latticeEnergy = newLatticeEnergy;
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

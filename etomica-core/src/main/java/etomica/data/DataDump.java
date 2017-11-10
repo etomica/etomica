@@ -13,14 +13,14 @@ package etomica.data;
  *
  * @author Andrew Schultz
  */
-public class DataDump implements IDataSink, IEtomicaDataSource {
+public class DataDump implements IDataSink, IDataSource {
+
+    protected final DataTag tag;
+    protected IData data;
+    protected IDataInfo dataInfo;
 
     public DataDump() {
         tag = new DataTag();
-    }
-
-    public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
-        return null;
     }
 
     public void putData(IData inputData) {
@@ -31,19 +31,15 @@ public class DataDump implements IDataSink, IEtomicaDataSource {
         return data;
     }
 
-    public void putDataInfo(IEtomicaDataInfo inputDataInfo) {
+    public void putDataInfo(IDataInfo inputDataInfo) {
         dataInfo = inputDataInfo;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 
     public DataTag getTag() {
         return tag;
     }
-
-    protected IData data;
-    protected IEtomicaDataInfo dataInfo;
-    protected final DataTag tag;
 }

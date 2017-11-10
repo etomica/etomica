@@ -14,10 +14,7 @@ import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.ApiIntergroupCoupled;
 import etomica.chem.elements.ElementChemical;
 import etomica.config.ConformationLinear;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCovariance;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
 import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
@@ -649,7 +646,7 @@ public class VirialHePI {
                     errorBox.putData(data);
                 }
             };
-            IEtomicaDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, new CompoundDimension(new Dimension[]{new DimensionRatio(Volume.DIMENSION, Quantity.DIMENSION)}, new double[]{nPoints-1}));
+            IDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, new CompoundDimension(new Dimension[]{new DimensionRatio(Volume.DIMENSION, Quantity.DIMENSION)}, new double[]{nPoints-1}));
             Unit unit = new CompoundUnit(new Unit[]{new UnitRatio(Liter.UNIT, Mole.UNIT)}, new double[]{nPoints-1});
             averageBox.putDataInfo(dataInfo);
             averageBox.setLabel("average");

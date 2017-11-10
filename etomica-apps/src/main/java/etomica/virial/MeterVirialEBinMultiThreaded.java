@@ -4,22 +4,13 @@
 
 package etomica.virial;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.math.MathContext;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import etomica.action.IAction;
 import etomica.util.random.IRandom;
 import etomica.virial.IntSet.PropertyBin;
+
+import java.io.*;
+import java.math.MathContext;
+import java.util.*;
 
 /**
  * Measures cluster averages for virial coefficients.  Configurations are
@@ -857,7 +848,7 @@ public class MeterVirialEBinMultiThreaded implements IAction {
     	}
     	
     	// we've considered contributions to all Y-expansion coefficients, now
-    	// we can compue weights for individual bins
+        // we can compute weights for individual bins
 
         E1 /= totalCount;
 //      sum1 /= totalCount;

@@ -6,10 +6,7 @@ package etomica.modules.interfacial;
 
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.data.DataSourceMolecular;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.molecule.IMolecule;
@@ -49,7 +46,7 @@ public class MeterOrientation implements DataSourceMolecular {
         return data;
     }
     
-    public IEtomicaDataInfo getMoleculeDataInfo() {
+    public IDataInfo getMoleculeDataInfo() {
         return dataInfo;
     }
     

@@ -17,8 +17,6 @@ import etomica.math.DoubleRange;
  * @author Andrew Schultz
  */
 public class HistogramCollapsing extends HistogramSimple {
-    private static final long serialVersionUID = 1L;
-    protected double nominalDeltaX;
     protected double firstValue;
     protected long firstValueCount;
 
@@ -46,6 +44,7 @@ public class HistogramCollapsing extends HistogramSimple {
 	}
 	
     public void addValue(double x) {     //takes new value and updates histogram
+        if (Double.isNaN(x)) return;
         if (sum == 0 && firstValueCount == 0) {
             firstValue = x;
             sum = 1;
@@ -69,11 +68,13 @@ public class HistogramCollapsing extends HistogramSimple {
             xMax += 0.5*deltaX;
             // resetting will clobber firstValueCount, so save it here
             long myFirstValueCount = firstValueCount;
+            double myFirstValue = firstValue;
             reset();
             for (int i=0; i<myFirstValueCount; i++) {
-                super.addValue(firstValue);
+                super.addValue(myFirstValue);
             }
             super.addValue(x);
+            return;
         }
         // infinity will mess everything up, so just ignore it here
         if (!Double.isInfinite(x) && (x < xMin || x > xMax)) {

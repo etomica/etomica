@@ -4,12 +4,12 @@
 
 package etomica.data;
 
-import java.util.ArrayList;
-
-import etomica.integrator.Integrator;
 import etomica.data.AccumulatorAverage.StatType;
+import etomica.integrator.Integrator;
 import etomica.listener.IntegratorListenerAction;
 import etomica.listener.IntegratorListenerGroupSeries;
+
+import java.util.ArrayList;
 
 /**
  * Convenience class for a data table that collects the AccumulatorAverage
@@ -42,7 +42,7 @@ public class DataTableAverages extends DataSinkTable {
      * Sets up table with no sources.
      */
     public DataTableAverages(Integrator integrator, StatType[] types, int blockSize,
-                             IEtomicaDataSource[] sources, ArrayList<DataPump> dataPumps) {
+                             IDataSource[] sources, ArrayList<DataPump> dataPumps) {
         super();
         this.dataPumps = dataPumps;
         this.types = types.clone();
@@ -59,7 +59,7 @@ public class DataTableAverages extends DataSinkTable {
     /**
      * Adds the given data source to those feeding the table.
      */
-    public void addDataSource(IEtomicaDataSource newSource) {
+    public void addDataSource(IDataSource newSource) {
         AccumulatorAverage accumulator;
         if (newSource.getDataInfo().getLength() == 1) {
             accumulator = new AccumulatorAverageCollapsing();
@@ -73,7 +73,7 @@ public class DataTableAverages extends DataSinkTable {
         }
         listenerGroup.addListener(new IntegratorListenerAction(dataPump));
         accumulator.setPushInterval(tableUpdateInterval);
-        accumulator.addDataSink(makeDataSink(),types);
+        accumulator.addDataSink(makeDataSink(accumulator.getDataInfo()), types);
     }
 
     /**

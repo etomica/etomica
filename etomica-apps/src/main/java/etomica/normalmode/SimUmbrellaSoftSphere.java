@@ -11,7 +11,7 @@ import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
@@ -219,7 +219,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
         //construct simulation
         final SimUmbrellaSoftSphere sim = new SimUmbrellaSoftSphere(Space.getInstance(D), numAtoms, density, temperature, filename, exponentN);
 
-        IEtomicaDataSource[] samplingMeters = new IEtomicaDataSource[2];
+        IDataSource[] samplingMeters = new IDataSource[2];
 
         sim.activityIntegrate.setMaxSteps(numSteps/10);
         sim.getController().actionPerformed();

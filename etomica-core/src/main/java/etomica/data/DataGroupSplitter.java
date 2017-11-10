@@ -19,11 +19,16 @@ import etomica.data.types.DataGroup.DataInfoGroup;
  */
 public class DataGroupSplitter implements IDataSink {
 
+    protected final DataTag tag;
+    protected IDataSink[] dataSinks;
+    protected DataDouble[] outData;
+    protected DataInfoGroup dataInfoGroup;
+    
     public DataGroupSplitter() {
         tag = new DataTag();
         dataSinks = new IDataSink[0];
     }
- 
+
     /**
      * Returns the DataTag associated with this DataGroupSplitter
      * @return
@@ -43,7 +48,7 @@ public class DataGroupSplitter implements IDataSink {
     public int getNumDataSinks() {
         return dataSinks.length;
     }
-    
+
     /**
      * Sets the DataSink for the ith output stream (corresponding to the ith
      * numerical value coming in).
@@ -55,13 +60,6 @@ public class DataGroupSplitter implements IDataSink {
         }
     }
 
-    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
-        if (!(incomingDataInfo instanceof DataInfoGroup)) {
-            throw new RuntimeException("I want to take a DataGroup");
-        }
-        return null;
-    }
-
     public void putData(IData data) {
         DataGroup dataGroup = (DataGroup)data;
         for (int i=0; i<dataSinks.length; i++) {
@@ -71,21 +69,19 @@ public class DataGroupSplitter implements IDataSink {
         }
     }
 
-    public void putDataInfo(IEtomicaDataInfo incomingDataInfo) {
+    public void putDataInfo(IDataInfo incomingDataInfo) {
+        if (!(incomingDataInfo instanceof DataInfoGroup)) {
+            throw new RuntimeException("I want to take a DataGroup");
+        }
         dataInfoGroup = (DataInfoGroup)incomingDataInfo;
         if (dataSinks.length != dataInfoGroup.getNDataInfo()) {
             dataSinks = new IDataSink[dataInfoGroup.getNDataInfo()];
         }
-        
+
         for (int i=0; i<dataSinks.length; i++) {
             if (dataSinks[i] != null) {
                 dataSinks[i].putDataInfo(dataInfoGroup.getSubDataInfo(i));
             }
         }
     }
-
-    protected IDataSink[] dataSinks;
-    protected DataDouble[] outData;
-    protected DataInfoGroup dataInfoGroup;
-    protected final DataTag tag;
 }

@@ -26,9 +26,9 @@ import etomica.units.dimensions.Null;
  * @author David Kofke
  * @author Andrew Schultz
  */
-public class MeterRDFPC implements IAction, IEtomicaDataSource, DataSourceIndependent {
-	
-	/**
+public class MeterRDFPC implements IAction, IDataSource, DataSourceIndependent {
+
+    /**
 	 * Creates meter with default to compute pair correlation for all
 	 * leaf atoms in a box.
 	 */
@@ -51,7 +51,7 @@ public class MeterRDFPC implements IAction, IEtomicaDataSource, DataSourceIndepe
         dataInfo.addTag(tag);
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -159,7 +159,7 @@ public class MeterRDFPC implements IAction, IEtomicaDataSource, DataSourceIndepe
     protected Box box;
     protected final Space space;
     protected DataFunction data;
-    private IEtomicaDataInfo dataInfo;
+    private IDataInfo dataInfo;
     protected DataDoubleArray rData;
     protected IteratorDirective allAtoms;
     protected final DataSourceUniform xDataSource;

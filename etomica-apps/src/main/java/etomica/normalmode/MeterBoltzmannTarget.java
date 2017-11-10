@@ -4,11 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.data.DataSourceScalar;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.units.dimensions.Null;
@@ -20,7 +16,7 @@ import etomica.units.dimensions.Null;
  * 
  * @author Andrew Schultz
  */
-public class MeterBoltzmannTarget implements IEtomicaDataSource {
+public class MeterBoltzmannTarget implements IDataSource {
     
     public MeterBoltzmannTarget(DataSourceScalar meterTargetEnergy, DataSourceScalar meterRefEnergy) {
         meterEnergy = meterTargetEnergy;
@@ -55,7 +51,7 @@ public class MeterBoltzmannTarget implements IEtomicaDataSource {
         temperature = newTemperature;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

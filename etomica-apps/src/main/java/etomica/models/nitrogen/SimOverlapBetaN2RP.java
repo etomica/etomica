@@ -7,7 +7,7 @@ package etomica.models.nitrogen;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.data.DataPump;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
@@ -52,7 +52,7 @@ public class SimOverlapBetaN2RP extends Simulation {
         
         integrators = new IntegratorBox[2];
         accumulatorPumps = new DataPump[2];
-        meters = new IEtomicaDataSource[2];
+        meters = new IDataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
 
         SpeciesN2 species = new SpeciesN2(space);
@@ -350,7 +350,7 @@ public class SimOverlapBetaN2RP extends Simulation {
     public double refPref;
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     public DataPump[] accumulatorPumps;
-    public IEtomicaDataSource[] meters;
+    public IDataSource[] meters;
     protected PotentialMaster potentialMasterTarg, potentialMasterRef;
     
     /**

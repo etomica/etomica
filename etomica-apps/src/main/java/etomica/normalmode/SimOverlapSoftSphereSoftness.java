@@ -9,7 +9,7 @@ import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
@@ -61,7 +61,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
     public double refPref;
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     public DataPump[] accumulatorPumps;
-    public IEtomicaDataSource[] meters;
+    public IDataSource[] meters;
     public String fname;
     protected MCMoveAtomCoupled atomMoveTarg, atomMoveRef;
     protected PotentialMaster potentialMasterTarg, potentialMasterRef;
@@ -76,7 +76,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
 
         integrators = new IntegratorBox[2];
         accumulatorPumps = new DataPump[2];
-        meters = new IEtomicaDataSource[2];
+        meters = new IDataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
@@ -312,9 +312,6 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
         System.out.println("numPoint: " +sim.accumulators[0].getNBennetPoints()+ "\n");
 
 
-//        DataGroup data = (DataGroup)sim.accumulators[0].getData(0);
-//        double refError = ((DataDoubleArray)data.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1];
-//        double refErrorRatio = refError/Math.abs(((DataDoubleArray)data.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]);
         System.out.println("ratio averages: \n");
         System.out.println(exponentN[0] + " to " + exponentN[1]);
         //System.out.println("    i\t  alpha_set\t       alpha\t         ratio0\t            ratio0_err\t         ratio1\t          ratio1_err");

@@ -12,7 +12,7 @@ import etomica.box.BoxAgentManager;
 import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.DataPump;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorScheme;
@@ -69,7 +69,7 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
     public MCMoveAtomCoupled atomMove;
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     public DataPump[] accumulatorPumps;
-    public IEtomicaDataSource[] meters;
+    public IDataSource[] meters;
     public double alphaCenter, alphaSpan;
     public int numAlpha;
     public SimOverlapSoftSphereEinHarm(Space _space, int numAtoms, double density, boolean slanty, double temperature, double spring, double frac, int exponent, double rc) {
@@ -94,7 +94,7 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
 
         integrators = new IntegratorBox[2];
         accumulatorPumps = new DataPump[2];
-        meters = new IEtomicaDataSource[2];
+        meters = new IDataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
 
         integrators[1] = new IntegratorMC(potentialMaster, getRandom(), temperature);

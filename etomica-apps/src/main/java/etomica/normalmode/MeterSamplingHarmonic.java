@@ -6,8 +6,8 @@ package etomica.normalmode;
 
 import etomica.data.DataTag;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.integrator.IntegratorBox;
@@ -20,7 +20,7 @@ import etomica.units.dimensions.Null;
  * 
  * @author Andrew Schultz & Tai Boon Tan
  */
-public class MeterSamplingHarmonic implements IEtomicaDataSource {
+public class MeterSamplingHarmonic implements IDataSource {
     
     public MeterSamplingHarmonic(IntegratorBox integrator, MCMoveAtomCoupledUmbrella move) {
         this.mcMove = move;
@@ -45,7 +45,7 @@ public class MeterSamplingHarmonic implements IEtomicaDataSource {
         return data;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

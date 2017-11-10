@@ -9,10 +9,7 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray;
@@ -24,7 +21,7 @@ import etomica.data.types.DataTable.DataInfoTable;
 import etomica.species.ISpecies;
 import etomica.units.dimensions.*;
 
-public final class MeterDimerFraction implements IEtomicaDataSource {
+public final class MeterDimerFraction implements IDataSource {
     public MeterDimerFraction(AtomLeafAgentManager aam) {
         data = new DataTable(1,5);
         DataInfoDoubleArray columnInfo = new DataInfoDoubleArray("Dimer Fraction", Fraction.DIMENSION, new int[]{5});
@@ -35,10 +32,10 @@ public final class MeterDimerFraction implements IEtomicaDataSource {
         dataDensity = new DataDouble();
         dataGroup = new DataGroup(new IData[] {data, dataDensity});
         DataDouble.DataInfoDouble dataInfoDouble = new DataInfoDouble("rho", new CompoundDimension(new Dimension[] {Quantity.DIMENSION, Volume.DIMENSION},new double[] {1,-1}));
-        dataInfoGroup = new DataInfoGroup("x and rho", Dimension.MIXED, new IEtomicaDataInfo[] {dataInfo, dataInfoDouble});
+        dataInfoGroup = new DataInfoGroup("x and rho", Dimension.MIXED, new IDataInfo[] {dataInfo, dataInfoDouble});
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfoGroup;
     }
 
