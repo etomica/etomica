@@ -13,10 +13,7 @@ import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.cell.*;
-import etomica.potential.IPotential;
-import etomica.potential.IPotentialAtomic;
-import etomica.potential.PotentialArray;
-import etomica.potential.PotentialCalculationEnergySum;
+import etomica.potential.*;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space2d.Vector2D;
@@ -25,6 +22,7 @@ import etomica.util.Arrays;
 import etomica.util.random.IRandom;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -38,7 +36,6 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
     protected Vector pivot;
     protected final Api1ACell neighbors;
     protected final AtomArrayList atomPairs;
-    protected final ArrayList<Box> boxArrayList;
     protected final IRandom random;
     protected IPotentialAtomic[][] potentials;
     protected final AtomPair atomPair;
@@ -47,6 +44,7 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
     protected double temperature;
     protected MeterPotentialEnergy energyMeter;
     protected IAtom atom;
+    protected HashMap<IAtom, Box> originalBox;
 
     public MCMoveGeometricClusterRestrictedGE(PotentialMasterCell potentialMaster, Space space, IRandom random,
                                               double neighborRange, Box box1, Box box2) {
@@ -70,35 +68,43 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
         potentials = new IPotentialAtomic[0][0];
         atomPair = new AtomPair();
         atomIterator = new AtomIteratorArrayListSimple();
-        boxArrayList = new ArrayList<>();
+        originalBox = new HashMap<>();
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         temperature = 1;
     }
 
     @Override
     public boolean doTrial() {
-        Box boxI = box1; //change this to random in future
+        Box boxI = random.nextInt(2) == 0?box1:box2;
         atomSource.setBox(boxI);
         positionSource.setBox(boxI);
         pivot = positionSource.randomPosition();
         IAtom atomI = atomSource.getAtom();
         if (atomI == null) return false;
+//        System.out.println(atomI);
 //        System.out.println(this);
         clusterAtoms1.clear();
         clusterAtoms2.clear();
-        clusterAtoms2.add(atomI);
         clusterAtomsList1.clear();
         clusterAtomsList2.clear();
-        clusterAtomsList2.add(atomI);
+
+        if(boxI==box1){
+            clusterAtoms2.add(atomI);
+            clusterAtomsList2.add(atomI);
+        }
+        else{
+            clusterAtoms1.add(atomI);
+            clusterAtomsList1.add(atomI);
+        }
         atomPairs.clear();
         outer: while(true){
             jNeighbors.clear();
             gatherNeighbors(atomI, boxI);
-
+            originalBox.put(atomI, boxI);
             for (IAtom atomJ:jNeighbors) {
                 atomPairs.add(atomI);
                 atomPairs.add(atomJ);
-                boxArrayList.add(boxI);
+                originalBox.put(atomJ, boxI);
             }
             jNeighbors.clear();
             moveAtom(atomI,boxI);
@@ -109,12 +115,15 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
             for (IAtom atomJ:jNeighbors) {
                 atomPairs.add(atomI);
                 atomPairs.add(atomJ);
-                boxArrayList.add(otherBoxI);
+                originalBox.put(atomJ, otherBoxI);
                  }
+//                 System.out.println(atomPairs);
             while(atomPairs.getAtomCount() > 0){
                 IAtom atomJ = atomPairs.remove(atomPairs.getAtomCount()-1);
                 atomI = atomPairs.remove(atomPairs.getAtomCount()-1);
-                Box boxJ = boxArrayList.remove(boxArrayList.size()-1);
+                boxI = originalBox.get(atomI);
+                Box boxJ = originalBox.get(atomJ);
+//                System.out.println(atomI+" "+atomJ);
                 if(clusterAtoms2.contains(atomJ) || clusterAtoms1.contains(atomJ)) continue;
                 double E = 0;
                 if(boxJ != boxI){
@@ -127,10 +136,11 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
                     moveAtom(atomJ, otherBoxJ);
                 }
                 double p = 1-Math.exp(-E/temperature);
+//                System.out.println(atomI+" "+atomJ+" "+boxI+" "+boxJ+" "+E+" "+p);
                 if(p<0 || p<random.nextDouble()) continue;
                 atomI = atomJ;
                 boxI = boxJ;
-
+//                System.out.println("move "+atomI);
                 HashSet<IAtom> clusterAtoms = boxI==box1?clusterAtoms2:clusterAtoms1;
                 clusterAtoms.add(atomI);
                 List<IAtom> clusterAtomsList = boxI==box1?clusterAtomsList2:clusterAtomsList1;
@@ -141,6 +151,7 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
             break;
 
         }
+//        System.out.println(clusterAtoms1+" "+clusterAtoms2);
 
         return true;
 
@@ -183,6 +194,7 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
             if(atomJ==atomI) atomJ = pair.getAtom(1);
             if (clusterAtoms1.contains(atomJ) || clusterAtoms2.contains(atomJ)) continue;
             jNeighbors.add(atomJ);
+//            System.out.println(pair);
         }
     }
 

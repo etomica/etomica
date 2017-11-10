@@ -24,6 +24,7 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+import etomica.util.random.RandomMersenneTwister;
 
 /**
  * Calculate osmotic virial coefficients for Hard-Sphere potential in Grand Canonical ensemble for solvent
@@ -49,7 +50,7 @@ public class GCRestrictedGibbsHS extends Simulation {
      */
     public GCRestrictedGibbsHS(double vf, double q, int numAtoms){
         super(Space3D.getInstance());
-//        setRandom(new RandomMersenneTwister(1));
+        setRandom(new RandomMersenneTwister(1));
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this,space);
         mcMoveInsertDelete1 = new MCMoveInsertDelete(potentialMaster, random, space);
         mcMoveInsertDelete2 = new MCMoveInsertDelete(potentialMaster, random, space);
@@ -71,7 +72,7 @@ public class GCRestrictedGibbsHS extends Simulation {
 
         box1 = new Box(space);
         addBox(box1);
-        box1.setBoundary(new BoundaryRectangularPeriodic(space, 4*sigma1));
+        box1.setBoundary(new BoundaryRectangularPeriodic(space, 3*sigma1));
         box1.setNMolecules(species1,numAtoms/2);
         integrator1 = new IntegratorMC(this, potentialMaster);
         integrator1.setBox(box1);
@@ -84,7 +85,7 @@ public class GCRestrictedGibbsHS extends Simulation {
 
         box2 = new Box(space);
         addBox(box2);
-        box2.setBoundary(new BoundaryRectangularPeriodic(space, 4*sigma1));
+        box2.setBoundary(new BoundaryRectangularPeriodic(space, 3*sigma1));
         box2.setNMolecules(species1,numAtoms - (numAtoms/2));
         integrator2 = new IntegratorMC(this, potentialMaster);
         integrator2.setBox(box2);
@@ -131,7 +132,7 @@ public class GCRestrictedGibbsHS extends Simulation {
         }
         else {
             params.numAtoms = 2;
-            params.numSteps = 100000;
+            params.numSteps = 1000000;
             params.nBlocks = 100;
             params.vf = 0.01;
             params.q = 0.2;
