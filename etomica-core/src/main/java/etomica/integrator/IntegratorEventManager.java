@@ -16,6 +16,10 @@ public class IntegratorEventManager {
         this.event = new IntegratorEvent(integrator);
     }
 
+    public IntegratorListener[] getListeners() {
+        return this.listeners.toArray(new IntegratorListener[]{});
+    }
+
     /**
      * Adds the given listener to this event manager.
      */

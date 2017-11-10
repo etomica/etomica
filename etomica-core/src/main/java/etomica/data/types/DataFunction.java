@@ -4,6 +4,8 @@
 
 package etomica.data.types;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import etomica.data.*;
 import etomica.units.dimensions.Dimension;
 
@@ -74,11 +76,13 @@ public class DataFunction extends DataDoubleArray {
             }
             return arrayShape;
         }
-        
+
+        @JsonIgnore
         public DataSourceIndependent getXDataSource() {
             return xDataSource;
         }
-        
+
+        @JsonIgnore
         public IDataInfoFactory getFactory() {
             return new DataInfoFunctionFactory(this);
         }
@@ -87,8 +91,17 @@ public class DataFunction extends DataDoubleArray {
             return new DataFunction(arrayShape);
         }
 
-        private static final long serialVersionUID = 1L;
         protected final DataSourceIndependent xDataSource;
+
+        @JsonProperty
+        private double[] getIndependentData() {
+            return getXDataSource().getIndependentData(0).getData();
+        }
+
+        @JsonProperty
+        private IDataInfo getIndependentDataInfo() {
+            return getXDataSource().getIndependentDataInfo(0);
+        }
     }
     
     public static class DataInfoFunctionFactory extends DataInfoDoubleArrayFactory {

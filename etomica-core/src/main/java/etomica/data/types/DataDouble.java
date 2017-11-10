@@ -11,6 +11,7 @@ import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.IDataInfoFactory;
+import etomica.meta.annotations.IgnoreProperty;
 import etomica.units.dimensions.Dimension;
 
 /**
@@ -168,7 +169,8 @@ public class DataDouble implements IData, java.io.Serializable {
         public int getLength() {
             return 1;
         }
-        
+
+        @IgnoreProperty
         public IDataInfoFactory getFactory() {
             return new DataInfoDoubleFactory(this);
         }

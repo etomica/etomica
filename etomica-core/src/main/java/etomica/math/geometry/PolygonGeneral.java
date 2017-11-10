@@ -4,6 +4,7 @@
 
 package etomica.math.geometry;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import etomica.space.Vector;
 import etomica.exception.MethodNotImplementedException;
 import etomica.space.Space;
@@ -40,6 +41,7 @@ public class PolygonGeneral extends Polygon {
      * Returns the value of the area enclosed by the polygon
      */
     //must override in subclass (until a general algorithm is implemented)
+    @JsonIgnore
     public double getArea() {
         throw new MethodNotImplementedException(
                 "General formula for area not implemented");

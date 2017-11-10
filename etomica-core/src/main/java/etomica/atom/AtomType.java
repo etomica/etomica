@@ -5,6 +5,7 @@
 package etomica.atom;
 
 import etomica.chem.elements.IElement;
+import etomica.meta.annotations.IgnoreProperty;
 import etomica.species.ISpecies;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Mass;
@@ -66,6 +67,7 @@ public class AtomType {
     /**
      * @return the species that contains the atom type
      */
+    @IgnoreProperty
     public ISpecies getSpecies() {
         return species;
     }

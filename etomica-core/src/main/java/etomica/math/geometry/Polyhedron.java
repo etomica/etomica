@@ -5,6 +5,7 @@
 package etomica.math.geometry;
 import java.util.LinkedList;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import etomica.space.Vector;
 
 /**
@@ -32,6 +33,7 @@ public abstract class Polyhedron extends Polytope {
     /**
      * Returns all faces defined by the polyhedron.
      */
+    @JsonIgnore
     public Polygon[] getFaces() {
         return faces;
     }
