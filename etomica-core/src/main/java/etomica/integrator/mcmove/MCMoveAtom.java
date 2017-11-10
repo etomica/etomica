@@ -100,6 +100,7 @@ public class MCMoveAtom extends MCMoveBoxStep {
         if (uOld > 1e8 && !fixOverlap) {
             PotentialCalculationEnergySum.debug = true;
             uOld = energyMeter.getDataAsScalar();
+            throw new RuntimeException("atom " + atom + " in box " + box + " has an overlap");
         }
 
         translationVector.setRandomCube(random);

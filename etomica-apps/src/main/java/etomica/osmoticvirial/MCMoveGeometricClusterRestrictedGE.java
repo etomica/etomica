@@ -72,6 +72,7 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
         atomIterator = new AtomIteratorArrayListSimple();
         boxArrayList = new ArrayList<>();
         energyMeter = new MeterPotentialEnergy(potentialMaster);
+        temperature = 1;
     }
 
     @Override
