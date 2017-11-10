@@ -90,6 +90,7 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
         clusterAtomsList1.clear();
         clusterAtomsList2.clear();
         clusterAtomsList2.add(atomI);
+        atomPairs.clear();
         outer: while(true){
             jNeighbors.clear();
             gatherNeighbors(atomI, boxI);

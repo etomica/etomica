@@ -88,6 +88,7 @@ public class MCMoveGeometricCluster extends MCMoveBox {
         clusterAtoms.clear();
         clusterAtoms.add(atomI);
         // System.out.println("molecule count "+box.getMoleculeList().getMoleculeCount());
+        atomPairs.clear();
         outer:
         while (true) {
             jNeighbors.clear();

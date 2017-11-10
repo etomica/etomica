@@ -133,8 +133,8 @@ public class GCRestrictedGibbsHS extends Simulation {
             params.numAtoms = 2;
             params.numSteps = 100000;
             params.nBlocks = 100;
-            params.vf = 0.005;
-            params.q = 0.5;
+            params.vf = 0.01;
+            params.q = 0.2;
         }
 
         int numAtoms = params.numAtoms;
