@@ -18,6 +18,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space2d.Vector2D;
 import etomica.space3d.Vector3D;
+import etomica.species.Species;
 import etomica.util.Arrays;
 import etomica.util.random.IRandom;
 
@@ -47,7 +48,7 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
     protected HashMap<IAtom, Box> originalBox;
 
     public MCMoveGeometricClusterRestrictedGE(PotentialMasterCell potentialMaster, Space space, IRandom random,
-                                              double neighborRange, Box box1, Box box2) {
+                                              double neighborRange, Box box1, Box box2, Species species) {
 
         super(potentialMaster);
         clusterAtoms1 = new HashSet<>();
@@ -59,8 +60,11 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
         atomPairs = new AtomArrayList();
         oldPosition = space.makeVector();
         positionSource = new RandomPositionSourceRectangular(space, random);
-        atomSource = new AtomSourceRandomLeaf();
-        ((AtomSourceRandomLeaf)atomSource).setRandomNumberGenerator(random);
+        if(species == null){
+            atomSource = new AtomSourceRandomLeaf();
+            ((AtomSourceRandomLeaf)atomSource).setRandomNumberGenerator(random);
+        }
+        else atomSource = new AtomSourceRandomSpecies(random, species);
         neighbors.setDirection(null);
         this.box1 = box1;
         this.box2 = box2;
