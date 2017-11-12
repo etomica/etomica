@@ -4,23 +4,30 @@
 
 package etomica.action;
 
-
+/**
+ * An action formed from a set of other actions.
+ */
 public interface ActionGroup extends IAction {
 
     /**
-     * Removes the given oldAction from the group.  oldAction must currently be
-     * contained by this group.
+     * Removes a specified action from the group. If action appears multiple times
+     * in group, first instance in execution order is removed.
+     *
+     * @param oldAction the action to be removed
+     * @return false if the given action is not in the group; true otherwise
      */
     public boolean removeAction(IAction oldAction);
 
     /**
-     * Adds the given newAction to this group.  This group should not already
-     * contain newAction.
+     * Adds the given action to this group, placing it at the end of the list.  If action is
+     * already in list, it will be performed repeatedly.
+     *
+     * @param newAction the action to be added
      */
     public void addAction(IAction newAction);
     
     /**
-     * Returns all actions from this group.
+     * Returns all actions from this group. List of actions held by group is unchanged.
      */
     public IAction[] getAllActions();
 
