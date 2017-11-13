@@ -59,7 +59,7 @@ public class GCRestrictedGibbsHS extends Simulation {
         addSpecies(species1);
         addSpecies(species2);
 
-        integrator = new IntegratorRGEMC(random,space);
+        integrator = new IntegratorRGEMC(random, space, species1);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
 

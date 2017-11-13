@@ -11,6 +11,7 @@ import etomica.integrator.mcmove.MCMoveMoleculeExchange;
 import etomica.integrator.mcmove.MCMoveVolumeExchange;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.space.Space;
+import etomica.species.Species;
 import etomica.util.random.IRandom;
 
 /**
@@ -23,11 +24,12 @@ public class IntegratorRGEMC extends IntegratorManagerMC {
 
     private MCMoveGeometricClusterRestrictedGE mcMoveGeometricClusterRestrictedGE;
     private Space space;
+    private Species species;
 
-
-    public IntegratorRGEMC(IRandom random, Space space) {
+    public IntegratorRGEMC(IRandom random, Space space, Species species) {
         super(random);
         this.space = space;
+        this.species = species;
     }
 
     public void addIntegrator(Integrator newIntegrator) {
@@ -42,7 +44,7 @@ public class IntegratorRGEMC extends IntegratorManagerMC {
 
             mcMoveGeometricClusterRestrictedGE =
                     new MCMoveGeometricClusterRestrictedGE((PotentialMasterCell) ((IntegratorBox)newIntegrator).getPotentialMaster(),
-                    space, random, 1.5, ((IntegratorBox)integrators[0]).getBox(),((IntegratorBox)integrators[1]).getBox());
+                    space, random, ((IntegratorBox)integrators[0]).getBox(),((IntegratorBox)integrators[1]).getBox(), species);
             moveManager.recomputeMoveFrequencies();
             moveManager.addMCMove(mcMoveGeometricClusterRestrictedGE);
         }

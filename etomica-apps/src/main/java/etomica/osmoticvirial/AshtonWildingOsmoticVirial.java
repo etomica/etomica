@@ -101,7 +101,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
 //            potential2 = new P2Ideal(space);
             potential12 = new P2HardSphere(space, sigma12, false);
 //            System.out.println("AO");
-            mcMoveGeometricCluster = new MCMoveGeometricCluster(potentialMaster, space, random, 1.5, integrator, species1);
+            mcMoveGeometricCluster = new MCMoveGeometricCluster(potentialMaster, space, random, integrator, species1);
             integrator.getMoveManager().addMCMove(mcMoveGeometricCluster);
         }
 

@@ -25,6 +25,13 @@ import etomica.util.random.IRandom;
 import java.util.HashSet;
 import java.util.Random;
 
+/**
+ * Implementation of geometric cluster move of Liu and Luijten.
+ * This is used to accelerate sampling of systems having molecules of very different sizes.
+ * Jiwen Liu and Erik Luijten, Rejection-Free Geometric Cluster Algorithm for Complex Fluids,
+ * Phys. Rev. Lett. 92, 035504, (2004).
+ * DOI: 10.1103/PhysRevLett.92.035504.
+ */
 public class MCMoveGeometricCluster extends MCMoveBox {
 
     protected RandomPositionSource positionSource;
@@ -40,20 +47,27 @@ public class MCMoveGeometricCluster extends MCMoveBox {
     protected final AtomPair atomPair;
     protected final AtomIteratorArrayListSimple atomIterator;
 
-    public MCMoveGeometricCluster(PotentialMasterCell potentialMaster, Space space, IRandom random,
-                                  double neighborRange, IntegratorMC integratorMC, ISpecies species) {
-
+    /**
+     * @param potentialMaster the PotentialMaster instance used by the simulation; this must have cell based neighbor list
+     *                        which is used to identify interacting molecules
+     * @param space simulation space
+     * @param random random number generator
+     * @param integratorMC MC integrator that uses this move, needed to get the temperature
+     * @param species specifies the molecules that are selected for the initial trial move; may be null, in which case
+     *                any molecule in the box could be used for initial trial
+     */
+    public MCMoveGeometricCluster(PotentialMasterCell potentialMaster, Space space, IRandom random
+            , IntegratorMC integratorMC, ISpecies species) {
         super(potentialMaster);
         clusterAtoms = new HashSet<>();
         jNeighbors = new HashSet<>();
-        neighbors = new Api1ACell(space.D(), neighborRange, potentialMaster.getCellAgentManager());
+        neighbors = new Api1ACell(space.D(), potentialMaster.getRange(), potentialMaster.getCellAgentManager());
         atomPairs = new AtomArrayList();
         oldPosition = space.makeVector();
         positionSource = new RandomPositionSourceRectangular(space, random);
         if (species == null) {
             atomSource = new AtomSourceRandomLeaf();
             ((AtomSourceRandomLeaf) atomSource).setRandomNumberGenerator(random);
-            System.out.println("Non-Seeded Geometric Cluster move");
         } else atomSource = new AtomSourceRandomSpecies(random, species);
         neighbors.setDirection(null);
         this.integratorMC = integratorMC;
@@ -83,11 +97,9 @@ public class MCMoveGeometricCluster extends MCMoveBox {
         NeighborCellManager ncm = ((PotentialMasterCell) potential).getNbrCellManager(box);
         pivot = positionSource.randomPosition();
         IAtom atomI = atomSource.getAtom();
-
         if (atomI == null) return false;
         clusterAtoms.clear();
         clusterAtoms.add(atomI);
-        // System.out.println("molecule count "+box.getMoleculeList().getMoleculeCount());
         atomPairs.clear();
         outer:
         while (true) {
@@ -119,6 +131,7 @@ public class MCMoveGeometricCluster extends MCMoveBox {
         return true;
     }
 
+   //Computes the energy between atomI and atomJ, determines the potential as needed and saves for later use.
     private double computeEnergy(IAtom atomI, IAtom atomJ) {
         int iIndex = atomI.getType().getIndex();
         int jIndex = atomJ.getType().getIndex();
@@ -171,6 +184,9 @@ public class MCMoveGeometricCluster extends MCMoveBox {
         position.PEa1Tv1(2, pivot);
     }
 
+    /**
+     * Returns 1 because move is always accepted.
+     */
     @Override
     public double getChi(double temperature) {
         return 1;
