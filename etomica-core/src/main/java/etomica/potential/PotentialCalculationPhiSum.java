@@ -10,7 +10,7 @@ import etomica.space.Vector;
 
 public class PotentialCalculationPhiSum implements PotentialCalculationMolecular {
 	 protected Vector fieldE;
-	 protected final Vector ei,ej;
+	protected Vector ei, ej;
 	 protected Vector Ai;
 	 protected Vector Aj;
 	 protected Vector dr;
