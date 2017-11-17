@@ -19,6 +19,8 @@ while getopts "o:" opt; do
 done
 shift $((OPTIND-1))
 
-./gradlew jmhJar
+[[ ! -d ${OUTDIR} ]] && mkdir -p ${OUTDIR}
 
-java -jar ./benchmarks/build/libs/benchmarks-jmh.jar BenchSim -rf JSON -rff "${OUTDIR}/${TIMESTAMP}_${COMMIT}.json"
+./gradlew --no-daemon :benchmarks:shadowJar
+
+java -jar ./benchmarks/build/libs/benchmarks-all.jar BenchSim -rf JSON -rff "${OUTDIR}/${TIMESTAMP}_${COMMIT}.json"
