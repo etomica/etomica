@@ -66,8 +66,8 @@ public class DataLogger extends DataProcessor implements IListener, java.io.Seri
      */
     public void actionPerformed(IEvent evt){
         if(evt instanceof ControllerEvent) {
-            if(dataSink != null && (((ControllerEvent)evt).getType() == ControllerEvent.NO_MORE_ACTIONS ||
-                    ((ControllerEvent)evt).getType() == ControllerEvent.HALTED)) {
+            if(dataSink != null && (((ControllerEvent)evt).getType() == ControllerEvent.Type.NO_MORE_ACTIONS ||
+                    ((ControllerEvent)evt).getType() == ControllerEvent.Type.HALTED)) {
                 if (writeOnFinishSource != null) {
                     putData(writeOnFinishSource.getData());
                 }

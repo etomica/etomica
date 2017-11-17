@@ -155,8 +155,8 @@ public class MSDCoordWriter implements IAction, IListener {
 
     public void actionPerformed(IEvent evt) {
         if (fileWriter != null &&
-            (((ControllerEvent)evt).getType() == ControllerEvent.NO_MORE_ACTIONS ||
-             ((ControllerEvent)evt).getType() == ControllerEvent.HALTED)) {
+            (((ControllerEvent)evt).getType() == ControllerEvent.Type.NO_MORE_ACTIONS ||
+             ((ControllerEvent)evt).getType() == ControllerEvent.Type.HALTED)) {
             closeFile();
         }
     }
