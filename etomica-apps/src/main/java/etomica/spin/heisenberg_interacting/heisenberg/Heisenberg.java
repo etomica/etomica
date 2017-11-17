@@ -265,7 +265,7 @@ public class Heisenberg extends Simulation {
         public boolean isGraphic = false;
         public boolean mSquare = true;
         public boolean aEE = true;
-        public double temperature = 10000;// Kelvin
+        public double temperature = 73;// Kelvin
         public int nCells = 20;//number of atoms is nCells*nCells
         public double interactionS = 1.0;
         public double dipoleMagnitude = 1.0;
