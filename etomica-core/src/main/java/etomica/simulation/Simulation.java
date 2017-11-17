@@ -21,9 +21,7 @@ import etomica.util.random.IRandom;
 import etomica.util.random.RandomMersenneTwister;
 import etomica.util.random.RandomNumberGeneratorUnix;
 
-import java.beans.Transient;
-import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.*;
 
 /**
  * The main class that organizes the elements of a molecular simulation.
@@ -35,11 +33,11 @@ public class Simulation {
 
     protected final Space space;
     protected final SimulationEventManager eventManager;
-    private final HashMap<String, IElement> elementSymbolHash;
-    private final HashMap<IElement, LinkedList<AtomType>> elementAtomTypeHash;
+    private final Map<String, IElement> elementSymbolHash;
+    private final Map<IElement, LinkedList<AtomType>> elementAtomTypeHash;
     protected int[] seeds;
     protected IRandom random;
-    private Box[] boxList;
+    private final List<Box> boxes;
     private Controller controller;
     private ISpecies[] speciesList;
 
@@ -50,7 +48,7 @@ public class Simulation {
      */
     public Simulation(Space space) {
         this.space = space;
-        boxList = new Box[0];
+        boxes = new ArrayList<>();
         controller = new Controller();
         seeds = RandomNumberGeneratorUnix.getRandSeedArray();
         random = new RandomMersenneTwister(seeds);
@@ -70,21 +68,32 @@ public class Simulation {
     }
 
     /**
+     * Get all boxes in the simulation.
+     * <p>
+     * Attempts to add or remove boxes from this list will throw UnsupportedOperationException, you must
+     * use the addBox and removeBox methods on Simulation.
+     *
+     * @return a read-only list of Boxes
+     */
+    public final List<Box> getBoxes() {
+        return Collections.unmodifiableList(this.boxes);
+    }
+
+    /**
      * Adds a Box to the simulation.
      *
      * @param newBox the Box being added.
      * @throws IllegalArgumentException if newBox was already added to the simulation.
      */
     public final void addBox(Box newBox) {
-        for (int i = 0; i < boxList.length; i++) {
-            if (boxList[i] == newBox) {
-                throw new IllegalArgumentException("Box " + newBox + " is already a part of this Simulation");
-            }
+        if (boxes.contains(newBox)) {
+            throw new IllegalArgumentException("Box " + newBox + " is already a part of this Simulation");
         }
-        boxList = (Box[]) Arrays.addObject(boxList, newBox);
-        newBox.setIndex(boxList.length - 1);
-        for (int i = 0; i < speciesList.length; i++) {
-            newBox.addSpeciesNotify(speciesList[i]);
+        boxes.add(newBox);
+        newBox.setIndex(boxes.size() - 1);
+
+        for(ISpecies aSpeciesList : speciesList) {
+            newBox.addSpeciesNotify(aSpeciesList);
         }
         eventManager.boxAdded(newBox);
     }
@@ -96,28 +105,21 @@ public class Simulation {
      * @throws IllegalArgumentException if oldBox was not previously added to the simulation.
      */
     public final void removeBox(Box oldBox) {
-        boolean found = false;
-        for (int i = 0; i < boxList.length; i++) {
-            if (boxList[i] == oldBox) {
-                found = true;
-                break;
+        boolean found = boxes.remove(oldBox);
+        if(found) {
+            for (int i = oldBox.getIndex(); i < boxes.size(); i++) {
+                boxes.get(i).setIndex(i);
             }
-        }
-        if (!found) {
+
+            eventManager.boxRemoved(oldBox);
+
+            // notify oldBox that we no longer have it.  this will reset its index
+            // to 0, so we need to do this after firing notification
+            oldBox.setIndex(0);
+        } else {
             throw new IllegalArgumentException("Box " + oldBox + " is not part of this Simulation");
         }
 
-        boxList = (Box[]) Arrays.removeObject(boxList, oldBox);
-
-        for (int i = oldBox.getIndex(); i < boxList.length; i++) {
-            boxList[i].setIndex(i);
-        }
-
-        eventManager.boxRemoved(oldBox);
-
-        // notify oldBox that we no longer have it.  this will reset its index
-        // to 0, so we need to do this after firing notification
-        oldBox.setIndex(0);
     }
 
     /**
@@ -128,7 +130,7 @@ public class Simulation {
      * @return the specified Box.
      */
     public final Box getBox(int index) {
-        return boxList[index];
+        return boxes.get(index);
     }
 
     /**
@@ -136,7 +138,7 @@ public class Simulation {
      */
     @IgnoreProperty
     public int getBoxCount() {
-        return boxList.length;
+        return boxes.size();
     }
 
     /**
@@ -207,8 +209,8 @@ public class Simulation {
             atomTypeAddedNotify(species.getAtomType(i));
         }
 
-        for (int i = 0; i < boxList.length; i++) {
-            boxList[i].addSpeciesNotify(species);
+        for(Box box : boxes) {
+            box.addSpeciesNotify(species);
         }
 
         // this just fires an event for listeners to receive
@@ -254,8 +256,8 @@ public class Simulation {
             }
         }
 
-        for (int j = 0; j < boxList.length; j++) {
-            boxList[j].removeSpeciesNotify(removedSpecies);
+        for(Box box : boxes) {
+            box.removeSpeciesNotify(removedSpecies);
         }
 
         eventManager.speciesRemoved(removedSpecies);
