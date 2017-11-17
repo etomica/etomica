@@ -18,7 +18,7 @@ import javax.swing.JRadioButton;
 import javax.swing.border.TitledBorder;
 
 import etomica.action.IAction;
-import etomica.action.activity.IController;
+import etomica.action.activity.Controller;
 
 /**
  * Add etomica device for a group of radio buttons.  Each button is associated
@@ -37,7 +37,7 @@ public class DeviceButtonGroup extends Device {
     protected final int cols;
     protected IAction targetAction;
     
-    public DeviceButtonGroup(IController controller, int cols) {
+    public DeviceButtonGroup(Controller controller, int cols) {
         super(controller);
         buttonGroup = new ButtonGroup();
         buttons = new ArrayList<JRadioButton>();

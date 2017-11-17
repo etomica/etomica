@@ -6,7 +6,7 @@
 package etomica.graphics;
 
 import etomica.action.IAction;
-import etomica.action.activity.IController;
+import etomica.action.activity.Controller;
 import etomica.simulation.prototypes.HSMD2D;
 
 import javax.swing.*;
@@ -26,7 +26,7 @@ public class DeviceButton extends Device {
      * call to setAction is needed to make the button do something.
      * @param controller
      */
-    public DeviceButton(IController controller) {
+    public DeviceButton(Controller controller) {
         super(controller);
         button = new JButton();
     }
@@ -35,7 +35,7 @@ public class DeviceButton extends Device {
      * Constructs a button connected to the given action.  Controller
      * and action may be changed independently after construction.
      */
-    public DeviceButton(IController controller, IAction action) {
+    public DeviceButton(Controller controller, IAction action) {
         this(controller);
         setAction(action);
     }

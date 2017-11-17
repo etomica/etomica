@@ -6,7 +6,6 @@
 
 import etomica.action.IAction;
 import etomica.action.activity.Controller;
-import etomica.action.activity.IController;
 import etomica.box.Box;
 import etomica.graphics.Device;
 import etomica.graphics.DeviceSlider;
@@ -36,7 +35,7 @@ public class DeviceCellNum3DSlider extends Device {
     protected Box box;
     
 	
-	public DeviceCellNum3DSlider(IController cont) {
+	public DeviceCellNum3DSlider(Controller cont) {
 		
         //n-CellNum selector
         nCellNumSlider = new DeviceSlider(controller);
@@ -134,7 +133,7 @@ public class DeviceCellNum3DSlider extends Device {
 	/**
 	 * Set the n- Cell # slider controller.
 	 */
-    public void setController(IController cont) {
+    public void setController(Controller cont) {
     	super.setController(cont);
     	nCellNumSlider.setController(cont);
     }

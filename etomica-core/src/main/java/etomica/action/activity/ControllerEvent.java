@@ -11,14 +11,14 @@ import etomica.util.IEvent;
 public class ControllerEvent implements IEvent, java.io.Serializable {
     
     private static final long serialVersionUID = 1L;
-    protected final IController controller;
+    protected final Controller controller;
     protected final Type type;
     protected final IAction action;
     
-    public ControllerEvent(IController source, Type type) {
+    public ControllerEvent(Controller source, Type type) {
         this(source, type, null);
     }
-    public ControllerEvent(IController source, Type type, IAction action) {
+    public ControllerEvent(Controller source, Type type, IAction action) {
         this.controller = source;
         this.type = type;
         this.action = action;
@@ -26,7 +26,7 @@ public class ControllerEvent implements IEvent, java.io.Serializable {
     
     public IAction getAction() {return action;} 
     public Type getType() {return type;}
-    public IController getController() {return controller;}
+    public Controller getController() {return controller;}
     
     public static final Type START = new Type("Start",1);
     public static final Type START_ACTION = new Type("Start action",2);

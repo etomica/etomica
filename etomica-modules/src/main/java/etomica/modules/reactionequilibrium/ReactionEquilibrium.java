@@ -6,7 +6,7 @@ package etomica.modules.reactionequilibrium;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.IController;
+import etomica.action.activity.Controller;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.AtomType;
@@ -27,7 +27,7 @@ import javax.swing.*;
 
 public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom> {
 
-    public IController controller1;
+    public Controller controller1;
     public JPanel panel = new JPanel(new java.awt.BorderLayout());
     public IntegratorHard integratorHard1;
     public java.awt.Component display;

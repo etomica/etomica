@@ -5,7 +5,7 @@
 package etomica.graphics;
 
 import etomica.action.IAction;
-import etomica.action.activity.IController;
+import etomica.action.activity.Controller;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
 import etomica.simulation.Simulation;
@@ -38,7 +38,7 @@ public class DeviceThermoSelector extends Device {
         setIntegrator(integrator);
     }
      
-    public DeviceThermoSelector(IController controller, Unit tempUnit, boolean fixOverlap) {
+    public DeviceThermoSelector(Controller controller, Unit tempUnit, boolean fixOverlap) {
          super(controller);
          selector = new javax.swing.JComboBox(new Object[] {new Object()});
          setTemperatures(new double[] {200.0, 400.0, 600.0});

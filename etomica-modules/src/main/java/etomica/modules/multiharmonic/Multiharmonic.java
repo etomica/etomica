@@ -6,7 +6,7 @@ package etomica.modules.multiharmonic;
 
 import etomica.action.SimulationDataAction;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.IController;
+import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -41,7 +41,7 @@ public class Multiharmonic extends Simulation {
     AccumulatorHistory historyEnergy;
     SpeciesSpheresMono species;
     Box box;
-    IController controller;
+    Controller controller;
     P1Harmonic potentialA, potentialB;
     IntegratorVelocityVerlet integrator;
     ActivityIntegrate activityIntegrate;

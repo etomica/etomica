@@ -9,7 +9,7 @@ import java.awt.Color;
 import etomica.action.ActionGroupSeries;
 import etomica.action.ActionToggle;
 import etomica.action.IAction;
-import etomica.action.activity.IController;
+import etomica.action.activity.Controller;
 import etomica.modifier.ModifierBoolean;
 import etomica.simulation.prototypes.HSMD2D;
 
@@ -24,16 +24,16 @@ import etomica.simulation.prototypes.HSMD2D;
  */
 public class DeviceToggleButton extends DeviceButton {
 
-    public DeviceToggleButton(IController controller) {
+    public DeviceToggleButton(Controller controller) {
         super(controller);
     }
     
-    public DeviceToggleButton(IController controller, ModifierBoolean modifier) {
+    public DeviceToggleButton(Controller controller, ModifierBoolean modifier) {
         this(controller, modifier, "True", "False");
     }
 
-    public DeviceToggleButton(IController controller, ModifierBoolean modifier,
-            String trueText, String falseText) {
+    public DeviceToggleButton(Controller controller, ModifierBoolean modifier,
+                              String trueText, String falseText) {
         super(controller);
         setModifier(modifier, trueText, falseText);
     }

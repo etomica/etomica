@@ -41,7 +41,7 @@ import etomica.util.IEventManager;
  * @see IAction
  * @see Activity
  */
-public class Controller extends ActivityGroupSeries implements java.io.Serializable, IController {
+public class Controller extends ActivityGroupSeries {
     
     public Controller() {
         actionStatusMap = new HashMap<IAction, ActionStatus>();
@@ -66,7 +66,12 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
         }
         return false;
     }
-    
+
+    /**
+     * Marks all actions as pending.  Previously completed actions are put
+     * first in the new list of pending actions.  The Controller must be
+     * inactive or halted before calling this method.
+     */
     public synchronized void reset() {
         for (int i=0; i<completedActions.length; i++) {
             actionStatusMap.remove(completedActions[i]);
@@ -278,7 +283,13 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
     public String toString() {
         return "Controller";
     }
-    
+
+    /**
+     * Returns the event manager used by the controller to notify listeners of
+     * individual actions events as well as events related to the controller
+     * itself.
+     * @see ControllerEvent
+     */
     public IEventManager getEventManager() {
         return eventManager;
     }

@@ -5,7 +5,7 @@
 package etomica.modules.chainequilibrium;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.IController;
+import etomica.action.activity.Controller;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.AtomType;
@@ -31,7 +31,7 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource<IAtom
 
     public final PotentialMaster potentialMaster;
     public final ConfigurationLatticeRandom config;
-    public IController controller1;
+    public Controller controller1;
 	public IntegratorHard integratorHard;
 	public java.awt.Component display;
 	public Box box;
