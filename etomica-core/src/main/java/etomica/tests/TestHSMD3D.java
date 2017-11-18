@@ -4,7 +4,7 @@
 
 package etomica.tests;
 
-import etomica.action.ActionIntegrate;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.Configuration;
@@ -45,9 +45,9 @@ public class TestHSMD3D extends Simulation {
         integrator = new IntegratorHard(this, potentialMaster, space);
         integrator.setTimeStep(0.01);
         integrator.setIsothermal(true);
-        ActionIntegrate actionIntegrate = new ActionIntegrate(integrator,false);
-        getController().addAction(actionIntegrate);
-        actionIntegrate.setMaxSteps(numSteps);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        getController().addAction(activityIntegrate);
+        activityIntegrate.setMaxSteps(numSteps);
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
         addSpecies(species);

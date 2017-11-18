@@ -4,7 +4,7 @@
 
 package etomica.tests;
 
-import etomica.action.ActionIntegrate;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.box.Box;
@@ -62,9 +62,9 @@ public class TestSWChain extends Simulation {
         integrator = new IntegratorHard(this, potentialMaster, space);
         integrator.setTimeStep(timeStep);
         integrator.setIsothermal(true);
-        ActionIntegrate actionIntegrate = new ActionIntegrate(integrator,false);
-        getController().addAction(actionIntegrate);
-        actionIntegrate.setMaxSteps(nSteps);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        getController().addAction(activityIntegrate);
+        activityIntegrate.setMaxSteps(nSteps);
         potentialMaster.setCellRange(2);
         potentialMaster.setRange(neighborRangeFac*sqwLambda*sigma);
 

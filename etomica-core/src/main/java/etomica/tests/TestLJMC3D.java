@@ -3,8 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.tests;
-import etomica.action.ActionIntegrate;
+
 import etomica.action.BoxInflate;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -53,9 +54,9 @@ public class TestLJMC3D extends Simulation {
         ((MCMoveStepTracker)mcMoveAtom.getTracker()).setTunable(false);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         integrator.getMoveManager().setEquilibrating(false);
-        ActionIntegrate actionIntegrate = new ActionIntegrate(integrator,false);
-        actionIntegrate.setMaxSteps(numSteps);
-        getController().addAction(actionIntegrate);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        activityIntegrate.setMaxSteps(numSteps);
+        getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 	    box = new Box(space);
