@@ -15,7 +15,6 @@ import etomica.meta.annotations.IgnoreProperty;
 import etomica.meta.javadoc.KeepSimJavadoc;
 import etomica.space.Space;
 import etomica.species.ISpecies;
-import etomica.util.Arrays;
 import etomica.util.random.IRandom;
 import etomica.util.random.RandomMersenneTwister;
 import etomica.util.random.RandomNumberGeneratorUnix;
@@ -36,7 +35,7 @@ public class Simulation {
     private final Map<IElement, LinkedList<AtomType>> elementAtomTypeHash;
     protected int[] seeds;
     protected IRandom random;
-    private Controller controller;
+    private final Controller controller;
 
     private final List<ISpecies> speciesList;
     private final List<Box> boxes;
@@ -54,8 +53,8 @@ public class Simulation {
         random = new RandomMersenneTwister(seeds);
         eventManager = new SimulationEventManager(this);
         speciesList = new ArrayList<>();
-        elementSymbolHash = new HashMap<String, IElement>();
-        elementAtomTypeHash = new HashMap<IElement, LinkedList<AtomType>>();
+        elementSymbolHash = new HashMap<>();
+        elementAtomTypeHash = new HashMap<>();
     }
 
     /**
