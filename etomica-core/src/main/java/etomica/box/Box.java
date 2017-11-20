@@ -53,9 +53,8 @@ import etomica.util.Debug;
  * @see Boundary
  * @see BoxEventManager
  */
-public class Box implements java.io.Serializable {
+public class Box {
 
-    private static final long serialVersionUID = 2L;
     /**
      * List of leaf atoms in box
      */
@@ -69,13 +68,17 @@ public class Box implements java.io.Serializable {
 
     /**
      * Constructs box with default rectangular periodic boundary.
+     * @param space space governing the simulation
      */
     public Box(Space space) {
         this(new BoundaryRectangularPeriodic(space), space);
     }
 
     /**
-     * Constructs box with the given boundary
+     * Constructs box with the given Boundary, which specifies the size and shape of the Box and specifies what
+     * happens to atoms as they cross the box boundary e.g. periodic boundaries.
+     * @param boundary the specified Boundary
+     * @param space space governing the simulation
      */
     public Box(Boundary boundary, Space space) {
         this.space = space;
@@ -90,8 +93,8 @@ public class Box implements java.io.Serializable {
 
     /**
      * @return the Box's index.  The index corresponds to the box's position
-     * in the simulation's list of IBoxes.  The index of the first Box is 0.
-     * The index of the last Box is n-1, where n is the number of IBoxes.
+     * in the simulation's list of Boxes.  The index of the first Box is 0.
+     * The index of the last Box is n-1, where n is the number of Boxes.
      */
     public int getIndex() {
         return index;
@@ -101,7 +104,7 @@ public class Box implements java.io.Serializable {
      * Informs the Box what its index is.  This should only be called by the
      * Simulation.
      *
-     * @param newIndex the box's new index
+     * @param newIndex the Box's new index
      */
     public void setIndex(int newIndex) {
         index = newIndex;
@@ -127,12 +130,12 @@ public class Box implements java.io.Serializable {
     }
 
     /**
-     * Adds the given molecule to the this box.  The molecule should not
-     * already be in this box and should not be in another Box.  The molecule
+     * Adds the given molecule to the this Box.  The molecule should not
+     * already be in this Box and should not be in another Box.  The molecule
      * should be a member of an ISpecies which has been added to the
-     * Simulation.
+     * Simulation. No exceptions are thrown if these conditions are violated.
      *
-     * @param molecule the molecule to be added to the box
+     * @param molecule the molecule to be added to the Box
      */
     public void addMolecule(IMolecule molecule) {
         int speciesIndex = molecule.getType().getIndex();
@@ -166,15 +169,15 @@ public class Box implements java.io.Serializable {
     }
 
     /**
-     * Removes the given molecule from this box.  The molecule must be held
-     * by the box before this method is called.
+     * Removes the given molecule from this Box.
      *
-     * @param molecule the molecule to be removed from the box
+     * @param molecule the molecule to be removed from the Box
+     * @throws IllegalArgumentException if the given molecule is not in the Box
      */
     public void removeMolecule(IMolecule molecule) {
         int moleculeIndex = molecule.getIndex();
         MoleculeArrayList moleculeList = moleculeLists[molecule.getType().getIndex()];
-        if (Debug.ON && moleculeList.getMolecule(moleculeIndex) != molecule) {
+        if (moleculeList.getMolecule(moleculeIndex) != molecule) {
             throw new IllegalArgumentException("can't find " + molecule);
         }
         if (moleculeIndex < moleculeList.getMoleculeCount() - 1) {
@@ -210,6 +213,7 @@ public class Box implements java.io.Serializable {
      *
      * @param species the species whose number of molecules should be changed
      * @param n       the desired number of molecules
+     * @throws IllegalArgumentException if n < 0.
      */
     public void setNMolecules(ISpecies species, int n) {
         int speciesIndex = species.getIndex();
@@ -277,7 +281,7 @@ public class Box implements java.io.Serializable {
     }
 
     /**
-     * Sets the box's boundary to the given IBoundary.
+     * Sets the box's boundary to the given Boundary.
      *
      * @param b the new boundary
      */
@@ -338,12 +342,7 @@ public class Box implements java.io.Serializable {
         return leafList;
     }
 
-    /**
-     * Notifies the SpeciesMaster that the given number of new Atoms will be
-     * added to the system.  It's not required to call this method before
-     * adding atoms, but if adding many Atoms, calling this will improve
-     * performance.
-     */
+
     protected void notifyNewMolecules(ISpecies species, int numNewMolecules, int moleculeLeafAtoms) {
         if (numNewMolecules < 1) return;
         // has no actual effect within this object.  We just notify things to
