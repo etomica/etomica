@@ -71,7 +71,7 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
         clusterAtomsList1 = new ArrayList<>();
         clusterAtomsList2 = new ArrayList<>();
         jNeighbors = new ArrayList<>();
-        neighbors = new Api1ACell(space.D(),neighborRange,potentialMaster.getCellAgentManager());
+        neighbors = new Api1ACell(space.D(),potentialMaster.getRange(),potentialMaster.getCellAgentManager());
         atomPairs = new AtomArrayList();
         oldPosition = space.makeVector();
         positionSource = new RandomPositionSourceRectangular(space, random);
