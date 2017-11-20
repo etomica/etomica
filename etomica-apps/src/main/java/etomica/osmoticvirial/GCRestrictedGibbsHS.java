@@ -17,6 +17,7 @@ import etomica.integrator.mcmove.MCMoveManager;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2HardSphere;
+import etomica.potential.P2Ideal;
 import etomica.potential.Potential2;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -50,7 +51,7 @@ public class GCRestrictedGibbsHS extends Simulation {
      */
     public GCRestrictedGibbsHS(double vf, double q, int numAtoms){
         super(Space3D.getInstance());
-        setRandom(new RandomMersenneTwister(1));
+//        setRandom(new RandomMersenneTwister(1));
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this,space);
         mcMoveInsertDelete1 = new MCMoveInsertDelete(potentialMaster, random, space);
         mcMoveInsertDelete2 = new MCMoveInsertDelete(potentialMaster, random, space);
@@ -97,8 +98,9 @@ public class GCRestrictedGibbsHS extends Simulation {
         integrator.addIntegrator(integrator2);
 
         potential1 = new P2HardSphere(space, sigma1, false);
-        potential2 = new P2HardSphere(space, sigma2, false);
-//        potential2 = new P2Ideal(space);
+//        potential2 = new P2HardSphere(space, sigma2, false);
+        potential2 = new P2Ideal(space);
+        System.out.println("AO");
         potential12 = new P2HardSphere(space, sigma12, false);
         potentialMaster.setCellRange(3);
         potentialMaster.setRange(potential1.getRange());
@@ -131,10 +133,10 @@ public class GCRestrictedGibbsHS extends Simulation {
             ParseArgs.doParseArgs(params, args);
         }
         else {
-            params.numAtoms = 2;
+            params.numAtoms = 3;
             params.numSteps = 1000000;
             params.nBlocks = 100;
-            params.vf = 0.01;
+            params.vf = 0.2;
             params.q = 0.2;
         }
 
