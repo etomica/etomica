@@ -82,7 +82,7 @@ public class GCWidomInsertHS extends Simulation {
         if (computez2z1){box.setNMolecules(species1,1);}
         else if (computez3z2){box.setNMolecules(species1,2);}
 
-        mcMoveGeometricCluster = new MCMoveGeometricCluster(potentialMaster, space, random, 1.5, integrator, null);
+        mcMoveGeometricCluster = new MCMoveGeometricCluster(potentialMaster, space, random, integrator, null);
         integrator.getMoveManager().addMCMove(mcMoveGeometricCluster);
 
         potential1 = new P2HardSphere(space, sigma1, false);
