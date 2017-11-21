@@ -6,10 +6,10 @@ package etomica.molecule;
 
 import etomica.box.*;
 import etomica.simulation.*;
-import etomica.util.Arrays;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
+import java.util.Arrays;
 
 /**
  * MoleculeAgentManager acts on behalf of client classes (an AgentSource) to
@@ -161,7 +161,7 @@ public class MoleculeAgentManager<E> implements BoxEventListener, SimulationList
             // needs to be, shrink it.
             // ... or we've been notified that atoms are about to get added to the
             // system.  Make room for them
-            agents[speciesIndex] = java.util.Arrays.copyOf(agents[speciesIndex],newMaxIndex+reservoirSize);
+            agents[speciesIndex] = java.util.Arrays.copyOf(agents[speciesIndex], newMaxIndex + reservoirSize);
         }
     }
 
@@ -175,7 +175,7 @@ public class MoleculeAgentManager<E> implements BoxEventListener, SimulationList
     }
 
     public void simulationSpeciesRemoved(SimulationSpeciesEvent e) {
-        agents = (E[][])Arrays.removeObject(agents, agents[e.getSpecies().getIndex()]);
+        agents = (E[][])etomica.util.Arrays.removeObject(agents, agents[e.getSpecies().getIndex()]);
 
     }
 

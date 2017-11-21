@@ -31,6 +31,8 @@ import etomica.species.SpeciesSpheresHetero;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 
+import java.util.Arrays;
+
 /**
  * Generic GCPM potential class, capable of handling both CO2 and water.
  * The potential takes an AtomTypeAgentManager that is responsible for
@@ -441,9 +443,9 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         final int moleculeCount = molecules.getMoleculeCount();
         if (Eq.length < moleculeCount+1) {
             int oldSize = Eq.length;
-            Eq = (Vector[][])etomica.util.Arrays.resizeArray(Eq, moleculeCount);
-            Ep = (Vector[][])etomica.util.Arrays.resizeArray(Ep, moleculeCount);
-            mu= (Vector[][])etomica.util.Arrays.resizeArray(mu, moleculeCount);
+            Eq = Arrays.copyOf(Eq, moleculeCount);
+            Ep = Arrays.copyOf(Ep, moleculeCount);
+            mu = Arrays.copyOf(mu, moleculeCount);
             for (int i=oldSize; i<moleculeCount; i++) {
                 Eq[i] = new Vector[0];
                 Ep[i] = new Vector[0];

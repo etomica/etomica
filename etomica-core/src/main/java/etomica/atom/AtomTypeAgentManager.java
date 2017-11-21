@@ -6,10 +6,10 @@ package etomica.atom;
 
 import etomica.simulation.*;
 import etomica.species.ISpecies;
-import etomica.util.Arrays;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
+import java.util.Arrays;
 
 /**
  * AtomTypeAgentManager acts on behalf of client classes (an AgentSource) to 
@@ -66,7 +66,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
             agents = new Object[atomType.getIndex()+1];
         }
         else if (agents.length <= atomType.getIndex()) {
-            agents = Arrays.resizeArray(agents, atomType.getIndex()+1);
+            agents = Arrays.copyOf(agents, atomType.getIndex() + 1);
         }
         agents[atomType.getIndex()] = newAgent;
     }
@@ -155,7 +155,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
         for(int i = 0; i < species.getAtomTypeCount(); i++) {
             AtomType newType = species.getAtomType(i);
             int indexMax = newType.getIndex();
-            agents = Arrays.resizeArray(agents, indexMax+1);
+            agents = Arrays.copyOf(agents, indexMax+1);
             addAgent(newType);
         }
     }
@@ -169,7 +169,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
         int oldIndex = e.getIndex();
         int newIndex = atomType.getIndex();
         if (newIndex >= agents.length) {
-            agents = Arrays.resizeArray(agents, newIndex+1);
+            agents = Arrays.copyOf(agents, newIndex+1);
         }
         agents[newIndex] = agents[oldIndex];
         agents[oldIndex] = null;
@@ -177,7 +177,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
 
     public void simulationAtomTypeMaxIndexChanged(SimulationIndexEvent e) {
         int maxIndex = e.getIndex();
-        agents = Arrays.resizeArray(agents, maxIndex+1);
+        agents = Arrays.copyOf(agents, maxIndex+1);
     }
 
     public void simulationSpeciesIndexChanged(SimulationSpeciesIndexEvent e) {

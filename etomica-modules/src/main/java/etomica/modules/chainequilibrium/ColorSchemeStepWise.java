@@ -10,9 +10,9 @@ import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.IAtom;
 import etomica.graphics.ColorScheme;
 import etomica.simulation.Simulation;
-import etomica.util.Arrays;
 
 import java.awt.*;
+import java.util.Arrays;
 
 /**
  * Color scheme for stepwise growth, based on the AtomType (alcohol vs. acid)
@@ -48,7 +48,7 @@ public class ColorSchemeStepWise extends ColorScheme implements AtomTypeAgentMan
     public void setColor(AtomType type, int nBonds, Color color) {
         if (nBonds >= colorMaps.length) {
             int oldLength = colorMaps.length;
-            colorMaps = (AtomTypeAgentManager[])Arrays.resizeArray(colorMaps, nBonds+1);
+            colorMaps = Arrays.copyOf(colorMaps, nBonds + 1);
             for (int i=oldLength; i<colorMaps.length; i++) {
                 colorMaps[i] = new AtomTypeAgentManager(this, simulation);
             }

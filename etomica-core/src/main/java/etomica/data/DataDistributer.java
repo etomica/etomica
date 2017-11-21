@@ -6,7 +6,8 @@ package etomica.data;
 
 import etomica.data.DataSplitter.IDataSinkFactory;
 import etomica.data.types.DataDouble;
-import etomica.util.Arrays;
+
+import java.util.Arrays;
 
 /**
  * DataSink that takes a Data object and pushes it to a dataSink chosen
@@ -56,7 +57,7 @@ public class DataDistributer implements IDataSink {
      */
     public void setDataSink(int i, IDataSink newDataSink) {
         if (i >= dataSinks.length) {
-            dataSinks = (IDataSink[])Arrays.resizeArray(dataSinks, i+1);
+            dataSinks = Arrays.copyOf(dataSinks, i + 1);
         }
         dataSinks[i] = newDataSink;
         if (dataSinks[i] != null && dataInfo != null) {

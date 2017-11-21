@@ -5,9 +5,9 @@
 package etomica.box;
 
 import etomica.simulation.*;
-import etomica.util.Arrays;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 
 /**
  * Acts on behalf of client classes (a BoxAgentSource) to manage
@@ -64,7 +64,7 @@ public class BoxAgentManager<E> implements SimulationListener {
         int idx = box.getIndex();
         if (idx >= agents.length) {
             // no room in the array.  reallocate the array with an extra cushion.
-            agents = (E[]) Arrays.resizeArray(agents, idx + 1);
+            agents = Arrays.copyOf(agents, idx + 1);
         }
         agents[box.getIndex()] = agent;
     }
@@ -107,7 +107,7 @@ public class BoxAgentManager<E> implements SimulationListener {
         for (int i = index; i < agents.length - 1; i++) {
             agents[i] = agents[i + 1];
         }
-        agents = (E[]) Arrays.resizeArray(agents, agents.length - 1);
+        agents = Arrays.copyOf(agents, agents.length - 1);
     }
 
     public void simulationSpeciesAdded(SimulationSpeciesEvent e) {
@@ -129,7 +129,7 @@ public class BoxAgentManager<E> implements SimulationListener {
     }
 
     protected void addAgent(Box box) {
-        agents = (E[]) Arrays.resizeArray(agents, box.getIndex() + 1);
+        agents = Arrays.copyOf(agents, box.getIndex() + 1);
         if (agentSource != null) {
             agents[box.getIndex()] = agentSource.makeAgent(box);
         }

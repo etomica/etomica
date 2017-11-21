@@ -6,10 +6,10 @@ package etomica.atom;
 
 import etomica.box.*;
 import etomica.molecule.IMolecule;
-import etomica.util.Arrays;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
+import java.util.Arrays;
 
 /**
  * AtomAgentManager acts on behalf of client classes (an AgentSource) to
@@ -78,7 +78,7 @@ public class AtomLeafAgentManager<E> extends BoxEventListenerAdapter implements 
         int idx = a.getLeafIndex();
         if (idx >= agents.length) {
             // no room in the array.  reallocate the array with an extra cushion.
-            agents = (E[])Arrays.resizeArray(agents,idx+1+reservoirSize);
+            agents = Arrays.copyOf(agents, idx + 1 + reservoirSize);
         }
         agents[a.getLeafIndex()] = newAgent;
     }
@@ -169,7 +169,7 @@ public class AtomLeafAgentManager<E> extends BoxEventListenerAdapter implements 
             // needs to be, shrink it.
             // ... or we've been notified that atoms are about to get added to the 
             // system.  Make room for them
-            agents = (E[])Arrays.resizeArray(agents,newMaxIndex+1+reservoirSize);
+            agents = Arrays.copyOf(agents,newMaxIndex+1+reservoirSize);
         }
     }
     
@@ -187,7 +187,7 @@ public class AtomLeafAgentManager<E> extends BoxEventListenerAdapter implements 
     protected void addAgent(IAtom a, int index) {
         if (agents.length < index+1) {
             // no room in the array.  reallocate the array with an extra cushion.
-            agents = (E[])Arrays.resizeArray(agents,index+1+reservoirSize);
+            agents = Arrays.copyOf(agents,index+1+reservoirSize);
         }
         if (agentSource != null) {
             agents[index] = agentSource.makeAgent(a, box);

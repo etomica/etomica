@@ -33,6 +33,8 @@ import etomica.units.Electron;
 import etomica.units.ElectronVolt;
 import etomica.units.Kelvin;
 
+import java.util.Arrays;
+
 /**
  * GCPM CO2 potential class (GCPCDO).  This potential was described in
  * 
@@ -278,9 +280,9 @@ public class PNCO2GCPM extends PotentialMolecular implements PotentialPolarizabl
         final int atomCount = molecules.getMoleculeCount();
         if (Eq.length < atomCount+1) {
             int oldSize = Eq.length;
-            Eq = (Vector[])etomica.util.Arrays.resizeArray(Eq, atomCount);
-            Ep = (Vector[])etomica.util.Arrays.resizeArray(Ep, atomCount);
-            mu= (Vector[])etomica.util.Arrays.resizeArray(mu, atomCount);
+            Eq = Arrays.copyOf(Eq, atomCount);
+            Ep = Arrays.copyOf(Ep, atomCount);
+            mu = Arrays.copyOf(mu, atomCount);
             for (int i=oldSize; i<atomCount; i++) {
                 Eq[i] = space.makeVector();
                 Ep[i] = space.makeVector();

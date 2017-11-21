@@ -21,7 +21,8 @@ import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
-import etomica.util.Arrays;
+
+import java.util.Arrays;
 
 /**
  * GCPM Water potential class.  This class assumes assumes no periodic
@@ -256,8 +257,8 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
 
         final int atomCount = atoms.getMoleculeCount();
         if (Eq.length < atomCount + 1) {
-            Eq = (Matrix[]) Arrays.resizeArray(Eq, atomCount + 1);
-            A = (Matrix[]) Arrays.resizeArray(A, atomCount + 1);
+            Eq = Arrays.copyOf(Eq, atomCount + 1);
+            A = Arrays.copyOf(A, atomCount + 1);
         }
         if (Eq[atomCount] == null) {
             Eq[atomCount] = new Matrix(3 * atomCount, 1);
