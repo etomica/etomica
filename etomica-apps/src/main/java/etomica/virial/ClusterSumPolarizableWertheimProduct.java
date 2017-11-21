@@ -7,7 +7,8 @@ package etomica.virial;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeArrayList;
 import etomica.potential.PotentialPolarizable;
-import etomica.util.Arrays;
+
+import java.util.Arrays;
 
 
 public class ClusterSumPolarizableWertheimProduct implements ClusterAbstract, java.io.Serializable {
@@ -50,7 +51,7 @@ public class ClusterSumPolarizableWertheimProduct implements ClusterAbstract, ja
                             }
                         }
                         if (newF) {
-                            fullBondIndexArray[i][j] = Arrays.resizeArray(ff, ff.length+1);
+                            fullBondIndexArray[i][j] = Arrays.copyOf(ff, ff.length + 1);
                             fullBondIndexArray[i][j][ff.length] = kf;
                         }
                     }

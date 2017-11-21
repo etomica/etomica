@@ -12,7 +12,8 @@ import etomica.molecule.IMolecule;
 import etomica.molecule.Molecule;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
-import etomica.util.Arrays;
+
+import java.util.Arrays;
 
 /**
  * Species in which molecules are made of arbitrary number of atoms, with each
@@ -257,8 +258,8 @@ public class SpeciesSpheresHetero extends Species {
         super.addChildType(newLeafType);
         if (childTypes.length > 1) {
             // assume fraction = 0 for new childFactory
-            numberFraction = Arrays.resizeArray(numberFraction,numberFraction.length+1);
-            childCount = Arrays.resizeArray(childCount,childCount.length+1);
+            numberFraction = Arrays.copyOf(numberFraction, numberFraction.length + 1);
+            childCount = Arrays.copyOf(childCount,childCount.length+1);
         }
         else {
             setNumberFraction(new double[]{1.0});

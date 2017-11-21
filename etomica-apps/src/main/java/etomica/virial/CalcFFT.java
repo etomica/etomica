@@ -9,10 +9,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import etomica.math.function.IFunction;
 import etomica.graph.iterators.StoredIterator;
@@ -35,7 +32,6 @@ import etomica.potential.P2LennardJones;
 import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.util.Arrays;
 import etomica.math.numerical.SineTransform;
 
 /**
@@ -180,7 +176,7 @@ public class CalcFFT {
 		        double[] oe = rDistributionErrorHash.get(o);
 		        if (!isK && count == 1 && oe!=null) {
                     errMap.put(o, e.length);
-		            e = (double[][])Arrays.resizeArray(e, e.length+1);
+		            e = Arrays.copyOf(e, e.length + 1);
 		            e[e.length-1] = new double[N];
 		            System.arraycopy(a, 0, e[e.length-1], 0, N);
 		            Mul(e[e.length-1], oe);
@@ -208,7 +204,7 @@ public class CalcFFT {
                 }
                 if (!isK && evalue != null && count == 1) {
                     errMap.put(o, e.length);
-                    e = (double[][])Arrays.resizeArray(e, e.length+1);
+                    e = Arrays.copyOf(e, e.length+1);
                     e[e.length-1] = new double[N];
                     System.arraycopy(a, 0, e[e.length-1], 0, N);
                     Mul(e[e.length-1], evalue);
@@ -237,7 +233,7 @@ public class CalcFFT {
                 }
                 if (!isK && Ovalue.length>1 && count == 1) {
                     errMap.put(o, e.length);
-                    e = (double[][])Arrays.resizeArray(e, e.length+1);
+                    e = Arrays.copyOf(e, e.length+1);
                     e[e.length-1] = new double[N];
                     System.arraycopy(a, 0, e[e.length-1], 0, N);
                     Mul(e[e.length-1], Ovalue[1]);
