@@ -6,7 +6,10 @@ package etomica.paracetamol;
 
 import etomica.action.WriteConfigurationDLPOLY;
 import etomica.box.Box;
-import etomica.data.*;
+import etomica.data.DataInfo;
+import etomica.data.DataTag;
+import etomica.data.IData;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.lattice.BravaisLatticeCrystal;
@@ -19,9 +22,10 @@ import etomica.paracetamol.LatticeSumCrystalParacetamol.DataGroupLSCParacetamol;
 import etomica.potential.P2DLPOLY;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.units.dimensions.Energy;
 import etomica.units.Kelvin;
-import etomica.util.Arrays;
+import etomica.units.dimensions.Energy;
+
+import java.util.Arrays;
 
 /**
  * Properties of a system of monatomic molecules occupying a lattice and interacting according

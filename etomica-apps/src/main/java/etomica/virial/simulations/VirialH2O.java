@@ -28,7 +28,6 @@ import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.Kelvin;
-import etomica.util.Arrays;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.*;
@@ -37,6 +36,7 @@ import org.json.simple.JSONObject;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -200,7 +200,7 @@ public class VirialH2O {
         // make simulation
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, speciesH2O, temperature, refCluster, diffClusterNew);
         int [] seeds = sim.getRandomSeeds();
-        System.out.println("Random seeds: "+Arrays.toString(seeds));
+        System.out.println("Random seeds: "+ Arrays.toString(seeds));
 
         sim.integratorOS.setNumSubSteps(1000);
         steps /= 1000;

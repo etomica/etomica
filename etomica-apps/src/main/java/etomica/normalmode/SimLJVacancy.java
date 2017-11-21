@@ -44,11 +44,11 @@ import etomica.species.SpeciesSpheresMono;
 import etomica.statmech.LennardJones;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Null;
-import etomica.util.Arrays;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
 import java.awt.*;
+import java.util.Arrays;
 import java.util.List;
 
 /**

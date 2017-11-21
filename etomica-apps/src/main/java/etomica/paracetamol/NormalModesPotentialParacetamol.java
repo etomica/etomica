@@ -25,9 +25,10 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.Space;
 import etomica.units.dimensions.Dimension;
-import etomica.util.Arrays;
 import etomica.math.function.Function;
 import etomica.math.numerical.FiniteDifferenceDerivative;
+
+import java.util.Arrays;
 
 /**
  * Uses analysis of 2nd derivatives to compute the normal modes for a Bravais lattice with a basis, 
@@ -61,7 +62,7 @@ public class NormalModesPotentialParacetamol implements NormalModes {
         for(int i=0; i<kFactory.getWaveVectors().length; i++) {
             sum += kFactory.getCoefficients()[i];
         }
-        System.out.println("nCells: "+Arrays.toString(nCells));
+        System.out.println("nCells: "+ Arrays.toString(nCells));
         System.out.println("Number of wave vectors represented: "+2.0*sum);
     }
     

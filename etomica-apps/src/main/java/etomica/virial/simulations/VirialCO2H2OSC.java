@@ -30,13 +30,13 @@ import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.ElectronVolt;
 import etomica.units.Kelvin;
-import etomica.util.Arrays;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 
 import java.awt.*;
+import java.util.Arrays;
 
 /**
  * Computes CO2-H2O mixture virial coefficients using ab-initio potentials
@@ -197,7 +197,7 @@ public class VirialCO2H2OSC {
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{speciesCO2,speciesH2O}, nTypes, temperature, refCluster, targetCluster);
         sim.init();
         int[] seeds = sim.getRandomSeeds();
-        System.out.println("Random seeds: "+Arrays.toString(seeds));
+        System.out.println("Random seeds: "+ Arrays.toString(seeds));
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
 
         if (nonAdditive != Nonadditive.NONE && !useSZ) {

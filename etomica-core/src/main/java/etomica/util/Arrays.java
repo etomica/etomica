@@ -8,8 +8,6 @@
  */
 package etomica.util;
 
-import java.util.LinkedList;
-
 import static java.util.Arrays.copyOf;
 
 /**
@@ -66,76 +64,4 @@ public final class Arrays {
 		return array;
 	}
 
-    /**
-     * Converts the given array of integers into a string with a comma-separated
-     * list of the integers enclosed by braces.  Null argument or empty array
-     * are converted to the string "{}".
-     */
-    public static String toString(int[] array) {
-        if(array == null) return "{}";
-        StringBuffer string = new StringBuffer("{");
-        for(int i=0; i<array.length-1; i++) {
-            string.append(Integer.toString(array[i])).append(",");
-        }
-        if(array.length > 0) string.append(Integer.toString(array[array.length-1]));
-        string.append("}");
-        return string.toString();
-    }
-
-    /**
-     * Converts the given array of doubles into a string with a comma-separated
-     * list of the doubles enclosed by braces.  Null argument or empty array
-     * are converted to the string "{}".
-     */
-    public static String toString(double[] array) {
-        if(array == null) return "{}";
-        StringBuffer string = new StringBuffer("{");
-        for(int i=0; i<array.length-1; i++) {
-            string.append(Double.toString(array[i])).append(",");
-        }
-        if(array.length > 0) string.append(Double.toString(array[array.length-1]));
-        string.append("}");
-        return string.toString();
-    }
-    /**
-     * Converts the given array of floats into a string with a comma-separated
-     * list of the floats enclosed by braces.  Null argument or empty array
-     * are converted to the string "{}".
-     */
-    public static String toString(float[] array) {
-        if(array == null) return "{}";
-        StringBuffer string = new StringBuffer("{");
-        for(int i=0; i<array.length-1; i++) {
-            string.append(Float.toString(array[i])).append(",");
-        }
-        if(array.length > 0) string.append(Float.toString(array[array.length-1]));
-        string.append("}");
-        return string.toString();
-    }
-    /**
-     * Converts the given array of booleans into a string with a comma-separated
-     * list of the booleans enclosed by braces.  Null argument or empty array
-     * are converted to the string "{}".
-     */
-    public static String toString(boolean[] array) {
-        if(array == null) return "{}";
-        StringBuffer string = new StringBuffer("{");
-        for(int i=0; i<array.length-1; i++) {
-            string.append(Boolean.toString(array[i])).append(",");
-        }
-        if(array.length > 0) string.append(Boolean.toString(array[array.length-1]));
-        string.append("}");
-        return string.toString();
-    }
-
-    /**
-     * Creates a new LinkedList filled with the elements of the given array, in the same order.
-     */
-    public static LinkedList toList(Object[] obj) {
-        LinkedList list = new LinkedList();
-        for(int i=0; i<obj.length; i++) {
-            list.add(obj[i]);
-        }
-        return list;
-    }
 }

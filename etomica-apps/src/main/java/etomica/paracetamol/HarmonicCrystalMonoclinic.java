@@ -20,9 +20,10 @@ import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.potential.PotentialDLPOLY;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.units.dimensions.Energy;
 import etomica.units.Kelvin;
-import etomica.util.Arrays;
+import etomica.units.dimensions.Energy;
+
+import java.util.Arrays;
 
 /**
  * Properties of a system of monatomic molecules occupying a lattice and interacting according
