@@ -3,6 +3,8 @@ package etomica.util.collections;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -116,9 +118,23 @@ public class IndexMapTest {
         map.keySet();
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test()
     public void testValues() {
-        map.values();
+        Collection<String> c = map.values();
+        assertTrue(c.isEmpty());
+
+        map.put(0, "0");
+        map.put(1, "1");
+        map.put(5, "5");
+        assertTrue(c.containsAll(Arrays.asList("0", "1", "5")));
+
+        map.remove(1);
+        assertTrue(c.containsAll(Arrays.asList("0", "5")));
+        assertFalse(c.contains("1"));
+
+        // test resizing array
+        map.put(100, "100");
+        assertTrue(c.containsAll(Arrays.asList("0", "5", "100")));
     }
 
     @Test(expected = UnsupportedOperationException.class)

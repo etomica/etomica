@@ -1,9 +1,6 @@
 package etomica.util.collections;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * An specialized implementation of Map which is designed for mapping
@@ -129,7 +126,7 @@ public class IndexMap<V> implements Map<Integer, V> {
 
     @Override
     public Collection<V> values() {
-        throw new UnsupportedOperationException();
+        return new IndexMapValuesCollection();
     }
 
     @Override
@@ -177,5 +174,63 @@ public class IndexMap<V> implements Map<Integer, V> {
             }
         }
         return null;
+    }
+
+    private class IndexMapValuesCollection extends AbstractCollection<V> {
+
+        /**
+         * Returns an iterator over the elements contained in this collection.
+         *
+         * @return an iterator over the elements contained in this collection
+         */
+        @Override
+        public Iterator<V> iterator() {
+            return new IndexMapIterator();
+        }
+
+        @Override
+        public int size() {
+            return IndexMap.this.size();
+        }
+    }
+
+    private class IndexMapIterator implements Iterator<V> {
+        private int cursor = 0;
+
+        /**
+         * Returns {@code true} if the iteration has more elements.
+         * (In other words, returns {@code true} if {@link #next} would
+         * return an element rather than throwing an exception.)
+         *
+         * @return {@code true} if the iteration has more elements
+         */
+        @Override
+        public boolean hasNext() {
+            while(cursor < values.length) {
+                if(values[cursor] != null) {
+                    return true;
+                }
+                cursor++;
+            }
+            return false;
+        }
+
+        /**
+         * Returns the next element in the iteration.
+         *
+         * @return the next element in the iteration
+         * @throws NoSuchElementException if the iteration has no more elements
+         */
+        @Override
+        public V next() {
+            cursor++;
+            while(cursor - 1 < values.length) {
+                if(values[cursor - 1] != null) {
+                    return values[cursor - 1];
+                }
+                cursor++;
+            }
+            return null;
+        }
     }
 }
