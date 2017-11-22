@@ -27,6 +27,12 @@ public class IndexMapTest {
 
         map.put(100, "test2");
         assertEquals(2, map.size());
+
+        map.put(50, "test3");
+        assertEquals(3, map.size());
+
+        map.put(50, "test4");
+        assertEquals(3, map.size());
     }
 
     @Test

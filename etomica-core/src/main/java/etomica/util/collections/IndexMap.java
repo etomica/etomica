@@ -155,9 +155,13 @@ public class IndexMap<V> implements Map<Integer, V> {
             this.values = Arrays.copyOf(this.values, key + reservoirSize);
         }
 
-        this.values[key] = value;
-        this.isEmpty = false;
-        this.size++;
+        if(values[key] == null) {
+            this.values[key] = value;
+            this.isEmpty = false;
+            this.size++;
+        } else {
+            this.values[key] = value;
+        }
         return value;
     }
 
