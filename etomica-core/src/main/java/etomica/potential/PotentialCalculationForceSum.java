@@ -16,11 +16,9 @@ import etomica.space.Vector;
 public class PotentialCalculationForceSum implements PotentialCalculation {
         
     protected AtomLeafAgentManager<? extends IntegratorBox.Forcible> integratorAgentManager;
-    protected AtomLeafAgentManager.AgentIterator<? extends IntegratorBox.Forcible> agentIterator;
-    
+
     public void setAgentManager(AtomLeafAgentManager<? extends IntegratorBox.Forcible> agentManager) {
         integratorAgentManager = agentManager;
-        agentIterator = integratorAgentManager.makeIterator();
     }
 
     /**
@@ -28,14 +26,7 @@ public class PotentialCalculationForceSum implements PotentialCalculation {
      *
      */
     public void reset(){
-        
-        agentIterator.reset();
-        while(agentIterator.hasNext()){
-            Object agent = agentIterator.next();
-            if (agent instanceof IntegratorBox.Forcible) {
-                ((IntegratorBox.Forcible)agent).force().E(0);
-            }
-        }
+        this.integratorAgentManager.getAgents().values().forEach((agent) -> agent.force().E(0));
     }
 
     /**
@@ -63,7 +54,7 @@ public class PotentialCalculationForceSum implements PotentialCalculation {
                 integratorAgentManager.getAgent(atoms.getAtom(1)).force().ME(f[1]);
                 break;
             default:
-                //XXX atoms.count might not equal f.length.  The potential might size its 
+                //TODO atoms.count might not equal f.length.  The potential might size its
                 //array of vectors to be large enough for one IAtomSet and then not resize it
                 //back down for another IAtomSet with fewer atoms.
                 for (int i=0; i<atoms.getAtomCount(); i++) {

@@ -12,21 +12,20 @@ import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeAgentManager;
 import etomica.space.Vector;
 
+import java.util.function.Consumer;
+
 /**
  * Sums the force and torque on each iterated atom or molecule and adds it to
  * the agent associated with the atom.
  */
 public class PotentialCalculationTorqueSum implements PotentialCalculationMolecular {
         
-    private static final long serialVersionUID = 1L;
-    protected AtomLeafAgentManager leafAgentManager;
-    protected AtomLeafAgentManager.AgentIterator leafAgentIterator;
+    protected AtomLeafAgentManager<?> leafAgentManager;
     protected MoleculeAgentManager moleculeAgentManager;
     protected MoleculeAgentManager.AgentIterator moleculeAgentIterator;
     
-    public void setAgentManager(AtomLeafAgentManager agentManager) {
+    public void setAgentManager(AtomLeafAgentManager<?> agentManager) {
         leafAgentManager = agentManager;
-        leafAgentIterator = leafAgentManager.makeIterator();
     }
     
     public void setMoleculeAgentManager(MoleculeAgentManager newMoleculeAgentManager) {
@@ -39,20 +38,17 @@ public class PotentialCalculationTorqueSum implements PotentialCalculationMolecu
      *
      */
     public void reset(){
-        
-        if (leafAgentIterator != null) {
-            leafAgentIterator.reset();
-            while(leafAgentIterator.hasNext()){
-                Object agent = leafAgentIterator.next();
-                if (agent instanceof Integrator.Torquable) {
-                    ((Integrator.Torquable)agent).torque().E(0);
-                    ((Integrator.Forcible)agent).force().E(0);
-                }
-                else if (agent instanceof Integrator.Forcible) {
-                    ((Integrator.Forcible)agent).force().E(0);
-                }
+        Consumer<Object> resetAgent = (agent) -> {
+            if (agent instanceof Integrator.Torquable) {
+                ((Integrator.Torquable)agent).torque().E(0);
+                ((Integrator.Forcible)agent).force().E(0);
             }
-        }
+            else if (agent instanceof Integrator.Forcible) {
+                ((Integrator.Forcible)agent).force().E(0);
+            }
+        };
+        leafAgentManager.getAgents().values().forEach(resetAgent);
+
         if (moleculeAgentIterator != null) {
             moleculeAgentIterator.reset();
             while(moleculeAgentIterator.hasNext()){
