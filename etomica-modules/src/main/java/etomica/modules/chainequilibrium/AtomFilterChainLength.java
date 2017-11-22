@@ -80,7 +80,7 @@ public class AtomFilterChainLength implements AtomFilterCollective, AtomLeafAgen
             // allow old agentManager to de-register itself as a BoxListener
             chainLengthManager.dispose();
         }
-        chainLengthManager = new AtomLeafAgentManager<LengthAgent>(this,box,LengthAgent.class);
+        chainLengthManager = new AtomLeafAgentManager<LengthAgent>(this,box);
     }
 
     public boolean accept(IAtom a) {

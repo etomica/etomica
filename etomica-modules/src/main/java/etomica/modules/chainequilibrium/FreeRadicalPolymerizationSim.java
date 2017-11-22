@@ -78,7 +78,7 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
         config.setSpecies(speciesA, speciesB);
         config.initializeCoordinates(box);
 
-        agentManager = new AtomLeafAgentManager<IAtom[]>(this,box,IAtom[].class);
+        agentManager = new AtomLeafAgentManager<IAtom[]>(this,box);
         resetBonds();
 
 		//potentials

@@ -73,7 +73,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom
         integratorHard1.setNullPotential(nullPotential, speciesA.getLeafType());
         integratorHard1.setNullPotential(nullPotential, speciesB.getLeafType());
 
-        agentManager = new AtomLeafAgentManager<IAtom>(this,box,IAtom.class);
+        agentManager = new AtomLeafAgentManager<IAtom>(this,box);
 
         //potentials
         AAbonded = new P2SquareWellBonded(space, agentManager, 0.5 * diameter, //core

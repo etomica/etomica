@@ -84,7 +84,7 @@ public class MeterDipoleSumSquaredMappedAverage implements IDataSource, Molecule
         };
 		
 		pcForce = new PotentialCalculationForceSum();
-		atomAgentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(atomAgentSource , box,IntegratorVelocityVerlet.MyAgent.class);
+		atomAgentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(atomAgentSource , box);
         pcForce.setAgentManager(atomAgentManager);
 		
 	}

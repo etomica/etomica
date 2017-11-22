@@ -107,7 +107,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
             moleculeAgentManager.dispose();
         }
         super.setBox(box);
-        leafAgentManager = new AtomLeafAgentManager<IntegratorRigidMatrixIterative.AtomAgent>(this, box,IntegratorRigidMatrixIterative.AtomAgent.class);
+        leafAgentManager = new AtomLeafAgentManager<IntegratorRigidMatrixIterative.AtomAgent>(this, box);
         moleculeAgentManager = new MoleculeAgentManager(sim, this.box, this);
         torqueSum.setAgentManager(leafAgentManager);
         torqueSum.setMoleculeAgentManager(moleculeAgentManager);

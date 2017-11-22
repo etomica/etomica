@@ -83,7 +83,7 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource<IAtom
         config = new ConfigurationLatticeRandom(space.D() == 2 ? new LatticeOrthorhombicHexagonal(space) : new LatticeCubicFcc(space), space, random);
         config.initializeCoordinates(box);
 
-        agentManager = new AtomLeafAgentManager<IAtom[]>(this,box,IAtom[].class);
+        agentManager = new AtomLeafAgentManager<IAtom[]>(this,box);
 
 		//potentials
         p2AA = new P2HardSphere(space, diameter, true);

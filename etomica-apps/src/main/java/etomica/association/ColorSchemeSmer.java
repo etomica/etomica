@@ -27,7 +27,7 @@ public class ColorSchemeSmer extends ColorScheme implements AtomLeafAgentManager
         super();
         setMonomerColor(DEFAULT_ATOM_COLOR);
         this.associationHelper = associationHelper;
-        dimerColorManager = new AtomLeafAgentManager<ColorAgent>(this, box, ColorAgent.class);
+        dimerColorManager = new AtomLeafAgentManager<ColorAgent>(this, box);
         this.random = random;
         oldColors = new HashMap<Color,Integer>();
         smerList = new AtomArrayList();

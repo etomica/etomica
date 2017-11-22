@@ -74,7 +74,7 @@ public class NeighborCellManager implements BoxCellManager, BoundaryEventListene
         lattice = new CellLattice(space, box.getBoundary().getBoxSize(), Cell.FACTORY);
         setPotentialRange(potentialRange);
         v = space.makeVector();
-        agentManager = new AtomLeafAgentManager<Cell>(this,box,Cell.class);
+        agentManager = new AtomLeafAgentManager<Cell>(this,box);
         doApplyPBC = false;
     }
 

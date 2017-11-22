@@ -19,7 +19,7 @@ public class AtomFilterLiquidAtomic implements AtomFilterCollective, AtomLeafAge
         leafList = box.getLeafList();
         nbrListManager = potentialMaster.getNeighborManager(box);
         setMaxNbrsVapor(80);
-        agentManager = new AtomLeafAgentManager<Boolean>(this, box, Boolean.class);
+        agentManager = new AtomLeafAgentManager<Boolean>(this, box);
     }
 
     public void setMaxNbrsVapor(int newMaxNbrsVapor) {

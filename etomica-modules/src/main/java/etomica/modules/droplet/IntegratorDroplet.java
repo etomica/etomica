@@ -74,7 +74,7 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
             agentManager.dispose();
         }
         super.setBox(box);
-        agentManager = new AtomLeafAgentManager<MyAgent>(this, box,MyAgent.class);
+        agentManager = new AtomLeafAgentManager<MyAgent>(this, box);
         forceSum.setAgentManager(agentManager);
     }
 

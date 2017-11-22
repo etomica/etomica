@@ -15,7 +15,6 @@ import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.meta.annotations.IgnoreProperty;
 import etomica.molecule.IMolecule;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
@@ -103,7 +102,7 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
         this.box.getEventManager().addListener(this);
 
         if (thermostat == ThermostatType.HYBRID_MC) {
-            oldPositionAgentManager = new AtomLeafAgentManager<Vector>(new VectorSource(space), this.box, Vector.class);
+            oldPositionAgentManager = new AtomLeafAgentManager<Vector>(new VectorSource(space), this.box);
         }
         if (integratorMC != null) {
             integratorMC.setBox(this.box);
@@ -134,7 +133,7 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
             throw overlapException;
         }
         if (thermostat == ThermostatType.HYBRID_MC && isothermal && oldPositionAgentManager == null) {
-            oldPositionAgentManager = new AtomLeafAgentManager<Vector>(new VectorSource(space), box, Vector.class);
+            oldPositionAgentManager = new AtomLeafAgentManager<Vector>(new VectorSource(space), box);
         }
     }
 
@@ -248,7 +247,7 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
     public void setThermostat(ThermostatType aThermostat) {
         thermostat = aThermostat;
         if (thermostat == ThermostatType.HYBRID_MC && box != null) {
-            oldPositionAgentManager = new AtomLeafAgentManager<Vector>(new VectorSource(space), box, Vector.class);
+            oldPositionAgentManager = new AtomLeafAgentManager<Vector>(new VectorSource(space), box);
         } else if (thermostat != ThermostatType.HYBRID_MC) {
             if (oldPositionAgentManager != null) {
                 oldPositionAgentManager.dispose();

@@ -29,7 +29,7 @@ public class P1Tether extends Potential1 implements AgentSource<Vector>, Potenti
     public P1Tether(Box box, ISpecies species, Space _space) {
         super(_space);
         this.species = species;
-        agentManager = new AtomLeafAgentManager<Vector>(this, box, Vector.class);
+        agentManager = new AtomLeafAgentManager<Vector>(this, box);
         work = _space.makeVector();
         gradient = new Vector[]{work};
     }

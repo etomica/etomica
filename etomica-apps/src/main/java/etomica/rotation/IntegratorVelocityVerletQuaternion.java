@@ -180,7 +180,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             moleculeAgentManager.dispose();
         }
         super.setBox(box);
-        leafAgentManager = new AtomLeafAgentManager<AtomAgent>(this, box,AtomAgent.class);
+        leafAgentManager = new AtomLeafAgentManager<AtomAgent>(this, box);
         moleculeAgentManager = new MoleculeAgentManager(sim, this.box, this);
         forceSum.setAgentManager(leafAgentManager);
     }

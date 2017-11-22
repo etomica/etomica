@@ -139,7 +139,7 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
         }
 
         moleculeSiteManager = new MoleculeAgentManager(sim, box, new MoleculeSiteSource(space, positionDefinition));
-        siteManager = new AtomLeafAgentManager<Vector>(new SiteSource(space), box, Vector.class);
+        siteManager = new AtomLeafAgentManager<Vector>(new SiteSource(space), box);
     }
     
     public void setConfiguration(Configuration configuration){

@@ -41,7 +41,7 @@ public class AssociationManager implements AgentSource<AtomArrayList>,IListener 
     
     public AssociationManager(Box box, PotentialMasterCell potentialMaster, AssociationDefinition definition) {
     	this.box = box;
-    	agentManager = new AtomLeafAgentManager<AtomArrayList>(this,box,AtomArrayList.class);
+    	agentManager = new AtomLeafAgentManager<AtomArrayList>(this,box);
         associationDefinition = definition;
         this.neighborIterator = new Api1ACell(3,1.0,potentialMaster.getCellAgentManager());
         }

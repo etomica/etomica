@@ -79,7 +79,7 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
         super.setBox(p);
         energyMeter.setBox(p);
         affectedAtomIterator.setBox(p);
-        atomLeafAgentManager = new AtomLeafAgentManager<Agent>(this,box,Agent.class);
+        atomLeafAgentManager = new AtomLeafAgentManager<Agent>(this,box);
     }
     
     public boolean doTrial() {

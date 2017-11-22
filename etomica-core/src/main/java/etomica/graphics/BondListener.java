@@ -40,7 +40,7 @@ public class BondListener implements AtomLeafAgentManager.AgentSource<ArrayList>
     public BondListener(Box box, BondManager bondManager) {
         this.box = box;
         bondIteratorsHash = new HashMap<ISpecies,Model.PotentialAndIterator[]>();
-        atomAgentManager = new AtomLeafAgentManager<ArrayList>(this, box, ArrayList.class);
+        atomAgentManager = new AtomLeafAgentManager<ArrayList>(this, box);
         this.bondManager = bondManager;
         atomSetSinglet = new MoleculeSetSinglet();
     }

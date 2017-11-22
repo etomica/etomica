@@ -80,9 +80,9 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
         setPlaneColor(Color.YELLOW);
         // init AtomAgentManager, to sync G3DSys and Etomica models
         // this automatically adds the atoms
-        aam = new AtomLeafAgentManager<Figure>(this, displayBox.getBox(), Figure.class);
+        aam = new AtomLeafAgentManager<Figure>(this, displayBox.getBox());
 		OrientedAgentSource oas = new OrientedAgentSource();
-		aamOriented = new AtomLeafAgentManager<Ball[]>(oas, displayBox.getBox(), Ball[].class);
+		aamOriented = new AtomLeafAgentManager<Ball[]>(oas, displayBox.getBox());
 		atomTypeOrientedManager = new AtomTypeAgentManager(null, sim);
 
         planes = new Plane[0];
@@ -218,8 +218,8 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 	public void refreshAtomAgentMgr() {
 
 		// Set new atom manager
-		aam = new AtomLeafAgentManager<Figure>(this, displayBox.getBox(), Figure.class);
-		aamOriented = new AtomLeafAgentManager<Ball[]>(null, displayBox.getBox(), Ball[].class);
+		aam = new AtomLeafAgentManager<Figure>(this, displayBox.getBox());
+		aamOriented = new AtomLeafAgentManager<Ball[]>(null, displayBox.getBox());
 		initialOrient = true;
 	}
 

@@ -54,7 +54,7 @@ public class NeighborSiteManager implements BoxCellManager, AgentSource<AtomSite
         siteIterator.setLattice(lattice);
         siteIterator.reset();
 
-        agentManager = new AtomLeafAgentManager<AtomSite>(this,box,AtomSite.class);
+        agentManager = new AtomLeafAgentManager<AtomSite>(this,box);
     }
 
     /**

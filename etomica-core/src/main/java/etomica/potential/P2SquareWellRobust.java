@@ -345,7 +345,7 @@ public class P2SquareWellRobust extends Potential2HardSpherical implements AtomL
     
     public AtomLeafAgentManager<AtomArrayList> makeAgent(Box box) {
         suppressMakeAgent = true;
-        AtomLeafAgentManager<AtomArrayList> foo = new AtomLeafAgentManager<AtomArrayList>(this, box, AtomArrayList.class);
+        AtomLeafAgentManager<AtomArrayList> foo = new AtomLeafAgentManager<AtomArrayList>(this, box);
         IAtomList leafList = box.getLeafList();
         if (potentialMaster != null) {
             NeighborListManager nbrListManager = potentialMaster.getNeighborManager(box);

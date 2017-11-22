@@ -116,7 +116,7 @@ public class ColorSchemeRadical extends ColorSchemeByType implements ColorScheme
             // allow old agentManager to de-register itself as a BoxListener
             chainLengthManager.dispose();
         }
-        chainLengthManager = new AtomLeafAgentManager<LengthAgent>(this,box,LengthAgent.class);
+        chainLengthManager = new AtomLeafAgentManager<LengthAgent>(this,box);
     }
 
     public static class LengthAgent {

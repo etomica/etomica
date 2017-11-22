@@ -67,7 +67,7 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource<Integra
             agentManager.dispose();
         }
         super.setBox(box);
-        agentManager = new AtomLeafAgentManager<IntegratorGear4.Agent>(this, box,IntegratorGear4.Agent.class);
+        agentManager = new AtomLeafAgentManager<IntegratorGear4.Agent>(this, box);
         forceSum.setAgentManager(agentManager);
     }
 

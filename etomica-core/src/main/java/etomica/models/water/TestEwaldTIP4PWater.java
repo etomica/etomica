@@ -95,7 +95,7 @@ public class TestEwaldTIP4PWater extends Simulation {
 
         //Ewald Summation
 		ChargeAgentSourceTIP4PWater agentSource = new ChargeAgentSourceTIP4PWater();
-		AtomLeafAgentManager<MyCharge> atomAgentManager = new AtomLeafAgentManager<MyCharge>(agentSource, box, MyCharge.class);
+		AtomLeafAgentManager<MyCharge> atomAgentManager = new AtomLeafAgentManager<MyCharge>(agentSource, box);
 		EwaldSummation ewaldSummation = new EwaldSummation(box, atomAgentManager, space, 4, 9);
 //		ewaldSummation.setCriterion(criterionAll);
 //		ewaldSummation.setBondedIterator(new ApiIntragroup());

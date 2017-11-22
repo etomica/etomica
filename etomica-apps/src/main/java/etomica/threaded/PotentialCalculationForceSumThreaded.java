@@ -40,7 +40,7 @@ public class PotentialCalculationForceSumThreaded extends PotentialCalculationFo
         atomAgentManager = new AtomLeafAgentManager[pc.length];
         
         for (int i=0; i<pc.length; i++){
-            atomAgentManager[i] = new AtomLeafAgentManager<MyAgent>(this, agentManager.getBox(), MyAgent.class);
+            atomAgentManager[i] = new AtomLeafAgentManager<MyAgent>(this, agentManager.getBox());
             pc[i].setAgentManager(atomAgentManager[i]);
             agentManager.getBox();
 		}

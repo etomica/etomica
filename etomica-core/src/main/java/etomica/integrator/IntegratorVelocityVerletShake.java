@@ -83,7 +83,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
             agentManager.dispose();
         }
         super.setBox(box);
-        agentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, box,IntegratorVelocityVerlet.MyAgent.class);
+        agentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, box);
         forceSum.setAgentManager(agentManager);
     }
 

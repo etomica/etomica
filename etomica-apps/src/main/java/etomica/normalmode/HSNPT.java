@@ -557,7 +557,7 @@ public class HSNPT extends Simulation {
         
         public ActionSummer(Box box, Space space) {
             this.space = space;
-            agentManager = new AtomLeafAgentManager<MyAgent>(this, box, MyAgent.class);
+            agentManager = new AtomLeafAgentManager<MyAgent>(this, box);
             v = space.makeVector();
         }
         

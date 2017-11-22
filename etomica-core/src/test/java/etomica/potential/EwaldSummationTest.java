@@ -73,7 +73,7 @@ public class EwaldSummationTest {
         box = new Box(space);
         SpeciesWater3P species = new SpeciesWater3P(space,false);
         ChargeAgentSourceSPCE agentSource = new ChargeAgentSourceSPCE(species);
-        AtomLeafAgentManager<EwaldSummation.MyCharge> atomAgentManager = new AtomLeafAgentManager<EwaldSummation.MyCharge>(agentSource, box,EwaldSummation.MyCharge.class);
+        AtomLeafAgentManager<EwaldSummation.MyCharge> atomAgentManager = new AtomLeafAgentManager<EwaldSummation.MyCharge>(agentSource, box);
         sim = new Simulation(space);
 
         sim.addSpecies(species);

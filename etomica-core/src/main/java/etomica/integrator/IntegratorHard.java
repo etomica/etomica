@@ -92,7 +92,7 @@ public class IntegratorHard extends IntegratorMD
             }
         }
         super.setBox(box);
-        agentManager = new AtomLeafAgentManager<Agent>(this, box,Agent.class);
+        agentManager = new AtomLeafAgentManager<Agent>(this, box);
         collisionHandlerUp.setAgentManager(agentManager);
         collisionHandlerDown.setAgentManager(agentManager);
         reverseCollisionHandler.setAgentManager(agentManager);

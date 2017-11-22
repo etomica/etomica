@@ -53,7 +53,7 @@ public class MeterMeanForce implements IDataSource, AgentSource<IntegratorVeloci
         this.potentialMaster = potentialMaster;
         pcForce = new PotentialCalculationForceSum();
         if (box != null) {
-            forceManager = new AtomLeafAgentManager<MyAgent>(this, box, MyAgent.class);
+            forceManager = new AtomLeafAgentManager<MyAgent>(this, box);
             pcForce.setAgentManager(forceManager);
         }
         else {

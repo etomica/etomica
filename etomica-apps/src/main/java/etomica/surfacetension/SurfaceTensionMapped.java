@@ -60,7 +60,7 @@ public class SurfaceTensionMapped extends DataProcessor implements AgentSource<F
         
         this.potentialMaster = potentialMaster;
         pcForce = new PotentialCalculationForceSum();
-        forceAgentManager = new AtomLeafAgentManager<Forcible>(this, box, Forcible.class);
+        forceAgentManager = new AtomLeafAgentManager<Forcible>(this, box);
         pcForce.setAgentManager(forceAgentManager);
         allAtoms = new IteratorDirective();
     }

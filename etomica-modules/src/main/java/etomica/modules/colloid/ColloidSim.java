@@ -99,8 +99,8 @@ public class ColloidSim extends Simulation {
             public void releaseAgent(AtomArrayList agent, IAtom atom, Box agentBox) {}
             public AtomArrayList makeAgent(IAtom a, Box agentBox) {return new AtomArrayList();}
         };
-        colloidMonomerBondManager = new AtomLeafAgentManager<AtomArrayList>(bondAgentSource, box, AtomArrayList.class);
-        monomerMonomerBondManager = new AtomLeafAgentManager<AtomArrayList>(bondAgentSource, box, AtomArrayList.class);
+        colloidMonomerBondManager = new AtomLeafAgentManager<AtomArrayList>(bondAgentSource, box);
+        monomerMonomerBondManager = new AtomLeafAgentManager<AtomArrayList>(bondAgentSource, box);
 
         //instantiate several potentials for selection in combo-box
 	    p2mm = new P2SquareWellMonomer(space, monomerMonomerBondManager);

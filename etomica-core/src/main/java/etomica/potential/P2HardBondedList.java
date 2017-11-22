@@ -151,7 +151,7 @@ public class P2HardBondedList extends Potential2 implements PotentialHard, Agent
         }
 
         public AtomLeafAgentManager<BondArrayList> makeAgent(Box box) {
-            return new AtomLeafAgentManager<BondArrayList>(as, box, BondArrayList.class);
+            return new AtomLeafAgentManager<BondArrayList>(as, box);
         }
 
         public void releaseAgent(AtomLeafAgentManager<BondArrayList> agent) {

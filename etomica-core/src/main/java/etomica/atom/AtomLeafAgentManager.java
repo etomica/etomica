@@ -25,7 +25,7 @@ public class AtomLeafAgentManager<E> extends BoxEventListenerAdapter {
     private final AgentSource<E> agentSource;
     protected final Box box;
 
-    public AtomLeafAgentManager(AgentSource<E> source, Box box, Class<E> agentClass) {
+    public AtomLeafAgentManager(AgentSource<E> source, Box box) {
         Objects.requireNonNull(source);
         Objects.requireNonNull(box);
         this.agentSource = source;

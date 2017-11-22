@@ -142,7 +142,7 @@ public class LJVacancyMin extends Simulation {
         double u0 = pcEnergy.getSum();
 
         PotentialCalculationForceSum pc = new PotentialCalculationForceSum();
-        AtomLeafAgentManager<VectorForce> forceManager = new AtomLeafAgentManager<VectorForce>(null, sim.box, VectorForce.class);
+        AtomLeafAgentManager<VectorForce> forceManager = new AtomLeafAgentManager<VectorForce>(null, sim.box);
         for (int i=0; i<numAtoms-1; i++) {
             forceManager.setAgent(sim.box.getLeafList().getAtom(i), new VectorForce(sim.space));
         }
