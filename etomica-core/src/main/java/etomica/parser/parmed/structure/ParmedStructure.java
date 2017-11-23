@@ -38,6 +38,7 @@ public class ParmedStructure {
     public int[][] angles;
     public int[][] adjusts;
     public int[][] rbTorsions;
+    public List<Dihedral> dihedrals;
 
 
     public Map<String, Object> defaults;
@@ -89,12 +90,33 @@ public class ParmedStructure {
         public final Map<String, Object> properties = new HashMap<>();
     }
 
+    public static class Dihedral {
+        public int i1;
+        public int i2;
+        public int i3;
+        public int i4;
+        public boolean b1;
+        public boolean b2;
+        public int i5;
+
+        @JsonCreator
+        public Dihedral(List<Object> elements) {
+            i1 = (int) elements.get(0);
+            i2 = (int) elements.get(1);
+            i3 = (int) elements.get(2);
+            i4 = (int) elements.get(3);
+            b1 = (boolean) elements.get(4);
+            b2 = (boolean) elements.get(5);
+            i5 = (int) elements.get(6);
+        }
+    }
+
     public static void main(String[] args) throws IOException {
         ObjectMapper om = new ObjectMapper();
         ParmedStructure p = om
                 .readerWithView(Views.Default.class)
                 .forType(ParmedStructure.class)
-                .readValue(new File("/home/alex/workspace/parmed_json/pdb.json"));
+                .readValue(new File("/home/alex/workspace/parmed_json/toluene_cyclohexane_10_500.json"));
         System.out.println();
     }
 }
