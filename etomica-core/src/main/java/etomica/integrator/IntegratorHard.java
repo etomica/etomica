@@ -9,6 +9,7 @@ import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.Box;
 import etomica.box.BoxMoleculeEvent;
 import etomica.exception.ConfigurationOverlapException;
+import etomica.meta.annotations.IgnoreProperty;
 import etomica.molecule.IMolecule;
 import etomica.nbr.PotentialMasterHybrid;
 import etomica.nbr.list.INeighborListListener;
@@ -126,7 +127,7 @@ public class IntegratorHard extends IntegratorMD
     /** 
      * Steps all atoms across time interval timeStep, handling all intervening collisions.
      */
-    public void doStepInternal() {
+    protected void doStepInternal() {
         if (Double.isInfinite(currentPotentialEnergy)) {
             // we were overlapped at some point.  try recalculating the PE now
             // so we can start re-tracking the PE once we aren't overlapped.
@@ -587,6 +588,7 @@ public class IntegratorHard extends IntegratorMD
     public void releaseAgent(Agent agent, IAtom atom, Box agentBox) {
     }
 
+    @IgnoreProperty
     public Class getSpeciesAgentClass() {
         return PotentialHard.class;
     }

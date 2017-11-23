@@ -7,10 +7,10 @@ package etomica.virial;
 import etomica.action.MoleculeAction;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.potential.PotentialMaster;
-import etomica.util.random.IRandom;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
+import etomica.potential.PotentialMaster;
 import etomica.space.Space;
+import etomica.util.random.IRandom;
 
 /**
  * MC move for Mayer Sampling that rotates a single molecule
@@ -46,15 +46,11 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
         uNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         return true;
     }
-    
-    public double getB() {
-        return 0.0;
-    }
-    
-    public double getA() {
+
+    public double getChi(double temperature) {
         return uNew/uOld;
     }
-    
+
     public void acceptNotify() {
         super.acceptNotify();
         ((BoxCluster)box).acceptNotify();

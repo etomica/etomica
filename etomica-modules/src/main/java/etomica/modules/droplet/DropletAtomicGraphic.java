@@ -4,45 +4,30 @@
 
 package etomica.modules.droplet;
 
-import java.util.ArrayList;
-
-import javax.swing.JPanel;
-
 import etomica.action.IAction;
-import etomica.space.Vector;
 import etomica.atom.DiameterHashByType;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataFork;
-import etomica.data.DataPipe;
-import etomica.data.DataProcessor;
-import etomica.data.DataPump;
-import etomica.data.DataSourceCountTime;
-import etomica.data.DataSourceScalar;
-import etomica.data.DataSplitter;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
+import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;
-import etomica.graphics.DeviceButton;
-import etomica.graphics.DeviceSlider;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTimer;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
 import etomica.lattice.CellLattice;
 import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.nbr.cell.Cell;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
 import etomica.units.Angstrom;
-import etomica.units.dimensions.Dimension;
 import etomica.units.Kelvin;
-import etomica.units.dimensions.Null;
 import etomica.units.Pixel;
-import etomica.data.history.HistoryCollapsingAverage;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Null;
+
+import javax.swing.*;
+import java.util.ArrayList;
 
 /**
  * Graphic UI for Droplet module.  Design by Ludwig Nitsche.
@@ -200,11 +185,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
         meterPE.setBox(sim.box);
         DataProcessor foo = new DataProcessor() {
         
-            public DataPipe getDataCaster(IEtomicaDataInfo dataInfo) {
-                return null;
-            }
-        
-            protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+            protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
                 return inputDataInfo;
             }
         

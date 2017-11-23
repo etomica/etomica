@@ -57,7 +57,7 @@ public class IntegratorImageHarmonicMD extends IntegratorVelocityVerlet {
         return 10 * x * x;
     }
 
-    public void doStepInternal() {
+    protected void doStepInternal() {
         // from IntegratorMD
         currentTime += timeStep;
         // IntegratorVelocityVerlet code

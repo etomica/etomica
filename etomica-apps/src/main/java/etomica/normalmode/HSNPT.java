@@ -400,7 +400,7 @@ public class HSNPT extends Simulation {
             }
             volumeFork.addDataSink(new IDataSink() {
                 
-                public void putDataInfo(IEtomicaDataInfo dataInfo) {}
+                public void putDataInfo(IDataInfo dataInfo) {}
                 
                 public void putData(IData data) {
                     try {
@@ -413,9 +413,6 @@ public class HSNPT extends Simulation {
                         throw new RuntimeException(e);
                     }
                 }
-                
-                public DataPipe getDataCaster(IEtomicaDataInfo dataInfo) {return null;}
-                
             });
         }
         else {

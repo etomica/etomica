@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
@@ -327,9 +331,9 @@ public class VirialPolyhedra2 {
                 
                 DataDouble data = new DataDouble();
             };
-            IEtomicaDataInfo dataInfoSteps = new DataDouble.DataInfoDouble("B"+nPoints, Null.DIMENSION);
+            IDataInfo dataInfoSteps = new DataDouble.DataInfoDouble("B"+nPoints, Null.DIMENSION);
             stepsBox.putDataInfo(dataInfoSteps);
-            IEtomicaDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, Null.DIMENSION);
+            IDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, Null.DIMENSION);
             averageBox.putDataInfo(dataInfo);
             averageBox.setLabel("average");
             errorBox.putDataInfo(dataInfo);
@@ -415,11 +419,7 @@ public class VirialPolyhedra2 {
     public static class DataProcessorR2 extends DataProcessor {
         DataFunction data;
 
-        public DataPipe getDataCaster(IEtomicaDataInfo inDataInfo) {
-            return null;
-        }
-
-        protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+        protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
             dataInfo = new DataInfoFunction("hist2", Null.DIMENSION, ((DataInfoFunction)inputDataInfo).getXDataSource());
             dataInfo.addTags(inputDataInfo.getTags());
             dataInfo.addTag(tag);

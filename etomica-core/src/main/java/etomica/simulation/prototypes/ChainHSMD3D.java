@@ -10,10 +10,11 @@ import etomica.box.Box;
 import etomica.chem.models.ModelChain;
 import etomica.config.ConfigurationLattice;
 import etomica.config.ConformationLinear;
-import etomica.graphics.BondListener;
-import etomica.graphics.ColorSchemeRandomByMolecule;
-import etomica.graphics.DisplayBoxCanvasG3DSys;
-import etomica.graphics.SimulationGraphic;
+import etomica.data.AccumulatorHistogram;
+import etomica.data.DataPumpListener;
+import etomica.data.histogram.HistogramCollapsing;
+import etomica.data.meter.MeterRadiusGyration;
+import etomica.graphics.*;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.CriterionAll;
@@ -26,16 +27,22 @@ import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheres;
 
+/**
+ * Molecular dynamics of chains of hard spheres.
+ * <p>
+ * Each chain has 4 spheres, joined by a hard tether potential.
+ */
 public class ChainHSMD3D extends Simulation {
 
-    private static final long serialVersionUID = 2L;
     public Box box;
     public IntegratorHard integrator;
     public SpeciesSpheres species;
     public P2HardSphere potential;
     private ModelChain model;
+    public AccumulatorHistogram histogramRG;
+    public DataPumpListener pumpRG;
 
-    private ChainHSMD3D() {
+    public ChainHSMD3D() {
         super(Space3D.getInstance());
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
         int numAtoms = 108;
@@ -76,12 +83,23 @@ public class ChainHSMD3D extends Simulation {
         ((CriterionInterMolecular) potentialMaster.getCriterion(potential)).setIntraMolecularCriterion(nonBondedCriterion);
 
         integrator.setBox(box);
+        MeterRadiusGyration meterRG = new MeterRadiusGyration(space);
+        meterRG.setBox(box);
+        histogramRG = new AccumulatorHistogram(new HistogramCollapsing(), 10);
+        pumpRG = new DataPumpListener(meterRG, histogramRG);
+        integrator.getEventManager().addListener(pumpRG);
     }
 
     public static void main(String[] args) {
 
         final etomica.simulation.prototypes.ChainHSMD3D sim = new etomica.simulation.prototypes.ChainHSMD3D();
-        final SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+        DisplayPlot plotRG = new DisplayPlot();
+        sim.histogramRG.addDataSink(plotRG.getDataSet().makeDataSink());
+        plotRG.setLabel("RG");
+        plotRG.setDoLegend(false);
+        simGraphic.add(plotRG);
+        simGraphic.getController().getDataStreamPumps().add(sim.pumpRG);
         BondListener bl = new BondListener(sim.box, (DisplayBoxCanvasG3DSys) simGraphic.getDisplayBox(sim.box).canvas);
         bl.addModel(sim.model);
         ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box, sim.getRandom());
@@ -91,4 +109,4 @@ public class ChainHSMD3D extends Simulation {
 
         simGraphic.makeAndDisplayFrame();
     }
-}//end of class
+}

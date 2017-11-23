@@ -82,7 +82,7 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
 // steps all particles across time interval tStep
 
     // assumes one box
-    public void doStepInternal() {
+    protected void doStepInternal() {
         super.doStepInternal();
 
         IAtomList leafList = box.getLeafList();

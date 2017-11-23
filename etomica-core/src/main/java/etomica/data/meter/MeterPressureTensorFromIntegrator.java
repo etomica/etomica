@@ -4,11 +4,7 @@
 
 package etomica.data.meter;
 
-import etomica.data.DataInfo;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.types.DataTensor;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet;
@@ -21,14 +17,14 @@ import etomica.units.dimensions.Pressure;
  * well with IntegratorVerlet;
  * see https://rheneas.eng.buffalo.edu/bugzilla/show_bug.cgi?id=164 )
  */
-public class MeterPressureTensorFromIntegrator implements IEtomicaDataSource, java.io.Serializable {
+public class MeterPressureTensorFromIntegrator implements IDataSource, java.io.Serializable {
 
     public MeterPressureTensorFromIntegrator(Space space) {
         tag = new DataTag();
         this.space = space;
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     

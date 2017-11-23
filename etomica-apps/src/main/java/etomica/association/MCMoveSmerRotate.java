@@ -239,36 +239,21 @@ public class MCMoveSmerRotate extends MCMoveBoxStep {
             a.getOrientation().setDirection(dr);
             
         }
-    
-    /**
-     * Returns log of the ratio of the trial probabilities, ln(Tij/Tji) for the
-     * states encountered before (i) and after (j) the most recent call to doTrial(). 
-     * Tij is the probability that this move would generate state j from state i, and
-     * Tji is the probability that a subsequent call to doTrial would return to state i
-     * from state j.
-     */
-    public double getA() {
-    	if (populateList(newSmerList)== 0){
-    		return 0;
-    	}
-    	if (smerList.getAtomCount()!= newSmerList.getAtomCount()){
-			return 0;
+
+    public double getChi(double temperature) {
+        if (populateList(newSmerList) == 0) {
+            return 0;
+        }
+        if (smerList.getAtomCount() != newSmerList.getAtomCount()) {
+            return 0;
 		}
-    	return 1.0;
-	}
-    
-    /**
-     * Returns the log of the limiting-distribution probabilities of states, ln(Pj/Pi), 
-     * for the states encountered before (i) and after (j) the most recent call to 
-     * doTrial.
-     */
-    public double getB() {
+
     	uNew = 0.0;
         for (int i=0; i<smerList.getAtomCount(); i+=1){
         	energyMeter.setTarget(smerList.getAtom(i));
             uNew += energyMeter.getDataAsScalar();
         }
-        return -(uNew - uOld);
+        return Math.exp(-(uNew - uOld) / temperature);
     }
     
     public double energyChange() {return uNew - uOld;}
@@ -309,7 +294,7 @@ public class MCMoveSmerRotate extends MCMoveBoxStep {
         return atomSource;
     }
     /**
-     * @param atomSource The atomSource to set.
+     * @param source The atomSource to set.
      */
     public void setAtomSource(AtomSource source) {
         atomSource = source;

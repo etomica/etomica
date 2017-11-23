@@ -58,7 +58,7 @@ public class SimOverlapMultiHarmonicOptRefPref extends Simulation{
     protected DataSourceVirialOverlap dsvo;
     protected IntegratorBox[] integrators;
     protected AccumulatorVirialOverlapSingleAverage[] accumulators;
-    protected IEtomicaDataSource[] meters;
+    protected IDataSource[] meters;
     protected DataPump[] accumulatorPumps;
     protected double refPref;
 
@@ -70,8 +70,8 @@ public class SimOverlapMultiHarmonicOptRefPref extends Simulation{
 
 		integrators = new IntegratorBox[2];
 		accumulatorPumps = new DataPump[2];
-		meters = new IEtomicaDataSource[2];
-		accumulators = new AccumulatorVirialOverlapSingleAverage[2];
+        meters = new IDataSource[2];
+        accumulators = new AccumulatorVirialOverlapSingleAverage[2];
 
 		species = new SpeciesSpheresMono(this, space);
 		addSpecies(species);

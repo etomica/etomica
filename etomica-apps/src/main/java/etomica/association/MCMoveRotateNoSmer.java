@@ -4,10 +4,10 @@
 
 package etomica.association;
 
-import etomica.potential.PotentialMaster;
-import etomica.util.random.IRandom;
 import etomica.integrator.mcmove.MCMoveRotate;
+import etomica.potential.PotentialMaster;
 import etomica.space.Space;
+import etomica.util.random.IRandom;
 
 public class MCMoveRotateNoSmer extends MCMoveRotate {
 
@@ -18,12 +18,13 @@ public class MCMoveRotateNoSmer extends MCMoveRotate {
 	public void setAssociationManager(AssociationManager associationManager){
 		this.associationManager = associationManager;
 	}
-	public double getA() {
+
+    public double getChi(double temperature) {
         if (associationManager.getAssociatedAtoms(atom).getAtomCount() > 1) {
         	return 0;
-        } 
-        return 1;
-	}
+        }
+        return super.getChi(temperature);
+    }
 	protected AssociationManager associationManager;
 
 }

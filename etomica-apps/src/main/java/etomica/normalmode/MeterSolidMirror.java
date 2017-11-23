@@ -1,15 +1,17 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 package etomica.normalmode;
+
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.space.Vector;
 import etomica.box.Box;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 
 /**
@@ -17,10 +19,10 @@ import etomica.units.dimensions.Null;
  * couples configurations with their mirror images to obtain cancellation
  * of error at very low temperatures. 
  */
- 
-public class MeterSolidMirror implements IEtomicaDataSource {
-    
-    protected IEtomicaDataSource ds;
+
+public class MeterSolidMirror implements IDataSource {
+
+    protected IDataSource ds;
     protected final DataTag tag;
     protected DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;
@@ -29,11 +31,11 @@ public class MeterSolidMirror implements IEtomicaDataSource {
     protected final CoordinateDefinition coordinateDefinition;
     protected final Vector dr;
 
-    public MeterSolidMirror(Space space, IEtomicaDataSource dataSource, CoordinateDefinition coordinateDefinition) {
+    public MeterSolidMirror(Space space, IDataSource dataSource, CoordinateDefinition coordinateDefinition) {
         this.coordinateDefinition = coordinateDefinition;
         this.ds = dataSource;
         tag = new DataTag();
-        IEtomicaDataInfo di = dataSource.getDataInfo();
+        IDataInfo di = dataSource.getDataInfo();
         box = coordinateDefinition.getBox();
         
         int n = di.getLength();
@@ -43,7 +45,7 @@ public class MeterSolidMirror implements IEtomicaDataSource {
         dr = space.makeVector();
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     

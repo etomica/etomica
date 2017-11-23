@@ -5,7 +5,6 @@
 package etomica.data.meter;
 
 import etomica.atom.IAtomList;
-import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
@@ -15,6 +14,7 @@ import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveGeneral;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 
 /**
@@ -24,9 +24,9 @@ import etomica.units.dimensions.Null;
  * @author Michael Sellers
  * @author Andrew Schultz
  */
-public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndependent {
-	
-	protected final Space space;
+public class MeterStructureFactor implements IDataSource, DataSourceIndependent {
+
+    protected final Space space;
     protected Box box;
     protected double[] struct;
     protected Vector[] waveVec;
@@ -168,7 +168,7 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
         return tag;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     

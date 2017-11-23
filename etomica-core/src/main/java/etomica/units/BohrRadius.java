@@ -24,16 +24,4 @@ public final class BohrRadius extends SimpleUnit {
     	            "Bohr Radii", "a0", Prefix.ALLOWED
     	    );
     }
-    
-    /**
-     * Required to guarantee singleton when deserializing.
-     * 
-     * @return the singleton UNIT
-     */
-    private Object readResolve() {
-        return UNIT;
-    }
-    
-    private static final long serialVersionUID = 1;
-
 }

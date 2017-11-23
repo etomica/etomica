@@ -89,8 +89,8 @@ public class IntegratorHarmonic extends IntegratorMD {
         Qi = new double[totalWV][coordinateDim];
     }
 
-    public void doStepInternal() {
-    	super.doStepInternal();
+    protected void doStepInternal() {
+        super.doStepInternal();
         iterator.reset();
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         BasisCell[] cells = coordinateDefinition.getBasisCells();

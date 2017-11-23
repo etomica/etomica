@@ -1,23 +1,23 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 package etomica.metastable;
 
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.space.Vector;
-import etomica.data.AccumulatorHistogram;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
+import etomica.data.histogram.HistogramDiscrete;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.dimensions.CompoundDimension;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Quantity;
 import etomica.units.dimensions.Volume;
-import etomica.data.histogram.HistogramDiscrete;
 
-public class MeterDensityDistribution implements IEtomicaDataSource {
+public class MeterDensityDistribution implements IDataSource {
 
     protected AccumulatorHistogram histogram; 
     protected final Box box;
@@ -94,7 +94,7 @@ public class MeterDensityDistribution implements IEtomicaDataSource {
         return histogram.getTag();
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return histogram.getDataInfo();
     }
 

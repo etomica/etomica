@@ -148,7 +148,7 @@ public class JouleThomson extends SimulationGraphic {
         sim.activityIntegrate.setSleepPeriod(1);
 
         //set-pressure history
-        IEtomicaDataSource targetPressureDataSource = new DataSourceScalar("Set-Pressure", Pressure.DIMENSION) {
+        IDataSource targetPressureDataSource = new DataSourceScalar("Set-Pressure", Pressure.DIMENSION) {
             public double getDataAsScalar() {
                 return pUnit.toSim(pSlider.getValue());
             }
@@ -161,7 +161,7 @@ public class JouleThomson extends SimulationGraphic {
         pumpListener.setInterval(20);
 
         //set-pressure history
-        IEtomicaDataSource targetTemperatureDataSource = new DataSourceScalar("Set-Temperature", Temperature.DIMENSION) {
+        IDataSource targetTemperatureDataSource = new DataSourceScalar("Set-Temperature", Temperature.DIMENSION) {
             public double getDataAsScalar() {
                 return tUnit.toSim(tSlider.getValue());
             }

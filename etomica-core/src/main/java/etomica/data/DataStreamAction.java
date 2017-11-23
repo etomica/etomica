@@ -27,6 +27,9 @@ public abstract class DataStreamAction implements IAction, java.io.Serializable 
             for (int i=0; i<dataSinks.length; i++) {
                 actionPerformed(dataSinks[i]);
             }
+            if (obj instanceof AccumulatorAverageFixed) {
+                actionPerformed(((AccumulatorAverageFixed) obj).getBlockDataSink());
+            }
         }
         else if (obj instanceof DataSplitter) {
             int n = ((DataSplitter)obj).getNumDataSinks();

@@ -8,8 +8,8 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.molecule.IMolecule;
@@ -24,7 +24,7 @@ import etomica.units.dimensions.Angle;
  *
  * @author Andrew Schultz
  */
-public class MeterTiltRotationStdev implements IEtomicaDataSource {
+public class MeterTiltRotationStdev implements IDataSource {
 
     public MeterTiltRotationStdev(Space space, ISpecies species, int nPlanes) {
         this.species = species;
@@ -69,7 +69,7 @@ public class MeterTiltRotationStdev implements IEtomicaDataSource {
         return data;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

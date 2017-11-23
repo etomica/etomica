@@ -8,8 +8,8 @@ import java.io.Serializable;
 
 import etomica.data.DataTag;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataInfoFactory;
+import etomica.data.IDataInfo;
+import etomica.data.IDataInfoFactory;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArrayFactory;
 import etomica.units.dimensions.Null;
@@ -132,7 +132,7 @@ public class DataTable extends DataGroup implements IData, Serializable {
     private static final long serialVersionUID = 1L;
 
     public static class DataInfoTable extends DataInfoGroup {
-        public DataInfoTable(String label, IEtomicaDataInfo[] columnInfo, int nRows, String[] rowHeaders) {
+        public DataInfoTable(String label, IDataInfo[] columnInfo, int nRows, String[] rowHeaders) {
             super(label, Null.DIMENSION, columnInfo);
             this.nRows = nRows;
             if (rowHeaders != null) {
@@ -143,7 +143,7 @@ public class DataTable extends DataGroup implements IData, Serializable {
             }
         }
         
-        public IEtomicaDataInfoFactory getFactory() {
+        public IDataInfoFactory getFactory() {
             return new DataInfoTableFactory(this);
         }
         
@@ -191,7 +191,7 @@ public class DataTable extends DataGroup implements IData, Serializable {
             }
         }
         
-        public IEtomicaDataInfo makeDataInfo() {
+        public IDataInfo makeDataInfo() {
             DataInfoDoubleArray[] columnInfo = new DataInfoDoubleArray[columnInfoFactories.length];
             for (int i=0; i<columnInfo.length; i++) {
                 columnInfo[i] = (DataInfoDoubleArray)columnInfoFactories[i].makeDataInfo();

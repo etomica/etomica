@@ -82,9 +82,9 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource<Integra
         c3 = GEAR3 * p1 / p3;
         c4 = GEAR4 * p1 / p4;
     }
-        
-    
-    public void doStepInternal() {
+
+
+    protected void doStepInternal() {
         super.doStepInternal();
         
         predictor();

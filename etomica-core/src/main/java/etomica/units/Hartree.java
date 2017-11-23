@@ -20,16 +20,4 @@ public final class Hartree extends SimpleUnit {
         	"hartrees", "Ha", Prefix.ALLOWED
         	);
     }
-    
-    /**
-     * Required to guarantee singleton when deserializing.
-     * 
-     * @return the singleton UNIT
-     */
-    private Object readResolve() {
-        return UNIT;
-    }
-
-    private static final long serialVersionUID = 1;
-
 }

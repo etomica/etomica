@@ -558,10 +558,6 @@ public class SwmdGraphic extends SimulationGraphic {
             myData = new DataDouble();
         }
         
-        public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
-            return null;
-        }
-        
         public IData processData(IData data) {
             if (Double.isInfinite(data.getValue(0))) {
                 return null;
@@ -571,7 +567,7 @@ public class SwmdGraphic extends SimulationGraphic {
             return myData;
         }
 
-        protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+        protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
             return inputDataInfo;
         }
         

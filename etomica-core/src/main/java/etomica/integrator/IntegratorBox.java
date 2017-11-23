@@ -5,33 +5,37 @@
 package etomica.integrator;
 
 import etomica.box.Box;
+import etomica.meta.annotations.IgnoreProperty;
 import etomica.potential.PotentialMaster;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.potential.PotentialCalculationEnergySum;
+import etomica.potential.PotentialMaster;
 import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Dimensioned;
 import etomica.units.dimensions.Temperature;
 
 /**
- * Integrator implements the algorithm used to move the atoms around and
- * generate new configurations in one or more boxs. All integrator techniques,
- * such as molecular dynamics or Monte Carlo, are implemented via subclasses of
- * this Integrator class. The Integrator's activities are managed via the
- * actions of the governing Controller.
- * 
+ * Superclass of integrators that acts on a single box.
+ *
  * @author David Kofke and Andrew Schultz
  */
 
 public abstract class IntegratorBox extends Integrator {
 
+    protected final PotentialMaster potentialMaster;
     protected Box box;
     protected double temperature;
     protected boolean isothermal = false;
     protected DataSourceScalar meterPE;
     protected double currentPotentialEnergy;
-    protected final PotentialMaster potentialMaster;
 
+    /**
+     *
+     * @param potentialMaster PotentialMaster instance used to compute energy etc.
+     * @param temperature used by integration algorithm and/or to initialize velocities
+     */
     public IntegratorBox(PotentialMaster potentialMaster, double temperature) {
         super();
         this.potentialMaster = potentialMaster;
@@ -42,25 +46,24 @@ public abstract class IntegratorBox extends Integrator {
     }
 
     /**
-     * @return Returns the PotentialMaster.
+     * @return the PotentialMaster instance used to compute energy etc.
      */
+    @IgnoreProperty
     public PotentialMaster getPotentialMaster() {
         return potentialMaster;
     }
 
     /**
-     * Defines the actions taken by the integrator to reset itself, such as
-     * required if a perturbation is applied to the simulated box (e.g.,
-     * addition or deletion of a molecule). Also invoked when the
-     * integrator is started or initialized. This also recalculates the 
-     * potential energy.
+     * Performs superclass reset actions and recalculated currentPotentialEnergy
+     *
+     * @throws ConfigurationOverlapException if energy of current configuration is infinite
      */
     public void reset() {
         super.reset();
         if (meterPE != null) {
             currentPotentialEnergy = meterPE.getDataAsScalar();
             if (currentPotentialEnergy == Double.POSITIVE_INFINITY) {
-                System.err.println("overlap in configuration for "+box+" when resetting integrator");
+                System.err.println("overlap in configuration for " + box + " when resetting integrator");
                 PotentialCalculationEnergySum.debug = true;
                 meterPE.getDataAsScalar();
                 PotentialCalculationEnergySum.debug = false;
@@ -70,63 +73,85 @@ public abstract class IntegratorBox extends Integrator {
     }
 
     /**
-     * Sets the temperature for this integrator
-     */
-    public void setTemperature(double t) {
-        temperature = t;
-    }
-
-    /**
      * @return the integrator's temperature
      */
+    @Dimensioned(dimension = Temperature.class)
     public final double getTemperature() {
         return temperature;
     }
 
     /**
+     * @param t the new temperature
+     */
+    public void setTemperature(double t) {
+        if(t < 0) {
+            throw new IllegalArgumentException("Temperature cannot be negative");
+        }
+        temperature = t;
+    }
+
+    /**
      * @return the dimenension of temperature (TEMPERATURE)
-     */ 
+     */
     public final Dimension getTemperatureDimension() {
         return Temperature.DIMENSION;
     }
 
     /**
-     * @return the potential energy of the box handled by this integrator
+     * @return the current value of the potential energy of the box handled by this integrator
      */
     public double getPotentialEnergy() {
         return currentPotentialEnergy;
     }
-    
-	public void setIsothermal(boolean b) {
-		isothermal = b;
-	}
 
-	public boolean isIsothermal() {
-		return isothermal;
-	}
+    /**
+     *
+     * @return true if the Integrator samples according to a specified temperature
+     */
+    public boolean isIsothermal() {
+        return isothermal;
+    }
 
-	/**
-	 * Performs activities needed to set up integrator to work on given box.
-	 * 
-	 * @param box the Box to set
-	 */
-	public void setBox(Box box) {
-	    this.box = box;
-	    if(meterPE instanceof MeterPotentialEnergy){
-	        ((MeterPotentialEnergy)meterPE).setBox(box);
-	    }
-	}
+    /**
+     *
+     * @param b specifies whether the Integrator should (if true) sample according to a specified temperature
+     */
+    public void setIsothermal(boolean b) {
+        isothermal = b;
+    }
 
+    /**
+     *
+     * @return the Box instance on which this integrator acts
+     */
     public Box getBox() {
         return box;
     }
 
-    public void setMeterPotentialEnergy(DataSourceScalar mpe){
-        meterPE = mpe;
+    /**
+     * @param box the Box to set
+     */
+    public void setBox(Box box) {
+        this.box = box;
+        if (meterPE instanceof MeterPotentialEnergy) {
+            ((MeterPotentialEnergy) meterPE).setBox(box);
+        }
     }
 
+    /**
+     *
+     * @return the meter used to compute the potential energy
+     */
     public DataSourceScalar getMeterPotentialEnergy() {
         return meterPE;
+    }
+
+    /**
+     *
+     * @param mpe the new meter used to compute the potential energy
+     */
+    public void setMeterPotentialEnergy(DataSourceScalar mpe) {
+        meterPE = mpe;
     }
 
 }

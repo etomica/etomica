@@ -5,30 +5,40 @@
 package etomica.virial;
 
 import etomica.atom.IAtomList;
-import etomica.util.random.IRandom;
-import etomica.space.Vector;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
+/**
+ * Class that samples molecule positions based on a chain of hard spheres of
+ * diameter sigma.  The sequence of spheres is chosen randomly.
+ *
+ * @author Andrew
+ */
 public class MCMoveClusterAtomHSChain extends MCMoveAtom {
+
+    protected final double sigma;
+    protected final Vector dr;
+    protected int[] seq;
 
     public MCMoveClusterAtomHSChain(IRandom random, Space _space, double sigma) {
         super(random, null, _space);
         this.sigma = sigma;
         dr = space.makeVector();
     }
-    
+
     public boolean doTrial() {
-        
+
         IAtomList leafAtoms = box.getLeafList();
         int n = leafAtoms.getAtomCount();
         if (seq == null) {
             seq = new int[n];
         }
-        for (int i=0; i<n; i++) {
+        for (int i = 0; i<n; i++) {
             seq[i] = i;
         }
-        for (int i=0; i<n; i++) {
+        for (int i = 0; i<n; i++) {
             int j = i+random.nextInt(n-i);
             int k = seq[j];
             seq[j] = seq[i];
@@ -36,35 +46,39 @@ public class MCMoveClusterAtomHSChain extends MCMoveAtom {
         }
         leafAtoms.getAtom(seq[0]).getPosition().E(0);
 
-        for (int i=1; i<n; i++) {
+        for (int i = 1; i<n; i++) {
             Vector pos = leafAtoms.getAtom(seq[i]).getPosition();
 
             pos.setRandomInSphere(random);
-            pos.TE(sigma);
+            double sig = getSigma(seq[i - 1], seq[i]);
+            if (sig < 0) {
+                // we want to force the position to be in the well (between 1 and sigma)
+                sig = -sig;
+                while (pos.squared() < 1 / (sig * sig)) {
+                    pos.setRandomInSphere(random);
+                }
+            }
+            pos.TE(sig);
             pos.PE(leafAtoms.getAtom(seq[i-1]).getPosition());
         }
 
-		((BoxCluster)box).trialNotify();
-		return true;
-	}
-	
-    public double getA() {
+        ((BoxCluster)box).trialNotify();
+        return true;
+    }
+
+    protected double getSigma(int i, int j) {
+        return sigma;
+    }
+
+    public double getChi(double temperature) {
         return 1;
     }
 
-    public double getB() {
-    	return 0.0;
-    }
-    
     public void rejectNotify() {
         throw new RuntimeException("nope");
     }
-    
-    public void acceptNotify() {
-    	((BoxCluster)box).acceptNotify();
-    }
 
-    protected final double sigma;
-    protected final Vector dr;
-    protected int[] seq;
+    public void acceptNotify() {
+        ((BoxCluster)box).acceptNotify();
+    }
 }

@@ -11,6 +11,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
+import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.listener.IntegratorListenerAction;
@@ -21,9 +22,14 @@ import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 
+/**
+ * Three-dimensional hard-sphere molecular dynamics simulation with no
+ * neighbor listing.
+ *
+ * @author David Kofke and Andrew Schultz
+ */
 public class HSMD3DNoNbr extends Simulation {
 
-    private static final long serialVersionUID = 1L;
     public Box box;
     public IntegratorHard integrator;
     public SpeciesSpheresMono species;
@@ -62,9 +68,7 @@ public class HSMD3DNoNbr extends Simulation {
 
     public static void main(String[] args) {
         HSMD3DNoNbr simulation = new HSMD3DNoNbr();
-        simulation.getController().actionPerformed();
-        System.out.println("Simulation run ok");
-
-
+        SimulationGraphic simGraphic = new SimulationGraphic(simulation, SimulationGraphic.TABBED_PANE, simulation.getSpace(), simulation.getController());
+        simGraphic.makeAndDisplayFrame();
     }
 }//end of class

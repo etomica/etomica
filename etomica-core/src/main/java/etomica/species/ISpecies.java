@@ -6,6 +6,7 @@ package etomica.species;
 
 import etomica.atom.AtomType;
 import etomica.box.Box;
+import etomica.meta.annotations.IgnoreProperty;
 import etomica.molecule.IMolecule;
 import etomica.potential.PotentialMaster;
 
@@ -45,6 +46,7 @@ public interface ISpecies {
     /**
      * Returns the number of child types of this group.
      */
+    @IgnoreProperty
     int getAtomTypeCount();
 
     /**

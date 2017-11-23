@@ -127,14 +127,11 @@ public class MCMoveInsertDelete extends MCMoveBox {
         uNew = Double.NaN;
         return true;
     }//end of doTrial
-    
-    public double getA() {//note that moleculeCount() gives the number of molecules after the trial is attempted
+
+    public double getChi(double temperature) {//note that moleculeCount() gives the number of molecules after the trial is attempted
         int numMolecules = box.getNMolecules(species);
         double a = box.getBoundary().volume()/numMolecules;
-        return insert ? a : 1.0/a;
-    }
-    
-    public double getB() {
+
         if(insert) {
             energyMeter.setTarget(testMolecule);
             uNew = energyMeter.getDataAsScalar();
@@ -145,9 +142,10 @@ public class MCMoveInsertDelete extends MCMoveBox {
         double b = uOld - uNew;
         if (insert) b += mu;
         else b -= mu;
-        return b;
+
+        return (insert ? a : 1.0 / a) * Math.exp(b / temperature);
     }
-    
+
     public void acceptNotify() {
         if (insert && Debug.ON && Debug.DEBUG_NOW && Debug.allAtoms(new MoleculeSetSinglet(testMolecule))) System.out.println("accepted insertion of "+testMolecule);
         if(!insert) {

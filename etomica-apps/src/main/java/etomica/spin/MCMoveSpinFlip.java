@@ -6,13 +6,13 @@ package etomica.spin;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
-import etomica.potential.PotentialMaster;
-import etomica.util.random.IRandom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBox;
+import etomica.potential.PotentialMaster;
+import etomica.util.random.IRandom;
 
 
 /**
@@ -24,10 +24,6 @@ import etomica.integrator.mcmove.MCMoveBox;
  */
 public class MCMoveSpinFlip extends MCMoveBox {
 
-    /**
-     * @param potentialMaster
-     * @param nBoxs
-     */
     public MCMoveSpinFlip(PotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         this.random = random;
@@ -54,19 +50,9 @@ public class MCMoveSpinFlip extends MCMoveBox {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see etomica.integrator.MCMove#lnTrialRatio()
-     */
-    public double getA() {
-        return 1.0;
-    }
-
-    /* (non-Javadoc)
-     * @see etomica.integrator.MCMove#lnProbabilityRatio()
-     */
-    public double getB() {
+    public double getChi(double temperature) {
         uNew = energyMeter.getDataAsScalar();
-        return -(uNew - uOld);
+        return Math.exp(-(uNew - uOld) / temperature);
     }
 
     /* (non-Javadoc)

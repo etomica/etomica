@@ -9,8 +9,9 @@ import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
 import etomica.data.DataTag;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataInfoFactory;
+import etomica.data.IDataInfo;
+import etomica.data.IDataInfoFactory;
+import etomica.meta.annotations.IgnoreProperty;
 import etomica.units.dimensions.Dimension;
 
 /**
@@ -168,8 +169,9 @@ public class DataDouble implements IData, java.io.Serializable {
         public int getLength() {
             return 1;
         }
-        
-        public IEtomicaDataInfoFactory getFactory() {
+
+        @IgnoreProperty
+        public IDataInfoFactory getFactory() {
             return new DataInfoDoubleFactory(this);
         }
         
@@ -185,7 +187,7 @@ public class DataDouble implements IData, java.io.Serializable {
             super(template);
         }
         
-        public IEtomicaDataInfo makeDataInfo() {
+        public IDataInfo makeDataInfo() {
             DataInfoDouble dataInfo = new DataInfoDouble(label, dimension);
             DataTag[] tagArray = new DataTag[tags.size()];
             dataInfo.addTags((DataTag[])tags.toArray(tagArray));

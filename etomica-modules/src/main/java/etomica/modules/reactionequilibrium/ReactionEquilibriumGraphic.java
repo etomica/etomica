@@ -25,9 +25,9 @@ import etomica.potential.P2SquareWell;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Angstrom;
-import etomica.units.dimensions.Dimension;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
+import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Energy;
 import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Null;
@@ -236,8 +236,8 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         filter1.setDataSink(dimerFractionAccum);
 
         DisplayTable table = new DisplayTable();
-		dimerFractionAccum.addDataSink(table.getDataTable().makeDataSink(),
-		        new AccumulatorAverage.StatType[]{dimerFractionAccum.AVERAGE, dimerFractionAccum.ERROR});
+        dimerFractionAccum.addDataSink(table.getDataTable().makeDataSink(dimerFractionAccum.getDataInfo()),
+                new AccumulatorAverage.StatType[]{dimerFractionAccum.AVERAGE, dimerFractionAccum.ERROR});
 
 
         table.setColumnHeader(new DataTag[]{dimerFractionAccum.getTag(dimerFractionAccum.AVERAGE)}, "Average");

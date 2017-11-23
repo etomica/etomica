@@ -13,13 +13,13 @@ import etomica.units.dimensions.Dimension;
  * an existing DataInfo object, but can be modified before being used to create
  * new DataInfo objects.
  */
-public abstract class DataInfoFactory implements java.io.Serializable, IEtomicaDataInfoFactory {
+public abstract class DataInfoFactory implements java.io.Serializable, IDataInfoFactory {
 
     /**
      * Creates a new instance using the info held by the template.  The 
      * template is not modified.
      */
-    protected DataInfoFactory(IEtomicaDataInfo template) {
+    protected DataInfoFactory(IDataInfo template) {
         label = template.getLabel();
         dimension = template.getDimension();
         tags = new ArrayList();
@@ -32,7 +32,7 @@ public abstract class DataInfoFactory implements java.io.Serializable, IEtomicaD
     /**
      * Creates a new DataInfo object using the information held by this factory.
      */
-    public abstract IEtomicaDataInfo makeDataInfo();
+    public abstract IDataInfo makeDataInfo();
     
     /**
      * Sets the label

@@ -7,10 +7,7 @@ package etomica.normalmode;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -32,7 +29,7 @@ import java.io.FileWriter;
  * deltaA/deltaV.  Different scalings are applied for different estimates of
  * deltaA/deltaV, with alpha=1 used (for the overlap average) for each scaling.
  */
-public class MeterDDP implements IEtomicaDataSource {
+public class MeterDDP implements IDataSource {
 
     protected final MeterPotentialEnergy meterPotential;
     protected final PotentialMaster potentialMaster;
@@ -73,7 +70,7 @@ public class MeterDDP implements IEtomicaDataSource {
 //        catch (IOException e) {throw new RuntimeException(e);}
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

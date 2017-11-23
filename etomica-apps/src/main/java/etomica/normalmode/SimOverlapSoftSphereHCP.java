@@ -10,7 +10,7 @@ import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDoubleArray;
@@ -68,7 +68,7 @@ public class SimOverlapSoftSphereHCP extends Simulation {
     public double refPref;
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     public DataPump[] accumulatorPumps;
-    public IEtomicaDataSource[] meters;
+    public IDataSource[] meters;
     public String fname;
     protected MCMoveHarmonic move;
     protected MCMoveAtomCoupled atomMove;
@@ -82,7 +82,7 @@ public class SimOverlapSoftSphereHCP extends Simulation {
 
         integrators = new IntegratorBox[2];
         accumulatorPumps = new DataPump[2];
-        meters = new IEtomicaDataSource[2];
+        meters = new IDataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);

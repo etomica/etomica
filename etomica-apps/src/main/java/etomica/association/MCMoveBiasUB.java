@@ -3,13 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.association;
+
+import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
-import etomica.atom.AtomArrayList;
 import etomica.atom.IAtomOriented;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.nbr.cell.PotentialMasterCell;
@@ -107,7 +108,6 @@ public class MCMoveBiasUB extends MCMoveBox {
         return true;
     }//end doTrial
     public double getB() {
-    	uNew = meterPotentialEnergy.getDataAsScalar();
 //    	if (atomA.getParentGroup().getIndex() == 10 || atomA.getParentGroup().getIndex() == 452){
 //    		System.out.println("MCMoveBiasUB "+atomA);
 //        	System.out.println("uOld-uNew = "+(uOld-meterPotentialEnergy.getDataAsScalar()));
@@ -116,7 +116,8 @@ public class MCMoveBiasUB extends MCMoveBox {
 //        }
     	return uOld - uNew;
     }
-    public double getA() {
+
+    public double getChi(double temperature) {
 //    	System.out.print("isbonding= "+isbonding +" ");
 //    	if (isbonding){
 //    		System.out.print("\t\t" );
@@ -155,7 +156,8 @@ public class MCMoveBiasUB extends MCMoveBox {
         if (smerList.getAtomCount() > maxLength) {
     		return 0.0;
 		}
-        return ((N-1)*phi*deltaj/Naj + ni)/((N-1)*phi*deltai/Nai + nj);    
+        uNew = meterPotentialEnergy.getDataAsScalar();
+        return ((N - 1) * phi * deltaj / Naj + ni) / ((N - 1) * phi * deltai / Nai + nj) * Math.exp(-(uNew - uOld) / temperature);
     }
     
     public void setMaxLength(int i){

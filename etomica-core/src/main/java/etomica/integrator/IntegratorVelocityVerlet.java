@@ -76,7 +76,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
 // steps all particles across time interval tStep
 
     // assumes one box
-    public void doStepInternal() {
+    protected void doStepInternal() {
         super.doStepInternal();
         if (Debug.ON && Debug.DEBUG_NOW) {
             IAtomList pair = Debug.getAtoms(box);

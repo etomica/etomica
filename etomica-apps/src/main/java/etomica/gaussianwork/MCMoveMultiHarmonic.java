@@ -5,13 +5,13 @@
 package etomica.gaussianwork;
 
 import etomica.atom.IAtomList;
-import etomica.box.Box;
-import etomica.util.random.IRandom;
-import etomica.space.Vector;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.potential.P1Harmonic;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * MCMove which moves all atoms.  New coordinates are taken from a Gaussian
@@ -64,12 +64,8 @@ public class MCMoveMultiHarmonic extends MCMoveBox {
         return true;
     }
 
-    public double getA() {
+    public double getChi(double temperature) {
         return 1;
-    }
-
-    public double getB() {
-        return 0;
     }
 
     public void rejectNotify() {

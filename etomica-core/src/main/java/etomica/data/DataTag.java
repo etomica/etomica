@@ -4,14 +4,10 @@
 
 package etomica.data;
 
-import java.io.Serializable;
-
 /**
- * Class whose sole purpose is to implement Serializable so that data tags are
- * serializable
+ * Data stream identifier. Used to distinguish data streams when plotting or displaying data.
  * @author Andrew Schultz
  */
-public class DataTag implements Serializable {
+public class DataTag  {
 
-    private static final long serialVersionUID = 1L;
 }

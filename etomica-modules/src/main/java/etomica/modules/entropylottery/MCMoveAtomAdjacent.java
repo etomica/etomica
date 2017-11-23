@@ -4,16 +4,16 @@
 
 package etomica.modules.entropylottery;
 
-import etomica.atom.IAtom;
-import etomica.box.Box;
-import etomica.util.random.IRandom;
-import etomica.space.Vector;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomLeaf;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
+import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 
 /**
@@ -51,15 +51,8 @@ public class MCMoveAtomAdjacent extends MCMoveBox {
         atom.getPosition().PE(translationVector);
         return true;
     }
-    
-    public double getA() {return 1.0;}
-    
-    /**
-     * Returns the log of the limiting-distribution probabilities of states, ln(Pj/Pi), 
-     * for the states encountered before (i) and after (j) the most recent call to 
-     * doTrial.
-     */
-    public double getB() {
+
+    public double getChi(double temperature) {
         Vector position = atom.getPosition();
         Vector dimensions = box.getBoundary().getBoxSize();
         for (int i=0; i<position.getD(); i++) {
@@ -68,7 +61,7 @@ public class MCMoveAtomAdjacent extends MCMoveBox {
             if (x < 0 || x >= (int)Math.round(dimensions.getX(i))) {
                 if (!box.getBoundary().getPeriodicity(i)) {
                     // failure
-                    return Double.NEGATIVE_INFINITY;
+                    return 0;
                 }
                 //wrap around -- OK, it's a hack.  deal with it.
                 if (x < 0) {
@@ -79,7 +72,7 @@ public class MCMoveAtomAdjacent extends MCMoveBox {
                 }
             }
         }
-        return 0;
+        return 1;
     }
     
     public double energyChange() {return 0;}
@@ -119,7 +112,7 @@ public class MCMoveAtomAdjacent extends MCMoveBox {
         return atomSource;
     }
     /**
-     * @param atomSource The atomSource to set.
+     * @param source The atomSource to set.
      */
     public void setAtomSource(AtomSource source) {
         atomSource = source;

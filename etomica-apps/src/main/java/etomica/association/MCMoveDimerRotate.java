@@ -117,16 +117,9 @@ public class MCMoveDimerRotate extends MCMoveBoxStep {
             rotationTensor.transform(r);
             r.PE(r0);
         }
-    
-    /**
-     * Returns log of the ratio of the trial probabilities, ln(Tij/Tji) for the
-     * states encountered before (i) and after (j) the most recent call to doTrial(). 
-     * Tij is the probability that this move would generate state j from state i, and
-     * Tji is the probability that a subsequent call to doTrial would return to state i
-     * from state j.
-     */
-    public double getA() {
-    	if (associationManager.getAssociatedAtoms(atom).getAtomCount() > 1) {
+
+    public double getChi(double temperature) {
+        if (associationManager.getAssociatedAtoms(atom).getAtomCount() > 1) {
         	return 0;
         } 
         if (associationManager.getAssociatedAtoms(atom).getAtomCount() == 1){
@@ -135,21 +128,12 @@ public class MCMoveDimerRotate extends MCMoveBoxStep {
         		return 0;
         	} 
         }
-    	return 1.0;
-	}
-    
-    /**
-     * Returns the log of the limiting-distribution probabilities of states, ln(Pj/Pi), 
-     * for the states encountered before (i) and after (j) the most recent call to 
-     * doTrial.
-     */
-    public double getB() {
         uNew = energyMeter.getDataAsScalar();
         energyMeter.setTarget(atom);
         uNew += energyMeter.getDataAsScalar();
-        return -(uNew - uOld);
+        return Math.exp(-(uNew - uOld) / temperature);
     }
-    
+
     public double energyChange() {return uNew - uOld;}
     
     /**

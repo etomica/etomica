@@ -6,13 +6,8 @@ package etomica.data.types;
 
 import java.util.Arrays;
 
+import etomica.data.*;
 import etomica.math.function.IFunction;
-import etomica.data.DataInfo;
-import etomica.data.DataInfoFactory;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataInfoFactory;
 import etomica.units.dimensions.Dimension;
 
 /**
@@ -374,7 +369,7 @@ public class DataDoubleArray implements IData, java.io.Serializable {
             return n;
         }
         
-        public IEtomicaDataInfoFactory getFactory() {
+        public IDataInfoFactory getFactory() {
             return new DataInfoDoubleArrayFactory(this);
         }
 
@@ -391,7 +386,7 @@ public class DataDoubleArray implements IData, java.io.Serializable {
             arrayShape = template.arrayShape.clone();
         }
         
-        public IEtomicaDataInfo makeDataInfo() {
+        public IDataInfo makeDataInfo() {
             DataInfoDoubleArray dataInfo = new DataInfoDoubleArray(label, dimension, arrayShape);
             DataTag[] tagArray = new DataTag[tags.size()];
             dataInfo.addTags((DataTag[])tags.toArray(tagArray));

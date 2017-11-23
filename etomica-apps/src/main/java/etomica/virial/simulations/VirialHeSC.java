@@ -4,7 +4,6 @@
 
 package etomica.virial.simulations;
 
-import etomica.space.Vector;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
@@ -12,17 +11,13 @@ import etomica.potential.P2HePCKLJS;
 import etomica.potential.P2HeSimplified;
 import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterDifference;
-import etomica.virial.ClusterWheatleyHS;
-import etomica.virial.ClusterWheatleySoft;
-import etomica.virial.MayerGeneralSpherical;
-import etomica.virial.MayerHardSphere;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 
 /**

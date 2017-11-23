@@ -4,14 +4,14 @@
 
 package etomica.normalmode;
 
-import etomica.space.Vector;
-import etomica.box.Box;
-import etomica.util.random.IRandom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveTracker;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 public class MCMoveHarmonic extends MCMoveBox {
 
@@ -167,17 +167,12 @@ public class MCMoveHarmonic extends MCMoveBox {
         }
         return true;
     }
-    
-    public double getA() {
+
+    public double getChi(double temperature) {
         // return 1 to guarantee success
         return 1;
     }
 
-    public double getB() {
-        // return 0 to guarantee success
-        return 0;
-    }
-    
     /**
      * Returns the harmonic energy of the configuration based on the last
      * harmonic move made by this MC Move.

@@ -149,7 +149,7 @@ public class MCMoveVolumeSolidNPTMolecularOriented extends
         }
     }
 
-    public double getA() {
+    public double getChi(double temperature) {
         if (maxMolecule > -1) {
             // we over-rotated a molecule (past theta=0 or theta=90)
             // reject
@@ -182,7 +182,7 @@ public class MCMoveVolumeSolidNPTMolecularOriented extends
                 return 0;
             }
         }
-        return super.getA();
+        return super.getChi(temperature);
     }
 
     public void rejectNotify() {

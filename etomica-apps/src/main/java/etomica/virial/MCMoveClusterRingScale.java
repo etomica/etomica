@@ -119,14 +119,9 @@ public class MCMoveClusterRingScale extends MCMoveBox {
         
 		return true;
 	}
-	
-    public double getA() {
-        // we skip calculation of wOld because we're the only intramolecular move in town.
-        return wRatio * weightNew/weightOld;
-    }
 
-    public double getB() {
-        return -(uNew - uOld);
+    public double getChi(double temperature) {
+        return wRatio * weightNew / weightOld * Math.exp(-(uNew - uOld));
     }
     
     public void rejectNotify() {

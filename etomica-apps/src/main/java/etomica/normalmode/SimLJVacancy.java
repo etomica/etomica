@@ -7,9 +7,6 @@ package etomica.normalmode;
 import etomica.action.BoxInflate;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.integrator.IntegratorListener;
-import etomica.integrator.IntegratorEvent;
-import etomica.space.Boundary;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
@@ -21,8 +18,11 @@ import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.meter.MeterPressure;
 import etomica.graphics.*;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.*;
 import etomica.lattice.crystal.Basis;
@@ -35,6 +35,7 @@ import etomica.nbr.cell.PotentialMasterCell;
 import etomica.normalmode.DataSourceMuRoot.DataSourceMuRootVacancyConcentration;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
+import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -43,10 +44,12 @@ import etomica.species.SpeciesSpheresMono;
 import etomica.statmech.LennardJones;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Null;
+import etomica.util.Arrays;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
 import java.awt.*;
+import java.util.List;
 
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 3D
@@ -149,7 +152,10 @@ public class SimLJVacancy extends Simulation {
                     if (divisor==0) return 0;
                     if (divisor==1) {
                         // the whole system
-                        return numAtoms*uShift;
+                        int n = box.getNMolecules(species);
+                        // to be consistent with our single-atom correction, we need to assume that
+                        // our vacancies are non-interacting
+                        return (numAtoms - (numAtoms - n) * 2) * uShift;
                     }
                     // single atom
                     return 2*uShift;
@@ -178,11 +184,13 @@ public class SimLJVacancy extends Simulation {
         ParseArgs.doParseArgs(params, args);
         if (args.length==0) {
             params.graphics = true;
-            params.numAtoms = 500;
+            params.numAtoms = 864;
             params.steps = 1000000;
-            params.density = 1.5;
-            params.numV = 1;
+            params.density = 1.;
+            params.numV = 4;
             params.temperature = 1;
+            params.daDef = 7.661325924964285;
+            params.mu = 0.952366259576;
         }
 
         final int numAtoms = params.numAtoms;
@@ -223,9 +231,10 @@ public class SimLJVacancy extends Simulation {
         System.out.println("T: "+temperature);
         System.out.println("density: "+density);
         System.out.println("steps: "+steps);
-   
+
 
         final SimLJVacancy sim = new SimLJVacancy(numAtoms, temperature, density, rc, numV, mu, ss, shifted);
+        System.out.println("random seeds: " + Arrays.toString(sim.seeds));
         if (shifted) {
             System.out.println("Shifting the potential (and then correcting by "+sim.uShift+")");
         }
@@ -250,6 +259,16 @@ public class SimLJVacancy extends Simulation {
         });
         pSplitter.putDataInfo(meterP.getDataInfo());
 
+        final MeterPotentialEnergyFromIntegrator meterU = new MeterPotentialEnergyFromIntegrator(sim.integrator);
+        final DataDistributer uSplitter = new DataDistributer(indexer, new IDataSinkFactory() {
+            public IDataSink makeDataSink(int i) {
+                AccumulatorAverageBlockless avg = new AccumulatorAverageBlockless();
+                avg.setPushInterval(100 * numAtoms);
+                return avg;
+            }
+        });
+        uSplitter.putDataInfo(meterU.getDataInfo());
+
         // collect pressure data before any insert/delete trials
         sim.integrator.getEventManager().addListener(new IntegratorListener() {
             long countDown = numAtoms, interval = numAtoms;
@@ -258,6 +277,10 @@ public class SimLJVacancy extends Simulation {
             public void integratorStepStarted(IntegratorEvent e) {}
 
             public void integratorStepFinished(IntegratorEvent e) {
+                IData uData = meterU.getData();
+                uData.TE(1.0 / numAtoms);
+                uSplitter.putData(uData);
+
                 countDown--;
                 if (countDown==0) {
                     // everything really wants beta P
@@ -487,11 +510,10 @@ public class SimLJVacancy extends Simulation {
             DataSourceMuRoot1 dsmr1 = null;
             final AccumulatorHistory dsmr1History;
             dsmr1 = new DataSourceMuRoot1(mcMoveOverlapMeter, mu, pSplitter, Double.NaN, density, numAtoms/density);
-            dsmr1.setMinMu(10);
             dsmr1History = new AccumulatorHistory(new HistoryCollapsingDiscard());
             dsmr1History.setTimeDataSource(timeDataSource);
             DataPumpListener dsmr1Pump = new DataPumpListener(dsmr1, dsmr1History, numAtoms);
-//            sim.integrator.getEventManager().addListener(dsmr1Pump);
+            sim.integrator.getEventManager().addListener(dsmr1Pump);
             dsmr1History.setDataSink(dsmrPlot.getDataSet().makeDataSink());
             dsmrPlot.setLegend(new DataTag[]{dsmr1.getTag()},"v1");
             
@@ -502,7 +524,15 @@ public class SimLJVacancy extends Simulation {
             plotPN.setLabel("P vs. N");
             plotPN.setDoLegend(false);
             simGraphic.add(plotPN);
-            
+
+            DataSourcePN dataSourceUN = new DataSourcePN(uSplitter, numAtoms);
+            DisplayPlot plotUN = new DisplayPlot();
+            DataPumpListener pumpUN = new DataPumpListener(dataSourceUN, plotUN.getDataSet().makeDataSink(), numAtoms);
+            sim.integrator.getEventManager().addListener(pumpUN);
+            plotUN.setLabel("U vs. N");
+            plotUN.setDoLegend(false);
+            simGraphic.add(plotUN);
+
             DataSourceMuRootVacancyConcentration dsmrvc = dsmr.new DataSourceMuRootVacancyConcentration();
             final AccumulatorHistory dsmrvcHistory = new AccumulatorHistory(new HistoryCollapsingDiscard());
             dsmrvcHistory.setTimeDataSource(timeDataSource);
@@ -514,12 +544,35 @@ public class SimLJVacancy extends Simulation {
             vPlot.setLegend(new DataTag[]{dsmrvc.getTag()}, "avg");
             simGraphic.add(vPlot);
 
+            DataSourceMuRoot.DataSourceMuRootDPressure dsmrDP = dsmr.new DataSourceMuRootDPressure();
+            final AccumulatorHistory dsmrDPHistory = new AccumulatorHistory(new HistoryCollapsingDiscard());
+            dsmrDPHistory.setTimeDataSource(timeDataSource);
+            DataPumpListener dsmrDPPump = new DataPumpListener(dsmrDP, dsmrDPHistory, numAtoms);
+            sim.integrator.getEventManager().addListener(dsmrDPPump);
+            DisplayPlot dpPlot = new DisplayPlot();
+            dpPlot.setLabel("deltaP");
+            dsmrDPHistory.setDataSink(dpPlot.getDataSet().makeDataSink());
+            dpPlot.setDoLegend(false);
+            simGraphic.add(dpPlot);
+
+            dsmr.setUSplitter(uSplitter);
+            DataSourceMuRoot.DataSourceMuRootDU dsmrDU = dsmr.new DataSourceMuRootDU();
+            final AccumulatorHistory dsmrDUHistory = new AccumulatorHistory(new HistoryCollapsingDiscard());
+            dsmrDUHistory.setTimeDataSource(timeDataSource);
+            DataPumpListener dsmrDUPump = new DataPumpListener(dsmrDU, dsmrDUHistory, numAtoms);
+            sim.integrator.getEventManager().addListener(dsmrDUPump);
+            DisplayPlot duPlot = new DisplayPlot();
+            duPlot.setLabel("deltaU");
+            dsmrDUHistory.setDataSink(duPlot.getDataSet().makeDataSink());
+            duPlot.setDoLegend(false);
+            simGraphic.add(duPlot);
+
             final AccumulatorHistory dsmrvc1History;
             DataSourceMuRoot1.DataSourceMuRootVacancyConcentration dsmrvc1 = dsmr1.new DataSourceMuRootVacancyConcentration();
             dsmrvc1History = new AccumulatorHistory(new HistoryCollapsingDiscard());
             dsmrvc1History.setTimeDataSource(timeDataSource);
             DataPumpListener dsmrvc1Pump = new DataPumpListener(dsmrvc1, dsmrvc1History, numAtoms);
-//            sim.integrator.getEventManager().addListener(dsmrvc1Pump);
+            sim.integrator.getEventManager().addListener(dsmrvc1Pump);
             dsmrvc1History.setDataSink(vPlot.getDataSet().makeDataSink());
             vPlot.setLegend(new DataTag[]{dsmrvc1.getTag()}, "v1");
 
@@ -537,9 +590,15 @@ public class SimLJVacancy extends Simulation {
                             dsmr1History.reset();
                             dsmrvc1History.reset();
                         }
+                        dsmrDPHistory.reset();
+                        dsmrDUHistory.reset();
                         dsmrvcHistory.reset();
                         for (int i=0; i<pSplitter.getNumDataSinks(); i++) {
                             AccumulatorAverageBlockless avg = (AccumulatorAverageBlockless)pSplitter.getDataSink(i);
+                            if (avg != null) avg.reset();
+                        }
+                        for (int i = 0; i < uSplitter.getNumDataSinks(); i++) {
+                            AccumulatorAverageBlockless avg = (AccumulatorAverageBlockless) uSplitter.getDataSink(i);
                             if (avg != null) avg.reset();
                         }
                         sim.integrator.getEventManager().removeListener(mcMoveBiasListener);
@@ -556,6 +615,31 @@ public class SimLJVacancy extends Simulation {
             resetButton.setAction(resetAction);
             resetButton.setLabel("Reset");
             simGraphic.getPanel().controlPanel.add(resetButton.graphic(),SimulationPanel.getVertGBC());
+
+            List<DataPump> dataStreamPumps = simGraphic.getController().getDataStreamPumps();
+            dataStreamPumps.add(nPump);
+            simGraphic.getController().getResetAveragesButton().setPostAction(new IAction() {
+                @Override
+                public void actionPerformed() {
+                    nHistogram.reset();
+                    nHistory.reset();
+                    dsmrHistory.reset();
+                    if (dsmr1History != null) {
+                        dsmr1History.reset();
+                        dsmrvc1History.reset();
+                    }
+                    dsmrvcHistory.reset();
+                    for (int i = 0; i < pSplitter.getNumDataSinks(); i++) {
+                        AccumulatorAverageBlockless avg = (AccumulatorAverageBlockless) pSplitter.getDataSink(i);
+                        if (avg != null) avg.reset();
+                    }
+                    for (int i = 0; i < uSplitter.getNumDataSinks(); i++) {
+                        AccumulatorAverageBlockless avg = (AccumulatorAverageBlockless) uSplitter.getDataSink(i);
+                        if (avg != null) avg.reset();
+                    }
+
+                }
+            });
 
             return;
     	}
@@ -605,6 +689,7 @@ public class SimLJVacancy extends Simulation {
 
                 public void integratorStepFinished(IntegratorEvent e) {
                     if (!reenabled && sim.integrator.getStepCount() >= finalSteps/40) {
+                        System.err.println("It's not nice to mess with the event manager's listeners while being called as a listener");
                         sim.integrator.getEventManager().addListener(mcMoveBiasListener);
                         reenabled = true;
                     }
@@ -693,10 +778,10 @@ public class SimLJVacancy extends Simulation {
         System.out.println("delta bmu: "+deltaMu);
         System.out.println("vacancy fraction: "+vRoot);
         double lnTot = dsmr.getLastLnTot();
-        double deltaA = -(1-vRoot)*lnTot/numAtoms - vRoot/density*deltaP/temperature;
+        double deltaA = -lnTot / numAtoms - pRoot * vRoot / density;
         // free energy change per lattice site
         System.out.println("delta betaA: "+deltaA);
-        
+
         System.out.println("time: "+(t2-t1)/1000.0+" seconds");
     }
     
@@ -704,14 +789,14 @@ public class SimLJVacancy extends Simulation {
     	public void init() {
             LJParams params = new LJParams();
             params.graphics = true;
-            params.numAtoms = 864;
+            params.numAtoms = 500;
             params.steps = 1000000;
             params.density = 1.;
-            params.numV = 4;
-            params.temperature = 1.08;
-            params.mu = 1.741248580731481;
-            params.daDef = 6.39953903744669;
-            params.rc = 4;
+            params.numV = 3;
+            params.temperature = 1.0;
+            params.mu = 1.2835796847982366;
+            params.daDef = 7.429228433782964;
+            params.rc = 3;
 
             final int numAtoms = params.numAtoms;
             final double density = params.density;
@@ -1010,7 +1095,6 @@ public class SimLJVacancy extends Simulation {
             DataSourceMuRoot1 dsmr1 = null;
             final AccumulatorHistory dsmr1History;
             dsmr1 = new DataSourceMuRoot1(mcMoveOverlapMeter, mu, pSplitter, Double.NaN, density, numAtoms/density);
-            dsmr1.setMinMu(10);
             dsmr1History = new AccumulatorHistory(new HistoryCollapsingDiscard());
             dsmr1History.setTimeDataSource(timeDataSource);
             DataPumpListener dsmr1Pump = new DataPumpListener(dsmr1, dsmr1History, numAtoms);

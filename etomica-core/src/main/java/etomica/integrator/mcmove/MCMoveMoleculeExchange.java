@@ -129,25 +129,19 @@ public class MCMoveMoleculeExchange extends MCMove {
     public MoleculeSource getMoleculeSource() {
         return moleculeSource;
     }
-    
-    public double getA() {
+
+    public double getChi(double temperature) {
         energyMeter.setBox(iBox);
         energyMeter.setTarget(molecule);
         uNew = energyMeter.getDataAsScalar();
         double B = -(uNew - uOld);
         // assume both integrators have the same temperature
-        double T = integrator1.getTemperature();
         //note that dSpecies.nMolecules has been decremented
         //and iSpecies.nMolecules has been incremented
-        return Math.exp(B/T) * (dBox.getNMolecules(molecule.getType())+1)/dBox.getBoundary().volume()
+        return Math.exp(B / temperature) * (dBox.getNMolecules(molecule.getType()) + 1) / dBox.getBoundary().volume()
                * iBox.getBoundary().volume()/iBox.getNMolecules(molecule.getType()); 
     }
-    
-    public double getB() {
-        //IntegratorManagerMC only calls getA since it doesn't have a temperature
-        throw new IllegalStateException("You shouldn't be calling this method");
-    }
-    
+
     public void acceptNotify() {
         IntegratorBox iIntegrator = integrator1;
         IntegratorBox dIntegrator = integrator2;

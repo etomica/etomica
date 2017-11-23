@@ -12,12 +12,16 @@ import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
  * cannot act as the DataSourceIndependent themselves (if perhaps they make
  * multiple DataFunctions)
  */
-public class DataSourceIndependentSimple implements DataSourceIndependent, java.io.Serializable {
-    
+public class DataSourceIndependentSimple implements DataSourceIndependent {
+
+    protected final DataTag tag;
+    private DataDoubleArray[] xData;
+    private DataInfoDoubleArray[] xDataInfo;
+
     public DataSourceIndependentSimple(double[] rawData, DataInfoDoubleArray xDataInfo) {
         this(new double[][]{rawData}, new DataInfoDoubleArray[]{xDataInfo});
     }
-    
+
     public DataSourceIndependentSimple(double[][] rawData, DataInfoDoubleArray[] xDataInfo) {
         tag = new DataTag();
         xData = new DataDoubleArray[rawData.length];
@@ -49,17 +53,12 @@ public class DataSourceIndependentSimple implements DataSourceIndependent, java.
     public DataDoubleArray getIndependentData(int i) {
         return xData[i];
     }
-    
+
     public int getIndependentArrayDimension() {
         return xData.length;
     }
-    
+
     public DataTag getIndependentTag() {
         return tag;
     }
-    
-    private static final long serialVersionUID = 1L;
-    private DataDoubleArray[] xData;
-    private DataInfoDoubleArray[] xDataInfo;
-    protected final DataTag tag;
 }

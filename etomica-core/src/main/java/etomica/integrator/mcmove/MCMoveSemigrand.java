@@ -149,18 +149,15 @@ public class MCMoveSemigrand extends MCMoveBox {
         uNew = Double.NaN;
         return true;
     }//end of doTrial
-    
-    public double getA() {
-        return (double)(box.getNMolecules(speciesSet[iDelete])+1)/(double)box.getNMolecules(speciesSet[iInsert])
-                *(fugacityFraction[iInsert]/fugacityFraction[iDelete]);
-    }
-    
-    public double getB() {
+
+    public double getChi(double temperature) {
         energyMeter.setTarget(insertMolecule);
         uNew = energyMeter.getDataAsScalar();
-        return -(uNew - uOld);
+        double B = Math.exp(-(uNew - uOld));
+        return (double) (box.getNMolecules(speciesSet[iDelete]) + 1) / (double) box.getNMolecules(speciesSet[iInsert])
+                * (fugacityFraction[iInsert] / fugacityFraction[iDelete]) * B;
     }
-    
+
     public void acceptNotify() {
         //put deleted molecule in reservoir
         reservoirs[iDelete].add(deleteMolecule);

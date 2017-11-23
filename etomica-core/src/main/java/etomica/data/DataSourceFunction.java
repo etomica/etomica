@@ -4,16 +4,16 @@
 
 package etomica.data;
 
-import java.io.Serializable;
-
-import etomica.math.function.IFunction;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
+import etomica.math.function.Function;
+import etomica.math.function.IFunction;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Null;
-import etomica.math.function.Function;
+
+import java.io.Serializable;
 
 /**
  * Datasource formed as a wrapper around a function.  Uses a DataSourceUniform
@@ -22,7 +22,7 @@ import etomica.math.function.Function;
  * two Data components; the first (0) is x, and the second (1) is y.
  * Useful for displaying a fixed function on a plot.
  */
-public class DataSourceFunction implements IEtomicaDataSource, DataSourceIndependent, Serializable {
+public class DataSourceFunction implements IDataSource, DataSourceIndependent, Serializable {
     
     public DataSourceFunction() {
         this(new Function.Constant(0.0));
@@ -44,7 +44,7 @@ public class DataSourceFunction implements IEtomicaDataSource, DataSourceIndepen
         dataInfo.addTag(tag);
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -137,7 +137,7 @@ public class DataSourceFunction implements IEtomicaDataSource, DataSourceIndepen
     
     private static final long serialVersionUID = 1L;
     private DataFunction data;
-    private IEtomicaDataInfo dataInfo;
+    private IDataInfo dataInfo;
     private final DataSourceUniform xSource;
     private DataDoubleArray xData;
     private IFunction function;

@@ -6,10 +6,7 @@ package etomica.paracetamol;
 
 import etomica.action.WriteConfigurationDLPOLY;
 import etomica.box.Box;
-import etomica.data.DataInfo;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.lattice.BravaisLatticeCrystal;
@@ -259,7 +256,7 @@ public class HarmonicCrystalOrthorhombic {
 			
 		}
 
-		public IEtomicaDataInfo getDataInfo() {
+		public IDataInfo getDataInfo() {
 			 return dataInfo;
 		}
 

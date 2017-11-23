@@ -4,10 +4,10 @@
 
 package etomica.action;
 
-import java.util.ArrayList;
-
 import etomica.data.DataPump;
 import etomica.data.DataStreamAction;
+
+import java.util.ArrayList;
 
 /**
  * Action that performs a call to the reset() method of a set
@@ -30,6 +30,10 @@ public class SimulationDataAction implements IAction, java.io.Serializable {
             streamAction.setStart(dataStreamPumps.get(i));
             streamAction.actionPerformed();
         }
+    }
+
+    public void setStreamAction(DataStreamAction action) {
+        streamAction = action;
     }
 
     private static final long serialVersionUID = 1L;

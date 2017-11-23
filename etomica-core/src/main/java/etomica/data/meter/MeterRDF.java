@@ -5,7 +5,6 @@
 package etomica.data.meter;
 
 import etomica.action.IAction;
-import etomica.space.Boundary;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.atom.iterator.ApiLeafAtoms;
@@ -17,6 +16,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Length;
@@ -29,7 +29,7 @@ import etomica.units.dimensions.Null;
  *
  * @author David Kofke
  */
-public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndependent, java.io.Serializable {
+public class MeterRDF implements IAction, IDataSource, DataSourceIndependent, java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
     protected final Space space;
@@ -44,7 +44,7 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
     protected double xMax;
     protected long callCount;
     protected AtomType type1, type2;
-    private IEtomicaDataInfo dataInfo;
+    private IDataInfo dataInfo;
     private Boundary boundary;
     private String name;
 
@@ -71,7 +71,7 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
         dataInfo.addTag(tag);
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

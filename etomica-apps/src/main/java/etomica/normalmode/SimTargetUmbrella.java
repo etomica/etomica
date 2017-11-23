@@ -171,7 +171,7 @@ public class SimTargetUmbrella extends Simulation {
         //construct simulation
         final SimTargetUmbrella sim = new SimTargetUmbrella(Space.getInstance(D), numAtoms, density, temperature, filename, exponentN);
 
-        IEtomicaDataSource[] workMeters = new IEtomicaDataSource[1];
+        IDataSource[] workMeters = new IDataSource[1];
 
         // Target
         MeterWorkTargetUmbrella meterWorkTargetUmbrella = new MeterWorkTargetUmbrella(sim.integrator, sim.meterHarmonicEnergy);

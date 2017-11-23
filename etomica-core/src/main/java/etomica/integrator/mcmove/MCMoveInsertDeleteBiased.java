@@ -6,9 +6,9 @@ package etomica.integrator.mcmove;
 
 import etomica.box.Box;
 import etomica.potential.PotentialMaster;
-import etomica.util.random.IRandom;
 import etomica.space.Space;
 import etomica.util.Arrays;
+import etomica.util.random.IRandom;
 
 /**
  * Biased MCMove for insertion and deletion.  The bias can be set by setting
@@ -68,8 +68,19 @@ public class MCMoveInsertDeleteBiased extends MCMoveInsertDelete {
         }
     }
 
-    public double getA() {
-        return Math.exp(getLnBiasDiff()) * super.getA();
+    public double getChi(double temperature) {
+        if (insert) {
+            energyMeter.setTarget(testMolecule);
+            uNew = energyMeter.getDataAsScalar();
+        }
+        else {
+            uNew = 0.0;
+        }
+        double b = uOld - uNew;
+
+        int numMolecules = box.getNMolecules(species);
+        double a = box.getBoundary().volume() / numMolecules;
+        return Math.exp(getLnBiasDiff()) * a * Math.exp(b / temperature);
     }
     
     public double getLnBiasDiff() {
@@ -85,18 +96,6 @@ public class MCMoveInsertDeleteBiased extends MCMoveInsertDelete {
         }
         double bias = lnbias == null ? 1 : lnbias[numAtoms]-lnbias[numAtoms-1];
         return (insert ? bias : -bias);
-    }
-    
-    public double getB() {
-        if(insert) {
-            energyMeter.setTarget(testMolecule);
-            uNew = energyMeter.getDataAsScalar();
-        }
-        else {
-            uNew = 0.0;
-        }
-        double b = uOld - uNew;
-        return b;
     }
 
     public void myAcceptNotify() {

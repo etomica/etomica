@@ -28,10 +28,10 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
+import etomica.units.Pixel;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Null;
-import etomica.units.Pixel;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -318,11 +318,8 @@ public class InsertionGraphic extends SimulationGraphic {
         
         DataProcessor widomWeight = new DataProcessor() {
             DataFunction data;
-            public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
-                return null;
-            }
-            
-            protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+
+            protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
                 data = (DataFunction)inputDataInfo.makeData();
                 dataInfo = inputDataInfo.getFactory().makeDataInfo();
                 dataInfo.addTag(tag);

@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 package etomica.models.water;
 
 import etomica.action.MoleculeActionTranslateTo;
@@ -35,7 +39,7 @@ public class P2WaterSPCETest {
     public void testEnergy() throws Exception {
         P2WaterSPCE potential = new P2WaterSPCE(Space3D.getInstance());
         potential.setBox(new Box(Space3D.getInstance()));
-        assertEquals(-9.315482357333167, potential.energy(molecules), EPSILON);
+        assertEquals(-9.308531528185995, potential.energy(molecules), EPSILON);
     }
 
 }

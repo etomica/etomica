@@ -5,11 +5,11 @@
 package etomica.virial;
 
 import etomica.atom.IAtomList;
-import etomica.space.Vector;
 import etomica.box.Box;
-import etomica.util.random.IRandom;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * @author kofke
@@ -54,15 +54,11 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
         uNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 		return true;
 	}
-	
-    public double getA() {
+
+    public double getChi(double temperature) {
         return (uOld==0.0) ? Double.POSITIVE_INFINITY : uNew/uOld;
     }
 
-    public double getB() {
-    	return 0.0;
-    }
-    
     public void rejectNotify() {
         IAtomList leafAtoms = box.getLeafList();
         for(int i=startAtom; i<leafAtoms.getAtomCount(); i++) {

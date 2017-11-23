@@ -115,7 +115,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
         maxIterations = newMaxIterations;
     }
 
-    public void doStepInternal() {
+    protected void doStepInternal() {
         currentTime += timeStep;
 
         IMoleculeList molecules = box.getMoleculeList();

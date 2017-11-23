@@ -81,7 +81,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource<
 //--------------------------------------------------------------
 // steps all particles across time interval tStep
 
-  	public void doStepInternal() {
+    protected void doStepInternal() {
         super.doStepInternal();
 
         double dim = space.D();  //get the dimension
