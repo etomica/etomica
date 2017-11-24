@@ -27,9 +27,9 @@ public final class Arrays {
      * the new array.
      * @param objects array with objects to be put in new array
      * @param newObject object placed at end of new array
-     * @return new array 
+     * @return new array
      */
-	public static Object[] addObject(Object[] objects, Object newObject) {
+	public static <T> T[] addObject(T[] objects, T newObject) {
 		objects = copyOf(objects,objects.length+1);
 		objects[objects.length-1] = newObject;
 		return objects;
@@ -46,11 +46,11 @@ public final class Arrays {
      * @param object object being removed
      * @return new array with the object removed
      */
-	public static Object[] removeObject(Object[] array, Object object) {
+	public static <T> T[] removeObject(T[] array, T object) {
 		int length = array.length;
 		for (int i=0; i<length; i++) {
 			if (array[i] == object) {//look for object in array
-				Object lastObject = array[length-1];//save last object, which is about to be dropped
+				T lastObject = array[length-1];//save last object, which is about to be dropped
 				array = copyOf(array,length-1);//shorten array, dropping last object
 				if (i < length-2) {//overwrite target object
 					System.arraycopy(array,i+1,array,i,length-i-2);
