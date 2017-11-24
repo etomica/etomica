@@ -35,7 +35,10 @@ public class AtomLeafAgentManager<E> extends BoxEventListenerAdapter {
         IAtomList leafList = box.getLeafList();
         agents = new IndexMap<>(leafList.getAtomCount());
         for(int i = 0; i < leafList.getAtomCount(); i++) {
-            agents.put(i, agentSource.makeAgent(leafList.getAtom(i), box));
+            E agent = agentSource.makeAgent(leafList.getAtom(i), box);
+            if(agent != null) {
+                agents.put(i, agent);
+            }
         }
     }
 
@@ -97,7 +100,10 @@ public class AtomLeafAgentManager<E> extends BoxEventListenerAdapter {
 
         for(int i = 0; i < childList.getAtomCount(); i++) {
             IAtom atom = childList.getAtom(i);
-            this.agents.put(atom.getLeafIndex(), this.agentSource.makeAgent(atom, box));
+            E agent = this.agentSource.makeAgent(atom, box);
+            if(agent != null) {
+                this.agents.put(atom.getLeafIndex(), agent);
+            }
         }
     }
 
@@ -133,8 +139,11 @@ public class AtomLeafAgentManager<E> extends BoxEventListenerAdapter {
         IAtom a = e.getAtom();
         // the atom's index changed.  assume it would get the same agent
         int oldIndex = e.getIndex();
-        this.agents.put(a.getLeafIndex(), agents.get(oldIndex));
-        this.agents.remove(oldIndex);
+        E agent = this.agents.get(oldIndex);
+        if(agent != null) {
+            this.agents.put(a.getLeafIndex(), agent);
+            this.agents.remove(oldIndex);
+        }
     }
 
     /**
