@@ -7,8 +7,8 @@ package etomica.integrator;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.*;
 import etomica.util.Arrays;
+import etomica.util.EventManager;
 import etomica.util.IEvent;
-import etomica.util.IEventManager;
 import etomica.util.random.IRandom;
 
 /**
@@ -22,7 +22,7 @@ import etomica.util.random.IRandom;
 public class IntegratorManagerMC extends Integrator {
 
     private static final long serialVersionUID = 2L;
-    protected final IEventManager eventManager;
+    protected final EventManager<IEvent> eventManager;
     protected final IRandom random;
     private final IEvent trialEvent;
     private final IEvent acceptedEvent, rejectedEvent;
@@ -39,7 +39,7 @@ public class IntegratorManagerMC extends Integrator {
         integrators = new Integrator[0];
         setGlobalMoveInterval(2);
         moveManager = new MCMoveManager(random);
-        eventManager = new MCMoveEventManager();
+        eventManager = new EventManager<>();
         trialEvent = new MCMoveTrialInitiatedEvent(moveManager);
         acceptedEvent = new MCMoveTrialCompletedEvent(moveManager, true);
         rejectedEvent = new MCMoveTrialCompletedEvent(moveManager, false);
@@ -178,7 +178,7 @@ public class IntegratorManagerMC extends Integrator {
         }
     }
 
-    public IEventManager getMoveEventManager() {
+    public EventManager<IEvent> getMoveEventManager() {
         return eventManager;
     }
 

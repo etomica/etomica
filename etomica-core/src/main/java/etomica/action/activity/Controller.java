@@ -7,7 +7,7 @@ package etomica.action.activity;
 import etomica.action.Activity;
 import etomica.action.IAction;
 import etomica.util.Arrays;
-import etomica.util.IEventManager;
+import etomica.util.EventManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -48,7 +48,7 @@ public final class Controller extends ActivityGroupSeries {
     private final WaitObject waitObject;
     private final Map<IAction, ActionStatus> actionStatusMap;
     private final Map<IAction, Throwable> actionExceptionMap;
-    private final IEventManager eventManager;
+    private final EventManager<ControllerEvent> eventManager;
     private boolean repeatCurrentAction = false;
 
     public Controller() {
@@ -57,7 +57,7 @@ public final class Controller extends ActivityGroupSeries {
         actionExceptionMap = new HashMap<>();
         waitObject = new WaitObject();
         urgentWaitObject = new UrgentWaitObject();
-        eventManager = new ControllerEventManager();
+        eventManager = new EventManager<>();
     }
 
     public synchronized void addAction(IAction newAction) {
@@ -89,23 +89,6 @@ public final class Controller extends ActivityGroupSeries {
         }
         super.reset();
         eventManager.fireEvent(new ControllerEvent(this, RESET, currentAction));
-    }
-
-    /**
-     * Returns the status of an action held by the controller.  Returns
-     * null for actions not held by the controller.
-     */
-    public synchronized ActionStatus getActionStatus(IAction action) {
-        return actionStatusMap.get(action);
-    }
-
-    /**
-     * Returns the exception thrown by an action held by the controller.
-     * Returns null if the given action did not throw an exception or is not
-     * held by the controller.
-     */
-    public synchronized Throwable getException(IAction action) {
-        return actionExceptionMap.get(action);
     }
 
     /**
@@ -211,6 +194,23 @@ public final class Controller extends ActivityGroupSeries {
     }
 
     /**
+     * Returns the status of an action held by the controller.  Returns
+     * null for actions not held by the controller.
+     */
+    public synchronized ActionStatus getActionStatus(IAction action) {
+        return actionStatusMap.get(action);
+    }
+
+    /**
+     * Returns the exception thrown by an action held by the controller.
+     * Returns null if the given action did not throw an exception or is not
+     * held by the controller.
+     */
+    public synchronized Throwable getException(IAction action) {
+        return actionExceptionMap.get(action);
+    }
+
+    /**
      * Pauses current activity, executes given action, then resumes current
      * activity. If current action is already paused, it is not resumed by this
      * method.
@@ -295,7 +295,7 @@ public final class Controller extends ActivityGroupSeries {
      *
      * @see ControllerEvent
      */
-    public IEventManager getEventManager() {
+    public EventManager<ControllerEvent> getEventManager() {
         return eventManager;
     }
 
