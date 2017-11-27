@@ -15,9 +15,9 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
-import etomica.units.Dimension;
 import etomica.units.Kelvin;
-import etomica.units.Pressure;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Pressure;
 import etomica.util.random.IRandom;
 
 /**
@@ -36,7 +36,7 @@ public class MCMoveVolumeN2 extends MCMoveBoxStep {
     
     /**
      * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
-     * @param space the governing space for the simulation
+     * @param _space the governing space for the simulation
      */
     public MCMoveVolumeN2(PotentialMaster potentialMaster, IRandom random,
                           Space _space, double pressure) {
@@ -133,15 +133,11 @@ public class MCMoveVolumeN2 extends MCMoveBoxStep {
         hNew = uNew + pressure*vNew;
         return true;
     }//end of doTrial
-    
-    public double getA() {
-        return Math.exp((box.getMoleculeList().getMoleculeCount()+1)*vScale);
+
+    public double getChi(double temperature) {
+        return Math.exp((box.getMoleculeList().getMoleculeCount() + 1) * vScale - (hNew - hOld) / temperature);
     }
-    
-    public double getB() {
-        return -(hNew - hOld);
-    }
-    
+
     public void acceptNotify() {  /* do nothing */}
     
     public void rejectNotify() {

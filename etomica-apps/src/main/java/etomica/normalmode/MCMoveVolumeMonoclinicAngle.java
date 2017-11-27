@@ -5,15 +5,15 @@
 package etomica.normalmode;
 
 import etomica.action.BoxInflateAnisotropic;
-import etomica.box.Box;
-import etomica.potential.PotentialMaster;
-import etomica.util.random.IRandom;
-import etomica.space.Vector;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
+import etomica.potential.PotentialMaster;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * Standard Monte Carlo volume-change move for simulations in the NPT ensemble.
@@ -37,7 +37,7 @@ public class MCMoveVolumeMonoclinicAngle extends MCMoveBoxStep {
 
     /**
      * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
-     * @param space the governing space for the simulation
+     * @param _space the governing space for the simulation
      */
     public MCMoveVolumeMonoclinicAngle(PotentialMaster potentialMaster, IRandom random,
                                        Space _space, Box box) {
@@ -74,13 +74,9 @@ public class MCMoveVolumeMonoclinicAngle extends MCMoveBoxStep {
         uNew = energyMeter.getDataAsScalar();
         return true;
     }//end of doTrial
-    
-    public double getA() {
-        return 1;
-    }
-    
-    public double getB() {
-        return -(uNew - uOld);
+
+    public double getChi(double temperature) {
+        return Math.exp(-(uNew - uOld) / temperature);
     }
     
     public void acceptNotify() {

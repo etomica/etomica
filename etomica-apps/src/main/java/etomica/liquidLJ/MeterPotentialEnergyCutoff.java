@@ -1,16 +1,20 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 package etomica.liquidLJ;
 
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
-import etomica.units.Energy;
+import etomica.units.dimensions.Energy;
 
 /**
  * Meter for evaluation of the potential energy in a box.
@@ -19,8 +23,8 @@ import etomica.units.Energy;
  *
  * @author David Kofke
  */
- 
-public class MeterPotentialEnergyCutoff implements IEtomicaDataSource {
+
+public class MeterPotentialEnergyCutoff implements IDataSource {
     
     public MeterPotentialEnergyCutoff(PotentialMaster potentialMaster, Space space, double[] cutoffs) {
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("energy", Energy.DIMENSION, new int[]{cutoffs.length});
@@ -33,7 +37,7 @@ public class MeterPotentialEnergyCutoff implements IEtomicaDataSource {
         energy = new PotentialCalculationEnergySumCutoff(space, cutoffs);
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

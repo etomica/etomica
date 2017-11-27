@@ -6,12 +6,12 @@ package etomica.normalmode;
 
 import etomica.data.DataTag;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.integrator.IntegratorBox;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  *Meter used for compute for the probability of the target system sampling 
@@ -20,7 +20,7 @@ import etomica.units.Null;
  * 
  * @author Tai Boon Tan
  */
-public class MeterSamplingTarget implements IEtomicaDataSource {
+public class MeterSamplingTarget implements IDataSource {
     
     public MeterSamplingTarget(IntegratorBox integrator, MCMoveAtomCoupledUmbrella move) {
         this.mcMove = move;
@@ -46,7 +46,7 @@ public class MeterSamplingTarget implements IEtomicaDataSource {
     }
 
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

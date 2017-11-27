@@ -3,13 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.graphics;
-import java.awt.Color;
 
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
 import etomica.atom.IAtom;
 import etomica.modifier.ModifierGeneral;
 import etomica.nbr.list.PotentialMasterList;
+
+import java.awt.*;
 
 /**
  * Class that defines the algorithm used to determine atoms colors when drawn to DisplayBox.
@@ -49,14 +50,13 @@ public abstract class ColorScheme {
     public static void main(String args[]) {
       final String APP_NAME = "Color Scheme";
 
-      etomica.space.Space sp = etomica.space3d.Space3D.getInstance();
-      final etomica.simulation.prototypes.HSMD3D sim = new etomica.simulation.prototypes.HSMD3D(sp);
-      final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sp, sim.getController());
+        final etomica.simulation.prototypes.HSMD3D sim = new etomica.simulation.prototypes.HSMD3D();
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sim.getSpace(), sim.getController());
 
       IAction repaintAction = simGraphic.getPaintAction(sim.box);
 
       DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
-      nSelector.setResetAction(new SimulationRestart(sim, sp, sim.getController()));
+        nSelector.setResetAction(new SimulationRestart(sim));
       nSelector.setSpecies(sim.species);
       nSelector.setBox(sim.box);
       nSelector.setPostAction(repaintAction);

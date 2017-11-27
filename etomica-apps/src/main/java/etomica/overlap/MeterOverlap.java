@@ -5,17 +5,17 @@
 package etomica.overlap;
 
 import etomica.data.DataTag;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 
-public class MeterOverlap implements IEtomicaDataSource, AlphaSource {
+public class MeterOverlap implements IDataSource, AlphaSource {
     protected DataTag tag;
-    protected IEtomicaDataInfo dataInfo;
-    protected IEtomicaDataSource dataSourceRef, dataSourceTarget;
+    protected IDataInfo dataInfo;
+    protected IDataSource dataSourceRef, dataSourceTarget;
     protected double temperature;
     protected DataDoubleArray data;
     protected int numAlpha;
@@ -33,8 +33,8 @@ public class MeterOverlap implements IEtomicaDataSource, AlphaSource {
      *    system not being sampled
      * @param temperature - the temperature
      */
-    public MeterOverlap(IEtomicaDataSource dataSourceRef,
-            IEtomicaDataSource dataSourceTarget, double temperature, boolean isReference){
+    public MeterOverlap(IDataSource dataSourceRef,
+                        IDataSource dataSourceTarget, double temperature, boolean isReference) {
         tag = new DataTag();
         this.dataSourceRef = dataSourceRef;
         this.dataSourceTarget = dataSourceTarget;
@@ -122,7 +122,7 @@ public class MeterOverlap implements IEtomicaDataSource, AlphaSource {
         return data;
     }
     
-    public IEtomicaDataInfo getDataInfo(){
+    public IDataInfo getDataInfo(){
         return dataInfo;
     }
     public DataTag getTag() {

@@ -4,15 +4,12 @@
 
 package etomica.normalmode;
 
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.integrator.IntegratorBox;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * Meter used for overlap sampling in the target-sampled system.  The meter
@@ -21,7 +18,7 @@ import etomica.units.Null;
  * 
  * @author Andrew Schultz
  */
-public class MeterDirectSamplingTarget implements IEtomicaDataSource {
+public class MeterDirectSamplingTarget implements IDataSource {
     
     public MeterDirectSamplingTarget(IntegratorBox integrator, MeterHarmonicEnergy meterHarmonicEnergy) {
         meterEnergy = new MeterPotentialEnergyFromIntegrator(integrator);
@@ -43,7 +40,7 @@ public class MeterDirectSamplingTarget implements IEtomicaDataSource {
         latticeEnergy = newLatticeEnergy;
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

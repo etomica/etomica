@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import etomica.box.Box;
+import etomica.meta.annotations.IgnoreProperty;
 import etomica.util.random.IRandom;
 
 public class MCMoveManager {
@@ -118,7 +119,8 @@ public class MCMoveManager {
         selectedLink = mcMoveList.get(pos);
         return selectedLink.move;
     }
-    
+
+    @IgnoreProperty
     public MCMove getSelectedMove() {
         return selectedLink.move;
     }

@@ -4,6 +4,8 @@
 
 package etomica.units;
 
+import etomica.units.dimensions.Volume;
+
 import java.io.ObjectStreamException;
 
 /**
@@ -22,16 +24,4 @@ public final class Liter extends SimpleUnit {
         	"liters", "l", Prefix.ALLOWED
         	);   
     }
-    
-    /**
-     * Required to guarantee singleton when deserializing.
-     * 
-     * @return the singleton UNIT
-     */
-    private Object readResolve() throws ObjectStreamException {
-        return UNIT;
-    }
-    
-    private static final long serialVersionUID = 1;
-
 }

@@ -15,8 +15,8 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.units.Null;
-import etomica.units.Quantity;
+import etomica.units.dimensions.Null;
+import etomica.units.dimensions.Quantity;
 
 import java.io.Serializable;
 
@@ -24,7 +24,7 @@ import java.io.Serializable;
  * @author Matt Moynihan MoleuclarCount returns an array with the number of
  *         atoms In molecules with [1,2,3,4,5,6,7-10,10-13,13-25, <25] atoms
  */
-public class MeterChainLength implements IEtomicaDataSource, Serializable, AgentSource<MeterChainLength.AtomTag>, DataSourceIndependent {
+public class MeterChainLength implements IDataSource, Serializable, AgentSource<MeterChainLength.AtomTag>, DataSourceIndependent {
 
     private static final long serialVersionUID = 1L;
     protected final DataTag tag, xTag;
@@ -178,7 +178,7 @@ public class MeterChainLength implements IEtomicaDataSource, Serializable, Agent
         tagManager = new AtomLeafAgentManager<AtomTag>(this,box,AtomTag.class);
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

@@ -7,8 +7,8 @@ package etomica.data;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
-import etomica.units.CompoundDimension;
-import etomica.units.Dimension;
+import etomica.units.dimensions.CompoundDimension;
+import etomica.units.dimensions.Dimension;
 
 /**
  * Class that does the work of AccumulatorAverageFixed and also calculates the
@@ -178,7 +178,7 @@ public class AccumulatorAverageCovariance extends AccumulatorAverageFixed {
         blockCovSum.E(0);
     }
 
-    public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo incomingDataInfo) {
+    public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
         int n = incomingDataInfo.getLength();
         if (fullCovariance) {
             covSum = new DataDoubleArray(new int[]{n,n});
@@ -204,7 +204,7 @@ public class AccumulatorAverageCovariance extends AccumulatorAverageFixed {
         dataGroup = new DataGroup(myData);
 
         String incomingLabel = incomingDataInfo.getLabel();
-        IEtomicaDataInfo[] myInfo = new IEtomicaDataInfo[nSuper+2];
+        IDataInfo[] myInfo = new IDataInfo[nSuper+2];
         for (int i=0; i<nSuper; i++) {
             myInfo[i] = ((DataInfoGroup)dataInfo).getSubDataInfo(i);
         }

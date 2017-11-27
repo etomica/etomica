@@ -3,15 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.modules.interfacial;
-import java.util.Arrays;
 
-import etomica.space.Vector;
-import etomica.data.DataSourceIndependent;
-import etomica.data.DataSourceTensorVirialHard;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
@@ -21,8 +14,11 @@ import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.integrator.IntegratorHard;
 import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.units.Energy;
-import etomica.units.Length;
+import etomica.space.Vector;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Length;
+
+import java.util.Arrays;
 
 /**
  * A DataSource that collects the average virial tensor as a function of
@@ -36,7 +32,7 @@ public class DataSourceTensorVirialHardProfile extends DataSourceTensorVirialHar
     public DataSourceTensorVirialHardProfile(Space space) {
         super(space);
         profileData = new DataGroup(new IData[0]);
-        profileDataInfo = new DataInfoGroup("Virial profiles", Energy.DIMENSION, new IEtomicaDataInfo[0]);
+        profileDataInfo = new DataInfoGroup("Virial profiles", Energy.DIMENSION, new IDataInfo[0]);
         profileDataInfo.addTag(tag);
         binSize = 0.1;
         virialProfile = new double[space.D()][0];
@@ -213,8 +209,8 @@ public class DataSourceTensorVirialHardProfile extends DataSourceTensorVirialHar
     protected double binSize;
     protected double L, Li, halfL;
     protected int nBins;
-    
-    public static class DataSourceVirialProfile implements IEtomicaDataSource {
+
+    public static class DataSourceVirialProfile implements IDataSource {
 
         public DataSourceVirialProfile(DataSourceTensorVirialHardProfile meter) {
             this.meter = meter;
@@ -225,7 +221,7 @@ public class DataSourceTensorVirialHardProfile extends DataSourceTensorVirialHar
             return meter.getVirialProfile();
         }
 
-        public IEtomicaDataInfo getDataInfo() {
+        public IDataInfo getDataInfo() {
             return meter.getProfileDataInfo();
         }
 

@@ -5,22 +5,18 @@
 package etomica.integrator;
 
 import etomica.box.Box;
-import etomica.util.random.IRandom;
 import etomica.data.DataTag;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.integrator.mcmove.MCMove;
-import etomica.integrator.mcmove.MCMoveEvent;
-import etomica.integrator.mcmove.MCMoveSwapConfiguration;
-import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
-import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
+import etomica.integrator.mcmove.*;
 import etomica.space.Space;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 import etomica.util.IEvent;
 import etomica.util.IListener;
+import etomica.util.random.IRandom;
 
 /**
  * Parallel-tempering integrator.  Oversees other integrators that are defined to perform
@@ -104,7 +100,7 @@ public class IntegratorPT extends IntegratorManagerMC {
      * simulation.  Designed for input to a DisplayPlot to provide a graphical
      * record of how the boxes swap configurations.
      */
-    public static class BoxTracker implements IEtomicaDataSource, IListener, java.io.Serializable {
+    public static class BoxTracker implements IDataSource, IListener, java.io.Serializable {
         
         public BoxTracker() {
             data = new DataDoubleArray(0);
@@ -113,7 +109,7 @@ public class IntegratorPT extends IntegratorManagerMC {
             dataInfo.addTag(tag);
         }
         
-        public IEtomicaDataInfo getDataInfo() {
+        public IDataInfo getDataInfo() {
             return dataInfo;
         }
         

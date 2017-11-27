@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 package etomica.data.meter;
 
 import etomica.atom.IAtom;
@@ -10,7 +14,7 @@ import etomica.potential.PotentialCalculation;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.Length;
+import etomica.units.dimensions.Length;
 
 /**
  * PotentialCalculation that simply does the work of collecting an RDF.

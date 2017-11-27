@@ -5,7 +5,7 @@
 package etomica.modules.materialfracture;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
-import etomica.units.Pressure2D;
+import etomica.units.dimensions.Pressure2D;
 
 /**
  * Meter that calculates the stress within the gage cell.

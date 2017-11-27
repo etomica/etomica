@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 package etomica.freeenergy.npath;
 
 import etomica.action.IAction;
@@ -20,8 +24,8 @@ import etomica.space.*;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresRotating;
-import etomica.units.*;
-import etomica.units.Dimension;
+import etomica.units.dimensions.*;
+import etomica.units.dimensions.Dimension;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 

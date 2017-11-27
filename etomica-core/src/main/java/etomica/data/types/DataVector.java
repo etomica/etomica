@@ -4,15 +4,11 @@
 
 package etomica.data.types;
 
+import etomica.data.*;
 import etomica.math.function.IFunction;
 import etomica.space.Vector;
-import etomica.data.DataInfo;
-import etomica.data.DataInfoFactory;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataInfoFactory;
 import etomica.space.Space;
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
 
 /**
  * Data object wrapping a single mutable value of type (Space) Vector. Value is
@@ -163,7 +159,7 @@ public class DataVector implements IData, java.io.Serializable {
             return space.D();
         }
         
-        public IEtomicaDataInfoFactory getFactory() {
+        public IDataInfoFactory getFactory() {
             return new DataInfoVectorFactory(this);
         }
         
@@ -185,7 +181,7 @@ public class DataVector implements IData, java.io.Serializable {
             space = template.space;
         }
         
-        public IEtomicaDataInfo makeDataInfo() {
+        public IDataInfo makeDataInfo() {
             return new DataInfoVector(label, dimension, space);
         }
         

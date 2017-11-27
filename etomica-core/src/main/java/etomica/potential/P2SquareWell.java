@@ -8,10 +8,10 @@ import etomica.atom.IAtomList;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.units.Dimension;
-import etomica.units.Energy;
-import etomica.units.Length;
-import etomica.units.Null;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Null;
 import etomica.util.Debug;
 
 /**

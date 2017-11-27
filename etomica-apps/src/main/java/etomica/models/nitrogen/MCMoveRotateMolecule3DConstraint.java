@@ -215,8 +215,8 @@ public class MCMoveRotateMolecule3DConstraint extends MCMoveMolecule {
         rotationTensor.invert();
         doTransform();
     }
-    
-    public double getB() {
+
+    public double getChi(double temperature) {
 //    	double energy = energyMeter.getDataAsScalar();
 //    	if(Double.isInfinite(energy)){
 //    		return -1.0;

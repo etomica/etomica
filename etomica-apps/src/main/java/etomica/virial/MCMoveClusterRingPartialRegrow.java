@@ -239,14 +239,9 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
 	protected double calcWeight() {
 		return ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 	}
-	
-    public double getA() {
-        // we skip calculation of wOld because we're the only intramolecular move in town.
-        return wNew/wOld * weightNew/weightOld;
-    }
 
-    public double getB() {
-        return -(uNew - uOld);
+    public double getChi(double temperature) {
+        return wNew / wOld * weightNew / weightOld * Math.exp(-(uNew - uOld) / temperature);
     }
     
     public void rejectNotify() {

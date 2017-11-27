@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 package etomica.surfacetension;
 
 import etomica.atom.AtomLeafAgentManager;
@@ -5,10 +9,9 @@ import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.IDataInfo;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterProfileByVolume;
 import etomica.data.types.DataDouble;
@@ -22,7 +25,7 @@ import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 
 /**
@@ -61,12 +64,8 @@ public class SurfaceTensionMapped extends DataProcessor implements AgentSource<F
         pcForce.setAgentManager(forceAgentManager);
         allAtoms = new IteratorDirective();
     }
-    
-    public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
-        return null;
-    }
 
-    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         dataInfo = new DataInfoDouble("surface tension", Null.DIMENSION);
         return dataInfo;
     }

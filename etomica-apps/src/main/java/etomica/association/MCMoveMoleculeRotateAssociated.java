@@ -47,15 +47,15 @@ public class MCMoveMoleculeRotateAssociated extends MCMoveRotateMolecule3D {
         doTransform();
         return true;
     }
-    
-    public double getA(){
-    	if (associationHelper.populateList(smerList,molecule,true)){//prevent invalid bonding
+
+    public double getChi(double temperature) {
+        if (associationHelper.populateList(smerList,molecule,true)){//prevent invalid bonding
     		return 0.0;
     	}
 
     	if (smerList.getMoleculeCount() > maxLength) {
     		return 0.0;
 		}
-		return 1.0;
-	}
+        return super.getChi(temperature);
+    }
 }

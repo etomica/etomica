@@ -10,6 +10,7 @@ import etomica.atom.SpeciesAgentManager;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentManager.BoxAgentSource;
 import etomica.box.BoxCellManager;
+import etomica.meta.annotations.IgnoreProperty;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.species.ISpecies;
@@ -149,12 +150,5 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
     }
 
     public void releaseAgent(Object agent, ISpecies type) {
-    }
-
-    /**
-     * Returns the simulation associated with this PotentialMaster
-     */
-    public Simulation getSimulation() {
-        return simulation;
     }
 }

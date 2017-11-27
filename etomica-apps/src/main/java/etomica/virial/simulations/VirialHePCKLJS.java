@@ -5,8 +5,6 @@
 package etomica.virial.simulations;
 
 
-import java.awt.Color;
-
 import etomica.chem.elements.ElementSimple;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
@@ -20,13 +18,10 @@ import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
 import etomica.util.ParameterBase;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterWeight;
-import etomica.virial.ClusterWeightAbs;
-import etomica.virial.MayerESpherical;
-import etomica.virial.MayerGeneralSpherical;
-import etomica.virial.MayerHardSphere;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
+
+import java.awt.*;
 
 /**
  * Computes additive virial coefficients using the pair potential for He of Przybytek et al. (2010) Phys. Rev. Lett. 104, 183003.

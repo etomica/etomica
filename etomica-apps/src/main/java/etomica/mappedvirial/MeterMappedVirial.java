@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 package etomica.mappedvirial;
 
 import etomica.atom.AtomLeafAgentManager;
@@ -11,7 +15,7 @@ import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
-import etomica.units.Pressure;
+import etomica.units.dimensions.Pressure;
 
 public class MeterMappedVirial extends DataSourceScalar implements  AgentSource<IntegratorVelocityVerlet.MyAgent> {
 

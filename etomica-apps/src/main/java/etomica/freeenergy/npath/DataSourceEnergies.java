@@ -8,29 +8,29 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.meam.P2EAM;
 import etomica.potential.IPotentialAtomic;
 import etomica.potential.IteratorDirective;
-import etomica.potential.PotentialCalculation;
+import etomica.potential.PotentialCalculationEnergySum;
 import etomica.potential.PotentialMaster;
-import etomica.units.Energy;
+import etomica.units.dimensions.Energy;
 
 /**
  * Created by andrew on 4/12/17.
  */
-public class DataSourceEnergies implements IEtomicaDataSource {
+public class DataSourceEnergies implements IDataSource {
 
     protected final DataDoubleArray data;
     protected final DataDoubleArray.DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
     protected final PotentialCalculationDUDW pcDUDW;
-    protected PotentialCalculationEnergies pc;
     protected final PotentialMaster potentialMaster;
-    protected Box box;
     protected final IteratorDirective id;
+    protected PotentialCalculationEnergies pc;
+    protected Box box;
 
     public DataSourceEnergies(PotentialMaster potentialMaster) {
         this.potentialMaster = potentialMaster;
@@ -53,7 +53,7 @@ public class DataSourceEnergies implements IEtomicaDataSource {
 
     @Override
     public IData getData() {
-        pc.reset();
+        pc.zeroSum();
         potentialMaster.calculate(box, id, pc);
         double[] x = data.getData();
         x[0] = pc.getSum1();
@@ -70,11 +70,11 @@ public class DataSourceEnergies implements IEtomicaDataSource {
     }
 
     @Override
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 
-    public static class PotentialCalculationEnergies implements PotentialCalculation {
+    public static class PotentialCalculationEnergies extends PotentialCalculationEnergySum {
 
         protected double sum1, sum2;
 
@@ -86,7 +86,11 @@ public class DataSourceEnergies implements IEtomicaDataSource {
             return sum2;
         }
 
-        public void reset() {
+        public double getSum() {
+            return sum1 + sum2;
+        }
+
+        public void zeroSum() {
             sum1 = sum2 = 0;
         }
 
@@ -107,9 +111,17 @@ public class DataSourceEnergies implements IEtomicaDataSource {
         public PotentialCalculationEnergiesEAM(P2EAM p2) {
             this.p2 = p2;
         }
-        public void reset() {super.reset(); p2.reset();}
+
+        public void zeroSum() {
+            super.zeroSum();
+            p2.reset();
+        }
         public double getSum2() {
             return sum2 + p2.energy1();
+        }
+
+        public double getSum() {
+            return sum1 + sum2 + p2.energy1();
         }
     }
 }

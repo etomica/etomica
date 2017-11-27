@@ -4,15 +4,12 @@
 
 package etomica.normalmode;
 
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.integrator.IntegratorBox;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * Meter used for direct sampling in the target-sampled system.  The meter
@@ -21,7 +18,7 @@ import etomica.units.Null;
  * 
  * @author Andrew Schultz & Tai Boon Tan
  */
-public class MeterWorkTargetUmbrella implements IEtomicaDataSource {
+public class MeterWorkTargetUmbrella implements IDataSource {
     
     public MeterWorkTargetUmbrella(IntegratorBox integrator, MeterHarmonicEnergy meterHarmonic) {
         meterTarget = new MeterPotentialEnergyFromIntegrator(integrator);
@@ -61,7 +58,7 @@ public class MeterWorkTargetUmbrella implements IEtomicaDataSource {
         latticeEnergy = newLatticeEnergy;
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

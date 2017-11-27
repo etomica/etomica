@@ -9,11 +9,13 @@ import etomica.space.Space;
 
 /**
  * A zero-dimensional polytope, a mathematical point in space.
- * 
+ *
  * @author David Kofke
- *  
  */
 public class Point extends Polytope {
+
+    private static final long serialVersionUID = 1L;
+    private final static LineSegment[] edges = new LineSegment[0];
 
     public Point(Space embeddedSpace) {
         this(embeddedSpace, embeddedSpace.makeVector());
@@ -29,9 +31,12 @@ public class Point extends Polytope {
     public void updateVertices() {
         //does nothing because vertex is the internal representation of point
     }
-    
+
+    /**
+     * @return the edges for this point, which is an empty array
+     */
     public LineSegment[] getEdges() {
-    	return edges;
+        return edges;
     }
 
     /**
@@ -48,11 +53,8 @@ public class Point extends Polytope {
     public boolean contains(Vector v) {
         return vertices[0].equals(v);
     }
-    
+
     public String toString() {
         return vertices[0].toString();
     }
-
-    private static final long serialVersionUID = 1L;
-    private final static LineSegment[] edges = new LineSegment[0];
 }

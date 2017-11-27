@@ -75,10 +75,9 @@ public class Api1ASite implements AtomsetIteratorPDT, java.io.Serializable {
                 return null;
             }
             upListNow = false;
+            pair.atom1 = pair.atom0;
             neighborIterator.setDirection(IteratorDirective.Direction.DOWN);
             neighborIterator.reset();
-            pair.atom1 = ((AtomSite)neighborIterator.next()).getAtom();
-            return pair;
         }
         if (!neighborIterator.hasNext()) {
             return null;

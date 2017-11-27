@@ -5,13 +5,12 @@
 package etomica.liquidLJ;
 
 import etomica.box.Box;
-import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * Takes incoming data, computes weight for configuration based on various
@@ -40,11 +39,7 @@ public class DataProcessorReweight extends DataProcessor {
         this.nCutoffs = nCutoffs;
     }
 
-    public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
-        return null;
-    }
-
-    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         dataInfo = new DataInfoDoubleArray("whatever", Null.DIMENSION, new int[]{(inputDataInfo.getLength()+nCutoffs)});
         data = new DataDoubleArray(dataInfo.getLength());
         return dataInfo;

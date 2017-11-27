@@ -24,7 +24,7 @@ public class MCMoveRotate extends MCMoveAtom {
 
     public MCMoveRotate(PotentialMaster potentialMaster, IRandom random,
                         Space _space) {
-        super(potentialMaster, random, _space, Math.PI/2, Math.PI, false);
+        super(random, potentialMaster, _space, Math.PI/2, Math.PI, false);
     }
     
     public void setBox(Box box) {

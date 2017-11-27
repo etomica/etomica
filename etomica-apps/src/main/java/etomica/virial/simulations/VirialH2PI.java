@@ -38,7 +38,11 @@ import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.*;
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.CompoundDimension;
+import etomica.units.dimensions.DimensionRatio;
+import etomica.units.dimensions.Quantity;
+import etomica.units.dimensions.Volume;
 import etomica.util.Constants;
 import etomica.util.Constants.CompassDirection;
 import etomica.util.ParameterBase;
@@ -696,7 +700,7 @@ public class VirialH2PI {
 						errorBox.putData(data);
 					}
 				};
-				IEtomicaDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, new CompoundDimension(new Dimension[]{new DimensionRatio(Volume.DIMENSION, Quantity.DIMENSION)}, new double[]{nPoints-1}));
+				IDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, new CompoundDimension(new Dimension[]{new DimensionRatio(Volume.DIMENSION, Quantity.DIMENSION)}, new double[]{nPoints-1}));
 				Unit unit = new CompoundUnit(new Unit[]{new UnitRatio(Liter.UNIT, Mole.UNIT)}, new double[]{nPoints-1});
 				averageBox.putDataInfo(dataInfo);
 				averageBox.setLabel("average");

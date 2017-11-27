@@ -4,15 +4,12 @@
 
 package etomica.normalmode;
 
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.potential.PotentialMaster;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * Meter used for overlap sampling in the harmonic-sampled system.  The meter
@@ -21,7 +18,7 @@ import etomica.units.Null;
  * 
  * @author Andrew Schultz
  */
-public class MeterBoltzmannHarmonic implements IEtomicaDataSource {
+public class MeterBoltzmannHarmonic implements IDataSource {
     
     public MeterBoltzmannHarmonic(MCMoveHarmonic mcMoveHarmonic, PotentialMaster potentialMaster) {
         this.mcMoveHarmonic = mcMoveHarmonic;
@@ -61,7 +58,7 @@ public class MeterBoltzmannHarmonic implements IEtomicaDataSource {
         latticeEnergy = newLatticeEnergy;
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

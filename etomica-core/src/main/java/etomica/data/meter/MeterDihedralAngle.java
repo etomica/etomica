@@ -3,26 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.data.meter;
+
 import etomica.action.IAction;
 import etomica.atom.IAtom;
-import etomica.space.Boundary;
-import etomica.space.Vector;
-import etomica.box.Box;
 import etomica.atom.iterator.AtomsetIteratorBoxDependent;
-import etomica.data.DataSourceIndependent;
-import etomica.data.DataSourceUniform;
+import etomica.box.Box;
+import etomica.data.*;
 import etomica.data.DataSourceUniform.LimitType;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
+import etomica.space.Boundary;
 import etomica.space.Space;
-import etomica.units.Angle;
-import etomica.units.Null;
+import etomica.space.Vector;
+import etomica.units.dimensions.Angle;
+import etomica.units.dimensions.Null;
 
 /**
  * Meter for tabulation of a dihedral angle distribution between nearest neighbors.  The
@@ -31,9 +27,9 @@ import etomica.units.Null;
  *
  * @author Michael Sellers, adapted from David Kofke's MeterRDF
  */
-public class MeterDihedralAngle implements IAction, IEtomicaDataSource, DataSourceIndependent, java.io.Serializable {
-	
-	/**
+public class MeterDihedralAngle implements IAction, IDataSource, DataSourceIndependent, java.io.Serializable {
+
+    /**
 	 * Creates meter with default to compute dihedral angle for all
 	 * leaf atoms in a box.
 	 * @param space
@@ -57,7 +53,7 @@ public class MeterDihedralAngle implements IAction, IEtomicaDataSource, DataSour
         dataInfo.addTag(tag);
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -205,7 +201,7 @@ public class MeterDihedralAngle implements IAction, IEtomicaDataSource, DataSour
     protected final Space space;
     protected long[] gSum;
     protected DataFunction data;
-    private IEtomicaDataInfo dataInfo;
+    private IDataInfo dataInfo;
     protected DataDoubleArray phiData;
     protected AtomsetIteratorBoxDependent iterator;
     private final Vector dr1, dr2, dr3;

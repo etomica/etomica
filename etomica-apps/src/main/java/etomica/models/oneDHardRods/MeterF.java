@@ -7,7 +7,7 @@ package etomica.models.oneDHardRods;
 import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
 import etomica.normalmode.CoordinateDefinition;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 public class MeterF extends DataSourceScalar {
 

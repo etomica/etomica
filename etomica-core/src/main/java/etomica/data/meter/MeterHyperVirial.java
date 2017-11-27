@@ -5,10 +5,7 @@
 package etomica.data.meter;
 
 import etomica.box.Box;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray;
@@ -18,14 +15,14 @@ import etomica.potential.PotentialCalculationHyperVirialSum;
 import etomica.potential.PotentialCalculationVirialSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * Meter for measurement of the hypervirial, r^2 d2u/dr2 + r du/dr
  */
-public class MeterHyperVirial implements IEtomicaDataSource {
+public class MeterHyperVirial implements IDataSource {
 
-    protected final IEtomicaDataInfo dataInfo;
+    protected final IDataInfo dataInfo;
     protected final IData data;
     protected final DataTag tag;
     protected final IteratorDirective iteratorDirective;
@@ -72,7 +69,7 @@ public class MeterHyperVirial implements IEtomicaDataSource {
         dataInfo.addTag(tag);
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

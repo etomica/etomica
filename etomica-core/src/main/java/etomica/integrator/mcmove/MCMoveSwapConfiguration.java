@@ -6,15 +6,15 @@ package etomica.integrator.mcmove;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorNull;
+import etomica.box.Box;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorPT.MCMoveSwap;
 import etomica.integrator.IntegratorPT.MCMoveSwapFactory;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 
 /**
@@ -46,18 +46,14 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
         deltaU1 = Double.NaN;
         return true;
     }
-    
-    public double getA() {
-    	// have to do this here since Integrator won't understand T dependence 
+
+    public double getChi(double temperature) {
+        // have to do this here since Integrator won't understand T dependence
         deltaU1 = u2 - u1;  //if accepted, energy of box1 will be u2, and its old energy is u1
         return Math.exp(-deltaU1*((1/temp1) - (1/temp2)));
     }
-    
-    public double getB() {
-        return 0.0;
-    }
-	
-	/**
+
+    /**
 	 * Swaps positions of molecules in two boxes.
      * 
      * @throws RuntimeException wrapping a ConfigurationOverlapException if overlap is detected in either box

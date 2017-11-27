@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 package etomica.normalmode;
 
 import etomica.atom.AtomLeafAgentManager;
@@ -13,9 +17,9 @@ import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
-public class MeterSolidProps implements IEtomicaDataSource, AgentSource<MyAgent> {
+public class MeterSolidProps implements IDataSource, AgentSource<MyAgent> {
 
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
@@ -121,7 +125,7 @@ public class MeterSolidProps implements IEtomicaDataSource, AgentSource<MyAgent>
         return tag;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

@@ -1,12 +1,13 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 package etomica.data.meter;
 
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorRigidIterative.MoleculeAgent;
@@ -20,14 +21,14 @@ import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * meter for AEE use mapping average
  * 
  * @author Weisong
  */
-public class MeterDipoleSumSquaredMappedAverage implements IEtomicaDataSource,MoleculeAgentSource  {
+public class MeterDipoleSumSquaredMappedAverage implements IDataSource, MoleculeAgentSource {
 
 	protected final DataDoubleArray data;
 	protected final DataInfoDoubleArray dataInfo;
@@ -156,7 +157,7 @@ public class MeterDipoleSumSquaredMappedAverage implements IEtomicaDataSource,Mo
 		return tag;
 	}
 
-	public IEtomicaDataInfo getDataInfo() {
+	public IDataInfo getDataInfo() {
 		return dataInfo;
 	}
 

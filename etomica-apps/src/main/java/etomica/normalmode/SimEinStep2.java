@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 package etomica.normalmode;
 
 import etomica.action.activity.ActivityIntegrate;
@@ -148,7 +152,7 @@ public class SimEinStep2 extends Simulation {
         meterPEComposite.setBox(box);
         meterPEComposite.setLambda(lambda);
         if (false) {
-            atomMove = new MCMoveAtom(null, meterPEComposite, random, space, 0.1, 1, false);
+            atomMove = new MCMoveAtom(random, null, space, 0.1, 1, false, meterPEComposite);
         }
         else {
             atomMove = new MCMoveAtomCoupled(potentialMaster, lambda==0 ? meterPE : meterPEComposite, getRandom(), space);

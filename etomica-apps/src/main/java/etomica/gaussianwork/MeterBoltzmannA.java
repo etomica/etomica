@@ -6,15 +6,15 @@ package etomica.gaussianwork;
 
 import etomica.data.DataTag;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
+import etomica.data.IDataInfo;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorBox;
 import etomica.potential.PotentialMaster;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * Multiharmonic system
@@ -25,7 +25,7 @@ import etomica.units.Null;
  * 
  * @author Tai Boon Tan
  */
-public class MeterBoltzmannA implements IEtomicaDataSource {
+public class MeterBoltzmannA implements IDataSource {
     
     public MeterBoltzmannA(IntegratorBox integratorA, PotentialMaster potentialMasterB) {
     	meterEnergyA = new MeterPotentialEnergyFromIntegrator(integratorA);
@@ -52,7 +52,7 @@ public class MeterBoltzmannA implements IEtomicaDataSource {
         return data;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

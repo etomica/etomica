@@ -4,6 +4,8 @@
 
 package etomica.units;
 
+import etomica.units.dimensions.LuminousIntensity;
+
 import java.io.ObjectStreamException;
 
 /**
@@ -21,16 +23,5 @@ public final class Candela extends SimpleUnit {
     private Candela() {
         super(LuminousIntensity.DIMENSION, 1.0, "Candela", "cd", Prefix.ALLOWED);
     }
-
-    /**
-     * Required to guarantee singleton when deserializing.
-     * 
-     * @return the singleton UNIT
-     */
-    private Object readResolve() throws ObjectStreamException {
-        return UNIT;
-    }
-
-    private static final long serialVersionUID = 1;
 
 }

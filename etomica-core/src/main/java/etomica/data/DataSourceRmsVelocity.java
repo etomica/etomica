@@ -4,23 +4,23 @@
 
 package etomica.data;
 
-import java.io.Serializable;
-
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.iterator.AtomIterator;
+import etomica.data.histogram.Histogram;
+import etomica.data.histogram.HistogramCollapsing;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.units.DimensionRatio;
-import etomica.units.Length;
-import etomica.units.Null;
-import etomica.units.Time;
-import etomica.data.histogram.Histogram;
-import etomica.data.histogram.HistogramCollapsing;
+import etomica.units.dimensions.DimensionRatio;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Null;
+import etomica.units.dimensions.Time;
+
+import java.io.Serializable;
 
 /**
  * Meter for the root-mean-square velocity of a set of atoms. Useful to obtain
@@ -29,7 +29,7 @@ import etomica.data.histogram.HistogramCollapsing;
  * @author David Kofke
  */
 
-public class DataSourceRmsVelocity implements IEtomicaDataSource, DataSourceAtomic, DataSourceIndependent, Serializable {
+public class DataSourceRmsVelocity implements IDataSource, DataSourceAtomic, DataSourceIndependent, Serializable {
 
     public DataSourceRmsVelocity() {
         this(new HistogramCollapsing());
@@ -46,7 +46,7 @@ public class DataSourceRmsVelocity implements IEtomicaDataSource, DataSourceAtom
         setupData();
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -54,7 +54,7 @@ public class DataSourceRmsVelocity implements IEtomicaDataSource, DataSourceAtom
         return tag;
     }
 
-    public IEtomicaDataInfo getAtomDataInfo() {
+    public IDataInfo getAtomDataInfo() {
         return atomDataInfo;
     }
 
@@ -138,8 +138,8 @@ public class DataSourceRmsVelocity implements IEtomicaDataSource, DataSourceAtom
     private static final long serialVersionUID = 1L;
 	private AtomIterator iterator;
     private final DataDouble atomData;
-    private final IEtomicaDataInfo atomDataInfo;
-    private IEtomicaDataInfo dataInfo;
+    private final IDataInfo atomDataInfo;
+    private IDataInfo dataInfo;
     protected DataDoubleArray xData;
     protected DataInfoDoubleArray xDataInfo;
     private final Histogram histogramRMS;

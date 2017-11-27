@@ -124,8 +124,8 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource<Int
         minFound = false;
         counter = 0;
 	}
-	
-	public void doStepInternal(){
+
+	protected void doStepInternal() {
 
 	    // Step half-dimer toward the local energy minimum
 	    walkDimer();

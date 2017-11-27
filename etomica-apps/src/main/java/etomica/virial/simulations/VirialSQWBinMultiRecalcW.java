@@ -1,19 +1,19 @@
-package etomica.virial.simulations;
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+package etomica.virial.simulations;
 
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.IntSet;
+import etomica.virial.MeterVirialEBinMultiThreaded;
 import etomica.virial.MeterVirialEBinMultiThreaded.MyData;
 import etomica.virial.MeterVirialEBinMultiThreaded.MyDataCov;
-import etomica.virial.MeterVirialEBinMultiThreaded;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * Calculation for virial coefficients of hard spheres
@@ -171,7 +171,7 @@ public class VirialSQWBinMultiRecalcW {
             double finalErr = Math.sqrt((sumErrStdev[i] + E0)/steps);
             System.out.print(String.format("%2d average: %21.14e   error: %11.5e   # var frac: %5.3f\n", i, sum[i], finalErr, E0/(sumErrStdev[i] + E0)));
         }
- 
+
         if (doCov) {
             System.out.println("\nCorrelations:");
             for (int j=0; j<nn; j++) {
@@ -190,7 +190,7 @@ public class VirialSQWBinMultiRecalcW {
                     else {
                         cor = 0;
                     }
-                    System.out.print(String.format(" % 5.3f", cor));
+                    System.out.print(String.format(" % 6.4f", cor));
                 }
                 System.out.print("\n");
             }

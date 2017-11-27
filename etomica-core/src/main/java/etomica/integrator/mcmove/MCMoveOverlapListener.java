@@ -5,9 +5,9 @@
 package etomica.integrator.mcmove;
 
 import etomica.box.Box;
+import etomica.math.numerical.AkimaSpline;
 import etomica.util.IEvent;
 import etomica.util.IListener;
-import etomica.math.numerical.AkimaSpline;
 
 public class MCMoveOverlapListener implements IListener {
 
@@ -162,8 +162,7 @@ public class MCMoveOverlapListener implements IListener {
             Box box = mcMove.getBox();
             int numAtoms = box.getLeafList().getAtomCount();
             // x = V/N*Math.exp(-beta*deltaU)
-            double x = mcMove.getA();
-            x *= Math.exp(-mcMove.getLnBiasDiff() + mcMove.getB()/temperature);
+            double x = mcMove.getChi(temperature) * Math.exp(-mcMove.getLnBiasDiff());
             if (mcMove.lastMoveInsert()) {
                 numAtoms--;
             }

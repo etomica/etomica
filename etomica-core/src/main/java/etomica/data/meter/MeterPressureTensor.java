@@ -11,7 +11,7 @@ import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationPressureTensor;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
-import etomica.units.Pressure;
+import etomica.units.dimensions.Pressure;
 
 /**
  * Meter for evaluation of the soft-potential pressure tensor in a box.  This
@@ -20,7 +20,7 @@ import etomica.units.Pressure;
  *
  * @author Andrew Schultz
  */
-public class MeterPressureTensor implements IEtomicaDataSource {
+public class MeterPressureTensor implements IDataSource {
     
     public MeterPressureTensor(PotentialMaster potentialMaster, Space space) {
     	super();
@@ -39,7 +39,7 @@ public class MeterPressureTensor implements IEtomicaDataSource {
         return tag;
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     

@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.units;
+import etomica.units.dimensions.Force;
+
 import java.io.ObjectStreamException;
 
 /**
@@ -23,16 +25,4 @@ public final class Dyne extends SimpleUnit {
         	"dynes", "dyn", Prefix.ALLOWED
         	);   
     }
-    
-    /**
-     * Required to guarantee singleton when deserializing.
-     * 
-     * @return the singleton UNIT
-     */
-    private Object readResolve() throws ObjectStreamException {
-        return UNIT;
-    }
-    
-    private static final long serialVersionUID = 1;
-
 }

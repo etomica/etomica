@@ -10,6 +10,8 @@ import etomica.box.Box;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
 
 
 /**
@@ -103,7 +105,7 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
     /**
      * Returns the dimension (length) of the radial cutoff distance.
      */
-    public etomica.units.Dimension getTruncationRadiusDimension() {return etomica.units.Length.DIMENSION;}
+    public Dimension getTruncationRadiusDimension() {return Length.DIMENSION;}
     
     /**
      * Returns the zero-body potential that evaluates the contribution to the

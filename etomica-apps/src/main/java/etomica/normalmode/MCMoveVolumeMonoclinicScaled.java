@@ -23,8 +23,8 @@ import etomica.potential.PotentialMaster;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.Dimension;
-import etomica.units.Pressure;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Pressure;
 import etomica.util.random.IRandom;
 
 /**
@@ -217,13 +217,9 @@ public class MCMoveVolumeMonoclinicScaled extends MCMoveBoxStep {
         }
         
     }
-    
-    public double getA() {
-        return 1;
-    }
-    
-    public double getB() {
-        return -(uNew - uOld);
+
+    public double getChi(double temp) {
+        return Math.exp(-(uNew - uOld) / temp);
     }
     
     public void acceptNotify() {

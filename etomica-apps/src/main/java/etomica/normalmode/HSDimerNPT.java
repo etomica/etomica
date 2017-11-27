@@ -41,7 +41,7 @@ import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 import etomica.util.IEvent;
 import etomica.util.IListener;
 import etomica.util.ParameterBase;
@@ -330,7 +330,7 @@ public class HSDimerNPT extends Simulation {
         long blockSize = (nData + 99) / 100;
         final AccumulatorAverage volumeAvg = doGraphics ? new AccumulatorAverageCollapsing() : new AccumulatorAverageFixed(blockSize);
         if (doGraphics) {
-            volumeAvg.setDoIncludeACInError(true);
+            volumeAvg.setIncludeACInError(true);
         }
         volumeFork.addDataSink(volumeAvg);
 
@@ -537,11 +537,7 @@ public class HSDimerNPT extends Simulation {
                     DataInfoDouble dataInfo = new DataInfoDouble("foo", Null.DIMENSION);
                     DataDouble data = new DataDouble();
 
-                    public DataPipe getDataCaster(IEtomicaDataInfo dataInfo) {
-                        return null;
-                    }
-
-                    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+                    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
                         return dataInfo;
                     }
 

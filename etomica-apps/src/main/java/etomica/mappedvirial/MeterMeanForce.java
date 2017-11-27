@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 package etomica.mappedvirial;
 
 import etomica.action.IAction;
@@ -22,10 +26,10 @@ import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.Force;
-import etomica.units.Length;
+import etomica.units.dimensions.Force;
+import etomica.units.dimensions.Length;
 
-public class MeterMeanForce implements IEtomicaDataSource, AgentSource<IntegratorVelocityVerlet.MyAgent>, DataSourceIndependent, IAction {
+public class MeterMeanForce implements IDataSource, AgentSource<IntegratorVelocityVerlet.MyAgent>, DataSourceIndependent, IAction {
 
     protected final PotentialMaster potentialMaster;
     protected final PotentialCalculationForceSum pcForce;
@@ -123,7 +127,7 @@ public class MeterMeanForce implements IEtomicaDataSource, AgentSource<Integrato
         return tag;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

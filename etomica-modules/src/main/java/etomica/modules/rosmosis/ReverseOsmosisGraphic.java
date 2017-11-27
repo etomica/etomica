@@ -22,7 +22,10 @@ import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.*;
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Quantity;
 import etomica.units.systems.MKS;
 import etomica.util.Constants.CompassDirection;
 
@@ -621,17 +624,13 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
             this.box = box;
         }
         
-        public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
-            return null;
-        }
-        
         public IData processData(IData data) {
             myData.E(data);
             myData.TE(1.0/box.getLeafList().getAtomCount());
             return myData;
         }
 
-        protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+        protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
             return inputDataInfo;
         }
         

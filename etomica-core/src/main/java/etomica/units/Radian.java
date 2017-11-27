@@ -4,6 +4,8 @@
 
 package etomica.units;
 
+import etomica.units.dimensions.Angle;
+
 import java.io.ObjectStreamException;
 
 /**
@@ -19,16 +21,4 @@ public final class Radian extends SimpleUnit {
     private Radian() {
         super(Angle.DIMENSION, 1.0, "radians", "rad", Prefix.ALLOWED);
     }
-    
-    /**
-     * Required to guarantee singleton when deserializing.
-     * 
-     * @return the singleton UNIT
-     */
-    private Object readResolve() throws ObjectStreamException {
-        return UNIT;
-    }
-    
-    private static final long serialVersionUID = 1;
-
 }

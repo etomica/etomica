@@ -9,10 +9,10 @@ import etomica.data.DataSourceScalar;
 import etomica.molecule.IMoleculeList;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
-import etomica.units.CompoundDimension;
-import etomica.units.Dimension;
-import etomica.units.Quantity;
-import etomica.units.Volume;
+import etomica.units.dimensions.CompoundDimension;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Quantity;
+import etomica.units.dimensions.Volume;
 
 public class MeterDensitySides extends DataSourceScalar {
 

@@ -8,10 +8,10 @@ import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.Undefined;
+import etomica.units.dimensions.Undefined;
 
 
 /**
@@ -21,7 +21,7 @@ import etomica.units.Undefined;
  *
  * @author David Kofke
  */
-public class MeterSpin extends DataSourceScalar implements IEtomicaDataSource {
+public class MeterSpin extends DataSourceScalar implements IDataSource {
 
     private static final long serialVersionUID = 1L;
     private final AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();

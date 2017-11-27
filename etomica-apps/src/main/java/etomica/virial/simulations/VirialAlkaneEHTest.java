@@ -16,7 +16,7 @@ import etomica.atom.iterator.Atomset4IteratorIndexList;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.graph.model.Graph;
@@ -33,7 +33,11 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.units.*;
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.CompoundDimension;
+import etomica.units.dimensions.DimensionRatio;
+import etomica.units.dimensions.Quantity;
+import etomica.units.dimensions.Volume;
 import etomica.util.Constants.CompassDirection;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -692,7 +696,7 @@ public class VirialAlkaneEHTest {
 
             };
 
-            IEtomicaDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, new CompoundDimension(new Dimension[]{new DimensionRatio(Volume.DIMENSION, Quantity.DIMENSION)}, new double[]{nPoints-1}));
+            IDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, new CompoundDimension(new Dimension[]{new DimensionRatio(Volume.DIMENSION, Quantity.DIMENSION)}, new double[]{nPoints-1}));
             Unit unit = new CompoundUnit(new Unit[]{new UnitRatio(Liter.UNIT, Mole.UNIT)}, new double[]{nPoints-1});
             averageBox.putDataInfo(dataInfo);
             averageBox.setLabel("average");

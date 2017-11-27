@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 package etomica.data.meter;
 
 import etomica.atom.IAtom;
@@ -8,9 +12,9 @@ import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
-import etomica.units.CompoundDimension;
-import etomica.units.Dimension;
-import etomica.units.Dipole;
+import etomica.units.dimensions.CompoundDimension;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Dipole;
 import etomica.units.Electron;
 
 /**

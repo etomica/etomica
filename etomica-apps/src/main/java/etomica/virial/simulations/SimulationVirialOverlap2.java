@@ -24,7 +24,7 @@ import etomica.space.Space;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.species.SpeciesSpheresRotating;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 import etomica.virial.*;
 import etomica.virial.overlap.DataProcessorVirialOverlap;
 import etomica.virial.overlap.DataVirialOverlap;
@@ -308,11 +308,7 @@ public class SimulationVirialOverlap2 extends Simulation {
             
             DataDoubleArray data = new DataDoubleArray(extraTargetClusters.length+1);
             
-            public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
-                return null;
-            }
-            
-            protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+            protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
                 dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{extraTargetClusters.length+1});
                 return dataInfo;
             }

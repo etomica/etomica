@@ -5,10 +5,7 @@
 package etomica.models.nitrogen;
 
 import etomica.box.Box;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -20,7 +17,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
 import etomica.units.Degree;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * Rotational Perturbation for beta-phase Nitrogen
@@ -34,7 +31,7 @@ import etomica.units.Null;
  * @author taitan
  *
  */
-public class MeterTargetRPMolecule implements IEtomicaDataSource {
+public class MeterTargetRPMolecule implements IDataSource {
 
     protected MeterPotentialEnergy meterPotential; 
     protected PotentialMaster potentialMaster;
@@ -91,7 +88,7 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
 		
     }
 
-	public IEtomicaDataInfo getDataInfo() {
+	public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

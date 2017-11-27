@@ -117,13 +117,9 @@ public abstract class MCMoveCBMC extends MCMoveBox {
         calcRosenbluthFactors();
         return true; // this means we were able to propose a move.
     }
-    
-    public double getA() {
-        return wNew / wOld;
-    }
 
-    public double getB() {
-        return 0.0;
+    public double getChi(double temperature) {
+        return wNew / wOld;
     }
 
     protected abstract boolean calcRosenbluthFactors();

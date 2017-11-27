@@ -4,15 +4,12 @@
 
 package etomica.normalmode;
 
-import etomica.space.Vector;
 import etomica.box.Box;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.units.Energy;
+import etomica.space.Vector;
+import etomica.units.dimensions.Energy;
 
 /**
  * Meter that calculates the Boltzmann-factored harmonic energy of each normal mode for a 
@@ -20,7 +17,7 @@ import etomica.units.Energy;
  * 
  * @author Andrew Schultz
  */
-public class MeterHarmonicSingleEnergy implements IEtomicaDataSource {
+public class MeterHarmonicSingleEnergy implements IDataSource {
 
     public MeterHarmonicSingleEnergy(CoordinateDefinition coordinateDefinition, NormalModes normalModes) {
         this.coordinateDefinition = coordinateDefinition;
@@ -37,7 +34,7 @@ public class MeterHarmonicSingleEnergy implements IEtomicaDataSource {
         return coordinateDefinition;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     

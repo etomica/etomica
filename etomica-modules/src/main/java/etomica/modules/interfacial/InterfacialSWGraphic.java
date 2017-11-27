@@ -30,10 +30,10 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
-import etomica.units.Dimension;
-import etomica.units.Energy;
-import etomica.units.Length;
 import etomica.units.Pixel;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Length;
 import etomica.util.Constants.CompassDirection;
 
 import javax.swing.*;
@@ -60,15 +60,15 @@ public class InterfacialSWGraphic extends SimulationGraphic {
     protected InterfacialSW sim;
     protected boolean isExpanded;
     private DeviceThermoSlider temperatureSelect;
-    
+
     public InterfacialSWGraphic(final InterfacialSW simulation, Space _space) {
-    
+
         super(simulation, TABBED_PANE, APP_NAME, _space.D() == 2 ? 10 * REPAINT_INTERVAL : REPAINT_INTERVAL, _space, simulation.getController());
 
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
-    
+
         this.sim = simulation;
-    
+
         ColorSchemeByType colorScheme = (ColorSchemeByType) getDisplayBox(sim.box).getColorScheme();
         colorScheme.setColor(sim.leafType, Color.RED);
         colorScheme.setColor(sim.headType, new Color(190, 0, 190));
@@ -234,7 +234,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         add(displayTimer);
 
         //add meter and display for current kinetic temperature
-    
+
         MeterTemperature thermometer = new MeterTemperature(sim.box, space.D());
         DataFork temperatureFork = new DataFork();
         final DataPump temperaturePump = new DataPump(thermometer, temperatureFork);
@@ -247,11 +247,11 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         temperatureFork.setDataSinks(new IDataSink[]{tBox, temperatureHistory});
         tBox.setLabel("Measured Temperature");
         tBox.setLabelPosition(CompassDirection.NORTH);
-    
+
         dataStreamPumps.add(temperaturePump);
         tBox.setLabel("Measured Temperature");
         tBox.setLabelPosition(CompassDirection.NORTH);
-    
+
         // Number density box
         MeterDensity densityMeter = new MeterDensity(sim.getSpace());
         densityMeter.setBox(sim.box);
@@ -271,7 +271,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
 //        sim.integrator.setActionInterval(energyPump, 60);
 //        energyHistory.setPushInterval(5);
 //        dataStreamPumps.add(energyPump);
-    
+
         MeterPotentialEnergyFromIntegrator peMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         AccumulatorHistory peHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
         peHistory.setTimeDataSource(timeCounter);
@@ -504,7 +504,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         final ConfigurationLattice config = new ConfigurationLattice((space.D() == 2) ? new LatticeOrthorhombicHexagonal(space) : new LatticeCubicFcc(space), space);
         nSlider.setPostAction(new IAction() {
             int oldN = sim.box.getMoleculeList().getMoleculeCount();
-            
+
             public void actionPerformed() {
                 int n = sim.box.getNMolecules(sim.species);
                 if (n == 0) {
@@ -665,7 +665,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 // do this anyway)
                 densityPump.actionPerformed();
                 densityBox.repaint();
-        
+
                 // Reset temperature (THIS IS NOT WORKING)
                 temperaturePump.actionPerformed();
 //                tBox.putData(temperatureHistory.getData());
@@ -679,9 +679,9 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 }
                 peDisplay.putData(peAccumulator.getData());
                 peDisplay.repaint();
-        
+
                 getDisplayBox(sim.box).graphic().repaint();
-        
+
                 orientationProfileMeter.reset();
             }
         };
@@ -701,7 +701,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         potentialPanel.add(surfactantEpsilon.graphic(), vertGBC);
         potentialPanel.add(surfactantSigma.graphic(), vertGBC);
         tabbedPane.add("Surfactant potential", potentialPanel);
-    
+
         add(ePlot);
         add(densityBox);
         add(tBox);
@@ -746,7 +746,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
             InterfacialSW sim = new InterfacialSW(sp);
             InterfacialSWGraphic ljmdGraphic = new InterfacialSWGraphic(sim, sp);
             ljmdGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(15));
-    
+
             getContentPane().add(ljmdGraphic.getPanel());
         }
     }
@@ -772,16 +772,12 @@ public class InterfacialSWGraphic extends SimulationGraphic {
             return data;
         }
 
-        protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
-            dataInfo = new DataDoubleArray.DataInfoDoubleArray(inputDataInfo.getLabel(), inputDataInfo.getDimension(), new int[]{inputDataInfo.getLength()});
-            return dataInfo;
-        }
-
-        public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
+        protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
             if (!(inputDataInfo instanceof DataTensor.DataInfoTensor)) {
                 throw new IllegalArgumentException("Gotta be a DataInfoTensor");
             }
-            return null;
+            dataInfo = new DataDoubleArray.DataInfoDoubleArray(inputDataInfo.getLabel(), inputDataInfo.getDimension(), new int[]{inputDataInfo.getLength()});
+            return dataInfo;
         }
     }
     
@@ -790,7 +786,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         protected final Vector size;
         protected final int dim;
         protected final Box box;
-        
+
         public ModifierBoxSize(Space space, Box box, int dim, IAction reconfig) {
             this.box = box;
             this.dim = dim;
@@ -801,15 +797,15 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         public Dimension getDimension() {
             return Length.DIMENSION;
         }
-        
+
         public String getLabel() {
             return "Box size";
         }
-        
+
         public double getValue() {
             return box.getBoundary().getBoxSize().getX(dim);
         }
-        
+
         public void setValue(double newValue) {
             if (newValue <= 0) {
                 throw new IllegalArgumentException("Gotta be positive");

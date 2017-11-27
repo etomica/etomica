@@ -7,8 +7,8 @@ package etomica.normalmode;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.nbr.list.PotentialMasterList;
@@ -16,7 +16,7 @@ import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * Meter for evaluation of the soft-potential pressure in a box.
@@ -26,8 +26,8 @@ import etomica.units.Null;
  *
  * @author David Kofke
  */
- 
-public class MeterSolidDACut implements IEtomicaDataSource {
+
+public class MeterSolidDACut implements IDataSource {
 
     public MeterSolidDACut(Space space, PotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, double[] cutoffs) {
         this.coordinteDefinition = coordinateDefinition;
@@ -106,7 +106,7 @@ public class MeterSolidDACut implements IEtomicaDataSource {
         }
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

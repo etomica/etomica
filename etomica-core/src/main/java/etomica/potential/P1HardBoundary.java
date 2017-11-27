@@ -12,7 +12,8 @@ import etomica.space.Vector;
 import etomica.graphics.Drawable;
 import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.units.Length;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
 import etomica.util.Debug;
 
 /**
@@ -191,7 +192,7 @@ public class P1HardBoundary implements PotentialHard, Drawable {
     /**
      * Indicates collision radius has dimensions of Length.
      */
-    public etomica.units.Dimension getCollisionRadiusDimension() {return Length.DIMENSION;}
+    public Dimension getCollisionRadiusDimension() {return Length.DIMENSION;}
 
     public void setActive(int dim, boolean first, boolean isActive) {
         isActiveDim[dim][first?0:1] = isActive;

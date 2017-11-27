@@ -4,14 +4,11 @@
 
 package etomica.normalmode;
 
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.integrator.IntegratorBox;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * Meter used for direct sampling in the harmonic-sampled system.  The meter
@@ -19,7 +16,7 @@ import etomica.units.Null;
  * 
  * @author Andrew Schultz & Tai Boon Tan
  */
-public class MeterWorkUmbrellaHarmonic implements IEtomicaDataSource {
+public class MeterWorkUmbrellaHarmonic implements IDataSource {
     
     public MeterWorkUmbrellaHarmonic(IntegratorBox integrator, MCMoveAtomCoupledUmbrella move) {
         this.mcMove = move;
@@ -56,7 +53,7 @@ public class MeterWorkUmbrellaHarmonic implements IEtomicaDataSource {
     	return numSum/denomSum;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

@@ -8,8 +8,8 @@ import etomica.atom.IAtomOriented;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataInfo;
+import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.Integrator;
@@ -18,11 +18,11 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space1d.Vector1D;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 import java.io.Serializable;
 
-public class MeterMappedAveraging implements IEtomicaDataSource, AgentSource<MeterMappedAveraging.MoleculeAgent> {
+public class MeterMappedAveraging implements IDataSource, AgentSource<MeterMappedAveraging.MoleculeAgent> {
 
 
     protected final DataDoubleArray data;
@@ -125,7 +125,7 @@ public class MeterMappedAveraging implements IEtomicaDataSource, AgentSource<Met
         return tag;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

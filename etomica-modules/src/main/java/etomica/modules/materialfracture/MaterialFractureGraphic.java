@@ -4,43 +4,23 @@
 
 package etomica.modules.materialfracture;
 
-import java.awt.GridBagConstraints;
-
-import javax.swing.border.TitledBorder;
-
 import etomica.action.IAction;
 import etomica.atom.DiameterHashByType;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataFork;
-import etomica.data.DataPipe;
-import etomica.data.DataProcessor;
-import etomica.data.DataPump;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
+import etomica.data.history.HistoryScrolling;
 import etomica.data.meter.MeterPressureTensorFromIntegrator;
 import etomica.data.types.DataDouble;
-import etomica.graphics.DeviceSlider;
-import etomica.graphics.DeviceThermoSlider;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTextBoxesCAE;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
 import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
-import etomica.units.Dimension;
-import etomica.units.Joule;
-import etomica.units.Mole;
-import etomica.units.Null;
-import etomica.units.Pixel;
-import etomica.units.Prefix;
-import etomica.units.PrefixedUnit;
-import etomica.units.Pressure2D;
-import etomica.units.Second;
-import etomica.units.UnitRatio;
-import etomica.data.history.HistoryScrolling;
+import etomica.units.*;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Null;
+import etomica.units.dimensions.Pressure2D;
+
+import javax.swing.border.TitledBorder;
+import java.awt.*;
 
 /**
  * Graphical components for Material Fracture module
@@ -106,9 +86,7 @@ public class MaterialFractureGraphic extends SimulationGraphic {
         final MeterPressureTensorFromIntegrator meterPressure = new MeterPressureTensorFromIntegrator(space);
         meterPressure.setIntegrator(sim.integrator);
         DataProcessor pressureToStress = new DataProcessor(){
-            public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) { return null; }
-        
-            protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) { return dataInfo; }
+            protected IDataInfo processDataInfo(IDataInfo inputDataInfo) { return dataInfo; }
         
             protected IData processData(IData inputData) {
                 // xx component is the first one
@@ -116,7 +94,7 @@ public class MaterialFractureGraphic extends SimulationGraphic {
                 return data;
             }
             
-            protected final IEtomicaDataInfo dataInfo = new DataDouble.DataInfoDouble("Stress", Pressure2D.DIMENSION);
+            protected final IDataInfo dataInfo = new DataDouble.DataInfoDouble("Stress", Pressure2D.DIMENSION);
             protected final DataDouble data = new DataDouble();
         };
 

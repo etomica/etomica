@@ -4,10 +4,10 @@
 
 package etomica.freeenergy.npath;
 
-import etomica.util.random.IRandom;
 import etomica.atom.AtomSetSinglet;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
+import etomica.util.random.IRandom;
 
 /**
  * Created by andrew on 4/11/17.
@@ -41,9 +41,9 @@ public class MCMoveAtomNPath extends etomica.integrator.mcmove.MCMoveAtom {
         return true;
     }//end of doTrial
 
-    public double getB() {
-        super.getB();
+    public double getChi(double temperature) {
+        super.getChi(temperature);
         uNew += p1.energy(atomSinglet);
-        return -(uNew - uOld);
+        return Math.exp(-(uNew - uOld) / temperature);
     }
 }

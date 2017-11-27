@@ -5,12 +5,12 @@
 package etomica.modules.multiharmonic;
 
 import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
 import etomica.potential.P1Harmonic;
-import etomica.units.Energy;
+import etomica.units.dimensions.Energy;
 
 
 /**
@@ -21,7 +21,7 @@ import etomica.units.Energy;
  * @author David Kofke
  *
  */
-public class MeterFreeEnergy extends DataSourceScalar implements IEtomicaDataSource {
+public class MeterFreeEnergy extends DataSourceScalar implements IDataSource {
     
     public MeterFreeEnergy(P1Harmonic reference, P1Harmonic target) {
         super("Free energy", Energy.DIMENSION);

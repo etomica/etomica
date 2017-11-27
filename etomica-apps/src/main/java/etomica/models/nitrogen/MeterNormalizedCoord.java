@@ -8,8 +8,8 @@ import etomica.action.IAction;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
+import etomica.data.IDataInfo;
 import etomica.data.histogram.HistogramExpanding;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -19,10 +19,10 @@ import etomica.molecule.IMoleculeList;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.species.ISpecies;
-import etomica.units.CompoundDimension;
-import etomica.units.Dimension;
-import etomica.units.Length;
-import etomica.units.Null;
+import etomica.units.dimensions.CompoundDimension;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Null;
 
 import java.io.Serializable;
 
@@ -35,8 +35,8 @@ import java.io.Serializable;
  *  Eg. N2 molecule with 5 D.O.F, this class will return 5 distributions of 
  *  	3 translation and 2 rotation motion respectively.
  */
-public class MeterNormalizedCoord implements IEtomicaDataSource, IAction, Serializable {
-	 public MeterNormalizedCoord(Box newBox, CoordinateDefinition coordDef, ISpecies species) {
+public class MeterNormalizedCoord implements IDataSource, IAction, Serializable {
+    public MeterNormalizedCoord(Box newBox, CoordinateDefinition coordDef, ISpecies species) {
 		 this(newBox, coordDef, species,false);
 	 }
 	
@@ -66,7 +66,7 @@ public class MeterNormalizedCoord implements IEtomicaDataSource, IAction, Serial
         }
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -158,7 +158,7 @@ public class MeterNormalizedCoord implements IEtomicaDataSource, IAction, Serial
     protected CoordinateDefinition coordinateDefinition;
     private String name;
     private final DataTag tag;
-    private IEtomicaDataInfo dataInfo;
+    private IDataInfo dataInfo;
     private DataGroup data;
     private HistogramExpanding[] histogramU;
     private DataDoubleArray[] uDistributions;

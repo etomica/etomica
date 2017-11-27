@@ -4,13 +4,12 @@
 
 package etomica.virial.overlap;
 
-import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.overlap.AlphaSource;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * DataProcessor which takes in values for v/pi and pi2/pi (from MeterVirial)
@@ -26,15 +25,11 @@ public class DataProcessorVirialOverlap extends DataProcessor implements AlphaSo
         setBennetParam(1.0,5);
     }
 
-    public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         numIncomingValues = inputDataInfo.getLength();
         if (numIncomingValues < 2) {
             throw new RuntimeException("must have at least 2 values");
         }
-        return null;
-    }
-
-    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
         setup();
         return dataInfo;
     }
@@ -44,6 +39,12 @@ public class DataProcessorVirialOverlap extends DataProcessor implements AlphaSo
         // we need numAlpha elements for the overlap values and 1 for the not-overlap value.
         data = new DataDoubleArray(numAlpha+numIncomingValues-1);
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("virial", Null.DIMENSION, new int[]{numAlpha+numIncomingValues-1});
+        if (dataSink != null) {
+            // when called from putDataInfo->processDataInfo, dataSink.putDataInfo will be called anyway
+            // but when we're called because our internal parameters changed (numAlpha, etc), then we
+            // need to notify downstream manually
+            dataSink.putDataInfo(dataInfo);
+        }
     }
 
     /**
@@ -63,10 +64,11 @@ public class DataProcessorVirialOverlap extends DataProcessor implements AlphaSo
 		for (int i=0; i<numAlpha; i++) {
 			alpha[i] = Math.exp(2.0*aSpan*(i-(numAlpha-1)/2)/(numAlpha-1))*aCenter;
 		}
-		// don't really need to recreate these, but we want to notify downstream 
-		// passing null as incoming dataInfo because we don't pay attention to it.
-		putDataInfo(null);
-	}
+        // don't really need to recreate these, but we want to notify downstream
+        if (numAlpha > 0) {
+            setup();
+        }
+    }
 
     public void setNumAlpha(int newNumAlpha) {
         if (newNumAlpha < 1) {
@@ -77,7 +79,7 @@ public class DataProcessorVirialOverlap extends DataProcessor implements AlphaSo
         if (alphaCenter > 0) {
             setBennetParam(alphaCenter, alphaSpan);
             // need to recreate our data objects and notify downstream
-            putDataInfo(null);
+            setup();
         }
     }
 

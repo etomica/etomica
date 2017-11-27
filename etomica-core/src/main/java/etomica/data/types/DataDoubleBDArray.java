@@ -14,9 +14,9 @@ import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
 import etomica.data.DataTag;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataInfoFactory;
-import etomica.units.Dimension;
+import etomica.data.IDataInfo;
+import etomica.data.IDataInfoFactory;
+import etomica.units.dimensions.Dimension;
 
 /**
  * Data object that wraps a array of BigDecimals.  Precision is specified at
@@ -376,7 +376,7 @@ public class DataDoubleBDArray implements IData, java.io.Serializable {
             return n;
         }
         
-        public IEtomicaDataInfoFactory getFactory() {
+        public IDataInfoFactory getFactory() {
             return new DataInfoDoubleBDArrayFactory(this);
         }
 
@@ -394,7 +394,7 @@ public class DataDoubleBDArray implements IData, java.io.Serializable {
             precision = template.precision;
         }
         
-        public IEtomicaDataInfo makeDataInfo() {
+        public IDataInfo makeDataInfo() {
             DataInfoDoubleBDArray dataInfo = new DataInfoDoubleBDArray(label, dimension, arrayShape, precision);
             DataTag[] tagArray = new DataTag[tags.size()];
             dataInfo.addTags((DataTag[])tags.toArray(tagArray));

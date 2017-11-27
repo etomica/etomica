@@ -8,8 +8,8 @@ import etomica.atom.IAtomList;
 import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.units.Dimension;
-import etomica.units.Length;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
 /**
  * Potential that acts like a hard string connecting the centers of two atoms.
  * Meant for use as an intra-molecular interaction.

@@ -8,8 +8,9 @@ import etomica.data.AccumulatorAverageBlockless;
 import etomica.data.DataDistributer;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.mcmove.MCMoveOverlapListener;
-import etomica.units.Null;
-import etomica.units.Pressure;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Null;
+import etomica.units.dimensions.Pressure;
 
 /**
  * Datasource that returns an estimate of mu based on thermodynamic
@@ -24,9 +25,10 @@ public class DataSourceMuRoot extends DataSourceScalar {
 
     protected final MCMoveOverlapListener mcMoveOverlapMeter;
     protected final DataDistributer pSplitter;
+    protected DataDistributer uSplitter;
     protected double bmu;
     protected double bmuLat, volume, latticeDensity;
-    protected double lastP, lastVacancyConcentration, lastDP, lastLnTot, lastDMu;
+    protected double lastP, lastVacancyConcentration, lastDP, lastLnTot, lastDMu, lastDU;
     
     public DataSourceMuRoot(MCMoveOverlapListener mcMoveOverlapMeter, double bmu, DataDistributer pSplitter, double bmuLat, double latticeDensity, double volume) {
         super("mu", Null.DIMENSION);
@@ -36,6 +38,10 @@ public class DataSourceMuRoot extends DataSourceScalar {
         this.latticeDensity = latticeDensity;
         this.bmuLat = bmuLat;
         this.volume = volume;
+    }
+
+    public void setUSplitter(DataDistributer uSplitter) {
+        this.uSplitter = uSplitter;
     }
     
     public synchronized double getDataAsScalar() {
@@ -97,12 +103,19 @@ public class DataSourceMuRoot extends DataSourceScalar {
                 }
                 double accValue = acc.getData().getValue(acc.AVERAGE.index);
                 pressure1 += pi*accValue;
+                double uValue = Double.NaN;
+                if (uSplitter != null) {
+                    AccumulatorAverageBlockless accU = (AccumulatorAverageBlockless) uSplitter.getDataSink(i);
+                    uValue = accU.getData().getValue(accU.AVERAGE.index);
+                }
                 if (i==0) {
                     pLat = accValue;
                     lastDP = -oneMinusP0*accValue;
+                    lastDU = -oneMinusP0 * uValue;
                 }
                 else {
                     lastDP += pi*accValue;
+                    lastDU += pi * uValue;
                 }
                 vAvg += pi*i;
                 if (ratios.length-1-i >= 0) {
@@ -150,6 +163,10 @@ public class DataSourceMuRoot extends DataSourceScalar {
         return lastDP;
     }
 
+    public double getLastDU() {
+        return lastDU;
+    }
+
     public double getLastVacancyConcentration() {
         return lastVacancyConcentration;
     }
@@ -166,6 +183,28 @@ public class DataSourceMuRoot extends DataSourceScalar {
         public double getDataAsScalar() {
             DataSourceMuRoot.this.getDataAsScalar();
             return DataSourceMuRoot.this.getLastPressure();
+        }
+    }
+
+    public class DataSourceMuRootDPressure extends DataSourceScalar {
+        public DataSourceMuRootDPressure() {
+            super("P", Pressure.DIMENSION);
+        }
+
+        public double getDataAsScalar() {
+            DataSourceMuRoot.this.getDataAsScalar();
+            return DataSourceMuRoot.this.getLastDPressure();
+        }
+    }
+
+    public class DataSourceMuRootDU extends DataSourceScalar {
+        public DataSourceMuRootDU() {
+            super("U", Energy.DIMENSION);
+        }
+
+        public double getDataAsScalar() {
+            DataSourceMuRoot.this.getDataAsScalar();
+            return DataSourceMuRoot.this.getLastDU();
         }
     }
 

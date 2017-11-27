@@ -4,10 +4,13 @@
 
 package etomica.simulation.prototypes;
 
+import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
+import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
+import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.nbr.list.PotentialMasterList;
@@ -18,14 +21,16 @@ import etomica.space2d.Space2D;
 import etomica.species.SpeciesSpheresMono;
 
 /**
- * Simple hard-sphere molecular dynamics simulation in 2D.
+ * Hard-sphere molecular dynamics simulation of two species in 2D.
+ * <p>
+ * Atoms of each species have the same diameter but one has 10 times more mass than the other.
+ * </p>
  *
  * @author David Kofke
  */
 
 public class HSMD2D extends Simulation {
 
-    private static final long serialVersionUID = 1L;
     public IntegratorHard integrator;
     public SpeciesSpheresMono species1, species2;
     public Box box;
@@ -36,8 +41,7 @@ public class HSMD2D extends Simulation {
     public HSMD2D() {
         super(Space2D.getInstance());
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
-//        super(space, new PotentialMaster(space));//,IteratorFactoryCell.instance));
-        double sigma = 0.38;
+        double sigma = 1;
 
         double neighborRangeFac = 1.6;
         potentialMaster.setRange(neighborRangeFac * sigma);
@@ -59,6 +63,8 @@ public class HSMD2D extends Simulation {
         AtomType leafType2 = species2.getLeafType();
         addSpecies(species1);
         addSpecies(species2);
+        ((ElementSimple) leafType2.getElement()).setMass(10);
+
         potential11 = new P2HardSphere(space, sigma, false);
         potential12 = new P2HardSphere(space, sigma, false);
         potential22 = new P2HardSphere(space, sigma, false);
@@ -73,6 +79,10 @@ public class HSMD2D extends Simulation {
         addBox(box);
         box.setNMolecules(species1, 512);
         box.setNMolecules(species2, 5);
+
+        BoxInflate bi = new BoxInflate(box, space);
+        bi.setTargetDensity(0.5);
+        bi.actionPerformed();
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
         integrator.setBox(box);
@@ -83,7 +93,8 @@ public class HSMD2D extends Simulation {
      */
     public static void main(String[] args) {
         HSMD2D sim = new HSMD2D();
-        sim.getController().actionPerformed();
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+        simGraphic.makeAndDisplayFrame();
     }
 
 }

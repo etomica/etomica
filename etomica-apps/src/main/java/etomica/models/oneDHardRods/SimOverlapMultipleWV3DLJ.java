@@ -9,7 +9,7 @@ import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.DataPump;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
@@ -29,7 +29,7 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
@@ -45,7 +45,7 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
     public BasisMonatomic basis;
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     public DataPump[] accumulatorPumps;
-    public IEtomicaDataSource[] meters;
+    public IDataSource[] meters;
     public Box boxTarget, boxRef;
     public Boundary boundaryTarget, boundaryRef;
     Primitive primitiveTarget, primitiveRef;
@@ -82,7 +82,7 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
         
         integrators = new IntegratorMC[2];
         accumulatorPumps = new DataPump[2];
-        meters = new IEtomicaDataSource[2];
+        meters = new IDataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
         
         basis = new BasisMonatomic(space);

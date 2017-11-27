@@ -4,30 +4,20 @@
 
 package etomica.graphics;
 
-import java.awt.Component;
-
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverage.StatType;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.DataPipe;
-import etomica.data.DataPump;
-import etomica.data.IData;
-import etomica.data.IDataSink;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
 import etomica.data.meter.MeterPressureHard;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.graphics.DisplayTextBox.LabelType;
 import etomica.listener.IntegratorListenerAction;
 import etomica.simulation.prototypes.HSMD2D;
-import etomica.units.Null;
 import etomica.units.Unit;
+import etomica.units.dimensions.Null;
 import etomica.units.systems.UnitSystem;
 import etomica.util.Constants;
+
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * Display that presents three boxes with the current value, average, 
@@ -84,14 +74,10 @@ public class DisplayTextBoxesCAE extends Display implements IDataSink {
         return doShowCurrent;
     }
 
-    public DataPipe getDataCaster(IEtomicaDataInfo dataInfo) {
+    public void putDataInfo(IDataInfo dataInfo) {
         if(!(dataInfo instanceof DataInfoGroup)) {
             throw new IllegalArgumentException("DisplayBoxesCAE strangely is being given something other than a DataGroup");
         }
-        return null;
-    }
-
-    public void putDataInfo(IEtomicaDataInfo dataInfo) {
         if(getLabel().equals("")) {
             setLabel(dataInfo.getLabel());
         }

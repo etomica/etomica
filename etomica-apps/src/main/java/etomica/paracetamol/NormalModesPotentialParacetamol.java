@@ -12,7 +12,7 @@ import etomica.space.Vector;
 import etomica.data.DataInfo;
 import etomica.data.DataTag;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.Basis;
@@ -24,7 +24,7 @@ import etomica.paracetamol.LatticeSumCrystalParacetamol.DataGroupLSCParacetamol;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.Space;
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
 import etomica.util.Arrays;
 import etomica.math.function.Function;
 import etomica.math.numerical.FiniteDifferenceDerivative;
@@ -274,7 +274,7 @@ public class NormalModesPotentialParacetamol implements NormalModes {
 			this.indexjp = indexjp;
 		}
 
-		public IEtomicaDataInfo getDataInfo() {
+		public IDataInfo getDataInfo() {
 			 return dataInfo;
 		}
 

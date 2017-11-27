@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 package etomica.data.meter;
 
 import etomica.atom.IAtomList;
@@ -6,7 +10,7 @@ import etomica.data.DataSourceScalar;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.Length;
+import etomica.units.dimensions.Length;
 
 /**
  * Measured root mean squared displacement of all atoms in the box.  This meter

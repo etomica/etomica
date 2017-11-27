@@ -17,14 +17,14 @@ import java.io.IOException;
 /**
  * A DataWriter that writes out data as a table with optional column headings
  */
-public class DataArrayWriter implements DataWriter, java.io.Serializable {
+public class DataArrayWriter implements DataWriter {
 
-    private static final long serialVersionUID = 1L;
     private FileWriter fileWriter;
     private boolean firstWrite;
-    private IEtomicaDataInfo dataInfo;
+    private IDataInfo dataInfo;
     private boolean includeHeader;
-    
+    private IDataSink internalDataSink;
+
     public DataArrayWriter() {
         super();
         setIncludeHeader(true);
@@ -45,35 +45,62 @@ public class DataArrayWriter implements DataWriter, java.io.Serializable {
         includeHeader = newIncludeHeader;
     }
 
-    public void putDataInfo(IEtomicaDataInfo newDataInfo) {
-        dataInfo = newDataInfo;
+    protected IDataSink makeTerminalSink() {
+        return new IDataSink() {
+            @Override
+            public void putData(IData data) {
+                DataArrayWriter.this.putDataInternal(data);
+            }
+
+            @Override
+            public void putDataInfo(IDataInfo dataInfo) {
+                DataArrayWriter.this.putDataInfoInternal(dataInfo);
+            }
+        };
     }
 
-    public DataPipe getDataCaster(IEtomicaDataInfo newDataInfo) {
+    public void putDataInfo(IDataInfo newDataInfo) {
         if (newDataInfo instanceof DataInfoDoubleArray) {
             // we like tables
-            return null;
+            dataInfo = newDataInfo;
+            return;
         }
-        else if (newDataInfo instanceof DataInfoGroup) {
-            if (((DataInfoGroup)newDataInfo).getNDataInfo() == 0) {
-                //it's empty, turn it into an empty array
-                return new CastGroupToDoubleArray();
-            }
-            IEtomicaDataInfo dataInfo0 = ((DataInfoGroup)newDataInfo).getSubDataInfo(0);
-            for (int i = 1; i<((DataInfoGroup)newDataInfo).getNDataInfo(); i++) {
-                IEtomicaDataInfo subDataInfo = ((DataInfoGroup)newDataInfo).getSubDataInfo(0);
-                if (subDataInfo.getClass() != dataInfo0.getClass()){
-                    throw new IllegalArgumentException("DataSinkTable can only handle homogeneous groups");
+        if (newDataInfo instanceof DataInfoGroup) {
+            if (((DataInfoGroup) newDataInfo).getNDataInfo() > 1) {
+                IDataInfo dataInfo0 = ((DataInfoGroup) newDataInfo).getSubDataInfo(0);
+                for (int i = 1; i < ((DataInfoGroup) newDataInfo).getNDataInfo(); i++) {
+                    IDataInfo subDataInfo = ((DataInfoGroup) newDataInfo).getSubDataInfo(0);
+                    if (subDataInfo.getClass() != dataInfo0.getClass()) {
+                        throw new IllegalArgumentException("DataSinkTable can only handle homogeneous groups");
+                    }
                 }
             }
             // turn group into a multi-dimensional array, which we'll cast to a table
             // with a CastToTable
-            return new CastGroupToDoubleArray();
+            internalDataSink = new CastGroupToDoubleArray();
+            ((CastGroupToDoubleArray) internalDataSink).setDataSink(makeTerminalSink());
+            internalDataSink.putDataInfo(newDataInfo);
+            return;
         }
-        return new CastToDoubleArray();
+        internalDataSink = new CastToDoubleArray();
+        ((CastToDoubleArray) internalDataSink).setDataSink(makeTerminalSink());
+        internalDataSink.putDataInfo(newDataInfo);
+        return;
+    }
+
+    protected void putDataInfoInternal(IDataInfo myDataInfo) {
+        dataInfo = myDataInfo;
     }
 
     public void putData(IData data) {
+        if (internalDataSink != null) {
+            internalDataSink.putData(data);
+            return;
+        }
+        putDataInternal(data);
+    }
+
+    protected void putDataInternal(IData data) {
         DataDoubleArray dataArray = (DataDoubleArray)data;
         try {
             int dim = dataArray.getArrayDimension();
@@ -110,8 +137,7 @@ public class DataArrayWriter implements DataWriter, java.io.Serializable {
                 }
                 fileWriter.write("\n");
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
 

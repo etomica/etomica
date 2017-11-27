@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 package etomica.potential;
 
 import etomica.box.Box;
@@ -6,6 +10,8 @@ import etomica.molecule.IMoleculePositionDefinition;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
 
 
 /**
@@ -72,7 +78,7 @@ public class P2MoleculeTruncated extends PotentialMolecular {
     /**
      * Returns the dimension (length) of the radial cutoff distance.
      */
-    public etomica.units.Dimension getTruncationRadiusDimension() {return etomica.units.Length.DIMENSION;}
+    public Dimension getTruncationRadiusDimension() {return Length.DIMENSION;}
     
     public void setBox(Box newBox) {
         potential.setBox(newBox);

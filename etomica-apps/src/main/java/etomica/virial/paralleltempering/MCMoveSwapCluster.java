@@ -5,16 +5,16 @@
 package etomica.virial.paralleltempering;
 
 import etomica.atom.IAtom;
-import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorNull;
+import etomica.box.Box;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorPT;
 import etomica.integrator.mcmove.MCMove;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.virial.BoxCluster;
 
 /**
@@ -73,10 +73,8 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
         weightNew1 = weightNew2 = Double.NaN;
         return true;
     }
-    
-    public double getB() {return 0.0;}
-    
-    public double getA() {
+
+    public double getChi(double temperature) {
         weightNew1 = box1.getSampleCluster().value(box1);
         weightNew2 = box2.getSampleCluster().value(box2);
 //        System.out.println(weightOld1+" "+weightOld2+" "+weightNew1+" "+weightNew2);

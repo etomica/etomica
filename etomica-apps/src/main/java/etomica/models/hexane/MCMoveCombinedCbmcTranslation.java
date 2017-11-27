@@ -109,12 +109,8 @@ public class MCMoveCombinedCbmcTranslation extends MCMoveBox {
         return true;
     }
 
-    public double getA() {
-        return 1.0 * cbmcMove.getA();
-    }
-
-    public double getB() {
-        return -(uNew - uOld) + cbmcMove.getB();
+    public double getChi(double temperature) {
+        return cbmcMove.getChi(temperature) * Math.exp(-(uNew - uOld) / temperature);
     }
 
     public void rejectNotify() {

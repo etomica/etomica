@@ -4,10 +4,9 @@
 
 package etomica.data.types;
 
-import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataTensor.DataInfoTensor;
@@ -46,6 +45,9 @@ import etomica.data.types.DataVector.DataInfoVector;
  */
 public class CastToDoubleArray extends DataProcessor {
 
+    private DataDoubleArray outputData;
+    private int inputType;
+
     /**
      * Sole constructor.
      */
@@ -55,12 +57,12 @@ public class CastToDoubleArray extends DataProcessor {
     /**
      * Prepares processor to perform cast. Given DataInfo is examined to see
      * what data type will be given to processor.
-     * 
+     *
      * @throws IllegalArgumentException
      *             if DataInfo is not one of the acceptable types, as described
      *             in general comments for this class
      */
-    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         int[] arrayShape;
         if (inputDataInfo instanceof DataInfoDoubleArray) {
             inputType = 0;
@@ -87,11 +89,11 @@ public class CastToDoubleArray extends DataProcessor {
 
     /**
      * Copies input Data to a DataDoubleArray and returns it (the DataDataDoubleArray).
-     * 
+     *
      * @throws ClassCastException
      *             if input Data is not of the type indicated by the most recent
      *             call to processDataInfo
-     *  
+     *
      */
     protected IData processData(IData data) {
         switch (inputType) {
@@ -114,12 +116,4 @@ public class CastToDoubleArray extends DataProcessor {
         //we don't add ourselves
         return outputData;
     }
-
-    public DataPipe getDataCaster(IEtomicaDataInfo info) {
-        return null;
-    }
-
-    private static final long serialVersionUID = 1L;
-    private DataDoubleArray outputData;
-    private int inputType;
 }

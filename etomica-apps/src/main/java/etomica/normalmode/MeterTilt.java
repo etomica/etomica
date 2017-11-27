@@ -6,10 +6,7 @@ package etomica.normalmode;
 
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.molecule.IMolecule;
@@ -17,14 +14,14 @@ import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
-import etomica.units.Angle;
+import etomica.units.dimensions.Angle;
 
 /**
  * Meter that measures the average tilt angle (not the angle of average tilt!)
  *
  * @author Andrew Schultz
  */
-public class MeterTilt implements IEtomicaDataSource {
+public class MeterTilt implements IDataSource {
 
     public MeterTilt(Space space, ISpecies species, int nPlanes) {
         this.species = species;
@@ -66,7 +63,7 @@ public class MeterTilt implements IEtomicaDataSource {
         return data;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

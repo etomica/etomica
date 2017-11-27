@@ -111,10 +111,10 @@ public class IntegratorDimerApproach extends IntegratorBox {
 		translationVector();
 	
 	}
-	
-	public void doStepInternal() {
-		
-		// inverse sine function used to compute phi becomes undefined at small r
+
+    protected void doStepInternal() {
+
+        // inverse sine function used to compute phi becomes undefined at small r
         // Using this if statement causes last few steps to affect no change,
 		// but prevents one from having to calculate precise number of steps
 		// to avoid NaNs

@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 package etomica.liquidLJ;
 
 import etomica.action.BoxInflate;
@@ -11,7 +15,7 @@ import etomica.integrator.IntegratorBox;
 import etomica.molecule.IMolecule;
 import etomica.space.Space;
 import etomica.species.ISpecies;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 import etomica.util.random.IRandom;
 
 /**

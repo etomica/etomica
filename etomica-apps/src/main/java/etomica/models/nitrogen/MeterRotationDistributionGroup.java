@@ -8,8 +8,8 @@ import etomica.action.IAction;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
+import etomica.data.IDataInfo;
 import etomica.data.histogram.HistogramExpanding;
 import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.types.DataDoubleArray;
@@ -22,7 +22,7 @@ import etomica.molecule.IMoleculeList;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -37,7 +37,7 @@ import java.io.Serializable;
  * @author Tai Boon Tan
  *
  */
-public class MeterRotationDistributionGroup implements IEtomicaDataSource, IAction, Serializable {
+public class MeterRotationDistributionGroup implements IDataSource, IAction, Serializable {
 
     public MeterRotationDistributionGroup(Box newBox, CoordinateDefinitionNitrogen coordDef) {
         tag = new DataTag();
@@ -55,7 +55,7 @@ public class MeterRotationDistributionGroup implements IEtomicaDataSource, IActi
         
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -168,7 +168,7 @@ public class MeterRotationDistributionGroup implements IEtomicaDataSource, IActi
     private static final long serialVersionUID = 1L;
     protected CoordinateDefinitionNitrogen coordinateDefinition;
     private final DataTag tag;
-    private IEtomicaDataInfo dataInfo;
+    private IDataInfo dataInfo;
     private DataGroup data;
     private HistogramNotSoSimple histogramNotSimple;
     private HistogramExpanding histogramExpanding;

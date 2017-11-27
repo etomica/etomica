@@ -4,6 +4,8 @@
 
 package etomica.units;
 
+import etomica.units.dimensions.Dimension;
+
 /**
  * Interface used to specify the physical units to be used when inputting or
  * outputting a quantity. All internal calculations are performed using
@@ -16,11 +18,7 @@ package etomica.units;
  * conversions, the unit class also provides textual labels that can be used by
  * a Device or Display to indicate the units is it using.
  */
-
-/* History
- * 03/11/04 (DAK) new
- */
-public interface Unit extends java.io.Serializable {
+public interface Unit {
 
 	/**
 	 * Returns the dimension of the unit. 

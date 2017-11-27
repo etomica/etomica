@@ -7,8 +7,8 @@ package etomica.normalmode;
 import etomica.box.Box;
 import etomica.modifier.Modifier;
 import etomica.species.ISpecies;
-import etomica.units.Dimension;
-import etomica.units.Null;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Null;
 
 /**
  * Modifier class that enables change of the number of cells in 2D

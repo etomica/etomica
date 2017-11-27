@@ -101,20 +101,20 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         meterKE = new MeterKineticEnergyRigid(space, sim);
     }
 
-    public void setBox(Box p) {
-        if (box != null) {
+    public void setBox(Box box) {
+        if (this.box != null) {
             // allow agentManager to de-register itself as a BoxListener
             leafAgentManager.dispose();
             moleculeAgentManager.dispose();
             leafAgentManager = null;
             moleculeAgentManager = null;
         }
-        super.setBox(p);
-        leafAgentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this,p,IntegratorVelocityVerlet.MyAgent.class);
-        moleculeAgentManager = new MoleculeAgentManager(sim, p, this);
+        super.setBox(box);
+        leafAgentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, box,IntegratorVelocityVerlet.MyAgent.class);
+        moleculeAgentManager = new MoleculeAgentManager(sim, box, this);
         torqueSum.setAgentManager(leafAgentManager);
         torqueSum.setMoleculeAgentManager(moleculeAgentManager);
-        ((MeterKineticEnergyRigid)meterKE).setBox(p);
+        ((MeterKineticEnergyRigid)meterKE).setBox(box);
     }
 
     public void setTorqueSum(PotentialCalculationTorqueSum pc) {
@@ -137,7 +137,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
 // steps all particles across time interval tStep
 
     // assumes one box
-    public void doStepInternal() {
+    protected void doStepInternal() {
         super.doStepInternal();
         currentKineticEnergy = 0;
         int iterationsTotal = 0;
@@ -382,7 +382,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
                 }
                 continue;
             }
-            IAtomOrientedKinetic orientedMolecule = (IAtomOrientedKinetic)molecule;
+            IMoleculeOrientedKinetic orientedMolecule = (IMoleculeOrientedKinetic)molecule;
             double mass = ((ISpeciesOriented)((IMolecule)orientedMolecule).getType()).getMass();
             momentum.PEa1Tv1(mass, orientedMolecule.getVelocity());
             totalMass += mass;
@@ -404,7 +404,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
                 }
                 continue;
             }
-            IAtomOrientedKinetic orientedMolecule = (IAtomOrientedKinetic)molecule;
+            IMoleculeOrientedKinetic orientedMolecule = (IMoleculeOrientedKinetic)molecule;
             orientedMolecule.getVelocity().ME(momentum);
             KE += orientedMolecule.getVelocity().squared() * ((ISpeciesOriented)molecule.getType()).getMass();
 
@@ -439,7 +439,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
                 }
                 continue;
             }
-            IAtomOrientedKinetic orientedMolecule = (IAtomOrientedKinetic)molecule;
+            IMoleculeOrientedKinetic orientedMolecule = (IMoleculeOrientedKinetic)molecule;
             orientedMolecule.getVelocity().TE(scale);
 
             Vector angularVelocity = orientedMolecule.getAngularVelocity();
@@ -449,6 +449,79 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
             rotationTensor.invert();
             rotationTensor.transform(angularVelocity);
         }
+    }
+
+    public void shiftMomenta() {
+        momentum.E(0);
+        IMoleculeList moleculeList = box.getMoleculeList();
+        int nMolecules = moleculeList.getMoleculeCount();
+        if (nMolecules == 0) return;
+        if (nMolecules > 1) {
+            double totalMass = 0;
+            for (int iLeaf = 0; iLeaf < nMolecules; iLeaf++) {
+                IMolecule m = moleculeList.getMolecule(iLeaf);
+                if (!(m instanceof IMoleculeKinetic)) {
+                    IAtomList children = m.getChildList();
+                    for (int i = 0; i < children.getAtomCount(); i++) {
+                        IAtomKinetic a = (IAtomKinetic)children.getAtom(i);
+                        momentum.PEa1Tv1(a.getType().getMass(), a.getVelocity());
+                        totalMass += a.getType().getMass();
+                    }
+                    continue;
+                }
+                double mass = ((ISpeciesOriented)m.getType()).getMass();
+                if (mass != Double.POSITIVE_INFINITY) {
+                    momentum.PEa1Tv1(mass, ((IMoleculeKinetic) m).getVelocity());
+                    totalMass += mass;
+                }
+            }
+            if (totalMass == 0) return;
+            momentum.TE(1.0 / totalMass);
+            //momentum is now net velocity
+            //set net momentum to 0
+            for (int iLeaf = 0; iLeaf < nMolecules; iLeaf++) {
+                IMolecule m = moleculeList.getMolecule(iLeaf);
+                if (!(m instanceof IMoleculeKinetic)) {
+                    IAtomList children = m.getChildList();
+                    for (int i = 0; i < children.getAtomCount(); i++) {
+                        IAtomKinetic a = (IAtomKinetic)children.getAtom(i);
+                        double rm = a.getType().rm();
+                        if (rm != 0 && rm != Double.POSITIVE_INFINITY) {
+                            a.getVelocity().ME(momentum);
+                        }
+                    }
+                    continue;
+                }
+                double mass = ((ISpeciesOriented)m.getType()).getMass();
+                if (mass != Double.POSITIVE_INFINITY) {
+                    ((IMoleculeKinetic)m).getVelocity().ME(momentum);
+                }
+            }
+            if (Debug.ON) {
+                momentum.E(0);
+                for (int iLeaf = 0; iLeaf < nMolecules; iLeaf++) {
+                    IMolecule m = moleculeList.getMolecule(iLeaf);
+                    if (!(m instanceof IMoleculeKinetic)) {
+                        IAtomList children = m.getChildList();
+                        for (int i = 0; i < children.getAtomCount(); i++) {
+                            IAtomKinetic a = (IAtomKinetic)children.getAtom(i);
+                            momentum.PEa1Tv1(a.getType().getMass(), a.getVelocity());
+                        }
+                        continue;
+                    }
+                    double mass = ((ISpeciesOriented)m.getType()).getMass();
+                    if (mass != Double.POSITIVE_INFINITY) {
+                        momentum.PEa1Tv1(mass, ((IMoleculeKinetic) m).getVelocity());
+                    }
+                }
+                momentum.TE(1.0 / totalMass);
+                if (Math.sqrt(momentum.squared()) > 1.e-10) {
+                    System.out.println("Net momentum per leaf atom is " + momentum + " but I expected it to be 0");
+                }
+            }
+            momentum.E(0);
+        }
+
     }
 
     public void randomizeMomenta() {

@@ -6,6 +6,7 @@ package etomica.data;
 
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
+
 import java.util.Arrays;
 
 
@@ -20,6 +21,11 @@ import java.util.Arrays;
 
 public class DataGroupFilter extends DataProcessor {
 
+    private final boolean singleInstance;
+    private final int[] indexes;
+    private IData outputData;
+    
+    
     /**
      * Creates a filter that will take the DataGroup element indicated
      * by the index, counting from 0.
@@ -34,11 +40,11 @@ public class DataGroupFilter extends DataProcessor {
      */
     public DataGroupFilter(int[] indexes) {
         this.indexes = indexes.clone();
-        singleInstance = (indexes.length == 1); 
+        singleInstance = (indexes.length == 1);
     }
 
     /**
-     * Returns the output data that was established with a previous call to 
+     * Returns the output data that was established with a previous call to
      * processDataInfo.
      */
     public IData processData(IData data) {
@@ -63,14 +69,16 @@ public class DataGroupFilter extends DataProcessor {
         }
         return outputData;
     }
-    
-    
+
     /**
      * Determines data that will be output, using the given DataInfo and
      * the index specification given at construction.  Returns the DataInfo
      * of the data that will be output.
      */
-    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+        if (!(inputDataInfo instanceof DataInfoGroup)) {
+            throw new IllegalArgumentException("DataGroupFilter must operate on a DataGroup");
+        }
         outputData = null;
         int nData = ((DataInfoGroup)inputDataInfo).getNDataInfo();
         if(singleInstance) {
@@ -79,7 +87,7 @@ public class DataGroupFilter extends DataProcessor {
             }
             throw new ArrayIndexOutOfBoundsException("DataFilter was constructed to extract a Data element with an index that is larger than the number of Data elements wrapped in the DataGroup. Number of elements: "+nData+"; index array: "+Arrays.toString(indexes));
         }
-        IEtomicaDataInfo[] pushedDataInfo = new IEtomicaDataInfo[indexes.length];
+        IDataInfo[] pushedDataInfo = new IDataInfo[indexes.length];
         try {
             for (int i=0; i<indexes.length; i++) {
                 pushedDataInfo[i] = ((DataInfoGroup)inputDataInfo).getSubDataInfo(indexes[i]);
@@ -91,19 +99,4 @@ public class DataGroupFilter extends DataProcessor {
         myDataInfo.addTags(inputDataInfo.getTags());
         return myDataInfo;
     }
-
-    /**
-     * Returns null if the given DataInfo is for a DataGroup; otherwise
-     * throws an exception.
-     */
-    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
-        if(!(incomingDataInfo instanceof DataInfoGroup)) {
-            throw new IllegalArgumentException("DataGroupFilter must operate on a DataGroup");
-        }
-        return null;
-    }
-    
-    private IData outputData;
-    private final boolean singleInstance;
-    private final int[] indexes;
 }

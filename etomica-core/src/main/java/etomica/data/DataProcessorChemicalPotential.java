@@ -18,11 +18,11 @@ import etomica.integrator.IntegratorBox;
  */
 public class DataProcessorChemicalPotential extends DataProcessor {
 
-    public void setDensityProfileDump(IEtomicaDataSource newDensityProfileSource) {
+    public void setDensityProfileDump(IDataSource newDensityProfileSource) {
         densityProfileSource = newDensityProfileSource;
     }
 
-    public IEtomicaDataSource getDenstiyProfileDump() {
+    public IDataSource getDenstiyProfileDump() {
         return densityProfileSource;
     }
     
@@ -48,18 +48,14 @@ public class DataProcessorChemicalPotential extends DataProcessor {
         return data;
     }
 
-    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         data = new DataFunction(new int[]{inputDataInfo.getLength()});
         dataInfo = inputDataInfo.getFactory().makeDataInfo();
         dataInfo.addTag(tag);
         return dataInfo;
     }
 
-    public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
-        return null;
-    }
-
-    protected IEtomicaDataSource densityProfileSource;
+    protected IDataSource densityProfileSource;
     protected DataFunction data;
     protected IntegratorBox integrator;
 }

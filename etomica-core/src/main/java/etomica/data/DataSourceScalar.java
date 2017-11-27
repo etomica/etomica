@@ -6,13 +6,13 @@ package etomica.data;
 
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
-import etomica.units.Dimension;
+import etomica.units.dimensions.Dimension;
 
 /**
  * Particular data source for which the data is a simple scalar of type double.
  */
- 
-public abstract class DataSourceScalar implements IEtomicaDataSource {
+
+public abstract class DataSourceScalar implements IDataSource {
     
     public DataSourceScalar(String label, Dimension dimension) {
         data = new DataDouble();
@@ -21,7 +21,7 @@ public abstract class DataSourceScalar implements IEtomicaDataSource {
         dataInfo.addTag(tag);
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -53,6 +53,6 @@ public abstract class DataSourceScalar implements IEtomicaDataSource {
     }
 	
 	protected final DataDouble data;
-    protected final IEtomicaDataInfo dataInfo;
+    protected final IDataInfo dataInfo;
     protected final DataTag tag;
 }

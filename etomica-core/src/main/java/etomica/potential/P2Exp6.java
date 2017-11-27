@@ -7,10 +7,10 @@ package etomica.potential;
 import etomica.space.Vector;
 import etomica.exception.MethodNotImplementedException;
 import etomica.space.Space;
-import etomica.units.CompoundDimension;
-import etomica.units.Dimension;
-import etomica.units.Energy;
-import etomica.units.Length;
+import etomica.units.dimensions.CompoundDimension;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Length;
 
 /**
  * Exponential-6 atom-atom repulsion-dispersion potential. Given formula:

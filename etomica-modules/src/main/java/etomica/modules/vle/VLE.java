@@ -4,16 +4,10 @@
 
 package etomica.modules.vle;
 
-import java.util.List;
-
 import etomica.action.IAction;
 import etomica.atom.DiameterHashByType;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataFork;
-import etomica.data.DataPump;
-import etomica.data.DataSourceCountSteps;
-import etomica.data.DataTag;
+import etomica.data.*;
+import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPressure;
@@ -26,19 +20,9 @@ import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.ModifierGeneral;
 import etomica.space.Space;
-import etomica.units.Angstrom;
-import etomica.units.CompoundUnit;
-import etomica.units.Debye;
-import etomica.units.Kelvin;
-import etomica.units.Liter;
-import etomica.units.Mole;
-import etomica.units.Pascal;
-import etomica.units.Pixel;
-import etomica.units.Prefix;
-import etomica.units.PrefixedUnit;
-import etomica.units.Unit;
-import etomica.units.UnitRatio;
-import etomica.data.history.HistoryCollapsingAverage;
+import etomica.units.*;
+
+import java.util.List;
 
 public class VLE extends SimulationGraphic {
 
@@ -82,7 +66,7 @@ public class VLE extends SimulationGraphic {
         DeviceThermoSliderGEMC thermoSlider = new DeviceThermoSliderGEMC(sim.getController());
         thermoSlider.setUnit(Kelvin.UNIT);
         thermoSlider.setPrecision(1);
-        thermoSlider.setIntegrators(sim.integratorLiquid, sim.integratorVapor);
+        thermoSlider.setIntegrators(sim.integratorLiquid, sim.integratorVapor, sim.integratorGEMC);
         thermoSlider.setIsothermal();
         thermoSlider.setMinimum(200);
         thermoSlider.setMaximum(400);

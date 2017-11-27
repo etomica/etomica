@@ -11,10 +11,7 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
@@ -24,7 +21,8 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.*;
+import etomica.units.Kelvin;
+import etomica.units.dimensions.*;
 import etomica.util.random.IRandom;
 
 /**
@@ -96,11 +94,11 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
     public double getTargetT() {return targetT;}
     public Dimension getTargetTDimension() {return Temperature.DIMENSION;}
 
-    public void setBox(Box p) {
-        super.setBox(p);
-        inflate.setBox(box);
-        meterTemperature = new MeterTemperature(box, D);
-        forceSumNPH.setBox(box);
+    public void setBox(Box box) {
+        super.setBox(box);
+        inflate.setBox(this.box);
+        meterTemperature = new MeterTemperature(this.box, D);
+        forceSumNPH.setBox(this.box);
         forceSumNPH.setAgentManager(agentManager);
     }
     
@@ -108,7 +106,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
 //--------------------------------------------------------------
 // steps all particles across time interval tStep
 
-    public void doStepInternal() {
+    protected void doStepInternal() {
         super.doStepInternal();
         predictor();
         calculateForces();
@@ -225,7 +223,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
 
     //meter for enthalpy, obtaining values from
     //most recent call to the ForceSumNPH instance
-    public static final class MeterEnthalpy implements IEtomicaDataSource, java.io.Serializable {
+    public static final class MeterEnthalpy implements IDataSource, java.io.Serializable {
         
         public MeterEnthalpy(IntegratorGear4NPH integrator, int D) {
             data = new DataDouble();
@@ -236,7 +234,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
             dim = D;
         }
         
-        public IEtomicaDataInfo getDataInfo() {
+        public IDataInfo getDataInfo() {
             return dataInfo;
         }
         
@@ -259,7 +257,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
         private static final long serialVersionUID = 1L;
         private DataDouble data;
         private IntegratorGear4NPH integrator;
-        private IEtomicaDataInfo dataInfo;
+        private IDataInfo dataInfo;
         private DataTag tag;
         private final int dim;
     }

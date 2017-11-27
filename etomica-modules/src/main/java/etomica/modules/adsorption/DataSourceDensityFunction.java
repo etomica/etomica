@@ -4,18 +4,14 @@
 
 package etomica.modules.adsorption;
 
-import etomica.data.DataSourceIndependentSimple;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.units.Length;
-import etomica.units.Quantity;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Quantity;
 
-public class DataSourceDensityFunction implements IEtomicaDataSource {
+public class DataSourceDensityFunction implements IDataSource {
 
     protected final EOSSW eos;
     protected final DataFunction data;
@@ -62,7 +58,7 @@ public class DataSourceDensityFunction implements IEtomicaDataSource {
         return tag;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

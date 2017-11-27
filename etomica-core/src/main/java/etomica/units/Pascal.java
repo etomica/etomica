@@ -5,6 +5,7 @@
 package etomica.units;
 import java.io.ObjectStreamException;
 
+import etomica.units.dimensions.Pressure;
 import etomica.util.Constants;
 
 /**
@@ -26,16 +27,4 @@ public final class Pascal extends SimpleUnit {
                 "pascals", "Pa", Prefix.ALLOWED
         	);   
     }
-    
-    /**
-     * Required to guarantee singleton when deserializing.
-     * 
-     * @return the singleton UNIT
-     */
-    private Object readResolve() throws ObjectStreamException {
-        return UNIT;
-    }
-    
-    private static final long serialVersionUID = 1;
-
 }

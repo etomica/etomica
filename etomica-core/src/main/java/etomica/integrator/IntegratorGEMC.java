@@ -17,9 +17,9 @@ import etomica.space.Space;
  */
 public class IntegratorGEMC extends IntegratorManagerMC {
 
-    public IntegratorGEMC(IRandom random, Space _space) {
+    public IntegratorGEMC(IRandom random, Space space) {
         super(random);
-        _space = space;
+        this.space = space;
     }
 
     public void addIntegrator(Integrator newIntegrator) {

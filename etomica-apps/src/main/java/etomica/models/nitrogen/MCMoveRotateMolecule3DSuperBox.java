@@ -181,10 +181,6 @@ public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule implements MC
         return true;
     }
 
-    public double getB(){
-    	return -(uNew - uOld);
-    }
-    
 	public MoleculeIterator affectedMolecules(Box aBox) {
 	   if (box == aBox) {
 		   affectedMoleculeIterator.setList(affectedMoleculeList);

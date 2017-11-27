@@ -7,7 +7,7 @@ package etomica.data;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroupFactory;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 import etomica.util.Arrays;
 
 /**
@@ -100,7 +100,7 @@ public class AccumulatorRatioAverageCovarianceFull extends AccumulatorAverageCov
         ratioError.E(Double.NaN);
     }
     
-    public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo incomingDataInfo) {
+    public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
         super.processDataInfo(incomingDataInfo);
 
         int n = incomingDataInfo.getLength();

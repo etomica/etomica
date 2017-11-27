@@ -32,7 +32,7 @@ public class DataLogger extends DataProcessor implements IListener, java.io.Seri
     private boolean sameFileEachTime = true; //whether to write to the same file at each INTERVAL.
     private boolean closeFileEachTime = false; //whether to close the file and open a new one at each INTERVAL.
     private transient boolean fileIsOpen = false; //at the beginning, it is false.
-    private IEtomicaDataSource writeOnFinishSource = null;
+    private IDataSource writeOnFinishSource = null;
     private boolean writeOnInterval = true;
     
     public DataLogger(){
@@ -55,15 +55,10 @@ public class DataLogger extends DataProcessor implements IListener, java.io.Seri
         return data;
     }
     
-    public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo newDataInfo) {
+    public IDataInfo processDataInfo(IDataInfo newDataInfo) {
         dataInfo = newDataInfo.getFactory().makeDataInfo();
         dataInfo.addTag(tag);
         return dataInfo;
-    }
-    
-    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
-        // we don't care about the type although the DataWriter might
-        return null;
     }
     
     /**
@@ -88,7 +83,7 @@ public class DataLogger extends DataProcessor implements IListener, java.io.Seri
      */
     public void putData(IData data) {
         openFile();
-        ((DataWriter)trueDataSink).setFileWriter(fileWriter);
+        ((DataWriter) dataSink).setFileWriter(fileWriter);
         super.putData(data);
         if (closeFileEachTime) {
             closeFile();
@@ -114,7 +109,7 @@ public class DataLogger extends DataProcessor implements IListener, java.io.Seri
             if(fileName == "") fileName = defaultFileName(); //if fileName is not defined yet, use the current date to be the fileName.
             fileWriter = new FileWriter(fileName + fileNameSuffix, appending);
             if (!appending) {
-                ((DataWriter)trueDataSink).reset();
+                ((DataWriter) dataSink).reset();
             }
             fileIsOpen = true;
         }
@@ -191,14 +186,14 @@ public class DataLogger extends DataProcessor implements IListener, java.io.Seri
     /**
      * @return Returns the writeOnFinish.
      */
-    public IEtomicaDataSource getWriteOnFinishDataSource() {
+    public IDataSource getWriteOnFinishDataSource() {
         return writeOnFinishSource;
     }
 
     /**
      * @param newWriteOnFinishSource The writeOnFinish to set.
      */
-    public void setWriteOnFinish(IEtomicaDataSource newWriteOnFinishSource) {
+    public void setWriteOnFinish(IDataSource newWriteOnFinishSource) {
         writeOnFinishSource = newWriteOnFinishSource;
     }
 

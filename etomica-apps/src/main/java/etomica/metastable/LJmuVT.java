@@ -32,7 +32,7 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.statmech.LennardJones;
-import etomica.units.Energy;
+import etomica.units.dimensions.Energy;
 import etomica.units.Pixel;
 import etomica.units.SimpleUnit;
 import etomica.util.ParameterBase;

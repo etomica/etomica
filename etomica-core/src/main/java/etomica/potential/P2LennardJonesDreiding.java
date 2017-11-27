@@ -6,9 +6,9 @@ package etomica.potential;
 
 import etomica.space.Vector;
 import etomica.space.Space;
-import etomica.units.Dimension;
-import etomica.units.Energy;
-import etomica.units.Length;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Length;
 
 /**
  * Dreiding: Lennard-Jones non-bonding potential.

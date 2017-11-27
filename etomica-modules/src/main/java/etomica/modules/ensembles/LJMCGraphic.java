@@ -4,43 +4,21 @@
 
 package etomica.modules.ensembles;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.util.ArrayList;
-
-import javax.swing.JPanel;
-
 import etomica.action.IAction;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorHistogram;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataFork;
-import etomica.data.DataPump;
-import etomica.data.DataPumpListener;
-import etomica.data.DataSourceCountSteps;
-import etomica.data.IDataSink;
-import etomica.data.meter.MeterDensity;
-import etomica.data.meter.MeterNMolecules;
-import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
-import etomica.data.meter.MeterPressure;
-import etomica.data.meter.MeterVolume;
-import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DeviceButton;
-import etomica.graphics.DeviceCheckBox;
-import etomica.graphics.DeviceSlider;
-import etomica.graphics.DeviceThermoSlider;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.DisplayTextBoxesCAE;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.data.*;
+import etomica.data.histogram.HistogramCollapsing;
+import etomica.data.history.HistoryCollapsingAverage;
+import etomica.data.meter.*;
+import etomica.graphics.*;
+import etomica.math.DoubleRange;
 import etomica.modifier.ModifierBoolean;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
-import etomica.math.DoubleRange;
-import etomica.data.histogram.HistogramCollapsing;
-import etomica.data.history.HistoryCollapsingAverage;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
 
 public class LJMCGraphic extends SimulationGraphic {
 
@@ -249,6 +227,7 @@ public class LJMCGraphic extends SimulationGraphic {
                 return constMu;
             }
         });
+        muCheckbox.setController(sim.getController());
         
         muPanel.add(muCheckbox.graphic(), vertGBC);
         muPanel.add(muSlider.graphic(), vertGBC);

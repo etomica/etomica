@@ -5,14 +5,14 @@
 package etomica.data;
 
 import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.space.Space;
-import etomica.units.Area;
-import etomica.units.DimensionRatio;
-import etomica.units.Energy;
-import etomica.units.Length;
+import etomica.space.Vector;
+import etomica.units.dimensions.Area;
+import etomica.units.dimensions.DimensionRatio;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Length;
 
 /**
  * Data Processor that takes the virial components as input data and returns
@@ -23,25 +23,22 @@ import etomica.units.Length;
  */
 public class DataProcessorInterfacialTension extends DataProcessor {
 
+    protected final Space space;
+    protected final DataDouble data;
+    protected Box box;
+    protected int surfaceDim;
+
     public DataProcessorInterfacialTension(Space space) {
         this.space = space;
         data = new DataDouble();
     }
 
-    public void setBox(Box newBox) {
-        box = newBox;
-    }
-    
     public Box getBox() {
         return box;
     }
 
-    /**
-     * Sets the dimension of the surfaces.  0 (x) means that the surfaces exist
-     * in the yz plane.
-     */
-    public void setSurfaceDimension(int newDim) {
-        surfaceDim = newDim;
+    public void setBox(Box newBox) {
+        box = newBox;
     }
 
     /**
@@ -50,6 +47,14 @@ public class DataProcessorInterfacialTension extends DataProcessor {
      */
     public int getSurfaceDimension() {
         return surfaceDim;
+    }
+
+    /**
+     * Sets the dimension of the surfaces.  0 (x) means that the surfaces exist
+     * in the yz plane.
+     */
+    public void setSurfaceDimension(int newDim) {
+        surfaceDim = newDim;
     }
 
     protected IData processData(IData inputData) {
@@ -70,16 +75,7 @@ public class DataProcessorInterfacialTension extends DataProcessor {
         return data;
     }
 
-    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         return new DataInfoDouble("Interfacial tension", new DimensionRatio(Energy.DIMENSION, space.D() == 2 ? Length.DIMENSION : Area.DIMENSION));
     }
-
-    public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
-        return null;
-    }
-
-    protected final Space space;
-    protected Box box;
-    protected final DataDouble data;
-    protected int surfaceDim;
 }

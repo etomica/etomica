@@ -9,7 +9,7 @@ import etomica.box.Box;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataSourceScalar;
-import etomica.units.Energy;
+import etomica.units.dimensions.Energy;
 
 /**
  * Meter for the total kinetic energy in a box

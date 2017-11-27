@@ -6,8 +6,8 @@ package etomica.models.rowley;
 
 import etomica.potential.Potential2SoftSpherical;
 import etomica.space.Space;
-import etomica.units.Dimension;
-import etomica.units.Energy;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Energy;
 
 /**
  * Purely repulsive potential from Rowley et al (2006) used for interactions between satellite sites, X.

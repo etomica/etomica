@@ -7,7 +7,6 @@ package etomica.simulation.prototypes;
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -31,23 +30,23 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 
 /**
- * Simple hard-sphere Monte Carlo simulation in 2D.
+ * Simple soft-sphere Monte Carlo simulation in 3D.
  *
- * @author David Kofke
+ * @author Tai Boon Tan
  */
-
 public class SoftSphere3d extends Simulation {
 
-    private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
-    public SpeciesSpheresMono species, species2;
+    public SpeciesSpheresMono species;
     public Box box;
     public P2SoftSphere potential;
     public PotentialMaster potentialMaster;
-    public Controller controller;
     public DataSourceCountSteps meterCycles;
 
+    public SoftSphere3d() {
+        this(1.338, 12, .1);
+    }
 
     public SoftSphere3d(double density, int exponent, double temperature) {
         super(Space3D.getInstance());
@@ -115,7 +114,7 @@ public class SoftSphere3d extends Simulation {
         }
 
         final SoftSphere3d sim = new SoftSphere3d(density, exponent, temperature);
-        int numAtoms = 108;
+        int numAtoms = sim.box.getNMolecules(sim.species);
 
         MeterPotentialEnergyFromIntegrator meterEnergy = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         DataPump pump = new DataPump(meterEnergy, null);

@@ -4,18 +4,14 @@
 
 package etomica.normalmode;
 
-import etomica.data.DataSourceIndependent;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.integrator.mcmove.MCMoveOverlapListener;
-import etomica.units.Null;
-import etomica.units.Quantity;
+import etomica.units.dimensions.Null;
+import etomica.units.dimensions.Quantity;
 
 /**
  * Free energy data source that computes free energy differences based on
@@ -23,7 +19,7 @@ import etomica.units.Quantity;
  * 
  * @author Andrew Schultz
  */
-public class DataSourceFE implements IEtomicaDataSource, DataSourceIndependent {
+public class DataSourceFE implements IDataSource, DataSourceIndependent {
 
     protected final MCMoveOverlapListener mcMoveOverlapMeter;
     protected DataFunction data;
@@ -96,7 +92,7 @@ public class DataSourceFE implements IEtomicaDataSource, DataSourceIndependent {
         return tag;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         double[] ratios = mcMoveOverlapMeter.getRatios();
         if (ratios == null) return dataInfo;
         if (ratios.length != dataInfo.getLength()) {

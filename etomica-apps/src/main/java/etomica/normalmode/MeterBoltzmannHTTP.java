@@ -9,8 +9,8 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
+import etomica.data.IDataInfo;
 import etomica.data.histogram.HistogramCollapsing;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
@@ -21,7 +21,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * Same as TargetTP class but is used by MethodBoltzmannHTTP
@@ -31,7 +31,7 @@ import etomica.units.Null;
  * @author Tai Boon Tan
  *
  */
-public class MeterBoltzmannHTTP implements IEtomicaDataSource {
+public class MeterBoltzmannHTTP implements IDataSource {
 
     protected final MeterPotentialEnergy meterPotential;
     protected final PotentialMaster potentialMaster;
@@ -62,7 +62,7 @@ public class MeterBoltzmannHTTP implements IEtomicaDataSource {
         tag = new DataTag();
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

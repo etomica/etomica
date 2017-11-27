@@ -4,21 +4,18 @@
 
 package etomica.virial;
 
-import java.math.BigDecimal;
-import java.math.MathContext;
-
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.types.DataDoubleBDArray;
 import etomica.data.types.DataDoubleBDArray.DataInfoDoubleBDArray;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
 
 /**
  * This meter handles direct sampling with BigDecimal precision for averages.
  */
-public class MeterVirialBD implements IEtomicaDataSource {
+public class MeterVirialBD implements IDataSource {
 
     protected static final BigDecimal BDZERO = new BigDecimal(0);
 
@@ -35,7 +32,7 @@ public class MeterVirialBD implements IEtomicaDataSource {
         DataDoubleBDArray.addBDZero(BDZERO);
 	}
 
-	public IEtomicaDataInfo getDataInfo() {
+	public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -74,7 +71,7 @@ public class MeterVirialBD implements IEtomicaDataSource {
     protected final ClusterAbstract clusters[];
 	private final DataDoubleBDArray data;
 	private final MathContext mc;
-	private final IEtomicaDataInfo dataInfo;
+	private final IDataInfo dataInfo;
     private final DataTag tag;
     private BoxCluster box;
 }

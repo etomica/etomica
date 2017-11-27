@@ -5,8 +5,8 @@
 package etomica.integrator.mcmove;
 
 import etomica.potential.PotentialMaster;
-import etomica.units.Dimension;
-import etomica.units.Length;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
 
 /**
  * MCMove parent class for moves that have a step size and operate on a single

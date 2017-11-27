@@ -7,8 +7,8 @@ package etomica.modules.rosmosis;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.integrator.IntegratorBox;
@@ -19,7 +19,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
-import etomica.units.*;
+import etomica.units.dimensions.*;
 
 /**
  * Meter to measure flux across a boundary or boundaries.  If an atom is on one
@@ -34,7 +34,7 @@ import etomica.units.*;
  *
  * @author Andrew Schultz
  */
-public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource {
+public class MeterFlux implements IDataSource, MoleculeAgentSource {
 
     public MeterFlux(Simulation sim, Space _space) {
         this.sim = sim;
@@ -161,7 +161,7 @@ public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource {
         return data;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

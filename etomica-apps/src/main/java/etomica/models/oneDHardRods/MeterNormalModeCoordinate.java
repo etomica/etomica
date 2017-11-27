@@ -4,14 +4,14 @@
 
 package etomica.models.oneDHardRods;
 
-import etomica.space.Vector;
 import etomica.data.DataTag;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.normalmode.CoordinateDefinition;
-import etomica.units.Null;
+import etomica.space.Vector;
+import etomica.units.dimensions.Null;
 
 /**
  * Class which calculates all of the normal mode coordinates for a system.  
@@ -23,7 +23,7 @@ import etomica.units.Null;
  * @author cribbin
  *
  */
-public class MeterNormalModeCoordinate implements IEtomicaDataSource {
+public class MeterNormalModeCoordinate implements IDataSource {
 
     public MeterNormalModeCoordinate(CoordinateDefinition coordinateDefinition, Vector[] wv){
         this.coordinateDefinition = coordinateDefinition;
@@ -88,7 +88,7 @@ public class MeterNormalModeCoordinate implements IEtomicaDataSource {
     }
 
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     public DataTag getTag() {

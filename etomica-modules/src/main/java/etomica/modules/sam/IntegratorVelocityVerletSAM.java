@@ -4,7 +4,6 @@
 
 package etomica.modules.sam;
 
-import etomica.util.random.IRandom;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomKinetic;
@@ -15,6 +14,7 @@ import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.Debug;
+import etomica.util.random.IRandom;
 
 /**
  * Special integrator subclass that has the ability to prevent sulfur atoms
@@ -34,8 +34,8 @@ public class IntegratorVelocityVerletSAM extends IntegratorVelocityVerlet {
     public void setSulfurType(AtomType newSulfurType) {
         sulfurType = newSulfurType;
     }
-    
-    public void doStepInternal() {
+
+    protected void doStepInternal() {
         super.doStepInternal();
         if (Debug.ON && Debug.DEBUG_NOW) {
             IAtomList pair = Debug.getAtoms(box);

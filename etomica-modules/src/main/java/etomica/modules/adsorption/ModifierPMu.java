@@ -7,8 +7,8 @@ package etomica.modules.adsorption;
 import etomica.integrator.IntegratorBox;
 import etomica.modifier.Modifier;
 import etomica.potential.P2SquareWell;
-import etomica.units.Dimension;
-import etomica.units.Null;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Null;
 
 public class ModifierPMu implements Modifier {
 

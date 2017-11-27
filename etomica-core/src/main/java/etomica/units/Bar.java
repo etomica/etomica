@@ -5,6 +5,7 @@
 package etomica.units;
 import java.io.ObjectStreamException;
 
+import etomica.units.dimensions.Pressure;
 import etomica.util.Constants;
 
 /**
@@ -27,16 +28,4 @@ public final class Bar extends SimpleUnit {
                 "bars", "bar", Prefix.ALLOWED
         	);   
     }
-    
-    /**
-     * Required to guarantee singleton when deserializing.
-     * 
-     * @return the singleton UNIT
-     */
-    private Object readResolve() throws ObjectStreamException {
-        return UNIT;
-    }
-    
-    private static final long serialVersionUID = 1;
-
 }

@@ -4,53 +4,32 @@
 
 package etomica.modules.multiharmonic.umbrella;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.util.ArrayList;
-
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-
 import etomica.action.IAction;
 import etomica.atom.DiameterHashByType;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataProcessorFunction;
-import etomica.data.DataPump;
-import etomica.data.DataPumpListener;
-import etomica.data.DataSourceCountSteps;
-import etomica.data.DataSourceFunction;
-import etomica.data.DataSourceIndependent;
-import etomica.data.DataSourceScalar;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
+import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.data.types.DataGroup;
-import etomica.graphics.Device;
-import etomica.graphics.DeviceBox;
-import etomica.graphics.DeviceNSelector;
-import etomica.graphics.DeviceSlider;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
+import etomica.math.function.Function;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.space.Space;
 import etomica.space1d.Vector1D;
-import etomica.units.Dimension;
-import etomica.units.Energy;
-import etomica.units.Length;
-import etomica.units.Null;
 import etomica.units.Pixel;
-import etomica.math.function.Function;
-import etomica.data.history.HistoryCollapsingDiscard;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Null;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
 
 public class MultiharmonicGraphicMC extends SimulationGraphic {
 
@@ -312,7 +291,6 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
 //        DataProcessorFunction ndAdlnx = new DataProcessorFunction(new Function() {
 //            public double f(double x) {return -x;}
 //        });
-//        ndAdlnx.getDataCaster(null);
 //        dAdlnx.setDataSink(ndAdlnx);
 //        DataFork ndAdlnxFork = new DataFork();
 //        ndAdlnx.setDataSink(ndAdlnxFork);
@@ -375,7 +353,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         SimulationGraphic.makeAndDisplayFrame(simGraphic.getPanel(), APP_NAME);
     }
 
-    public static class DataSourceAlphaChi implements IEtomicaDataSource, DataSourceIndependent {
+    public static class DataSourceAlphaChi implements IDataSource, DataSourceIndependent {
         protected DataFunction chiData;
         protected DataDoubleArray alphaData;
         protected DataSourceVirialOverlap dsvo;
@@ -412,7 +390,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             return chiTag;
         }
 
-        public IEtomicaDataInfo getDataInfo() {
+        public IDataInfo getDataInfo() {
             if (chiInfo == null || chiInfo.getLength() != dsvo.getAccumulators()[0].getNBennetPoints()) {
                 chiData = new DataFunction(new int[]{dsvo.getAccumulators()[0].getNBennetPoints()});
                 alphaData = new DataDoubleArray(chiData.getLength());
@@ -446,7 +424,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         }
     }
 
-    public static class DataSourceAlphaAlpha implements IEtomicaDataSource, DataSourceIndependent {
+    public static class DataSourceAlphaAlpha implements IDataSource, DataSourceIndependent {
         protected DataFunction chiData;
         protected DataDoubleArray alphaData;
         protected DataSourceVirialOverlap dsvo;
@@ -479,7 +457,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             return chiTag;
         }
 
-        public IEtomicaDataInfo getDataInfo() {
+        public IDataInfo getDataInfo() {
             if (chiInfo == null || chiInfo.getLength() != dsvo.getAccumulators()[0].getNBennetPoints()) {
                 chiData = new DataFunction(new int[]{dsvo.getAccumulators()[0].getNBennetPoints()});
                 alphaData = new DataDoubleArray(chiData.getLength());

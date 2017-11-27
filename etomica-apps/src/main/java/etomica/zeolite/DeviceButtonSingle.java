@@ -4,14 +4,14 @@
 
 package etomica.zeolite;
 //This class includes a main method to demonstrate its use
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.JButton;
 
 import etomica.action.IAction;
 import etomica.action.activity.IController;
 import etomica.graphics.Device;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * Button that causes an action to be performed.
@@ -105,7 +105,7 @@ public class DeviceButtonSingle extends Device {
         etomica.graphics.SimulationGraphic graphic = new etomica.graphics.SimulationGraphic(sim, APP_NAME, sim.getSpace(), sim.getController());
         
         //here's the part unique to this class
-        etomica.action.SimulationRestart action = new etomica.action.SimulationRestart(sim, sim.getSpace(), sim.getController());
+        etomica.action.SimulationRestart action = new etomica.action.SimulationRestart(sim);
         DeviceButtonSingle button = new DeviceButtonSingle(sim.getController(),action);
         //end of unique part
         graphic.add(button);

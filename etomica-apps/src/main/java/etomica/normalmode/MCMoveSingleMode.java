@@ -4,15 +4,15 @@
 
 package etomica.normalmode;
 
-import etomica.space.Vector;
-import etomica.box.Box;
-import etomica.potential.PotentialMaster;
-import etomica.util.random.IRandom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
+import etomica.potential.PotentialMaster;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * A Monte Carlo move which selects each individual modes to move
@@ -164,13 +164,9 @@ public class MCMoveSingleMode extends MCMoveBoxStep{
 //        System.out.println("energyNew " + energyNew);
         return true;
     }
-    
-    public double getA() {
-        return 1;
-    }
 
-    public double getB() {
-        return -(energyNew - energyOld);
+    public double getChi(double temperature) {
+        return Math.exp(-(energyNew - energyOld) / temperature);
     }
     
     public void acceptNotify() {

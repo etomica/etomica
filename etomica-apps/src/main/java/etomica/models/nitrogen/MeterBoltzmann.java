@@ -4,16 +4,13 @@
 
 package etomica.models.nitrogen;
 
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorBox;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 
 /**
  * Meter used for overlap sampling in the target-sampled system.  The meter
@@ -22,7 +19,7 @@ import etomica.units.Null;
  * 
  * @author Tai Boon Tan
  */
-public class MeterBoltzmann implements IEtomicaDataSource {
+public class MeterBoltzmann implements IDataSource {
     
     public MeterBoltzmann(IntegratorBox integrator, MeterPotentialEnergy meterPotentialEnergy) {
         meterEnergy = new MeterPotentialEnergyFromIntegrator(integrator);
@@ -41,7 +38,7 @@ public class MeterBoltzmann implements IEtomicaDataSource {
         return data;
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

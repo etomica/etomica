@@ -1,14 +1,18 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 package etomica.virial;
 
-import etomica.atom.IAtomList;
-import etomica.space.Vector;
-import etomica.box.Box;
-import etomica.util.random.IRandom;
 import etomica.atom.AtomOrientedQuaternion;
 import etomica.atom.AtomSource;
+import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomIterator;
+import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 public class MCMoveClusterAtomQ extends MCMoveAtom {
 
@@ -43,12 +47,8 @@ public class MCMoveClusterAtomQ extends MCMoveAtom {
         mcMove.setBox(p);
     }
 
-    public double getB() {
-        return mcMove.getB();
-    }
-
-    public double getA() {
-        return mcMove.getA();
+    public double getChi(double temperature) {
+        return mcMove.getChi(temperature);
     }
 
     public void rejectNotify() {

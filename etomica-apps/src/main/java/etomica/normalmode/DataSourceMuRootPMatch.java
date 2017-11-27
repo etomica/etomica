@@ -8,8 +8,8 @@ import etomica.data.AccumulatorAverageBlockless;
 import etomica.data.DataDistributer;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.mcmove.MCMoveOverlapListener;
-import etomica.units.Null;
-import etomica.units.Pressure;
+import etomica.units.dimensions.Null;
+import etomica.units.dimensions.Pressure;
 
 /**
  * Datasource that returns an estimate of mu based on thermodynamic

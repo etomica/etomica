@@ -14,9 +14,21 @@ package etomica.integrator.mcmove;
  */
 public class MCMoveStepTracker extends MCMoveTracker {
 
+    protected MCMoveStepDependent mcMove;
+    protected double acceptanceTarget;
+    protected long adjustInterval, maxAdjustInterval;
+    protected boolean tunable = true;
+    protected long lastAdjust;
+    protected double adjustStep, minAdjustStep;
+    protected double defaultAdjustStep = 1.05;
+    protected long defaultAdjustInterval = 100;
+    protected boolean noisyAdjustment = false;
+    protected boolean noReset = false;
+
     public MCMoveStepTracker() {
         super();
         setAcceptanceTarget(0.5);
+        maxAdjustInterval = Long.MAX_VALUE;
     }
     
     public void setMCMove(MCMoveStepDependent newMCMove) {
@@ -40,10 +52,11 @@ public class MCMoveStepTracker extends MCMoveTracker {
                 if (lastAdjust < 0) {
                     // back-and-forth
                     adjustInterval *= 2;
+                    if (adjustInterval > maxAdjustInterval) adjustInterval = maxAdjustInterval;
                     adjustStep = Math.sqrt(adjustStep);
                 }
                 else if (lastAdjust == 5) {
-                    // sixth consecutive increase.  increase adjustment step  
+                    // sixth consecutive increase.  increase adjustment step
                     adjustStep *= adjustStep;
                     if (adjustStep > 2) {
                         adjustStep = 2;
@@ -70,6 +83,7 @@ public class MCMoveStepTracker extends MCMoveTracker {
                 if (lastAdjust > 0) {
                     // back-and-forth
                     adjustInterval *= 2;
+                    if (adjustInterval > maxAdjustInterval) adjustInterval = maxAdjustInterval;
                     adjustStep = Math.sqrt(adjustStep);
                 }
                 else if (lastAdjust == -5) {
@@ -106,22 +120,6 @@ public class MCMoveStepTracker extends MCMoveTracker {
     }
 
     /**
-     * Sets the desired rate of acceptance (as a fraction between 0 and 1
-     * inclusive) of trials of this move. IllegalArgumentException is thrown if
-     * given value is outside of acceptable range.  The average acceptance 
-     * ratio and probability and the step size adjustment parameters and 
-     * convergence process are all reset.
-     */
-    public final void setAcceptanceTarget(double target) {
-        if (target < 0.0 || target > 1.0) {
-            throw new IllegalArgumentException(
-                    "Acceptance target should be a number between zero and unity");
-        }
-        acceptanceTarget = target;
-        resetAdjustStep();
-    }
-
-    /**
      * Resets damped step adjustment.  The adjustment interval is
      * reset to defaultAdjustInterval and the adjustment step is
      * reset to defaultAdjustStep.
@@ -137,7 +135,31 @@ public class MCMoveStepTracker extends MCMoveTracker {
         nTrials = 0;
         nAccept = 0;
     }
-    
+
+    /**
+     * The step size is adjusted every adjustInterval trials.  When the
+     * direction of the change oscillates, the adjustInterval is increased,
+     * but it will not be increased beyond maxAdjustInterval
+     *
+     * @param maxAdjustInterval the value beyond which adjustInterval will not
+     *                          be increased.
+     */
+    public void setMaxAdjustInterval(long maxAdjustInterval) {
+        this.maxAdjustInterval = maxAdjustInterval;
+    }
+
+    /**
+     * When the step size is adjusted, it is adjusted by adjustStep.  When the
+     * direction of the change oscillates, the adjustStep is decreased,
+     * but it will not be decreased beyond minAdjustStep.
+     *
+     * @param minAdjustStep the value beyond which adjustStep will not be
+     *                      decreased.
+     */
+    public void setMinAdjustStep(double minAdjustStep) {
+        this.minAdjustStep = minAdjustStep;
+    }
+
     /**
      * @return current value of the targeted rate of acceptance for this move.
      */
@@ -146,12 +168,18 @@ public class MCMoveStepTracker extends MCMoveTracker {
     }
 
     /**
-     * Sets the interval between steps size adjustments.  This
-     * also resets the acceptance averages and other step adjustment 
-     * parameters to their default values.
+     * Sets the desired rate of acceptance (as a fraction between 0 and 1
+     * inclusive) of trials of this move. IllegalArgumentException is thrown if
+     * given value is outside of acceptable range.  The average acceptance
+     * ratio and probability and the step size adjustment parameters and
+     * convergence process are all reset.
      */
-    public void setAdjustInterval(long i) {
-        defaultAdjustInterval = i;
+    public final void setAcceptanceTarget(double target) {
+        if (target < 0.0 || target > 1.0) {
+            throw new IllegalArgumentException(
+                    "Acceptance target should be a number between zero and unity");
+        }
+        acceptanceTarget = target;
         resetAdjustStep();
     }
 
@@ -160,20 +188,34 @@ public class MCMoveStepTracker extends MCMoveTracker {
     }
 
     /**
-     * Sets the step adjustment size.  The step size is multiplied by 
-     * (1+s) when the acceptance ratio is too high and (1-s) when the step 
-     * size is too low.  This also resets the acceptance averages and other 
+     * Sets the interval between steps size adjustments.  This
+     * also resets the acceptance averages and other step adjustment
+     * parameters to their default values.
+     */
+    public void setAdjustInterval(long i) {
+        defaultAdjustInterval = i;
+        resetAdjustStep();
+    }
+
+    public double getAdjustStepSize() {
+        return adjustStep;
+    }
+
+    /**
+     * Sets the step adjustment size.  The step size is multiplied by
+     * (1+s) when the acceptance ratio is too high and (1-s) when the step
+     * size is too low.  This also resets the acceptance averages and other
      * step adjustment parameters to their default values.
      */
     public void setAdjustStepSize(double s) {
         defaultAdjustStep = s;
         resetAdjustStep();
     }
-    
-    public double getAdjustStepSize() {
-        return adjustStep;
+
+    public final boolean getTunable() {
+        return tunable;
     }
-    
+
     /**
      * Sets a flag to indicate whether tuning of the move is to be performed
      * Tuning adjust the step size or other property of the move with the aim of
@@ -185,26 +227,11 @@ public class MCMoveStepTracker extends MCMoveTracker {
         tunable = b;
     }
 
-    public final boolean getTunable() {
-        return tunable;
-    }
-    
-    public void setNoisyAdjustment(boolean isNoisy) {
-        noisyAdjustment = isNoisy;
-    }
-    
     public boolean getNoisyAdjustment() {
         return noisyAdjustment;
     }
 
-    protected MCMoveStepDependent mcMove;
-    protected double acceptanceTarget;
-    protected long adjustInterval;
-    protected boolean tunable = true;
-    protected long lastAdjust;
-    protected double adjustStep;
-    protected double defaultAdjustStep = 1.05;
-    protected long defaultAdjustInterval = 100;
-    protected boolean noisyAdjustment = false;
-    protected boolean noReset = false;
+    public void setNoisyAdjustment(boolean isNoisy) {
+        noisyAdjustment = isNoisy;
+    }
 }

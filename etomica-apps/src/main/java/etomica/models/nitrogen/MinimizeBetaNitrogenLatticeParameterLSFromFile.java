@@ -20,7 +20,7 @@ import etomica.molecule.IMoleculeList;
 import etomica.normalmode.BasisBigCell;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
-import etomica.units.Energy;
+import etomica.units.dimensions.Energy;
 
 import java.io.FileWriter;
 import java.io.IOException;

@@ -6,7 +6,7 @@ package etomica.data;
 
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
-import etomica.units.Quantity;
+import etomica.units.dimensions.Quantity;
 
 /**
  * Data processor that simply counts the number of times its
@@ -18,20 +18,13 @@ public class AccumulatorCounter extends DataAccumulator {
         dataInfo = new DataInfoDouble("Counter", Quantity.DIMENSION);
         data = new DataDouble();
     }
-    
-    /**
-     * Returns null, indicating that any Data type is acceptable for input.
-     */
-    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
-        return null;
-    }
 
     /**
      * Does nothing.
      * 
      * @return the DataInfo for the output DataInteger
      */
-    public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo incomingDataInfo) {
+    public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
         dataInfo.clearTags();
         dataInfo.addTags(incomingDataInfo.getTags());
         dataInfo.addTag(tag);

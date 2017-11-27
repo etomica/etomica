@@ -3,19 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.graphics;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.util.ArrayList;
-
-import javax.swing.JPanel;
 
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.Controller;
-import etomica.simulation.Simulation;
 import etomica.data.DataPump;
+import etomica.simulation.Simulation;
 import etomica.simulation.prototypes.HSMD2D;
 import etomica.space.Space;
+
+import javax.swing.*;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.util.ArrayList;
 
 /**
  * Device comprising three buttons: (1) attaches to a controller to toggle its pause/resume state; 
@@ -73,7 +73,7 @@ public class DeviceTrioControllerButton extends Device {
      */
     protected void setSimulation(Simulation sim, Space space, Controller controller) {
         simulation = sim;
-        simRestart = new SimulationRestart(sim, space, controller);
+        simRestart = new SimulationRestart(sim);
         final Controller c = controller;
         setController(c);
         startButton.setController(c);

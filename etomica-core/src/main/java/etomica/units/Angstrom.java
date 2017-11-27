@@ -4,6 +4,8 @@
 
 package etomica.units;
 
+import etomica.units.dimensions.Length;
+
 import java.io.ObjectStreamException;
 
 public final class Angstrom extends SimpleUnit {
@@ -18,16 +20,4 @@ public final class Angstrom extends SimpleUnit {
                 "angstroms", "\u00c5", // unicode for the Angstrom symbol
                 Prefix.NOT_ALLOWED);
     }
-
-    /**
-     * Required to guarantee singleton when deserializing.
-     * 
-     * @return the singleton UNIT
-     */
-    private Object readResolve() throws ObjectStreamException {
-        return UNIT;
-    }
-
-    private static final long serialVersionUID = 1;
-
 }

@@ -19,14 +19,14 @@ import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
-import etomica.units.Angle;
+import etomica.units.dimensions.Angle;
 
 /**
  * Meter that measures the average tilt angle (not the angle of average tilt!)
  *
  * @author Andrew Schultz
  */
-public class MeterTiltHistogram implements IAction, IEtomicaDataSource, DataSourceIndependent {
+public class MeterTiltHistogram implements IAction, IDataSource, DataSourceIndependent {
 
     public MeterTiltHistogram(Space space, ISpecies species) {
         this.species = species;
@@ -74,7 +74,7 @@ public class MeterTiltHistogram implements IAction, IEtomicaDataSource, DataSour
         return data;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

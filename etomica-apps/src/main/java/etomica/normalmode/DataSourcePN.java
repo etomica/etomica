@@ -4,27 +4,21 @@
 
 package etomica.normalmode;
 
-import etomica.data.AccumulatorAverageBlockless;
-import etomica.data.DataDistributer;
-import etomica.data.DataSourceIndependent;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.units.Null;
-import etomica.units.Pressure;
-import etomica.units.Quantity;
+import etomica.units.dimensions.Null;
+import etomica.units.dimensions.Pressure;
+import etomica.units.dimensions.Quantity;
 
 /**
  * DataSource that returns measured pressure as a function of N
  * 
  * @author Andrew Schultz
  */
-public class DataSourcePN implements IEtomicaDataSource, DataSourceIndependent {
+public class DataSourcePN implements IDataSource, DataSourceIndependent {
 
     protected final DataDistributer pSplitter;
     protected DataFunction data;
@@ -66,7 +60,7 @@ public class DataSourcePN implements IEtomicaDataSource, DataSourceIndependent {
         return tag;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         if (dataInfo != null && pSplitter.getNumDataSinks() > dataInfo.getLength()) {
             xDataInfo = new DataInfoDoubleArray("N", Quantity.DIMENSION, new int[]{pSplitter.getNumDataSinks()});
             xDataInfo.addTag(tag);

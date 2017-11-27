@@ -1,7 +1,10 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 package etomica.mappedRdf;
 
 import etomica.action.IAction;
-import etomica.space.Boundary;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.atom.iterator.ApiLeafAtoms;
@@ -10,15 +13,16 @@ import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.Length;
-import etomica.units.Null;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Null;
 
 /**
  * Created by aksharag on 5/16/17.
  */
-public class MeterMappedRdf implements IAction, IEtomicaDataSource, DataSourceIndependent, java.io.Serializable {
+public class MeterMappedRdf implements IAction, IDataSource, DataSourceIndependent, java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
     protected final Space space;
@@ -33,7 +37,7 @@ public class MeterMappedRdf implements IAction, IEtomicaDataSource, DataSourceIn
     protected double xMax;
     protected long callCount;
     protected AtomType type1, type2;
-    private IEtomicaDataInfo dataInfo;
+    private IDataInfo dataInfo;
     private Boundary boundary;
     private String name;
 
@@ -55,7 +59,7 @@ public class MeterMappedRdf implements IAction, IEtomicaDataSource, DataSourceIn
         dataInfo.addTag(tag);
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

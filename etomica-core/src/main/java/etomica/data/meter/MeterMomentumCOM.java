@@ -10,27 +10,19 @@ package etomica.data.meter;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.data.DataInfo;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.types.DataVector;
 import etomica.data.types.DataVector.DataInfoVector;
-import etomica.space.Vector;
 import etomica.space.Space;
-import etomica.units.CompoundDimension;
-import etomica.units.Dimension;
-import etomica.units.Length;
-import etomica.units.Mass;
-import etomica.units.Time;
+import etomica.space.Vector;
+import etomica.units.dimensions.*;
 
 /**
  * Returns the instantaneous total center-of-mass momentum, summed over all
  * leaf atoms in a box.
  *
  */
-public class MeterMomentumCOM implements IEtomicaDataSource, java.io.Serializable {
+public class MeterMomentumCOM implements IDataSource, java.io.Serializable {
 
     public MeterMomentumCOM(Space space) {
         data = new DataVector(space);
@@ -83,7 +75,7 @@ public class MeterMomentumCOM implements IEtomicaDataSource, java.io.Serializabl
         return tag;
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

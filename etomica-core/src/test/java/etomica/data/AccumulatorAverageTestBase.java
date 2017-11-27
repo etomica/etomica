@@ -4,10 +4,10 @@
 
 package etomica.data;
 
-import junit.framework.TestCase;
 import etomica.data.types.DataDouble;
-import etomica.units.Null;
-import etomica.util.random.RandomNumberGenerator;
+import etomica.units.dimensions.Null;
+import etomica.util.random.RandomMersenneTwister;
+import junit.framework.TestCase;
 
 public abstract class AccumulatorAverageTestBase extends TestCase {
 
@@ -39,7 +39,7 @@ public abstract class AccumulatorAverageTestBase extends TestCase {
     // test accumulator on simple uncorrelated data
     public void simpleTest() {
         DataDouble rawData = new DataDouble();
-        RandomNumberGenerator rng = new RandomNumberGenerator();
+        RandomMersenneTwister rng = new RandomMersenneTwister(4);
 
         for (int i=0; i<1000000; i++) {
             rawData.x = rng.nextDouble();

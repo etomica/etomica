@@ -4,29 +4,26 @@
 
 package etomica.normalmode;
 
-import java.io.Serializable;
-
 import etomica.action.IAction;
-import etomica.space.Vector;
 import etomica.box.Box;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataGroup;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
-import etomica.units.CompoundDimension;
-import etomica.units.Dimension;
-import etomica.units.Length;
-import etomica.units.Null;
+import etomica.space.Vector;
+import etomica.units.dimensions.CompoundDimension;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Null;
+
+import java.io.Serializable;
 
 /**
  * Calculates the S-matrix for a configuration.  This matrix is formed as T(k) T^(-k), where
  * T is the collective generalized-coordinate vector.
  */
-public class MeterNormalMode implements IEtomicaDataSource, IAction, Serializable {
+public class MeterNormalMode implements IDataSource, IAction, Serializable {
 
     public MeterNormalMode() {
         tag = new DataTag();
@@ -97,7 +94,7 @@ public class MeterNormalMode implements IEtomicaDataSource, IAction, Serializabl
         return waveVectors;
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -163,7 +160,7 @@ public class MeterNormalMode implements IEtomicaDataSource, IAction, Serializabl
     private int numWaveVectors;
     private String name;
     private final DataTag tag;
-    private IEtomicaDataInfo dataInfo;
+    private IDataInfo dataInfo;
     private DataGroup data;
     private int callCount;
 

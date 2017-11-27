@@ -5,15 +5,15 @@
 package etomica.math.geometry;
 
 
+/*
+ * History Created on Jun 28, 2005 by kofke
+ */
+
 /**
  * A circle in 2D.
  * 
  * @author David Kofke
- *  
- */
-
-/*
- * History Created on Jun 28, 2005 by kofke
+ *
  */
 public class Circle extends Hypersphere {
 
@@ -26,6 +26,8 @@ public class Circle extends Hypersphere {
 
     /**
      * Creates circle of the given radius.
+     *
+     * @param radius the radius of the circle
      */
     public Circle(double radius) {
         super(2, radius);

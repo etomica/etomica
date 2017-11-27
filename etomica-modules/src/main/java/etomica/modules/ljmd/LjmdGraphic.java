@@ -23,10 +23,10 @@ import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
 import etomica.statmech.MaxwellBoltzmann;
-import etomica.units.DimensionRatio;
-import etomica.units.Length;
-import etomica.units.Null;
-import etomica.units.Time;
+import etomica.units.dimensions.DimensionRatio;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Null;
+import etomica.units.dimensions.Time;
 import etomica.util.Constants.CompassDirection;
 
 import java.awt.*;
@@ -372,8 +372,6 @@ public class LjmdGraphic extends SimulationGraphic {
 
 		    getContentPane().add(ljmdGraphic.getPanel());
 	    }
-
-        private static final long serialVersionUID = 1L;
     }
     
     /**
@@ -392,19 +390,14 @@ public class LjmdGraphic extends SimulationGraphic {
             return data;
         }
 
-        protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+        protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+            if (!(inputDataInfo instanceof DataTensor.DataInfoTensor)) {
+                throw new IllegalArgumentException("Gotta be a DataInfoTensor");
+            }
             dataInfo = new DataDouble.DataInfoDouble(inputDataInfo.getLabel(), inputDataInfo.getDimension());
             return dataInfo;
         }
 
-        public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
-            if (!(inputDataInfo instanceof DataTensor.DataInfoTensor)) {
-                throw new IllegalArgumentException("Gotta be a DataInfoTensor");
-            }
-            return null;
-        }
-
-        private static final long serialVersionUID = 1L;
         protected final DataDouble data;
     }
 

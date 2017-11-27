@@ -7,17 +7,17 @@ package etomica.modules.entropylottery;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
-import etomica.data.IEtomicaDataSource;
-import etomica.units.Null;
+import etomica.data.IDataSource;
+import etomica.space.Vector;
+import etomica.units.dimensions.Null;
 
 /**
  * Calculates the entropy of the distribution of Atoms in a Box
  * using Stirling's approximation.
  * @author Andrew Schultz
  */
-public class MeterEntropy extends DataSourceScalar implements IEtomicaDataSource {
+public class MeterEntropy extends DataSourceScalar implements IDataSource {
 
     public MeterEntropy() {
         super("entropy", Null.DIMENSION);

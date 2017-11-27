@@ -15,10 +15,9 @@ import etomica.chem.elements.Iron;
 import etomica.config.ConfigurationLattice;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
-import etomica.data.meter.MeterKineticEnergy;
-import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.meter.MeterRMSD;
-import etomica.data.meter.MeterStructureFactor;
+import etomica.data.history.HistoryCollapsingDiscard;
+import etomica.data.history.HistoryScrolling;
+import etomica.data.meter.*;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
@@ -43,6 +42,7 @@ import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.*;
+import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -62,7 +62,7 @@ public class SimFe extends Simulation {
     public P1ImageHarmonic p1ImageHarmonic;
     public MCMoveAtomSwap mcMoveSwap;
 
-    public SimFe(Crystal crystal, int numAtoms, double temperature, double density, double w, int offsetDim, int numInnerSteps, boolean swap) {
+    public SimFe(Crystal crystal, int numAtoms, double temperature, double density, double w, int offsetDim, int numInnerSteps, boolean swap, boolean doHarmonic, double timeStep) {
         super(Space3D.getInstance());
         species = new SpeciesSpheresMono(space, Iron.INSTANCE);
         species.setIsDynamic(true);
@@ -104,21 +104,33 @@ public class SimFe extends Simulation {
 
         Vector offset = space.makeVector();
         offset.setX(offsetDim, box.getBoundary().getBoxSize().getX(offsetDim) * 0.5);
-        p1ImageHarmonic = new P1ImageHarmonic(space, offset, w, true);
+        p1ImageHarmonic = new P1ImageHarmonic(space, offset, w, !doHarmonic);
         potentialMaster.addPotential(p1ImageHarmonic, new AtomType[]{leafType});
 
-        if (numInnerSteps > 0 || swap) {
-            integrator = new IntegratorImageHarmonicMD(potentialMaster, random, 0.001, temperature, space);
-            ((IntegratorImageHarmonicMD) integrator).setP1Harmonic(p1ImageHarmonic);
-            ((IntegratorImageHarmonicMD) integrator).setNumInnerSteps(numInnerSteps);
+        if (numInnerSteps > 0 && w > 0) {
+            if (doHarmonic) {
+                if (w > 3e6) {
+                    integrator = new IntegratorMDHarmonicMC(potentialMaster, random, timeStep, temperature, space);
+                    ((IntegratorMDHarmonicMC) integrator).setP1Harmonic(p1ImageHarmonic);
+                    swap = false;
+                } else {
+                    integrator = new IntegratorImageHarmonicMD(potentialMaster, random, timeStep, temperature, space);
+                    ((IntegratorImageHarmonicMD) integrator).setP1Harmonic(p1ImageHarmonic);
+                }
+            } else {
+                integrator = new IntegratorImageMultistepMD(potentialMaster, random, timeStep, temperature, space);
+                ((IntegratorImageMultistepMD) integrator).setP1Harmonic(p1ImageHarmonic);
+                ((IntegratorImageMultistepMD) integrator).setNumInnerSteps(numInnerSteps);
+            }
         } else {
-            integrator = new IntegratorVelocityVerlet(potentialMaster, random, 0.001, temperature, space);
+            integrator = new IntegratorVelocityVerlet(potentialMaster, random, timeStep, temperature, space);
         }
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setPotentialCalculation(new PotentialCalculationEnergySumEAM(potential));
         integrator.setMeterPotentialEnergy(meterPE);
         integrator.setIsothermal(true);
         integrator.setTemperature(temperature);
+        integrator.setThermostatNoDrift(true);
         integrator.getEventManager().addListener(potential.makeIntegratorListener(potentialMaster, box));
         integrator.setForceSum(new PotentialCalculationForceSum());
 
@@ -127,7 +139,7 @@ public class SimFe extends Simulation {
 
         integrator.setBox(box);
 
-        p1ImageHarmonic.setZeroForce(false);
+        p1ImageHarmonic.setZeroForce(true);
 
         SpaceLattice lat = null;
         if (crystal == Crystal.FCC) {
@@ -168,6 +180,7 @@ public class SimFe extends Simulation {
             IntegratorMC integratorMC = new IntegratorMC(potentialMaster, random, temperature);
             integratorMC.getMoveManager().addMCMove(mcMoveSwap);
             integratorMC.setBox(box);
+            integratorMC.reset();
     
             integrator.getEventManager().addListener(new IntegratorListener() {
                 int countdown = 10, interval = 10;
@@ -191,7 +204,6 @@ public class SimFe extends Simulation {
                     integrator.reset();
                 }
             });
-            integratorMC.getMoveEventManager().addListener(potentialMasterCell.getNbrCellManager(box).makeMCMoveListener());
         }
     }
     
@@ -204,14 +216,15 @@ public class SimFe extends Simulation {
             params.numAtoms = 1024;
             params.steps = 10000;
             params.density = 0.150375939849624;
-            params.T = 7011.894582745354;
-            params.w = 1741237.786686226;
+            params.T = 7947.1916;
+            params.w = 8048.485777;
             params.crystal = Crystal.BCC;
             params.offsetDim = 2;
             params.numInnerSteps = 100;
             params.swap = true;
             params.nve = false;
-            params.thermostatInterval = 100;
+            params.rmsdFile = "rmsd.dat";
+            params.thermostatInterval = 500;
         }
 
         final int numAtoms = params.numAtoms;
@@ -224,21 +237,33 @@ public class SimFe extends Simulation {
         int offsetDim = params.offsetDim;
         Crystal crystal = params.crystal;
         boolean swap = params.swap;
-        int numInnerSteps = w > 0 ? params.numInnerSteps : (swap ? 1 : 0);
+        int numInnerSteps = w > 0 ? params.numInnerSteps : 0;
         boolean nve = params.nve;
         int thermostatInterval = params.thermostatInterval;
+        boolean doHarmonic = params.doHarmonic;
+        String rmsdFile = params.rmsdFile;
+        double timeStep = params.timeStep;
+        int interval = 10;
+        if (Math.abs(timeStep - 0.001) > 1e-10) {
+            int fac = (int) Math.round(0.001 / timeStep);
+            thermostatInterval *= fac;
+            interval *= fac;
+            steps *= fac;
+        }
 
         if (!graphics) {
             System.out.println("Running Iron MC with N="+numAtoms+" at rho="+density+" T="+temperatureK);
             System.out.println(steps+" steps");
             System.out.println("w: "+w);
-            System.out.println(numInnerSteps+" inner steps");
+            if (!doHarmonic && numInnerSteps > 0) System.out.println(numInnerSteps + " inner steps");
             System.out.println("thermostat interval: " + thermostatInterval);
+            System.out.println("timeStep: " + timeStep);
         }
 
         double L = Math.pow(numAtoms/density, 1.0/3.0);
-        final SimFe sim = new SimFe(crystal, numAtoms, temperature, density, w, offsetDim, numInnerSteps, swap);
-        System.out.println(Arrays.toString(sim.getRandomSeeds()));
+        final SimFe sim = new SimFe(crystal, numAtoms, temperature, density, w, offsetDim, numInnerSteps, swap, doHarmonic, timeStep);
+        int[] seeds = sim.getRandomSeeds();
+        if (seeds != null) System.out.println("random seeds: " + Arrays.toString(seeds));
 
         DataSourceEnergies dsEnergies = new DataSourceEnergies(sim.potentialMaster);
         dsEnergies.setPotentialCalculation(new DataSourceEnergies.PotentialCalculationEnergiesEAM(sim.potential));
@@ -248,6 +273,7 @@ public class SimFe extends Simulation {
 
         MeterStructureFactor meterSfac = new MeterStructureFactor(sim.space, sim.box, 8);
         if (graphics) {
+            sim.integrator.setThermostatInterval(thermostatInterval);
             final String APP_NAME = "SimFe";
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3, sim.getSpace(), sim.getController());
             ColorScheme colorScheme = new ColorScheme() {
@@ -269,7 +295,7 @@ public class SimFe extends Simulation {
             AccumulatorHistory springHist = new AccumulatorHistory(new HistoryCollapsingAverage());
             springHist.setTimeDataSource(tSource);
             DataSplitter splitter = new DataSplitter();
-            DataPumpListener energyPump = new DataPumpListener(dsEnergies, splitter, 10);
+            DataPumpListener energyPump = new DataPumpListener(dsEnergies, splitter, interval);
             sim.integrator.getEventManager().addListener(energyPump);
             splitter.setDataSink(0, springHist);
             splitter.setDataSink(1, energyHist);
@@ -280,20 +306,54 @@ public class SimFe extends Simulation {
 //            energyPlot.setUnit(ElectronVolt.UNIT);
             energyHist.addDataSink(energyPlot.getDataSet().makeDataSink());
             simGraphic.add(energyPlot);
+            energyPlot.setDoLegend(false);
             DisplayPlot springPlot = new DisplayPlot();
             springPlot.setLabel("spring");
             springPlot.setUnit(new CompoundUnit(new Unit[]{new SimpleUnit(Null.DIMENSION,1.0/numAtoms,"why do you want a name.  just use it.","per atom", false)},new double[]{-1}));
             springHist.addDataSink(springPlot.getDataSet().makeDataSink());
             simGraphic.add(springPlot);
-    
+            springPlot.setDoLegend(false);
+
+            MeterTemperature meterT = new MeterTemperature(sim.box, 3);
+            AccumulatorHistory tHist = new AccumulatorHistory(new HistoryCollapsingAverage());
+            tHist.setTimeDataSource(tSource);
+            DataPumpListener tPump = new DataPumpListener(meterT, tHist, interval);
+            sim.integrator.getEventManager().addListener(tPump);
+            DisplayPlot tPlot = new DisplayPlot();
+            tPlot.setLabel("T");
+            tPlot.setUnit(Kelvin.UNIT);
+            simGraphic.add(tPlot);
+            tHist.addDataSink(tPlot.getDataSet().makeDataSink());
+            tPlot.setDoLegend(false);
+
             MeterKineticEnergy meterKE = new MeterKineticEnergy();
             meterKE.setBox(sim.box);
-            AccumulatorHistory keHist = new AccumulatorHistory();
-            DataPumpListener kePump = new DataPumpListener(meterKE, keHist, 1);
-//            sim.integrator.getEventManager().addListener(kePump);
-//            keHist.addDataSink(energyPlot.getDataSet().makeDataSink());
-            energyPlot.setLegend(new DataTag[]{energyHist.getTag()}, "u");
-//            energyPlot.setLegend(new DataTag[]{keHist.getTag()}, "ke");
+            AccumulatorHistory keHist = new AccumulatorHistory(new HistoryCollapsingAverage());
+            keHist.setTimeDataSource(tSource);
+            DataPumpListener kePump = new DataPumpListener(meterKE, keHist, interval);
+            sim.integrator.getEventManager().addListener(kePump);
+            DisplayPlot kePlot = new DisplayPlot();
+            kePlot.setLabel("KE");
+            kePlot.setUnit(new CompoundUnit(new Unit[]{new SimpleUnit(Null.DIMENSION, 1.0 / numAtoms, "why do you want a name.  just use it.", "per atom", false)}, new double[]{-1}));
+            simGraphic.add(kePlot);
+            keHist.addDataSink(kePlot.getDataSet().makeDataSink());
+            kePlot.setDoLegend(false);
+
+            MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
+            meterPE.setBox(sim.box);
+            meterPE.setPotentialCalculation(new DataSourceEnergies.PotentialCalculationEnergiesEAM(sim.potential));
+            MeterEnergy meterE = new MeterEnergy(sim.potentialMaster, sim.box);
+            meterE.setPotential(meterPE);
+            AccumulatorHistory eHist = new AccumulatorHistory(new HistoryScrolling(1000));
+            eHist.setTimeDataSource(tSource);
+            DataPumpListener ePump = new DataPumpListener(meterE, eHist, interval);
+            sim.integrator.getEventManager().addListener(ePump);
+            DisplayPlot tePlot = new DisplayPlot();
+            tePlot.setLabel("total E");
+            tePlot.setUnit(new CompoundUnit(new Unit[]{new SimpleUnit(Null.DIMENSION, 1.0 / numAtoms, "why do you want a name.  just use it.", "per atom", false)}, new double[]{-1}));
+            simGraphic.add(tePlot);
+            eHist.addDataSink(tePlot.getDataSet().makeDataSink());
+            tePlot.setDoLegend(false);
 
             AccumulatorHistory dudwHist = new AccumulatorHistory(new HistoryCollapsingAverage());
             splitter.setDataSink(2, dudwHist);
@@ -306,7 +366,7 @@ public class SimFe extends Simulation {
 
             AccumulatorAverageFixed avgSfac = new AccumulatorAverageFixed(1);
             avgSfac.setPushInterval(1);
-            DataPumpListener pumpSfac = new DataPumpListener(meterSfac, avgSfac, 500);
+            DataPumpListener pumpSfac = new DataPumpListener(meterSfac, avgSfac, 100 * interval);
             sim.integrator.getEventManager().addListener(pumpSfac);
             DisplayPlot plotSfac = new DisplayPlot();
             avgSfac.addDataSink(plotSfac.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{AccumulatorAverage.AVERAGE});
@@ -314,12 +374,43 @@ public class SimFe extends Simulation {
             plotSfac.setDoDrawLines(new DataTag[]{meterSfac.getTag()},false);
             plotSfac.getPlot().setYLog(true);
             simGraphic.add(plotSfac);
-            
+
+            if (sim.integrator instanceof IntegratorMDHarmonicMC) {
+                DataSourceScalar meterAcc = new DataSourceScalar("acc", Null.DIMENSION) {
+                    @Override
+                    public double getDataAsScalar() {
+                        return ((IntegratorMDHarmonicMC) sim.integrator).getAcceptanceProbability();
+                    }
+                };
+                AccumulatorHistory aHist = new AccumulatorHistory(new HistoryCollapsingDiscard());
+                aHist.setTimeDataSource(tSource);
+                DataPumpListener aPump = new DataPumpListener(meterAcc, aHist, interval);
+                sim.integrator.getEventManager().addListener(aPump);
+                DisplayPlot aPlot = new DisplayPlot();
+                aPlot.setLabel("Acc");
+                simGraphic.add(aPlot);
+                aHist.addDataSink(aPlot.getDataSet().makeDataSink());
+                aPlot.setDoLegend(false);
+            }
+
+            MeterRMSD meterRMSD = new MeterRMSD(sim.box, sim.space);
+            AccumulatorHistory rmsdHist = new AccumulatorHistory(new HistoryCollapsingAverage());
+            rmsdHist.setTimeDataSource(tSource);
+            DataPumpListener rmsdPump = new DataPumpListener(meterRMSD, rmsdHist, interval);
+            sim.integrator.getEventManager().addListener(rmsdPump);
+            DisplayPlot rmsdPlot = new DisplayPlot();
+            rmsdPlot.setLabel("RMSD");
+            simGraphic.add(rmsdPlot);
+            rmsdHist.addDataSink(rmsdPlot.getDataSet().makeDataSink());
+            rmsdPlot.setDoLegend(false);
+
             simGraphic.makeAndDisplayFrame(APP_NAME);
 
             return;
         }
-    
+
+        MeterRMSD meterRMSD = new MeterRMSD(sim.box, sim.space);
+
         sim.integrator.setThermostatInterval(10);
         sim.ai.setMaxSteps(steps/10);
         sim.getController().actionPerformed();
@@ -330,33 +421,45 @@ public class SimFe extends Simulation {
         if (nve) {
             sim.integrator.setIsothermal(false);
         }
+        if (sim.integrator instanceof IntegratorMDHarmonicMC) {
+            ((IntegratorMDHarmonicMC) sim.integrator).resetAcceptance();
+        }
 
-        System.out.println("equilibration finished ("+steps/20+"+"+steps/20+"+"+steps/10+" steps)");
+        System.out.println("equilibration finished (" + steps / 10 + " steps)");
 
         long t1 = System.currentTimeMillis();
 
-        int interval = 10;
-        long blockSize = steps/100/interval;
+        if (thermostatInterval > interval * 10) interval *= 2;
+        int numBlocks = 100;
+        if (steps / numBlocks < thermostatInterval) numBlocks = (int) (steps / thermostatInterval);
+        long blockSize = steps / numBlocks / interval;
         if (blockSize==0) blockSize = 1;
+        System.out.println("numBlocks: " + numBlocks);
 
         AccumulatorAverageCovariance accEnergies = new AccumulatorAverageCovariance(blockSize);
         DataPumpListener pumpEnergies = new DataPumpListener(dsEnergies, accEnergies, interval);
         sim.integrator.getEventManager().addListener(pumpEnergies);
-    
-        DataLogger dataLogger = new DataLogger();
-        MeterRMSD meterRMSD = new MeterRMSD(sim.box, sim.space);
-        DataPumpListener pumpRMSD = new DataPumpListener(meterRMSD, dataLogger, interval);
-        sim.integrator.getEventManager().addListener(pumpRMSD);
-        dataLogger.setFileName("rmsd.dat");
-        DataArrayWriter writer = new DataArrayWriter();
-        writer.setIncludeHeader(false);
-        dataLogger.setDataSink(writer);
-        dataLogger.setAppending(false);
-        sim.getController().getEventManager().addListener(dataLogger);
+
+        if (rmsdFile != null) {
+            DataLogger dataLogger = new DataLogger();
+            DataPumpListener pumpRMSD = new DataPumpListener(meterRMSD, dataLogger, 5 * interval);
+            sim.integrator.getEventManager().addListener(pumpRMSD);
+            dataLogger.setFileName(rmsdFile);
+            DataArrayWriter writer = new DataArrayWriter();
+            writer.setIncludeHeader(false);
+            dataLogger.setDataSink(writer);
+            dataLogger.setAppending(false);
+            sim.getController().getEventManager().addListener(dataLogger);
+        }
 
         sim.getController().actionPerformed();
 
-        if (swap) System.out.println("swap acceptance: " + sim.mcMoveSwap.getTracker().acceptanceProbability());
+        if (sim.mcMoveSwap != null) {
+            System.out.println("swap acceptance: " + sim.mcMoveSwap.getTracker().acceptanceProbability());
+        }
+        if (sim.integrator instanceof IntegratorMDHarmonicMC) {
+            System.out.println("MC accepted fraction " + ((IntegratorMDHarmonicMC) sim.integrator).getAcceptanceProbability());
+        }
 
         IData avgEnergies = accEnergies.getData(AccumulatorAverage.AVERAGE);
         IData errEnergies = accEnergies.getData(AccumulatorAverage.ERROR);
@@ -397,6 +500,9 @@ public class SimFe extends Simulation {
         public boolean swap = true;
         public boolean nve = false;
         public int thermostatInterval = 10;
+        public boolean doHarmonic = true;
+        public String rmsdFile = null;
+        public double timeStep = 0.001;
     }
 
 }

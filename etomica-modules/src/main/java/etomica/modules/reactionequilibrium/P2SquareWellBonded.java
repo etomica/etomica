@@ -10,8 +10,8 @@ import etomica.atom.IAtomList;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.potential.P2SquareWell;
 import etomica.space.Space;
-import etomica.units.Dimension;
-import etomica.units.Energy;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Energy;
 
 
 /**

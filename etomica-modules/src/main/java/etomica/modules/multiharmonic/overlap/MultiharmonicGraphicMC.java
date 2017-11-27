@@ -4,45 +4,13 @@
 
 package etomica.modules.multiharmonic.overlap;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.util.ArrayList;
-
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-
 import etomica.action.IAction;
-import etomica.integrator.IntegratorListener;
-import etomica.integrator.IntegratorEvent;
-import etomica.math.function.IFunction;
 import etomica.atom.DiameterHashByType;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCollapsingLog;
-import etomica.data.AccumulatorAverageCollapsingLogAB;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorHistogram;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataFork;
-import etomica.data.DataPipe;
-import etomica.data.DataProcessor;
-import etomica.data.DataProcessorFunction;
-import etomica.data.DataPump;
-import etomica.data.DataPumpListener;
-import etomica.data.DataPumpListenerPow;
-import etomica.data.DataPumpListenerPowStrict;
-import etomica.data.DataPumpListenerSmart;
-import etomica.data.DataSourceCountSteps;
-import etomica.data.DataSourceFunction;
-import etomica.data.DataSourceIndependent;
-import etomica.data.DataSourceScalar;
-import etomica.data.DataSplitter;
+import etomica.data.*;
 import etomica.data.DataSplitter.IDataSinkFactory;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IDataSink;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.histogram.HistogramExpanding;
+import etomica.data.history.HistoryCollapsingDiscard;
+import etomica.data.history.HistoryComplete;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
@@ -51,15 +19,12 @@ import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.data.types.DataGroup;
-import etomica.graphics.Device;
-import etomica.graphics.DeviceBox;
-import etomica.graphics.DeviceNSelector;
-import etomica.graphics.DeviceSlider;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
+import etomica.math.function.Function;
+import etomica.math.function.IFunction;
+import etomica.math.numerical.AkimaSpline;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.overlap.AlphaSource;
@@ -71,18 +36,13 @@ import etomica.overlap.IntegratorOverlap;
 import etomica.overlap.MeterOverlap;
 import etomica.space.Space;
 import etomica.space1d.Vector1D;
-import etomica.units.Dimension;
-import etomica.units.Energy;
-import etomica.units.Fraction;
-import etomica.units.Length;
-import etomica.units.Null;
 import etomica.units.Pixel;
-import etomica.units.Quantity;
-import etomica.math.function.Function;
-import etomica.data.histogram.HistogramExpanding;
-import etomica.data.history.HistoryCollapsingDiscard;
-import etomica.data.history.HistoryComplete;
-import etomica.math.numerical.AkimaSpline;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.*;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
 
 public class MultiharmonicGraphicMC extends SimulationGraphic {
 
@@ -178,17 +138,13 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             forkA.addDataSink(new IDataSink() {
                 final DataDouble myData = new DataDouble();
                 final DataInfoDouble myDataInfo = new DataInfoDouble("dAW", Energy.DIMENSION);
-                public void putDataInfo(IEtomicaDataInfo inputDataInfo) {
+                public void putDataInfo(IDataInfo inputDataInfo) {
                     dAW.putDataInfo(myDataInfo);
                 }
                 
                 public void putData(IData inputData) {
                     myData.x = Math.log(inputData.getValue((inputData.getLength()-1)/2));
                     dAW.putData(myData);
-                }
-                
-                public DataPipe getDataCaster(IEtomicaDataInfo dataInfo) {
-                    return null;
                 }
             });
             dAW.setPushInterval(100000);
@@ -198,17 +154,13 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             forkB.addDataSink(new IDataSink() {
                 final DataDouble myData = new DataDouble();
                 final DataInfoDouble myDataInfo = new DataInfoDouble("dBW", Energy.DIMENSION);
-                public void putDataInfo(IEtomicaDataInfo inputDataInfo) {
+                public void putDataInfo(IDataInfo inputDataInfo) {
                     dBW.putDataInfo(myDataInfo);
                 }
                 
                 public void putData(IData inputData) {
                     myData.x = Math.log(inputData.getValue((inputData.getLength()-1)/2));
                     dBW.putData(myData);
-                }
-                
-                public DataPipe getDataCaster(IEtomicaDataInfo dataInfo) {
-                    return null;
                 }
             });
             dBW.setPushInterval(100000);
@@ -460,10 +412,10 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         alphaChiPlot.getPlot().setXLog(true);
         alphaChiPlot.getPlot().setYLog(true);
         alphaChiPlot.setSize(350, 250);
-        IEtomicaDataSource alphaChi = new DataSourceAlphaChi(dsvo, 0);
+        IDataSource alphaChi = new DataSourceAlphaChi(dsvo, 0);
         DataPumpListenerPow alphaChiPump = new DataPumpListenerPow(alphaChi, alphaChiPlot.getDataSet().makeDataSink(), 10*dataInterval, 10, 20);
         sim.integratorOS.getEventManager().addListener(alphaChiPump);
-        IEtomicaDataSource alphaAlpha = new DataSourceAlphaAlpha(dsvo);
+        IDataSource alphaAlpha = new DataSourceAlphaAlpha(dsvo);
         DataPumpListenerPow alphaAlphaPump = new DataPumpListenerPow(alphaAlpha, alphaChiPlot.getDataSet().makeDataSink(), 10*dataInterval, 10, 20);
         sim.integratorOS.getEventManager().addListener(alphaAlphaPump);
 
@@ -1128,11 +1080,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             dataInfo = new DataInfoDouble("a", Null.DIMENSION);
         }
 
-        public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
-            return null;
-        }
-
-        protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+        protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
             return dataInfo;
         }
 
@@ -1145,7 +1093,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         }
     }
 
-    public static class DataSourceFunctionRaw implements IEtomicaDataSource, DataSourceIndependent {
+    public static class DataSourceFunctionRaw implements IDataSource, DataSourceIndependent {
         protected final DataFunction data;
         protected final DataInfoFunction dataInfo;
         protected final DataDoubleArray xData;
@@ -1169,10 +1117,10 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         public int getIndependentArrayDimension() {return 1;}
         public DataTag getIndependentTag() {return xTag;}
         public DataTag getTag() {return tag;}
-        public IEtomicaDataInfo getDataInfo() {return dataInfo;}
+        public IDataInfo getDataInfo() {return dataInfo;}
     }
-    
-    public static class DataSourceAlphaFE implements IEtomicaDataSource, DataSourceIndependent {
+
+    public static class DataSourceAlphaFE implements IDataSource, DataSourceIndependent {
 
         protected DataSplitter splitter;
         protected double[][] allData;
@@ -1295,7 +1243,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             return tag;
         }
 
-        public IEtomicaDataInfo getDataInfo() {
+        public IDataInfo getDataInfo() {
             return dataInfo;
         }
 
@@ -1434,8 +1382,8 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             return slope;
         }
     }
-    
-    public static class DataSourceAlphaChi implements IEtomicaDataSource, DataSourceIndependent {
+
+    public static class DataSourceAlphaChi implements IDataSource, DataSourceIndependent {
         protected DataFunction chiData;
         protected DataDoubleArray alphaData;
         protected DataOverlap dsvo;
@@ -1486,7 +1434,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             return chiTag;
         }
 
-        public IEtomicaDataInfo getDataInfo() {
+        public IDataInfo getDataInfo() {
             int numAlpha = dsvo.getAlphaSource().getNumAlpha();
             if (chiInfo == null || chiInfo.getLength() != numAlpha) {
                 chiData = new DataFunction(new int[]{numAlpha});
@@ -1523,7 +1471,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         }
     }
 
-    public static class DataSourceAlphaAlpha implements IEtomicaDataSource, DataSourceIndependent {
+    public static class DataSourceAlphaAlpha implements IDataSource, DataSourceIndependent {
         protected DataFunction chiData;
         protected DataDoubleArray alphaData;
         protected DataOverlap dsvo;
@@ -1556,7 +1504,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             return chiTag;
         }
 
-        public IEtomicaDataInfo getDataInfo() {
+        public IDataInfo getDataInfo() {
             int numAlpha = dsvo.getAlphaSource().getNumAlpha();
             if (chiInfo == null || chiInfo.getLength() != numAlpha) {
                 chiData = new DataFunction(new int[]{numAlpha});
@@ -1751,13 +1699,9 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             }
         }
 
-        public void putDataInfo(IEtomicaDataInfo dataInfo) {
+        public void putDataInfo(IDataInfo dataInfo) {
             sum = new double[dataInfo.getLength()];
             sumWeights = new double[sum.length];
-        }
-
-        public DataPipe getDataCaster(IEtomicaDataInfo dataInfo) {
-            return null;
         }
     }
 

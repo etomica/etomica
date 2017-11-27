@@ -6,7 +6,7 @@ package etomica.data;
 
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 import etomica.util.Arrays;
 
 
@@ -18,7 +18,7 @@ import etomica.util.Arrays;
  * @author David Kofke
  *
  */
-public class DataSourceGroup implements IEtomicaDataSource, java.io.Serializable {
+public class DataSourceGroup implements IDataSource, java.io.Serializable {
 
     /**
      * Forms a DataSourceGroup that contains no data sources, and which will give
@@ -26,8 +26,8 @@ public class DataSourceGroup implements IEtomicaDataSource, java.io.Serializable
      */
     public DataSourceGroup() {
         data = new DataGroup(new IData[0]);
-        dataInfo = new DataInfoGroup("Data Group", Null.DIMENSION, new IEtomicaDataInfo[0]);
-        dataSources = new IEtomicaDataSource[0];
+        dataInfo = new DataInfoGroup("Data Group", Null.DIMENSION, new IDataInfo[0]);
+        dataSources = new IDataSource[0];
         tag = new DataTag();
         dataInfo.addTag(tag);
     }
@@ -36,7 +36,7 @@ public class DataSourceGroup implements IEtomicaDataSource, java.io.Serializable
      * Forms a DataGroup containing the given data sources.  Given
      * array is copied to another array internally.
      */
-    public DataSourceGroup(IEtomicaDataSource[] sources) {
+    public DataSourceGroup(IDataSource[] sources) {
         this();
         if(sources != null) {
             for(int i=0; i<sources.length; i++) {
@@ -45,7 +45,7 @@ public class DataSourceGroup implements IEtomicaDataSource, java.io.Serializable
         }
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -78,15 +78,15 @@ public class DataSourceGroup implements IEtomicaDataSource, java.io.Serializable
     /**
      * Adds the given DataSource to those held by the group.
      */
-    public void addDataSource(IEtomicaDataSource newSource) {
-        dataSources = (IEtomicaDataSource[])Arrays.addObject(dataSources, newSource);
+    public void addDataSource(IDataSource newSource) {
+        dataSources = (IDataSource[]) Arrays.addObject(dataSources, newSource);
         latestData = (IData[])Arrays.addObject(latestData, newSource.getData());
         dataInfo = new DataInfoGroup("Data Group", Null.DIMENSION, getSubDataInfo());
         data = new DataGroup(latestData);
     }
     
-    protected IEtomicaDataInfo[] getSubDataInfo() {
-        IEtomicaDataInfo[] subDataInfo = new IEtomicaDataInfo[dataSources.length];
+    protected IDataInfo[] getSubDataInfo() {
+        IDataInfo[] subDataInfo = new IDataInfo[dataSources.length];
         for (int i=0; i<subDataInfo.length; i++) {
             subDataInfo[i] = dataSources[i].getDataInfo();
         }
@@ -94,9 +94,9 @@ public class DataSourceGroup implements IEtomicaDataSource, java.io.Serializable
     }
     
     private static final long serialVersionUID = 1L;
-    private IEtomicaDataSource[] dataSources = new IEtomicaDataSource[0];
+    private IDataSource[] dataSources = new IDataSource[0];
     private IData[] latestData = new IData[0];
     private DataGroup data;
-    private IEtomicaDataInfo dataInfo;
+    private IDataInfo dataInfo;
     protected final DataTag tag;
 }

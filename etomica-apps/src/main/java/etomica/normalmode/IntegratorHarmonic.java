@@ -11,7 +11,7 @@ import etomica.molecule.iterator.MoleculeIteratorAllMolecules;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 import etomica.util.random.IRandom;
 
 /**
@@ -76,9 +76,9 @@ public class IntegratorHarmonic extends IntegratorMD {
    		eigenVectors = newEigenVectors;
     }
     
-    public void setBox(Box newBox) {
-        super.setBox(newBox);
-        iterator.setBox(newBox);
+    public void setBox(Box box) {
+        super.setBox(box);
+        iterator.setBox(box);
 
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         u = new double[coordinateDim];
@@ -89,8 +89,8 @@ public class IntegratorHarmonic extends IntegratorMD {
         Qi = new double[totalWV][coordinateDim];
     }
 
-    public void doStepInternal() {
-    	super.doStepInternal();
+    protected void doStepInternal() {
+        super.doStepInternal();
         iterator.reset();
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         BasisCell[] cells = coordinateDefinition.getBasisCells();

@@ -11,14 +11,14 @@ import java.util.Set;
 import etomica.atom.IAtomList;
 import etomica.data.DataTag;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.graph.model.Graph;
 import etomica.graph.property.HasSimpleArticulationPoint;
 import etomica.graph.traversal.BCVisitor;
 import etomica.graph.traversal.Biconnected;
-import etomica.units.Null;
+import etomica.units.dimensions.Null;
 import etomica.virial.cluster.ExternalVirialDiagrams;
 
 /**
@@ -106,7 +106,7 @@ public class MeterVirialExternalFieldOverlapRho implements ClusterWeightSumWall.
         dataInfo.addTag(tag);
 	}
 
-	public IEtomicaDataInfo getDataInfo() {
+	public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -228,7 +228,7 @@ public class MeterVirialExternalFieldOverlapRho implements ClusterWeightSumWall.
     protected final List<List<List<Byte>>> listsPoint;
     protected final List<ClusterAbstract> clusters;
 	private final DataDoubleArray data;
-	private final IEtomicaDataInfo dataInfo;
+	private final IDataInfo dataInfo;
     private final DataTag tag;
     private final double [] wallPosition;
     private BoxCluster box;

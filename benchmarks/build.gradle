@@ -1,30 +1,19 @@
 plugins {
-    id "me.champeau.gradle.jmh" version "0.3.1"
+    id "com.github.johnrengelman.shadow" version "2.0.1"
 }
 
 apply plugin: 'java'
-apply plugin: 'idea'
-apply plugin: "me.champeau.gradle.jmh"
 
 dependencies {
+    compile "org.openjdk.jmh:jmh-core:1.19"
+    compileClasspath "org.openjdk.jmh:jmh-generator-annprocess:1.19"
     compile project(':etomica-core')
-    compileClasspath 'org.openjdk.jmh:jmh-generator-annprocess:1.19'
+    compile project(':etomica-apps')
 }
 
-jmh {
-//    include = "SWChain"
-    jmhVersion = "1.19"
-
-    fork = 1
-    warmupIterations = 3
-    iterations = 10
-    forceGC = true
-
-//    uncomment this if you want to view the stack profiler output (isn't always useful)
-//    profilers = ['stack']
-
-//    uncomment this if you want the console progress summary written to a file instead
-//    humanOutputFile = project.file("${project.buildDir}/reports/jmh/human.txt") // human-readable output file
-
-    resultFormat = "JSON"
+jar {
+    manifest {
+        attributes "Main-Class": "org.openjdk.jmh.Main"
+    }
 }
+
