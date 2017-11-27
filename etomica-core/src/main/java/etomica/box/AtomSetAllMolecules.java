@@ -7,16 +7,29 @@ package etomica.box;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 
+/**
+ * Creates a facade that makes a set of molecule lists look like a single list. This class is
+ * configured by calling setMoleculeLists(). This should be called after construction, every time
+ * one of the molecule lists in the set is changed by adding or removing a molecule, and when a
+ * list is added or removed from the set.
+ */
 public class AtomSetAllMolecules implements IMoleculeList {
 
-    private static final long serialVersionUID = 1L;
     protected IMoleculeList[] moleculeLists;
     protected int[] moleculeTotals;
 
+    /**
+     * Constructs an empty list. Subsequent call to setMoleculeLists() is needed to configure this list.
+     */
     public AtomSetAllMolecules() {
         moleculeTotals = new int[1];
     }
 
+    /**
+     * @param i specification of the desired molecule.
+     * @return a molecule as ordered by the species and then the molecules within the species.
+     * @throws IndexOutOfBoundsException if i >= getMoleculeCount() or i < 0
+     */
     public IMolecule getMolecule(int i) {
         if (i >= getMoleculeCount() || i < 0)
             throw new IndexOutOfBoundsException("Index: " + i +
@@ -33,10 +46,19 @@ public class AtomSetAllMolecules implements IMoleculeList {
         throw new IllegalStateException("how can this be?!?!?!");
     }
 
+    /**
+     * @return total number of molecules in the list.
+     */
     public int getMoleculeCount() {
         return moleculeTotals[moleculeTotals.length - 1];
     }
 
+    /**
+     * Configures this list based on the given array of lists. The ordering of this list is obtained by concatenating
+     * the given lists.
+     *
+     * @param newMoleculeLists lists of molecules that form this list.
+     */
     public void setMoleculeLists(IMoleculeList[] newMoleculeLists) {
         moleculeLists = newMoleculeLists;
         if (moleculeTotals.length - 1 != moleculeLists.length) {
