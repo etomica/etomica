@@ -5,7 +5,8 @@ import etomica.atom.IAtomOriented;
 import etomica.potential.IPotentialAtomic;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.util.numerical.BesselFunction;
+
+import static etomica.math.SpecialFunctions.besselI;
 
 public class ExpressionForAns {
     protected Vector ei, ej;
@@ -30,9 +31,9 @@ public class ExpressionForAns {
         ej.E(atom2.getOrientation().getDirection());
         double t1 = Math.acos(ei.getX(0));
         double t2 = Math.acos(ej.getX(0));
-        double I0bJ = BesselFunction.I(0, bJ);
-        double I1bJ = BesselFunction.I(1, bJ);
-        double I2bJ = BesselFunction.I(2, bJ);
+        double I0bJ = besselI(0, bJ);
+        double I1bJ = besselI(1, bJ);
+        double I2bJ = besselI(2, bJ);
 
         double test0 = 0;
         double test1 = 0;
@@ -52,10 +53,10 @@ public class ExpressionForAns {
                 int n2 = n * n;
                 int n3 = n2 * n;
                 int n4 = n2 * n2;
-                double InbJ = BesselFunction.I(n, bJ);
-                double Inm1bJ = BesselFunction.I(n - 1, bJ);
-                double Inm2bJ = BesselFunction.I(n - 2, bJ);
-                double Inp1bJ = BesselFunction.I(n+1,bJ);
+                double InbJ = besselI(n, bJ);
+                double Inm1bJ = besselI(n - 1, bJ);
+                double Inm2bJ = besselI(n - 2, bJ);
+                double Inp1bJ = besselI(n+1,bJ);
                 Axc0 += 2 * bmu * (((bJ + 2 * bJ * n2) * Inm1bJ + (bJ - n + 2 * (1 + bJ) * n2 - 2 * n3) * InbJ) * Math.cos(t1) * Math.cos(n * t1)
                         + (2 * bJ * Inm1bJ + (1 + 2 * bJ - 2 * n + 2 * n2) * InbJ) * n * Math.sin(t1) * Math.sin(n * t1))
                         / (bJ + 4 * bJ * n4);
@@ -118,8 +119,8 @@ public class ExpressionForAns {
 //        int n2 = n * n;
 //        int n3 = n2 * n;
 //        int n4 = n2 * n2;
-//        double InbJ = BesselFunction.I(n, bJ);
-//        double Inm1bJ = BesselFunction.I(n - 1, bJ);
+//        double InbJ = besselI(n, bJ);
+//        double Inm1bJ = besselI(n - 1, bJ);
 //        double Axc0n = 2 * bmu * (((bJ + 2 * bJ * n2) * Inm1bJ + (bJ - n + 2 * (1 + bJ) * n2 - 2 * n3) * InbJ) * Math.cos(t1) * Math.cos(n * t1)
 //                + (2 * bJ * Inm1bJ + (1 + 2 * bJ - 2 * n + 2 * n2) * InbJ) * n * Math.sin(t1) * Math.sin(n * t1))
 //                / (bJ + 4 * bJ * n4);
