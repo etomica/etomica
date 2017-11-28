@@ -285,9 +285,7 @@ public final class SpecialFunctions {
 
         if (order < 0) {
             order *= -1;
-//            System.out.print(order);
         }
-//        System.out.print("order = " + order);
 
         double gammaValue = (order == 0) ? 1 : gamma(order);
         double kTerms = 0;
@@ -296,7 +294,7 @@ public final class SpecialFunctions {
 
         for (int k = 0; true; k++) {
             factorial *= (k == 0) ? 1 : (modified ? k : -k);
-            gammaValue *= order + k;
+            gammaValue *= (order == 0 && k == 0) ? 1 : (order + k);
             kTerms = s1 * Math.pow((x * x) / 4.0, k) / factorial / gammaValue;
             sum += kTerms;
             if (Math.abs(kTerms / sum) < 1E-15) {
