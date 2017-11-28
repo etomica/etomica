@@ -97,15 +97,12 @@ public final class SpecialFunctions {
      * Lanczos approximation, with precision ~15 digits
      * coefficients from GSL (GNU Scientific Library) with g=7
      *
-     * @param x a positive number.
+     * @param x a real number.  If x is a non-positive integer (or if gamma(x) is negative), then NaN is returned.
      * @return the natural logarithm of the gamma function of x.
-     * @throws IllegalArgumentException if x is not positive.
      */
     public static double lnGamma(double x) {
-        if (x <= 0) {
-            throw new IllegalArgumentException("x must be positive");
-        }
         if (x < 0.5) {
+            if ((int) x == x) return Double.NaN;
             return Math.log(Math.PI / (Math.sin(Math.PI * x))) - lnGamma(1 - x);
         }
         double tmp = x + 7 - 0.5;
@@ -120,15 +117,12 @@ public final class SpecialFunctions {
     /**
      * Returns the value of the gamma function of x.
      *
-     * @param x a positive number.
-     * @return the gamma function of x.
-     * @throws IllegalArgumentException if x is not positive.
+     * @param x a real number.
+     * @return the gamma function of x.  If x is a non-positive integer, then NaN is returned.
      */
     public static double gamma(double x) {
-        if (x <= 0) {
-            throw new IllegalArgumentException("x must be positive");
-        }
         if (x < 0.5) {
+            if ((int) x == x) return Double.NaN;
             return Math.PI / (Math.sin(Math.PI * x) * gamma(1 - x));
         }
         return Math.exp(lnGamma(x));
@@ -325,15 +319,14 @@ public final class SpecialFunctions {
 
     public static void main(String[] args) {
         System.out.println(SpecialFunctions.bessel(false, 1.0, 0.2));
-        System.exit(2);
-
 
         System.out.println(confluentHypergeometric1F1(-0.25, 0.5, 1.0));
         System.out.println();
 
         for (int i = -10; i < 2; i++) {
             double g = SpecialFunctions.gamma(i - 0.5);
-            System.out.println((i - 0.5) + " " + g);
+            double lg = SpecialFunctions.lnGamma(i - 0.5);
+            System.out.println((i - 0.5) + " " + g + " " + lg);
         }
         System.out.println(0 + " " + SpecialFunctions.gamma(0));
         System.out.println(0.25 + " " + SpecialFunctions.gamma(0.25) + " " + Math.exp(SpecialFunctions.lnGamma(0.25)));
