@@ -52,6 +52,7 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
     protected MeterPotentialEnergy energyMeter;
     protected IAtom atom;
     protected HashMap<IAtom, Box> originalBox;
+    protected Species solute;
 
     /**
      * @param potentialMaster the PotentialMaster instance used by the simulation; this must have cell based neighbor list
@@ -78,6 +79,7 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
         if(species == null) {
             atomSource = new AtomSourceRandomLeaf();
             ((AtomSourceRandomLeaf) atomSource).setRandomNumberGenerator(random);
+            System.out.println("random seeded");
         }
         else atomSource = new AtomSourceRandomSpecies(random, species);
         neighbors.setDirection(null);
@@ -90,11 +92,15 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
         originalBox = new HashMap<>();
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         temperature = 1;
+        this.solute = species;
     }
 
     @Override
     public boolean doTrial() {
-        Box boxI = random.nextInt(2) == 0?box1:box2;
+        int box1solute = box1.getNMolecules(solute);
+        int box2solute = box2.getNMolecules(solute);
+        double rand = random.nextDouble()*(box1solute+box2solute);
+        Box boxI = rand < box1solute ? box1 : box2;
         atomSource.setBox(boxI);
         positionSource.setBox(boxI);
         pivot = positionSource.randomPosition();

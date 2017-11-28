@@ -22,6 +22,7 @@ import etomica.potential.Potential2;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space3d.Space3D;
+import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -98,9 +99,9 @@ public class GCRestrictedGibbsHS extends Simulation {
         integrator.addIntegrator(integrator2);
 
         potential1 = new P2HardSphere(space, sigma1, false);
-//        potential2 = new P2HardSphere(space, sigma2, false);
-        potential2 = new P2Ideal(space);
-        System.out.println("AO");
+        potential2 = new P2HardSphere(space, sigma2, false);
+//        potential2 = new P2Ideal(space);
+//        System.out.println("AO");
         potential12 = new P2HardSphere(space, sigma12, false);
         potentialMaster.setCellRange(3);
         potentialMaster.setRange(potential1.getRange());
@@ -134,9 +135,9 @@ public class GCRestrictedGibbsHS extends Simulation {
         }
         else {
             params.numAtoms = 3;
-            params.numSteps = 1000000;
+            params.numSteps = 10000;
             params.nBlocks = 100;
-            params.vf = 0.2;
+            params.vf = 0;
             params.q = 0.2;
         }
 
@@ -157,7 +158,7 @@ public class GCRestrictedGibbsHS extends Simulation {
         System.out.println("q: "+q);
         System.out.println(nBlocks+" blocks");
         System.out.println("total no of solutes"+ numAtoms);
-        System.setErr(System.out);
+        System.out.println("1331");
 
         long t1 = System.currentTimeMillis();
 
@@ -219,6 +220,5 @@ public class GCRestrictedGibbsHS extends Simulation {
         public int nBlocks = 1000;
         public double vf = 0.2;
         public double q = 2.0;
-
     }
 }
