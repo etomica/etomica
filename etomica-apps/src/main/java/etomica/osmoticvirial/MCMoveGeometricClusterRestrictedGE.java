@@ -61,10 +61,10 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
      * @param random random number generator
      * @param box1 specifies simulation box1
      * @param box2 specifies simulation box2
-     * @param species specifies the molecules that are selected for the initial trial move; may be null, in which case
+     * @param seed specifies the molecules that are selected for the initial trial move; may be null, in which case
      *                any molecule in the box could be used for initial trial
      */
-    public MCMoveGeometricClusterRestrictedGE(PotentialMasterCell potentialMaster, Space space, IRandom random, Box box1, Box box2, Species species) {
+    public MCMoveGeometricClusterRestrictedGE(PotentialMasterCell potentialMaster, Space space, IRandom random, Box box1, Box box2, Species seed, Species solute) {
 
         super(potentialMaster);
         clusterAtoms1 = new HashSet<>();
@@ -76,12 +76,12 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
         atomPairs = new AtomArrayList();
         oldPosition = space.makeVector();
         positionSource = new RandomPositionSourceRectangular(space, random);
-        if(species == null) {
+        if(seed == null) {
             atomSource = new AtomSourceRandomLeaf();
             ((AtomSourceRandomLeaf) atomSource).setRandomNumberGenerator(random);
             System.out.println("random seeded");
         }
-        else atomSource = new AtomSourceRandomSpecies(random, species);
+        else atomSource = new AtomSourceRandomSpecies(random, seed);
         neighbors.setDirection(null);
         this.box1 = box1;
         this.box2 = box2;
@@ -92,7 +92,7 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
         originalBox = new HashMap<>();
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         temperature = 1;
-        this.solute = species;
+        this.solute = solute;
     }
 
     @Override
