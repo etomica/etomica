@@ -28,6 +28,7 @@ import etomica.species.SpeciesSpheresRotating;
 import etomica.units.systems.LJ;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+import etomica.util.random.RandomNumberGenerator;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -64,8 +65,8 @@ public class Heisenberg extends Simulation {
      */
     public Heisenberg(Space space, int nCells, double temperature, double interactionS, double dipoleMagnitude) {
         super(Space2D.getInstance());
-//		setRandom(new RandomNumberGenerator(1)); //debug only
-//		System.out.println("============================the RandomSeed is one ===========================");
+        setRandom(new RandomNumberGenerator(1)); //debug only
+        System.out.println("============================the RandomSeed is one ===========================");
 
         potentialMaster = new PotentialMasterSite(this, nCells, space);
         box = new Box(space);
@@ -263,12 +264,12 @@ public class Heisenberg extends Simulation {
     // ******************* parameters **********************//
     public static class Param extends ParameterBase {
         public boolean isGraphic = false;
-        public boolean mSquare = true;
+        public boolean mSquare = false;
         public boolean aEE = true;
         public double temperature = 73;// Kelvin
-        public int nCells = 20;//number of atoms is nCells*nCells
+        public int nCells = 10;//number of atoms is nCells*nCells
         public double interactionS = 1.0;
         public double dipoleMagnitude = 1.0;
-        public int steps = 10000000;
+        public int steps = 100000;
     }
 }

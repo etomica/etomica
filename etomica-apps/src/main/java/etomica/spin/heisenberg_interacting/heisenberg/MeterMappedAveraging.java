@@ -90,8 +90,7 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MeterMappe
         potentialMaster.calculate(box, allAtoms, secondDerivativeSum);
 
         //TODO debug only
-        Ans.doCalculation(leafList, 6);
-
+        Ans.doCalculation(leafList, 9);
         double bt2 = bt * bt;
         double mu2 = mu * mu;
         int nM = leafList.getAtomCount();

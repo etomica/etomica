@@ -276,6 +276,7 @@ public final class SpecialFunctions {
      * @param modified true return the modified Bessel function of the first kind I and
      *                 false return the unmodified Bessel function of the first kind J.
      * @param order    of the Bessel function and it's a real number.
+     *                 Positive or negative order produces the same results.
      * @param x        the argument of the Bessel function
      * @return modified Bessel function of the first kind to machine precision or
      * unmodified Bessel function of the first kind to the precision of 10E-13.
