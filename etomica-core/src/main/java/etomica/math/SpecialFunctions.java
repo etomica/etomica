@@ -282,7 +282,14 @@ public final class SpecialFunctions {
      */
     private static double bessel(boolean modified, double order, double x) {
         double sum = 0;
-        double gammaValue = gamma(order);
+
+        if (order < 0) {
+            order *= -1;
+//            System.out.print(order);
+        }
+//        System.out.print("order = " + order);
+
+        double gammaValue = (order == 0) ? 1 : gamma(order);
         double kTerms = 0;
         double factorial = 1;
         double s1 = Math.pow(x / 2.0, order);
