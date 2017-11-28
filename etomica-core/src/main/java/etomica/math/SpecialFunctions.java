@@ -297,6 +297,7 @@ public final class SpecialFunctions {
             factorial *= (k == 0) ? 1 : (modified ? k : -k);
             gammaValue *= (order == 0 && k == 0) ? 1 : (order + k);
             kTerms = s1 * Math.pow((x * x) / 4.0, k) / factorial / gammaValue;
+            if (kTerms == 0) break;
             sum += kTerms;
             if (Math.abs(kTerms / sum) < 1E-15) {
                 break;
@@ -330,7 +331,7 @@ public final class SpecialFunctions {
     }
 
     public static void main(String[] args) {
-        System.out.println(SpecialFunctions.bessel(false, 1.0, 0.2));
+        System.out.println(SpecialFunctions.bessel(false, 88, 0.0136986301369863));
         System.exit(2);
 
 

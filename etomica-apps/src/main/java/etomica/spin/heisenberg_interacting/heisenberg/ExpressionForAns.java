@@ -52,8 +52,14 @@ public class ExpressionForAns {
         Axs1 = 0;
         dAxs1 = 0;
 
+        Ayc0 = bmu * (I0bJ + I1bJ) * Math.sin(t1);
+        dAyc0 = bmu * (I0bJ + I1bJ) * Math.cos(t1);
+        Ays0 = 0;
+        dAys0 = 0;
+        Ayc1 = 0.25 * bmu * bmu * Math.sin(t1) * Math.sin(t1) * (I0bJ + 2 * I1bJ + I2bJ);
 
-        test0 = Axs1;
+
+        test0 = Ayc1;
 
         if (nMax > 0) {
             for (int n = 1; n <= nMax; n++) {
@@ -63,7 +69,7 @@ public class ExpressionForAns {
                 double InbJ = besselI(n, bJ);
                 double Inm1bJ = besselI(n - 1, bJ);
                 double Inm2bJ = besselI(n - 2, bJ);
-                double Inp1bJ = besselI(n+1,bJ);
+                double Inp1bJ = besselI(n + 1, bJ);
                 Axc0 += 2 * bmu * (((bJ + 2 * bJ * n2) * Inm1bJ + (bJ - n + 2 * (1 + bJ) * n2 - 2 * n3) * InbJ) * Math.cos(t1) * Math.cos(n * t1)
                         + (2 * bJ * Inm1bJ + (1 + 2 * bJ - 2 * n + 2 * n2) * InbJ) * n * Math.sin(t1) * Math.sin(n * t1))
                         / (bJ + 4 * bJ * n4);
@@ -74,13 +80,13 @@ public class ExpressionForAns {
 
                 dAxc0 += (2 * InbJ * (-Math.cos(n * t1) * Math.sin(t1) + (n - 2 * n3) * Math.cos(t1) * Math.sin(n * t1))
                         + Inm1bJ * (1 + n - 2 * n3) * Math.sin((n - 1) * t1)
-                        + (-1+n-2*n3)*Inp1bJ*Math.sin((n+1)*t1)
+                        + (-1 + n - 2 * n3) * Inp1bJ * Math.sin((n + 1) * t1)
                 ) * bmu / (1 + 4 * n4);
 
-                dAxs0 += ((1+2*n+2*n2)*Inm1bJ*Math.sin((n-1)*t1)
-                        +2*InbJ*(-2*n*Math.cos(n*t1)*Math.sin(t1)+(1+2*n2)*Math.cos(t1)*Math.sin(n*t1))
-                        +(1-2*n+2*n2)*Inp1bJ*Math.sin((n+1)*t1)
-                        )*bmu/(1+4*n4);
+                dAxs0 += ((1 + 2 * n + 2 * n2) * Inm1bJ * Math.sin((n - 1) * t1)
+                        + 2 * InbJ * (-2 * n * Math.cos(n * t1) * Math.sin(t1) + (1 + 2 * n2) * Math.cos(t1) * Math.sin(n * t1))
+                        + (1 - 2 * n + 2 * n2) * Inp1bJ * Math.sin((n + 1) * t1)
+                ) * bmu / (1 + 4 * n4);
 
                 Axc1 += (Inm2bJ * (Math.cos((n - 2) * t1) - Math.cosh(n * t1)) * n2 / (2 - 2 * n + n2)
                         + (-4 * bJ * (4 + n4) * Math.cos(n * t1) * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ))
@@ -113,39 +119,66 @@ public class ExpressionForAns {
                 ) / (bJ * bJ * n * (4 + n4) * I0bJ)
                 );
 
+                Ayc0 += (2 * bmu * Math.cos(n * t1) * Math.sin(t1) * ((bJ + 2 * bJ * n2) * Inm1bJ + (bJ - n + 2 * n2 + 2 * bJ * n2 - 2 * n3) * InbJ)
+                        - 2 * bmu * n * Math.cos(t1) * Math.sin(n * t1) * (2 * bJ * Inm1bJ + (1 + 2 * bJ + 2 * (-1 + n) * n) * InbJ)
+                ) / (bJ + 4 * bJ * n4);
 
-                test1 += ((n - 2) * Inm2bJ * Math.cos((n - 2) * t1)) / (2 - 2 * n + n2);//checked
-                test2 += (bJ * (bJ * n * (-4 - 2 * n + n3) * I0bJ * Math.cos((n - 2) * t1) * (2 * Inm1bJ + InbJ)
-                        - 4 * (4 + n4) * Math.cos(n * t1) * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ))
-                )
-                        + 2 * n * (4 - 2 * n + n3) * I0bJ * Math.cos((n + 2) * t1) * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
-                ) / (bJ * bJ * n * (4 + n4) * I0bJ);
-                test3 += bJ * (bJ * n * (-4 - 2 * n + n3) * I0bJ * Math.cos((n - 2) * t1) * (2 * Inm1bJ + InbJ)
-                        - 4 * (4 + n4) * Math.cos(n * t1) * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ))
-                );
-                test3_1 += bJ * n * (-4 - 2 * n + n3) * I0bJ * Math.cos((n - 2) * t1) * (2 * Inm1bJ + InbJ);
-                test3_2 += -4 * (4 + n4) * Math.cos(n * t1) * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ));
+                dAyc0 += 2 * bmu * ((bJ * Inm1bJ + (bJ - n + n2 - 2 * n4) * InbJ) * Math.cos(t1) * Math.cos(n * t1)
+                        + n * Math.sin(t1) * Math.sin(n * t1) * (InbJ + (-1 + 2 * n2) * (-bJ * Inm1bJ + (n - bJ) * InbJ))
+                ) / (bJ + 4 * bJ * n4);
 
-                test4 += +2 * n * (4 - 2 * n + n3) * I0bJ * Math.cos((n + 2) * t1) * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ);
+                Ays0 += (bJ * (1 - 2 * n + 2 * n2) * Inp1bJ * (-Math.cos((n + 1) * t1) + Math.cosh(n * t1))
+                        + bJ * Inm1bJ * ((1 + 2 * n + 2 * n2) * Math.cos((n - 1) * t1) + (-1 + 2 * n - 2 * n2) * Math.cosh(n * t1))
+                        + 2 * InbJ * (2 * bJ * n * Math.cos(t1) * Math.cos(n * t1) + n * (1 - 2 * n + 2 * n2) * Math.cosh(n * t1) + bJ * (1 + 2 * n2) * Math.sin(t1) * Math.sin(n * t1))
+                ) * bmu / (bJ + 4 * bJ * n4);
+
+                dAys0 += ((1 + n - 2 * n3) * Inm1bJ * Math.sin((n - 1) * t1)
+                        + 2 * InbJ * (n * (-1 + 2 * n2) * Math.cos(n * t1) * Math.sin(t1) + Math.cos(t1) * Math.sin(n * t1))
+                        + (1 - n + 2 * n3) * Inp1bJ * Math.sin((n + 1) * t1)
+                ) * bmu / (1 + 4 * n4);
+
+
+                Ayc1 += (n2 * Inm2bJ * (-Math.cos((n - 2) * t1) + Math.cosh(n * t1)) / (2 - 2 * n + n2)
+                        - (4 * bJ * (4 + n4) * Math.cos(n * t1) * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ))
+                        + 2 * n2 * (2 - 2 * n + n2) * Math.cos((n + 2) * t1) * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
+                        + bJ * n * (2 + 2 * n + 2 * n2) * I0bJ * (bJ * InbJ * (Math.cos((n - 2) * t1) + Math.cosh(n * t1)) + 2 * Inm1bJ * (bJ * Math.cos((n - 2) * t1) + (-1 + n) * Math.cosh(n * t1)))
+                ) / (bJ * bJ * (4 + n4) * I0bJ)
+                ) * bmu * bmu / 4 / n2;
+
+                test1 += n2 * Inm2bJ * (-Math.cos((n - 2) * t1) + Math.cosh(n * t1)) / (2 - 2 * n + n2);
+                test2 += -(4 * bJ * (4 + n4) * Math.cos(n * t1) * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ))
+                        + 2 * n2 * (2 - 2 * n + n2) * Math.cos((n + 2) * t1) * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
+                        + bJ * n * (2 + 2 * n + 2 * n2) * I0bJ * (bJ * InbJ * (Math.cos((n - 2) * t1) + Math.cosh(n * t1)) + 2 * Inm1bJ * (bJ * Math.cos((n - 2) * t1) + (-1 + n) * Math.cosh(n * t1)))
+                ) / (bJ * bJ * (4 + n4) * I0bJ);
+                test3 += 4 * bJ * (4 + n4) * Math.cos(n * t1) * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ));
+                test3_1 += +2 * n2 * (2 - 2 * n + n2) * Math.cos((n + 2) * t1) * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ);
+                test3_2 += bJ * n * (2 + 2 * n + 2 * n2) * I0bJ * (bJ * InbJ * (Math.cos((n - 2) * t1) + Math.cosh(n * t1)) + 2 * Inm1bJ * (bJ * Math.cos((n - 2) * t1) + (-1 + n) * Math.cosh(n * t1)));
+
 
 
             }
         }
         System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
+        System.out.println("~~~~~~~~~~~~~~~x direction passed the test ~~~~~~~~~~~~~~~~~~~~~");
         System.out.println("nMax= " + nMax + ";");
         System.out.println("bJ= " + bJ + ";");
         System.out.println("ei={" + ei.getX(0) + "," + ei.getX(1) + "};");
         System.out.println("ej={" + ej.getX(0) + "," + ej.getX(1) + "};");
-//        System.out.println("Axc00= " + bmu * (I0bJ + I1bJ) * (-1 + Math.cos(t1)));
 //        System.out.println("Axc0= " + Axc0);
 //        System.out.println("Axs0= " + Axs0);
-//        System.out.println("dAxc0= " + (-bmu * (I0bJ + I1bJ) * Math.sin(t1)));
 //        System.out.println("dAxc0= " + dAxc0);
 //        System.out.println("dAxs0= " + dAxs0);
 //        System.out.println("Axc1= " + Axc1);
 //        System.out.println("dAxc1= " + dAxc1);
 //        System.out.println("Axs1= " + Axs1);
-        System.out.println("dAxs1= " + dAxs1);
+//        System.out.println("dAxs1= " + dAxs1);
+
+
+//        System.out.println("Ayc0= " + Ayc0);
+//        System.out.println("dAyc0= " + dAyc0);
+//        System.out.println("Ays0= " + Ays0);
+//        System.out.println("dAys0= " + dAys0);
+        System.out.println("Ayc1= " + Ayc1);
 
 
         System.out.println("zero_order term= " + test0);
