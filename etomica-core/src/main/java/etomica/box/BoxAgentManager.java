@@ -10,12 +10,9 @@ import etomica.util.Arrays;
 import java.lang.reflect.Array;
 
 /**
- * BoxAgentManager acts on behalf of client classes (a BoxAgentSource) to manage
+ * Acts on behalf of client classes (a BoxAgentSource) to manage
  * agents for each Box in a simulation.  When Box instances are added or removed
- * from the simulation, the agents array (indexed by the box's index) is updated.
- * The client should call getAgents() at any point where a Box might have have been
- * added to (or removed from) the system because the old array would be stale at that
- * point.
+ * from the simulation, the agents array (indexed by the Box's index) is updated.
  *
  * @author andrew
  */
@@ -26,6 +23,10 @@ public class BoxAgentManager<E> implements SimulationListener {
     protected SimulationEventManager simEventManager;
     protected E[] agents;
 
+    /**
+     * @param source        object that makes the agents.
+     * @param boxAgentClass class of the agent returned by the boxAgentSource
+     */
     public BoxAgentManager(BoxAgentSource<E> source, Class boxAgentClass) {
         agentSource = source;
         this.boxAgentClass = boxAgentClass;
@@ -34,6 +35,12 @@ public class BoxAgentManager<E> implements SimulationListener {
         }
     }
 
+    /**
+     * Constructs and invokes setSimulation().
+     * @param source object that makes the agents.
+     * @param boxAgentClass class of the agent returned by the boxAgentSource
+     * @param sim the simulation using this BoxAgentManager
+     */
     public BoxAgentManager(BoxAgentSource<E> source, Class boxAgentClass, Simulation sim) {
         agentSource = source;
         this.boxAgentClass = boxAgentClass;
@@ -41,13 +48,18 @@ public class BoxAgentManager<E> implements SimulationListener {
     }
 
     /**
-     * Returns the agent associated with the given box
+     * @return the agent associated with the given Box
      */
     public E getAgent(Box box) {
         if (box.getIndex() >= agents.length) return null;
         return agents[box.getIndex()];
     }
 
+    /**
+     * Associates an Agent with a Box.
+     * @param box the Box
+     * @param agent the Agent
+     */
     public void setAgent(Box box, E agent) {
         int idx = box.getIndex();
         if (idx >= agents.length) {
@@ -58,23 +70,24 @@ public class BoxAgentManager<E> implements SimulationListener {
     }
 
     /**
-     * Returns an iterator that returns each non-null agent
+     * @return an iterator that returns each non-null agent
      */
     public AgentIterator<E> makeIterator() {
         return new AgentIterator<E>(this);
     }
 
     /**
-     * Sets the Simulation containing Boxs to be tracked.  This method should
-     * not be called if setSimulationEventManager is called.
+     * Sets the Simulation containing Boxes to be tracked. This will register
+     * this BoxAgentManager as a listener to the Simulation so that it will be notified
+     * when Boxes are added or removed. This call also initializes the agents for any Boxes
+     * already existing in the Simulation.
+     * @param sim Simulation to be set
      */
     public void setSimulation(Simulation sim) {
         simEventManager = sim.getEventManager();
         // this will crash if the given sim is in the middle of its constructor
         simEventManager.addListener(this);
 
-        // hope the class returns an actual class with a null Atom and use it to construct
-        // the array
         int boxCount = sim.getBoxCount();
         agents = (E[]) Array.newInstance(boxAgentClass, boxCount);
         if (agentSource == null) {
