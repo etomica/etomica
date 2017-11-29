@@ -53,7 +53,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
     }
 
     public PotentialMasterListMolecular(Simulation sim, double range, BoxAgentSourceCellManagerListMolecular boxAgentSource, Space _space) {
-        this(sim, range, boxAgentSource, new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSource, NeighborCellManagerMolecular.class), _space);
+        this(sim, range, boxAgentSource, new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSource, NeighborCellManagerMolecular.class, sim), _space);
     }
 
     public PotentialMasterListMolecular(Simulation sim, double range, BoxAgentSourceCellManagerListMolecular boxAgentSource, BoxAgentManager<? extends BoxCellManager> agentManager, Space _space){
@@ -68,7 +68,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
         space = _space;
         this.neighborListAgentSource = neighborListAgentSource;
         neighborListAgentSource.setPotentialMaster(this);
-        neighborListAgentManager = new BoxAgentManager<NeighborListManagerMolecular>(neighborListAgentSource, NeighborListManagerMolecular.class);
+        neighborListAgentManager = new BoxAgentManager<NeighborListManagerMolecular>(neighborListAgentSource, NeighborListManagerMolecular.class, sim);
         singletIterator = new MoleculeIteratorSinglet();
         moleculeSetSinglet = new MoleculeSetSinglet();
         moleculePair = new MoleculePair();

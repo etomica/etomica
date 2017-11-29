@@ -51,7 +51,7 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
     }
     
     private PotentialMasterHybrid(Simulation sim, double range, BoxAgentSourceCellManagerList boxAgentSource, Space space) {
-        this(sim, range, boxAgentSource, new BoxAgentManager<NeighborCellManager>(boxAgentSource, BoxCellManager.class), space);
+        this(sim, range, boxAgentSource, new BoxAgentManager<NeighborCellManager>(boxAgentSource, BoxCellManager.class, sim), space);
     }
     
     private PotentialMasterHybrid(Simulation sim, double range, BoxAgentSourceCellManagerList boxAgentSource,

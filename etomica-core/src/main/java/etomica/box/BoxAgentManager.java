@@ -19,32 +19,32 @@ import java.lang.reflect.Array;
 public class BoxAgentManager<E> implements SimulationListener {
 
     protected final BoxAgentSource<E> agentSource;
-    protected final Class boxAgentClass;
     protected SimulationEventManager simEventManager;
     protected E[] agents;
 
     /**
-     * @param source        object that makes the agents.
-     * @param boxAgentClass class of the agent returned by the boxAgentSource
-     */
-    public BoxAgentManager(BoxAgentSource<E> source, Class boxAgentClass) {
-        agentSource = source;
-        this.boxAgentClass = boxAgentClass;
-        if (source == null) {
-            agents = (E[]) Array.newInstance(boxAgentClass, 0);
-        }
-    }
-
-    /**
-     * Constructs and invokes setSimulation().
+     * Constructs and sets the Simulation containing Boxes to be tracked. This will register
+     * this BoxAgentManager as a listener to the Simulation so that it will be notified
+     * when Boxes are added or removed. This call also initializes the agents for any Boxes
+     * already existing in the Simulation.
      * @param source object that makes the agents.
      * @param boxAgentClass class of the agent returned by the boxAgentSource
      * @param sim the simulation using this BoxAgentManager
      */
     public BoxAgentManager(BoxAgentSource<E> source, Class boxAgentClass, Simulation sim) {
         agentSource = source;
-        this.boxAgentClass = boxAgentClass;
-        setSimulation(sim);
+        simEventManager = sim.getEventManager();
+        // this will crash if the given sim is in the middle of its constructor
+        simEventManager.addListener(this);
+
+        int boxCount = sim.getBoxCount();
+        agents = (E[]) Array.newInstance(boxAgentClass, boxCount);
+        if (agentSource == null) {
+            return;
+        }
+        for (int i = 0; i < boxCount; i++) {
+            addAgent(sim.getBox(i));
+        }
     }
 
     /**
@@ -77,41 +77,16 @@ public class BoxAgentManager<E> implements SimulationListener {
     }
 
     /**
-     * Sets the Simulation containing Boxes to be tracked. This will register
-     * this BoxAgentManager as a listener to the Simulation so that it will be notified
-     * when Boxes are added or removed. This call also initializes the agents for any Boxes
-     * already existing in the Simulation.
-     * @param sim Simulation to be set
-     */
-    public void setSimulation(Simulation sim) {
-        simEventManager = sim.getEventManager();
-        // this will crash if the given sim is in the middle of its constructor
-        simEventManager.addListener(this);
-
-        int boxCount = sim.getBoxCount();
-        agents = (E[]) Array.newInstance(boxAgentClass, boxCount);
-        if (agentSource == null) {
-            return;
-        }
-        for (int i = 0; i < boxCount; i++) {
-            addAgent(sim.getBox(i));
-        }
-    }
-
-    /**
      * Notifies the BoxAgentManager that it should release all agents and
      * stop listening for events from the simulation.
      */
     public void dispose() {
+        if (agents == null) return;
         // remove ourselves as a listener to the old box
-        if (simEventManager != null) {
-            simEventManager.removeListener(this);
-        }
-        if (agentSource != null) {
-            for (int i = 0; i < agents.length; i++) {
-                if (agents[i] != null) {
-                    agentSource.releaseAgent(agents[i]);
-                }
+        simEventManager.removeListener(this);
+        for (int i = 0; i < agents.length; i++) {
+            if (agents[i] != null) {
+                agentSource.releaseAgent(agents[i]);
             }
         }
         agents = null;

@@ -42,7 +42,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
 
     public PotentialMasterSite(Simulation sim,
     		                   BoxAgentSource<BoxCellManager> boxAgentSource, Space _space) {
-        this(sim, boxAgentSource, new BoxAgentManager<BoxCellManager>(boxAgentSource, BoxCellManager.class), _space);
+        this(sim, boxAgentSource, new BoxAgentManager<BoxCellManager>(boxAgentSource, BoxCellManager.class, sim), _space);
     }
     
     public PotentialMasterSite(Simulation sim, BoxAgentSource<BoxCellManager> boxAgentSource,

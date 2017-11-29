@@ -45,10 +45,10 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
         super(space);
         
         BoxAgentSourceCellManagerListMolecular boxAgentSourceTarg = new BoxAgentSourceCellManagerListMolecular(this, null, space);
-        BoxAgentManager<NeighborCellManagerMolecular> boxAgentManagerTarg = new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSourceTarg,NeighborCellManagerMolecular.class);
+        BoxAgentManager<NeighborCellManagerMolecular> boxAgentManagerTarg = new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSourceTarg, NeighborCellManagerMolecular.class, this);
  
         BoxAgentSourceCellManagerListMolecular boxAgentSourceRef = new BoxAgentSourceCellManagerListMolecular(this, null, space);
-        BoxAgentManager<NeighborCellManagerMolecular> boxAgentManagerRef = new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSourceRef,NeighborCellManagerMolecular.class);
+        BoxAgentManager<NeighborCellManagerMolecular> boxAgentManagerRef = new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSourceRef, NeighborCellManagerMolecular.class, this);
         
         SpeciesN2 species = new SpeciesN2(space);
 		addSpecies(species);
