@@ -47,7 +47,7 @@ public class SimDirectBetaN2RPInitPert extends Simulation {
         super(space);
         
         BoxAgentSourceCellManagerListMolecular boxAgentSource = new BoxAgentSourceCellManagerListMolecular(this, null, space);
-        BoxAgentManager<NeighborCellManagerMolecular> boxAgentManager = new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSource,NeighborCellManagerMolecular.class);
+        BoxAgentManager<NeighborCellManagerMolecular> boxAgentManager = new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSource, NeighborCellManagerMolecular.class, this);
  
         SpeciesN2 species = new SpeciesN2(space);
 		addSpecies(species);

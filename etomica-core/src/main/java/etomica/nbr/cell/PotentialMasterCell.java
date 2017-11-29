@@ -46,7 +46,7 @@ public class PotentialMasterCell extends PotentialMasterSite {
     
     public PotentialMasterCell(Simulation sim, double range,
                                BoxAgentSourceCellManager boxAgentSource, Space _space) {
-        this(sim, range, boxAgentSource, new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class), _space);
+        this(sim, range, boxAgentSource, new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class, sim), _space);
     }
     
     public PotentialMasterCell(Simulation sim, double range, BoxAgentSourceCellManager boxAgentSource,

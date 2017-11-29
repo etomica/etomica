@@ -67,7 +67,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
     }
 
     public PotentialMasterList(Simulation sim, double range, BoxAgentSourceCellManagerList boxAgentSource, Space _space) {
-        this(sim, range, boxAgentSource, new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class), _space);
+        this(sim, range, boxAgentSource, new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class, sim), _space);
     }
 
     public PotentialMasterList(Simulation sim, double range, BoxAgentSourceCellManagerList boxAgentSource, BoxAgentManager<? extends BoxCellManager> agentManager, Space _space){
@@ -82,7 +82,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
         space = _space;
         this.neighborListAgentSource = neighborListAgentSource;
         neighborListAgentSource.setPotentialMaster(this);
-        neighborListAgentManager = new BoxAgentManager<NeighborListManager>(neighborListAgentSource, NeighborListManager.class);
+        neighborListAgentManager = new BoxAgentManager<NeighborListManager>(neighborListAgentSource, NeighborListManager.class, sim);
         singletIterator = new AtomIteratorSinglet();
         atomSetSinglet = new AtomSetSinglet();
         atomPair = new AtomPair();

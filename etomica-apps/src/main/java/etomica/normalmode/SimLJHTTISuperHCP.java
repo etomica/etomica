@@ -103,7 +103,7 @@ public class SimLJHTTISuperHCP extends Simulation {
         }
 
         BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, _space);
-        BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class);
+        BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class, this);
         potentialMaster = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc, space), space);
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
@@ -153,7 +153,7 @@ public class SimLJHTTISuperHCP extends Simulation {
 
     /**
      * @param args filename containing simulation parameters
-     * @see SimLJHTTI.SimOverlapParam
+     * @see SimLJHTTISuperHCP.SimOverlapParam
      */
     public static void main(String[] args) {
         //set up simulation parameters
@@ -264,7 +264,7 @@ public class SimLJHTTISuperHCP extends Simulation {
         {
 
             BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(sim, null, sim.space);
-            BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class);
+            BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class, sim);
             potentialMasterData = new PotentialMasterList(sim, cutoffs[nCutoffs-1], boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc, sim.space), sim.space);
 
             // |potential| is our local potential used for data collection.

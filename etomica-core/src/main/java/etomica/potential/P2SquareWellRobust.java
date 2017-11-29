@@ -6,7 +6,6 @@ package etomica.potential;
 
 import etomica.atom.*;
 import etomica.box.Box;
-import etomica.box.BoxAgentManager;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.space.Space;
@@ -17,6 +16,9 @@ import etomica.units.dimensions.Energy;
 import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Null;
 import etomica.util.Debug;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Basic square-well potential.
@@ -35,7 +37,7 @@ import etomica.util.Debug;
 public class P2SquareWellRobust extends Potential2HardSpherical implements AtomLeafAgentManager.AgentSource<AtomArrayList> {
 
     protected final boolean ignoreOverlap;
-    protected final BoxAgentManager<AtomLeafAgentManager<AtomArrayList>> boxWellManager;
+    protected final Map<Box, AtomLeafAgentManager<AtomArrayList>> boxWellManager;
     protected double coreDiameter, coreDiameterSquared;
     protected double wellDiameter, wellDiameterSquared;
     protected double lambda; //wellDiameter = coreDiameter * lambda
@@ -61,7 +63,7 @@ public class P2SquareWellRobust extends Potential2HardSpherical implements AtomL
         dv = space.makeVector();
         lastCollisionVirialTensor = space.makeTensor();
         this.ignoreOverlap = ignoreOverlap;
-        boxWellManager = new BoxAgentManager<AtomLeafAgentManager<AtomArrayList>>(null, AtomLeafAgentManager.class);
+        boxWellManager = new HashMap<Box, AtomLeafAgentManager<AtomArrayList>>();
     }
     
     /**
@@ -288,10 +290,10 @@ public class P2SquareWellRobust extends Potential2HardSpherical implements AtomL
     
     public void setBox(Box box) {
         super.setBox(box);
-        wellManager = boxWellManager.getAgent(box);
+        wellManager = boxWellManager.get(box);
         if (wellManager == null) {
             wellManager = makeAgent(box);
-            boxWellManager.setAgent(box, wellManager);
+            boxWellManager.put(box, wellManager);
         }
     }
     
@@ -370,17 +372,17 @@ public class P2SquareWellRobust extends Potential2HardSpherical implements AtomL
         }
         AtomArrayList rv = new AtomArrayList();
         if (potentialMaster != null) {
-            handleNewAtomNbr(atom, boxWellManager.getAgent(agentBox), potentialMaster.getNeighborManager(agentBox), rv);
+            handleNewAtomNbr(atom, boxWellManager.get(agentBox), potentialMaster.getNeighborManager(agentBox), rv);
         }
         else {
-            handleNewAtomNoNbr(atom, boxWellManager.getAgent(agentBox), agentBox.getLeafList(), rv);
+            handleNewAtomNoNbr(atom, boxWellManager.get(agentBox), agentBox.getLeafList(), rv);
         }
         return rv;
     }
 
     public void releaseAgent(AtomArrayList iList, IAtom atom, Box agentBox) {
         // atom is going away.  remove it from all of its neighbor's lists
-        AtomLeafAgentManager<AtomArrayList> agentManager = boxWellManager.getAgent(agentBox);
+        AtomLeafAgentManager<AtomArrayList> agentManager = boxWellManager.get(agentBox);
         for (int j=0; j<iList.getAtomCount(); j++) {
             AtomArrayList jList = agentManager.getAgent(iList.getAtom(j));
             jList.removeAndReplace(jList.indexOf(atom));
