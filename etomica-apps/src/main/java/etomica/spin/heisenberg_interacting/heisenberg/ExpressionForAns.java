@@ -65,8 +65,11 @@ public class ExpressionForAns {
         d2Axs0 = 0;
         d3Axc0 = bmu * Math.sin(t1) * (I0bJ + I1bJ);
         d3Axs0 = 0;
+        d2Axc1 = -0.5 * bmu * bmu * Math.cos(2 * t1) * (I0bJ + 2 * I1bJ + I2bJ);
+        d2Axs1 = 0;
 
-        test0 = d3Axs0;
+
+        test0 = d2Axs1;
 
         //x direction
         if (nMax > 0) {
@@ -145,6 +148,18 @@ public class ExpressionForAns {
                     + InbJ * (-n * Math.cos(t1) * Math.cos(n * t1) * ((1 + n) * (1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) - bJ * (1 + n2 + 2 * n4)) + Math.sin(t1) * Math.sin(n * t1) * (n * (1 + n) * (1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) + bJ * (-1 + n2 - 4 * n4)))
             ) * 2 * bmu / (bJ + 4 * bJ * n4);
 
+            d2Axc1 = 0.25 * bmu * bmu * (-(n - 2) * (n - 2) * Inm2bJ * Math.cos((n - 2) * t1) / (2 - 2 * n + n2)
+                    + (bJ * (-bJ * (n - 2) * (n - 2) * n * (2 + 2 * n + n2) * I0bJ * Math.cos((n - 2) * t1) * (2 * Inm1bJ + InbJ) + 4 * n * (4 + n4) * Math.cos(n * t1) * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ)))
+                    - 2 * n * (2 + n) * (4 - 2 * n + n3) * I0bJ * Math.cos((n + 2) * t1) * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
+            ) / (bJ * bJ * n * (4 + n4) * I0bJ)
+            );
+
+            d2Axs1 = 0.25 * bmu * bmu * (-((n - 2) * (n - 2) * Inm2bJ * Math.sin((n - 2) * t1)) / (2 - 2 * n + n2)
+                    + (bJ * (-bJ * (n - 2) * (n - 2) * n * (2 + 2 * n + n2) * I0bJ * Math.sin((n - 2) * t1) * (2 * Inm1bJ + InbJ) + 4 * n * (4 + n4) * Math.sin(n * t1) * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ)))
+                    - 2 * n * (n + 2) * (4 - 2 * n + n3) * I0bJ * Math.sin((n + 2) * t1) * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
+            ) / (bJ * bJ * n * (4 + n4) * I0bJ)
+            );
+
 
         }
 
@@ -167,13 +182,15 @@ public class ExpressionForAns {
 //        System.out.println("d2Axc0= " + d2Axc0);
 //        System.out.println("d2Axs0= " + d2Axs0);
 //        System.out.println("d3Axc0= " + d3Axc0);
-        System.out.println("d3Axs0= " + d3Axs0);
+//        System.out.println("d3Axs0= " + d3Axs0);
+//        System.out.println("d2Axc1= " + d2Axc1);
+        System.out.println("d2Axs1= " + d2Axs1);
 
         System.out.println("test1= " + test1);
         System.out.println("test2= " + test2);
         System.out.println("test3= " + test3);
-//        System.out.println("test3_1= " + test3_1);
-//        System.out.println("test3_2= " + test3_2);
+        System.out.println("test3_1= " + test3_1);
+        System.out.println("test3_2= " + test3_2);
         System.out.println("test4= " + test4);
         System.exit(2);
 
