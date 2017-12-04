@@ -5,6 +5,7 @@
 package etomica.action;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A set of Action instances grouped and performed in series
@@ -16,7 +17,7 @@ import java.util.ArrayList;
  */
 public class ActionGroupSeries implements ActionGroup {
 
-    private final ArrayList<IAction> actions = new ArrayList();
+    private final List<IAction> actions = new ArrayList<>();
 
     /**
      * Constructs an action group that holds no actions.
@@ -30,7 +31,9 @@ public class ActionGroupSeries implements ActionGroup {
      * of array is made and used internally.
      */
     public ActionGroupSeries(IAction[] actionArray) {
-        for(IAction action : actionArray) addAction(action);
+        for(IAction action : actionArray) {
+            addAction(action);
+        }
     }
 
     /**
