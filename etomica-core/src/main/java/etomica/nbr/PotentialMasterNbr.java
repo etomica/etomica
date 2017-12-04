@@ -40,7 +40,6 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
         intraAgentManager.init(sim);
         rangedPotentialIterator = rangedAgentManager.makeIterator();
         intraPotentialIterator = intraAgentManager.makeIterator();
-        boxAgentManager.setSimulation(sim);
     }
     
     public PotentialGroup makePotentialGroup(int nBody) {

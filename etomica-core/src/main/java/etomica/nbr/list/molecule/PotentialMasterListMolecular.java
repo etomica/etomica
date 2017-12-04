@@ -75,8 +75,6 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
         cellRange = 2;
         allCriteria = new NeighborCriterionMolecular[0];
 
-        neighborListAgentManager.setSimulation(sim);
-
         BoxAgentManager.AgentIterator<? extends BoxCellManager> iterator = boxAgentManager.makeIterator();
         iterator.reset();
         while (iterator.hasNext()) {
