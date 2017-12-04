@@ -37,7 +37,6 @@ public abstract class PotentialMasterNbrMolecular extends PotentialMaster implem
         
         rangedPotentialIterator = rangedAgentManager.makeIterator();
         speciesPotentialIterator = speciesAgentManager.makeIterator();
-        boxAgentManager.setSimulation(sim);
     }
     
     public PotentialGroup makePotentialGroup(int nBody) {

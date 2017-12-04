@@ -89,8 +89,6 @@ public class PotentialMasterList extends PotentialMasterNbr {
         cellRange = 2;
         allCriteria = new NeighborCriterion[0];
 
-        neighborListAgentManager.setSimulation(sim);
-
         BoxAgentManager.AgentIterator<? extends BoxCellManager> iterator = boxAgentManager.makeIterator();
         iterator.reset();
         while (iterator.hasNext()) {
