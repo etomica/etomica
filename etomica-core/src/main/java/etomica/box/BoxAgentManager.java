@@ -135,14 +135,20 @@ public class BoxAgentManager<E> implements SimulationListener {
         }
     }
     /**
-     * Interface for an object that makes an agent to be placed in each atom
-     * upon construction.  AgentSource objects register with the AtomFactory
-     * the produces the atom.
+     * Interface for an object that makes an agent to be associated with each box
+     * upon construction.
      */
     public interface BoxAgentSource<E> {
+        /**
+         * @param box the Box for this agent
+         * @return the object that source wants to have with the given box
+         */
         E makeAgent(Box box);
 
-        //allow any agent to be disconnected from other elements
+        /**
+         * Disconnects the given agent from its box and performs any actions needed to clean up
+         * @param agent the agent being released
+         */
         void releaseAgent(E agent);
     }
 
@@ -154,15 +160,24 @@ public class BoxAgentManager<E> implements SimulationListener {
         private int cursor;
         private E[] agents;
 
+        /**
+         * @param agentManager BoxAgentManager for the BoxAgent being iterated
+         */
         protected AgentIterator(BoxAgentManager<E> agentManager) {
             this.agentManager = agentManager;
         }
 
+        /**
+         * Positions iterator to begin the iteration
+         */
         public void reset() {
             cursor = 0;
             agents = agentManager.agents;
         }
 
+        /**
+         * @return true if the iterator has another agent
+         */
         public boolean hasNext() {
             while (cursor < agents.length) {
                 if (agents[cursor] != null) {
@@ -173,6 +188,9 @@ public class BoxAgentManager<E> implements SimulationListener {
             return false;
         }
 
+        /**
+         * @return next agent from the iterator
+         */
         public E next() {
             cursor++;
             while (cursor - 1 < agents.length) {
