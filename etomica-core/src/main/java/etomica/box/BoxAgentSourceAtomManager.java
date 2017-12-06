@@ -8,11 +8,20 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.BoxAgentManager.BoxAgentSource;
 
+/**
+ * BoxAgentSource that creates an AtomLeafAgentManager.
+ *
+ * @param <E> atom agent class
+ */
 public class BoxAgentSourceAtomManager<E> implements BoxAgentSource<AtomLeafAgentManager<E>> {
 
     protected final AgentSource<E> atomAgentSource;
     protected final Class atomAgentClass;
 
+    /**
+     * @param atomAgentSource object that makes the atom agents
+     * @param atomAgentClass Class specified by &lt;E&gt;
+     */
     public BoxAgentSourceAtomManager(AgentSource<E> atomAgentSource, Class atomAgentClass) {
         super();
         this.atomAgentSource = atomAgentSource;
