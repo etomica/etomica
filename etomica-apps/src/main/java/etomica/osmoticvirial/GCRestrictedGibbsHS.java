@@ -61,11 +61,11 @@ public class GCRestrictedGibbsHS extends Simulation {
         addSpecies(species1);
         addSpecies(species2);
 
-        integrator = new IntegratorRGEMC(random, space, null, species1);
+        integrator = new IntegratorRGEMC(random, space, null);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
 
-        double sigma1 = 1.0; //solute
+        double sigma1 = 1; //solute
         double sigma2 = q * sigma1; //solvent
         double sigma12 = (sigma1+sigma2)/2;
 
@@ -134,10 +134,10 @@ public class GCRestrictedGibbsHS extends Simulation {
             ParseArgs.doParseArgs(params, args);
         }
         else {
-            params.numAtoms = 3;
-            params.numSteps = 10000;
+            params.numAtoms = 2;
+            params.numSteps = 100000;
             params.nBlocks = 100;
-            params.vf = 0;
+            params.vf = 0.01;
             params.q = 0.2;
         }
 
@@ -158,7 +158,6 @@ public class GCRestrictedGibbsHS extends Simulation {
         System.out.println("q: "+q);
         System.out.println(nBlocks+" blocks");
         System.out.println("total no of solutes"+ numAtoms);
-        System.out.println("1331");
 
         long t1 = System.currentTimeMillis();
 

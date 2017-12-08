@@ -25,13 +25,11 @@ public class IntegratorRGEMC extends IntegratorManagerMC {
     private MCMoveGeometricClusterRestrictedGE mcMoveGeometricClusterRestrictedGE;
     private Space space;
     private Species seed;
-    private Species solute;
 
-    public IntegratorRGEMC(IRandom random, Space space, Species seed, Species solute) {
+    public IntegratorRGEMC(IRandom random, Space space, Species seed) {
         super(random);
         this.space = space;
         this.seed = seed;
-        this.solute = solute;
     }
 
     public void addIntegrator(Integrator newIntegrator) {
@@ -46,7 +44,7 @@ public class IntegratorRGEMC extends IntegratorManagerMC {
 
             mcMoveGeometricClusterRestrictedGE =
                     new MCMoveGeometricClusterRestrictedGE((PotentialMasterCell) ((IntegratorBox)newIntegrator).getPotentialMaster(),
-                    space, random, ((IntegratorBox)integrators[0]).getBox(),((IntegratorBox)integrators[1]).getBox(), seed, solute);
+                    space, random, ((IntegratorBox)integrators[0]).getBox(),((IntegratorBox)integrators[1]).getBox(), seed);
             moveManager.recomputeMoveFrequencies();
             moveManager.addMCMove(mcMoveGeometricClusterRestrictedGE);
         }

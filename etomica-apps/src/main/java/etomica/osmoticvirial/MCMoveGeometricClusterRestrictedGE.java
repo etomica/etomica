@@ -64,7 +64,7 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
      * @param seed specifies the molecules that are selected for the initial trial move; may be null, in which case
      *                any molecule in the box could be used for initial trial
      */
-    public MCMoveGeometricClusterRestrictedGE(PotentialMasterCell potentialMaster, Space space, IRandom random, Box box1, Box box2, Species seed, Species solute) {
+    public MCMoveGeometricClusterRestrictedGE(PotentialMasterCell potentialMaster, Space space, IRandom random, Box box1, Box box2, Species seed) {
 
         super(potentialMaster);
         clusterAtoms1 = new HashSet<>();
@@ -92,13 +92,20 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
         originalBox = new HashMap<>();
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         temperature = 1;
-        this.solute = solute;
+        this.solute = seed;
     }
 
     @Override
     public boolean doTrial() {
-        int box1solute = box1.getNMolecules(solute);
-        int box2solute = box2.getNMolecules(solute);
+        int box1solute, box2solute;
+        if(solute!= null) {
+            box1solute = box1.getNMolecules(solute);
+            box2solute = box2.getNMolecules(solute);
+        }
+        else{
+            box1solute = box1.getMoleculeList().getMoleculeCount();
+            box2solute = box2.getMoleculeList().getMoleculeCount();
+        }
         double rand = random.nextDouble()*(box1solute+box2solute);
         Box boxI = rand < box1solute ? box1 : box2;
         atomSource.setBox(boxI);
