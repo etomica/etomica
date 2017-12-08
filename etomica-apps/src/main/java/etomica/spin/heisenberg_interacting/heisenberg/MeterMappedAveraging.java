@@ -4,7 +4,6 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.IAtomOriented;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -47,7 +46,7 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MeterMappe
     private Box box;
 
     //TODO debug only
-    protected ExpressionForAns Ans;
+    protected PotentialCalculationHeisenberg Ans;
 
     public MeterMappedAveraging(final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, PotentialMaster potentialMaster) {
         data = new DataDoubleArray(2);
@@ -72,7 +71,7 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MeterMappe
         secondDerivativeSum = new PotentialCalculationPhiSumHeisenberg(space, J, bt);
 
         //TODO debug only
-        Ans = new ExpressionForAns(space, dipoleMagnitude, interactionS, bt);
+        Ans = new PotentialCalculationHeisenberg(space, dipoleMagnitude, interactionS, bt);
 
         allAtoms = new IteratorDirective();
 
@@ -89,8 +88,12 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MeterMappe
         secondDerivativeSum.zeroSum();
         potentialMaster.calculate(box, allAtoms, secondDerivativeSum);
 
-        //TODO debug only
-        Ans.doCalculation(leafList, 5);
+        //TODO need to ask andrew about this
+//        Ans.doCalculation(leafList, 5);
+        Ans.zeroSumJEEMJEJE();
+//        potentialMaster.calculate(box, allAtoms, Ans);
+        Ans.getSumJEEMJEJE();
+
         double bt2 = bt * bt;
         double mu2 = mu * mu;
         int nM = leafList.getAtomCount();

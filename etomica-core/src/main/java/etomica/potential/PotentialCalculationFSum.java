@@ -32,9 +32,9 @@ public class PotentialCalculationFSum implements PotentialCalculationMolecular {
             return;
         }
         //get total force here!!!
-        IPotentialAtomicSecondDerivative potentialSeconDerivative = (IPotentialAtomicSecondDerivative) potential;
+        IPotentialAtomicSecondDerivative potentialSecondDerivative = (IPotentialAtomicSecondDerivative) potential;
 
-        Vector[][] t = potentialSeconDerivative.gradientAndTorque(atoms);
+        Vector[][] t = potentialSecondDerivative.gradientAndTorque(atoms);
 
         IAtomOriented atom1 = (IAtomOriented) atoms.getAtom(0);
         IAtomOriented atom2 = (IAtomOriented) atoms.getAtom(1);
