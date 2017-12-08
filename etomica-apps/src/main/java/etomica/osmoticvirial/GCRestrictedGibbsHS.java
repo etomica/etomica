@@ -7,6 +7,7 @@ import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.IData;
 import etomica.graphics.SimulationGraphic;
@@ -61,7 +62,7 @@ public class GCRestrictedGibbsHS extends Simulation {
         addSpecies(species1);
         addSpecies(species2);
 
-        integrator = new IntegratorRGEMC(random, space, null);
+        integrator = new IntegratorRGEMC(random, space, species1);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
 
@@ -134,7 +135,7 @@ public class GCRestrictedGibbsHS extends Simulation {
             ParseArgs.doParseArgs(params, args);
         }
         else {
-            params.numAtoms = 2;
+            params.numAtoms = 3;
             params.numSteps = 100000;
             params.nBlocks = 100;
             params.vf = 0.01;
@@ -188,24 +189,33 @@ public class GCRestrictedGibbsHS extends Simulation {
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.integrator.getMoveManager().setEquilibrating(false);
 
-        AccumulatorAverageFixed acc = new AccumulatorAverageFixed(samplesPerBlock);
+        AccumulatorAverageCovariance acc = new AccumulatorAverageCovariance();
         MCMoveListenerRGE mcMoveListenerRGE = new MCMoveListenerRGE(acc, sim.box1, sim.species1, numAtoms);
         sim.integrator.getMoveEventManager().addListener(mcMoveListenerRGE);
         sim.getController().actionPerformed();
 
-        IData iavg = acc.getData(AccumulatorAverage.AVERAGE);
-        IData ierr = acc.getData(AccumulatorAverage.ERROR);
-        IData icor = acc.getData(AccumulatorAverage.BLOCK_CORRELATION);
+        IData iavg = acc.getData(acc.AVERAGE);
+        IData ierr = acc.getData(acc.ERROR);
+        IData icor = acc.getData(acc.BLOCK_CORRELATION);
+        IData icov = acc.getData(acc.BLOCK_COVARIANCE);
 
-        double[] avg = new double[numAtoms+1];
-        double[] err = new double[numAtoms+1];
-        double[] cor = new double[numAtoms+1];
+        int n = numAtoms/2+1;
 
-        for(int i=0; i<numAtoms+1; i++){
+        double[] avg = new double[n];
+        double[] err = new double[n];
+        double[] cor = new double[n];
+
+        for(int i=0; i<n; i++){
             avg[i] = iavg.getValue(i);
             err[i] = ierr.getValue(i);
             cor[i] = icor.getValue(i);
             System.out.print(String.format("%d avg: %13.6e   err: %11.4e   cor: % 4.2f\n",i, avg[i], err[i], cor[i]));
+        }
+
+        for(int i=0; i<n; i++){
+            for(int j=i+1; j<n; j++){
+                System.out.println("cor: "+icov.getValue(i*n+j)/(Math.sqrt(icov.getValue(i*n+i)*icov.getValue(j*n+j))));
+            }
         }
 
         long t2 = System.currentTimeMillis();
