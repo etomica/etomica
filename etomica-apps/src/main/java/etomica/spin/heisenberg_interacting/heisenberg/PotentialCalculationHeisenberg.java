@@ -376,11 +376,17 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
         }
 
         System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
+        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
+        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
+        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
         System.out.println("nMax= " + nMax + ";");
         System.out.println("bJ= " + bJ + ";");
         System.out.println("ei={" + ei.getX(0) + "," + ei.getX(1) + "};");
         System.out.println("ej={" + ej.getX(0) + "," + ej.getX(1) + "};");
-//        System.exit(2);
+        System.out.println("theta1 = ArcCos[ei[[1]]];");
+        System.out.println("theta2 = ArcCos[ej[[1]]];");
+        System.out.println("bt = bJ/J;");
+        System.out.println("bmu = bt*mu;");
 
 //        System.out.println("Ayc0- " + "(" + Ayc0 + ")");
 //        System.out.println("Ays0- " + "(" + Ays0 + ")");
@@ -414,6 +420,8 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
         double lnp2 = -lnp1;
         double px1 = bmu * p0 * (Math.cos(t1) + Math.cos(t2));
         double py1 = bmu * p0 * (Math.sin(t1) + Math.sin(t2));
+        double test1 = 0;
+        double test2 = 0;
         for (int n = 0; n <= nMax; n++) {
 //             psix1, psix2,psix11,psix12,psix22,psi1x1,psi1x2;
 //             psiy1, psiy2,psiy11,psiy12,psiy22,psi1y1,psi1y2;
@@ -427,11 +435,14 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
             psi1y1 += dAys1[n] * Math.sin(n * t2) + dAyc1[n] * Math.cos(n * t2);
 
 
-            psi1x2 += n * Axs1[n] * Math.cos(n * t2) - n * Axc1[n] * Math.cos(n * t2);
-            psi1y2 += n * Ays1[n] * Math.cos(n * t2) - n * Ayc1[n] * Math.cos(n * t2);
+            psi1x2 += n * Axs1[n] * Math.cos(n * t2) - n * Axc1[n] * Math.sin(n * t2);
+            psi1y2 += n * Ays1[n] * Math.cos(n * t2) - n * Ayc1[n] * Math.sin(n * t2);
 
             psix11 += d2Axs0[n] * Math.sin(n * t2) + d2Axc0[n] * Math.cos(n * t2);
             psiy11 += d2Ays0[n] * Math.sin(n * t2) + d2Ayc0[n] * Math.cos(n * t2);
+
+            test1 += d2Axs0[n] * Math.sin(n * t2);
+            test2 += d2Axc0[n] * Math.cos(n * t2);
 
             psix12 += n * dAxs0[n] * Math.cos(n * t2) - n * dAxc0[n] * Math.sin(n * t2);
             psiy12 += n * dAys0[n] * Math.cos(n * t2) - n * dAyc0[n] * Math.sin(n * t2);
@@ -440,11 +451,23 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
             psiy22 += -n * n * Ays0[n] * Math.sin(n * t2) - n * n * Ayc0[n] * Math.cos(n * t2);
         }
 
+//        System.out.println("d2Axs0[0]= " + d2Axs0[0]);
+//        System.out.println("d2Axc0[0]= " + d2Axc0[0]);
+//        System.out.println("d2Axs0[3]= " + d2Axs0[3]);
+//        System.out.println("d2Axc0[3]= " + d2Axc0[3]);
+//        System.out.println("d2Ays0[0]= " + d2Ays0[0]);
+//        System.out.println("d2Ayc0[0]= " + d2Ayc0[0]);
+//        System.out.println("d2Ays0[3]= " + d2Ays0[3]);
+//        System.out.println("d2Ayc0[3]= " + d2Ayc0[3]);
+
+//        System.out.println("test1= "+ test1);
+//        System.out.println("test2= "+ test2);
+//        System.exit(2);
 
         System.out.println("psix1- " + "(" + psix1 + ")");
         System.out.println("psiy1- " + "(" + psiy1 + ")");
         System.out.println("psix2- " + "(" + psix2 + ")");
-        System.out.println("psiy2- " + "(" + psix2 + ")");
+        System.out.println("psiy2- " + "(" + psiy2 + ")");
         System.out.println("psi1x1- " + "(" + psi1x1 + ")");
         System.out.println("psi1y1- " + "(" + psi1y1 + ")");
         System.out.println("psi1x2- " + "(" + psi1x2 + ")");
