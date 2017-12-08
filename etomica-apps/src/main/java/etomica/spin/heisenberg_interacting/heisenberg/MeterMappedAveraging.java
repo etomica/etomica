@@ -71,7 +71,8 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MeterMappe
         secondDerivativeSum = new PotentialCalculationPhiSumHeisenberg(space, J, bt);
 
         //TODO debug only
-        Ans = new PotentialCalculationHeisenberg(space, dipoleMagnitude, interactionS, bt);
+        int nmax = 5;
+        Ans = new PotentialCalculationHeisenberg(space, dipoleMagnitude, interactionS, bt, nmax);
 
         allAtoms = new IteratorDirective();
 
@@ -89,10 +90,11 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MeterMappe
         potentialMaster.calculate(box, allAtoms, secondDerivativeSum);
 
         //TODO need to ask andrew about this
-//        Ans.doCalculation(leafList, 5);
         Ans.zeroSumJEEMJEJE();
-//        potentialMaster.calculate(box, allAtoms, Ans);
+        potentialMaster.calculate(box, allAtoms, Ans);
         Ans.getSumJEEMJEJE();
+        System.out.println(Ans.getSumJEEMJEJE());
+        System.exit(2);//TODO
 
         double bt2 = bt * bt;
         double mu2 = mu * mu;

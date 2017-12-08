@@ -2,8 +2,8 @@ package etomica.spin.heisenberg_interacting.heisenberg;
 
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.potential.IPotentialAtomic;
-import etomica.potential.IPotentialAtomicSecondDerivative;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.*;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -16,8 +16,8 @@ import static etomica.math.SpecialFunctions.besselI;
  * @author Weisong Lin
  */
 
-//public class PotentialCalculationHeisenberg implements PotentialCalculationMolecular {
-public class PotentialCalculationHeisenberg {
+public class PotentialCalculationHeisenberg implements PotentialCalculation {
+    //public class PotentialCalculationHeisenberg {
     protected Vector ei, ej;
     protected double JEEMJEJE, UEE, VarJEMUE;
     protected final double mu, J, bt, bJ, bmu; //TODO should I add final here
@@ -27,8 +27,9 @@ public class PotentialCalculationHeisenberg {
     protected double[] d2Ayc0, d2Ays0, d3Ayc0, d3Ays0, d2Ayc1, d2Ays1;
     protected double psix1, psix2, psix11, psix12, psix22, psi1x1, psi1x2;
     protected double psiy1, psiy2, psiy11, psiy12, psiy22, psi1y1, psi1y2;
+    protected int nMax = 0;
 
-    public PotentialCalculationHeisenberg(Space space, double dipoleMagnitude, double interactionS, double beta) {
+    public PotentialCalculationHeisenberg(Space space, double dipoleMagnitude, double interactionS, double beta, int nmax) {
         ei = space.makeVector();//TODO Do I have to do this again.
         ej = space.makeVector();
         J = interactionS;
@@ -36,25 +37,50 @@ public class PotentialCalculationHeisenberg {
         bt = beta;
         bJ = bt * J;
         bmu = bt * mu;
+        nMax = nmax;
+
+        Axc0 = new double[nMax + 1];
+        Axs0 = new double[nMax + 1];
+        dAxc0 = new double[nMax + 1];
+        dAxs0 = new double[nMax + 1];
+        Axc1 = new double[nMax + 1];
+        Axs1 = new double[nMax + 1];
+        dAxc1 = new double[nMax + 1];
+        dAxs1 = new double[nMax + 1];
+        d2Axc0 = new double[nMax + 1];
+        d2Axs0 = new double[nMax + 1];
+        d3Axc0 = new double[nMax + 1];
+        d3Axs0 = new double[nMax + 1];
+        d2Axc1 = new double[nMax + 1];
+        d2Axs1 = new double[nMax + 1];
+        Ayc0 = new double[nMax + 1];
+        Ays0 = new double[nMax + 1];
+        dAyc0 = new double[nMax + 1];
+        dAys0 = new double[nMax + 1];
+        Ayc1 = new double[nMax + 1];
+        Ays1 = new double[nMax + 1];
+        dAyc1 = new double[nMax + 1];
+        dAys1 = new double[nMax + 1];
+        d2Ayc0 = new double[nMax + 1];
+        d2Ays0 = new double[nMax + 1];
+        d3Ayc0 = new double[nMax + 1];
+        d3Ays0 = new double[nMax + 1];
+        d2Ayc1 = new double[nMax + 1];
+        d2Ays1 = new double[nMax + 1];
+
     }
 
-    public void doCalculation(IAtomList atoms, int nMax, IPotentialAtomic potential) {
+
+    public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
+        if (!(potential instanceof IPotentialAtomicSecondDerivative)) {
+            return;
+        }
         IAtomOriented atom1 = (IAtomOriented) atoms.getAtom(0);
         IAtomOriented atom2 = (IAtomOriented) atoms.getAtom(1);
         ei.E(atom1.getOrientation().getDirection());
         ej.E(atom2.getOrientation().getDirection());
         double t1 = Math.acos(ei.getX(0));
         double t2 = Math.acos(ej.getX(0));
-        if (t1 > 1) {
-            t1 = 1;
-        } else if (t1 < -1) {
-            t1 = -1;
-        }
-        if (t2 > 1) {
-            t2 = 1;
-        } else if (t2 < -1) {
-            t2 = -1;
-        }
 
         double I0bJ = besselI(0, bJ);
         double I1bJ = besselI(1, bJ);
@@ -348,12 +374,13 @@ public class PotentialCalculationHeisenberg {
                 );
             }
         }
-//        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
-//        System.out.println("nMax= " + nMax + ";");
-//        System.out.println("bJ= " + bJ + ";");
-//        System.out.println("ei={" + ei.getX(0) + "," + ei.getX(1) + "};");
-//        System.out.println("ej={" + ej.getX(0) + "," + ej.getX(1) + "};");
-//        System.out.println("zero_order term= " + test0);
+
+        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
+        System.out.println("nMax= " + nMax + ";");
+        System.out.println("bJ= " + bJ + ";");
+        System.out.println("ei={" + ei.getX(0) + "," + ei.getX(1) + "};");
+        System.out.println("ej={" + ej.getX(0) + "," + ej.getX(1) + "};");
+//        System.exit(2);
 
 //        System.out.println("Ayc0- " + "(" + Ayc0 + ")");
 //        System.out.println("Ays0- " + "(" + Ays0 + ")");
@@ -387,7 +414,7 @@ public class PotentialCalculationHeisenberg {
         double lnp2 = -lnp1;
         double px1 = bmu * p0 * (Math.cos(t1) + Math.cos(t2));
         double py1 = bmu * p0 * (Math.sin(t1) + Math.sin(t2));
-        for (int n = 0; n < nMax; n++) {
+        for (int n = 0; n <= nMax; n++) {
 //             psix1, psix2,psix11,psix12,psix22,psi1x1,psi1x2;
 //             psiy1, psiy2,psiy11,psiy12,psiy22,psi1y1,psi1y2;
             psix1 += dAxs0[n] * Math.sin(n * t2) + dAxc0[n] * Math.cos(n * t2);
@@ -413,6 +440,23 @@ public class PotentialCalculationHeisenberg {
             psiy22 += -n * n * Ays0[n] * Math.sin(n * t2) - n * n * Ayc0[n] * Math.cos(n * t2);
         }
 
+
+        System.out.println("psix1- " + "(" + psix1 + ")");
+        System.out.println("psiy1- " + "(" + psiy1 + ")");
+        System.out.println("psix2- " + "(" + psix2 + ")");
+        System.out.println("psiy2- " + "(" + psix2 + ")");
+        System.out.println("psi1x1- " + "(" + psi1x1 + ")");
+        System.out.println("psi1y1- " + "(" + psi1y1 + ")");
+        System.out.println("psi1x2- " + "(" + psi1x2 + ")");
+        System.out.println("psi1y2- " + "(" + psi1y2 + ")");
+        System.out.println("psix11- " + "(" + psix11 + ")");
+        System.out.println("psiy11- " + "(" + psiy11 + ")");
+        System.out.println("psix22- " + "(" + psix22 + ")");
+        System.out.println("psiy22- " + "(" + psiy22 + ")");
+
+        System.exit(2);
+
+
         double vEx1 = psix1 / p0;
         double vEx2 = psix2 / p0;
         double vEy1 = psiy1 / p0;
@@ -426,7 +470,7 @@ public class PotentialCalculationHeisenberg {
 
         //divergence of vEE
         //x
-        JEEMJEJE = bmu * bmu * (1 + I1bJ / I0bJ) - (vEEx1 * lnp1 + vEEx2 * lnp2) + bmu * pM1 * (psix1 * Math.sin(t1) + psix2 * Math.sin(t2));
+        JEEMJEJE += bmu * bmu * (1 + I1bJ / I0bJ) - (vEEx1 * lnp1 + vEEx2 * lnp2) + bmu * pM1 * (psix1 * Math.sin(t1) + psix2 * Math.sin(t2));
         //y
         JEEMJEJE += bmu * bmu * (1 + I1bJ / I0bJ) - (vEEy1 * lnp1 + vEEy2 * lnp2) - bmu * pM1 * (psiy1 * Math.cos(t1) + psiy2 * Math.cos(t2));
 
@@ -446,12 +490,12 @@ public class PotentialCalculationHeisenberg {
         Vector[][] t = potentialSecondDerivative.gradientAndTorque(atoms);//TODO
         double f1 = t[1][0].getX(0);
         double f2 = t[1][1].getX(0);
-        System.out.println("f1 = " + f1);
+//        System.out.println("f1 = " + f1);
 
         double JEMUEx = bJ * Math.sin(t1 - t2) * pM1 * (psix1 - psix2) - (vEx1 * f1 + vEx2 * f2);
         double JEMUEy = bJ * Math.sin(t1 - t2) * pM1 * (psiy1 - psiy2) - (vEx1 * f1 + vEx2 * f2);
 
-        VarJEMUE = JEMUEx + JEMUEy;
+        VarJEMUE += JEMUEx * JEMUEx + JEMUEy * JEMUEy;
         //TODO how to return variance for both direction maybe I should return both x and y value?
 
 
@@ -473,7 +517,7 @@ public class PotentialCalculationHeisenberg {
         double fyE1 = bmu * Math.cos(t1);
         double fyE2 = bmu * Math.cos(t2);
 
-        UEE = vEEx1 * f1 + vEEx2 * f2 + vDotGradvx1 * f1 + vDotGradvx2 * f2
+        UEE += vEEx1 * f1 + vEEx2 * f2 + vDotGradvx1 * f1 + vDotGradvx2 * f2
                 + vEx1 * (p11 * vEx1 + p12 * vEx2) + vEx2 * (p12 * vEx1 + p22 * vEx2)
                 + 2 * vEx1 * fxE1 + 2 * vEx2 * fxE2;
 

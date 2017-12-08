@@ -65,8 +65,8 @@ public class Heisenberg extends Simulation {
      */
     public Heisenberg(Space space, int nCells, double temperature, double interactionS, double dipoleMagnitude) {
         super(Space2D.getInstance());
-//        setRandom(new RandomNumberGenerator(1)); //debug only
-//        System.out.println("============================the RandomSeed is one ===========================");
+        setRandom(new RandomNumberGenerator(1)); //debug only
+        System.out.println("============================the RandomSeed is one ===========================");
 
         potentialMaster = new PotentialMasterSite(this, nCells, space);
         box = new Box(space);
