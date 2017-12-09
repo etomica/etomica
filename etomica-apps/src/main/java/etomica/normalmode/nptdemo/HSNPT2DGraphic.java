@@ -39,7 +39,7 @@ public class HSNPT2DGraphic extends SimulationGraphic {
         getDisplayBox(sim.box).setScale(0.8);
         redColorScheme = getDisplayBox(sim.box).getColorScheme();
 
-        displayBoxScaled = new DisplayBox(sim, sim.box, sim.getSpace(), sim.getController());
+        displayBoxScaled = new DisplayBox(sim, sim.box);
         displayBoxScaled.setScale(0.9);
         System.out.println("displayBoxScaled created");
         DisplayCanvas oldCanvas = displayBoxScaled.canvas;

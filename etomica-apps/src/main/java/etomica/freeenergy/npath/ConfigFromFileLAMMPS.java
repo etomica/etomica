@@ -156,7 +156,7 @@ public class ConfigFromFileLAMMPS {
         }
         if (!GUI) return;
         SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
-        final DisplayBox display = new DisplayBox(sim, box, space, sim.getController());
+        final DisplayBox display = new DisplayBox(sim, box);
         final DisplayBoxCanvasG3DSys.OrientedSite site = new DisplayBoxCanvasG3DSys.OrientedSite(0.5, Color.WHITE, 0.5);
         ((DisplayBoxCanvasG3DSys) display.canvas).setOrientationSites((AtomTypeOriented) species.getAtomType(0), new DisplayBoxCanvasG3DSys.OrientedSite[]{site});
         graphic.add(display);

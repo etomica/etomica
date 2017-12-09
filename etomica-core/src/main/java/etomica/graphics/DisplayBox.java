@@ -108,11 +108,11 @@ public class DisplayBox extends Display {
      * }
      * @param box
      */
-    public DisplayBox(Simulation sim, Box box, Space space, Controller controller) {
+    public DisplayBox(Simulation sim, Box box) {
         super();
         this.sim = sim;
-        this.controller = controller;
-        this.space = space;
+        this.controller = sim.getController();
+        this.space = sim.getSpace();
         colorScheme = new ColorSchemeByType(sim);
         setLabel("Configuration");
 

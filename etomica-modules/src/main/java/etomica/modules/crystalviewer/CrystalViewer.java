@@ -80,7 +80,7 @@ public class CrystalViewer extends SimulationPanel {
         String[] latticeNames = new String[]{
                 "Simple Cubic", "Tetragonal", "Hexagonal", "Orthorhombic", "Monoclinic", "Triclinic", "FCC", "BCC", "HCP", "Diamond"};
 
-        displayBox = new DisplayBox(sim, box, space, null);
+        displayBox = new DisplayBox(sim, box);
         displayBox.setPixelUnit(new Pixel(20));
         displayBox.setResizeOnNewBox(false);
 
