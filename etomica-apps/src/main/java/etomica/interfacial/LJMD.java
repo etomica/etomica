@@ -220,7 +220,7 @@ public class LJMD extends Simulation {
 
         if (graphics) {
             final String APP_NAME = "LJMD";
-            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3, sim.getSpace(), sim.getController());
+            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3);
 
             List<DataPump> dataStreamPumps = simGraphic.getController().getDataStreamPumps();
             dataStreamPumps.add(profilePump);

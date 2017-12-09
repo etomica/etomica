@@ -191,7 +191,7 @@ public class TestHexaneFileConfig extends Simulation {
         System.out.println("Happy Goodness!!");
 
         if (graphic) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim);
             simGraphic.makeAndDisplayFrame();
         } else {
             //parse arguments

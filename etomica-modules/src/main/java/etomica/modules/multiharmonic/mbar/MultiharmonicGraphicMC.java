@@ -39,7 +39,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
      * 
      */
     public MultiharmonicGraphicMC(MultiharmonicMC simulation, Space _space) {
-        super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
+        super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL);
         this.sim = simulation;
         final DisplayBox displayBoxA = getDisplayBox(sim.boxA);
         remove(displayBoxA);

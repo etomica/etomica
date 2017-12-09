@@ -639,7 +639,7 @@ public static void main(String[] args) {
 
               sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
 
-              SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+              SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
 
               DisplayBox dBox0 = simGraphic.getDisplayBox(sim.box[0]);
 

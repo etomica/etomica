@@ -495,7 +495,7 @@ public class HSDimerNPT extends Simulation {
             }
 
 
-            SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.getSpace(), sim.getController());
+            SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DiameterHashByType diameter = new DiameterHashByType(sim);
             diameter.setDiameter(sim.species.getDimerAtomType(), 1.0);
             graphic.getDisplayBox(sim.box).setDiameterHash(diameter);

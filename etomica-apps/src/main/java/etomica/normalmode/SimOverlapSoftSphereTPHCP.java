@@ -208,7 +208,7 @@ public class SimOverlapSoftSphereTPHCP extends Simulation {
         //instantiate simulation
         final SimOverlapSoftSphereTPHCP sim = new SimOverlapSoftSphereTPHCP(Space.getInstance(3), numMolecules, density, temperature, otherTemperatures, alpha, exponentN, numAlpha, alphaSpan, numSteps, rc);
         if (true) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.setPaintInterval(sim.box, 1000);
             ColorScheme colorScheme = new ColorScheme() {
                 protected Color[] allColors;

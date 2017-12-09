@@ -281,7 +281,7 @@ public class SimOverlapSoftSphereHCP extends Simulation {
         final SimOverlapSoftSphereHCP sim = new SimOverlapSoftSphereHCP(Space.getInstance(D), numMolecules, density, temperature, filename, harmonicFudge, exponentN);
 
         if (false) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.makeAndDisplayFrame();
             return;
         }

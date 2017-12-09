@@ -229,7 +229,7 @@ public class TIP4P_NVT extends Simulation {
          double dipoleStrength = 168.96979945736229;
          
          if (isGraphic){
-        	  SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+        	  SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
         	  simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(PIXEL_SIZE));
         	  simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));            
         	 

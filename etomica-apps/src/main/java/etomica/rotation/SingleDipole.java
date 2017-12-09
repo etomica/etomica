@@ -50,7 +50,7 @@ public class SingleDipole {
         integrator.getEventManager().addListener(new IntegratorListenerAction(pbc));
 
         ai.setSleepPeriod(10);
-        SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1, space, sim.getController());
+        SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1);
         
         return graphic;
     }

@@ -113,7 +113,7 @@ public class Mu extends Simulation {
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
         Mu sim = new Mu(space);
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, "", 1, space, sim.getController());
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, "", 1);
         simGraphic.makeAndDisplayFrame();
     }
 }

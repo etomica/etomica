@@ -136,7 +136,7 @@ public class MappedRdf extends Simulation {
             sim.integrator.getEventManager().addListener(rdfPumpListener);
             rdfPumpListener.setInterval(10*numAtoms);
 
-            SimulationGraphic gsim = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE,space,sim.getController());
+            SimulationGraphic gsim = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE);
 
             rdfPlot.setDoLegend(false);
             rdfPlot.getPlot().setTitle("Radial Distribution Function");

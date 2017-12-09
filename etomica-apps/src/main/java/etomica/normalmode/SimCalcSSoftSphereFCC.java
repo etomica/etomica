@@ -197,7 +197,7 @@ public class SimCalcSSoftSphereFCC extends Simulation {
          * Graphical Simulation
 		 */
 		if(false){
-			SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
+			SimulationGraphic simGraphic = new SimulationGraphic(sim);
 			simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(50));
 			ColorSchemeRandom colorRandom = new ColorSchemeRandom(sim.box, sim.random);
 			simGraphic.getDisplayBox(sim.box).setColorScheme(colorRandom);

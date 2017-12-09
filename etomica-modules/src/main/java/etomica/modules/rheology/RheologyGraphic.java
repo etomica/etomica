@@ -37,7 +37,7 @@ import g3dsys.images.Figure;
 public class RheologyGraphic extends SimulationGraphic {
 
     public RheologyGraphic(final SimulationRheology sim) {
-        super(sim, SimulationGraphic.TABBED_PANE, "Polymer Rheology", 1, sim.getSpace(), sim.getController());
+        super(sim, SimulationGraphic.TABBED_PANE, "Polymer Rheology", 1);
         sim.setChainLength(10);
         final Object bondObject = new Object();
         final ArrayList<Figure> bondList = new ArrayList<Figure>();

@@ -39,7 +39,7 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
 
 	public EntropyLotteryGraphic(final EntropyLottery simulation, Space _space) {
 
-		super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_ACTION, _space, simulation.getController());
+		super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_ACTION);
         this.sim = simulation;
 
         sim.activityIntegrate.setSleepPeriod(10);

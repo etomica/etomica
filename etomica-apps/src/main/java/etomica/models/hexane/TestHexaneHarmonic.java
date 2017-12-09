@@ -240,7 +240,7 @@ public class TestHexaneHarmonic extends Simulation {
         harmonicSingleAvg.addDataSink(fooerSingle, new StatType[]{harmonicSingleAvg.AVERAGE});
 
         if (graphic) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sim.space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
             ArrayList dataStreamPumps = simGraphic.getController().getDataStreamPumps();
             dataStreamPumps.add(pump);
             dataStreamPumps.add(pumpSingle);

@@ -310,7 +310,7 @@ public class SimDimerMEAMGB extends Simulation{
         //sim.integratorDimer.setActionInterval(energyPump,1);
 
 
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 1, sim.space, sim.getController());
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 1);
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
         simGraphic.add(plotPE);
 

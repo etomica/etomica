@@ -110,7 +110,7 @@ public class DeviceToggleButton extends DeviceButton {
 
     	etomica.space.Space sp = etomica.space2d.Space2D.getInstance();
         final HSMD2D sim = new HSMD2D();
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME,sp, sim.getController());
+        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
 
         //here's the part unique to this class
         //sets up button to toggle atoms between red and blue

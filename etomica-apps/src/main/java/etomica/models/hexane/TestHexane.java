@@ -200,7 +200,7 @@ public class TestHexane extends Simulation {
         System.out.println("Happy Goodness!!");
 
         if (graphic) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.makeAndDisplayFrame();
         } else {
             long time = System.currentTimeMillis();

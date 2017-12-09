@@ -152,7 +152,7 @@ public class LjMC3D extends Simulation {
 
         if (graphics) {
             final String APP_NAME = "LjMC3D";
-            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3, sim.getSpace(), sim.getController());
+            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3);
     
             simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 

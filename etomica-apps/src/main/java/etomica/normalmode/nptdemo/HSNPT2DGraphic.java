@@ -34,7 +34,7 @@ public class HSNPT2DGraphic extends SimulationGraphic {
     protected final ColorSchemeScaledOverlap colorSchemeScaled;
 
     public HSNPT2DGraphic(HSNPT2DSim sim) {
-        super(sim, TABBED_PANE, sim.getSpace(), sim.getController());
+        super(sim, TABBED_PANE);
         this.sim = sim;
         getDisplayBox(sim.box).setScale(0.8);
         redColorScheme = getDisplayBox(sim.box).getColorScheme();

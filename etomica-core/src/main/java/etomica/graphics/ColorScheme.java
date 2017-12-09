@@ -51,7 +51,7 @@ public abstract class ColorScheme {
       final String APP_NAME = "Color Scheme";
 
         final etomica.simulation.prototypes.HSMD3D sim = new etomica.simulation.prototypes.HSMD3D();
-        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sim.getSpace(), sim.getController());
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
 
       IAction repaintAction = simGraphic.getPaintAction(sim.box);
 

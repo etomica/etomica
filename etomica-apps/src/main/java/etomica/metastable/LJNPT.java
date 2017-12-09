@@ -147,7 +147,7 @@ public class LJNPT extends Simulation {
             meterPE.setIntegrator(sim.integrator);
             
             if (false) {
-                SimulationGraphic ljmcGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+                SimulationGraphic ljmcGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
                 ljmcGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(3));
                 
                 SimulationGraphic.makeAndDisplayFrame(ljmcGraphic.getPanel(), "LJ Spinodal");

@@ -198,7 +198,7 @@ public class SimLJHTTISuperHCP extends Simulation {
         }
         System.out.println("Random seeds: "+Arrays.toString(seeds));
         if (false) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.setPaintInterval(sim.box, 1000);
             ColorScheme colorScheme = new ColorScheme() {
                 protected Color[] allColors;

@@ -330,7 +330,7 @@ public class DeviceThermoSliderGEMC extends Device {
 
         Space sp = Space2D.getInstance();
         etomica.simulation.Simulation sim = new etomica.simulation.Simulation(sp);
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME, sp, sim.getController());
+        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
         graphic.getPanel().controlPanel.remove(graphic.getController().graphic());
         graphic.add(device);
         graphic.makeAndDisplayFrame(APP_NAME);

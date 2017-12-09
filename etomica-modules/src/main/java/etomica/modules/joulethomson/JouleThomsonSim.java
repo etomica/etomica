@@ -105,7 +105,7 @@ public class JouleThomsonSim extends Simulation {
     public static void main(String[] args) {
     	Space sp = Space3D.getInstance();
         JouleThomsonSim sim = new JouleThomsonSim(sp);
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, sp, sim.getController());
+        SimulationGraphic simGraphic = new SimulationGraphic(sim);
         simGraphic.makeAndDisplayFrame();
         final DisplayBox displayBox = simGraphic.getDisplayBox(sim.box);
         sim.activityIntegrate.setSleepPeriod(10);

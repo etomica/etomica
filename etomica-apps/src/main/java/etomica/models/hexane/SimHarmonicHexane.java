@@ -216,7 +216,7 @@ public class SimHarmonicHexane extends Simulation {
             meterNormalMode.setBox(sim.box);
             
             //graphic simulation - set up window
-            SimulationGraphic simG = new SimulationGraphic(sim, APP_NAME, sim.space, sim.getController());
+            SimulationGraphic simG = new SimulationGraphic(sim, APP_NAME);
             ArrayList dataStreamPumps = simG.getController().getDataStreamPumps();
             dataStreamPumps.add(pump);
             dataStreamPumps.add(pumpHarmonic);

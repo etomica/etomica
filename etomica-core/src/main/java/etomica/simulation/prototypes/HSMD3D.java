@@ -127,7 +127,7 @@ public class HSMD3D extends Simulation {
 
         HSMD3DParam params = new HSMD3DParam();
         final HSMD3D sim = new HSMD3D(params);
-        final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space, sim.getController());
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));
         nSelector.setSpecies(sim.species);

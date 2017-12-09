@@ -146,7 +146,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
 //        System.out.println("o at "+((IAtomPositioned)box.getLeafList().getAtom(2)).getPosition());
         if (false) {
             // ai.setSleepPeriod(10);
-            SimulationGraphic graphic = new SimulationGraphic(sim, "Quat", 1, space, sim.getController());
+            SimulationGraphic graphic = new SimulationGraphic(sim, "Quat", 1);
             ColorSchemeByType colorScheme = (ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme();
             colorScheme.setColor(oType, Color.RED);
             colorScheme.setColor(hType, Color.WHITE);

@@ -79,7 +79,7 @@ public class SWMD3D extends Simulation {
         final String APP_NAME = "SWMD3D";
 
         final SWMD3D sim = new SWMD3D();
-        final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space, sim.getController());
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
 
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 

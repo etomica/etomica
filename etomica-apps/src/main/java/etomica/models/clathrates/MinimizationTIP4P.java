@@ -364,7 +364,7 @@ public class MinimizationTIP4P extends Simulation{
         writeConfig.actionPerformed();
         
 		if(isGraphics){
-		    final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "string", sim.space, sim.getController());
+		    final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "string");
 		    final DisplayBox display = new DisplayBox(sim, sim.box);
 		    simGraphic.add(display);
 		    ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getHydrogenType(), Color.GREEN);

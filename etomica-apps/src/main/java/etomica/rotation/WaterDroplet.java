@@ -69,7 +69,7 @@ public class WaterDroplet {
         potentialMaster.addPotential(p2Water, new ISpecies[]{species,species});
         if (false) {
             ai.setSleepPeriod(2);
-            SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Rigid", 1, space, sim.getController());
+            SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Rigid", 1);
             ((ColorSchemeByType)graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
             ((ColorSchemeByType)graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);
     

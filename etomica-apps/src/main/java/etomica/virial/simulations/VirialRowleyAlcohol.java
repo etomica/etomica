@@ -345,7 +345,7 @@ public class VirialRowleyAlcohol {
 
             referenceBox.getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
             targetBox.getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.getDisplayBox(referenceBox).setShowBoundary(false);
             simGraphic.getDisplayBox(targetBox).setShowBoundary(false);
 

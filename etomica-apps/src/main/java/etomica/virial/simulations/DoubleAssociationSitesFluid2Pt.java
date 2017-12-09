@@ -121,7 +121,7 @@ public class DoubleAssociationSitesFluid2Pt {
 		if (false) {
             sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
             sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
             Species species = (Species)sim.getSpecies(0);

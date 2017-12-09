@@ -628,7 +628,7 @@ public class Wertheim2SiteAceticAcid {
         if (false) {
             referenceBox.getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
             targetBox.getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             ColorSchemeByType colorScheme0 = (ColorSchemeByType) simGraphic.getDisplayBox(referenceBox).getColorScheme();
             ColorSchemeByType colorScheme1 = (ColorSchemeByType) simGraphic.getDisplayBox(targetBox).getColorScheme();
             DiameterHashByType diameterScheme0 = (DiameterHashByType) simGraphic.getDisplayBox(referenceBox).getDiameterHash();

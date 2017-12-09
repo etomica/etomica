@@ -216,7 +216,7 @@ public class HSNPT extends Simulation {
         }
 
         if (true) {
-            SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.getSpace(), sim.getController());
+            SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
 
             if (!params.nvt) {
                 AccumulatorHistory densityHistory = new AccumulatorHistory(new HistoryCollapsingAverage());

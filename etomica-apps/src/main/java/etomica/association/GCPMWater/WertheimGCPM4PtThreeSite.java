@@ -521,7 +521,7 @@ public class WertheimGCPM4PtThreeSite {
 		if (false) {
             sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
             sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             SpeciesWater4P species = (SpeciesWater4P)sim.getSpecies(0);
             ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[0]).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
             ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[1]).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);

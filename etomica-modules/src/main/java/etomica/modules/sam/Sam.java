@@ -32,7 +32,6 @@ import etomica.space.BoundaryRectangularSlit;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.IOrientation3D;
-import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Calorie;
@@ -270,7 +269,7 @@ public class Sam extends Simulation {
 
     public static void main(String[] args) {
         Sam sim = new Sam();
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, Space3D.getInstance(), sim.getController());
+        SimulationGraphic simGraphic = new SimulationGraphic(sim);
         simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(15));
 //        sim.integrator.setActionInterval(simGraphic.getPaintAction(sim.box), 10);
         simGraphic.getDisplayBox(sim.box).canvas.setDrawBoundary(DisplayCanvas.DRAW_BOUNDARY_NONE);

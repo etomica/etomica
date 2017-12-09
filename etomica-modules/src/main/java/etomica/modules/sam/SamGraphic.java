@@ -47,7 +47,7 @@ public class SamGraphic extends SimulationGraphic {
     public final DeviceSlider numCellsSlider;
     
     public SamGraphic(final Sam sim) {
-        super(sim, SimulationGraphic.TABBED_PANE, "SAM", sim.getSpace(), sim.getController());
+        super(sim, SimulationGraphic.TABBED_PANE, "SAM");
         DisplayBox displayBox = getDisplayBox(sim.box);
         displayBox.setPixelUnit(new Pixel(8));
         setPaintInterval(sim.box, 1);

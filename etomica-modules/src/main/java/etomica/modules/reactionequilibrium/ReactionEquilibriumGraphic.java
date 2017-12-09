@@ -54,7 +54,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 
 	public ReactionEquilibriumGraphic(ReactionEquilibrium simulation, Space space) {
 
-		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, space, simulation.getController());
+		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
         this.sim = simulation;
 
         resetAction = getController().getSimRestart().getDataResetAction();

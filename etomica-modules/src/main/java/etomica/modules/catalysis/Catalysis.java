@@ -151,7 +151,7 @@ public class Catalysis extends Simulation {
         int nCellsZ = 20;
         
         Catalysis sim = new Catalysis(space, nCellsZ);
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, "Catalysis", 1, sim.space, sim.getController());
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, "Catalysis", 1);
         simGraphic.makeAndDisplayFrame();
     }
 }

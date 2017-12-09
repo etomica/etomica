@@ -52,7 +52,7 @@ public class MuGraphic extends SimulationGraphic {
 
     public MuGraphic(final Mu simulation, Space _space) {
 
-    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
+    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 
         this.sim = simulation;
 

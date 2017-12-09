@@ -41,7 +41,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
 
     public ChainEquilibriumGraphic(ChainEquilibriumSim simulation, Space _space) {
 
-		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
+		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
         getPanel().toolbar.addAuthor("Dr. William Chirdon");
         this.sim = simulation;
         

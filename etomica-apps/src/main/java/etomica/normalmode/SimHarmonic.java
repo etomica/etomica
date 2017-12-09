@@ -228,7 +228,7 @@ public class SimHarmonic extends Simulation {
 
             //graphic simulation -- set up window
 //            sim.getDefaults().pixelUnit = new Pixel(0.05);
-            SimulationGraphic simG = new SimulationGraphic(sim, APP_NAME, sim.space, sim.getController());
+            SimulationGraphic simG = new SimulationGraphic(sim, APP_NAME);
             ArrayList dataStreamPumps = simG.getController().getDataStreamPumps();
             dataStreamPumps.add(pump);
             dataStreamPumps.add(pumpHarmonic);

@@ -46,7 +46,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
 
     public StatisticsMCGraphic(final LJMC simulation, int moduleNum) {
 
-        super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, simulation.getSpace(), simulation.getController());
+        super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
 

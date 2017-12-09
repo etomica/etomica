@@ -66,7 +66,7 @@ public class SimulationRheology extends Simulation {
     public static void main(String[] args) {
         SimulationRheology sim = new SimulationRheology(Space3D.getInstance());
         sim.setChainLength(10);
-        SimulationGraphic graphic = new SimulationGraphic(sim, sim.getSpace(), sim.getController());
+        SimulationGraphic graphic = new SimulationGraphic(sim);
         graphic.setPaintInterval(sim.box, 1);
         graphic.makeAndDisplayFrame();
     }

@@ -31,7 +31,7 @@ public class VLE extends SimulationGraphic {
     public boolean showNumMoleculesPlots = false;
 
     public VLE(final VLESim sim, Space _space) {
-        super(sim, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, sim.getController());
+        super(sim, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 
         getDisplayBox(sim.boxLiquid).setPixelUnit(new Pixel(8));
         getPanel().tabbedPane.setTitleAt(0, "Liquid");

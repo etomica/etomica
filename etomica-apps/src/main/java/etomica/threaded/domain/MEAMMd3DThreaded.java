@@ -229,7 +229,7 @@ public class MEAMMd3DThreaded extends Simulation {
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(energyPump));
     	sim.integrator.getEventManager().addListener(new IntegratorListenerAction(kineticPump));
 
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space, sim.getController());
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
         ArrayList<DataPump> dataStreamPumps = simGraphic.getController().getDataStreamPumps();
         dataStreamPumps.add(energyPump);
         dataStreamPumps.add(kineticPump);

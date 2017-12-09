@@ -76,7 +76,7 @@ public class NormalModeAnalysisDisplay1D extends Simulation {
 		Space sp = Space.getInstance(1);
         NormalModeAnalysisDisplay1D sim = new NormalModeAnalysisDisplay1D(sp);
         
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sp, sim.getController());
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
         simGraphic.makeAndDisplayFrame(APP_NAME);
         
 	}

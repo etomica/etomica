@@ -28,7 +28,7 @@ import java.awt.*;
 public class MaterialFractureGraphic extends SimulationGraphic {
 
     public MaterialFractureGraphic(final MaterialFracture sim) {
-        super(sim, SimulationGraphic.TABBED_PANE, "Material Fracture", 1, sim.getSpace(), sim.getController());
+        super(sim, SimulationGraphic.TABBED_PANE, "Material Fracture", 1);
 
         getDisplayBox(sim.box).setPixelUnit(new Pixel(6));
         ((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species.getLeafType(), 3.0);

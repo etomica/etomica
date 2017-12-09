@@ -71,7 +71,7 @@ public class CatalysisGraphic extends SimulationGraphic {
 
     public CatalysisGraphic(final Catalysis simulation, Space _space, boolean showParams) {
 
-    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
+    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
 

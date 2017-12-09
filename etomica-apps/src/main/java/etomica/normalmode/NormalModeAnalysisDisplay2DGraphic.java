@@ -34,7 +34,7 @@ public class NormalModeAnalysisDisplay2DGraphic extends SimulationGraphic {
 
 	public NormalModeAnalysisDisplay2DGraphic(final NormalModeAnalysisDisplay2D simulation, Space space) {
 		
-		super(simulation, TABBED_PANE, APP_NAME,REPAINT_INTERVAL, space, simulation.getController());
+		super(simulation, TABBED_PANE, APP_NAME,REPAINT_INTERVAL);
 		this.sim = simulation;
 		
 		DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);

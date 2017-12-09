@@ -68,7 +68,7 @@ public class HSMD3DNoNbr extends Simulation {
 
     public static void main(String[] args) {
         HSMD3DNoNbr simulation = new HSMD3DNoNbr();
-        SimulationGraphic simGraphic = new SimulationGraphic(simulation, SimulationGraphic.TABBED_PANE, simulation.getSpace(), simulation.getController());
+        SimulationGraphic simGraphic = new SimulationGraphic(simulation, SimulationGraphic.TABBED_PANE);
         simGraphic.makeAndDisplayFrame();
     }
 }//end of class

@@ -67,7 +67,7 @@ public class RenderMDGraphic extends SimulationGraphic {
 
     public RenderMDGraphic(final RenderMD simulation, Space _space) {
 
-    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
+    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
     	
     	RenderMDParam params = new RenderMDParam();
 

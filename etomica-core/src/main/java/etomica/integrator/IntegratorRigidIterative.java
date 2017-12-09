@@ -787,7 +787,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         }
         else {
             ai.setSleepPeriod(2);
-            SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1, space, sim.getController());
+            SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1);
             ((ColorSchemeByType)graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
             ((ColorSchemeByType)graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);
             graphic.makeAndDisplayFrame();

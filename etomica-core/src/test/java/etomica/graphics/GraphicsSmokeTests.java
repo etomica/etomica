@@ -20,7 +20,7 @@ public class GraphicsSmokeTests {
     @Test
     public void testHSMD3D() {
         HSMD3D sim = new HSMD3D();
-        final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "test", sim.getSpace(), sim.getController());
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "test");
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));
         nSelector.setSpecies(sim.species);

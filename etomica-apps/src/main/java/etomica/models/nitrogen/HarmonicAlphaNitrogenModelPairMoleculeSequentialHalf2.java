@@ -294,7 +294,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2 extends Simul
 		test.constructHessianMatrix(nC);
 	
 		if(false){
-			SimulationGraphic simGraphic = new SimulationGraphic(test, SimulationGraphic.TABBED_PANE, test.space, test.getController());
+			SimulationGraphic simGraphic = new SimulationGraphic(test, SimulationGraphic.TABBED_PANE);
 			simGraphic.add(new DisplayBox(test, test.box));
 			simGraphic.getDisplayBox(test.box).setPixelUnit(new Pixel(10));
 			

@@ -239,7 +239,7 @@ public class SimOverlapSoftSphereEin extends Simulation {
         //instantiate simulation
         final SimOverlapSoftSphereEin sim = new SimOverlapSoftSphereEin(Space.getInstance(3), numMolecules, density, slanty, temperature, spring, frac, otherFrac, alpha, exponentN, numAlpha, alphaSpan, numSteps, rc);
         if (false) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.setPaintInterval(sim.box, 1000);
             ColorScheme colorScheme = new ColorScheme() {
                 protected Color[] allColors;

@@ -451,7 +451,7 @@ public class SimOverlapNitrogenModel extends Simulation {
     
         
 		if(false){
-			SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
+			SimulationGraphic simGraphic = new SimulationGraphic(sim);
 		    simGraphic.getDisplayBox(sim.boxHarmonic).setPixelUnit(new Pixel(50));
 		    simGraphic.makeAndDisplayFrame("Overlap Sampling Alpha-Phase Nitrogen Crystal Structure");
 			sim.activityIntegrate.setMaxSteps(numSteps);

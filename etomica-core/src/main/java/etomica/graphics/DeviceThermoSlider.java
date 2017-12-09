@@ -241,7 +241,7 @@ public class DeviceThermoSlider extends Device {
         
         etomica.space.Space sp = etomica.space3d.Space3D.getInstance();
         etomica.simulation.Simulation sim = new etomica.simulation.Simulation(sp);
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME, sp, sim.getController());
+        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
 
         DeviceThermoSlider device = new DeviceThermoSlider(new Controller(), new IntegratorVelocityVerlet(null, sim.getRandom(), 1, 1, sp));
         device.setMinimum(100.0);

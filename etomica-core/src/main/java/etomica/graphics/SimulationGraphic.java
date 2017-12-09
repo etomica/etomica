@@ -58,51 +58,39 @@ public class SimulationGraphic implements SimulationContainer {
     protected int repaintSleep = 0;
 
 
+    public SimulationGraphic(Simulation simulation) {
+    	this(simulation, GRAPHIC_ONLY, "", DEFAULT_UPDATE_INTERVAL);
+    }
+
     public SimulationGraphic(Simulation simulation,
-                             Space space,
-                             Controller controller) {
-    	this(simulation, GRAPHIC_ONLY, "", DEFAULT_UPDATE_INTERVAL, space, controller);
+                             int graphicType) {
+    	this(simulation, graphicType, "", DEFAULT_UPDATE_INTERVAL);
+    }
+
+    public SimulationGraphic(Simulation simulation,
+                             String appName) {
+    	this(simulation, GRAPHIC_ONLY, appName, DEFAULT_UPDATE_INTERVAL);
     }
 
     public SimulationGraphic(Simulation simulation,
                              int graphicType,
-                             Space space,
-                             Controller controller) {
-    	this(simulation, graphicType, "", DEFAULT_UPDATE_INTERVAL, space, controller);
+                             String appName) {
+    	this(simulation, graphicType, appName, DEFAULT_UPDATE_INTERVAL);
     }
 
     public SimulationGraphic(Simulation simulation,
                              String appName,
-                             Space space,
-                             Controller controller) {
-    	this(simulation, GRAPHIC_ONLY, appName, DEFAULT_UPDATE_INTERVAL, space, controller);
-    }
-
-    public SimulationGraphic(Simulation simulation,
-                             int graphicType,
-                             String appName,
-                             Space space,
-                             Controller controller) {
-    	this(simulation, graphicType, appName, DEFAULT_UPDATE_INTERVAL, space, controller);
-    }
-
-    public SimulationGraphic(Simulation simulation,
-                             String appName,
-                             int updateInterval,
-                             Space space,
-                             Controller controller) {
-    	this(simulation, GRAPHIC_ONLY, appName, updateInterval, space, controller);
+                             int updateInterval) {
+    	this(simulation, GRAPHIC_ONLY, appName, updateInterval);
     }
 
     public SimulationGraphic(Simulation simulation,
                              int graphicType,
                              String appName,
-    		                 int updateInterval,
-    		                 Space space,
-    		                 Controller controller) {
+                             int updateInterval) {
         this.simulation = simulation;
-        this.controller = controller;
-        this.space = space;
+        this.controller = simulation.getController();
+        this.space = simulation.getSpace();
         this.updateInterval = updateInterval;
         this.appName = appName;
         simulationPanel = new SimulationPanel(appName);
@@ -118,7 +106,7 @@ public class SimulationGraphic implements SimulationContainer {
         default:
             throw new IllegalArgumentException("I don't understand graphicType "+graphicType);
         }
-        dcb = new DeviceTrioControllerButton(simulation, space, controller);
+        dcb = new DeviceTrioControllerButton(simulation, this.space, this.controller);
         add(dcb);
         setupDisplayBox(simulation.getIntegrator(), new LinkedList<Box>());
     }
@@ -479,7 +467,7 @@ public class SimulationGraphic implements SimulationContainer {
 //        etomica.simulation.prototypes.HSMD2D_noNbr sim = new etomica.simulation.prototypes.HSMD2D_noNbr();
 //        etomica.simulation.prototypes.GEMCWithRotation sim = new etomica.simulation.prototypes.GEMCWithRotation();
         Space space = Space.getInstance(2);
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, GRAPHIC_ONLY, space, sim.getController());
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, GRAPHIC_ONLY);
 		IAction repaintAction = simGraphic.getPaintAction(sim.getBox(0));
 
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());

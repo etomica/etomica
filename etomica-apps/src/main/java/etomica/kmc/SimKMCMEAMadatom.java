@@ -213,7 +213,7 @@ public class SimKMCMEAMadatom extends Simulation{
         //energy: -3331480.584975273    Vib: 9.561284069712113E96
         sim.integratorKMCCluster.setInitialStateConditions(-3331480.584975273, 9.561284069712113E96);
 
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 1, sim.space, sim.getController());
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 1);
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
         //sim.integratorMD.addIntervalAction(simGraphic.getPaintAction(sim.box));

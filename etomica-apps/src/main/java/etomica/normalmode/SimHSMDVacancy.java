@@ -294,7 +294,7 @@ public class SimHSMDVacancy extends Simulation {
             sim.integrator.getEventManager().addListener(nPump);
             
             final String APP_NAME = "HSMD Vacancy";
-        	final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3, sim.space, sim.getController());
+        	final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3);
         	final int nc = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
             ColorScheme colorScheme = new ColorScheme() {
                 public Color getAtomColor(IAtom a) {

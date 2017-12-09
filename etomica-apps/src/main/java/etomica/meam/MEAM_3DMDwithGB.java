@@ -271,7 +271,7 @@ public class MEAM_3DMDwithGB extends Simulation {
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(energyPump));
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(kineticPump));
 
-        SimulationGraphic simgraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space, sim.getController());
+        SimulationGraphic simgraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
         ArrayList dataStreamPumps = simgraphic.getController().getDataStreamPumps();
         dataStreamPumps.add(energyPump);
         dataStreamPumps.add(kineticPump);

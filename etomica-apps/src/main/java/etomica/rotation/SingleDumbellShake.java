@@ -66,7 +66,7 @@ public class SingleDumbellShake {
             return null;
         }
         ai.setSleepPeriod(10);
-        SimulationGraphic graphic = new SimulationGraphic(sim, "SHAKE", 1, space, sim.getController());
+        SimulationGraphic graphic = new SimulationGraphic(sim, "SHAKE", 1);
         return graphic;
     }
     

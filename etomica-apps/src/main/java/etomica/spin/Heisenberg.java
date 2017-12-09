@@ -89,7 +89,7 @@ public class Heisenberg extends Simulation {
     public static void main(String[] args) {
     	Space sp = Space2D.getInstance();
         Heisenberg sim = new Heisenberg(sp, 60);
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sp, sim.getController());
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
         ((SimulationRestart)simGraphic.getController().getReinitButton().getAction()).setConfiguration(null);
 		IAction repaintAction = simGraphic.getPaintAction(sim.box);
         DisplayBox displayBox = simGraphic.getDisplayBox(sim.box);

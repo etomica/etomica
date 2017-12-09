@@ -289,7 +289,7 @@ public class SimulationBetaNitrogenModel extends Simulation{
 		System.out.println("volume: " + volume);
 		
 		if(true){
-			SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
+			SimulationGraphic simGraphic = new SimulationGraphic(sim);
 		    simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
 		    simGraphic.makeAndDisplayFrame("Beta-Phase Nitrogen Crystal Structure");
 		    

@@ -165,7 +165,7 @@ public class SimDimerLJgb extends Simulation{
         energyAccumulator.setDataSink(plotPE.getDataSet().makeDataSink());
         accumulatorAveragePE.setPushInterval(1);      
     	
-    	SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space, sim.getController());
+    	SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
     	simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
         simGraphic.add(plotPE);

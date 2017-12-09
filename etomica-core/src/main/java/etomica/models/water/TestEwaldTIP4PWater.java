@@ -120,7 +120,7 @@ public class TestEwaldTIP4PWater extends Simulation {
 
         Space sp = Space3D.getInstance();
 		TestEwaldTIP4PWater sim = new TestEwaldTIP4PWater(sp);
-		SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 1, sp, sim.getController());
+		SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 1);
 		Pixel pixel = new Pixel(10);
 		simGraphic.getDisplayBox(sim.box).setPixelUnit(pixel);
 		ArrayList dataStreamPumps = simGraphic.getController().getDataStreamPumps();

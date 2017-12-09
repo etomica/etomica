@@ -168,7 +168,7 @@ public class DeviceThermoSelector extends Device {
         final String APP_NAME = "Device Thermo Selector";
 
         final HSMD3D sim = new HSMD3D();
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME, sim.getSpace(), sim.getController());
+        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
         
         DeviceThermoSelector device = new DeviceThermoSelector(sim, sim.integrator);
         device.setTemperatures(new double[] {0.5, 1.0, 2.0, 5.0});

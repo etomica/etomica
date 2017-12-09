@@ -177,7 +177,7 @@ public class SimulationGammaNitrogenModel extends Simulation{
 		SimulationGammaNitrogenModel sim = new SimulationGammaNitrogenModel(Space3D.getInstance(3), numMolecule, temperature, pressure);
 
 		if(true){
-			SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
+			SimulationGraphic simGraphic = new SimulationGraphic(sim);
 		    simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(50));
 		    
 			DiameterHashByType diameter = new DiameterHashByType(sim);

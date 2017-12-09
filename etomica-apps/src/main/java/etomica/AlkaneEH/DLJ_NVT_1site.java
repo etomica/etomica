@@ -180,7 +180,7 @@ public class DLJ_NVT_1site extends Simulation {
 				dielectricOutside, boxSize,temperature,truncation);
 
         if (isGraphic){
-			SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+			SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
 		    simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(PIXEL_SIZE));
             simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
             ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species.getAtomType(0),1);

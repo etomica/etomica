@@ -181,7 +181,7 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
         sim.integrator.getEventManager().addListener(energyListener);
         
         if (false) {
-        	SimulationGraphic graphic = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE, sim.space,sim.getController());
+        	SimulationGraphic graphic = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE);
         	AccumulatorHistory densityHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
             rhoAccumulator.addDataSink(densityHistory, new StatType[]{AccumulatorAverage.MOST_RECENT});
             DisplayPlot rhoPlot = new DisplayPlot();

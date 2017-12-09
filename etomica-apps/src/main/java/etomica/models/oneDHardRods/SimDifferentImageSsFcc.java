@@ -445,8 +445,8 @@ public class SimDifferentImageSsFcc extends Simulation {
         System.out.println("instantiated");
 
         if(false) {
-            SimulationGraphic graphic = new SimulationGraphic(sim, sim.space,
-                    sim.getController());
+            SimulationGraphic graphic = new SimulationGraphic(sim
+            );
             graphic.makeAndDisplayFrame();
             return;
         }

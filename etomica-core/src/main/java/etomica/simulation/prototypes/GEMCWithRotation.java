@@ -116,7 +116,7 @@ public class GEMCWithRotation extends Simulation {
 
         double sigma = 1.2;
         final GEMCWithRotation sim = new GEMCWithRotation();
-        final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
         double conedia = sigma * sim.potential.getTheta();
         DisplayBoxCanvasG3DSys.OrientedSite[] os = new DisplayBoxCanvasG3DSys.OrientedSite[]{new DisplayBoxCanvasG3DSys.OrientedSite(sigma / 2, Color.BLUE, conedia)};
         ((DisplayBoxCanvasG3DSys) (simGraphic.getDisplayBox(sim.box1).canvas)).setOrientationSites(((AtomTypeOriented) sim.species.getLeafType()), os);

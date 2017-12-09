@@ -320,7 +320,7 @@ public class SimLJVacancy extends Simulation {
             sim.integrator.getEventManager().addListener(nPump);
             
             final String APP_NAME = "LJ Vacancy";
-        	final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, numAtoms, sim.space, sim.getController());
+        	final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, numAtoms);
         	final int nc = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
             ColorScheme colorScheme = new ColorScheme() {
                 public Color getAtomColor(IAtom a) {
@@ -907,7 +907,7 @@ public class SimLJVacancy extends Simulation {
             sim.integrator.getEventManager().addListener(nPump);
             
             final String APP_NAME = "LJ Vacancy";
-        	final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, numAtoms, sim.space, sim.getController());
+        	final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, numAtoms);
         	final int nc = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
             ColorScheme colorScheme = new ColorScheme() {
                 public Color getAtomColor(IAtom a) {

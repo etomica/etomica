@@ -7,7 +7,6 @@ package etomica.rotation;
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.IAtomOriented;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.SimulationGraphic;
@@ -81,7 +80,7 @@ public class DipoleBox extends Simulation {
         if (args.length == 0) {
             DipoleBox sim = new DipoleBox(space, nAtoms, dt);
             sim.ai.setSleepPeriod(10);
-            SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1, space, sim.getController());
+            SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1);
             graphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(30));
             graphic.makeAndDisplayFrame();
         }
@@ -100,7 +99,7 @@ public class DipoleBox extends Simulation {
             Space space = Space3D.getInstance();
             DipoleBox sim = new DipoleBox(space, 864, 0.01);
             sim.ai.setSleepPeriod(10);
-            SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1, space, sim.getController());
+            SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1);
             graphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(30));
 
             getContentPane().add(graphic.getPanel());

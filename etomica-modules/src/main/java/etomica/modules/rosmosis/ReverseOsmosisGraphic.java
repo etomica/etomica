@@ -56,7 +56,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
     
     public ReverseOsmosisGraphic(final ReverseOsmosis simulation, Space _space) {
 
-    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
+    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 

@@ -246,7 +246,7 @@ public class SimOverlapSoftSphereDP extends Simulation {
         //instantiate simulation
         final SimOverlapSoftSphereDP sim = new SimOverlapSoftSphereDP(Space.getInstance(3), numMolecules, slanty, rho, temperature, otherRho, P, exponentN, numAlpha, alphaSpan, numSteps, rc);
         if (false) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.setPaintInterval(sim.box, 1000);
             ColorScheme colorScheme = new ColorScheme() {
                 protected Color[] allColors;

@@ -389,7 +389,7 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
 
 
             SimulationGraphic simGraphic = new SimulationGraphic(sim,
-                    SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+                    SimulationGraphic.TABBED_PANE);
             ColorScheme colorScheme = new ColorScheme() {
                 protected Color[] allColors;
 

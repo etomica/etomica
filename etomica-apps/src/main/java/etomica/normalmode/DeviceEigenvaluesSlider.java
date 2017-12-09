@@ -344,7 +344,7 @@ public class DeviceEigenvaluesSlider extends Device {
         device.setEValNum(0);
         
         
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME, sp, sim.getController());
+        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
         graphic.getPanel().controlPanel.remove(graphic.getController().graphic());
         graphic.add(device);
         graphic.makeAndDisplayFrame(APP_NAME);

@@ -304,7 +304,7 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
         System.out.flush();
         
         if (false) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.setPaintInterval(sim.box, 1000);
             ColorScheme colorScheme = new ColorScheme() {
                 public Color getAtomColor(IAtom a) {

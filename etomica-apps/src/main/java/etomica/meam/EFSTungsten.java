@@ -227,7 +227,7 @@ public class EFSTungsten extends Simulation {
             accumulatorAveragePE.addDataSink(dataProcessorPE, new StatType[]{AccumulatorAverage.STANDARD_DEVIATION});
             accumulatorAverageKE.addDataSink(dataProcessorKE, new StatType[]{AccumulatorAverage.STANDARD_DEVIATION});
            
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
             ArrayList<DataPump> dataStreamPumps = simGraphic.getController().getDataStreamPumps();
             dataStreamPumps.add(energyPump);
             dataStreamPumps.add(kineticPump);

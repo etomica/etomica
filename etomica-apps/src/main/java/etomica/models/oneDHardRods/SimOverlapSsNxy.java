@@ -277,8 +277,8 @@ public class SimOverlapSsNxy extends Simulation {
                 exponentN, shape, trunc);
 
         if(false) {
-            SimulationGraphic graphic = new SimulationGraphic(sim, sim.space,
-                    sim.getController());
+            SimulationGraphic graphic = new SimulationGraphic(sim
+            );
             graphic.makeAndDisplayFrame();
             return;
         }

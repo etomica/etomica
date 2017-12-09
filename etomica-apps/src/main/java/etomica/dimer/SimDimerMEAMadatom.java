@@ -265,7 +265,7 @@ public class SimDimerMEAMadatom extends Simulation{
         pumpListener.setInterval(1);
         sim.integratorDimerMin.getEventManager().addListener(pumpListener);
 
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 1, sim.space, sim.getController());
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 1);
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
         simGraphic.add(plotPE);
         //sim.integratorMD.addIntervalAction(simGraphic.getPaintAction(sim.box));

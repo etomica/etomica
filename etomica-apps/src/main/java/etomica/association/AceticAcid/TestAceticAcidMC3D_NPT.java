@@ -263,7 +263,7 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
         sim.integrator.getEventManager().addListener(energy2Listener);
         
         if (false) {
-        	SimulationGraphic graphic = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE,"acetic acid", 1, sim.space,sim.getController());
+        	SimulationGraphic graphic = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE,"acetic acid", 1);
         	SpeciesAceticAcid species = (SpeciesAceticAcid)sim.getSpecies(0);
             AtomType typeCH3 = species.getCH3Type();
             AtomType typeC = species.getCType();

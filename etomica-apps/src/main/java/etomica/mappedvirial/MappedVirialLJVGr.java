@@ -119,7 +119,7 @@ public class MappedVirialLJVGr extends Simulation {
         MappedVirialLJVGr sim = new MappedVirialLJVGr(space, numAtoms, temperature, density, rc);
         
         if (graphics) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.makeAndDisplayFrame();
 
             ArrayList<DataPump> dataStreamPumps = simGraphic.getController().getDataStreamPumps();
