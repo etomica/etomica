@@ -4,29 +4,30 @@
 
 package etomica.nbr.list;
 
-import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class NeighborListEventManager {
 
-    private final LinkedList<INeighborListListener> intervalListeners = new LinkedList<INeighborListListener>();
-    private static final long serialVersionUID = 1L;
+    private final List<INeighborListListener> listeners = new CopyOnWriteArrayList<>();
 
-    
-    public synchronized void addListener(INeighborListListener newListener) {
-        if(newListener == null) throw new NullPointerException("Cannot add null as a listener to Neighbor List");
-        if (intervalListeners.contains(newListener)) {
-            throw new RuntimeException(newListener+" is already an interval action");
+    public void addListener(INeighborListListener newListener) {
+        if (newListener == null) {
+            throw new NullPointerException("Cannot add null as a listener to Neighbor List");
         }
-        intervalListeners.add(newListener);
+        if (listeners.contains(newListener)) {
+            throw new RuntimeException(newListener + " is already an interval action");
+        }
+        listeners.add(newListener);
     }
 
-    public synchronized void removeListener(INeighborListListener listener) {
-        intervalListeners.remove(listener);
+    public void removeListener(INeighborListListener listener) {
+        listeners.remove(listener);
     }
 
     public void neighborsUpdated() {
-        for(int i = 0; i < intervalListeners.size(); i++) {
-            intervalListeners.get(i).neighborListNeighborsUpdated();
+        for (INeighborListListener listener : listeners) {
+            listener.neighborListNeighborsUpdated();
         }
     }
 }
