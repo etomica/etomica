@@ -4,32 +4,31 @@
 
 package etomica.virial.simulations;
 
-import java.awt.Color;
-
 import etomica.action.IAction;
-import etomica.integrator.IntegratorListener;
-import etomica.integrator.IntegratorEvent;
+import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
+import etomica.data.histogram.HistogramSimple;
 import etomica.graphics.ColorSchemeRandomByMolecule;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
+import etomica.math.DoubleRange;
+import etomica.math.SpecialFunctions;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.IPotential;
 import etomica.potential.P2LennardJones;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.math.DoubleRange;
-import etomica.data.histogram.HistogramSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterWheatleyHS;
-import etomica.virial.ClusterWheatleySoft;
-import etomica.virial.CoordinatePairSet;
-import etomica.virial.MayerGeneralSpherical;
-import etomica.virial.MayerHardSphere;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 import etomica.virial.cluster.VirialDiagrams;
+
+import java.awt.*;
 
 /**
  * LJ simulation using Mayer sampling to evaluate cluster integrals
@@ -48,9 +47,8 @@ public class VirialLJ {
             params.nPoints = 4;
             params.temperature = 1;
             params.numSteps = 10000000L;
-            params.doWheatley = true;
+            params.doChainRef = true;
             params.doHist = false;
-            params.doReeHoover = false;
         }
         
         runVirial(params);
@@ -60,39 +58,58 @@ public class VirialLJ {
         final int nPoints = params.nPoints;
         double temperature = params.temperature;
         long steps = params.numSteps;
-        double sigmaHSRef = params.sigmaHSRef;
+        final double sigmaHSRef = params.sigmaHSRef;
         double refFrac = params.refFrac;
         boolean doHist = params.doHist;
-        boolean doWheatley = params.doWheatley;
-        boolean doReeHoover = params.doReeHoover;
+        boolean doChainRef = params.doChainRef;
 
-        final double HSBn = Standard.BHS(nPoints, sigmaHSRef);
+
+        double vhs = (4.0 / 3.0) * Math.PI * sigmaHSRef * sigmaHSRef * sigmaHSRef;
+        final double HSBn = doChainRef ? SpecialFunctions.factorial(nPoints) / 2 * Math.pow(vhs, nPoints - 1) : Standard.BHS(nPoints, sigmaHSRef);
         System.out.println("sigmaHSRef: "+sigmaHSRef);
         System.out.println("B"+nPoints+"HS: "+HSBn);
         System.out.println("Lennard Jones overlap sampling B"+nPoints+" at T="+temperature);
 		
         Space space = Space3D.getInstance();
+
+        MayerFunction fRefPos = new MayerFunction() {
+
+            public void setBox(Box box) {
+            }
+
+            public IPotential getPotential() {
+                return null;
+            }
+
+            public double f(IMoleculeList pair, double r2, double beta) {
+                return r2 < sigmaHSRef * sigmaHSRef ? 1 : 0;
+            }
+        };
         
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
         P2LennardJones pTarget = new P2LennardJones(space);
         MayerGeneralSpherical fTarget = new MayerGeneralSpherical(pTarget);
-        if (doWheatley) System.out.println("Wheatley");
-        else System.out.println("Ree-Hoover: "+doReeHoover);
+        if (doChainRef) System.out.println("HS Chain reference");
         VirialDiagrams diagrams = new VirialDiagrams(nPoints, false, false);
         diagrams.setDoReeHoover(true);
         diagrams.setDoShortcut(true);
-        ClusterAbstract refCluster = doWheatley ? new ClusterWheatleyHS(nPoints, fRef) : diagrams.makeVirialCluster(fRef);
+        ClusterAbstract refCluster = doChainRef ? new ClusterChainHS(nPoints, fRefPos) : new ClusterWheatleyHS(nPoints, fRef);
         refCluster.setTemperature(temperature);
 
-        diagrams = new VirialDiagrams(nPoints, false, false);
-        diagrams.setDoReeHoover(doReeHoover);
-        diagrams.setDoShortcut(true);
-        final ClusterAbstract targetCluster = doWheatley ? new ClusterWheatleySoft(nPoints, fTarget, 1e-12) : diagrams.makeVirialCluster(fTarget);
+        final ClusterAbstract targetCluster = new ClusterWheatleySoft(nPoints, fTarget, 1e-12);
         targetCluster.setTemperature(temperature);
 
         System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresMono(space, new ElementSimple("A")), temperature,refCluster,targetCluster);
+
+        if (doChainRef) {
+            sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
+            MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), space, sigmaHSRef);
+            sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
+            sim.accumulators[0].setBlockSize(1);
+        }
+
         sim.integratorOS.setNumSubSteps(1000);
         
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
@@ -208,9 +225,10 @@ public class VirialLJ {
 
         sim.integratorOS.setNumSubSteps((int)steps);
         sim.setAccumulatorBlockSize(steps);
+        if (doChainRef) sim.accumulators[0].setBlockSize(1);
         sim.ai.setMaxSteps(1000);
         for (int i=0; i<2; i++) {
-            System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize());
+            if (i > 0 || !doChainRef) System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
         }
         sim.getController().actionPerformed();
         long t2 = System.currentTimeMillis();
@@ -248,9 +266,8 @@ public class VirialLJ {
         public long numSteps = 10000000;
         public double sigmaHSRef = 1.5;
         public boolean writeRefPref = false;
-        public boolean doReeHoover = true;
         public double refFrac = -1;
         public boolean doHist = false;
-        public boolean doWheatley = true;
+        public boolean doChainRef = false;
     }
 }
