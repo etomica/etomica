@@ -622,7 +622,7 @@ public class SimulationVirialOverlap2 extends Simulation {
         System.out.println("abs average: "+ratio*refIntegral+" error: "+error*Math.abs(refIntegral));
 
         double[] alphaData = dvo.getOverlapAverageAndErrorForAlpha(dvo.getAlphaSource().getAlpha(0));
-        System.out.println(String.format("overlap ratio: % 20.15e error: %10.5e\n", alphaData[0], alphaData[1]));
+        System.out.println(String.format("overlap ratio: % 20.15e error: %10.5e", alphaData[0], alphaData[1]));
 
         DataGroup allYourBase = (DataGroup)accumulators[0].getData();
         IData ratioData = allYourBase.getData(AccumulatorRatioAverageCovarianceFull.RATIO.index);
