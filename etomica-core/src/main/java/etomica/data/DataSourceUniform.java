@@ -224,29 +224,23 @@ public class DataSourceUniform implements IDataSource, java.io.Serializable {
 	 * To get values that lie at the centers of a set of bins (e.g., for histogramming),
 	 * use HALF_STEP for both limits.
 	 */
-	public static class LimitType extends EnumeratedType {
-        public LimitType(String label) {super(label);}       
+	public enum LimitType {
 
         /**
          * Limit type indicating that limit is included in range, and that it equals the extreme value.
          */
-        public static final LimitType INCLUSIVE = new LimitType("Inclusive");
+        INCLUSIVE,
         
         /**
          * Limit type indicating that extreme value should be one half step from the specified limit.
          */
-        public static final LimitType HALF_STEP = new LimitType("Half Step");
+        HALF_STEP,
         
         /**
          * Limit type indicating that specified limit is not included in the range, and that the
          * extreme value should be one full step from the specified limit.
          */
-        public static final LimitType EXCLUSIVE = new LimitType("Exclusive");
-        
-        public static LimitType[] choices() {
-            return new LimitType[] {INCLUSIVE,HALF_STEP,EXCLUSIVE};
-        }
-        private static final long serialVersionUID = 1L;
+        EXCLUSIVE
     }
     
     private static final long serialVersionUID = 1L;
