@@ -26,7 +26,6 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.*;
 import etomica.virial.cluster.Standard;
-import etomica.virial.cluster.VirialDiagrams;
 
 import java.awt.*;
 
@@ -63,24 +62,20 @@ public class VirialLJ {
         boolean doHist = params.doHist;
         boolean doChainRef = params.doChainRef;
 
-
         double vhs = (4.0 / 3.0) * Math.PI * sigmaHSRef * sigmaHSRef * sigmaHSRef;
         final double HSBn = doChainRef ? SpecialFunctions.factorial(nPoints) / 2 * Math.pow(vhs, nPoints - 1) : Standard.BHS(nPoints, sigmaHSRef);
         System.out.println("sigmaHSRef: "+sigmaHSRef);
         System.out.println("B"+nPoints+"HS: "+HSBn);
         System.out.println("Lennard Jones overlap sampling B"+nPoints+" at T="+temperature);
-		
         Space space = Space3D.getInstance();
 
         MayerFunction fRefPos = new MayerFunction() {
-
             public void setBox(Box box) {
             }
 
             public IPotential getPotential() {
                 return null;
             }
-
             public double f(IMoleculeList pair, double r2, double beta) {
                 return r2 < sigmaHSRef * sigmaHSRef ? 1 : 0;
             }
@@ -90,9 +85,6 @@ public class VirialLJ {
         P2LennardJones pTarget = new P2LennardJones(space);
         MayerGeneralSpherical fTarget = new MayerGeneralSpherical(pTarget);
         if (doChainRef) System.out.println("HS Chain reference");
-        VirialDiagrams diagrams = new VirialDiagrams(nPoints, false, false);
-        diagrams.setDoReeHoover(true);
-        diagrams.setDoShortcut(true);
         ClusterAbstract refCluster = doChainRef ? new ClusterChainHS(nPoints, fRefPos) : new ClusterWheatleyHS(nPoints, fRef);
         refCluster.setTemperature(temperature);
 

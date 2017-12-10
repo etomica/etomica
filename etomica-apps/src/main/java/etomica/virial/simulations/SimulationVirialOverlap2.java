@@ -677,10 +677,10 @@ public class SimulationVirialOverlap2 extends Simulation {
             rd[i] = 1/Math.sqrt(ed*ed + 1/(ro[i]*ro[i]));
         }
         for (int i=1; i<n+1; i++) {
-            String name = extraNames == null ? ("Extra "+(i)) : extraNames[i+1];
+            String name = extraNames == null ? ("Extra " + (i)) : extraNames[i - 1];
             // average is vi/|v| average, error is the uncertainty on that average
             // ocor is the correlation coefficient for the average and overlap values (vi/|v| and o/|v|)           
-            System.out.print(String.format("%s average: %20.15e  error: %10.15e  ocor: %20.18f", name, averageData.getValue(i), errorData.getValue(i), ocor[i]));
+            System.out.print(String.format("%s average: % 20.15e  error: %10.15e  ocor: % 17.15f", name, averageData.getValue(i), errorData.getValue(i), ocor[i]));
             System.out.print("  dcor:");
             for (int j=0; j<n+1; j++) {
 //                if (i==j) continue;                
@@ -689,12 +689,12 @@ public class SimulationVirialOverlap2 extends Simulation {
             }
             System.out.println();
             int k = (i)*nTotal+(n+1);
-            System.out.print(String.format("%s ratio average: %20.15e  error: %10.15e  tcor:", name, ratioData.getValue(k), ratioErrorData.getValue(k)));
+            System.out.print(String.format("%s ratio average: % 20.15e  error: %10.15e  tcor:", name, ratioData.getValue(k), ratioErrorData.getValue(k)));
             
             for (int j=0; j<n+1; j++) {                
-                corcoef[j] = ro[i]*ro[j]*(e[n+1]*e[n+1] + e[i]*e[j]*dcor[j] - e[i]*e[n+1]*ocor[i] - e[j]*e[n+1]*ocor[j]);        
-                
-                System.out.print(String.format(" %20.18f", corcoef[j]));
+                corcoef[j] = ro[i]*ro[j]*(e[n+1]*e[n+1] + e[i]*e[j]*dcor[j] - e[i]*e[n+1]*ocor[i] - e[j]*e[n+1]*ocor[j]);
+
+                System.out.print(String.format(" % 17.15f", corcoef[j]));
             }
             System.out.println();
             
