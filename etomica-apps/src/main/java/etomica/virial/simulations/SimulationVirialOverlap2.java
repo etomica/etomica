@@ -703,8 +703,9 @@ public class SimulationVirialOverlap2 extends Simulation {
             System.out.print(String.format("%s full average: %20.15e  error: %10.15e  tcor:", name, refIntegral*avg, Math.abs(refIntegral)*err));
 
             for ( int j=0; j<n+1;j++){
-                
-                double corrcoeff = rd[i]*rd[j]*(ed*ed + corcoef[j]/(ro[i]*ro[j]));
+                int kk = (j) * nTotal + (n + 1);
+                double avgj = ratioData.getValue(kk) / refRatioAvg;
+                double corrcoeff = Math.signum(avg) * Math.signum(avgj) * rd[i] * rd[j] * (ed * ed + corcoef[j] / (ro[i] * ro[j]));
                 
                 System.out.print(String.format(" %20.18f", corrcoeff));
             }
