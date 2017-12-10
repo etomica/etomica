@@ -95,28 +95,10 @@ public final class IteratorDirective implements java.io.Serializable {
     private IMolecule targetMolecule = null;
     
     //IteratorDirective.Direction
-    public static final class Direction extends EnumeratedType {
-        
-        private static final long serialVersionUID = 1L;
-
-        private Direction(String label) {
-            super(label);
-        }
-
-        public static final Direction UP = new Direction("Up");
-        public static final Direction DOWN = new Direction("Down");
-
-        public static EnumeratedType[] choices() {return new Direction[] {UP,DOWN,null};}
-
-        /**
-         * Required to guarantee singleton when deserializing.
-         * @return the singleton INSTANCE
-         */
-        private Object readResolve() {
-            return this.toString().equals("Up") ? Direction.UP : Direction.DOWN;
-        }
-        
-    }//end of Direction
+    public enum Direction {
+        UP,
+        DOWN
+    }
     
     /**
      * Class used to define a criterion that must be satisfied by a potential
