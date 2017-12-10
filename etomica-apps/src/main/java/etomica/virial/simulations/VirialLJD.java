@@ -5,25 +5,25 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCovariance;
-import etomica.integrator.IntegratorListener;
-import etomica.integrator.IntegratorEvent;
+import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
-import etomica.data.IData;
 import etomica.data.histogram.HistogramSimple;
-import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeRandomByMolecule;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.math.DoubleRange;
+import etomica.math.SpecialFunctions;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.IPotential;
 import etomica.potential.P2LennardJones;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.*;
-import etomica.util.random.RandomNumberGenerator;
+import etomica.util.ParameterBase;
+import etomica.util.ParseArgs;
 import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 
@@ -48,6 +48,7 @@ public class VirialLJD {
             params.temperature = 2;
             params.numSteps = 10000000L;
             params.doHist = false;
+            params.doChainRef = true;
         }
         
         runVirial(params);
@@ -61,32 +62,55 @@ public class VirialLJD {
         double sigmaHSRef = params.sigmaHSRef;
         double refFrac = params.refFrac;
         boolean doHist = params.doHist;
+        boolean doChainRef = params.doChainRef;
 
-        final double HSBn = Standard.BHS(nPoints, sigmaHSRef);
+        double vhs = (4.0 / 3.0) * Math.PI * sigmaHSRef * sigmaHSRef * sigmaHSRef;
+        final double HSBn = doChainRef ? SpecialFunctions.factorial(nPoints) / 2 * Math.pow(vhs, nPoints - 1) : Standard.BHS(nPoints, sigmaHSRef);
         System.out.println("sigmaHSRef: "+sigmaHSRef);
         System.out.println("B"+nPoints+"HS: "+HSBn);
         System.out.println("Lennard Jones overlap sampling B"+nPoints+" at T="+temperature);
         Space space = Space3D.getInstance();
+
+        MayerFunction fRefPos = new MayerFunction() {
+            public void setBox(Box box) {
+            }
+
+            public IPotential getPotential() {
+                return null;
+            }
+
+            public double f(IMoleculeList pair, double r2, double beta) {
+                return r2 < sigmaHSRef * sigmaHSRef ? 1 : 0;
+            }
+        };
         
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
         P2LennardJones pTarget = new P2LennardJones(space);
         MayerGeneralSpherical fTarget = new MayerGeneralSpherical(pTarget);
-        ClusterAbstract refCluster =  new ClusterWheatleyHS(nPoints, fRef) ;
+        if (doChainRef) System.out.println("HS Chain reference");
+        ClusterAbstract refCluster = doChainRef ? new ClusterChainHS(nPoints, fRefPos) : new ClusterWheatleyHS(nPoints, fRef);
         refCluster.setTemperature(temperature);
 
-        final ClusterWheatleySoftDerivatives targetCluster =  new ClusterWheatleySoftDerivatives(nPoints, fTarget, 0.0000000001, nDer);
+        final ClusterWheatleySoftDerivatives targetCluster = new ClusterWheatleySoftDerivatives(nPoints, fTarget, 1e-12, nDer);
         targetCluster.setTemperature(temperature);
 
         System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresMono(space, new ElementSimple("A")), nPoints, temperature,refCluster,targetCluster);
-        sim.setRandom(new RandomNumberGenerator(1));
         ClusterAbstract[] targetDiagrams = new ClusterWheatleySoftDerivatives.ClusterRetrievePrimes[nDer];
         for(int m=1;m<=nDer;m++){
             targetDiagrams[m-1]= new ClusterWheatleySoftDerivatives.ClusterRetrievePrimes(targetCluster,m);
         }
         sim.setExtraTargetClusters(targetDiagrams);
         sim.init();
+
+        if (doChainRef) {
+            sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
+            MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), space, sigmaHSRef);
+            sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
+            sim.accumulators[0].setBlockSize(1);
+        }
+
         sim.integratorOS.setNumSubSteps(1000);
         
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
@@ -202,9 +226,10 @@ public class VirialLJD {
 
         sim.integratorOS.setNumSubSteps((int)steps);
         sim.setAccumulatorBlockSize(steps);
+        if (doChainRef) sim.accumulators[0].setBlockSize(1);
         sim.ai.setMaxSteps(1000);
         for (int i=0; i<2; i++) {
-            System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize());
+            if (i > 0 || !doChainRef) System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
         }
         sim.getController().actionPerformed();
         long t2 = System.currentTimeMillis();
@@ -228,34 +253,13 @@ public class VirialLJD {
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
-        
-        sim.printResults(HSBn);
 
-        DataGroup allData = (DataGroup)sim.accumulators[1].getData();
-        IData dataAvg = allData.getData(AccumulatorAverage.AVERAGE.index);
-        IData dataErr = allData.getData(AccumulatorAverage.ERROR.index);
-        IData dataCov = allData.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
-        // we'll ignore block correlation -- whatever effects are here should be in the full target results
-        int nTotal = (targetDiagrams.length+2);
-        double oVar = dataCov.getValue(nTotal*nTotal-1);
-        for (int i=0; i<targetDiagrams.length; i++) {
-            System.out.print("derivative "+(i+1));
-            // average is vi/|v| average, error is the uncertainty on that average
-            // ocor is the correlation coefficient for the average and overlap values (vi/|v| and o/|v|)
-            double ivar = dataCov.getValue((i+1)*nTotal+(i+1));
-            double ocor = ivar*oVar == 0 ? 0 : dataCov.getValue(nTotal*(i+1)+nTotal-1)/Math.sqrt(ivar*oVar);
-            System.out.print(String.format(" average: %20.15e  error: %10.15e  ocor: %7.5f", dataAvg.getValue(i+1), dataErr.getValue(i+1), ocor));
-            if (targetDiagrams.length > 1) {
-                System.out.print("  dcor:");
-                for (int j=0; j<targetDiagrams.length; j++) {
-                    if (i==j) continue;
-                    double jvar = dataCov.getValue((j+1)*nTotal+(j+1));
-                    double dcor = ivar*jvar == 0 ? 0 : dataCov.getValue((i+1)*nTotal+(j+1))/Math.sqrt(ivar*jvar);
-                    System.out.print(String.format(" %8.6f", dcor));
-                }
-            }
-            System.out.println();
+        String[] extraNames = new String[nDer];
+        for (int i = 1; i <= nDer; i++) {
+            extraNames[i - 1] = "derivative " + i;
         }
+        sim.printResults(HSBn, extraNames);
+
         System.out.println("time: "+(t2-t1)/1000.0);
     }
 
@@ -271,5 +275,6 @@ public class VirialLJD {
         public boolean writeRefPref = false;
         public double refFrac = -1;
         public boolean doHist = false;
+        public boolean doChainRef = false;
     }
 }
