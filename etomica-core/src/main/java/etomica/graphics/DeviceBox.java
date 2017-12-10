@@ -368,14 +368,9 @@ public class DeviceBox extends Device implements javax.swing.event.ChangeListene
     /**
      * Typed constant used to indicate the type of label to be used with the display.
      */
-	public static class LabelType extends EnumeratedType {
-        public LabelType(String label) {super(label);}       
-        public static final LabelType BORDER = new LabelType("Border");
-        public static final LabelType STRING = new LabelType("String");
-
-        public static final LabelType[] choices() { 
-            return new LabelType[] {BORDER,STRING};
-        }
+	public enum LabelType {
+	    BORDER,
+        STRING
     }
 
 
