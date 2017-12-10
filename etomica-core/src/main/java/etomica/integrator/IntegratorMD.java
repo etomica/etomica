@@ -656,21 +656,12 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
     public void boxNumberMolecules(BoxMoleculeCountEvent e) {
     }
 
-    public static class ThermostatType extends EnumeratedType {
-        public static final ThermostatType VELOCITY_SCALING = new ThermostatType("Velocity Scaling");
-        public static final ThermostatType ANDERSEN = new ThermostatType("Anderson");
-        public static final ThermostatType ANDERSEN_SINGLE = new ThermostatType("Andersen Single");
-        public static final ThermostatType ANDERSEN_SCALING = new ThermostatType("Andersen Scaling");
-        public static final ThermostatType HYBRID_MC = new ThermostatType("Hybrid MC");
-
-        protected ThermostatType(String label) {
-            super(label);
-        }
-
-        //public static final ThermostatType NOSE_HOOVER;
-        public static ThermostatType[] choices() {
-            return new ThermostatType[]{VELOCITY_SCALING, ANDERSEN, ANDERSEN_SINGLE, HYBRID_MC, ANDERSEN_SCALING};
-        }
+    public enum ThermostatType {
+        VELOCITY_SCALING,
+        ANDERSEN,
+        ANDERSEN_SINGLE,
+        ANDERSEN_SCALING,
+        HYBRID_MC
     }
 
     /**
