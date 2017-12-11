@@ -44,11 +44,12 @@ public class VirialLJD {
         ParseArgs.doParseArgs(params, args);
         if (args.length == 0) {
             params.nPoints = 4;
-            params.nDer=2;
-            params.temperature = 2;
-            params.numSteps = 10000000L;
+            params.nDer = 1;
+            params.temperature = 3.5;
+            params.numSteps = 1000000L;
             params.doHist = false;
             params.doChainRef = true;
+            params.blockSize = 1000;
         }
         
         runVirial(params);
@@ -63,6 +64,7 @@ public class VirialLJD {
         double refFrac = params.refFrac;
         boolean doHist = params.doHist;
         boolean doChainRef = params.doChainRef;
+        long blockSize = params.blockSize;
 
         double vhs = (4.0 / 3.0) * Math.PI * sigmaHSRef * sigmaHSRef * sigmaHSRef;
         final double HSBn = doChainRef ? SpecialFunctions.factorial(nPoints) / 2 * Math.pow(vhs, nPoints - 1) : Standard.BHS(nPoints, sigmaHSRef);
@@ -94,7 +96,8 @@ public class VirialLJD {
         final ClusterWheatleySoftDerivatives targetCluster = new ClusterWheatleySoftDerivatives(nPoints, fTarget, 1e-12, nDer);
         targetCluster.setTemperature(temperature);
 
-        System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
+        if (blockSize == 0) blockSize = steps / 1000;
+        System.out.println(steps + " steps (" + (steps / blockSize) + " blocks of " + blockSize + ")");
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresMono(space, new ElementSimple("A")), nPoints, temperature,refCluster,targetCluster);
         ClusterAbstract[] targetDiagrams = new ClusterWheatleySoftDerivatives.ClusterRetrievePrimes[nDer];
@@ -111,7 +114,8 @@ public class VirialLJD {
             sim.accumulators[0].setBlockSize(1);
         }
 
-        sim.integratorOS.setNumSubSteps(1000);
+        int subSteps = 1000;
+        sim.integratorOS.setNumSubSteps(subSteps);
         
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
 
@@ -155,16 +159,15 @@ public class VirialLJD {
             return;
         }
 
-        steps /= 1000;
         long t1 = System.currentTimeMillis();
         // if running interactively, don't use the file
         String refFileName = params.writeRefPref ? "refpref"+nPoints+"_"+temperature : null;
         // this will either read the refpref in from a file or run a short simulation to find it
         //sim.setRefPref(1.0082398078547523);
-        sim.initRefPref(refFileName, steps/20);
+        sim.initRefPref(refFileName, (steps / subSteps) / 20);
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
-        sim.equilibrate(refFileName, steps/10);
+        sim.equilibrate(refFileName, (steps / subSteps) / 10);
         
         System.out.println("equilibration finished");
         
@@ -224,10 +227,10 @@ public class VirialLJD {
             sim.integratorOS.getEventManager().addListener(progressReport);
         }
 
-        sim.integratorOS.setNumSubSteps((int)steps);
-        sim.setAccumulatorBlockSize(steps);
+        sim.integratorOS.setNumSubSteps((int) blockSize);
+        sim.setAccumulatorBlockSize(blockSize == 0 ? steps : blockSize);
         if (doChainRef) sim.accumulators[0].setBlockSize(1);
-        sim.ai.setMaxSteps(1000);
+        sim.ai.setMaxSteps(steps / blockSize);
         for (int i=0; i<2; i++) {
             if (i > 0 || !doChainRef) System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
         }
@@ -276,5 +279,6 @@ public class VirialLJD {
         public double refFrac = -1;
         public boolean doHist = false;
         public boolean doChainRef = false;
+        public long blockSize = 0;
     }
 }
