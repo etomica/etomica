@@ -37,6 +37,7 @@ public class ClusterWheatleySoftDerivativesBD implements ClusterAbstract, Cluste
     protected final BigDecimal[][] binomial;
     protected BigDecimal BDbeta;
     protected int precisionLimit;
+    protected double rCut2 = Double.POSITIVE_INFINITY;
 
     public ClusterWheatleySoftDerivativesBD(int nPoints, MayerFunction f, int precision, int nDer) {
         this.n = nPoints;
@@ -194,11 +195,27 @@ public class ClusterWheatleySoftDerivativesBD implements ClusterAbstract, Cluste
         }
     }
 
+    public void setRCut(double newRCut) {
+        rCut2 = newRCut * newRCut;
+    }
+
     /**
      * Returns the cluster value for the given configuration.  You must call
      * doCheck(BoxCluster) before calling this method.
      */
     public void calcValue(BoxCluster box) {
+        CoordinatePairSet cPairs = box.getCPairSet();
+        double rMax = 0;
+        for(int i=0; i<n-1; i++) {
+            for(int j=i+1; j<n; j++) {
+                if (cPairs.getr2(i,j) > rCut2) {
+                    value[0] = 0;
+                    return;
+                }
+                if (cPairs.getr2(i,j) > rMax) rMax = cPairs.getr2(i,j);
+            }
+        }
+
         double maxR2 = 0.1;
         if (pushme) {
             // force the system to hang out between minMaxR2 and maxMaxR2
@@ -375,7 +392,7 @@ public class ClusterWheatleySoftDerivativesBD implements ClusterAbstract, Cluste
         }
         if (Math.abs(fB[nf - 1][0].doubleValue()) < tol) {
             if (clusterBD != null) {
-                value[0] = clusterBD.value(box);
+                System.arraycopy(clusterBD.getAllLastValues(box), 0, value, 0, nDer+1);
             } else {
                 value[0] = 0;
             }

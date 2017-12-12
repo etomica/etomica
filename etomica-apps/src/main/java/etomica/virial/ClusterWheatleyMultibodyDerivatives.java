@@ -22,7 +22,6 @@ public class ClusterWheatleyMultibodyDerivatives extends ClusterWheatleySoftDeri
     protected final double[] r2;
     protected final MoleculeArrayList molecules;
     protected boolean doMulti;
-    protected double rCut2;
     protected ClusterWheatleyMultibodyDerivativesBD clusterMultiBD;
     protected double multiTol;
     protected final double[] fQmulti;
@@ -84,7 +83,6 @@ public class ClusterWheatleyMultibodyDerivatives extends ClusterWheatleySoftDeri
         clusterBD = null;
         if(tol!=0){setTolerance(tol);}
         molecules = new MoleculeArrayList(nPoints);
-        rCut2 = Double.POSITIVE_INFINITY;
         fQmulti = new double[1<<n];
         fQmulti[0] = fQmulti[1] = fQmulti[2] = 1;
         pairValues = new double[nDer+1];
@@ -115,10 +113,6 @@ public class ClusterWheatleyMultibodyDerivatives extends ClusterWheatleySoftDeri
         if (clusterMultiBD != null) {
             clusterMultiBD.setTemperature(newT);
         }
-    }
-
-    public void setRCut(double newRCut) {
-        rCut2 = newRCut * newRCut;
     }
 
     public void calcValue(BoxCluster box) {
@@ -199,8 +193,6 @@ public class ClusterWheatleyMultibodyDerivatives extends ClusterWheatleySoftDeri
 
     protected void calcFullFQ(BoxCluster box) {
         super.calcFullFQ(box);
-        boolean debugme = false; //box.getIndex()==1;
-        if(debugme)System.out.println(fQ[3][0]+" "+fQ[5][0]+" "+fQ[6][0]+" "+fQ[7][0]);        
         if (!doMulti) return;
         for (int i=3; i<fMulti.length; i++) {
             if (fMulti[i]!=null) fMulti[i].setBox(box);
@@ -219,6 +211,7 @@ public class ClusterWheatleyMultibodyDerivatives extends ClusterWheatleySoftDeri
             if (i==j) continue; // 1-point set
             int k = i&~j; //strip j bit from i and set result to k
             if (k == (k&-k)) {
+                // 2-point set; these fQ's were filled when bonds were computed, so skip
                 if (fQ[i][0] == 0){
                     for (int m=1;m<=nDer;m++){
                         fQ[i][m]=0;
@@ -229,7 +222,7 @@ public class ClusterWheatleyMultibodyDerivatives extends ClusterWheatleySoftDeri
                 for(int m=1; m<=nDer;m++){
                     fQ[i][m]=fQ[i][m-1]*c;      //calculates derivatives of fQ w.r.t. beta      
                 }                
-                continue; // 2-point set; these fQ's were filled when bonds were computed, so skip
+                continue;
             }
             
             if (fQ[i][0] == 0){
@@ -241,7 +234,7 @@ public class ClusterWheatleyMultibodyDerivatives extends ClusterWheatleySoftDeri
             // we could try to be clever and use the moleculeIndices constructed below to loop
             // more efficiently here.
             int iLowBit = (i & -i);//next lowest bit
-            for (int isub=iLowBit; isub<i; isub+=iLowBit) {//sum over partitions of i
+            for (int isub=iLowBit; isub<i; isub+=iLowBit) {//sum over subset of i
                 while ((isub & ~i) != 0) {
                     // loop until isub is an actual subset of i
                     isub += iLowBit;
@@ -296,7 +289,6 @@ public class ClusterWheatleyMultibodyDerivatives extends ClusterWheatleySoftDeri
             for(int m=1; m<=nDer;m++){
                 fQ[i][m]=fQ[i][m-1]*c;      //calculates derivatives of fQ w.r.t. beta      
             }
-            if(debugme)System.out.println(fQ[7][0]);
         }
     }
     
