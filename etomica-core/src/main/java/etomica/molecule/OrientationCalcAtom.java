@@ -16,12 +16,12 @@ public class OrientationCalcAtom implements OrientationCalc {
 
     public void calcOrientation(IMolecule molecule,
                                 IOrientationFull3D orientation) {
-        orientation.E(((IAtomOriented) molecule).getOrientation());
+        orientation.E(((IMoleculeOriented) molecule).getOrientation());
     }
 
     public void setOrientation(IMolecule molecule,
                                IOrientationFull3D orientation) {
-        ((IAtomOriented) molecule).getOrientation().E(orientation);
+        ((IMoleculeOriented) molecule).getOrientation().E(orientation);
     }
 
 }

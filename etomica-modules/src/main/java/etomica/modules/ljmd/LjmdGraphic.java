@@ -372,8 +372,6 @@ public class LjmdGraphic extends SimulationGraphic {
 
 		    getContentPane().add(ljmdGraphic.getPanel());
 	    }
-
-        private static final long serialVersionUID = 1L;
     }
     
     /**
@@ -392,19 +390,14 @@ public class LjmdGraphic extends SimulationGraphic {
             return data;
         }
 
-        protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+        protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+            if (!(inputDataInfo instanceof DataTensor.DataInfoTensor)) {
+                throw new IllegalArgumentException("Gotta be a DataInfoTensor");
+            }
             dataInfo = new DataDouble.DataInfoDouble(inputDataInfo.getLabel(), inputDataInfo.getDimension());
             return dataInfo;
         }
 
-        public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
-            if (!(inputDataInfo instanceof DataTensor.DataInfoTensor)) {
-                throw new IllegalArgumentException("Gotta be a DataInfoTensor");
-            }
-            return null;
-        }
-
-        private static final long serialVersionUID = 1L;
         protected final DataDouble data;
     }
 

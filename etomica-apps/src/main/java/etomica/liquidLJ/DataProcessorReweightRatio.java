@@ -4,10 +4,9 @@
 
 package etomica.liquidLJ;
 
-import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.units.dimensions.Null;
@@ -31,10 +30,6 @@ public class DataProcessorReweightRatio extends DataProcessor {
     public DataProcessorReweightRatio(int nCutoffs, int ref) {
         this.nCutoffs = nCutoffs;
         this.ref = ref;
-    }
-
-    public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
-        return null;
     }
 
     protected IData processData(IData inputData) {
@@ -65,7 +60,7 @@ public class DataProcessorReweightRatio extends DataProcessor {
         return data;
     }
 
-    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         int nData = inputDataInfo.getLength()/nCutoffs-1;
         dataInfo = new DataInfoDoubleArray("whatever", Null.DIMENSION, new int[]{nData*nCutoffs});
         data = new DataDoubleArray(dataInfo.getLength());

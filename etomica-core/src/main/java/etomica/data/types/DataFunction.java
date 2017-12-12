@@ -4,11 +4,9 @@
 
 package etomica.data.types;
 
-import etomica.data.DataSourceIndependent;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataInfoFactory;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import etomica.data.*;
 import etomica.units.dimensions.Dimension;
 
 
@@ -78,12 +76,14 @@ public class DataFunction extends DataDoubleArray {
             }
             return arrayShape;
         }
-        
+
+        @JsonIgnore
         public DataSourceIndependent getXDataSource() {
             return xDataSource;
         }
-        
-        public IEtomicaDataInfoFactory getFactory() {
+
+        @JsonIgnore
+        public IDataInfoFactory getFactory() {
             return new DataInfoFunctionFactory(this);
         }
         
@@ -91,8 +91,17 @@ public class DataFunction extends DataDoubleArray {
             return new DataFunction(arrayShape);
         }
 
-        private static final long serialVersionUID = 1L;
         protected final DataSourceIndependent xDataSource;
+
+        @JsonProperty
+        private double[] getIndependentData() {
+            return getXDataSource().getIndependentData(0).getData();
+        }
+
+        @JsonProperty
+        private IDataInfo getIndependentDataInfo() {
+            return getXDataSource().getIndependentDataInfo(0);
+        }
     }
     
     public static class DataInfoFunctionFactory extends DataInfoDoubleArrayFactory {
@@ -101,7 +110,7 @@ public class DataFunction extends DataDoubleArray {
             xDataSource = template.xDataSource;
         }
         
-        public IEtomicaDataInfo makeDataInfo() {
+        public IDataInfo makeDataInfo() {
             DataInfoFunction dataInfo = new DataInfoFunction(label, dimension, xDataSource);
             DataTag[] tagArray = new DataTag[tags.size()];
             dataInfo.addTags((DataTag[])tags.toArray(tagArray));

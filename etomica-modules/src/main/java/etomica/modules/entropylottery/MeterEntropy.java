@@ -7,9 +7,9 @@ package etomica.modules.entropylottery;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
+import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 
 /**
@@ -17,7 +17,7 @@ import etomica.units.dimensions.Null;
  * using Stirling's approximation.
  * @author Andrew Schultz
  */
-public class MeterEntropy extends DataSourceScalar implements IEtomicaDataSource {
+public class MeterEntropy extends DataSourceScalar implements IDataSource {
 
     public MeterEntropy() {
         super("entropy", Null.DIMENSION);

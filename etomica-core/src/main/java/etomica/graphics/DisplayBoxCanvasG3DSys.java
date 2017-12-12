@@ -81,8 +81,9 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
         // init AtomAgentManager, to sync G3DSys and Etomica models
         // this automatically adds the atoms
         aam = new AtomLeafAgentManager<Figure>(this, displayBox.getBox(), Figure.class);
-        aamOriented = new AtomLeafAgentManager<Ball[]>(null, displayBox.getBox(), Ball[].class);
-        atomTypeOrientedManager = new AtomTypeAgentManager(null, sim);
+		OrientedAgentSource oas = new OrientedAgentSource();
+		aamOriented = new AtomLeafAgentManager<Ball[]>(oas, displayBox.getBox(), Ball[].class);
+		atomTypeOrientedManager = new AtomTypeAgentManager(null, sim);
 
         planes = new Plane[0];
         planeTriangles = new Triangle[0][0];

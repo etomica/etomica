@@ -8,8 +8,8 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.meam.P2EAM;
 import etomica.potential.IPotentialAtomic;
@@ -21,7 +21,7 @@ import etomica.units.dimensions.Energy;
 /**
  * Created by andrew on 4/12/17.
  */
-public class DataSourceEnergies implements IEtomicaDataSource {
+public class DataSourceEnergies implements IDataSource {
 
     protected final DataDoubleArray data;
     protected final DataDoubleArray.DataInfoDoubleArray dataInfo;
@@ -70,7 +70,7 @@ public class DataSourceEnergies implements IEtomicaDataSource {
     }
 
     @Override
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

@@ -197,6 +197,8 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         else {
             insert = (random.nextInt(2) == 0);
         }
+        if (insert && numAtoms == maxN) return false;
+        if (!insert && numAtoms == minN) return false;
         numNewDeleteCandidates = 0;
         if (dirty || lastStepCount != integrator.getStepCount()) findCandidates();
         if (insert) {

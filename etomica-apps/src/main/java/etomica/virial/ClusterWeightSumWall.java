@@ -5,7 +5,7 @@
 package etomica.virial;
 
 import etomica.data.IData;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
 
 public class ClusterWeightSumWall implements ClusterWeight {
 	
@@ -37,8 +37,9 @@ public class ClusterWeightSumWall implements ClusterWeight {
 	}
 	private final DataSourceClusterWall meter;
 	private final int pointCount;
-	public interface DataSourceClusterWall extends IEtomicaDataSource{
-		public void setBox(BoxCluster box);
+
+    public interface DataSourceClusterWall extends IDataSource {
+        public void setBox(BoxCluster box);
 	}
 	
 }

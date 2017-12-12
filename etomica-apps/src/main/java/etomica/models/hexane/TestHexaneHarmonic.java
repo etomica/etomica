@@ -4,23 +4,14 @@
 
 package etomica.models.hexane;
 
-import java.util.ArrayList;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.DataFork;
-import etomica.data.DataHistogram;
-import etomica.data.DataPipe;
-import etomica.data.DataProcessor;
-import etomica.data.DataPump;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
 import etomica.data.AccumulatorAverage.StatType;
+import etomica.data.*;
 import etomica.data.types.DataDouble;
-import etomica.data.types.DataGroup;
 import etomica.data.types.DataDouble.DataInfoDouble;
+import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayTextBoxesCAE;
@@ -31,12 +22,7 @@ import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.Primitive;
 import etomica.listener.IntegratorListenerAction;
-import etomica.normalmode.BoltzmannProcessor;
-import etomica.normalmode.CoordinateDefinition;
-import etomica.normalmode.MeterHarmonicEnergy;
-import etomica.normalmode.MeterHarmonicSingleEnergy;
-import etomica.normalmode.NormalModes;
-import etomica.normalmode.NormalModesFromFile;
+import etomica.normalmode.*;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
 import etomica.potential.PotentialMaster;
@@ -46,8 +32,8 @@ import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.dimensions.Null;
-import etomica.math.DoubleRange;
-import etomica.data.histogram.HistogramSimple;
+
+import java.util.ArrayList;
 /**
  * @author nancycribbin
  *  
@@ -241,12 +227,12 @@ public class TestHexaneHarmonic extends Simulation {
         boltz = new BoltzmannProcessor();
         boltz.setTemperature(1);
         DataPump pumpSingle = new DataPump(harmonicSingleEnergy, boltz);
-        DataHistogram harmonicSingleHistogram = new DataHistogram(new HistogramSimple(50, new DoubleRange(0, 1)));
+        //DataHistogram harmonicSingleHistogram = new DataHistogram(new HistogramSimple(50, new DoubleRange(0, 1)));
         AccumulatorAverageCollapsing harmonicSingleAvg = new AccumulatorAverageCollapsing();
         boltz.setDataSink(harmonicSingleAvg);
 //        harmonicLog.setDataSink(harmonicSingleHistogram);
 //        harmonicSingleHistogram.setDataSink(harmonicSingleAvg);
-        harmonicSingleAvg.addDataSink(harmonicSingleHistogram, new StatType[]{harmonicSingleAvg.AVERAGE});
+        //harmonicSingleAvg.addDataSink(harmonicSingleHistogram, new StatType[]{harmonicSingleAvg.AVERAGE});
         IntegratorListenerAction singlePumpListener = new IntegratorListenerAction(pumpSingle);
         singlePumpListener.setInterval(100);
         sim.integrator.getEventManager().addListener(singlePumpListener);
@@ -267,7 +253,7 @@ public class TestHexaneHarmonic extends Simulation {
 //            harmonicSingleAvg.addDataSink(harmonicSingleHistogram, new StatType[]{StatType.AVERAGE});
             DisplayPlot harmonicPlot = new DisplayPlot();
             harmonicPlot.setDoLegend(false);
-            harmonicSingleHistogram.setDataSink(harmonicPlot.getDataSet().makeDataSink());
+            //harmonicSingleHistogram.setDataSink(harmonicPlot.getDataSet().makeDataSink());
             simGraphic.add(harmonicPlot);
             
             DisplayTextBox diffSingleA = new DisplayTextBox();
@@ -301,11 +287,7 @@ public class TestHexaneHarmonic extends Simulation {
      */
     public static class DataProcessorFoo extends DataProcessor {
 
-        public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
-            return null;
-        }
-        
-        public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo incomingDataInfo) {
+        public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
             dataInfo = new DataInfoDouble("free energy difference", Null.DIMENSION);
             data = new DataDouble();
             return dataInfo;

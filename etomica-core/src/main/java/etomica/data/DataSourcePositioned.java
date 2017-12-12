@@ -20,7 +20,7 @@ public interface DataSourcePositioned {
     
     public IData getData(Vector a);
     
-    public IEtomicaDataInfo getPositionDataInfo();
+    public IDataInfo getPositionDataInfo();
     
     public DataTag getTag();
 }

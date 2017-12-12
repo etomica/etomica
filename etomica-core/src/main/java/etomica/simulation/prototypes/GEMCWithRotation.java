@@ -8,8 +8,11 @@ import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
+import etomica.atom.AtomTypeOriented;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
+import etomica.graphics.DisplayBoxCanvasG3DSys;
+import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorGEMC;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
@@ -19,24 +22,31 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.lattice.SpaceLattice;
 import etomica.listener.IntegratorListenerAction;
-import etomica.potential.P2LennardJones;
+import etomica.potential.P2HardAssociationCone;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresRotating;
+
+import java.awt.*;
 
 /**
  * Simple Gibbs-ensemble Monte Carlo simulation of rotating molecules.
+ * <p>
+ * Molecules interact with a hard sphere potential and a directional square well association.
  */
-//in present form uses just a LJ potential, so orientation is irrelevant
 public class GEMCWithRotation extends Simulation {
 
-    private static final long serialVersionUID = 1L;
     public Box box1, box2;
     public IntegratorGEMC integrator;
     public SpeciesSpheresRotating species;
-    public P2LennardJones potential;
+    public P2HardAssociationCone potential;
+
+    public GEMCWithRotation() {
+        this(Space3D.getInstance());
+    }
 
     public GEMCWithRotation(Space _space) {
         super(_space);
@@ -88,8 +98,9 @@ public class GEMCWithRotation extends Simulation {
         config.initializeCoordinates(box1);
         config.initializeCoordinates(box2);
 
-        potential = new P2LennardJones(space);
+        potential = new P2HardAssociationCone(space);
         potential.setSigma(sigma);
+        potential.setWellCutoffFactor(1.5);
 
         potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
@@ -99,5 +110,17 @@ public class GEMCWithRotation extends Simulation {
         BoxInflate inflater = new BoxInflate(box2, space);
         inflater.setTargetDensity(0.1);
         inflater.actionPerformed();
+    }
+
+    public static void main(String[] args) {
+
+        double sigma = 1.2;
+        final GEMCWithRotation sim = new GEMCWithRotation();
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+        double conedia = sigma * sim.potential.getTheta();
+        DisplayBoxCanvasG3DSys.OrientedSite[] os = new DisplayBoxCanvasG3DSys.OrientedSite[]{new DisplayBoxCanvasG3DSys.OrientedSite(sigma / 2, Color.BLUE, conedia)};
+        ((DisplayBoxCanvasG3DSys) (simGraphic.getDisplayBox(sim.box1).canvas)).setOrientationSites(((AtomTypeOriented) sim.species.getLeafType()), os);
+        ((DisplayBoxCanvasG3DSys) (simGraphic.getDisplayBox(sim.box2).canvas)).setOrientationSites(((AtomTypeOriented) sim.species.getLeafType()), os);
+        simGraphic.makeAndDisplayFrame();
     }
 }

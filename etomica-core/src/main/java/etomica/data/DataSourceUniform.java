@@ -20,7 +20,7 @@ import etomica.util.EnumeratedType;
  * 
  * @author David Kofke
  */
-public class DataSourceUniform implements IEtomicaDataSource, java.io.Serializable {
+public class DataSourceUniform implements IDataSource, java.io.Serializable {
     
     /**
      * Default constructor. Chooses 100 points between 0 and 1, inclusive,
@@ -99,7 +99,7 @@ public class DataSourceUniform implements IEtomicaDataSource, java.io.Serializab
         typeMax = newTypeMax;
     }//end of calculateX
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     

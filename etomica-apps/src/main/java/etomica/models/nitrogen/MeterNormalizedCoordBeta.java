@@ -8,8 +8,8 @@ import etomica.action.IAction;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
+import etomica.data.IDataInfo;
 import etomica.data.histogram.HistogramExpanding;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -39,7 +39,7 @@ import java.io.Serializable;
  *   total number of parameter that we sample for the system is 3 x 2 x 2 = 12.
  *  
  */
-public class MeterNormalizedCoordBeta implements IEtomicaDataSource, IAction, Serializable {
+public class MeterNormalizedCoordBeta implements IDataSource, IAction, Serializable {
 
     public MeterNormalizedCoordBeta(Box newBox, CoordinateDefinition coordDef, ISpecies species) {
         tag = new DataTag();
@@ -59,7 +59,7 @@ public class MeterNormalizedCoordBeta implements IEtomicaDataSource, IAction, Se
         }
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -194,7 +194,7 @@ public class MeterNormalizedCoordBeta implements IEtomicaDataSource, IAction, Se
     private static final long serialVersionUID = 1L;
     protected CoordinateDefinition coordinateDefinition;
     private final DataTag tag;
-    private IEtomicaDataInfo dataInfo;
+    private IDataInfo dataInfo;
     private DataGroup data;
     private HistogramExpanding[] histogramU;
     private DataDoubleArray[] uDistributions;

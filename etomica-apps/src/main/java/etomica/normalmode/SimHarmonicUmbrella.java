@@ -179,7 +179,7 @@ public class SimHarmonicUmbrella extends Simulation {
         //construct simulation
         final SimHarmonicUmbrella sim = new SimHarmonicUmbrella(Space.getInstance(D), numAtoms, density, temperature, filename, exponentN);
 
-        IEtomicaDataSource[] workMeters = new IEtomicaDataSource[1];
+        IDataSource[] workMeters = new IDataSource[1];
 
         // Harmonic
         MeterWorkHarmonicUmbrella meterWorkHarmonicUmbrella = new MeterWorkHarmonicUmbrella(sim.integrator, sim.meterHarmonicEnergy);

@@ -251,7 +251,7 @@ public class VirialH2PIXC {
 					errorBox.putData(data);
 				}
 			};
-			IEtomicaDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, new CompoundDimension(new Dimension[]{new DimensionRatio(Volume.DIMENSION, Quantity.DIMENSION)}, new double[]{nPoints-1}));
+			IDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, new CompoundDimension(new Dimension[]{new DimensionRatio(Volume.DIMENSION, Quantity.DIMENSION)}, new double[]{nPoints-1}));
 			averageBox.putDataInfo(dataInfo);
 			averageBox.setLabel("average");
 			errorBox.putDataInfo(dataInfo);

@@ -1,13 +1,14 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 package etomica.liquidLJ;
 
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.box.Box;
 import etomica.box.RandomPositionSource;
 import etomica.box.RandomPositionSourceRectangular;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -38,7 +39,7 @@ import etomica.util.random.IRandom;
  * 
  * @author David Kofke
  */
-public class MeterWidomInsertionCorrection implements IEtomicaDataSource {
+public class MeterWidomInsertionCorrection implements IDataSource {
 
     public MeterWidomInsertionCorrection(Space space, IRandom random) {
         tag = new DataTag();
@@ -153,7 +154,7 @@ public class MeterWidomInsertionCorrection implements IEtomicaDataSource {
         return tag;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

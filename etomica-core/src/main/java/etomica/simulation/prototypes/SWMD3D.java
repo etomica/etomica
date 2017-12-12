@@ -23,16 +23,14 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2SquareWell;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 
-//remember to set up Space3D.CoordinatePair.reset if experiencing 
-//problems with this simulation hanging
-
+/**
+ * Simple square-well molecular dynamics simulation in 3D
+ */
 public class SWMD3D extends Simulation {
 
-    private static final long serialVersionUID = 1L;
     public IntegratorHard integrator;
     public SpeciesSpheresMono species;
     public Box box;
@@ -40,8 +38,8 @@ public class SWMD3D extends Simulation {
     public Controller controller;
     public DisplayBox display;
 
-    public SWMD3D(Space _space) {
-        super(_space);
+    public SWMD3D() {
+        super(Space3D.getInstance());
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 2.5, space);
 
         integrator = new IntegratorHard(this, potentialMaster, space);
@@ -80,8 +78,7 @@ public class SWMD3D extends Simulation {
     public static void main(String[] args) {
         final String APP_NAME = "SWMD3D";
 
-        Space sp = Space3D.getInstance();
-        final SWMD3D sim = new SWMD3D(sp);
+        final SWMD3D sim = new SWMD3D();
         final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space, sim.getController());
 
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));

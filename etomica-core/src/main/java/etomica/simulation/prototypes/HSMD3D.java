@@ -25,7 +25,6 @@ import etomica.potential.P2HardSphere;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
@@ -43,7 +42,6 @@ public class HSMD3D extends Simulation {
     //the following fields are made accessible for convenience to permit simple
     //mutation of the default behavior
 
-    private static final long serialVersionUID = 1L;
     /**
      * The Box holding the atoms.
      */
@@ -64,18 +62,19 @@ public class HSMD3D extends Simulation {
     public final PotentialMaster potentialMaster;
 
     /**
-     * Sole public constructor, makes a simulation using a 3D space.
+     * Makes a simulation using a 3D space and the default parameters.
      */
-    public HSMD3D(Space _space) {
-        this(_space, new HSMD3DParam());
+    public HSMD3D() {
+        this(new HSMD3DParam());
     }
 
-    public HSMD3D(Space _space, HSMD3DParam params) {
+    /**
+     * Makes a simulation according to the specified parameters.
+     * @param params Parameters as defined by the inner class HSMD3DParam
+     */
+    public HSMD3D(HSMD3DParam params) {
 
-        // invoke the superclass constructor
-        // "true" is indicating to the superclass that this is a dynamic simulation
-        // the PotentialMaster is selected such as to implement neighbor listing
-        super(_space);
+        super(Space3D.getInstance());
 
         double neighborRangeFac = 1.6;
         double sigma = 1.0;
@@ -126,9 +125,8 @@ public class HSMD3D extends Simulation {
     public static void main(String[] args) {
         final String APP_NAME = "HSMD3D";
 
-        Space sp = Space3D.getInstance();
         HSMD3DParam params = new HSMD3DParam();
-        final HSMD3D sim = new HSMD3D(sp, params);
+        final HSMD3D sim = new HSMD3D(params);
         final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space, sim.getController());
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));
@@ -153,8 +151,17 @@ public class HSMD3D extends Simulation {
      * Inner class for parameters understood by the HSMD3D constructor
      */
     public static class HSMD3DParam extends ParameterBase {
+        /**
+         * Number of atoms, default = 256
+         */
         public int nAtoms = 256;
+        /**
+         * Packing fraction, default = 0.35
+         */
         public double eta = 0.35;
+        /**
+         * Flag indicating whether neighbor list is to be used, default = true
+         */
         public boolean useNeighborLists = true;
     }
 }

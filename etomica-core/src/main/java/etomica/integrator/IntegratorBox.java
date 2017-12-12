@@ -5,6 +5,8 @@
 package etomica.integrator;
 
 import etomica.box.Box;
+import etomica.meta.annotations.IgnoreProperty;
+import etomica.potential.PotentialMaster;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
@@ -46,6 +48,7 @@ public abstract class IntegratorBox extends Integrator {
     /**
      * @return the PotentialMaster instance used to compute energy etc.
      */
+    @IgnoreProperty
     public PotentialMaster getPotentialMaster() {
         return potentialMaster;
     }
@@ -81,6 +84,9 @@ public abstract class IntegratorBox extends Integrator {
      * @param t the new temperature
      */
     public void setTemperature(double t) {
+        if(t < 0) {
+            throw new IllegalArgumentException("Temperature cannot be negative");
+        }
         temperature = t;
     }
 

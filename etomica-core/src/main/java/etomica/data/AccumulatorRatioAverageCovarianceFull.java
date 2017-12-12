@@ -100,7 +100,7 @@ public class AccumulatorRatioAverageCovarianceFull extends AccumulatorAverageCov
         ratioError.E(Double.NaN);
     }
     
-    public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo incomingDataInfo) {
+    public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
         super.processDataInfo(incomingDataInfo);
 
         int n = incomingDataInfo.getLength();

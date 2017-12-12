@@ -32,21 +32,13 @@ public class DataProcessorFunction extends DataProcessor {
     /**
      * Returns a copy of the given dataInfo
      */
-    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         dataInfo = inputDataInfo.getFactory().makeDataInfo();
         dataInfo.addTag(tag);
         data = dataInfo.makeData();
         return dataInfo;
     }
 
-    /**
-     * Always returns null.
-     */
-    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
-        return null;
-    }
-
-    private static final long serialVersionUID = 1L;
     private final IFunction function;
     protected IData data;
 }

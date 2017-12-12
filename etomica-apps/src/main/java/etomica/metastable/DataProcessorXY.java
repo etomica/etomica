@@ -1,12 +1,10 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 package etomica.metastable;
 
-import etomica.data.DataDump;
-import etomica.data.DataPipe;
-import etomica.data.DataProcessor;
-import etomica.data.DataSourceIndependent;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
@@ -22,10 +20,6 @@ public class DataProcessorXY extends DataProcessor implements DataSourceIndepend
         this.dumpX = dumpX;
     }
 
-    public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
-        return null;
-    }
-
     protected IData processData(IData inputData) {
         double[] y = data.getData();
         for (int i=0; i<inputData.getLength(); i++) {
@@ -34,7 +28,7 @@ public class DataProcessorXY extends DataProcessor implements DataSourceIndepend
         return data;
     }
 
-    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         dataInfo = new DataFunction.DataInfoFunction("XY", Null.DIMENSION, this);
         data = new DataFunction(new int[]{dumpX.getDataInfo().getLength()});
         return dataInfo;

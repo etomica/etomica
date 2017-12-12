@@ -4,66 +4,23 @@
 
 package etomica.modules.pistoncylinder;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.event.ItemListener;
-import java.util.ArrayList;
-
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
 import etomica.action.ActionGroupSeries;
 import etomica.action.IAction;
 import etomica.action.IntegratorReset;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.IAtomList;
-import etomica.math.function.Function;
-import etomica.space.Vector;
 import etomica.atom.DiameterHashByElementType;
+import etomica.atom.IAtomList;
 import etomica.chem.elements.ElementSimple;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataFork;
-import etomica.data.DataPump;
-import etomica.data.DataPumpListener;
-import etomica.data.DataSourceCountTime;
-import etomica.data.DataSourceScalar;
-import etomica.data.DataTag;
-import etomica.data.IDataSink;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.graphics.ActionConfigWindow;
-import etomica.graphics.ActionVelocityWindow;
-import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DeviceBox;
+import etomica.graphics.*;
 import etomica.graphics.DeviceBox.LabelType;
-import etomica.graphics.DeviceButton;
-import etomica.graphics.DeviceDelaySlider;
-import etomica.graphics.DeviceNSelector;
-import etomica.graphics.DeviceSlider;
-import etomica.graphics.DeviceThermoSlider;
-import etomica.graphics.DeviceToggleButton;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayBoxCanvasG3DSys;
-import etomica.graphics.DisplayCanvas;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.DisplayTextBoxesCAE;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
 import etomica.integrator.IntegratorMD;
 import etomica.listener.IntegratorListenerAction;
+import etomica.math.function.Function;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
 import etomica.modifier.ModifierFunctionWrapper;
@@ -73,25 +30,21 @@ import etomica.potential.P2HardSphere;
 import etomica.potential.P2Ideal;
 import etomica.potential.P2SquareWell;
 import etomica.space.Space;
-import etomica.units.Angstrom;
-import etomica.units.Bar;
-import etomica.units.CompoundUnit;
+import etomica.space.Vector;
+import etomica.units.*;
 import etomica.units.dimensions.Dimension;
-import etomica.units.Gram;
-import etomica.units.Joule;
-import etomica.units.Kelvin;
 import etomica.units.dimensions.Length;
-import etomica.units.Liter;
-import etomica.units.Meter;
-import etomica.units.Mole;
-import etomica.units.Pixel;
-import etomica.units.Prefix;
-import etomica.units.PrefixedUnit;
 import etomica.units.dimensions.Pressure;
 import etomica.units.dimensions.Temperature;
-import etomica.units.Unit;
-import etomica.units.UnitRatio;
 import etomica.units.systems.MKS;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
+import java.awt.event.ItemListener;
+import java.util.ArrayList;
 
 
 public class PistonCylinderGraphic extends SimulationGraphic {
@@ -677,8 +630,8 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         plotT.setLegend(new DataTag[]{thermometer.getTag()}, "measured");
         temperatureDisplayTextBox.setAccumulator(temperatureAvg);
         temperatureDisplayTextBox.setUnit(tUnit);
-        
-        IEtomicaDataSource targetTemperatureDataSource = new DataSourceScalar("Target Temperature",Temperature.DIMENSION) {
+
+        IDataSource targetTemperatureDataSource = new DataSourceScalar("Target Temperature", Temperature.DIMENSION) {
             public double getDataAsScalar() {
                 return tempSlider.getModifier().getValue();
             }
@@ -711,7 +664,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         pressureDisplayTextBox.setAccumulator(pressureAvg);
         pressureDisplayTextBox.setUnit(pUnit);
 
-        IEtomicaDataSource targetPressureDataSource = new DataSourceScalar("Target Pressure",Pressure.DIMENSION) {
+        IDataSource targetPressureDataSource = new DataSourceScalar("Target Pressure", Pressure.DIMENSION) {
             public double getDataAsScalar() {
                 return pUnit.toSim(pressureSlider.getValue());
             }

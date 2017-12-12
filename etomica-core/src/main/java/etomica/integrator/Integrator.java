@@ -99,6 +99,13 @@ public abstract class Integrator {
     }
 
     /**
+     * @return true if reset() was ever called.
+     */
+    public boolean isInitialized() {
+        return initialized;
+    }
+
+    /**
      * This method resets the step counter.
      */
     public void resetStepCount() {

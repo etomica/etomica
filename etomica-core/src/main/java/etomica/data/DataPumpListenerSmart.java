@@ -16,12 +16,12 @@ public class DataPumpListenerSmart extends DataPumpListener {
 
     protected final HistoryCollapsingDiscard history;
     protected IData lastData;
-    
-    public DataPumpListenerSmart(IEtomicaDataSource dataSource, IDataSink dataSink, HistoryCollapsingDiscard historySink) {
+
+    public DataPumpListenerSmart(IDataSource dataSource, IDataSink dataSink, HistoryCollapsingDiscard historySink) {
         this(dataSource, dataSink, 1, historySink);
     }
-    
-    public DataPumpListenerSmart(IEtomicaDataSource dataSource, IDataSink dataSink, int interval, HistoryCollapsingDiscard historySink) {
+
+    public DataPumpListenerSmart(IDataSource dataSource, IDataSink dataSink, int interval, HistoryCollapsingDiscard historySink) {
         super(dataSource, dataSink, interval);
         this.history = historySink;
     }

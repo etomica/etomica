@@ -64,7 +64,7 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     public MeterHarmonicEnergy meterHarmonicEnergy;
     public DataPumpListener[] accumulatorPumps;
-    public IEtomicaDataSource[] meters;
+    public IDataSource[] meters;
     public String fname;
     protected MCMoveHarmonic move;
     protected PotentialMasterMonatomic potentialMasterTarget;
@@ -74,7 +74,7 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
         potentialMasterTarget = new PotentialMasterMonatomic(this);
         integrators = new IntegratorBox[2];
         accumulatorPumps = new DataPumpListener[2];
-        meters = new IEtomicaDataSource[2];
+        meters = new IDataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);

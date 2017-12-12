@@ -5,12 +5,16 @@
 package etomica.space;
 
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import etomica.math.function.IFunction;
+import etomica.meta.annotations.IgnoreProperty;
+import etomica.meta.serializers.VectorSerializer;
 import etomica.util.random.IRandom;
 
 /**
  * Interface containing vector operations, accessor, and mutator methods.
  */
+@JsonSerialize(using = VectorSerializer.class)
 public interface Vector {
 
     /**
@@ -25,6 +29,12 @@ public interface Vector {
      * Inverse of the E method.
      */
     public void assignTo(double[] array);
+
+    default double[] toArray() {
+        double[] arr = new double[this.getD()];
+        this.assignTo(arr);
+        return arr;
+    }
 
     /**
      * Returns true if all corresponding elements of this and the given vector
@@ -47,6 +57,7 @@ public interface Vector {
     /**
      * Returns true if all components of this vector are zero; false otherwise.
      */
+    @IgnoreProperty
     public boolean isZero();
 
     /**
@@ -57,6 +68,7 @@ public interface Vector {
     /**
      * Returns true if any element of the vector is not-a-number.
      */
+    @IgnoreProperty
     public boolean isNaN();
 
     /**

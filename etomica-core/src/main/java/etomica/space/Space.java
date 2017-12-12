@@ -42,6 +42,10 @@ public abstract class Space implements java.io.Serializable {
      */
     public abstract int D();
 
+    public int getD() {
+        return this.D();
+    }
+
     /**
      * @return the given value raised to the power 1/D, where D is the dimension of the space.
      */

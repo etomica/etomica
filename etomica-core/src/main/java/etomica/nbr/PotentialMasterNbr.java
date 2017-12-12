@@ -10,6 +10,7 @@ import etomica.atom.SpeciesAgentManager;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentManager.BoxAgentSource;
 import etomica.box.BoxCellManager;
+import etomica.meta.annotations.IgnoreProperty;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.species.ISpecies;

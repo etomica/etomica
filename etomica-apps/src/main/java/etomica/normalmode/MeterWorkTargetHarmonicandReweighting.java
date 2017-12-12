@@ -4,23 +4,19 @@
 
 package etomica.normalmode;
 
-import etomica.data.DataSourceIndependentSimple;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
-import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
-import etomica.data.types.DataDouble;
-import etomica.data.types.DataFunction;
-import etomica.data.types.DataDouble.DataInfoDouble;
-import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.integrator.IntegratorBox;
-import etomica.units.dimensions.Energy;
-import etomica.units.dimensions.Null;
-import etomica.math.DoubleRange;
+import etomica.data.*;
 import etomica.data.histogram.HistogramReweightedData;
 import etomica.data.histogram.HistogramSimple;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
+import etomica.data.types.DataDouble;
+import etomica.data.types.DataDouble.DataInfoDouble;
+import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.data.types.DataFunction;
+import etomica.data.types.DataFunction.DataInfoFunction;
+import etomica.integrator.IntegratorBox;
+import etomica.math.DoubleRange;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Null;
 
 /**
  * Meter used for overlap sampling in the target-sampled system.  The meter
@@ -42,7 +38,7 @@ import etomica.data.histogram.HistogramSimple;
  * 
  * @author Tai Boon Tan
  */
-public class MeterWorkTargetHarmonicandReweighting implements IEtomicaDataSource {
+public class MeterWorkTargetHarmonicandReweighting implements IDataSource {
     
     public MeterWorkTargetHarmonicandReweighting(IntegratorBox integrator, MeterHarmonicEnergy meterHarmonicEnergy, double ref) {
         meterEnergy = new MeterPotentialEnergyFromIntegrator(integrator);
@@ -100,7 +96,7 @@ public class MeterWorkTargetHarmonicandReweighting implements IEtomicaDataSource
         latticeEnergy = newLatticeEnergy;
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 
@@ -114,7 +110,7 @@ public class MeterWorkTargetHarmonicandReweighting implements IEtomicaDataSource
     	return dataHistogram;
     }
     
-    public IEtomicaDataInfo getDataInfoHistogramBetaUBWf(){
+    public IDataInfo getDataInfoHistogramBetaUBWf(){
     	DataInfoDoubleArray independentInfo = new DataInfoDoubleArray("Energy", Energy.DIMENSION, new int[]{histogramUBWf.getNBins()});
     	xDataSource = new DataSourceIndependentSimple(histogramUBWf.xValues(), independentInfo);
     	dataInfoHistogram = new DataInfoFunction("Energy Histogram", Null.DIMENSION,xDataSource);
@@ -126,7 +122,7 @@ public class MeterWorkTargetHarmonicandReweighting implements IEtomicaDataSource
     	return dataHistogram;
     }
     
-    public IEtomicaDataInfo getDataInfoHistogramBetaUBWr(){
+    public IDataInfo getDataInfoHistogramBetaUBWr(){
     	DataInfoDoubleArray independentInfo = new DataInfoDoubleArray("Energy", Energy.DIMENSION, new int[]{histogramUBWr.getNBins()});
     	xDataSource = new DataSourceIndependentSimple(histogramUBWr.xValues(), independentInfo);
     	dataInfoHistogram = new DataInfoFunction("Energy Histogram", Null.DIMENSION,xDataSource);

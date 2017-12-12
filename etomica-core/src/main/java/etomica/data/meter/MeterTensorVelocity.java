@@ -12,7 +12,6 @@ import etomica.data.DataSourceAtomic;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
-import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataTensor;
 import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.space.Space;
@@ -45,7 +44,7 @@ public class MeterTensorVelocity implements DataSourceAtomic, java.io.Serializab
         return tag;
     }
        
-    public IEtomicaDataInfo getAtomDataInfo() {
+    public IDataInfo getAtomDataInfo() {
         return dataInfo;
     }
        

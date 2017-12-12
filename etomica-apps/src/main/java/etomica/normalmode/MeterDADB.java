@@ -21,7 +21,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 
-public class MeterDADB implements IEtomicaDataSource, AgentSource<MyAgent> {
+public class MeterDADB implements IDataSource, AgentSource<MyAgent> {
 
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
@@ -134,7 +134,7 @@ public class MeterDADB implements IEtomicaDataSource, AgentSource<MyAgent> {
         return tag;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

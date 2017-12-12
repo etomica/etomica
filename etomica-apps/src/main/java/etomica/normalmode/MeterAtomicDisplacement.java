@@ -23,7 +23,7 @@ import etomica.units.dimensions.Null;
 /**
  * Calculates the average atomic displacement from their lattice sites
  */
-public class MeterAtomicDisplacement implements IEtomicaDataSource, DataSourceIndependent, IAction {
+public class MeterAtomicDisplacement implements IDataSource, DataSourceIndependent, IAction {
 
     public MeterAtomicDisplacement(Space space, CoordinateDefinition coordinateDefinition) {
     	
@@ -47,7 +47,7 @@ public class MeterAtomicDisplacement implements IEtomicaDataSource, DataSourceIn
         return coordinateDefinition.getBox();
     }
     
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfoFunction;
     }
 

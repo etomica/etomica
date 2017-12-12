@@ -9,6 +9,7 @@ import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.Box;
 import etomica.box.BoxMoleculeEvent;
 import etomica.exception.ConfigurationOverlapException;
+import etomica.meta.annotations.IgnoreProperty;
 import etomica.molecule.IMolecule;
 import etomica.nbr.PotentialMasterHybrid;
 import etomica.nbr.list.INeighborListListener;
@@ -587,6 +588,7 @@ public class IntegratorHard extends IntegratorMD
     public void releaseAgent(Agent agent, IAtom atom, Box agentBox) {
     }
 
+    @IgnoreProperty
     public Class getSpeciesAgentClass() {
         return PotentialHard.class;
     }

@@ -7,8 +7,8 @@ package etomica.models.nitrogen;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.IDataSource;
+import etomica.data.IDataInfo;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -44,7 +44,7 @@ import java.io.IOException;
  * @author taitan
  *
  */
-public class MeterTargetTPMolecule implements IEtomicaDataSource {
+public class MeterTargetTPMolecule implements IDataSource {
 
     protected final MeterPotentialEnergy meterPotential;
     protected final PotentialMaster potentialMaster;
@@ -74,7 +74,7 @@ public class MeterTargetTPMolecule implements IEtomicaDataSource {
         tag = new DataTag();
     }
 
-	public IEtomicaDataInfo getDataInfo() {
+	public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

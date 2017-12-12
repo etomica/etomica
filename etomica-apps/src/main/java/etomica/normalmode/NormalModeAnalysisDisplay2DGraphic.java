@@ -4,39 +4,26 @@
 
 package etomica.normalmode;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
 import etomica.action.IAction;
-import etomica.space.Vector;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataFork;
-import etomica.data.DataInfo;
-import etomica.data.DataPump;
-import etomica.data.DataSourceCountTime;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IDataSink;
+import etomica.data.*;
 import etomica.data.types.DataDouble;
-import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataTable;
 import etomica.data.types.DataDouble.DataInfoDouble;
+import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.data.types.DataTable;
 import etomica.data.types.DataTable.DataInfoTable;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.graphics.DeviceThermoSlider;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTable;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.DisplayTextBoxesCAE;
-import etomica.graphics.SimulationGraphic;
+import etomica.graphics.*;
 import etomica.listener.IntegratorListenerAction;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.dimensions.Energy;
 import etomica.units.dimensions.Null;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * 
@@ -508,12 +495,12 @@ public class NormalModeAnalysisDisplay2DGraphic extends SimulationGraphic {
          * tabbed-pane for wavevectors with corresponding omega2
          */
         displayTable = new DisplayTable();
-        sink = displayTable.getDataTable().makeDataSink();
-        
+
         displayTable.setTransposed(false);
         
         DataInfoDoubleArray columnInfo = new DataInfoDoubleArray("Omega^2", Null.DIMENSION, new int[]{m});
         DataInfo dataInfoTable = new DataInfoTable("Omega^2", new DataInfoDoubleArray[]{columnInfo}, m, stringWV);
+        sink = displayTable.getDataTable().makeDataSink(dataInfoTable);
         sink.putDataInfo(dataInfoTable);
         sink.putData(omega2Table);
         

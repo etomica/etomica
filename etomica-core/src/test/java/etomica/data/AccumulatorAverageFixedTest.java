@@ -6,7 +6,7 @@ package etomica.data;
 
 import etomica.data.types.DataDouble;
 import etomica.units.dimensions.Null;
-import etomica.util.random.RandomNumberGenerator;
+import etomica.util.random.RandomMersenneTwister;
 
 public class AccumulatorAverageFixedTest extends AccumulatorAverageTestBase {
 
@@ -15,7 +15,6 @@ public class AccumulatorAverageFixedTest extends AccumulatorAverageTestBase {
     }
 
     public void testSimple() {
-        if (true) return;
         super.testSimple();
         
         // should cause a reset
@@ -33,7 +32,7 @@ public class AccumulatorAverageFixedTest extends AccumulatorAverageTestBase {
     public void testCorrelated() {
         accumulator.putDataInfo(new DataDouble.DataInfoDouble("test", Null.DIMENSION));
         DataDouble rawData = new DataDouble();
-        RandomNumberGenerator rng = new RandomNumberGenerator();
+        RandomMersenneTwister rng = new RandomMersenneTwister(4);
         accumulator.setBlockSize(10);
 
         for (int i=0; i<1000000; i++) {

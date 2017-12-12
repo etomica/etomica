@@ -112,12 +112,11 @@ public class HistoryScrolling implements History, java.io.Serializable {
         return false;
     }
 
-    private static final long serialVersionUID = 1L;
-    private double[] history = new double[0];
-    private int cursor;
-	private double[] tempY = new double[0];
-    private double[] tempX = new double[0];
-    private double[] xValues = new double[0];
-    private boolean full = false;
+    protected double[] history = new double[0];
+    protected int cursor;
+    protected double[] tempY = new double[0];
+    protected double[] tempX = new double[0];
+    protected double[] xValues = new double[0];
+    protected boolean full = false;
 
 }

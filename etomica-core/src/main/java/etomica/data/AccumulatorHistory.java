@@ -4,17 +4,24 @@
 
 package etomica.data;
 
+import etomica.data.history.History;
+import etomica.data.history.HistoryScrolling;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.units.dimensions.Quantity;
-import etomica.data.history.History;
-import etomica.data.history.HistoryScrolling;
 
 /**
  * Accumulator that keeps history of data.
  */
 public class AccumulatorHistory extends DataAccumulator {
+
+    protected History history;
+    protected DataSourceIndependentSimple xDataSources;
+    protected int nData;
+    private DataFunction data;
+    private DataSourceScalar timeDataSource;
+    private IDataInfo inputDataInfo;
 
     /**
      * Creates instance using HistorySimple factory and specifying historys
@@ -30,10 +37,17 @@ public class AccumulatorHistory extends DataAccumulator {
     }
 
     /**
+     * Returns the DataSource used for the "time" component of the history.
+     */
+    public DataSourceScalar getTimeDataSource() {
+        return timeDataSource;
+    }
+    
+    /**
      * Sets the DataSource used for the "time" component of the history.  Each
      * time addData is called, the time DataSource's getData will be called and
-     * the returned scalar will be taken as the current time.  By default, the 
-     * time variable is taken to be the number of times data was added to the 
+     * the returned scalar will be taken as the current time.  By default, the
+     * time variable is taken to be the number of times data was added to the
      * history.
      */
     public void setTimeDataSource(DataSourceScalar newTimeDataSource) {
@@ -44,25 +58,11 @@ public class AccumulatorHistory extends DataAccumulator {
     }
     
     /**
-     * Returns the DataSource used for the "time" component of the history.
-     */
-    public DataSourceScalar getTimeDataSource() {
-        return timeDataSource;
-    }
-    
-    /**
-     * Returns null.  AccumulatorHistogram can take an type of Data.
-     */
-    public DataPipe getDataCaster(IEtomicaDataInfo newInputDataInfo) {
-        return null;
-    }
-    
-    /**
      * Sets up data and histories, discarding any previous results.
-     * 
+     *
      * @param newInputDataInfo
      */
-    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo newInputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo newInputDataInfo) {
         if (newInputDataInfo.getLength() != 1) {
             throw new IllegalArgumentException("AccumulatorHistory only handles single-value data");
         }
@@ -93,7 +93,7 @@ public class AccumulatorHistory extends DataAccumulator {
             xDataSources.getIndependentData(0).getData() != history.getXValues()) {
             setupData();
         }
-        
+
         return data;
     }
 
@@ -102,10 +102,10 @@ public class AccumulatorHistory extends DataAccumulator {
      */
     private void setupData() {
         data = new DataFunction(new int[]{history.getHistoryLength()}, history.getHistory());
-        xDataSources = new DataSourceIndependentSimple(history.getXValues(), 
+        xDataSources = new DataSourceIndependentSimple(history.getXValues(),
                     new DataInfoDoubleArray(timeDataSource.getDataInfo().getLabel(),
                     timeDataSource.getDataInfo().getDimension(), new int[]{history.getHistoryLength()}));
-        dataInfo = new DataInfoFunction(inputDataInfo.getLabel(), 
+        dataInfo = new DataInfoFunction(inputDataInfo.getLabel(),
                     inputDataInfo.getDimension(), xDataSources);
         dataInfo.addTags(inputDataInfo.getTags());
         dataInfo.addTag(tag);
@@ -113,29 +113,22 @@ public class AccumulatorHistory extends DataAccumulator {
             dataSink.putDataInfo(dataInfo);
         }
     }
-    
+
     public History getHistory() {
         return history;
     }
-    
+
     public void setHistory(History newHistory) {
         history = newHistory;
     }
-    
+
     public void reset() {
         history.reset();
     }
-    
-    public IEtomicaDataInfo getDataInfo() {
+
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
-
-    protected History history;
-    protected DataSourceIndependentSimple xDataSources;
-    private DataFunction data;
-    protected int nData;
-    private DataSourceScalar timeDataSource;
-    private IEtomicaDataInfo inputDataInfo;
 
     /**
      * Simple DataSource to use as a default time DataSource.  It just returns
@@ -143,14 +136,14 @@ public class AccumulatorHistory extends DataAccumulator {
      */
     protected static class DataSourceCount extends DataSourceScalar {
 
+        private int count = 0;
+        
         public DataSourceCount() {
             super("Count",Quantity.DIMENSION);
         }
-        
+
         public double getDataAsScalar() {
             return count++;
         }
-
-        private int count = 0;
     }
 }

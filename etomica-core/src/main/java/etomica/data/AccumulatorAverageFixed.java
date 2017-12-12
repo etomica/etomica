@@ -4,39 +4,55 @@
 
 package etomica.data;
 
-import etomica.math.function.IFunction;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.math.function.Function;
+import etomica.math.function.IFunction;
 
 /**
  * AccumulatorAverage that maintains a fixed block size.
+ * This is standard accumulator for collecting averages in production runs.
  * <p>
  * This accumulator accepts any type of Data
  */
 public class AccumulatorAverageFixed extends AccumulatorAverage {
 
+    protected final IFunction negativeChop, sanityCheckBC;
+    protected IData sum; //sum(value)
+    protected IData sumBlockSquare;//sum(blockAvg^2)
+    protected IData currentBlockSum;//block_sum(value)
+    protected IData sumSquare;//sum(value^2)
+    protected IData mostRecentBlock, correlationSum, firstBlock;
+    protected IData work, work2;
+    protected boolean doStrictBlockData = false;
+    protected IDataSink blockDataSink;
+
     /**
-     * Default constructor sets block size to Default value, and sets the
+     * Default constructor sets block size to 1000 and sets the
      * interval for pushing the output data (pushInterval) to 100.
      */
     public AccumulatorAverageFixed() {
         this(1000);
     }
-    
+
+    /**
+     * Constructs with interval for pushing the output data set to 100.
+     *
+     * @param blockSize size of the block.
+     */
     public AccumulatorAverageFixed(long blockSize) {
         super(blockSize);
         // this chops negative values to be 0, used in cases where value
         // is non-zero due to roundoff and happens to be negative
-        negativeChop = new IFunction(){
+        negativeChop = new IFunction() {
             public double f(double x) {
                 return !(x <= 0) ? x : 0;
             }
         };
-        
+
         // this provides a sanity check for the block correlation, which must
         // be between -1 and 1.  It can take strange (nonsense) values,
         // especially when the value is consistent (stdev=0).
-        sanityCheckBC = new IFunction(){
+        sanityCheckBC = new IFunction() {
             public double f(double x) {
                 return (Double.isNaN(x) || x <= -1 || x >= 1) ? 0 : x;
             }
@@ -44,42 +60,51 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
     }
 
     /**
+     * @return value of DoStrictBlockData
+     */
+    public boolean getDoStrictBlockData() {
+        return doStrictBlockData;
+    }
+
+    /**
      * Sets the accumulator to base statistics only on block data (where that
      * makes sense).  The primary effect here is that data does not go into
      * the average unless it is part of a complete block.  Because of how it
      * is computed, the standard deviation is unaffected by this flag.
-     * 
+     *
      * @param newDoStrictBlockData
      */
     public void setDoStrictBlockData(boolean newDoStrictBlockData) {
         doStrictBlockData = newDoStrictBlockData;
     }
 
-    public boolean getDoStrictBlockData() {
-        return doStrictBlockData;
-    }
-    
-    public void setBlockDataSink(IDataSink blockDataSink) {
-        this.blockDataSink = blockDataSink;
-        if (dataInfo != null) {
-            blockDataSink.putDataInfo(((DataInfoGroup)dataInfo).getSubDataInfo(MOST_RECENT.index));
-        }
-    }
-    
+    /**
+     * @return the data sink where block data are passed.
+     */
     public IDataSink getBlockDataSink() {
         return blockDataSink;
     }
 
     /**
-     * Returns null (any data is good data)
+     * Allows individual block data to be passed to a data sink. Each block is
+     * pushed to the sink after it is complete (as determined by block size).
+     *
+     * @param blockDataSink the sink where the blocks are to be passed. For
+     *                      multiple streams, this could be a DataFork.
      */
-    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
-        return null;
+    public void setBlockDataSink(IDataSink blockDataSink) {
+        this.blockDataSink = blockDataSink;
+        if (dataInfo != null) {
+            blockDataSink.putDataInfo(((DataInfoGroup) dataInfo).getSubDataInfo(MOST_RECENT.index));
+        }
     }
 
     /**
      * Add the given values to the sums and block sums. If any of the given data
      * values is NaN, method returns with no effect on accumulation sums.
+     *
+     * @param data data to be added.
+     * @return true if data are not NaN.
      */
     public boolean addData(IData data) {
         if (data.isNaN())
@@ -91,7 +116,7 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
         work.TE(data);
         sumSquare.PE(work);
         if (--blockCountDown == 0) {//count down to zero to determine
-                                    // completion of block
+            // completion of block
             doBlockSum();
             if (blockDataSink != null) {
                 blockDataSink.putData(mostRecentBlock);
@@ -100,7 +125,7 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
         return true;
     }
     
-    public void putDataInfo(IEtomicaDataInfo inputDataInfo) {
+    public void putDataInfo(IDataInfo inputDataInfo) {
         super.putDataInfo(inputDataInfo);
         if (blockDataSink != null) {
             blockDataSink.putDataInfo(inputDataInfo);
@@ -118,12 +143,11 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
         work.E(currentBlockSum);
         work.TE(currentBlockSum);
         sumBlockSquare.PE(work);
-        if (count>1) {
+        if (count > 1) {
             work.E(currentBlockSum);
             work.TE(mostRecentBlock);
             correlationSum.PE(work);
-        }
-        else {
+        } else {
             firstBlock.E(currentBlockSum);
         }
         //reset blocks
@@ -131,23 +155,19 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
         currentBlockSum.E(0.0);
     }
 
-    /**
-     * Returns a DataGroup with Data instances holding the statistics kept by
-     * this accumulator (as described in general comments for this class).
-     */
     public IData getData() {
         if (sum == null)
             return null;
         if (count > 0) {
             // calculate block average (discarded if !doStrictBlockData)
             average.E(sum);
-            average.DE(count*blockSize);
+            average.DE(count * blockSize);
             work.E(average);
             work.TE(average);
         }
         if (count > 1) {
             // calculate other block properties (these require 2 or more blocks)
-            
+
             error.E(sumBlockSquare);
             error.DE(count);
             error.ME(work);
@@ -155,16 +175,16 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
 
             // error's intermediate value is useful for calculating block correlation
             blockCorrelation.E(average);
-            blockCorrelation.TE(-2*count);
+            blockCorrelation.TE(-2 * count);
             blockCorrelation.PE(firstBlock);
             blockCorrelation.PE(mostRecentBlock);
             blockCorrelation.TE(average);
             blockCorrelation.PE(correlationSum);
-            blockCorrelation.DE(count-1);
+            blockCorrelation.DE(count - 1);
             blockCorrelation.PE(work);
             blockCorrelation.DE(error);
             blockCorrelation.map(sanityCheckBC);
-            
+
             // ok, now finish up with error
             error.DE(count - 1);
             error.map(Function.Sqrt.INSTANCE);
@@ -178,13 +198,12 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
                 work.map(Function.Sqrt.INSTANCE);
                 error.TE(work);
             }
-        }
-        else {
+        } else {
             error.E(Double.NaN);
             blockCorrelation.E(Double.NaN);
         }
-        
-        long nTotalData = count*blockSize + (blockSize-blockCountDown);
+
+        long nTotalData = count * blockSize + (blockSize - blockCountDown);
         if (nTotalData > 0) {
             // now use *all* of the data
             if (!doStrictBlockData) {
@@ -193,8 +212,7 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
                 average.DE(nTotalData);
                 work.E(average);
                 work.TE(average);
-            }
-            else {
+            } else {
                 work.E(sum);
                 work.PE(currentBlockSum);
                 work.DE(nTotalData);
@@ -205,17 +223,13 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
             standardDeviation.ME(work);
             standardDeviation.map(negativeChop);
             standardDeviation.map(Function.Sqrt.INSTANCE);
-        }
-        else {
+        } else {
             average.E(Double.NaN);
             standardDeviation.E(Double.NaN);
         }
         return dataGroup;
     }
 
-    /**
-     * Resets all sums to zero. All statistics are cleared.
-     */
     public void reset() {
         super.reset();
         if (sum == null) {
@@ -230,15 +244,7 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
         mostRecentBlock.E(Double.NaN);
     }
 
-    /**
-     * Prepares the accumulator for input data.  Discards any previous 
-     * contributions to statistics.
-     * 
-     * @param incomingDataInfo
-     *            the DataInfo instance for the data that will be given to
-     *            addData
-     */
-    public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo incomingDataInfo) {
+    public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
         sum = incomingDataInfo.makeData();
         sumBlockSquare = incomingDataInfo.makeData();
         currentBlockSum = incomingDataInfo.makeData();
@@ -250,14 +256,4 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
         work2 = incomingDataInfo.makeData();
         return super.processDataInfo(incomingDataInfo);
     }
-
-    protected IData sum; //sum(value)
-    protected IData sumBlockSquare;//sum(blockAvg^2)
-    protected IData currentBlockSum;//block_sum(value)
-    protected IData sumSquare;//sum(value^2)
-    protected IData mostRecentBlock, correlationSum, firstBlock;
-    protected IData work, work2;
-    protected final IFunction negativeChop, sanityCheckBC;
-    protected boolean doStrictBlockData = false;
-    protected IDataSink blockDataSink;
 }
