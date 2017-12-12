@@ -63,9 +63,10 @@ public class VirialH2OGCPMD {
             params.sigmaHSRef = 5;
             params.nonAdditive = Nonadditive.TOTAL;
             params.seed = null;
-            params.doHist = true;
+            params.doHist = false;
             isCommandline = true;
             params.dorefpref = false;
+            params.tol = 1e-12;
         }
 
         final int nPoints = params.nPoints;
@@ -75,6 +76,7 @@ public class VirialH2OGCPMD {
         double sigmaHSRef = params.sigmaHSRef;
         int[] seed = params.seed;
         boolean dorefpref = params.dorefpref;
+        final double tol = params.tol;
 
         final double refFrac = params.refFrac;
         final Nonadditive nonAdditive = nPoints < 3 ? Nonadditive.NONE : params.nonAdditive;
@@ -87,8 +89,7 @@ public class VirialH2OGCPMD {
         }
         
         double temperature = Kelvin.UNIT.toSim(temperatureK);
-        
-        final double tol = 1e-12;
+
         final int precision = -3*(int)Math.log10(tol);
         
         System.out.println("Reference diagram: B"+nPoints+" for hard spheres with diameter " + sigmaHSRef + " Angstroms");
@@ -107,7 +108,6 @@ public class VirialH2OGCPMD {
 
         ClusterAbstractMultivalue targetCluster = new ClusterWheatleySoftDerivatives(nPoints, fTarget, tol,nDer);
         ClusterAbstractMultivalue targetClusterBD = new ClusterWheatleySoftDerivativesBD(nPoints, fTarget, precision,nDer);
-
 
         if (nPoints==2) {
             // pure B2 for water.  we need flipping.
@@ -133,10 +133,12 @@ public class VirialH2OGCPMD {
             ((ClusterWheatleyMultibodyDerivativesBD)targetClusterBD).setDoCaching(false);
             targetCluster = new ClusterCoupledFlippedMultivalue(targetCluster, targetClusterBD, space, 20, nDer, tol);
         }
-        ClusterMultiToSingle[] primes = new ClusterMultiToSingle[nDer];         
-        for(int m=0;m<primes.length;m++){                                               
-            primes[m]= new ClusterMultiToSingle(targetCluster, m+1);            
+
+        ClusterMultiToSingle[] primes = new ClusterMultiToSingle[nDer];
+        for(int m=0;m<primes.length;m++){
+            primes[m]= new ClusterMultiToSingle(targetCluster, m+1);
         }
+
         targetCluster.setTemperature(temperature);
 
         ClusterWheatleyHS refCluster = new ClusterWheatleyHS(nPoints, fRef);
@@ -146,13 +148,14 @@ public class VirialH2OGCPMD {
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, speciesWater, nPoints, temperature, refCluster, targetCluster);
         if(seed!=null)sim.setRandom(new RandomMersenneTwister(seed));
         sim.setExtraTargetClusters(primes);
-                
+
+        //No weighting for BD flipping
         if(nPoints > 4){
             double r=1000;
             double w=1;
             if(nPoints >5){
-                r = 20;
-                w = 50;
+                r = 1000;
+                w = 1;
             }
             ClusterWeight[] sampleclusters = sim.getSampleClusters();
             sampleclusters[1] = new Clusterfoo(targetCluster, r ,w);
@@ -162,6 +165,7 @@ public class VirialH2OGCPMD {
         sim.init();
 
         System.out.println("random seeds: "+Arrays.toString(seed==null?sim.getRandomSeeds():seed));
+        System.out.println("Big Decimal Tolerance: " + tol);
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
         
         if (nonAdditive != Nonadditive.NONE) {
@@ -415,7 +419,7 @@ public class VirialH2OGCPMD {
         System.out.println();
         
         sim.printResults(HSB);
-        
+
         //printing conversion factor for simulation temperature to K
         Unit conv = new CompoundUnit(new Unit[]{Kelvin.UNIT}, new double[]{1});
         System.out.println("K/SimT "+ conv.fromSim(1));
@@ -534,6 +538,7 @@ public class VirialH2OGCPMD {
         public Nonadditive nonAdditive = Nonadditive.NONE;
         public int[] seed = null;
         public boolean dorefpref = false;
+        public double tol = 1e-12;
 
     }
 }
