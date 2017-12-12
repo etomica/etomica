@@ -4,6 +4,7 @@
 
 package etomica.virial;
 
+import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.data.histogram.HistogramExpanding;
 import etomica.math.DoubleRange;
@@ -31,9 +32,11 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
     protected long flipcount = 0;
     protected long BDcount = 0;
     protected long totcount = 0;
-    protected boolean pushme=true;
+    protected boolean pushme=false;
     private Vector childAtomVector;
     public HistogramExpanding histe;
+    protected boolean[][] printed = new boolean[100][2];
+    public boolean doPrint = false;
     
     /**
      * cluster must have caching disabled
@@ -56,7 +59,12 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
     }
 
     public ClusterAbstract makeCopy() {
-        return new ClusterCoupledFlippedMultivalue((ClusterAbstractMultivalue)wrappedCluster.makeCopy(),(ClusterAbstractMultivalue)wrappedClusterBD.makeCopy(), space, minFlipDistance, nDer, tol);
+        if (wrappedClusterBD==null){
+            return new ClusterCoupledFlippedMultivalue((ClusterAbstractMultivalue)wrappedCluster.makeCopy(),null, space, minFlipDistance, nDer, tol);
+        }
+        else {
+            return new ClusterCoupledFlippedMultivalue((ClusterAbstractMultivalue) wrappedCluster.makeCopy(), (ClusterAbstractMultivalue) wrappedClusterBD.makeCopy(), space, minFlipDistance, nDer, tol);
+        }
     }
 
     public int pointCount() {
@@ -102,8 +110,8 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
         double maxR2 = 0;
         for (int i=0; i<pointCount; i++) {
             for (int j=i+1; j<pointCount; j++) {
+                if (box.getCPairSet().getr2(i,j)>maxR2) maxR2 = box.getCPairSet().getr2(i,j);
                 if (box.getCPairSet().getr2(i,j) > minR2) {
-                    if (box.getCPairSet().getr2(i,j)>maxR2) maxR2 = box.getCPairSet().getr2(i,j);
                     if (false && box.getCPairSet().getr2(i,j) > 2*minR2) debugme=true;
                     flipit=true;
                 }
@@ -120,24 +128,46 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
 
         int n = wrappedCluster.pointCount();
         double bfac = (1.0-n)/ SpecialFunctions.factorial(n);
+        int printIdx = (int)(Math.sqrt(maxR2)/10);
+
+        double[] varr = new double[(1<<n)+1];
 
         for (int pass=0; pass<2; pass++){
             if(pass==1){
+                if (wrappedClusterBD == null) {
+                    value[0] = 0;
+                    return value[0];
+                }
                 currentcluster = wrappedClusterBD;
             }
 
             double doubleval = value[0];
             double[] v = currentcluster.getAllLastValues(box);
+            if(pass==0)varr[0] = v[0]/bfac;
+
+            if (doPrint && pass==1 && !printed[printIdx][1] ) {
+                System.out.println("BD "+v[0]/bfac);
+            }
             for (int m = 0; m < value.length; m++) {
                 value[m] = v[m];
             }
 
             if (!flipit) {
-                if (Math.abs(value[0]/bfac)<tol && pass==0){
+                if (Math.abs(value[0]/bfac)<tol && pass==0 && value[0]!=0){
                     BDcount++;
+                    if (doPrint && !printed[printIdx][1] ) {
+                        varr[1]=Double.NaN;
+                        printConfig(box,varr);
+                    }
                     continue;
                 }
-                //            if (debugme)System.out.println("4 "+"clusterSum "+cPairID+" returning V[0] "+v[0]);
+                if( doPrint && !printed[printIdx][pass]){
+                    if(pass==0){
+                        varr[1]=Double.NaN;
+                        printConfig(box,varr);
+                    }
+                    printed[printIdx][pass] = true;
+                }
                 return v[0];
             }
             if (debugme) System.out.print(String.format("%6.3f %10.4e ", Math.sqrt(maxR2), v[0]));
@@ -150,6 +180,8 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
             // loop through the atoms, toggling each one until we toggle one "on"
             // this should generate each combination of flipped/unflipped for all
             // the molecules
+
+            int flipn = 1;
             while (true) {
                 boolean didFlipTrue = false;
                 for (int i = 0; !didFlipTrue && i < pointCount; i++) {
@@ -162,6 +194,13 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
                     break;
                 }
                 v = currentcluster.getAllLastValues(box);
+                if(pass==0){
+                    varr[flipn]=v[0]/bfac;
+                    flipn++;
+                }
+                if (doPrint && pass==1 && !printed[printIdx][1]) {
+                    System.out.println("BD "+ v[0]/bfac);
+                }
                 if (debugme) System.out.print(String.format("%10.4e ", v[0]));
                 for (int m = 0; m < value.length; m++) {
                     value[m] += v[m];
@@ -173,19 +212,53 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
             for (int m = 0; m < value.length; m++) {
                 value[m] /= (1<<pointCount);
             }
-            if(pass==0)histe.addValue(Math.log(Math.abs(value[0]/bfac)));
+            if(pass==0)varr[varr.length-1] = value[0]/bfac;
+
+            if (doPrint && pass==1 && !printed[printIdx][1]) {
+                System.out.println("avg "+value[0]/bfac + "\n");
+                printed[printIdx][1] = true;
+            }
+            if(pass==0&&value[0]!=0)histe.addValue(Math.log(Math.abs(value[0]/bfac)));
             if (debugme) System.out.print(String.format("%10.4e\n", value[0]));
 
             if(false&&pushme&&pass==1)System.out.println(Math.sqrt(maxR2)+" "+ doubleval+" "+value[0]);
 
-            //        if (debugme) System.out.println("5 "+"clusterSum "+cPairID+" returning NEW "+value[0]);
-            if ( Math.abs(value[0]/bfac)>tol) {
+            if ( Math.abs(value[0]/bfac)>tol || value[0] ==0) {
+                if(doPrint && pass==0 && !printed[printIdx][0]){
+                    printConfig(box,varr);
+                    printed[printIdx][0]=true;
+                }
                 break;
             }
-            if(pass==0)BDcount+=1<<pointCount;
+            if(pass==0){
+                BDcount+=1<<pointCount;
+                if(doPrint && !printed[printIdx][1]) {
+                    printConfig(box, varr);
+                }
+            }
         }
 
         return value[0];
+    }
+
+    private void printConfig(BoxCluster box, double[] varr) {
+        System.out.println();
+        int nmols = box.getMoleculeList().getMoleculeCount();
+        for(int i=0; i<nmols;i++){
+            IMolecule mol = box.getMoleculeList().getMolecule(i);
+            int natoms = mol.getChildList().getAtomCount();
+            for(int j=0; j<natoms;j++){
+                IAtom atom = mol.getChildList().getAtom(j);
+                Vector p = atom.getPosition();
+                System.out.println(atom.getType().getElement().getSymbol() + " " + p.getX(0) + " " + p.getX(1) +" "+ p.getX(2));
+            }
+
+        }
+        for(int i =0; i<varr.length; i++) {
+            if(Double.isNaN(varr[i])) break;
+            if(i==varr.length-1)System.out.print("avg ");
+            System.out.println(varr[i]);
+        }
     }
 
     public double[] getAllLastValues(BoxCluster box) {
@@ -205,7 +278,7 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
 
     public void setTemperature(double temperature) {
         wrappedCluster.setTemperature(temperature);
-        wrappedClusterBD.setTemperature(temperature);
+        if(wrappedClusterBD!=null)wrappedClusterBD.setTemperature(temperature);
     }
 
     public long getflipcount(){
