@@ -14,21 +14,19 @@ import java.lang.reflect.Array;
 /**
  * MoleculeAgentManager acts on behalf of client classes (an AgentSource) to
  * manage agents in every IMolecule in a box.  When molecules are added or
- * removed from the box, the agents array (indexed by the atom's global index)
- * is updated.
- * 
+ * removed from the box, the agents array is updated.
+ * @param <E> molecule agent class
  * @author Andrew Schultz
  */
-public class MoleculeAgentManager implements BoxEventListener, SimulationListener, Serializable {
+public class MoleculeAgentManager<E> implements BoxEventListener, SimulationListener{
 
-    private static final long serialVersionUID = 1L;
-    protected final MoleculeAgentSource agentSource;
+    protected final MoleculeAgentSource<E> agentSource;
     protected final Box box;
     protected final Simulation sim;
-    protected Object[][] agents;
+    protected E[][] agents;
     protected int reservoirSize;
     
-    public MoleculeAgentManager(Simulation sim, Box box, MoleculeAgentSource source) {
+    public MoleculeAgentManager(Simulation sim, Box box, MoleculeAgentSource<E> source) {
         agentSource = source;
         this.box = box;
         this.sim = sim;
@@ -66,7 +64,7 @@ public class MoleculeAgentManager implements BoxEventListener, SimulationListene
      * Returns the agent associated with the given IAtom.  The IAtom must be
      * from the Box associated with this instance.
      */
-    public Object getAgent(IMolecule a) {
+    public E getAgent(IMolecule a) {
         return agents[a.getType().getIndex()][a.getIndex()];
     }
     
@@ -76,7 +74,7 @@ public class MoleculeAgentManager implements BoxEventListener, SimulationListene
      * IAtom's old agent is not released.  This should be done manually if
      * needed.
      */
-    public void setAgent(IMolecule a, Object newAgent) {
+    public void setAgent(IMolecule a, E newAgent) {
         agents[a.getType().getIndex()][a.getIndex()] = newAgent;
     }
     
@@ -99,7 +97,7 @@ public class MoleculeAgentManager implements BoxEventListener, SimulationListene
                 // check if atom's spot in the array even exists yet
                 IMolecule molecule = molecules.getMolecule(i);
                 if (molecule.getIndex() < agents[i].length) {
-                    Object agent = agents[i][molecule.getIndex()];
+                    E agent = agents[i][molecule.getIndex()];
                     if (agent != null) {
                         agentSource.releaseAgent(agent,molecule);
                     }
@@ -115,9 +113,10 @@ public class MoleculeAgentManager implements BoxEventListener, SimulationListene
     protected void setupBox() {
         sim.getEventManager().addListener(this);
         box.getEventManager().addListener(this);
-        agents = new Object[sim.getSpeciesCount()][];
+        agents = (E[][])Array.newInstance(agentSource.getMoleculeAgentClass(),
+               sim.getSpeciesCount(), 0);
         for (int i=0; i<agents.length; i++) {
-            agents[i] = (Object[])Array.newInstance(agentSource.getMoleculeAgentClass(),
+            agents[i] = (E[])Array.newInstance(agentSource.getMoleculeAgentClass(),
                     box.getNMolecules(sim.getSpecies(i)));
         }
         // fill in the array with agents from all the molecules
@@ -136,7 +135,7 @@ public class MoleculeAgentManager implements BoxEventListener, SimulationListene
         IMolecule mole = e.getMolecule();
         int index = mole.getIndex();
         int typeIndex = mole.getType().getIndex();
-        Object[] speciesAgents = agents[typeIndex];
+        E[] speciesAgents = agents[typeIndex];
         if (speciesAgents[index] != null) {
             // Atom used to have an agent.  nuke it.
             agentSource.releaseAgent(speciesAgents[index], mole);
@@ -149,7 +148,7 @@ public class MoleculeAgentManager implements BoxEventListener, SimulationListene
         // the atom's index changed.  assume it would get the same agent
         int oldIndex = e.getIndex();
         int typeIndex = mole.getType().getIndex();
-        Object[] speciesAgents = agents[typeIndex];
+        E[] speciesAgents = agents[typeIndex];
         speciesAgents[mole.getIndex()] = speciesAgents[oldIndex];
         speciesAgents[oldIndex] = null;
     }
@@ -162,7 +161,7 @@ public class MoleculeAgentManager implements BoxEventListener, SimulationListene
             // needs to be, shrink it.
             // ... or we've been notified that atoms are about to get added to the
             // system.  Make room for them
-            agents[speciesIndex] = Arrays.resizeArray(agents[speciesIndex],newMaxIndex+reservoirSize);
+            agents[speciesIndex] = java.util.Arrays.copyOf(agents[speciesIndex],newMaxIndex+reservoirSize);
         }
     }
 
@@ -171,12 +170,12 @@ public class MoleculeAgentManager implements BoxEventListener, SimulationListene
     public void boxAtomLeafIndexChanged(BoxAtomIndexEvent e) {}
 
     public void simulationSpeciesAdded(SimulationSpeciesEvent e) {
-        agents = (Object[][])Arrays.resizeArray(agents, agents.length+1);
-        agents[agents.length-1] = (Object[])Array.newInstance(agentSource.getMoleculeAgentClass(), 0);
+        agents = java.util.Arrays.copyOf(agents, agents.length+1);
+        agents[agents.length-1] = (E[])Array.newInstance(agentSource.getMoleculeAgentClass(), 0);
     }
 
     public void simulationSpeciesRemoved(SimulationSpeciesEvent e) {
-        agents = (Object[][])Arrays.removeObject(agents, agents[e.getSpecies().getIndex()]);
+        agents = (E[][])Arrays.removeObject(agents, agents[e.getSpecies().getIndex()]);
 
     }
 
@@ -202,7 +201,7 @@ public class MoleculeAgentManager implements BoxEventListener, SimulationListene
         int speciesIndex = a.getType().getIndex();
         if (agents[speciesIndex].length < a.getIndex()+1) {
             // no room in the array.  reallocate the array with an extra cushion.
-            agents[speciesIndex] = Arrays.resizeArray(agents[speciesIndex],a.getIndex()+1+reservoirSize);
+            agents[speciesIndex] = java.util.Arrays.copyOf(agents[speciesIndex],a.getIndex()+1+reservoirSize);
         }
         agents[speciesIndex][a.getIndex()] = agentSource.makeAgent(a);
     }
@@ -210,7 +209,7 @@ public class MoleculeAgentManager implements BoxEventListener, SimulationListene
      * Interface for an object that wants an agent associated with each
      * IMolecule a Box.
      */
-    public interface MoleculeAgentSource {
+    public interface MoleculeAgentSource<E> {
         /**
          * Returns the Class of the agent.  This is used to create an array of
          * the appropriate Class.
@@ -220,26 +219,26 @@ public class MoleculeAgentManager implements BoxEventListener, SimulationListene
         /**
          * Returns an agent for the given Atom.
          */
-        Object makeAgent(IMolecule a);
+        E makeAgent(IMolecule a);
 
         /**
          * This informs the agent source that the agent is going away and that
          * the agent source should disconnect the agent from other elements
          */
-        void releaseAgent(Object agent, IMolecule atom);
+        void releaseAgent(E agent, IMolecule atom);
     }
     
     /**
      * Iterator that loops over the agents, skipping null elements
      */
-    public static class AgentIterator implements Serializable {
+    public static class AgentIterator<E> implements Serializable {
 
         private static final long serialVersionUID = 1L;
-        private final MoleculeAgentManager agentManager;
+        private final MoleculeAgentManager<E> agentManager;
         private int speciesCursor, moleculeCursor;
-        private Object[][] agents;
-        private Object[] speciesAgents;
-        protected AgentIterator(MoleculeAgentManager agentManager) {
+        private E[][] agents;
+        private E[] speciesAgents;
+        protected AgentIterator(MoleculeAgentManager<E> agentManager) {
             this.agentManager = agentManager;
         }
 
@@ -280,9 +279,9 @@ public class MoleculeAgentManager implements BoxEventListener, SimulationListene
             } while (true);
         }
 
-        public Object next() {
+        public E next() {
             if (speciesAgents == null) {
-                return false;
+                return null;
             }
             do {
                 while (moleculeCursor == speciesAgents.length) {
