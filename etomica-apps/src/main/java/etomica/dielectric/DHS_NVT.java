@@ -259,8 +259,8 @@ protected final SpeciesSpheresRotating species;
 		//calculate dipoleSumSquared average
         double dipoleSumSquared = ((DataDouble) ((DataGroup) dipoleSumSquaredAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
         double dipoleSumSquaredERR = ((DataDouble) ((DataGroup) dipoleSumSquaredAccumulator.getData()).getData(AccumulatorAverage.ERROR.index)).x;
-        //TODO
-        double sum0 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(0);
+
+		double sum0 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(0);
         double ERsum0 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(0);
         double sum1 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(1);
         double ERsum1 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(1);
@@ -271,13 +271,12 @@ protected final SpeciesSpheresRotating species;
 //		double AEEER = Math.sqrt(ERsum0*ERsum0 + 4*sum1*sum1*ERsum1*ERsum1 -
 //				2*ERsum0*sum1*2*ERsum1*covariance.getValue(1)/Math.sqrt(covariance.getValue(0)*covariance.getValue(3)));
 
-        //TODO
+
 		double AEE = sum0;
 		double AEEER = ERsum0;
-		//TODO
 
 
-        double volume = sim.box.getBoundary().volume();
+		double volume = sim.box.getBoundary().volume();
 		double dipoleFac = 4 * Math.PI * dipoleSumSquared/9.0/volume/temperature;
 		double dielectricOutsideFac = dielectricOutside<Double.POSITIVE_INFINITY ? 2*(dielectricOutside-1)/(2*dielectricOutside+1) : 1;
 		double x1 =  dipoleSumSquared;

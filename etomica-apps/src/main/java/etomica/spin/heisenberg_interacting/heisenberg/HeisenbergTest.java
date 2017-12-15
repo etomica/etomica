@@ -28,7 +28,6 @@ import etomica.species.SpeciesSpheresRotating;
 import etomica.units.systems.LJ;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.random.RandomNumberGenerator;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -36,16 +35,14 @@ import java.util.Calendar;
 
 
 /**
- * Compute  the dielectric constant of  2D interacting Heisenberg model in conventional way and mapped averaging.
+ * Compute  the dielectric constant of  2D Heisenberg model in conventional way and mapped averaging.
  * Conventional way: get the -bt*bt*<M^2> with M is the total dipole moment;
  * Mapped averaging: get the A_EE secondDerivative of free energy w.r.t electric field E when E is zero
  * Prototype for simulation of a more general magnetic system.
  *
- *
- *
  * @author Weisong Lin
  */
-public class Heisenberg extends Simulation {
+public class HeisenbergTest extends Simulation {
 
     private static final String APP_NAME = "Heisenberg";
     public final ActivityIntegrate activityIntegrate;
@@ -65,7 +62,7 @@ public class Heisenberg extends Simulation {
      * @param interactionS    the J in heisenberg energy function: U = J*Cos(theta1-theta2)
      * @param dipoleMagnitude is the strength of heisenberg dipole.
      */
-    public Heisenberg(Space space, int nCells, double temperature, double interactionS, double dipoleMagnitude) {
+    public HeisenbergTest(Space space, int nCells, double temperature, double interactionS, double dipoleMagnitude) {
         super(Space2D.getInstance());
 //        setRandom(new RandomNumberGenerator(1)); //debug only
 //        System.out.println("============================the RandomSeed is one ===========================");
@@ -124,9 +121,9 @@ public class Heisenberg extends Simulation {
         System.out.println("temperature= " + temperature);
 
         Space sp = Space2D.getInstance();
-        Heisenberg sim = new Heisenberg(sp, nCells, temperature, interactionS, dipoleMagnitude);
+        HeisenbergTest sim = new HeisenbergTest(sp, nCells, temperature, interactionS, dipoleMagnitude);
 
-        MeterSpinMSquare meterMSquare = null;
+        MeterMappedAveragingTest meterMSquare = null;
         AccumulatorAverage dipoleSumSquaredAccumulator = null;
 
         sim.activityIntegrate.setMaxSteps(steps / 5);
@@ -149,7 +146,7 @@ public class Heisenberg extends Simulation {
 
         //mSquare
         if (mSquare) {
-            meterMSquare = new MeterSpinMSquare(sim.space, sim.box, dipoleMagnitude);
+            meterMSquare = new MeterMappedAveragingTest(sim.space, sim.box, sim, temperature, interactionS, dipoleMagnitude, sim.potentialMaster);
             dipoleSumSquaredAccumulator = new AccumulatorAverageFixed(samplePerBlock);
             DataPump dipolePump = new DataPump(meterMSquare, dipoleSumSquaredAccumulator);
             IntegratorListenerAction dipoleListener = new IntegratorListenerAction(dipolePump);
@@ -238,9 +235,9 @@ public class Heisenberg extends Simulation {
         public boolean mSquare = true;
         public boolean aEE = true;
         public double temperature = 10;// Kelvin
-        public int nCells = 3;//number of atoms is nCells*nCells
-        public double interactionS = 1.0;
+        public int nCells = 10;//number of atoms is nCells*nCells
+        public double interactionS = 1;
         public double dipoleMagnitude = 1.0;
-        public int steps = 100000;
+        public int steps = 1000000;
     }
 }

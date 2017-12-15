@@ -1,5 +1,6 @@
 package etomica.spin.heisenberg_interacting.heisenberg;
 
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.potential.*;
@@ -27,8 +28,9 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
     protected double psix1, psix2, psix11, psix12, psix22, psi1x1, psi1x2;
     protected double psiy1, psiy2, psiy11, psiy12, psiy22, psi1y1, psi1y2;
     protected int nMax = 0;
+    protected AtomLeafAgentManager<MeterMappedAveraging.MoleculeAgent> leafAgentManager;
 
-    public PotentialCalculationHeisenberg(Space space, double dipoleMagnitude, double interactionS, double beta, int nMax) {
+    public PotentialCalculationHeisenberg(Space space, double dipoleMagnitude, double interactionS, double beta, int nMax, AtomLeafAgentManager<MeterMappedAveraging.MoleculeAgent> leafAgentManager) {
         ei = space.makeVector();//TODO Do I have to do this again.
         ej = space.makeVector();
         J = interactionS;
@@ -37,6 +39,7 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
         bJ = bt * J;
         bmu = bt * mu;
         this.nMax = nMax;
+        this.leafAgentManager = leafAgentManager;
 
         Axc0 = new double[nMax + 1];
         Axs0 = new double[nMax + 1];
@@ -137,7 +140,7 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
                         + 2 * n2 * (2 + n2 - 2 * n) * I0bJ * Math.cos((n + 2) * t1) * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
                         + bJ * n2 * (2 + 2 * n + n2) * I0bJ * (bJ * InbJ * (Math.cos((n - 2) * t1) + Math.cosh(n * t1)) + 2 * Inm1bJ * (bJ * Math.cos((n - 2) * t1) + (n - 1) * Math.cosh(n * t1)))
                 ) / (bJ * bJ * (4 + n4) * I0bJ)
-                ) * bmu * bmu / 4 / n2;
+                ) * bmu * bmu / 4.0 / n2;
 
                 dAxc1[n] = 0.25 * bmu * bmu * (
                         -(n - 2) * Inm2bJ * Math.sin((n - 2) * t1) / (2 - 2 * n + n2)
@@ -152,7 +155,7 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
                         + (bJ * (bJ * n2 * (2 + 2 * n + n2) * I0bJ * Math.sin((n - 2) * t1) * (2 * Inm1bJ + InbJ) - (16 + 4 * n4) * Math.sin(n * t1) * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ)))
                         + 2 * n2 * (2 - 2 * n + n2) * I0bJ * Math.sin((n + 2) * t1) * ((-bJ + bJ * bJ - n * bJ) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n2 + 2 * n) * InbJ)
                 ) / (bJ * bJ * (4 + n4) * I0bJ)
-                ) * bmu * bmu / 4 / n2;
+                ) * bmu * bmu / 4.0 / n2;
 
                 dAxs1[n] = 0.25 * bmu * bmu * (((n - 2) * Inm2bJ * Math.cos((n - 2) * t1)) / (2 - 2 * n + n2)
                         + (bJ * (bJ * n * (-4 - 2 * n + n3) * I0bJ * Math.cos((n - 2) * t1) * (2 * Inm1bJ + InbJ)
@@ -175,7 +178,7 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
                 d3Axc0[n] = (2 * InbJ * ((1 - n2 + 4 * n4) * Math.cos(n * t1) * Math.sin(t1) + n * (1 + n2 + 2 * n4) * Math.cos(t1) * Math.sin(n * t1))
                         + (1 + n) * (1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) * Inp1bJ * Math.sin((n + 1) * t1)
                         - (-1 + n) * (-1 + n) * Inm1bJ * ((1 + n) * Math.sin((n - 1) * t1) + 2 * n3 * Math.sin((1 - n) * t1))
-                ) * bmu / (1 + 4 * n4);
+                ) * bmu / (1.0 + 4 * n4);
 
                 d3Axs0[n] = -(bJ * Inm1bJ * (n * (1 + n2 + 2 * n4) * Math.cos(t1) * Math.cos(n * t1) + (-1 + n2 - 4 * n4) * Math.sin(t1) * Math.sin(n * t1))
                         + InbJ * (-n * Math.cos(t1) * Math.cos(n * t1) * ((1 + n) * (1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) - bJ * (1 + n2 + 2 * n4)) + Math.sin(t1) * Math.sin(n * t1) * (n * (1 + n) * (1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) + bJ * (-1 + n2 - 4 * n4)))
@@ -231,7 +234,7 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
                         - 2 * bmu * n * Math.cos(t1) * Math.sin(n * t1) * (2 * bJ * Inm1bJ + (1 + 2 * bJ + 2 * (-1 + n) * n) * InbJ)
                 ) / (bJ + 4 * bJ * n4);
 
-                dAyc0[n] = 2 * bmu * ((bJ * Inm1bJ + (bJ - n + n2 - 2 * n4) * InbJ) * Math.cos(t1) * Math.cos(n * t1)
+                dAyc0[n] = 2.0 * bmu * ((bJ * Inm1bJ + (bJ - n + n2 - 2 * n4) * InbJ) * Math.cos(t1) * Math.cos(n * t1)
                         + n * Math.sin(t1) * Math.sin(n * t1) * (InbJ + (-1 + 2 * n2) * (-bJ * Inm1bJ + (n - bJ) * InbJ))
                 ) / (bJ + 4 * bJ * n4);
 
@@ -243,7 +246,7 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
                 dAys0[n] = ((1 + n - 2 * n3) * Inm1bJ * Math.sin((n - 1) * t1)
                         + 2 * InbJ * (n * (-1 + 2 * n2) * Math.cos(n * t1) * Math.sin(t1) + Math.cos(t1) * Math.sin(n * t1))
                         + (1 - n + 2 * n3) * Inp1bJ * Math.sin((n + 1) * t1)
-                ) * bmu / (1 + 4 * n4);
+                ) * bmu / (1.0 + 4 * n4);
 
 
                 Ayc1[n] = (n2 * Inm2bJ * (-Math.cos((n - 2) * t1) + Math.cosh(n * t1)) / (2 - 2 * n + n2)
@@ -308,18 +311,18 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
             }
         }
 
-        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
-        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
-        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
-        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
-        System.out.println("nMax= " + nMax + ";");
-        System.out.println("bJ= " + bJ + ";");
-        System.out.println("ei={" + ei.getX(0) + "," + ei.getX(1) + "};");
-        System.out.println("ej={" + ej.getX(0) + "," + ej.getX(1) + "};");
-        System.out.println("theta1 = ArcCos[ei[[1]]];");
-        System.out.println("theta2 = ArcCos[ej[[1]]];");
-        System.out.println("bt = bJ/J;");
-        System.out.println("bmu = bt*mu;");
+//        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
+//        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
+//        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
+//        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
+//        System.out.println("nMax= " + nMax + ";");
+//        System.out.println("bJ= " + bJ + ";");
+//        System.out.println("ei={" + ei.getX(0) + "," + ei.getX(1) + "};");
+//        System.out.println("ej={" + ej.getX(0) + "," + ej.getX(1) + "};");
+//        System.out.println("theta1 = ArcCos[ei[[1]]];");
+//        System.out.println("theta2 = ArcCos[ej[[1]]];");
+//        System.out.println("bt = bJ/J;");
+//        System.out.println("bmu = bt*mu;");
 
 
         double p0 = Math.exp(bJ * Math.cos(t1 - t2));
@@ -403,15 +406,16 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
 //        System.out.println("vEEy1[nMax]- " + "(" + vEEy1 + ")");
 //        System.out.println("vEEy2[nMax]- " + "(" + vEEy2 + ")");
 
+
         //divergence of vEE
         //x
         JEEMJEJE += bmu * bmu * (1 + I1bJ / I0bJ) - (vEEx1 * lnp1 + vEEx2 * lnp2) + bmu * pM1 * (psix1 * Math.sin(t1) + psix2 * Math.sin(t2));
         //y
         JEEMJEJE += bmu * bmu * (1 + I1bJ / I0bJ) - (vEEy1 * lnp1 + vEEy2 * lnp2) - bmu * pM1 * (psiy1 * Math.cos(t1) + psiy2 * Math.cos(t2));
 
-
         //vE dot Grad vE
         //x
+//        System.out.println("Mapping pairs:("+ atom1+" , "+ atom2+")");
         JEEMJEJE += bmu * pM1 * (psix1 * Math.sin(t1) + psix2 * Math.sin(t2))
                 - pM2 * lnp1 * (psix1 * psix11 - psix1 * psix12 + psix2 * psix12 - psix2 * psix22)
                 - pM2 * (lnp11 - lnp1 * lnp1) * (psix1 - psix2) * (psix1 - psix2);
@@ -420,44 +424,37 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
                 - pM2 * lnp1 * (psiy1 * psiy11 - psiy1 * psiy12 + psiy2 * psiy12 - psiy2 * psiy22)
                 - pM2 * (lnp11 - lnp1 * lnp1) * (psiy1 - psiy2) * (psiy1 - psiy2);
 
-//        double test = bmu * bmu * (1 + I1bJ / I0bJ) - (vEEx1 * lnp1 + vEEx2 * lnp2) + bmu * pM1 * (psix1 * Math.sin(t1) + psix2 * Math.sin(t2))
-//     +   bmu * bmu * (1 + I1bJ / I0bJ) - (vEEy1 * lnp1 + vEEy2 * lnp2) - bmu * pM1 * (psiy1 * Math.cos(t1) + psiy2 * Math.cos(t2))
-//                +bmu * pM1 * (psix1 * Math.sin(t1) + psix2 * Math.sin(t2))
-//                - pM2 * lnp1 * (psix1 * psix11 - psix1 * psix12 + psix2 * psix12 - psix2 * psix22)
-//                - pM2 * (lnp11 - lnp1 * lnp1) * (psix1 - psix2) * (psix1 - psix2)
-//                -bmu * pM1 * (psiy1 * Math.cos(t1) + psiy2 * Math.cos(t2))
-//                - pM2 * lnp1 * (psiy1 * psiy11 - psiy1 * psiy12 + psiy2 * psiy12 - psiy2 * psiy22)
-//                - pM2 * (lnp11 - lnp1 * lnp1) * (psiy1 - psiy2) * (psiy1 - psiy2);
-//        System.out.println("JEEMJEJE5- (" + test + ")");
-//        System.exit(2);
-
-
         //Var<JE-UE>
-        IPotentialAtomicSecondDerivative potentialSecondDerivative = (IPotentialAtomicSecondDerivative) potential;
-        Vector[][] t = potentialSecondDerivative.gradientAndTorque(atoms);//TODO
-        double f1 = t[1][0].getX(0);
-        double f2 = t[1][1].getX(0);
-        System.out.println("f1 = " + f1);
-        System.out.println("f2 = " + f2);
-        System.out.println("t00= " + t[0][0]);
-        System.out.println("t01= " + t[0][1]);
-        System.exit(2);
-        //TODO I need to adjust p2spin!!!! the force is no just opposite with each other.
+//        IPotentialAtomicSecondDerivative potentialSecondDerivative = (IPotentialAtomicSecondDerivative) potential;
+//        Vector[][] t = potentialSecondDerivative.gradientAndTorque(atoms);
+//        double f1 = t[1][0].getX(0);
+//        double f2 = t[1][1].getX(0);
+
+        MeterMappedAveraging.MoleculeAgent AgentAtom1 = leafAgentManager.getAgent(atom1);
+        MeterMappedAveraging.MoleculeAgent AgentAtom2 = leafAgentManager.getAgent(atom2);
+        double f1 = bt * AgentAtom1.torque.getX(0);//TODO need to check whether should times bt or not here and phi
+        double f2 = bt * AgentAtom2.torque.getX(0);
+
+
+        //PhiSum
+//        IPotentialAtomicSecondDerivative potentialSecondDerivative = (IPotentialAtomicSecondDerivative) potential;
+//        Tensor[] phi = potentialSecondDerivative.secondDerivative(atoms);
+//        double p12 = phi[0].component(0, 0);
+//        double p11 = phi[1].component(0, 0);
+//        double p22 = phi[2].component(0, 0);
+
+        //  -bJCos(t1-t2) for //ij
+        double p12 = -bJ * ei.dot(ej);
+        double p11 = AgentAtom1.phi.component(0, 0);
+        double p22 = AgentAtom2.phi.component(0, 0);
+
+
 
         double JEMUEx = bJ * Math.sin(t1 - t2) * pM1 * (psix1 - psix2) - (vEx1 * f1 + vEx2 * f2);
         double JEMUEy = bJ * Math.sin(t1 - t2) * pM1 * (psiy1 - psiy2) - (vEx1 * f1 + vEx2 * f2);
 
         JEMUESquare += JEMUEx * JEMUEx + JEMUEy * JEMUEy;
-        JEMUE = (JEMUEx + JEMUEy) / 2;
-        //TODO how to return variance for both direction maybe I should return both x and y value?
-
-
-        //PhiSum
-//        IPotentialAtomicSecondDerivative potentialSecondDerivative = (IPotentialAtomicSecondDerivative) potential;
-        Tensor[] phi = potentialSecondDerivative.secondDerivative(atoms);
-        double p12 = phi[0].component(0, 0);//TODO is it the right component? Do I also need to change the p2spin potential part!!
-        double p11 = phi[1].component(0, 0);
-        double p22 = phi[2].component(0, 0);
+        JEMUE = (JEMUEx + JEMUEy) / 2.0;
 
         double vDotGradvx1 = pM2 * (-lnp1 * psix1 * (psix1 - psix2) + psix1 * psix11 + psix2 * psix12);
         double vDotGradvy1 = pM2 * (-lnp1 * psiy1 * (psiy1 - psiy2) + psiy1 * psiy11 + psiy2 * psiy12);
@@ -472,12 +469,11 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
 
         UEE += vEEx1 * f1 + vEEx2 * f2 + vDotGradvx1 * f1 + vDotGradvx2 * f2
                 + vEx1 * (p11 * vEx1 + p12 * vEx2) + vEx2 * (p12 * vEx1 + p22 * vEx2)
-                + 2 * vEx1 * fxE1 + 2 * vEx2 * fxE2;
+                - 2 * vEx1 * fxE1 - 2 * vEx2 * fxE2;
 
         UEE += vEEy1 * f1 + vEEy2 * f2 + vDotGradvy1 * f1 + vDotGradvy2 * f2
                 + vEy1 * (p11 * vEy1 + p12 * vEy2) + vEy2 * (p12 * vEy1 + p22 * vEy2)
-                + 2 * vEy1 * fyE1 + 2 * vEy2 * fyE2;
-
+                - 2 * vEy1 * fyE1 - 2 * vEy2 * fyE2;
     }
 
     public void zeroSumJEEMJEJE() {
