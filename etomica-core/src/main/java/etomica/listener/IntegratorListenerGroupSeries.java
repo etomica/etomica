@@ -4,82 +4,81 @@
 
 package etomica.listener;
 
-import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorEvent;
-import etomica.util.Arrays;
+import etomica.integrator.IntegratorListener;
 
-public class IntegratorListenerGroupSeries implements IntegratorListener, java.io.Serializable {
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
-    /**
-     * Constructs an action group that holds no actions.
-     */
+/**
+ * A composition of IntegratorListeners that must be performed together and in sequence.
+ */
+public class IntegratorListenerGroupSeries implements IntegratorListener {
+
+    private final List<IntegratorListener> listeners = new ArrayList<>();
+    private int interval;
+    private int intervalCount;
+
     public IntegratorListenerGroupSeries() {
-        this(new IntegratorListener[0]);
     }
-    
-    /**
-     * Defines group via the given array of actions.  Copy
-     * of array is made and used internally.
-     */
+
     public IntegratorListenerGroupSeries(IntegratorListener[] listeners) {
-        this.listeners = listeners.clone();
+        this.listeners.addAll(Arrays.asList(listeners));
         intervalCount = 0;
         interval = 1;
     }
-    
+
     public void integratorInitialized(IntegratorEvent e) {
-        for(int i=0; i<listeners.length; i++) {
-            listeners[i].integratorInitialized(e);
+        for (IntegratorListener listener : this.listeners) {
+            listener.integratorInitialized(e);
         }
     }
-    
+
     public void integratorStepStarted(IntegratorEvent e) {
         intervalCount++;
-        if(intervalCount >= interval) {
-            for(int i=0; i<listeners.length; i++) {
-                listeners[i].integratorStepStarted(e);
+        if (intervalCount >= interval) {
+            for (IntegratorListener listener : this.listeners) {
+                listener.integratorStepStarted(e);
             }
         }
     }
-    
+
     public void integratorStepFinished(IntegratorEvent e) {
-        if(intervalCount >= interval) {
-            for(int i=0; i<listeners.length; i++) {
-                listeners[i].integratorStepFinished(e);
+        if (intervalCount >= interval) {
+            for (IntegratorListener listener : this.listeners) {
+                listener.integratorStepFinished(e);
             }
             intervalCount = 0;
         }
     }
-    
+
     /**
-     * Adds the given action to the group.  No check is made of whether
-     * action is already in group; it is added regardless.  
+     * Adds the given listener to the group.  No check is made of whether listener is already in group; it is added
+     * regardless.
+     *
      * @param newListener
      */
     public void addListener(IntegratorListener newListener) {
-        listeners = (IntegratorListener[])Arrays.addObject(listeners, newListener);
+        this.listeners.add(newListener);
     }
-    
+
     /**
-     * Removes the given action from the group.  No warning or
-     * error is given if action is not in the group already.
+     * Removes the given listener from the group.
      */
     public boolean removeListener(IntegratorListener oldListener) {
-        int num = listeners.length;
-        listeners = (IntegratorListener[])Arrays.removeObject(listeners, oldListener);
-        return listeners.length != num; 
+        return this.listeners.remove(oldListener);
     }
-    
-    public IntegratorListener[] getAllListeners() {
-        return listeners.clone();
+
+    /**
+     * @return an unmodifiable view of the list of listeners.
+     */
+    public List<IntegratorListener> getListeners() {
+        return Collections.unmodifiableList(this.listeners);
     }
-    
+
     public void setInterval(int i) {
         interval = i;
     }
-    
-    private static final long serialVersionUID = 1L;
-    private int interval;
-    private int intervalCount;
-    private IntegratorListener[] listeners;
 }
