@@ -5,55 +5,53 @@
 package etomica.listener;
 
 import etomica.action.IAction;
-import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 
-public class IntegratorListenerAction implements IntegratorListener {
+/**
+ * An IntegratorListener that performs an action after every integrator step,
+ * optionally with a given interval of integrator steps.
+ */
+public final class IntegratorListenerAction implements IntegratorListener {
 
-    private IAction action;
+    private final IAction action;
     private int interval;
     private int intervalCount;
-    
+
     public IntegratorListenerAction(IAction a) {
         this(a, 1);
     }
-    
+
     public IntegratorListenerAction(IAction a, int interval) {
         action = a;
         this.interval = interval;
         intervalCount = 0;
     }
-    
+
     public void integratorInitialized(IntegratorEvent e) {
-        if(intervalCount >= interval) {
-            
-        }
     }
-    
+
     public void integratorStepStarted(IntegratorEvent e) {
-        if(++intervalCount >= interval) {
-            
-        }
-        
+        ++intervalCount;
     }
-    
+
     public void integratorStepFinished(IntegratorEvent e) {
-        if(intervalCount >= interval) {
+        if (intervalCount >= interval) {
             intervalCount = 0;
             action.actionPerformed();
         }
     }
-    
-    public void setInterval(int i) {
-        interval = i;
-    }
-    
+
     public int getInterval() {
         return interval;
     }
-    
+
+    public void setInterval(int i) {
+        interval = i;
+    }
+
     public IAction getAction() {
         return action;
     }
-    
+
 }
