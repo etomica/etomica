@@ -10,7 +10,7 @@ import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterTemperature;
 import etomica.graphics.*;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.modifier.ModifierNMolecule;

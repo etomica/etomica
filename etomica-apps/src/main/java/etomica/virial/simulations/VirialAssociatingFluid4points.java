@@ -7,7 +7,7 @@ package etomica.virial.simulations;
 import etomica.action.IAction;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphere;
 import etomica.space.Space;

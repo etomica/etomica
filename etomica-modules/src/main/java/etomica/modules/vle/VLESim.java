@@ -17,7 +17,7 @@ import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveRotate;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LJQ;

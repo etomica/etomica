@@ -13,7 +13,7 @@ import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 
 /**
  * Molecular-Dynamics Simulation Using the Modified Embedded-Atom Method 

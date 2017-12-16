@@ -17,7 +17,7 @@ import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveStepTracker;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.ModifierGeneral;
 import etomica.space.Space;
 import etomica.units.*;

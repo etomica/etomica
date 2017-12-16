@@ -28,7 +28,7 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcpBaseCentered;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveMonoclinic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.list.BoxAgentSourceCellManagerList;
 import etomica.nbr.list.NeighborListManagerSlanty;

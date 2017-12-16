@@ -19,7 +19,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.Primitive;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.*;
 import etomica.potential.P2HardSphere;

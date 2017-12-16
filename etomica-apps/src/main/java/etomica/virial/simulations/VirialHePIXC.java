@@ -19,7 +19,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.*;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.P2HePCKLJS;
 import etomica.potential.PotentialGroup;

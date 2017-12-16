@@ -9,7 +9,7 @@ import etomica.data.meter.MeterPressureHard;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.graphics.DisplayTextBox.LabelType;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.simulation.prototypes.HSMD2D;
 import etomica.units.Unit;
 import etomica.units.dimensions.Null;

@@ -20,7 +20,7 @@ import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.numerical.CalcGradientDifferentiable;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;

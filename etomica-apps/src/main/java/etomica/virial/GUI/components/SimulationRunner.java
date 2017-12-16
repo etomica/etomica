@@ -15,7 +15,7 @@ import etomica.data.types.DataDouble;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.*;
 import etomica.space.Space;
 import etomica.space3d.Space3D;

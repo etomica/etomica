@@ -21,7 +21,7 @@ import etomica.graph.operations.DeleteEdge;
 import etomica.graph.operations.DeleteEdgeParameters;
 import etomica.graph.property.NumRootNodes;
 import etomica.graphics.*;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.*;
 import etomica.space.Space;

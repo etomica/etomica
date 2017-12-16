@@ -21,7 +21,7 @@ import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.normalmode.MCMoveHarmonic;
 import etomica.normalmode.NormalModesFromFile;
 import etomica.normalmode.WaveVectorFactory;

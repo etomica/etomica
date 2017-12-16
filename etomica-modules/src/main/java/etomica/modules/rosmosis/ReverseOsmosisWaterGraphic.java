@@ -14,7 +14,7 @@ import etomica.data.meter.*;
 import etomica.data.types.DataDouble;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.*;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.potential.P2Electrostatic;

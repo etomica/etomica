@@ -15,7 +15,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.*;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;

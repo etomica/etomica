@@ -17,7 +17,7 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.*;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.*;
 import etomica.overlap.IntegratorOverlap;

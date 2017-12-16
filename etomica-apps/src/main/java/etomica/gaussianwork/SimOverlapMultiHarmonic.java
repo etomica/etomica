@@ -15,7 +15,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.DoubleRange;
 import etomica.overlap.IntegratorOverlap;
 import etomica.potential.P1Harmonic;

@@ -15,7 +15,7 @@ import etomica.data.*;
 import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.meter.MeterEnergy;
 import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P1Harmonic;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;

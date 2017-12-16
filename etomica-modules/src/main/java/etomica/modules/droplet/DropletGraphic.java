@@ -13,7 +13,7 @@ import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataTensor;
 import etomica.graphics.*;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
 import etomica.modifier.ModifierGeneral;

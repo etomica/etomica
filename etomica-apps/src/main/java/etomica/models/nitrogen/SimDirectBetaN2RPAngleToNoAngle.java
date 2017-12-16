@@ -17,7 +17,7 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.cell.molecule.NeighborCellManagerMolecular;
 import etomica.nbr.list.molecule.BoxAgentSourceCellManagerListMolecular;
 import etomica.nbr.list.molecule.NeighborListManagerSlantyMolecular;

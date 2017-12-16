@@ -24,7 +24,7 @@ import etomica.lattice.crystal.BasisBetaSnA5;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.lattice.crystal.PrimitiveTetragonal;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.CriterionSimple;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.simulation.Simulation;

@@ -14,7 +14,7 @@ import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorHard;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P1HardPeriodic;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;

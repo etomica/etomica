@@ -10,7 +10,7 @@ import etomica.box.Box;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorRigidIterative;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.models.water.DipoleSourceWater;
 import etomica.models.water.OrientationCalcWater3P;
 import etomica.models.water.P2WaterSPCSoft;

@@ -14,7 +14,7 @@ import etomica.data.*;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterNMolecules;
 import etomica.graphics.*;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
 import etomica.molecule.IMolecule;

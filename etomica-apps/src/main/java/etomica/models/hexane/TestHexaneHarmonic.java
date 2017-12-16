@@ -21,7 +21,7 @@ import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.Primitive;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.normalmode.*;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;

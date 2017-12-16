@@ -20,7 +20,7 @@ import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.PotentialMaster;

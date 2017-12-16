@@ -16,7 +16,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.DoubleRange;
 import etomica.math.SpecialFunctions;
 import etomica.nbr.list.PotentialMasterList;

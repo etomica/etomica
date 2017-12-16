@@ -15,7 +15,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;

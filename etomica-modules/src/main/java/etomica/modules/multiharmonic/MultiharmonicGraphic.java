@@ -9,7 +9,7 @@ import etomica.atom.DiameterHashByType;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.graphics.*;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.function.Function;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;

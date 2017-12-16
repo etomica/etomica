@@ -17,7 +17,7 @@ import etomica.data.types.DataTensor;
 import etomica.graphics.*;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.DoubleRange;
 import etomica.space.Space;
 import etomica.space2d.Space2D;

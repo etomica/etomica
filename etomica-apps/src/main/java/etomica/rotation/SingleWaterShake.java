@@ -13,7 +13,7 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerletShake;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.models.water.ConformationWater3P;
 import etomica.models.water.OrientationCalcWater3P;
 import etomica.models.water.SpeciesWater3P;

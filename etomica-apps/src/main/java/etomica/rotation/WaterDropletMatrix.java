@@ -17,7 +17,7 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorRigidMatrixIterative;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.models.water.OrientationCalcWater4P;
 import etomica.models.water.P2WaterTIP4PSoft;
 import etomica.models.water.SpeciesWater4POriented;

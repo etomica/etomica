@@ -18,7 +18,7 @@ import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.CriterionPositionWall;
 import etomica.nbr.CriterionType;
 import etomica.nbr.PotentialMasterHybrid;

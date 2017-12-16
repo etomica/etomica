@@ -18,7 +18,7 @@ import etomica.data.types.DataDouble;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorMD;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.DoubleRange;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;

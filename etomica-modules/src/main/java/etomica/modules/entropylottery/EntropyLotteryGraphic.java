@@ -24,7 +24,7 @@ import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.space.Space;
 import etomica.space1d.Space1D;
 import etomica.units.Pixel;

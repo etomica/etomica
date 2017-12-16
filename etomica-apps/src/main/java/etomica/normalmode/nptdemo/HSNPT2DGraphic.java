@@ -14,7 +14,7 @@ import etomica.graphics.DeviceToggleButton;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayCanvas;
 import etomica.graphics.SimulationGraphic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.ModifierBoolean;
 
 /**

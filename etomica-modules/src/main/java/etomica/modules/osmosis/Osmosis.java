@@ -37,7 +37,7 @@ import etomica.graphics.Drawable;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.lattice.LatticeCubicSimple;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.geometry.Cuboid;
 import etomica.math.geometry.Plane;
 import etomica.math.geometry.Rectangle;

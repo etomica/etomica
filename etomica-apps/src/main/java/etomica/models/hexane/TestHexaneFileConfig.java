@@ -23,7 +23,7 @@ import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.Primitive;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.MCMoveMoleculeCoupled;
 import etomica.normalmode.MeterNormalMode;

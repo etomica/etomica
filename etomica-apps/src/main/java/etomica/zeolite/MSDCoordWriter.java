@@ -14,7 +14,7 @@ import etomica.box.Box;
 import etomica.integrator.Integrator;
 import etomica.space.Vector;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.space.Space;
 import etomica.util.IEvent;
 import etomica.util.IListener;

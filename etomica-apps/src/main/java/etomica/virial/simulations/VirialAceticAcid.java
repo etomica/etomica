@@ -13,7 +13,7 @@ import etomica.box.Box;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.models.OPLS.AceticAcidModPotentialHelper;
 import etomica.models.OPLS.SpeciesAceticAcid;
 import etomica.potential.P3BondAngle;

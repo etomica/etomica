@@ -17,7 +17,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.*;
 import etomica.integrator.mcmove.MCMove;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P1HydrogenMielke.P1HydrogenMielkeAtomic;
 import etomica.potential.P1IntraMolecular;
 import etomica.space.Space;

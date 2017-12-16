@@ -2,10 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.listener;
-
-import etomica.integrator.IntegratorEvent;
-import etomica.integrator.IntegratorListener;
+package etomica.integrator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,7 +12,7 @@ import java.util.List;
 /**
  * A composition of IntegratorListeners that must be performed together and in sequence.
  */
-public class IntegratorListenerGroupSeries implements IntegratorListener {
+public final class IntegratorListenerGroupSeries implements IntegratorListener {
 
     private final List<IntegratorListener> listeners = new ArrayList<>();
     private int interval;

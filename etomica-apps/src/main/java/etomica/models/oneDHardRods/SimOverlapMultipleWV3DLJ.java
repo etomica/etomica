@@ -16,7 +16,7 @@ import etomica.data.types.DataGroup;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.*;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.SpecialFunctions;
 import etomica.normalmode.*;
 import etomica.overlap.IntegratorOverlap;

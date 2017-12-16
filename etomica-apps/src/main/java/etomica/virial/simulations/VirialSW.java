@@ -19,7 +19,7 @@ import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2SquareWell;
 import etomica.potential.Potential2Spherical;
 import etomica.space.Space;

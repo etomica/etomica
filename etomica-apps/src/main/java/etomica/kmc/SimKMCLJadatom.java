@@ -17,7 +17,7 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeArrayList;

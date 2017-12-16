@@ -15,7 +15,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2Exp6Buckingham;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;

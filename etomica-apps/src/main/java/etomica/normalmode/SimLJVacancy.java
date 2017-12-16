@@ -28,7 +28,7 @@ import etomica.integrator.mcmove.*;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.cell.PotentialMasterCell;

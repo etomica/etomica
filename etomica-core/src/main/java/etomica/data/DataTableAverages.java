@@ -6,8 +6,8 @@ package etomica.data;
 
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.integrator.Integrator;
-import etomica.listener.IntegratorListenerAction;
-import etomica.listener.IntegratorListenerGroupSeries;
+import etomica.integrator.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerGroupSeries;
 
 import java.util.ArrayList;
 

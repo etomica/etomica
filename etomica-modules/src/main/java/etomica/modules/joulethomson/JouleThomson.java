@@ -24,7 +24,7 @@ import etomica.integrator.IntegratorGear4NPH.MeterEnthalpy;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.lattice.SpaceLattice;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.function.Function;
 import etomica.modifier.ModifierFunctionWrapper;
 import etomica.modifier.ModifierGeneral;

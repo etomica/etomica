@@ -18,7 +18,7 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.*;
 import etomica.graphics.DisplayTextBox.LabelType;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.potential.P2SquareWell;

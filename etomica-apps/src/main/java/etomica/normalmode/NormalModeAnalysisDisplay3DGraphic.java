@@ -14,7 +14,7 @@ import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataTable;
 import etomica.data.types.DataTable.DataInfoTable;
 import etomica.graphics.*;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;

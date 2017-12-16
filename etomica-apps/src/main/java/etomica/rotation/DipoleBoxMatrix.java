@@ -12,7 +12,7 @@ import etomica.config.ConfigurationLattice;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorRigidMatrixIterative;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.molecule.*;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;

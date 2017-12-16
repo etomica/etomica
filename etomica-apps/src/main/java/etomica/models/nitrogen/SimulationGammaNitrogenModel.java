@@ -22,7 +22,7 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicBcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveTetragonal;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MCMoveMoleculeCoupled;
 import etomica.potential.PotentialMaster;

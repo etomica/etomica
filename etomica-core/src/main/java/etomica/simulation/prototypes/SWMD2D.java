@@ -13,7 +13,7 @@ import etomica.config.ConfigurationLattice;
 import etomica.graphics.DisplayBox;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2SquareWell;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;

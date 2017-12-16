@@ -13,7 +13,7 @@ import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.graphics.*;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.dimensions.Null;

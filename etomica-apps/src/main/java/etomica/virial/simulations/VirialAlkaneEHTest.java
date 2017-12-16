@@ -26,7 +26,7 @@ import etomica.graphics.*;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.molecule.MoleculePositionGeometricCenterAlkaneEH;
 import etomica.potential.*;
 import etomica.space.Space;

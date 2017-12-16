@@ -24,7 +24,7 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.CriterionInterMolecular;
 import etomica.nbr.CriterionNone;
 import etomica.nbr.list.PotentialMasterList;

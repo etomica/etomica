@@ -32,7 +32,7 @@ import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.integrator.mcmove.MCMoveTorsionAceticAcid;
 import etomica.integrator.mcmove.MCMoveWiggleAceticAcid;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.models.OPLS.AceticAcidPotentialHelper;
 import etomica.models.OPLS.DipoleSourceAceticAcid;
 import etomica.models.OPLS.SpeciesAceticAcid;

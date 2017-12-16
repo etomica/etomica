@@ -16,7 +16,7 @@ import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.DisplayBoxCanvasG3DSys.OrientedFullSite;
 import etomica.graphics.SimulationGraphic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.*;
 import etomica.space.Space;
 import etomica.space3d.Space3D;

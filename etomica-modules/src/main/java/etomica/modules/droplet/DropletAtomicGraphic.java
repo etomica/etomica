@@ -12,7 +12,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;
 import etomica.graphics.*;
 import etomica.lattice.CellLattice;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.nbr.cell.Cell;

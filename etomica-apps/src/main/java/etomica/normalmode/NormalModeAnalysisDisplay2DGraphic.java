@@ -14,7 +14,7 @@ import etomica.data.types.DataTable;
 import etomica.data.types.DataTable.DataInfoTable;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.*;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;

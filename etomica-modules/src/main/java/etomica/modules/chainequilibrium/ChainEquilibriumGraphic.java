@@ -9,7 +9,7 @@ import etomica.action.SimulationRestart;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.graphics.*;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.space.Space;

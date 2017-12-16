@@ -2,11 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.listener;
+package etomica.integrator;
 
 import etomica.action.IAction;
-import etomica.integrator.IntegratorEvent;
-import etomica.integrator.IntegratorListener;
 
 /**
  * An IntegratorListener that performs an action after every integrator step,

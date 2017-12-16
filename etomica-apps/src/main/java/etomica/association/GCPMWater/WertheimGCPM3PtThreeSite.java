@@ -8,7 +8,7 @@ import etomica.action.IAction;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.models.water.P2HardAssociationGCPMReference;
 import etomica.models.water.PNWaterGCPMThreeSite;
 import etomica.models.water.SpeciesWater4P;

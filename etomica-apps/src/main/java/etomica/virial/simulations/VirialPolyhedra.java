@@ -22,7 +22,7 @@ import etomica.data.types.DataGroup;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.DoubleRange;
 import etomica.math.SpecialFunctions;
 import etomica.math.function.IFunction;

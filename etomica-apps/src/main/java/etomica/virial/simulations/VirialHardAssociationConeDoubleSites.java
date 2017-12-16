@@ -8,7 +8,7 @@ import etomica.action.IAction;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2HardAssociationConeDoubleSites;
 import etomica.potential.P2MoleculeMonatomic;
 import etomica.space.Space;

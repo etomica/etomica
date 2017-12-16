@@ -26,7 +26,7 @@ import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisBetaSnA5;
 import etomica.lattice.crystal.PrimitiveTetragonal;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;

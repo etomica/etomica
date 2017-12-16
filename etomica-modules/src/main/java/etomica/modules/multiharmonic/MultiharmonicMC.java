@@ -13,7 +13,7 @@ import etomica.data.*;
 import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P1Harmonic;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;

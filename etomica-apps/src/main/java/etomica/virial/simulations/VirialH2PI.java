@@ -27,7 +27,7 @@ import etomica.graphics.*;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.integrator.mcmove.MCMove;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.DoubleRange;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.*;

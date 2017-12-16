@@ -18,7 +18,7 @@ import etomica.data.meter.MeterTemperature;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P1HardBoundary;
 import etomica.potential.P2HardSphere;
 import etomica.potential.PotentialMaster;

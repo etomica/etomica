@@ -12,7 +12,7 @@ import etomica.graph.iterators.filters.IsomorphismFilter;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2HardSphere;
 import etomica.potential.P2SquareWell;
 import etomica.potential.Potential2Spherical;

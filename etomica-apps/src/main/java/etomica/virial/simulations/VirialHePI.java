@@ -25,7 +25,7 @@ import etomica.graph.property.NumRootNodes;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.DoubleRange;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.*;

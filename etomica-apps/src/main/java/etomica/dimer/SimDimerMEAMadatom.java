@@ -28,7 +28,7 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisBetaSnA5;
 import etomica.lattice.crystal.PrimitiveTetragonal;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.numerical.CalcGradientDifferentiable;
 import etomica.meam.ParameterSetMEAM;
 import etomica.meam.PotentialMEAM;

@@ -23,7 +23,7 @@ import etomica.graph.operations.DeleteEdgeParameters;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P3BondAngle;
 import etomica.potential.P4BondTorsion;

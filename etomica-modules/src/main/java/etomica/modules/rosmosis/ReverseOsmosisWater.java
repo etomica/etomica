@@ -12,7 +12,7 @@ import etomica.chem.elements.Chlorine;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Sodium;
 import etomica.integrator.IntegratorRigidIterative;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.models.water.OrientationCalcWater3P;
 import etomica.models.water.P2WaterSPCSoft;
 import etomica.models.water.SpeciesWater3POriented;

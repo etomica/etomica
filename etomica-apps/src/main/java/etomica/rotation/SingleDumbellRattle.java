@@ -11,7 +11,7 @@ import etomica.config.ConformationLinear;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerletRattle;
 import etomica.integrator.IntegratorVelocityVerletShake;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.molecule.IMolecule;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;

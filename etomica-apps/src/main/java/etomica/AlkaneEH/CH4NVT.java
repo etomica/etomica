@@ -25,7 +25,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.lattice.LatticeCubicBcc;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialGroupSoft;
 import etomica.potential.PotentialMaster;

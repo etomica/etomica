@@ -23,7 +23,7 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.BasisOrthorhombicHexagonal;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.lattice.crystal.PrimitiveOrthorhombicHexagonal;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardSphere;

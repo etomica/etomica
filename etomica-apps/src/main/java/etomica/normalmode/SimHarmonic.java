@@ -20,7 +20,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.lattice.crystal.PrimitiveFcc;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
 import etomica.simulation.Simulation;

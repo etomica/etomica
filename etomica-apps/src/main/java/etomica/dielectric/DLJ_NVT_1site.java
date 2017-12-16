@@ -31,7 +31,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveRotate;
 import etomica.lattice.LatticeCubicBcc;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.molecule.DipoleSource;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculePositionDefinition;

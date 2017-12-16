@@ -11,7 +11,7 @@ import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.*;
 import etomica.space.Space;
 import etomica.space3d.Space3D;

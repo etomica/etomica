@@ -19,7 +19,7 @@ import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorRigidMatrixIterative.BoxImposePbcMolecule;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.function.Function;
 import etomica.models.water.OrientationCalcWater3P;
 import etomica.models.water.SpeciesWater3POriented;

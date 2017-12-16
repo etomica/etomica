@@ -13,7 +13,7 @@ import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modules.render.ParseObj.BondInfo;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.PotentialMasterList;

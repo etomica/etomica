@@ -15,7 +15,7 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisOrthorhombicHexagonal;
 import etomica.lattice.crystal.PrimitiveGeneral;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncatedForceShifted;
 import etomica.potential.PotentialMaster;

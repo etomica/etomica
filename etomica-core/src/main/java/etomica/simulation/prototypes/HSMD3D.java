@@ -18,7 +18,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardSphere;

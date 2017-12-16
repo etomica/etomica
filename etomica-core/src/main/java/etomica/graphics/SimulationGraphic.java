@@ -12,7 +12,7 @@ import etomica.graphics.DisplayPlot.PopupListener;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorManagerMC;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.simulation.Simulation;
 import etomica.simulation.SimulationContainer;
 import etomica.simulation.prototypes.HSMD2D;

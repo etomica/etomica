@@ -6,7 +6,7 @@ package etomica.virial.simulations;
 
 import etomica.action.IAction;
 import etomica.chem.elements.ElementSimple;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.Potential2Spherical;
 import etomica.space.Space;

@@ -38,7 +38,7 @@ import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.geometry.Plane;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;

@@ -6,7 +6,7 @@ package etomica.paracetamol;
 
 import etomica.action.WriteConfiguration;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.normalmode.MeterNormalMode;
 import etomica.normalmode.WaveVectorFactorySimple;
 import etomica.normalmode.WriteS;

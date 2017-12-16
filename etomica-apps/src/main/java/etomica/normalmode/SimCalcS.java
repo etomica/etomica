@@ -10,7 +10,7 @@ import etomica.box.Box;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD;
 import etomica.lattice.crystal.*;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;

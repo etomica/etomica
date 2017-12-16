@@ -23,7 +23,7 @@ import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.CriterionAll;
 import etomica.potential.EwaldSummation;
 import etomica.potential.EwaldSummation.MyCharge;

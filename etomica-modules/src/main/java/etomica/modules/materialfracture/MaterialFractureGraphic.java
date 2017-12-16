@@ -11,7 +11,7 @@ import etomica.data.history.HistoryScrolling;
 import etomica.data.meter.MeterPressureTensorFromIntegrator;
 import etomica.data.types.DataDouble;
 import etomica.graphics.*;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.units.*;

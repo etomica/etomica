@@ -19,7 +19,7 @@ import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.*;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.P1HydrogenMielke.P2HydrogenMielkeAtomic;
 import etomica.potential.PotentialGroup;

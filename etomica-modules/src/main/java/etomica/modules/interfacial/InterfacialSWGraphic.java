@@ -19,7 +19,7 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.*;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modules.interfacial.DataSourceTensorVirialHardProfile.DataSourceVirialProfile;
 import etomica.molecule.IMolecule;

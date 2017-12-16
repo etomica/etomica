@@ -19,7 +19,7 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.*;
 import etomica.graphics.DeviceBox.LabelType;
 import etomica.integrator.IntegratorMD;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.function.Function;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;

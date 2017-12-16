@@ -14,7 +14,7 @@ import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorMC;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.site.NeighborSiteManager;
 import etomica.nbr.site.PotentialMasterSite;
 import etomica.simulation.Simulation;

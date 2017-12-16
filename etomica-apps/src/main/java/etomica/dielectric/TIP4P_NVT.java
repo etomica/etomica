@@ -29,7 +29,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.models.water.P2WaterTIP4PSoft;
 import etomica.models.water.SpeciesWater4P;
 import etomica.molecule.DipoleSource;

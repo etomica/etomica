@@ -21,7 +21,7 @@ import etomica.integrator.mcmove.MCMoveRotate;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.lattice.SpaceLattice;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2HardAssociationCone;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
