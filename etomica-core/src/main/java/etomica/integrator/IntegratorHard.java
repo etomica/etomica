@@ -23,6 +23,9 @@ import etomica.util.TreeLinker;
 import etomica.util.TreeList;
 import etomica.util.random.IRandom;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Integrator for hard potentials.
  * Integrates equations of motion through time by advancing atoms from one
@@ -49,8 +52,8 @@ public class IntegratorHard extends IntegratorMD
     private final AtomSetSinglet singlet;
     //handle to the integrator agent holding information about the next collision
     protected IntegratorHard.Agent colliderAgent;
-    //first of a linked list of objects (typically meters) that are called each time a collision is processed
-    protected CollisionListenerLinker collisionListenerHead = null;
+    /* list of objects (typically meters) that are called each time a collision is processed */
+    private final List<CollisionListener> collisionListeners = new ArrayList<>();
     protected double collisionTimeStep;
     protected long collisionCount;
     protected AtomLeafAgentManager<Agent> agentManager;
@@ -224,8 +227,8 @@ public class IntegratorHard extends IntegratorMD
             currentPotentialEnergy += dE;
             currentKineticEnergy -= dE;
             
-            for(CollisionListenerLinker cll=collisionListenerHead; cll!=null; cll=cll.next) {
-                cll.listener.collisionAction(colliderAgent);
+            for(CollisionListener listener : this.collisionListeners) {
+                listener.collisionAction(colliderAgent);
             }
             collisionCount++;
             if (atoms.getAtomCount() == 1) {
@@ -502,12 +505,9 @@ public class IntegratorHard extends IntegratorMD
      * If the listener is already in the list, no action is taken to add it again.
      */
     public void addCollisionListener(CollisionListener cl) {
-        //make sure listener is not already in list
-        for(CollisionListenerLinker cll=collisionListenerHead; cll!=null; cll=cll.next) {
-            if(cll.listener == cl) return;
+        if (!this.collisionListeners.contains(cl)) {
+            this.collisionListeners.add(cl);
         }
-        //OK, not in list, now register it by adding it to the beginning of the list
-        collisionListenerHead = new CollisionListenerLinker(cl, collisionListenerHead);
     }
 
     /**
@@ -516,20 +516,8 @@ public class IntegratorHard extends IntegratorMD
      * method simply returns without taking any action.
      */
     public void removeCollisionListener(CollisionListener cl) {
-        if(collisionListenerHead == null) return;   //list is empty; do nothing
-        if(cl == collisionListenerHead.listener) {  //listener is first in list
-            collisionListenerHead = collisionListenerHead.next;
-        }
-        else {                                     //not first, so look for listener later in list
-            CollisionListenerLinker previous = collisionListenerHead;
-            for(CollisionListenerLinker cll=collisionListenerHead.next; cll!=null; cll=cll.next) {
-                if(cll.listener == cl) {           //found it; 
-                    previous.next = cll.next;      //remove it from list
-                    break;
-                }
-            }
-        }
-    }//end of removeCollisionListener
+        this.collisionListeners.remove(cl);
+    }
 
     /**
      * @return Returns the nullPotential.
@@ -727,19 +715,6 @@ public class IntegratorHard extends IntegratorMD
             }
         }
     }
-
-    /**
-     * Class used to construct a linked list of collision listeners
-     */
-    private static class CollisionListenerLinker implements java.io.Serializable {
-        private static final long serialVersionUID = 1L;
-        final CollisionListener listener;
-        CollisionListenerLinker next;
-        CollisionListenerLinker(CollisionListener listener, CollisionListenerLinker next) {
-            this.listener = listener;
-            this.next = next;
-        }
-    }//end of CollisionListenerLinker
 
     /**
      * Agent defined by this integrator.
