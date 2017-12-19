@@ -23,8 +23,7 @@ import etomica.util.TreeLinker;
 import etomica.util.TreeList;
 import etomica.util.random.IRandom;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Integrator for hard potentials.
@@ -36,8 +35,7 @@ import java.util.List;
  * @author David Kofke
  *
  */
-public class IntegratorHard extends IntegratorMD
-    implements INeighborListListener, AgentSource<IntegratorHard.Agent>, AtomTypeAgentManager.AgentSource {
+public class IntegratorHard extends IntegratorMD implements INeighborListListener, AgentSource<IntegratorHard.Agent> {
 
     private static final long serialVersionUID = 1L;
     protected final IteratorDirective upList = new IteratorDirective(IteratorDirective.Direction.UP);
@@ -47,7 +45,7 @@ public class IntegratorHard extends IntegratorMD
     protected final ReverseCollisionHandler reverseCollisionHandler;
     protected final CollisionHandlerUp collisionHandlerUp;
     protected final CollisionHandlerDown collisionHandlerDown;
-    protected final AtomTypeAgentManager nullPotentialManager;
+    protected final Map<AtomType, PotentialHard> nullPotentialManager;
     private final AtomPair pair;
     private final AtomSetSinglet singlet;
     //handle to the integrator agent holding information about the next collision
@@ -76,14 +74,7 @@ public class IntegratorHard extends IntegratorMD
         collisionHandlerUp.setAgentManager(agentManager);
         collisionHandlerDown = new CollisionHandlerDown(eventList);
         collisionHandlerDown.setAgentManager(agentManager);
-        if (sim != null) {
-            nullPotentialManager = new AtomTypeAgentManager(this);
-            nullPotentialManager.init(sim);
-        }
-        else {
-            nullPotentialManager = null;
-        }
-
+        nullPotentialManager = new HashMap<>();
     }
     
     public void setBox(Box box) {
@@ -100,13 +91,10 @@ public class IntegratorHard extends IntegratorMD
         collisionHandlerDown.setAgentManager(agentManager);
         reverseCollisionHandler.setAgentManager(agentManager);
 
-        if (nullPotentialManager != null) {
-            AtomTypeAgentManager.AgentIterator iterator = nullPotentialManager.makeIterator();
-            iterator.reset();
-            while (iterator.hasNext()) {
-                ((PotentialHard)iterator.next()).setBox(box);
-            }
+        for (PotentialHard potential : this.nullPotentialManager.values()) {
+            potential.setBox(box);
         }
+
         if(this.potentialMaster instanceof PotentialMasterList) {
             ((PotentialMasterList)this.potentialMaster).getNeighborManager(this.box).getEventManager().addListener(this);
         }
@@ -523,7 +511,7 @@ public class IntegratorHard extends IntegratorMD
      * @return Returns the nullPotential.
      */
     public PotentialHard getNullPotential(AtomType atomType) {
-        return (PotentialHard)nullPotentialManager.getAgent(atomType);
+        return this.nullPotentialManager.get(atomType);
     }
 
     /**
@@ -532,9 +520,7 @@ public class IntegratorHard extends IntegratorMD
      * around periodic boundaries when neighbor listing is not used.
      */
     public void setNullPotential(PotentialHard nullPotential, AtomType type) {
-        // if nullPotentialManager is null, it's because you passed a null
-        // Simulation when you constructed this class
-        nullPotentialManager.setAgent(type, nullPotential);
+        nullPotentialManager.put(type, nullPotential);
         if (nullPotential != null && box != null) {
             nullPotential.setBox(box);
         }
@@ -565,27 +551,13 @@ public class IntegratorHard extends IntegratorMD
      */
     public Agent makeAgent(IAtom a, Box agentBox) {
         Agent agent = new Agent(a, this);
-        if (nullPotentialManager != null) {
-            agent.setNullPotential((PotentialHard) nullPotentialManager.getAgent(a.getType()));
-        }
+        agent.setNullPotential(this.nullPotentialManager.get(a.getType()));
         return agent;
     }
 
     // don't need to remove the agent from the event list because reset will
     // get called and that will totally clear the event list
     public void releaseAgent(Agent agent, IAtom atom, Box agentBox) {
-    }
-
-    @IgnoreProperty
-    public Class getSpeciesAgentClass() {
-        return PotentialHard.class;
-    }
-
-    public Object makeAgent(AtomType type) {
-        return null;
-    }
-
-    public void releaseAgent(Object agent, AtomType type) {
     }
 
     public interface CollisionListener {
