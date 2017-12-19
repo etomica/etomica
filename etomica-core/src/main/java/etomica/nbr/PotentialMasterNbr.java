@@ -16,7 +16,20 @@ import etomica.simulation.Simulation;
 import etomica.species.ISpecies;
 import etomica.util.Arrays;
 
-public abstract class PotentialMasterNbr extends PotentialMaster implements AtomTypeAgentManager.AgentSource, SpeciesAgentManager.AgentSource {
+public abstract class PotentialMasterNbr extends PotentialMaster implements SpeciesAgentManager.AgentSource {
+
+    private static final AtomTypeAgentManager.AgentSource atomTypeAgentSource = new AtomTypeAgentManager.AgentSource() {
+        public Class getSpeciesAgentClass() {
+            return PotentialArray.class;
+        }
+
+        public Object makeAgent(AtomType type) {
+            return new PotentialArray();
+        }
+
+        public void releaseAgent(Object agent, AtomType type) {
+        }
+    };
 
     protected final AtomTypeAgentManager rangedAgentManager;
     protected final SpeciesAgentManager intraAgentManager;
@@ -33,10 +46,9 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
         simulation = sim;
         this.boxAgentSource = boxAgentSource;
         this.boxAgentManager = boxAgentManager;
-        rangedAgentManager = new AtomTypeAgentManager(this);
+        rangedAgentManager = new AtomTypeAgentManager(atomTypeAgentSource, this.simulation);
         intraAgentManager = new SpeciesAgentManager(this);
 
-        rangedAgentManager.init(sim);
         intraAgentManager.init(sim);
         rangedPotentialIterator = rangedAgentManager.makeIterator();
         intraPotentialIterator = intraAgentManager.makeIterator();
@@ -135,13 +147,6 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
 
     public Class getSpeciesAgentClass() {
         return PotentialArray.class;
-    }
-
-    public Object makeAgent(AtomType type) {
-        return new PotentialArray();
-    }
-
-    public void releaseAgent(Object agent, AtomType type) {
     }
 
     public Object makeAgent(ISpecies type) {
