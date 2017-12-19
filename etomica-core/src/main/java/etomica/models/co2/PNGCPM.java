@@ -38,9 +38,9 @@ import java.util.Arrays;
  * The potential takes an AtomTypeAgentManager that is responsible for
  * returning parameters for each atom.  Cross-parameters are computing using
  * mixing rules published in
- * 
+ * <p>
  * http://dx.doi.org/10.1063/1.3519022
- * 
+ *
  * @author Andrew and Dave
  */
 public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
@@ -60,18 +60,18 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
     protected Vector oldMu;
     protected Component component;
     private double UpolAtkins;
-    
+
     public PNGCPM(Space space, AtomTypeAgentManager typeManager, int nAtomTypes) {
         this(space, typeManager, nAtomTypes, Integer.MAX_VALUE);
     }
 
     public PNGCPM(Space space, AtomTypeAgentManager typeManager, int nAtomTypes, int nBody) {
-	    super(nBody, space);
-	    this.typeManager = typeManager;
-	    this.nAtomTypes = nAtomTypes;
-	    pairAgents = new GCPMAgent[nAtomTypes][nAtomTypes];
-	    pair = new MoleculePair();
-        coreFac = 0.57*0.57;
+        super(nBody, space);
+        this.typeManager = typeManager;
+        this.nAtomTypes = nAtomTypes;
+        pairAgents = new GCPMAgent[nAtomTypes][nAtomTypes];
+        pair = new MoleculePair();
+        coreFac = 0.57 * 0.57;
 
         oldMu = space.makeVector();
         shift = space.makeVector();
@@ -279,12 +279,12 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         component = comp;
     }
 
-    public double energy(IMoleculeList molecules){
+    public double energy(IMoleculeList molecules) {
         double sum = 0;
         if (component != Component.INDUCTION) {
-            for (int i=0; i<molecules.getMoleculeCount()-1; i++) {
+            for (int i = 0; i < molecules.getMoleculeCount() - 1; i++) {
                 pair.atom0 = molecules.getMolecule(i);
-                for (int j=i+1; j<molecules.getMoleculeCount(); j++) {
+                for (int j = i + 1; j < molecules.getMoleculeCount(); j++) {
                     pair.atom1 = molecules.getMolecule(j);
                     sum += getNonPolarizationEnergy(pair);
                     if (Double.isInfinite(sum)) {
@@ -296,13 +296,12 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
 
         if (component != Component.TWO_BODY) {
             double up = getPolarizationEnergy(molecules);
-            if (molecules.getMoleculeCount()==2) {
+            if (molecules.getMoleculeCount() == 2) {
                 int idx0 = molecules.getMolecule(0).getIndex();
                 int idx1 = molecules.getMolecule(1).getIndex();
-                if (idx0>idx1) {
+                if (idx0 > idx1) {
                     pairPolarization[idx1][idx0] = up;
-                }
-                else {
+                } else {
                     pairPolarization[idx0][idx1] = up;
                 }
             }
@@ -324,17 +323,17 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         int idx1 = type1.getIndex();
         int idx2 = type2.getIndex();
         if (pairAgents[idx1][idx2] != null) return pairAgents[idx1][idx2];
-        GCPMAgent agent1 = (GCPMAgent)typeManager.getAgent(type1);
-        if (idx1==idx2) {
+        GCPMAgent agent1 = (GCPMAgent) typeManager.getAgent(type1);
+        if (idx1 == idx2) {
             pairAgents[idx1][idx2] = agent1;
             return agent1;
         }
-        GCPMAgent agent2 = (GCPMAgent)typeManager.getAgent(type2);
-        double sigma = 0.5*(agent1.sigma + agent2.sigma);
-        double epsilon = 2*agent1.epsilon*agent2.epsilon;
-        if (epsilon>0) epsilon /= (agent1.epsilon + agent2.epsilon);
-        double gamma = 0.5*(agent1.gamma + agent2.gamma);
-        double tau = Math.sqrt(0.5*(agent1.tau*agent1.tau + agent2.tau*agent2.tau));
+        GCPMAgent agent2 = (GCPMAgent) typeManager.getAgent(type2);
+        double sigma = 0.5 * (agent1.sigma + agent2.sigma);
+        double epsilon = 2 * agent1.epsilon * agent2.epsilon;
+        if (epsilon > 0) epsilon /= (agent1.epsilon + agent2.epsilon);
+        double gamma = 0.5 * (agent1.gamma + agent2.gamma);
+        double tau = Math.sqrt(0.5 * (agent1.tau * agent1.tau + agent2.tau * agent2.tau));
         pairAgents[idx1][idx2] = new GCPMAgent(sigma, epsilon, tau, gamma, agent1.charge, agent2.charge, 0, 0, 0);
         pairAgents[idx2][idx1] = pairAgents[idx1][idx2];
         return pairAgents[idx1][idx2];
@@ -352,51 +351,50 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         Vector C2r = atoms2.getAtom(0).getPosition();
 
         work.Ev1Mv2(C1r, C2r);
-        shift.Ea1Tv1(-1,work);
-		boundary.nearestImage(work);
+        shift.Ea1Tv1(-1, work);
+        boundary.nearestImage(work);
         shift.PE(work);
         final boolean zeroShift = shift.squared() < 0.1;
 
         double r2 = work.squared();
 
-        double sum =0;
+        double sum = 0;
         if (zeroShift) {
-            for (int i=0; i<atoms1.getAtomCount(); i++) {
-                for (int j=0; j<atoms2.getAtomCount(); j++) {
+            for (int i = 0; i < atoms1.getAtomCount(); i++) {
+                for (int j = 0; j < atoms2.getAtomCount(); j++) {
                     GCPMAgent pairAgent = getPairAgent(atoms1.getAtom(i).getType(), atoms2.getAtom(j).getType());
                     double epsilon = pairAgent.epsilon;
                     double r = Double.NaN;
-                    if (epsilon>0) {
+                    if (epsilon > 0) {
                         double sigma = pairAgent.sigma;
                         double gamma = pairAgent.gamma;
                         r2 = atoms1.getAtom(i).getPosition().Mv1Squared(atoms2.getAtom(j).getPosition());
                         r = Math.sqrt(r2);
-                        double rOverSigma = r/sigma;
-                        double sigma2OverR2 = 1/(rOverSigma*rOverSigma);
-                        if (1/sigma2OverR2 < coreFac) return Double.POSITIVE_INFINITY;
-                        double sixOverGamma = 6/gamma;
-                        sum += epsilon/(1 - sixOverGamma)*(sixOverGamma*Math.exp(gamma*(1 - rOverSigma)) - sigma2OverR2*sigma2OverR2*sigma2OverR2);
+                        double rOverSigma = r / sigma;
+                        double sigma2OverR2 = 1 / (rOverSigma * rOverSigma);
+                        if (1 / sigma2OverR2 < coreFac) return Double.POSITIVE_INFINITY;
+                        double sixOverGamma = 6 / gamma;
+                        sum += epsilon / (1 - sixOverGamma) * (sixOverGamma * Math.exp(gamma * (1 - rOverSigma)) - sigma2OverR2 * sigma2OverR2 * sigma2OverR2);
                     }
 
                     double charge2 = pairAgent.charge2;
-                    if (charge2!=0) {
+                    if (charge2 != 0) {
                         double tau = pairAgent.tau;
                         if (Double.isNaN(r)) {
                             r2 = atoms1.getAtom(i).getPosition().Mv1Squared(atoms2.getAtom(j).getPosition());
                             r = Math.sqrt(r2);
                         }
-                        sum += charge2/r*(1-org.apache.commons.math3.special.Erf.erfc(Math.sqrt(r2)/(2*tau)));
+                        sum += charge2 / r * (1 - org.apache.commons.math3.special.Erf.erfc(Math.sqrt(r2) / (2 * tau)));
                     }
                 }
             }
-        }
-        else {
-            for (int i=0; i<atoms1.getAtomCount(); i++) {
-                for (int j=0; j<atoms2.getAtomCount(); j++) {
+        } else {
+            for (int i = 0; i < atoms1.getAtomCount(); i++) {
+                for (int j = 0; j < atoms2.getAtomCount(); j++) {
                     GCPMAgent pairAgent = getPairAgent(atoms1.getAtom(i).getType(), atoms2.getAtom(j).getType());
                     double epsilon = pairAgent.epsilon;
                     double r = Double.NaN;
-                    if (epsilon>0) {
+                    if (epsilon > 0) {
 
                         double sigma = pairAgent.sigma;
                         Vector r1 = atoms1.getAtom(i).getPosition();
@@ -407,16 +405,16 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
 
                         double gamma = pairAgent.gamma;
 
-                        double rOverSigma = r/sigma;
-                        double sigma2OverR2 = 1/(rOverSigma*rOverSigma);
-                        if (1/sigma2OverR2 < coreFac) return Double.POSITIVE_INFINITY;
-                        double sixOverGamma = 6/gamma;
+                        double rOverSigma = r / sigma;
+                        double sigma2OverR2 = 1 / (rOverSigma * rOverSigma);
+                        if (1 / sigma2OverR2 < coreFac) return Double.POSITIVE_INFINITY;
+                        double sixOverGamma = 6 / gamma;
 
-                        sum += epsilon/(1 - sixOverGamma)*(sixOverGamma*Math.exp(gamma*(1 - rOverSigma)) - sigma2OverR2*sigma2OverR2*sigma2OverR2);//exp-6 potential(Udisp)
+                        sum += epsilon / (1 - sixOverGamma) * (sixOverGamma * Math.exp(gamma * (1 - rOverSigma)) - sigma2OverR2 * sigma2OverR2 * sigma2OverR2);//exp-6 potential(Udisp)
                     }
 
                     double charge2 = pairAgent.charge2;
-                    if (charge2!=0) {
+                    if (charge2 != 0) {
                         double tau = pairAgent.tau;
                         if (Double.isNaN(r)) {
                             Vector r1 = atoms1.getAtom(i).getPosition();
@@ -425,7 +423,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
                             shift.ME(r1);
                             r = Math.sqrt(r2);
                         }
-                        sum += charge2/r*(1-org.apache.commons.math3.special.Erf.erfc(Math.sqrt(r2)/(2*tau)));
+                        sum += charge2 / r * (1 - org.apache.commons.math3.special.Erf.erfc(Math.sqrt(r2) / (2 * tau)));
                     }
                 }
             }
@@ -441,31 +439,30 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
     public double getPolarizationEnergy(IMoleculeList molecules) {
 
         final int moleculeCount = molecules.getMoleculeCount();
-        if (Eq.length < moleculeCount+1) {
+        if (Eq.length < moleculeCount + 1) {
             int oldSize = Eq.length;
             Eq = Arrays.copyOf(Eq, moleculeCount);
             Ep = Arrays.copyOf(Ep, moleculeCount);
             mu = Arrays.copyOf(mu, moleculeCount);
-            for (int i=oldSize; i<moleculeCount; i++) {
+            for (int i = oldSize; i < moleculeCount; i++) {
                 Eq[i] = new Vector[0];
                 Ep[i] = new Vector[0];
                 mu[i] = new Vector[0];
             }
         }
-        for (int i=0; i<moleculeCount; i++) {
+        for (int i = 0; i < moleculeCount; i++) {
             int nAtoms = molecules.getMolecule(i).getChildList().getAtomCount();
             if (Eq[i].length < nAtoms) {
                 Eq[i] = new Vector[nAtoms];
                 mu[i] = new Vector[nAtoms];
                 Ep[i] = new Vector[nAtoms];
-                for (int j=0; j<nAtoms; j++) {
+                for (int j = 0; j < nAtoms; j++) {
                     Eq[i][j] = space.makeVector();
                     mu[i][j] = space.makeVector();
                     Ep[i][j] = space.makeVector();
                 }
-            }
-            else {
-                for (int j=0; j<nAtoms; j++) {
+            } else {
+                for (int j = 0; j < nAtoms; j++) {
                     Eq[i][j].E(0);
                     mu[i][j].E(0);
                     Ep[i][j].E(0);
@@ -473,30 +470,30 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
             }
         }
         double sqrtpi = Math.sqrt(Math.PI);
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
+        for (int i = 0; i < molecules.getMoleculeCount(); i++) {
             IAtomList iLeafAtoms = molecules.getMolecule(i).getChildList();
-            for (int ii=0; ii<iLeafAtoms.getAtomCount(); ii++) {
-                GCPMAgent agenti = (GCPMAgent)typeManager.getAgent(iLeafAtoms.getAtom(ii).getType());
+            for (int ii = 0; ii < iLeafAtoms.getAtomCount(); ii++) {
+                GCPMAgent agenti = (GCPMAgent) typeManager.getAgent(iLeafAtoms.getAtom(ii).getType());
                 double alphaPerp = agenti.alphaPerp;
                 double alphaPar = agenti.alphaPar;
                 if (alphaPerp == 0 && alphaPar == 0) continue;
                 Vector ri = iLeafAtoms.getAtom(ii).getPosition();
 
-                for (int j=0; j<molecules.getMoleculeCount(); j++) {
-                    if (i==j) continue;
+                for (int j = 0; j < molecules.getMoleculeCount(); j++) {
+                    if (i == j) continue;
                     IAtomList jLeafAtoms = molecules.getMolecule(j).getChildList();
 
                     Vector rj = jLeafAtoms.getAtom(0).getPosition();
                     work.Ev1Mv2(ri, rj);
-                    shift.Ea1Tv1(-1,work);
+                    shift.Ea1Tv1(-1, work);
                     boundary.nearestImage(work);
                     shift.PE(work);
 
-                    for (int jj=0; jj<jLeafAtoms.getAtomCount(); jj++) {
-                        GCPMAgent agentj = (GCPMAgent)typeManager.getAgent(jLeafAtoms.getAtom(jj).getType());
+                    for (int jj = 0; jj < jLeafAtoms.getAtomCount(); jj++) {
+                        GCPMAgent agentj = (GCPMAgent) typeManager.getAgent(jLeafAtoms.getAtom(jj).getType());
                         double qj = agentj.charge;
-                        if (qj==0) continue;
-                        GCPMAgent agentij = getPairAgent(iLeafAtoms.getAtom(ii).getType(),jLeafAtoms.getAtom(jj).getType());
+                        if (qj == 0) continue;
+                        GCPMAgent agentij = getPairAgent(iLeafAtoms.getAtom(ii).getType(), jLeafAtoms.getAtom(jj).getType());
                         double tauij = agentij.tau;
                         rj = jLeafAtoms.getAtom(jj).getPosition();
 
@@ -505,8 +502,8 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
                         double r2 = work.squared();
                         double r1 = Math.sqrt(r2);
 
-                        double fac = qj/(r1*r2)*((1-org.apache.commons.math3.special.Erf.erfc(r1/(2*tauij)))
-                                -r1/(sqrtpi*tauij)*Math.exp(-r2/(4*tauij*tauij)));
+                        double fac = qj / (r1 * r2) * ((1 - org.apache.commons.math3.special.Erf.erfc(r1 / (2 * tauij)))
+                                - r1 / (sqrtpi * tauij) * Math.exp(-r2 / (4 * tauij * tauij)));
                         Eq[i][ii].PEa1Tv1(fac, work);
 //                        if (i==0) {
 //                            System.out.println("after "+j+" "+jj);
@@ -519,112 +516,112 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
 
         int maxIter = 550;
         double mixIter = 0.9;
-for (int iter=0; iter<maxIter; iter++) {
-        double sumDeltaMu = 0;
-        double sumMu = 0;
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IAtomList iLeafAtoms = molecules.getMolecule(i).getChildList();
-            for (int ii=0; ii<iLeafAtoms.getAtomCount(); ii++) {
-                GCPMAgent agenti = (GCPMAgent)typeManager.getAgent(iLeafAtoms.getAtom(ii).getType());
-                double alphaPerp = agenti.alphaPerp;
-                double alphaPar = agenti.alphaPar;
-                if (alphaPerp == 0 && alphaPar == 0) continue;
-                Ep[i][ii].PE(Eq[i][ii]);
-                oldMu.E(mu[i][ii]);
-                Vector parAxis = null;
-                double alpha = alphaPerp;
-                if (alphaPerp != alphaPar) {
-                    parAxis = agenti.getParallelAxis(molecules.getMolecule(i));
-                    double cosTheta = Math.abs(parAxis.dot(Ep[i][ii])/Math.sqrt(Ep[i][ii].squared()));
-                    alpha = alphaPerp + cosTheta*(alphaPar-alphaPerp);
+        for (int iter = 0; iter < maxIter; iter++) {
+            double sumDeltaMu = 0;
+            double sumMu = 0;
+            for (int i = 0; i < molecules.getMoleculeCount(); i++) {
+                IAtomList iLeafAtoms = molecules.getMolecule(i).getChildList();
+                for (int ii = 0; ii < iLeafAtoms.getAtomCount(); ii++) {
+                    GCPMAgent agenti = (GCPMAgent) typeManager.getAgent(iLeafAtoms.getAtom(ii).getType());
+                    double alphaPerp = agenti.alphaPerp;
+                    double alphaPar = agenti.alphaPar;
+                    if (alphaPerp == 0 && alphaPar == 0) continue;
+                    Ep[i][ii].PE(Eq[i][ii]);
+                    oldMu.E(mu[i][ii]);
+                    Vector parAxis = null;
+                    double alpha = alphaPerp;
+                    if (alphaPerp != alphaPar) {
+                        parAxis = agenti.getParallelAxis(molecules.getMolecule(i));
+                        double cosTheta = Math.abs(parAxis.dot(Ep[i][ii]) / Math.sqrt(Ep[i][ii].squared()));
+                        alpha = alphaPerp + cosTheta * (alphaPar - alphaPerp);
+                    }
+                    mu[i][ii].Ea1Tv1(alpha, Ep[i][ii]);
+                    mu[i][ii].TE(mixIter);
+                    mu[i][ii].PEa1Tv1(1 - mixIter, oldMu);
+                    sumDeltaMu += mu[i][ii].Mv1Squared(oldMu);
+                    sumMu += mu[i][ii].squared();
                 }
-                mu[i][ii].Ea1Tv1(alpha, Ep[i][ii]);
-                mu[i][ii].TE(mixIter);
-                mu[i][ii].PEa1Tv1(1-mixIter, oldMu);
-                sumDeltaMu += mu[i][ii].Mv1Squared(oldMu);
-                sumMu += mu[i][ii].squared();
             }
-        }
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            for (int ii=0; ii<Ep[i].length; ii++) {
-                Ep[i][ii].E(0);
+            for (int i = 0; i < molecules.getMoleculeCount(); i++) {
+                for (int ii = 0; ii < Ep[i].length; ii++) {
+                    Ep[i][ii].E(0);
+                }
             }
-        }
 
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IAtomList iLeafAtoms = molecules.getMolecule(i).getChildList();
-            for (int ii=0; ii<iLeafAtoms.getAtomCount(); ii++) {
-                GCPMAgent agenti = (GCPMAgent)typeManager.getAgent(iLeafAtoms.getAtom(ii).getType());
-                if (agenti.alphaPerp == 0 && agenti.alphaPar == 0) continue;
-                Vector ri = iLeafAtoms.getAtom(ii).getPosition();
+            for (int i = 0; i < molecules.getMoleculeCount(); i++) {
+                IAtomList iLeafAtoms = molecules.getMolecule(i).getChildList();
+                for (int ii = 0; ii < iLeafAtoms.getAtomCount(); ii++) {
+                    GCPMAgent agenti = (GCPMAgent) typeManager.getAgent(iLeafAtoms.getAtom(ii).getType());
+                    if (agenti.alphaPerp == 0 && agenti.alphaPar == 0) continue;
+                    Vector ri = iLeafAtoms.getAtom(ii).getPosition();
 
-                for (int j=i+1; j<molecules.getMoleculeCount(); j++) {
-                    IAtomList jLeafAtoms = molecules.getMolecule(j).getChildList();
-                    Vector rj = jLeafAtoms.getAtom(0).getPosition();
-                    work.Ev1Mv2(ri, rj);
-                    shift.Ea1Tv1(-1,work);
-                    boundary.nearestImage(work);
-                    shift.PE(work);
-
-                    for (int jj=0; jj<jLeafAtoms.getAtomCount(); jj++) {
-                        GCPMAgent agentj = (GCPMAgent)typeManager.getAgent(jLeafAtoms.getAtom(jj).getType());
-                        if (agentj.alphaPerp == 0 && agentj.alphaPar == 0) continue;
-
-                        GCPMAgent agentij = getPairAgent(iLeafAtoms.getAtom(ii).getType(),jLeafAtoms.getAtom(jj).getType());
-                        double tauij = agentij.tau;
-                        rj = jLeafAtoms.getAtom(jj).getPosition();
-
+                    for (int j = i + 1; j < molecules.getMoleculeCount(); j++) {
+                        IAtomList jLeafAtoms = molecules.getMolecule(j).getChildList();
+                        Vector rj = jLeafAtoms.getAtom(0).getPosition();
                         work.Ev1Mv2(ri, rj);
-                        work.PE(shift);
-                        double r2 = work.squared();
-                        double r1 = Math.sqrt(r2);
+                        shift.Ea1Tv1(-1, work);
+                        boundary.nearestImage(work);
+                        shift.PE(work);
 
-                        if (r2 < coreFac*agentij.sigma) {
-                            return Double.NaN;
+                        for (int jj = 0; jj < jLeafAtoms.getAtomCount(); jj++) {
+                            GCPMAgent agentj = (GCPMAgent) typeManager.getAgent(jLeafAtoms.getAtom(jj).getType());
+                            if (agentj.alphaPerp == 0 && agentj.alphaPar == 0) continue;
+
+                            GCPMAgent agentij = getPairAgent(iLeafAtoms.getAtom(ii).getType(), jLeafAtoms.getAtom(jj).getType());
+                            double tauij = agentij.tau;
+                            rj = jLeafAtoms.getAtom(jj).getPosition();
+
+                            work.Ev1Mv2(ri, rj);
+                            work.PE(shift);
+                            double r2 = work.squared();
+                            double r1 = Math.sqrt(r2);
+
+                            if (r2 < coreFac * agentij.sigma) {
+                                return Double.NaN;
+                            }
+
+                            double erf = (1 - org.apache.commons.math3.special.Erf.erfc(r1 / (2 * tauij)));
+                            double exp = Math.exp(-r2 / (4 * tauij * tauij));
+
+                            double prefac = (r1 / (tauij * sqrtpi)) * exp;
+
+                            double postfac = prefac * 0.666666666666666666666 * r2 / (4 * tauij * tauij);
+
+                            double fr = erf - prefac;
+
+                            double fpr = fr - postfac;
+
+                            Ep[i][ii].PEa1Tv1(-fr / (r1 * r2), mu[j][jj]);
+
+                            Ep[i][ii].PEa1Tv1(3 * work.dot(mu[j][jj]) * fpr / (r2 * r2 * r1), work);
+
+                            Ep[j][jj].PEa1Tv1(-fr / (r1 * r2), mu[i][ii]);
+                            Ep[j][jj].PEa1Tv1(3 * work.dot(mu[i][ii]) * fpr / (r2 * r2 * r1), work);
                         }
-
-                        double erf = (1-org.apache.commons.math3.special.Erf.erfc(r1/(2*tauij)));
-                        double exp = Math.exp(-r2/(4*tauij*tauij));
-
-                        double prefac = (r1/(tauij*sqrtpi))*exp;
-
-                        double postfac = prefac * 0.666666666666666666666 * r2 / (4*tauij*tauij);
-
-                        double fr = erf - prefac;
-
-                        double fpr = fr - postfac;
-
-                        Ep[i][ii].PEa1Tv1(-fr/(r1*r2), mu[j][jj]);
-
-                        Ep[i][ii].PEa1Tv1(3*work.dot(mu[j][jj])*fpr/(r2*r2*r1), work);
-
-                        Ep[j][jj].PEa1Tv1(-fr/(r1*r2), mu[i][ii]);
-                        Ep[j][jj].PEa1Tv1(3*work.dot(mu[i][ii])*fpr/(r2*r2*r1), work);
                     }
                 }
             }
-        }
 
-    if (debugme) {
-            for (int i=0; i<molecules.getMoleculeCount(); i++) {
-                for (int ii=0; ii<molecules.getMolecule(i).getChildList().getAtomCount(); ii++) {
-                    if (Ep[i][ii].isZero()) continue;
-                    System.out.println(iter+" "+i+" "+ii+" "+Ep[i][ii]+" "+mu[i][ii]);
+            if (debugme) {
+                for (int i = 0; i < molecules.getMoleculeCount(); i++) {
+                    for (int ii = 0; ii < molecules.getMolecule(i).getChildList().getAtomCount(); ii++) {
+                        if (Ep[i][ii].isZero()) continue;
+                        System.out.println(iter + " " + i + " " + ii + " " + Ep[i][ii] + " " + mu[i][ii]);
+                    }
                 }
             }
-        }
 
-        if (sumDeltaMu < 1e-20) break;
-        if (iter==maxIter-1) {
-            System.err.println("we were unable to converge");
-            System.err.println("sumDeltaMu "+sumDeltaMu);
-            System.err.println("sumMu "+sumMu);
-            throw new RuntimeException("bye");
+            if (sumDeltaMu < 1e-20) break;
+            if (iter == maxIter - 1) {
+                System.err.println("we were unable to converge");
+                System.err.println("sumDeltaMu " + sumDeltaMu);
+                System.err.println("sumMu " + sumMu);
+                throw new RuntimeException("bye");
+            }
         }
-}
         UpolAtkins = 0;
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            for (int ii=0; ii<molecules.getMolecule(i).getChildList().getAtomCount(); ii++) {
+        for (int i = 0; i < molecules.getMoleculeCount(); i++) {
+            for (int ii = 0; ii < molecules.getMolecule(i).getChildList().getAtomCount(); ii++) {
                 UpolAtkins += Eq[i][ii].dot(mu[i][ii]);
             }
         }
@@ -647,17 +644,17 @@ for (int iter=0; iter<maxIter; iter++) {
     public final double getRange() {
         return Double.POSITIVE_INFINITY;
     }
-    
+
     public void setBox(Box box) {
-    	boundary = box.getBoundary();
+        boundary = box.getBoundary();
     }
-    
+
     public P3GCPMAxilrodTeller makeAxilrodTeller() {
         return new P3GCPMAxilrodTeller(space);
     }
-    
-    public enum Component { TWO_BODY, INDUCTION, FULL }
-    
+
+    public enum Component {TWO_BODY, INDUCTION, FULL}
+
     public static class GCPMAgent {
         public final double sigma, epsilon, tau, gamma;
         public final double charge, charge2, alphaPar, alphaPerp;
@@ -669,7 +666,7 @@ for (int iter=0; iter<maxIter; iter++) {
             this.tau = tau;
             this.gamma = gamma;
             this.charge = charge;
-            this.charge2 = charge*charge;
+            this.charge2 = charge * charge;
             this.alphaPar = alphaPar;
             this.alphaPerp = alphaPerp;
             this.E = E;
@@ -680,7 +677,7 @@ for (int iter=0; iter<maxIter; iter++) {
             this.epsilon = epsilon;
             this.tau = tau;
             this.gamma = gamma;
-            this.charge2 = charge1*charge2;
+            this.charge2 = charge1 * charge2;
             this.charge = Math.sqrt(this.charge2);
             this.alphaPar = alphaPar;
             this.alphaPerp = alphaPerp;
@@ -765,202 +762,202 @@ for (int iter=0; iter<maxIter; iter++) {
             IAtomList atomsk = molecules.getMolecule(2).getChildList();
             double usum = 0;
 
-            for (int ii=0; ii<atomsi.getAtomCount(); ii++) {
-    GCPMAgent agenti = (GCPMAgent)typeManager.getAgent(atomsi.getAtom(ii).getType());
-    if (agenti.alphaPerp == 0 && agenti.alphaPar == 0) continue;
-    double ei = agenti.E;
-    Vector ri = atomsi.getAtom(0).getPosition();
+            for (int ii = 0; ii < atomsi.getAtomCount(); ii++) {
+                GCPMAgent agenti = (GCPMAgent) typeManager.getAgent(atomsi.getAtom(ii).getType());
+                if (agenti.alphaPerp == 0 && agenti.alphaPar == 0) continue;
+                double ei = agenti.E;
+                Vector ri = atomsi.getAtom(0).getPosition();
 
                 double iAlphaPerp = agenti.alphaPerp;
-    double iAlphaAn = agenti.alphaPar - iAlphaPerp;
-    if (iAlphaAn != 0) bveci.E(agenti.getParallelAxis(molecules.getMolecule(0)));
+                double iAlphaAn = agenti.alphaPar - iAlphaPerp;
+                if (iAlphaAn != 0) bveci.E(agenti.getParallelAxis(molecules.getMolecule(0)));
 
-                for (int jj=0; jj<atomsj.getAtomCount(); jj++) {
-        GCPMAgent agentj = (GCPMAgent)typeManager.getAgent(atomsj.getAtom(jj).getType());
-        if (agentj.alphaPerp == 0 && agentj.alphaPar == 0) continue;
-        double epij = ei * agentj.E;
-        double esij = ei + agentj.E;
-        double ej = agentj.E;
-        Vector rj = atomsj.getAtom(0).getPosition();
-        double jAlphaPerp = agentj.alphaPerp;
-        double jAlphaAn = agentj.alphaPar - jAlphaPerp;
+                for (int jj = 0; jj < atomsj.getAtomCount(); jj++) {
+                    GCPMAgent agentj = (GCPMAgent) typeManager.getAgent(atomsj.getAtom(jj).getType());
+                    if (agentj.alphaPerp == 0 && agentj.alphaPar == 0) continue;
+                    double epij = ei * agentj.E;
+                    double esij = ei + agentj.E;
+                    double ej = agentj.E;
+                    Vector rj = atomsj.getAtom(0).getPosition();
+                    double jAlphaPerp = agentj.alphaPerp;
+                    double jAlphaAn = agentj.alphaPar - jAlphaPerp;
 
                     if (jAlphaAn != 0) bvecj.E(agentj.getParallelAxis(molecules.getMolecule(1)));
 
-        rij.Ev1Mv2(rj, ri);
-        double drij2 = rij.squared();
-        double drij = Math.sqrt(drij2);
-        double drij3 = drij2*drij;
-        rij.TE(1/drij);
+                    rij.Ev1Mv2(rj, ri);
+                    double drij2 = rij.squared();
+                    double drij = Math.sqrt(drij2);
+                    double drij3 = drij2 * drij;
+                    rij.TE(1 / drij);
 
-        for (int kk=0; kk<atomsk.getAtomCount(); kk++) {
-            GCPMAgent agentk = (GCPMAgent)typeManager.getAgent(atomsk.getAtom(kk).getType());
-            if (agentk.alphaPerp == 0 && agentk.alphaPar == 0) continue;
-            double epijk = epij * agentk.E;
-            if (epijk == 0) continue;
-            double esijk = esij + agentk.E;
-            double ek = agentk.E;
-            double esik = ei + ek;
-            double esjk = ej + ek;
+                    for (int kk = 0; kk < atomsk.getAtomCount(); kk++) {
+                        GCPMAgent agentk = (GCPMAgent) typeManager.getAgent(atomsk.getAtom(kk).getType());
+                        if (agentk.alphaPerp == 0 && agentk.alphaPar == 0) continue;
+                        double epijk = epij * agentk.E;
+                        if (epijk == 0) continue;
+                        double esijk = esij + agentk.E;
+                        double ek = agentk.E;
+                        double esik = ei + ek;
+                        double esjk = ej + ek;
 
-            double kAlphaPerp = agentk.alphaPerp;
-            double kAlphaAn = agentk.alphaPar - kAlphaPerp;
-            if (kAlphaAn!=0) bveck.E(agentk.getParallelAxis(molecules.getMolecule(2)));
+                        double kAlphaPerp = agentk.alphaPerp;
+                        double kAlphaAn = agentk.alphaPar - kAlphaPerp;
+                        if (kAlphaAn != 0) bveck.E(agentk.getParallelAxis(molecules.getMolecule(2)));
 
-            Vector rk = atomsk.getAtom(0).getPosition();
-            rik.Ev1Mv2(rk, ri);
-            rjk.Ev1Mv2(rk, rj);
-            double drik2 = rik.squared();
-            double drjk2 = rjk.squared();
-            double drik = Math.sqrt(drik2);
-            double drjk = Math.sqrt(drjk2);
-            double drik3 = drik2*drik;
-            double drjk3 = drjk2*drjk;
-            rik.TE(1/drik);
-            rjk.TE(1/drjk);
-            cosg[0] = -rij.dot(rik);
-            cosg[1] = -rij.dot(rjk);
-            cosg[2] = rjk.dot(rik);
-            cosg[3] = cosg[0];
-            norm.E(rij);
-            norm.XE(rik);
-            norm.normalize();
+                        Vector rk = atomsk.getAtom(0).getPosition();
+                        rik.Ev1Mv2(rk, ri);
+                        rjk.Ev1Mv2(rk, rj);
+                        double drik2 = rik.squared();
+                        double drjk2 = rjk.squared();
+                        double drik = Math.sqrt(drik2);
+                        double drjk = Math.sqrt(drjk2);
+                        double drik3 = drik2 * drik;
+                        double drjk3 = drjk2 * drjk;
+                        rik.TE(1 / drik);
+                        rjk.TE(1 / drjk);
+                        cosg[0] = -rij.dot(rik);
+                        cosg[1] = -rij.dot(rjk);
+                        cosg[2] = rjk.dot(rik);
+                        cosg[3] = cosg[0];
+                        norm.E(rij);
+                        norm.XE(rik);
+                        norm.normalize();
 
-            xveci.Ev1Pv2(rij, rik);
-            xveci.normalize();
-            yveci.E(norm);
-            yveci.XE(xveci);
+                        xveci.Ev1Pv2(rij, rik);
+                        xveci.normalize();
+                        yveci.E(norm);
+                        yveci.XE(xveci);
 
-            xvecj.Ev1Mv2(rjk,rij);
-            xvecj.normalize();
-            yvecj.E(norm);
-            yvecj.XE(xvecj);
+                        xvecj.Ev1Mv2(rjk, rij);
+                        xvecj.normalize();
+                        yvecj.E(norm);
+                        yvecj.XE(xvecj);
 
-            xveck.Ev1Pv2(rjk, rik);
-            xveck.TE(-1);
-            yveck.E(norm);
-            yveck.XE(xveck);
+                        xveck.Ev1Pv2(rjk, rik);
+                        xveck.TE(-1);
+                        yveck.E(norm);
+                        yveck.XE(xveck);
 
-            double eadd = 1;
-            for (int a=0; a<3; a++) {
-                xx[a] = Math.sqrt((1 + cosg[a])*(1 + cosg[a+1])) +
-                        Math.sqrt((1 - cosg[a])*(1 - cosg[a+1])) * 0.5;
-                eadd *= xx[a];
+                        double eadd = 1;
+                        for (int a = 0; a < 3; a++) {
+                            xx[a] = Math.sqrt((1 + cosg[a]) * (1 + cosg[a + 1])) +
+                                    Math.sqrt((1 - cosg[a]) * (1 - cosg[a + 1])) * 0.5;
+                            eadd *= xx[a];
+                        }
+                        double polix = iAlphaPerp;
+                        if (iAlphaAn != 0) polix += iAlphaAn * Math.abs(bveci.dot(xveci));
+
+                        double poljx = jAlphaPerp;
+                        if (jAlphaAn != 0) poljx += jAlphaAn * Math.abs(bvecj.dot(xvecj));
+
+                        double polkx = kAlphaPerp;
+                        if (jAlphaAn != 0) polkx += kAlphaAn * Math.abs(bveck.dot(xveck));
+
+                        double nufac = polkx * poljx * polix;
+                        eadd *= nufac;
+                        double u = eadd / (drij3 * drik3 * drjk3);
+
+                        // (z, z, z) matrix element
+                        // the polarizability is here the projection on the normal to the
+                        // intermolecular plane.
+                        double poliz = iAlphaPerp;
+                        if (iAlphaAn != 0) poliz += iAlphaAn * Math.abs(bveci.dot(norm));
+
+                        double poljz = jAlphaPerp;
+                        if (jAlphaAn != 0) poljz += jAlphaAn * Math.abs(bvecj.dot(norm));
+
+                        double polkz = kAlphaPerp;
+                        if (kAlphaAn != 0) polkz += kAlphaAn * Math.abs(bveck.dot(norm));
+
+                        nufac = polkz * poljz * poliz;
+
+                        u += nufac / (drij3 * drik3 * drjk3);
+
+                        // (y, y, y) matrix element
+                        // the polarizability is here the projection on the axis orthogonal both
+                        // to the bisector axis, and to the normal of the intermolecular plane.
+                        eadd = 1;
+                        for (int a = 0; a < 3; a++) {
+                            yy[a] = -Math.sqrt((1 - cosg[a]) * (1 - cosg[a + 1])) -
+                                    Math.sqrt((1 + cosg[a]) * (1 + cosg[a + 1])) * 0.5;
+                            eadd *= yy[a];
+                        }
+
+                        double poliy = iAlphaPerp;
+                        if (iAlphaAn != 0) poliy += iAlphaAn * Math.abs(bveci.dot(yveci));
+
+                        double poljy = jAlphaPerp;
+                        if (jAlphaAn != 0) poljy += jAlphaAn * Math.abs(bvecj.dot(yvecj));
+
+                        double polky = kAlphaPerp;
+                        if (kAlphaAn != 0) polky += kAlphaAn * Math.abs(bveck.dot(yveck));
+
+                        nufac = polkx * poljx * polix;
+                        u += eadd * nufac / (drij3 * drik3 * drjk3);
+
+                        // here come the mixed matrix elements. six in total. three double x's and
+                        // three double y's.
+                        // (x, x, y)
+                        double eprd = (Math.sqrt((1 + cosg[1]) * (1 - cosg[2])) -
+                                Math.sqrt((1 - cosg[1]) * (1 + cosg[2])) * 0.5) *
+                                (-Math.sqrt((1 + cosg[0]) * (1 - cosg[2])) +
+                                        Math.sqrt((1 - cosg[0]) * (1 + cosg[2])) * 0.5);
+                        nufac = polix * poljx * polky;
+                        eadd = xx[0] * eprd * nufac;
+
+                        // (x, y, x)
+                        eprd = (Math.sqrt((1 + cosg[0]) * (1 - cosg[1])) -
+                                Math.sqrt((1 - cosg[0]) * (1 + cosg[1])) * 0.5) *
+                                (-Math.sqrt((1 + cosg[2]) * (1 - cosg[1])) +
+                                        Math.sqrt((1 - cosg[2]) * (1 + cosg[1])) * 0.5);
+                        nufac = polix * poljy * polkx;
+                        eadd += xx[2] * eprd * nufac;
+
+                        // (y, x, x)
+                        eprd = (Math.sqrt((1 + cosg[2]) * (1 - cosg[0])) -
+                                Math.sqrt((1 - cosg[2]) * (1 + cosg[0])) * 0.5) *
+                                (-Math.sqrt((1 + cosg[1]) * (1 - cosg[0])) +
+                                        Math.sqrt((1 - cosg[1]) * (1 + cosg[0])) * 0.5);
+                        nufac = poliy * poljx * polkx;
+                        eadd += xx[1] * eprd * nufac;
+                        u += eadd / (drij3 * drik3 * drjk3);
+
+                        // the double y's.
+                        // (y, y, x)
+                        eprd = (Math.sqrt((1.0 + cosg[2]) * (1 - cosg[0])) -
+                                Math.sqrt((1.0 - cosg[2]) * (1 + cosg[0])) * 0.5) *
+                                (-Math.sqrt((1.0 + cosg[2]) * (1 - cosg[1])) +
+                                        Math.sqrt((1.0 - cosg[2]) * (1 + cosg[1])) * 0.5);
+                        nufac = poliy * poljy * polkx;
+                        eadd = yy[0] * eprd * nufac;
+
+                        // (y, x, y)
+                        eprd = (Math.sqrt((1.0 + cosg[1]) * (1 - cosg[2])) -
+                                Math.sqrt((1.0 - cosg[1]) * (1 + cosg[2])) * 0.5) *
+                                (-Math.sqrt((1.0 + cosg[1]) * (1 - cosg[0])) +
+                                        Math.sqrt((1.0 - cosg[1]) * (1 + cosg[0])) * 0.5);
+                        nufac = poliy * poljx * polky;
+                        eadd += yy[2] * eprd * nufac;
+
+                        // (x, y, y)
+                        eprd = (Math.sqrt((1.0 + cosg[0]) * (1 - cosg[1])) -
+                                Math.sqrt((1.0 - cosg[0]) * (1 + cosg[1])) * 0.5) *
+                                (-Math.sqrt((1.0 + cosg[0]) * (1 - cosg[2])) +
+                                        Math.sqrt((1.0 - cosg[0]) * (1 + cosg[2])) * 0.5);
+                        nufac = polix * poljy * polky;
+                        eadd = eadd + yy[1] * eprd * nufac;
+
+                        u += eadd / (drij3 * drik3 * drjk3);
+
+                        if (Double.isNaN(u)) {
+                            energy(molecules);
+                            throw new RuntimeException("oops " + u);
+                        }
+                        double nufac0 = 1.5 * epijk * esijk / (esij * esik * esjk);
+                        usum += u * nufac0;
+                    }
+                }
             }
-            double polix = iAlphaPerp;
-            if (iAlphaAn!=0) polix += iAlphaAn * Math.abs(bveci.dot(xveci));
-
-            double poljx = jAlphaPerp;
-            if (jAlphaAn!=0) poljx += jAlphaAn * Math.abs(bvecj.dot(xvecj));
-
-            double polkx = kAlphaPerp;
-            if (jAlphaAn!=0) polkx += kAlphaAn * Math.abs(bveck.dot(xveck));
-
-            double nufac   = polkx*poljx*polix;
-            eadd *= nufac;
-            double u = eadd / (drij3*drik3*drjk3);
-
-            // (z, z, z) matrix element
-            // the polarizability is here the projection on the normal to the
-            // intermolecular plane.
-            double poliz = iAlphaPerp;
-            if (iAlphaAn!=0) poliz += iAlphaAn * Math.abs(bveci.dot(norm));
-
-            double poljz = jAlphaPerp;
-            if (jAlphaAn!=0) poljz += jAlphaAn * Math.abs(bvecj.dot(norm));
-
-            double polkz = kAlphaPerp;
-            if (kAlphaAn!=0) polkz += kAlphaAn * Math.abs(bveck.dot(norm));
-
-            nufac   = polkz*poljz*poliz;
-
-            u += nufac / (drij3*drik3*drjk3);
-
-            // (y, y, y) matrix element
-            // the polarizability is here the projection on the axis orthogonal both
-            // to the bisector axis, and to the normal of the intermolecular plane.
-            eadd = 1;
-            for (int a=0; a<3; a++) {
-                yy[a] = -Math.sqrt((1 - cosg[a])*(1 - cosg[a+1])) -
-                         Math.sqrt((1 + cosg[a])*(1 + cosg[a+1])) * 0.5;
-                eadd *= yy[a];
-            }
-
-            double poliy = iAlphaPerp;
-            if (iAlphaAn!=0) poliy += iAlphaAn * Math.abs(bveci.dot(yveci));
-
-            double poljy = jAlphaPerp;
-            if (jAlphaAn!=0) poljy += jAlphaAn * Math.abs(bvecj.dot(yvecj));
-
-            double polky = kAlphaPerp;
-            if (kAlphaAn!=0) polky += kAlphaAn * Math.abs(bveck.dot(yveck));
-
-            nufac   = polkx*poljx*polix;
-            u += eadd*nufac / (drij3*drik3*drjk3);
-
-            // here come the mixed matrix elements. six in total. three double x's and
-            // three double y's.
-            // (x, x, y)
-            double eprd = (Math.sqrt((1 + cosg[1]) * (1 - cosg[2])) -
-                    Math.sqrt((1 - cosg[1]) * (1 + cosg[2])) * 0.5) *
-                    (-Math.sqrt((1 + cosg[0]) * (1 - cosg[2])) +
-                           Math.sqrt((1 - cosg[0])*(1 + cosg[2])) * 0.5);
-            nufac= polix*poljx*polky;
-            eadd = xx[0]*eprd*nufac;
-
-            // (x, y, x)
-            eprd = (Math.sqrt((1 + cosg[0]) * (1 - cosg[1])) -
-                    Math.sqrt((1 - cosg[0]) * (1 + cosg[1])) * 0.5) *
-                    (-Math.sqrt((1 + cosg[2]) * (1 - cosg[1])) +
-                    Math.sqrt((1 - cosg[2])*(1 + cosg[1])) * 0.5);
-            nufac= polix*poljy*polkx;
-            eadd += xx[2]*eprd*nufac;
-
-            // (y, x, x)
-            eprd = (Math.sqrt((1 + cosg[2])*(1 - cosg[0])) -
-                    Math.sqrt((1 - cosg[2])*(1 + cosg[0])) * 0.5) *
-                  (-Math.sqrt((1 + cosg[1])*(1 - cosg[0])) +
-                    Math.sqrt((1 - cosg[1])*(1 + cosg[0])) * 0.5);
-            nufac= poliy*poljx*polkx;
-            eadd += xx[1]*eprd*nufac;
-            u  += eadd / (drij3*drik3*drjk3);
-
-            // the double y's.
-            // (y, y, x)
-            eprd = (Math.sqrt((1.0 + cosg[2])*(1 - cosg[0])) -
-                    Math.sqrt((1.0 - cosg[2])*(1 + cosg[0])) * 0.5) *
-                  (-Math.sqrt((1.0 + cosg[2])*(1 - cosg[1])) +
-                    Math.sqrt((1.0 - cosg[2])*(1 + cosg[1])) * 0.5);
-            nufac= poliy*poljy*polkx;
-            eadd = yy[0]*eprd*nufac;
-
-            // (y, x, y)
-            eprd = (Math.sqrt((1.0 + cosg[1])*(1 - cosg[2])) -
-                    Math.sqrt((1.0 - cosg[1])*(1 + cosg[2])) * 0.5) *
-                  (-Math.sqrt((1.0 + cosg[1])*(1 - cosg[0])) +
-                    Math.sqrt((1.0 - cosg[1])*(1 + cosg[0])) * 0.5);
-            nufac= poliy*poljx*polky;
-            eadd += yy[2]*eprd*nufac;
-
-            // (x, y, y)
-            eprd = (Math.sqrt((1.0 + cosg[0])*(1 - cosg[1])) -
-                    Math.sqrt((1.0 - cosg[0])*(1 + cosg[1])) * 0.5) *
-                  (-Math.sqrt((1.0 + cosg[0])*(1 - cosg[2])) +
-                    Math.sqrt((1.0 - cosg[0])*(1 + cosg[2])) * 0.5);
-            nufac= polix*poljy*polky;
-            eadd = eadd + yy[1]*eprd*nufac;
-
-            u += eadd / (drij3*drik3*drjk3);
-
-            if (Double.isNaN(u)) {
-                energy(molecules);
-                throw new RuntimeException("oops "+u);
-            }
-            double nufac0 = 1.5 * epijk * esijk / (esij * esik * esjk);
-            usum += u*nufac0;
-        }
-    }
-}
             return usum;
         }
     }
