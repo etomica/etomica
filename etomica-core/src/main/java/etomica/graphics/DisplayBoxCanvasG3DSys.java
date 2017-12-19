@@ -25,12 +25,14 @@ import org.jmol.util.Colix;
 import org.jmol.util.Point3f;
 
 import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		AgentSource<Figure>, BondManager {
 
 
-    protected final AtomTypeAgentManager atomTypeOrientedManager;
+    protected final Map<AtomType, OrientedSite[]> atomTypeOrientedManager;
     private final double[] coords;
     private final Space space;
     protected AtomLeafAgentManager<Figure> aam;
@@ -83,7 +85,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
         aam = new AtomLeafAgentManager<Figure>(this, displayBox.getBox());
 		OrientedAgentSource oas = new OrientedAgentSource();
 		aamOriented = new AtomLeafAgentManager<Ball[]>(oas, displayBox.getBox());
-		atomTypeOrientedManager = new AtomTypeAgentManager(null, sim);
+		atomTypeOrientedManager = new HashMap<>();
 
         planes = new Plane[0];
         planeTriangles = new Triangle[0][0];
@@ -323,7 +325,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 				ball.setZ((float) coords[2]);
 			}
 
-			OrientedSite[] sites = (OrientedSite[])atomTypeOrientedManager.getAgent(a.getType());
+			OrientedSite[] sites = atomTypeOrientedManager.get(a.getType());
 			if (sites != null) {
 			    Ball[] ballSites = aamOriented.getAgent(a);
 			    if (ballSites == null) {
@@ -692,7 +694,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
     }
 
     public void setOrientationSites(AtomTypeOriented atomType, OrientedSite[] sites) {
-        atomTypeOrientedManager.setAgent(atomType, sites);
+        atomTypeOrientedManager.put(atomType, sites);
 		IAtomList leafList = displayBox.getBox().getLeafList();
 		int nLeaf = leafList.getAtomCount();
 
