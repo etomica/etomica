@@ -11,36 +11,27 @@ import etomica.atom.IAtom;
 import etomica.simulation.Simulation;
 
 import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Colors the atom according to the color given by its type field.
  *
  * @author David Kofke
  */
-public class ColorSchemeByType extends ColorScheme implements AgentSource {
+public class ColorSchemeByType extends ColorScheme {
 
-    protected final Color[] moreDefaultColors = new Color[]{ColorScheme.DEFAULT_ATOM_COLOR, Color.BLUE, Color.GREEN, Color.YELLOW, Color.ORANGE};
-    private final AtomTypeAgentManager colorMap;
+    protected final Color[] moreDefaultColors = {ColorScheme.DEFAULT_ATOM_COLOR, Color.BLUE, Color.GREEN, Color.YELLOW, Color.ORANGE};
+    private final Map<AtomType, Color> colorMap;
     protected int defaultColorsUsed = 0;
 
     public ColorSchemeByType(Simulation sim) {
     	super();
-        colorMap = new AtomTypeAgentManager(this, sim);
-    }
-
-    public Object makeAgent(AtomType atom) {
-        return null;
-    }
-
-    public void releaseAgent(Object obj, AtomType atom) {
-    }
-
-    public Class getSpeciesAgentClass() {
-    	return Color.class;
+        colorMap = new HashMap<>();
     }
 
     public void setColor(AtomType type, Color c) {
-        colorMap.setAgent(type, c);
+        colorMap.put(type, c);
     }
 
     public Color getAtomColor(IAtom a) {
@@ -48,18 +39,15 @@ public class ColorSchemeByType extends ColorScheme implements AgentSource {
     }
 
     public Color getColor(AtomType type) {
-        Color color = (Color)colorMap.getAgent(type);
-        if (color == null) {
+        return this.colorMap.computeIfAbsent(type, atomType -> {
+            Color c;
             if (defaultColorsUsed < moreDefaultColors.length) {
-                color = moreDefaultColors[defaultColorsUsed];
+                c = moreDefaultColors[defaultColorsUsed];
                 defaultColorsUsed++;
-                setColor(type, color);
+            } else {
+                c = defaultColor;
             }
-            else {
-                color = defaultColor;
-                setColor(type, color);
-            }
-        }
-        return color;
+            return c;
+        });
     }
 }

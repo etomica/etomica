@@ -13,38 +13,39 @@ import etomica.modules.catalysis.InteractionTracker.CatalysisAgent;
 import etomica.simulation.Simulation;
 
 import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ColorSchemeRadical extends ColorSchemeByType {
 
-    private static final long serialVersionUID = 1L;
-    protected final AtomLeafAgentManager agentManager;
-    protected final AtomTypeAgentManager radicalColorMap, fullBondColorMap;
+    protected final AtomLeafAgentManager<CatalysisAgent> agentManager;
+    private final Map<AtomType, Color> radicalColorMap, fullBondColorMap;
     
-    public ColorSchemeRadical(Simulation sim, AtomLeafAgentManager agentManager) {
+    public ColorSchemeRadical(Simulation sim, AtomLeafAgentManager<CatalysisAgent> agentManager) {
         super(sim);
         this.agentManager = agentManager;
-        radicalColorMap = new AtomTypeAgentManager(this, sim);
-        fullBondColorMap = new AtomTypeAgentManager(this, sim);
+        radicalColorMap = new HashMap<>();
+        fullBondColorMap = new HashMap<>();
     }
 
     public Color getAtomColor(IAtom atom) {
-        CatalysisAgent agent = (CatalysisAgent)agentManager.getAgent(atom);
+        CatalysisAgent agent = agentManager.getAgent(atom);
         if (agent != null) {
             if (agent.isRadical) {
-                return (Color)radicalColorMap.getAgent(atom.getType());
+                return radicalColorMap.get(atom.getType());
             }
             else if (agent.bondedAtom2 != null) {
-                return (Color)fullBondColorMap.getAgent(atom.getType());
+                return fullBondColorMap.get(atom.getType());
             }
         }
         return super.getAtomColor(atom);
     }
 
     public void setRadicalColor(AtomType type, Color color) {
-        radicalColorMap.setAgent(type, color);
+        radicalColorMap.put(type, color);
     }
 
     public void setFullBondColor(AtomType type, Color color) {
-        fullBondColorMap.setAgent(type, color);
+        fullBondColorMap.put(type, color);
     }
 }

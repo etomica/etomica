@@ -12,11 +12,13 @@ import etomica.graphics.ColorSchemeCollective;
 import etomica.simulation.Simulation;
 
 import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ColorSchemeRadical extends ColorSchemeByType implements ColorSchemeCollective, AtomLeafAgentManager.AgentSource<ColorSchemeRadical.LengthAgent> {
 
     protected final AtomLeafAgentManager<IAtom[]> agentManager;
-    protected final AtomTypeAgentManager radicalColorMap, fullColorMap;
+    protected final Map<AtomType, Color> radicalColorMap, fullColorMap;
     protected final Color[] greys;
     protected Box box;
     protected AtomLeafAgentManager<LengthAgent> chainLengthManager;
@@ -24,8 +26,8 @@ public class ColorSchemeRadical extends ColorSchemeByType implements ColorScheme
     public ColorSchemeRadical(Simulation sim, AtomLeafAgentManager<IAtom[]> agentManager) {
         super(sim);
         this.agentManager = agentManager;
-        radicalColorMap = new AtomTypeAgentManager(this, sim);
-        fullColorMap = new AtomTypeAgentManager(this, sim);
+        radicalColorMap = new HashMap<>();
+        fullColorMap = new HashMap<>();
         greys = new Color[20];
         for (int i=0; i<20; i++) {
             greys[i] = new Color(90+6*i,90+6*i,90+6*i);
@@ -43,22 +45,22 @@ public class ColorSchemeRadical extends ColorSchemeByType implements ColorScheme
             }
         }
         if (nbrs[nbrs.length-1] != null) {
-            Color color = (Color)fullColorMap.getAgent(atom.getType());
+            Color color = fullColorMap.get(atom.getType());
             if (color != null) {
                 return color;
             }
             int chainNumber = chainLengthManager.getAgent(atom).chainNumber % greys.length;
             return greys[chainNumber];
         }
-        return (Color)radicalColorMap.getAgent(atom.getType());
+        return radicalColorMap.get(atom.getType());
     }
 
     public void setFreeRadicalColor(AtomType type, Color color) {
-        radicalColorMap.setAgent(type, color);
+        radicalColorMap.put(type, color);
     }
 
     public void setFullColor(AtomType type, Color color) {
-        fullColorMap.setAgent(type, color);
+        fullColorMap.put(type, color);
     }
 
     public LengthAgent makeAgent(IAtom a, Box agentBox) {
