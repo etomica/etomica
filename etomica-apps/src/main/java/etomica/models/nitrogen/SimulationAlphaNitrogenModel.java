@@ -217,7 +217,7 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 			SimulationGraphic simGraphic = new SimulationGraphic(sim);
 		    simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
 		    	    
-			DiameterHashByType diameter = new DiameterHashByType(sim);
+			DiameterHashByType diameter = new DiameterHashByType();
 			diameter.setDiameter(sim.species.getNitrogenType(), 3.1);
 			diameter.setDiameter(sim.species.getPType(), 0.0);
 			simGraphic.getDisplayBox(sim.box).setDiameterHash(diameter);

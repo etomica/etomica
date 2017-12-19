@@ -655,7 +655,7 @@ public static void main(String[] args) {
 
               //set diameters
 
-              DiameterHashByType diameter = new DiameterHashByType(sim); 
+              DiameterHashByType diameter = new DiameterHashByType();
 
               diameter.setDiameter(speciesSF6.getAtomType(0),0.2);
 

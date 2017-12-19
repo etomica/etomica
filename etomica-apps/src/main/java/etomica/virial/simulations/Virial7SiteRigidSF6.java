@@ -130,7 +130,7 @@ public class Virial7SiteRigidSF6 {
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
             
             //set diameters
-            DiameterHashByType diameter = new DiameterHashByType(sim); 
+            DiameterHashByType diameter = new DiameterHashByType();
             diameter.setDiameter(typeS,1.7);
             diameter.setDiameter(typeF,1.0);
             simGraphic.getDisplayBox(sim.box[1]).setDiameterHash(diameter);

@@ -154,7 +154,7 @@ public class VirialB2WaterTIP4P_DHS_difference {
             simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
             //set diameters
-            DiameterHashByType diameter = new DiameterHashByType(sim);
+            DiameterHashByType diameter = new DiameterHashByType();
             diameter.setDiameter(species.getHydrogenType(), 1);
             diameter.setDiameter(species.getOxygenType(), 1);
             diameter.setDiameter(species.getMType(), 1);

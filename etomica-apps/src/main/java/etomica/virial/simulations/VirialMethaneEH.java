@@ -115,7 +115,7 @@ public class VirialMethaneEH {
             simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
             //set diameters
-            DiameterHashByType diameter = new DiameterHashByType(sim); 
+            DiameterHashByType diameter = new DiameterHashByType();
             diameter.setDiameter(species.getAtomType(0),0.4);
             diameter.setDiameter(species.getAtomType(1),0.2);
             

@@ -140,7 +140,7 @@ public class VirialB3C2TIP4Pwater {
             simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
             //set diameters
-            DiameterHashByType diameter = new DiameterHashByType(sim);
+            DiameterHashByType diameter = new DiameterHashByType();
             diameter.setDiameter(species.getAtomType(0), 1);
             diameter.setDiameter(species.getAtomType(1), 1);
             diameter.setDiameter(species.getAtomType(2), 1);

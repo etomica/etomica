@@ -4,41 +4,31 @@
 
 package etomica.atom;
 
-import etomica.simulation.Simulation;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This class hashes atomic diameters based on the atom type.
- * 
+ *
  * @author Andrew Schultz
  */
-public class DiameterHashByType implements DiameterHash, AtomTypeAgentManager.AgentSource {
+public class DiameterHashByType implements DiameterHash {
 
-    protected final AtomTypeAgentManager agentManager;
-    
-    public DiameterHashByType(Simulation sim) {
-        agentManager = new AtomTypeAgentManager(this, sim);
+    private final Map<AtomType, Double> diameterMap;
+
+    public DiameterHashByType() {
+        diameterMap = new HashMap<>();
     }
-    
+
     public double getDiameter(IAtom atom) {
         return getDiameter(atom.getType());
     }
 
     public double getDiameter(AtomType atomType) {
-        return (Double)agentManager.getAgent(atomType);
+        return diameterMap.getOrDefault(atomType, -1.0);
     }
 
     public void setDiameter(AtomType type, double newDiameter) {
-        agentManager.setAgent(type, newDiameter);
-    }
-
-    public Class getSpeciesAgentClass() {
-        return Double.class;
-    }
-
-    public Object makeAgent(AtomType type) {
-        return new Double(-1);
-    }
-
-    public void releaseAgent(Object agent, AtomType type) {
+        diameterMap.put(type, newDiameter);
     }
 }

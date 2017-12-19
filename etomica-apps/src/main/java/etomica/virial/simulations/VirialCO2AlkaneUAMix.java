@@ -406,7 +406,7 @@ public static void main(String[] args) {
               dBox0.setShowBoundary(false);
               dBox1.setShowBoundary(false);
               //set diameters
-              DiameterHashByType diameter = new DiameterHashByType(sim); 
+              DiameterHashByType diameter = new DiameterHashByType();
               diameter.setDiameter(speciesCO2.getAtomType(0),0.2);
               diameter.setDiameter(speciesCO2.getAtomType(1),0.3);
               diameter.setDiameter(speciesAlkane.getCH2Type(), 0.3);

@@ -272,7 +272,7 @@ public class VirialCO2N2Mix {
               dBox1.setShowBoundary(false);
               
               //set diameters
-              DiameterHashByType diameter = new DiameterHashByType(sim); 
+              DiameterHashByType diameter = new DiameterHashByType();
               diameter.setDiameter(speciesCO2.getAtomType(0),0.2);
               diameter.setDiameter(speciesCO2.getAtomType(1),0.3);
               diameter.setDiameter(speciesN2.getAtomType(0), 0.3);

@@ -298,7 +298,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2 extends Simul
 			simGraphic.add(new DisplayBox(test, test.box));
 			simGraphic.getDisplayBox(test.box).setPixelUnit(new Pixel(10));
 			
-			DiameterHashByType diameter = new DiameterHashByType(test);
+			DiameterHashByType diameter = new DiameterHashByType();
 			diameter.setDiameter(test.species.getNitrogenType(), 3.1);
 			diameter.setDiameter(test.species.getPType(), 0.0);
 			

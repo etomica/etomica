@@ -118,7 +118,7 @@ public class DisplayBox extends Display {
 
         align[0] = align[1] = CENTER;
 
-        diameterHash = new DiameterHashByElementType(sim);
+        diameterHash = new DiameterHashByElementType();
         DiameterHashByElement.populateVDWDiameters(((DiameterHashByElementType)diameterHash).getDiameterHashByElement());
 
         setBox(box);

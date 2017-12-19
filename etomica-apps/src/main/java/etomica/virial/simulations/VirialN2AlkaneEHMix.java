@@ -713,7 +713,7 @@ public class VirialN2AlkaneEHMix {
               dBox1.setShowBoundary(false);
               
               //set diameters
-              DiameterHashByType diameter = new DiameterHashByType(sim); 
+              DiameterHashByType diameter = new DiameterHashByType();
               diameter.setDiameter(speciesN2.getAtomType(0),0.2);
               diameter.setDiameter(speciesN2.getAtomType(1),0.3);
               diameter.setDiameter(speciesAlkaneEH.getC_2Type(), 0.3);
