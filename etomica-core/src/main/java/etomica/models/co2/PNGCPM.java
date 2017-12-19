@@ -6,7 +6,6 @@ package etomica.models.co2;
 
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.atom.AtomType;
-import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.chem.elements.Carbon;
@@ -32,6 +31,8 @@ import etomica.units.Electron;
 import etomica.units.Kelvin;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Generic GCPM potential class, capable of handling both CO2 and water.
@@ -51,7 +52,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
     protected final double coreFac;
     protected final Vector rijVector;
     protected final Vector work, shift;
-    protected final AtomTypeAgentManager typeManager;
+    protected final Map<AtomType, GCPMAgent> typeManager;
     protected final int nAtomTypes;
     protected final GCPMAgent[][] pairAgents;
     protected boolean oops = false;
@@ -61,11 +62,11 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
     protected Component component;
     private double UpolAtkins;
 
-    public PNGCPM(Space space, AtomTypeAgentManager typeManager, int nAtomTypes) {
+    public PNGCPM(Space space, Map<AtomType, GCPMAgent> typeManager, int nAtomTypes) {
         this(space, typeManager, nAtomTypes, Integer.MAX_VALUE);
     }
 
-    public PNGCPM(Space space, AtomTypeAgentManager typeManager, int nAtomTypes, int nBody) {
+    public PNGCPM(Space space, Map<AtomType, GCPMAgent> typeManager, int nAtomTypes, int nBody) {
         super(nBody, space);
         this.typeManager = typeManager;
         this.nAtomTypes = nAtomTypes;
@@ -124,9 +125,9 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
 //        MoleculeActionTranslateTo translator = new MoleculeActionTranslateTo(space);
 //        translator.setDestination(space.makeVector(new double[]{x,0,z}));
 //        translator.actionPerformed(mol1);
-        AtomTypeAgentManager typeManager = new AtomTypeAgentManager(null);
+        Map<AtomType, GCPMAgent> typeManager = new HashMap<>();
         double qC = Electron.UNIT.toSim(0.6642);
-        typeManager.setAgent(speciesCO2.getAtomType(0), new GCPMAgent(3.193, Kelvin.UNIT.toSim(71.34), 0.61 / 1.0483, 15.5, qC, 4.05, 1.95, 0.0) {
+        typeManager.put(speciesCO2.getAtomType(0), new GCPMAgent(3.193, Kelvin.UNIT.toSim(71.34), 0.61 / 1.0483, 15.5, qC, 4.05, 1.95, 0.0) {
             protected final Vector r = space.makeVector();
 
             public Vector getParallelAxis(IMolecule mol) {
@@ -137,7 +138,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
             }
         });
         double qO = -0.5 * qC;
-        typeManager.setAgent(speciesCO2.getAtomType(1), new GCPMAgent(3.193 * 1.0483, Kelvin.UNIT.toSim(67.72), 0.61, 15.5, qO, 0, 0, 0));
+        typeManager.put(speciesCO2.getAtomType(1), new GCPMAgent(3.193 * 1.0483, Kelvin.UNIT.toSim(67.72), 0.61, 15.5, qO, 0, 0, 0));
         PNGCPM p2 = new PNGCPM(space, typeManager, 2);
         p2.setBox(box);
 //        p2.setComponent(PNGCPM.Component.INDUCTION);
@@ -188,9 +189,9 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         mol2.getChildList().getAtom(1).getPosition().E(space.makeVector(new double[]{-1.161, y2, 0}));
         mol2.getChildList().getAtom(2).getPosition().E(space.makeVector(new double[]{1.161, y2, 0}));
 
-        AtomTypeAgentManager typeManager = new AtomTypeAgentManager(null);
+        Map<AtomType, GCPMAgent> typeManager = new HashMap<>();
         double qC = Electron.UNIT.toSim(0.6642);
-        typeManager.setAgent(speciesCO2.getAtomType(0), new GCPMAgent(3.193, Kelvin.UNIT.toSim(71.34), 0.61 / 1.0483, 15.5, qC, 4.05, 1.95, 16.0 / 9.0 * Kelvin.UNIT.toSim(2.52e4)) {
+        typeManager.put(speciesCO2.getAtomType(0), new GCPMAgent(3.193, Kelvin.UNIT.toSim(71.34), 0.61 / 1.0483, 15.5, qC, 4.05, 1.95, 16.0 / 9.0 * Kelvin.UNIT.toSim(2.52e4)) {
             protected final Vector r = space.makeVector();
 
             public Vector getParallelAxis(IMolecule mol) {
@@ -201,7 +202,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
             }
         });
         double qO = -0.5 * qC;
-        typeManager.setAgent(speciesCO2.getAtomType(1), new GCPMAgent(3.193 * 1.0483, Kelvin.UNIT.toSim(67.72), 0.61, 15.5, qO, 0, 0, 0));
+        typeManager.put(speciesCO2.getAtomType(1), new GCPMAgent(3.193 * 1.0483, Kelvin.UNIT.toSim(67.72), 0.61, 15.5, qO, 0, 0, 0));
         PNGCPM p2 = new PNGCPM(space, typeManager, 2);
         p2.setBox(box);
         PNGCPM.P3GCPMAxilrodTeller p3 = p2.makeAxilrodTeller();
@@ -239,11 +240,11 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         translator.setDestination(space.makeVector(new double[]{0, y2, 0}));
         translator.actionPerformed(mol2);
 
-        AtomTypeAgentManager typeManager = new AtomTypeAgentManager(null);
-        typeManager.setAgent(speciesWaterCOM.getHydrogenType(), new GCPMAgent(1.0, 0, 0.455, 12.75, Electron.UNIT.toSim(0.6113), 0, 0, 0));
-        typeManager.setAgent(speciesWaterCOM.getOxygenType(), new GCPMAgent(3.69, Kelvin.UNIT.toSim(110), 0, 12.75, 0, 0, 0, 0, 0));
-        typeManager.setAgent(speciesWaterCOM.getMType(), new GCPMAgent(1.0, 0, 0.610, 12.75, Electron.UNIT.toSim(-1.2226), 0, 0, 0));
-        typeManager.setAgent(speciesWaterCOM.getCOMType(), new GCPMAgent(1.0, 0, 0.610, 12.75, 0, 1.444, 1.444, 0));
+        Map<AtomType, GCPMAgent> typeManager = new HashMap<>();
+        typeManager.put(speciesWaterCOM.getHydrogenType(), new GCPMAgent(1.0, 0, 0.455, 12.75, Electron.UNIT.toSim(0.6113), 0, 0, 0));
+        typeManager.put(speciesWaterCOM.getOxygenType(), new GCPMAgent(3.69, Kelvin.UNIT.toSim(110), 0, 12.75, 0, 0, 0, 0, 0));
+        typeManager.put(speciesWaterCOM.getMType(), new GCPMAgent(1.0, 0, 0.610, 12.75, Electron.UNIT.toSim(-1.2226), 0, 0, 0));
+        typeManager.put(speciesWaterCOM.getCOMType(), new GCPMAgent(1.0, 0, 0.610, 12.75, 0, 1.444, 1.444, 0));
         PNGCPM p2 = new PNGCPM(space, typeManager, 4);
         p2.setBox(box);
         IMoleculeList molecules = box.getMoleculeList();
@@ -323,12 +324,12 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         int idx1 = type1.getIndex();
         int idx2 = type2.getIndex();
         if (pairAgents[idx1][idx2] != null) return pairAgents[idx1][idx2];
-        GCPMAgent agent1 = (GCPMAgent) typeManager.getAgent(type1);
+        GCPMAgent agent1 = typeManager.get(type1);
         if (idx1 == idx2) {
             pairAgents[idx1][idx2] = agent1;
             return agent1;
         }
-        GCPMAgent agent2 = (GCPMAgent) typeManager.getAgent(type2);
+        GCPMAgent agent2 = typeManager.get(type2);
         double sigma = 0.5 * (agent1.sigma + agent2.sigma);
         double epsilon = 2 * agent1.epsilon * agent2.epsilon;
         if (epsilon > 0) epsilon /= (agent1.epsilon + agent2.epsilon);
@@ -473,7 +474,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         for (int i = 0; i < molecules.getMoleculeCount(); i++) {
             IAtomList iLeafAtoms = molecules.getMolecule(i).getChildList();
             for (int ii = 0; ii < iLeafAtoms.getAtomCount(); ii++) {
-                GCPMAgent agenti = (GCPMAgent) typeManager.getAgent(iLeafAtoms.getAtom(ii).getType());
+                GCPMAgent agenti = typeManager.get(iLeafAtoms.getAtom(ii).getType());
                 double alphaPerp = agenti.alphaPerp;
                 double alphaPar = agenti.alphaPar;
                 if (alphaPerp == 0 && alphaPar == 0) continue;
@@ -490,7 +491,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
                     shift.PE(work);
 
                     for (int jj = 0; jj < jLeafAtoms.getAtomCount(); jj++) {
-                        GCPMAgent agentj = (GCPMAgent) typeManager.getAgent(jLeafAtoms.getAtom(jj).getType());
+                        GCPMAgent agentj = typeManager.get(jLeafAtoms.getAtom(jj).getType());
                         double qj = agentj.charge;
                         if (qj == 0) continue;
                         GCPMAgent agentij = getPairAgent(iLeafAtoms.getAtom(ii).getType(), jLeafAtoms.getAtom(jj).getType());
@@ -522,7 +523,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
             for (int i = 0; i < molecules.getMoleculeCount(); i++) {
                 IAtomList iLeafAtoms = molecules.getMolecule(i).getChildList();
                 for (int ii = 0; ii < iLeafAtoms.getAtomCount(); ii++) {
-                    GCPMAgent agenti = (GCPMAgent) typeManager.getAgent(iLeafAtoms.getAtom(ii).getType());
+                    GCPMAgent agenti = typeManager.get(iLeafAtoms.getAtom(ii).getType());
                     double alphaPerp = agenti.alphaPerp;
                     double alphaPar = agenti.alphaPar;
                     if (alphaPerp == 0 && alphaPar == 0) continue;
@@ -551,7 +552,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
             for (int i = 0; i < molecules.getMoleculeCount(); i++) {
                 IAtomList iLeafAtoms = molecules.getMolecule(i).getChildList();
                 for (int ii = 0; ii < iLeafAtoms.getAtomCount(); ii++) {
-                    GCPMAgent agenti = (GCPMAgent) typeManager.getAgent(iLeafAtoms.getAtom(ii).getType());
+                    GCPMAgent agenti = typeManager.get(iLeafAtoms.getAtom(ii).getType());
                     if (agenti.alphaPerp == 0 && agenti.alphaPar == 0) continue;
                     Vector ri = iLeafAtoms.getAtom(ii).getPosition();
 
@@ -564,7 +565,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
                         shift.PE(work);
 
                         for (int jj = 0; jj < jLeafAtoms.getAtomCount(); jj++) {
-                            GCPMAgent agentj = (GCPMAgent) typeManager.getAgent(jLeafAtoms.getAtom(jj).getType());
+                            GCPMAgent agentj = typeManager.get(jLeafAtoms.getAtom(jj).getType());
                             if (agentj.alphaPerp == 0 && agentj.alphaPar == 0) continue;
 
                             GCPMAgent agentij = getPairAgent(iLeafAtoms.getAtom(ii).getType(), jLeafAtoms.getAtom(jj).getType());
@@ -763,7 +764,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
             double usum = 0;
 
             for (int ii = 0; ii < atomsi.getAtomCount(); ii++) {
-                GCPMAgent agenti = (GCPMAgent) typeManager.getAgent(atomsi.getAtom(ii).getType());
+                GCPMAgent agenti = typeManager.get(atomsi.getAtom(ii).getType());
                 if (agenti.alphaPerp == 0 && agenti.alphaPar == 0) continue;
                 double ei = agenti.E;
                 Vector ri = atomsi.getAtom(0).getPosition();
@@ -773,7 +774,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
                 if (iAlphaAn != 0) bveci.E(agenti.getParallelAxis(molecules.getMolecule(0)));
 
                 for (int jj = 0; jj < atomsj.getAtomCount(); jj++) {
-                    GCPMAgent agentj = (GCPMAgent) typeManager.getAgent(atomsj.getAtom(jj).getType());
+                    GCPMAgent agentj = typeManager.get(atomsj.getAtom(jj).getType());
                     if (agentj.alphaPerp == 0 && agentj.alphaPar == 0) continue;
                     double epij = ei * agentj.E;
                     double esij = ei + agentj.E;
@@ -791,7 +792,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
                     rij.TE(1 / drij);
 
                     for (int kk = 0; kk < atomsk.getAtomCount(); kk++) {
-                        GCPMAgent agentk = (GCPMAgent) typeManager.getAgent(atomsk.getAtom(kk).getType());
+                        GCPMAgent agentk = typeManager.get(atomsk.getAtom(kk).getType());
                         if (agentk.alphaPerp == 0 && agentk.alphaPar == 0) continue;
                         double epijk = epij * agentk.E;
                         if (epijk == 0) continue;

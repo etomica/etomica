@@ -6,7 +6,7 @@ package etomica.virial.simulations;
 
 import etomica.action.IAction;
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.atom.AtomTypeAgentManager;
+import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.IElement;
@@ -43,6 +43,8 @@ import etomica.virial.cluster.Standard;
 
 import java.awt.*;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Computes CO2-H2O mixture virial coefficients using ab-initio potentials
@@ -122,7 +124,7 @@ public class VirialCO2H2OGCPMX {
 
         SpeciesWater4PCOM speciesWater = new SpeciesWater4PCOM(space);
 
-        AtomTypeAgentManager paramsManager = new AtomTypeAgentManager(null);
+        Map<AtomType, GCPMAgent> paramsManager = new HashMap<>();
         final PNGCPMX pTarget = new PNGCPMX(space, paramsManager, 6, kijSigma, kijEpsilon, kijGamma);
 
         MayerGeneral fTarget = new MayerGeneral(pTarget);
@@ -190,12 +192,12 @@ public class VirialCO2H2OGCPMX {
         System.out.println("random seeds: "+Arrays.toString(sim.getRandomSeeds()));
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
 
-        paramsManager.setAgent(speciesWater.getHydrogenType(), new GCPMAgent(1.0,0,0.455,12.75,Electron.UNIT.toSim(0.6113),0,0,0));
-        paramsManager.setAgent(speciesWater.getOxygenType(), new GCPMAgent(3.69,Kelvin.UNIT.toSim(110),0,12.75,0,0,0,0,0));
-        paramsManager.setAgent(speciesWater.getMType(), new GCPMAgent(1.0,0,0.610,12.75,Electron.UNIT.toSim(-1.2226),0,0,0));
-        paramsManager.setAgent(speciesWater.getCOMType(), new GCPMAgent(1.0,0,0.610,12.75,0,1.444,1.444,0));
+        paramsManager.put(speciesWater.getHydrogenType(), new GCPMAgent(1.0,0,0.455,12.75,Electron.UNIT.toSim(0.6113),0,0,0));
+        paramsManager.put(speciesWater.getOxygenType(), new GCPMAgent(3.69,Kelvin.UNIT.toSim(110),0,12.75,0,0,0,0,0));
+        paramsManager.put(speciesWater.getMType(), new GCPMAgent(1.0,0,0.610,12.75,Electron.UNIT.toSim(-1.2226),0,0,0));
+        paramsManager.put(speciesWater.getCOMType(), new GCPMAgent(1.0,0,0.610,12.75,0,1.444,1.444,0));
         double qC = Electron.UNIT.toSim(0.6642);
-        paramsManager.setAgent(speciesCO2.getAtomType(0), new GCPMAgent(3.193,Kelvin.UNIT.toSim(71.34),0.61/1.0483,15.5,qC,4.05,1.95,16.0/9.0*Kelvin.UNIT.toSim(2.52e4)) {
+        paramsManager.put(speciesCO2.getAtomType(0), new GCPMAgent(3.193,Kelvin.UNIT.toSim(71.34),0.61/1.0483,15.5,qC,4.05,1.95,16.0/9.0*Kelvin.UNIT.toSim(2.52e4)) {
             protected final Vector r = space.makeVector();
             public Vector getParallelAxis(IMolecule mol) {
                 IAtomList atoms = mol.getChildList();
@@ -205,7 +207,7 @@ public class VirialCO2H2OGCPMX {
             }
         });
         double qO = -0.5*qC;
-        paramsManager.setAgent(speciesCO2.getAtomType(1), new GCPMAgent(3.193*1.0483,Kelvin.UNIT.toSim(67.72),0.61,15.5,qO,0,0,0));
+        paramsManager.put(speciesCO2.getAtomType(1), new GCPMAgent(3.193*1.0483,Kelvin.UNIT.toSim(67.72),0.61,15.5,qO,0,0,0));
         
         if (nonAdditive != Nonadditive.NONE) {
             MoleculeActionTranslateTo act = new MoleculeActionTranslateTo(space);

@@ -5,8 +5,9 @@
 package etomica.models.co2;
 
 import etomica.atom.AtomType;
-import etomica.atom.AtomTypeAgentManager;
 import etomica.space.Space;
+
+import java.util.Map;
 
 /**
  * GCPM potential that allows combining parameters to be adjusted.
@@ -19,12 +20,12 @@ public class PNGCPMX extends PNGCPM {
 
     protected final double kSigma, kEpsilon, kGamma;
     
-    public PNGCPMX(Space space, AtomTypeAgentManager typeManager,
+    public PNGCPMX(Space space, Map<AtomType, GCPMAgent> typeManager,
                    int nAtomTypes, double kSigma, double kEpsilon, double kGamma) {
         this(space, typeManager, nAtomTypes, kSigma, kEpsilon, kGamma, Integer.MAX_VALUE);
     }
 
-    public PNGCPMX(Space space, AtomTypeAgentManager typeManager,
+    public PNGCPMX(Space space, Map<AtomType, GCPMAgent> typeManager,
                    int nAtomTypes, double kSigma, double kEpsilon, double kGamma,
                    int nBody) {
         super(space, typeManager, nAtomTypes, nBody);
@@ -37,12 +38,12 @@ public class PNGCPMX extends PNGCPM {
         int idx1 = type1.getIndex();
         int idx2 = type2.getIndex();
         if (pairAgents[idx1][idx2] != null) return pairAgents[idx1][idx2];
-        GCPMAgent agent1 = (GCPMAgent)typeManager.getAgent(type1);
+        GCPMAgent agent1 = typeManager.get(type1);
         if (idx1==idx2) {
             pairAgents[idx1][idx2] = agent1;
             return agent1;
         }
-        GCPMAgent agent2 = (GCPMAgent)typeManager.getAgent(type2);
+        GCPMAgent agent2 = typeManager.get(type2);
         double sigma = kSigma*0.5*(agent1.sigma + agent2.sigma);
         double epsilon = kEpsilon*2*agent1.epsilon*agent2.epsilon;
         if (epsilon>0) epsilon /= (agent1.epsilon + agent2.epsilon);
