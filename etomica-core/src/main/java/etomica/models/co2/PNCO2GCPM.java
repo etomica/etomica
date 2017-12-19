@@ -4,7 +4,7 @@
 
 package etomica.models.co2;
 
-import etomica.atom.AtomTypeAgentManager;
+import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.box.Box;
@@ -34,6 +34,8 @@ import etomica.units.ElectronVolt;
 import etomica.units.Kelvin;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * GCPM CO2 potential class (GCPCDO).  This potential was described in
@@ -843,11 +845,11 @@ for (int iter=0; iter<maxIter; iter++) {
 //        IVectorMutable o1 = space.makeVector(new double[]{-1,0,0});
 //        atom1.getOrientation().setDirection(o1);
 
-        AtomTypeAgentManager paramsManagerATM = new AtomTypeAgentManager(null);
+        Map<AtomType, P3AxilrodTeller.MyAgent> paramsManagerATM = new HashMap<>();
         P3AxilrodTeller p3ATM0 = new P3AxilrodTeller(space, paramsManagerATM);
         p3ATM0.setBox(box);
         double alphaCO2 = 2.913;
-        paramsManagerATM.setAgent(species2CO2.getLeafType(), new P3AxilrodTeller.MyAgent(alphaCO2, ElectronVolt.UNIT.toSim(13.7)));
+        paramsManagerATM.put(species2CO2.getLeafType(), new P3AxilrodTeller.MyAgent(alphaCO2, ElectronVolt.UNIT.toSim(13.7)));
 
         System.out.println(p3ATM0.energy(pair));
         

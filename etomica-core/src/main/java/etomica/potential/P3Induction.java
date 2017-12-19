@@ -4,10 +4,7 @@
 
 package etomica.potential;
 
-import etomica.atom.AtomPair;
-import etomica.atom.AtomTypeAgentManager;
-import etomica.atom.IAtomList;
-import etomica.atom.IAtomOriented;
+import etomica.atom.*;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
@@ -31,6 +28,9 @@ import etomica.species.SpeciesSpheresRotating;
 import etomica.util.random.RandomMersenneTwister;
 import etomica.util.random.RandomNumberGeneratorUnix;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * 3-body induction potential based on form used by Oakley and Wheatley.
  * 
@@ -40,7 +40,7 @@ import etomica.util.random.RandomNumberGeneratorUnix;
  */
 public class P3Induction implements IPotentialAtomic {
 
-    protected final AtomTypeAgentManager paramsManager;
+    protected final Map<AtomType, MyAgent> paramsManager;
     protected final Space space;
     protected final double[] I = new double[3];
     protected final double[] alpha = new double[3];
@@ -50,7 +50,7 @@ public class P3Induction implements IPotentialAtomic {
     protected final Vector or3;
     protected Boundary boundary;
 
-    public P3Induction(Space space, AtomTypeAgentManager paramsManager) {
+    public P3Induction(Space space, Map<AtomType, MyAgent> paramsManager) {
         this.space = space;
         this.paramsManager = paramsManager;
         dr1 = space.makeVector();
@@ -75,9 +75,9 @@ public class P3Induction implements IPotentialAtomic {
             IOrientation orj = atomj.getOrientation();
             IAtomOriented atomk = (IAtomOriented)atoms.getAtom(k);
             IOrientation ork = atomk.getOrientation();
-            MyAgent agi = (MyAgent)paramsManager.getAgent(atoms.getAtom(i).getType());
-            MyAgent agj = (MyAgent)paramsManager.getAgent(atoms.getAtom(j).getType());
-            MyAgent agk = (MyAgent)paramsManager.getAgent(atoms.getAtom(k).getType());
+            MyAgent agi = paramsManager.get(atoms.getAtom(i).getType());
+            MyAgent agj = paramsManager.get(atoms.getAtom(j).getType());
+            MyAgent agk = paramsManager.get(atoms.getAtom(k).getType());
             for (int ip=0; ip<agi.alpha.length; ip++) {
                 ri.E(atomi.getPosition());
                 ri.PEa1Tv1(agi.polSite[ip].getX(0), ori.getDirection());
@@ -188,7 +188,7 @@ public class P3Induction implements IPotentialAtomic {
         p3sz.setComponent(Component.INDUCTION);
         p3sz.setBox(box);
 
-        AtomTypeAgentManager paramsManager = new AtomTypeAgentManager(null);
+        Map<AtomType, MyAgent> paramsManager = new HashMap<>();
         P3Induction p3i = new P3Induction(space, paramsManager);
         p3i.setBox(box);
         double alphaH2O = 1.444;
@@ -199,7 +199,7 @@ public class P3Induction implements IPotentialAtomic {
         polH2O.E(qSiteH2O[0]);
         P3Induction.MyAgent agentH2O = new P3Induction.MyAgent(new double[]{alphaH2O}, new Vector[]{polH2O}, qH2O, qSiteH2O);
 
-        paramsManager.setAgent(species.getLeafType(), agentH2O);
+        paramsManager.put(species.getLeafType(), agentH2O);
 
         PNWaterGCPM pGCPM = new PNWaterGCPM(space);
         pGCPM.setBox(box2);

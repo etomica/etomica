@@ -5,7 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.atom.AtomTypeAgentManager;
+import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.chem.elements.Carbon;
@@ -37,6 +37,8 @@ import etomica.virial.cluster.Standard;
 
 import java.awt.*;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Computes CO2-H2O mixture virial coefficients using ab-initio potentials
@@ -138,7 +140,8 @@ public class VirialCO2H2OSC {
             ((ClusterWheatleySoftMix)targetCluster).setDoCaching(false);
             targetCluster = new ClusterCoupledAtomFlipped(targetCluster, space, 20);
         }
-        AtomTypeAgentManager paramsManagerATM = null, paramsManagerInd = null;
+        Map<AtomType, P3AxilrodTeller.MyAgent> paramsManagerATM = null;
+        Map<AtomType, P3Induction.MyAgent> paramsManagerInd = null;
         if (nonAdditive != Nonadditive.NONE) {
             if (useSZ && nPoints == nTypes[1]) {
                 Component comp = nonAdditive == Nonadditive.FULL ? Component.NON_PAIR : Component.THREE_BODY;
@@ -161,11 +164,11 @@ public class VirialCO2H2OSC {
             else {
                 // CO2: alpha=2.913, E=13.7eV
                 // H2O: alpha=1.444, E=12.6eV
-                paramsManagerATM = new AtomTypeAgentManager(null);
+                paramsManagerATM = new HashMap<>();
                 IPotentialAtomic p3 = null;
                 p3 = new P3AxilrodTeller(space, paramsManagerATM);
                 if (nonAdditive == Nonadditive.FULL) {
-                    paramsManagerInd = new AtomTypeAgentManager(null);
+                    paramsManagerInd = new HashMap<>();
                     p3 = new PotentialAtomicSum(new IPotentialAtomic[]{p3,new P3Induction(space, paramsManagerInd)});
                 }
 
@@ -222,11 +225,11 @@ public class VirialCO2H2OSC {
                 polH2O.E(qSiteH2O[0]);
                 P3Induction.MyAgent agentH2O = new P3Induction.MyAgent(new double[]{alphaH2O}, new Vector[]{polH2O}, qH2O, qSiteH2O);
 
-                paramsManagerInd.setAgent(speciesCO2.getLeafType(), agentCO2);
-                paramsManagerInd.setAgent(speciesH2O.getLeafType(), agentH2O);
+                paramsManagerInd.put(speciesCO2.getLeafType(), agentCO2);
+                paramsManagerInd.put(speciesH2O.getLeafType(), agentH2O);
             }
-            paramsManagerATM.setAgent(speciesCO2.getLeafType(), new P3AxilrodTeller.MyAgent(alphaCO2, ElectronVolt.UNIT.toSim(13.7)));
-            paramsManagerATM.setAgent(speciesH2O.getLeafType(), new P3AxilrodTeller.MyAgent(alphaH2O, ElectronVolt.UNIT.toSim(12.6)));
+            paramsManagerATM.put(speciesCO2.getLeafType(), new P3AxilrodTeller.MyAgent(alphaCO2, ElectronVolt.UNIT.toSim(13.7)));
+            paramsManagerATM.put(speciesH2O.getLeafType(), new P3AxilrodTeller.MyAgent(alphaH2O, ElectronVolt.UNIT.toSim(12.6)));
         }
 
         if (level == Level.SEMICLASSICAL_TI && false) {
