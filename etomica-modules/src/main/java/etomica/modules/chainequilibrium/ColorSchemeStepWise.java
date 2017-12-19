@@ -15,18 +15,18 @@ import java.awt.*;
 import java.util.Arrays;
 
 /**
- * Color scheme for stepwise growth, based on the AtomType (alcohol vs. acid)
- * and the number of bonds the atom can form.
- * 
+ * Color scheme for stepwise growth, based on the AtomType (alcohol vs. acid) and the number of bonds the atom can
+ * form.
+ *
  * @author Andrew Schultz
  */
 public class ColorSchemeStepWise extends ColorScheme implements AtomTypeAgentManager.AgentSource {
 
-    protected final AtomLeafAgentManager bondingAgentManager;
+    protected final AtomLeafAgentManager<IAtom[]> bondingAgentManager;
     protected final Simulation simulation;
     protected AtomTypeAgentManager[] colorMaps;
-    
-    public ColorSchemeStepWise(Simulation sim, AtomLeafAgentManager bondingAgentManager) {
+
+    public ColorSchemeStepWise(Simulation sim, AtomLeafAgentManager<IAtom[]> bondingAgentManager) {
         super();
         simulation = sim;
         colorMaps = new AtomTypeAgentManager[0];
@@ -34,9 +34,9 @@ public class ColorSchemeStepWise extends ColorScheme implements AtomTypeAgentMan
     }
 
     public Color getAtomColor(IAtom atom) {
-        IAtom[] nbrs = (IAtom[])bondingAgentManager.getAgent(atom);
+        IAtom[] nbrs = bondingAgentManager.getAgent(atom);
         if (nbrs != null && colorMaps.length > nbrs.length) {
-            return (Color)colorMaps[nbrs.length].getAgent(atom.getType());
+            return (Color) colorMaps[nbrs.length].getAgent(atom.getType());
         }
         // we weren't told how to deal with any atom type with this many bonds.
         return ColorScheme.DEFAULT_ATOM_COLOR;
@@ -49,7 +49,7 @@ public class ColorSchemeStepWise extends ColorScheme implements AtomTypeAgentMan
         if (nBonds >= colorMaps.length) {
             int oldLength = colorMaps.length;
             colorMaps = Arrays.copyOf(colorMaps, nBonds + 1);
-            for (int i=oldLength; i<colorMaps.length; i++) {
+            for (int i = oldLength; i < colorMaps.length; i++) {
                 colorMaps[i] = new AtomTypeAgentManager(this, simulation);
             }
         }
