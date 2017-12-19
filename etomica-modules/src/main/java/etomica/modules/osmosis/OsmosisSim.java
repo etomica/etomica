@@ -124,7 +124,7 @@ public class OsmosisSim extends Simulation {
     		}
     	});
         simGraphic.makeAndDisplayFrame("Osmosis Sim");
-        ColorSchemeByType colorScheme = new ColorSchemeByType(sim);
+        ColorSchemeByType colorScheme = new ColorSchemeByType();
         colorScheme.setColor(sim.speciesSolvent.getLeafType(), Color.blue);
         colorScheme.setColor(sim.speciesSolute.getLeafType(), Color.red);
         simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);

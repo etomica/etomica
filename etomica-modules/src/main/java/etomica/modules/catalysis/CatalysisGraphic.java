@@ -122,7 +122,7 @@ public class CatalysisGraphic extends SimulationGraphic {
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
         //display of box, timer
-        ColorSchemeRadical colorScheme = new ColorSchemeRadical(sim, sim.interactionTracker.getAgentManager());
+        ColorSchemeRadical colorScheme = new ColorSchemeRadical(sim.interactionTracker.getAgentManager());
         colorScheme.setColor(sim.speciesO.getLeafType(),java.awt.Color.RED);
         colorScheme.setColor(sim.speciesC.getLeafType(),java.awt.Color.BLUE);
         colorScheme.setColor(sim.speciesSurface.getLeafType(),Color.GRAY);

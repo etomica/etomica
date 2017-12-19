@@ -202,9 +202,9 @@ public class SwmdGraphic extends SimulationGraphic {
         massBox.setController(sim.getController());
 
         //display of box, timer
-        ColorSchemeByType colorScheme = new ColorSchemeByType(sim);
+        ColorSchemeByType colorScheme = new ColorSchemeByType();
         colorScheme.setColor(sim.species.getLeafType(),java.awt.Color.red);
-        getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType(sim));
+        getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType());
 
 	    //meters and displays
         final MeterRDF rdfMeter = new MeterRDF(sim.getSpace());

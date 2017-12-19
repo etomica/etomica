@@ -25,7 +25,7 @@ public class ColorSchemeByType extends ColorScheme {
     private final Map<AtomType, Color> colorMap;
     protected int defaultColorsUsed = 0;
 
-    public ColorSchemeByType(Simulation sim) {
+    public ColorSchemeByType() {
     	super();
         colorMap = new HashMap<>();
     }

@@ -4,12 +4,14 @@
 
 package etomica.modules.chainequilibrium;
 
-import etomica.atom.*;
+import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.ColorSchemeCollective;
-import etomica.simulation.Simulation;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -23,8 +25,8 @@ public class ColorSchemeRadical extends ColorSchemeByType implements ColorScheme
     protected Box box;
     protected AtomLeafAgentManager<LengthAgent> chainLengthManager;
 
-    public ColorSchemeRadical(Simulation sim, AtomLeafAgentManager<IAtom[]> agentManager) {
-        super(sim);
+    public ColorSchemeRadical(AtomLeafAgentManager<IAtom[]> agentManager) {
+        super();
         this.agentManager = agentManager;
         radicalColorMap = new HashMap<>();
         fullColorMap = new HashMap<>();

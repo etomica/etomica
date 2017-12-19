@@ -65,10 +65,10 @@ public abstract class ColorScheme {
 
       simGraphic.getController().getReinitButton().setPostAction(repaintAction);
 
-      final ColorSchemeByType ct = new ColorSchemeByType(sim);
+      final ColorSchemeByType ct = new ColorSchemeByType();
       final ColorSchemeTemperature ctemp = new ColorSchemeTemperature(0,5);
       final ColorSchemeColliders ccld = new ColorSchemeColliders(sim.integrator);
-      final ColorSchemeNeighbor nghb = new ColorSchemeNeighbor(sim, (PotentialMasterList)sim.potentialMaster, sim.box);
+      final ColorSchemeNeighbor nghb = new ColorSchemeNeighbor((PotentialMasterList)sim.potentialMaster, sim.box);
       nghb.setAtom(sim.box.getLeafList().getAtom(0));
       final ColorSchemeRandom rand = new ColorSchemeRandom(sim.box, sim.getRandom());
       final ColorSchemeCell cell = new ColorSchemeCell((PotentialMasterList)sim.potentialMaster,sim.getRandom(),sim.box);

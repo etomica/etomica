@@ -6,11 +6,9 @@ package etomica.modules.catalysis;
 
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomType;
-import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.IAtom;
 import etomica.graphics.ColorSchemeByType;
 import etomica.modules.catalysis.InteractionTracker.CatalysisAgent;
-import etomica.simulation.Simulation;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -21,8 +19,8 @@ public class ColorSchemeRadical extends ColorSchemeByType {
     protected final AtomLeafAgentManager<CatalysisAgent> agentManager;
     private final Map<AtomType, Color> radicalColorMap, fullBondColorMap;
     
-    public ColorSchemeRadical(Simulation sim, AtomLeafAgentManager<CatalysisAgent> agentManager) {
-        super(sim);
+    public ColorSchemeRadical(AtomLeafAgentManager<CatalysisAgent> agentManager) {
+        super();
         this.agentManager = agentManager;
         radicalColorMap = new HashMap<>();
         fullBondColorMap = new HashMap<>();

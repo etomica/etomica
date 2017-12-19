@@ -113,7 +113,7 @@ public class DisplayBox extends Display {
         this.sim = sim;
         this.controller = sim.getController();
         this.space = sim.getSpace();
-        colorScheme = new ColorSchemeByType(sim);
+        colorScheme = new ColorSchemeByType();
         setLabel("Configuration");
 
         align[0] = align[1] = CENTER;

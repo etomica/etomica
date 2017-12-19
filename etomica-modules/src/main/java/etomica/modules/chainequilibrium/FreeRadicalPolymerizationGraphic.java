@@ -200,7 +200,7 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         temperatureSelect.setSliderPostAction(resetAction);
         temperatureSelect.setRadioGroupPostAction(resetAction);
         
-        ColorSchemeRadical colorScheme = new ColorSchemeRadical(sim, sim.agentManager);
+        ColorSchemeRadical colorScheme = new ColorSchemeRadical(sim.agentManager);
         colorScheme.setBox(sim.box);
         colorScheme.setFreeRadicalColor(sim.speciesA.getLeafType(), Color.GREEN);
 //        colorScheme.setColor(sim.speciesA.getLeafType(), Color.BLUE);

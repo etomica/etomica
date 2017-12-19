@@ -84,7 +84,7 @@ public class Osmosis extends SimulationGraphic {
 
 	    //display of box
         final DisplayBox displayBox = getDisplayBox(sim.box);
-        ColorSchemeByType colorScheme = new ColorSchemeByType(sim);
+        ColorSchemeByType colorScheme = new ColorSchemeByType();
 
         colorScheme.setColor(sim.speciesSolvent.getLeafType(), Color.blue);
         colorScheme.setColor(sim.speciesSolute.getLeafType(), Color.red);

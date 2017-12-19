@@ -153,7 +153,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         };
 
         displayBox = getDisplayBox(pc.box);
-        displayBox.setColorScheme(new ColorSchemeByType(simulation));
+        displayBox.setColorScheme(new ColorSchemeByType());
         final P1HardMovingBoundary pistonPotential = pc.pistonPotential;
         if (pc.getSpace().D() == 3) {
             setPaintInterval(pc.box, 1);

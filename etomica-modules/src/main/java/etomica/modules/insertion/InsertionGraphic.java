@@ -166,7 +166,7 @@ public class InsertionGraphic extends SimulationGraphic {
         lamBox.setController(sim.getController());
 
         //display of box, timer
-        ColorSchemeByType colorScheme = new ColorSchemeByType(sim);
+        ColorSchemeByType colorScheme = new ColorSchemeByType();
         colorScheme.setColor(sim.species.getLeafType(),java.awt.Color.red);
         getDisplayBox(sim.box).setColorScheme(new ColorScheme() {
             MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.integrator.getPotentialMaster());
