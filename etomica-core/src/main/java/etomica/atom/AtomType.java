@@ -4,6 +4,7 @@
 
 package etomica.atom;
 
+import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.IElement;
 import etomica.meta.annotations.IgnoreProperty;
 import etomica.species.ISpecies;
@@ -11,8 +12,8 @@ import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Mass;
 
 /**
- * Identifies a set of atoms and defines properties of those atoms.
- * Properties include indices used for tracking, mass and element.
+ * Identifies a set of atoms and defines properties of those atoms. Properties include indices used for tracking, mass
+ * and element.
  */
 public class AtomType {
 
@@ -27,17 +28,26 @@ public class AtomType {
     }
 
     /**
-     * @return the index for this IAtomType, within the context of an
-     * Simulation.  The index is the IAtomType's position in the list of
-     * atom types in the simulation.
+     * Convenience factory method for creating an AtomType with a one-off ElementSimple.
+     *
+     * @param symbol symbol for the element of this AtomType
+     * @param mass   mass for the element of this AtomType
+     * @return an AtomType with an ElementSimple
+     */
+    public static AtomType simple(String symbol, double mass) {
+        return new AtomType(new ElementSimple(symbol, mass));
+    }
+
+    /**
+     * @return the index for this IAtomType, within the context of an Simulation.  The index is the IAtomType's position
+     * in the list of atom types in the simulation.
      */
     public int getIndex() {
         return index;
     }
 
     /**
-     * Informs the IAtomType what its index should be.  This should only be
-     * called by the species.
+     * Informs the IAtomType what its index should be.  This should only be called by the species.
      *
      * @param newIndex the atom type's new index
      */
@@ -54,8 +64,7 @@ public class AtomType {
     }
 
     /**
-     * Informs the atom type what species contains the atom types.  This should
-     * only be called by the species.
+     * Informs the atom type what species contains the atom types.  This should only be called by the species.
      *
      * @param newSpecies the atom type's new species
      */
