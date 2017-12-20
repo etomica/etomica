@@ -33,6 +33,9 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
 import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
+
 public class MinimizationTIP4P extends Simulation{
     private static final long serialVersionUID = 1L;
     protected static double[] initialU;
@@ -400,24 +403,23 @@ public class MinimizationTIP4P extends Simulation{
     }
 	// ********************* charges & epsilon_r ********************************//
 	public static class ChargeAgentSourceRPM implements AtomLeafAgentManager.AgentSource<MyCharge> {
-		protected final MyCharge[] myCharge;
+		private final Map<AtomType, MyCharge> myCharge;
 		public ChargeAgentSourceRPM(SpeciesWater4P species, boolean isIce){
-			myCharge = new MyCharge[3];
+			myCharge = new HashMap<>();
 			double chargeH;
 			if(isIce){
 				chargeH = Electron.UNIT.toSim(0.5897); //TIP4P/Ice				
 			}else{
 				chargeH = Electron.UNIT.toSim(0.52); // TIP4P				
 			}
-			myCharge[species.getHydrogenType().getChildIndex()] = new MyCharge(chargeH);
-			myCharge[species.getOxygenType().getChildIndex()] = new MyCharge(0);
-			myCharge[species.getMType().getChildIndex()] = new MyCharge(-2.0*chargeH);
+			myCharge.put(species.getHydrogenType(), new MyCharge(chargeH));
+			myCharge.put(species.getOxygenType(), new MyCharge(0));
+			myCharge.put(species.getMType(), new MyCharge(-2.0 * chargeH));
 		}
 		
 		// *********************** set half(even # of particles ) as +ion, the other half -ion ***********************
 		public MyCharge makeAgent(IAtom a, Box agentBox) {
-			int index = a.getType().getChildIndex();
-			return myCharge[index];
+		    return myCharge.get(a.getType());
 		}
 		public void releaseAgent(MyCharge agent, IAtom atom, Box agentBox) {
 			// Do nothing
