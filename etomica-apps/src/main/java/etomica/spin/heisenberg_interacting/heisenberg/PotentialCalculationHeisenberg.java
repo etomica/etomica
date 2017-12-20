@@ -88,6 +88,21 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
         double I1bJ = besselI(1, bJ);
         double I2bJ = besselI(2, bJ);
 
+
+//        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
+//        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
+//        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
+//        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
+//        System.out.println("nMax= " + nMax + ";");
+//        System.out.println("bJ= " + bJ + ";");
+//        System.out.println("ei={" + ei.getX(0) + "," + ei.getX(1) + "};");
+//        System.out.println("ej={" + ej.getX(0) + "," + ej.getX(1) + "};");
+//        System.out.println("theta1 = ArcCos[ei[[1]]];");
+//        System.out.println("theta2 = ArcCos[ej[[1]]];");
+//        System.out.println("bt = bJ/J;");
+//        System.out.println("bmu = bt*mu;");
+
+
         for (int n = 0; n <= nMax; n++) {
             if (n == 0) {
                 Axc0[n] = bmu * (I0bJ + I1bJ) * (-1 + Math.cos(t1));
@@ -251,10 +266,20 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
 
                 Ayc1[n] = (n2 * Inm2bJ * (-Math.cos((n - 2) * t1) + Math.cosh(n * t1)) / (2 - 2 * n + n2)
                         - (4 * bJ * (4 + n4) * Math.cos(n * t1) * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ))
-                        + 2 * n2 * (2 - 2 * n + n2) * Math.cos((n + 2) * t1) * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
+                        + 2 * n2 * (2 - 2 * n + n2) * I0bJ * Math.cos((n + 2) * t1) * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
                         + bJ * n2 * (2 + 2 * n + n2) * I0bJ * (bJ * InbJ * (Math.cos((n - 2) * t1) + Math.cosh(n * t1)) + 2 * Inm1bJ * (bJ * Math.cos((n - 2) * t1) + (-1 + n) * Math.cosh(n * t1)))
                 ) / (bJ * bJ * (4 + n4) * I0bJ)
                 ) * bmu * bmu / 4 / n2;
+
+//                double test1 =4 * bJ * (4 + n4) * Math.cos(n * t1) * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ));
+//                double test2 =+ 2 * n2 * (2 - 2 * n + n2) *I0bJ* Math.cos((n + 2) * t1) * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ);
+//                double test3 = + bJ * n2 * (2 + 2 * n + n2) * I0bJ * (bJ * InbJ * (Math.cos((n - 2) * t1) + Math.cosh(n * t1)) + 2 * Inm1bJ * (bJ * Math.cos((n - 2) * t1) + (-1 + n) * Math.cosh(n * t1)));
+//                System.out.println("test1[" + n + "]-(" + test1 + ")");
+//                System.out.println("test2[" + n + "]-(" + test2 + ")");
+//                System.out.println("test3[" + n + "]-(" + test3 + ")");
+//                System.out.println("Ayc1[" + n + ",theta1]-(" + Ayc1[n] + ")");//TODO
+//                System.exit(2);
+
 
                 dAyc1[n] = 0.25 * bmu * bmu * (((-2 + n) * Inm2bJ * Math.sin((n - 2) * t1)) / (2 - 2 * n + n2)
                         + (bJ * (bJ * n * (-4 - 2 * n + n3) * I0bJ * Math.sin((n - 2) * t1) * (2 * Inm1bJ + InbJ) + (16 + 4 * n4) * Math.sin(n * t1) * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ)))
@@ -272,6 +297,7 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
                         - 2 * n * (4 - 2 * n + n3) * I0bJ * Math.cos((n + 2) * t1) * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
                 ) / (bJ * bJ * n * (4 + n4) * I0bJ)
                 );
+
 
                 d2Ayc0[n] = -2 * bmu * (bJ * Inm1bJ * ((1 - n2 + 2 * n4) * Math.cos(n * t1) * Math.sin(t1) + 2 * n3 * Math.cos(t1) * Math.sin(n * t1))
                         + InbJ * ((bJ - n - bJ * bJ * n2 + n3 - 2 * n4 + 2 * bJ * n4 - 2 * n2 * n3) * Math.cos(n * t1) * Math.sin(t1) + n * (-1 + n2 + 2 * bJ * n2 - 2 * n3 - 2 * n4) * Math.cos(t1) * Math.sin(n * t1))
@@ -311,19 +337,6 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
             }
         }
 
-//        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
-//        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
-//        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
-//        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
-//        System.out.println("nMax= " + nMax + ";");
-//        System.out.println("bJ= " + bJ + ";");
-//        System.out.println("ei={" + ei.getX(0) + "," + ei.getX(1) + "};");
-//        System.out.println("ej={" + ej.getX(0) + "," + ej.getX(1) + "};");
-//        System.out.println("theta1 = ArcCos[ei[[1]]];");
-//        System.out.println("theta2 = ArcCos[ej[[1]]];");
-//        System.out.println("bt = bJ/J;");
-//        System.out.println("bmu = bt*mu;");
-
 
         double p0 = Math.exp(bJ * Math.cos(t1 - t2));
         double pM1 = 1 / p0;
@@ -359,7 +372,10 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
 
 
             psi1x2 += n * Axs1[n] * Math.cos(n * t2) - n * Axc1[n] * Math.sin(n * t2);
-            psi1y2 += n * Ays1[n] * Math.cos(n * t2) - n * Ayc1[n] * Math.sin(n * t2);
+            psi1y2 += n * Ays1[n] * Math.cos(n * t2) - n * Ayc1[n] * Math.sin(n * t2);//TODO
+
+//            System.out.println("Ays1[" + n + ",theta1]-(" + Ays1[n] + ")");
+//            System.out.println("Ayc1[" + n + ",theta1]-(" + Ayc1[n] + ")");
 
             psix11 += d2Axs0[n] * Math.sin(n * t2) + d2Axc0[n] * Math.cos(n * t2);
             psiy11 += d2Ays0[n] * Math.sin(n * t2) + d2Ayc0[n] * Math.cos(n * t2);
@@ -405,7 +421,7 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
 //        System.out.println("vEEx2[nMax]- " + "(" + vEEx2 + ")");
 //        System.out.println("vEEy1[nMax]- " + "(" + vEEy1 + ")");
 //        System.out.println("vEEy2[nMax]- " + "(" + vEEy2 + ")");
-
+//        System.exit(2);
 
         //divergence of vEE
         //x
@@ -462,6 +478,11 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
 
         double JEMUExT = bJ * Math.sin(t1 - t2) * pM1 * (psix1 - psix2) - (vEx1 * f1 + vEx2 * f2);
         double JEMUEyT = bJ * Math.sin(t1 - t2) * pM1 * (psiy1 - psiy2) - (vEx1 * f1 + vEx2 * f2);
+
+//        System.out.println("JEMUEx = " + JEMUExT);
+//        System.out.println("JEMUEy = " + JEMUEyT);
+//        System.exit(2);
+
 
         JEMUESquare += JEMUExT * JEMUExT + JEMUEyT * JEMUEyT;
         JEMUEx += JEMUExT;

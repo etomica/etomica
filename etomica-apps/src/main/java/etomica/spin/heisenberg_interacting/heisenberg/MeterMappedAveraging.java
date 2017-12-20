@@ -108,7 +108,6 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MeterMappe
 
 //        int nM = leafList.getAtomCount();
 //        x[0] = (-Ans.getSumJEEMJEJE() + Ans.getSumUEE() - Ans.getSumJEMUESquare())+3*nM*bt*bt;
-        x[0] = (-Ans.getSumJEEMJEJE() + Ans.getSumUEE() - Ans.getSumJEMUEx() * Ans.getSumJEMUEx() - Ans.getSumJEMUEy() * Ans.getSumJEMUEy());
 
         x[0] = Ans.getSumJEMUEx();
         x[1] = Ans.getSumJEMUEy();
