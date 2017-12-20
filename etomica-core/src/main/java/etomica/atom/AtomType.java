@@ -19,7 +19,6 @@ public class AtomType {
     protected final IElement element;
     protected int index;
     protected ISpecies species;
-    protected int childIndex;
 
     public AtomType(IElement element) {
         super();
@@ -44,24 +43,6 @@ public class AtomType {
      */
     public void setIndex(int newIndex) {
         index = newIndex;
-    }
-
-    /**
-     * @return the child index.  This is the index of the atom type within the
-     * species.
-     */
-    public int getChildIndex() {
-        return childIndex;
-    }
-
-    /**
-     * Informs the atom type what its child index is.  This should only be called
-     * by the species.
-     *
-     * @param newChildIndex the atom type's new child index
-     */
-    public void setChildIndex(int newChildIndex) {
-        childIndex = newChildIndex;
     }
 
     /**

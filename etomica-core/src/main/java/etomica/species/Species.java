@@ -58,9 +58,6 @@ public abstract class Species implements ISpecies, java.io.Serializable {
             throw new IllegalArgumentException("AtomType "+removedType+" is not my child!");
         }
         childTypes = (AtomType[]) Arrays.removeObject(childTypes, removedType);
-        for (int i = 0; i < childTypes.length; i++) {
-            childTypes[i].setChildIndex(i);
-        }
     }
 
     public AtomType getAtomType(int index) {
@@ -79,7 +76,6 @@ public abstract class Species implements ISpecies, java.io.Serializable {
             throw new IllegalArgumentException(newChildType+" already has a parent");
         }
         newChildType.setSpecies(this);
-        newChildType.setChildIndex(childTypes.length);
         childTypes = (AtomType[]) Arrays.addObject(childTypes, newChildType);
     }
 
