@@ -18,7 +18,6 @@ import etomica.space.Vector;
  */
 public class PotentialCalculationTorqueSum implements PotentialCalculationMolecular {
         
-    private static final long serialVersionUID = 1L;
     protected AtomLeafAgentManager leafAgentManager;
     protected AtomLeafAgentManager.AgentIterator leafAgentIterator;
     protected MoleculeAgentManager moleculeAgentManager;

@@ -19,7 +19,7 @@ import static etomica.math.SpecialFunctions.besselI;
 public class PotentialCalculationHeisenberg implements PotentialCalculation {
     //public class PotentialCalculationHeisenberg {
     protected Vector ei, ej;
-    protected double JEEMJEJE, UEE, JEMUESquare, JEMUE;
+    protected double JEEMJEJE, UEE, JEMUESquare, JEMUEx, JEMUEy;
     protected final double mu, J, bt, bJ, bmu; //TODO should I add final here
     protected double[] Axc0, Axs0, dAxc0, dAxs0, Axc1, Axs1, dAxc1, dAxs1;
     protected double[] d2Axc0, d2Axs0, d3Axc0, d3Axs0, d2Axc1, d2Axs1;
@@ -432,7 +432,7 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
 
         MeterMappedAveraging.MoleculeAgent AgentAtom1 = leafAgentManager.getAgent(atom1);
         MeterMappedAveraging.MoleculeAgent AgentAtom2 = leafAgentManager.getAgent(atom2);
-        double f1 = bt * AgentAtom1.torque.getX(0);//TODO need to check whether should times bt or not here and phi
+        double f1 = bt * AgentAtom1.torque.getX(0);
         double f2 = bt * AgentAtom2.torque.getX(0);
 
 
@@ -445,16 +445,27 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
 
         //  -bJCos(t1-t2) for //ij
         double p12 = -bJ * ei.dot(ej);
-        double p11 = AgentAtom1.phi.component(0, 0);
-        double p22 = AgentAtom2.phi.component(0, 0);
+        double p11 = bt * AgentAtom1.phi.component(0, 0);
+        double p22 = bt * AgentAtom2.phi.component(0, 0);
 
+//        if (atom1.getLeafIndex() == 0) {
+//            System.out.println("in the potential calculation");
+////            System.out.println("p11= " + p11/bt);
+//            System.out.println("atomF= " + f1 / bt);
+//        }
+//        if (atom2.getLeafIndex() == 0) {
+//            System.out.println("in the potential calculation");
+////            System.out.println("p11= " + p22/bt);
+//            System.out.println("atomF= " + f2 / bt);
+//        }
+//        System.exit(2);
 
+        double JEMUExT = bJ * Math.sin(t1 - t2) * pM1 * (psix1 - psix2) - (vEx1 * f1 + vEx2 * f2);
+        double JEMUEyT = bJ * Math.sin(t1 - t2) * pM1 * (psiy1 - psiy2) - (vEx1 * f1 + vEx2 * f2);
 
-        double JEMUEx = bJ * Math.sin(t1 - t2) * pM1 * (psix1 - psix2) - (vEx1 * f1 + vEx2 * f2);
-        double JEMUEy = bJ * Math.sin(t1 - t2) * pM1 * (psiy1 - psiy2) - (vEx1 * f1 + vEx2 * f2);
-
-        JEMUESquare += JEMUEx * JEMUEx + JEMUEy * JEMUEy;
-        JEMUE = (JEMUEx + JEMUEy) / 2.0;
+        JEMUESquare += JEMUExT * JEMUExT + JEMUEyT * JEMUEyT;
+        JEMUEx += JEMUExT;
+        JEMUEy += JEMUEyT;
 
         double vDotGradvx1 = pM2 * (-lnp1 * psix1 * (psix1 - psix2) + psix1 * psix11 + psix2 * psix12);
         double vDotGradvy1 = pM2 * (-lnp1 * psiy1 * (psiy1 - psiy2) + psiy1 * psiy11 + psiy2 * psiy12);
@@ -500,12 +511,20 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
         return JEMUESquare;
     }
 
-    public void zeroSumJEMUE() {
-        JEMUE = 0;
+    public void zeroSumJEMUEx() {
+        JEMUEx = 0;
     }
 
-    public double getSumJEMUE() {
-        return JEMUE;
+    public double getSumJEMUEx() {
+        return JEMUEx;
+    }
+
+    public void zeroSumJEMUEy() {
+        JEMUEy = 0;
+    }
+
+    public double getSumJEMUEy() {
+        return JEMUEy;
     }
 
 }

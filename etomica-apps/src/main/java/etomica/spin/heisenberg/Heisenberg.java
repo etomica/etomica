@@ -222,9 +222,9 @@ public class Heisenberg extends Simulation {
         double dipoleSumSquaredERR = 0;
         double dipoleSumCor = 0;
         if (mSquare) {
-            dipoleSumSquared = ((DataDouble) ((DataGroup) dipoleSumSquaredAccumulator.getData()).getData(dipoleSumSquaredAccumulator.AVERAGE.index)).x;
-            dipoleSumSquaredERR = ((DataDouble) ((DataGroup) dipoleSumSquaredAccumulator.getData()).getData(dipoleSumSquaredAccumulator.ERROR.index)).x;
-            dipoleSumCor = ((DataDouble) ((DataGroup) dipoleSumSquaredAccumulator.getData()).getData(dipoleSumSquaredAccumulator.BLOCK_CORRELATION.index)).x;
+            dipoleSumSquared = ((DataDouble) ((DataGroup) dipoleSumSquaredAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
+            dipoleSumSquaredERR = ((DataDouble) ((DataGroup) dipoleSumSquaredAccumulator.getData()).getData(AccumulatorAverage.ERROR.index)).x;
+            dipoleSumCor = ((DataDouble) ((DataGroup) dipoleSumSquaredAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index)).x;
         }
 
 
@@ -232,10 +232,10 @@ public class Heisenberg extends Simulation {
         double AEEER = 0;
         double AEECor = 0;
         if (aEE) {
-            AEE = ((DataGroup) AEEAccumulator.getData()).getData(AEEAccumulator.AVERAGE.index).getValue(0);
-            AEEER = ((DataGroup) AEEAccumulator.getData()).getData(AEEAccumulator.ERROR.index).getValue(0);
-            AEECor = ((DataGroup) AEEAccumulator.getData()).getData(AEEAccumulator.BLOCK_CORRELATION.index).getValue(0);
-            IData covariance = ((DataGroup) AEEAccumulator.getData()).getData(AEEAccumulator.BLOCK_COVARIANCE.index);
+            AEE = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(0);
+            AEEER = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(0);
+            AEECor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(0);
+            IData covariance = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
             covariance.getValue(1);
         }
 
@@ -266,10 +266,10 @@ public class Heisenberg extends Simulation {
         public boolean isGraphic = false;
         public boolean mSquare = true;
         public boolean aEE = true;
-        public double temperature = 20;// Kelvin
-        public int nCells = 20;//number of atoms is nCells*nCells
+        public double temperature = 100;// Kelvin
+        public int nCells = 3;//number of atoms is nCells*nCells
         public double interactionS = 1.0;
         public double dipoleMagnitude = 1.0;
-        public int steps = 10000000;
+        public int steps = 100000;
     }
 }
