@@ -56,10 +56,6 @@ public class ColorSchemeStepWise extends ColorScheme implements AtomTypeAgentMan
         colorMaps[nBonds].setAgent(type, color);
     }
 
-    public Class getSpeciesAgentClass() {
-        return Color.class;
-    }
-
     public Object makeAgent(AtomType type) {
         return ColorScheme.DEFAULT_ATOM_COLOR;
     }

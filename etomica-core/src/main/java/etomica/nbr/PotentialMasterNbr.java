@@ -10,7 +10,6 @@ import etomica.atom.SpeciesAgentManager;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentManager.BoxAgentSource;
 import etomica.box.BoxCellManager;
-import etomica.meta.annotations.IgnoreProperty;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.species.ISpecies;
@@ -18,23 +17,20 @@ import etomica.util.Arrays;
 
 public abstract class PotentialMasterNbr extends PotentialMaster implements SpeciesAgentManager.AgentSource {
 
-    private static final AtomTypeAgentManager.AgentSource atomTypeAgentSource = new AtomTypeAgentManager.AgentSource() {
-        public Class getSpeciesAgentClass() {
-            return PotentialArray.class;
-        }
-
-        public Object makeAgent(AtomType type) {
+    private static final AtomTypeAgentManager.AgentSource<PotentialArray> atomTypeAgentSource = new AtomTypeAgentManager.AgentSource<PotentialArray>() {
+        @Override
+        public PotentialArray makeAgent(AtomType type) {
             return new PotentialArray();
         }
 
-        public void releaseAgent(Object agent, AtomType type) {
+        @Override
+        public void releaseAgent(PotentialArray agent, AtomType type) {
         }
     };
 
-    protected final AtomTypeAgentManager rangedAgentManager;
+    protected final AtomTypeAgentManager<PotentialArray> rangedAgentManager;
     protected final SpeciesAgentManager intraAgentManager;
     protected final Simulation simulation;
-    protected AtomTypeAgentManager.AgentIterator rangedPotentialIterator;
     protected SpeciesAgentManager.AgentIterator intraPotentialIterator;
     protected IPotential[] allPotentials = new IPotential[0];
     protected BoxAgentSource<? extends BoxCellManager> boxAgentSource;
@@ -46,11 +42,10 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Spec
         simulation = sim;
         this.boxAgentSource = boxAgentSource;
         this.boxAgentManager = boxAgentManager;
-        rangedAgentManager = new AtomTypeAgentManager(atomTypeAgentSource, this.simulation);
+        rangedAgentManager = new AtomTypeAgentManager<>(atomTypeAgentSource, this.simulation);
         intraAgentManager = new SpeciesAgentManager(this);
 
         intraAgentManager.init(sim);
-        rangedPotentialIterator = rangedAgentManager.makeIterator();
         intraPotentialIterator = intraAgentManager.makeIterator();
     }
     
@@ -78,7 +73,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Spec
                     }
                 }
                 if (!found) {
-                    allPotentials = (IPotential[])etomica.util.Arrays.addObject(allPotentials, pGroup);
+                    allPotentials = Arrays.addObject(allPotentials, pGroup);
                 }
                 //pGroup is PotentialGroupNbr
                 //ADDED S
@@ -103,7 +98,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Spec
 
     protected void addRangedPotential(IPotentialAtomic potential, AtomType atomType) {
 
-        PotentialArray potentialAtomType = (PotentialArray)rangedAgentManager.getAgent(atomType);
+        PotentialArray potentialAtomType = rangedAgentManager.getAgent(atomType);
         potentialAtomType.addPotential(potential);
         boolean found = false;
         for (int i=0; i<allPotentials.length; i++) {
@@ -112,16 +107,15 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Spec
             }
         }
         if (!found) {
-            allPotentials = (IPotential[])etomica.util.Arrays.addObject(allPotentials, potential);
+            allPotentials = Arrays.addObject(allPotentials, potential);
         }
     }
     
     public void removePotential(IPotentialAtomic potential) {
         super.removePotential(potential);
         if (potential.getRange() < Double.POSITIVE_INFINITY) {
-            rangedPotentialIterator.reset();
-            while (rangedPotentialIterator.hasNext()) {
-                ((PotentialArray)rangedPotentialIterator.next()).removePotential(potential);
+            for (PotentialArray potentialArray : this.rangedAgentManager.getAgents().values()) {
+                potentialArray.removePotential(potential);
             }
         }
         else if (potential instanceof PotentialGroup) {
@@ -130,11 +124,11 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Spec
                 ((PotentialArray)intraPotentialIterator.next()).removePotential(potential);
             }
         }
-        allPotentials = (IPotential[])Arrays.removeObject(allPotentials,potential);
+        allPotentials = Arrays.removeObject(allPotentials,potential);
     }
 
     public PotentialArray getRangedPotentials(AtomType atomType) {
-        return (PotentialArray)rangedAgentManager.getAgent(atomType);
+        return rangedAgentManager.getAgent(atomType);
     }
 
     public PotentialArray getIntraPotentials(ISpecies atomType) {

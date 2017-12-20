@@ -98,9 +98,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
      * given potential.
      */
     public NeighborCriterion getCriterion(IPotentialAtomic potential) {
-        rangedPotentialIterator.reset();
-        while (rangedPotentialIterator.hasNext()) {
-            PotentialArray potentialArray = (PotentialArray)rangedPotentialIterator.next();
+        for (PotentialArray potentialArray : this.rangedAgentManager.getAgents().values()) {
             IPotential[] potentials = potentialArray.getPotentials();
             for (int j=0; j<potentials.length; j++) {
                 if (potentials[j] == potential) {
@@ -119,9 +117,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
      * handled by this instance.
      */
     public void setCriterion(IPotentialAtomic potential, NeighborCriterion criterion) {
-        rangedPotentialIterator.reset();
-        while (rangedPotentialIterator.hasNext()) {
-            PotentialArray potentialArray = (PotentialArray)rangedPotentialIterator.next();
+        for (PotentialArray potentialArray : this.rangedAgentManager.getAgents().values()) {
             IPotential[] potentials = potentialArray.getPotentials();
             for (int j=0; j<potentials.length; j++) {
                 if (potentials[j] == potential) {

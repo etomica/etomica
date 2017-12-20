@@ -284,10 +284,8 @@ public class PotentialMasterList extends PotentialMasterNbr {
      * class receiving notification) and readjust cell lists
      */
     public void reset() {
-        rangedPotentialIterator.reset();
         maxPotentialRange = 0;
-        while (rangedPotentialIterator.hasNext()) {
-            PotentialArray potentialArray = (PotentialArray)rangedPotentialIterator.next();
+        for (PotentialArray potentialArray : this.rangedAgentManager.getAgents().values()) {
             IPotential[] potentials = potentialArray.getPotentials();
             for (int i=0; i<potentials.length; i++) {
                 if (potentials[i].getRange() > maxPotentialRange) {
@@ -319,9 +317,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
             // if they don't, the simulation will probably crash
             return;
         }
-        rangedPotentialIterator.reset();
-        while (rangedPotentialIterator.hasNext()) {
-            PotentialArray potentialArray = (PotentialArray)rangedPotentialIterator.next();
+        for (PotentialArray potentialArray : this.rangedAgentManager.getAgents().values()) {
             IPotential[] potentials = potentialArray.getPotentials();
             NeighborCriterion[] criteria = potentialArray.getCriteria();
             // this will double (or more) count criteria that apply to multiple atom types, but it won't hurt us
@@ -342,13 +338,11 @@ public class PotentialMasterList extends PotentialMasterNbr {
      * given potential.
      */
     public NeighborCriterion getCriterion(IPotentialAtomic potential) {
-        rangedPotentialIterator.reset();
-        while (rangedPotentialIterator.hasNext()) {
-            PotentialArray potentialArray = (PotentialArray)rangedPotentialIterator.next();
+        for (PotentialArray potentialArray : this.rangedAgentManager.getAgents().values()) {
             IPotential[] potentials = potentialArray.getPotentials();
-            for (int j=0; j<potentials.length; j++) {
-                if (potentials[j] == potential) {
-                    return potentialArray.getCriteria()[j];
+            for (int i = 0; i < potentials.length; i++) {
+                if (potentials[i] == potential) {
+                    return potentialArray.getCriteria()[i];
                 }
             }
         }
@@ -366,12 +360,10 @@ public class PotentialMasterList extends PotentialMasterNbr {
         NeighborCriterion oldCriterion = getCriterion(potential);
         if (oldCriterion != null) {
             // remove the criterion to all existing NeighborListManagers
-            allCriteria = (NeighborCriterion[]) Arrays.removeObject(allCriteria, oldCriterion);
+            allCriteria = Arrays.removeObject(allCriteria, oldCriterion);
         }
-        rangedPotentialIterator.reset();
         boolean success = false;
-        while (rangedPotentialIterator.hasNext()) {
-            PotentialArray potentialArray = (PotentialArray)rangedPotentialIterator.next();
+        for (PotentialArray potentialArray : this.rangedAgentManager.getAgents().values()) {
             IPotential[] potentials = potentialArray.getPotentials();
             for (int j=0; j<potentials.length; j++) {
                 if (potentials[j] == potential) {
@@ -383,22 +375,20 @@ public class PotentialMasterList extends PotentialMasterNbr {
         }
         if (success) {
             // add the criterion to all existing NeighborListManagers
-            allCriteria = (NeighborCriterion[]) Arrays.addObject(allCriteria, criterion);
+            allCriteria = Arrays.addObject(allCriteria, criterion);
         	return;
         }
         throw new IllegalArgumentException("Potential "+potential+" is not associated with this PotentialMasterList");
     }
 
     public void removePotential(IPotentialAtomic potential) {
-        rangedPotentialIterator.reset();
-        while (rangedPotentialIterator.hasNext()) {
-            PotentialArray potentialArray = (PotentialArray)rangedPotentialIterator.next();
+        for (PotentialArray potentialArray : this.rangedAgentManager.getAgents().values()) {
             IPotential[] potentials = potentialArray.getPotentials();
             for (int j=0; j<potentials.length; j++) {
                 if (potentials[j] == potential) {
                     // found it!
                     // remove the criterion from our list
-                    allCriteria = (NeighborCriterion[]) Arrays.removeObject(allCriteria, potentialArray.getCriteria()[j]);
+                    allCriteria = Arrays.removeObject(allCriteria, potentialArray.getCriteria()[j]);
                     break;
                 }
             }
