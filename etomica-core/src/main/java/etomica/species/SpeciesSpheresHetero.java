@@ -27,7 +27,6 @@ import java.util.Arrays;
 
 public class SpeciesSpheresHetero extends Species {
 
-    private static final long serialVersionUID = 1L;
     protected Space space;
     protected boolean isDynamic;
     protected double[] numberFraction;
@@ -79,7 +78,7 @@ public class SpeciesSpheresHetero extends Species {
         return elements;
     }
 
-    protected static final AtomType[] makeAtomTypes(IElement[] leafElements) {
+    protected static AtomType[] makeAtomTypes(IElement[] leafElements) {
         AtomType[] types = new AtomType[leafElements.length];
         for (int i = 0; i < types.length; i++) {
             types[i] = new AtomType(leafElements[i]);
@@ -102,9 +101,9 @@ public class SpeciesSpheresHetero extends Species {
     public IMolecule makeMolecule() {
         Molecule group = new Molecule(this, totalChildCount);
         // make block copolymers
-        for (int i = 0; i < childTypes.length; i++) {
+        for (int i = 0; i < atomTypes.size(); i++) {
             for(int j = 0; j < childCount[i]; j++) {
-                group.addChildAtom(makeLeafAtom(childTypes[i]));
+                group.addChildAtom(makeLeafAtom(atomTypes.get(i)));
             }
         }
         conformation.initializePositions(group.getChildList());
@@ -118,10 +117,6 @@ public class SpeciesSpheresHetero extends Species {
         }
         return isDynamic ? new AtomLeafDynamic(space, leafType)
                          : new Atom(space, leafType);
-    }
-
-    public int getNumComponents() {
-        return childTypes.length;
     }
 
     /**
@@ -145,7 +140,7 @@ public class SpeciesSpheresHetero extends Species {
      *             if all number fractions=0
      */
     public void setNumberFraction(double[] newNumberFraction) {
-        if (newNumberFraction.length != childTypes.length) {
+        if (newNumberFraction.length != atomTypes.size()) {
             throw new IllegalArgumentException("the number of numberFracions must be equal to the number of child factories");
         }
         numberFraction = newNumberFraction.clone();
@@ -170,10 +165,10 @@ public class SpeciesSpheresHetero extends Species {
         // on the fraction remaining and the number of atoms remaining so that
         // the number of children is equal to totalChildCount
         int atomsRemaining = totalChildCount;
-        for (int i=0; i<childTypes.length; i++) {
+        for (int i=0; i<atomTypes.size(); i++) {
             int k = -1;
             double minFraction = Double.POSITIVE_INFINITY;
-            for (int j=0; j<childTypes.length; j++) {
+            for (int j=0; j<atomTypes.size(); j++) {
                 if (childCount[j] != -1) {
                     // already did this type
                     continue;
@@ -206,7 +201,7 @@ public class SpeciesSpheresHetero extends Species {
      *             if any childCount is < 0
      */
     public void setChildCount(int[] newChildCount) {
-        if (childTypes.length != newChildCount.length) {
+        if (atomTypes.size() != newChildCount.length) {
             throw new IllegalArgumentException("Number of child factories must equal length of newChildCount.  " +
                     "Call setChildFactory first");
         }
@@ -226,37 +221,13 @@ public class SpeciesSpheresHetero extends Species {
     }
 
     /**
-     * Sets the factories that make the child atoms of this factory's atom.
-     * If the number of factories changes, the number fractions are set so
-     * that there is an equal amount of each child.  The caller is responsible
-     * for ensuring that the AtomTypes for the child factories are children
-     * of this AtomFactory's AtomType.
-     *
-     * @throws IllegalArgumentException
-     *             if newChildFactory is an empty array
-     */
-    public void setChildTypes(AtomType[] newchildTypes) {
-        for (int i=0; i<childTypes.length; i++) {
-            removeChildType(childTypes[i]);
-        }
-        for (int i=0; i<childTypes.length; i++) {
-            addChildType(newchildTypes[i]);
-        }
-        if (numberFraction.length != childTypes.length) {
-            double[] fraction = new double[childTypes.length];
-            java.util.Arrays.fill(fraction, 1.0/childTypes.length);
-            setNumberFraction(fraction);
-        }
-    }
-
-    /**
      * Adds the given factory as a child of this factory.  The caller is
      * responsible for ensuring that the AtomType for the child factory is a
      * child of this AtomFactory's AtomType.
      */
     public void addChildType(AtomType newLeafType) {
         super.addChildType(newLeafType);
-        if (childTypes.length > 1) {
+        if (atomTypes.size() > 1) {
             // assume fraction = 0 for new childFactory
             numberFraction = Arrays.copyOf(numberFraction, numberFraction.length + 1);
             childCount = Arrays.copyOf(childCount,childCount.length+1);
@@ -273,7 +244,7 @@ public class SpeciesSpheresHetero extends Species {
      */
     public void removeChildType(AtomType oldLeafType) {
         super.removeChildType(oldLeafType);
-        if (childTypes.length > 0) {
+        if (atomTypes.size() > 0) {
             double[] newNumberFraction = new double[numberFraction.length-1];
             System.arraycopy(numberFraction,0,newNumberFraction,0,index);
             System.arraycopy(numberFraction,index+1,newNumberFraction,index,numberFraction.length-index-1);
