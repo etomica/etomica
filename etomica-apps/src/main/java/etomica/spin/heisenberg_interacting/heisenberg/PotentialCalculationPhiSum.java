@@ -12,7 +12,7 @@ import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.util.numerical.BesselFunction;
 
-public class PotentialCalculationPhiSumHeisenberg implements PotentialCalculation {
+public class PotentialCalculationPhiSum implements PotentialCalculation {
     protected AtomLeafAgentManager<MeterMappedAveraging.MoleculeAgent> leafAgentManager;
     protected AtomLeafAgentManager.AgentIterator leafAgentIterator;
 

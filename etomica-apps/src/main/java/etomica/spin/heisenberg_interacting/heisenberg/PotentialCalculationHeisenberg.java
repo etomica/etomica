@@ -89,9 +89,7 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
         double I2bJ = besselI(2, bJ);
 
 
-//        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
-//        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
-//        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
+//TODO TODO
 //        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
 //        System.out.println("nMax= " + nMax + ";");
 //        System.out.println("bJ= " + bJ + ";");
@@ -372,7 +370,7 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
 
 
             psi1x2 += n * Axs1[n] * Math.cos(n * t2) - n * Axc1[n] * Math.sin(n * t2);
-            psi1y2 += n * Ays1[n] * Math.cos(n * t2) - n * Ayc1[n] * Math.sin(n * t2);//TODO
+            psi1y2 += n * Ays1[n] * Math.cos(n * t2) - n * Ayc1[n] * Math.sin(n * t2);
 
 //            System.out.println("Ays1[" + n + ",theta1]-(" + Ays1[n] + ")");
 //            System.out.println("Ayc1[" + n + ",theta1]-(" + Ayc1[n] + ")");
@@ -476,17 +474,19 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
 //        }
 //        System.exit(2);
 
-        double JEMUExT = bJ * Math.sin(t1 - t2) * pM1 * (psix1 - psix2) - (vEx1 * f1 + vEx2 * f2);
-        double JEMUEyT = bJ * Math.sin(t1 - t2) * pM1 * (psiy1 - psiy2) - (vEx1 * f1 + vEx2 * f2);
+//        double JEMUExPair = bJ * Math.sin(t1 - t2) * pM1 * (psix1 - psix2) + (vEx1 * f1 + vEx2 * f2);
+//        double JEMUEyPair = bJ * Math.sin(t1 - t2) * pM1 * (psiy1 - psiy2) + (vEy1 * f1 + vEy2 * f2);
 
-//        System.out.println("JEMUEx = " + JEMUExT);
-//        System.out.println("JEMUEy = " + JEMUEyT);
+        double JEMUExPair = bJ * Math.sin(t1 - t2) * pM1 * (psix1 - psix2);
+        double JEMUEyPair = bJ * Math.sin(t1 - t2) * pM1 * (psiy1 - psiy2);
+
+//        System.out.println("f1=" + f1);
+//        System.out.println("f2=" + f2);
+//        System.out.println("bJ*Sin[theta1-theta2]-("+bJ*Math.sin(t1-t2)+")");
+//        System.out.println("Exp[-bJ*Cos[theta1-theta2]]-("+pM1+")");
 //        System.exit(2);
-
-
-        JEMUESquare += JEMUExT * JEMUExT + JEMUEyT * JEMUEyT;
-        JEMUEx += JEMUExT;
-        JEMUEy += JEMUEyT;
+        JEMUEx += JEMUExPair;
+        JEMUEy += JEMUEyPair;
 
         double vDotGradvx1 = pM2 * (-lnp1 * psix1 * (psix1 - psix2) + psix1 * psix11 + psix2 * psix12);
         double vDotGradvy1 = pM2 * (-lnp1 * psiy1 * (psiy1 - psiy2) + psiy1 * psiy11 + psiy2 * psiy12);

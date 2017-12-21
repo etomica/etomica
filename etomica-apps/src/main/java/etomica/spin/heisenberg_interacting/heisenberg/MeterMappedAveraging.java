@@ -22,8 +22,6 @@ import etomica.space1d.Vector1D;
 import etomica.space2d.Vector2D;
 import etomica.units.dimensions.Null;
 
-import java.io.Serializable;
-
 public class MeterMappedAveraging implements IDataSource, AgentSource<MeterMappedAveraging.MoleculeAgent> {
 
 
@@ -36,7 +34,7 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MeterMappe
     protected PotentialCalculationEnergySum energySum;
     //    protected PotentialCalculationFSum FSum;
     protected PotentialCalculationTorqueSum torqueSum;
-    protected PotentialCalculationPhiSumHeisenberg secondDerivativeSum;
+    protected PotentialCalculationPhiSum secondDerivativeSum;
     protected double temperature;
     protected double J;
     protected double mu;
@@ -67,7 +65,7 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MeterMappe
         torqueSum.setAgentManager(leafAgentManager);
 //        FSum = new PotentialCalculationFSum(space, dipoleMagnitude, interactionS, bt);
         energySum = new PotentialCalculationEnergySum();
-        secondDerivativeSum = new PotentialCalculationPhiSumHeisenberg();
+        secondDerivativeSum = new PotentialCalculationPhiSum();
         secondDerivativeSum.setAgentManager(leafAgentManager);
 
 
@@ -83,7 +81,6 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MeterMappe
         IAtomList leafList = box.getLeafList();
         torqueSum.reset();
 
-        //TODO debug only
 //        MeterMappedAveraging.MoleculeAgent torqueAgent =  leafAgentManager.getAgent(leafList.getAtom(0));
 //        double f1 = torqueAgent.torque.getX(1);
 //        System.out.println("f1= "+f1);
@@ -104,6 +101,11 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MeterMappe
         Ans.zeroSumJEMUEy();
         Ans.zeroSumJEMUESquare();
         Ans.zeroSumUEE();
+
+//        System.out.println(Ans.getSumJEMUEx());
+//        System.out.println(Ans.getSumJEMUEy());
+//        System.exit(2);
+
         potentialMaster.calculate(box, allAtoms, Ans);
 
 //        int nM = leafList.getAtomCount();
