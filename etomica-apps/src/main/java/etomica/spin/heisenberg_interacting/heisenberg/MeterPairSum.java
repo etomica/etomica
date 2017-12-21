@@ -10,7 +10,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 
-public class MeterMappedAveragingTest extends DataSourceScalar {
+public class MeterPairSum extends DataSourceScalar {
 
 
     protected final Space space;
@@ -28,7 +28,7 @@ public class MeterMappedAveragingTest extends DataSourceScalar {
     //TODO debug only
     protected PotentialCalculationSumquare Ans;
 
-    public MeterMappedAveragingTest(final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, PotentialMaster potentialMaster) {
+    public MeterPairSum(final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, PotentialMaster potentialMaster) {
         super("anything", Null.DIMENSION);
         this.box = box;
         this.space = space;

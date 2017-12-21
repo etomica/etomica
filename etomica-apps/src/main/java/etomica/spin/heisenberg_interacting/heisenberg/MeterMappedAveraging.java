@@ -69,7 +69,7 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MeterMappe
         secondDerivativeSum.setAgentManager(leafAgentManager);
 
 
-        int nMax = 3;
+        int nMax = 10;
         Ans = new PotentialCalculationHeisenberg(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
         allAtoms = new IteratorDirective();
 

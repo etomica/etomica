@@ -4,31 +4,26 @@
 
 package etomica.spin.heisenberg_interacting.heisenberg;
 
-import etomica.action.IAction;
-import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomOriented;
 import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.box.BoxAgentManager;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.*;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
-import etomica.graphics.*;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveRotate;
 import etomica.listener.IntegratorListenerAction;
-import etomica.nbr.site.NeighborSiteManager;
 import etomica.nbr.site.PotentialMasterSite;
 import etomica.simulation.Simulation;
+import etomica.space.IOrientation;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.species.SpeciesSpheresRotating;
-import etomica.units.systems.LJ;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.random.RandomNumberGenerator;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -92,6 +87,12 @@ public class HeisenbergTest extends Simulation {
         potentialMaster.addPotential(potential, new AtomType[]{type, type});
 
         integrator.setBox(box);
+        int nM = box.getLeafList().getAtomCount();
+        for (int i = 0; i < nM; i++) {
+            IOrientation atomIO = ((AtomOriented) box.getLeafList().getAtom(i)).getOrientation();
+            atomIO.randomRotation(random, 2 * Math.PI);
+
+        }
 
     }
 
@@ -123,7 +124,7 @@ public class HeisenbergTest extends Simulation {
         Space sp = Space2D.getInstance();
         HeisenbergTest sim = new HeisenbergTest(sp, nCells, temperature, interactionS, dipoleMagnitude);
 
-        MeterMappedAveragingTest meterMSquare = null;
+        MeterPairSum meterMSquare = null;
         AccumulatorAverage dipoleSumSquaredAccumulator = null;
 
         sim.activityIntegrate.setMaxSteps(steps / 5);
@@ -146,7 +147,7 @@ public class HeisenbergTest extends Simulation {
 
         //mSquare
         if (mSquare) {
-            meterMSquare = new MeterMappedAveragingTest(sim.space, sim.box, sim, temperature, interactionS, dipoleMagnitude, sim.potentialMaster);
+            meterMSquare = new MeterPairSum(sim.space, sim.box, sim, temperature, interactionS, dipoleMagnitude, sim.potentialMaster);
             dipoleSumSquaredAccumulator = new AccumulatorAverageFixed(samplePerBlock);
             DataPump dipolePump = new DataPump(meterMSquare, dipoleSumSquaredAccumulator);
             IntegratorListenerAction dipoleListener = new IntegratorListenerAction(dipolePump);
@@ -228,9 +229,9 @@ public class HeisenbergTest extends Simulation {
 
         double totalTime = (endTime - startTime) / (1000.0 * 60.0);
         if (mSquare) {
-            System.out.println("-<M^2>*bt*bt:\t" + (-dipoleSumSquared / temperature / temperature / nCells / nCells)
-                    + " mSquareErr:\t" + (dipoleSumSquaredERR / temperature / temperature / nCells / nCells)
-                    + " mSquareDifficulty:\t" + (dipoleSumSquaredERR / temperature / temperature / nCells / nCells) * Math.sqrt(totalTime)
+            System.out.println("-<(mui+muj)^2>*bt*bt:\t" + (-dipoleSumSquared / temperature / temperature / nCells / nCells)
+                    + " pairErr:\t" + (dipoleSumSquaredERR / temperature / temperature / nCells / nCells)
+                    + " pairDifficulty:\t" + (dipoleSumSquaredERR / temperature / temperature / nCells / nCells) * Math.sqrt(totalTime)
                     + " dipolesumCor= " + dipoleSumCor);
             System.out.println("mSquare_Time: " + (endTime - startTime) / (1000.0 * 60.0));
         }
@@ -251,7 +252,7 @@ public class HeisenbergTest extends Simulation {
         public boolean mSquare = true;
         public boolean aEE = true;
         public double temperature = 1;// Kelvin
-        public int nCells = 3;//number of atoms is nCells*nCells
+        public int nCells = 10;//number of atoms is nCells*nCells
         public double interactionS = 1;
         public double dipoleMagnitude = 1.0;
         public int steps = 1000000;
