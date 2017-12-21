@@ -4,6 +4,7 @@
 
 package etomica.virial;
 
+import etomica.AlkaneEH.SpeciesAlkaneEH;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.config.IConformation;

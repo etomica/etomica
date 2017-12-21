@@ -9,83 +9,86 @@ import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
-import etomica.chem.elements.ElementSimple;
 import etomica.molecule.IMolecule;
 import etomica.molecule.Molecule;
 import etomica.space.Space;
 import etomica.species.Species;
+
 /**
  * Species for TraPPE-Explicit hydrogen,Siepmann
- * 
- * @author shu
- * 01-30-2013
+ *
+ * @author shu 01-30-2013
  */
-  public class SpeciesAlkaneEH extends Species  {
+public class SpeciesAlkaneEH extends Species {
 
-	  	private static final long serialVersionUID = 1L;
-	    protected final Space space;
-	    protected final int numCarbons;
-    protected final int totalAtoms;
+    public final int numCarbons;
+    public final int numH;
+    public final int numCH2;
+    protected final Space space;
+    private final int totalAtoms;
+    private final AtomType c_3Type, c_2Type, hType;
     public int indexC_3_1;//CH3 on the left
-	    public int indexC_3_2;//CH3 on the right
-	    public int numH;
-    //    protected final AtomType c_3Type, c_2Type, hType;
-    public int numCH2;
-	    protected boolean isDynamic;
-	    public SpeciesAlkaneEH(Space space, int numCarbons) {
-	    	super();
-	        this.space = space;
-	        this.numCarbons = numCarbons;
-	        indexC_3_1 = 0;
-	        indexC_3_2 = numCarbons - 1 ;
-	        
-	        numCH2 = numCarbons -2;
-	        numH = numCarbons * 2 + 2;
-	        totalAtoms = numCarbons * 3 + 2;
+    public int indexC_3_2;//CH3 on the right
+    protected boolean isDynamic;
 
-            addChildType(new AtomType(new ElementSimple("c_3", 1.0)));
-            addChildType(new AtomType(new ElementSimple("c_2", 1.0)));
-            addChildType(new AtomType(new ElementSimple("h", 1.0)));
+    public SpeciesAlkaneEH(Space space, int numCarbons) {
+        super();
+        this.space = space;
+        this.numCarbons = numCarbons;
+        indexC_3_1 = 0;
+        indexC_3_2 = numCarbons - 1;
 
-            setConformation(new ConformationAlkaneEH(space, this));
-	     }
-	
-	    public IMolecule makeMolecule() {
-	    	
-	    	Molecule molecule = new Molecule(this, totalAtoms);
-	    	
-	    	molecule.addChildAtom(makeLeafAtom(childTypes[0])); // the left C of CH3, global index [0]
-	    	
-	       	for(int j = 0; j < numCH2; j++) {//CH2, global index: [1]~[n-2]
-	    		molecule.addChildAtom(makeLeafAtom(childTypes[1]));
-	       	}
-	       	
-	    	molecule.addChildAtom(makeLeafAtom(childTypes[0])); // the right C of CH3,global index [n-1]
-	
-	    	for(int i = 0;  i <  numH;  i++) {//H 
-	    		molecule.addChildAtom(makeLeafAtom(childTypes[2]));
-	    	}
-	    	conformation.initializePositions(molecule.getChildList());
-			return molecule;
-	    }
+        numCH2 = numCarbons - 2;
+        numH = numCarbons * 2 + 2;
+        totalAtoms = numCarbons * 3 + 2;
+
+        c_3Type = AtomType.simple("c_3", 1.0);
+        c_2Type = AtomType.simple("c_2", 1.0);
+        hType = AtomType.simple("h", 1.0);
+        addChildType(c_3Type);
+        addChildType(c_2Type);
+        addChildType(hType);
+
+        setConformation(new ConformationAlkaneEH(space, this));
+    }
+
+    public IMolecule makeMolecule() {
+
+        Molecule molecule = new Molecule(this, totalAtoms);
+
+        molecule.addChildAtom(makeLeafAtom(c_3Type)); // the left C of CH3, global index [0]
+
+        for (int j = 0; j < numCH2; j++) {//CH2, global index: [1]~[n-2]
+            molecule.addChildAtom(makeLeafAtom(c_2Type));
+        }
+
+        molecule.addChildAtom(makeLeafAtom(c_3Type)); // the right C of CH3,global index [n-1]
+
+        for (int i = 0; i < numH; i++) {//H
+            molecule.addChildAtom(makeLeafAtom(hType));
+        }
+        conformation.initializePositions(molecule.getChildList());
+        return molecule;
+    }
 
     public AtomType getC_3Type() {
-        return childTypes[0];
-	     }
+        return this.c_3Type;
+    }
 
     public AtomType getC_2Type() {
-        return childTypes[1];
-	     }
+        return this.c_2Type;
+    }
 
     public AtomType getHType() {
-        return childTypes[2];
-	     }
-	     public int getNumLeafAtoms() {
-	         return totalAtoms;
-	     }
+        return this.hType;
+    }
+
+    public int getNumLeafAtoms() {
+        return totalAtoms;
+    }
 
     protected IAtom makeLeafAtom(AtomType leafType) {
         return isDynamic ? new AtomLeafDynamic(space, leafType) : new Atom(space, leafType);
-	     }
-	
-	}
+    }
+
+}
