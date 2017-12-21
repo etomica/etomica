@@ -89,7 +89,7 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
         double I2bJ = besselI(2, bJ);
 
 
-//TODO TODO
+//TODO
 //        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
 //        System.out.println("nMax= " + nMax + ";");
 //        System.out.println("bJ= " + bJ + ";");
@@ -275,7 +275,7 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
 //                System.out.println("test1[" + n + "]-(" + test1 + ")");
 //                System.out.println("test2[" + n + "]-(" + test2 + ")");
 //                System.out.println("test3[" + n + "]-(" + test3 + ")");
-//                System.out.println("Ayc1[" + n + ",theta1]-(" + Ayc1[n] + ")");//TODO
+//                System.out.println("Ayc1[" + n + ",theta1]-(" + Ayc1[n] + ")");
 //                System.exit(2);
 
 
@@ -398,6 +398,7 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
 //        System.out.println("psix22- " + "(" + psix22 + ")");
 //        System.out.println("psiy22- " + "(" + psiy22 + ")");
 //        System.exit(2);
+        //TODO run with many samples please
 
 
         double vEx1 = psix1 / p0;
@@ -420,9 +421,10 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
 //        System.out.println("vEEy1[nMax]- " + "(" + vEEy1 + ")");
 //        System.out.println("vEEy2[nMax]- " + "(" + vEEy2 + ")");
 //        System.exit(2);
+        //TODO run with many samples please
 
         //divergence of vEE
-        //x
+        //x  TODO Check expresions and many samples please
         JEEMJEJE += bmu * bmu * (1 + I1bJ / I0bJ) - (vEEx1 * lnp1 + vEEx2 * lnp2) + bmu * pM1 * (psix1 * Math.sin(t1) + psix2 * Math.sin(t2));
         //y
         JEEMJEJE += bmu * bmu * (1 + I1bJ / I0bJ) - (vEEy1 * lnp1 + vEEy2 * lnp2) - bmu * pM1 * (psiy1 * Math.cos(t1) + psiy2 * Math.cos(t2));
@@ -487,6 +489,7 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
 //        System.exit(2);
         JEMUEx += JEMUExPair;
         JEMUEy += JEMUEyPair;
+        //TODO Check expressions
 
         double vDotGradvx1 = pM2 * (-lnp1 * psix1 * (psix1 - psix2) + psix1 * psix11 + psix2 * psix12);
         double vDotGradvy1 = pM2 * (-lnp1 * psiy1 * (psiy1 - psiy2) + psiy1 * psiy11 + psiy2 * psiy12);
@@ -498,7 +501,7 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
         double fxE2 = -bmu * Math.sin(t2);
         double fyE1 = bmu * Math.cos(t1);
         double fyE2 = bmu * Math.cos(t2);
-
+        //TODO Check expresions and many samples please!!!!
         UEE += vEEx1 * f1 + vEEx2 * f2 + vDotGradvx1 * f1 + vDotGradvx2 * f2
                 + vEx1 * (p11 * vEx1 + p12 * vEx2) + vEx2 * (p12 * vEx1 + p22 * vEx2)
                 - 2 * vEx1 * fxE1 - 2 * vEx2 * fxE2;
