@@ -27,7 +27,8 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
     protected double[] d2Ayc0, d2Ays0, d3Ayc0, d3Ays0, d2Ayc1, d2Ays1;
     protected double psix1, psix2, psix11, psix12, psix22, psi1x1, psi1x2;
     protected double psiy1, psiy2, psiy11, psiy12, psiy22, psi1y1, psi1y2;
-    protected int nMax = 0;
+    protected int nMax;
+    protected int count = 1;
     protected AtomLeafAgentManager<MeterMappedAveraging.MoleculeAgent> leafAgentManager;
 
     public PotentialCalculationHeisenberg(Space space, double dipoleMagnitude, double interactionS, double beta, int nMax, AtomLeafAgentManager<MeterMappedAveraging.MoleculeAgent> leafAgentManager) {
@@ -84,12 +85,34 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
         double t1 = Math.atan2(ei.getX(1), ei.getX(0));
         double t2 = Math.atan2(ej.getX(1), ej.getX(0));
 
+
+        //TODO
+//        double c1 = Math.acos(ei.getX(0));
+//        double c2 = Math.acos(ej.getX(0));
+//        if (Math.asin(ei.getX(1)) < 0) {
+//            c1 = 2 * Math.PI - Math.acos(ei.getX(0));
+////            System.out.println((t1-c1+2*Math.PI));
+//        }
+//        if (Math.asin(ej.getX(1)) < 0) {
+//            c2 = 2 * Math.PI - Math.acos(ej.getX(0));
+//        }
+//        t1 = c1;
+//        t2 = c2;
+
+
+//        System.out.println("t1 = " + t1 + " c1=" + c1);
+
         double I0bJ = besselI(0, bJ);
         double I1bJ = besselI(1, bJ);
         double I2bJ = besselI(2, bJ);
 
 
 //TODO
+//        count += 1;
+//        System.out.println(count + "th term");
+//        if (count == 20) {
+//            System.exit(2);
+//        }
 //        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
 //        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
 //        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
@@ -97,11 +120,14 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
 //        System.out.println("bJ= " + bJ + ";");
 //        System.out.println("ei={" + ei.getX(0) + "," + ei.getX(1) + "};");
 //        System.out.println("ej={" + ej.getX(0) + "," + ej.getX(1) + "};");
-//        System.out.println("theta1 = ArcCos[ei[[1]]];");
-//        System.out.println("theta2 = ArcCos[ej[[1]]];");
+//        System.out.println("theta1 = " + t1 + ";");
+//        System.out.println("theta2 = " + t2 + ";");
 //        System.out.println("bt = bJ/J;");
 //        System.out.println("bmu = bt*mu;");
 
+//        System.out.println("t1 = " + t1 + " c1=" + c1);
+
+//System.out.println("Acos eix = " + Math.acos(ei.getX(0)));
 
         for (int n = 0; n <= nMax; n++) {
             if (n == 0) {
@@ -419,6 +445,14 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
         //y
         JEEMJEJE += bmu * bmu * (1 + I1bJ / I0bJ) - (vEEy1 * lnp1 + vEEy2 * lnp2) - bmu * pM1 * (psiy1 * Math.cos(t1) + psiy2 * Math.cos(t2));
 
+
+//        double testx = bmu * bmu * (1 + I1bJ / I0bJ) - (vEEx1 * lnp1 + vEEx2 * lnp2) + bmu * pM1 * (psix1 * Math.sin(t1) + psix2 * Math.sin(t2));
+//        double testy = bmu * bmu * (1 + I1bJ / I0bJ) - (vEEy1 * lnp1 + vEEy2 * lnp2) - bmu * pM1 * (psiy1 * Math.cos(t1) + psiy2 * Math.cos(t2));
+//        System.out.println("divVEExtest-("+ testx +")");
+//        System.out.println("divVEEytest-("+ testy +")");
+//        System.exit(2);
+
+
         //vE dot div vE
         //x
 //        System.out.println("Mapping pairs:("+ atom1+" , "+ atom2+")");
@@ -430,16 +464,37 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
                 - pM2 * lnp1 * (psiy1 * psiy11 - psiy1 * psiy12 + psiy2 * psiy12 - psiy2 * psiy22)
                 - pM2 * (lnp11 - lnp1 * lnp1) * (psiy1 - psiy2) * (psiy1 - psiy2);
 
+
+//        testx += bmu * pM1 * (psix1 * Math.sin(t1) + psix2 * Math.sin(t2))
+//                - pM2 * lnp1 * (psix1 * psix11 - psix1 * psix12 + psix2 * psix12 - psix2 * psix22)
+//                - pM2 * (lnp11 - lnp1 * lnp1) * (psix1 - psix2) * (psix1 - psix2);
+//        testy+= -bmu * pM1 * (psiy1 * Math.cos(t1) + psiy2 * Math.cos(t2))
+//                - pM2 * lnp1 * (psiy1 * psiy11 - psiy1 * psiy12 + psiy2 * psiy12 - psiy2 * psiy22)
+//                - pM2 * (lnp11 - lnp1 * lnp1) * (psiy1 - psiy2) * (psiy1 - psiy2);
+//                System.out.println("JEEMJEJExtest-("+ testx +")");
+//        System.out.println("JEEMJEJEytest-("+ testy +")");
+
         //Var<JE-UE>
-        MeterMappedAveraging.MoleculeAgent AgentAtom1 = leafAgentManager.getAgent(atom1);
-        MeterMappedAveraging.MoleculeAgent AgentAtom2 = leafAgentManager.getAgent(atom2);
-        double f1 = bt * AgentAtom1.torque.getX(0);
-        double f2 = bt * AgentAtom2.torque.getX(0);
+        MeterMappedAveraging.MoleculeAgent agentAtom1 = leafAgentManager.getAgent(atom1);
+        MeterMappedAveraging.MoleculeAgent agentAtom2 = leafAgentManager.getAgent(atom2);
+        double f1 = bt * agentAtom1.torque.getX(0);
+        double f2 = bt * agentAtom2.torque.getX(0);
+
+
+//        System.out.println(atom1.getLeafIndex()+" " + atom2.getLeafIndex());
+        if (atom1.getLeafIndex() == 0) {
+            System.out.println("total force on f1: " + f1);
+        }
+        if (atom1.getLeafIndex() == 0) System.out.println("pair force:" + (-bJ * Math.sin(t1 - t2)));
+        if (atom2.getLeafIndex() == 0) System.out.println("pair force:" + (bJ * Math.sin(t1 - t2)));
+
+//        System.exit(2);
+
 
         //  -bJCos(t1-t2) for //ij
         double p12 = -bJ * ei.dot(ej);
-        double p11 = bt * AgentAtom1.phi.component(0, 0);
-        double p22 = bt * AgentAtom2.phi.component(0, 0);
+        double p11 = bt * agentAtom1.phi.component(0, 0);
+        double p22 = bt * agentAtom2.phi.component(0, 0);
 
 //        if (atom1.getLeafIndex() == 0) {
 //            System.out.println("in the potential calculation");
@@ -453,20 +508,14 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
 //        }
 //        System.exit(2);
 
-        double JEMUExPair = bJ * Math.sin(t1 - t2) * pM1 * (psix1 - psix2) + (vEx1 * f1 + vEx2 * f2);
-        double JEMUEyPair = bJ * Math.sin(t1 - t2) * pM1 * (psiy1 - psiy2) + (vEy1 * f1 + vEy2 * f2);
+//        double testx = bJ * Math.sin(t1 - t2) * pM1 * (psix1 - psix2) + (vEx1 * f1 + vEx2 * f2);
+//        double testy = bJ * Math.sin(t1 - t2) * pM1 * (psiy1 - psiy2) + (vEy1 * f1 + vEy2 * f2);
 
-//        double JEMUExPair = bJ * Math.sin(t1 - t2) * pM1 * (psix1 - psix2);
-//        double JEMUEyPair = bJ * Math.sin(t1 - t2) * pM1 * (psiy1 - psiy2);
-
-//        System.out.println("f1=" + f1);
-//        System.out.println("f2=" + f2);
-//        System.out.println("bJ*Sin[theta1-theta2]-("+bJ*Math.sin(t1-t2)+")");
-//        System.out.println("Exp[-bJ*Cos[theta1-theta2]]-("+pM1+")");
-//        System.exit(2);
+        double JEMUExPair = vEx1 * (f1 + bJ * Math.sin(t1 - t2)) + vEx2 * (f2 - bJ * Math.sin(t1 - t2));
+        double JEMUEyPair = vEy1 * (f1 + bJ * Math.sin(t1 - t2)) + vEy2 * (f2 - bJ * Math.sin(t1 - t2));
         JEMUEx += JEMUExPair;
         JEMUEy += JEMUEyPair;
-        //TODO Check expressions
+
 
         double vDotGradvx1 = pM2 * (-lnp1 * psix1 * (psix1 - psix2) + psix1 * psix11 + psix2 * psix12);
         double vDotGradvy1 = pM2 * (-lnp1 * psiy1 * (psiy1 - psiy2) + psiy1 * psiy11 + psiy2 * psiy12);
@@ -474,11 +523,18 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
         double vDotGradvx2 = pM2 * (-lnp1 * psix2 * (psix1 - psix2) + psix1 * psix12 + psix2 * psix22);
         double vDotGradvy2 = pM2 * (-lnp1 * psiy2 * (psiy1 - psiy2) + psiy1 * psiy12 + psiy2 * psiy22);
 
+
+//        System.out.println("vDotGradvx1-(" + vDotGradvx1 + ")");
+//        System.out.println("vDotGradvx2-(" + vDotGradvx2 + ")");
+//        System.out.println("vDotGradvy1-(" + vDotGradvy1 + ")");
+//        System.out.println("vDotGradvy2-(" + vDotGradvy2 + ")");
+
+
         double fxE1 = -bmu * Math.sin(t1);
         double fxE2 = -bmu * Math.sin(t2);
         double fyE1 = bmu * Math.cos(t1);
         double fyE2 = bmu * Math.cos(t2);
-        //TODO Check expresions and many samples please!!!!
+        //TODO Check expressions and many samples please!!!!
         UEE += vEEx1 * f1 + vEEx2 * f2 + vDotGradvx1 * f1 + vDotGradvx2 * f2
                 + vEx1 * (p11 * vEx1 + p12 * vEx2) + vEx2 * (p12 * vEx1 + p22 * vEx2)
                 - 2 * vEx1 * fxE1 - 2 * vEx2 * fxE2;
