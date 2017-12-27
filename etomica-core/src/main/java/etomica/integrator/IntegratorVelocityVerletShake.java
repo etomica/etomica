@@ -293,10 +293,6 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
     
     public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, Box agentBox) {}
 
-    public Class<BondConstraints> getSpeciesAgentClass() {
-        return BondConstraints.class;
-    }
-
     public final Object makeAgent(ISpecies a) {
         return null;
     }

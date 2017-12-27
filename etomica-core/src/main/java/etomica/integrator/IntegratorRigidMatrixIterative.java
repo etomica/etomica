@@ -718,10 +718,6 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
         public Vector force() {return force;}
     }
 
-    public Class getSpeciesAgentClass() {
-        return OrientationCalc.class;
-    }
-    
     public Object makeAgent(ISpecies type) {
         return null;
     }

@@ -566,10 +566,6 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
 
     public void releaseAgent(Object agent, IMolecule atom) {}
 
-    public Class getSpeciesAgentClass() {
-        return MyTypeAgent.class;
-    }
-
     public Object makeAgent(ISpecies type) {
         return null;
     }

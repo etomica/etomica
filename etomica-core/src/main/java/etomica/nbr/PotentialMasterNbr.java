@@ -15,7 +15,7 @@ import etomica.simulation.Simulation;
 import etomica.species.ISpecies;
 import etomica.util.Arrays;
 
-public abstract class PotentialMasterNbr extends PotentialMaster implements SpeciesAgentManager.AgentSource {
+public abstract class PotentialMasterNbr extends PotentialMaster {
 
     private static final AtomTypeAgentManager.AgentSource<PotentialArray> atomTypeAgentSource = new AtomTypeAgentManager.AgentSource<PotentialArray>() {
         @Override
@@ -24,14 +24,22 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Spec
         }
 
         @Override
-        public void releaseAgent(PotentialArray agent, AtomType type) {
+        public void releaseAgent(PotentialArray agent, AtomType type) {}
+    };
+
+    private static final SpeciesAgentManager.AgentSource<PotentialArray> speciesAgentSource = new SpeciesAgentManager.AgentSource<PotentialArray>() {
+        @Override
+        public PotentialArray makeAgent(ISpecies type) {
+            return new PotentialArray();
         }
+
+        @Override
+        public void releaseAgent(PotentialArray agent, ISpecies type) {}
     };
 
     protected final AtomTypeAgentManager<PotentialArray> rangedAgentManager;
-    protected final SpeciesAgentManager intraAgentManager;
+    protected final SpeciesAgentManager<PotentialArray> intraAgentManager;
     protected final Simulation simulation;
-    protected SpeciesAgentManager.AgentIterator intraPotentialIterator;
     protected IPotential[] allPotentials = new IPotential[0];
     protected BoxAgentSource<? extends BoxCellManager> boxAgentSource;
     protected BoxAgentManager<? extends BoxCellManager> boxAgentManager;
@@ -43,10 +51,8 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Spec
         this.boxAgentSource = boxAgentSource;
         this.boxAgentManager = boxAgentManager;
         rangedAgentManager = new AtomTypeAgentManager<>(atomTypeAgentSource, this.simulation);
-        intraAgentManager = new SpeciesAgentManager(this);
+        intraAgentManager = new SpeciesAgentManager<>(speciesAgentSource, this.simulation);
 
-        intraAgentManager.init(sim);
-        intraPotentialIterator = intraAgentManager.makeIterator();
     }
     
     public PotentialGroup makePotentialGroup(int nBody) {
@@ -79,7 +85,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Spec
                 //ADDED S
                 if(pGroup.nBody() == 1){
                     ISpecies[] parentType = getSpecies(pGroup);
-                    ((PotentialArray) intraAgentManager.getAgent(parentType[0])).addPotential(pGroup);
+                    intraAgentManager.getAgent(parentType[0]).addPotential(pGroup);
                 }
             }
             else {
@@ -119,9 +125,8 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Spec
             }
         }
         else if (potential instanceof PotentialGroup) {
-            intraPotentialIterator.reset();
-            while (intraPotentialIterator.hasNext()) {
-                ((PotentialArray)intraPotentialIterator.next()).removePotential(potential);
+            for (PotentialArray potentialArray : this.intraAgentManager.getAgents().values()) {
+                potentialArray.removePotential(potential);
             }
         }
         allPotentials = Arrays.removeObject(allPotentials,potential);
@@ -132,21 +137,10 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Spec
     }
 
     public PotentialArray getIntraPotentials(ISpecies atomType) {
-        return (PotentialArray)intraAgentManager.getAgent(atomType);
+        return intraAgentManager.getAgent(atomType);
     }
 
     public final BoxAgentManager<? extends BoxCellManager> getCellAgentManager() {
         return boxAgentManager;
-    }
-
-    public Class getSpeciesAgentClass() {
-        return PotentialArray.class;
-    }
-
-    public Object makeAgent(ISpecies type) {
-        return new PotentialArray();
-    }
-
-    public void releaseAgent(Object agent, ISpecies type) {
     }
 }

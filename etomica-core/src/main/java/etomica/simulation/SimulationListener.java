@@ -6,19 +6,19 @@ package etomica.simulation;
 
 public interface SimulationListener {
 
-    void simulationBoxAdded(SimulationBoxEvent e);
+    default void simulationBoxAdded(SimulationBoxEvent e) {}
 
-    void simulationBoxRemoved(SimulationBoxEvent e);
+    default void simulationBoxRemoved(SimulationBoxEvent e) {}
 
-    void simulationSpeciesAdded(SimulationSpeciesEvent e);
+    default void simulationSpeciesAdded(SimulationSpeciesEvent e) {}
 
-    void simulationSpeciesRemoved(SimulationSpeciesEvent e);
+    default void simulationSpeciesRemoved(SimulationSpeciesEvent e) {}
 
-    void simulationSpeciesIndexChanged(SimulationSpeciesIndexEvent e);
+    default void simulationSpeciesIndexChanged(SimulationSpeciesIndexEvent e) {}
 
-    void simulationSpeciesMaxIndexChanged(SimulationIndexEvent e);
+    default void simulationSpeciesMaxIndexChanged(SimulationIndexEvent e) {}
 
-    void simulationAtomTypeIndexChanged(SimulationAtomTypeIndexEvent e);
+    default void simulationAtomTypeIndexChanged(SimulationAtomTypeIndexEvent e) {}
 
-    void simulationAtomTypeMaxIndexChanged(SimulationIndexEvent e);
+    default void simulationAtomTypeMaxIndexChanged(SimulationIndexEvent e) {}
 }
