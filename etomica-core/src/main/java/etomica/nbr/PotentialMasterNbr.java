@@ -41,14 +41,11 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
     protected final SpeciesAgentManager<PotentialArray> intraAgentManager;
     protected final Simulation simulation;
     protected IPotential[] allPotentials = new IPotential[0];
-    protected BoxAgentSource<? extends BoxCellManager> boxAgentSource;
     protected BoxAgentManager<? extends BoxCellManager> boxAgentManager;
 
-    public PotentialMasterNbr(Simulation sim, BoxAgentSource<? extends BoxCellManager> boxAgentSource,
-                              BoxAgentManager<? extends BoxCellManager> boxAgentManager) {
+    public PotentialMasterNbr(Simulation sim, BoxAgentManager<? extends BoxCellManager> boxAgentManager) {
         super();
         simulation = sim;
-        this.boxAgentSource = boxAgentSource;
         this.boxAgentManager = boxAgentManager;
         rangedAgentManager = new AtomTypeAgentManager<>(atomTypeAgentSource, this.simulation);
         intraAgentManager = new SpeciesAgentManager<>(speciesAgentSource, this.simulation);

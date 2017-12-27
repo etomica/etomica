@@ -93,7 +93,7 @@ public class HTTPSoftSphereSim extends Simulation {
          *
          */
 
-        p1Constraint = new P1ConstraintNbr(space, nbrDistance, this);
+        p1Constraint = new P1ConstraintNbr(space, nbrDistance);
         p1Constraint.initBox(box);
         atomMove.setConstraint(p1Constraint);
 

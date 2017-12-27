@@ -90,7 +90,7 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
 		};
         BoxAgentSourceCellManagerMolecular bASCellManagerMolecular = new BoxAgentSourceCellManagerMolecular(this, positionDefinition, space);//tracking neighbors
         bASCellManagerMolecular.setRange(4.2);//association is made within 4.2A of C-C distance
-        BoxAgentManager<NeighborCellManagerMolecular> cellAgentManager = new BoxAgentManager<NeighborCellManagerMolecular>(bASCellManagerMolecular,NeighborCellManagerMolecular.class,this);
+        BoxAgentManager<NeighborCellManagerMolecular> cellAgentManager = new BoxAgentManager<NeighborCellManagerMolecular>(bASCellManagerMolecular, this);
         System.out.println("pressure = "+pressureBar+"bar");
         System.out.println("initial density = "+densityMolLiter+"mol/L");
         System.out.println("temperature = "+temperatureK+"K");

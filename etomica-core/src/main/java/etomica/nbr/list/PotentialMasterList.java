@@ -13,6 +13,7 @@ import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.IMoleculePositionDefinition;
 import etomica.nbr.*;
+import etomica.nbr.cell.BoxAgentSourceCellManager;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
@@ -32,6 +33,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
     protected final AtomPair atomPair;
     protected final NeighborListAgentSource neighborListAgentSource;
     protected final BoxAgentManager<NeighborListManager> neighborListAgentManager;
+    private final BoxAgentSourceCellManagerList boxAgentSource;
     private final AtomIteratorSinglet singletIterator;
     protected double range;
     protected NeighborCriterion[] allCriteria;
@@ -67,7 +69,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
     }
 
     public PotentialMasterList(Simulation sim, double range, BoxAgentSourceCellManagerList boxAgentSource, Space _space) {
-        this(sim, range, boxAgentSource, new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class, sim), _space);
+        this(sim, range, boxAgentSource, new BoxAgentManager<>(boxAgentSource, sim), _space);
     }
 
     public PotentialMasterList(Simulation sim, double range, BoxAgentSourceCellManagerList boxAgentSource, BoxAgentManager<? extends BoxCellManager> agentManager, Space _space){
@@ -78,22 +80,20 @@ public class PotentialMasterList extends PotentialMasterNbr {
                                BoxAgentSourceCellManagerList boxAgentSource,
                                BoxAgentManager<? extends BoxCellManager> agentManager,
                                NeighborListAgentSource neighborListAgentSource, Space _space) {
-        super(sim, boxAgentSource, agentManager);
+        super(sim, agentManager);
         space = _space;
         this.neighborListAgentSource = neighborListAgentSource;
         neighborListAgentSource.setPotentialMaster(this);
-        neighborListAgentManager = new BoxAgentManager<NeighborListManager>(neighborListAgentSource, NeighborListManager.class, sim);
+        neighborListAgentManager = new BoxAgentManager<>(neighborListAgentSource, sim);
         singletIterator = new AtomIteratorSinglet();
         atomSetSinglet = new AtomSetSinglet();
         atomPair = new AtomPair();
         cellRange = 2;
         allCriteria = new NeighborCriterion[0];
+        this.boxAgentSource = boxAgentSource;
 
-        BoxAgentManager.AgentIterator<? extends BoxCellManager> iterator = boxAgentManager.makeIterator();
-        iterator.reset();
-        while (iterator.hasNext()) {
-            NeighborCellManagerList cellManager = (NeighborCellManagerList)iterator.next();
-            cellManager.setPotentialMaster(this);
+        for (BoxCellManager boxCellManager : boxAgentManager.getAgents().values()) {
+            ((NeighborCellManagerList) boxCellManager).setPotentialMaster(this);
         }
 
         boxAgentSource.setPotentialMaster(this);
@@ -135,22 +135,16 @@ public class PotentialMasterList extends PotentialMasterNbr {
             throw new IllegalArgumentException("Range must be greater than 0");
         }
         range = newRange;
-        ((BoxAgentSourceCellManagerList)boxAgentSource).setRange(range);
+        boxAgentSource.setRange(range);
         recomputeCriteriaRanges();
 
-        BoxAgentManager.AgentIterator<? extends BoxCellManager> iterator = boxAgentManager.makeIterator();
-        iterator.reset();
-        while (iterator.hasNext()) {
-            NeighborCellManager cellManager = (NeighborCellManager)iterator.next();
-            cellManager.setPotentialRange(range);
+        for (BoxCellManager boxCellManager : boxAgentManager.getAgents().values()) {
+            ((NeighborCellManager) boxCellManager).setPotentialRange(range);
         }
 
         neighborListAgentSource.setRange(newRange);
 
-        BoxAgentManager.AgentIterator<NeighborListManager> iteratorList = neighborListAgentManager.makeIterator();
-        iteratorList.reset();
-        while (iteratorList.hasNext()) {
-            NeighborListManager neighborListManager = iteratorList.next();
+        for (NeighborListManager neighborListManager : neighborListAgentManager.getAgents().values()) {
             neighborListManager.setRange(range);
         }
     }
@@ -210,22 +204,17 @@ public class PotentialMasterList extends PotentialMasterNbr {
         }
 
         // add the criterion to all existing NeighborListManagers
-        allCriteria = (NeighborCriterion[]) Arrays.addObject(allCriteria, criterion);
+        allCriteria = Arrays.addObject(allCriteria, criterion);
 
         for (int i=0; i<atomTypes.length; i++) {
-            ((PotentialArray)rangedAgentManager.getAgent(atomTypes[i])).setCriterion(potential, criterion);
+            rangedAgentManager.getAgent(atomTypes[i]).setCriterion(potential, criterion);
         }
         if (potential.getRange() > maxPotentialRange) {
             maxPotentialRange = potential.getRange();
         }
         recomputeCriteriaRanges();
 
-        BoxAgentManager.AgentIterator<NeighborListManager> iterator = neighborListAgentManager.makeIterator();
-        iterator.reset();
-        while (iterator.hasNext()) {
-            NeighborListManager neighborListManager = iterator.next();
-            neighborListManager.updateLists();
-        }
+        neighborListAgentManager.getAgents().values().forEach(NeighborListManager::updateLists);
     }
 
     /**
@@ -271,12 +260,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
         }
         recomputeCriteriaRanges();
 
-        BoxAgentManager.AgentIterator<NeighborListManager> iterator = neighborListAgentManager.makeIterator();
-        iterator.reset();
-        while (iterator.hasNext()) {
-            NeighborListManager neighborListManager = iterator.next();
-            neighborListManager.updateLists();
-        }
+        neighborListAgentManager.getAgents().values().forEach(NeighborListManager::updateLists);
     }
 
     /**
@@ -295,12 +279,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
         }
         recomputeCriteriaRanges();
 
-        BoxAgentManager.AgentIterator<NeighborListManager> iterator = neighborListAgentManager.makeIterator();
-        iterator.reset();
-        while (iterator.hasNext()) {
-            NeighborListManager neighborListManager = iterator.next();
-            neighborListManager.reset();
-        }
+        neighborListAgentManager.getAgents().values().forEach(NeighborListManager::reset);
     }
 
     /**
@@ -408,12 +387,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
         }
         recomputeCriteriaRanges();
 
-        BoxAgentManager.AgentIterator<NeighborListManager> iterator = neighborListAgentManager.makeIterator();
-        iterator.reset();
-        while (iterator.hasNext()) {
-            NeighborListManager neighborListManager = iterator.next();
-            neighborListManager.updateLists();
-        }
+        neighborListAgentManager.getAgents().values().forEach(NeighborListManager::updateLists);
     }
 
     public NeighborCriterion[] getNeighborCriteria() {
@@ -604,11 +578,8 @@ public class PotentialMasterList extends PotentialMasterNbr {
     public void setCellRange(int newCellRange) {
         cellRange = newCellRange;
 
-        BoxAgentManager.AgentIterator<? extends BoxCellManager> iterator = boxAgentManager.makeIterator();
-        iterator.reset();
-        while (iterator.hasNext()) {
-            NeighborCellManager cellManager = (NeighborCellManager)iterator.next();
-            cellManager.setCellRange(cellRange);
+        for (BoxCellManager boxCellManager : boxAgentManager.getAgents().values()) {
+            ((NeighborCellManager) boxCellManager).setCellRange(cellRange);
         }
     }
 

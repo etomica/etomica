@@ -36,7 +36,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource<Vector> {
         neighborRadius2 = neighborRadius * neighborRadius;
         setSafetyFactor(0.4);
         BoxAgentSourceAtomManager<Vector> basam = new BoxAgentSourceAtomManager<Vector>(this, Vector.class);
-        boxAgentManager = new BoxAgentManager<AtomLeafAgentManager<Vector>>(basam,AtomLeafAgentManager.class,sim);
+        boxAgentManager = new BoxAgentManager<AtomLeafAgentManager<Vector>>(basam, sim);
 	}
 	
 	public void setSafetyFactor(double f) {

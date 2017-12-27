@@ -68,6 +68,7 @@ public class Box {
 
     /**
      * Constructs box with default rectangular periodic boundary.
+     *
      * @param space space governing the simulation
      */
     public Box(Space space) {
@@ -77,8 +78,9 @@ public class Box {
     /**
      * Constructs box with the given Boundary, which specifies the size and shape of the Box and specifies what
      * happens to atoms as they cross the box boundary e.g. periodic boundaries.
+     *
      * @param boundary the specified Boundary
-     * @param space space governing the simulation
+     * @param space    space governing the simulation
      */
     public Box(Boundary boundary, Space space) {
         this.space = space;
@@ -89,6 +91,10 @@ public class Box {
         allMoleculeList = new AtomSetAllMolecules();
         allMoleculeList.setMoleculeLists(moleculeLists);
         leafList = new AtomArrayList();
+    }
+
+    public Space getSpace() {
+        return space;
     }
 
     /**

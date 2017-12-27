@@ -280,7 +280,7 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         meterOverlapInTarget.setDsBBase(latticeEnergyRef);
         
         P1ConstraintNbr nbrConstraint = new P1ConstraintNbr(space, 
-                primitiveLength/Math.sqrt(2.0), this, constraint);
+                primitiveLength/Math.sqrt(2.0), constraint);
         potentialMaster.addPotential(nbrConstraint, new AtomType[]{
                 species.getLeafType()});
         nbrConstraint.initBox(boxRef);

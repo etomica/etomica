@@ -63,7 +63,7 @@ public class SimOverlapSoftSphereDP extends Simulation {
         rc *= Math.pow(rho, -1.0/3.0);
         if (slanty) {
             BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, space);
-            BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class, this);
+            BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, this);
             potentialMaster = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc, space), space);
         }
         else {
@@ -140,7 +140,7 @@ public class SimOverlapSoftSphereDP extends Simulation {
          *
          */
 
-        P1ConstraintNbr p1Constraint = new P1ConstraintNbr(space, nbrDistance, this);
+        P1ConstraintNbr p1Constraint = new P1ConstraintNbr(space, nbrDistance);
         p1Constraint.initBox(box);
         atomMove.setConstraint(p1Constraint);
 

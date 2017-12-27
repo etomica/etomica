@@ -66,7 +66,7 @@ public class SimOverlapSoftSphereEin extends Simulation {
 
         if (slanty) {
             BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, space);
-            BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class, this);
+            BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, this);
             potentialMaster = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc, space), space);
         }
         else {
@@ -157,7 +157,7 @@ public class SimOverlapSoftSphereEin extends Simulation {
         atomMove.setStepSizeMax(0.5);
         atomMove.setDoExcludeNonNeighbors(true);
         atomMove.setPotential(potential);
-        P1ConstraintNbr p1Constraint = new P1ConstraintNbr(space, nbrDistance, this);
+        P1ConstraintNbr p1Constraint = new P1ConstraintNbr(space, nbrDistance);
 //        atomMove.setConstraint(p1Constraint);
         integrator.getMoveManager().addMCMove(atomMove);
 //      ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);

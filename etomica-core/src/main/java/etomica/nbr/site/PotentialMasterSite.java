@@ -36,23 +36,16 @@ public class PotentialMasterSite extends PotentialMasterNbr {
      * position definition to null, so that atom type's definition is used
      * to assign cells.
      */
-	public PotentialMasterSite(Simulation sim, int nCells, Space _space) {
-        this(sim, new BoxAgentSiteSource(nCells, _space), _space);
+	public PotentialMasterSite(Simulation sim, int nCells, Space space) {
+        this(sim, new BoxAgentManager<>(sim, box -> new NeighborSiteManager(box, nCells)), space);
     }
 
-    public PotentialMasterSite(Simulation sim,
-    		                   BoxAgentSource<BoxCellManager> boxAgentSource, Space _space) {
-        this(sim, boxAgentSource, new BoxAgentManager<BoxCellManager>(boxAgentSource, BoxCellManager.class, sim), _space);
+    public PotentialMasterSite(Simulation sim, BoxAgentManager<BoxCellManager> boxAgentManager, Space _space) {
+        this(sim, boxAgentManager, new Api1ASite(_space.D(), boxAgentManager));
     }
     
-    public PotentialMasterSite(Simulation sim, BoxAgentSource<BoxCellManager> boxAgentSource,
-                               BoxAgentManager<BoxCellManager> agentManager, Space _space) {
-        this(sim, boxAgentSource, agentManager, new Api1ASite(_space.D(),agentManager));
-    }
-    
-    protected PotentialMasterSite(Simulation sim, BoxAgentSource<? extends BoxCellManager> boxAgentSource,
-                                  BoxAgentManager<? extends BoxCellManager> agentManager, AtomsetIteratorPDT neighborIterator) {
-        super(sim, boxAgentSource, agentManager);
+    protected PotentialMasterSite(Simulation sim, BoxAgentManager<? extends BoxCellManager> boxAgentManager, AtomsetIteratorPDT neighborIterator) {
+        super(sim, boxAgentManager);
         atomSetSinglet = new AtomSetSinglet();
         this.neighborIterator = neighborIterator;
 	}
@@ -254,21 +247,5 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             }
         }
     }
-    
-    public static class BoxAgentSiteSource implements BoxAgentSource<BoxCellManager> {
-        private final int nCells;
-        private final Space space;
-        
-        public BoxAgentSiteSource(int nCells, Space _space) {
-            this.nCells = nCells;
-            this.space = _space;
-        }
 
-        public BoxCellManager makeAgent(Box box) {
-            return new NeighborSiteManager(box,nCells, space);
-        }
-
-        public void releaseAgent(BoxCellManager agent) {
-        }
-    }
 }
