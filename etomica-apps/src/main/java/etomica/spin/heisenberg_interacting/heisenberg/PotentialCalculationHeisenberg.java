@@ -441,32 +441,16 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
         double p11 = bt * AgentAtom1.phi.component(0, 0);
         double p22 = bt * AgentAtom2.phi.component(0, 0);
 
-//        if (atom1.getLeafIndex() == 0) {
-//            System.out.println("in the potential calculation");
-////            System.out.println("p11= " + p11/bt);
-//            System.out.println("atomF= " + f1 / bt);
-//        }
-//        if (atom2.getLeafIndex() == 0) {
-//            System.out.println("in the potential calculation");
-////            System.out.println("p11= " + p22/bt);
-//            System.out.println("atomF= " + f2 / bt);
-//        }
-//        System.exit(2);
+        double bJSint1Mt2 = bJ * Math.sin(t1 - t2);
+        double JEMUExPair = vEx1 * (bJSint1Mt2 + f1) + vEx2 * (-bJSint1Mt2 + f2);
+        double JEMUEyPair = vEy1 * (bJSint1Mt2 + f1) + vEy2 * (-bJSint1Mt2 + f2);
 
-        double JEMUExPair = bJ * Math.sin(t1 - t2) * pM1 * (psix1 - psix2) + (vEx1 * f1 + vEx2 * f2);
-        double JEMUEyPair = bJ * Math.sin(t1 - t2) * pM1 * (psiy1 - psiy2) + (vEy1 * f1 + vEy2 * f2);
-
-//        double JEMUExPair = bJ * Math.sin(t1 - t2) * pM1 * (psix1 - psix2);
-//        double JEMUEyPair = bJ * Math.sin(t1 - t2) * pM1 * (psiy1 - psiy2);
-
-//        System.out.println("f1=" + f1);
-//        System.out.println("f2=" + f2);
-//        System.out.println("bJ*Sin[theta1-theta2]-("+bJ*Math.sin(t1-t2)+")");
-//        System.out.println("Exp[-bJ*Cos[theta1-theta2]]-("+pM1+")");
-//        System.exit(2);
         JEMUEx += JEMUExPair;
         JEMUEy += JEMUEyPair;
-        //TODO Check expressions
+
+
+//        TODO debug only
+//        JEMUESquare += JEMUExPair*JEMUExPair + JEMUEyPair*JEMUEyPair;
 
         double vDotGradvx1 = pM2 * (-lnp1 * psix1 * (psix1 - psix2) + psix1 * psix11 + psix2 * psix12);
         double vDotGradvy1 = pM2 * (-lnp1 * psiy1 * (psiy1 - psiy2) + psiy1 * psiy11 + psiy2 * psiy12);
@@ -478,7 +462,7 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
         double fxE2 = -bmu * Math.sin(t2);
         double fyE1 = bmu * Math.cos(t1);
         double fyE2 = bmu * Math.cos(t2);
-        //TODO Check expresions and many samples please!!!!
+        //TODO Check expressions and many samples please!!!!
         UEE += vEEx1 * f1 + vEEx2 * f2 + vDotGradvx1 * f1 + vDotGradvx2 * f2
                 + vEx1 * (p11 * vEx1 + p12 * vEx2) + vEx2 * (p12 * vEx1 + p22 * vEx2)
                 - 2 * vEx1 * fxE1 - 2 * vEx2 * fxE2;

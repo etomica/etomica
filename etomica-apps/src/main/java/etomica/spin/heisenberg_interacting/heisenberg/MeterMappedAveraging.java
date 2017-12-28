@@ -116,6 +116,13 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MeterMappe
         x[2] = x[0] * x[0];
         x[3] = x[1] * x[1];
         x[4] = -Ans.getSumJEEMJEJE() + Ans.getSumUEE();
+
+        //TODO debug only
+//        x[0] = Ans.getSumJEMUEx();
+//        x[1] = Ans.getSumJEMUEy();
+//        x[2] = Ans.getSumJEMUESquare();
+//        x[3] = 0;
+//        x[4] = -Ans.getSumJEEMJEJE() + Ans.getSumUEE();
         return data;
     }
 
