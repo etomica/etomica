@@ -252,7 +252,7 @@ public class HeisenbergTest extends Simulation {
         public boolean mSquare = true;
         public boolean aEE = true;
         public double temperature = 1;// Kelvin
-        public int nCells = 6;//number of atoms is nCells*nCells
+        public int nCells = 3;//number of atoms is nCells*nCells
         public double interactionS = 1;
         public double dipoleMagnitude = 1.0;
         public int steps = 100000;
