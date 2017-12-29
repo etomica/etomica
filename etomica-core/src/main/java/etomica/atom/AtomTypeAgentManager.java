@@ -85,12 +85,6 @@ public class AtomTypeAgentManager<E> implements SimulationListener {
         }
     }
 
-    public void simulationBoxAdded(SimulationBoxEvent e) {
-    }
-
-    public void simulationBoxRemoved(SimulationBoxEvent e) {
-    }
-
     public void simulationSpeciesAdded(SimulationSpeciesEvent e) {
         ISpecies species = e.getSpecies();
         for (int i = 0; i < species.getAtomTypeCount(); i++) {
@@ -101,19 +95,6 @@ public class AtomTypeAgentManager<E> implements SimulationListener {
 
     public void simulationSpeciesRemoved(SimulationSpeciesEvent e) {
         releaseAgents(e.getSpecies());
-    }
-
-    public void simulationSpeciesIndexChanged(SimulationSpeciesIndexEvent e) {
-    }
-
-    public void simulationSpeciesMaxIndexChanged(SimulationIndexEvent e) {
-    }
-
-    public void simulationAtomTypeIndexChanged(SimulationAtomTypeIndexEvent e) {
-        // AtomTypes are mapped by hash so it currently doesn't matter if the index changes
-    }
-
-    public void simulationAtomTypeMaxIndexChanged(SimulationIndexEvent e) {
     }
 
     /**
