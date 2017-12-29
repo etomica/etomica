@@ -17,7 +17,6 @@ import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
-import etomica.molecule.IMolecule;
 import etomica.space.Space;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
@@ -229,15 +228,12 @@ public class DCVGCMDGraphic extends SimulationGraphic{
         public void setBoolean(boolean b) {active = b;}
         public boolean getBoolean() {return active;}
         
-        public boolean accept(IAtom atom) {
+        public boolean test(IAtom atom) {
             if(!active) return true;
             if(atom.getType().getSpecies() != ((DCVGCMD)simulation).speciesTube) return true;
             double x0 = ((DCVGCMD)simulation).poreCenter.getX(0);
             return atom.getPosition().getX(0) < x0;
 
         }
-        public boolean accept(IMolecule mole) {
-            return false;
-        }
-    }
+	}
 }

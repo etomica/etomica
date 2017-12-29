@@ -302,7 +302,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 			 * drawable flag. This makes it possible to filter bonds in
 			 * wireframe mode as well.
 			 */
-            boolean drawable = atomFilter == null || atomFilter.accept(a);
+            boolean drawable = atomFilter == null || atomFilter.test(a);
             if (drawable && rMin != null) {
 			    for (int i=0; i<rMin.getD(); i++) {
 			        double x = a.getPosition().getX(i);
@@ -739,7 +739,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
         if (atomFilter instanceof AtomFilterCollective) {
             ((AtomFilterCollective)atomFilter).resetFilter();
         }
-        boolean drawable = atomFilter == null || atomFilter.accept(a);
+        boolean drawable = atomFilter == null || atomFilter.test(a);
         if (drawable && rMin != null) {
             for (int i=0; i<rMin.getD(); i++) {
                 double x = a.getPosition().getX(i);

@@ -523,14 +523,9 @@ public class ConfigFromFileLAMMPS {
         }
 
         @Override
-        public boolean accept(IAtom a) {
+        public boolean test(IAtom a) {
             double x = colorScheme.getRelativeDisplacement(a);
             return x >= threshold;
-        }
-
-        @Override
-        public boolean accept(IMolecule mole) {
-            return false;
         }
     }
 

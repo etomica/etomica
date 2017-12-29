@@ -45,7 +45,7 @@ public class ColorSchemeLiquidVapor extends etomica.graphics.ColorScheme impleme
     }
     
     public Color getAtomColor(IAtom a) {
-        return liquidFilter.accept(a) ? liquidColor : vaporColor;
+        return liquidFilter.test(a) ? liquidColor : vaporColor;
     }
     
     protected Color vaporColor, liquidColor;
