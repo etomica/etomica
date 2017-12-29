@@ -213,9 +213,9 @@ public class Simulation {
         species.setIndex(index);
         speciesList.add(species);
 
-        for (int i = 0; i < species.getAtomTypeCount(); i++) {
-            species.getAtomType(i).setIndex(atomTypeMaxIndex++);
-            atomTypeAddedNotify(species.getAtomType(i));
+        for (AtomType atomType : species.getAtomTypes()) {
+            atomType.setIndex(atomTypeMaxIndex++);
+            atomTypeAddedNotify(atomType);
         }
 
         for(Box box : boxes) {
@@ -248,18 +248,18 @@ public class Simulation {
             eventManager.speciesIndexChanged(speciesList.get(i), oldIndex);
         }
 
-        for (int j = 0; j < removedSpecies.getAtomTypeCount(); j++) {
-            atomTypeRemovedNotify(removedSpecies.getAtomType(j));
+        for (AtomType atomType : removedSpecies.getAtomTypes()) {
+            atomTypeRemovedNotify(atomType);
         }
 
 
         int atomTypeMaxIndex = 0;
         for (ISpecies species : speciesList) {
-            for (int j = 0; j < speciesList.get(j).getAtomTypeCount(); j++) {
-                if (species.getAtomType(j).getIndex() != atomTypeMaxIndex) {
-                    int oldIndex = species.getAtomType(j).getIndex();
-                    species.getAtomType(j).setIndex(atomTypeMaxIndex);
-                    eventManager.atomTypeIndexChanged(species.getAtomType(j), oldIndex);
+            for (AtomType atomType : species.getAtomTypes()) {
+                if (atomType.getIndex() != atomTypeMaxIndex) {
+                    int oldIndex = atomType.getIndex();
+                    atomType.setIndex(atomTypeMaxIndex);
+                    eventManager.atomTypeIndexChanged(atomType, oldIndex);
                 }
                 atomTypeMaxIndex++;
             }

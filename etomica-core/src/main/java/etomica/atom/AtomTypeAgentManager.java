@@ -34,8 +34,7 @@ public class AtomTypeAgentManager<E> implements SimulationListener {
 
         sim.getEventManager().addListener(this);
         for (ISpecies species : sim.getSpeciesList()) {
-            for (int i = 0; i < species.getAtomTypeCount(); i++) {
-                AtomType atomType = species.getAtomType(i);
+            for (AtomType atomType : species.getAtomTypes()) {
                 this.agents.computeIfAbsent(atomType, agentSource::makeAgent);
             }
         }
@@ -65,8 +64,7 @@ public class AtomTypeAgentManager<E> implements SimulationListener {
      * Releases the agents associated with the given AtomType and its children.
      */
     private void releaseAgents(ISpecies parentType) {
-        for (int i = 0; i < parentType.getAtomTypeCount(); i++) {
-            AtomType leafType = parentType.getAtomType(i);
+        for (AtomType leafType : parentType.getAtomTypes()) {
             E agent = agents.get(leafType);
             if (agent != null) {
                 agentSource.releaseAgent(agent, leafType);
@@ -87,8 +85,7 @@ public class AtomTypeAgentManager<E> implements SimulationListener {
 
     public void simulationSpeciesAdded(SimulationSpeciesEvent e) {
         ISpecies species = e.getSpecies();
-        for (int i = 0; i < species.getAtomTypeCount(); i++) {
-            AtomType newType = species.getAtomType(i);
+        for (AtomType newType : species.getAtomTypes()) {
             this.agents.computeIfAbsent(newType, this.agentSource::makeAgent);
         }
     }
