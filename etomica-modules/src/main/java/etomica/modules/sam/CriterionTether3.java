@@ -89,10 +89,6 @@ public class CriterionTether3 implements NeighborCriterion, MoleculeAgentSource 
         return false;
     }
 
-    public Class getMoleculeAgentClass() {
-        return IAtomList.class;
-    }
-
     public Object makeAgent(IMolecule a) {
         return null;
     }

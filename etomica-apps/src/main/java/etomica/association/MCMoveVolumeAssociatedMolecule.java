@@ -341,11 +341,7 @@ public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements Mol
 		public IMolecule nextMolecule;
 	}
 
-	public Class getMoleculeAgentClass() {
-		return Agent.class;
-	}
-
-	public MoleculeIterator affectedMolecules(Box box) {
+    public MoleculeIterator affectedMolecules(Box box) {
 		return moleculeIterator;
 	}
 

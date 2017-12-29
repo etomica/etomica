@@ -695,9 +695,7 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
         
         public OrientationAgentSource() {
         }
-        public Class getMoleculeAgentClass() {
-            return Vector[].class;
-        }
+
         public Object makeAgent(IMolecule atom) {
             return null;
         }

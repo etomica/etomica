@@ -236,10 +236,6 @@ public class NeighborCellManagerMolecular implements BoxCellManager, BoundaryEve
     public IListener makeMCMoveListener() {
         return new MyMCMoveListener(box,this, space);
     }
-    
-    public Class getMoleculeAgentClass() {
-        return CellMolecular.class;
-    }
 
     /**
      * Returns the cell containing the given atom.  The atom is added to the

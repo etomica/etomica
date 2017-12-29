@@ -550,10 +550,6 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         }
     }
 
-    public Class getMoleculeAgentClass() {
-        return MoleculeAgent.class;
-    }
-
     public final Object makeAgent(IMolecule a) {
         return new MoleculeAgent(space);
     }

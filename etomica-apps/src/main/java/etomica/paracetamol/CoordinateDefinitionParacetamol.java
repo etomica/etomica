@@ -716,9 +716,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
         
         public OrientationAgentSource() {
         }
-        public Class getMoleculeAgentClass() {
-            return Vector[].class;
-        }
+
         public Object makeAgent(IMolecule atom) {
             return null;
         }

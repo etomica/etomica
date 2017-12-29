@@ -677,10 +677,6 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
     }
     
 //--------------------------------------------------------------
-    
-    public Class getMoleculeAgentClass() {
-        return MoleculeAgent.class;
-    }
 
     public final Object makeAgent(IMolecule a) {
         return new MoleculeAgent(space);

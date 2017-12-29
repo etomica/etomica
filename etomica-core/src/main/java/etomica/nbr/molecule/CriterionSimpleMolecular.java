@@ -141,10 +141,6 @@ public class CriterionSimpleMolecular implements NeighborCriterionMolecular, Mol
 		((Vector)agentManager.getAgent(molecule)).E(moleculeSite.position(molecule));
 	}
 
-    public Class getMoleculeAgentClass() {
-        return dr.getClass();
-    }
-    
     public Object makeAgent(IMolecule molecule) {
         return space.makeVector();
     }

@@ -673,10 +673,6 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
     
 //--------------------------------------------------------------
 
-    public Class getMoleculeAgentClass() {
-        return MoleculeAgent.class;
-    }
-
     public final Object makeAgent(IMolecule a) {
         return new MoleculeAgent(space);
     }

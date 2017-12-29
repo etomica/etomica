@@ -390,10 +390,6 @@ public class NeighborListManagerMolecular implements IntegratorListener, Molecul
     protected boolean initialized;
     protected boolean doApplyPBC;
 
-    public Class getMoleculeAgentClass() {
-        return MoleculeNeighborLists.class;
-    }
-    
     public Object makeAgent(IMolecule molecule) {
         if (initialized) {
             Object oldAgent = agentManager2Body.getAgent(molecule);
@@ -461,10 +457,6 @@ public class NeighborListManagerMolecular implements IntegratorListener, Molecul
             lists.setCapacity(potentials.length);
             return lists;
         }
-
-		public Class getMoleculeAgentClass() {
-			return MoleculePotentialList.class;
-		}
 
     }
 

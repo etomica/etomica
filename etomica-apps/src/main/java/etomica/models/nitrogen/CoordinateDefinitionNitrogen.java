@@ -991,10 +991,8 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
         
         public OrientationAgentSource() {
         }
-        public Class getMoleculeAgentClass() {
-            return Vector[].class;
-        }
-        public Object makeAgent(IMolecule atom) {
+
+		public Object makeAgent(IMolecule atom) {
             return null;
         }
         public void releaseAgent(Object agent, IMolecule atom) {

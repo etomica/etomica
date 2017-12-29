@@ -197,10 +197,7 @@ public class MinimizationBetaNitrogenModel extends Simulation{
             public Object makeAgent(IMolecule mol) {
                 return new IntegratorRigidIterative.MoleculeAgent(sim.space);
             }
-            
-            public Class getMoleculeAgentClass() {
-                return IntegratorRigidIterative.MoleculeAgent.class;
-            }
+
         };
         
         MoleculeAgentManager molAgentManager = new MoleculeAgentManager(sim, sim.box, molAgentSource);

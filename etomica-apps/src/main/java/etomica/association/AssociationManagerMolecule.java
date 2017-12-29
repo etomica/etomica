@@ -157,10 +157,6 @@ public class AssociationManagerMolecule implements MoleculeAgentSource,IListener
        return (MoleculeArrayList)agentManager.getAgent(molecule);
     }
 
-	public Class getMoleculeAgentClass() {
-		return MoleculeArrayList.class;
-	}
-
 	public Object makeAgent(IMolecule a) {
 		return new MoleculeArrayList();
 	}

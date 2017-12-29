@@ -21,16 +21,14 @@ import java.util.function.Consumer;
 public class PotentialCalculationTorqueSum implements PotentialCalculationMolecular {
         
     protected AtomLeafAgentManager<?> leafAgentManager;
-    protected MoleculeAgentManager moleculeAgentManager;
-    protected MoleculeAgentManager.AgentIterator moleculeAgentIterator;
-    
+    protected MoleculeAgentManager<?> moleculeAgentManager;
+
     public void setAgentManager(AtomLeafAgentManager<?> agentManager) {
         leafAgentManager = agentManager;
     }
     
     public void setMoleculeAgentManager(MoleculeAgentManager newMoleculeAgentManager) {
         moleculeAgentManager = newMoleculeAgentManager;
-        moleculeAgentIterator = moleculeAgentManager.makeIterator();
     }
     
     /**
@@ -49,20 +47,7 @@ public class PotentialCalculationTorqueSum implements PotentialCalculationMolecu
         };
         leafAgentManager.getAgents().values().forEach(resetAgent);
 
-        if (moleculeAgentIterator != null) {
-            moleculeAgentIterator.reset();
-            while(moleculeAgentIterator.hasNext()){
-                Object agent = moleculeAgentIterator.next();
-                if (agent instanceof Integrator.Torquable) {
-                    ((Integrator.Torquable)agent).torque().E(0);
-                    ((Integrator.Forcible)agent).force().E(0);
-                }
-                else if (agent instanceof Integrator.Forcible) {
-                    ((Integrator.Forcible)agent).force().E(0);
-                }
-            }
-        }
-
+        moleculeAgentManager.agentStream().forEach(resetAgent);
     }
     
     /**

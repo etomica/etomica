@@ -31,7 +31,6 @@ public class PotentialCalculationTorqueSumWallForce extends PotentialCalculation
 
     public void setMoleculeAgentManager(MoleculeAgentManager newMoleculeAgentManager) {
         moleculeAgentManager = newMoleculeAgentManager;
-        moleculeAgentIterator = moleculeAgentManager.makeIterator();
     }
 
     /**
