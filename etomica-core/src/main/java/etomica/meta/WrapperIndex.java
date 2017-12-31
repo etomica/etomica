@@ -8,8 +8,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static etomica.meta.Common.REFLECTIONS;
-
 /**
  * Provides a map between a class and the constructor of its appropriate wrapper type.
  */
@@ -20,7 +18,8 @@ public class WrapperIndex {
 
     static {
         wrapperMap = new HashMap<>();
-        REFLECTIONS.getSubTypesOf(Wrapper.class).forEach(wrapperClass -> {
+        ComponentIndex<Wrapper> wrapperIndex = new ComponentIndex<>(Wrapper.class);
+        wrapperIndex.getComponentSet().forEach(wrapperClass -> {
             wrapperMap.put(
                     wrapperClass.getDeclaredConstructors()[0].getParameterTypes()[0],
                     wrapperClass.getDeclaredConstructors()[0]

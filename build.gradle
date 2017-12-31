@@ -68,9 +68,9 @@ project(':etomica-core') {
         compile 'com.fasterxml.jackson.core:jackson-databind:2.9.0'
         compile 'gov.nist.math:jama:1.0.3'
         compile 'org.apache.commons:commons-math3:3.3'
-        compile "org.reflections:reflections:0.9.11"
         compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.6'
         compile 'com.github.therapi:therapi-runtime-javadoc:0.2.1'
+        compile "io.github.lukehutch:fast-classpath-scanner:2.9.4"
 
         compile files("$rootProject.projectDir/libs/ptolemy.jar")
 
