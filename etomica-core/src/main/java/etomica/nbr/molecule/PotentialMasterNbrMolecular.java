@@ -4,7 +4,7 @@
 
 package etomica.nbr.molecule;
 
-import etomica.atom.SpeciesAgentManager;
+import etomica.species.SpeciesAgentManager;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentManager.BoxAgentSource;
 import etomica.box.BoxCellManager;

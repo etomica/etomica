@@ -27,6 +27,7 @@ import etomica.space3d.OrientationFull3D;
 import etomica.space3d.RotationTensor3D;
 import etomica.species.ISpecies;
 import etomica.species.ISpeciesOriented;
+import etomica.species.SpeciesAgentManager;
 import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.util.Constants;

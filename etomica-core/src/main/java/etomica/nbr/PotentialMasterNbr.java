@@ -6,9 +6,8 @@ package etomica.nbr;
 
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeAgentManager;
-import etomica.atom.SpeciesAgentManager;
+import etomica.species.SpeciesAgentManager;
 import etomica.box.BoxAgentManager;
-import etomica.box.BoxAgentManager.BoxAgentSource;
 import etomica.box.BoxCellManager;
 import etomica.potential.*;
 import etomica.simulation.Simulation;

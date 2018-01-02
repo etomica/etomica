@@ -8,7 +8,6 @@ import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.SpeciesAgentManager;
 import etomica.box.Box;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
