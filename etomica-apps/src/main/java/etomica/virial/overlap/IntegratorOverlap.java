@@ -19,9 +19,10 @@ public class IntegratorOverlap extends IntegratorManagerMC {
     public IntegratorOverlap(Integrator[] aIntegrators) {
         super(null);
         setNumSubSteps(1000);
-        for (int i=0; i<aIntegrators.length; i++) {
-            addIntegrator(aIntegrators[i]);
+        for (Integrator aIntegrator : aIntegrators) {
+            addIntegrator(aIntegrator);
         }
+        int nIntegrators = this.integrators.size();
         stepFreq = new double[nIntegrators];
         totNumSubSteps = new long[nIntegrators];
         setAdjustStepFreq(true);
@@ -38,9 +39,10 @@ public class IntegratorOverlap extends IntegratorManagerMC {
     public void setDSVO(DataSourceVirialOverlap dataSource) {
         dsvo = dataSource;
         accumulators = dsvo.getAccumulators();
-        if (integrators.length != accumulators.length) {
+        if (integrators.size() != accumulators.length) {
             throw new IllegalArgumentException("Must have the same number of integrators as accumulators\n");
         }
+        int nIntegrators = integrators.size();
         for (int i=0; i<nIntegrators; i++) {
             if (doAdjustStepFreq) {
                 stepFreq[i] = 1.0/nIntegrators;
@@ -92,14 +94,15 @@ public class IntegratorOverlap extends IntegratorManagerMC {
     // Override superclass so we can run the integrators for different lenghts
     // of time.  There are no global moves.
     protected void doStepInternal() {
+        int nIntegrators = integrators.size();
         for (int i=0; i<nIntegrators; i++) {
             long iSubSteps = (int)(numSubSteps*stepFreq[i]);
             if (doAdjustStepFreq) {
                 // if we're internally adjusting the step fractions, require at least 1%
                 iSubSteps = numSubSteps/100 + (int)(numSubSteps*(1-0.01*nIntegrators) * stepFreq[i]);
             }
-            for (long j=0; j<iSubSteps; j++) {
-                integrators[i].doStep();
+            for (int j=0; j<iSubSteps; j++) {
+                integrators.get(j).doStep();
             }
             totNumSubSteps[i] += iSubSteps;
         }
@@ -174,6 +177,7 @@ public class IntegratorOverlap extends IntegratorManagerMC {
         if (Debug.ON && Debug.DEBUG_NOW) {
             System.out.println("error ratios "+refErrorRatio+" "+targetErrorRatio);
             System.out.print("freq ");
+            int nIntegrators = integrators.size();
             for (int i=0; i<nIntegrators; i++) {
                 System.out.print(stepFreq[i]+" ");
             }
