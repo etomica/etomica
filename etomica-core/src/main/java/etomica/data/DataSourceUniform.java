@@ -8,7 +8,6 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Null;
-import etomica.util.EnumeratedType;
 
 /**
  * A DataSource object that provides a set of uniformly spaced values between

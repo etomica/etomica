@@ -22,7 +22,6 @@ import etomica.space.Vector;
 import etomica.units.dimensions.Dimensioned;
 import etomica.units.dimensions.Time;
 import etomica.util.Debug;
-import etomica.util.EnumeratedType;
 import etomica.util.random.IRandom;
 
 /**

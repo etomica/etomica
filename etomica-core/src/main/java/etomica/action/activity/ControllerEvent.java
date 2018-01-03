@@ -5,15 +5,14 @@
 package etomica.action.activity;
 
 import etomica.action.IAction;
-import etomica.util.EnumeratedType;
 import etomica.util.IEvent;
 
 public class ControllerEvent implements IEvent {
-    
+
     protected final Controller controller;
     protected final Type type;
     protected final IAction action;
-    
+
     public ControllerEvent(Controller source, Type type) {
         this(source, type, null);
     }
@@ -22,8 +21,8 @@ public class ControllerEvent implements IEvent {
         this.type = type;
         this.action = action;
     }
-    
-    public IAction getAction() {return action;} 
+
+    public IAction getAction() {return action;}
     public Type getType() {return type;}
     public Controller getController() {return controller;}
 

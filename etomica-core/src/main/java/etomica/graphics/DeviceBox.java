@@ -3,23 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.graphics;
-import java.awt.Color;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.KeyEvent;
-import java.util.Enumeration;
-import java.util.Vector;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
 
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifyAction;
 import etomica.units.dimensions.Null;
 import etomica.units.systems.UnitSystem;
 import etomica.util.Constants;
-import etomica.util.EnumeratedType;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.KeyEvent;
+import java.util.Enumeration;
+import java.util.Vector;
 
 /**
  * A simple device the permits editing of a single value via a textbox 
