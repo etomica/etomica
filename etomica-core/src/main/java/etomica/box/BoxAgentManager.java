@@ -4,9 +4,12 @@
 
 package etomica.box;
 
-import etomica.simulation.*;
+import etomica.simulation.Simulation;
+import etomica.simulation.SimulationBoxEvent;
+import etomica.simulation.SimulationEventManager;
+import etomica.simulation.SimulationListener;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -51,7 +54,7 @@ public final class BoxAgentManager<E> implements SimulationListener {
         // this will crash if the given sim is in the middle of its constructor
         simEventManager.addListener(this);
 
-        agents = new HashMap<>();
+        agents = new LinkedHashMap<>();
         sim.getBoxes().forEach(box -> agents.put(box, agentSource.apply(box)));
     }
 

@@ -4,10 +4,12 @@
 
 package etomica.atom;
 
-import etomica.simulation.*;
+import etomica.simulation.Simulation;
+import etomica.simulation.SimulationListener;
+import etomica.simulation.SimulationSpeciesEvent;
 import etomica.species.ISpecies;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -30,7 +32,7 @@ public class AtomTypeAgentManager<E> implements SimulationListener {
     public AtomTypeAgentManager(AgentSource<E> source, Simulation sim) {
         this.agentSource = Objects.requireNonNull(source);
         this.sim = Objects.requireNonNull(sim);
-        this.agents = new HashMap<>();
+        this.agents = new LinkedHashMap<>();
 
         sim.getEventManager().addListener(this);
         for (ISpecies species : sim.getSpeciesList()) {

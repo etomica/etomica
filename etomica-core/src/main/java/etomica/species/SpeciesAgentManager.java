@@ -8,7 +8,7 @@ import etomica.simulation.Simulation;
 import etomica.simulation.SimulationListener;
 import etomica.simulation.SimulationSpeciesEvent;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -43,7 +43,7 @@ public final class SpeciesAgentManager<E> {
 
         sim.getEventManager().addListener(simulationListener);
 
-        agents = new HashMap<>();
+        agents = new LinkedHashMap<>();
         sim.getSpeciesList().forEach(species -> agents.put(species, agentSource.makeAgent(species)));
     }
 
