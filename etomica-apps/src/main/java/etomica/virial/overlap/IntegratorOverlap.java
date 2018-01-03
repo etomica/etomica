@@ -12,7 +12,7 @@ import etomica.util.Debug;
 
 /**
  * This integrator class manages (2) sub-integrators for an overlap
- * sampling simulation. 
+ * sampling simulation. Used for computing virial coefficients with overlap sampling.
  */
 public class IntegratorOverlap extends IntegratorManagerMC {
 
