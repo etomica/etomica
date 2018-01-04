@@ -79,9 +79,10 @@ public class IndexMapTest {
         assertNull(map.get(106));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test()
     public void testPutNullValue() {
         map.put(5, null);
+        assertNull(map.get(5));
     }
 
     @Test

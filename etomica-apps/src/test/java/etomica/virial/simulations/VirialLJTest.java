@@ -26,7 +26,7 @@ import static org.junit.Assert.assertTrue;
 public class VirialLJTest {
 
     @Test
-    public static void testVirialLJ() {
+    public void testVirialLJ() {
         final int nPoints = 3;
         double temperature = 1;
         long steps = 1000;
