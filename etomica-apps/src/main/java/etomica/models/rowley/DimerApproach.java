@@ -15,7 +15,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -258,7 +258,7 @@ public class DimerApproach extends Simulation {
             // Things that matter more than the title
             // ****************************************
             
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, appName, sim.space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, appName);
             // The default Paint Interval is too infrequent
             simGraphic.setPaintInterval(sim.box, 1);
             //simGraphic.getDisplayBox(sim.box).setShowBoundary(false);

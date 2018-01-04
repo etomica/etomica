@@ -11,7 +11,7 @@ import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.*;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -412,7 +412,7 @@ public class DoubleAssociationSitesFluid4Pt {
 		if (false) {
             sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
             sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
             Species species = (Species)sim.getSpecies(0);

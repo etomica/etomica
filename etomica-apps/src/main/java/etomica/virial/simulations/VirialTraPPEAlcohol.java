@@ -14,7 +14,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.models.traPPE.MethanolPotentialHelper;
 import etomica.models.traPPE.SpeciesFactoryMethanol;
 import etomica.models.traPPE.SpeciesMethanol;
@@ -224,7 +224,7 @@ public class VirialTraPPEAlcohol {
 
             referenceBox.getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
             targetBox.getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.getDisplayBox(referenceBox).setShowBoundary(false);
             simGraphic.getDisplayBox(targetBox).setShowBoundary(false);
 

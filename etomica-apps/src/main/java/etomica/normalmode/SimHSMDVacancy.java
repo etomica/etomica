@@ -31,7 +31,7 @@ import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
@@ -294,7 +294,7 @@ public class SimHSMDVacancy extends Simulation {
             sim.integrator.getEventManager().addListener(nPump);
             
             final String APP_NAME = "HSMD Vacancy";
-        	final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3, sim.space, sim.getController());
+        	final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3);
         	final int nc = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
             ColorScheme colorScheme = new ColorScheme() {
                 public Color getAtomColor(IAtom a) {

@@ -15,7 +15,7 @@ import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.*;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.SpecialFunctions;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.overlap.IntegratorOverlap;

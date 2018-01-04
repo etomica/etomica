@@ -24,7 +24,7 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.PrimitiveMonoclinic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.CriterionInterMolecular;
 import etomica.nbr.CriterionNone;
 import etomica.nbr.list.PotentialMasterList;
@@ -391,7 +391,7 @@ public class MDParacetamolMonoclinic extends Simulation {
      */
     public static void main(String[] args) {
         etomica.paracetamol.MDParacetamolMonoclinic sim = new etomica.paracetamol.MDParacetamolMonoclinic();
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 1, sim.space, sim.getController());
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 1);
         Pixel pixel = new Pixel(10);
         simGraphic.getDisplayBox(sim.box).setPixelUnit(pixel);
         ArrayList dataStreamPumps = simGraphic.getController().getDataStreamPumps();

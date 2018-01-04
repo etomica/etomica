@@ -17,7 +17,7 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeArrayList;
@@ -116,7 +116,7 @@ public class SimKMCLJadatom extends Simulation{
         sim.integratorKMC.setInitialStateConditions(-539.543484823175, 3.1145942027562522E72);
         sim.integratorKMC.setSearchLimit(1);
 
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 1, sim.getSpace(), sim.getController());
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 1);
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
         sim.integratorKMC.getEventManager().addListener(new IntegratorListenerAction(simGraphic.getPaintAction(sim.box)));

@@ -64,7 +64,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource<
             agentManager.dispose();
         }
         super.setBox(box);
-        agentManager = new AtomLeafAgentManager<Agent>(this, box,Agent.class);
+        agentManager = new AtomLeafAgentManager<Agent>(this, box);
         forceSum.setAgentManager(agentManager);
     }
     

@@ -17,7 +17,7 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.cell.molecule.NeighborCellManagerMolecular;
 import etomica.nbr.list.molecule.BoxAgentSourceCellManagerListMolecular;
 import etomica.nbr.list.molecule.NeighborListManagerSlantyMolecular;
@@ -45,10 +45,10 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
         super(space);
         
         BoxAgentSourceCellManagerListMolecular boxAgentSourceTarg = new BoxAgentSourceCellManagerListMolecular(this, null, space);
-        BoxAgentManager<NeighborCellManagerMolecular> boxAgentManagerTarg = new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSourceTarg, NeighborCellManagerMolecular.class, this);
+        BoxAgentManager<NeighborCellManagerMolecular> boxAgentManagerTarg = new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSourceTarg, this);
  
         BoxAgentSourceCellManagerListMolecular boxAgentSourceRef = new BoxAgentSourceCellManagerListMolecular(this, null, space);
-        BoxAgentManager<NeighborCellManagerMolecular> boxAgentManagerRef = new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSourceRef, NeighborCellManagerMolecular.class, this);
+        BoxAgentManager<NeighborCellManagerMolecular> boxAgentManagerRef = new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSourceRef, this);
         
         SpeciesN2 species = new SpeciesN2(space);
 		addSpecies(species);

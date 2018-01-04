@@ -32,7 +32,7 @@ import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.integrator.mcmove.MCMoveTorsionAceticAcid;
 import etomica.integrator.mcmove.MCMoveWiggleAceticAcid;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.models.OPLS.AceticAcidPotentialHelper;
 import etomica.models.OPLS.DipoleSourceAceticAcid;
 import etomica.models.OPLS.SpeciesAceticAcid;
@@ -90,7 +90,7 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
 		};
         BoxAgentSourceCellManagerMolecular bASCellManagerMolecular = new BoxAgentSourceCellManagerMolecular(this, positionDefinition, space);//tracking neighbors
         bASCellManagerMolecular.setRange(4.2);//association is made within 4.2A of C-C distance
-        BoxAgentManager<NeighborCellManagerMolecular> cellAgentManager = new BoxAgentManager<NeighborCellManagerMolecular>(bASCellManagerMolecular,NeighborCellManagerMolecular.class,this);
+        BoxAgentManager<NeighborCellManagerMolecular> cellAgentManager = new BoxAgentManager<NeighborCellManagerMolecular>(bASCellManagerMolecular, this);
         System.out.println("pressure = "+pressureBar+"bar");
         System.out.println("initial density = "+densityMolLiter+"mol/L");
         System.out.println("temperature = "+temperatureK+"K");
@@ -263,7 +263,7 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
         sim.integrator.getEventManager().addListener(energy2Listener);
         
         if (false) {
-        	SimulationGraphic graphic = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE,"acetic acid", 1, sim.space,sim.getController());
+        	SimulationGraphic graphic = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE,"acetic acid", 1);
         	SpeciesAceticAcid species = (SpeciesAceticAcid)sim.getSpecies(0);
             AtomType typeCH3 = species.getCH3Type();
             AtomType typeC = species.getCType();

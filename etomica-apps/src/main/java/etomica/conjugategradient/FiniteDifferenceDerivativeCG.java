@@ -58,7 +58,7 @@ public class FiniteDifferenceDerivativeCG {
 		hOptimizer = false;
 		
 		MyAgentSource source = new MyAgentSource(space);
-		agentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(source, box, IntegratorVelocityVerlet.MyAgent.class);
+		agentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(source, box);
 		forceSum.setAgentManager(agentManager);
 	}
 	

@@ -18,7 +18,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -136,7 +136,7 @@ public class MappedRdf extends Simulation {
             sim.integrator.getEventManager().addListener(rdfPumpListener);
             rdfPumpListener.setInterval(10*numAtoms);
 
-            SimulationGraphic gsim = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE,space,sim.getController());
+            SimulationGraphic gsim = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE);
 
             rdfPlot.setDoLegend(false);
             rdfPlot.getPlot().setTitle("Radial Distribution Function");

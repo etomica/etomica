@@ -26,7 +26,7 @@ public class HTTPSoftSphereApplet extends SimulationGraphic {
 
     public HTTPSoftSphereApplet(final HTTPSoftSphereSim sim, double otherTemperature) {
         
-    	super(sim, SimulationGraphic.TABBED_PANE, sim.getSpace(), sim.getController());
+    	super(sim, SimulationGraphic.TABBED_PANE);
         this.sim = sim;
         
     	meter = new MeterBoltzmannHTTP(sim.potentialMaster, sim.species, sim.getSpace(), sim);

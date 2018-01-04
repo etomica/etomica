@@ -5,6 +5,7 @@
 package etomica.potential;
 
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.config.Configuration;
@@ -17,6 +18,9 @@ import etomica.space3d.Vector3D;
 import etomica.units.Kelvin;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -42,20 +46,19 @@ public class EwaldSummationTest {
     Box box;
     Simulation sim;
 
-    public class ChargeAgentSourceSPCE implements AtomLeafAgentManager.AgentSource<EwaldSummation.MyCharge>{
-        protected final EwaldSummation.MyCharge[] myCharge;
+    public static class ChargeAgentSourceSPCE implements AtomLeafAgentManager.AgentSource<EwaldSummation.MyCharge>{
+        private final Map<AtomType, EwaldSummation.MyCharge> myCharge;
         public ChargeAgentSourceSPCE(SpeciesWater3P species){
-            myCharge = new EwaldSummation.MyCharge[2];
+            myCharge = new HashMap<>();
             double chargeH = P2WaterSPCE.QH;
             double chargeO = P2WaterSPCE.QO;
-            myCharge[species.getHydrogenType().getChildIndex()] = new EwaldSummation.MyCharge(chargeH);
-            myCharge[species.getOxygenType().getChildIndex()] = new EwaldSummation.MyCharge(chargeO);
+            myCharge.put(species.getHydrogenType(), new EwaldSummation.MyCharge(chargeH));
+            myCharge.put(species.getOxygenType(), new EwaldSummation.MyCharge(chargeO));
         }
 
         // *********************** set half(even # of particles ) as +ion, the other half -ion ***********************
         public EwaldSummation.MyCharge makeAgent(IAtom a, Box agentBox) {
-            int index = a.getType().getChildIndex();
-            return myCharge[index];
+            return myCharge.get(a.getType());
         }
         public void releaseAgent(EwaldSummation.MyCharge agent, IAtom atom, Box agentBox) {
             // Do nothing
@@ -73,7 +76,7 @@ public class EwaldSummationTest {
         box = new Box(space);
         SpeciesWater3P species = new SpeciesWater3P(space,false);
         ChargeAgentSourceSPCE agentSource = new ChargeAgentSourceSPCE(species);
-        AtomLeafAgentManager<EwaldSummation.MyCharge> atomAgentManager = new AtomLeafAgentManager<EwaldSummation.MyCharge>(agentSource, box,EwaldSummation.MyCharge.class);
+        AtomLeafAgentManager<EwaldSummation.MyCharge> atomAgentManager = new AtomLeafAgentManager<EwaldSummation.MyCharge>(agentSource, box);
         sim = new Simulation(space);
 
         sim.addSpecies(species);

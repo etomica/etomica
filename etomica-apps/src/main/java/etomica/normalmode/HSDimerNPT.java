@@ -28,7 +28,7 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcpBaseCentered;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveMonoclinic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.list.BoxAgentSourceCellManagerList;
 import etomica.nbr.list.NeighborListManagerSlanty;
@@ -74,7 +74,7 @@ public class HSDimerNPT extends Simulation {
         super(space);
 
         BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, space);
-        BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class, this);
+        BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, this);
         potentialMaster = new PotentialMasterList(this, 2, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(2, space), space);
 
         double tol = 1e-8;
@@ -495,8 +495,8 @@ public class HSDimerNPT extends Simulation {
             }
 
 
-            SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.getSpace(), sim.getController());
-            DiameterHashByType diameter = new DiameterHashByType(sim);
+            SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
+            DiameterHashByType diameter = new DiameterHashByType();
             diameter.setDiameter(sim.species.getDimerAtomType(), 1.0);
             graphic.getDisplayBox(sim.box).setDiameterHash(diameter);
 

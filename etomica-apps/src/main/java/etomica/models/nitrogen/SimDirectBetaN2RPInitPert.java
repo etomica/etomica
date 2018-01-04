@@ -17,7 +17,7 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.cell.molecule.NeighborCellManagerMolecular;
 import etomica.nbr.list.molecule.BoxAgentSourceCellManagerListMolecular;
 import etomica.nbr.list.molecule.NeighborListManagerSlantyMolecular;
@@ -47,7 +47,7 @@ public class SimDirectBetaN2RPInitPert extends Simulation {
         super(space);
         
         BoxAgentSourceCellManagerListMolecular boxAgentSource = new BoxAgentSourceCellManagerListMolecular(this, null, space);
-        BoxAgentManager<NeighborCellManagerMolecular> boxAgentManager = new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSource, NeighborCellManagerMolecular.class, this);
+        BoxAgentManager<NeighborCellManagerMolecular> boxAgentManager = new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSource, this);
  
         SpeciesN2 species = new SpeciesN2(space);
 		addSpecies(species);
@@ -66,11 +66,15 @@ public class SimDirectBetaN2RPInitPert extends Simulation {
 		BasisBigCell basis = new BasisBigCell(space, basisHCP, new int[]{nC,nC,nC});
         
 		Vector[] boxDim = new Vector[3];
-		boxDim[0] = space.makeVector(new double[]{nC*aDim, 0, 0});
-		boxDim[1] = space.makeVector(new double[]{-nC*aDim*Math.cos(Degree.UNIT.toSim(60)), nC*aDim*Math.sin(Degree.UNIT.toSim(60)), 0});
-		boxDim[2] = space.makeVector(new double[]{0, 0, nC*cDim});
+		boxDim[0] = Vector.of(nC * aDim, 0, 0);
+		boxDim[1] = Vector.of(
+				-nC * aDim * Math.cos(Degree.UNIT.toSim(60)),
+				nC * aDim * Math.sin(Degree.UNIT.toSim(60)),
+				0
+		);
+		boxDim[2] = Vector.of(0, 0, nC * cDim);
 		
-		int[] nCells = new int[]{1,1,1};
+		int[] nCells = {1,1,1};
 		Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
 		Primitive primitive = new PrimitiveHexagonal(space, nC*aDim, nC*cDim);
 		

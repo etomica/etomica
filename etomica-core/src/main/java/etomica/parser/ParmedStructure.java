@@ -110,7 +110,7 @@ public class ParmedStructure {
         }
 
         // need to convert the list of Integers into array of ints
-        theSpecies.setAtomTypes(speciesAtomTypes.stream().mapToInt(i -> i).toArray());
+        theSpecies.setChildAtomTypes(speciesAtomTypes.stream().mapToInt(i -> i).toArray());
 
         theSpecies.setConformation(atomList -> {
             for(int i = 0; i < atomList.getAtomCount(); i++) {
@@ -196,7 +196,7 @@ public class ParmedStructure {
     }
 
     /**
-     * "Lazily" create the atomTypes field when it is first needed. If the field is null it creates the
+     * "Lazily" create the childAtomTypes field when it is first needed. If the field is null it creates the
      * map from the data, otherwise it does nothing.
      */
     private void ensureAtomTypes() {

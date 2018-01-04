@@ -19,7 +19,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.*;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.P2HePCKLJS;
 import etomica.potential.PotentialGroup;
@@ -163,7 +163,7 @@ public class VirialHePIXC {
         if (false) {
             double vSize = 10;
             sim.box.getBoundary().setBoxSize(space.makeVector(new double[]{vSize,vSize,vSize}));
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox = simGraphic.getDisplayBox(sim.box); 
             displayBox.setPixelUnit(new Pixel(300.0/vSize));
             displayBox.setShowBoundary(false);

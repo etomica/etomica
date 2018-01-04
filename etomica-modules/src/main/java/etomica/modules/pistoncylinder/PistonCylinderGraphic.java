@@ -19,7 +19,7 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.*;
 import etomica.graphics.DeviceBox.LabelType;
 import etomica.integrator.IntegratorMD;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.function.Function;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
@@ -100,7 +100,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
      * this can be used.
      */
     public PistonCylinderGraphic(PistonCylinder sim, Space _space) {
-    	super(sim, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, sim.getController());
+    	super(sim, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
     	pc = sim;
     }
 
@@ -153,7 +153,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         };
 
         displayBox = getDisplayBox(pc.box);
-        displayBox.setColorScheme(new ColorSchemeByType(simulation));
+        displayBox.setColorScheme(new ColorSchemeByType());
         final P1HardMovingBoundary pistonPotential = pc.pistonPotential;
         if (pc.getSpace().D() == 3) {
             setPaintInterval(pc.box, 1);

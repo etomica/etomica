@@ -17,7 +17,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.DoubleRange;
 import etomica.normalmode.*;
 import etomica.potential.P2HardSphere;

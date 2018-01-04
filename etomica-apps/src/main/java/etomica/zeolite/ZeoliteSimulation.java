@@ -16,7 +16,7 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;

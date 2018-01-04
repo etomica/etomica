@@ -189,7 +189,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
         }
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtom a = leafList.getAtom(iLeaf);
-            if(atomFilter != null && atomFilter.accept(a)) continue;
+            if(atomFilter != null && atomFilter.test(a)) continue;
             if(this instanceof DisplayBoxSpin2D) {
             	drawAtom(g, origin, a);
             }

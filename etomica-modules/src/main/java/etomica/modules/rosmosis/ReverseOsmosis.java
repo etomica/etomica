@@ -11,7 +11,7 @@ import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.PotentialMaster;

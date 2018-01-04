@@ -24,7 +24,7 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.CriterionSimple;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.simulation.Simulation;
@@ -206,7 +206,7 @@ public class MEAMMd3D extends Simulation {
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(energyPump));
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(kineticPump));
 
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space, sim.getController());
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
         ArrayList dataStreamPumps = simGraphic.getController().getDataStreamPumps();
         dataStreamPumps.add(energyPump);
         dataStreamPumps.add(kineticPump);

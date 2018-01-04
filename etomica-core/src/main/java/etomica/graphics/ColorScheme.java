@@ -51,7 +51,7 @@ public abstract class ColorScheme {
       final String APP_NAME = "Color Scheme";
 
         final etomica.simulation.prototypes.HSMD3D sim = new etomica.simulation.prototypes.HSMD3D();
-        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sim.getSpace(), sim.getController());
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
 
       IAction repaintAction = simGraphic.getPaintAction(sim.box);
 
@@ -65,10 +65,10 @@ public abstract class ColorScheme {
 
       simGraphic.getController().getReinitButton().setPostAction(repaintAction);
 
-      final ColorSchemeByType ct = new ColorSchemeByType(sim);
+      final ColorSchemeByType ct = new ColorSchemeByType();
       final ColorSchemeTemperature ctemp = new ColorSchemeTemperature(0,5);
       final ColorSchemeColliders ccld = new ColorSchemeColliders(sim.integrator);
-      final ColorSchemeNeighbor nghb = new ColorSchemeNeighbor(sim, (PotentialMasterList)sim.potentialMaster, sim.box);
+      final ColorSchemeNeighbor nghb = new ColorSchemeNeighbor((PotentialMasterList)sim.potentialMaster, sim.box);
       nghb.setAtom(sim.box.getLeafList().getAtom(0));
       final ColorSchemeRandom rand = new ColorSchemeRandom(sim.box, sim.getRandom());
       final ColorSchemeCell cell = new ColorSchemeCell((PotentialMasterList)sim.potentialMaster,sim.getRandom(),sim.box);

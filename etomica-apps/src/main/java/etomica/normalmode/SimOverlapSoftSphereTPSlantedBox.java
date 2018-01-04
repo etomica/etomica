@@ -64,7 +64,7 @@ public class SimOverlapSoftSphereTPSlantedBox extends Simulation {
         super(_space);
 
         BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, space);
-        BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class, this);
+        BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, this);
         potentialMaster = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc, space), space);
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
@@ -119,7 +119,7 @@ public class SimOverlapSoftSphereTPSlantedBox extends Simulation {
          *
          */
 
-        P1ConstraintNbr p1Constraint = new P1ConstraintNbr(space, primitive.getSize()[0]/c, this);
+        P1ConstraintNbr p1Constraint = new P1ConstraintNbr(space, primitive.getSize()[0]/c);
         atomMove.setConstraint(p1Constraint);
 
         potentialMaster.lrcMaster().setEnabled(false);
@@ -204,7 +204,7 @@ public class SimOverlapSoftSphereTPSlantedBox extends Simulation {
         //instantiate simulation
         final SimOverlapSoftSphereTPSlantedBox sim = new SimOverlapSoftSphereTPSlantedBox(Space.getInstance(3), numMolecules, density, temperature, otherTemperatures, alpha, exponentN, numAlpha, alphaSpan, numSteps, rc);
         if (true) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.setPaintInterval(sim.box, 1000);
             ColorScheme colorScheme = new ColorScheme() {
                 protected Color[] allColors;

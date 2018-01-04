@@ -23,7 +23,7 @@ import etomica.data.types.DataGroup;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.DoubleRange;
 import etomica.math.SpecialFunctions;
 import etomica.potential.IPotentialAtomic;
@@ -273,7 +273,7 @@ public class VirialPolyhedra2 {
 
         if (false) {
             sim.box.getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box); 
 //            displayBox0.setPixelUnit(new Pixel(300.0/size));
             displayBox0.setShowBoundary(false);

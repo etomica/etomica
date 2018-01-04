@@ -8,7 +8,6 @@ import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.SpeciesAgentManager;
 import etomica.box.Box;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
@@ -17,6 +16,9 @@ import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
 import etomica.util.Constants;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Effective semiclassical molecular potential using the approach of
@@ -34,18 +36,18 @@ public class P2SemiclassicalMolecular implements IPotentialMolecular {
 
     protected final IPotentialMolecularTorque p2Classy;
     protected double temperature, fac;
-    protected final SpeciesAgentManager agents;
+    private final Map<ISpecies, MoleculeInfo> agents;
     protected final Space space;
     
     public P2SemiclassicalMolecular(Space space, IPotentialMolecularTorque p2Classy) {
         this.space = space;
         this.p2Classy = p2Classy;
         if (p2Classy.nBody() != 2) throw new RuntimeException("I would really rather have a 2-body potential");
-        agents = new SpeciesAgentManager(null);
+        this.agents = new HashMap<>();
     }
     
     public void setMoleculeInfo(ISpecies species, MoleculeInfo moleculeInfo) {
-        agents.setAgent(species, moleculeInfo);
+        agents.put(species, moleculeInfo);
     }
     
     public void setTemperature(double newTemperature) {
@@ -72,10 +74,10 @@ public class P2SemiclassicalMolecular implements IPotentialMolecular {
         double sum = 0;
         for (int i=0; i<2; i++) {
             IMolecule iMol = molecules.getMolecule(i);
-            MoleculeInfo molInfo = (MoleculeInfo)agents.getAgent(iMol.getType());
+            MoleculeInfo molInfo = agents.get(iMol.getType());
             if (molInfo == null) {
                 molInfo = new MoleculeInfoBrute(space);
-                agents.setAgent(iMol.getType(), molInfo);
+                agents.put(iMol.getType(), molInfo);
             }
             double mi = molInfo.getMass(iMol);
             sum -= gradAndTorque[i][0].squared()/mi;

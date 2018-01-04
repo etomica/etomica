@@ -6,7 +6,6 @@ package etomica.modules.vle;
 
 import etomica.action.IAction;
 import etomica.action.activity.Controller;
-import etomica.action.activity.IController;
 import etomica.graphics.Device;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.SimulationGraphic;
@@ -45,7 +44,7 @@ public class DeviceThermoSliderGEMC extends Device {
 	private final int DEFAULT_MIN_TEMPERATURE = 0;
 	private final int DEFAULT_MAX_TEMPERATURE = 300;
 
-	public DeviceThermoSliderGEMC(IController cont) {
+	public DeviceThermoSliderGEMC(Controller cont) {
 
         //adiabatic/isothermal radio button
         ButtonGroup thermalGroup = new ButtonGroup();
@@ -251,7 +250,7 @@ public class DeviceThermoSliderGEMC extends Device {
 	/**
 	 * Set the temperature slider controller.
 	 */
-    public void setController(IController cont) {
+    public void setController(Controller cont) {
     	super.setController(cont);
         temperatureSlider.setController(cont);
         if (integrator1 != null && integrator2 != null) {
@@ -323,7 +322,7 @@ public class DeviceThermoSliderGEMC extends Device {
     public static void main(String[] args) {
         final String APP_NAME = "Device Thermo Slider";
 
-        IController controller = new Controller();
+        Controller controller = new Controller();
         DeviceThermoSliderGEMC device = new DeviceThermoSliderGEMC(controller);
         device.setMinimum(100.0);
         device.setMaximum(1000.0);
@@ -331,7 +330,7 @@ public class DeviceThermoSliderGEMC extends Device {
 
         Space sp = Space2D.getInstance();
         etomica.simulation.Simulation sim = new etomica.simulation.Simulation(sp);
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME, sp, sim.getController());
+        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
         graphic.getPanel().controlPanel.remove(graphic.getController().graphic());
         graphic.add(device);
         graphic.makeAndDisplayFrame(APP_NAME);

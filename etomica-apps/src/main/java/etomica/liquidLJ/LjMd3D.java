@@ -590,7 +590,7 @@ public class LjMd3D extends Simulation {
         
     	if (graphics) {
             final String APP_NAME = "LjMd3D";
-        	final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3, sim.space, sim.getController());
+        	final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3);
     
             simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
             simGraphic.getController().getDataStreamPumps().add(energyPump);

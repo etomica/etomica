@@ -28,7 +28,7 @@ import etomica.integrator.mcmove.*;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.cell.PotentialMasterCell;
@@ -44,11 +44,11 @@ import etomica.species.SpeciesSpheresMono;
 import etomica.statmech.LennardJones;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Null;
-import etomica.util.Arrays;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
 import java.awt.*;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -320,7 +320,7 @@ public class SimLJVacancy extends Simulation {
             sim.integrator.getEventManager().addListener(nPump);
             
             final String APP_NAME = "LJ Vacancy";
-        	final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, numAtoms, sim.space, sim.getController());
+        	final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, numAtoms);
         	final int nc = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
             ColorScheme colorScheme = new ColorScheme() {
                 public Color getAtomColor(IAtom a) {
@@ -907,7 +907,7 @@ public class SimLJVacancy extends Simulation {
             sim.integrator.getEventManager().addListener(nPump);
             
             final String APP_NAME = "LJ Vacancy";
-        	final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, numAtoms, sim.space, sim.getController());
+        	final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, numAtoms);
         	final int nc = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
             ColorScheme colorScheme = new ColorScheme() {
                 public Color getAtomColor(IAtom a) {

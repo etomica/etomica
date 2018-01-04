@@ -20,7 +20,7 @@ import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.graphics.*;
 import etomica.graphics.DeviceBox.LabelType;
 import etomica.integrator.Integrator;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.ModifierGeneral;
 import etomica.units.dimensions.Null;
 import etomica.util.Constants.CompassDirection;

@@ -93,7 +93,7 @@ public class HSMD2D extends Simulation {
      */
     public static void main(String[] args) {
         HSMD2D sim = new HSMD2D();
-        final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
         simGraphic.makeAndDisplayFrame();
     }
 

@@ -31,16 +31,16 @@ public class LJMCGraphic extends SimulationGraphic {
 
     public LJMCGraphic(final LJMC simulation, Space _space) {
 
-    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
+    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
         
     	this.sim = simulation;
 
 	    //display of box, timer
-        ColorSchemeByType colorScheme = new ColorSchemeByType(sim);
+        ColorSchemeByType colorScheme = new ColorSchemeByType();
         colorScheme.setColor(sim.species.getLeafType(),java.awt.Color.red);
-        getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType(sim));
+        getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType());
 
         DataSourceCountSteps timeCounter = new DataSourceCountSteps(sim.integrator);
 

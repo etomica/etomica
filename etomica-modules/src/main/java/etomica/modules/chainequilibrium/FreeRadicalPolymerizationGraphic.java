@@ -10,7 +10,7 @@ import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterTemperature;
 import etomica.graphics.*;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.modifier.ModifierNMolecule;
@@ -43,7 +43,7 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
 
     public FreeRadicalPolymerizationGraphic(FreeRadicalPolymerizationSim simulation, Space _space) {
 
-		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
+		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 		getPanel().toolbar.addAuthor("Dr. William Chirdon");
         this.sim = simulation;
         
@@ -200,7 +200,7 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         temperatureSelect.setSliderPostAction(resetAction);
         temperatureSelect.setRadioGroupPostAction(resetAction);
         
-        ColorSchemeRadical colorScheme = new ColorSchemeRadical(sim, sim.agentManager);
+        ColorSchemeRadical colorScheme = new ColorSchemeRadical(sim.agentManager);
         colorScheme.setBox(sim.box);
         colorScheme.setFreeRadicalColor(sim.speciesA.getLeafType(), Color.GREEN);
 //        colorScheme.setColor(sim.speciesA.getLeafType(), Color.BLUE);

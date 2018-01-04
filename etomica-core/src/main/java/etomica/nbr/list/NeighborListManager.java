@@ -66,9 +66,9 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
         potentialMaster = potentialMasterList;
         cellNbrIterator = new ApiAACell(space.D(), range, box);
         cell1ANbrIterator = new Api1ACell(space.D(), range, potentialMasterList.getCellAgentManager());
-        agentManager2Body = new AtomLeafAgentManager<AtomNeighborLists>(this, box,AtomNeighborLists.class);
+        agentManager2Body = new AtomLeafAgentManager<AtomNeighborLists>(this, box);
         AtomPotential1ListSource source1 = new AtomPotential1ListSource(potentialMasterList);
-        agentManager1Body = new AtomLeafAgentManager<AtomPotentialList>(source1, box, AtomPotentialList.class);
+        agentManager1Body = new AtomLeafAgentManager<AtomPotentialList>(source1, box);
         source1.setAgentManager(agentManager1Body);
         initialized = false;
         doApplyPBC = true;

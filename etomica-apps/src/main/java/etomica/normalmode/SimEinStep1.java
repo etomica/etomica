@@ -62,7 +62,7 @@ public class SimEinStep1 extends Simulation {
 
         if (slanty) {
             BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, space);
-            BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class, this);
+            BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, this);
             potentialMaster = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc, space), space);
         }
         else {
@@ -226,7 +226,7 @@ public class SimEinStep1 extends Simulation {
         };
 
         if (false) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.setPaintInterval(sim.box, 1000);
             ColorScheme colorScheme = new ColorScheme() {
                 protected Color[] allColors;

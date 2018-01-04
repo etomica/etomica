@@ -227,8 +227,8 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource<Int
         energyBoxMin.setBox(boxMin);
          
 		// Offset Rmin (half-dimer end) from initial configuration, along N.		
-		atomAgent0 = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, box, IntegratorVelocityVerlet.MyAgent.class);
-		atomAgentMin = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, boxMin, IntegratorVelocityVerlet.MyAgent.class);
+		atomAgent0 = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, box);
+		atomAgentMin = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, boxMin);
 		
 		force0.setAgentManager(atomAgent0);
 		forceMin.setAgentManager(atomAgentMin);

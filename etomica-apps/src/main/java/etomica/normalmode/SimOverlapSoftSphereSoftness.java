@@ -20,7 +20,7 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
@@ -134,7 +134,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
          *
          */
 
-        P1ConstraintNbr p1ConstraintTarg = new P1ConstraintNbr(space, L/Math.sqrt(2.0), this);
+        P1ConstraintNbr p1ConstraintTarg = new P1ConstraintNbr(space, L/Math.sqrt(2.0));
         atomMoveTarg.setConstraint(p1ConstraintTarg);
         potentialMasterTarg.lrcMaster().setEnabled(false);
 
@@ -197,7 +197,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
          *
          */
 
-        P1ConstraintNbr p1ConstraintRef = new P1ConstraintNbr(space, L/Math.sqrt(2.0), this);
+        P1ConstraintNbr p1ConstraintRef = new P1ConstraintNbr(space, L/Math.sqrt(2.0));
         //potentialMasterRef.addPotential(p1ConstraintRef, new IAtomType[] {sphereType});
         atomMoveRef.setConstraint(p1ConstraintRef);
         potentialMasterRef.lrcMaster().setEnabled(false);

@@ -25,11 +25,7 @@ public class ColorSchemeRandomByMolecule extends ColorScheme implements Molecule
     public Color getAtomColor(IAtom a) {
         return (Color)agentManager.getAgent(a.getParentGroup());
     }
-   
-    public Class getMoleculeAgentClass() {
-        return Color.class;
-    }
-    
+
     public Object makeAgent(IMolecule a) {
         return new Color((float)random.nextDouble(),(float)random.nextDouble(),(float)random.nextDouble());
     }

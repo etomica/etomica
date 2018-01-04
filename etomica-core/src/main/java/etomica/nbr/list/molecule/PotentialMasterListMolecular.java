@@ -53,7 +53,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
     }
 
     public PotentialMasterListMolecular(Simulation sim, double range, BoxAgentSourceCellManagerListMolecular boxAgentSource, Space _space) {
-        this(sim, range, boxAgentSource, new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSource, NeighborCellManagerMolecular.class, sim), _space);
+        this(sim, range, boxAgentSource, new BoxAgentManager<>(boxAgentSource, sim), _space);
     }
 
     public PotentialMasterListMolecular(Simulation sim, double range, BoxAgentSourceCellManagerListMolecular boxAgentSource, BoxAgentManager<? extends BoxCellManager> agentManager, Space _space){
@@ -68,18 +68,15 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
         space = _space;
         this.neighborListAgentSource = neighborListAgentSource;
         neighborListAgentSource.setPotentialMaster(this);
-        neighborListAgentManager = new BoxAgentManager<NeighborListManagerMolecular>(neighborListAgentSource, NeighborListManagerMolecular.class, sim);
+        neighborListAgentManager = new BoxAgentManager<>(neighborListAgentSource, sim);
         singletIterator = new MoleculeIteratorSinglet();
         moleculeSetSinglet = new MoleculeSetSinglet();
         moleculePair = new MoleculePair();
         cellRange = 2;
         allCriteria = new NeighborCriterionMolecular[0];
 
-        BoxAgentManager.AgentIterator<? extends BoxCellManager> iterator = boxAgentManager.makeIterator();
-        iterator.reset();
-        while (iterator.hasNext()) {
-            NeighborCellManagerListMolecular cellManager = (NeighborCellManagerListMolecular)iterator.next();
-            cellManager.setPotentialMaster(this);
+        for (BoxCellManager boxCellManager : boxAgentManager.getAgents().values()) {
+            ((NeighborCellManagerListMolecular) boxCellManager).setPotentialMaster(this);
         }
 
         boxAgentSource.setPotentialMaster(this);
@@ -102,20 +99,14 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
         range = newRange;
         ((BoxAgentSourceCellManagerListMolecular)boxAgentSource).setRange(range);
         recomputeCriteriaRanges();
-        
-        BoxAgentManager.AgentIterator<? extends BoxCellManager> iterator = boxAgentManager.makeIterator();
-        iterator.reset();
-        while (iterator.hasNext()) {
-            NeighborCellManagerMolecular cellManager = (NeighborCellManagerMolecular)iterator.next();
-            cellManager.setPotentialRange(range);
+
+        for (BoxCellManager boxCellManager : boxAgentManager.getAgents().values()) {
+            ((NeighborCellManagerMolecular) boxCellManager).setPotentialRange(range);
         }
 
         neighborListAgentSource.setRange(newRange);
-        
-        BoxAgentManager.AgentIterator<NeighborListManagerMolecular> iteratorList = neighborListAgentManager.makeIterator();
-        iteratorList.reset();
-        while (iteratorList.hasNext()) {
-            NeighborListManagerMolecular neighborListManager = iteratorList.next();
+
+        for (NeighborListManagerMolecular neighborListManager : neighborListAgentManager.getAgents().values()) {
             neighborListManager.setRange(range);
         }
     }
@@ -188,22 +179,17 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
         }
         
         // add the criterion to all existing NeighborListManagers
-        allCriteria = (NeighborCriterionMolecular[]) Arrays.addObject(allCriteria, criterion);
+        allCriteria = Arrays.addObject(allCriteria, criterion);
         
         for (int i=0; i<species.length; i++) {
-            ((PotentialArrayMolecular)rangedAgentManager.getAgent(species[i])).setCriterion(potential, criterion);
+            rangedAgentManager.getAgent(species[i]).setCriterion(potential, criterion);
         }
         if (potential.getRange() > maxPotentialRange) {
             maxPotentialRange = potential.getRange();
         }
         recomputeCriteriaRanges();
 
-        BoxAgentManager.AgentIterator<NeighborListManagerMolecular> iterator = neighborListAgentManager.makeIterator();
-        iterator.reset();
-        while (iterator.hasNext()) {
-            NeighborListManagerMolecular neighborListManager = iterator.next();
-            neighborListManager.updateLists();
-        }
+        neighborListAgentManager.getAgents().values().forEach(NeighborListManagerMolecular::updateLists);
     }
     
     /**
@@ -211,25 +197,18 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
      * class receiving notification) and readjust cell lists
      */
     public void reset() {
-        rangedPotentialIterator.reset();
-        maxPotentialRange = 0;
-        while (rangedPotentialIterator.hasNext()) {
-            PotentialArrayMolecular potentialArray = (PotentialArrayMolecular)rangedPotentialIterator.next();
+        this.maxPotentialRange = 0;
+        for (PotentialArrayMolecular potentialArray : this.rangedAgentManager.getAgents().values()) {
             IPotential[] potentials = potentialArray.getPotentials();
-            for (int i=0; i<potentials.length; i++) {
-                if (potentials[i].getRange() > maxPotentialRange) {
-                    maxPotentialRange = potentials[i].getRange();
+            for (IPotential potential : potentials) {
+                if (potential.getRange() > this.maxPotentialRange) {
+                    this.maxPotentialRange = potential.getRange();
                 }
             }
         }
         recomputeCriteriaRanges();
-        
-        BoxAgentManager.AgentIterator<NeighborListManagerMolecular> iterator = neighborListAgentManager.makeIterator();
-        iterator.reset();
-        while (iterator.hasNext()) {
-            NeighborListManagerMolecular neighborListManager = iterator.next();
-            neighborListManager.reset();
-        }
+
+        neighborListAgentManager.getAgents().values().forEach(NeighborListManagerMolecular::reset);
     }
     
     /**
@@ -246,9 +225,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
             // if they don't, the simulation will probably crash
             return;
         }
-        rangedPotentialIterator.reset();
-        while (rangedPotentialIterator.hasNext()) {
-        	PotentialArrayMolecular potentialArray = (PotentialArrayMolecular)rangedPotentialIterator.next();
+        for (PotentialArrayMolecular potentialArray : this.rangedAgentManager.getAgents().values()) {
             IPotential[] potentials = potentialArray.getPotentials();
             NeighborCriterionMolecular[] criteria = potentialArray.getCriteria();
             // this will double (or more) count criteria that apply to multiple atom types, but it won't hurt us
@@ -269,9 +246,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
      * given potential.
      */
     public NeighborCriterionMolecular getCriterion(IPotentialMolecular potential) {
-        rangedPotentialIterator.reset();
-        while (rangedPotentialIterator.hasNext()) {
-            PotentialArrayMolecular potentialArray = (PotentialArrayMolecular)rangedPotentialIterator.next();
+        for (PotentialArrayMolecular potentialArray : this.rangedAgentManager.getAgents().values()) {
             IPotential[] potentials = potentialArray.getPotentials();
             for (int j=0; j<potentials.length; j++) {
                 if (potentials[j] == potential) {
@@ -307,44 +282,35 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
         NeighborCriterionMolecular oldCriterion = getCriterion(potential);
         if (oldCriterion != null) {
             // remove the criterion to all existing NeighborListManagers
-            allCriteria = (NeighborCriterionMolecular[]) Arrays.removeObject(allCriteria, criterion);
+            allCriteria = Arrays.removeObject(allCriteria, criterion);
         }
-        rangedPotentialIterator.reset();
-        boolean success = false;
-        while (rangedPotentialIterator.hasNext()) {
-            PotentialArrayMolecular potentialArray = (PotentialArrayMolecular)rangedPotentialIterator.next();
+
+        for (PotentialArrayMolecular potentialArray : this.rangedAgentManager.getAgents().values()) {
             IPotential[] potentials = potentialArray.getPotentials();
-            for (int j=0; j<potentials.length; j++) {
-                if (potentials[j] == potential) {
-                    success = true;
+            for (IPotential p : potentials) {
+                if (p == potential) {
                     potentialArray.setCriterion(potential, criterion);
-                    break;
+                    // add the criterion to all existing NeighborListManagers
+                    allCriteria = Arrays.addObject(allCriteria, criterion);
+                    return;
                 }
             }
-        }
-        if (success) {
-            // add the criterion to all existing NeighborListManagers
-            allCriteria = (NeighborCriterionMolecular[]) Arrays.addObject(allCriteria, criterion);
-        	return;
         }
         throw new IllegalArgumentException("Potential "+potential+" is not associated with this PotentialMasterList");
     }
     
     public void removePotential(IPotentialMolecular potential) {
-        rangedPotentialIterator.reset();
-        while (rangedPotentialIterator.hasNext()) {
-            PotentialArrayMolecular potentialArray = (PotentialArrayMolecular)rangedPotentialIterator.next();
+        for (PotentialArrayMolecular potentialArray : this.rangedAgentManager.getAgents().values()) {
             IPotential[] potentials = potentialArray.getPotentials();
             for (int j=0; j<potentials.length; j++) {
                 if (potentials[j] == potential) {
                     // found it!
                     // remove the criterion from our list
-                    allCriteria = (NeighborCriterionMolecular[]) Arrays.removeObject(allCriteria, potentialArray.getCriteria()[j]);
+                    allCriteria = Arrays.removeObject(allCriteria, potentialArray.getCriteria()[j]);
                     break;
                 }
             }
         }
-
         super.removePotential(potential);
         
         maxPotentialRange = 0;
@@ -359,12 +325,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
         }
         recomputeCriteriaRanges();
 
-        BoxAgentManager.AgentIterator<NeighborListManagerMolecular> iterator = neighborListAgentManager.makeIterator();
-        iterator.reset();
-        while (iterator.hasNext()) {
-            NeighborListManagerMolecular neighborListManager = iterator.next();
-            neighborListManager.updateLists();
-        }
+        neighborListAgentManager.getAgents().values().forEach(NeighborListManagerMolecular::updateLists);
     }
     
     public NeighborCriterionMolecular[] getNeighborCriteria() {
@@ -420,7 +381,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
     protected void calculate(IMolecule molecule, IteratorDirective.Direction direction, PotentialCalculation pc, NeighborListManagerMolecular neighborManager) {
     	//System.out.println("here");
     	singletIterator.setMolecule(molecule);
-        PotentialArrayMolecular potentialArray = (PotentialArrayMolecular)rangedAgentManager.getAgent(molecule.getType());
+        PotentialArrayMolecular potentialArray = rangedAgentManager.getAgent(molecule.getType());
         IPotential[] potentials = potentialArray.getPotentials();
         for(int i=0; i<potentials.length; i++) {
             switch (potentials[i].nBody()) {
@@ -511,11 +472,8 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
     public void setCellRange(int newCellRange) {
         cellRange = newCellRange;
 
-        BoxAgentManager.AgentIterator<? extends BoxCellManager> iterator = boxAgentManager.makeIterator();
-        iterator.reset();
-        while (iterator.hasNext()) {
-            NeighborCellManagerMolecular cellManager = (NeighborCellManagerMolecular)iterator.next();
-            cellManager.setCellRange(cellRange);
+        for (BoxCellManager boxCellManager : boxAgentManager.getAgents().values()) {
+            ((NeighborCellManagerMolecular) boxCellManager).setCellRange(cellRange);
         }
     }
 

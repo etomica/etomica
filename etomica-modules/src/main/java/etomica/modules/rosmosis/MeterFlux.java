@@ -169,10 +169,6 @@ public class MeterFlux implements IDataSource, MoleculeAgentSource {
         return tag;
     }
 
-    public Class getMoleculeAgentClass() {
-        return Vector.class;
-    }
-
     public Object makeAgent(IMolecule a) {
         ISpecies thisSpecies = a.getType();
         for (int i=0; i<species.length; i++) {

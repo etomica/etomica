@@ -13,7 +13,6 @@ import javax.swing.border.TitledBorder;
 
 import etomica.action.IAction;
 import etomica.action.activity.Controller;
-import etomica.action.activity.IController;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.modifier.Modifier;
@@ -30,7 +29,7 @@ public class DeviceThermoSlider extends Device {
 	protected static final int DEFAULT_MIN_TEMPERATURE = 0;
 	protected static final int DEFAULT_MAX_TEMPERATURE = 300;
 
-	public DeviceThermoSlider(IController cont, final IntegratorBox integrator) {
+	public DeviceThermoSlider(Controller cont, final IntegratorBox integrator) {
         //adiabatic/isothermal radio button
 	    thermalButtons = new DeviceButtonGroup(cont, 2);
 	    thermalButtons.addButton("Adiabatic", new IAction() {
@@ -220,7 +219,7 @@ public class DeviceThermoSlider extends Device {
 	/**
 	 * Set the temperature slider controller.
 	 */
-    public void setController(IController cont) {
+    public void setController(Controller cont) {
     	super.setController(cont);
         temperatureSlider.setController(cont);
         thermalButtons.setController(cont);
@@ -242,7 +241,7 @@ public class DeviceThermoSlider extends Device {
         
         etomica.space.Space sp = etomica.space3d.Space3D.getInstance();
         etomica.simulation.Simulation sim = new etomica.simulation.Simulation(sp);
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME, sp, sim.getController());
+        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
 
         DeviceThermoSlider device = new DeviceThermoSlider(new Controller(), new IntegratorVelocityVerlet(null, sim.getRandom(), 1, 1, sp));
         device.setMinimum(100.0);

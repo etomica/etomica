@@ -119,7 +119,7 @@ public class LJMD3DThreaded extends Simulation {
         }
 
         final LJMD3DThreaded sim = new LJMD3DThreaded(numAtoms, numThreads);
-        final SimulationGraphic simgraphic = new SimulationGraphic(sim, APP_NAME, sim.space, sim.getController());
+        final SimulationGraphic simgraphic = new SimulationGraphic(sim, APP_NAME);
 
 	    simgraphic.getController().getReinitButton().setPostAction(simgraphic.getPaintAction(sim.box));
 

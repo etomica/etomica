@@ -13,6 +13,9 @@ import etomica.molecule.Molecule;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Species in which molecules are made of arbitrary number of spheres,
  * each of a specified type.
@@ -22,10 +25,9 @@ import etomica.space.Space;
 
 public class SpeciesSpheresCustom extends Species {
 
-    private static final long serialVersionUID = 1L;
     protected Space space;
     protected boolean isDynamic;
-    protected int[] atomTypes;
+    private int[] childAtomTypes;
     
     /**
      * Constructs instance with 0 components and total number of children
@@ -70,7 +72,7 @@ public class SpeciesSpheresCustom extends Species {
         return elements;
     }
 
-    protected static final AtomType[] makeAtomTypes(IElement[] leafElements) {
+    private static AtomType[] makeAtomTypes(IElement[] leafElements) {
         AtomType[] types = new AtomType[leafElements.length];
         for (int i = 0; i < types.length; i++) {
             types[i] = new AtomType(leafElements[i]);
@@ -91,15 +93,15 @@ public class SpeciesSpheresCustom extends Species {
      * each sub-type.
      */
     public IMolecule makeMolecule() {
-        Molecule group = new Molecule(this, atomTypes.length);
-        for (int i=0; i<atomTypes.length; i++) {
-            group.addChildAtom(makeLeafAtom(childTypes[atomTypes[i]]));
+        Molecule group = new Molecule(this, childAtomTypes.length);
+        for (int childAtomTypeIndex : childAtomTypes) {
+            group.addChildAtom(makeLeafAtom(atomTypes.get(childAtomTypeIndex)));
         }
         conformation.initializePositions(group.getChildList());
         return group;
     }
 
-    protected IAtom makeLeafAtom(AtomType leafType) {
+    private IAtom makeLeafAtom(AtomType leafType) {
         if (leafType instanceof AtomTypeOriented) {
             return isDynamic ? new AtomOrientedDynamic(space, leafType)
                              : new AtomOriented(space, leafType);
@@ -108,34 +110,11 @@ public class SpeciesSpheresCustom extends Species {
                          : new Atom(space, leafType);
     }
 
-    public int getNumComponents() {
-        return childTypes.length;
-    }
-
-    /**
-     * Sets the factories that make the child atoms of this factory's atom.
-     * If the number of factories changes, the number fractions are set so
-     * that there is an equal amount of each child.  The caller is responsible
-     * for ensuring that the AtomTypes for the child factories are children
-     * of this AtomFactory's AtomType.
-     *
-     * @throws IllegalArgumentException
-     *             if newChildFactory is an empty array
-     */
-    public void setChildTypes(AtomType[] newchildTypes) {
-        for (int i=0; i<childTypes.length; i++) {
-            removeChildType(childTypes[i]);
-        }
-        for (int i=0; i<childTypes.length; i++) {
-            addChildType(newchildTypes[i]);
-        }
-    }
-
-    public void setAtomTypes(int[] atomTypes) {
-        this.atomTypes = atomTypes;
+    public void setChildAtomTypes(int[] childAtomTypes) {
+        this.childAtomTypes = childAtomTypes;
     }
 
     public int getNumLeafAtoms() {
-        return atomTypes.length;
+        return childAtomTypes.length;
     }
 }

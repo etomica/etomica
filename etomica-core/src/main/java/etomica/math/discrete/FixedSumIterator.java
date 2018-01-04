@@ -4,6 +4,8 @@
 
 package etomica.math.discrete;
 
+import java.util.Arrays;
+
 /**
  * Generates int[] arrays such that the sum of (k+1) * array[k] over the elements
  * of array are equal to a given value. For example, for a target sum of 3 (as
@@ -42,7 +44,7 @@ public class FixedSumIterator {
         iterator.setSum(5);
         iterator.reset();
         for (int[] iterate = iterator.next(); iterate != null; iterate = iterator.next()) {
-            System.out.println(etomica.util.Arrays.toString(iterate));
+            System.out.println(Arrays.toString(iterate));
         }
     }
 

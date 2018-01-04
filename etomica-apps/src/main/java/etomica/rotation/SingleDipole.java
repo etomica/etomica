@@ -11,7 +11,7 @@ import etomica.config.ConfigurationLattice;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorRigidIterative;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.molecule.OrientationCalcAtom;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -50,7 +50,7 @@ public class SingleDipole {
         integrator.getEventManager().addListener(new IntegratorListenerAction(pbc));
 
         ai.setSleepPeriod(10);
-        SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1, space, sim.getController());
+        SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1);
         
         return graphic;
     }

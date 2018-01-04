@@ -145,7 +145,7 @@ public class ParserLAMMPS {
         	}
         }
         SpeciesSpheresCustom species = new SpeciesSpheresCustom(opts.space, atomTypes);
-        species.setAtomTypes(atomTypeId);
+        species.setChildAtomTypes(atomTypeId);
         species.setConformation(new ConformationGeneric(coords));
         
         PotentialGroup pInter = new PotentialGroup(2, opts.space);

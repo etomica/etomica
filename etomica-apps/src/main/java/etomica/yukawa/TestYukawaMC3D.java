@@ -23,7 +23,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
@@ -108,7 +108,7 @@ public class TestYukawaMC3D extends Simulation{
 		energyAccumulator.setBlockSize(50);
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(energyManager));
 
-		final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sim.space, sim.getController());
+		final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
 		IAction repaintAction = simGraphic.getPaintAction(sim.box);
 
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());

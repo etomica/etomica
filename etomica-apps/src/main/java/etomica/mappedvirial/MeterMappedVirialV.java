@@ -34,7 +34,7 @@ public class MeterMappedVirialV extends DataSourceScalar implements  AgentSource
         this.potentialMaster = potentialMaster;
         pcForce = new PotentialCalculationForceSum();
         if (box != null) {
-            forceManager = new AtomLeafAgentManager<MyAgent>(this, box, MyAgent.class);
+            forceManager = new AtomLeafAgentManager<MyAgent>(this, box);
             pcForce.setAgentManager(forceManager);
         }
         else {

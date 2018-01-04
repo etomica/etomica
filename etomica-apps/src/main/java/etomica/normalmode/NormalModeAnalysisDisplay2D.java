@@ -129,7 +129,7 @@ public class NormalModeAnalysisDisplay2D extends Simulation {
         NormalModeAnalysisDisplay2D sim = new NormalModeAnalysisDisplay2D(sp);
     
         
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space, sim.getController());
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
         simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
         simGraphic.makeAndDisplayFrame(APP_NAME);
         

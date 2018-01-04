@@ -21,7 +21,7 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.*;
 import etomica.overlap.IntegratorOverlap;
@@ -277,8 +277,8 @@ public class SimOverlapSsNxy extends Simulation {
                 exponentN, shape, trunc);
 
         if(false) {
-            SimulationGraphic graphic = new SimulationGraphic(sim, sim.space,
-                    sim.getController());
+            SimulationGraphic graphic = new SimulationGraphic(sim
+            );
             graphic.makeAndDisplayFrame();
             return;
         }

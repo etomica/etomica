@@ -28,7 +28,6 @@ import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.BohrRadius;
 import etomica.units.Kelvin;
-import etomica.util.Arrays;
 import etomica.util.Constants;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -38,6 +37,7 @@ import org.json.simple.JSONObject;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -156,7 +156,7 @@ public class VirialH2PISimple {
 		final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, speciesH2, temperature, refCluster, tarCluster);
 		PotentialGroup pIntra1 = sim.integrators[1].getPotentialMaster().makePotentialGroup(1);
 		int[] seeds = sim.getRandomSeeds();
-		System.out.println("Random seeds: "+Arrays.toString(seeds));
+		System.out.println("Random seeds: "+ Arrays.toString(seeds));
 		P1HydrogenMielkeAtomic p1 = new P1HydrogenMielkeAtomic(space);
 		pIntra1.addPotential(p1, new ANIntragroupExchange(1, nBeads));
 		//        We use ANIntragroupExchange here by purpose even though we may not be doing exchange

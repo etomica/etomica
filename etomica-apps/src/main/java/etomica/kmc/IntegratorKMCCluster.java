@@ -17,7 +17,7 @@ import etomica.dimer.PotentialMasterListDimer;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorBox;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.molecule.IMoleculeList;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialMaster;

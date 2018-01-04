@@ -18,7 +18,7 @@ import etomica.data.types.DataDouble;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorMD;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.DoubleRange;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
@@ -62,7 +62,7 @@ public class SwmdGraphic extends SimulationGraphic {
 
     public SwmdGraphic(final Swmd simulation, Space _space) {
 
-    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
+    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
 
@@ -202,9 +202,9 @@ public class SwmdGraphic extends SimulationGraphic {
         massBox.setController(sim.getController());
 
         //display of box, timer
-        ColorSchemeByType colorScheme = new ColorSchemeByType(sim);
+        ColorSchemeByType colorScheme = new ColorSchemeByType();
         colorScheme.setColor(sim.species.getLeafType(),java.awt.Color.red);
-        getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType(sim));
+        getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType());
 
 	    //meters and displays
         final MeterRDF rdfMeter = new MeterRDF(sim.getSpace());

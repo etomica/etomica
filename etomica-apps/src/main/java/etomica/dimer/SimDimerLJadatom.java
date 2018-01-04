@@ -20,7 +20,7 @@ import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.numerical.CalcGradientDifferentiable;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
@@ -134,7 +134,7 @@ public class SimDimerLJadatom extends Simulation{
         sim.enableMinimumSearch("s_1", false);
 
 
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 1, sim.getSpace(), sim.getController());
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 1);
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
         sim.integratorDimerMin.getEventManager().addListener(new IntegratorListenerAction(simGraphic.getPaintAction(sim.box)));

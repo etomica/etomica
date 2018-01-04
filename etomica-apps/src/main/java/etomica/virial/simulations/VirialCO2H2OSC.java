@@ -5,7 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.atom.AtomTypeAgentManager;
+import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.chem.elements.Carbon;
@@ -30,13 +30,15 @@ import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.ElectronVolt;
 import etomica.units.Kelvin;
-import etomica.util.Arrays;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 
 import java.awt.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Computes CO2-H2O mixture virial coefficients using ab-initio potentials
@@ -138,7 +140,8 @@ public class VirialCO2H2OSC {
             ((ClusterWheatleySoftMix)targetCluster).setDoCaching(false);
             targetCluster = new ClusterCoupledAtomFlipped(targetCluster, space, 20);
         }
-        AtomTypeAgentManager paramsManagerATM = null, paramsManagerInd = null;
+        Map<AtomType, P3AxilrodTeller.MyAgent> paramsManagerATM = null;
+        Map<AtomType, P3Induction.MyAgent> paramsManagerInd = null;
         if (nonAdditive != Nonadditive.NONE) {
             if (useSZ && nPoints == nTypes[1]) {
                 Component comp = nonAdditive == Nonadditive.FULL ? Component.NON_PAIR : Component.THREE_BODY;
@@ -161,11 +164,11 @@ public class VirialCO2H2OSC {
             else {
                 // CO2: alpha=2.913, E=13.7eV
                 // H2O: alpha=1.444, E=12.6eV
-                paramsManagerATM = new AtomTypeAgentManager(null);
+                paramsManagerATM = new HashMap<>();
                 IPotentialAtomic p3 = null;
                 p3 = new P3AxilrodTeller(space, paramsManagerATM);
                 if (nonAdditive == Nonadditive.FULL) {
-                    paramsManagerInd = new AtomTypeAgentManager(null);
+                    paramsManagerInd = new HashMap<>();
                     p3 = new PotentialAtomicSum(new IPotentialAtomic[]{p3,new P3Induction(space, paramsManagerInd)});
                 }
 
@@ -197,7 +200,7 @@ public class VirialCO2H2OSC {
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{speciesCO2,speciesH2O}, nTypes, temperature, refCluster, targetCluster);
         sim.init();
         int[] seeds = sim.getRandomSeeds();
-        System.out.println("Random seeds: "+Arrays.toString(seeds));
+        System.out.println("Random seeds: "+ Arrays.toString(seeds));
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
 
         if (nonAdditive != Nonadditive.NONE && !useSZ) {
@@ -222,11 +225,11 @@ public class VirialCO2H2OSC {
                 polH2O.E(qSiteH2O[0]);
                 P3Induction.MyAgent agentH2O = new P3Induction.MyAgent(new double[]{alphaH2O}, new Vector[]{polH2O}, qH2O, qSiteH2O);
 
-                paramsManagerInd.setAgent(speciesCO2.getLeafType(), agentCO2);
-                paramsManagerInd.setAgent(speciesH2O.getLeafType(), agentH2O);
+                paramsManagerInd.put(speciesCO2.getLeafType(), agentCO2);
+                paramsManagerInd.put(speciesH2O.getLeafType(), agentH2O);
             }
-            paramsManagerATM.setAgent(speciesCO2.getLeafType(), new P3AxilrodTeller.MyAgent(alphaCO2, ElectronVolt.UNIT.toSim(13.7)));
-            paramsManagerATM.setAgent(speciesH2O.getLeafType(), new P3AxilrodTeller.MyAgent(alphaH2O, ElectronVolt.UNIT.toSim(12.6)));
+            paramsManagerATM.put(speciesCO2.getLeafType(), new P3AxilrodTeller.MyAgent(alphaCO2, ElectronVolt.UNIT.toSim(13.7)));
+            paramsManagerATM.put(speciesH2O.getLeafType(), new P3AxilrodTeller.MyAgent(alphaH2O, ElectronVolt.UNIT.toSim(12.6)));
         }
 
         if (level == Level.SEMICLASSICAL_TI && false) {
@@ -279,7 +282,7 @@ public class VirialCO2H2OSC {
         if (false) {
             sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{40,40,40}));
             sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{40,40,40}));
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]); 
             DisplayBox displayBox1 = simGraphic.getDisplayBox(sim.box[1]);
 //            displayBox0.setPixelUnit(new Pixel(300.0/size));

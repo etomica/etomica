@@ -5,7 +5,7 @@
 package etomica.gaussianwork;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.IController;
+import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.*;
@@ -15,7 +15,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.DoubleRange;
 import etomica.overlap.IntegratorOverlap;
 import etomica.potential.P1Harmonic;
@@ -48,7 +48,7 @@ public class SimOverlapMultiHarmonic extends Simulation{
     private static final long serialVersionUID = 1L;
     protected SpeciesSpheresMono species;
     protected Box boxA, boxB;
-    protected IController controller;
+    protected Controller controller;
     protected ActivityIntegrate activityIntegrate;
     protected IntegratorMC integratorA, integratorB;
     protected P1Harmonic potentialA, potentialB;

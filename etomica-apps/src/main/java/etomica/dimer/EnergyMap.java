@@ -17,7 +17,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisBetaSnA5;
 import etomica.lattice.crystal.PrimitiveTetragonal;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.meam.ParameterSetMEAM;
 import etomica.meam.PotentialMEAM;
 import etomica.molecule.IMolecule;
@@ -193,7 +193,7 @@ public class EnergyMap extends Simulation{
     	final EnergyMap sim = new EnergyMap(height1, fileTail1);
     	
     	sim.activityIntegrateMAP.setMaxSteps(1); 
-    	SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space, sim.getController());
+    	SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
     	simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
     	sim.integratorMAP.getEventManager().addListener(new IntegratorListenerAction(simGraphic.getPaintAction(sim.box)));

@@ -14,7 +14,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.*;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
@@ -197,7 +197,7 @@ public class SimCalcSSoftSphereFCC extends Simulation {
          * Graphical Simulation
 		 */
 		if(false){
-			SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
+			SimulationGraphic simGraphic = new SimulationGraphic(sim);
 			simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(50));
 			ColorSchemeRandom colorRandom = new ColorSchemeRandom(sim.box, sim.random);
 			simGraphic.getDisplayBox(sim.box).setColorScheme(colorRandom);

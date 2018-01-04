@@ -6,7 +6,7 @@ package etomica.modules.reactionequilibrium;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.IController;
+import etomica.action.activity.Controller;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.AtomType;
@@ -14,7 +14,7 @@ import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorHard;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P1HardPeriodic;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
@@ -27,7 +27,7 @@ import javax.swing.*;
 
 public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom> {
 
-    public IController controller1;
+    public Controller controller1;
     public JPanel panel = new JPanel(new java.awt.BorderLayout());
     public IntegratorHard integratorHard1;
     public java.awt.Component display;
@@ -73,7 +73,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom
         integratorHard1.setNullPotential(nullPotential, speciesA.getLeafType());
         integratorHard1.setNullPotential(nullPotential, speciesB.getLeafType());
 
-        agentManager = new AtomLeafAgentManager<IAtom>(this,box,IAtom.class);
+        agentManager = new AtomLeafAgentManager<IAtom>(this,box);
 
         //potentials
         AAbonded = new P2SquareWellBonded(space, agentManager, 0.5 * diameter, //core

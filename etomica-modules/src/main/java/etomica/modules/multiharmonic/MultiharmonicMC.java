@@ -6,14 +6,14 @@ package etomica.modules.multiharmonic;
 
 import etomica.action.SimulationDataAction;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.IController;
+import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P1Harmonic;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
@@ -37,7 +37,7 @@ public class MultiharmonicMC extends Simulation {
     AccumulatorHistory historyEnergy;
     SpeciesSpheresMono species;
     Box box;
-    IController controller;
+    Controller controller;
     P1Harmonic potentialA, potentialB;
     IntegratorMC integrator;
     ActivityIntegrate activityIntegrate;

@@ -38,7 +38,7 @@ import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.geometry.Plane;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
@@ -68,7 +68,7 @@ public class ColloidGraphic extends SimulationGraphic {
     
     public ColloidGraphic(final ColloidSim simulation, Space _space) {
 
-    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
+    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
 
@@ -100,9 +100,9 @@ public class ColloidGraphic extends SimulationGraphic {
         displayCycles.setLabel("Simulation time");
         
         //display of box, timer
-        ColorSchemeByType colorScheme = new ColorSchemeByType(sim);
+        ColorSchemeByType colorScheme = new ColorSchemeByType();
         colorScheme.setColor(sim.species.getLeafType(),java.awt.Color.red);
-        getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType(sim));
+        getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType());
 
         DeviceSelector graftSelector = new DeviceSelector(sim.getController());
         graftSelector.addOption("1", new GraftAction(1));

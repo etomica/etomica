@@ -24,7 +24,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2HardAssociationCone;
 import etomica.simulation.Simulation;
@@ -188,7 +188,7 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
         sim.integrator.getEventManager().addListener(energyListener);
         
         if (true) {
-        	SimulationGraphic graphic = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE, sim.space,sim.getController());
+        	SimulationGraphic graphic = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE);
         	AccumulatorHistory densityHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
             rhoAccumulator.addDataSink(densityHistory, new StatType[]{AccumulatorAverage.MOST_RECENT});
             DisplayPlot rhoPlot = new DisplayPlot();

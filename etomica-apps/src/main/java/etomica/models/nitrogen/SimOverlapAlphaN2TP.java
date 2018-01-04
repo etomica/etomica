@@ -20,7 +20,7 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveTetragonal;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.list.molecule.PotentialMasterListMolecular;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MCMoveMoleculeCoupled;
@@ -243,7 +243,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
 	
 		
         if (false) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.setPaintInterval(sim.box, 1000);
             ColorScheme colorScheme = new ColorScheme() {
                 public Color getAtomColor(IAtom a) {

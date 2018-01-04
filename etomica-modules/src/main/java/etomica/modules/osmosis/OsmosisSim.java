@@ -115,7 +115,7 @@ public class OsmosisSim extends Simulation {
         config.initializeCoordinates(sim.box);
     	Plane plane = new Plane(sim.getSpace());
 
-        final SimulationGraphic simGraphic = new SimulationGraphic(sim, "Osmosis Sim", sp, sim.getController());
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, "Osmosis Sim");
     	((etomica.graphics.DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box).canvas).addPlane(plane);
     	simGraphic.getController().getReinitButton().setPostAction(new IAction () {
     		public void actionPerformed() {
@@ -124,7 +124,7 @@ public class OsmosisSim extends Simulation {
     		}
     	});
         simGraphic.makeAndDisplayFrame("Osmosis Sim");
-        ColorSchemeByType colorScheme = new ColorSchemeByType(sim);
+        ColorSchemeByType colorScheme = new ColorSchemeByType();
         colorScheme.setColor(sim.speciesSolvent.getLeafType(), Color.blue);
         colorScheme.setColor(sim.speciesSolute.getLeafType(), Color.red);
         simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);

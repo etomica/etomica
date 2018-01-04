@@ -4,12 +4,14 @@
 
 package etomica.potential;
 
-import etomica.atom.AtomTypeAgentManager;
+import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
+
+import java.util.Map;
 
 /**
  * Axilrod-Teller potential.  The potential is atomic.  Ionization energy and
@@ -19,12 +21,12 @@ import etomica.space.Vector;
  */
 public class P3AxilrodTeller implements IPotentialAtomic {
 
-    protected final AtomTypeAgentManager paramsManager;
+    protected final Map<AtomType, MyAgent> paramsManager;
     protected final Space space;
     protected final Vector dr1, dr2;
     protected Boundary boundary;
     
-    public P3AxilrodTeller(Space space, AtomTypeAgentManager paramsManager) {
+    public P3AxilrodTeller(Space space, Map<AtomType, MyAgent> paramsManager) {
         this.space = space;
         this.paramsManager = paramsManager;
         dr1 = space.makeVector();
@@ -39,7 +41,7 @@ public class P3AxilrodTeller implements IPotentialAtomic {
         double cp = 3;
         double rp = 1;
         for (int i=0; i<3; i++) {
-            MyAgent ag =  (MyAgent)paramsManager.getAgent(atoms.getAtom(i).getType());
+            MyAgent ag = paramsManager.get(atoms.getAtom(i).getType());
             eps[(i+1)%3] += ag.E;
             eps[(i+2)%3] += ag.E;
             ep *= ag.E;

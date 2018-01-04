@@ -307,7 +307,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
         initNominalU(cells[totalCells-1].molecules);
 
         moleculeSiteManager = new MoleculeAgentManager(sim, box, new MoleculeSiteSource(space, positionDefinition));
-        siteManager = new AtomLeafAgentManager<Vector>(new SiteSource(space), box,Vector.class);
+        siteManager = new AtomLeafAgentManager<Vector>(new SiteSource(space), box);
     }
     
 /*
@@ -371,7 +371,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	}
     	
     	moleculeSiteManager = new MoleculeAgentManager(sim, box, new MoleculeSiteSource(space, positionDefinition));
-        siteManager = new AtomLeafAgentManager<Vector>(new SiteSource(space), box, Vector.class);
+        siteManager = new AtomLeafAgentManager<Vector>(new SiteSource(space), box);
 
     }
     
@@ -397,7 +397,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	}
     	
     	moleculeSiteManager = new MoleculeAgentManager(sim, box, new MoleculeSiteSource(space, positionDefinition));
-        siteManager = new AtomLeafAgentManager<Vector>(new SiteSource(space), box, Vector.class);
+        siteManager = new AtomLeafAgentManager<Vector>(new SiteSource(space), box);
 
     }
 	
@@ -732,7 +732,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	    	
     	}
     	moleculeSiteManager = new MoleculeAgentManager(sim, box, new MoleculeSiteSource(space, positionDefinition));
-        siteManager = new AtomLeafAgentManager<Vector>(new SiteSource(space), box, Vector.class);
+        siteManager = new AtomLeafAgentManager<Vector>(new SiteSource(space), box);
     }
     
     public void setIsGamma(){
@@ -991,10 +991,8 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
         
         public OrientationAgentSource() {
         }
-        public Class getMoleculeAgentClass() {
-            return Vector[].class;
-        }
-        public Object makeAgent(IMolecule atom) {
+
+		public Object makeAgent(IMolecule atom) {
             return null;
         }
         public void releaseAgent(Object agent, IMolecule atom) {

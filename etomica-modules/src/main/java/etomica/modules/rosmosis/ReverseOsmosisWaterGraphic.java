@@ -14,7 +14,7 @@ import etomica.data.meter.*;
 import etomica.data.types.DataDouble;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.*;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.potential.P2Electrostatic;
@@ -54,7 +54,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
     
     public ReverseOsmosisWaterGraphic(final ReverseOsmosisWater simulation) {
 
-    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, simulation.getSpace(), simulation.getController());
+    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 

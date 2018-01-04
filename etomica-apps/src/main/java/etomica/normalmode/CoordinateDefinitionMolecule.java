@@ -132,9 +132,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
             this.space = space;
             this.positionDefinition = positionDefinition;
         }
-        public Class getMoleculeAgentClass() {
-            return Vector.class;
-        }
+
         public Object makeAgent(IMolecule molecule) {
             Vector vector = space.makeVector();
             vector.E(positionDefinition.position(molecule));

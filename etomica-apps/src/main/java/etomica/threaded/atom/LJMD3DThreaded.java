@@ -117,7 +117,7 @@ public class LJMD3DThreaded extends Simulation {
             numAtoms = Integer.valueOf(args[0]).intValue();
         }
         LJMD3DThreaded sim = new LJMD3DThreaded(numAtoms, numThreads);
-        SimulationGraphic simgraphic = new SimulationGraphic(sim, sim.space, sim.getController());
+        SimulationGraphic simgraphic = new SimulationGraphic(sim);
         simgraphic.makeAndDisplayFrame();
         /**
         sim.getDefaults().blockSize = 10;

@@ -19,7 +19,7 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorRigidIterative;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.models.water.OrientationCalcWater3P;
 import etomica.models.water.P2WaterSPCSoft;
 import etomica.models.water.SpeciesWater3POriented;
@@ -69,7 +69,7 @@ public class WaterDroplet {
         potentialMaster.addPotential(p2Water, new ISpecies[]{species,species});
         if (false) {
             ai.setSleepPeriod(2);
-            SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Rigid", 1, space, sim.getController());
+            SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Rigid", 1);
             ((ColorSchemeByType)graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
             ((ColorSchemeByType)graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);
     

@@ -54,7 +54,7 @@ public class CalcGradientDifferentiable implements FunctionMultiDimensionalDiffe
         
         force = new PotentialCalculationForceSum();
         allAtoms = new IteratorDirective();
-        atomAgent = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, box, IntegratorVelocityVerlet.MyAgent.class);
+        atomAgent = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, box);
         force.setAgentManager(atomAgent);
         
         finiteDifferenceDerivative = new FiniteDifferenceDerivative(this);

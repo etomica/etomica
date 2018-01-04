@@ -4,28 +4,32 @@
 
 package etomica.modules.chainequilibrium;
 
-import etomica.atom.*;
+import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.ColorSchemeCollective;
-import etomica.simulation.Simulation;
 
 import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ColorSchemeRadical extends ColorSchemeByType implements ColorSchemeCollective, AtomLeafAgentManager.AgentSource<ColorSchemeRadical.LengthAgent> {
 
     protected final AtomLeafAgentManager<IAtom[]> agentManager;
-    protected final AtomTypeAgentManager radicalColorMap, fullColorMap;
+    protected final Map<AtomType, Color> radicalColorMap, fullColorMap;
     protected final Color[] greys;
     protected Box box;
     protected AtomLeafAgentManager<LengthAgent> chainLengthManager;
 
-    public ColorSchemeRadical(Simulation sim, AtomLeafAgentManager<IAtom[]> agentManager) {
-        super(sim);
+    public ColorSchemeRadical(AtomLeafAgentManager<IAtom[]> agentManager) {
+        super();
         this.agentManager = agentManager;
-        radicalColorMap = new AtomTypeAgentManager(this, sim);
-        fullColorMap = new AtomTypeAgentManager(this, sim);
+        radicalColorMap = new HashMap<>();
+        fullColorMap = new HashMap<>();
         greys = new Color[20];
         for (int i=0; i<20; i++) {
             greys[i] = new Color(90+6*i,90+6*i,90+6*i);
@@ -43,22 +47,22 @@ public class ColorSchemeRadical extends ColorSchemeByType implements ColorScheme
             }
         }
         if (nbrs[nbrs.length-1] != null) {
-            Color color = (Color)fullColorMap.getAgent(atom.getType());
+            Color color = fullColorMap.get(atom.getType());
             if (color != null) {
                 return color;
             }
             int chainNumber = chainLengthManager.getAgent(atom).chainNumber % greys.length;
             return greys[chainNumber];
         }
-        return (Color)radicalColorMap.getAgent(atom.getType());
+        return radicalColorMap.get(atom.getType());
     }
 
     public void setFreeRadicalColor(AtomType type, Color color) {
-        radicalColorMap.setAgent(type, color);
+        radicalColorMap.put(type, color);
     }
 
     public void setFullColor(AtomType type, Color color) {
-        fullColorMap.setAgent(type, color);
+        fullColorMap.put(type, color);
     }
 
     public LengthAgent makeAgent(IAtom a, Box agentBox) {
@@ -116,7 +120,7 @@ public class ColorSchemeRadical extends ColorSchemeByType implements ColorScheme
             // allow old agentManager to de-register itself as a BoxListener
             chainLengthManager.dispose();
         }
-        chainLengthManager = new AtomLeafAgentManager<LengthAgent>(this,box,LengthAgent.class);
+        chainLengthManager = new AtomLeafAgentManager<LengthAgent>(this,box);
     }
 
     public static class LengthAgent {

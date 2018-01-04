@@ -11,7 +11,7 @@ import etomica.config.ConformationLinear;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerletRattle;
 import etomica.integrator.IntegratorVelocityVerletShake;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.molecule.IMolecule;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -67,7 +67,7 @@ public class SingleDumbellRattle {
             return null;
         }
         ai.setSleepPeriod(10);
-        SimulationGraphic graphic = new SimulationGraphic(sim, "SHAKE", 1, space, sim.getController());
+        SimulationGraphic graphic = new SimulationGraphic(sim, "SHAKE", 1);
         return graphic;
     }
     

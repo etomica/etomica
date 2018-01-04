@@ -192,7 +192,7 @@ public class VirialLJOrC {
             double size = 10;
             sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
             sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox = simGraphic.getDisplayBox(sim.box[0]);
             displayBox.setPixelUnit(new Pixel(300.0/size));
             displayBox.setShowBoundary(false);

@@ -14,10 +14,9 @@ import etomica.data.*;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterNMolecules;
 import etomica.graphics.*;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
-import etomica.molecule.IMolecule;
 import etomica.space.Space;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
@@ -37,7 +36,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 
     public DCVGCMDGraphic(final DCVGCMD sim, Space _space){
 
-        super(sim, SimulationGraphic.TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, sim.getController());	
+        super(sim, SimulationGraphic.TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
         getDisplayBox(sim.box).setPixelUnit(new Pixel(7));
 
         getController().getDataStreamPumps().add(sim.profile1pump);
@@ -229,15 +228,12 @@ public class DCVGCMDGraphic extends SimulationGraphic{
         public void setBoolean(boolean b) {active = b;}
         public boolean getBoolean() {return active;}
         
-        public boolean accept(IAtom atom) {
+        public boolean test(IAtom atom) {
             if(!active) return true;
             if(atom.getType().getSpecies() != ((DCVGCMD)simulation).speciesTube) return true;
             double x0 = ((DCVGCMD)simulation).poreCenter.getX(0);
             return atom.getPosition().getX(0) < x0;
 
         }
-        public boolean accept(IMolecule mole) {
-            return false;
-        }
-    }
+	}
 }

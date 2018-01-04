@@ -20,7 +20,7 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.molecule.IMoleculeList;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MCMoveMoleculeCoupled;
@@ -520,11 +520,11 @@ public class SimulationBetaNitrogenModelTest extends Simulation{
 		
 		
 		if(true){
-			SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
+			SimulationGraphic simGraphic = new SimulationGraphic(sim);
 		    simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(20));
 		    simGraphic.makeAndDisplayFrame("Beta-Phase Nitrogen Crystal Structure");
 		    
-		    DiameterHashByType diameter = new DiameterHashByType(sim);
+		    DiameterHashByType diameter = new DiameterHashByType();
 			diameter.setDiameter(sim.species.getNitrogenType(), 3.1);
 			diameter.setDiameter(sim.species.getPType(), 0.0);
 			

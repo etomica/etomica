@@ -10,7 +10,7 @@ import etomica.data.DataLogger;
 import etomica.data.DataPump;
 import etomica.data.DataTableWriter;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.units.Kelvin;

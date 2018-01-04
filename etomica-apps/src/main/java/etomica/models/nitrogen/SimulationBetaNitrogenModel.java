@@ -24,7 +24,7 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.cell.molecule.NeighborCellManagerMolecular;
 import etomica.nbr.list.molecule.BoxAgentSourceCellManagerListMolecular;
 import etomica.nbr.list.molecule.NeighborListManagerSlantyMolecular;
@@ -62,7 +62,7 @@ public class SimulationBetaNitrogenModel extends Simulation{
 		this.space = space;
 		
 		BoxAgentSourceCellManagerListMolecular boxAgentSource = new BoxAgentSourceCellManagerListMolecular(this, null, space);
-        BoxAgentManager<NeighborCellManagerMolecular> boxAgentManager = new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSource, NeighborCellManagerMolecular.class, this);
+        BoxAgentManager<NeighborCellManagerMolecular> boxAgentManager = new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSource, this);
 
 
         double ratio = 1.631;
@@ -289,11 +289,11 @@ public class SimulationBetaNitrogenModel extends Simulation{
 		System.out.println("volume: " + volume);
 		
 		if(true){
-			SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
+			SimulationGraphic simGraphic = new SimulationGraphic(sim);
 		    simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
 		    simGraphic.makeAndDisplayFrame("Beta-Phase Nitrogen Crystal Structure");
 		    
-		    DiameterHashByType diameter = new DiameterHashByType(sim);
+		    DiameterHashByType diameter = new DiameterHashByType();
 			diameter.setDiameter(sim.species.getNitrogenType(), 3.1);
 			diameter.setDiameter(sim.species.getPType(), 0.0);
 			

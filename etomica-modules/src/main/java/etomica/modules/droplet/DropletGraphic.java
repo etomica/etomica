@@ -13,7 +13,7 @@ import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataTensor;
 import etomica.graphics.*;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
 import etomica.modifier.ModifierGeneral;
@@ -47,7 +47,7 @@ public class DropletGraphic extends SimulationGraphic {
 
     public DropletGraphic(final Droplet simulation, Space _space) {
 
-    	super(simulation, TABBED_PANE, APP_NAME, _space.D() == 2 ? 10*REPAINT_INTERVAL : REPAINT_INTERVAL, _space, simulation.getController());
+    	super(simulation, TABBED_PANE, APP_NAME, _space.D() == 2 ? 10*REPAINT_INTERVAL : REPAINT_INTERVAL);
 
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
 

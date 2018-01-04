@@ -14,7 +14,7 @@ import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Space;

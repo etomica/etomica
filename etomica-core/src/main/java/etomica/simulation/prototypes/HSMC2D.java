@@ -15,7 +15,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2HardSphere;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
@@ -77,7 +77,7 @@ public class HSMC2D extends Simulation {
     public static void main(String[] args) {
 
         final HSMC2D sim = new HSMC2D();
-        final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
         simGraphic.makeAndDisplayFrame();
     }
 

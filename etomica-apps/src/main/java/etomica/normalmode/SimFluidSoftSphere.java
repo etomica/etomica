@@ -21,7 +21,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential2SoftSpherical;

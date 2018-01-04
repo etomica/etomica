@@ -93,7 +93,7 @@ public class ChainHSMD3D extends Simulation {
     public static void main(String[] args) {
 
         final etomica.simulation.prototypes.ChainHSMD3D sim = new etomica.simulation.prototypes.ChainHSMD3D();
-        final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
         DisplayPlot plotRG = new DisplayPlot();
         sim.histogramRG.addDataSink(plotRG.getDataSet().makeDataSink());
         plotRG.setLabel("RG");

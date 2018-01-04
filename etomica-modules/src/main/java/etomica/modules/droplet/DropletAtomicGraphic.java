@@ -12,7 +12,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;
 import etomica.graphics.*;
 import etomica.lattice.CellLattice;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.nbr.cell.Cell;
@@ -42,7 +42,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
     
     public DropletAtomicGraphic(final DropletAtomic simulation, Space _space) {
 
-    	super(simulation, TABBED_PANE, APP_NAME, _space.D() == 2 ? 10*REPAINT_INTERVAL : REPAINT_INTERVAL, _space, simulation.getController());
+    	super(simulation, TABBED_PANE, APP_NAME, _space.D() == 2 ? 10*REPAINT_INTERVAL : REPAINT_INTERVAL);
 
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
 

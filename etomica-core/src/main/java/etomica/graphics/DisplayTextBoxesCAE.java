@@ -9,7 +9,7 @@ import etomica.data.meter.MeterPressureHard;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.graphics.DisplayTextBox.LabelType;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.simulation.prototypes.HSMD2D;
 import etomica.units.Unit;
 import etomica.units.dimensions.Null;
@@ -180,7 +180,7 @@ public class DisplayTextBoxesCAE extends Display implements IDataSink {
 
     	etomica.space.Space sp = etomica.space2d.Space2D.getInstance();
         final HSMD2D sim = new HSMD2D();
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME, sp, sim.getController());
+        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
         sim.integrator.setIsothermal(true);
         MeterPressureHard pressureMeter = new MeterPressureHard(sim.getSpace());
         pressureMeter.setIntegrator(sim.integrator);

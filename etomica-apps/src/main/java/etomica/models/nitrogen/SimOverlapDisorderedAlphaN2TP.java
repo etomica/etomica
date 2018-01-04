@@ -231,7 +231,7 @@ public class SimOverlapDisorderedAlphaN2TP extends Simulation {
         System.out.flush();
         
         if (false) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
 //            simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
 //		  
 //		    DiameterHashByType diameter = new DiameterHashByType(sim);

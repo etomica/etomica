@@ -8,8 +8,8 @@ import etomica.box.Box;
 import etomica.integrator.mcmove.*;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
+import etomica.util.EventManager;
 import etomica.util.IEvent;
-import etomica.util.IEventManager;
 import etomica.util.random.IRandom;
 
 /**
@@ -27,7 +27,7 @@ public class IntegratorMC extends IntegratorBox {
 
     public static boolean dodebug;
     protected final IRandom random;
-    protected final IEventManager moveEventManager;
+    protected final EventManager<IEvent> moveEventManager;
     private final IEvent trialEvent, trialFailedEvent;
     private final IEvent acceptedEvent, rejectedEvent;
     protected MCMoveManager moveManager;
@@ -53,7 +53,7 @@ public class IntegratorMC extends IntegratorBox {
         // isothermal to be consistent with way integrator
         // is sampling
         moveManager = new MCMoveManager(random);
-        moveEventManager = new MCMoveEventManager();
+        moveEventManager = new EventManager<>();
         trialEvent = new MCMoveTrialInitiatedEvent(moveManager);
         trialFailedEvent = new MCMoveTrialFailedEvent(moveManager);
         acceptedEvent = new MCMoveTrialCompletedEvent(moveManager, true);
@@ -144,7 +144,7 @@ public class IntegratorMC extends IntegratorBox {
     /**
      * @return moveEventManager that fires move events
      */
-    public IEventManager getMoveEventManager() {
+    public EventManager<IEvent> getMoveEventManager() {
         return moveEventManager;
     }
 }

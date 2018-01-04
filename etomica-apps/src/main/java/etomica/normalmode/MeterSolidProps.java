@@ -72,7 +72,7 @@ public class MeterSolidProps implements IDataSource, AgentSource<MyAgent> {
     	}else{
     		pcSolidProps = new PotentialCalculationEFSSP(space,coordinateDefinition.getBox(),coordinateDefinition,temperature, f1, isLS);
     	}
-        forceManager = new AtomLeafAgentManager<MyAgent>(this, coordinateDefinition.getBox(), MyAgent.class);
+        forceManager = new AtomLeafAgentManager<MyAgent>(this, coordinateDefinition.getBox());
 //        pcUP.setAgentManager(forceManager);
 
 

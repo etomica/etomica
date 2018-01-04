@@ -19,7 +19,7 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.lattice.SpaceLattice;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
@@ -105,7 +105,7 @@ public class JouleThomsonSim extends Simulation {
     public static void main(String[] args) {
     	Space sp = Space3D.getInstance();
         JouleThomsonSim sim = new JouleThomsonSim(sp);
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, sp, sim.getController());
+        SimulationGraphic simGraphic = new SimulationGraphic(sim);
         simGraphic.makeAndDisplayFrame();
         final DisplayBox displayBox = simGraphic.getDisplayBox(sim.box);
         sim.activityIntegrate.setSleepPeriod(10);

@@ -17,7 +17,7 @@ import etomica.data.types.DataTensor;
 import etomica.graphics.*;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.DoubleRange;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
@@ -43,7 +43,7 @@ public class LjmdGraphic extends SimulationGraphic {
 
     public LjmdGraphic(final Ljmd simulation, Space _space) {
 
-    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
+    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
         
@@ -52,9 +52,9 @@ public class LjmdGraphic extends SimulationGraphic {
         sim.activityIntegrate.setSleepPeriod(1);
 
 	    //display of box, timer
-        ColorSchemeByType colorScheme = new ColorSchemeByType(sim);
+        ColorSchemeByType colorScheme = new ColorSchemeByType();
         colorScheme.setColor(sim.species.getLeafType(),java.awt.Color.red);
-        getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType(sim));
+        getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType());
 //        sim.integrator.addListener(new IntervalActionAdapter(this.getDisplayBoxPaintAction(sim.box)));
 
 	    //meters and displays

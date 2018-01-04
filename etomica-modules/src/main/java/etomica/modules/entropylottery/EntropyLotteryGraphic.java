@@ -24,7 +24,7 @@ import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.space.Space;
 import etomica.space1d.Space1D;
 import etomica.units.Pixel;
@@ -39,7 +39,7 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
 
 	public EntropyLotteryGraphic(final EntropyLottery simulation, Space _space) {
 
-		super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_ACTION, _space, simulation.getController());
+		super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_ACTION);
         this.sim = simulation;
 
         sim.activityIntegrate.setSleepPeriod(10);

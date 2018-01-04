@@ -22,7 +22,7 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.*;
 import etomica.overlap.IntegratorOverlap;
@@ -283,7 +283,7 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
         meterOverlapInTarget.setDsBBase(latticeEnergyRef);
         
         P1ConstraintNbr nbrConstraint = new P1ConstraintNbr(space, 
-                primitiveLength/Math.sqrt(2.0), this, constraint);
+                primitiveLength/Math.sqrt(2.0), constraint);
         potentialMaster.addPotential(nbrConstraint, new AtomType[]{
                 species.getLeafType()});
         nbrConstraint.initBox(boxRef);
@@ -389,7 +389,7 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
 
 
             SimulationGraphic simGraphic = new SimulationGraphic(sim,
-                    SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+                    SimulationGraphic.TABBED_PANE);
             ColorScheme colorScheme = new ColorScheme() {
                 protected Color[] allColors;
 

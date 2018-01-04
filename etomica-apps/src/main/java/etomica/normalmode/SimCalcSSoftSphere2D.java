@@ -19,7 +19,7 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisOrthorhombicHexagonal;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveOrthorhombicHexagonal;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;

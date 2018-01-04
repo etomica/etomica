@@ -123,14 +123,14 @@ public class Virial7SiteRigidSF6 {
             double size = 10;
             sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
             sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.getDisplayBox(sim.box[0]).setPixelUnit(new Pixel(300.0/size));
             simGraphic.getDisplayBox(sim.box[1]).setPixelUnit(new Pixel(300.0/size));
             simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
             
             //set diameters
-            DiameterHashByType diameter = new DiameterHashByType(sim); 
+            DiameterHashByType diameter = new DiameterHashByType();
             diameter.setDiameter(typeS,1.7);
             diameter.setDiameter(typeF,1.0);
             simGraphic.getDisplayBox(sim.box[1]).setDiameterHash(diameter);

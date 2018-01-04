@@ -22,7 +22,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveStepTracker;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncatedForceShifted;
@@ -173,7 +173,7 @@ public class LJMC extends Simulation {
         
         if (graphics) {
             final String APP_NAME = "LJMC";
-            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3, sim.getSpace(), sim.getController());
+            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3);
 
             List<DataPump> dataStreamPumps = simGraphic.getController().getDataStreamPumps();
             dataStreamPumps.add(profilePump);

@@ -15,7 +15,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2Exp6Buckingham;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;
@@ -162,7 +162,7 @@ public class VirialAlkaneMix_Kong extends VirialAlkaneMix {
         if (true) {
             sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
             sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]); 
             displayBox0.setShowBoundary(false);
             DisplayBox displayBox1 = simGraphic.getDisplayBox(sim.box[1]);

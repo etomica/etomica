@@ -68,7 +68,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
             agentManager.dispose();
         }
         super.setBox(box);
-        agentManager = new AtomLeafAgentManager<MyAgent>(this, box,MyAgent.class);
+        agentManager = new AtomLeafAgentManager<MyAgent>(this, box);
         forceSum.setAgentManager(agentManager);
     }
 

@@ -23,7 +23,7 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.BasisOrthorhombicHexagonal;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.lattice.crystal.PrimitiveOrthorhombicHexagonal;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardSphere;
@@ -216,7 +216,7 @@ public class HSNPT extends Simulation {
         }
 
         if (true) {
-            SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.getSpace(), sim.getController());
+            SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
 
             if (!params.nvt) {
                 AccumulatorHistory densityHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
@@ -557,7 +557,7 @@ public class HSNPT extends Simulation {
         
         public ActionSummer(Box box, Space space) {
             this.space = space;
-            agentManager = new AtomLeafAgentManager<MyAgent>(this, box, MyAgent.class);
+            agentManager = new AtomLeafAgentManager<MyAgent>(this, box);
             v = space.makeVector();
         }
         

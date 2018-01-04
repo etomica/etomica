@@ -34,7 +34,7 @@ public class CriterionSimpleMolecular implements NeighborCriterionMolecular, Mol
 		this.interactionRange = interactionRange;
         neighborRadius2 = neighborRadius * neighborRadius;
         setSafetyFactor(0.4);
-        boxAgentManager = new BoxAgentManager<MoleculeAgentManager>(new BoxAgentSourceMoleculeManager(this, sim),MoleculeAgentManager.class, sim);
+        boxAgentManager = new BoxAgentManager<MoleculeAgentManager>(new BoxAgentSourceMoleculeManager(this, sim), sim);
         moleculeSite = new MoleculePositionGeometricCenter(_space);
 	}
 	
@@ -141,10 +141,6 @@ public class CriterionSimpleMolecular implements NeighborCriterionMolecular, Mol
 		((Vector)agentManager.getAgent(molecule)).E(moleculeSite.position(molecule));
 	}
 
-    public Class getMoleculeAgentClass() {
-        return dr.getClass();
-    }
-    
     public Object makeAgent(IMolecule molecule) {
         return space.makeVector();
     }

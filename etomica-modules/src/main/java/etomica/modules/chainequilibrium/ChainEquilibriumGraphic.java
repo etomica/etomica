@@ -9,7 +9,7 @@ import etomica.action.SimulationRestart;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.graphics.*;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.space.Space;
@@ -41,7 +41,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
 
     public ChainEquilibriumGraphic(ChainEquilibriumSim simulation, Space _space) {
 
-		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
+		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
         getPanel().toolbar.addAuthor("Dr. William Chirdon");
         this.sim = simulation;
         

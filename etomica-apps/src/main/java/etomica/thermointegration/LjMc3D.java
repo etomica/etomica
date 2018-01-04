@@ -21,7 +21,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.PotentialMaster;
@@ -92,7 +92,7 @@ public class LjMc3D extends Simulation {
     public static void main(String[] args) {
         final String APP_NAME = "LjMd3D";
         final LjMc3D sim = new LjMc3D();
-        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 3, sim.space, sim.getController());
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 3);
 
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
         simGraphic.getController().getDataStreamPumps().add(sim.pump);
@@ -113,7 +113,7 @@ public class LjMc3D extends Simulation {
         public void init() {
             final String APP_NAME = "LjMd3D";
             LjMc3D sim= new LjMc3D();
-            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, APP_NAME, 3, sim.getSpace(), sim.getController());
+            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, APP_NAME, 3);
 
             simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
             simGraphic.getController().getDataStreamPumps().add(sim.pump);

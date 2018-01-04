@@ -103,7 +103,7 @@ public class SimLJHTTISuperHCP extends Simulation {
         }
 
         BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, _space);
-        BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class, this);
+        BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, this);
         potentialMaster = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc, space), space);
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
@@ -198,7 +198,7 @@ public class SimLJHTTISuperHCP extends Simulation {
         }
         System.out.println("Random seeds: "+Arrays.toString(seeds));
         if (false) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.setPaintInterval(sim.box, 1000);
             ColorScheme colorScheme = new ColorScheme() {
                 protected Color[] allColors;
@@ -264,7 +264,7 @@ public class SimLJHTTISuperHCP extends Simulation {
         {
 
             BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(sim, null, sim.space);
-            BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class, sim);
+            BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, sim);
             potentialMasterData = new PotentialMasterList(sim, cutoffs[nCutoffs-1], boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc, sim.space), sim.space);
 
             // |potential| is our local potential used for data collection.

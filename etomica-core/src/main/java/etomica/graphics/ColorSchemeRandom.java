@@ -16,7 +16,7 @@ public class ColorSchemeRandom extends ColorScheme implements AgentSource<Color>
     public ColorSchemeRandom(Box box, IRandom random) {
     	super();
         this.random = random;
-        agentManager = new AtomLeafAgentManager<Color>(this, box, Color.class);
+        agentManager = new AtomLeafAgentManager<Color>(this, box);
     }
     
     public Color getAtomColor(IAtom a) {

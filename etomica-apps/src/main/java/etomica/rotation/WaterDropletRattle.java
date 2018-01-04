@@ -18,7 +18,7 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerletRattle;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.models.water.ConformationWater3P;
 import etomica.models.water.P2WaterSPC;
 import etomica.models.water.SpeciesWater3P;
@@ -109,7 +109,7 @@ public class WaterDropletRattle {
 
         if (false) {
             ai.setSleepPeriod(2);
-            SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Rattle", 1, space, sim.getController());
+            SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Rattle", 1);
             ((ColorSchemeByType)graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
             ((ColorSchemeByType)graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);
             

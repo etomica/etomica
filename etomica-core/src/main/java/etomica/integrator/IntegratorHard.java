@@ -23,6 +23,8 @@ import etomica.util.TreeLinker;
 import etomica.util.TreeList;
 import etomica.util.random.IRandom;
 
+import java.util.*;
+
 /**
  * Integrator for hard potentials.
  * Integrates equations of motion through time by advancing atoms from one
@@ -33,8 +35,7 @@ import etomica.util.random.IRandom;
  * @author David Kofke
  *
  */
-public class IntegratorHard extends IntegratorMD
-    implements INeighborListListener, AgentSource<IntegratorHard.Agent>, AtomTypeAgentManager.AgentSource {
+public class IntegratorHard extends IntegratorMD implements INeighborListListener, AgentSource<IntegratorHard.Agent> {
 
     private static final long serialVersionUID = 1L;
     protected final IteratorDirective upList = new IteratorDirective(IteratorDirective.Direction.UP);
@@ -44,13 +45,13 @@ public class IntegratorHard extends IntegratorMD
     protected final ReverseCollisionHandler reverseCollisionHandler;
     protected final CollisionHandlerUp collisionHandlerUp;
     protected final CollisionHandlerDown collisionHandlerDown;
-    protected final AtomTypeAgentManager nullPotentialManager;
+    protected final Map<AtomType, PotentialHard> nullPotentialManager;
     private final AtomPair pair;
     private final AtomSetSinglet singlet;
     //handle to the integrator agent holding information about the next collision
     protected IntegratorHard.Agent colliderAgent;
-    //first of a linked list of objects (typically meters) that are called each time a collision is processed
-    protected CollisionListenerLinker collisionListenerHead = null;
+    /* list of objects (typically meters) that are called each time a collision is processed */
+    private final List<CollisionListener> collisionListeners = new ArrayList<>();
     protected double collisionTimeStep;
     protected long collisionCount;
     protected AtomLeafAgentManager<Agent> agentManager;
@@ -73,14 +74,7 @@ public class IntegratorHard extends IntegratorMD
         collisionHandlerUp.setAgentManager(agentManager);
         collisionHandlerDown = new CollisionHandlerDown(eventList);
         collisionHandlerDown.setAgentManager(agentManager);
-        if (sim != null) {
-            nullPotentialManager = new AtomTypeAgentManager(this);
-            nullPotentialManager.init(sim);
-        }
-        else {
-            nullPotentialManager = null;
-        }
-
+        nullPotentialManager = new HashMap<>();
     }
     
     public void setBox(Box box) {
@@ -92,18 +86,15 @@ public class IntegratorHard extends IntegratorMD
             }
         }
         super.setBox(box);
-        agentManager = new AtomLeafAgentManager<Agent>(this, box,Agent.class);
+        agentManager = new AtomLeafAgentManager<Agent>(this, box);
         collisionHandlerUp.setAgentManager(agentManager);
         collisionHandlerDown.setAgentManager(agentManager);
         reverseCollisionHandler.setAgentManager(agentManager);
 
-        if (nullPotentialManager != null) {
-            AtomTypeAgentManager.AgentIterator iterator = nullPotentialManager.makeIterator();
-            iterator.reset();
-            while (iterator.hasNext()) {
-                ((PotentialHard)iterator.next()).setBox(box);
-            }
+        for (PotentialHard potential : this.nullPotentialManager.values()) {
+            potential.setBox(box);
         }
+
         if(this.potentialMaster instanceof PotentialMasterList) {
             ((PotentialMasterList)this.potentialMaster).getNeighborManager(this.box).getEventManager().addListener(this);
         }
@@ -224,8 +215,8 @@ public class IntegratorHard extends IntegratorMD
             currentPotentialEnergy += dE;
             currentKineticEnergy -= dE;
             
-            for(CollisionListenerLinker cll=collisionListenerHead; cll!=null; cll=cll.next) {
-                cll.listener.collisionAction(colliderAgent);
+            for(CollisionListener listener : this.collisionListeners) {
+                listener.collisionAction(colliderAgent);
             }
             collisionCount++;
             if (atoms.getAtomCount() == 1) {
@@ -502,12 +493,9 @@ public class IntegratorHard extends IntegratorMD
      * If the listener is already in the list, no action is taken to add it again.
      */
     public void addCollisionListener(CollisionListener cl) {
-        //make sure listener is not already in list
-        for(CollisionListenerLinker cll=collisionListenerHead; cll!=null; cll=cll.next) {
-            if(cll.listener == cl) return;
+        if (!this.collisionListeners.contains(cl)) {
+            this.collisionListeners.add(cl);
         }
-        //OK, not in list, now register it by adding it to the beginning of the list
-        collisionListenerHead = new CollisionListenerLinker(cl, collisionListenerHead);
     }
 
     /**
@@ -516,26 +504,14 @@ public class IntegratorHard extends IntegratorMD
      * method simply returns without taking any action.
      */
     public void removeCollisionListener(CollisionListener cl) {
-        if(collisionListenerHead == null) return;   //list is empty; do nothing
-        if(cl == collisionListenerHead.listener) {  //listener is first in list
-            collisionListenerHead = collisionListenerHead.next;
-        }
-        else {                                     //not first, so look for listener later in list
-            CollisionListenerLinker previous = collisionListenerHead;
-            for(CollisionListenerLinker cll=collisionListenerHead.next; cll!=null; cll=cll.next) {
-                if(cll.listener == cl) {           //found it; 
-                    previous.next = cll.next;      //remove it from list
-                    break;
-                }
-            }
-        }
-    }//end of removeCollisionListener
+        this.collisionListeners.remove(cl);
+    }
 
     /**
      * @return Returns the nullPotential.
      */
     public PotentialHard getNullPotential(AtomType atomType) {
-        return (PotentialHard)nullPotentialManager.getAgent(atomType);
+        return this.nullPotentialManager.get(atomType);
     }
 
     /**
@@ -544,9 +520,7 @@ public class IntegratorHard extends IntegratorMD
      * around periodic boundaries when neighbor listing is not used.
      */
     public void setNullPotential(PotentialHard nullPotential, AtomType type) {
-        // if nullPotentialManager is null, it's because you passed a null
-        // Simulation when you constructed this class
-        nullPotentialManager.setAgent(type, nullPotential);
+        nullPotentialManager.put(type, nullPotential);
         if (nullPotential != null && box != null) {
             nullPotential.setBox(box);
         }
@@ -577,27 +551,13 @@ public class IntegratorHard extends IntegratorMD
      */
     public Agent makeAgent(IAtom a, Box agentBox) {
         Agent agent = new Agent(a, this);
-        if (nullPotentialManager != null) {
-            agent.setNullPotential((PotentialHard) nullPotentialManager.getAgent(a.getType()));
-        }
+        agent.setNullPotential(this.nullPotentialManager.get(a.getType()));
         return agent;
     }
 
     // don't need to remove the agent from the event list because reset will
     // get called and that will totally clear the event list
     public void releaseAgent(Agent agent, IAtom atom, Box agentBox) {
-    }
-
-    @IgnoreProperty
-    public Class getSpeciesAgentClass() {
-        return PotentialHard.class;
-    }
-
-    public Object makeAgent(AtomType type) {
-        return null;
-    }
-
-    public void releaseAgent(Object agent, AtomType type) {
     }
 
     public interface CollisionListener {
@@ -727,19 +687,6 @@ public class IntegratorHard extends IntegratorMD
             }
         }
     }
-
-    /**
-     * Class used to construct a linked list of collision listeners
-     */
-    private static class CollisionListenerLinker implements java.io.Serializable {
-        private static final long serialVersionUID = 1L;
-        final CollisionListener listener;
-        CollisionListenerLinker next;
-        CollisionListenerLinker(CollisionListener listener, CollisionListenerLinker next) {
-            this.listener = listener;
-            this.next = next;
-        }
-    }//end of CollisionListenerLinker
 
     /**
      * Agent defined by this integrator.

@@ -4,8 +4,8 @@
 
 package etomica.tests;
 
-import etomica.action.ActionIntegrate;
 import etomica.action.BoxInflate;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -24,7 +24,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
 import etomica.integrator.mcmove.MCMoveStepTracker;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -63,9 +63,9 @@ public class TestLJGCMC3D extends Simulation {
         mcMoveID.setMu(-4.12);
         integrator.getMoveManager().addMCMove(mcMoveID);
         integrator.getMoveManager().setEquilibrating(false);
-        ActionIntegrate actionIntegrate = new ActionIntegrate(integrator, false);
-        actionIntegrate.setMaxSteps(numSteps);
-        getController().addAction(actionIntegrate);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        activityIntegrate.setMaxSteps(numSteps);
+        getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
         mcMoveID.setSpecies(species);

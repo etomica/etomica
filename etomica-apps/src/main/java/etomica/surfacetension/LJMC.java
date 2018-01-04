@@ -22,7 +22,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtomInRegion;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -166,7 +166,7 @@ public class LJMC extends Simulation {
         meterPTensor.setTemperature(temperature);
         
         if (true) {
-            SimulationGraphic ljmcGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            SimulationGraphic ljmcGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             SimulationGraphic.makeAndDisplayFrame(ljmcGraphic.getPanel(), "LJ surface tension");
             
             IAction recenterAction = new ActionRecenter(sim);

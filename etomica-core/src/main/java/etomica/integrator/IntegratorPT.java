@@ -60,10 +60,11 @@ public class IntegratorPT extends IntegratorManagerMC {
      */
 	public void addIntegrator(IntegratorBox integrator){
 	    super.addIntegrator(integrator);
-        
+
+	    int nIntegrators = integrators.size();
 		if (nIntegrators > 1) {
-            MCMove newMCMove = mcMoveSwapFactory.makeMCMoveSwap((IntegratorBox)integrators[nIntegrators-2], 
-                    (IntegratorBox)integrators[nIntegrators-1], space);
+            MCMove newMCMove = mcMoveSwapFactory.makeMCMoveSwap((IntegratorBox) integrators.get(nIntegrators - 2),
+                    (IntegratorBox) integrators.get(nIntegrators - 1), space);
             moveManager.addMCMove(newMCMove);
 		}
 	}

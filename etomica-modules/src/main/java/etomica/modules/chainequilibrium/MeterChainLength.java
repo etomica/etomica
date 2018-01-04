@@ -175,7 +175,7 @@ public class MeterChainLength implements IDataSource, Serializable, AgentSource<
             // allow old agentManager to de-register itself as a BoxListener
             tagManager.dispose();
         }
-        tagManager = new AtomLeafAgentManager<AtomTag>(this,box,AtomTag.class);
+        tagManager = new AtomLeafAgentManager<AtomTag>(this,box);
     }
 
     public IDataInfo getDataInfo() {

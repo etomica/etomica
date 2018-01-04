@@ -55,7 +55,7 @@ public class ColloidSim extends Simulation {
         super(_space);
         setRandom(new RandomNumberGenerator(1));
         BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, _space);
-        potentialMaster = new PotentialMasterList(this, 6, boxAgentSource, new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class, this),
+        potentialMaster = new PotentialMasterList(this, 6, boxAgentSource, new BoxAgentManager<NeighborCellManager>(boxAgentSource, this),
                 new NeighborListManagerColloid.NeighborListAgentSourceColloid(6, _space), _space);
         
         int nColloid = 1;
@@ -99,8 +99,8 @@ public class ColloidSim extends Simulation {
             public void releaseAgent(AtomArrayList agent, IAtom atom, Box agentBox) {}
             public AtomArrayList makeAgent(IAtom a, Box agentBox) {return new AtomArrayList();}
         };
-        colloidMonomerBondManager = new AtomLeafAgentManager<AtomArrayList>(bondAgentSource, box, AtomArrayList.class);
-        monomerMonomerBondManager = new AtomLeafAgentManager<AtomArrayList>(bondAgentSource, box, AtomArrayList.class);
+        colloidMonomerBondManager = new AtomLeafAgentManager<AtomArrayList>(bondAgentSource, box);
+        monomerMonomerBondManager = new AtomLeafAgentManager<AtomArrayList>(bondAgentSource, box);
 
         //instantiate several potentials for selection in combo-box
 	    p2mm = new P2SquareWellMonomer(space, monomerMonomerBondManager);

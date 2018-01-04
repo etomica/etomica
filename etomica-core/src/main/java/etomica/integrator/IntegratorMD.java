@@ -15,7 +15,6 @@ import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.meta.annotations.IgnoreProperty;
 import etomica.molecule.IMolecule;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
@@ -23,7 +22,6 @@ import etomica.space.Vector;
 import etomica.units.dimensions.Dimensioned;
 import etomica.units.dimensions.Time;
 import etomica.util.Debug;
-import etomica.util.EnumeratedType;
 import etomica.util.random.IRandom;
 
 /**
@@ -103,7 +101,7 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
         this.box.getEventManager().addListener(this);
 
         if (thermostat == ThermostatType.HYBRID_MC) {
-            oldPositionAgentManager = new AtomLeafAgentManager<Vector>(new VectorSource(space), this.box, Vector.class);
+            oldPositionAgentManager = new AtomLeafAgentManager<Vector>(new VectorSource(space), this.box);
         }
         if (integratorMC != null) {
             integratorMC.setBox(this.box);
@@ -134,7 +132,7 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
             throw overlapException;
         }
         if (thermostat == ThermostatType.HYBRID_MC && isothermal && oldPositionAgentManager == null) {
-            oldPositionAgentManager = new AtomLeafAgentManager<Vector>(new VectorSource(space), box, Vector.class);
+            oldPositionAgentManager = new AtomLeafAgentManager<Vector>(new VectorSource(space), box);
         }
     }
 
@@ -248,7 +246,7 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
     public void setThermostat(ThermostatType aThermostat) {
         thermostat = aThermostat;
         if (thermostat == ThermostatType.HYBRID_MC && box != null) {
-            oldPositionAgentManager = new AtomLeafAgentManager<Vector>(new VectorSource(space), box, Vector.class);
+            oldPositionAgentManager = new AtomLeafAgentManager<Vector>(new VectorSource(space), box);
         } else if (thermostat != ThermostatType.HYBRID_MC) {
             if (oldPositionAgentManager != null) {
                 oldPositionAgentManager.dispose();
@@ -657,21 +655,12 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
     public void boxNumberMolecules(BoxMoleculeCountEvent e) {
     }
 
-    public static class ThermostatType extends EnumeratedType {
-        public static final ThermostatType VELOCITY_SCALING = new ThermostatType("Velocity Scaling");
-        public static final ThermostatType ANDERSEN = new ThermostatType("Anderson");
-        public static final ThermostatType ANDERSEN_SINGLE = new ThermostatType("Andersen Single");
-        public static final ThermostatType ANDERSEN_SCALING = new ThermostatType("Andersen Scaling");
-        public static final ThermostatType HYBRID_MC = new ThermostatType("Hybrid MC");
-
-        protected ThermostatType(String label) {
-            super(label);
-        }
-
-        //public static final ThermostatType NOSE_HOOVER;
-        public static ThermostatType[] choices() {
-            return new ThermostatType[]{VELOCITY_SCALING, ANDERSEN, ANDERSEN_SINGLE, HYBRID_MC, ANDERSEN_SCALING};
-        }
+    public enum ThermostatType {
+        VELOCITY_SCALING,
+        ANDERSEN,
+        ANDERSEN_SINGLE,
+        ANDERSEN_SCALING,
+        HYBRID_MC
     }
 
     /**

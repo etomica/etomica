@@ -26,7 +26,7 @@ import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisBetaSnA5;
 import etomica.lattice.crystal.PrimitiveTetragonal;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
@@ -151,7 +151,7 @@ public class MEAM_MC extends Simulation {
         //energyAccumulator.setBlockSize(50);
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(energyPump));
 
-        SimulationGraphic simgraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, APP_NAME, sim.space, sim.getController());
+        SimulationGraphic simgraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, APP_NAME);
         simgraphic.getController().getDataStreamPumps().add(energyPump);
 
         simgraphic.getPanel().plotPanel.add(plot.graphic(), SimulationPanel.getVertGBC());

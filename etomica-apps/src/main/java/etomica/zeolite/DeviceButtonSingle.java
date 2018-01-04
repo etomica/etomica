@@ -6,7 +6,7 @@ package etomica.zeolite;
 //This class includes a main method to demonstrate its use
 
 import etomica.action.IAction;
-import etomica.action.activity.IController;
+import etomica.action.activity.Controller;
 import etomica.graphics.Device;
 
 import javax.swing.*;
@@ -26,7 +26,7 @@ public class DeviceButtonSingle extends Device {
      * call to setAction is needed to make the button do something.
      * @param controller
      */
-    public DeviceButtonSingle(IController controller) {
+    public DeviceButtonSingle(Controller controller) {
         super(controller);
         button = new JButton();
     }
@@ -35,7 +35,7 @@ public class DeviceButtonSingle extends Device {
      * Constructs a button connected to the given action.  Controller
      * and action may be changed independently after construction.
      */
-    public DeviceButtonSingle(IController controller, IAction action) {
+    public DeviceButtonSingle(Controller controller, IAction action) {
         this(controller);
         setAction(action);
     }
@@ -102,7 +102,7 @@ public class DeviceButtonSingle extends Device {
         final String APP_NAME = "Device Button Single";
 
         etomica.simulation.prototypes.HSMD2D sim = new etomica.simulation.prototypes.HSMD2D();
-        etomica.graphics.SimulationGraphic graphic = new etomica.graphics.SimulationGraphic(sim, APP_NAME, sim.getSpace(), sim.getController());
+        etomica.graphics.SimulationGraphic graphic = new etomica.graphics.SimulationGraphic(sim, APP_NAME);
         
         //here's the part unique to this class
         etomica.action.SimulationRestart action = new etomica.action.SimulationRestart(sim);

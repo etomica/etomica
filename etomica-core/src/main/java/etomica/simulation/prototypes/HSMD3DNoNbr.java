@@ -14,7 +14,7 @@ import etomica.config.ConfigurationLattice;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2HardSphere;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
@@ -68,7 +68,7 @@ public class HSMD3DNoNbr extends Simulation {
 
     public static void main(String[] args) {
         HSMD3DNoNbr simulation = new HSMD3DNoNbr();
-        SimulationGraphic simGraphic = new SimulationGraphic(simulation, SimulationGraphic.TABBED_PANE, simulation.getSpace(), simulation.getController());
+        SimulationGraphic simGraphic = new SimulationGraphic(simulation, SimulationGraphic.TABBED_PANE);
         simGraphic.makeAndDisplayFrame();
     }
 }//end of class

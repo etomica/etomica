@@ -25,7 +25,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.lattice.LatticeCubicBcc;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialGroupSoft;
 import etomica.potential.PotentialMaster;
@@ -152,7 +152,7 @@ public class CH4NVT extends Simulation {
 		final CH4NVT sim = new CH4NVT(space,numberMolecules,boxSize,temperature,truncation);
 		
     	if (isGraphic){
-			SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+			SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
 		    simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(PIXEL_SIZE));
 	        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 	        //***********************************  set diameters  ******************************************************

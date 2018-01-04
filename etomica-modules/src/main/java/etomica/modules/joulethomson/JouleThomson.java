@@ -24,7 +24,7 @@ import etomica.integrator.IntegratorGear4NPH.MeterEnthalpy;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.lattice.SpaceLattice;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.function.Function;
 import etomica.modifier.ModifierFunctionWrapper;
 import etomica.modifier.ModifierGeneral;
@@ -57,7 +57,7 @@ public class JouleThomson extends SimulationGraphic {
 
 
     public JouleThomson(JouleThomsonSim simulation, Space _space) {
-        super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
+        super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
         sim = simulation;
         getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
 
@@ -89,7 +89,7 @@ public class JouleThomson extends SimulationGraphic {
         if(sim.getSpace().D() == 2) 
             getDisplayBox(sim.box).setColorScheme(new ColorSchemeTemperature(100, 500));
         else {
-            ColorSchemeByType colorScheme = new ColorSchemeByType(sim);
+            ColorSchemeByType colorScheme = new ColorSchemeByType();
             colorScheme.setColor(sim.species.getLeafType(), Color.blue);
             getDisplayBox(sim.box).setColorScheme(colorScheme);
         }

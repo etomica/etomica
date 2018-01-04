@@ -7,7 +7,7 @@ package etomica.math.discrete;
 import etomica.lattice.IndexIterator;
 import etomica.lattice.IndexIteratorTriangular;
 import etomica.math.SpecialFunctions;
-import etomica.util.Arrays;
+import java.util.Arrays;
 
 /**
  * Iterator that returns unique permutations of an array of integers, with

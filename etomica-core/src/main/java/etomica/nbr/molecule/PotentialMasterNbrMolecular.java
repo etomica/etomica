@@ -4,7 +4,7 @@
 
 package etomica.nbr.molecule;
 
-import etomica.atom.SpeciesAgentManager;
+import etomica.species.SpeciesAgentManager;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentManager.BoxAgentSource;
 import etomica.box.BoxCellManager;
@@ -15,34 +15,39 @@ import etomica.util.Arrays;
 
 /**
  * @author taitan
- *
  */
-public abstract class PotentialMasterNbrMolecular extends PotentialMaster implements SpeciesAgentManager.AgentSource {
+public abstract class PotentialMasterNbrMolecular extends PotentialMaster {
+    private static final SpeciesAgentManager.AgentSource<PotentialArrayMolecular> speciesAgentSource = new SpeciesAgentManager.AgentSource<PotentialArrayMolecular>() {
+        @Override
+        public PotentialArrayMolecular makeAgent(ISpecies type) {
+            return new PotentialArrayMolecular();
+        }
 
-    /**
-	 * 
-	 */
+        @Override
+        public void releaseAgent(PotentialArrayMolecular agent, ISpecies type) {}
+    };
 
-	protected PotentialMasterNbrMolecular(Simulation sim, BoxAgentSource<? extends BoxCellManager> boxAgentSource,
+    protected final SpeciesAgentManager<PotentialArrayMolecular> rangedAgentManager;
+    protected final SpeciesAgentManager<PotentialArrayMolecular> speciesAgentManager;
+    protected final Simulation simulation;
+    protected IPotential[] allPotentials = new IPotential[0];
+    protected BoxAgentSource<? extends BoxCellManager> boxAgentSource;
+    protected BoxAgentManager<? extends BoxCellManager> boxAgentManager;
+
+    protected PotentialMasterNbrMolecular(Simulation sim, BoxAgentSource<? extends BoxCellManager> boxAgentSource,
                                           BoxAgentManager<? extends BoxCellManager> boxAgentManager) {
         super();
         simulation = sim;
         this.boxAgentSource = boxAgentSource;
         this.boxAgentManager = boxAgentManager;
-        rangedAgentManager = new SpeciesAgentManager(this);
-        speciesAgentManager = new SpeciesAgentManager(this);
+        rangedAgentManager = new SpeciesAgentManager<>(speciesAgentSource, sim);
+        speciesAgentManager = new SpeciesAgentManager<>(speciesAgentSource, sim);
+    }
 
-        rangedAgentManager.init(sim);
-        speciesAgentManager.init(sim);
-        
-        rangedPotentialIterator = rangedAgentManager.makeIterator();
-        speciesPotentialIterator = speciesAgentManager.makeIterator();
-    }
-    
     public PotentialGroup makePotentialGroup(int nBody) {
-    	throw new RuntimeException("<PotentialMasterNbrMolecular> The class does not recognize PotentialGroup!!!");
+        throw new RuntimeException("<PotentialMasterNbrMolecular> The class does not recognize PotentialGroup!!!");
     }
-    
+
     public void addPotential(IPotentialMolecular potential, ISpecies[] species) {
         if ((potential instanceof PotentialGroup)) {
             System.err.println("You gave me a concrete molecule potential and I'm very confused now.  I'll pretend like that's OK but don't hold your breath.");
@@ -54,69 +59,53 @@ public abstract class PotentialMasterNbrMolecular extends PotentialMaster implem
             // -- should only happen for 0 or 1-body potentials, which should be fine
             throw new RuntimeException("<PotentialMasterNbrMolecular> infinite-ranged 2-body potential!!!");
         }
-        for (int i=0; i<species.length; i++) {
-            addRangedPotential(potential,species[i]);
+        for (int i = 0; i < species.length; i++) {
+            addRangedPotential(potential, species[i]);
         }
         addRangedPotentialForSpecies(potential, species);
     }
 
-    
-
     protected abstract void addRangedPotentialForSpecies(IPotentialMolecular subPotential, ISpecies[] species);
-    
+
     protected void addRangedPotential(IPotentialMolecular potential, ISpecies species) {
-        
-        PotentialArrayMolecular potentialMoleculeSpecies = (PotentialArrayMolecular)rangedAgentManager.getAgent(species);
+
+        PotentialArrayMolecular potentialMoleculeSpecies = rangedAgentManager.getAgent(species);
         potentialMoleculeSpecies.addPotential(potential);
         boolean found = false;
-        for (int i=0; i<allPotentials.length; i++) {
+        for (int i = 0; i < allPotentials.length; i++) {
             if (allPotentials[i] == potential) {
                 found = true;
             }
         }
         if (!found) {
-            allPotentials = (IPotential[])etomica.util.Arrays.addObject(allPotentials, potential);
+            allPotentials = Arrays.addObject(allPotentials, potential);
         }
     }
-    
+
     public void removePotential(IPotentialMolecular potential) {
         super.removePotential(potential);
         if (potential.getRange() < Double.POSITIVE_INFINITY) {
-            rangedPotentialIterator.reset();
-            while (rangedPotentialIterator.hasNext()) {
-                ((PotentialArrayMolecular)rangedPotentialIterator.next()).removePotential(potential);
-            }
+            this.rangedAgentManager.getAgents().values().forEach(potentialArrayMolecular -> {
+                potentialArrayMolecular.removePotential(potential);
+            });
+        } else if (potential instanceof PotentialGroup) {
+            this.speciesAgentManager.getAgents().values().forEach(potentialArrayMolecular -> {
+                potentialArrayMolecular.removePotential(potential);
+            });
         }
-        else if (potential instanceof PotentialGroup) {
-            speciesPotentialIterator.reset();
-            while (speciesPotentialIterator.hasNext()) {
-                ((PotentialArrayMolecular)speciesPotentialIterator.next()).removePotential(potential);
-            }
-        }
-        allPotentials = (IPotential[])Arrays.removeObject(allPotentials,potential);
+        allPotentials = Arrays.removeObject(allPotentials, potential);
     }
-    
+
     public PotentialArrayMolecular getRangedPotentials(ISpecies species) {
-        return (PotentialArrayMolecular)rangedAgentManager.getAgent(species);
+        return rangedAgentManager.getAgent(species);
     }
 
     public PotentialArrayMolecular getIntraPotentials(ISpecies atomType) {
-        return (PotentialArrayMolecular)speciesAgentManager.getAgent(atomType);
+        return speciesAgentManager.getAgent(atomType);
     }
-    
+
     public final BoxAgentManager<? extends BoxCellManager> getCellAgentManager() {
         return boxAgentManager;
-    }
-    
-    public Class getSpeciesAgentClass() {
-        return PotentialArrayMolecular.class;
-    }
-    
-    public Object makeAgent(ISpecies species) {
-        return new PotentialArrayMolecular();
-    }
-    
-    public void releaseAgent(Object agent, ISpecies type) {
     }
 
     /**
@@ -125,13 +114,4 @@ public abstract class PotentialMasterNbrMolecular extends PotentialMaster implem
     public Simulation getSimulation() {
         return simulation;
     }
-    
-	protected SpeciesAgentManager.AgentIterator rangedPotentialIterator;
-    protected SpeciesAgentManager.AgentIterator speciesPotentialIterator;
-    protected final SpeciesAgentManager rangedAgentManager;
-    protected final SpeciesAgentManager speciesAgentManager;
-    protected IPotential[] allPotentials = new IPotential[0];
-    protected BoxAgentSource<? extends BoxCellManager> boxAgentSource;
-    protected final Simulation simulation;
-    protected BoxAgentManager<? extends BoxCellManager> boxAgentManager;
 }

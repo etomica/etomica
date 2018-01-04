@@ -14,7 +14,7 @@ import etomica.box.Box;
 import etomica.integrator.Integrator;
 import etomica.space.Vector;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.space.Space;
 import etomica.util.IEvent;
 import etomica.util.IListener;
@@ -155,8 +155,8 @@ public class MSDCoordWriter implements IAction, IListener {
 
     public void actionPerformed(IEvent evt) {
         if (fileWriter != null &&
-            (((ControllerEvent)evt).getType() == ControllerEvent.NO_MORE_ACTIONS ||
-             ((ControllerEvent)evt).getType() == ControllerEvent.HALTED)) {
+            (((ControllerEvent)evt).getType() == ControllerEvent.Type.NO_MORE_ACTIONS ||
+             ((ControllerEvent)evt).getType() == ControllerEvent.Type.HALTED)) {
             closeFile();
         }
     }

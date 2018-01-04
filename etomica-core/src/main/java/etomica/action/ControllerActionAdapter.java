@@ -8,7 +8,7 @@
  */
 package etomica.action;
 
-import etomica.action.activity.IController;
+import etomica.action.activity.Controller;
 
 /**
  * Convenience class used to define a ControllerAction. Implements all methods
@@ -19,7 +19,7 @@ public abstract class ControllerActionAdapter implements ControllerAction, java.
 	/**
 	 * @return Returns the controller on which this action will be performed.
 	 */
-	public IController getController() {
+	public Controller getController() {
 		return controller;
 	}
 
@@ -27,9 +27,9 @@ public abstract class ControllerActionAdapter implements ControllerAction, java.
 	 * @param controller
 	 *            The controller on which this action will be performed.
 	 */
-	public void setController(IController controller) {
+	public void setController(Controller controller) {
 		this.controller = controller;
 	}
 
-	protected IController controller;
+	protected Controller controller;
 }

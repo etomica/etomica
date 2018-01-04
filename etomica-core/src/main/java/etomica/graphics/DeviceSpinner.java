@@ -15,7 +15,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import etomica.action.IAction;
-import etomica.action.activity.IController;
+import etomica.action.activity.Controller;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.modifier.ModifyAction;
@@ -77,7 +77,7 @@ public class DeviceSpinner extends Device {
     private boolean showBorder = false;
     protected IAction targetAction;
 
-    public DeviceSpinner(IController controller) {
+    public DeviceSpinner(Controller controller) {
         super(controller);
         init();
     }
@@ -85,7 +85,7 @@ public class DeviceSpinner extends Device {
     /**
      * Constructs a spinner connected to the given property of the given object
      */
-    public DeviceSpinner(IController controller, Object object, String property) {
+    public DeviceSpinner(Controller controller, Object object, String property) {
         this(controller, new ModifierGeneral(object, property));
         component = object;
         this.property = property;
@@ -93,7 +93,7 @@ public class DeviceSpinner extends Device {
     /**
      * Constructs a spinner connected to the get/set Value methods of the given Modifier
      */
-    public DeviceSpinner(IController controller, Modifier m) {
+    public DeviceSpinner(Controller controller, Modifier m) {
         this(controller);
         //set component and property in some way
         setModifier(m);

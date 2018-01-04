@@ -23,7 +23,7 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveTetragonal;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.list.molecule.PotentialMasterListMolecular;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MCMoveMoleculeCoupled;
@@ -214,10 +214,10 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 		System.out.println("volume: " + volume);
 		
 		if(false){
-			SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
+			SimulationGraphic simGraphic = new SimulationGraphic(sim);
 		    simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
 		    	    
-			DiameterHashByType diameter = new DiameterHashByType(sim);
+			DiameterHashByType diameter = new DiameterHashByType();
 			diameter.setDiameter(sim.species.getNitrogenType(), 3.1);
 			diameter.setDiameter(sim.species.getPType(), 0.0);
 			simGraphic.getDisplayBox(sim.box).setDiameterHash(diameter);

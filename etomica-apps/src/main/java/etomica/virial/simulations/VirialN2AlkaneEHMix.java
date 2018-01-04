@@ -704,7 +704,7 @@ public class VirialN2AlkaneEHMix {
         	  double size = 10;
               sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
               sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
-              SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+              SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
               DisplayBox dBox0 = simGraphic.getDisplayBox(sim.box[0]);
               DisplayBox dBox1 = simGraphic.getDisplayBox(sim.box[1]);
               dBox0.setPixelUnit(new Pixel(300.0/size));
@@ -713,7 +713,7 @@ public class VirialN2AlkaneEHMix {
               dBox1.setShowBoundary(false);
               
               //set diameters
-              DiameterHashByType diameter = new DiameterHashByType(sim); 
+              DiameterHashByType diameter = new DiameterHashByType();
               diameter.setDiameter(speciesN2.getAtomType(0),0.2);
               diameter.setDiameter(speciesN2.getAtomType(1),0.3);
               diameter.setDiameter(speciesAlkaneEH.getC_2Type(), 0.3);

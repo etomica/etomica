@@ -17,6 +17,7 @@ import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesAgentManager;
 import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
@@ -83,7 +84,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
             agentManager.dispose();
         }
         super.setBox(box);
-        agentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, box,IntegratorVelocityVerlet.MyAgent.class);
+        agentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, box);
         forceSum.setAgentManager(agentManager);
     }
 
@@ -292,10 +293,6 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
     }
     
     public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, Box agentBox) {}
-
-    public Class<BondConstraints> getSpeciesAgentClass() {
-        return BondConstraints.class;
-    }
 
     public final Object makeAgent(ISpecies a) {
         return null;

@@ -19,7 +19,7 @@ import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorRigidMatrixIterative.BoxImposePbcMolecule;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.function.Function;
 import etomica.models.water.OrientationCalcWater3P;
 import etomica.models.water.SpeciesWater3POriented;
@@ -35,6 +35,7 @@ import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.ISpeciesOriented;
+import etomica.species.SpeciesAgentManager;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
@@ -146,7 +147,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
 //        System.out.println("o at "+((IAtomPositioned)box.getLeafList().getAtom(2)).getPosition());
         if (false) {
             // ai.setSleepPeriod(10);
-            SimulationGraphic graphic = new SimulationGraphic(sim, "Quat", 1, space, sim.getController());
+            SimulationGraphic graphic = new SimulationGraphic(sim, "Quat", 1);
             ColorSchemeByType colorScheme = (ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme();
             colorScheme.setColor(oType, Color.RED);
             colorScheme.setColor(hType, Color.WHITE);
@@ -180,7 +181,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             moleculeAgentManager.dispose();
         }
         super.setBox(box);
-        leafAgentManager = new AtomLeafAgentManager<AtomAgent>(this, box,AtomAgent.class);
+        leafAgentManager = new AtomLeafAgentManager<AtomAgent>(this, box);
         moleculeAgentManager = new MoleculeAgentManager(sim, this.box, this);
         forceSum.setAgentManager(leafAgentManager);
     }
@@ -550,10 +551,6 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         }
     }
 
-    public Class getMoleculeAgentClass() {
-        return MoleculeAgent.class;
-    }
-
     public final Object makeAgent(IMolecule a) {
         return new MoleculeAgent(space);
     }
@@ -565,10 +562,6 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
     public void releaseAgent(AtomAgent agent, IAtom atom, Box agentBox) {}
 
     public void releaseAgent(Object agent, IMolecule atom) {}
-
-    public Class getSpeciesAgentClass() {
-        return MyTypeAgent.class;
-    }
 
     public Object makeAgent(ISpecies type) {
         return null;

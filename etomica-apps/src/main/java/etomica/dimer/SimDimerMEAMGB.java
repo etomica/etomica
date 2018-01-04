@@ -28,7 +28,7 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisBetaSnA5;
 import etomica.lattice.crystal.PrimitiveTetragonal;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.numerical.CalcGradientDifferentiable;
 import etomica.meam.ParameterSetMEAM;
 import etomica.meam.PotentialMEAM;
@@ -310,7 +310,7 @@ public class SimDimerMEAMGB extends Simulation{
         //sim.integratorDimer.setActionInterval(energyPump,1);
 
 
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 1, sim.space, sim.getController());
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 1);
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
         simGraphic.add(plotPE);
 

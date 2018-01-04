@@ -126,7 +126,7 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
         //instantiate simulation
         NormalModeAnalysisDisplay3D sim = new NormalModeAnalysisDisplay3D(Space.getInstance(3));
 
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, Space.getInstance(3), sim.getController());
+        SimulationGraphic simGraphic = new SimulationGraphic(sim);
         simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(50));
         simGraphic.makeAndDisplayFrame(APP_NAME);
 

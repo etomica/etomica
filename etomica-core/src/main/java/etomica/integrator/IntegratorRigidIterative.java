@@ -18,7 +18,6 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
 import etomica.math.function.Function;
 import etomica.models.water.DipoleSourceWater;
 import etomica.models.water.OrientationCalcWater3P;
@@ -35,6 +34,7 @@ import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.ISpeciesOriented;
+import etomica.species.SpeciesAgentManager;
 import etomica.units.Electron;
 import etomica.units.Joule;
 import etomica.units.Kelvin;
@@ -110,7 +110,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
             moleculeAgentManager = null;
         }
         super.setBox(box);
-        leafAgentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, box,IntegratorVelocityVerlet.MyAgent.class);
+        leafAgentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, box);
         moleculeAgentManager = new MoleculeAgentManager(sim, box, this);
         torqueSum.setAgentManager(leafAgentManager);
         torqueSum.setMoleculeAgentManager(moleculeAgentManager);
@@ -674,10 +674,6 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
     
 //--------------------------------------------------------------
 
-    public Class getMoleculeAgentClass() {
-        return MoleculeAgent.class;
-    }
-
     public final Object makeAgent(IMolecule a) {
         return new MoleculeAgent(space);
     }
@@ -708,10 +704,6 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         public Vector force() {return force;}
     }
 
-    public Class getSpeciesAgentClass() {
-        return OrientationCalc.class;
-    }
-    
     public Object makeAgent(ISpecies type) {
         return null;
     }
@@ -787,7 +779,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         }
         else {
             ai.setSleepPeriod(2);
-            SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1, space, sim.getController());
+            SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1);
             ((ColorSchemeByType)graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
             ((ColorSchemeByType)graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);
             graphic.makeAndDisplayFrame();

@@ -59,7 +59,7 @@ public class ClathrateHarmonicFE extends Simulation{
         Boundary boundary = new BoundaryRectangularPeriodic(space, a0_sc);
         box.setBoundary(boundary);
 		ChargeAgentSourceRPM agentSource = new ChargeAgentSourceRPM(species, isIce);
-		AtomLeafAgentManager<MyCharge> atomAgentManager = new AtomLeafAgentManager<MyCharge>(agentSource, box,MyCharge.class);
+		AtomLeafAgentManager<MyCharge> atomAgentManager = new AtomLeafAgentManager<MyCharge>(agentSource, box);
 		double sigma, epsilon;
 		if(isIce){
 			sigma = 3.1668; epsilon = Kelvin.UNIT.toSim(106.1);//TIP4P/Ice			
@@ -241,8 +241,8 @@ public class ClathrateHarmonicFE extends Simulation{
 		
 		
       if (false) {
-	      final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "string", sim.space, sim.getController());
-	      final DisplayBox display = new DisplayBox(sim, sim.box, sim.space, null);
+	      final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "string");
+	      final DisplayBox display = new DisplayBox(sim, sim.box);
 	      simGraphic.add(display);
 	      ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getHydrogenType(), Color.GREEN);
 	      ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getOxygenType(), Color.RED);
@@ -269,7 +269,7 @@ public class ClathrateHarmonicFE extends Simulation{
 			    }
 			    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, Box agentBox) {/**do nothing**/}
 	        };
-			AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> atomAgentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(atomAgentSource , sim.box , IntegratorVelocityVerlet.MyAgent.class);
+			AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> atomAgentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(atomAgentSource , sim.box);
 	        pcForce.setAgentManager(atomAgentManager);
 
 			IteratorDirective id = new IteratorDirective();

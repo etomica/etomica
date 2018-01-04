@@ -9,6 +9,7 @@ dependencies {
     compileClasspath "org.openjdk.jmh:jmh-generator-annprocess:1.19"
     compile project(':etomica-core')
     compile project(':etomica-apps')
+    compile project(':etomica-modules')
 }
 
 jar {

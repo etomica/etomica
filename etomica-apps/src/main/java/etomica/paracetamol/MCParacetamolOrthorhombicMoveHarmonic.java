@@ -21,7 +21,7 @@ import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.normalmode.MCMoveHarmonic;
 import etomica.normalmode.NormalModesFromFile;
 import etomica.normalmode.WaveVectorFactory;
@@ -313,7 +313,7 @@ public class MCParacetamolOrthorhombicMoveHarmonic extends Simulation {
     public static void main(String[] args) {
     	int numMolecules = 192;
         etomica.paracetamol.MCParacetamolOrthorhombicMoveHarmonic sim = new etomica.paracetamol.MCParacetamolOrthorhombicMoveHarmonic(numMolecules);
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 1, sim.space, sim.getController());
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 1);
         Pixel pixel = new Pixel(10);
         simGraphic.getDisplayBox(sim.box).setPixelUnit(pixel);
         //sim.getController().actionPerformed();

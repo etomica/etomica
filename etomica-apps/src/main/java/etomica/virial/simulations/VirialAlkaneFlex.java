@@ -16,7 +16,7 @@ import etomica.data.types.DataDouble;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P3BondAngle;
 import etomica.potential.P4BondTorsion;
@@ -424,7 +424,7 @@ public class VirialAlkaneFlex {
             double size = (nSpheres+5)*1.5;
             sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
             sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]); 
             DisplayBox displayBox1 = simGraphic.getDisplayBox(sim.box[1]);
             displayBox0.setPixelUnit(new Pixel(300.0/size));

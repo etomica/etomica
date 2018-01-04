@@ -42,7 +42,7 @@ import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modules.render.RenderMD.RenderMDParam;
 import etomica.space.Space;
@@ -67,7 +67,7 @@ public class RenderMDGraphic extends SimulationGraphic {
 
     public RenderMDGraphic(final RenderMD simulation, Space _space) {
 
-    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
+    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
     	
     	RenderMDParam params = new RenderMDParam();
 
@@ -84,9 +84,9 @@ public class RenderMDGraphic extends SimulationGraphic {
 
        
 	    //display of box, timer
-        ColorSchemeByType colorScheme = new ColorSchemeByType(sim);
+        ColorSchemeByType colorScheme = new ColorSchemeByType();
         colorScheme.setColor(sim.species.getLeafType(),java.awt.Color.red);
-        getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType(sim));
+        getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType());
 //        sim.integrator.addListener(new IntervalActionAdapter(this.getDisplayBoxPaintAction(sim.box)));
 
 	    //meters and displays

@@ -29,7 +29,7 @@ public class BoxAgentSourceAtomManager<E> implements BoxAgentSource<AtomLeafAgen
     }
 
     public AtomLeafAgentManager<E> makeAgent(Box box) {
-        return new AtomLeafAgentManager<E>(atomAgentSource, box, atomAgentClass);
+        return new AtomLeafAgentManager<E>(atomAgentSource, box);
     }
 
     public void releaseAgent(AtomLeafAgentManager<E> agent) {

@@ -19,7 +19,7 @@ import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2SquareWell;
 import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
@@ -108,7 +108,7 @@ public class VirialSW {
         if (false) {
             sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
             sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]); 
             DisplayBox displayBox1 = simGraphic.getDisplayBox(sim.box[1]);
 //            displayBox0.setPixelUnit(new Pixel(300.0/size));

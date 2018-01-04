@@ -8,7 +8,6 @@ import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.math.function.Function;
 import etomica.math.function.IFunction;
-import etomica.util.EnumeratedType;
 
 /**
  * AccumulatorAverage that does not use blocks (best used when each sample
@@ -217,13 +216,19 @@ public class AccumulatorAverageBlockless extends DataAccumulator {
      * array of these types can be given to the addDataSink method to specify
      * the type of statistics to be given to the DataSink.
      */
-    public static class StatType extends EnumeratedType {
+    public static class StatType {
 
         private static final long serialVersionUID = 1L;
         public final int index;
+        private final String label;
         protected StatType(String label, int index) {
-            super(label);
+            this.label = label;
             this.index = index;
+        }
+
+        @Override
+        public String toString() {
+            return label;
         }
     }
 

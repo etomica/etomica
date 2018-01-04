@@ -186,7 +186,7 @@ public class LjMd3Dv2y {
 
         if (graphics) {
             final String APP_NAME = "LjMd3D";
-            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3, sim.getSpace(), sim.getController());
+            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3);
     
             simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 

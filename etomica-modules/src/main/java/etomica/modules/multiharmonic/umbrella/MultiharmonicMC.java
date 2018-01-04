@@ -11,7 +11,7 @@ import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modules.multiharmonic.MCMoveMultiHarmonic;
 import etomica.potential.P1Harmonic;
 import etomica.potential.PotentialMaster;

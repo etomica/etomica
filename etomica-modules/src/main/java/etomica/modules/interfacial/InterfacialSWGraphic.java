@@ -19,7 +19,7 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.*;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modules.interfacial.DataSourceTensorVirialHardProfile.DataSourceVirialProfile;
 import etomica.molecule.IMolecule;
@@ -63,7 +63,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
 
     public InterfacialSWGraphic(final InterfacialSW simulation, Space _space) {
 
-        super(simulation, TABBED_PANE, APP_NAME, _space.D() == 2 ? 10 * REPAINT_INTERVAL : REPAINT_INTERVAL, _space, simulation.getController());
+        super(simulation, TABBED_PANE, APP_NAME, _space.D() == 2 ? 10 * REPAINT_INTERVAL : REPAINT_INTERVAL);
 
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
 

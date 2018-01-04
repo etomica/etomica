@@ -5,7 +5,8 @@
 package etomica.potential;
 
 import etomica.atom.AtomType;
-import etomica.util.Arrays;
+
+import java.util.Arrays;
 
 /**
  * This class stores an array of Potentials and remembers the "other" IAtomType
@@ -60,8 +61,8 @@ public class PotentialArrayByType implements java.io.Serializable {
         for(mostRecentIndex=0; mostRecentIndex<potentials.length; mostRecentIndex++) {
     		if(potentials[mostRecentIndex] == newPotential) return mostRecentIndex;
     	}
-        potentials = (IPotential[])Arrays.addObject(potentials, newPotential);
-        types = (AtomType[]) Arrays.resizeArray(types, potentials.length);
+        potentials = (IPotential[])etomica.util.Arrays.addObject(potentials, newPotential);
+        types = Arrays.copyOf(types, potentials.length);
         types[types.length-1] = type;
     	return potentials.length-1;
     }

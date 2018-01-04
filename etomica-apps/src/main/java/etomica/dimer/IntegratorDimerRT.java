@@ -315,9 +315,9 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Inte
         energyBox2 = new MeterPotentialEnergy(potentialMaster);
         energyBox2.setBox(box2);		
 		
-		atomAgent0 = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, box, IntegratorVelocityVerlet.MyAgent.class);
-		atomAgent1 = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, box1, IntegratorVelocityVerlet.MyAgent.class);
-		atomAgent2 = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, box2, IntegratorVelocityVerlet.MyAgent.class);
+		atomAgent0 = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, box);
+		atomAgent1 = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, box1);
+		atomAgent2 = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, box2);
 
 		force0.setAgentManager(atomAgent0);
 		force1.setAgentManager(atomAgent1);

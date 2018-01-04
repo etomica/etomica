@@ -27,6 +27,7 @@ import etomica.space3d.OrientationFull3D;
 import etomica.space3d.RotationTensor3D;
 import etomica.species.ISpecies;
 import etomica.species.ISpeciesOriented;
+import etomica.species.SpeciesAgentManager;
 import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
@@ -107,7 +108,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
             moleculeAgentManager.dispose();
         }
         super.setBox(box);
-        leafAgentManager = new AtomLeafAgentManager<IntegratorRigidMatrixIterative.AtomAgent>(this, box,IntegratorRigidMatrixIterative.AtomAgent.class);
+        leafAgentManager = new AtomLeafAgentManager<IntegratorRigidMatrixIterative.AtomAgent>(this, box);
         moleculeAgentManager = new MoleculeAgentManager(sim, this.box, this);
         torqueSum.setAgentManager(leafAgentManager);
         torqueSum.setMoleculeAgentManager(moleculeAgentManager);
@@ -677,10 +678,6 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
     }
     
 //--------------------------------------------------------------
-    
-    public Class getMoleculeAgentClass() {
-        return MoleculeAgent.class;
-    }
 
     public final Object makeAgent(IMolecule a) {
         return new MoleculeAgent(space);
@@ -718,10 +715,6 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
         public Vector force() {return force;}
     }
 
-    public Class getSpeciesAgentClass() {
-        return OrientationCalc.class;
-    }
-    
     public Object makeAgent(ISpecies type) {
         return null;
     }

@@ -9,7 +9,8 @@
 package etomica.potential;
 
 import etomica.nbr.NeighborCriterion;
-import etomica.util.Arrays;
+
+import java.util.Arrays;
 
 /**
  * Instances of this class are created by AtomType classes to
@@ -54,9 +55,9 @@ public class PotentialArray implements java.io.Serializable {
     	for(mostRecentIndex=0; mostRecentIndex<potentials.length; mostRecentIndex++) {
     		if(potentials[mostRecentIndex] == newPotential) return mostRecentIndex;
     	}
-        potentials = (IPotential[])Arrays.addObject(potentials, newPotential);
+        potentials = (IPotential[])etomica.util.Arrays.addObject(potentials, newPotential);
         // make room for a criterion to be added via setCriterion
-        criteria = (NeighborCriterion[])Arrays.resizeArray(criteria, potentials.length);
+        criteria = Arrays.copyOf(criteria, potentials.length);
     	return potentials.length-1;
     }
     

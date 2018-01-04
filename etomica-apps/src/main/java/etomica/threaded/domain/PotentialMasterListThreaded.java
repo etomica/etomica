@@ -46,14 +46,14 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
 
 	public PotentialMasterListThreaded(Simulation sim, double range,
                                        BoxAgentSourceCellManagerList boxAgentSource, Space _space) {
-        this(sim, range, boxAgentSource, new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class, sim), _space);
+        this(sim, range, boxAgentSource, new BoxAgentManager<NeighborCellManager>(boxAgentSource, sim), _space);
     }
 
 	public PotentialMasterListThreaded(Simulation sim, double range,
                                        BoxAgentSourceCellManagerList boxAgentSource,
                                        BoxAgentManager<NeighborCellManager> agentManager, Space _space) {
 		super(sim, range, boxAgentSource, agentManager, new NeighborListAgentSourceThreaded(range, _space), _space);
-        agentManagerThreaded = new BoxAgentManager<NeighborCellManagerThreaded>(new BoxAgentSourceCellManagerThreaded(sim, null, _space), NeighborCellManagerThreaded.class, sim);
+        agentManagerThreaded = new BoxAgentManager<NeighborCellManagerThreaded>(new BoxAgentSourceCellManagerThreaded(sim, null, _space), sim);
 	}
 	
     public NeighborCellManagerThreaded getNbrCellManagerThreaded(Box box) {

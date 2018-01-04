@@ -17,8 +17,8 @@ import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.Primitive;
-import etomica.listener.IntegratorListenerAction;
-import etomica.listener.IntegratorListenerGroupSeries;
+import etomica.integrator.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerGroupSeries;
 import etomica.normalmode.*;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
@@ -200,7 +200,7 @@ public class TestHexane extends Simulation {
         System.out.println("Happy Goodness!!");
 
         if (graphic) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.makeAndDisplayFrame();
         } else {
             long time = System.currentTimeMillis();

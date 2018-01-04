@@ -23,7 +23,7 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.list.BoxAgentSourceCellManagerList;
 import etomica.nbr.list.NeighborListManagerSlanty;
@@ -98,7 +98,7 @@ public class SimOverlapSoftSphereHCP extends Simulation {
 
         System.out.println("rc: " +rc);
         BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, _space);
-        BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class, this);
+        BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, this);
         potentialMasterTarget = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc, space), space);
 
         boxTarget = new Box(space);
@@ -281,7 +281,7 @@ public class SimOverlapSoftSphereHCP extends Simulation {
         final SimOverlapSoftSphereHCP sim = new SimOverlapSoftSphereHCP(Space.getInstance(D), numMolecules, density, temperature, filename, harmonicFudge, exponentN);
 
         if (false) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.makeAndDisplayFrame();
             return;
         }

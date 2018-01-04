@@ -18,7 +18,7 @@ import etomica.data.meter.MeterTemperature;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P1HardBoundary;
 import etomica.potential.P2HardSphere;
 import etomica.potential.PotentialMaster;
@@ -106,7 +106,7 @@ public class HSMD2D_noNbr extends Simulation {
         final String APP_NAME = "HSMD2D no Nbr";
 
         final HSMD2D_noNbr sim = new HSMD2D_noNbr();
-        final SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space, sim.getController());
+        final SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
         sim.activityIntegrate.setSleepPeriod(10);
 
         DisplayTextBoxesCAE pressureDisplay = new DisplayTextBoxesCAE();

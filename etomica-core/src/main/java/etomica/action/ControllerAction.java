@@ -4,15 +4,15 @@
 
 package etomica.action;
 
-import etomica.action.activity.IController;
+import etomica.action.activity.Controller;
 
- /**
+/**
   * Elementary action performed on a controller.
   */
 public interface ControllerAction extends IAction {
 
-    public void setController(IController c);
+    public void setController(Controller c);
     
-    public IController getController();
+    public Controller getController();
 
 }

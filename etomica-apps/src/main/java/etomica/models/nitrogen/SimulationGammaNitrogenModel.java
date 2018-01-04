@@ -22,7 +22,7 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicBcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveTetragonal;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MCMoveMoleculeCoupled;
 import etomica.potential.PotentialMaster;
@@ -177,10 +177,10 @@ public class SimulationGammaNitrogenModel extends Simulation{
 		SimulationGammaNitrogenModel sim = new SimulationGammaNitrogenModel(Space3D.getInstance(3), numMolecule, temperature, pressure);
 
 		if(true){
-			SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
+			SimulationGraphic simGraphic = new SimulationGraphic(sim);
 		    simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(50));
 		    
-			DiameterHashByType diameter = new DiameterHashByType(sim);
+			DiameterHashByType diameter = new DiameterHashByType();
 			diameter.setDiameter(sim.species.getNitrogenType(), 3.1);
 			diameter.setDiameter(sim.species.getPType(), 0.0);
 			

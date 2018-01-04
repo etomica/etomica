@@ -18,7 +18,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -117,7 +117,7 @@ public class MappedVirialLJ extends Simulation {
         MappedVirialLJ sim = new MappedVirialLJ(space, numAtoms, temperature, density, rc);
         
         if (graphics) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.makeAndDisplayFrame();
 
             ArrayList<DataPump> dataStreamPumps = simGraphic.getController().getDataStreamPumps();

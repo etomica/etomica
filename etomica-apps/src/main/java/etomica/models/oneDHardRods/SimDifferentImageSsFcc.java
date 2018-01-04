@@ -17,7 +17,7 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.*;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.*;
 import etomica.overlap.IntegratorOverlap;
@@ -346,7 +346,7 @@ public class SimDifferentImageSsFcc extends Simulation {
         meterOverlapInTarget.setDsBBase(latticeEnergyRef);
         
         P1ConstraintNbr nbrConstraint = new P1ConstraintNbr(space, 
-                primitiveLength/Math.sqrt(2.0), this, constraint);
+                primitiveLength/Math.sqrt(2.0), constraint);
         potentialMaster.addPotential(nbrConstraint, new AtomType[]{
                 species.getLeafType()});
         nbrConstraint.initBox(boxRef);
@@ -445,8 +445,8 @@ public class SimDifferentImageSsFcc extends Simulation {
         System.out.println("instantiated");
 
         if(false) {
-            SimulationGraphic graphic = new SimulationGraphic(sim, sim.space,
-                    sim.getController());
+            SimulationGraphic graphic = new SimulationGraphic(sim
+            );
             graphic.makeAndDisplayFrame();
             return;
         }

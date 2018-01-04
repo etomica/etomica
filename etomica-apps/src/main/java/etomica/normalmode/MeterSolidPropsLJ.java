@@ -63,7 +63,7 @@ public class MeterSolidPropsLJ implements IDataSource, AgentSource<MyAgent> {
         this.potentialMaster = potentialMaster;
         id = new IteratorDirective();
         pcForceSum = new PotentialCalculationForceSum();
-        forceManager = new AtomLeafAgentManager<MyAgent>(this, coordinateDefinition.getBox(), MyAgent.class);
+        forceManager = new AtomLeafAgentManager<MyAgent>(this, coordinateDefinition.getBox());
         pcForceSum.setAgentManager(forceManager);
         dr = space.makeVector();
         this.temperature = temperature;

@@ -4,7 +4,8 @@
 
 package etomica.data;
 
-import etomica.util.Arrays;
+
+import java.util.Arrays;
 
 /**
  * AccumulatorAverage that adjusts the block size during the simulation.  When
@@ -94,7 +95,7 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
         maxBlocks = newMaxBlocks;
         // this would drop stuff at the end, but then we just collapsed the
         // blocks so they should all be 0.
-        blockSums = Arrays.resizeArray(blockSums, maxBlocks);
+        blockSums = Arrays.copyOf(blockSums, maxBlocks);
     }
 
     public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {

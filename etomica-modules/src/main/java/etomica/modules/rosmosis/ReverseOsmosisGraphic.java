@@ -13,7 +13,7 @@ import etomica.data.meter.*;
 import etomica.data.types.DataDouble;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.*;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.potential.P2LennardJones;
@@ -56,7 +56,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
     
     public ReverseOsmosisGraphic(final ReverseOsmosis simulation, Space _space) {
 
-    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
+    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 

@@ -57,7 +57,7 @@ public class InsertionGraphic extends SimulationGraphic {
     
     public InsertionGraphic(final Insertion simulation, Space _space) {
 
-    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
+    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
 
@@ -166,7 +166,7 @@ public class InsertionGraphic extends SimulationGraphic {
         lamBox.setController(sim.getController());
 
         //display of box, timer
-        ColorSchemeByType colorScheme = new ColorSchemeByType(sim);
+        ColorSchemeByType colorScheme = new ColorSchemeByType();
         colorScheme.setColor(sim.species.getLeafType(),java.awt.Color.red);
         getDisplayBox(sim.box).setColorScheme(new ColorScheme() {
             MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.integrator.getPotentialMaster());

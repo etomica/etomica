@@ -3,23 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.graphics;
-import java.awt.Color;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.KeyEvent;
-import java.util.Enumeration;
-import java.util.Vector;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
 
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifyAction;
 import etomica.units.dimensions.Null;
 import etomica.units.systems.UnitSystem;
 import etomica.util.Constants;
-import etomica.util.EnumeratedType;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.KeyEvent;
+import java.util.Enumeration;
+import java.util.Vector;
 
 /**
  * A simple device the permits editing of a single value via a textbox 
@@ -368,14 +365,9 @@ public class DeviceBox extends Device implements javax.swing.event.ChangeListene
     /**
      * Typed constant used to indicate the type of label to be used with the display.
      */
-	public static class LabelType extends EnumeratedType {
-        public LabelType(String label) {super(label);}       
-        public static final LabelType BORDER = new LabelType("Border");
-        public static final LabelType STRING = new LabelType("String");
-
-        public static final LabelType[] choices() { 
-            return new LabelType[] {BORDER,STRING};
-        }
+	public enum LabelType {
+	    BORDER,
+        STRING
     }
 
 

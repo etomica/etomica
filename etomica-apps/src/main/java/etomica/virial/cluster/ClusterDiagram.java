@@ -384,7 +384,7 @@ public class ClusterDiagram implements java.io.Serializable {
         cluster.deleteConnection(2, 0);
         int[] score = new int[n];
         cluster.calcScore(score);
-        System.out.println(etomica.util.Arrays.toString(score));
+        System.out.println(Arrays.toString(score));
         ClusterGenerator cg = new ClusterGenerator(cluster);
         cg.isMaximumScore();
         System.out.println(cluster.mNumIdenticalPermutations);

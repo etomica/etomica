@@ -639,7 +639,7 @@ public static void main(String[] args) {
 
               sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
 
-              SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+              SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
 
               DisplayBox dBox0 = simGraphic.getDisplayBox(sim.box[0]);
 
@@ -655,7 +655,7 @@ public static void main(String[] args) {
 
               //set diameters
 
-              DiameterHashByType diameter = new DiameterHashByType(sim); 
+              DiameterHashByType diameter = new DiameterHashByType();
 
               diameter.setDiameter(speciesSF6.getAtomType(0),0.2);
 

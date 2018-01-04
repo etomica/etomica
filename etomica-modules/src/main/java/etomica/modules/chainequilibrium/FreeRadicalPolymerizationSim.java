@@ -5,7 +5,7 @@
 package etomica.modules.chainequilibrium;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.IController;
+import etomica.action.activity.Controller;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.AtomType;
@@ -29,7 +29,7 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
 
     public final PotentialMaster potentialMaster;
     public final ConfigurationLatticeFreeRadical config;
-    public IController controller1;
+    public Controller controller1;
 	public IntegratorHard integratorHard;
 	public java.awt.Component display;
 	public Box box;
@@ -78,7 +78,7 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
         config.setSpecies(speciesA, speciesB);
         config.initializeCoordinates(box);
 
-        agentManager = new AtomLeafAgentManager<IAtom[]>(this,box,IAtom[].class);
+        agentManager = new AtomLeafAgentManager<IAtom[]>(this,box);
         resetBonds();
 
 		//potentials

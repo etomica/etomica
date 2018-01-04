@@ -6,8 +6,9 @@ package etomica.virial;
 
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeArrayList;
-import etomica.util.Arrays;
 import etomica.virial.cluster.VirialDiagrams;
+
+import java.util.Arrays;
 
 
 /**
@@ -40,7 +41,7 @@ public class ClusterSumMultibody extends ClusterSum {
                     }
                     if (!has0) {
                         // force f-bond to be calculated (we need it to get e)
-                        fullBondIndexArray[i][j] = Arrays.resizeArray(ff, ff.length+1);
+                        fullBondIndexArray[i][j] = Arrays.copyOf(ff, ff.length + 1);
                         fullBondIndexArray[i][j][ff.length] = 0;
                     }
                 }

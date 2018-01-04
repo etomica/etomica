@@ -23,7 +23,7 @@ import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.CriterionAll;
 import etomica.potential.EwaldSummation;
 import etomica.potential.EwaldSummation.MyCharge;
@@ -95,7 +95,7 @@ public class TestEwaldTIP4PWater extends Simulation {
 
         //Ewald Summation
 		ChargeAgentSourceTIP4PWater agentSource = new ChargeAgentSourceTIP4PWater();
-		AtomLeafAgentManager<MyCharge> atomAgentManager = new AtomLeafAgentManager<MyCharge>(agentSource, box, MyCharge.class);
+		AtomLeafAgentManager<MyCharge> atomAgentManager = new AtomLeafAgentManager<MyCharge>(agentSource, box);
 		EwaldSummation ewaldSummation = new EwaldSummation(box, atomAgentManager, space, 4, 9);
 //		ewaldSummation.setCriterion(criterionAll);
 //		ewaldSummation.setBondedIterator(new ApiIntragroup());
@@ -120,7 +120,7 @@ public class TestEwaldTIP4PWater extends Simulation {
 
         Space sp = Space3D.getInstance();
 		TestEwaldTIP4PWater sim = new TestEwaldTIP4PWater(sp);
-		SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 1, sp, sim.getController());
+		SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 1);
 		Pixel pixel = new Pixel(10);
 		simGraphic.getDisplayBox(sim.box).setPixelUnit(pixel);
 		ArrayList dataStreamPumps = simGraphic.getController().getDataStreamPumps();

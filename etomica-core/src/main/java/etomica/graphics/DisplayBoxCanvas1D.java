@@ -175,7 +175,7 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
         }
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtom a = leafList.getAtom(iLeaf);
-            if(atomFilter != null && atomFilter.accept(a)) continue;
+            if(atomFilter != null && atomFilter.test(a)) continue;
             drawAtom(g, atomOrigin, a);
         }
             
