@@ -4,20 +4,17 @@
 
 package etomica.virial.simulations;
 
-import junit.framework.TestCase;
 import etomica.chem.elements.ElementSimple;
 import etomica.potential.P2LennardJones;
 import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerESpherical;
-import etomica.virial.MayerGeneralSpherical;
-import etomica.virial.MayerHardSphere;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
-import etomica.virial.simulations.SimulationVirialOverlap2;
+import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Virial junit test.  This just runs a simple simulation and checks that the
@@ -26,12 +23,9 @@ import etomica.virial.simulations.SimulationVirialOverlap2;
  *
  * @author Andrew Schultz
  */
-public class VirialLJTest extends TestCase {
+public class VirialLJTest {
 
-    public static void main(String[] args) {
-        testVirialLJ();
-    }
-    
+    @Test
     public static void testVirialLJ() {
         final int nPoints = 3;
         double temperature = 1;
