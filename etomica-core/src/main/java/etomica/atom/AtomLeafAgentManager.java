@@ -19,7 +19,7 @@ import java.util.Objects;
  *
  * @author Andrew Schultz
  */
-public class AtomLeafAgentManager<E> extends BoxEventListenerAdapter {
+public final class AtomLeafAgentManager<E> extends BoxEventListenerAdapter {
 
     private final IndexMap<E> agents;
     private final AgentSource<E> agentSource;

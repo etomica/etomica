@@ -58,8 +58,8 @@ public class BenchSimSWChain {
     @Benchmark
     @BenchmarkMode(Mode.Throughput)
     @OutputTimeUnit(TimeUnit.SECONDS)
-    @Warmup(time = 1, iterations = 5)
-    @Measurement(time = 1, timeUnit = TimeUnit.SECONDS)
+    @Warmup(time = 3, iterations = 3)
+    @Measurement(iterations = 5, time = 5, timeUnit = TimeUnit.SECONDS)
     public long integratorStep() {
         sim.integrator.doStep();
         return sim.integrator.getStepCount();
@@ -68,7 +68,6 @@ public class BenchSimSWChain {
     public static void main(String[] args) throws RunnerException {
         Options opts = new OptionsBuilder()
                 .include(BenchSimSWChain.class.getSimpleName())
-                .addProfiler(GCProfiler.class)
                 .build();
 
         new Runner(opts).run();

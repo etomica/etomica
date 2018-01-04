@@ -13,8 +13,7 @@ public class Main {
     public static void main(String[] args) throws RunnerException {
 
         Options opts = new OptionsBuilder()
-                .include(BenchSimDCVGCMD.class.getSimpleName())
-                .addProfiler(StackProfiler.class)
+                .include("BenchSim")
                 .build();
 
         new Runner(opts).run();

@@ -13,7 +13,7 @@ import java.util.*;
  *
  * @param <V> the type of value contained in this map.
  */
-public class IndexMap<V> implements Map<Integer, V> {
+public final class IndexMap<V> implements Map<Integer, V> {
     private final int reservoirSize;
     private V[] values;
     private int size;
@@ -147,9 +147,9 @@ public class IndexMap<V> implements Map<Integer, V> {
     }
 
     public V put(int key, V value) {
-        if(value == null) {
-            throw new IllegalArgumentException("Value must not be null");
-        }
+//        if(value == null) {
+//            throw new IllegalArgumentException("Value must not be null");
+//        }
 
         if(key >= this.values.length) {
             this.values = Arrays.copyOf(this.values, key + reservoirSize);

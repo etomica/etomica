@@ -7,6 +7,8 @@ package etomica.species;
 import etomica.simulation.Simulation;
 import etomica.simulation.SimulationListener;
 import etomica.simulation.SimulationSpeciesEvent;
+import etomica.simulation.SimulationSpeciesIndexEvent;
+import etomica.util.collections.IndexMap;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -26,14 +28,22 @@ public final class SpeciesAgentManager<E> {
 
     private final AgentSource<E> agentSource;
     private final Simulation sim;
-    private final Map<ISpecies, E> agents;
+    private final IndexMap<E> agents;
     private final SimulationListener simulationListener = new SimulationListener() {
         public void simulationSpeciesAdded(SimulationSpeciesEvent e) {
-            SpeciesAgentManager.this.agents.put(e.getSpecies(), SpeciesAgentManager.this.agentSource.makeAgent(e.getSpecies()));
+            SpeciesAgentManager.this.agents.put(e.getSpecies().getIndex(), SpeciesAgentManager.this.agentSource.makeAgent(e.getSpecies()));
         }
 
         public void simulationSpeciesRemoved(SimulationSpeciesEvent e) {
             SpeciesAgentManager.this.releaseAgents(e.getSpecies());
+        }
+
+        @Override
+        public void simulationSpeciesIndexChanged(SimulationSpeciesIndexEvent e) {
+            E agent = agents.remove(e.getIndex());
+            if (agent != null) {
+                agents.put(e.getSpecies().getIndex(), agent);
+            }
         }
     };
 
@@ -43,11 +53,11 @@ public final class SpeciesAgentManager<E> {
 
         sim.getEventManager().addListener(simulationListener);
 
-        agents = new LinkedHashMap<>();
-        sim.getSpeciesList().forEach(species -> agents.put(species, agentSource.makeAgent(species)));
+        agents = new IndexMap<>();
+        sim.getSpeciesList().forEach(species -> agents.put(species.getIndex(), agentSource.makeAgent(species)));
     }
 
-    public Map<ISpecies, E> getAgents() {
+    public IndexMap<E> getAgents() {
         return this.agents;
     }
 
@@ -57,7 +67,7 @@ public final class SpeciesAgentManager<E> {
      * agent is not "released".  This should be done manually if needed.
      */
     public void setAgent(ISpecies species, E newAgent) {
-        agents.put(species, newAgent);
+        agents.put(species.getIndex(), newAgent);
     }
 
     /**
@@ -66,14 +76,14 @@ public final class SpeciesAgentManager<E> {
      * the above getAgents method.
      */
     public E getAgent(ISpecies species) {
-        return agents.get(species);
+        return agents.get(species.getIndex());
     }
 
     /**
      * Releases the agents associated with the given AtomType and its children.
      */
     private void releaseAgents(ISpecies species) {
-        E agent = agents.remove(species);
+        E agent = agents.remove(species.getIndex());
         if (agent != null) {
             agentSource.releaseAgent(agent, species);
         }
