@@ -4,6 +4,7 @@
 
 package etomica.atom;
 
+import etomica.space3d.Space3D;
 import junit.framework.TestCase;
 import etomica.space.Space;
 import etomica.util.Debug;
@@ -312,6 +313,25 @@ public class AtomArrayListTest extends TestCase {
 			assertSame(atomsetList[i], arrayList.getAtom(size+i));
 		}
 		assertEquals(23, arrayList.sizeOfArray());
+	}
+
+	public void testAddAllAtomArrayList() {
+		Space s = Space3D.getInstance();
+		AtomArrayList l1 = new AtomArrayList();
+		l1.add(new Atom(s));
+		l1.add(new Atom(s));
+
+		AtomArrayList l2 = new AtomArrayList();
+        for (int i = 0; i < 20; i++) {
+            l2.add(new Atom(s));
+        }
+
+        l1.addAll(l2);
+        assertEquals(22, l1.getAtomCount());
+
+        for (int i = 0; i < l2.getAtomCount(); i++) {
+            assertSame(l2.getAtom(i), l1.getAtom(i + 2));
+        }
 	}
 
 	/*

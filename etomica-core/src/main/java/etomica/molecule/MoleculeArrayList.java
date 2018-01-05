@@ -6,13 +6,15 @@ package etomica.molecule;
 
 import etomica.util.Debug;
 
-public class MoleculeArrayList implements IMoleculeList {
+import java.util.Arrays;
 
-    protected float trimThreshold = 0.8f;
-    protected IMolecule[] molecules;
-    protected static int DEFAULT_INIT_SIZE = 20;
-    protected static float SIZE_INCREASE_RATIO = 0.3f;
-    protected int itemsInList = 0;
+public final class MoleculeArrayList implements IMoleculeList {
+
+    private float trimThreshold = 0.8f;
+    private IMolecule[] molecules;
+    private static final int DEFAULT_INIT_SIZE = 20;
+    private static final float SIZE_INCREASE_RATIO = 0.3f;
+    private int itemsInList = 0;
 
     public MoleculeArrayList() {
         molecules = new IMolecule[DEFAULT_INIT_SIZE];
@@ -52,12 +54,7 @@ public class MoleculeArrayList implements IMoleculeList {
 
     public void ensureCapacity(int minCapacity) {
         if(minCapacity > molecules.length) {
-            IMolecule[] tempList = new IMolecule[minCapacity];
-            for(int i = 0; i < itemsInList; i++) {
-                tempList[i] = molecules[i];
-            }
-            molecules = null;
-            molecules = tempList;
+            molecules = Arrays.copyOf(molecules, minCapacity);
         }
     }
 
@@ -68,9 +65,7 @@ public class MoleculeArrayList implements IMoleculeList {
     protected IMolecule[] toArray() {
         IMolecule[] tempList = new IMolecule[itemsInList];
 
-        for(int i = 0; i < itemsInList; i++) {
-            tempList[i] = molecules[i];
-        }
+        System.arraycopy(molecules, 0, tempList, 0, itemsInList);
         return tempList;
     }
 
@@ -97,9 +92,7 @@ public class MoleculeArrayList implements IMoleculeList {
     public IMolecule[] toMoleculeArray() {
         IMolecule[] tempList = new IMolecule[itemsInList];
 
-        for(int i = 0; i < itemsInList; i++) {
-            tempList[i] = molecules[i];
-        }
+        System.arraycopy(molecules, 0, tempList, 0, itemsInList);
         return tempList;
     }
 
@@ -115,34 +108,32 @@ public class MoleculeArrayList implements IMoleculeList {
         return oldAtom;
     }
 
-    public boolean add(IMolecule atom) {
+    public boolean add(IMolecule molecule) {
 
         if(itemsInList == molecules.length) {
-            IMolecule[] tempList = new IMolecule[(int)((float)itemsInList * (1.0f + SIZE_INCREASE_RATIO)+1)];
-
-            for(int i = 0; i < molecules.length; i++) {
-                tempList[i] = molecules[i];
-            }
-            molecules = tempList;
+            molecules = Arrays.copyOf(molecules, (int)((float)itemsInList * (1.0f + SIZE_INCREASE_RATIO)+1));
         }
-        molecules[itemsInList] = atom; 
+        molecules[itemsInList] = molecule;
         itemsInList++;
 
         return true;
     }
 
-    public void addAll(IMoleculeList atoms) {
-        if((itemsInList + atoms.getMoleculeCount()) > molecules.length) {
-            IMolecule[] tempList = new IMolecule[(int)((float)itemsInList * (1.0f + SIZE_INCREASE_RATIO)) +
-                                         atoms.getMoleculeCount()];
-            for(int i = 0; i < molecules.length; i++) {
-                tempList[i] = molecules[i];
-            }
-            molecules = tempList;
+    public void addAll(IMoleculeList moleculeList) {
+        if ((itemsInList + moleculeList.getMoleculeCount()) > molecules.length) {
+            molecules = Arrays.copyOf(
+                    molecules,
+                    (int) ((float) itemsInList * (1.0f + SIZE_INCREASE_RATIO)) + moleculeList.getMoleculeCount()
+            );
         }
-        for(int i = 0; i < atoms.getMoleculeCount(); i++) {
-            molecules[itemsInList] = atoms.getMolecule(i);
-            itemsInList++;
+        if (moleculeList instanceof MoleculeArrayList) {
+            System.arraycopy(((MoleculeArrayList) moleculeList).molecules, 0, this.molecules, itemsInList, moleculeList.getMoleculeCount());
+            itemsInList += moleculeList.getMoleculeCount();
+        } else {
+            for (int i = 0; i < moleculeList.getMoleculeCount(); i++) {
+                molecules[itemsInList] = moleculeList.getMolecule(i);
+                itemsInList++;
+            }
         }
     }
 
@@ -154,9 +145,7 @@ public class MoleculeArrayList implements IMoleculeList {
         }
 
         atom = molecules[index];
-        for(int i = index; i < itemsInList-1; i++) {
-            molecules[i] = molecules[i+1];
-        }
+        System.arraycopy(molecules, index + 1, molecules, index, itemsInList - 1 - index);
         molecules[itemsInList-1] = null;
         itemsInList--;
 
