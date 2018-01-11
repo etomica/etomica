@@ -90,7 +90,6 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MeterMappe
 //        f1 = torqueAgent.torque.getX(1);
 //        System.out.println("f1= "+f1);
 //        System.exit(2);
-
 //        FSum.zeroSum();
 //        potentialMaster.calculate(box, allAtoms, FSum);
         secondDerivativeSum.reset();
@@ -107,7 +106,7 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MeterMappe
 //        System.exit(2);
 
         potentialMaster.calculate(box, allAtoms, Ans);
-        System.exit(2);
+//        System.exit(2);
 
 //        int nM = leafList.getAtomCount();
 //        x[0] = (-Ans.getSumJEEMJEJE() + Ans.getSumUEE() - Ans.getSumJEMUESquare())+3*nM*bt*bt;
@@ -121,9 +120,13 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MeterMappe
         //TODO debug only
 //        x[0] = Ans.getSumJEMUEx();
 //        x[1] = Ans.getSumJEMUEy();
-//        x[2] = Ans.getSumJEMUESquare();
-//        x[3] = 0;
+//        x[2] = x[0] * x[0];
+//        x[3] = x[1] * x[1];
 //        x[4] = -Ans.getSumJEEMJEJE() + Ans.getSumUEE();
+//        x[4] = -Ans.getSumJEEMJEJE();
+
+
+
         return data;
     }
 

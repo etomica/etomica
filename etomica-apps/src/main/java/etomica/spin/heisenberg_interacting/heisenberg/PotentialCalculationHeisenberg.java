@@ -155,7 +155,7 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
                 int n3 = n2 * n;
                 int n4 = n2 * n2;
                 double InbJ = besselI(n, bJ);
-                double Inm1bJ = besselI(n - 1, bJ);
+                double Inm1bJ = besselI(n - 1, bJ);//TODO
                 double Inm2bJ = besselI(n - 2, bJ);
                 double Inp1bJ = besselI(n + 1, bJ);
                 Axc0[n] = 2 * bmu * (((bJ + 2 * bJ * n2) * Inm1bJ + (bJ - n + 2 * (1 + bJ) * n2 - 2 * n3) * InbJ) * Math.cos(t1) * Math.cos(n * t1)
@@ -482,11 +482,11 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
 
 
 //        System.out.println(atom1.getLeafIndex()+" " + atom2.getLeafIndex());
-        if (atom1.getLeafIndex() == 0) {
-            System.out.println("total force on f1: " + f1);
-        }
-        if (atom1.getLeafIndex() == 0) System.out.println("pair force:" + (-bJ * Math.sin(t1 - t2)));
-        if (atom2.getLeafIndex() == 0) System.out.println("pair force:" + (bJ * Math.sin(t1 - t2)));
+//        if (atom1.getLeafIndex() == 0) {
+//            System.out.println("total force on f1: " + f1);
+//        }
+//        if (atom1.getLeafIndex() == 0) System.out.println("pair force:" + (-bJ * Math.sin(t1 - t2)));
+//        if (atom2.getLeafIndex() == 0) System.out.println("pair force:" + (bJ * Math.sin(t1 - t2)));
 
 //        System.exit(2);
 
