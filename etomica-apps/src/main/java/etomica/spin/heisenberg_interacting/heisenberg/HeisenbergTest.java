@@ -188,9 +188,9 @@ public class HeisenbergTest extends Simulation {
         double AEECor = 0;
         if (aEE) {
 
-//            AEE = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(0);
-//            AEEER = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(0);
-//            AEECor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(0);
+            AEE = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(0);
+            AEEER = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(0);
+            AEECor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(0);
 //            IData covariance = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
 //            covariance.getValue(1);
 
@@ -200,28 +200,19 @@ public class HeisenbergTest extends Simulation {
             double ERsum1 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(1);
             double sum2 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(2);
             double ERsum2 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(2);
-            double sum3 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(3);
-            double ERsum3 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(3);
-            double sum4 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(4);
-            double ERsum4 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(4);
 
+            System.out.println("x0= " + sum0 / nCells / nCells + " x0ER= " + ERsum0 / nCells / nCells);
+            System.out.println("x1= " + sum1 / nCells / nCells + " x1ER= " + ERsum1 / nCells / nCells);
+            System.out.println("x2= " + sum2 / nCells / nCells + " x2ER= " + ERsum2 / nCells / nCells);
 
-            IData covariance = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
-            covariance.getValue(1);
-            AEE = sum4 - sum2 - sum3 + sum0 * sum0 + sum1 * sum1;
-
-
-            System.out.println("x[0]= " + sum0);
-            System.out.println("x[1]= " + sum1);
-            System.out.println("x[2]= " + sum2);
-            System.out.println("x[3]= " + sum3);
-            System.out.println("x[4]= " + sum4);
-
-
-
-            AEEER = Math.sqrt(ERsum0 * ERsum0 + 4 * sum1 * sum1 * ERsum1 * ERsum1 -
-                    2 * ERsum0 * sum1 * 2 * ERsum1 * covariance.getValue(1) / Math.sqrt(covariance.getValue(0) * covariance.getValue(3)));
-            AEECor = covariance.getValue(1) / Math.sqrt(covariance.getValue(0) * covariance.getValue(3));
+//            for(int i=0;i<nCells*nCells+1;i++){
+//                double sum =  ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(i);
+//            double Error = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(i);
+//                double sumy =  ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(i+nCells*nCells+1);
+//                double Errory = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(i+nCells*nCells+1);
+//            System.out.println(i+ " xvalue= " + sum + " error= " + Error);
+//            System.out.println(i+ " yvalue= " + sumy + " error= " + Errory);
+//            }
 
         }
 
@@ -251,10 +242,10 @@ public class HeisenbergTest extends Simulation {
     public static class Param extends ParameterBase {
         public boolean mSquare = true;
         public boolean aEE = true;
-        public double temperature = 1;// Kelvin
-        public int nCells = 3;//number of atoms is nCells*nCells
+        public double temperature = 10;// Kelvin
+        public int nCells = 5;//number of atoms is nCells*nCells
         public double interactionS = 1;
         public double dipoleMagnitude = 1.0;
-        public int steps = 200000;
+        public int steps = 100000;
     }
 }

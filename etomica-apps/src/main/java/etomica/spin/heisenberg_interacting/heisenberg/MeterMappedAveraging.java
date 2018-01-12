@@ -46,8 +46,9 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MeterMappe
     protected PotentialCalculationHeisenberg Ans;
 
     public MeterMappedAveraging(final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, PotentialMaster potentialMaster) {
-        data = new DataDoubleArray(5);
-        dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{5});
+//        int a = 2*box.getLeafList().getAtomCount()+2;
+        data = new DataDoubleArray(3);
+        dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{3});
         tag = new DataTag();
         dataInfo.addTag(tag);
         this.box = box;
@@ -95,38 +96,12 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MeterMappe
         secondDerivativeSum.reset();
         potentialMaster.calculate(box, allAtoms, secondDerivativeSum);
 
-        Ans.zeroSumJEEMJEJE();
-        Ans.zeroSumJEMUEx();
-        Ans.zeroSumJEMUEy();
-        Ans.zeroSumJEMUESquare();
-        Ans.zeroSumUEE();
-
-//        System.out.println(Ans.getSumJEMUEx());
-//        System.out.println(Ans.getSumJEMUEy());
-//        System.exit(2);
-
+        Ans.zeroSum();
         potentialMaster.calculate(box, allAtoms, Ans);
-//        System.exit(2);
 
-//        int nM = leafList.getAtomCount();
-//        x[0] = (-Ans.getSumJEEMJEJE() + Ans.getSumUEE() - Ans.getSumJEMUESquare())+3*nM*bt*bt;
-
-        x[0] = Ans.getSumJEMUEx();
-        x[1] = Ans.getSumJEMUEy();
-        x[2] = x[0] * x[0];
-        x[3] = x[1] * x[1];
-        x[4] = -Ans.getSumJEEMJEJE() + Ans.getSumUEE();
-
-        //TODO debug only
-//        x[0] = Ans.getSumJEMUEx();
-//        x[1] = Ans.getSumJEMUEy();
-//        x[2] = x[0] * x[0];
-//        x[3] = x[1] * x[1];
-//        x[4] = -Ans.getSumJEEMJEJE() + Ans.getSumUEE();
-//        x[4] = -Ans.getSumJEEMJEJE();
-
-
-
+        x[1] = Ans.getSumJEMUEx() * Ans.getSumJEMUEx();
+        x[2] = Ans.getSumJEMUEy() * Ans.getSumJEMUEy();
+        x[0] = -Ans.getSumJEEMJEJE() + Ans.getSumUEE();
         return data;
     }
 
