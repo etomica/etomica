@@ -6,9 +6,9 @@ package etomica.molecule;
 
 import etomica.util.Debug;
 
-import java.util.Arrays;
+import java.util.*;
 
-public final class MoleculeArrayList implements IMoleculeList {
+public final class MoleculeArrayList extends AbstractList<IMolecule> implements IMoleculeList, RandomAccess {
 
     private float trimThreshold = 0.8f;
     private IMolecule[] molecules;
@@ -62,7 +62,7 @@ public final class MoleculeArrayList implements IMoleculeList {
         return itemsInList == 0;
     }
 
-    protected IMolecule[] toArray() {
+    public IMolecule[] toArray() {
         IMolecule[] tempList = new IMolecule[itemsInList];
 
         System.arraycopy(molecules, 0, tempList, 0, itemsInList);
@@ -119,7 +119,7 @@ public final class MoleculeArrayList implements IMoleculeList {
         return true;
     }
 
-    public void addAll(IMoleculeList moleculeList) {
+    public boolean addAll(Collection<? extends IMolecule> moleculeList) {
         if ((itemsInList + moleculeList.size()) > molecules.length) {
             molecules = Arrays.copyOf(
                     molecules,
@@ -130,11 +130,13 @@ public final class MoleculeArrayList implements IMoleculeList {
             System.arraycopy(((MoleculeArrayList) moleculeList).molecules, 0, this.molecules, itemsInList, moleculeList.size());
             itemsInList += moleculeList.size();
         } else {
-            for (int i = 0; i < moleculeList.size(); i++) {
-                molecules[itemsInList] = moleculeList.get(i);
+            for (IMolecule molecule : moleculeList) {
+                molecules[itemsInList] = molecule;
                 itemsInList++;
             }
         }
+
+        return true;
     }
 
     public IMolecule remove(int index) {

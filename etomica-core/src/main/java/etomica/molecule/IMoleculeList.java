@@ -4,13 +4,15 @@
 
 package etomica.molecule;
 
+import java.util.List;
+
 /**
  * Interface for a set of IMolecules.  The IMoleculeList might contain 0, 1, 2 or many
  * IMolecules.
  * 
  * @author Andrew Schultz
  */
-public interface IMoleculeList {
+public interface IMoleculeList extends List<IMolecule> {
 
     /**
      * Returns the i-th molecule, with numbering beginning from 0.
