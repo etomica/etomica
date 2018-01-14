@@ -12,7 +12,6 @@ import etomica.lattice.crystal.Primitive;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeArrayList;
-import etomica.molecule.MoleculeListWrapper;
 import etomica.molecule.iterator.MoleculeIteratorAllMolecules;
 import etomica.space.Space;
 import etomica.space.Vector;
