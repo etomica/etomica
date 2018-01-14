@@ -7,16 +7,18 @@ package etomica.box;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 
+import java.util.AbstractList;
+
 /**
  * Creates a facade that makes a set of molecule lists look like a single list. This class is
  * configured by calling setMoleculeLists(). This should be called after construction, every time
  * one of the molecule lists in the set is changed by adding or removing a molecule, and when a
  * list is added or removed from the set.
  */
-public class AtomSetAllMolecules implements IMoleculeList {
+public class AtomSetAllMolecules extends AbstractList<IMolecule> implements IMoleculeList {
 
-    protected IMoleculeList[] moleculeLists;
-    protected int[] moleculeTotals;
+    private IMoleculeList[] moleculeLists;
+    private int[] moleculeTotals;
 
     /**
      * Constructs an empty list. Subsequent call to setMoleculeLists() is needed to configure this list.
