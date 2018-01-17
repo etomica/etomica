@@ -6,35 +6,31 @@ package etomica.graph.engine;
 
 import etomica.graph.engine.Parser.ParserException;
 import etomica.graph.engine.impl.ParserImpl;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-public class ParserTest extends TestCase {
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
+
+@Tag("graph")
+class ParserTest {
 
   private static final Parser parser = new ParserImpl();
 
-  protected boolean assertException(String statement) {
+  private static void assertException(String statement) {
+      assertThrows(ParserException.class, () -> parser.parse(statement));
+  }
 
+  private static void assertStatement(String statement) {
     try {
       parser.parse(statement);
-      return false;
     }
     catch (ParserException e) {
-      return true;
+        fail("Error parsing statement", e);
     }
   }
 
-  protected boolean assertStatement(String statement) {
-
-    try {
-      parser.parse(statement);
-      return true;
-    }
-    catch (ParserException e) {
-      e.printStackTrace();
-      return false;
-    }
-  }
-
+  @Test
   public void testBINARY_OP_CONV() {
 
     assertStatement("$foo = conv(iso_colored({A:2, B:1}, {A:3, B:3}), iso_colored({A:2}, {A:3}) > has_articulation_point > is_connected, 3)");
@@ -43,6 +39,7 @@ public class ParserTest extends TestCase {
     assertStatement("$foo = conv($1, $1, 3)");
   }
 
+  @Test
   public void testBINARY_OP_DEL() {
 
     assertStatement("$foo = del(iso_colored({A:2, B:1}, {A:3, B:3}), iso_colored({A:2}, {A:3}) > has_articulation_point > is_connected))");
@@ -51,6 +48,7 @@ public class ParserTest extends TestCase {
     assertStatement("$foo = del($1, $1)");
   }
 
+  @Test
   public void testBINARY_OP_MUL() {
 
     assertStatement("$foo = mul(iso_colored({A:2, B:1}, {A:3, B:3}), iso_colored({A:2}, {A:3}) > has_articulation_point > is_connected))");
@@ -59,6 +57,7 @@ public class ParserTest extends TestCase {
     assertStatement("$foo = mul($1, $1)");
   }
 
+  @Test
   public void testBINARY_OP_SUB() {
 
     assertStatement("$foo = sub(iso_colored({A:2, B:1}, {A:3, B:3}), iso_colored({A:2}, {A:3}) > has_articulation_point > is_connected))");
@@ -67,6 +66,7 @@ public class ParserTest extends TestCase {
     assertStatement("$foo = sub($1, $1)");
   }
 
+  @Test
   public void testBINARY_OP_SUM() {
 
     assertStatement("$foo = sum(iso_colored({A:2, B:1}, {A:3, B:3}), iso_colored({A:2}, {A:3}) > has_articulation_point > is_connected))");
@@ -75,6 +75,7 @@ public class ParserTest extends TestCase {
     assertStatement("$foo = sum($1, $1)");
   };
 
+  @Test
   public void testBINARY_OP_UNION() {
 
     assertStatement("$foo = union(iso_colored({A:2, B:1}, {A:3, B:3}), iso_colored({A:2}, {A:3}) > has_articulation_point > is_connected))");
@@ -83,6 +84,7 @@ public class ParserTest extends TestCase {
     assertStatement("$foo = union($1, $1)");
   };
 
+  @Test
   public void testCOMMAND_DISPLAY() {
 
     assertStatement("display($foo)");
@@ -90,6 +92,7 @@ public class ParserTest extends TestCase {
     assertException("display(foo)");
   };
 
+  @Test
   public void testCOMMAND_DROP() {
 
     assertStatement("drop($foo)");
@@ -97,6 +100,7 @@ public class ParserTest extends TestCase {
     assertException("drop(foo)");
   };
 
+  @Test
   public void testCOMMAND_LIST() {
 
     assertStatement("list");
@@ -104,6 +108,7 @@ public class ParserTest extends TestCase {
     assertException("list($foo)");
   };
 
+  @Test
   public void testCOMMAND_PRINT() {
 
     assertStatement("print($foo)");
@@ -111,6 +116,7 @@ public class ParserTest extends TestCase {
     assertException("print(foo)");
   };
 
+  @Test
   public void testCOMMAND_READ() {
 
     assertStatement("read($foo, 'filename')");
@@ -125,6 +131,7 @@ public class ParserTest extends TestCase {
     assertException("read($foo, bar)");
   };
 
+  @Test
   public void testCOMMAND_READDB() {
 
     assertStatement("readdb('filename')");
@@ -139,6 +146,7 @@ public class ParserTest extends TestCase {
     assertException("readdb($foo, bar)");
   };
 
+  @Test
   public void testCOMMAND_RUN() {
 
     assertStatement("run('filename')");
@@ -153,6 +161,7 @@ public class ParserTest extends TestCase {
     assertException("run($foo, bar)");
   };
 
+  @Test
   public void testCOMMAND_SAVE() {
 
     assertStatement("save('filename')");
@@ -167,6 +176,7 @@ public class ParserTest extends TestCase {
     assertException("save($foo, bar)");
   };
 
+  @Test
   public void testCOMMAND_SET() {
 
     assertStatement("set(@foo, 'value')");
@@ -184,6 +194,7 @@ public class ParserTest extends TestCase {
     assertException("set(@foo, @bar)");
   };
 
+  @Test
   public void testCOMMAND_SUMMARY() {
 
     assertStatement("print($foo)");
@@ -191,6 +202,7 @@ public class ParserTest extends TestCase {
     assertException("print(foo)");
   };
 
+  @Test
   public void testCOMMAND_WRITE() {
 
     assertStatement("write($foo, 'filename')");
@@ -205,6 +217,7 @@ public class ParserTest extends TestCase {
     assertException("write($foo, bar)");
   };
 
+  @Test
   public void testCOMMAND_WRITEDB() {
 
     assertStatement("writedb('filename')");
@@ -219,6 +232,7 @@ public class ParserTest extends TestCase {
     assertException("writedb($foo, bar)");
   };
 
+  @Test
   public void testCONSTRUCTOR_COLORED() {
 
     assertStatement("$foo = colored({A:2, B:1}, {A:3, B:3})");
@@ -280,6 +294,7 @@ public class ParserTest extends TestCase {
     assertException("$foo = colored({A:2, B:1}, 'foo')");
   };
 
+  @Test
   public void testCONSTRUCTOR_ISOCOLORED() {
 
     assertStatement("$foo = iso_colored({A:2, B:1}, {A:3, B:3})");
@@ -341,6 +356,7 @@ public class ParserTest extends TestCase {
     assertException("$foo = iso_colored({A:2, B:1}, 'foo')");
   };
 
+  @Test
   public void testCONSTRUCTOR_ISOMONO() {
 
     assertStatement("$foo = iso_mono(2, 4)");
@@ -388,6 +404,7 @@ public class ParserTest extends TestCase {
     assertException("$foo = iso_mono(6, 'foo')");
   };
 
+  @Test
   public void testCONSTRUCTOR_MONO() {
 
     assertStatement("$foo = mono(2, 4)");
@@ -435,6 +452,7 @@ public class ParserTest extends TestCase {
     assertException("$foo = mono(6, 'foo')");
   }
 
+  @Test
   public void testUNARY_OP_EDIF() {
 
     assertStatement("$foo = edif(iso_colored({A:2}, {A:3}) > has_articulation_point > is_connected, A)");
@@ -442,6 +460,7 @@ public class ParserTest extends TestCase {
     assertStatement("$foo = edif($1, A)");
   }
 
+  @Test
   public void testUNARY_OP_EXP() {
 
     assertStatement("$foo = exp(iso_colored({A:2}, {A:3}) > has_articulation_point > is_connected, 3, 5)");
@@ -449,6 +468,7 @@ public class ParserTest extends TestCase {
     assertStatement("$foo = exp($1, 3, 5)");
   }
 
+  @Test
   public void testUNARY_OP_INT() {
 
     assertStatement("$foo = int(iso_colored({A:2}, {A:3}) > has_articulation_point > is_connected, 3)");
@@ -456,6 +476,7 @@ public class ParserTest extends TestCase {
     assertStatement("$foo = int($1, 3)");
   }
 
+  @Test
   public void testUNARY_OP_ISO() {
 
     assertStatement("$foo = iso(iso_colored({A:2}, {A:3}) > has_articulation_point > is_connected)");
@@ -463,6 +484,7 @@ public class ParserTest extends TestCase {
     assertStatement("$foo = iso($1)");
   }
 
+  @Test
   public void testUNARY_OP_NCOPY() {
 
     assertStatement("$foo = ncopy(iso_colored({A:2}, {A:3}) > has_articulation_point > is_connected)");
@@ -470,6 +492,7 @@ public class ParserTest extends TestCase {
     assertStatement("$foo = ncopy($1)");
   }
 
+  @Test
   public void testUNARY_OP_NDIF() {
 
     assertStatement("$foo = ndif(iso_colored({A:2}, {A:3}) > has_articulation_point > is_connected, A)");
@@ -477,6 +500,7 @@ public class ParserTest extends TestCase {
     assertStatement("$foo = ndif($1, A)");
   }
 
+  @Test
   public void testUNARY_OP_PCOPY() {
 
     assertStatement("$foo = pcopy(iso_colored({A:2}, {A:3}) > has_articulation_point > is_connected)");
@@ -484,6 +508,7 @@ public class ParserTest extends TestCase {
     assertStatement("$foo = pcopy($1)");
   }
 
+  @Test
   public void testUNARY_OP_POWER() {
 
     assertStatement("$foo = pow(iso_colored({A:2}, {A:3}) > has_articulation_point > is_connected, 3)");
@@ -491,6 +516,7 @@ public class ParserTest extends TestCase {
     assertStatement("$foo = pow($1, 3)");
   }
 
+  @Test
   public void testUNARY_OP_RELABEL() {
 
     assertStatement("$foo = relabel(iso_colored({A:2}, {A:3}) > has_articulation_point > is_connected, {0:1, 1:2, 2:3, 3:4, 4:0})");
@@ -498,6 +524,7 @@ public class ParserTest extends TestCase {
     assertStatement("$foo = relabel($1, {0:1, 1:2, 2:3, 3:4, 4:0})");
   }
 
+  @Test
   public void testUNARY_OP_SPLIT() {
 
     assertStatement("$foo = split(iso_colored({A:2}, {A:3}) > has_articulation_point > is_connected, A, B, C)");
