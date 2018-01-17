@@ -28,36 +28,35 @@ import javax.swing.border.MatteBorder;
 
 public class AboutBoxWindow extends JDialog {
 
-    private EtomicaGraphic eg = null;
+    private static final JPanel etomicaGraphic = makeEtomicaGraphic();
 
     private Component owner = null;
 
 	private String[] creationCredits = null;
 	private String[] softwareCredits = null;
-	private String   appName = null;
 
-	private String ETOMICA_IMAGE = "etomica.jpg";
+	private static final String ETOMICA_IMAGE = "etomica.jpg";
 
-    private String SUNY_TEXT = "University at Buffalo, The State University of New York";
-    private String CE_TEXT = "Department of Chemical & Biological Engineering";
-    private String NSF_TEXT = "Funding support provided by the National Science Foundation.";
-    private String WWW_TEXT = "http://www.etomica.org";
+    private static final String SUNY_TEXT = "University at Buffalo, The State University of New York";
+    private static final String CE_TEXT = "Department of Chemical & Biological Engineering";
+    private static final String NSF_TEXT = "Funding support provided by the National Science Foundation.";
+    private static final String WWW_TEXT = "http://www.etomica.org";
 
-	private int GRAPHIC_WIDTH    = 200;
-	private int GRAPHIC_HEIGHT   = 40;
-	private int GRAPHIC_X        = 30;
-    private int GRAPHIC_Y        = 5;
+	private static final int GRAPHIC_WIDTH    = 200;
+	private static final int GRAPHIC_HEIGHT   = 40;
+	private static final int GRAPHIC_X        = 30;
+    private static final int GRAPHIC_Y        = 5;
 
-    private int ABOUT_WIDTH      = 400;
-    private int ABOUT_HEIGHT     = 340;
-    private int ABOUT_X          = 10;
-    private int ABOUT_Y          = 10;
+    private static final int ABOUT_WIDTH      = 400;
+    private static final int ABOUT_HEIGHT     = 340;
+    private static final int ABOUT_X          = 10;
+    private static final int ABOUT_Y          = 10;
 
-    private int CREDIT_FONT_SIZE       = 12;
+    private static final int CREDIT_FONT_SIZE       = 12;
 
 	public AboutBoxWindow(Component owner, String appName) {
 
-		this.appName = appName;
+	    this.setTitle(appName);
 		this.owner = owner;
 		createGUI();
 	}
@@ -71,7 +70,7 @@ public class AboutBoxWindow extends JDialog {
 	public AboutBoxWindow(Component owner, String appName,
 			              String[] created, String[] software) {
 
-		this.appName = appName;
+		this.setTitle(appName);
 		this.owner = owner;
 		creationCredits = created;
 		softwareCredits = software;
@@ -82,15 +81,11 @@ public class AboutBoxWindow extends JDialog {
 	private void createGUI() {
 
 		this.getContentPane().setLayout(new GridBagLayout());
-		this.setTitle(appName);
 		this.setResizable(false);
 		this.setLocation(ABOUT_X, ABOUT_Y);
 		this.setModal(true);
 
 		GridBagConstraints gbc = new GridBagConstraints();
-
-		// Create etomica graphic
-		eg = new EtomicaGraphic();
 
 		Font creditFont = new Font("", Font.PLAIN, CREDIT_FONT_SIZE);
 
@@ -100,7 +95,7 @@ public class AboutBoxWindow extends JDialog {
 		JLabel[] creditLabels = null;
 
 		gbc.gridx = 0; gbc.gridy = 0;
-		getContentPane().add(eg, gbc);
+		getContentPane().add(etomicaGraphic, gbc);
 		gbc.gridy++;
 
 	    gbc.insets = new Insets(10, 0, 10, 0);
@@ -200,17 +195,11 @@ public class AboutBoxWindow extends JDialog {
 
 	   	// Add Close button
 		JButton closeBtn = new JButton("OK");
-		closeBtn.addActionListener(new CloseButtonListener());
+		closeBtn.addActionListener(event -> this.setVisible(false));
 		closeBtn.setBackground(Color.LIGHT_GRAY);
     	getContentPane().add(closeBtn, gbc);
 		gbc.gridy++;
 	}
-
-	public void paint(Graphics g) {
-
-//		eg.repaint();
-		super.paint(g);
-    }
 
 	public void setVisible(boolean b) {
         this.setLocation(owner.getLocationOnScreen().x + 10,
@@ -218,34 +207,16 @@ public class AboutBoxWindow extends JDialog {
 		super.setVisible(b);
 	}
 
-	public void setTitle(String name) {
-		appName = name;
-		super.setTitle(appName);
-	}
+	private static JPanel makeEtomicaGraphic() {
+		JPanel panel = new JPanel();
+		panel.setSize(new Dimension(GRAPHIC_WIDTH, GRAPHIC_HEIGHT));
+		panel.setLocation(GRAPHIC_X, GRAPHIC_Y);
+		panel.setBackground(Color.WHITE);
 
-	private class CloseButtonListener implements ActionListener {
-		public void actionPerformed(ActionEvent ev) {
-
-			setVisible(false);
-
-		}
-	}
-
-	protected class EtomicaGraphic extends JPanel {
-
-	    private Icon etomicaImage = null;
-
-    	public EtomicaGraphic() {
-
-    		this.setSize(new Dimension(GRAPHIC_WIDTH, GRAPHIC_HEIGHT));
-    		this.setLocation(GRAPHIC_X, GRAPHIC_Y);
-    		this.setBackground(Color.WHITE);
-
-            etomicaImage = new ImageIcon(this.getClass().getResource(ETOMICA_IMAGE));
-
-            JLabel pic = new JLabel();
-            pic.setIcon(etomicaImage);
-            this.add(pic);
-    	}
+		final Icon etomicaImage = new ImageIcon(AboutBoxWindow.class.getResource(ETOMICA_IMAGE));
+		JLabel pic = new JLabel();
+		pic.setIcon(etomicaImage);
+		panel.add(pic);
+		return panel;
 	}
 }
