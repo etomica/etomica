@@ -36,7 +36,7 @@ public class AboutBoxWindow extends JDialog {
 	private String[] softwareCredits = null;
 	private String   appName = null;
 
-	private String ETOMICA_IMAGE = "images/etomica.jpg";
+	private String ETOMICA_IMAGE = "etomica.jpg";
 
     private String SUNY_TEXT = "University at Buffalo, The State University of New York";
     private String CE_TEXT = "Department of Chemical & Biological Engineering";
