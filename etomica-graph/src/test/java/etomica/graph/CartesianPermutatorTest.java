@@ -9,10 +9,13 @@ import java.util.Arrays;
 import etomica.graph.iterators.CartesianPermutator;
 import etomica.graph.model.Permutator;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
 
-public class CartesianPermutatorTest extends TestCase {
+@Disabled
+public class CartesianPermutatorTest {
 
+  @Test
   public void testPermutator1x1x2x1() {
 
     Permutator p = new CartesianPermutator(new int[] { 1, 1 }, new int[] { 2, 1 });
@@ -25,6 +28,7 @@ public class CartesianPermutatorTest extends TestCase {
     System.out.println();
   }
 
+  @Test
   public void testPermutator1x1x2x2() {
 
     Permutator p = new CartesianPermutator(new int[] { 1, 1 }, new int[] { 2, 2 });
@@ -37,6 +41,7 @@ public class CartesianPermutatorTest extends TestCase {
     System.out.println();
   }
 
+  @Test
   public void testPermutator1x1x3x3() {
 
     Permutator p = new CartesianPermutator(new int[] { 1, 1 }, new int[] { 3, 3 });
