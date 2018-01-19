@@ -23,8 +23,6 @@ import etomica.space2d.Vector2D;
 import etomica.units.dimensions.Null;
 
 public class MeterMappedAveraging implements IDataSource, AgentSource<MeterMappedAveraging.MoleculeAgent> {
-
-
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
@@ -47,8 +45,8 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MeterMappe
 
     public MeterMappedAveraging(final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, PotentialMaster potentialMaster) {
 //        int a = 2*box.getLeafList().getAtomCount()+2;
-        data = new DataDoubleArray(3);
-        dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{3});
+        data = new DataDoubleArray(7);
+        dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{7});
         tag = new DataTag();
         dataInfo.addTag(tag);
         this.box = box;
@@ -101,7 +99,11 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MeterMappe
 
         x[1] = Ans.getSumJEMUEx() * Ans.getSumJEMUEx();
         x[2] = Ans.getSumJEMUEy() * Ans.getSumJEMUEy();
-        x[0] = -Ans.getSumJEEMJEJE() + Ans.getSumUEE();
+        x[3] = Ans.getSumJEMUEx();
+        x[4] = Ans.getSumJEMUEy();
+        x[5] = -Ans.getSumJEEMJEJE();
+        x[6] = Ans.getSumUEE();
+        x[0] = -Ans.getSumJEEMJEJE() + Ans.getSumUEE() - x[1] - x[2];
         return data;
     }
 

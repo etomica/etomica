@@ -191,8 +191,6 @@ public class HeisenbergTest extends Simulation {
             AEE = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(0);
             AEEER = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(0);
             AEECor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(0);
-//            IData covariance = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
-//            covariance.getValue(1);
 
             double sum0 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(0);
             double ERsum0 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(0);
@@ -200,10 +198,24 @@ public class HeisenbergTest extends Simulation {
             double ERsum1 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(1);
             double sum2 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(2);
             double ERsum2 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(2);
+            double sum3 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(3);
+            double ERsum3 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(3);
+            double sum4 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(4);
+            double ERsum4 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(4);
 
-            System.out.println("x0= " + sum0 / nCells / nCells + " x0ER= " + ERsum0 / nCells / nCells);
-            System.out.println("x1= " + sum1 / nCells / nCells + " x1ER= " + ERsum1 / nCells / nCells);
-            System.out.println("x2= " + sum2 / nCells / nCells + " x2ER= " + ERsum2 / nCells / nCells);
+            double sum5 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(5);
+            double ERsum5 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(5);
+            double sum6 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(6);
+            double ERsum6 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(6);
+
+
+            System.out.println("x0= " + sum0 / nCells / nCells + " ER= " + ERsum0 / nCells / nCells);
+            System.out.println("x1= " + sum1 / nCells / nCells + " ER= " + ERsum1 / nCells / nCells);
+            System.out.println("x2= " + sum2 / nCells / nCells + " ER= " + ERsum2 / nCells / nCells);
+            System.out.println("x3= " + sum3 / nCells / nCells + " ER= " + ERsum3 / nCells / nCells);
+            System.out.println("x4= " + sum4 / nCells / nCells + " ER= " + ERsum4 / nCells / nCells);
+            System.out.println("-JEEMJEJE= " + sum5 / nCells / nCells + " ER= " + ERsum5 / nCells / nCells);
+            System.out.println("UEE= " + sum6 / nCells / nCells + " ER= " + ERsum6 / nCells / nCells);
 
 //            for(int i=0;i<nCells*nCells+1;i++){
 //                double sum =  ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(i);
@@ -213,11 +225,9 @@ public class HeisenbergTest extends Simulation {
 //            System.out.println(i+ " xvalue= " + sum + " error= " + Error);
 //            System.out.println(i+ " yvalue= " + sumy + " error= " + Errory);
 //            }
-
         }
 
         long endTime = System.currentTimeMillis();
-
         double totalTime = (endTime - startTime) / (1000.0 * 60.0);
         if (mSquare) {
             System.out.println("-<(mui+muj)^2>*bt*bt:\t" + (-dipoleSumSquared / temperature / temperature / nCells / nCells)
@@ -235,7 +245,6 @@ public class HeisenbergTest extends Simulation {
             System.out.println("AEE_Time: " + (endTime - startTime) / (1000.0 * 60.0));
         }
 
-
     }
 
     // ******************* parameters **********************//
@@ -243,9 +252,9 @@ public class HeisenbergTest extends Simulation {
         public boolean mSquare = true;
         public boolean aEE = true;
         public double temperature = 10;// Kelvin
-        public int nCells = 5;//number of atoms is nCells*nCells
+        public int nCells = 3;//number of atoms is nCells*nCells
         public double interactionS = 1;
         public double dipoleMagnitude = 1.0;
-        public int steps = 100000;
+        public int steps = 200000;
     }
 }

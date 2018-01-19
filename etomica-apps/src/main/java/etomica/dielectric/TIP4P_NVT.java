@@ -333,9 +333,9 @@ public class TIP4P_NVT extends Simulation {
         double dipoleSumSquaredERR = 0;
         double dipoleSumCor = 0;
         if (mSquare) {
-            dipoleSumSquared = ((DataDouble) ((DataGroup) dipoleAccumulator.getData()).getData(dipoleAccumulator.AVERAGE.index)).x;
-            dipoleSumSquaredERR = ((DataDouble) ((DataGroup) dipoleAccumulator.getData()).getData(dipoleAccumulator.ERROR.index)).x;
-            dipoleSumCor = ((DataDouble) ((DataGroup) dipoleAccumulator.getData()).getData(dipoleAccumulator.BLOCK_CORRELATION.index)).x;
+            dipoleSumSquared = ((DataDouble) ((DataGroup) dipoleAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
+            dipoleSumSquaredERR = ((DataDouble) ((DataGroup) dipoleAccumulator.getData()).getData(AccumulatorAverage.ERROR.index)).x;
+            dipoleSumCor = ((DataDouble) ((DataGroup) dipoleAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index)).x;
         }
 //         //externalField 
 //         double UE = (((DataGroup)externalFieldAccumlator.getData()).getData(externalFieldAccumlator.AVERAGE.index)).getValue(0);
@@ -365,9 +365,9 @@ public class TIP4P_NVT extends Simulation {
         double AEEER = 0;
         double AEECor = 0;
         if (aEE) {
-            double sum0 = ((DataGroup) AEEAccumulator.getData()).getData(AEEAccumulator.AVERAGE.index).getValue(0);
-            double ERsum0 = ((DataGroup) AEEAccumulator.getData()).getData(AEEAccumulator.ERROR.index).getValue(0);
-            AEECor = ((DataGroup) AEEAccumulator.getData()).getData(AEEAccumulator.BLOCK_CORRELATION.index).getValue(0);
+            double sum0 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(0);
+            double ERsum0 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(0);
+            AEECor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(0);
             AEE = sum0;
             AEEER = ERsum0;
         }
@@ -401,6 +401,6 @@ public class TIP4P_NVT extends Simulation {
         public int numberMolecules = 2;
         public double density = 1;//g/cm^3
         public double dielectricOutside = 1.0E11;
-        public int steps = 1000000;
+        public int steps = 100000;
     }
 }

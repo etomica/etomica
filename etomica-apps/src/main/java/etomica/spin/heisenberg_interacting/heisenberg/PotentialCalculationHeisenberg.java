@@ -496,19 +496,14 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
 //        }
 //        System.exit(2);
 
-//        double testx = bJ * Math.sin(t1 - t2) * pM1 * (psix1 - psix2) + (vEx1 * f1 + vEx2 * f2);
-//        double testy = bJ * Math.sin(t1 - t2) * pM1 * (psiy1 - psiy2) + (vEy1 * f1 + vEy2 * f2);
-
         double JEMUExPair = vEx1 * (f1 + bJ * Math.sin(t1 - t2)) + vEx2 * (f2 - bJ * Math.sin(t1 - t2));
         double JEMUEyPair = vEy1 * (f1 + bJ * Math.sin(t1 - t2)) + vEy2 * (f2 - bJ * Math.sin(t1 - t2));
-        //TODO
-//        JEMUEx[atom1.getLeafIndex()] += JEMUExPair;
-//        JEMUEx[atom2.getLeafIndex()] += JEMUExPair;
-//        JEMUEy[atom1.getLeafIndex()] += JEMUEyPair;
-//        JEMUEy[atom2.getLeafIndex()] += JEMUEyPair;
         JEMUEx += JEMUExPair;
         JEMUEy += JEMUEyPair;
 
+//        double testx = bJ * Math.sin(t1 - t2) * pM1 * (psix1 - psix2) + (vEx1 * f1 + vEx2 * f2);
+//        double testy = bJ * Math.sin(t1 - t2) * pM1 * (psiy1 - psiy2) + (vEy1 * f1 + vEy2 * f2);
+//        System.out.println("x: " + (testx-JEMUExPair)+ " y: " + (testy-JEMUEyPair));
 
 //        System.out.println("vEx1= " + vEx1 + " vEx2= " + vEx2);
 
@@ -530,7 +525,6 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
         double fxE2 = -bmu * Math.sin(t2);
         double fyE1 = bmu * Math.cos(t1);
         double fyE2 = bmu * Math.cos(t2);
-        //TODO Check expressions and many samples please!!!!
         UEE += vEEx1 * f1 + vEEx2 * f2 + vDotGradvx1 * f1 + vDotGradvx2 * f2
                 + vEx1 * (p11 * vEx1 + p12 * vEx2) + vEx2 * (p12 * vEx1 + p22 * vEx2)
                 - 2 * vEx1 * fxE1 - 2 * vEx2 * fxE2;
