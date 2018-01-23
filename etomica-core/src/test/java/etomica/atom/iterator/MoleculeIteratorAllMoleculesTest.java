@@ -11,8 +11,12 @@ import etomica.molecule.MoleculeArrayList;
 import etomica.molecule.iterator.MoleculeIteratorAllMolecules;
 import etomica.simulation.Simulation;
 import etomica.species.ISpecies;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.LinkedList;
+
+import static etomica.atom.iterator.MoleculeIteratorTestAbstract.testIterates;
 
 /**
  * Unit test for ApiIntraspeciesAA
@@ -20,8 +24,9 @@ import java.util.LinkedList;
  * @author David Kofke
  *  
  */
-public class MoleculeIteratorAllMoleculesTest extends MoleculeIteratorTestAbstract {
+class MoleculeIteratorAllMoleculesTest {
 
+    @Test
     public void testIterator() {
 
         int[] n0 = new int[] { 10, 1, 0, 0, 0};
@@ -56,6 +61,6 @@ public class MoleculeIteratorAllMoleculesTest extends MoleculeIteratorTestAbstra
         }
         
         LinkedList list = testIterates(iterator, moleculeList.toMoleculeArray());
-        assertEquals(list.size(), box.getMoleculeList().size());
+        Assertions.assertEquals(list.size(), box.getMoleculeList().size());
     }
 }

@@ -11,6 +11,11 @@ import etomica.atom.IAtomList;
 import etomica.atom.Atom;
 import etomica.atom.AtomSetSinglet;
 import etomica.space3d.Space3D;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static etomica.atom.iterator.IteratorTestAbstract.*;
 
 
 /**
@@ -19,12 +24,13 @@ import etomica.space3d.Space3D;
  * @author David Kofke
  *
  */
-public class AtomIteratorSingletTest extends IteratorTestAbstract {
+class AtomIteratorSingletTest {
 
     public AtomIteratorSingletTest() {
         super();
     }
     
+    @BeforeEach
     public void setUp() {
         singletIterator = new AtomIteratorSinglet();
         testAtom1 = new Atom(Space3D.getInstance());
@@ -33,25 +39,26 @@ public class AtomIteratorSingletTest extends IteratorTestAbstract {
         list2 = makeTestList(new IAtomList[] {new AtomSetSinglet(testAtom2)});
     }
     
+    @Test
     public void testIterator() {
         print("starting");
         LinkedList list = generalIteratorMethodTests(singletIterator);
         singletIterator.setAtom(testAtom1);
         list = generalIteratorMethodTests(singletIterator);
-        assertEquals(list,list1);
+        Assertions.assertEquals(list, list1);
         singletIterator.setAtom(null);
-        assertNull(singletIterator.getAtom());
+        Assertions.assertNull(singletIterator.getAtom());
         list = generalIteratorMethodTests(singletIterator);
-        assertNull(singletIterator.getAtom());
-        assertTrue(list.size() == 0);
+        Assertions.assertNull(singletIterator.getAtom());
+        Assertions.assertTrue(list.size() == 0);
         singletIterator.setAtom(testAtom2);
         list = generalIteratorMethodTests(singletIterator);
-        assertEquals(list, list2);
+        Assertions.assertEquals(list, list2);
         singletIterator.setAtom(testAtom1);
-        assertEquals(testAtom1, singletIterator.getAtom());
+        Assertions.assertEquals(testAtom1, singletIterator.getAtom());
         list = generalIteratorMethodTests(singletIterator);
-        assertEquals(list, list1);
-        assertEquals(testAtom1, singletIterator.getAtom());
+        Assertions.assertEquals(list, list1);
+        Assertions.assertEquals(testAtom1, singletIterator.getAtom());
     }
     
     private AtomIteratorSinglet singletIterator;

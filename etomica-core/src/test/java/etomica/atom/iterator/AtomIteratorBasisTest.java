@@ -13,8 +13,13 @@ import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeSetSinglet;
 import etomica.simulation.Simulation;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.LinkedList;
+
+import static etomica.atom.iterator.IteratorTestAbstract.generalIteratorMethodTests;
 
 
 /**
@@ -23,7 +28,7 @@ import java.util.LinkedList;
  * @author David Kofke
  *
  */
-public class AtomIteratorBasisTest extends IteratorTestAbstract {
+class AtomIteratorBasisTest {
 
     /**
      * 
@@ -32,6 +37,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         super();
     }
     
+    @BeforeEach
     public void setUp() {
         n0a = 5;
         nAtoms = 3;
@@ -55,6 +61,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
     //species 0: 5 molecules, each a group of three atoms
     //species 1: 10 no-group single-atom molecules
     //species 2: 3 molecules, each with 5 subgroups of 4 groups of 3 atoms
+    @Test
     public void testIterator() {
 
         Lister testLister = new Lister();
@@ -64,11 +71,11 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         IAtom iterate = null;
         AtomArrayList iterates = null;
         
-        assertEquals(basisIterator.basisSize(), 1);
+        Assertions.assertEquals(basisIterator.basisSize(), 1);
         
         //test initial iterator provides no iterates
         list = generalIteratorMethodTests(basisIterator);
-        assertEquals(list.size(), 0);
+        Assertions.assertEquals(list.size(), 0);
         
         //test no-target iteration of children of a basis
         Box box = sim.getBox(0);
@@ -78,7 +85,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         iterates = new AtomArrayList();
         iterates.addAll(basis.getChildList());
         list = testListIterates(basis, target, iterates);
-        assertEquals(list.size(), nAtoms);
+        Assertions.assertEquals(list.size(), nAtoms);
 
 //        //test no-target iteration of a leaf basis
 //        basis = ((IMolecule)moleculeList0.getAtom(0)).getChildList().getAtom(1);
@@ -95,10 +102,10 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         //test subsequent nulling of target
         basisIterator.setTarget(null);
         list = generalIteratorMethodTests(basisIterator);
-        assertEquals(list.size(), nAtoms);
+        Assertions.assertEquals(list.size(), nAtoms);
         testLister.clear();
         testLister.addEachToList(basis.getChildList());
-        assertEquals(list, testLister.list);
+        Assertions.assertEquals(list, testLister.list);
 
         //test specifying null target
         basis = moleculeList0.get(0);
@@ -119,38 +126,37 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
 
         //int[] {box (0), species (0,1,2), molecule etc}
     }
-    
-    private LinkedList testOneIterate(IMolecule basis, IAtom target, IAtom iterate) {
+
+    private void testOneIterate(IMolecule basis, IAtom target, IAtom iterate) {
         basisIterator.setBasis(new MoleculeSetSinglet(basis));
-        assertTrue(basisIterator.haveTarget(target));
+        Assertions.assertTrue(basisIterator.haveTarget(target));
         basisIterator.setTarget(target);
         LinkedList list = generalIteratorMethodTests(basisIterator);
         Lister testLister = new Lister();
         testLister.actionPerformed(new AtomSetSinglet(iterate));
-        assertEquals(list, testLister.list);
-        assertTrue(basisIterator.haveTarget(target));//test again to ensure iteration didn't change anything
-        return list;
+        Assertions.assertEquals(list, testLister.list);
+        Assertions.assertTrue(basisIterator.haveTarget(target));//test again to ensure iteration didn't change anything
     }
-    
+
     private LinkedList testListIterates(IMolecule basis, IAtom target, AtomArrayList iterates) {
         basisIterator.setBasis(new MoleculeSetSinglet(basis));
-        assertTrue(basisIterator.haveTarget(target));
+        Assertions.assertTrue(basisIterator.haveTarget(target));
         basisIterator.setTarget(target);
         LinkedList list = generalIteratorMethodTests(basisIterator);
         Lister testLister = new Lister();
         testLister.addEachToList(iterates);
-        assertEquals(list, testLister.list);
-        assertTrue(basisIterator.haveTarget(target));//test again to ensure iteration didn't change anything
+        Assertions.assertEquals(list, testLister.list);
+        Assertions.assertTrue(basisIterator.haveTarget(target));//test again to ensure iteration didn't change anything
         return list;
     }
-    
+
     private void testNoIterates(IMolecule basis, IAtom target) {
         basisIterator.setBasis(basis == null ? null : new MoleculeSetSinglet(basis));
-        assertFalse(basisIterator.haveTarget(target));
+        Assertions.assertFalse(basisIterator.haveTarget(target));
         basisIterator.setTarget(target);
         LinkedList list = generalIteratorMethodTests(basisIterator);
-        assertEquals(list.size(), 0);
-        assertFalse(basisIterator.haveTarget(target));//test again to ensure iteration didn't change anything
+        Assertions.assertEquals(list.size(), 0);
+        Assertions.assertFalse(basisIterator.haveTarget(target));//test again to ensure iteration didn't change anything
     }
     
     private AtomIteratorBasis basisIterator;

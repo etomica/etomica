@@ -10,57 +10,63 @@ import etomica.molecule.IMoleculeList;
 import etomica.molecule.Molecule;
 import etomica.molecule.MoleculeSetSinglet;
 import etomica.molecule.iterator.MoleculeIteratorSinglet;
-import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresHetero;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.LinkedList;
+
+import static etomica.atom.iterator.MoleculeIteratorTestAbstract.*;
+import static etomica.space3d.Space3D.getInstance;
 
 
 /**
  * Unit test for AtomIteratorSinglet class.
  *
  * @author David Kofke
- *
  */
-public class MoleculeIteratorSingletTest extends MoleculeIteratorTestAbstract {
+class MoleculeIteratorSingletTest {
 
     private MoleculeIteratorSinglet singletIterator;
     private IMolecule testAtom1, testAtom2;
     private LinkedList list1, list2;
-    
+
     public MoleculeIteratorSingletTest() {
         super();
     }
 
+    @BeforeEach
     public void setUp() {
-        ISpecies species = new SpeciesSpheresHetero(Space3D.getInstance(), new AtomType[0]);
+        ISpecies species = new SpeciesSpheresHetero(getInstance(), new AtomType[0]);
         singletIterator = new MoleculeIteratorSinglet();
         testAtom1 = new Molecule(species, 0);
         testAtom2 = new Molecule(species, 0);
-        list1 = makeTestList(new IMoleculeList[] {new MoleculeSetSinglet(testAtom1)});
-        list2 = makeTestList(new IMoleculeList[] {new MoleculeSetSinglet(testAtom2)});
+        list1 = makeTestList(new IMoleculeList[]{new MoleculeSetSinglet(testAtom1)});
+        list2 = makeTestList(new IMoleculeList[]{new MoleculeSetSinglet(testAtom2)});
     }
 
+    @Test
     public void testIterator() {
         print("starting");
         LinkedList<String> list = generalIteratorMethodTests(singletIterator);
         singletIterator.setMolecule(testAtom1);
         list = generalIteratorMethodTests(singletIterator);
-        assertEquals(list,list1);
+        Assertions.assertEquals(list, list1);
         singletIterator.setMolecule(null);
-        assertNull(singletIterator.getMolecule());
+        Assertions.assertNull(singletIterator.getMolecule());
         list = generalIteratorMethodTests(singletIterator);
-        assertNull(singletIterator.getMolecule());
-        assertTrue(list.size() == 0);
+        Assertions.assertNull(singletIterator.getMolecule());
+        Assertions.assertTrue(list.size() == 0);
         singletIterator.setMolecule(testAtom2);
         list = generalIteratorMethodTests(singletIterator);
-        assertEquals(list, list2);
+        Assertions.assertEquals(list, list2);
         singletIterator.setMolecule(testAtom1);
-        assertEquals(testAtom1, singletIterator.getMolecule());
+        Assertions.assertEquals(testAtom1, singletIterator.getMolecule());
         list = generalIteratorMethodTests(singletIterator);
-        assertEquals(list, list1);
-        assertEquals(testAtom1, singletIterator.getMolecule());
+        Assertions.assertEquals(list, list1);
+        Assertions.assertEquals(testAtom1, singletIterator.getMolecule());
     }
 
 }
