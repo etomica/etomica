@@ -12,26 +12,31 @@ import etomica.molecule.iterator.MoleculeIteratorArrayListSimple;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresHetero;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.LinkedList;
+
+import static etomica.atom.iterator.MoleculeIteratorTestAbstract.generalIteratorMethodTests;
 
 /**
  * Unit test for AtomIteratorArrayList.
  */
-public class MoleculeIteratorArrayListTest extends MoleculeIteratorTestAbstract {
+class MoleculeIteratorArrayListTest {
 
     public MoleculeIteratorArrayListTest() {
         super();
         UnitTestUtil.VERBOSE = false;
     }
     
+    @Test
     public void testListVariations() {
         ISpecies species = new SpeciesSpheresHetero(Space3D.getInstance(), new AtomType[0]);
         MoleculeIteratorArrayListSimple iterator = new MoleculeIteratorArrayListSimple();
         
         //make sure new iterator gives no iterates
         LinkedList<String> list = generalIteratorMethodTests(iterator);
-        assertEquals(list.size(), 0);
+        Assertions.assertEquals(list.size(), 0);
         
         // make empty list to start
         MoleculeArrayList atomList = new MoleculeArrayList();
@@ -40,7 +45,7 @@ public class MoleculeIteratorArrayListTest extends MoleculeIteratorTestAbstract 
         //add some atoms and check each time
         for(int i=0; i<=10; i++) {
             list = generalIteratorMethodTests(iterator);
-            assertEquals(list.size(), i);
+            Assertions.assertEquals(list.size(), i);
             atomList.add(new Molecule(species, 0));
         }
         list = generalIteratorMethodTests(iterator);
@@ -49,10 +54,10 @@ public class MoleculeIteratorArrayListTest extends MoleculeIteratorTestAbstract 
         MoleculeArrayList arrayList = new MoleculeArrayList();
         iterator.setList(arrayList);
         list = generalIteratorMethodTests(iterator);
-        assertEquals(list.size(), 0);
+        Assertions.assertEquals(list.size(), 0);
         arrayList.add(new Molecule(species, 0));
         list = generalIteratorMethodTests(iterator);
-        assertEquals(list.size(), 1);
+        Assertions.assertEquals(list.size(), 1);
         
         //check handling of null list
         iterator.setList(null);
@@ -63,7 +68,7 @@ public class MoleculeIteratorArrayListTest extends MoleculeIteratorTestAbstract 
         catch (RuntimeException e) {
             exceptionThrown = true;
         }
-        assertTrue(exceptionThrown);
+        Assertions.assertTrue(exceptionThrown);
         
     }
 

@@ -10,9 +10,10 @@ import etomica.molecule.*;
 import etomica.molecule.iterator.MoleculeIterator;
 import etomica.molecule.iterator.MoleculesetIterator;
 import etomica.potential.IteratorDirective;
-import junit.framework.TestCase;
 
 import java.util.LinkedList;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Provides library methods to test the basic functioning of an iterator.
@@ -21,35 +22,14 @@ import java.util.LinkedList;
  * @author Ken Benjamin and David Kofke
  *  
  */
-public abstract class MoleculeIteratorTestAbstract extends TestCase {
+public abstract class MoleculeIteratorTestAbstract {
 
 
-    /**
-     * Clears the list of each ListerMolecule in the array.
-     */
-    public void clearLists(ListerMolecule[] ListerMolecule) {
-        for (int i = 0; i < ListerMolecule.length; i++) {
-            ListerMolecule[i].list.clear();
-        }
-    }
-
-    /**
-     * Prints all of the lists.
-     */
-    public void printLists(ListerMolecule[] ListerMolecule) {
-        if (UnitTestUtil.VERBOSE) {
-            for (int i = 0; i < ListerMolecule.length; i++) {
-                System.out.println(ListerMolecule[i]);
-            }
-            System.out.println();
-        }
-    }
-    
     /**
      * Returns a list from the given atoms, which can be checked against
      * the list returned by generalIteratorMethodTests.
      */
-    public LinkedList makeTestList(IMoleculeList[] atoms) {
+    public static LinkedList makeTestList(IMoleculeList[] atoms) {
         ListerMolecule ListerMolecule = new ListerMolecule();
         for(int i=0; i<atoms.length; i++) {
             ListerMolecule.actionPerformed(atoms[i]);
@@ -57,7 +37,7 @@ public abstract class MoleculeIteratorTestAbstract extends TestCase {
         return ListerMolecule.list;
     }
     
-    protected void print(String string) {
+    protected static void print(String string) {
         if(UnitTestUtil.VERBOSE) System.out.println(string);
     }
 
@@ -79,7 +59,7 @@ public abstract class MoleculeIteratorTestAbstract extends TestCase {
      *            will be performed repeatedly on the iterator
      * @return a list of ListerMolecule instances for the atoms given by the iterator
      */
-    protected java.util.LinkedList<String> generalIteratorMethodTests(
+    protected static LinkedList<String> generalIteratorMethodTests(
             MoleculesetIterator iterator) {
         ListerMolecule[] listerMolecule = ListerMolecule.listerArray(2);
 
@@ -150,7 +130,7 @@ public abstract class MoleculeIteratorTestAbstract extends TestCase {
     /**
      * Tests that iterator gives no iterates
      */
-    protected void testNoIterates(MoleculesetIterator iterator) {
+    protected static void testNoIterates(MoleculesetIterator iterator) {
         LinkedList list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(), 0);
     }
@@ -161,7 +141,7 @@ public abstract class MoleculeIteratorTestAbstract extends TestCase {
      * @param partners array of expected iterates
      * @return the ListerMolecule list of iterates
      */
-    protected LinkedList testIterates(MoleculeIterator iterator, IMolecule[] iterates) {
+    protected static LinkedList testIterates(MoleculeIterator iterator, IMolecule[] iterates) {
         LinkedList list = generalIteratorMethodTests(iterator);
         ListerMolecule test = new ListerMolecule();
         for(int i=0; i<iterates.length; i++) {
@@ -179,8 +159,8 @@ public abstract class MoleculeIteratorTestAbstract extends TestCase {
      * @param partners array of atom1 expected in the pair iterates
      * @return the ListerMolecule list of iterates
      */
-    protected LinkedList testApiIterates(MoleculesetIterator iterator, IteratorDirective.Direction direction,
-            IMolecule iterate, IMolecule[] partners) {
+    protected static LinkedList testApiIterates(MoleculesetIterator iterator, IteratorDirective.Direction direction,
+                                                IMolecule iterate, IMolecule[] partners) {
         LinkedList list = generalIteratorMethodTests(iterator);
         ListerMolecule test = new ListerMolecule();
         for(int i=0; i<partners.length; i++) {
@@ -198,7 +178,7 @@ public abstract class MoleculeIteratorTestAbstract extends TestCase {
      * Same as testApiIterates, but with atom1 the same in all pair iterates, while
      * atom0 varies.
      */
-    protected LinkedList testApiIteratesSwap(MoleculesetIterator iterator, IMolecule iterate, IMolecule[] partners) {
+    protected static LinkedList testApiIteratesSwap(MoleculesetIterator iterator, IMolecule iterate, IMolecule[] partners) {
         LinkedList list = generalIteratorMethodTests(iterator);
         ListerMolecule test = new ListerMolecule();
         for(int i=0; i<partners.length; i++) {
@@ -212,7 +192,7 @@ public abstract class MoleculeIteratorTestAbstract extends TestCase {
     /**
      * Tests that iterator gives two particular iterates
      */
-    protected LinkedList testApiTwoIterates(MoleculesetIterator iterator, MoleculePair pair0, MoleculePair pair1) {
+    protected static LinkedList testApiTwoIterates(MoleculesetIterator iterator, MoleculePair pair0, MoleculePair pair1) {
         if((pair0.mol1 == null || pair0.mol0 == null) && (pair1.mol0 == null || pair1.mol1 == null)) {
             testNoIterates(iterator);
             return new LinkedList();
@@ -228,7 +208,7 @@ public abstract class MoleculeIteratorTestAbstract extends TestCase {
     /**
      * Tests that iterator gives a single particular iterate.
      */
-    protected LinkedList testApiOneIterate(MoleculesetIterator iterator, MoleculePair pair) {
+    protected static LinkedList testApiOneIterate(MoleculesetIterator iterator, MoleculePair pair) {
         if(pair.mol0 == null || pair.mol1 == null) {
             testNoIterates(iterator);
             return new LinkedList();
@@ -246,7 +226,7 @@ public abstract class MoleculeIteratorTestAbstract extends TestCase {
      * @param n the number of iterates it should give
      * @return the ListerMolecule list of iterates
      */
-    protected LinkedList countTest(MoleculesetIterator api, int n) {
+    protected static LinkedList countTest(MoleculesetIterator api, int n) {
         LinkedList list = generalIteratorMethodTests(api);
         assertEquals(list.size(), n);
         return list;
@@ -261,7 +241,7 @@ public abstract class MoleculeIteratorTestAbstract extends TestCase {
      * @param dn array of atom1 expected in the dnlist pair iterates
      * @return the ListerMolecule list of iterates
      */
-    protected LinkedList testApiIterates(MoleculesetIterator iterator, IMolecule iterate, IMolecule[] up, IMolecule[] dn) {
+    protected static LinkedList testApiIterates(MoleculesetIterator iterator, IMolecule iterate, IMolecule[] up, IMolecule[] dn) {
         LinkedList list = generalIteratorMethodTests(iterator);
         ListerMolecule test = new ListerMolecule();
         for(int i=0; i<up.length; i++) {

@@ -4,16 +4,21 @@
 
 package etomica.atom;
 
-import etomica.space3d.Space3D;
-import junit.framework.TestCase;
 import etomica.space.Space;
+import etomica.space3d.Space3D;
 import etomica.util.Debug;
+import org.junit.jupiter.api.Test;
 
-public class AtomArrayListTest extends TestCase {
+import java.util.Arrays;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class AtomArrayListTest {
 
 	/*
 	 * testTrimToSize()
 	 */
+	@Test
 	public void testTrimToSize() {
 		Space space = Space.getInstance(3);
 		final int size = 40;
@@ -36,6 +41,7 @@ public class AtomArrayListTest extends TestCase {
 	/*
 	 * testSetGetTrimThreshold()
 	 */
+	@Test
 	public void testSetGetTrimThreshold() {
 		float trimThreshold = 0.43f;
 		AtomArrayList arrayList = new AtomArrayList();
@@ -47,6 +53,7 @@ public class AtomArrayListTest extends TestCase {
 	/*
 	 * testMaybeTrimToSize()
 	 */
+	@Test
 	public void testMaybeTrimToSize() {
 
 		Space space = Space.getInstance(3);
@@ -71,12 +78,13 @@ public class AtomArrayListTest extends TestCase {
 			arrayList.add(new Atom(space));
 		}
         arrayList.maybeTrimToSize();
-        assertEquals(size/2 - 1, arrayList.sizeOfArray());
+        assertEquals(size / 2 - 1, arrayList.sizeOfArray());
 	}
 
 	/*
 	 * testEnsureCapacity()
 	 */
+	@Test
 	public void testEnsureCapacity() {
 
 		Space space = Space.getInstance(3);
@@ -117,6 +125,7 @@ public class AtomArrayListTest extends TestCase {
 	/*
 	 * testIsEmpty()
 	 */
+	@Test
 	public void testIsEmpty() {
 		Space space = Space.getInstance(3);
 		int size = 20;
@@ -134,6 +143,7 @@ public class AtomArrayListTest extends TestCase {
 	/*
 	 * testIndexOf()
 	 */
+	@Test
 	public void testIndexOf() {
 		Space space = Space.getInstance(3);
 		int size = 20;
@@ -153,6 +163,7 @@ public class AtomArrayListTest extends TestCase {
 	/*
 	 * testToArray()
 	 */
+	@Test
 	public void testToArray() {
 		Space space = Space.getInstance(3);
 		int size = 20;
@@ -178,6 +189,7 @@ public class AtomArrayListTest extends TestCase {
 	/*
 	 * testSet()
 	 */
+	@Test
 	public void testSet() {
 		Space space = Space.getInstance(3);
 		int size = 20;
@@ -248,6 +260,7 @@ public class AtomArrayListTest extends TestCase {
 	/*
 	 * testAdd()
 	 */
+	@Test
 	public void testAdd() {
 		Space space = Space.getInstance(3);
 		int size = 10;
@@ -270,8 +283,8 @@ public class AtomArrayListTest extends TestCase {
 		addResult = arrayList.add(overTheTop);
 		assertTrue(addResult);
 		assertSame(overTheTop, arrayList.get(size));
-		assertEquals((int)((float)size * (1.0f + AtomArrayList.getSizeIncreaseRatio()) + 1),
-				      arrayList.sizeOfArray());
+		assertEquals((int) ((float) size * (1.0f + AtomArrayList.getSizeIncreaseRatio()) + 1),
+				arrayList.sizeOfArray());
 
 		try {
 		    arrayList = new AtomArrayList(0);
@@ -287,6 +300,7 @@ public class AtomArrayListTest extends TestCase {
 	/*
 	 * testAddAll()
 	 */
+	@Test
 	public void testAddAll() {
 		Space space = Space.getInstance(3);
 		int size = 10;
@@ -304,6 +318,7 @@ public class AtomArrayListTest extends TestCase {
 		assertEquals(12, arrayList.size());
 	}
 
+	@Test
 	public void testAddAllAtomArrayList() {
 		Space s = Space3D.getInstance();
 		AtomArrayList l1 = new AtomArrayList();
@@ -326,6 +341,7 @@ public class AtomArrayListTest extends TestCase {
 	/*
 	 * testRemove()
 	 */
+	@Test
 	public void testRemove() {
 		Space space = Space.getInstance(3);
 		int size = 5;
@@ -371,6 +387,7 @@ public class AtomArrayListTest extends TestCase {
 	/*
 	 * testRemoveAndReplace()
 	 */
+	@Test
 	public void testRemoveAndReplace() {
 		Space space = Space.getInstance(3);
 		int size = 5;
@@ -384,7 +401,7 @@ public class AtomArrayListTest extends TestCase {
 
         IAtom removeAtom = arrayList.removeAndReplace(2);
 		assertSame(atomList[2], removeAtom);
-		assertSame(atomList[size-1], arrayList.get(2));
+		assertSame(atomList[size - 1], arrayList.get(2));
 
         if (Debug.ON) {
             // AtomLeafArrayList.getAtom only does a range check if Debug is ON
@@ -426,6 +443,7 @@ public class AtomArrayListTest extends TestCase {
 	/*
 	 * testClear()
 	 */
+	@Test
 	public void testClear() {
 		Space space = Space.getInstance(3);
 		int size = 5;
