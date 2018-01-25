@@ -8,6 +8,7 @@ import etomica.simulation.Simulation;
 import etomica.simulation.SimulationBoxEvent;
 import etomica.simulation.SimulationEventManager;
 import etomica.simulation.SimulationListener;
+import etomica.util.collections.IndexMap;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -28,7 +29,7 @@ public final class BoxAgentManager<E> implements SimulationListener {
     private final Function<Box, ? extends E> agentSource;
     private final Consumer<? super E> agentReleaser;
     private final SimulationEventManager simEventManager;
-    private final Map<Box, E> agents;
+    private final IndexMap<E> agents;
 
     /**
      * Constructs and sets the Simulation containing Boxes to be tracked. This will register
@@ -54,11 +55,11 @@ public final class BoxAgentManager<E> implements SimulationListener {
         // this will crash if the given sim is in the middle of its constructor
         simEventManager.addListener(this);
 
-        agents = new LinkedHashMap<>();
-        sim.getBoxes().forEach(box -> agents.put(box, agentSource.apply(box)));
+        agents = new IndexMap<>(1, 1);
+        sim.getBoxes().forEach(box -> agents.put(box.getIndex(), agentSource.apply(box)));
     }
 
-    public Map<Box, E> getAgents() {
+    public IndexMap<E> getAgents() {
         return agents;
     }
 
@@ -66,7 +67,7 @@ public final class BoxAgentManager<E> implements SimulationListener {
      * @return the agent associated with the given Box
      */
     public E getAgent(Box box) {
-        return this.agents.get(box);
+        return this.agents.get(box.getIndex());
     }
 
     /**
@@ -75,7 +76,7 @@ public final class BoxAgentManager<E> implements SimulationListener {
      * @param agent the Agent
      */
     public void setAgent(Box box, E agent) {
-        this.agents.put(box, agent);
+        this.agents.put(box.getIndex(), agent);
     }
 
     /**
@@ -90,11 +91,11 @@ public final class BoxAgentManager<E> implements SimulationListener {
 
     public void simulationBoxAdded(SimulationBoxEvent e) {
         Box box = e.getBox();
-        this.agents.put(box, agentSource.apply(box));
+        this.agents.put(box.getIndex(), agentSource.apply(box));
     }
 
     public void simulationBoxRemoved(SimulationBoxEvent e) {
-        E agent = this.agents.remove(e.getBox());
+        E agent = this.agents.remove(e.getBox().getIndex());
         agentReleaser.accept(agent);
     }
 
