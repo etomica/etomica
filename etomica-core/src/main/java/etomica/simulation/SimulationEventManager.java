@@ -8,13 +8,14 @@ import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.species.ISpecies;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class SimulationEventManager {
 
-    private final List<SimulationListener> listeners = new CopyOnWriteArrayList<>();
+    private final List<SimulationListener> listeners = new ArrayList<>();
     private final Simulation simulation;
 
     protected SimulationEventManager(Simulation sim) {

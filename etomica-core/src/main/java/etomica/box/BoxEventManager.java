@@ -8,12 +8,13 @@ import etomica.atom.IAtom;
 import etomica.molecule.IMolecule;
 import etomica.species.ISpecies;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class BoxEventManager {
 
-    private final List<BoxEventListener> listeners = new CopyOnWriteArrayList<>();
+    private final List<BoxEventListener> listeners = new ArrayList<>();
     private final Box box;
 
     public BoxEventManager(Box box) {

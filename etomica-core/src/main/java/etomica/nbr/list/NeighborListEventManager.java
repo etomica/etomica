@@ -4,12 +4,13 @@
 
 package etomica.nbr.list;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class NeighborListEventManager {
 
-    private final List<INeighborListListener> listeners = new CopyOnWriteArrayList<>();
+    private final List<INeighborListListener> listeners = new ArrayList<>();
 
     public void addListener(INeighborListListener newListener) {
         if (newListener == null) {

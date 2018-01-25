@@ -4,6 +4,7 @@
 
 package etomica.util;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -16,7 +17,7 @@ public class EventManager<E extends IEvent> {
     private final List<IListener<E>> listeners;
 
     public EventManager() {
-        this.listeners = new CopyOnWriteArrayList<>();
+        this.listeners = new ArrayList<>();
     }
 
     public void fireEvent(E e) {
