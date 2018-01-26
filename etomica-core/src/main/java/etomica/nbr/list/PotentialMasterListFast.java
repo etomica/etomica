@@ -5,13 +5,12 @@
 package etomica.nbr.list;
 
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.AtomPair;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxCellManager;
-import etomica.integrator.Integrator;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculePositionDefinition;
 import etomica.nbr.CriterionAdapter;
@@ -21,7 +20,6 @@ import etomica.nbr.PotentialGroupNbr;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
-import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.Debug;
@@ -33,6 +31,8 @@ import etomica.util.Debug;
 public class PotentialMasterListFast extends PotentialMasterList {
 
     protected final Vector dr;
+    protected final P2SoftSphericalTruncated p2;
+    protected final AtomPair pair;
 
     /**
      * Constructor specifying space and range for neighbor listing; uses null AtomPositionDefinition.
@@ -65,6 +65,8 @@ public class PotentialMasterListFast extends PotentialMasterList {
                                    NeighborListAgentSource neighborListAgentSource, Space _space) {
         super(sim, range, boxAgentSource, agentManager, neighborListAgentSource, _space);
         dr = space.makeVector();
+        p2 = new P2SoftSphericalTruncated(space, new P2LennardJones(space), 3);
+        pair = new AtomPair();
     }
 
     /**
@@ -94,6 +96,7 @@ public class PotentialMasterListFast extends PotentialMasterList {
         if (!enabled) return;
         IAtom targetAtom = id.getTargetAtom();
         IMolecule targetMolecule = id.getTargetMolecule();
+        p2.setBox(box);
         NeighborListManager neighborManager = neighborListAgentManager.getAgent(box);
         if (targetAtom == null && targetMolecule == null) {
             if (Debug.ON && id.direction() != IteratorDirective.Direction.UP) {
@@ -101,27 +104,32 @@ public class PotentialMasterListFast extends PotentialMasterList {
             }
 
             IAtomList atoms = box.getLeafList();
-            AtomLeafAgentManager<? extends Integrator.Forcible> agentManager = ((PotentialCalculationForceSum) pc).getAgentManager();
-            Boundary boundary = box.getBoundary();
+//            AtomLeafAgentManager<? extends Integrator.Forcible> agentManager = ((PotentialCalculationForceSum) pc).getAgentManager();
+//            Boundary boundary = box.getBoundary();
             for (int i = 0; i < atoms.getAtomCount(); i++) {
                 IAtom atom = atoms.getAtom(i);
-                Vector v = atom.getPosition();
+                pair.atom0 = atom;
+//                Vector v = atom.getPosition();
                 IAtomList list = neighborManager.getUpList(atom)[0];
                 int nNeighbors = list.getAtomCount();
-                Integrator.Forcible iAgent = agentManager.getAgent(atom);
+//                Vector iForce = agentManager.getAgent(atom).force();
 
                 for (int j = 0; j < nNeighbors; j++) {
                     IAtom jAtom = list.getAtom(j);
+                    pair.atom1 = jAtom;
+                    pc.doCalculation(pair, p2);
+//                    p2.gradientFast(pair, iForce, agentManager.getAgent(jAtom).force());
+                    /*
                     dr.Ev1Mv2(v, jAtom.getPosition());
                     boundary.nearestImage(dr);
                     double r2 = dr.squared();
                     if (r2 > 9) continue;
-                    Integrator.Forcible jAgent = agentManager.getAgent(atom);
                     double s6 = 1 / (r2 * r2 * r2);
                     double du = -12 * s6 * (s6 - 0.5);
-                    dr.Ea1Tv1(du / r2, dr);
-                    jAgent.force().PE(dr);
-                    iAgent.force().ME(dr);
+                    dr.Ea1Tv1(du / r2, dr);*/
+//                    Integrator.Forcible jAgent = agentManager.getAgent(atom);
+//                    jAgent.force().ME(g[1]);
+//                    iAgent.force().ME(g[0]);
                 }
 
             }

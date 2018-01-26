@@ -38,7 +38,10 @@ public class PotentialCalculationForceSum implements PotentialCalculation {
      * Implemented for only 1- and 2-body potentials.
      */
     public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
-        PotentialSoft potentialSoft = (PotentialSoft)potential;
+        Potential2SoftSpherical potentialSoft = (Potential2SoftSpherical) potential;
+        potentialSoft.gradientFast(atoms, integratorAgentManager.getAgent(atoms.getAtom(0)).force(),
+                integratorAgentManager.getAgent(atoms.getAtom(1)).force());
+        if (true) return;
         int nBody = potential.nBody();
         Vector[] f = potentialSoft.gradient(atoms);
         if (f==null) return;

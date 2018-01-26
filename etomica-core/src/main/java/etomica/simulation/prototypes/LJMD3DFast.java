@@ -20,6 +20,7 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.list.PotentialMasterListFast;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
+import etomica.potential.PotentialCalculationForceSum;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -44,6 +45,7 @@ public class LJMD3DFast extends Simulation {
         double sigma = 1.0;
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
         integrator.setTimeStep(0.02);
+        integrator.setForceSum(new PotentialCalculationForceSum());
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
