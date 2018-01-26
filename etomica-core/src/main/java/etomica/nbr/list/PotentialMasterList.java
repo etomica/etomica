@@ -13,7 +13,6 @@ import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.IMoleculePositionDefinition;
 import etomica.nbr.*;
-import etomica.nbr.cell.BoxAgentSourceCellManager;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
@@ -33,15 +32,15 @@ public class PotentialMasterList extends PotentialMasterNbr {
     protected final AtomPair atomPair;
     protected final NeighborListAgentSource neighborListAgentSource;
     protected final BoxAgentManager<NeighborListManager> neighborListAgentManager;
-    private final BoxAgentSourceCellManagerList boxAgentSource;
-    private final AtomIteratorSinglet singletIterator;
+    protected final BoxAgentSourceCellManagerList boxAgentSource;
+    protected final AtomIteratorSinglet singletIterator;
     protected double range;
     protected NeighborCriterion[] allCriteria;
-    private int cellRange;
-    private double maxPotentialRange = 0;
-    private double safetyFactor = 0.4;
+    protected int cellRange;
+    protected double maxPotentialRange = 0;
+    protected double safetyFactor = 0.4;
     // things needed for N-body potentials
-    private AtomArrayList atomArrayList;
+    protected AtomArrayList atomArrayList;
 
     /**
      * Default constructor uses range of 1.0.

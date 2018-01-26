@@ -21,6 +21,10 @@ public class PotentialCalculationForceSum implements PotentialCalculation {
         integratorAgentManager = agentManager;
     }
 
+    public AtomLeafAgentManager<? extends IntegratorBox.Forcible> getAgentManager() {
+        return integratorAgentManager;
+    }
+
     /**
      * Re-zeros the force vectors.
      *

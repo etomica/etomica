@@ -17,7 +17,7 @@ import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.nbr.list.PotentialMasterList;
+import etomica.nbr.list.PotentialMasterListFast;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
@@ -27,7 +27,7 @@ import etomica.species.SpeciesSpheresMono;
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 3D
  */
-public class LJMD3D extends Simulation {
+public class LJMD3DFast extends Simulation {
 
     public IntegratorVelocityVerlet integrator;
     public SpeciesSpheresMono species;
@@ -38,14 +38,14 @@ public class LJMD3D extends Simulation {
     public AccumulatorAverageCollapsing avgEnergy;
     public DataPump pump;
 
-
-    public LJMD3D() {
+    public LJMD3DFast() {
         super(Space3D.getInstance());
-        PotentialMasterList potentialMaster = new PotentialMasterList(this, 4, space);
+        PotentialMasterListFast potentialMaster = new PotentialMasterListFast(this, 4, space);
         double sigma = 1.0;
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
         integrator.setTimeStep(0.02);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
@@ -61,9 +61,9 @@ public class LJMD3D extends Simulation {
         AtomType leafType = species.getLeafType();
 
         potentialMaster.addPotential(p2, new AtomType[]{leafType, leafType});
-
         integrator.setBox(box);
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
+
 
         ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         configuration.initializeCoordinates(box);
@@ -71,7 +71,7 @@ public class LJMD3D extends Simulation {
 
     public static void main(String[] args) {
         final String APP_NAME = "LJMD3D";
-        final LJMD3D sim = new LJMD3D();
+        final LJMD3DFast sim = new LJMD3DFast();
         final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 3);
 
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
@@ -88,7 +88,7 @@ public class LJMD3D extends Simulation {
 
         public void init() {
             final String APP_NAME = "LJMD3D";
-            LJMD3D sim = new LJMD3D();
+            LJMD3DFast sim = new LJMD3DFast();
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, APP_NAME, 3);
 
             simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
