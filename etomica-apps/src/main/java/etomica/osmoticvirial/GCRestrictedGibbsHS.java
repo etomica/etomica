@@ -51,7 +51,7 @@ public class GCRestrictedGibbsHS extends Simulation {
      * @param vf reservoir volume fraction of solvent
      * @param q size of solvent divided by size of solute
      */
-    public GCRestrictedGibbsHS(double vf, double q, int numAtoms){
+    public GCRestrictedGibbsHS(double vf, double q, int numAtoms, boolean computeAO){
         super(Space3D.getInstance());
 //        setRandom(new RandomMersenneTwister(1));
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this,space);
@@ -70,7 +70,22 @@ public class GCRestrictedGibbsHS extends Simulation {
         double sigma2 = q * sigma1; //solvent
         double sigma12 = (sigma1+sigma2)/2;
 
-        double mu = (8*vf-9*vf*vf+3*vf*vf*vf) / Math.pow((1-vf),3)+Math.log(6*vf/(Math.PI*Math.pow(sigma2,3))); //Configurational chemical potential from Carnahan–Starling equation of state
+        double mu = Math.log(6*vf/(Math.PI*Math.pow(sigma2,3)));
+
+        potential1 = new P2HardSphere(space, sigma1, false);
+        potential12 = new P2HardSphere(space, sigma12, false);
+        potentialMaster.setCellRange(3);
+        potentialMaster.setRange(potential1.getRange());
+
+        if (!computeAO){
+            mu+= (8*vf-9*vf*vf+3*vf*vf*vf) / Math.pow((1-vf),3); //Configurational chemical potential from Carnahan–Starling equation of state
+            potential2 = new P2HardSphere(space, sigma2, false);
+        }
+        else{
+            potential2 = new P2Ideal(space);
+            System.out.println("AO");
+        }
+
         System.out.println("mu "+ mu+" muig "+Math.log(6*vf/(Math.PI*Math.pow(sigma2,3))));
 
         box1 = new Box(space);
@@ -98,14 +113,6 @@ public class GCRestrictedGibbsHS extends Simulation {
         moveManager.addMCMove(mcMoveInsertDelete2);
         moveManager.addMCMove(new MCMoveAtom(random, potentialMaster, space));
         integrator.addIntegrator(integrator2);
-
-        potential1 = new P2HardSphere(space, sigma1, false);
-        potential2 = new P2HardSphere(space, sigma2, false);
-//        potential2 = new P2Ideal(space);
-//        System.out.println("AO");
-        potential12 = new P2HardSphere(space, sigma12, false);
-        potentialMaster.setCellRange(3);
-        potentialMaster.setRange(potential1.getRange());
 
         AtomType leafType1 = species1.getLeafType();
         AtomType leafType2 = species2.getLeafType();
@@ -135,34 +142,29 @@ public class GCRestrictedGibbsHS extends Simulation {
             ParseArgs.doParseArgs(params, args);
         }
         else {
-            params.numAtoms = 3;
-            params.numSteps = 100000;
-            params.nBlocks = 100;
-            params.vf = 0.01;
-            params.q = 0.2;
+            params.numAtoms = 2;
+            params.numSteps = 50000;
+            params.vf = 0.05;
+            params.q = 0.33;
+            params.computeAO = false;
         }
 
         int numAtoms = params.numAtoms;
         int numSteps = params.numSteps;
-        int nBlocks = params.nBlocks;
         double vf = params.vf;
         double q = params.q;
         boolean graphics = false;
-
-        long numSamples = numSteps/3;
-        long samplesPerBlock = numSamples/nBlocks;
-        if (samplesPerBlock == 0) samplesPerBlock = 1;
+        boolean computeAO = params.computeAO;
 
         System.out.println("Hard Sphere OV FEP GC");
         System.out.println(numSteps+" steps");
         System.out.println("vol fraction: "+vf);
         System.out.println("q: "+q);
-        System.out.println(nBlocks+" blocks");
         System.out.println("total no of solutes"+ numAtoms);
 
         long t1 = System.currentTimeMillis();
 
-        GCRestrictedGibbsHS sim = new GCRestrictedGibbsHS(vf, q, numAtoms);
+        GCRestrictedGibbsHS sim = new GCRestrictedGibbsHS(vf, q, numAtoms, computeAO);
 
         System.out.println("box length "+sim.box1.getBoundary().getBoxSize());
         System.out.println("species1 " +sim.species1.getLeafType().getIndex());
@@ -177,7 +179,7 @@ public class GCRestrictedGibbsHS extends Simulation {
             simGraphic.makeAndDisplayFrame(APP_NAME);
 
 
-            AccumulatorAverageFixed acc = new AccumulatorAverageFixed(samplesPerBlock);
+            AccumulatorAverageFixed acc = new AccumulatorAverageFixed();
             MCMoveListenerRGE mcMoveListenerRGE = new MCMoveListenerRGE(acc, sim.box1, sim.species1, numAtoms);
             sim.integrator.getMoveEventManager().addListener(mcMoveListenerRGE);
             return;
@@ -193,7 +195,7 @@ public class GCRestrictedGibbsHS extends Simulation {
         MCMoveListenerRGE mcMoveListenerRGE = new MCMoveListenerRGE(acc, sim.box1, sim.species1, numAtoms);
         sim.integrator.getMoveEventManager().addListener(mcMoveListenerRGE);
         sim.getController().actionPerformed();
-
+        System.out.println("block count "+acc.getBlockCount());
         IData iavg = acc.getData(acc.AVERAGE);
         IData ierr = acc.getData(acc.ERROR);
         IData icor = acc.getData(acc.BLOCK_CORRELATION);
@@ -213,10 +215,11 @@ public class GCRestrictedGibbsHS extends Simulation {
         }
 
         for(int i=0; i<n; i++){
-            for(int j=i+1; j<n; j++){
-                System.out.println("cor: "+icov.getValue(i*n+j)/(Math.sqrt(icov.getValue(i*n+i)*icov.getValue(j*n+j))));
+            for(int j=0; j<n; j++){
+                System.out.println("corr "+i+" "+j+" "+icov.getValue(i*n+j));
             }
         }
+
 
         long t2 = System.currentTimeMillis();
         System.out.println("time: "+(t2-t1)*0.001);
@@ -226,8 +229,8 @@ public class GCRestrictedGibbsHS extends Simulation {
     public static class simParams extends ParameterBase{
         public int numAtoms = 3;
         public int numSteps = 200000;
-        public int nBlocks = 1000;
         public double vf = 0.2;
         public double q = 2.0;
+        public boolean computeAO = false;
     }
 }
