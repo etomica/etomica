@@ -113,7 +113,7 @@ public class MCMoveInsertDelete extends MCMoveBox {
             atomTranslator.setDestination(positionSource.randomPosition());
             atomTranslator.actionPerformed(testMolecule);
             box.addMolecule(testMolecule);
-      } else {//delete
+        } else {//delete
             if(box.getNMolecules(species) == 0) {
                 testMolecule = null;
                 return false;
@@ -123,10 +123,8 @@ public class MCMoveInsertDelete extends MCMoveBox {
             energyMeter.setTarget(testMolecule);
             uOld = energyMeter.getDataAsScalar();
             uNew = 0.0;
-
         } 
         uNew = Double.NaN;
-
         return true;
     }//end of doTrial
 
@@ -154,10 +152,7 @@ public class MCMoveInsertDelete extends MCMoveBox {
             // accepted deletion - remove from box and add to reservoir
             box.removeMolecule(testMolecule);
             reservoir.add(testMolecule);
-//            System.out.println("delete accept "+testMolecule.getChildList().getAtom(0)+ " "+testMolecule.getChildList().getAtom(0).hashCode());
         }
-//        else System.out.println("insert accept");
-//        System.out.println(box +" "+box.getLeafList());
     }
     
     public void rejectNotify() {
@@ -168,10 +163,7 @@ public class MCMoveInsertDelete extends MCMoveBox {
             // test molecule is no longer in the simulation and should not be 
             // returned by affectedAtoms
             testMolecule = null;
-//            System.out.println("insert reject");
         }
-//        else System.out.println("delete reject");
-//        System.out.println(box +" "+box.getLeafList());
     }
     
     public double energyChange() {return uNew - uOld;}
