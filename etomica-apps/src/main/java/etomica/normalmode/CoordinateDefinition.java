@@ -16,7 +16,6 @@ import etomica.lattice.crystal.Primitive;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeArrayList;
-import etomica.molecule.MoleculeListWrapper;
 import etomica.molecule.iterator.MoleculeIteratorAllMolecules;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -127,7 +126,7 @@ public abstract class CoordinateDefinition {
                 // new cell
                 iCell++;
                 currentList = new MoleculeArrayList(basisSize);
-                cells[iCell] = new BasisCell(new MoleculeListWrapper(currentList), lattice.getSpace().makeVector());
+                cells[iCell] = new BasisCell(currentList, lattice.getSpace().makeVector());
                 cells[iCell].cellPosition.E(position);
             }
             currentList.add(molecule);
