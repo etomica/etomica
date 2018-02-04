@@ -57,12 +57,6 @@ public class LJMC3D extends Simulation {
         double rc = 3;
         potentialMaster = new PotentialMasterCell(this, rc, space);
 
-        integrator = new IntegratorMC(this, potentialMaster);
-        integrator.setTemperature(params.temperature);
-
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
-
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
@@ -77,14 +71,21 @@ public class LJMC3D extends Simulation {
 
         P2LennardJones p2lj = new P2LennardJones(space);
         P2SoftSphericalTruncated p2 = new P2SoftSphericalTruncated(space, p2lj, rc);
-        AtomType type1 = species.getLeafType();
-        potentialMaster.addPotential(p2, new AtomType[]{type1, type1});
-        potentialMaster.setCellRange(2);
+        AtomType atomType = species.getLeafType();
+        potentialMaster.addPotential(p2, new AtomType[]{atomType, atomType});
 
+        integrator = new IntegratorMC(this, potentialMaster);
+        integrator.setTemperature(params.temperature);
         integrator.setBox(box);
+
         MCMoveAtom mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
-        potentialMaster.getNbrCellManager(box).assignCellAll();
+
+        activityIntegrate = new ActivityIntegrate(integrator);
+        getController().addAction(activityIntegrate);
+
+        potentialMaster.setCellRange(2);
+        potentialMaster.reset();
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
     }
 
