@@ -96,7 +96,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
         double r2 = dr.squared();
         double du = du(r2);
         if (du == 0) return;
-        dr.Ea1Tv1(-du(r2) / r2, dr);
+        dr.Ea1Tv1(du(r2) / r2, dr);
         f0.PE(dr);
         f1.ME(dr);
     }

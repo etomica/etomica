@@ -39,10 +39,10 @@ public class BenchSimLJMD3D {
     @BenchmarkMode(Mode.Throughput)
     @OutputTimeUnit(TimeUnit.SECONDS)
     @Warmup(time = 1, iterations = 5)
-    @Measurement(time = 1, timeUnit = TimeUnit.SECONDS)
+    @Measurement(time = 3, iterations = 5)
     public long integratorStep() {
-        //sim.integrator.doStep();
-        sim.integrator.getPotentialMaster().calculate(sim.box, id, pc);
+        sim.integrator.doStep();
+//        sim.integrator.getPotentialMaster().calculate(sim.box, id, pc);
         return sim.integrator.getStepCount();
     }
 
@@ -51,10 +51,10 @@ public class BenchSimLJMD3D {
     @BenchmarkMode(Mode.Throughput)
     @OutputTimeUnit(TimeUnit.SECONDS)
     @Warmup(time = 1, iterations = 5)
-    @Measurement(time = 1, timeUnit = TimeUnit.SECONDS)
+    @Measurement(time = 3, iterations = 5)
     public long integratorStepFast() {
-//        simFast.integrator.doStep();
-        simFast.integrator.getPotentialMaster().calculate(sim.box, id, pc);
+        simFast.integrator.doStep();
+//        simFast.integrator.getPotentialMaster().calculate(sim.box, id, pc);
         return simFast.integrator.getStepCount();
     }
 }

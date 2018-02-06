@@ -42,6 +42,7 @@ public class LJMD3DFast extends Simulation {
     public LJMD3DFast() {
         super(Space3D.getInstance());
         PotentialMasterListFast potentialMaster = new PotentialMasterListFast(this, 4, space);
+        potentialMaster.lrcMaster().setEnabled(false);
         double sigma = 1.0;
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
         integrator.setTimeStep(0.02);

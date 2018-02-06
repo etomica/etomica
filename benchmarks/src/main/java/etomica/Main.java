@@ -1,5 +1,7 @@
 package etomica;
 
+import org.openjdk.jmh.profile.LinuxPerfAsmProfiler;
+import org.openjdk.jmh.profile.LinuxPerfNormProfiler;
 import org.openjdk.jmh.profile.StackProfiler;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
@@ -11,7 +13,6 @@ public class Main {
 
         Options opts = new OptionsBuilder()
                 .include("BenchSimLJMD3D")
-                .addProfiler(StackProfiler.class)
                 .build();
 
         new Runner(opts).run();

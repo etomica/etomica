@@ -4,13 +4,11 @@
 
 package etomica.nbr.list;
 
-import etomica.atom.AtomArrayList;
-import etomica.atom.AtomPair;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
+import etomica.atom.*;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxCellManager;
+import etomica.integrator.Integrator;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculePositionDefinition;
 import etomica.nbr.CriterionAdapter;
@@ -22,6 +20,7 @@ import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.spaceNd.VectorND;
 import etomica.util.Debug;
 
 /**
@@ -33,6 +32,7 @@ public class PotentialMasterListFast extends PotentialMasterList {
     protected final Vector dr;
     protected final P2SoftSphericalTruncated p2;
     protected final AtomPair pair;
+    private Vector[] forces;
 
     /**
      * Constructor specifying space and range for neighbor listing; uses null AtomPositionDefinition.
@@ -93,6 +93,16 @@ public class PotentialMasterListFast extends PotentialMasterList {
      * superclass method is invoked.
      */
     public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
+        if (forces == null) {
+            forces = new Vector[box.getLeafList().getAtomCount()];
+            for (int i = 0; i < box.getLeafList().getAtomCount(); i++) {
+                forces[i] = space.makeVector();
+            }
+        } else {
+            for (int i = 0; i < box.getLeafList().getAtomCount(); i++) {
+                forces[i].E(0);
+            }
+        }
         if (!enabled) return;
         IAtom targetAtom = id.getTargetAtom();
         IMolecule targetMolecule = id.getTargetMolecule();
@@ -104,7 +114,7 @@ public class PotentialMasterListFast extends PotentialMasterList {
             }
 
             IAtomList atoms = box.getLeafList();
-//            AtomLeafAgentManager<? extends Integrator.Forcible> agentManager = ((PotentialCalculationForceSum) pc).getAgentManager();
+            AtomLeafAgentManager<? extends Integrator.Forcible> agentManager = ((PotentialCalculationForceSum) pc).getAgentManager();
 //            Boundary boundary = box.getBoundary();
             for (int i = 0; i < atoms.getAtomCount(); i++) {
                 IAtom atom = atoms.getAtom(i);
@@ -112,13 +122,13 @@ public class PotentialMasterListFast extends PotentialMasterList {
 //                Vector v = atom.getPosition();
                 IAtomList list = neighborManager.getUpList(atom)[0];
                 int nNeighbors = list.getAtomCount();
-//                Vector iForce = agentManager.getAgent(atom).force();
+                Vector iForce = forces[i];
 
                 for (int j = 0; j < nNeighbors; j++) {
                     IAtom jAtom = list.getAtom(j);
                     pair.atom1 = jAtom;
-                    pc.doCalculation(pair, p2);
-//                    p2.gradientFast(pair, iForce, agentManager.getAgent(jAtom).force());
+//                    pc.doCalculation(pair, p2);
+                    p2.gradientFast(pair, iForce, forces[jAtom.getLeafIndex()]);
                     /*
                     dr.Ev1Mv2(v, jAtom.getPosition());
                     boundary.nearestImage(dr);
@@ -132,6 +142,9 @@ public class PotentialMasterListFast extends PotentialMasterList {
 //                    iAgent.force().ME(g[0]);
                 }
 
+            }
+            for (int i = 0; i < forces.length; i++) {
+                agentManager.getAgents().get(i).force().E(forces[i]);
             }
         }
         else {
