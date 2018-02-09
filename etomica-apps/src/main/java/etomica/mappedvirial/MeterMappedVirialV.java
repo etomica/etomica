@@ -9,22 +9,21 @@ import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
-import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.dimensions.Pressure;
 
-public class MeterMappedVirialV extends DataSourceScalar implements  AgentSource<IntegratorVelocityVerlet.MyAgent> {
+public class MeterMappedVirialV extends DataSourceScalar {
 
     protected final Space space;
     protected final PotentialMaster potentialMaster;
     protected final PotentialCalculationForceSum pcForce;
     protected final Box box;
     protected final IteratorDirective allAtoms;
-    protected final AtomLeafAgentManager<MyAgent> forceManager;
+    protected final AtomLeafAgentManager<Vector> forceManager;
     protected final PotentialCalculationMappedVirialV pc;
     
     public MeterMappedVirialV(Space space, PotentialMaster potentialMaster, Box box, int nbins) {
@@ -34,7 +33,7 @@ public class MeterMappedVirialV extends DataSourceScalar implements  AgentSource
         this.potentialMaster = potentialMaster;
         pcForce = new PotentialCalculationForceSum();
         if (box != null) {
-            forceManager = new AtomLeafAgentManager<MyAgent>(this, box);
+            forceManager = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
             pcForce.setAgentManager(forceManager);
         }
         else {
@@ -43,12 +42,6 @@ public class MeterMappedVirialV extends DataSourceScalar implements  AgentSource
         pc = new PotentialCalculationMappedVirialV(space, box, nbins, forceManager);
         allAtoms = new IteratorDirective();
     }
-    
-    public MyAgent makeAgent(IAtom a, Box agentBox) {
-        return new MyAgent(space);
-    }
-    
-    public void releaseAgent(MyAgent agent, IAtom atom, Box agentBox) {}
 
     public PotentialCalculationMappedVirialV getPotentialCalculation() {
         return pc;

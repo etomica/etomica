@@ -39,14 +39,8 @@ public class LatticeSumMolecularCrystal {
         kFactory.makeWaveVectors(box);
         double[] kCoefficients = kFactory.getCoefficients(); //kCoefficients=0.5 non-deg.; = 1 degenerate twice!
 
-		AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent> atomAgentSource = new AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent>() {
-		    public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, Box agentBox) {
-		        return new IntegratorVelocityVerlet.MyAgent(space);
-		    }
-		    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, Box agentBox) {/**do nothing**/}
-        };
 		PotentialCalculationForceSum pcForce = new PotentialCalculationForceSum();
-		atomAgentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(atomAgentSource , box);
+		atomAgentManager = new AtomLeafAgentManager<>(a -> space.makeVector() , box);
         pcForce.setAgentManager(atomAgentManager);
         IteratorDirective id = new IteratorDirective();
         id.includeLrc = false;
@@ -182,7 +176,7 @@ public class LatticeSumMolecularCrystal {
                 Tensor3D tmpDrr2 = new Tensor3D();
 	        	IAtom atom = mol0.getChildList().getAtom(atomk);
 	        	
-	        	Vector fk = ((IntegratorVelocityVerlet.MyAgent)atomAgentManager.getAgent(atom)).force;//gradient NOT fk
+	        	Vector fk = atomAgentManager.getAgent(atom);//gradient NOT fk
 	        	Xk.TE(-1);
 	            tmpDrr1.Ev1v2(Xk, fk);
 	            if(true){ //Symmetrize? SUM_over_atoms{tmpDrr1} should = ZERO; i.e. torque=0
@@ -220,7 +214,7 @@ public class LatticeSumMolecularCrystal {
     protected WaveVectorFactorySimple kFactory;
     protected final Tensor[] tmpAtomicTensor3;//46X4=184 atoms dimentional array of 3dim Tensor
 	protected PotentialMaster potentialMaster;
-	protected AtomLeafAgentManager atomAgentManager;
+	protected AtomLeafAgentManager<Vector> atomAgentManager;
 	protected   Tensor tmpDrr1;
 
     public interface AtomicTensorAtomicPair{

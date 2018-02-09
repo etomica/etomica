@@ -31,6 +31,7 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource<
     Vector work;
 
     protected AtomLeafAgentManager<Agent> agentManager;
+    private AtomLeafAgentManager<Vector> forces;
 
     public IntegratorVerlet(Simulation sim, PotentialMaster potentialMaster, Space _space) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
@@ -64,7 +65,8 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource<
         }
         super.setBox(box);
         agentManager = new AtomLeafAgentManager<Agent>(this, box);
-        forceSum.setAgentManager(agentManager);
+        forces = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
+        forceSum.setAgentManager(forces);
     }
     
 //--------------------------------------------------------------
@@ -89,11 +91,12 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource<
             pressureTensor.PE(workTensor);
             
             Agent agent = agentManager.getAgent(a);
+            Vector force = forces.getAgent(a);
             Vector r = a.getPosition();
             work.E(r);
             r.PE(agent.rMrLast);
-            agent.force.TE(a.getType().rm()*t2);
-            r.PE(agent.force);
+            force.TE(a.getType().rm()*t2);
+            r.PE(force);
             agent.rMrLast.E(r);
             agent.rMrLast.ME(work);
         }
@@ -149,17 +152,13 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource<
     
     public void releaseAgent(Agent agent, IAtom atom, Box agentBox) {}
             
-	public final static class Agent implements IntegratorBox.Forcible {  //need public so to use with instanceof
-        public Vector force;
+	public final static class Agent {  //need public so to use with instanceof
         public Vector rMrLast;  //r - rLast
 
         public Agent(Space space) {
-            force = space.makeVector();
             rMrLast = space.makeVector();
         }
-        
-        public Vector force() {return force;}
-    }//end of Agent
+    }
     
 }//end of IntegratorVerlet
 

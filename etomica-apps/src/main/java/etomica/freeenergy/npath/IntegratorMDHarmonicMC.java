@@ -64,12 +64,12 @@ public class IntegratorMDHarmonicMC extends IntegratorVelocityVerlet {
                 continue;
             }
             IAtomKinetic a = (IAtomKinetic) leafList.getAtom(iLeaf);
-            MyAgent agent = agentManager.getAgent(a);
+            Vector force = agentManager.getAgent(a);
             Vector v = a.getVelocity();
             IAtomKinetic a1 = (IAtomKinetic) leafList.getAtom(iLeaf1);
-            MyAgent agent1 = agentManager.getAgent(a1);
+            Vector force1 = agentManager.getAgent(a1);
             Vector v1 = a1.getVelocity();
-            fTot.Ev1Pv2(agent.force, agent1.force);
+            fTot.Ev1Pv2(force, force1);
             dv.Ea1Tv1(0.25 * timeStep * a.getType().rm(), fTot);
             v.PE(dv);
             v1.PE(dv);
@@ -161,7 +161,7 @@ public class IntegratorMDHarmonicMC extends IntegratorVelocityVerlet {
             }
             IAtomKinetic a = (IAtomKinetic) leafList.getAtom(iLeaf);
             IAtomKinetic a1 = (IAtomKinetic) leafList.getAtom(iLeaf1);
-            fTot.Ev1Pv2(agentManager.getAgent(a).force, agentManager.getAgent(a1).force);
+            fTot.Ev1Pv2(agentManager.getAgent(a), agentManager.getAgent(a1));
             dv.Ea1Tv1(0.25 * timeStep * a.getType().rm(), fTot);
             a.getVelocity().PE(dv);
             a1.getVelocity().PE(dv);

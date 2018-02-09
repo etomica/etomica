@@ -39,7 +39,7 @@ import java.io.IOException;
  * 	@author msellers
  */
 
-public class IntegratorDimerRT extends IntegratorBox implements AgentSource<IntegratorVelocityVerlet.MyAgent> {
+public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Vector> {
 
 	public Box box1, box2;
 	public Simulation sim;
@@ -74,7 +74,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Inte
 	public ISpecies [] movableSpecies;
 	public PotentialCalculationForceSum force0, force1, force2;
 	public AtomArrayList list, list1, list2;
-	public AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> atomAgent0, atomAgent1, atomAgent2;
+	public AtomLeafAgentManager<Vector> atomAgent0, atomAgent1, atomAgent2;
 	public IteratorDirective allatoms;
 	public String file;
 	public ActivityIntegrate activityIntegrate;
@@ -315,9 +315,9 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Inte
         energyBox2 = new MeterPotentialEnergy(potentialMaster);
         energyBox2.setBox(box2);		
 		
-		atomAgent0 = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, box);
-		atomAgent1 = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, box1);
-		atomAgent2 = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, box2);
+		atomAgent0 = new AtomLeafAgentManager<>(this, box);
+		atomAgent1 = new AtomLeafAgentManager<>(this, box1);
+		atomAgent2 = new AtomLeafAgentManager<>(this, box2);
 
 		force0.setAgentManager(atomAgent0);
 		force1.setAgentManager(atomAgent1);
@@ -755,8 +755,8 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Inte
 		
 		// Copy forces of dimer end and center (R1, R) to local array
 		for(int i=0; i<aF1.length; i++){
-			aF1[i].E(atomAgent1.getAgent(list1.getAtom(i)).force());
-			aF[i].E(atomAgent0.getAgent(list.getAtom(i)).force());
+			aF1[i].E(atomAgent1.getAgent(list1.getAtom(i)));
+			aF[i].E(atomAgent0.getAgent(list.getAtom(i)));
 			aF2[i].Ea1Tv1(2.0, aF[i]);
 			aF2[i].ME(aF1[i]);	
 		}
@@ -769,7 +769,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Inte
 	    
 	 // Copy forces of dimer end and center (R1, R) to local array
 	    for(int i=0; i<aF1star.length; i++){
-			aF1star[i].E(atomAgent1.getAgent(list1.getAtom(i)).force());
+			aF1star[i].E(atomAgent1.getAgent(list1.getAtom(i)));
 			aF2star[i].Ea1Tv1(2.0, aF[i]);
 			aF2star[i].ME(aF1star[i]);	
 		}
@@ -781,7 +781,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Inte
 	    
 	 // Copy forces of dimer end and center (R1, R) to local array
 	    for(int i=0; i<aF.length; i++){
-	    	aF[i].E(atomAgent0.getAgent(list.getAtom(i)).force());
+	    	aF[i].E(atomAgent0.getAgent(list.getAtom(i)));
 		}
 	}
 	
@@ -926,13 +926,11 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Inte
 		activityIntegrate = ai;
 	}
 
-	public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, Box agentBox) {
-		return new IntegratorVelocityVerlet.MyAgent(space);
+	public Vector makeAgent(IAtom a, Box agentBox) {
+		return space.makeVector();
 	}
 
-	public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, Box agentBox) {
-		// TODO Auto-generated method stub	
-	}
+	public void releaseAgent(Vector agent, IAtom atom, Box agentBox) {}
 	
 	/*
 	public static class PotentialMasterListDimer extends PotentialMasterList{

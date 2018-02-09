@@ -221,7 +221,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 
 		// Set new atom manager
 		aam = new AtomLeafAgentManager<Figure>(this, displayBox.getBox());
-		aamOriented = new AtomLeafAgentManager<Ball[]>(null, displayBox.getBox());
+		aamOriented = new AtomLeafAgentManager<Ball[]>(a -> null, displayBox.getBox());
 		initialOrient = true;
 	}
 
