@@ -128,7 +128,8 @@ public class PotentialMasterListFast extends PotentialMasterList {
                     IAtom jAtom = list.getAtom(j);
                     pair.atom1 = jAtom;
 //                    pc.doCalculation(pair, p2);
-                    p2.gradientFast(pair, iForce, forces[jAtom.getLeafIndex()]);
+                    ((PotentialCalculationForceSum) pc).doCalcFast(pair, p2, forces);
+//                    p2.gradientFast(pair, iForce, forces[jAtom.getLeafIndex()]);
                     /*
                     dr.Ev1Mv2(v, jAtom.getPosition());
                     boundary.nearestImage(dr);

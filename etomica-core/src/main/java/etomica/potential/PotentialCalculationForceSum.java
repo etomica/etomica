@@ -33,6 +33,11 @@ public class PotentialCalculationForceSum implements PotentialCalculation {
         this.integratorAgentManager.getAgents().values().forEach((agent) -> agent.force().E(0));
     }
 
+    public void doCalcFast(IAtomList atoms, IPotentialAtomic potential, final Vector[] forces) {
+        Potential2SoftSpherical potentialSoft = (Potential2SoftSpherical) potential;
+        potentialSoft.gradientFast(atoms, forces[atoms.getAtom(0).getLeafIndex()], forces[atoms.getAtom(1).getLeafIndex()]);
+
+    }
     /**
      * Adds forces due to given potential acting on the atoms produced by the iterator.
      * Implemented for only 1- and 2-body potentials.
