@@ -43,6 +43,7 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource<Integra
     static final double GEAR4 = 1./24.;
 
     protected AtomLeafAgentManager<IntegratorGear4.Agent> agentManager;
+    protected AtomLeafAgentManager<Vector> forces;
 
     public IntegratorGear4(Simulation sim, PotentialMaster potentialMaster, Space _space) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
@@ -68,7 +69,18 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource<Integra
         }
         super.setBox(box);
         agentManager = new AtomLeafAgentManager<IntegratorGear4.Agent>(this, box);
-        forceSum.setAgentManager(agentManager);
+        forces = new AtomLeafAgentManager<>(new AgentSource<Vector>() {
+            @Override
+            public Vector makeAgent(IAtom a, Box agentBox) {
+                return space.makeVector();
+            }
+
+            @Override
+            public void releaseAgent(Vector agent, IAtom atom, Box agentBox) {
+
+            }
+        }, box);
+        forceSum.setAgentManager(forces);
     }
 
     public void setTimeStep(double dt) {

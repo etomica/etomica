@@ -6,7 +6,6 @@ package etomica.integrator;
 
 import etomica.atom.*;
 import etomica.box.Box;
-import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.IteratorDirective;
@@ -29,13 +28,13 @@ import etomica.util.random.IRandom;
  *
  * @author Andrew Schultz
  */
-public class IntegratorVelocityVerletShake extends IntegratorMD implements SpeciesAgentManager.AgentSource, AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent> {
+public class IntegratorVelocityVerletShake extends IntegratorMD implements SpeciesAgentManager.AgentSource {
 
     private static final long serialVersionUID = 2L;
     protected PotentialCalculationForceSum forceSum;;
     protected final IteratorDirective allAtoms;
     protected final SpeciesAgentManager shakeAgentManager;
-    protected AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> agentManager;
+    protected AtomLeafAgentManager<Vector> agentManager;
     protected final Vector dr;
     protected double shakeTol;
     protected int maxIterations;
@@ -84,7 +83,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
             agentManager.dispose();
         }
         super.setBox(box);
-        agentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, box);
+        agentManager = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
         forceSum.setAgentManager(agentManager);
     }
 
@@ -150,14 +149,14 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
             int nLeaf = leafList.getAtomCount();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-                MyAgent agent = agentManager.getAgent(a);
+                Vector force = agentManager.getAgent(a);
                 Vector r = a.getPosition();
                 Vector v = a.getVelocity();
                 if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
-                    System.out.println("first "+a+" r="+r+", v="+v+", f="+agent.force);
+                    System.out.println("first "+a+" r="+r+", v="+v+", f="+force);
                 }
                 if (a.getType().getMass() != 0) {
-                    v.PEa1Tv1(0.5*timeStep*a.getType().rm(),agent.force);  // p += f(old)*dt/2
+                    v.PEa1Tv1(0.5*timeStep*a.getType().rm(),force);  // p += f(old)*dt/2
                 }
                 temp.E(r);
                 r.PEa1Tv1(timeStep,v);         // r += p*dt/m
@@ -263,7 +262,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
             velocity.PE(a.getPosition());
             velocity.TE(1.0/timeStep);
             if (a.getType().getMass() != 0) {
-                velocity.PEa1Tv1(0.5*timeStep*a.getType().rm(),agentManager.getAgent(a).force);  //p += f(new)*dt/2
+                velocity.PEa1Tv1(0.5*timeStep*a.getType().rm(),agentManager.getAgent(a));  //p += f(new)*dt/2
             }
             currentKineticEnergy += a.getType().getMass() * velocity.squared();
         }
@@ -288,12 +287,6 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
         potentialMaster.calculate(box, allAtoms, forceSum);
     }
 
-    public final IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, Box agentBox) {
-        return new MyAgent(space);
-    }
-    
-    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, Box agentBox) {}
-
     public final Object makeAgent(ISpecies a) {
         return null;
     }
@@ -313,7 +306,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
 
         // redistribute forces to constrained atoms
         // do nothing by default, allow subclasses to override
-        public void redistributeForces(IMolecule molecule, AtomLeafAgentManager<MyAgent> agentManager) {}
+        public void redistributeForces(IMolecule molecule, AtomLeafAgentManager<Vector> agentManager) {}
 
         // fix atom positions that may have been omitted from constraints
         // do nothing by default, allow subclasses to override

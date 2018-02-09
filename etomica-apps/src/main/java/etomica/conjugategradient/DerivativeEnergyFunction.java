@@ -35,7 +35,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 	protected PotentialMaster potentialMaster;
 	protected IteratorDirective allAtoms;
 	protected PotentialCalculationForceSum forceSum;
-	protected AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> agentManager;
+	protected AtomLeafAgentManager<Vector> agentManager;
 	protected Activity activity;
 	protected CoordinateDefinition coordinateDefinition;
 	protected double[] fPrime;
@@ -49,8 +49,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 		allAtoms = new IteratorDirective();
 		forceSum = new PotentialCalculationForceSum();
 		
-		MyAgentSource source = new MyAgentSource(space);
-		agentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(source, box);
+		agentManager = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
 		forceSum.setAgentManager(agentManager);
 		moleculeForce = space.makeVector();
 		
@@ -138,7 +137,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 				moleculeForce.E(0); //initialize moleculeForce to zero
 				
 				for (int r=0; r<childList.getAtomCount(); r++){
-					moleculeForce.PE(agentManager.getAgent(childList.getAtom(r)).force);
+					moleculeForce.PE(agentManager.getAgent(childList.getAtom(r)));
 				}
 					
 				
@@ -163,23 +162,6 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 	public void getScalarEnergy(){
 		meterEnergy.setBox(box);
 		System.out.println("The energy of the system is: "+meterEnergy.getDataAsScalar());
-	}
-	
-	
-	
-	public static class MyAgentSource implements AgentSource<IntegratorVelocityVerlet.MyAgent> {
-		
-		public MyAgentSource(Space space){
-			this.space = space;
-		}
-		
-		public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, Box agentBox){}
-
-		public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom atom, Box agentBox){
-			
-		    return new IntegratorVelocityVerlet.MyAgent(space);
-		}
-		protected Space space;
 	}
 
 }

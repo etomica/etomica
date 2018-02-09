@@ -18,14 +18,14 @@ import etomica.space.Vector;
 import etomica.util.Debug;
 import etomica.util.random.IRandom;
 
-public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSource<IntegratorVelocityVerlet.MyAgent> {
+public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSource<Vector> {
 
     protected PotentialCalculationForceSum forceSum;;
     protected final IteratorDirective allAtoms;
     protected final Tensor pressureTensor;
     protected final Tensor workTensor;
 
-    protected AtomLeafAgentManager<MyAgent> agentManager;
+    protected AtomLeafAgentManager<Vector> agentManager;
 
     public IntegratorVelocityVerlet(Simulation sim, PotentialMaster potentialMaster, Space _space) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
@@ -50,7 +50,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         return forceSum;
     }
 
-    public AtomLeafAgentManager<MyAgent> getAgentManager() {
+    public AtomLeafAgentManager<Vector> getAgentManager() {
         return agentManager;
     }
 
@@ -68,7 +68,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
             agentManager.dispose();
         }
         super.setBox(box);
-        agentManager = new AtomLeafAgentManager<MyAgent>(this, box);
+        agentManager = new AtomLeafAgentManager<>(this, box);
         forceSum.setAgentManager(agentManager);
     }
 
@@ -90,13 +90,13 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            MyAgent agent = agentManager.getAgent(a);
+            Vector force = agentManager.getAgent(a);
             Vector r = a.getPosition();
             Vector v = a.getVelocity();
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
-                System.out.println("first "+a+" r="+r+", v="+v+", f="+agent.force);
+                System.out.println("first "+a+" r="+r+", v="+v+", f="+force);
             }
-            v.PEa1Tv1(0.5*timeStep* a.getType().rm(),agent.force);  // p += f(old)*dt/2
+            v.PEa1Tv1(0.5*timeStep* a.getType().rm(),force);  // p += f(old)*dt/2
             r.PEa1Tv1(timeStep,v);         // r += p*dt/m
         }
     
@@ -121,9 +121,9 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
             workTensor.TE(a.getType().getMass());
             pressureTensor.PE(workTensor);
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
-                System.out.println("second "+a+" v="+velocity+", f="+ agentManager.getAgent(a).force);
+                System.out.println("second "+a+" v="+velocity+", f="+ agentManager.getAgent(a));
             }
-            velocity.PEa1Tv1(0.5*timeStep* a.getType().rm(), agentManager.getAgent(a).force);  //p += f(new)*dt/2
+            velocity.PEa1Tv1(0.5*timeStep* a.getType().rm(), agentManager.getAgent(a));  //p += f(new)*dt/2
         }
 
         pressureTensor.TE(1/box.getBoundary().volume());
@@ -163,20 +163,9 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
 
 //--------------------------------------------------------------
     
-    public MyAgent makeAgent(IAtom a, Box agentBox) {
-        return new MyAgent(space);
+    public Vector makeAgent(IAtom a, Box agentBox) {
+        return space.makeVector();
     }
     
-    public void releaseAgent(MyAgent agent, IAtom atom, Box agentBox) {}
-            
-    public final static class MyAgent implements IntegratorBox.Forcible {//need public so to use with instanceof
-        public Vector force;
-
-        public MyAgent(Space space) {
-            force = space.makeVector();
-        }
-        
-        public Vector force() {return force;}
-    }
-    
+    public void releaseAgent(Vector agent, IAtom atom, Box agentBox) {}
 }

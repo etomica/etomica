@@ -60,11 +60,11 @@ public class PotentialCalculationForcePressureSumGB extends PotentialCalculation
 		Vector rij = space.makeVector();
 		switch(nBody) {
 			case 1:
-				integratorAgentManager.getAgent(atoms.getAtom(0)).force().ME(f[0]);
+				integratorAgentManager.getAgent(atoms.getAtom(0)).ME(f[0]);
 				break;
 			case 2:
-                integratorAgentManager.getAgent(atoms.getAtom(0)).force().ME(f[0]);
-                integratorAgentManager.getAgent(atoms.getAtom(1)).force().ME(f[1]);
+                integratorAgentManager.getAgent(atoms.getAtom(0)).ME(f[0]);
+                integratorAgentManager.getAgent(atoms.getAtom(1)).ME(f[1]);
 		 		break;
             default:
                 //XXX atoms.count might not equal f.length.  The potential might size its 
@@ -89,11 +89,11 @@ public class PotentialCalculationForcePressureSumGB extends PotentialCalculation
                     
                     if(rij.getX(2)>0){
                         
-                        integratorAgentManager.getAgent(box.getLeafList().getAtom(i)).force().ME(forceTop);
+                        integratorAgentManager.getAgent(box.getLeafList().getAtom(i)).ME(forceTop);
                     }
                     else{
                         
-                        integratorAgentManager.getAgent(box.getLeafList().getAtom(i)).force().ME(forceBottom);
+                        integratorAgentManager.getAgent(box.getLeafList().getAtom(i)).ME(forceBottom);
                     }
                 }
 		}
