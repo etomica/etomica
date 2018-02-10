@@ -30,7 +30,7 @@ import etomica.util.random.IRandom;
  * @author Chris Iacovella
  * @author David Kofke
  */
-public final class IntegratorConNVT extends IntegratorMD implements AgentSource<IntegratorConNVT.Agent> {
+public final class IntegratorConNVT extends IntegratorMD {
 
     private static final long serialVersionUID = 1L;
     public final PotentialCalculationForceSum forceSum;
@@ -38,7 +38,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource<
     Vector work, work1, work2, work3, work4;
     double halfTime, mass;
 
-    protected AtomLeafAgentManager<Agent> agentManager;
+    protected AtomLeafAgentManager<Vector> agentManager;
 
     public IntegratorConNVT(Simulation sim, PotentialMaster potentialMaster, Space space) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, space);
@@ -64,7 +64,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource<
             agentManager.dispose();
         }
         super.setBox(box);
-        agentManager = new AtomLeafAgentManager<Agent>(this, box);
+        agentManager = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
         forceSum.setAgentManager(agentManager);
     }
     
@@ -105,7 +105,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource<
             Vector v = a.getVelocity();
 
             work1.E(v); //work1 = v
-            work2.E(agentManager.getAgent(a).force);	//work2=F
+            work2.E(agentManager.getAgent(a));	//work2=F
             work1.PEa1Tv1(halfTime* a.getType().rm(),work2); //work1= p/m + F*Dt2/m = v + F*Dt2/m
 
             k+=work1.squared();
@@ -117,12 +117,12 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource<
         //calculate constrained velbox.getSpace()ocities at T+Dt/2
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            Agent agent = agentManager.getAgent(a);
+            Vector force = agentManager.getAgent(a);
             Vector v = a.getVelocity();
 
             double scale = (2.0*chi-1.0); 
             work3.Ea1Tv1(scale,v); 
-            work4.Ea1Tv1(chi* a.getType().rm(),agent.force);
+            work4.Ea1Tv1(chi* a.getType().rm(),force);
             work4.TE(timeStep);
             work3.PE(work4);
             v.E(work3);
@@ -138,22 +138,4 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource<
             r.E(work);
         }
   	}
-    
-
-    public Agent makeAgent(IAtom a, Box agentBox) {
-        return new Agent(space);
-    }
-    
-    public void releaseAgent(Agent agent, IAtom atom, Box agentBox) {}
-            
-	public final static class Agent implements IntegratorBox.Forcible {  //need public so to use with instanceof
-        public Vector force;
-
-        public Agent(Space space) {
-            force = space.makeVector();
-        }
-        
-        public Vector force() {return force;}
-    }
-    
 }

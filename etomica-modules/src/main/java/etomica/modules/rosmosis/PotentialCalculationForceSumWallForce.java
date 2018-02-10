@@ -53,18 +53,18 @@ public class PotentialCalculationForceSumWallForce extends PotentialCalculationF
                             wallForce -= gradient[0].getX(0);
                         }
                     }
-                    integratorAgentManager.getAgent(atoms.getAtom(0)).force().ME(gradient[0]);
+                    integratorAgentManager.getAgent(atoms.getAtom(0)).ME(gradient[0]);
                     break;
                 case 2:
-                    integratorAgentManager.getAgent(atoms.getAtom(0)).force().ME(gradient[0]);
-                    integratorAgentManager.getAgent(atoms.getAtom(1)).force().ME(gradient[1]);
+                    integratorAgentManager.getAgent(atoms.getAtom(0)).ME(gradient[0]);
+                    integratorAgentManager.getAgent(atoms.getAtom(1)).ME(gradient[1]);
                     break;
                 default:
                     //XXX atoms.count might not equal f.length.  The potential might size its 
                     //array of vectors to be large enough for one AtomSet and then not resize it
                     //back down for another AtomSet with fewer atoms.
                     for (int i=0; i<atoms.getAtomCount(); i++) {
-                        integratorAgentManager.getAgent(atoms.getAtom(i)).force().ME(gradient[i]);
+                        integratorAgentManager.getAgent(atoms.getAtom(i)).ME(gradient[i]);
                     }
             }
         }

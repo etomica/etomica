@@ -38,11 +38,11 @@ import java.io.FileWriter;
  * 	@author msellers
  */
 
-public class IntegratorDimerMin extends IntegratorBox implements AgentSource<IntegratorVelocityVerlet.MyAgent> {
+public class IntegratorDimerMin extends IntegratorBox {
 
 	public Simulation sim;
 	public Box boxMin;
-	public AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> atomAgent0, atomAgentMin;
+	public AtomLeafAgentManager<Vector> atomAgent0, atomAgentMin;
 	public PotentialCalculationForceSum force0, forceMin;
 	public IteratorDirective allatoms;
 	public FileWriter fileWriter;
@@ -227,8 +227,8 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource<Int
         energyBoxMin.setBox(boxMin);
          
 		// Offset Rmin (half-dimer end) from initial configuration, along N.		
-		atomAgent0 = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, box);
-		atomAgentMin = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, boxMin);
+		atomAgent0 = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
+		atomAgentMin = new AtomLeafAgentManager<>(a -> space.makeVector(), boxMin);
 		
 		force0.setAgentManager(atomAgent0);
 		forceMin.setAgentManager(atomAgentMin);
@@ -491,8 +491,8 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource<Int
 		// Copy forces of dimer ends (R1, R2) to local array
 		for(int i=0; i<aF1.length; i++){
 			
-			aF[i].E(atomAgent0.getAgent(list.getAtom(i)).force());
-			aF1[i].E(atomAgentMin.getAgent(listMin.getAtom(i)).force());
+			aF[i].E(atomAgent0.getAgent(list.getAtom(i)));
+			aF1[i].E(atomAgentMin.getAgent(listMin.getAtom(i)));
 			aF2[i].Ea1Tv1(2.0, aF[i]);
 			aF2[i].ME(aF1[i]);
 			
@@ -514,7 +514,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource<Int
         
      // Copy forces of dimer end and center (R1, R) to local array
         for(int i=0; i<aF1star.length; i++){
-            aF1star[i].E(atomAgentMin.getAgent(listMin.getAtom(i)).force());
+            aF1star[i].E(atomAgentMin.getAgent(listMin.getAtom(i)));
             aF2star[i].Ea1Tv1(2.0, aF[i]);
             aF2star[i].ME(aF1star[i]);
         }
@@ -546,11 +546,4 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource<Int
 	public void setActivityIntegrate(ActivityIntegrate ai){
 		activityIntegrate = ai;
 	}
-
-	public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, Box agentBox) {
-		return new IntegratorVelocityVerlet.MyAgent(space);
-	}
-
-	public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, Box agentBox) {}
-	
 }

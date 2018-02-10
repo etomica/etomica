@@ -40,6 +40,7 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
     protected final Vector dr;
 
     protected AtomLeafAgentManager<MyAgent> agentManager;
+    private AtomLeafAgentManager<Vector> forces;
 
     public IntegratorDroplet(Simulation sim, PotentialMaster potentialMaster, Space _space) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
@@ -75,7 +76,8 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
         }
         super.setBox(box);
         agentManager = new AtomLeafAgentManager<MyAgent>(this, box);
-        forceSum.setAgentManager(agentManager);
+        forces = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
+        forceSum.setAgentManager(forces);
     }
 
 //--------------------------------------------------------------
@@ -185,21 +187,21 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
             Vector v = a.getVelocity();
             dr.E(0);
             stokeslet(sp);
-            MyAgent iAgent = agentManager.getAgent(a);
-            dr.Ea1Tv1(dv,iAgent.force);
+            Vector iForce = forces.getAgent(a);
+            dr.Ea1Tv1(dv,iForce);
             workTensor.transform(dr);
             v.PE(dr);
             for (int jLeaf=iLeaf+1; jLeaf<nLeaf; jLeaf++) {
                 IAtomKinetic aj = (IAtomKinetic)leafList.getAtom(jLeaf);
-                MyAgent jAgent = agentManager.getAgent(aj);
+                Vector jForce = forces.getAgent(aj);
                 dr.Ev1Mv2(a.getPosition(),aj.getPosition());
                 stokeslet(sp);
                 // reuse as tensor * f
-                dr.Ea1Tv1(dv,jAgent.force);
+                dr.Ea1Tv1(dv,jForce);
                 workTensor.transform(dr);
                 v.PE(dr);
 
-                dr.Ea1Tv1(dv,iAgent.force);
+                dr.Ea1Tv1(dv,iForce);
                 workTensor.transform(dr);
                 Vector vj = aj.getVelocity();
                 vj.PE(dr);
@@ -273,19 +275,14 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
     
     public void releaseAgent(MyAgent agent, IAtom atom, Box agentBox) {}
             
-    public final static class MyAgent implements IntegratorBox.Forcible, Serializable {  //need public so to use with instanceof
-        private static final long serialVersionUID = 1L;
-        public Vector force;
+    public final static class MyAgent {  //need public so to use with instanceof
         public Vector r0; // position at the beginning of the timestep
         public Vector rp;
 
         public MyAgent(Space space) {
-            force = space.makeVector();
             r0 = space.makeVector();
             rp = space.makeVector();
         }
-        
-        public Vector force() {return force;}
     }
     
 }

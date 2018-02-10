@@ -44,7 +44,7 @@ import etomica.util.Debug;
 import java.awt.*;
 import java.io.Serializable;
 
-public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements AgentSource<IntegratorVelocityVerletQuaternion.AtomAgent>, SpeciesAgentManager.AgentSource, MoleculeAgentSource {
+public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements SpeciesAgentManager.AgentSource, MoleculeAgentSource {
 
     private static final long serialVersionUID = 2L;
     protected final Tensor pressureTensor;
@@ -61,7 +61,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
     private final IteratorDirective allAtoms;
     public int printInterval;
     protected PotentialCalculationForceSum forceSum;
-    protected AtomLeafAgentManager<AtomAgent> leafAgentManager;
+    protected AtomLeafAgentManager<Vector> leafAgentManager;
     protected MoleculeAgentManager moleculeAgentManager;
 
     public IntegratorVelocityVerletQuaternion(Simulation sim, PotentialMaster potentialMaster, Space space) {
@@ -181,7 +181,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             moleculeAgentManager.dispose();
         }
         super.setBox(box);
-        leafAgentManager = new AtomLeafAgentManager<AtomAgent>(this, box);
+        leafAgentManager = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
         moleculeAgentManager = new MoleculeAgentManager(sim, this.box, this);
         forceSum.setAgentManager(leafAgentManager);
     }
@@ -217,14 +217,14 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             if (typeAgent == null) {
                 for (int iLeaf=0; iLeaf<children.getAtomCount(); iLeaf++) {
                     IAtomKinetic a = (IAtomKinetic)children.getAtom(iLeaf);
-                    AtomAgent agent = leafAgentManager.getAgent(a);
+                    Vector force = leafAgentManager.getAgent(a);
                     Vector r = a.getPosition();
                     Vector v = a.getVelocity();
                     KE += v.squared()* a.getType().getMass();
                     if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
-                        System.out.println("first "+a+" r="+r+", v="+v+", f="+agent.force);
+                        System.out.println("first "+a+" r="+r+", v="+v+", f="+force);
                     }
-                    v.PEa1Tv1(0.5*timeStep* a.getType().rm(),agent.force);  // p += f(old)*dt/2
+                    v.PEa1Tv1(0.5*timeStep* a.getType().rm(),force);  // p += f(old)*dt/2
                     r.PEa1Tv1(timeStep,v);         // r += p*dt/m
                 }
                 continue;
@@ -372,9 +372,9 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
                     workTensor.TE(a.getType().getMass());
                     pressureTensor.PE(workTensor);
                     if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
-                        System.out.println("second "+a+" v="+velocity+", f="+ leafAgentManager.getAgent(a).force);
+                        System.out.println("second "+a+" v="+velocity+", f="+ leafAgentManager.getAgent(a));
                     }
-                    velocity.PEa1Tv1(0.5*timeStep* a.getType().rm(), leafAgentManager.getAgent(a).force);  //p += f(new)*dt/2
+                    velocity.PEa1Tv1(0.5*timeStep* a.getType().rm(), leafAgentManager.getAgent(a));  //p += f(new)*dt/2
                 }
 
                 continue;
@@ -387,7 +387,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             Vector moleculePosition = ((IMoleculePositioned)molecule).getPosition();
             for (int i=0; i<children.getAtomCount(); i++) {
                 IAtomKinetic atom = (IAtomKinetic)children.getAtom(i);
-                Vector atomForce = leafAgentManager.getAgent(atom).force;
+                Vector atomForce = leafAgentManager.getAgent(atom);
                 agent.force.PE(atomForce);
 
                 xWork.Ev1Mv2(atom.getPosition(), moleculePosition);
@@ -541,7 +541,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             IAtomList children = molecule.getChildList();
             for (int i=0; i<children.getAtomCount(); i++) {
                 IAtom atom = children.getAtom(i);
-                Vector force = leafAgentManager.getAgent(atom).force;
+                Vector force = leafAgentManager.getAgent(atom);
                 agent.force.PE(force);
 
                 xWork.Ev1Mv2(atom.getPosition(), position);
@@ -555,12 +555,6 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         return new MoleculeAgent(space);
     }
     
-    public AtomAgent makeAgent(IAtom a, Box agentBox) {
-        return new AtomAgent(space);
-    }
-
-    public void releaseAgent(AtomAgent agent, IAtom atom, Box agentBox) {}
-
     public void releaseAgent(Object agent, IMolecule atom) {}
 
     public Object makeAgent(ISpecies type) {
@@ -581,17 +575,6 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             torque = space.makeVector();
             force = space.makeVector();
         }
-    }
-    
-    public static class AtomAgent implements IntegratorBox.Forcible, Serializable {  //need public so to use with instanceof
-        private static final long serialVersionUID = 1L;
-        public final Vector force;  // for leaf atoms
-
-        public AtomAgent(Space space) {
-            force = space.makeVector();
-        }
-
-        public Vector force() {return force;}
     }
     
     public static class MyTypeAgent implements Serializable {

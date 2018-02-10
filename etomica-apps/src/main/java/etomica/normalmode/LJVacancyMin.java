@@ -142,10 +142,7 @@ public class LJVacancyMin extends Simulation {
         double u0 = pcEnergy.getSum();
 
         PotentialCalculationForceSum pc = new PotentialCalculationForceSum();
-        AtomLeafAgentManager<VectorForce> forceManager = new AtomLeafAgentManager<VectorForce>(null, sim.box);
-        for (int i=0; i<numAtoms-1; i++) {
-            forceManager.setAgent(sim.box.getLeafList().getAtom(i), new VectorForce(sim.space));
-        }
+        AtomLeafAgentManager<Vector> forceManager = new AtomLeafAgentManager<>(a -> sim.space.makeVector(), sim.box);
         pc.setAgentManager(forceManager);
 
         double[] d = new double[3*(numAtoms-1)];
@@ -164,7 +161,7 @@ public class LJVacancyMin extends Simulation {
             double dSum = 0;
             for (int j=0; j<numAtoms-1; j++) {
                 IAtom jAtom = sim.box.getLeafList().getAtom(j);
-                Vector fj = forceManager.getAgent(jAtom).f;
+                Vector fj = forceManager.getAgent(jAtom);
                 Vector pj = jAtom.getPosition();
                 for (int k=0; k<pj.getD(); k++) {
                     d[3*j+k] = fj.getX(k);
@@ -194,7 +191,7 @@ public class LJVacancyMin extends Simulation {
             dSum = 0;
             for (int j=0; j<numAtoms-1; j++) {
                 IAtom jAtom = sim.box.getLeafList().getAtom(j);
-                Vector fj = forceManager.getAgent(jAtom).f;
+                Vector fj = forceManager.getAgent(jAtom);
                 Vector pj = jAtom.getPosition();
                 for (int k=0; k<pj.getD(); k++) {
                     d[3*j+k] = fj.getX(k);
@@ -225,18 +222,6 @@ public class LJVacancyMin extends Simulation {
         System.out.println("deltaP: "+(pLat1-pLat));
     }
 
-    public static class VectorForce implements Forcible {
-        public final Vector f;
-
-        public VectorForce(Space space) {
-            f = space.makeVector();
-        }
-
-        public Vector force() {
-            return f;
-        }
-    }
-    
     /**
      * Inner class for parameters understood by the HSMD3D constructor
      */

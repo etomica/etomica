@@ -9,6 +9,7 @@ import etomica.molecule.IMolecule;
 import etomica.util.collections.IndexMap;
 
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * AtomAgentManager acts on behalf of client classes (an AgentSource) to
@@ -24,6 +25,20 @@ public final class AtomLeafAgentManager<E> extends BoxEventListenerAdapter {
     private final IndexMap<E> agents;
     private final AgentSource<E> agentSource;
     protected final Box box;
+
+    public AtomLeafAgentManager(Function<IAtom, ? extends E> agentSource, Box box) {
+        this(new AgentSource<E>() {
+            @Override
+            public E makeAgent(IAtom a, Box agentBox) {
+                return agentSource.apply(a);
+            }
+
+            @Override
+            public void releaseAgent(E agent, IAtom atom, Box agentBox) {
+            }
+        }, box);
+
+    }
 
     public AtomLeafAgentManager(AgentSource<E> source, Box box) {
         Objects.requireNonNull(source);

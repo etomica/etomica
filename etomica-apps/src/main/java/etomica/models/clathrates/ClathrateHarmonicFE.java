@@ -263,13 +263,7 @@ public class ClathrateHarmonicFE extends Simulation{
 		if(false){
 			PotentialCalculationForceSum pcForce = new PotentialCalculationForceSum();
 			
-			AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent> atomAgentSource = new AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent>() {
-			    public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, Box agentBox) {
-			        return new IntegratorVelocityVerlet.MyAgent(sim.space);
-			    }
-			    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, Box agentBox) {/**do nothing**/}
-	        };
-			AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> atomAgentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(atomAgentSource , sim.box);
+			AtomLeafAgentManager<Vector> atomAgentManager = new AtomLeafAgentManager<>(a -> space.makeVector() , sim.box);
 	        pcForce.setAgentManager(atomAgentManager);
 
 			IteratorDirective id = new IteratorDirective();
@@ -347,7 +341,7 @@ public class ClathrateHarmonicFE extends Simulation{
 				        IAtom atomj = atoms.getAtom(j);	
 
 			            Vector fndx = space.makeVector();
-			            fndx.E(atomAgentManager.getAgent(atomj).force);
+			            fndx.E(atomAgentManager.getAgent(atomj));
 //			            System.out.println(fndx);
 			            f4dx.PE(fndx);
 	            		dr.Ev1Mv2(atomj.getPosition(), atoms.getAtom(2).getPosition());

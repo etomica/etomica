@@ -11,7 +11,6 @@ import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialCalculationForceSum;
@@ -20,7 +19,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 
-public class MeterSolidPropsLJ implements IDataSource, AgentSource<MyAgent> {
+public class MeterSolidPropsLJ implements IDataSource {
 
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
@@ -29,7 +28,7 @@ public class MeterSolidPropsLJ implements IDataSource, AgentSource<MyAgent> {
     protected final CoordinateDefinition coordinateDefinition;
     protected final DataSourceScalar meterPE;
     protected final PotentialMaster potentialMaster;
-    protected final AtomLeafAgentManager<MyAgent> forceManager;
+    protected final AtomLeafAgentManager<Vector> forceManager;
     protected final IteratorDirective id;
     protected final Vector dr;
     protected double ULat, PLat;
@@ -63,7 +62,7 @@ public class MeterSolidPropsLJ implements IDataSource, AgentSource<MyAgent> {
         this.potentialMaster = potentialMaster;
         id = new IteratorDirective();
         pcForceSum = new PotentialCalculationForceSum();
-        forceManager = new AtomLeafAgentManager<MyAgent>(this, coordinateDefinition.getBox());
+        forceManager = new AtomLeafAgentManager<>(a -> space.makeVector(), coordinateDefinition.getBox());
         pcForceSum.setAgentManager(forceManager);
         dr = space.makeVector();
         this.temperature = temperature;
@@ -320,10 +319,4 @@ public class MeterSolidPropsLJ implements IDataSource, AgentSource<MyAgent> {
     public IDataInfo getDataInfo() {
         return dataInfo;
     }
-
-    public final MyAgent makeAgent(IAtom a, Box box) {
-        return new MyAgent(space);
-    }
-    
-    public void releaseAgent(MyAgent agent, IAtom atom, Box box) {}
 }

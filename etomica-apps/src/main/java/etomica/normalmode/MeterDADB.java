@@ -13,7 +13,6 @@ import etomica.data.*;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
@@ -21,7 +20,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 
-public class MeterDADB implements IDataSource, AgentSource<MyAgent> {
+public class MeterDADB implements IDataSource {
 
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
@@ -31,7 +30,7 @@ public class MeterDADB implements IDataSource, AgentSource<MyAgent> {
     protected final DataSourceScalar meterPE;
     protected final PotentialCalculationForceSum pcForceSum;
     protected final PotentialMaster potentialMaster;
-    protected final AtomLeafAgentManager<MyAgent> forceManager;
+    protected final AtomLeafAgentManager<Vector> forceManager;
     protected final IteratorDirective id;
     protected final Vector dr;
     protected double latticeEnergy;
@@ -51,7 +50,7 @@ public class MeterDADB implements IDataSource, AgentSource<MyAgent> {
         this.potentialMaster = potentialMaster;
         id = new IteratorDirective();
         pcForceSum = new PotentialCalculationForceSum();
-        forceManager = new AtomLeafAgentManager<MyAgent>(this, coordinateDefinition.getBox());
+        forceManager = new AtomLeafAgentManager<>(a -> space.makeVector(), coordinateDefinition.getBox());
         pcForceSum.setAgentManager(forceManager);
         dr = space.makeVector();
         MeterPotentialEnergy meterPE2 = new MeterPotentialEnergy(potentialMaster);
@@ -79,7 +78,7 @@ public class MeterDADB implements IDataSource, AgentSource<MyAgent> {
             Vector lPos = coordinateDefinition.getLatticePosition(atom);
             Vector pos = atom.getPosition();
             dr.Ev1Mv2(pos, lPos);
-            Vector force = forceManager.getAgent(atom).force;
+            Vector force = forceManager.getAgent(atom);
             sum += force.dot(dr);
         }
         if (justDADB) {
@@ -137,10 +136,4 @@ public class MeterDADB implements IDataSource, AgentSource<MyAgent> {
     public IDataInfo getDataInfo() {
         return dataInfo;
     }
-
-    public final MyAgent makeAgent(IAtom a, Box agentBox) {
-        return new MyAgent(space);
-    }
-    
-    public void releaseAgent(MyAgent agent, IAtom atom, Box agentBox) {}
 }

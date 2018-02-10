@@ -153,13 +153,7 @@ public class MinimizationTIP4P extends Simulation{
 		double latticeEnergy = meterPotentialEnergy.getDataAsScalar();
 		PotentialCalculationForceSum pcForce = new PotentialCalculationForceSum();
 		
-		AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent> atomAgentSource = new AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent>() {
-		    public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, Box agentBox) {
-		        return new IntegratorVelocityVerlet.MyAgent(sim.space);
-		    }
-		    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, Box agentBox) {/**do nothing**/}
-        };
-		AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> atomAgentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(atomAgentSource , sim.box);
+		AtomLeafAgentManager<Vector> atomAgentManager = new AtomLeafAgentManager<>(a -> sim.space.makeVector() , sim.box);
 
 		pcForce.setAgentManager(atomAgentManager);
         MoleculeActionTranslateTo translator = new MoleculeActionTranslateTo(sim.space);
@@ -210,7 +204,7 @@ public class MinimizationTIP4P extends Simulation{
                     Vector pO = atoms.getAtom(SpeciesWater4P.indexO).getPosition();
                     for (int j = 0; j < atoms.getAtomCount(); j++){
 		            	IAtom atomj = atoms.getAtom(j);
-		            	Vector fj = atomAgentManager.getAgent(atomj).force;
+		            	Vector fj = atomAgentManager.getAgent(atomj);
 		            	f.PE(fj);
                         if (j != SpeciesWater4P.indexO) {
                             dr.Ev1Mv2(atomj.getPosition(), pO);
@@ -349,7 +343,7 @@ public class MinimizationTIP4P extends Simulation{
         	T.E(0);
         	for(int j=0;j<iMol.getChildList().getAtomCount();j++){
             	IAtom jAtom = iMol.getChildList().getAtom(j);
-            	Vector fj = atomAgentManager.getAgent(jAtom).force;
+            	Vector fj = atomAgentManager.getAgent(jAtom);
         		fSum.PE(fj);
         		r.Ev1Mv2(jAtom.getPosition(), iMol.getChildList().getAtom(2).getPosition());
         		sim.box.getBoundary().nearestImage(r);

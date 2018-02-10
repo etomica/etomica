@@ -99,7 +99,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
         inflate.setBox(this.box);
         meterTemperature = new MeterTemperature(this.box, D);
         forceSumNPH.setBox(this.box);
-        forceSumNPH.setAgentManager(agentManager);
+        forceSumNPH.setAgentManager(forces);
     }
     
     
@@ -301,8 +301,8 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
             rvx += hv * dr.dot(dv)/r2;
             Vector[] f = potentialSoft.gradient(pair);
             vf += dv.dot(f[0]); //maybe should be (-)?
-            integratorAgentManager.getAgent((IAtom)atom0).force().ME(f[0]);
-            integratorAgentManager.getAgent((IAtom)atom1).force().ME(f[1]);
+            integratorAgentManager.getAgent((IAtom)atom0).ME(f[0]);
+            integratorAgentManager.getAgent((IAtom)atom1).ME(f[1]);
         }
     }
 }

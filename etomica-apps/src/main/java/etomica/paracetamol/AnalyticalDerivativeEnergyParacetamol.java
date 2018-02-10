@@ -189,8 +189,7 @@ public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunct
 						deltaV.normalize();
 						}
 						
-						moleculeForce.E(agentManager.getAgent(molecule.getAtom(q))
-									   .force);
+						moleculeForce.E(agentManager.getAgent(molecule.getAtom(q)));
 						
 						double scalarF = 0;
 						scalarF = moleculeForce.dot(deltaV);
