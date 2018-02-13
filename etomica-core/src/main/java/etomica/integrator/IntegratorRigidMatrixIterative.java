@@ -8,7 +8,6 @@ import etomica.action.AtomActionTranslateBy;
 import etomica.action.IAction;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.atom.*;
-import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.Box;
 import etomica.data.meter.MeterKineticEnergyRigid;
 import etomica.math.function.Function;
@@ -68,12 +67,12 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Spec
     protected MoleculeAgentManager moleculeAgentManager;
 
     public IntegratorRigidMatrixIterative(Simulation sim, PotentialMaster potentialMaster, Space _space) {
-        this(sim, potentialMaster, 0.05, 1.0, _space);
+        this(sim, potentialMaster, 0.05, 1.0, _space, );
     }
     
     public IntegratorRigidMatrixIterative(Simulation sim, PotentialMaster potentialMaster,
-                                          double timeStep, double temperature, Space _space) {
-        super(potentialMaster,sim.getRandom(),timeStep,temperature, _space);
+                                          double timeStep, double temperature, Space _space, Box box) {
+        super(potentialMaster,sim.getRandom(),timeStep,temperature, _space, box);
         this.sim = sim;
         torqueSum = new PotentialCalculationTorqueSum();
         allAtoms = new IteratorDirective();

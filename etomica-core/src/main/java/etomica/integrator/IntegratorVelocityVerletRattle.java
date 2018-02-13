@@ -8,6 +8,7 @@ import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialMaster;
@@ -31,13 +32,13 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
     private static final long serialVersionUID = 1L;
     protected final Vector dv;
 
-    public IntegratorVelocityVerletRattle(Simulation sim, PotentialMaster potentialMaster, Space _space) {
-        this(sim, potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
+    public IntegratorVelocityVerletRattle(Simulation sim, PotentialMaster potentialMaster, Space _space, Box box) {
+        this(sim, potentialMaster, sim.getRandom(), 0.05, 1.0, _space, box);
     }
     
     public IntegratorVelocityVerletRattle(Simulation sim, PotentialMaster potentialMaster, IRandom random,
-                                          double timeStep, double temperature, Space _space) {
-        super(sim, potentialMaster,random,timeStep,temperature, _space);
+                                          double timeStep, double temperature, Space _space, Box box) {
+        super(sim, potentialMaster,random,timeStep,temperature, _space, box);
         dv = space.makeVector();
     }
 

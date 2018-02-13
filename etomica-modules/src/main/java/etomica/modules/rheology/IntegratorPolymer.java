@@ -5,6 +5,7 @@
 package etomica.modules.rheology;
 
 import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.integrator.IntegratorMD;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
@@ -21,8 +22,8 @@ import etomica.util.random.IRandom;
 public class IntegratorPolymer extends IntegratorMD {
 
     public IntegratorPolymer(PotentialMaster potentialMaster, IRandom random,
-                             double timeStep, double temperature, Space _space) {
-        super(potentialMaster, random, timeStep, temperature, _space);
+                             double timeStep, double temperature, Space _space, Box box) {
+        super(potentialMaster, random, timeStep, temperature, _space, box);
         center = _space.makeVector();
         drPrev = _space.makeVector();
         dr = _space.makeVector();

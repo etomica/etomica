@@ -29,8 +29,8 @@ public class IntegratorImageHarmonicMD extends IntegratorVelocityVerlet {
     protected P1ImageHarmonic p1;
     protected Boundary boundary;
 
-    public IntegratorImageHarmonicMD(PotentialMaster potentialMaster, IRandom random, double timeStep, double temperature, Space space) {
-        super(potentialMaster, random, timeStep, temperature, space);
+    public IntegratorImageHarmonicMD(PotentialMaster potentialMaster, IRandom random, double timeStep, double temperature, Space space, Box box) {
+        super(potentialMaster, random, timeStep, temperature, space, box);
         dr = space.makeVector();
         drTmp = space.makeVector();
         dv = space.makeVector();

@@ -58,9 +58,8 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
      * @param temperature     used by thermostat and/or to initialize velocities
      * @param space           the governing space, used to generate vectors
      */
-    public IntegratorMD(PotentialMaster potentialMaster, IRandom random,
-                        double timeStep, double temperature, Space space) {
-        super(potentialMaster, temperature);
+    public IntegratorMD(PotentialMaster potentialMaster, IRandom random, double timeStep, double temperature, Space space, Box box) {
+        super(potentialMaster, temperature, box);
         this.random = random;
         this.space = space;
         setTimeStep(timeStep);
@@ -88,11 +87,10 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
     }
 
 
-    public void setBox(Box box) {
+    protected void setBox(Box box) {
         if (this.box != null) {
             this.box.getEventManager().removeListener(this);
         }
-        super.setBox(box);
         if (meterKE instanceof MeterKineticEnergy) {
             ((MeterKineticEnergy) meterKE).setBox(box);
         }

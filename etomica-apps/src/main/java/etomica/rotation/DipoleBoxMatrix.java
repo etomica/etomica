@@ -53,7 +53,7 @@ public class DipoleBoxMatrix extends Simulation {
         }
         PotentialMaster potentialMaster = new PotentialMaster();
         int maxIterations = 20;
-        integrator = new IntegratorRigidMatrixIterative(this, potentialMaster, dt, 1, space);
+        integrator = new IntegratorRigidMatrixIterative(this, potentialMaster, dt, 1, space, );
         integrator.setTemperature(1);
         integrator.setIsothermal(false);
         integrator.printInterval = 1;

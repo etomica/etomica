@@ -43,13 +43,13 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
     protected final Vector temp;
     public int printInterval = 0;
 
-    public IntegratorVelocityVerletShake(Simulation sim, PotentialMaster potentialMaster, Space _space) {
-        this(sim, potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
+    public IntegratorVelocityVerletShake(Simulation sim, PotentialMaster potentialMaster, Space _space, Box box) {
+        this(sim, potentialMaster, sim.getRandom(), 0.05, 1.0, _space, box);
     }
     
     public IntegratorVelocityVerletShake(Simulation sim, PotentialMaster potentialMaster, IRandom random,
-                                         double timeStep, double temperature, Space _space) {
-        super(potentialMaster,random,timeStep,temperature, _space);
+                                         double timeStep, double temperature, Space _space, Box box) {
+        super(potentialMaster,random,timeStep,temperature, _space, box);
         // if you're motivated to throw away information earlier, you can use 
         // PotentialCalculationForceSum instead.
         forceSum = new PotentialCalculationForceSum();

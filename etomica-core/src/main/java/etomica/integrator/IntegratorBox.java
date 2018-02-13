@@ -25,7 +25,7 @@ import etomica.units.dimensions.Temperature;
 public abstract class IntegratorBox extends Integrator {
 
     protected final PotentialMaster potentialMaster;
-    protected Box box;
+    protected final Box box;
     protected double temperature;
     protected boolean isothermal = false;
     protected DataSourceScalar meterPE;
@@ -36,13 +36,15 @@ public abstract class IntegratorBox extends Integrator {
      * @param potentialMaster PotentialMaster instance used to compute energy etc.
      * @param temperature used by integration algorithm and/or to initialize velocities
      */
-    public IntegratorBox(PotentialMaster potentialMaster, double temperature) {
+    public IntegratorBox(PotentialMaster potentialMaster, double temperature, Box box) {
         super();
+        this.box = box;
         this.potentialMaster = potentialMaster;
         if (potentialMaster != null) {
-            meterPE = new MeterPotentialEnergy(potentialMaster);
+            meterPE = new MeterPotentialEnergy(potentialMaster, box);
         }
         setTemperature(temperature);
+        this.setBox(this.box);
     }
 
     /**
@@ -131,12 +133,7 @@ public abstract class IntegratorBox extends Integrator {
     /**
      * @param box the Box to set
      */
-    public void setBox(Box box) {
-        this.box = box;
-        if (meterPE instanceof MeterPotentialEnergy) {
-            ((MeterPotentialEnergy) meterPE).setBox(box);
-        }
-    }
+    protected void setBox(Box box) {}
 
     /**
      *

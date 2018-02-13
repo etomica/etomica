@@ -11,6 +11,7 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD;
@@ -45,8 +46,8 @@ public class IntegratorDCVGCMD extends IntegratorBox {
     
 	public IntegratorDCVGCMD(PotentialMaster parent, double temperature,
                              Space _space,
-                             ISpecies species1, ISpecies species2) {
-		super(parent, temperature);
+                             ISpecies species1, ISpecies species2, Box box) {
+		super(parent, temperature, box);
 		this.speciesA = species1;
 		this.speciesB = species2;
 		this.space = _space;
