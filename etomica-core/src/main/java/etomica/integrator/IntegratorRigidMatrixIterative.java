@@ -41,7 +41,7 @@ import java.io.Serializable;
  * 
  * @author Andrew Schultz
  */
-public class IntegratorRigidMatrixIterative extends IntegratorMD implements AgentSource<IntegratorRigidMatrixIterative.AtomAgent>, SpeciesAgentManager.AgentSource, MoleculeAgentSource {
+public class IntegratorRigidMatrixIterative extends IntegratorMD implements SpeciesAgentManager.AgentSource, MoleculeAgentSource {
 
     private static final long serialVersionUID = 2L;
     protected PotentialCalculationTorqueSum torqueSum;
@@ -64,7 +64,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
     protected final Tensor omegaTensor;
     protected final Simulation sim;
     
-    protected AtomLeafAgentManager<IntegratorRigidMatrixIterative.AtomAgent> leafAgentManager;
+    protected AtomLeafAgentManager<Vector> forces;
     protected MoleculeAgentManager moleculeAgentManager;
 
     public IntegratorRigidMatrixIterative(Simulation sim, PotentialMaster potentialMaster, Space _space) {
@@ -104,13 +104,13 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
     public void setBox(Box box) {
         if (this.box != null) {
             // allow agentManager to de-register itself as a BoxListener
-            leafAgentManager.dispose();
+            forces.dispose();
             moleculeAgentManager.dispose();
         }
         super.setBox(box);
-        leafAgentManager = new AtomLeafAgentManager<IntegratorRigidMatrixIterative.AtomAgent>(this, box);
+        forces = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
         moleculeAgentManager = new MoleculeAgentManager(sim, this.box, this);
-        torqueSum.setAgentManager(leafAgentManager);
+        torqueSum.setAgentManager(forces);
         torqueSum.setMoleculeAgentManager(moleculeAgentManager);
         ((MeterKineticEnergyRigid)meterKE).setBox(box);
     }
@@ -149,13 +149,13 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
             if (calcer == null) {
                 for (int iLeaf=0; iLeaf<children.getAtomCount(); iLeaf++) {
                     IAtomKinetic a = (IAtomKinetic)children.getAtom(iLeaf);
-                    AtomAgent agent = leafAgentManager.getAgent(a);
+                    Vector force = forces.getAgent(a);
                     Vector r = a.getPosition();
                     Vector v = a.getVelocity();
                     if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
-                        System.out.println("first "+a+" r="+r+", v="+v+", f="+agent.force);
+                        System.out.println("first "+a+" r="+r+", v="+v+", f="+ force);
                     }
-                    v.PEa1Tv1(0.5*timeStep* a.getType().rm(),agent.force);  // p += f(old)*dt/2
+                    v.PEa1Tv1(0.5*timeStep* a.getType().rm(), force);  // p += f(old)*dt/2
                     r.PEa1Tv1(timeStep,v);         // r += p*dt/m
                 }
                 continue;
@@ -293,9 +293,9 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
                     workTensor.TE(a.getType().getMass());
                     pressureTensor.PE(workTensor);
                     if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
-                        System.out.println("second "+a+" v="+velocity+", f="+leafAgentManager.getAgent(a).force);
+                        System.out.println("second "+a+" v="+velocity+", f="+ forces.getAgent(a));
                     }
-                    velocity.PEa1Tv1(0.5*timeStep* a.getType().rm(),leafAgentManager.getAgent(a).force);  //p += f(new)*dt/2
+                    velocity.PEa1Tv1(0.5*timeStep* a.getType().rm(), forces.getAgent(a));  //p += f(new)*dt/2
                     currentKineticEnergy += velocity.squared()* a.getType().getMass();
                 }
                 // skip the rotational stuff
@@ -309,7 +309,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
             //calc torque and linear force
             for (int i=0; i<children.getAtomCount(); i++) {
                 IAtom atom = children.getAtom(i);
-                Vector atomForce = leafAgentManager.getAgent(atom).force;
+                Vector atomForce = forces.getAgent(atom);
                 if (atomForce.isZero()) {
                     continue;
                 }
@@ -663,7 +663,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
             IAtomList children = molecule.getChildList();
             for (int i=0; i<children.getAtomCount(); i++) {
                 IAtom atom = children.getAtom(i);
-                Vector force = leafAgentManager.getAgent(atom).force;
+                Vector force = forces.getAgent(atom);
                 if (force.isZero()) {
                     continue;
                 }
@@ -683,11 +683,6 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
         return new MoleculeAgent(space);
     }
     
-    public final IntegratorRigidMatrixIterative.AtomAgent makeAgent(IAtom a, Box agentBox) {
-        return new AtomAgent(space);
-    }
-    
-    public void releaseAgent(IntegratorRigidMatrixIterative.AtomAgent agent, IAtom atom, Box agentBox) {}
     public void releaseAgent(Object agent, IMolecule molecule) {}
 
     public static class MoleculeAgent implements Integrator.Torquable, Integrator.Forcible, Serializable {  //need public so to use with instanceof
@@ -701,17 +696,6 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
         }
         
         public Vector torque() {return torque;}
-        public Vector force() {return force;}
-    }
-
-    public static class AtomAgent implements Integrator.Forcible, Serializable {  //need public so to use with instanceof
-        private static final long serialVersionUID = 1L;
-        public final Vector force;  // for leaf atoms
-
-        public AtomAgent(Space space) {
-            force = space.makeVector();
-        }
-        
         public Vector force() {return force;}
     }
 
