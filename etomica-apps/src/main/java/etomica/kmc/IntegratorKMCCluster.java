@@ -10,6 +10,7 @@ import etomica.action.XYZWriter;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.atom.iterator.AtomIteratorLeafFilteredType;
+import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.data.meter.MeterMeanSquareDisplacement;
 import etomica.dimer.IntegratorDimerMin;
@@ -64,8 +65,8 @@ public class IntegratorKMCCluster extends IntegratorBox{
     BufferedReader buffReader;
     FileWriter writer;
     
-    public IntegratorKMCCluster(Simulation _sim, PotentialMaster _potentialMaster, double _temperature, int _totalSearches, IRandom _random, ISpecies [] _species, Space _space){
-        super(_potentialMaster, _temperature);
+    public IntegratorKMCCluster(Simulation _sim, PotentialMaster _potentialMaster, double _temperature, int _totalSearches, IRandom _random, ISpecies [] _species, Space _space, Box box){
+        super(_potentialMaster, _temperature, box);
         
         this.potentialMaster = _potentialMaster;
         this.temperature = _temperature;

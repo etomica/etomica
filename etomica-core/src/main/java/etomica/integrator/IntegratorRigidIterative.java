@@ -68,13 +68,13 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
     protected AtomLeafAgentManager<Vector> leafAgentManager;
     protected MoleculeAgentManager moleculeAgentManager;
 
-    public IntegratorRigidIterative(Simulation sim, PotentialMaster potentialMaster, Space _space) {
-        this(sim, potentialMaster, 0.05, 1.0, _space);
+    public IntegratorRigidIterative(Simulation sim, PotentialMaster potentialMaster, Space _space, Box box) {
+        this(sim, potentialMaster, 0.05, 1.0, _space, box);
     }
     
     public IntegratorRigidIterative(Simulation sim, PotentialMaster potentialMaster,
-                                    double timeStep, double temperature, Space _space) {
-        super(potentialMaster,sim.getRandom(),timeStep,temperature, _space);
+                                    double timeStep, double temperature, Space _space, Box box) {
+        super(potentialMaster,sim.getRandom(),timeStep,temperature, _space, box);
         this.sim = sim;
         // if you're motivated to throw away information earlier, you can use 
         // PotentialCalculationForceSum instead.

@@ -6,6 +6,7 @@ package etomica.action;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.integrator.IntegratorBox;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
@@ -24,9 +25,9 @@ import etomica.space.Vector;
 
 public class IntegratorDimerApproach extends IntegratorBox {
 	
-	public IntegratorDimerApproach(PotentialMaster potentialMaster, Space space) {
+	public IntegratorDimerApproach(PotentialMaster potentialMaster, Space space, Box box) {
 		
-		super(potentialMaster, 0);
+		super(potentialMaster, 0, box);
 		
 		this.space = space;
 		

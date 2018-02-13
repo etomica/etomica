@@ -7,6 +7,7 @@ package etomica.freeenergy.npath;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
@@ -27,8 +28,8 @@ public class IntegratorImageMultistepMD extends IntegratorVelocityVerlet {
     protected P1ImageHarmonic p1;
     protected int numInnerSteps;
 
-    public IntegratorImageMultistepMD(PotentialMaster potentialMaster, IRandom random, double timeStep, double temperature, Space space) {
-        super(potentialMaster, random, timeStep, temperature, space);
+    public IntegratorImageMultistepMD(PotentialMaster potentialMaster, IRandom random, double timeStep, double temperature, Space space, Box box) {
+        super(potentialMaster, random, timeStep, temperature, space, box);
         atomSetSinglet = new AtomSetSinglet();
         setForceSum(new PotentialCalculationForceSum());
     }

@@ -8,6 +8,7 @@ import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialMaster;
@@ -27,8 +28,8 @@ public class IntegratorVelocityVerletSAM extends IntegratorVelocityVerlet {
     protected AtomType sulfurType;
     
     public IntegratorVelocityVerletSAM(PotentialMaster potentialMaster,
-            IRandom random, double timeStep, double temperature, Space _space) {
-        super(potentialMaster, random, timeStep, temperature, _space);
+            IRandom random, double timeStep, double temperature, Space _space, Box box) {
+        super(potentialMaster, random, timeStep, temperature, _space, box);
     }
 
     public void setSulfurType(AtomType newSulfurType) {

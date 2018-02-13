@@ -36,8 +36,8 @@ public class IntegratorMC extends IntegratorBox {
      * @param potentialMaster PotentialMaster instance used by moves to calculate the energy
      */
 
-    public IntegratorMC(Simulation sim, PotentialMaster potentialMaster) {
-        this(potentialMaster, sim.getRandom(), 1.0);
+    public IntegratorMC(Simulation sim, PotentialMaster potentialMaster, Box box) {
+        this(potentialMaster, sim.getRandom(), 1.0, box);
     }
 
     /**
@@ -45,8 +45,8 @@ public class IntegratorMC extends IntegratorBox {
      * @param random          random number generator used to select moves and decide acceptance
      * @param temperature     temperature of the ensemble
      */
-    public IntegratorMC(PotentialMaster potentialMaster, IRandom random, double temperature) {
-        super(potentialMaster, temperature);
+    public IntegratorMC(PotentialMaster potentialMaster, IRandom random, double temperature, Box box) {
+        super(potentialMaster, temperature, box);
         this.random = random;
         setIsothermal(true); //has no practical effect, but sets value of
         // isothermal to be consistent with way integrator
@@ -73,8 +73,7 @@ public class IntegratorMC extends IntegratorBox {
         moveManager = newMoveManager;
     }
 
-    public void setBox(Box box) {
-        super.setBox(box);
+    protected void setBox(Box box) {
         moveManager.setBox(box);
     }
 

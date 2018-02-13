@@ -42,13 +42,13 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
     protected AtomLeafAgentManager<MyAgent> agentManager;
     private AtomLeafAgentManager<Vector> forces;
 
-    public IntegratorDroplet(Simulation sim, PotentialMaster potentialMaster, Space _space) {
-        this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
+    public IntegratorDroplet(Simulation sim, PotentialMaster potentialMaster, Space _space, Box box) {
+        this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space, box);
     }
 
     public IntegratorDroplet(PotentialMaster potentialMaster, IRandom random,
-                             double timeStep, double temperature, Space _space) {
-        super(potentialMaster,random,timeStep,temperature, _space);
+                             double timeStep, double temperature, Space _space, Box box) {
+        super(potentialMaster,random,timeStep,temperature, _space, box);
         // if you're motivated to throw away information earlier, you can use 
         // PotentialCalculationForceSum instead.
         forceSum = new PotentialCalculationForcePressureSum(space);

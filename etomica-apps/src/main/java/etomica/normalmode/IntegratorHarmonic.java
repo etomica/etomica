@@ -23,8 +23,8 @@ import etomica.util.random.IRandom;
  */
 public class IntegratorHarmonic extends IntegratorMD {
 
-    public IntegratorHarmonic(IRandom random, double timeStep, double temperature, Space _space) {
-        super(null,random, timeStep, temperature, _space);
+    public IntegratorHarmonic(IRandom random, double timeStep, double temperature, Space _space, Box box) {
+        super(null,random, timeStep, temperature, _space, box);
         iterator = new MoleculeIteratorAllMolecules();
         // make IntergratorMD happy.
         meterKE = new DataSourceScalar("", Null.DIMENSION) {

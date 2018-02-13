@@ -64,12 +64,12 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
     protected AtomLeafAgentManager<Vector> leafAgentManager;
     protected MoleculeAgentManager moleculeAgentManager;
 
-    public IntegratorVelocityVerletQuaternion(Simulation sim, PotentialMaster potentialMaster, Space space) {
-        this(sim, potentialMaster, 0.05, 1.0, space);
+    public IntegratorVelocityVerletQuaternion(Simulation sim, PotentialMaster potentialMaster, Space space, Box box) {
+        this(sim, potentialMaster, 0.05, 1.0, space, box);
     }
     
     public IntegratorVelocityVerletQuaternion(Simulation sim, PotentialMaster potentialMaster,
-                                              double timeStep, double temperature, Space space) {
+                                              double timeStep, double temperature, Space space, Box box) {
         super(potentialMaster,sim.getRandom(),timeStep,temperature, space);
         this.sim = sim;
         forceSum = new PotentialCalculationForcePressureSum(space);

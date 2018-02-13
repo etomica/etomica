@@ -34,7 +34,7 @@ public class IntegratorHybrid extends IntegratorBox {
 	private int MDStepCount, MDStepRepetitions;
     
 	public IntegratorHybrid(PotentialMasterHybrid potentialMaster, IntegratorMD integratorMD, IntegratorMC integratorMC, double temperature) {
-		super(potentialMaster, temperature);
+		super(potentialMaster, temperature, integratorMD.getBox());
 		this.integratorMD = integratorMD;
 		this.integratorMC = integratorMC;
 		potentialMasterHybrid = potentialMaster;
@@ -42,11 +42,8 @@ public class IntegratorHybrid extends IntegratorBox {
     }
 	
 	public void setBox(Box box) {
-	    integratorMC.setBox(box);
-	    integratorMD.setBox(box);
-	    super.setBox(box);
 	}
-	
+
 	public void setMCMoveInsertDelete(MyMCMove mcMoveIDA, MyMCMove mcMoveIDB) {
 	    this.mcMoveIDA = mcMoveIDA;
         this.mcMoveIDB = mcMoveIDB;

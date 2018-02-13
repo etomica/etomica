@@ -80,14 +80,14 @@ public class IntegratorDimerMin extends IntegratorBox {
 	
 	public IntegratorDimerMin(Simulation sim, PotentialMaster potentialMaster,
                               ISpecies[] species,
-                              Boolean normalDir, Space _space) {
-		this(sim, potentialMaster, 1.0, species, normalDir, _space);
+                              Boolean normalDir, Space _space, Box box) {
+		this(sim, potentialMaster, 1.0, species, normalDir, _space, box);
 	}
 	
 	public IntegratorDimerMin(Simulation aSim, PotentialMaster potentialMaster,
                               double temperature,
-                              ISpecies[] aspecies, Boolean normalDir, Space _space) {
-		super(potentialMaster, temperature);
+                              ISpecies[] aspecies, Boolean normalDir, Space _space, Box box) {
+		super(potentialMaster, temperature, box);
 		this.sim = aSim;
 		this.force0 = new PotentialCalculationForceSum();
 		this.forceMin = new PotentialCalculationForceSum();

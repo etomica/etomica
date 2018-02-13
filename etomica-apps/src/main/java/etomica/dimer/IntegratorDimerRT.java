@@ -83,14 +83,14 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Vect
 	
 	
 	public IntegratorDimerRT(Simulation sim, PotentialMaster potentialMaster,
-                             ISpecies[] species, Space _space) {
-		this(sim, potentialMaster, sim.getRandom(), 1.0, species, _space);
+                             ISpecies[] species, Space _space, Box box) {
+		this(sim, potentialMaster, sim.getRandom(), 1.0, species, _space, box);
 	}
 	
 	public IntegratorDimerRT(Simulation aSim, PotentialMaster potentialMaster,
                              IRandom random, double temperature,
-                             ISpecies[] aspecies, Space _space) {
-		super(potentialMaster, temperature);
+                             ISpecies[] aspecies, Space _space, Box box) {
+		super(potentialMaster, temperature, box);
 		this.random1 = random;
 		this.sim = aSim;
 		this.force0 = new PotentialCalculationForceSum();
