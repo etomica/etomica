@@ -122,6 +122,7 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource<Integra
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             Agent agent = agentManager.getAgent(a);
+            Vector force = forces.getAgent(a);
             Vector r = a.getPosition();
             Vector v = a.getVelocity();
             work1.E(v);
@@ -137,7 +138,7 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource<Integra
             agent.dr3.PEa1Tv1(c3,work2);
             agent.dr4.PEa1Tv1(c4,work2);
             
-            work1.Ea1Tv1(a.getType().rm(),agent.force);
+            work1.Ea1Tv1(a.getType().rm(), force);
             work1.PEa1Tv1(-(zeta+chi),v);
             work2.E(work1);
             work2.ME(agent.dv1);
@@ -195,11 +196,12 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource<Integra
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             Agent agent = agentManager.getAgent(a);
+            Vector force = forces.getAgent(a);
             agent.dr1.E(a.getVelocity());
-            agent.dr2.Ea1Tv1(a.getType().rm(),agent.force);
+            agent.dr2.Ea1Tv1(a.getType().rm(), force);
             agent.dr3.E(0.0);
             agent.dr4.E(0.0);
-            agent.dv1.Ea1Tv1(a.getType().rm(),agent.force);
+            agent.dv1.Ea1Tv1(a.getType().rm(), force);
             agent.dv2.E(0.0);
             agent.dv3.E(0.0);
             agent.dv4.E(0.0);
@@ -212,13 +214,11 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource<Integra
     
     public void releaseAgent(Agent agent, IAtom atom, Box agentBox) {}
             
-    public static class Agent implements IntegratorBox.Forcible {  //need public so to use with instanceof
-        public Vector force;
+    public static class Agent {  //need public so to use with instanceof
         public Vector dr1, dr2, dr3, dr4;
         public Vector dv1, dv2, dv3, dv4;
 
         public Agent(Space space) {
-            force = space.makeVector();
             dr1 = space.makeVector();
             dr2 = space.makeVector();
             dr3 = space.makeVector();
@@ -228,7 +228,5 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource<Integra
             dv3 = space.makeVector();
             dv4 = space.makeVector();
         }
-        
-        public Vector force() {return force;}
     }
 }
