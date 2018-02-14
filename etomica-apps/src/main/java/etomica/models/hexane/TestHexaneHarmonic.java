@@ -82,7 +82,7 @@ public class TestHexaneHarmonic extends Simulation {
         box.setNMolecules(species, numMolecules);
 //        config.initializeCoordinates(box);
 
-        integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0);
+        integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0, box);
         moveMolecule = new MCMoveMolecule(potentialMaster, getRandom(), space, 1.0, 15.0);
 //        moveVolume = new MCMoveVolume(potentialMaster, box.space(), sim.getDefaults().pressure);
 //        moveVolume.setBox(box);

@@ -74,7 +74,7 @@ public class LJMC3D extends Simulation {
         AtomType atomType = species.getLeafType();
         potentialMaster.addPotential(p2, new AtomType[]{atomType, atomType});
 
-        integrator = new IntegratorMC(this, potentialMaster);
+        integrator = new IntegratorMC(this, potentialMaster, box);
         integrator.setTemperature(params.temperature);
         integrator.setBox(box);
 

@@ -116,10 +116,9 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         potentialMasterTarget.getNeighborManager(boxTarget).reset();
         
         IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget,
-                random, temperature);
+                random, temperature, boxTarget);
         integrators[1] = integratorTarget;
-        integratorTarget.setBox(boxTarget);
-        
+
         nm = new NormalModes1DHR(boundaryTarget, numAtoms);
         nm.setHarmonicFudge(harmonicFudge);
         nm.setTemperature(temperature);
@@ -215,8 +214,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         potentialMasterRef.getNeighborManager(boxRef).reset();
         
         IntegratorMC integratorRef = new IntegratorMC(potentialMasterRef, 
-                random, temperature);
-        integratorRef.setBox(boxRef);
+                random, temperature, boxRef);
         integrators[0] = integratorRef;
         
         WaveVectorFactory waveVectorFactoryRef = nm.getWaveVectorFactory();

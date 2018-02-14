@@ -71,7 +71,7 @@ public class SimLJ extends Simulation {
         potentialMasterCell = new PotentialMasterCell(this, rc, space);
         potentialMasterCell.setCellRange(2);
         double sigma = 1.0;
-        integrator = new IntegratorMC(this, potentialMasterCell);
+        integrator = new IntegratorMC(this, potentialMasterCell, box);
         integrator.setTemperature(temperature);
 
         ai = new ActivityIntegrate(integrator);

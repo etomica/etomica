@@ -40,24 +40,24 @@ public class LJMC extends Simulation {
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, 2.5, space);
         potentialMaster.setCellRange(2);
         int N = 200;  //number of atoms
-        
+
         //controller and integrator
-	    integrator = new IntegratorMC(potentialMaster, random, 1.0);
+        box = new Box(space);
+        integrator = new IntegratorMC(potentialMaster, random, 1.0, box);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
 
-	    //species and potentials
-	    species = new SpeciesSpheresMono(this, space);//index 1
-	    species.setIsDynamic(true);
+        //species and potentials
+        species = new SpeciesSpheresMono(this, space);//index 1
+        species.setIsDynamic(true);
         addSpecies(species);
-        
+
         //instantiate several potentials for selection in combo-box
-	    P2LennardJones potential = new P2LennardJones(space);
-        P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(space, potential,2.5);
+        P2LennardJones potential = new P2LennardJones(space);
+        P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(space, potential, 2.5);
         potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
         //construct box
-	    box = new Box(space);
         addBox(box);
         Vector dim = space.makeVector();
         dim.E(space.D() == 2 ? 15 : 10);
@@ -66,7 +66,7 @@ public class LJMC extends Simulation {
         new ConfigurationLattice(space.D() == 2 ? (new LatticeOrthorhombicHexagonal(space)) : (new LatticeCubicFcc(space)), space).initializeCoordinates(box);
         integrator.setBox(box);
         potentialMaster.getNbrCellManager(box).assignCellAll();
-        
+
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         ((MCMoveStepTracker) mcMoveAtom.getTracker()).setMaxAdjustInterval(50000);
@@ -78,23 +78,23 @@ public class LJMC extends Simulation {
             public boolean doTrial() {
                 double vOld = box.getBoundary().volume();
                 uOld = energyMeter.getDataAsScalar();
-                hOld = uOld + pressure*vOld;
+                hOld = uOld + pressure * vOld;
                 biasOld = vBias.f(vOld);
-                vScale = (2.*random.nextDouble()-1.)*stepSize;
+                vScale = (2. * random.nextDouble() - 1.) * stepSize;
                 vNew = vOld * Math.exp(vScale); //Step in ln(V)
                 if (vNew < Math.pow(6, space.D())) return false;
-                double rScale = Math.exp(vScale/D);
+                double rScale = Math.exp(vScale / D);
                 inflate.setScale(rScale);
                 inflate.actionPerformed();
                 uNew = energyMeter.getDataAsScalar();
-                hNew = uNew + pressure*vNew;
+                hNew = uNew + pressure * vNew;
                 return true;
             }
         };
 
         mcMoveID = new MCMoveInsertDelete(potentialMaster, random, space) {
             public void acceptNotify() {
-                if (moleculeList.getMoleculeCount()>999 && insert) {
+                if (moleculeList.getMoleculeCount() > 999 && insert) {
                     rejectNotify();
                     uNew = 0;
                     return;

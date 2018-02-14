@@ -472,7 +472,7 @@ public class SimDimerMEAMGB extends Simulation{
     }
 
     public void enableMolecularDynamics(long maxSteps){
-        integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, space);
+        integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, space, box);
         integratorMD.setTimeStep(0.001);
         integratorMD.setTemperature(Kelvin.UNIT.toSim(100));
         integratorMD.setThermostatInterval(100);
@@ -488,7 +488,7 @@ public class SimDimerMEAMGB extends Simulation{
 
     public void enableDimerSearch(String fileName, long maxSteps, Boolean orthoSearch, Boolean fine){
 
-        integratorDimer = new IntegratorDimerRT(this, potentialMasterD, new ISpecies[]{dimer}, space);
+        integratorDimer = new IntegratorDimerRT(this, potentialMasterD, new ISpecies[]{dimer}, space, box);
         integratorDimer.setBox(box);
         integratorDimer.setOrtho(orthoSearch, false);
         if(fine){
@@ -512,7 +512,7 @@ public class SimDimerMEAMGB extends Simulation{
 
     public void enableMinimumSearch(String fileName, Boolean normalDir){
 
-        integratorDimerMin = new IntegratorDimerMin(this, potentialMasterD, new ISpecies[]{dimer}, normalDir, space);
+        integratorDimerMin = new IntegratorDimerMin(this, potentialMasterD, new ISpecies[]{dimer}, normalDir, space, box);
         integratorDimerMin.setBox(box);
         integratorDimerMin.getEventManager().addListener(potentialMasterD.getNeighborManager(box));
         activityIntegrateMin = new ActivityIntegrate(integratorDimerMin);

@@ -94,8 +94,8 @@ public class SimDirectBetaN2RP extends Simulation {
 		
 		MCMoveRotateMolecule3D rotateTarg = new MCMoveRotateMolecule3D(potentialMasterTarg, getRandom(), space);
 		rotateTarg.setBox(boxTarg);
-		
-        integratorTarg = new IntegratorMC(potentialMasterTarg, getRandom(), temperature);
+
+        integratorTarg = new IntegratorMC(potentialMasterTarg, getRandom(), temperature, box);
         integratorTarg.getMoveManager().addMCMove(moveTarg);
 		integratorTarg.getMoveManager().addMCMove(rotateTarg);
 	    

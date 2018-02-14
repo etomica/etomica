@@ -81,7 +81,7 @@ public class LJMD extends Simulation {
         
         potentialMaster = new PotentialMasterList(this, 1.2*5.49925, space);
         potentialMaster.setCellRange(2);
-        integrator = new IntegratorFixedWall(potentialMaster, random, tStep, temperature, space);
+        integrator = new IntegratorFixedWall(potentialMaster, random, tStep, temperature, space, box);
         integrator.setIsothermal(true);
         integrator.setTemperature(temperature);
         integrator.setThermostat(hybridInterval > 0 ? ThermostatType.HYBRID_MC : ThermostatType.ANDERSEN);
@@ -112,7 +112,7 @@ public class LJMD extends Simulation {
         }
         
         if (mcSteps > 0 && hybridInterval > 0) {
-            IntegratorMC integratorMC = new IntegratorMC(this, potentialMaster);
+            IntegratorMC integratorMC = new IntegratorMC(this, potentialMaster, box);
             integratorMC.setTemperature(temperature);
             mcMove = new MCMoveAtomNbr(random, potentialMaster, space);
             mcMove.setAtomSource(new AtomSourceRandomSpecies(getRandom(), speciesFluid));

@@ -32,6 +32,7 @@ import etomica.potential.P2HardAssociationConeDoubleSites;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresRotating;
+import etomica.units.Degree;
 import etomica.util.ParameterBase;
 
 /**
@@ -64,52 +65,54 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
     public TestLJAssociationMC3D_NPT_DoubleSites(int numAtoms, double pressure, double density, double wellConstant, double temperature,double truncationRadius,int maxChainLength, boolean useUB, long numSteps) {
         super(Space3D.getInstance());
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
-              
-        double sigma =1.0;
+
+        double sigma = 1.0;
         //setRandom(new RandomNumberGenerator(3));
-                   
+
         System.out.println("Double site Association");
-        System.out.println("pressure = " +pressure);
-        System.out.println("initial density = " +density);
-        System.out.println("association strength = " +wellConstant+ "*epsilon");
-        System.out.println("temperature = " +temperature);
-        System.out.println("numSteps = " +numSteps);
-        System.out.println("maximum chain length= "+maxChainLength);
-	    integrator = new IntegratorMC(this, potentialMaster);
-	    integrator.setTemperature(temperature);
-	    mcMoveAtomMonomer = new MCMoveAtomMonomer(this, potentialMaster, space);//Standard Monte Carlo atom-displacement trial move
-	    mcMoveAtomMonomer.setMaxLength(maxChainLength);
-	    mcMoveAtomSmer = new MCMoveAtomSmer(this, potentialMaster, space);
-	    mcMoveAtomSmer.setMaxLength(maxChainLength);
-	    mcMoveRotate = new MCMoveRotateAssociated(potentialMaster, random, space);//Performs a rotation of an atom (not a molecule) that has an orientation coordinate
-	    mcMoveRotate.setMaxLength(maxChainLength);
-	    box = new Box(space);
+        System.out.println("pressure = " + pressure);
+        System.out.println("initial density = " + density);
+        System.out.println("association strength = " + wellConstant + "*epsilon");
+        System.out.println("temperature = " + temperature);
+        System.out.println("numSteps = " + numSteps);
+        System.out.println("maximum chain length= " + maxChainLength);
+        box = new Box(space);
+        integrator = new IntegratorMC(this, potentialMaster, box);
+        integrator.setTemperature(temperature);
+        mcMoveAtomMonomer = new MCMoveAtomMonomer(this, potentialMaster, space);//Standard Monte Carlo atom-displacement trial move
+        mcMoveAtomMonomer.setMaxLength(maxChainLength);
+        mcMoveAtomSmer = new MCMoveAtomSmer(this, potentialMaster, space);
+        mcMoveAtomSmer.setMaxLength(maxChainLength);
+        mcMoveRotate = new MCMoveRotateAssociated(potentialMaster, random, space);//Performs a rotation of an atom (not a molecule) that has an orientation coordinate
+        mcMoveRotate.setMaxLength(maxChainLength);
         addBox(box);
         bvso = new BiasVolumeSphereOrientedDoubleSites(space, random);
         System.out.println("biasVolume= 2*(partialVolume/totalVolume)^2");
-	    bvso.setTheta(etomica.units.Degree.UNIT.toSim(27.0));
-	    bvso.setBiasSphereInnerRadius(0.0);
-	    bvso.setBox(box);
-	    associationManagerOriented =new AssociationManager(box, potentialMaster, bvso);//define and track atom associations
-	    associationHelper = new AssociationHelperDouble(space, box, associationManagerOriented);
-	    mcMoveBiasUB = new MCMoveBiasUB(potentialMaster, bvso, random, space);
-	    mcMoveBiasUB.setMaxLength(maxChainLength);//only allow the formation up to maxChainLengh-mer
-	    mcMoveAtomMonomer.setAssociationManager(associationManagerOriented);
-	    mcMoveAtomSmer.setAssociationManager(associationManagerOriented);
-	    mcMoveRotate.setAssociationManager(associationManagerOriented);
-	    mcMoveBiasUB.setAssociationManager(associationManagerOriented);
-	    
+        bvso.setTheta(Degree.UNIT.toSim(27.0));
+        bvso.setBiasSphereInnerRadius(0.0);
+        bvso.setBox(box);
+        associationManagerOriented = new AssociationManager(box, potentialMaster, bvso);//define and track atom associations
+        associationHelper = new AssociationHelperDouble(space, box, associationManagerOriented);
+        mcMoveBiasUB = new MCMoveBiasUB(potentialMaster, bvso, random, space);
+        mcMoveBiasUB.setMaxLength(maxChainLength);//only allow the formation up to maxChainLengh-mer
+        mcMoveAtomMonomer.setAssociationManager(associationManagerOriented);
+        mcMoveAtomSmer.setAssociationManager(associationManagerOriented);
+        mcMoveRotate.setAssociationManager(associationManagerOriented);
+        mcMoveBiasUB.setAssociationManager(associationManagerOriented);
+
         //mcMoveAtom.setStepSize(0.2*sigma);
-        ((MCMoveStepTracker)mcMoveAtomMonomer.getTracker()).setNoisyAdjustment(true);
-        ((MCMoveStepTracker)mcMoveAtomSmer.getTracker()).setNoisyAdjustment(true);
-        ((MCMoveStepTracker)mcMoveRotate.getTracker()).setNoisyAdjustment(true);
+        ((MCMoveStepTracker) mcMoveAtomMonomer.getTracker()).setNoisyAdjustment(true);
+        ((MCMoveStepTracker) mcMoveAtomSmer.getTracker()).setNoisyAdjustment(true);
+        ((MCMoveStepTracker) mcMoveRotate.getTracker()).setNoisyAdjustment(true);
         integrator.getMoveManager().addMCMove(mcMoveAtomMonomer);
         integrator.getMoveManager().addMCMove(mcMoveAtomSmer);
         integrator.getMoveManager().addMCMove(mcMoveRotate);
-        if (useUB){
-        integrator.getMoveManager().addMCMove(mcMoveBiasUB);
-        System.out.println("with BiasUB");
-        } else {System.out.println("without BiasUB");}
+        if (useUB) {
+            integrator.getMoveManager().addMCMove(mcMoveBiasUB);
+            System.out.println("with BiasUB");
+        } else {
+            System.out.println("without BiasUB");
+        }
         integrator.getMoveEventManager().addListener(associationManagerOriented);
         integrator.getMoveManager().setEquilibrating(true);
         actionIntegrator = new ActivityIntegrate(integrator);
@@ -122,10 +125,10 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
         BoxInflate inflater = new BoxInflate(box, space);//Performs actions that cause volume of system to expand or contract
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
-        
-        System.out.println("truncation distance of potential = " +truncationRadius);
-        if(truncationRadius > 0.5*box.getBoundary().getBoxSize().getX(0)) {
-            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*box.getBoundary().getBoxSize().getX(0));
+
+        System.out.println("truncation distance of potential = " + truncationRadius);
+        if (truncationRadius > 0.5 * box.getBoundary().getBoxSize().getX(0)) {
+            throw new RuntimeException("Truncation radius too large.  Max allowed is" + 0.5 * box.getBoundary().getBoxSize().getX(0));
         }
         potential = new P2HardAssociationConeDoubleSites(space, sigma, epsilon, truncationRadius, wellConstant);
         potentialMaster.setCellRange(3);
@@ -135,7 +138,7 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
         mcMoveVolume = new MCMoveVolumeAssociated(this, potentialMaster, space);
         mcMoveVolume.setAssociationManager(associationManagerOriented);
         mcMoveSmer.setAssociationManager(associationManagerOriented);
-	    mcMoveSmerRotate.setAssociationManager(associationManagerOriented);
+        mcMoveSmerRotate.setAssociationManager(associationManagerOriented);
         mcMoveVolume.setPressure(pressure);
 
         AtomType leafType = species.getLeafType();
@@ -144,7 +147,7 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
         integrator.getMoveManager().addMCMove(mcMoveSmer);
         integrator.getMoveManager().addMCMove(mcMoveSmerRotate);
         integrator.getMoveManager().addMCMove(mcMoveVolume);
-        
+
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         config.initializeCoordinates(box);
         associationManagerOriented.initialize();

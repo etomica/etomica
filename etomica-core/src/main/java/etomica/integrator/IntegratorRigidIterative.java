@@ -726,10 +726,9 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeInterval = 0.001;
         int maxIterations = 20;
-        IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim, potentialMaster, timeInterval, 1, space);
+        IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim, potentialMaster, timeInterval, 1, space, box);
         integrator.printInterval = 10;
         integrator.setMaxIterations(maxIterations);
-        integrator.setBox(box);
         OrientationCalcWater3P calcer = new OrientationCalcWater3P(sim.getSpace());
         integrator.setOrientationCalc(species, calcer);
         integrator.setTemperature(Kelvin.UNIT.toSim(298));

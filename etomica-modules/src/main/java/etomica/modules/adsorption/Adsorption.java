@@ -43,18 +43,21 @@ public class Adsorption extends Simulation {
     
     public Adsorption(Space _space) {
         super(_space);
+        //construct box
+        box = new Box(new BoundaryRectangularSlit(1, 20.0, space), space);
+        addBox(box);
         PotentialMasterHybrid potentialMaster = new PotentialMasterHybrid(this, 2, space); //List(this, 2.0);
         
         //controller and integrator
-	    integratorMD = new IntegratorHard(this, potentialMaster, space);
+	    integratorMD = new IntegratorHard(this, potentialMaster, space, box);
 	    integratorMD.setTimeStep(0.005);
 	    integratorMD.setIsothermal(true);
 	    integratorMD.setThermostatInterval(10000);
-	    
-	    integratorMC = new IntegratorMC(potentialMaster, random, 2);
+
+        integratorMC = new IntegratorMC(potentialMaster, random, 2, box);
 	    integratorMC.setTemperature(1);
-	    
-	    integratorHybrid = new IntegratorHybrid(potentialMaster, integratorMD, integratorMC, 2);
+
+        integratorHybrid = new IntegratorHybrid(potentialMaster, integratorMD, integratorMC, 2, box);
 	    
         activityIntegrate = new ActivityIntegrate(integratorHybrid);
         getController().addAction(activityIntegrate);
@@ -72,9 +75,6 @@ public class Adsorption extends Simulation {
         speciesB.setIsDynamic(true);
         addSpecies(speciesB);
 
-        //construct box
-        box = new Box(new BoundaryRectangularSlit(1, 20.0, space), space);
-        addBox(box);
 
         mcMoveIDA = new MyMCMove(integratorMC, random, space, 0.9, sigma, 1);
         mcMoveIDA.setMu(-12);

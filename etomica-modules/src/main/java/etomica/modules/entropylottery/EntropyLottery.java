@@ -30,7 +30,7 @@ public class EntropyLottery extends Simulation {
         final int N = 30;  //number of atoms
         
         //controller and integrator
-	    integrator = new IntegratorMC(this, potentialMaster);
+        integrator = new IntegratorMC(this, potentialMaster, box);
         MCMoveAtomAdjacent move = new MCMoveAtomAdjacent(getRandom(), space);
         integrator.getMoveManager().addMCMove(move);
         activityIntegrate = new ActivityIntegrate(integrator);

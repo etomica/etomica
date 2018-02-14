@@ -66,8 +66,8 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Spec
     protected AtomLeafAgentManager<Vector> forces;
     protected MoleculeAgentManager moleculeAgentManager;
 
-    public IntegratorRigidMatrixIterative(Simulation sim, PotentialMaster potentialMaster, Space _space) {
-        this(sim, potentialMaster, 0.05, 1.0, _space, );
+    public IntegratorRigidMatrixIterative(Simulation sim, PotentialMaster potentialMaster, Space _space, Box box) {
+        this(sim, potentialMaster, 0.05, 1.0, _space, box);
     }
     
     public IntegratorRigidMatrixIterative(Simulation sim, PotentialMaster potentialMaster,

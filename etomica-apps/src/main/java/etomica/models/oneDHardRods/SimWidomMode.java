@@ -96,8 +96,8 @@ public class SimWidomMode extends Simulation {
         //find neighbors now.  Don't hook up NeighborListManager since the
         //  neighbors won't change
         potentialMaster.getNeighborManager(box).reset();
-        
-        integrator = new IntegratorMC(this, potentialMaster);
+
+        integrator = new IntegratorMC(this, potentialMaster, box);
         integrator.setBox(box);
         
         nm = new NormalModes1DHR(box.getBoundary(), numAtoms);

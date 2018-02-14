@@ -73,62 +73,62 @@ public class DHS_NVT extends Simulation {
   
 	//************************************* constructor ********************************************//
     public DHS_NVT(Space space, int numberMolecules, final double sigmaHS, double mu,
-                   double dielectricOutside, double boxSize, double temperature, double truncation){
-		super(space);
-		//setRandom(new RandomNumberGenerator(1));
+                   double dielectricOutside, double boxSize, double temperature, double truncation) {
+        super(space);
+        //setRandom(new RandomNumberGenerator(1));
         species = new SpeciesSpheresRotating(space, new ElementSimple("A"));
         addSpecies(species);
-		box = new Box(space);
-		addBox(box);
-		box.setNMolecules(species, numberMolecules);
-		box.getBoundary().setBoxSize(space.makeVector(new double[]{boxSize,boxSize,boxSize}));
+        box = new Box(space);
+        addBox(box);
+        box.setNMolecules(species, numberMolecules);
+        box.getBoundary().setBoxSize(space.makeVector(new double[]{boxSize, boxSize, boxSize}));
 
-		IMoleculePositionDefinition positionDefinition = new IMoleculePositionDefinition() {
-			public Vector position(IMolecule molecule) {
-				return molecule.getChildList().getAtom(0).getPosition();
-			}
-		};
+        IMoleculePositionDefinition positionDefinition = new IMoleculePositionDefinition() {
+            public Vector position(IMolecule molecule) {
+                return molecule.getChildList().getAtom(0).getPosition();
+            }
+        };
 
-		// potential part
-        P2HSDipole pTarget = new P2HSDipole(space,sigmaHS, mu);
-        DipoleSourceDHS dipoleDHS = new DipoleSourceDHS(space,mu);// add reaction field potential
-		System.out.println("in main class, magnitude of dipole:"+dipoleDHS.dipoleStrength);
+        // potential part
+        P2HSDipole pTarget = new P2HSDipole(space, sigmaHS, mu);
+        DipoleSourceDHS dipoleDHS = new DipoleSourceDHS(space, mu);// add reaction field potential
+        System.out.println("in main class, magnitude of dipole:" + dipoleDHS.dipoleStrength);
         P2ReactionFieldDipole pRF = new P2ReactionFieldDipole(space, positionDefinition);
         pRF.setDipoleSource(dipoleDHS);
         pRF.setRange(truncation);
         pRF.setDielectric(dielectricOutside);
 
         potentialMaster = new PotentialMaster();
-        P2MoleculeTruncated p2TruncatedRF= new P2MoleculeTruncated(pRF,truncation,space,positionDefinition);
+        P2MoleculeTruncated p2TruncatedRF = new P2MoleculeTruncated(pRF, truncation, space, positionDefinition);
         potentialMaster.addPotential(p2TruncatedRF, new ISpecies[]{species, species});//add truncated potential from reaction field to potential master
         potentialMaster.lrcMaster().addPotential(pRF.makeP0());// add P0ReactionField potential to potential master
         // u(HS)+u(dd)
-        P2MoleculeTruncated p2TruncatedDHS = new P2MoleculeTruncated(pTarget,truncation,space,positionDefinition);
-        potentialMaster.addPotential(p2TruncatedDHS, new ISpecies[]{species,species});
+        P2MoleculeTruncated p2TruncatedDHS = new P2MoleculeTruncated(pTarget, truncation, space, positionDefinition);
+        potentialMaster.addPotential(p2TruncatedDHS, new ISpecies[]{species, species});
 
-        integrator = new IntegratorMC(this,potentialMaster);
-        moveMolecule = new MCMoveMolecule(this,potentialMaster, space);
-        rotateMolecule = new MCMoveRotate(potentialMaster,random,space);
+        integrator = new IntegratorMC(this, potentialMaster, box);
+        moveMolecule = new MCMoveMolecule(this, potentialMaster, space);
+        rotateMolecule = new MCMoveRotate(potentialMaster, random, space);
 
-		activityIntegrate = new ActivityIntegrate(integrator);
+        activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setMaxSteps(10000000);
-		getController().addAction(activityIntegrate);
+        getController().addAction(activityIntegrate);
 
-		//******************************** periodic boundary condition ******************************** //
-		BoxImposePbc imposePbc = new BoxImposePbc(box, space);
-		imposePbc.setApplyToMolecules(true);
+        //******************************** periodic boundary condition ******************************** //
+        BoxImposePbc imposePbc = new BoxImposePbc(box, space);
+        imposePbc.setApplyToMolecules(true);
 
-		integrator.setTemperature(temperature);
-	    integrator.setBox(box);
+        integrator.setTemperature(temperature);
+        integrator.setBox(box);
         integrator.getMoveManager().addMCMove(moveMolecule);
         integrator.getMoveManager().addMCMove(rotateMolecule);
-		integrator.getEventManager().addListener(new IntegratorListenerAction(imposePbc));
+        integrator.getEventManager().addListener(new IntegratorListenerAction(imposePbc));
 
-		//******************************** initial configuration ******************************** //
-		LatticeCubicFcc lattice = new LatticeCubicFcc(space);
-		ConfigurationLattice configuration = new ConfigurationLattice(lattice, space);
-		configuration.initializeCoordinates(box);
-	}
+        //******************************** initial configuration ******************************** //
+        LatticeCubicFcc lattice = new LatticeCubicFcc(space);
+        ConfigurationLattice configuration = new ConfigurationLattice(lattice, space);
+        configuration.initializeCoordinates(box);
+    }
 
     // **************************** simulation part **************************** //
 	public static void main (String[] args){

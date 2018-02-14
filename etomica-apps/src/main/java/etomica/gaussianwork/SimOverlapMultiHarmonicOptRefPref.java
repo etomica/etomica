@@ -87,8 +87,7 @@ public class SimOverlapMultiHarmonicOptRefPref extends Simulation{
 		potentialB.setX0(new Vector1D(x0));
         potentialMasterB.addPotential(potentialB, new AtomType[]{species.getLeafType()});
 
-		integratorB = new IntegratorMC(potentialMasterB, random, temperature);
-		integratorB.setBox(boxB);
+		integratorB = new IntegratorMC(potentialMasterB, random, temperature, boxB);
 		integratorB.setTemperature(temperature);
 		integratorB.getMoveManager().addMCMove(new MCMoveMultiHarmonic(potentialB, random));
 		integrators[1] = integratorB;
@@ -104,8 +103,7 @@ public class SimOverlapMultiHarmonicOptRefPref extends Simulation{
 		potentialA.setX0(new Vector1D(0.0));
         potentialMasterA.addPotential(potentialA, new AtomType[]{species.getLeafType()});
 
-		integratorA = new IntegratorMC(potentialMasterA, random, temperature);
-		integratorA.setBox(boxA);
+		integratorA = new IntegratorMC(potentialMasterA, random, temperature, boxA);
 		integratorA.setTemperature(temperature);
 		integratorA.getMoveManager().addMCMove(new MCMoveMultiHarmonic(potentialA, random));
 		integrators[0] = integratorA;

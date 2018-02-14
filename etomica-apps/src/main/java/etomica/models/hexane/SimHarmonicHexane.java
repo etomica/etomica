@@ -73,7 +73,7 @@ public class SimHarmonicHexane extends Simulation {
         box.setNMolecules(species, xCells * yCells * zCells);
 //        integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0);
 
-        integrator = new IntegratorMC(this, null);
+        integrator = new IntegratorMC(this, null, box);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         

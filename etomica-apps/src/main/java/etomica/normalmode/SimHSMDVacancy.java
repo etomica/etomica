@@ -92,7 +92,7 @@ public class SimHSMDVacancy extends Simulation {
         potentialMasterList = new PotentialMasterList(this, nbrRange, space);
         potentialMasterList.setCellRange(2);
         double sigma = 1.0;
-        integrator = new IntegratorHardMDMC(this, potentialMasterList, space);
+        integrator = new IntegratorHardMDMC(this, potentialMasterList, space, box);
         integrator.setTimeStep(tStep);
         integrator.setIsothermal(true);
         integrator.setTemperature(1);
@@ -127,8 +127,8 @@ public class SimHSMDVacancy extends Simulation {
         
         integrator.getEventManager().addListener(potentialMasterList.getNeighborManager(box));
         //potentialMasterList.reset();
-        
-        integratorMC = new IntegratorMC(potentialMasterList, random, 1);
+
+        integratorMC = new IntegratorMC(potentialMasterList, random, 1, box);
 //        mcMoveID = new MCMoveInsertDelete1(potentialMasterList, random, space, fixedN, maxDN);
 //        mcMoveID = new MCMoveInsertDelete2(potentialMasterList, random, space, integrator, potentialTruncatedForceShifted, maxDN);
 //        mcMoveID = new MCMoveInsertDelete3(potentialMasterList, random, space, integrator, L*Math.sqrt(0.9), fixedN, maxDN);

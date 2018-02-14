@@ -52,15 +52,13 @@ public class MultiharmonicMC extends Simulation {
         boxB.getBoundary().setBoxSize(new Vector1D(3.0));
         boxB.setNMolecules(species, 10);
 
-        integratorA = new IntegratorMC(this, potentialMasterA);
-        integratorA.setBox(boxA);
+        integratorA = new IntegratorMC(this, potentialMasterA, boxA);
         integratorA.setTemperature(1.0);
         potentialA = new P1Harmonic(space);
         integratorA.getMoveManager().addMCMove(new MCMoveMultiHarmonic(potentialA, random));
         potentialMasterA.addPotential(potentialA, new AtomType[]{species.getLeafType()});
 
-        integratorB = new IntegratorMC(this, potentialMasterA);
-        integratorB.setBox(boxB);
+        integratorB = new IntegratorMC(this, potentialMasterA, boxB);
         integratorB.setTemperature(1.0);
         potentialB = new P1Harmonic(space);
         integratorB.getMoveManager().addMCMove(new MCMoveMultiHarmonic(potentialB, random));

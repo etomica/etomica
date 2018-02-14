@@ -145,7 +145,7 @@ public class TIP4P_NVT extends Simulation {
 //    	 potentialMaster.addPotential(p1ExternalField,  new ISpecies[] {species});//External field 
        
     	 // integrator from potential master
-    	 integrator = new IntegratorMC(this, potentialMaster);
+		 integrator = new IntegratorMC(this, potentialMaster, box);
     	 // add mc move
     	 moveMolecule = new MCMoveMolecule(this, potentialMaster, space);//stepSize:1.0, stepSizeMax:15.0
     	 rotateMolecule = new MCMoveRotateMolecule3D(potentialMaster,random,space);

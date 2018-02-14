@@ -172,8 +172,7 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         potentialMaster.lrcMaster().setEnabled(false);
         potentialMaster.getNeighborManager(boxRef).reset();
         
-        IntegratorMC integratorRef = new IntegratorMC(potentialMaster, random, temperature);
-        integratorRef.setBox(boxRef);
+        IntegratorMC integratorRef = new IntegratorMC(potentialMaster, random, temperature, boxRef);
         integrators[0] = integratorRef;
         
         nmRef = new NormalModesFromFile(rIn, space.D());
@@ -228,10 +227,9 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         potentialMaster.getNeighborManager(boxTarget).reset();
         
         IntegratorMC integratorTarget = new IntegratorMC(potentialMaster,
-                random, temperature);
+                random, temperature, boxTarget);
         integrators[1] = integratorTarget;
-        integratorTarget.setBox(boxTarget);
-        
+
         nmTarg = new NormalModesFromFile(tIn, space.D());
         nmTarg.setHarmonicFudge(1.0);
 //        nmTarg.setTemperature(temperature);  // notneeded, deriv based

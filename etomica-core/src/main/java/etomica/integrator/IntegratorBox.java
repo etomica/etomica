@@ -16,6 +16,8 @@ import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Dimensioned;
 import etomica.units.dimensions.Temperature;
 
+import java.util.Objects;
+
 /**
  * Superclass of integrators that acts on a single box.
  *
@@ -38,7 +40,7 @@ public abstract class IntegratorBox extends Integrator {
      */
     public IntegratorBox(PotentialMaster potentialMaster, double temperature, Box box) {
         super();
-        this.box = box;
+        this.box = Objects.requireNonNull(box);
         this.potentialMaster = potentialMaster;
         if (potentialMaster != null) {
             meterPE = new MeterPotentialEnergy(potentialMaster, box);

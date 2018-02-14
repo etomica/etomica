@@ -139,10 +139,9 @@ public class SimDifferentImage1DHR extends Simulation {
         potentialMasterTarget.getNeighborManager(boxTarget).reset();
         
         IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget,
-                random, temperature);
+                random, temperature, boxTarget);
         integrators[1] = integratorTarget;
-        integratorTarget.setBox(boxTarget);
-        
+
         nmTarg = new NormalModes1DHR(boxTarget.getBoundary(), targAtoms);
         nmTarg.setHarmonicFudge(1.0);
         nmTarg.setTemperature(temperature);
@@ -210,8 +209,7 @@ public class SimDifferentImage1DHR extends Simulation {
         potentialMasterRef.getNeighborManager(boxRef).reset();
         
         IntegratorMC integratorRef = new IntegratorMC(potentialMasterRef, 
-                random, temperature);
-        integratorRef.setBox(boxRef);
+                random, temperature, boxRef);
         integrators[0] = integratorRef;
         
         nmRef = new NormalModes1DHR(boxRef.getBoundary(), refAtoms);

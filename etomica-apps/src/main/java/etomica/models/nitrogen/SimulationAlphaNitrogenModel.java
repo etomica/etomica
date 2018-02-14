@@ -123,7 +123,7 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 //		((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);	
 //		((MCMoveStepTracker)rotate.getTracker()).setNoisyAdjustment(true);
 
-		integrator = new IntegratorMC(potentialMaster, getRandom(), Kelvin.UNIT.toSim(temperature));
+        integrator = new IntegratorMC(potentialMaster, getRandom(), Kelvin.UNIT.toSim(temperature), box);
 		integrator.getMoveManager().addMCMove(move);
 		integrator.getMoveManager().addMCMove(rotate);
 		integrator.setBox(box);

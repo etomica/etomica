@@ -55,41 +55,40 @@ public class TestSWChain extends Simulation {
         double bondFactor = 0.15;
         double timeStep = 0.005;
         simTime /= chainLength;
-        int nSteps = (int)(simTime / timeStep);
+        int nSteps = (int) (simTime / timeStep);
 
         // makes eta = 0.35
-        double l = 14.4094*Math.pow((numAtoms/2000.0),1.0/3.0);
-        integrator = new IntegratorHard(this, potentialMaster, space);
+        double l = 14.4094 * Math.pow((numAtoms / 2000.0), 1.0 / 3.0);
+        box = new Box(space);
+        integrator = new IntegratorHard(this, potentialMaster, space, box);
         integrator.setTimeStep(timeStep);
         integrator.setIsothermal(true);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         activityIntegrate.setMaxSteps(nSteps);
         potentialMaster.setCellRange(2);
-        potentialMaster.setRange(neighborRangeFac*sqwLambda*sigma);
+        potentialMaster.setRange(neighborRangeFac * sqwLambda * sigma);
 
-        SpeciesSpheres species = new SpeciesSpheres(this,_space,chainLength);
+        SpeciesSpheres species = new SpeciesSpheres(this, _space, chainLength);
         species.setIsDynamic(true);
         addSpecies(species);
         P2HardBond bonded = new P2HardBond(space, sigma, bondFactor, false);
         PotentialGroup potentialChainIntra = potentialMaster.makePotentialGroup(1);
         potentialChainIntra.addPotential(bonded, ApiBuilder.makeAdjacentPairIterator());
 
-        potentialMaster.addPotential(potentialChainIntra, new ISpecies[] {species});
-        ((ConformationLinear)species.getConformation()).setBondLength(sigma);
+        potentialMaster.addPotential(potentialChainIntra, new ISpecies[]{species});
+        ((ConformationLinear) species.getConformation()).setBondLength(sigma);
 
-        P2SquareWell potential = new P2SquareWell(space,sigma,sqwLambda,0.5,false);
+        P2SquareWell potential = new P2SquareWell(space, sigma, sqwLambda, 0.5, false);
 
         AtomType sphereType = species.getLeafType();
         potentialMaster.addPotential(potential, new AtomType[]{sphereType, sphereType});
-        CriterionInterMolecular sqwCriterion = (CriterionInterMolecular)potentialMaster.getCriterion(potential);
+        CriterionInterMolecular sqwCriterion = (CriterionInterMolecular) potentialMaster.getCriterion(potential);
         CriterionBondedSimple nonBondedCriterion = new CriterionBondedSimple(new CriterionAll());
         nonBondedCriterion.setBonded(false);
         sqwCriterion.setIntraMolecularCriterion(nonBondedCriterion);
-
-        box = new Box(space);
         addBox(box);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{l,l,l}));
+        box.getBoundary().setBoxSize(space.makeVector(new double[]{l, l, l}));
         box.setNMolecules(species, numMolecules);
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
 

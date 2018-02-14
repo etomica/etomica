@@ -107,11 +107,10 @@ public class SimOverlapBetaN2RP extends Simulation {
 		MCMoveRotateMolecule3D rotateTarg = new MCMoveRotateMolecule3D(potentialMasterTarg, getRandom(), space);
 		rotateTarg.setBox(boxTarg);
 		
-        IntegratorMC integratorTarg = new IntegratorMC(potentialMasterTarg, getRandom(), temperature);
+        IntegratorMC integratorTarg = new IntegratorMC(potentialMasterTarg, getRandom(), temperature, boxTarg);
         integratorTarg.getMoveManager().addMCMove(moveTarg);
 		integratorTarg.getMoveManager().addMCMove(rotateTarg);
 	    
-		integratorTarg.setBox(boxTarg);
 		integrators[1] = integratorTarg;
 		
 
@@ -144,11 +143,10 @@ public class SimOverlapBetaN2RP extends Simulation {
 		MCMoveRotateMolecule3D rotateRef = new MCMoveRotateMolecule3D(potentialMasterRef, getRandom(), space);
 		rotateRef.setBox(boxRef);
 		
-        IntegratorMC integratorRef = new IntegratorMC(potentialMasterRef, getRandom(), temperature);
+        IntegratorMC integratorRef = new IntegratorMC(potentialMasterRef, getRandom(), temperature, boxRef);
         integratorRef.getMoveManager().addMCMove(moveRef);
 		integratorRef.getMoveManager().addMCMove(rotateRef);
 	    
-		integratorRef.setBox(boxRef);
 		integrators[0] = integratorRef;
         
 	    MeterPotentialEnergy meterPERef = new MeterPotentialEnergy(potentialMasterRef);

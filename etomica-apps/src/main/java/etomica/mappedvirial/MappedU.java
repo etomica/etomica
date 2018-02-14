@@ -61,7 +61,7 @@ public class MappedU extends Simulation {
         potentialMaster.lrcMaster().setEnabled(false);
 
         //controller and integrator
-        integrator = new IntegratorMC(potentialMaster, random, temperature);
+        integrator = new IntegratorMC(potentialMaster, random, temperature, box);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         move = new MCMoveAtom(random, potentialMaster, space);

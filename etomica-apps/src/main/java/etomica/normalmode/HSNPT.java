@@ -60,23 +60,24 @@ public class HSNPT extends Simulation {
     public HSNPT(Space _space, int numAtoms, double rho, boolean nvt, boolean fancyMove, double sigma2) {
         super(_space);
         potentialMaster = new PotentialMasterList(this, space);
-        
+
         double neighborRangeFac = 1.4;
         double sigma = 1.0;
-        double l = Math.pow(numAtoms / rho, 1.0/3.0);
+        double l = Math.pow(numAtoms / rho, 1.0 / 3.0);
         if (_space.D() == 2) {
             int nx = 10;
             int ny = 6;
-            if (numAtoms != nx*ny*2) throw new RuntimeException("oops");
+            if (numAtoms != nx * ny * 2) throw new RuntimeException("oops");
             double bx = 1;
-            double v1 = Math.sqrt(3)/rho;
-            double v2 = 2/rho;
-            bx *= nx*Math.sqrt(v2/v1);
+            double v1 = Math.sqrt(3) / rho;
+            double v2 = 2 / rho;
+            bx *= nx * Math.sqrt(v2 / v1);
             l = bx;
         }
         potentialMaster.setCellRange(1);
-        potentialMaster.setRange(neighborRangeFac*sigma);
-        integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0);
+        potentialMaster.setRange(neighborRangeFac * sigma);
+        box = new Box(space);
+        integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0, box);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this, space);
@@ -86,8 +87,6 @@ public class HSNPT extends Simulation {
 
         P2HardSphere p2 = new P2HardSphere(space, sigma, false);
         potentialMaster.addPotential(p2, new AtomType[]{type1, type1});
-
-        box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
         if (sigma2 != sigma) {
@@ -95,36 +94,33 @@ public class HSNPT extends Simulation {
             species.setIsDynamic(true);
             addSpecies(species2);
             AtomType type2 = species2.getLeafType();
-            pCross = new P2HardSphere(space, (sigma+sigma2)/2.0, false);
+            pCross = new P2HardSphere(space, (sigma + sigma2) / 2.0, false);
             potentialMaster.addPotential(pCross, new AtomType[]{type1, type2});
-            box.setNMolecules(species, numAtoms-1);
+            box.setNMolecules(species, numAtoms - 1);
             box.setNMolecules(species2, 1);
-        }
-        else {
+        } else {
             pCross = null;
         }
 
         if (_space.D() == 3) {
-            box.getBoundary().setBoxSize(space.makeVector(new double[]{l,l,l}));
-        }
-        else {
-            box.getBoundary().setBoxSize(space.makeVector(new double[]{l,l*Math.sqrt(3)*6/10}));
+            box.getBoundary().setBoxSize(space.makeVector(new double[]{l, l, l}));
+        } else {
+            box.getBoundary().setBoxSize(space.makeVector(new double[]{l, l * Math.sqrt(3) * 6 / 10}));
         }
         if (_space.D() == 3) {
-            int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-            coordinateDefinition = new CoordinateDefinitionLeaf(box, new PrimitiveCubic(space, l/n), new BasisCubicFcc(), space);
-            coordinateDefinition.initializeCoordinates(new int[]{n,n,n});
-        }
-        else {
+            int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+            coordinateDefinition = new CoordinateDefinitionLeaf(box, new PrimitiveCubic(space, l / n), new BasisCubicFcc(), space);
+            coordinateDefinition.initializeCoordinates(new int[]{n, n, n});
+        } else {
             int nx = 10;
             int ny = 6;
-            coordinateDefinition = new CoordinateDefinitionLeaf(box, new PrimitiveOrthorhombicHexagonal(space, l/nx), new BasisOrthorhombicHexagonal(), space);
+            coordinateDefinition = new CoordinateDefinitionLeaf(box, new PrimitiveOrthorhombicHexagonal(space, l / nx), new BasisOrthorhombicHexagonal(), space);
             coordinateDefinition.initializeCoordinates(new int[]{nx, ny});
         }
         integrator.setBox(box);
 
         potentialMaster.getNeighborManager(box).reset();
-        
+
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
         MCMoveAtomCoupled mcMove = new MCMoveAtomCoupled(potentialMaster, meterPE, getRandom(), space);
@@ -132,39 +128,36 @@ public class HSNPT extends Simulation {
         integrator.getMoveManager().addMCMove(mcMove);
 
         box.getBoundary().getEventManager().removeListener(potentialMaster.getNbrCellManager(box));
-        
+
         if (!nvt) {
             // using Carnahan-Starling EOS.  the pressure will be too high because
             // we have a solid, but OK.
             double eta = rho * Math.PI / 6;
-            double den = 1-eta;
-            double z = (1 + eta + eta*eta - eta*eta*eta) / (den*den*den);
+            double den = 1 - eta;
+            double z = (1 + eta + eta * eta - eta * eta * eta) / (den * den * den);
             double p = z * rho;
-        
+
             // hard coded pressure for rho=1.2
             if (space.D() == 2) {
                 p = 14.9;
-            }
-            else {
+            } else {
                 if (rho == 1.2) {
                     p = 23.3;
-                }
-                else {
+                } else {
                     p = 47.6;
                 }
             }
-        
+
             MCMove mcMoveVolume;
             if (fancyMove) {
                 // fancy move
                 mcMoveVolume = new MCMoveVolumeSolid(potentialMaster, coordinateDefinition, getRandom(), space, p);
-                ((MCMoveVolumeSolid)mcMoveVolume).setTemperature(1.0);
-            }
-            else {
+                ((MCMoveVolumeSolid) mcMoveVolume).setTemperature(1.0);
+            } else {
                 // standard move
                 mcMoveVolume = new MCMoveVolume(potentialMaster, getRandom(), space, p);
             }
-            ((MCMoveStepTracker)mcMoveVolume.getTracker()).setNoisyAdjustment(true);
+            ((MCMoveStepTracker) mcMoveVolume.getTracker()).setNoisyAdjustment(true);
             integrator.getMoveManager().addMCMove(mcMoveVolume);
         }
     }

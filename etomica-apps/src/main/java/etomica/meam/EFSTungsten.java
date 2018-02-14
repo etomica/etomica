@@ -80,7 +80,8 @@ public class EFSTungsten extends Simulation {
     public EFSTungsten(int numatoms, double density, double temperature) {
         super(Space3D.getInstance());
         potentialMaster = new PotentialMasterList(this, space);
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
+        box = new Box(space);
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space, box);
         integrator.setTimeStep(0.001);
         integrator.setTemperature(Kelvin.UNIT.toSim(temperature));
         integrator.setThermostatInterval(100);
@@ -92,8 +93,6 @@ public class EFSTungsten extends Simulation {
         w.setIsDynamic(true);
 
         addSpecies(w);
-
-        box = new Box(space);
         addBox(box);
         box.setNMolecules(w, numatoms);
 

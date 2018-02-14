@@ -102,8 +102,8 @@ public class SimDegreeFreedom3D extends Simulation {
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
         int coordinateDim = coordinateDefinition.getCoordinateDim();
-        
-        integrator = new IntegratorMC(this, potentialMaster);
+
+        integrator = new IntegratorMC(this, potentialMaster, box);
         integrator.setBox(box);
         
         nm = new NormalModesFromFile(filename, space.D());

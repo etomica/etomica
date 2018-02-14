@@ -93,7 +93,8 @@ public class HSDimerNPT extends Simulation {
         System.out.println("close-packed theta: " + theta);
 
         double sigma = 1.0;
-        integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0);
+        latticeBox = new Box(space);
+        integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0, latticeBox);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
 
@@ -139,9 +140,6 @@ public class HSDimerNPT extends Simulation {
         };
         coordinateDefinition.setOrientations(axes, new double[]{theta}, selector);
         coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
-        integrator.setBox(box);
-
-        latticeBox = new Box(space);
         addBox(latticeBox);
         latticeBox.setNMolecules(species, numMolecules);
         latticeBox.setBoundary(new BoundaryDeformablePeriodic(space, boxDim));

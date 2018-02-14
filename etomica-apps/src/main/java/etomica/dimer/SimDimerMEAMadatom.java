@@ -389,7 +389,7 @@ public class SimDimerMEAMadatom extends Simulation{
     }
 
     public void enableMolecularDynamics(long maxSteps){
-        integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, space);
+        integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, space, box);
         integratorMD.setTimeStep(0.001);
         integratorMD.setTemperature(Kelvin.UNIT.toSim(100));
         integratorMD.setThermostatInterval(100);
@@ -401,20 +401,19 @@ public class SimDimerMEAMadatom extends Simulation{
         activityIntegrateMD.setMaxSteps(maxSteps);
     }
 
-    public void enableDimerSearch(String fileName, long maxSteps, Boolean orthoSearch, Boolean fine){
+    public void enableDimerSearch(String fileName, long maxSteps, Boolean orthoSearch, Boolean fine) {
 
-        integratorDimer = new IntegratorDimerRT(this, potentialMasterD, new ISpecies[]{movable}, space);
-        integratorDimer.setBox(box);
+        integratorDimer = new IntegratorDimerRT(this, potentialMasterD, new ISpecies[]{movable}, space, box);
         integratorDimer.setOrtho(orthoSearch, false);
-        if(fine){
-            ConfigurationFile configFile = new ConfigurationFile(fileName+"_saddle");
+        if (fine) {
+            ConfigurationFile configFile = new ConfigurationFile(fileName + "_saddle");
             configFile.initializeCoordinates(box);
 
-            integratorDimer.setFileName(fileName+"_fine");
+            integratorDimer.setFileName(fileName + "_fine");
             integratorDimer.deltaR = 0.0005;
             integratorDimer.dXl = 10E-5;
             integratorDimer.deltaXmax = 0.005;
-            integratorDimer.dFsq = 0.0001*0.0001;
+            integratorDimer.dFsq = 0.0001 * 0.0001;
             integratorDimer.dFrot = 0.01;
         }
         integratorDimer.setFileName(fileName);
@@ -427,7 +426,7 @@ public class SimDimerMEAMadatom extends Simulation{
 
     public void enableMinimumSearch(String fileName, Boolean normalDir){
 
-        integratorDimerMin = new IntegratorDimerMin(this, potentialMasterD, new ISpecies[]{movable}, normalDir, space);
+        integratorDimerMin = new IntegratorDimerMin(this, potentialMasterD, new ISpecies[]{movable}, normalDir, space, box);
         integratorDimerMin.setBox(box);
         integratorDimerMin.setFileName(fileName);
         integratorDimerMin.getEventManager().addListener(potentialMasterD.getNeighborManager(box));

@@ -81,7 +81,7 @@ public class SimOverlap extends Simulation {
         addBox(boxTarget);
         boxTarget.setNMolecules(species, numAtoms);
 
-        integratorTarget = new IntegratorHard(this, potentialMasterTarget, space);
+        integratorTarget = new IntegratorHard(this, potentialMasterTarget, space, box);
         // needs to be irrational so that configurations don't repeat in 1D with 2 atoms
         integratorTarget.setTimeStep(Math.PI);
         integratorTarget.setTemperature(1.0);
@@ -156,7 +156,7 @@ public class SimOverlap extends Simulation {
         addBox(boxHarmonic);
         boxHarmonic.setNMolecules(species, numAtoms);
 
-        IntegratorMC integratorHarmonic = new IntegratorMC(null, random, 1.0);
+        IntegratorMC integratorHarmonic = new IntegratorMC(null, random, 1.0, box);
         integratorHarmonic.setBox(boxHarmonic);
 
         integrators[0] = integratorHarmonic;

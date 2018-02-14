@@ -111,8 +111,8 @@ public class SimulationVirial extends Simulation {
 		    addSpecies(species[i]);
 		    box.setNMolecules(species[i], numMolecules[i]);
 		}
-        
-        integrator = new IntegratorMC(this, potentialMaster);
+
+        integrator = new IntegratorMC(this, potentialMaster, box);
         // it's unclear what this accomplishes, but let's do it just for fun.
 		integrator.setTemperature(temperature);
         integrator.setBox(box);

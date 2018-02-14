@@ -78,7 +78,7 @@ public class SimOverlapSoftSphereDP extends Simulation {
         addBox(box);
         box.setNMolecules(species, numAtoms);
 
-        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
+        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
         atomMove = new MCMoveAtomCoupled(potentialMaster, meterPE, getRandom(), space);

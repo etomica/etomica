@@ -49,11 +49,12 @@ public class TestYukawaMC3D extends Simulation{
 		this(500);
 	}
 	
-	public TestYukawaMC3D(int numAtoms){
+	public TestYukawaMC3D(int numAtoms) {
 		super(Space3D.getInstance());
-        PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
-		
-		integrator = new IntegratorMC(this, potentialMaster);
+		PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
+
+		box = new Box(space);
+		integrator = new IntegratorMC(this, potentialMaster, box);
 		mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
 		mcMoveAtom.setStepSize(0.2);
 		integrator.getMoveManager().addMCMove(mcMoveAtom);
@@ -61,30 +62,29 @@ public class TestYukawaMC3D extends Simulation{
 		ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
 		getController().addAction(activityIntegrate);
 		species = new SpeciesSpheresMono(this, space);
-        addSpecies(species);
-		box = new Box(space);
-        addBox(box);
+		addSpecies(species);
+		addBox(box);
 		box.setNMolecules(species, numAtoms);
-        BoxInflate inflater = new BoxInflate(box, space);
-        inflater.setTargetDensity(0.65);
-        inflater.actionPerformed();
+		BoxInflate inflater = new BoxInflate(box, space);
+		inflater.setTargetDensity(0.65);
+		inflater.actionPerformed();
 		potential = new P2Yukawa(space);
-		double truncationRadius = 3.0*potential.getKappa();
-		if(truncationRadius > 0.5*box.getBoundary().getBoxSize().getX(0)){
-			throw new RuntimeException("Truncaiton radius too large.  Max allowed is "+0.5*box.getBoundary().getBoxSize().getX(0));
+		double truncationRadius = 3.0 * potential.getKappa();
+		if (truncationRadius > 0.5 * box.getBoundary().getBoxSize().getX(0)) {
+			throw new RuntimeException("Truncaiton radius too large.  Max allowed is " + 0.5 * box.getBoundary().getBoxSize().getX(0));
 		}
 		P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
 		potentialMaster.setCellRange(3);
 		potentialMaster.setRange(potentialTruncated.getRange());
-        potentialMaster.addPotential(potentialTruncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
+		potentialMaster.addPotential(potentialTruncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
-        integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
-		
+		integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
+
 		new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
 		integrator.setBox(box);
-		
+
 		potentialMaster.getNbrCellManager(box).assignCellAll();
-		
+
 	}
 	
 	public static void main(String[] args){

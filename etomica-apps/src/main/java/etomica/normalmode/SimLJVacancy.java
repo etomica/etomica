@@ -90,7 +90,7 @@ public class SimLJVacancy extends Simulation {
         
         potentialMaster = new PotentialMasterCell(this, rc, space);
         potentialMaster.setCellRange(2);
-        integrator = new IntegratorMC(this, potentialMaster);
+        integrator = new IntegratorMC(this, potentialMaster, box);
         integrator.setTemperature(temperature);
         MCMoveAtom move = new MCMoveAtom(random, potentialMaster, space);
         move.setStepSize(0.2);

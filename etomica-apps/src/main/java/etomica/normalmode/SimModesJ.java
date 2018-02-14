@@ -102,7 +102,7 @@ public class SimModesJ extends Simulation {
             }
         }
 
-        integrator = new IntegratorMC(null, random, 1.0);
+        integrator = new IntegratorMC(null, random, 1.0, box);
         integrator.setBox(box);
         MCMoveWV moveWV = new MCMoveWV(space, normalModes, coordinateDefinition, random);
         ((MCMoveStepTracker)moveWV.getTracker()).setNoisyAdjustment(true);

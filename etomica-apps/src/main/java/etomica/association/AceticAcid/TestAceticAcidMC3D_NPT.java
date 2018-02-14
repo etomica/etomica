@@ -84,62 +84,62 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
         PotentialMaster potentialMaster = new PotentialMaster();
         //setRandom(new RandomNumberGenerator(3));
         IMoleculePositionDefinition positionDefinition = new IMoleculePositionDefinition() {//anonymous class
-			public Vector position(IMolecule molecule) {
-				return molecule.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition();
-			}
-		};
+            public Vector position(IMolecule molecule) {
+                return molecule.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition();
+            }
+        };
         BoxAgentSourceCellManagerMolecular bASCellManagerMolecular = new BoxAgentSourceCellManagerMolecular(this, positionDefinition, space);//tracking neighbors
         bASCellManagerMolecular.setRange(4.2);//association is made within 4.2A of C-C distance
         BoxAgentManager<NeighborCellManagerMolecular> cellAgentManager = new BoxAgentManager<NeighborCellManagerMolecular>(bASCellManagerMolecular, this);
-        System.out.println("pressure = "+pressureBar+"bar");
-        System.out.println("initial density = "+densityMolLiter+"mol/L");
-        System.out.println("temperature = "+temperatureK+"K");
-        System.out.println("numSteps = "+numSteps+"steps");
-    	CompoundUnit rhoUnit = new CompoundUnit(new Unit[]{Mole.UNIT,Liter.UNIT},new double[]{1,-1});
+        System.out.println("pressure = " + pressureBar + "bar");
+        System.out.println("initial density = " + densityMolLiter + "mol/L");
+        System.out.println("temperature = " + temperatureK + "K");
+        System.out.println("numSteps = " + numSteps + "steps");
+        CompoundUnit rhoUnit = new CompoundUnit(new Unit[]{Mole.UNIT, Liter.UNIT}, new double[]{1, -1});
         double density = rhoUnit.toSim(densityMolLiter);
         double pressure = Bar.UNIT.toSim(pressureBar);
         double temperature = Kelvin.UNIT.toSim(temperatureK);
-        double volume = 1/(density/numAtoms);
-        double boxLength = Math.pow(volume, 1.0/3.0);      
+        double volume = 1 / (density / numAtoms);
+        double boxLength = Math.pow(volume, 1.0 / 3.0);
 
-	    integrator = new IntegratorMC(this, potentialMaster);
-	    integrator.setTemperature(temperature);
-	    mcMoveMoleculeMonomer = new MCMoveMoleculeMonomer(this, potentialMaster, space);//Standard Monte Carlo atom-displacement trial move
-	    mcMoveMoleculeSmer = new MCMoveMoleculeSmer(this, potentialMaster, space);
-	    mcMoveMoleculeRotate = new MCMoveMoleculeRotateAssociated(potentialMaster, random, space);//Performs a rotation of an atom (not a molecule) that has an orientation coordinate
-	    box = new Box(space);
+        box = new Box(space);
+        integrator = new IntegratorMC(this, potentialMaster, box);
+        integrator.setTemperature(temperature);
+        mcMoveMoleculeMonomer = new MCMoveMoleculeMonomer(this, potentialMaster, space);//Standard Monte Carlo atom-displacement trial move
+        mcMoveMoleculeSmer = new MCMoveMoleculeSmer(this, potentialMaster, space);
+        mcMoveMoleculeRotate = new MCMoveMoleculeRotateAssociated(potentialMaster, random, space);//Performs a rotation of an atom (not a molecule) that has an orientation coordinate;
         addBox(box);
         bv = new BiasVolumeAceticAcid(space, random, box);
-	    bv.setBox(box);
+        bv.setBox(box);
 
-	    associationManager = new AssociationManagerMolecule(this, box, cellAgentManager, bv, 4.2);//check the association within the range 4.2A, maximum distance of association = 4.2A
-	    associationHelper = new AssociationHelperMolecule(space, box, associationManager);
-	    mcMoveBiasUB = new MCMoveBiasUBMolecule(potentialMaster, bv, random, space);
-	    mcMoveMoleculeMonomer.setAssociationManager(associationManager, associationHelper);
-	    mcMoveMoleculeSmer.setAssociationManager(associationManager, associationHelper);
-	    mcMoveMoleculeRotate.setAssociationManager(associationManager, associationHelper);
-	    mcMoveBiasUB.setAssociationManager(associationManager, associationHelper);
-	    mcMoveVolume = new MCMoveVolumeAssociatedMolecule(this,potentialMaster,space);//volume change move
-	    mcMoveVolume.setPressure(pressure);
-	    mcMoveVolume.setAssociationManager(associationManager, associationHelper);
-	    
-	    mcMoveTorsion = new MCMoveTorsionAceticAcid(potentialMaster, space, random);
-	    mcMoveWiggle = new MCMoveWiggleAceticAcid(potentialMaster, random, 0.1, space);
-        
+        associationManager = new AssociationManagerMolecule(this, box, cellAgentManager, bv, 4.2);//check the association within the range 4.2A, maximum distance of association = 4.2A
+        associationHelper = new AssociationHelperMolecule(space, box, associationManager);
+        mcMoveBiasUB = new MCMoveBiasUBMolecule(potentialMaster, bv, random, space);
+        mcMoveMoleculeMonomer.setAssociationManager(associationManager, associationHelper);
+        mcMoveMoleculeSmer.setAssociationManager(associationManager, associationHelper);
+        mcMoveMoleculeRotate.setAssociationManager(associationManager, associationHelper);
+        mcMoveBiasUB.setAssociationManager(associationManager, associationHelper);
+        mcMoveVolume = new MCMoveVolumeAssociatedMolecule(this, potentialMaster, space);//volume change move
+        mcMoveVolume.setPressure(pressure);
+        mcMoveVolume.setAssociationManager(associationManager, associationHelper);
+
+        mcMoveTorsion = new MCMoveTorsionAceticAcid(potentialMaster, space, random);
+        mcMoveWiggle = new MCMoveWiggleAceticAcid(potentialMaster, random, 0.1, space);
+
         integrator.getMoveEventManager().addListener(associationManager);
-	    
-        ((MCMoveStepTracker)mcMoveMoleculeMonomer.getTracker()).setNoisyAdjustment(true);
-        ((MCMoveStepTracker)mcMoveMoleculeSmer.getTracker()).setNoisyAdjustment(true);
-        ((MCMoveStepTracker)mcMoveMoleculeRotate.getTracker()).setNoisyAdjustment(true);
-        ((MCMoveStepTracker)mcMoveVolume.getTracker()).setNoisyAdjustment(true);
-        ((MCMoveStepTracker)mcMoveWiggle.getTracker()).setNoisyAdjustment(true);
+
+        ((MCMoveStepTracker) mcMoveMoleculeMonomer.getTracker()).setNoisyAdjustment(true);
+        ((MCMoveStepTracker) mcMoveMoleculeSmer.getTracker()).setNoisyAdjustment(true);
+        ((MCMoveStepTracker) mcMoveMoleculeRotate.getTracker()).setNoisyAdjustment(true);
+        ((MCMoveStepTracker) mcMoveVolume.getTracker()).setNoisyAdjustment(true);
+        ((MCMoveStepTracker) mcMoveWiggle.getTracker()).setNoisyAdjustment(true);
         integrator.getMoveManager().addMCMove(mcMoveMoleculeMonomer);
         integrator.getMoveManager().addMCMove(mcMoveMoleculeSmer);
         integrator.getMoveManager().addMCMove(mcMoveMoleculeRotate);
         integrator.getMoveManager().addMCMove(mcMoveTorsion);
         integrator.getMoveManager().addMCMove(mcMoveWiggle);
         integrator.getMoveManager().addMCMove(mcMoveVolume);
-        integrator.getMoveManager().addMCMove(mcMoveBiasUB);        
+        integrator.getMoveManager().addMCMove(mcMoveBiasUB);
         integrator.getMoveManager().setEquilibrating(true);
         actionIntegrator = new ActivityIntegrate(integrator);
         //actionIntegrate.setSleepPeriod(1);
@@ -151,70 +151,68 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
         BoxInflate inflater = new BoxInflate(box, space);//Performs actions that cause volume of system to expand or contract
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
-        
+
         potential = new PotentialGroup(2);
         potential.setBox(box);
-        System.out.println("cut-off Distance "+boxLength*0.49+" A");
-    	AceticAcidPotentialHelper.initPotential(space, species, potential);
-    	
-    	 double thetaEqCCDBO = 126*Math.PI/180;//equilibrium bond angle [=] degree, C-C=O
-         double thetaEqDBOCSBO = 123*Math.PI/180;//O=C-O
-         double thetaEqCSBOH = 107*Math.PI/180;//C-O-H
-         double thetaEqCCSBO = 111*Math.PI/180;//C-C-O
-         double kThetaCCDBO = Kelvin.UNIT.toSim(80600); //force constant [=] K, C-C=O
-         double kThetaDBOCSBO = Kelvin.UNIT.toSim(80600);//O=C-O
-         double kThetaCSBOH = Kelvin.UNIT.toSim(35200);//C-O-H
-         double kThetaCCSBO = Kelvin.UNIT.toSim(70600);//C-C-O
-         PotentialGroup pIntra = potentialMaster.makePotentialGroup(1);
-         
-         P3BondAngle uBendingCCDBO = new P3BondAngle(space);//C-C=O
-         P3BondAngle uBendingDBOCSBO = new P3BondAngle(space);//O=C-O
-         P3BondAngle uBendingCSBOH = new P3BondAngle(space);//C-O-H
-         P3BondAngle uBendingCCSBO = new P3BondAngle(space);//C-C-O
-         
-         uBendingCCDBO.setAngle(thetaEqCCDBO);
-         uBendingCCDBO.setEpsilon(kThetaCCDBO);
-         uBendingDBOCSBO.setAngle(thetaEqDBOCSBO);
-         uBendingDBOCSBO.setEpsilon(kThetaDBOCSBO);
-         uBendingCSBOH.setAngle(thetaEqCSBOH);
-         uBendingCSBOH.setEpsilon(kThetaCSBOH);
-         uBendingCCSBO.setAngle(thetaEqCCSBO);
-         uBendingCCSBO.setEpsilon(kThetaCCSBO);
-         
-         pIntra.addPotential(uBendingCCDBO, new Atomset3IteratorIndexList(new int[][] {{0,1,2}}));//CH3:0, C:1, dBO:2, sBO:3, H:4
-         pIntra.addPotential(uBendingDBOCSBO, new Atomset3IteratorIndexList(new int[][] {{2,1,3}}));
-         pIntra.addPotential(uBendingCSBOH, new Atomset3IteratorIndexList(new int[][] {{1,3,4}}));
-         pIntra.addPotential(uBendingCCSBO, new Atomset3IteratorIndexList(new int[][] {{0,1,3}}));
-         potentialMaster.addPotential(pIntra,new ISpecies[]{species});
+        System.out.println("cut-off Distance " + boxLength * 0.49 + " A");
+        AceticAcidPotentialHelper.initPotential(space, species, potential);
 
-         //utorsional = c1*[1+cos(phi+f1)]+c2*[1-cos(2*phi)], c1/kB = 630K, c2/kB = 1562.4K, f1=180°(for OCOH), 0°(for CCOH)
-         
-         P4BondTorsion p4OCOH = new P4BondTorsion(space, 2*Kelvin.UNIT.toSim(630.0), Kelvin.UNIT.toSim(-630.0), Kelvin.UNIT.toSim(1562.4), Kelvin.UNIT.toSim(0.0));
-         P4BondTorsion p4CCOH = new P4BondTorsion(space, 0, Kelvin.UNIT.toSim(630.0), Kelvin.UNIT.toSim(1562.4), Kelvin.UNIT.toSim(0.0));
-         pIntra.addPotential(p4OCOH, new Atomset4IteratorIndexList(new int[][] {{2,1,3,4}}));
-         pIntra.addPotential(p4CCOH, new Atomset4IteratorIndexList(new int[][] {{0,1,3,4}}));
-         
-         DipoleSourceAceticAcid dipoleSource = new DipoleSourceAceticAcid(space);
+        double thetaEqCCDBO = 126 * Math.PI / 180;//equilibrium bond angle [=] degree, C-C=O
+        double thetaEqDBOCSBO = 123 * Math.PI / 180;//O=C-O
+        double thetaEqCSBOH = 107 * Math.PI / 180;//C-O-H
+        double thetaEqCCSBO = 111 * Math.PI / 180;//C-C-O
+        double kThetaCCDBO = Kelvin.UNIT.toSim(80600); //force constant [=] K, C-C=O
+        double kThetaDBOCSBO = Kelvin.UNIT.toSim(80600);//O=C-O
+        double kThetaCSBOH = Kelvin.UNIT.toSim(35200);//C-O-H
+        double kThetaCCSBO = Kelvin.UNIT.toSim(70600);//C-C-O
+        PotentialGroup pIntra = potentialMaster.makePotentialGroup(1);
 
-        System.out.println("number of molecules "+box.getMoleculeList().getMoleculeCount());
-        System.out.println("volume "+box.getBoundary().volume());
-        System.out.println("Rho "+box.getMoleculeList().getMoleculeCount() / box.getBoundary().volume());
-        
+        P3BondAngle uBendingCCDBO = new P3BondAngle(space);//C-C=O
+        P3BondAngle uBendingDBOCSBO = new P3BondAngle(space);//O=C-O
+        P3BondAngle uBendingCSBOH = new P3BondAngle(space);//C-O-H
+        P3BondAngle uBendingCCSBO = new P3BondAngle(space);//C-C-O
+
+        uBendingCCDBO.setAngle(thetaEqCCDBO);
+        uBendingCCDBO.setEpsilon(kThetaCCDBO);
+        uBendingDBOCSBO.setAngle(thetaEqDBOCSBO);
+        uBendingDBOCSBO.setEpsilon(kThetaDBOCSBO);
+        uBendingCSBOH.setAngle(thetaEqCSBOH);
+        uBendingCSBOH.setEpsilon(kThetaCSBOH);
+        uBendingCCSBO.setAngle(thetaEqCCSBO);
+        uBendingCCSBO.setEpsilon(kThetaCCSBO);
+
+        pIntra.addPotential(uBendingCCDBO, new Atomset3IteratorIndexList(new int[][]{{0, 1, 2}}));//CH3:0, C:1, dBO:2, sBO:3, H:4
+        pIntra.addPotential(uBendingDBOCSBO, new Atomset3IteratorIndexList(new int[][]{{2, 1, 3}}));
+        pIntra.addPotential(uBendingCSBOH, new Atomset3IteratorIndexList(new int[][]{{1, 3, 4}}));
+        pIntra.addPotential(uBendingCCSBO, new Atomset3IteratorIndexList(new int[][]{{0, 1, 3}}));
+        potentialMaster.addPotential(pIntra, new ISpecies[]{species});
+
+        //utorsional = c1*[1+cos(phi+f1)]+c2*[1-cos(2*phi)], c1/kB = 630K, c2/kB = 1562.4K, f1=180°(for OCOH), 0°(for CCOH)
+
+        P4BondTorsion p4OCOH = new P4BondTorsion(space, 2 * Kelvin.UNIT.toSim(630.0), Kelvin.UNIT.toSim(-630.0), Kelvin.UNIT.toSim(1562.4), Kelvin.UNIT.toSim(0.0));
+        P4BondTorsion p4CCOH = new P4BondTorsion(space, 0, Kelvin.UNIT.toSim(630.0), Kelvin.UNIT.toSim(1562.4), Kelvin.UNIT.toSim(0.0));
+        pIntra.addPotential(p4OCOH, new Atomset4IteratorIndexList(new int[][]{{2, 1, 3, 4}}));
+        pIntra.addPotential(p4CCOH, new Atomset4IteratorIndexList(new int[][]{{0, 1, 3, 4}}));
+
+        DipoleSourceAceticAcid dipoleSource = new DipoleSourceAceticAcid(space);
+
+        System.out.println("number of molecules " + box.getMoleculeList().getMoleculeCount());
+        System.out.println("volume " + box.getBoundary().volume());
+        System.out.println("Rho " + box.getMoleculeList().getMoleculeCount() / box.getBoundary().volume());
+
         BoxImposePbc pbc = new BoxImposePbc(box, space);
         pbc.setApplyToMolecules(true);
         integrator.getEventManager().addListener(new IntegratorListenerAction(pbc));
 
-        potentialMaster.addPotential(potential, new ISpecies[] {species,species});//two-body
-        String configFile = "AceticAcid_NPT_"+numAtoms+"atoms"+temperatureK+"T"+pressureBar+"Bar"+numSteps+"steps";
-        if(false && new File(configFile+".pos").exists()){
-        	ConfigurationFile config = new ConfigurationFile(configFile);
+        potentialMaster.addPotential(potential, new ISpecies[]{species, species});//two-body
+        String configFile = "AceticAcid_NPT_" + numAtoms + "atoms" + temperatureK + "T" + pressureBar + "Bar" + numSteps + "steps";
+        if (false && new File(configFile + ".pos").exists()) {
+            ConfigurationFile config = new ConfigurationFile(configFile);
+            config.initializeCoordinates(box);
+        } else {
+            ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
             config.initializeCoordinates(box);
         }
-        else{
-	        ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
-	        config.initializeCoordinates(box);
-        }
-        integrator.setBox(box);
 
     }
  

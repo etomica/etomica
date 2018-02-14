@@ -53,11 +53,11 @@ public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom
         double diameter = 1.0;
 
         //controller and integrator
-        integratorHard1 = new IntegratorHard(this, potentialMaster, space);
+        box = new Box(space);
+        integratorHard1 = new IntegratorHard(this, potentialMaster, space, box);
         integratorHard1.setIsothermal(true);
 
         //construct box
-        box = new Box(space);
         addBox(box);
         box.setBoundary(new BoundaryRectangularPeriodic(space, 30.0));
         integratorHard1.setBox(box);
@@ -73,7 +73,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom
         integratorHard1.setNullPotential(nullPotential, speciesA.getLeafType());
         integratorHard1.setNullPotential(nullPotential, speciesB.getLeafType());
 
-        agentManager = new AtomLeafAgentManager<IAtom>(this,box);
+        agentManager = new AtomLeafAgentManager<IAtom>(this, box);
 
         //potentials
         AAbonded = new P2SquareWellBonded(space, agentManager, 0.5 * diameter, //core
@@ -96,12 +96,12 @@ public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom
         meterDimerFraction.setSpeciesA(speciesA);
         meterDimerFraction.setBox(box);
         thermometer = new MeterTemperature(box, space.D());
-        
+
         activityIntegrate = new ActivityIntegrate(integratorHard1);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
         integratorHard1.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
-	}
+    }
 
     public AtomLeafAgentManager<IAtom> getAgentManager() {
     	return agentManager;

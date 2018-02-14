@@ -72,7 +72,7 @@ public class LJMC extends Simulation {
         
         potentialMasterCell = new PotentialMasterCell(this, 5.49925, space);
         potentialMasterCell.setCellRange(2);
-        integrator = new IntegratorMC(this, potentialMasterCell);
+        integrator = new IntegratorMC(this, potentialMasterCell, box);
         integrator.setTemperature(temperature);
         MCMoveAtom mcMoveAtom = new MCMoveAtom(random, potentialMasterCell, space);
         mcMoveAtom.setAtomSource(new AtomSourceRandomSpecies(getRandom(), speciesFluid));

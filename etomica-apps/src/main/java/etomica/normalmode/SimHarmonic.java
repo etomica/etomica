@@ -61,7 +61,7 @@ public class SimHarmonic extends Simulation {
         addBox(box);
         box.setNMolecules(species, numAtoms);
 
-        integrator = new IntegratorMC(this, null);
+        integrator = new IntegratorMC(this, null, box);
 
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);

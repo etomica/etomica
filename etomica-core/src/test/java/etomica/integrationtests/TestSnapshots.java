@@ -58,7 +58,7 @@ public class TestSnapshots {
 
             PotentialMasterList pm = new PotentialMasterList(this, 1.6, this.space);
 
-            IntegratorHard integrator = new IntegratorHard(this, pm, this.space);
+            IntegratorHard integrator = new IntegratorHard(this, pm, this.space, box);
             integrator.setIsothermal(false);
             integrator.setTimeStep(0.01);
 

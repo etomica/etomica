@@ -72,7 +72,7 @@ public class SimEinStep1HCP extends Simulation {
         addBox(box);
         box.setNMolecules(species, numAtoms);
 
-        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
+        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
 
 
         int n = (int)Math.round(Math.pow(numAtoms/8, 1.0/3.0));

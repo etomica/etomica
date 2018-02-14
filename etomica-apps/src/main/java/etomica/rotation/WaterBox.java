@@ -49,7 +49,7 @@ public class WaterBox {
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeInterval = 0.004;
         int maxIterations = 20;
-        IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim, potentialMaster, timeInterval, 1, space);
+        IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim, potentialMaster, timeInterval, 1, space, box);
         integrator.printInterval = 10;
         integrator.setMaxIterations(maxIterations);
         integrator.setBox(box);

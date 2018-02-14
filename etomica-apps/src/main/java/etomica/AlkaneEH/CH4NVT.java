@@ -72,7 +72,7 @@ public class CH4NVT extends Simulation {
 		box.setNMolecules(speciesCH4, numberMolecules);
 		box.getBoundary().setBoxSize(space.makeVector(new double[]{boxSize,boxSize,boxSize}));
 		potentialMaster = new PotentialMaster();
-		integrator = new IntegratorMC(this, potentialMaster);
+		integrator = new IntegratorMC(this, potentialMaster, box);
 		
 		//CH4 potential
         double sigmaH = 3.31;// "middle point of CH bond"

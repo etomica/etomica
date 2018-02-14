@@ -6,8 +6,8 @@ package etomica.integrator;
 
 import etomica.action.AtomAction;
 import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.util.random.IRandom;
 
@@ -24,14 +24,10 @@ public class IntegratorAnalytic extends IntegratorMD {
     
     private static final long serialVersionUID = 1L;
     private AtomTimeAction action;
-    
-    public IntegratorAnalytic(Simulation sim, PotentialMaster potentialMaster, Space _space) {
-        this(potentialMaster, sim.getRandom(), 0.05, _space);
-    }
-    
+
     public IntegratorAnalytic(PotentialMaster potentialMaster, IRandom random,
-                              double timeStep, Space _space) {
-        super(potentialMaster,random,timeStep,0, _space);
+                              double timeStep, Space _space, Box box) {
+        super(potentialMaster,random,timeStep,0, _space, box);
     }
 
     protected void doStepInternal() {

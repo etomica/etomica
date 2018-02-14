@@ -61,38 +61,38 @@ public class LJNPT extends Simulation {
         potentialMaster = new PotentialMasterCell(this, rc, space);
         potentialMaster.setCellRange(2);
         potentialMaster.lrcMaster().setEnabled(false);
-        
+
         //controller and integrator
-	    integrator = new IntegratorMC(potentialMaster, random, temperature);
+        box = new Box(space);
+        integrator = new IntegratorMC(potentialMaster, random, temperature, box);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
 
-	    //species and potentials
-	    species = new SpeciesSpheresMono(this, space);//index 1
-	    species.setIsDynamic(true);
+        //species and potentials
+        species = new SpeciesSpheresMono(this, space);//index 1
+        species.setIsDynamic(true);
         addSpecies(species);
-        
+
         //instantiate several potentials for selection in combo-box
-	    P2LennardJones potential = new P2LennardJones(space);
+        P2LennardJones potential = new P2LennardJones(space);
         P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(space, potential, rc);
         potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
         //construct box
-	    box = new Box(space);
         addBox(box);
         integrator.setBox(box);
 
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
-        
+
         mcMoveVolume = new MCMoveVolume(potentialMaster, random, space, pressure);
         integrator.getMoveManager().addMCMove(mcMoveVolume);
         integrator.getMoveManager().setFrequency(mcMoveVolume, 5);
-        
-        double L = Math.pow(numAtoms/density, 1.0/3.0);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{L,L,L}));
+
+        double L = Math.pow(numAtoms / density, 1.0 / 3.0);
+        box.getBoundary().setBoxSize(space.makeVector(new double[]{L, L, L}));
         box.setNMolecules(species, numAtoms);
-        
+
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
 
         potentialMaster.getNbrCellManager(box).assignCellAll();

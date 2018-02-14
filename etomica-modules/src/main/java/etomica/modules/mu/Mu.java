@@ -45,7 +45,7 @@ public class Mu extends Simulation {
         double epsilon = 1.0;
         
         //controller and integrator
-	    integrator = new IntegratorHard(this, potentialMaster, space);
+        integrator = new IntegratorHard(this, potentialMaster, space, box);
 	    integrator.setTimeStep(0.02);
 	    integrator.setTemperature(1);
 	    integrator.setIsothermal(true);

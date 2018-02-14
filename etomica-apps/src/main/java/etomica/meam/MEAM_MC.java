@@ -58,62 +58,61 @@ public class MEAM_MC extends Simulation {
 	public IDataInfo info2;
 
 	public MEAM_MC() {
-	    super(Space3D.getInstance()); //INSTANCE); kmb change 8/3/05
-        potentialMaster = new PotentialMaster();
-	    integrator = new IntegratorMC(this, potentialMaster);
-	    integrator.getMoveManager().addMCMove(new MCMoveAtom(getRandom(), potentialMaster,
-                space, 0.1, 0.2, false));
-	    integrator.setTemperature(Kelvin.UNIT.toSim(298));
-	    //integrator.setThermostatInterval(10);
-	    integrator.setIsothermal(true);
-	    activityIntegrate = new ActivityIntegrate(integrator);
-	    activityIntegrate.setSleepPeriod(2);
-	    getController().addAction(activityIntegrate);
-	    sn = new SpeciesSpheresMono(space, Tin.INSTANCE);
-        ag = new SpeciesSpheresMono(space, Silver.INSTANCE);
-        cu = new SpeciesSpheresMono(space, Copper.INSTANCE);
+		super(Space3D.getInstance()); //INSTANCE); kmb change 8/3/05
+		potentialMaster = new PotentialMaster();
+		box = new Box(space);
+		integrator = new IntegratorMC(this, potentialMaster, box);
+		integrator.getMoveManager().addMCMove(new MCMoveAtom(getRandom(), potentialMaster,
+				space, 0.1, 0.2, false));
+		integrator.setTemperature(Kelvin.UNIT.toSim(298));
+		//integrator.setThermostatInterval(10);
+		integrator.setIsothermal(true);
+		activityIntegrate = new ActivityIntegrate(integrator);
+		activityIntegrate.setSleepPeriod(2);
+		getController().addAction(activityIntegrate);
+		sn = new SpeciesSpheresMono(space, Tin.INSTANCE);
+		ag = new SpeciesSpheresMono(space, Silver.INSTANCE);
+		cu = new SpeciesSpheresMono(space, Copper.INSTANCE);
 
-        addSpecies(sn);
-        addSpecies(ag);
-        addSpecies(cu);
+		addSpecies(sn);
+		addSpecies(ag);
+		addSpecies(cu);
+		addBox(box);
+		box.setNMolecules(sn, 216);
+		box.setNMolecules(ag, 0);
+		box.setNMolecules(cu, 0);
 
-	    box = new Box(space);
-        addBox(box);
-        box.setNMolecules(sn, 216);
-        box.setNMolecules(ag, 0);
-        box.setNMolecules(cu, 0);
+		//beta-Sn box
 
-	    //beta-Sn box
+		//The dimensions of the simulation box must be proportional to those of
+		//the unit cell to prevent distortion of the lattice.  The values for the
+		//lattice parameters for tin's beta box (a = 5.8314 angstroms, c = 3.1815
+		//angstroms) are taken from the ASM Handbook.
+		box.getBoundary().setBoxSize(new Vector3D(5.8314 * 3, 5.8314 * 3, 3.1815 * 6));
+		PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.8318, 3.1819);
+		//Alternatively, using the parameters calculated in Ravelo & Baskes (1997)
+		//box.setDimensions(new Vector3D(5.92*3, 5.92*3, 3.23*6));
+		//PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.92, 3.23);
+		BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisBetaSnA5());
 
-	    //The dimensions of the simulation box must be proportional to those of
-        //the unit cell to prevent distortion of the lattice.  The values for the
-        //lattice parameters for tin's beta box (a = 5.8314 angstroms, c = 3.1815
-        //angstroms) are taken from the ASM Handbook.
-        box.getBoundary().setBoxSize(new Vector3D(5.8314*3, 5.8314*3, 3.1815*6));
-	    PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.8318, 3.1819);
-	    //Alternatively, using the parameters calculated in Ravelo & Baskes (1997)
-	    //box.setDimensions(new Vector3D(5.92*3, 5.92*3, 3.23*6));
-	    //PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.92, 3.23);
-	    BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisBetaSnA5());
+		//FCC Cu
+		/**
+		 box.setDimensions(new Vector3D(3.6148*3, 3.6148*3, 3.6148*6));
+		 PrimitiveCubic primitive = new PrimitiveCubic(space, 3.6148);
+		 LatticeCrystal crystal = new LatticeCrystal(new Crystal(
+		 primitive, new BasisCubicFcc(primitive)));
+		 **/
 
-        //FCC Cu
-        /**
-	    box.setDimensions(new Vector3D(3.6148*3, 3.6148*3, 3.6148*6));
-	    PrimitiveCubic primitive = new PrimitiveCubic(space, 3.6148);
-	    LatticeCrystal crystal = new LatticeCrystal(new Crystal(
-		        primitive, new BasisCubicFcc(primitive)));
-	    **/
+		//FCC Ag
+		/**
+		 box.setDimensions(new Vector3D(4.0863*3, 4.0863*3, 4.0863*6));
+		 PrimitiveCubic primitive = new PrimitiveCubic(space, 4.0863);
+		 LatticeCrystal crystal = new LatticeCrystal(new Crystal(
+		 primitive, new BasisCubicFcc(primitive)));
+		 **/
 
-        //FCC Ag
-        /**
-	    box.setDimensions(new Vector3D(4.0863*3, 4.0863*3, 4.0863*6));
-	    PrimitiveCubic primitive = new PrimitiveCubic(space, 4.0863);
-	    LatticeCrystal crystal = new LatticeCrystal(new Crystal(
-		        primitive, new BasisCubicFcc(primitive)));
-	    **/
-
-        Configuration config = new ConfigurationLattice(crystal, space);
-        config.initializeCoordinates(box);
+		Configuration config = new ConfigurationLattice(crystal, space);
+		config.initializeCoordinates(box);
 
 		potentialN = new PotentialMEAM(space);
 		potentialN.setParameters(sn.getLeafType(), ParameterSetMEAM.Sn);
@@ -121,24 +120,24 @@ public class MEAM_MC extends Simulation {
 		potentialN.setParameters(cu.getLeafType(), ParameterSetMEAM.Cu);
 		potentialN.setParametersIMC(cu.getLeafType(), ParameterSetMEAM.Cu3Sn);
 		potentialN.setParametersIMC(ag.getLeafType(), ParameterSetMEAM.Ag3Sn);
-        this.potentialMaster.addPotential(potentialN, new AtomType[]{sn.getLeafType(), ag.getLeafType(), cu.getLeafType()});
+		this.potentialMaster.addPotential(potentialN, new AtomType[]{sn.getLeafType(), ag.getLeafType(), cu.getLeafType()});
 
-	    integrator.setBox(box);
-	    BoxImposePbc imposepbc = new BoxImposePbc(space);
-	    imposepbc.setBox(box);
-	    integrator.getEventManager().addListener(new IntegratorListenerAction(imposepbc));
+		integrator.setBox(box);
+		BoxImposePbc imposepbc = new BoxImposePbc(space);
+		imposepbc.setBox(box);
+		integrator.getEventManager().addListener(new IntegratorListenerAction(imposepbc));
 
-        // IntegratorCoordConfigWriter - Displacement output (3/1/06 - MS)
-	    //IntegratorCoordConfigWriter coordWriter = new IntegratorCoordConfigWriter(space, "MEAMoutput");
-	    //coordWriter.setBox(box);
-	    //coordWriter.setIntegrator(integrator);
-	    //coordWriter.setWriteInterval(100);
+		// IntegratorCoordConfigWriter - Displacement output (3/1/06 - MS)
+		//IntegratorCoordConfigWriter coordWriter = new IntegratorCoordConfigWriter(space, "MEAMoutput");
+		//coordWriter.setBox(box);
+		//coordWriter.setIntegrator(integrator);
+		//coordWriter.setWriteInterval(100);
 
-        // Control simulation lengths
-	    //activityIntegrate.setMaxSteps(500);
+		// Control simulation lengths
+		//activityIntegrate.setMaxSteps(500);
 
-	    energy = new MeterEnergy(potentialMaster, box);
-	    }
+		energy = new MeterEnergy(potentialMaster, box);
+	}
 
     public static void main(String[] args) {
         MEAM_MC sim = new MEAM_MC();

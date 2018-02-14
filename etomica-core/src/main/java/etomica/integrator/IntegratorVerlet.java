@@ -33,13 +33,13 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource<
     protected AtomLeafAgentManager<Agent> agentManager;
     private AtomLeafAgentManager<Vector> forces;
 
-    public IntegratorVerlet(Simulation sim, PotentialMaster potentialMaster, Space _space) {
-        this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
+    public IntegratorVerlet(Simulation sim, PotentialMaster potentialMaster, Space _space, Box box) {
+        this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space, box);
     }
     
     public IntegratorVerlet(PotentialMaster potentialMaster, IRandom random,
-                            double timeStep, double temperature, Space _space) {
-        super(potentialMaster,random,timeStep,temperature, _space);
+                            double timeStep, double temperature, Space _space, Box box) {
+        super(potentialMaster,random,timeStep,temperature, _space, box);
         // if you're motivated to throw away information earlier, you can use 
         // PotentialCalculationForceSum instead.
         forceSum = new PotentialCalculationForcePressureSum(space);

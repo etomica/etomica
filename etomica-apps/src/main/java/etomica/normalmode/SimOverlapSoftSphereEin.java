@@ -81,7 +81,7 @@ public class SimOverlapSoftSphereEin extends Simulation {
         addBox(box);
         box.setNMolecules(species, numAtoms);
 
-        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
+        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
         double nbrDistance = 0;
         if (slanty) {
             int c = (int)Math.round(Math.pow(numAtoms, 1.0/3.0));

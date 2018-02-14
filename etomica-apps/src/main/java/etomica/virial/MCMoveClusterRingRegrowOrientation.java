@@ -105,7 +105,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 			box.setNMolecules(species, 0);
 			species.setChildCount(new int[]{p});
 			box.setNMolecules(species, 1);
-			IntegratorMC integrator = new IntegratorMC(sim, null);
+            IntegratorMC integrator = new IntegratorMC(sim, null, box);
 			integrator.setBox(box);
 			MCMoveClusterRingRegrowOrientation move = new MCMoveClusterRingRegrowOrientation(sim.getRandom(), space, p);
 

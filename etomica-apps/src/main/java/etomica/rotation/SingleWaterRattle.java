@@ -49,7 +49,7 @@ public class SingleWaterRattle {
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeStep = 0.0008;
         int maxIterations = 400;
-        final IntegratorVelocityVerletRattle integrator = new IntegratorVelocityVerletRattle(sim, potentialMaster, space);
+        final IntegratorVelocityVerletRattle integrator = new IntegratorVelocityVerletRattle(sim, potentialMaster, space, box);
         integrator.setTimeStep(timeStep);
         integrator.printInterval = 0;
         integrator.setMaxIterations(maxIterations);

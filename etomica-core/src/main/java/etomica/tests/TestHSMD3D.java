@@ -35,14 +35,15 @@ public class TestHSMD3D extends Simulation {
     public TestHSMD3D(Space _space, int numAtoms, int numSteps, Configuration config) {
         super(_space);
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
-        
+
         double neighborRangeFac = 1.6;
         double sigma = 1.0;
         // makes eta = 0.35
-        double l = 14.4573*Math.pow((numAtoms/2000.0),1.0/3.0);
+        double l = 14.4573 * Math.pow((numAtoms / 2000.0), 1.0 / 3.0);
         potentialMaster.setCellRange(1);
-        potentialMaster.setRange(neighborRangeFac*sigma);
-        integrator = new IntegratorHard(this, potentialMaster, space);
+        potentialMaster.setRange(neighborRangeFac * sigma);
+        box = new Box(space);
+        integrator = new IntegratorHard(this, potentialMaster, space, box);
         integrator.setTimeStep(0.01);
         integrator.setIsothermal(true);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
@@ -66,16 +67,13 @@ public class TestHSMD3D extends Simulation {
         potentialMaster.addPotential(new P2HardSphere(space, sigma, false), new AtomType[]{type1, type2});
 
         potentialMaster.addPotential(new P2HardSphere(space, sigma, false), new AtomType[]{type2, type2});
-        
-        box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
-        box.setNMolecules(species2, numAtoms/100);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{l,l,l}));
+        box.setNMolecules(species2, numAtoms / 100);
+        box.getBoundary().setBoxSize(space.makeVector(new double[]{l, l, l}));
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
-        integrator.setBox(box);
         config.initializeCoordinates(box);
-        
+
 //        WriteConfiguration writeConfig = new WriteConfiguration("foo",box,1);
 //        integrator.addIntervalListener(writeConfig);
     }
