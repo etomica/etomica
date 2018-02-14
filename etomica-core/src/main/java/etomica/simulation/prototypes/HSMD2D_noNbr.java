@@ -71,8 +71,6 @@ public class HSMD2D_noNbr extends Simulation {
 //        potentialBoundary.setActive(1,true,true);
 //        potentialBoundary.setActive(0,false,true);
 //        potentialBoundary.setActive(1,false,true);
-
-        integrator.setBox(box);
         integrator.setIsothermal(true);
 
         meterPressure = new MeterPressureHard(space);

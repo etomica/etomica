@@ -82,7 +82,6 @@ public class TestYukawaMD3D extends Simulation{
         potentialMaster.addPotential(potentialTruncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
-        integrator.setBox(box);
     }
 	
 	public static void main(String[] args){

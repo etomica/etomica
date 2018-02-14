@@ -57,19 +57,19 @@ public class LJMC extends Simulation {
         BoundaryRectangularSlit boundary = new BoundaryRectangularSlit(2, space);
         box = new Box(boundary, space);
         addBox(box);
-        
+
         speciesFluid = new SpeciesSpheresMono(space, new ElementSimple("F"));
         addSpecies(speciesFluid);
         speciesTopWall = new SpeciesSpheresMono(space, new ElementSimple("TW"));
         addSpecies(speciesTopWall);
         speciesBottomWall = new SpeciesSpheresMono(space, new ElementSimple("BW"));
         addSpecies(speciesBottomWall);
-        
+
         config = new ConfigurationLammps(space, lammpsFile, speciesTopWall, speciesBottomWall, speciesFluid);
         config.setTopPadding(10);
         config.initializeCoordinates(box);
         double Lxy = config.getLxy();
-        
+
         potentialMasterCell = new PotentialMasterCell(this, 5.49925, space);
         potentialMasterCell.setCellRange(2);
         integrator = new IntegratorMC(this, potentialMasterCell, box);
@@ -78,12 +78,12 @@ public class LJMC extends Simulation {
         mcMoveAtom.setAtomSource(new AtomSourceRandomSpecies(getRandom(), speciesFluid));
         MCMoveAtom mcMoveAtomBig = new MCMoveAtom(random, potentialMasterCell, space);
         mcMoveAtomBig.setAtomSource(new AtomSourceRandomSpecies(getRandom(), speciesFluid));
-        mcMoveAtomBig.setStepSize(0.5*Lxy);
-        ((MCMoveStepTracker)mcMoveAtomBig.getTracker()).setTunable(false);
-        
+        mcMoveAtomBig.setStepSize(0.5 * Lxy);
+        ((MCMoveStepTracker) mcMoveAtomBig.getTracker()).setTunable(false);
+
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         integrator.getMoveManager().addMCMove(mcMoveAtomBig);
-        
+
         ai = new ActivityIntegrate(integrator);
         getController().addAction(ai);
 
@@ -93,25 +93,23 @@ public class LJMC extends Simulation {
 
         pBW = new P2SoftSphericalTruncatedForceShifted(space, new P2LennardJones(space, 1.09985, 0.4), 5.49925);
         potentialMasterCell.addPotential(pBW, new AtomType[]{leafType, speciesBottomWall.getLeafType()});
-        
+
         pTW = new P2SoftSphericalTruncatedForceShifted(space, new P2LennardJones(space, 1.5, 0.1), 1.68);
         potentialMasterCell.addPotential(pTW, new AtomType[]{leafType, speciesTopWall.getLeafType()});
 
         Potential1 p1F = new Potential1(space) {
-            
+
             public double energy(IAtomList atoms) {
                 double pz = atoms.getAtom(0).getPosition().getX(2);
-                double zMin = -0.5*boundary.getBoxSize().getX(2);
+                double zMin = -0.5 * boundary.getBoxSize().getX(2);
                 double zMax = box.getMoleculeList(speciesTopWall).getMolecule(0).getChildList().getAtom(0).getPosition().getX(2);
                 return (pz < zMin || pz > zMax) ? Double.POSITIVE_INFINITY : 0;
             }
         };
         potentialMasterCell.addPotential(p1F, new AtomType[]{leafType});
-        
-        integrator.setBox(box);
 
         integrator.getMoveEventManager().addListener(potentialMasterCell.getNbrCellManager(box).makeMCMoveListener());
-		
+
         potentialMasterCell.getNbrCellManager(box).assignCellAll();
     }
     

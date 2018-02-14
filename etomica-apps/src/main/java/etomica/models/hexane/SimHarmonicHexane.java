@@ -56,14 +56,14 @@ public class SimHarmonicHexane extends Simulation {
         //One molecule per cell
         int numAtoms = xCells * yCells * zCells * chainLength;
         fudge = harmonicFudge;
-        
+
         SpeciesHexane species = new SpeciesHexane(space);
         addSpecies(species);
 
         primitive = new PrimitiveHexane(space);
         // close packed density is 0.4165783882178116
         // Monson reports data for 0.373773507616 and 0.389566754417
-        primitive.scaleSize(Math.pow(0.4165783882178116/dens,1.0/3.0));
+        primitive.scaleSize(Math.pow(0.4165783882178116 / dens, 1.0 / 3.0));
         lattice = new BravaisLattice(primitive);
 
         int[] nCells = new int[]{xCells, yCells, zCells};
@@ -76,28 +76,26 @@ public class SimHarmonicHexane extends Simulation {
         integrator = new IntegratorMC(this, null, box);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
-        
+
         MCMoveHarmonic harm = new MCMoveHarmonic(getRandom());
         integrator.getMoveManager().addMCMove(harm);
-        
-        coordinateDefinition = new CoordinateDefinitionHexane(this, box, primitive, 
+
+        coordinateDefinition = new CoordinateDefinitionHexane(this, box, primitive,
                 species, space);
         coordinateDefinition.initializeCoordinates(nCells);
-        
+
         normalModes = new NormalModesFromFile(filename, 3);
         normalModes.setHarmonicFudge(harmonicFudge);
-        
+
         WaveVectorFactory waveFactory = normalModes.getWaveVectorFactory();
         waveFactory.makeWaveVectors(box);
-        
+
         harm.setOmegaSquared(normalModes.getOmegaSquared());
         harm.setEigenVectors(normalModes.getEigenvectors());
         harm.setWaveVectors(waveFactory.getWaveVectors());
         harm.setWaveVectorCoefficients(waveFactory.getCoefficients());
         harm.setCoordinateDefinition(coordinateDefinition);
         harm.setBox(box);
-        
-        integrator.setBox(box);
     }
 
     public static void main(String[] args) {

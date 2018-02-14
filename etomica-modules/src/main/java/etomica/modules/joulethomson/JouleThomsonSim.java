@@ -90,8 +90,6 @@ public class JouleThomsonSim extends Simulation {
         integratorJT = new IntegratorJT(getRandom(), integrator, integratorNVE);
         integratorJT.setTemperature(Kelvin.UNIT.toSim(300));
         integratorJT.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
-        integrator.setBox(box);
-        integratorNVE.setBox(box);
 
         integrator.setTimeStep(0.001);
         integratorNVE.setTimeStep(0.005);

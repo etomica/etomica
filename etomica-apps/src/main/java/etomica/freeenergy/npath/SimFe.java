@@ -73,15 +73,15 @@ public class SimFe extends Simulation {
         Primitive primitive = (crystal == HCP) ? new PrimitiveHCP4(space) : new PrimitiveCubic(space);
         Vector l = space.makeVector();
         double[] primitiveSize = primitive.getSize();
-        int[] f = new int[]{10,10,10};
-        if (crystal == HCP) f = new int[]{6,4,4};
-        for (int i=0; i<3; i++) {
-            double x = f[i]*primitiveSize[i];
-            if (i<=offsetDim) x *= 2;
-            l.setX(i,x);
+        int[] f = new int[]{10, 10, 10};
+        if (crystal == HCP) f = new int[]{6, 4, 4};
+        for (int i = 0; i < 3; i++) {
+            double x = f[i] * primitiveSize[i];
+            if (i <= offsetDim) x *= 2;
+            l.setX(i, x);
         }
         box.getBoundary().setBoxSize(l);
-        
+
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
@@ -94,7 +94,7 @@ public class SimFe extends Simulation {
         double rc = 6;
         potential = new P2EAM(space, n, m, eps, a, C, rc, rc);
 
-        potentialMaster = new PotentialMasterList(this, 1.2*rc, space);
+        potentialMaster = new PotentialMasterList(this, 1.2 * rc, space);
         potentialMaster.getNbrCellManager(box).setSuppressBoxLengthWarning(true);
         potentialMaster.setCellRange(2);
 
@@ -137,38 +137,33 @@ public class SimFe extends Simulation {
         ai = new ActivityIntegrate(integrator);
         getController().addAction(ai);
 
-        integrator.setBox(box);
-
         p1ImageHarmonic.setZeroForce(true);
 
         SpaceLattice lat = null;
         if (crystal == Crystal.FCC) {
             lat = new LatticeCubicFcc(space);
-        }
-        else if (crystal == Crystal.BCC) {
+        } else if (crystal == Crystal.BCC) {
             lat = new LatticeCubicBcc(space);
-        }
-        else if (crystal == HCP) {
+        } else if (crystal == HCP) {
             lat = new LatticeHcp4(space);
-        }
-        else {
-            throw new RuntimeException("Don't know how to do "+crystal);
+        } else {
+            throw new RuntimeException("Don't know how to do " + crystal);
         }
         ConfigurationLattice config = new ConfigurationLattice(lat, space);
         config.initializeCoordinates(box);
-    
+
         p1ImageHarmonic.findNOffset(box);
-    
+
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         potentialMaster.getNeighborManager(box).reset();
-    
+
         Vector boxLength = box.getBoundary().getBoxSize();
         double lMin = boxLength.getX(0);
         if (boxLength.getX(1) < lMin) lMin = boxLength.getX(1);
         if (boxLength.getX(2) < lMin) lMin = boxLength.getX(2);
         double ww = w / lMin;
-        double swapDistance = 1.5*Math.sqrt(1.5*temperature/ww);
-        if (swapDistance > lMin/4) swapDistance = lMin/4;
+        double swapDistance = 1.5 * Math.sqrt(1.5 * temperature / ww);
+        if (swapDistance > lMin / 4) swapDistance = lMin / 4;
         if (swapDistance > rc) swapDistance = rc;
         if (swapDistance < 2) swapDistance = 2;
         PotentialMasterCell potentialMasterCell = new PotentialMasterCell(this, swapDistance, space);
@@ -179,18 +174,17 @@ public class SimFe extends Simulation {
             mcMoveSwap.setNbrDistance(swapDistance);
             IntegratorMC integratorMC = new IntegratorMC(potentialMaster, random, temperature, box);
             integratorMC.getMoveManager().addMCMove(mcMoveSwap);
-            integratorMC.setBox(box);
             integratorMC.reset();
-    
+
             integrator.getEventManager().addListener(new IntegratorListener() {
                 int countdown = 10, interval = 10;
-        
+
                 public void integratorInitialized(IntegratorEvent e) {
                 }
-        
+
                 public void integratorStepStarted(IntegratorEvent e) {
                 }
-        
+
                 @Override
                 public void integratorStepFinished(IntegratorEvent e) {
                     if (--countdown > 0) {

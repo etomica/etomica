@@ -71,8 +71,6 @@ public class LjMc3D extends Simulation {
         P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(space, potential, box.getBoundary().getBoxSize().getX(0) * 0.45);
 
         potentialMaster.addPotential(pTruncated, new AtomType[]{leafType, leafType});
-
-        integrator.setBox(box);
         BoxImposePbc imposepbc = new BoxImposePbc(space);
         imposepbc.setBox(box);
         integrator.getEventManager().addListener(new IntegratorListenerAction(imposepbc));

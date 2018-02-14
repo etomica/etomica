@@ -113,7 +113,6 @@ public class SimDimerLJgb extends Simulation{
 
         //INTEGRATOR - Dimer
         integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{movable}, space, box);
-        integratorDimer.setBox(box);
         integratorDimer.setOrtho(false, false);
         integratorDimer.setFileName("lj");
         activityIntegrateDimer = new ActivityIntegrate(integratorDimer);

@@ -144,8 +144,6 @@ public class MEAMMd3D extends Simulation {
         potentialMaster.setCriterion(potentialN, new CriterionSimple(this, space, potentialN.getRange(), potentialN.getRange() * 1.1));
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
 
-        integrator.setBox(box);
-
         // IntegratorCoordConfigWriter - Displacement output (3/1/06 - MS)
         //IntegratorCoordConfigWriter coordWriter = new IntegratorCoordConfigWriter(space, "MEAMoutput");
         //coordWriter.setBox(box);

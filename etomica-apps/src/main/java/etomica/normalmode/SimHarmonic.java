@@ -70,15 +70,15 @@ public class SimHarmonic extends Simulation {
         integrator.getMoveManager().addMCMove(move);
 
         if (space.D() == 1) {
-            primitive = new PrimitiveCubic(space, 1.0/density);
-            boundary = new BoundaryRectangularPeriodic(space, numAtoms/density);
+            primitive = new PrimitiveCubic(space, 1.0 / density);
+            boundary = new BoundaryRectangularPeriodic(space, numAtoms / density);
             nCells = new int[]{numAtoms};
         } else {
             primitive = new PrimitiveFcc(space, 1);
             double v = primitive.unitCell().getVolume();
-            primitive.scaleSize(Math.pow(v*density,-1.0/3.0));
-            int n = (int)Math.round(Math.pow(numAtoms, 1.0/3.0));
-            nCells = new int[]{n,n,n};
+            primitive.scaleSize(Math.pow(v * density, -1.0 / 3.0));
+            int n = (int) Math.round(Math.pow(numAtoms, 1.0 / 3.0));
+            nCells = new int[]{n, n, n};
             boundary = new BoundaryDeformableLattice(primitive, nCells);
         }
         box.setBoundary(boundary);
@@ -86,7 +86,7 @@ public class SimHarmonic extends Simulation {
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, space);
         coordinateDefinition.initializeCoordinates(nCells);
 
-        if(D == 1) {
+        if (D == 1) {
             normalModes = new NormalModes1DHR(boundary, numAtoms);
         } else {
             normalModes = new NormalModesFromFile(filename, D);
@@ -104,8 +104,6 @@ public class SimHarmonic extends Simulation {
         move.setTemperature(1.0);
 
         move.setBox(box);
-
-        integrator.setBox(box);
     }
 
     /**

@@ -121,8 +121,6 @@ public class MEAM_MC extends Simulation {
 		potentialN.setParametersIMC(cu.getLeafType(), ParameterSetMEAM.Cu3Sn);
 		potentialN.setParametersIMC(ag.getLeafType(), ParameterSetMEAM.Ag3Sn);
 		this.potentialMaster.addPotential(potentialN, new AtomType[]{sn.getLeafType(), ag.getLeafType(), cu.getLeafType()});
-
-		integrator.setBox(box);
 		BoxImposePbc imposepbc = new BoxImposePbc(space);
 		imposepbc.setBox(box);
 		integrator.getEventManager().addListener(new IntegratorListenerAction(imposepbc));

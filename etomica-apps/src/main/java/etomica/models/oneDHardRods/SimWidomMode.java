@@ -59,16 +59,16 @@ public class SimWidomMode extends Simulation {
 
     public SimWidomMode(Space _space, int numAtoms, double density, int blocksize) {
         super(_space);
-        
+
         System.out.println("THIS CODE IS NOT FINISHED!");
         System.out.println("need to fix this setHarmonicWV");
-        
-        
+
+
 //        long seed = 3;
 //        System.out.println("Seed explicitly set to " + seed);
 //        IRandom rand = new RandomNumberGenerator(seed);
 //        this.setRandom(rand);
-        
+
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
@@ -77,44 +77,43 @@ public class SimWidomMode extends Simulation {
         box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
-       
+
         Potential2 potential = new P2HardSphere(space, 1.0, true);
-        potential = new P2XOrder(space, (Potential2HardSpherical)potential);
+        potential = new P2XOrder(space, (Potential2HardSpherical) potential);
         potential.setBox(box);
         potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
-        primitive = new PrimitiveCubic(space, 1.0/density);
-        bdry = new BoundaryRectangularPeriodic(space, numAtoms/density);
+        primitive = new PrimitiveCubic(space, 1.0 / density);
+        bdry = new BoundaryRectangularPeriodic(space, numAtoms / density);
         nCells = new int[]{numAtoms};
         box.setBoundary(bdry);
-        
+
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
-        
-        double neighborRange = 1.01/density;
+
+        double neighborRange = 1.01 / density;
         potentialMaster.setRange(neighborRange);
         //find neighbors now.  Don't hook up NeighborListManager since the
         //  neighbors won't change
         potentialMaster.getNeighborManager(box).reset();
 
         integrator = new IntegratorMC(this, potentialMaster, box);
-        integrator.setBox(box);
-        
+
         nm = new NormalModes1DHR(box.getBoundary(), numAtoms);
         nm.setHarmonicFudge(1.0);
         nm.setTemperature(1.0);
         nm.getOmegaSquared();
-        
+
         waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
-        
+
         mcMoveAtom = new MCMoveAtomCoupled(potentialMaster, new MeterPotentialEnergy(potentialMaster), random, space);
         mcMoveAtom.setPotential(potential);
         mcMoveAtom.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         mcMoveAtom.setStepSizeMin(0.001);
         mcMoveAtom.setStepSize(0.01);
-        
+
         mcMoveMode = new MCMoveChangeMultipleWV(potentialMaster, random);
         mcMoveMode.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveMode);
@@ -123,49 +122,49 @@ public class SimWidomMode extends Simulation {
         mcMoveMode.setOmegaSquared(nm.getOmegaSquared());
         mcMoveMode.setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
         mcMoveMode.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
-        
+
         int coordinateDim = coordinateDefinition.getCoordinateDim();
-        int coordNum = nm.getWaveVectorFactory().getWaveVectors().length*coordinateDim;
-        
+        int coordNum = nm.getWaveVectorFactory().getWaveVectors().length * coordinateDim;
+
         realMeter = new MeterWidomModeReal[coordNum];
-        accumulators = new AccumulatorAverageFixed[coordNum*2];
+        accumulators = new AccumulatorAverageFixed[coordNum * 2];
         DataPump pump;
         IntegratorListenerAction pumpListener;
-        for(int i = 0; i < coordNum; i++){
+        for (int i = 0; i < coordNum; i++) {
             String name = new String("widom Meter for mode " + i);
-            realMeter[i] = new MeterWidomModeReal(name, potentialMaster, 
+            realMeter[i] = new MeterWidomModeReal(name, potentialMaster,
                     coordinateDefinition, box, i);
             realMeter[i].setEigenVectors(nm.getEigenvectors());
             realMeter[i].setOmegaSquared(nm.getOmegaSquared());
             realMeter[i].setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
             realMeter[i].setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
-            
+
             accumulators[i] = new AccumulatorAverageFixed(blocksize);
-            
+
             pump = new DataPump(realMeter[i], accumulators[i]);
             pumpListener = new IntegratorListenerAction(pump);
             pumpListener.setInterval(blocksize);
             integrator.getEventManager().addListener(pumpListener);
         }
-        
+
         imagMeter = new MeterWidomModeImaginary[coordNum];
-        for(int i = 0; i < coordNum; i++){
+        for (int i = 0; i < coordNum; i++) {
             String name = new String("widom Meter for mode " + i);
-            imagMeter[i] = new MeterWidomModeImaginary(name, potentialMaster, 
+            imagMeter[i] = new MeterWidomModeImaginary(name, potentialMaster,
                     coordinateDefinition, box, i);
             imagMeter[i].setEigenVectors(nm.getEigenvectors());
             imagMeter[i].setOmegaSquared(nm.getOmegaSquared());
             imagMeter[i].setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
             imagMeter[i].setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
-            
-            accumulators[i+coordNum] = new AccumulatorAverageFixed(blocksize);
-            
-            pump = new DataPump(imagMeter[i], accumulators[i+coordNum]);
+
+            accumulators[i + coordNum] = new AccumulatorAverageFixed(blocksize);
+
+            pump = new DataPump(imagMeter[i], accumulators[i + coordNum]);
             pumpListener = new IntegratorListenerAction(pump);
             pumpListener.setInterval(blocksize);
             integrator.getEventManager().addListener(pumpListener);
         }
-        
+
         activityIntegrate = new ActivityIntegrate(integrator, 0, true);
         getController().addAction(activityIntegrate);
     }

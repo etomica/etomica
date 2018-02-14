@@ -63,8 +63,7 @@ public class SimEinStep2 extends Simulation {
             BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, space);
             BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, this);
             potentialMaster = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc, space), space);
-        }
-        else {
+        } else {
             potentialMaster = new PotentialMasterList(this, space);
         }
 
@@ -80,27 +79,26 @@ public class SimEinStep2 extends Simulation {
 
 
         if (slanty) {
-            int c = (int)Math.round(Math.pow(numAtoms, 1.0/3.0));
-            nCells = new int[]{c,c,c};
+            int c = (int) Math.round(Math.pow(numAtoms, 1.0 / 3.0));
+            nCells = new int[]{c, c, c};
 
-            double L = Math.pow(Math.sqrt(2)/density, 1.0/3.0);
-            double angle = Math.PI/3;
+            double L = Math.pow(Math.sqrt(2) / density, 1.0 / 3.0);
+            double angle = Math.PI / 3;
 
 //            primitive = new PrimitiveFcc(space, L*c);
-            primitive = new PrimitiveTriclinic(space, L*c,L*c,L*c, angle,angle,angle);
+            primitive = new PrimitiveTriclinic(space, L * c, L * c, L * c, angle, angle, angle);
 
             boundary = new BoundaryDeformablePeriodic(space, primitive.vectors());
-            ((BoundaryDeformablePeriodic)boundary).setTruncationRadius(rc);
+            ((BoundaryDeformablePeriodic) boundary).setTruncationRadius(rc);
             Basis basisSimple = new Basis(new Vector3D[]{new Vector3D(0.0, 0.0, 0.0)});
             basis = new BasisBigCell(space, basisSimple, nCells);
-        }
-        else {
+        } else {
 
-            double L = Math.pow(4.0/density, 1.0/3.0);
-            int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-            primitive = new PrimitiveCubic(space, n*L);
+            double L = Math.pow(4.0 / density, 1.0 / 3.0);
+            int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+            primitive = new PrimitiveCubic(space, n * L);
 
-            nCells = new int[]{n,n,n};
+            nCells = new int[]{n, n, n};
             boundary = new BoundaryRectangularPeriodic(space, n * L);
             Basis basisFCC = new BasisCubicFcc();
             basis = new BasisBigCell(space, basisFCC, nCells);
@@ -109,13 +107,12 @@ public class SimEinStep2 extends Simulation {
         box.setBoundary(boundary);
 
         CoordinateDefinitionLeaf coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
-        coordinateDefinition.initializeCoordinates(new int[]{1,1,1});
+        coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
 
         Potential2SoftSpherical potential = null;
         if (exponent > 0) {
             potential = new P2SoftSphere(space, 1.0, 1.0, exponent);
-        }
-        else {
+        } else {
             potential = new P2LennardJones(space);
         }
         potential = new P2SoftSphericalTruncated(space, potential, rc);
@@ -125,16 +122,14 @@ public class SimEinStep2 extends Simulation {
 
         potentialMaster.lrcMaster().setEnabled(false);
 
-        integrator.setBox(box);
-
         int cellRange = 7;
         potentialMaster.setRange(rc);
         potentialMaster.setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
         // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
         potentialMaster.getNeighborManager(box).reset();
         int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
-        if (potentialCells < cellRange*2+1) {
-            throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
+        if (potentialCells < cellRange * 2 + 1) {
+            throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
         }
 
         final MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
@@ -144,7 +139,7 @@ public class SimEinStep2 extends Simulation {
 
         P1HarmonicSite p1Harmonic = new P1HarmonicSite(space);
         p1Harmonic.setSpringConstant(1);
-        p1Harmonic.setAtomAgentManager(box,coordinateDefinition.siteManager);
+        p1Harmonic.setAtomAgentManager(box, coordinateDefinition.siteManager);
         potentialMasterHarmonic = new PotentialMasterMonatomic(this);
         potentialMasterHarmonic.addPotential(p1Harmonic, new AtomType[]{sphereType});
 
@@ -153,13 +148,12 @@ public class SimEinStep2 extends Simulation {
         meterPEComposite.setLambda(lambda);
         if (false) {
             atomMove = new MCMoveAtom(random, null, space, 0.1, 1, false, meterPEComposite);
-        }
-        else {
-            atomMove = new MCMoveAtomCoupled(potentialMaster, lambda==0 ? meterPE : meterPEComposite, getRandom(), space);
+        } else {
+            atomMove = new MCMoveAtomCoupled(potentialMaster, lambda == 0 ? meterPE : meterPEComposite, getRandom(), space);
             atomMove.setStepSize(0.1);
             atomMove.setStepSizeMax(0.5);
-            ((MCMoveAtomCoupled)atomMove).setPotential(potential);
-            ((MCMoveAtomCoupled)atomMove).setDoExcludeNonNeighbors(true);
+            ((MCMoveAtomCoupled) atomMove).setPotential(potential);
+            ((MCMoveAtomCoupled) atomMove).setDoExcludeNonNeighbors(true);
         }
         integrator.getMoveManager().addMCMove(atomMove);
 //        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
@@ -176,7 +170,7 @@ public class SimEinStep2 extends Simulation {
         // extend potential range, so that atoms that move outside the truncation range will still interact
         // atoms that move in will not interact since they won't be neighbors
         //XXX we don't want to do this because our potential is shifted!
-        ((P2SoftSphericalTruncated)potential).setTruncationRadius(0.6*boundary.getBoxSize().getX(0));
+        ((P2SoftSphericalTruncated) potential).setTruncationRadius(0.6 * boundary.getBoxSize().getX(0));
     }
 
     /**

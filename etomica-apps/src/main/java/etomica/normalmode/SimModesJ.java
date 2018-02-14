@@ -50,25 +50,23 @@ public class SimModesJ extends Simulation {
             basis = new BasisMonatomic(space);
             bdry = new BoundaryRectangularPeriodic(space, numAtoms);
             nCells = new int[]{numAtoms};
-        }
-        else if (space.D() == 2) {
+        } else if (space.D() == 2) {
             basis = new BasisOrthorhombicHexagonal();
-            int n = (int)Math.round(Math.pow(numAtoms/basis.getScaledCoordinates().length, 1.0/2.0));
-            nCells = new int[]{n,n};
+            int n = (int) Math.round(Math.pow(numAtoms / basis.getScaledCoordinates().length, 1.0 / 2.0));
+            nCells = new int[]{n, n};
             bdry = new BoundaryDeformableLattice(primitive, nCells);
-        }
-        else {
+        } else {
             basis = new BasisCubicFcc();
-            int n = (int)Math.round(Math.pow(numAtoms/basis.getScaledCoordinates().length, 1.0/3.0));
-            nCells = new int[]{n,n,n};
+            int n = (int) Math.round(Math.pow(numAtoms / basis.getScaledCoordinates().length, 1.0 / 3.0));
+            nCells = new int[]{n, n, n};
             bdry = new BoundaryDeformableLattice(primitive, nCells);
         }
         box.setBoundary(bdry);
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
-        
-        normalModes = new NormalModesVariable(space, space.D()*numAtoms, coordinateDefinition);
+
+        normalModes = new NormalModesVariable(space, space.D() * numAtoms, coordinateDefinition);
         Vector[] waveVectors = normalModes.getWaveVectors();
         double[][] eigenVectors = normalModes.getEigenVectors();
         double[] phaseAngles = normalModes.getPhaseAngles();
@@ -76,40 +74,38 @@ public class SimModesJ extends Simulation {
         waveVectorFactory.makeWaveVectors(box);
         int v = 0;
         boolean useNominalModes = true;
-        for (int i=0; i<numAtoms*space.D(); i++) {
+        for (int i = 0; i < numAtoms * space.D(); i++) {
             if (space.D() == 1) {
                 waveVectors[i] = space.makeVector();
                 // density = 1
-                waveVectors[i].E(useNominalModes ? waveVectorFactory.getWaveVectors()[v].getX(0) : Math.PI*random.nextDouble());
+                waveVectors[i].E(useNominalModes ? waveVectorFactory.getWaveVectors()[v].getX(0) : Math.PI * random.nextDouble());
                 eigenVectors[i][0] = 1;
-                phaseAngles[i] = useNominalModes ? 0 : random.nextDouble()*2*Math.PI;
+                phaseAngles[i] = useNominalModes ? 0 : random.nextDouble() * 2 * Math.PI;
                 if (useNominalModes && waveVectorFactory.getCoefficients()[v] == 1) {
                     i++;
                     waveVectors[i] = space.makeVector();
                     // density = 1
-                    waveVectors[i].E(waveVectors[i-1]);
+                    waveVectors[i].E(waveVectors[i - 1]);
                     eigenVectors[i][0] = 1;
-                    phaseAngles[i] = 0.5*Math.PI;
+                    phaseAngles[i] = 0.5 * Math.PI;
                 }
                 v++;
-            }
-            else {
+            } else {
                 waveVectors[i] = space.makeVector();
 //                waveVectors[i].E(Math.PI*random.nextDouble());
-                eigenVectors[i][i%coordinateDefinition.getCoordinateDim()] = 1;
-                phaseAngles[i] = random.nextDouble()*2*Math.PI;
+                eigenVectors[i][i % coordinateDefinition.getCoordinateDim()] = 1;
+                phaseAngles[i] = random.nextDouble() * 2 * Math.PI;
                 throw new RuntimeException("please fix my wave vector");
             }
         }
 
         integrator = new IntegratorMC(null, random, 1.0, box);
-        integrator.setBox(box);
         MCMoveWV moveWV = new MCMoveWV(space, normalModes, coordinateDefinition, random);
-        ((MCMoveStepTracker)moveWV.getTracker()).setNoisyAdjustment(true);
+        ((MCMoveStepTracker) moveWV.getTracker()).setNoisyAdjustment(true);
         integrator.getMoveManager().addMCMove(moveWV);
-        
+
         MCMovePhaseAngle movePhaseAngle = new MCMovePhaseAngle(space, normalModes, coordinateDefinition, random);
-        ((MCMoveStepTracker)movePhaseAngle.getTracker()).setNoisyAdjustment(true);
+        ((MCMoveStepTracker) movePhaseAngle.getTracker()).setNoisyAdjustment(true);
         integrator.getMoveManager().addMCMove(movePhaseAngle);
 
         activityIntegrate = new ActivityIntegrate(integrator);

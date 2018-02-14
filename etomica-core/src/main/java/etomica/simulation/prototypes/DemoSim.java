@@ -65,8 +65,6 @@ public class DemoSim extends Simulation {
         potentialMaster.addPotential(truncated, new AtomType[]{type1, type1});
 
         DataSourceCountSteps meterCycles = new DataSourceCountSteps(integrator);
-
-        integrator.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
 

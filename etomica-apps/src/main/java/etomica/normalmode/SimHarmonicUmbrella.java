@@ -136,7 +136,6 @@ public class SimHarmonicUmbrella extends Simulation {
         move.setTemperature(temperature);
 
         move.setBox(box);
-        integrator.setBox(box);
 
         meterHarmonicEnergy = new MeterHarmonicEnergy(coordinateDefinition, normalModes);
     }

@@ -43,11 +43,11 @@ public class DipoleBox extends Simulation {
         inflater.actionPerformed();
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
         IMoleculeList molecules = box.getMoleculeList();
-        for (int i=0; i<nAtoms; i++) {
+        for (int i = 0; i < nAtoms; i++) {
             IMolecule molecule = molecules.getMolecule(i);
-            ((IMoleculePositioned)molecule).getPosition().E(molecule.getChildList().getAtom(0).getPosition());
-            IOrientationFull3D orientation = (IOrientationFull3D)((IMoleculeOriented)molecule).getOrientation();
-            for (int j=0; j<20; j++) {
+            ((IMoleculePositioned) molecule).getPosition().E(molecule.getChildList().getAtom(0).getPosition());
+            IOrientationFull3D orientation = (IOrientationFull3D) ((IMoleculeOriented) molecule).getOrientation();
+            for (int j = 0; j < 20; j++) {
                 orientation.randomRotation(getRandom(), 1);
             }
         }
@@ -58,7 +58,6 @@ public class DipoleBox extends Simulation {
         integrator.setIsothermal(false);
         integrator.printInterval = 1;
         integrator.setMaxIterations(maxIterations);
-        integrator.setBox(box);
         OrientationCalcAtom calcer = new OrientationCalcAtom();
         integrator.setOrientationCalc(species, calcer);
         ai = new ActivityIntegrate(integrator);
@@ -67,7 +66,7 @@ public class DipoleBox extends Simulation {
         P2LJDipole p2 = new P2LJDipole(space, 1.0, 1.0, 2.0);
         p2.setTruncationRadius(2.5);
         potentialMaster.addPotential(p2, new ISpecies[]{species, species});
-        
+
         BoxImposePbc pbc = new BoxImposePbc(box, space);
         pbc.setApplyToMolecules(true);
         integrator.getEventManager().addListener(new IntegratorListenerAction(pbc));

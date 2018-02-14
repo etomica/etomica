@@ -80,7 +80,6 @@ public class LJNPT extends Simulation {
 
         //construct box
         addBox(box);
-        integrator.setBox(box);
 
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(mcMoveAtom);

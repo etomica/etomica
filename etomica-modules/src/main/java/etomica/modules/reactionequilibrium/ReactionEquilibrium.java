@@ -60,7 +60,6 @@ public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom
         //construct box
         addBox(box);
         box.setBoundary(new BoundaryRectangularPeriodic(space, 30.0));
-        integratorHard1.setBox(box);
         speciesA = new SpeciesSpheresMono(this, space);
         speciesA.setIsDynamic(true);
         speciesB = new SpeciesSpheresMono(this, space);

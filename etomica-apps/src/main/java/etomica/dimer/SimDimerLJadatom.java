@@ -250,10 +250,9 @@ public class SimDimerLJadatom extends Simulation{
         activityIntegrateDimer.setMaxSteps(maxSteps);
     }
 
-    public void enableMinimumSearch(String fileName, Boolean normalDir){
+    public void enableMinimumSearch(String fileName, Boolean normalDir) {
 
         integratorDimerMin = new IntegratorDimerMin(this, potentialMaster, new ISpecies[]{movable}, normalDir, space, box);
-        integratorDimerMin.setBox(box);
         integratorDimerMin.setFileName(fileName);
         activityIntegrateMin = new ActivityIntegrate(integratorDimerMin);
         integratorDimerMin.setActivityIntegrate(activityIntegrateMin);

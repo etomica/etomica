@@ -99,72 +99,71 @@ public class TIP4P_NVT extends Simulation {
          }
      }
      //************************************* constructor ********************************************//
-     public TIP4P_NVT(Space space, int numberMolecules, double dielectricOutside, double boxSize, double temperature,double truncation){
-    	 super(space);         
-    	 
-//    	 setRandom(new RandomNumberGenerator(1));  // debug only
-    	 
-    	 species = new SpeciesWater4P(space);
-    	 addSpecies(species);
-    	 box = new Box(space);
-    	 addBox(box);
-    	 box.setNMolecules(species, numberMolecules);
-    	 box.getBoundary().setBoxSize(space.makeVector(new double[]{boxSize,boxSize,boxSize}));
-    //	 double mu=168.96979945736229;//in simulation unit
+     public TIP4P_NVT(Space space, int numberMolecules, double dielectricOutside, double boxSize, double temperature,double truncation) {
+         super(space);
 
-    	//for potential truncated
-    	 IMoleculePositionDefinition positionDefinition = new MoleculePositionCOM(space) ;
- 	    	 
-    	 pWater = new P2WaterTIP4PSoft(space,truncation,positionDefinition);
-    	 
-    	 sigmaLJ= pWater.getSigma();
-    	 epsilonLJ=pWater.getEpsilon();
-    	 chargeM=pWater.getChargeM();
-    	 chargeH=pWater.getChargeH();
+//    	 setRandom(new RandomNumberGenerator(1));  // debug only
+
+         species = new SpeciesWater4P(space);
+         addSpecies(species);
+         box = new Box(space);
+         addBox(box);
+         box.setNMolecules(species, numberMolecules);
+         box.getBoundary().setBoxSize(space.makeVector(new double[]{boxSize, boxSize, boxSize}));
+         //	 double mu=168.96979945736229;//in simulation unit
+
+         //for potential truncated
+         IMoleculePositionDefinition positionDefinition = new MoleculePositionCOM(space);
+
+         pWater = new P2WaterTIP4PSoft(space, truncation, positionDefinition);
+
+         sigmaLJ = pWater.getSigma();
+         epsilonLJ = pWater.getEpsilon();
+         chargeM = pWater.getChargeM();
+         chargeH = pWater.getChargeH();
 //    	 System.out.println("sigma = " +sigmaLJ);
 //    	 System.out.println("epsilon = " + epsilonLJ);
 //    	 System.exit(2);
-    	 
-    	 // add reaction field potential
-    	 DipoleSourceTIP4PWater dipoleSourceTIP4PWater = new DipoleSourceTIP4PWater(space);
-    	 P2ReactionFieldDipole pRF = new P2ReactionFieldDipole(space,positionDefinition);
-    	 pRF.setDipoleSource(dipoleSourceTIP4PWater);
-    	 pRF.setRange(truncation);
-    	 pRF.setDielectric(dielectricOutside);
- 		
-    	 potentialMaster = new PotentialMaster();
-    	 potentialMaster.addPotential(pRF, new ISpecies[]{species, species});
-    	 potentialMaster.addPotential(pWater, new ISpecies[]{species, species});
-    	 potentialMaster.lrcMaster().addPotential(pRF.makeP0());
-    	 
+
+         // add reaction field potential
+         DipoleSourceTIP4PWater dipoleSourceTIP4PWater = new DipoleSourceTIP4PWater(space);
+         P2ReactionFieldDipole pRF = new P2ReactionFieldDipole(space, positionDefinition);
+         pRF.setDipoleSource(dipoleSourceTIP4PWater);
+         pRF.setRange(truncation);
+         pRF.setDielectric(dielectricOutside);
+
+         potentialMaster = new PotentialMaster();
+         potentialMaster.addPotential(pRF, new ISpecies[]{species, species});
+         potentialMaster.addPotential(pWater, new ISpecies[]{species, species});
+         potentialMaster.lrcMaster().addPotential(pRF.makeP0());
+
          //add external field potential
 //         P1ExternalField p1ExternalField = new P1ExternalField(space);
 //         IVectorMutable dr = space.makeVector();
 //         p1ExternalField.setExternalField(dr);
 //         p1ExternalField.setDipoleSource(dipoleSourceTIP4PWater);//
 //    	 potentialMaster.addPotential(p1ExternalField,  new ISpecies[] {species});//External field 
-       
-    	 // integrator from potential master
-		 integrator = new IntegratorMC(this, potentialMaster, box);
-    	 // add mc move
-    	 moveMolecule = new MCMoveMolecule(this, potentialMaster, space);//stepSize:1.0, stepSizeMax:15.0
-    	 rotateMolecule = new MCMoveRotateMolecule3D(potentialMaster,random,space);
-    	 activityIntegrate = new ActivityIntegrate(integrator);
-    	 getController().addAction(activityIntegrate);
-    	 //******************************** periodic boundary condition ******************************** //
-    	 BoxImposePbc imposePbc = new BoxImposePbc(box, space);
-    	 imposePbc.setApplyToMolecules(true);
-    	 //**************************** integrator ****************************** //
-    	 integrator.setTemperature(temperature);
-    	 integrator.setBox(box);
-    	 integrator.getMoveManager().addMCMove(moveMolecule);
-    	 integrator.getMoveManager().addMCMove(rotateMolecule);
-    	 integrator.getEventManager().addListener(new IntegratorListenerAction(imposePbc));
-         
-    	 //******************************** initial configuration ******************************** //
-    	 LatticeCubicFcc lattice = new LatticeCubicFcc(space);
-    	 ConfigurationLattice configuration = new ConfigurationLattice(lattice, space);
-    	 configuration.initializeCoordinates(box);
+
+         // integrator from potential master
+         integrator = new IntegratorMC(this, potentialMaster, box);
+         // add mc move
+         moveMolecule = new MCMoveMolecule(this, potentialMaster, space);//stepSize:1.0, stepSizeMax:15.0
+         rotateMolecule = new MCMoveRotateMolecule3D(potentialMaster, random, space);
+         activityIntegrate = new ActivityIntegrate(integrator);
+         getController().addAction(activityIntegrate);
+         //******************************** periodic boundary condition ******************************** //
+         BoxImposePbc imposePbc = new BoxImposePbc(box, space);
+         imposePbc.setApplyToMolecules(true);
+         //**************************** integrator ****************************** //
+         integrator.setTemperature(temperature);
+         integrator.getMoveManager().addMCMove(moveMolecule);
+         integrator.getMoveManager().addMCMove(rotateMolecule);
+         integrator.getEventManager().addListener(new IntegratorListenerAction(imposePbc));
+
+         //******************************** initial configuration ******************************** //
+         LatticeCubicFcc lattice = new LatticeCubicFcc(space);
+         ConfigurationLattice configuration = new ConfigurationLattice(lattice, space);
+         configuration.initializeCoordinates(box);
      }
          
      // **************************** simulation part **************************** //

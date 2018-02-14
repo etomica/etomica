@@ -53,7 +53,6 @@ public class MultiharmonicMC extends Simulation {
         box.setNMolecules(species, 10);
 
         integrator = new IntegratorMC(this, potentialMasterA, box);
-        integrator.setBox(box);
         integrator.setTemperature(1.0);
         potentialA = new P1Harmonic(space);
         moveA = new MCMoveMultiHarmonic(potentialA, random);

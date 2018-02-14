@@ -388,13 +388,12 @@ public class SimDimerMEAMadatom extends Simulation{
         }
     }
 
-    public void enableMolecularDynamics(long maxSteps){
+    public void enableMolecularDynamics(long maxSteps) {
         integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, space, box);
         integratorMD.setTimeStep(0.001);
         integratorMD.setTemperature(Kelvin.UNIT.toSim(100));
         integratorMD.setThermostatInterval(100);
         integratorMD.setIsothermal(true);
-        integratorMD.setBox(box);
         integratorMD.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         activityIntegrateMD = new ActivityIntegrate(integratorMD);
         getController().addAction(activityIntegrateMD);
@@ -424,10 +423,9 @@ public class SimDimerMEAMadatom extends Simulation{
         activityIntegrateDimer.setMaxSteps(maxSteps);
     }
 
-    public void enableMinimumSearch(String fileName, Boolean normalDir){
+    public void enableMinimumSearch(String fileName, Boolean normalDir) {
 
         integratorDimerMin = new IntegratorDimerMin(this, potentialMasterD, new ISpecies[]{movable}, normalDir, space, box);
-        integratorDimerMin.setBox(box);
         integratorDimerMin.setFileName(fileName);
         integratorDimerMin.getEventManager().addListener(potentialMasterD.getNeighborManager(box));
         activityIntegrateMin = new ActivityIntegrate(integratorDimerMin);

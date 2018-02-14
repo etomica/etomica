@@ -137,7 +137,6 @@ public class TestLJAssociationMC3D_NVTOld extends Simulation {
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         config.initializeCoordinates(box);
         associationManagerOriented.initialize();
-        integrator.setBox(box);
         potentialMaster.getNbrCellManager(box).assignCellAll();
         potentialMaster.getNbrCellManager(box).setDoApplyPBC(true);
 //        WriteConfiguration writeConfig = new WriteConfiguration("LJMC3D"+Integer.toString(numAtoms),box,1);

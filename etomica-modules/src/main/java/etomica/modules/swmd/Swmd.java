@@ -75,7 +75,6 @@ public class Swmd extends Simulation {
         box.getBoundary().setBoxSize(dim);
         box.setNMolecules(species, N);
         new ConfigurationLattice(space.D() == 3 ? new LatticeCubicFcc(space) : new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
-        integrator.setBox(box);
 
         integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
     }

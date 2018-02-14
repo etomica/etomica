@@ -76,7 +76,6 @@ public class LJMC3D extends Simulation {
 
         integrator = new IntegratorMC(this, potentialMaster, box);
         integrator.setTemperature(params.temperature);
-        integrator.setBox(box);
 
         MCMoveAtom mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(mcMoveAtom);

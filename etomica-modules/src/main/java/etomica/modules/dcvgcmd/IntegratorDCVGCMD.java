@@ -142,26 +142,24 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 	}
 	
 	public void setIntegrators(IntegratorMC intmc, IntegratorMD intmd, IRandom random) {
-		integratormc = intmc;
-		integratormd = intmd;
+        integratormc = intmc;
+        integratormd = intmd;
         integratormc.setTemperature(temperature);
         integratormd.setTemperature(temperature);
-		integratormd.setBox(box);
-		integratormc.setBox(box);
-		mcMove1 = new MyMCMove(this, random, space, -zFraction);
-		mcMove2 = new MyMCMove(this, random, space, +zFraction);
+        mcMove1 = new MyMCMove(this, random, space, -zFraction);
+        mcMove2 = new MyMCMove(this, random, space, +zFraction);
         MCMoveManager moveManager = integratormc.getMoveManager();
-		moveManager.addMCMove (mcMove1);
-		moveManager.addMCMove (mcMove2);
-		mcMove1.setSpecies(speciesA);
-		mcMove2.setSpecies(speciesA);
-		mcMove3 = new MyMCMove(this, random, space, -zFraction);
-		mcMove4 = new MyMCMove(this, random, space, +zFraction);
-		moveManager.addMCMove (mcMove3);
-		moveManager.addMCMove (mcMove4);
-		mcMove3.setSpecies(speciesB);
-		mcMove4.setSpecies(speciesB);
-	}
+        moveManager.addMCMove(mcMove1);
+        moveManager.addMCMove(mcMove2);
+        mcMove1.setSpecies(speciesA);
+        mcMove2.setSpecies(speciesA);
+        mcMove3 = new MyMCMove(this, random, space, -zFraction);
+        mcMove4 = new MyMCMove(this, random, space, +zFraction);
+        moveManager.addMCMove(mcMove3);
+        moveManager.addMCMove(mcMove4);
+        mcMove3.setSpecies(speciesB);
+        mcMove4.setSpecies(speciesB);
+    }
 	
 	public void setMu(double mu1, double mu2) {
 		mcMove1.setMu(mu1);

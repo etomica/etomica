@@ -47,18 +47,18 @@ public class Adsorption extends Simulation {
         box = new Box(new BoundaryRectangularSlit(1, 20.0, space), space);
         addBox(box);
         PotentialMasterHybrid potentialMaster = new PotentialMasterHybrid(this, 2, space); //List(this, 2.0);
-        
+
         //controller and integrator
-	    integratorMD = new IntegratorHard(this, potentialMaster, space, box);
-	    integratorMD.setTimeStep(0.005);
-	    integratorMD.setIsothermal(true);
-	    integratorMD.setThermostatInterval(10000);
+        integratorMD = new IntegratorHard(this, potentialMaster, space, box);
+        integratorMD.setTimeStep(0.005);
+        integratorMD.setIsothermal(true);
+        integratorMD.setThermostatInterval(10000);
 
         integratorMC = new IntegratorMC(potentialMaster, random, 2, box);
-	    integratorMC.setTemperature(1);
+        integratorMC.setTemperature(1);
 
-        integratorHybrid = new IntegratorHybrid(potentialMaster, integratorMD, integratorMC, 2, box);
-	    
+        integratorHybrid = new IntegratorHybrid(potentialMaster, integratorMD, integratorMC, 2);
+
         activityIntegrate = new ActivityIntegrate(integratorHybrid);
         getController().addAction(activityIntegrate);
 
@@ -66,8 +66,8 @@ public class Adsorption extends Simulation {
         double lambda = 1.5;
         double epsilon = 1.0;
         double epsilonWF = 5.0;
-        
-	    //species and potentials
+
+        //species and potentials
         speciesA = new SpeciesSpheresMono(space, new ElementSimple(this));
         speciesA.setIsDynamic(true);
         addSpecies(speciesA);
@@ -88,7 +88,7 @@ public class Adsorption extends Simulation {
         mcMoveIDB.setSpecies(speciesB);
         mcMoveIDB.setBox(box);
 
-        
+
         p2AA = new P2SquareWell(space, sigma, lambda, epsilon, false);
         potentialMaster.addPotential(p2AA, new AtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
         p2AB = new P2SquareWell(space, sigma, lambda, epsilon, false);
@@ -99,13 +99,13 @@ public class Adsorption extends Simulation {
 
         p1WallA = new P1Wall(space);
         p1WallA.setSigma(sigma);
-        p1WallA.setRange(sigma/2);
+        p1WallA.setRange(sigma / 2);
         p1WallA.setEpsilon(epsilonWF);
         p1WallA.setThermalize(integratorMC, 0.0, random);
 
         p1WallB = new P1Wall(space);
         p1WallB.setSigma(sigma);
-        p1WallB.setRange(sigma/2);
+        p1WallB.setRange(sigma / 2);
         p1WallB.setEpsilon(epsilonWF);
         p1WallB.setThermalize(integratorMC, 0.0, random);
 
@@ -115,16 +115,14 @@ public class Adsorption extends Simulation {
         integratorMD.getEventManager().addListener(potentialMaster.getNeighborManager(box));
 
         Vector dim = space.makeVector();
-        dim.E(8*sigma);
-        dim.setX(1, 12*sigma);
+        dim.E(8 * sigma);
+        dim.setX(1, 12 * sigma);
         box.getBoundary().setBoxSize(dim);
-        
+
         box.setNMolecules(speciesA, 40);
 
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         config.initializeCoordinates(box);
-        
-        integratorHybrid.setBox(box);
     }
     
     public static void main(String[] args) {

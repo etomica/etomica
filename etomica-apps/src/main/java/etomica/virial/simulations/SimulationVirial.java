@@ -99,59 +99,57 @@ public class SimulationVirial extends Simulation {
 	}
 	
 	public void init() {
-		if (seeds != null) {
-		    setRandom(new RandomMersenneTwister(seeds));
-		}
+        if (seeds != null) {
+            setRandom(new RandomMersenneTwister(seeds));
+        }
         PotentialMaster potentialMaster = new PotentialMaster();
-		int nMolecules = sampleCluster.pointCount();
-		box = new BoxCluster(sampleCluster, space);
-		addBox(box);
+        int nMolecules = sampleCluster.pointCount();
+        box = new BoxCluster(sampleCluster, space);
+        addBox(box);
 
-		for (int i=0; i<species.length; i++) {
-		    addSpecies(species[i]);
-		    box.setNMolecules(species[i], numMolecules[i]);
-		}
+        for (int i = 0; i < species.length; i++) {
+            addSpecies(species[i]);
+            box.setNMolecules(species[i], numMolecules[i]);
+        }
 
         integrator = new IntegratorMC(this, potentialMaster, box);
         // it's unclear what this accomplishes, but let's do it just for fun.
-		integrator.setTemperature(temperature);
-        integrator.setBox(box);
+        integrator.setTemperature(temperature);
         integrator.getMoveManager().setEquilibrating(false);
         integrator.setEventInterval(1);
-		ai = new ActivityIntegrate(integrator);
-		getController().addAction(ai);
-		
-		
+        ai = new ActivityIntegrate(integrator);
+        getController().addAction(ai);
+
+
         if (species[0] instanceof SpeciesSpheresMono || species[0] instanceof SpeciesSpheresRotating) {
             mcMoveTranslate = new MCMoveClusterAtomMulti(random, space);
             if (species[0] instanceof SpeciesSpheresRotating) {
                 mcMoveRotate = new MCMoveClusterAtomRotateMulti(random, space);
                 integrator.getMoveManager().addMCMove(mcMoveRotate);
             }
-        }
-        else {
+        } else {
             mcMoveTranslate = new MCMoveClusterMoleculeMulti(this, space);
             mcMoveRotate = new MCMoveClusterRotateMoleculeMulti(getRandom(), space);
             mcMoveRotate.setStepSize(Math.PI);
             if (species[0] instanceof SpeciesSpheres) {
                 if (doWiggle) {
-                    mcMoveWiggle = new MCMoveClusterWiggleMulti(this,potentialMaster, nMolecules, space);
+                    mcMoveWiggle = new MCMoveClusterWiggleMulti(this, potentialMaster, nMolecules, space);
                     integrator.getMoveManager().addMCMove(mcMoveWiggle);
-                    mcMoveReptate = new MCMoveClusterReptateMulti(this,potentialMaster, nMolecules-1);
+                    mcMoveReptate = new MCMoveClusterReptateMulti(this, potentialMaster, nMolecules - 1);
                     integrator.getMoveManager().addMCMove(mcMoveReptate);
                 }
             }
             integrator.getMoveManager().addMCMove(mcMoveRotate);
         }
         integrator.getMoveManager().addMCMove(mcMoveTranslate);
-		
+
         ConfigurationCluster configuration = new ConfigurationCluster(space);
         configuration.initializeCoordinates(box);
 
         setMeter(new MeterVirial(allValueClusters));
-        ((MeterVirial)meter).setBox(box);
+        ((MeterVirial) meter).setBox(box);
         setAccumulator(new AccumulatorRatioAverageCovariance());
-	}
+    }
 
     public void setMeter(IDataSource newMeter) {
         meter = newMeter;

@@ -48,7 +48,7 @@ public class WaterDropletRattle {
         SpeciesWater3P species = new SpeciesWater3P(sim.getSpace(), true);
         sim.addSpecies(species);
         box.setNMolecules(species, 108);
-        box.setDensity(1/18.0*Constants.AVOGADRO/1E24);
+        box.setDensity(1 / 18.0 * Constants.AVOGADRO / 1E24);
         ConfigurationWater108 configFile = new ConfigurationWater108();
         configFile.initializeCoordinates(box);
         PotentialMaster potentialMaster = new PotentialMaster();
@@ -56,18 +56,17 @@ public class WaterDropletRattle {
         int maxIterations = 100;
         IntegratorVelocityVerletRattle integrator = new IntegratorVelocityVerletRattle(sim, potentialMaster, space, box);
         double lOH = ConformationWater3P.bondLengthOH;
-        double lHH = Math.sqrt(2*lOH*lOH*(1-Math.cos(ConformationWater3P.angleHOH)));
-        integrator.setBondConstraints(species, new int[][]{{0,2},{1,2},{0,1}}, new double[]{lOH, lOH, lHH});
+        double lHH = Math.sqrt(2 * lOH * lOH * (1 - Math.cos(ConformationWater3P.angleHOH)));
+        integrator.setBondConstraints(species, new int[][]{{0, 2}, {1, 2}, {0, 1}}, new double[]{lOH, lOH, lHH});
         integrator.setTimeStep(timeInterval);
         integrator.setMaxIterations(maxIterations);
-        integrator.setBox(box);
 //        integrator.setOrientAtom((IAtomPositioned)((IMolecule)box.getMoleculeList(speciesOrient).getAtom(0)).getChildList().getAtom(0));
         integrator.setIsothermal(false);
         integrator.setTemperature(Kelvin.UNIT.toSim(280));
         try {
             integrator.reset();
+        } catch (ConfigurationOverlapException e) {
         }
-        catch (ConfigurationOverlapException e){}
 //        MeterTemperature meterTemperature = new MeterTemperature(box, 3);
 //        System.out.println("T="+meterTemperature.getDataAsScalar());
 //        integrator.setThermostatInterval(100);
@@ -77,7 +76,7 @@ public class WaterDropletRattle {
 //        System.out.println("h1 at "+((IAtomPositioned)box.getLeafList().getAtom(0)).getPosition());
 //        System.out.println("o at "+((IAtomPositioned)box.getLeafList().getAtom(2)).getPosition());
 
-        
+
         double chargeOxygen = Electron.UNIT.toSim(-0.82);
         double chargeHydrogen = Electron.UNIT.toSim(0.41);
 
@@ -98,21 +97,21 @@ public class WaterDropletRattle {
         potentialQOO.setCharge1(chargeOxygen);
         potentialQOO.setCharge2(chargeOxygen);
         pGroup.addPotential(potentialQOO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{oType, oType}));
-        
+
         P2Electrostatic potentialQOH = new P2Electrostatic(space);
         potentialQOH.setCharge1(chargeOxygen);
         potentialQOH.setCharge2(chargeHydrogen);
         pGroup.addPotential(potentialQOH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{oType, hType}));
         pGroup.addPotential(potentialQOH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{hType, oType}));
 
-        potentialMaster.addPotential(pGroup, new ISpecies[]{species,species});
+        potentialMaster.addPotential(pGroup, new ISpecies[]{species, species});
 
         if (false) {
             ai.setSleepPeriod(2);
             SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Rattle", 1);
-            ((ColorSchemeByType)graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
-            ((ColorSchemeByType)graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);
-            
+            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
+            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);
+
             MeterEnergy meterE = new MeterEnergy(potentialMaster, box);
             AccumulatorHistory history = new AccumulatorHistory(new HistoryCollapsingAverage());
             history.setTimeDataSource(new DataSourceCountTime(integrator));
@@ -127,7 +126,7 @@ public class WaterDropletRattle {
             return graphic;
         }
         sim.getController().actionPerformed();
-        
+
         return null;
     }
 

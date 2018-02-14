@@ -74,8 +74,6 @@ public class Heisenberg extends Simulation {
         potentialMaster.addPotential(field, new AtomType[]{type});
         potentialMaster.addPotential(potential, new AtomType[]{type, type});
 
-        integrator.setBox(box);
-
         meter = new MeterSpin(space);
         meter.setBox(box);
         dAcc = new AccumulatorAverageCollapsing();

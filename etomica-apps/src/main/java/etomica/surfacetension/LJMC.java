@@ -72,7 +72,6 @@ public class LJMC extends Simulation {
         addBox(box);
         Vector dim = space.makeVector();
         box.getBoundary().setBoxSize(dim);
-        integrator.setBox(box);
 
         mcMoveAtom = new MCMoveAtomInRegion(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(mcMoveAtom);

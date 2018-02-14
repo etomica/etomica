@@ -143,8 +143,6 @@ public class SimOverlapLJModule {
 
         move.setBox(boxHarmonic);
 
-        integratorHarmonic.setBox(boxHarmonic);
-
 
         // TARGET
 
@@ -181,8 +179,6 @@ public class SimOverlapLJModule {
         AtomType sphereType = species.getLeafType();
         potentialMasterTarget.addPotential(pTruncated, new AtomType[]{sphereType, sphereType});
         atomMove.setPotential(pTruncated);
-
-        integratorTarget.setBox(boxTarget);
 
         potentialMasterTarget.lrcMaster().setEnabled(false);
         integratorTarget.reset();

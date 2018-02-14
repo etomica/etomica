@@ -88,7 +88,6 @@ public class DensityOfStatesPolynomial extends Simulation{
 		integrator.getMoveEventManager().addListener(((PotentialMasterCell) potentialMaster).getNbrCellManager(box).makeMCMoveListener());
 
 		new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
-		integrator.setBox(box);
 
 		((PotentialMasterCell) potentialMaster).getNbrCellManager(box).assignCellAll();
 

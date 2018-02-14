@@ -83,8 +83,6 @@ public class SoftSphere3d extends Simulation {
         //potentialMaster.addPotential(potential, new AtomType[] {type2, type2});
 
         meterCycles = new DataSourceCountSteps(integrator);
-
-        integrator.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
 

@@ -56,12 +56,12 @@ public class TestSetToUHexane extends Simulation {
     int chainLength;
     AtomIteratorLeafAtoms iterator;
     
-    TestSetToUHexane(Space _space){
+    TestSetToUHexane(Space _space) {
         super(_space);
-        
+
         //Set up a system; this is largely chunked over from TestHexane, but
         // the integrator and MC moves and potentials are all cut out.
-        int xCells = 1; 
+        int xCells = 1;
         int yCells = 1;
         int zCells = 1;
         chainLength = 6;
@@ -71,7 +71,7 @@ public class TestSetToUHexane extends Simulation {
         prim.scaleSize(20.0);
         lattice = new BravaisLattice(prim);
         species = new SpeciesHexane(space);
-        
+
         addSpecies(species);
         int[] nCells = new int[]{xCells, yCells, zCells};
         bdry = new BoundaryDeformableLattice(prim, nCells);
@@ -82,27 +82,27 @@ public class TestSetToUHexane extends Simulation {
         cdHex = new CoordinateDefinitionHexane(this, box, prim, species, space);
         cdHex.initializeCoordinates(nCells);
         oldUs = new double[cdHex.getCoordinateDim()];
-        
+
         oldX = new Vector3D[chainLength];
         newX = new Vector3D[chainLength];
-        for(int i = 0; i < chainLength; i++){
+        for (int i = 0; i < chainLength; i++) {
             oldX[i] = new Vector3D();
             newX[i] = new Vector3D();
         }
-    
+
         iterator = new AtomIteratorLeafAtoms(box);
         iterator.reset();
-        
+
         PotentialMaster potentialMaster = new PotentialMaster();
         integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0, box);
-        
+
         moveMolecule = new MCMoveMolecule(potentialMaster, getRandom(),
-                    space, 0.1, 1);
+                space, 0.1, 1);
         // 0.025 for translate, 0.042 for rotate for rho=0.3737735
-        moveMolecule.setStepSize(0.024);        
+        moveMolecule.setStepSize(0.024);
         integrator.getMoveManager().addMCMove(moveMolecule);
-        ((MCMoveStepTracker)moveMolecule.getTracker()).setNoisyAdjustment(true);
-        
+        ((MCMoveStepTracker) moveMolecule.getTracker()).setNoisyAdjustment(true);
+
 //         moveVolume = new MCMoveVolume(potentialMaster, box.space(),
 //         sim.getDefaults().pressure);
 //         moveVolume.setBox(box);
@@ -111,13 +111,13 @@ public class TestSetToUHexane extends Simulation {
 //         snake = new MCMoveReptate(this);
 //         snake.setBox(box);
 //         integrator.getMoveManager().addMCMove(snake);
-        
+
         rot = new MCMoveRotateMolecule3D(potentialMaster, getRandom(), space);
         rot.setBox(box);
         rot.setStepSize(0.042);
         integrator.getMoveManager().addMCMove(rot);
-        ((MCMoveStepTracker)rot.getTracker()).setNoisyAdjustment(true);
-        
+        ((MCMoveStepTracker) rot.getTracker()).setNoisyAdjustment(true);
+
         growMolecule = new CBMCGrowSolidHexane(potentialMaster,
                 getRandom(), space, integrator, box, species, 20);
         growMolecule.setBox(box);
@@ -125,12 +125,12 @@ public class TestSetToUHexane extends Simulation {
 
         coupledMove = new MCMoveMoleculeCoupled(potentialMaster, getRandom(), space);
         integrator.getMoveManager().addMCMove(coupledMove);
-        
-        cctMove = new MCMoveCombinedCbmcTranslation(potentialMaster, 
+
+        cctMove = new MCMoveCombinedCbmcTranslation(potentialMaster,
                 growMolecule, getRandom(), space);
         cctMove.setBox(box);
         integrator.getMoveManager().addMCMove(cctMove);
-        
+
         // nan we're going to need some stuff in there to set the step sizes and
         // other stuff like that.
 
@@ -145,7 +145,7 @@ public class TestSetToUHexane extends Simulation {
         // different molecules. We use the class "Potential" because we are
         // reusing the instance as we define each potential.
         Potential potential = new P2HardSphere(space);
-        
+
         //here, we add the species to the PotentialMaster, using types.
         //The PotentialMaster generates a group potential and automatically
         // does a lot of the stuff which we have to do for the intramolecular
@@ -154,12 +154,10 @@ public class TestSetToUHexane extends Simulation {
 
         //Add the Potential to the PotentialMaster
         potentialMaster.addPotential(potential, new AtomType[]{sphereType,
-                sphereType });
-        
-        coupledMove.setPotential(potentialMaster.getPotential(new ISpecies[] {
-                species, species }  ));
+                sphereType});
 
-        integrator.setBox(box);
+        coupledMove.setPotential(potentialMaster.getPotential(new ISpecies[]{
+                species, species}));
     }
 
     public static void main(String[] args) {

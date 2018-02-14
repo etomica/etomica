@@ -80,8 +80,6 @@ public class TestSnapshots {
             inflater.setTargetDensity(.35 * 2 * space.D() / Math.PI);
             inflater.actionPerformed();
             new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box());
-
-            integrator.setBox(box());
             integrator.getEventManager().addListener(pm.getNeighborManager(box()));
         }
 

@@ -59,8 +59,6 @@ public class LJMD3D extends Simulation {
         AtomType leafType = species.getLeafType();
 
         potentialMaster.addPotential(potential, new AtomType[]{leafType, leafType});
-
-        integrator.setBox(box);
         BoxImposePbc imposepbc = new BoxImposePbc(space);
         imposepbc.setBox(box);
         integrator.getEventManager().addListener(new IntegratorListenerAction(imposepbc));

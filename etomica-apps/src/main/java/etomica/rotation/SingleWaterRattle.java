@@ -44,7 +44,7 @@ public class SingleWaterRattle {
         SpeciesWater3P species = new SpeciesWater3P(sim.getSpace(), true);
         sim.addSpecies(species);
         box.setNMolecules(species, 1);
-        box.setDensity(0.01/18.0*Constants.AVOGADRO/1E24);
+        box.setDensity(0.01 / 18.0 * Constants.AVOGADRO / 1E24);
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeStep = 0.0008;
@@ -54,9 +54,8 @@ public class SingleWaterRattle {
         integrator.printInterval = 0;
         integrator.setMaxIterations(maxIterations);
         double lOH = ConformationWater3P.bondLengthOH;
-        double lHH = Math.sqrt(2*lOH*lOH*(1-Math.cos(ConformationWater3P.angleHOH)));
-        integrator.setBondConstraints(species, new int[][]{{0,2},{1,2},{0,1}}, new double[]{lOH, lOH, lHH});
-        integrator.setBox(box);
+        double lHH = Math.sqrt(2 * lOH * lOH * (1 - Math.cos(ConformationWater3P.angleHOH)));
+        integrator.setBondConstraints(species, new int[][]{{0, 2}, {1, 2}, {0, 1}}, new double[]{lOH, lOH, lHH});
         integrator.setIsothermal(false);
         integrator.setTemperature(Kelvin.UNIT.toSim(271.2654804973));
 //        integrator.setThermostatInterval(100);
@@ -78,25 +77,23 @@ public class SingleWaterRattle {
             if (isWriting) {
                 try {
                     fileWriter = new FileWriter("rattleA008.out");
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
                 bufReader = null;
-            }
-            else {
+            } else {
                 fileWriter = null;
                 String infile = "rattleA008.out";
                 try {
                     fileReader = new FileReader(infile);
-                }catch(IOException e) {
-                    throw new RuntimeException("Cannot open "+infile+", caught IOException: " + e.getMessage());
+                } catch (IOException e) {
+                    throw new RuntimeException("Cannot open " + infile + ", caught IOException: " + e.getMessage());
                 }
                 bufReader = new BufferedReader(fileReader);
             }
-    
+
             final OrientationCalcWater3P calcer = new OrientationCalcWater3P(space);
-            final IOrientationFull3D orientation = (IOrientationFull3D)space.makeOrientation();
+            final IOrientationFull3D orientation = (IOrientationFull3D) space.makeOrientation();
             IAction writeA = new IAction() {
                 public void actionPerformed() {
                     IMolecule molecule = box.getMoleculeList().getMolecule(0);
@@ -104,21 +101,20 @@ public class SingleWaterRattle {
                     A.setOrientation(orientation);
                     try {
                         if (isWriting) {
-                            fileWriter.write(integrator.getCurrentTime()+" ");
-                            for (int i=0; i<3; i++) {
-                                for (int j=0; j<3 ;j++) {
-                                    fileWriter.write(A.component(i,j)+" ");
+                            fileWriter.write(integrator.getCurrentTime() + " ");
+                            for (int i = 0; i < 3; i++) {
+                                for (int j = 0; j < 3; j++) {
+                                    fileWriter.write(A.component(i, j) + " ");
                                 }
                             }
                             fileWriter.write("\n");
-                        }
-                        else {
+                        } else {
                             String line = bufReader.readLine();
                             String[] componentsStr = line.split(" +");
                             int k = 1;
-                            for (int i=0; i<3; i++) {
-                                for (int j=0; j<3; j++) {
-                                    Aex.setComponent(i,j,Double.parseDouble(componentsStr[k]));
+                            for (int i = 0; i < 3; i++) {
+                                for (int j = 0; j < 3; j++) {
+                                    Aex.setComponent(i, j, Double.parseDouble(componentsStr[k]));
                                     k++;
                                 }
                             }
@@ -126,34 +122,33 @@ public class SingleWaterRattle {
                             Aex.E(A);
                             Aex.transpose();
                             A.TE(Aex);
-                            double err = A.trace()/6.0;
+                            double err = A.trace() / 6.0;
                             sum += err;
                             n++;
-                            System.out.println(integrator.getCurrentTime()+" "+Math.sqrt(sum/n));
+                            System.out.println(integrator.getCurrentTime() + " " + Math.sqrt(sum / n));
                         }
-                    }
-                    catch (IOException e) {
+                    } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
                 }
+
                 double sum = 0;
                 int n = 0;
-                RotationTensor3D A = (RotationTensor3D)space.makeRotationTensor();
-                RotationTensor3D Aex = (RotationTensor3D)space.makeRotationTensor();
+                RotationTensor3D A = (RotationTensor3D) space.makeRotationTensor();
+                RotationTensor3D Aex = (RotationTensor3D) space.makeRotationTensor();
             };
             IntegratorListenerAction writeAListener = new IntegratorListenerAction(writeA);
             writeAListener.setInterval(100);
             integrator.getEventManager().addListener(writeAListener);
             sim.getController().actionPerformed();
-        }
-        else {
+        } else {
             ai.setSleepPeriod(10);
             SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Rattle", 1);
-            ((ColorSchemeByType)graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
-            ((ColorSchemeByType)graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);
+            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
+            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);
             return graphic;
         }
-        
+
         return null;
     }
     

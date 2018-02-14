@@ -91,20 +91,20 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
         atomMove.setStepSize(0.1);
         atomMove.setStepSizeMax(0.5);
         integratorTarget.getMoveManager().addMCMove(atomMove);
-        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
+        ((MCMoveStepTracker) atomMove.getTracker()).setNoisyAdjustment(true);
 
         integrators[1] = integratorTarget;
 
         if (space.D() == 1) {
-            primitive = new PrimitiveCubic(space, 1.0/density);
-            boundaryTarget = new BoundaryRectangularPeriodic(space, numAtoms/density);
+            primitive = new PrimitiveCubic(space, 1.0 / density);
+            boundaryTarget = new BoundaryRectangularPeriodic(space, numAtoms / density);
             nCells = new int[]{numAtoms};
             basis = new BasisMonatomic(space);
         } else {
-            double L = Math.pow(4.0/density, 1.0/3.0);
+            double L = Math.pow(4.0 / density, 1.0 / 3.0);
             primitive = new PrimitiveCubic(space, L);
-            int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-            nCells = new int[]{n,n,n};
+            int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+            nCells = new int[]{n, n, n};
             boundaryTarget = new BoundaryRectangularPeriodic(space, n * L);
             basis = new BasisCubicFcc();
         }
@@ -119,8 +119,6 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
         AtomType sphereType = species.getLeafType();
         potentialMasterTarget.addPotential(pTruncated, new AtomType[]{sphereType, sphereType});
         atomMove.setPotential(pTruncated);
-
-        integratorTarget.setBox(boxTarget);
 
         /*
          *  1-body Potential to Constraint the atom from moving too far
@@ -150,10 +148,10 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
         integrators[0] = integratorHarmonic;
 
         if (space.D() == 1) {
-            boundaryHarmonic = new BoundaryRectangularPeriodic(space, numAtoms/density);
+            boundaryHarmonic = new BoundaryRectangularPeriodic(space, numAtoms / density);
         } else {
-            double L = Math.pow(4.0/density, 1.0/3.0);
-            int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
+            double L = Math.pow(4.0 / density, 1.0 / 3.0);
+            int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
             boundaryHarmonic = new BoundaryRectangularPeriodic(space, n * L);
         }
         boxHarmonic.setBoundary(boundaryHarmonic);
@@ -178,8 +176,6 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
         move.setTemperature(temperature);
 
         move.setBox(boxHarmonic);
-
-        integratorHarmonic.setBox(boxHarmonic);
 
         // OVERLAP
         integratorOverlap = new IntegratorOverlap(new IntegratorBox[]{integratorHarmonic, integratorTarget});

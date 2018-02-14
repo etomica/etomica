@@ -46,7 +46,6 @@ public abstract class IntegratorBox extends Integrator {
             meterPE = new MeterPotentialEnergy(potentialMaster, box);
         }
         setTemperature(temperature);
-        this.setBox(this.box);
     }
 
     /**

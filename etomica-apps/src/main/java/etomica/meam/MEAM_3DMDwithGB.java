@@ -104,13 +104,19 @@ public class MEAM_3DMDwithGB extends Simulation {
         double aA, bA, cA, aB, bB, cB;
 
         int nCellsAx, nCellsAy, nCellsAz, nAMobile, nAFixed,
-		nCellsBx, nCellsBy, nCellsBz, nBMobile, nBFixed,
-		nA, nB, nAImpurity, nBImpurity, nAVacancy, nBVacancy;
+                nCellsBx, nCellsBy, nCellsBz, nBMobile, nBFixed,
+                nA, nB, nAImpurity, nBImpurity, nAVacancy, nBVacancy;
 
-        nCellsAx = 6; nCellsAy = 6; nCellsAz = 4;
-        nCellsBx = 6; nCellsBy = 6; nCellsBz = 4;
-        nAImpurity = 0; nAVacancy = 0;
-        nBImpurity = 0; nBVacancy = 0;
+        nCellsAx = 6;
+        nCellsAy = 6;
+        nCellsAz = 4;
+        nCellsBx = 6;
+        nCellsBy = 6;
+        nCellsBz = 4;
+        nAImpurity = 0;
+        nAVacancy = 0;
+        nBImpurity = 0;
+        nBVacancy = 0;
 
         box = new Box(new BoundaryRectangularSlit(2, space), space);
         addBox(box);
@@ -121,57 +127,61 @@ public class MEAM_3DMDwithGB extends Simulation {
         //the unit cell to prevent distortion of the lattice.  The values for the
         //lattice parameters for tin's beta box (a = 5.8314 angstroms, c = 3.1815
         //angstroms) are taken from the ASM Handbook.
-        aA = bA = 5.8314; cA = 3.1815; int basisA = 4;
+        aA = bA = 5.8314;
+        cA = 3.1815;
+        int basisA = 4;
         PrimitiveTetragonal primitiveA = new PrimitiveTetragonal(space, aA, cA);
         //Alternatively, using the parameters calculated in Ravelo & Baskes (1997)
         //box.setDimensions(new Vector3D(5.92*3, 5.92*3, 3.23*6));
         //PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.92, 3.23);
         BravaisLatticeCrystal latticeA = new BravaisLatticeCrystal(primitiveA, new BasisBetaSnA5());
 
-        aB = bB = 5.8314; cB = 3.1815; int basisB = 4;
+        aB = bB = 5.8314;
+        cB = 3.1815;
+        int basisB = 4;
         PrimitiveTetragonal primitiveB = new PrimitiveTetragonal(space, aB, cB);
         BravaisLatticeCrystal latticeB = new BravaisLatticeCrystal(primitiveB, new BasisBetaSnA5());
 
-        box.getBoundary().setBoxSize(new Vector3D(aA*nCellsAx, aA*nCellsAy, (cA*nCellsAz)+(cB*nCellsBz)));
+        box.getBoundary().setBoxSize(new Vector3D(aA * nCellsAx, aA * nCellsAy, (cA * nCellsAz) + (cB * nCellsBz)));
 
 
         //FCC Cu
         /**
-        aA = bA = cA = 3.6148;SpeciesSpheresMono
-	    boxA.setDimensions(new Vector3D(aA*4, aA*4, aA*4));
-	    PrimitiveCubic primitiveA = new PrimitiveCubic(space, aA);
-	    LatticeCrystal latticeA = new LatticeCrystal(new Crystal(
-		        primitiveA, new BasisCubicFcc(primitiveA)));
+         aA = bA = cA = 3.6148;SpeciesSpheresMono
+         boxA.setDimensions(new Vector3D(aA*4, aA*4, aA*4));
+         PrimitiveCubic primitiveA = new PrimitiveCubic(space, aA);
+         LatticeCrystal latticeA = new LatticeCrystal(new Crystal(
+         primitiveA, new BasisCubicFcc(primitiveA)));
 
          aB = bB = cB = 3.6148;
-	    boxB.setDimensions(new Vector3D(aB*4, aB*4, aB*4));
-	    PrimitiveCubic primitiveB = new PrimitiveCubic(space, aB);
-	    LatticeCrystal latticeB = new LatticeCrystal(new Crystal(
+         boxB.setDimensions(new Vector3D(aB*4, aB*4, aB*4));
+         PrimitiveCubic primitiveB = new PrimitiveCubic(space, aB);
+         LatticeCrystal latticeB = new LatticeCrystal(new Crystal(
          primitiveB, new BasisCubicFcc(primitiveB)));
 
-	    */
+         */
 
         //FCC Ag
         /**
-        aA = bA = cA = 4.0863;
-	    boxA.setDimensions(new Vector3D(aA*4, aA*4, aA*4));
-	    PrimitiveCubic primitiveA = new PrimitiveCubic(space, aA);
-	    LatticeCrystal latticeA = new LatticeCrystal(new Crystal(
-		        primitiveA, new BasisCubicFcc(primitiveA)));
+         aA = bA = cA = 4.0863;
+         boxA.setDimensions(new Vector3D(aA*4, aA*4, aA*4));
+         PrimitiveCubic primitiveA = new PrimitiveCubic(space, aA);
+         LatticeCrystal latticeA = new LatticeCrystal(new Crystal(
+         primitiveA, new BasisCubicFcc(primitiveA)));
 
          aB = bB = cB = 4.0863;
-	    boxB.setDimensions(new Vector3D(aB*4, aB*4, aB*4));
-	    PrimitiveCubic primitiveB = new PrimitiveCubic(space, aB);
-	    LatticeCrystal latticeB = new LatticeCrystal(new Crystal(
-		        primitiveB, new BasisCubicFcc(primitiveB)));
-	    */
+         boxB.setDimensions(new Vector3D(aB*4, aB*4, aB*4));
+         PrimitiveCubic primitiveB = new PrimitiveCubic(space, aB);
+         LatticeCrystal latticeB = new LatticeCrystal(new Crystal(
+         primitiveB, new BasisCubicFcc(primitiveB)));
+         */
 
         nA = (nCellsAx * nCellsAy * nCellsAz) * basisA;
-	    nAFixed = (nCellsAx * nCellsAy * 2) * basisA;
-	    nAMobile = nA - nAFixed - nAImpurity - nAVacancy;
-	    nB = (nCellsBx * nCellsBy * nCellsBz) * basisB;
-	    nBFixed = (nCellsBx * nCellsBy * 2) * basisB;
-	    nBMobile = nB - nBFixed - nBImpurity - nBVacancy;
+        nAFixed = (nCellsAx * nCellsAy * 2) * basisA;
+        nAMobile = nA - nAFixed - nAImpurity - nAVacancy;
+        nB = (nCellsBx * nCellsBy * nCellsBz) * basisB;
+        nBFixed = (nCellsBx * nCellsBy * 2) * basisB;
+        nBMobile = nB - nBFixed - nBImpurity - nBVacancy;
 
         addSpecies(snFixedA);
         addSpecies(snA);
@@ -191,15 +201,15 @@ public class MEAM_3DMDwithGB extends Simulation {
         GrainBoundaryConfiguration config = new GrainBoundaryConfiguration(latticeA, latticeB, space);
         config.setDimensions(nCellsAx, nCellsAy, nCellsAz, nCellsBx, nCellsBy,
                 nCellsBz, aA, bA, cA, aB, bB, cB);
-	    config.initializeCoordinates(box);
+        config.initializeCoordinates(box);
 
         potentialN = new PotentialMEAM(space);
-		potentialN.setParameters(snFixedA.getLeafType(), ParameterSetMEAM.Sn);
-		potentialN.setParameters(snA.getLeafType(), ParameterSetMEAM.Sn);
+        potentialN.setParameters(snFixedA.getLeafType(), ParameterSetMEAM.Sn);
+        potentialN.setParameters(snA.getLeafType(), ParameterSetMEAM.Sn);
 //		potentialN.setParameters(agA.getLeafType(), ParameterSetMEAM.Ag);
 //		potentialN.setParameters(cuA.getLeafType(), ParameterSetMEAM.Cu);
-		potentialN.setParameters(snFixedB.getLeafType(), ParameterSetMEAM.Sn);
-		potentialN.setParameters(snB.getLeafType(), ParameterSetMEAM.Sn);
+        potentialN.setParameters(snFixedB.getLeafType(), ParameterSetMEAM.Sn);
+        potentialN.setParameters(snB.getLeafType(), ParameterSetMEAM.Sn);
 //		potentialN.setParameters(agB.getLeafType(), ParameterSetMEAM.Ag);
 //		potentialN.setParameters(cuB.getLeafType(), ParameterSetMEAM.Cu);
 //		potentialN.setParametersIMC(cuA.getLeafType(), ParameterSetMEAM.Cu3Sn);
@@ -208,11 +218,9 @@ public class MEAM_3DMDwithGB extends Simulation {
 //		potentialN.setParametersIMC(agB.getLeafType(), ParameterSetMEAM.Ag3Sn);
 //        this.potentialMaster.addPotential(potentialN, new Species[]{snFixedA, snA, agA, cuA, snFixedB, snB, agB, cuB});
         this.potentialMaster.addPotential(potentialN, new AtomType[]{snFixedA.getLeafType(), snA.getLeafType(), snFixedB.getLeafType(), snB.getLeafType()});
-        potentialMaster.setRange(potentialN.getRange()*1.1);
-        potentialMaster.setCriterion(potentialN, new CriterionSimple(this, space, potentialN.getRange(), potentialN.getRange()*1.1));
+        potentialMaster.setRange(potentialN.getRange() * 1.1);
+        potentialMaster.setCriterion(potentialN, new CriterionSimple(this, space, potentialN.getRange(), potentialN.getRange() * 1.1));
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
-
-        integrator.setBox(box);
 
         // IntegratorCoordConfigWriter - Displacement output (3/1/06 - MS)
         //IntegratorCoordConfigWriter coordWriter = new IntegratorCoordConfigWriter(space, "MEAMoutput");
@@ -223,7 +231,7 @@ public class MEAM_3DMDwithGB extends Simulation {
         // Control simulation lengths
         //activityIntegrate.setMaxSteps(500);
 
-		energy = new MeterEnergy(potentialMaster, box);
+        energy = new MeterEnergy(potentialMaster, box);
     }
 
     public static void main(String[] args) {

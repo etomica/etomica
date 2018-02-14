@@ -64,7 +64,6 @@ public class LJMC extends Simulation {
         box.getBoundary().setBoxSize(dim);
         box.setNMolecules(species, N);
         new ConfigurationLattice(space.D() == 2 ? (new LatticeOrthorhombicHexagonal(space)) : (new LatticeCubicFcc(space)), space).initializeCoordinates(box);
-        integrator.setBox(box);
         potentialMaster.getNbrCellManager(box).assignCellAll();
 
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);

@@ -36,40 +36,42 @@ public class Mu extends Simulation {
     
     public Mu(Space _space) {
         super(_space);
+        box = new Box(new BoundaryRectangularSlit(0, space), space);
+        addBox(box);
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 4, space); //List(this, 2.0);
-        
+
         int N = 300;  //number of atoms
-        
+
         double sigma = 1.0;
         double lambda = 1.5;
         double epsilon = 1.0;
-        
+
         //controller and integrator
         integrator = new IntegratorHard(this, potentialMaster, space, box);
-	    integrator.setTimeStep(0.02);
-	    integrator.setTemperature(1);
-	    integrator.setIsothermal(true);
+        integrator.setTimeStep(0.02);
+        integrator.setTemperature(1);
+        integrator.setIsothermal(true);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);
         activityIntegrate = new ActivityIntegrate(integrator, 0, true);
         getController().addAction(activityIntegrate);
 
-	    //species and potentials
-	    speciesA = new SpeciesSpheresMono(this, space);
-	    speciesA.setIsDynamic(true);
+        //species and potentials
+        speciesA = new SpeciesSpheresMono(this, space);
+        speciesA.setIsDynamic(true);
         addSpecies(speciesA);
         speciesB = new SpeciesSpheresMono(this, space);
         speciesB.setIsDynamic(true);
         addSpecies(speciesB);
-        
+
         //instantiate several potentials for selection in combo-box
-	    potentialAA = new P2SquareWellOneSide(space, sigma, lambda, epsilon, true);
+        potentialAA = new P2SquareWellOneSide(space, sigma, lambda, epsilon, true);
         potentialMaster.addPotential(potentialAA, new AtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
         potentialAB = new P2SquareWellOneSide(space, sigma, lambda, epsilon, true);
         potentialMaster.addPotential(potentialAB, new AtomType[]{speciesA.getLeafType(), speciesB.getLeafType()});
         potentialBB = new P2SquareWellOneSide(space, sigma, lambda, epsilon, true);
         potentialMaster.addPotential(potentialBB, new AtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
-        
+
         p1BoundaryA = new P1HardBoundary(space);
         p1BoundaryA.setActive(0, false, true);
         p1BoundaryA.setActive(0, true, true);
@@ -95,18 +97,15 @@ public class Mu extends Simulation {
         p1WallB = new P1MagicWall(space, potentialMaster);
         potentialMaster.addPotential(p1WallB, new AtomType[]{speciesB.getLeafType()});
         //construct box
-	    box = new Box(new BoundaryRectangularSlit(0, space), space);
-        addBox(box);
         Vector dim = space.makeVector();
         double xdim = space.D() == 3 ? 30 : 50;
-        dim.E(0.5*xdim);
+        dim.E(0.5 * xdim);
         dim.setX(0, xdim);
         box.getBoundary().setBoxSize(dim);
         box.setNMolecules(speciesA, N);
         box.setNMolecules(speciesB, N);
         configuration = new ConfigurationLatticeRandom(space.D() == 3 ? new LatticeCubicFcc(space) : new LatticeOrthorhombicHexagonal(space), space, random);
         configuration.initializeCoordinates(box);
-        integrator.setBox(box);
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
     }
     

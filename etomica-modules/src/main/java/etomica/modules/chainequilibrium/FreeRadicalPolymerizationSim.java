@@ -47,7 +47,7 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
     public FreeRadicalPolymerizationSim(Space space) {
         super(space);
         potentialMaster = new PotentialMasterList(this, 3, space);
-        ((PotentialMasterList)potentialMaster).setCellRange(1);
+        ((PotentialMasterList) potentialMaster).setCellRange(1);
 
         controller1 = getController();
 
@@ -63,9 +63,8 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
 
         box = new Box(new BoundaryRectangularPeriodic(space, space.D() == 2 ? 60 : 20), space);
         addBox(box);
-        integratorHard.setBox(box);
-        integratorHard.getEventManager().addListener(((PotentialMasterList)potentialMaster).getNeighborManager(box));
-        
+        integratorHard.getEventManager().addListener(((PotentialMasterList) potentialMaster).getNeighborManager(box));
+
         speciesA = new SpeciesSpheresMono(this, space);
         speciesA.setIsDynamic(true);
         speciesB = new SpeciesSpheresMono(this, space);
@@ -78,26 +77,26 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
         config.setSpecies(speciesA, speciesB);
         config.initializeCoordinates(box);
 
-        agentManager = new AtomLeafAgentManager<IAtom[]>(this,box);
+        agentManager = new AtomLeafAgentManager<IAtom[]>(this, box);
         resetBonds();
 
-		//potentials
+        //potentials
         p2AA = new P2SquareWellBonded(space, agentManager, diameter / lambda, lambda, 0);
-		p2AB = new P2SquareWellRadical(space, agentManager, diameter / lambda, lambda, 0.0, random);
+        p2AB = new P2SquareWellRadical(space, agentManager, diameter / lambda, lambda, 0.0, random);
         p2BB = new P2SquareWellRadical(space, agentManager, diameter / lambda, lambda, 0.0, random);
 
-		potentialMaster.addPotential(p2AA,
+        potentialMaster.addPotential(p2AA,
                 new AtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
         potentialMaster.addPotential(p2AB,
                 new AtomType[]{speciesA.getLeafType(), speciesB.getLeafType()});
         potentialMaster.addPotential(p2BB,
                 new AtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
 
-		// **** Setting Up the thermometer Meter *****
-		
-		activityIntegrate = new ActivityIntegrate(integratorHard, 1, true);
-		getController().addAction(activityIntegrate);
-	}
+        // **** Setting Up the thermometer Meter *****
+
+        activityIntegrate = new ActivityIntegrate(integratorHard, 1, true);
+        getController().addAction(activityIntegrate);
+    }
     
     public void resetBonds() {
         

@@ -60,8 +60,6 @@ public class SWMD3D extends Simulation {
         box.setNMolecules(species, 108);
 
         potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
-
-        integrator.setBox(box);
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
 
         BoxInflate inflater = new BoxInflate(box, space);

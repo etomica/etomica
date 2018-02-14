@@ -62,7 +62,7 @@ public class TestHexaneHarmonic extends Simulation {
         primitive = new PrimitiveHexane(space);
         // close packed density is 0.4165783882178116
         // Monson reports data for 0.373773507616 and 0.389566754417
-        primitive.scaleSize(Math.pow(0.4165783882178116/0.373773507616,1.0/3.0));
+        primitive.scaleSize(Math.pow(0.4165783882178116 / 0.373773507616, 1.0 / 3.0));
         lattice = new BravaisLattice(primitive);
 
         //This is the factor that multiples by the range of the potential in
@@ -75,8 +75,8 @@ public class TestHexaneHarmonic extends Simulation {
 
         SpeciesHexane species = new SpeciesHexane(space);
         addSpecies(species);
-        int[] nCells = new int[]{4,6,6};
-        bdry =  new BoundaryDeformableLattice(primitive, nCells);
+        int[] nCells = new int[]{4, 6, 6};
+        bdry = new BoundaryDeformableLattice(primitive, nCells);
         box = new Box(bdry, space);
         addBox(box);
         box.setNMolecules(species, numMolecules);
@@ -87,29 +87,29 @@ public class TestHexaneHarmonic extends Simulation {
 //        moveVolume = new MCMoveVolume(potentialMaster, box.space(), sim.getDefaults().pressure);
 //        moveVolume.setBox(box);
 //        crank = new MCMoveCrankshaft();
-        
+
 //         snake = new MCMoveReptate(this);
 //         snake.setBox(box);
-         
-         rot = new MCMoveRotateMolecule3D(potentialMaster, getRandom(), space);
-         rot.setBox(box);
-         
-         // 0.025 for translate, 0.042 for rotate for rho=0.3737735
-         moveMolecule.setStepSize(0.024);
-         rot.setStepSize(0.042);
+
+        rot = new MCMoveRotateMolecule3D(potentialMaster, getRandom(), space);
+        rot.setBox(box);
+
+        // 0.025 for translate, 0.042 for rotate for rho=0.3737735
+        moveMolecule.setStepSize(0.024);
+        rot.setStepSize(0.042);
 
         //nan we're going to need some stuff in there to set the step sizes and other stuff like that.
-        
+
         integrator.getMoveManager().addMCMove(moveMolecule);
 //        integrator.getMoveManager().addMCMove(snake);
-        integrator.getMoveManager().addMCMove(rot); 
+        integrator.getMoveManager().addMCMove(rot);
 //        integrator.getMoveManager().addMCMove(moveVolume);
-        
+
         integrator.setIsothermal(true);
         activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setMaxSteps(2000000);
         getController().addAction(activityIntegrate);
-            
+
         //nan The box size we want is 5.72906360610622 by 11.21417818673970 by
         // 7.30591061708510
         //nan this is where the squared, unsquared box stuff comes in.
@@ -126,7 +126,7 @@ public class TestHexaneHarmonic extends Simulation {
         // different molecules. We use the class "Potential" because we are
         // reusing the instance as we define each potential.
         Potential potential = new P2HardSphere(space);
-        
+
         //here, we add the species to the PotentialMaster, using types.
         //The PotentialMaster generates a group potential and automatically
         // does a lot of the stuff which we have to do for the intramolecular
@@ -134,9 +134,9 @@ public class TestHexaneHarmonic extends Simulation {
         AtomType sphereType = species.getLeafType();
 
         //Add the Potential to the PotentialMaster
-        potentialMaster.addPotential(potential, new AtomType[] { sphereType,
-                sphereType });
-        
+        potentialMaster.addPotential(potential, new AtomType[]{sphereType,
+                sphereType});
+
 //         //INTRAMOLECULAR POTENTIAL STUFF
 //
 //        //This PotentialGroup will hold all the intramolecular potentials.
@@ -184,8 +184,6 @@ public class TestHexaneHarmonic extends Simulation {
         coordinateDefinition = new CoordinateDefinitionHexane(this, box, primitive, species, space);
         coordinateDefinition.initializeCoordinates(nCells);
 
-        integrator.setBox(box);
-        
         //nan this will need to be changed
 //        pri = new PairIndexerMolecule(box, new PrimitiveHexane(space));
     }

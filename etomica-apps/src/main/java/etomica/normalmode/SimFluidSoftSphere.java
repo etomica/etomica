@@ -65,16 +65,16 @@ public class SimFluidSoftSphere extends Simulation {
         integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
         MCMoveAtom move = new MCMoveAtom(random, potentialMaster, space);
         move.setStepSize(0.2);
-       // move.setStepSizeMax(0.5);
+        // move.setStepSizeMax(0.5);
         integrator.getMoveManager().addMCMove(move);
-        ((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
-        ((MCMoveStepTracker)move.getTracker()).setAdjustInterval(10);
+        ((MCMoveStepTracker) move.getTracker()).setNoisyAdjustment(true);
+        ((MCMoveStepTracker) move.getTracker()).setAdjustInterval(10);
 
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
 
-       	ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
-       	config.initializeCoordinates(box);
+        ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
+        config.initializeCoordinates(box);
 
         Potential2SoftSpherical potential = new P2SoftSphere(space);
 
@@ -84,8 +84,6 @@ public class SimFluidSoftSphere extends Simulation {
 
         AtomType sphereType = species.getLeafType();
         potentialMaster.addPotential(pTruncated, new AtomType[]{sphereType, sphereType});
-
-        integrator.setBox(box);
     }
 
     /**

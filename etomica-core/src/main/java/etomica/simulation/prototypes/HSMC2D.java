@@ -67,8 +67,6 @@ public class HSMC2D extends Simulation {
         potentialMaster.addPotential(potential12, new AtomType[]{type1, type2});
         potentialMaster.addPotential(potential22, new AtomType[]{type2, type2});
         meterCycles = new DataSourceCountSteps(integrator);
-
-        integrator.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
 

@@ -137,8 +137,6 @@ public class RenderMD extends Simulation {
 //            bondMin = Math.min(bondMin, bondCount);
 //        }
 //        System.out.println("Avg, max, min bonds per atom: "+((float)bondSum/numAtoms)+" "+bondMax+" "+bondMin);
-
-        integrator.setBox(box);
         BoxImposePbc imposepbc = new BoxImposePbc(space);
         imposepbc.setBox(box);
         integrator.getEventManager().addListener(new IntegratorListenerAction(imposepbc));
