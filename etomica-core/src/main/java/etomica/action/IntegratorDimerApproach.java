@@ -25,18 +25,16 @@ import etomica.space.Vector;
 
 public class IntegratorDimerApproach extends IntegratorBox {
 	
-	public IntegratorDimerApproach(PotentialMaster potentialMaster, Space space, Box box) {
+	public IntegratorDimerApproach(PotentialMaster potentialMaster, Box box) {
 		
 		super(potentialMaster, 0, box);
 		
-		this.space = space;
-		
-		atomActionTranslateBy = new AtomActionTranslateBy(space);
-		atomActionRotateBy = new AtomActionRotateBy(space);
+		atomActionTranslateBy = new AtomActionTranslateBy(this.space);
+		atomActionRotateBy = new AtomActionRotateBy(this.space);
 		
 		//The vectors are needed each step; might as well make them just once
-		newOriginB = space.makeVector();
-        translationVector = space.makeVector();
+		newOriginB = this.space.makeVector();
+        translationVector = this.space.makeVector();
 		
 	}
 
@@ -294,8 +292,6 @@ public class IntegratorDimerApproach extends IntegratorBox {
         System.out.println();*/
 	}
 	
-	private final Space space;
-    
 	private static final long serialVersionUID = 1L;
     
     protected AtomActionTranslateBy atomActionTranslateBy;

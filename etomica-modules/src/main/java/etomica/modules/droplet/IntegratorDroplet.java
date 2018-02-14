@@ -10,7 +10,6 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMD;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForcePressureSum;
@@ -22,8 +21,6 @@ import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.util.Debug;
 import etomica.util.random.IRandom;
-
-import java.io.Serializable;
 
 /**
  * Mesoscale integrator for Droplet module.
@@ -42,13 +39,13 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
     protected AtomLeafAgentManager<MyAgent> agentManager;
     private AtomLeafAgentManager<Vector> forces;
 
-    public IntegratorDroplet(Simulation sim, PotentialMaster potentialMaster, Space _space, Box box) {
-        this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space, box);
+    public IntegratorDroplet(Simulation sim, PotentialMaster potentialMaster, Box box) {
+        this(potentialMaster, sim.getRandom(), 0.05, 1.0, box);
     }
 
     public IntegratorDroplet(PotentialMaster potentialMaster, IRandom random,
-                             double timeStep, double temperature, Space _space, Box box) {
-        super(potentialMaster,random,timeStep,temperature, _space, box);
+                             double timeStep, double temperature, Box box) {
+        super(potentialMaster,random,timeStep,temperature, box);
         // if you're motivated to throw away information earlier, you can use 
         // PotentialCalculationForceSum instead.
         forceSum = new PotentialCalculationForcePressureSum(space);

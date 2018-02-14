@@ -99,7 +99,7 @@ public class OsmosisSim extends Simulation {
         box.setNMolecules(speciesSolvent, initialSolvent);
         box.setNMolecules(speciesSolute, initialSolute);
 
-        integrator = new IntegratorHard(this, potentialMaster, space, box);
+        integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
 
         activityIntegrate = new ActivityIntegrate(integrator);

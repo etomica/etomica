@@ -110,20 +110,20 @@ public class SimFe extends Simulation {
         if (numInnerSteps > 0 && w > 0) {
             if (doHarmonic) {
                 if (w > 3e6) {
-                    integrator = new IntegratorMDHarmonicMC(potentialMaster, random, timeStep, temperature, space, box);
+                    integrator = new IntegratorMDHarmonicMC(potentialMaster, random, timeStep, temperature, box);
                     ((IntegratorMDHarmonicMC) integrator).setP1Harmonic(p1ImageHarmonic);
                     swap = false;
                 } else {
-                    integrator = new IntegratorImageHarmonicMD(potentialMaster, random, timeStep, temperature, space, box);
+                    integrator = new IntegratorImageHarmonicMD(potentialMaster, random, timeStep, temperature, box);
                     ((IntegratorImageHarmonicMD) integrator).setP1Harmonic(p1ImageHarmonic);
                 }
             } else {
-                integrator = new IntegratorImageMultistepMD(potentialMaster, random, timeStep, temperature, space, box);
+                integrator = new IntegratorImageMultistepMD(potentialMaster, random, timeStep, temperature, box);
                 ((IntegratorImageMultistepMD) integrator).setP1Harmonic(p1ImageHarmonic);
                 ((IntegratorImageMultistepMD) integrator).setNumInnerSteps(numInnerSteps);
             }
         } else {
-            integrator = new IntegratorVelocityVerlet(potentialMaster, random, timeStep, temperature, space, box);
+            integrator = new IntegratorVelocityVerlet(potentialMaster, random, timeStep, temperature, box);
         }
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setPotentialCalculation(new PotentialCalculationEnergySumEAM(potential));

@@ -102,7 +102,7 @@ public class DimerApproach extends Simulation {
         // The Integrator
         // *********************
 
-        dimerApproach = new IntegratorDimerApproach(potentialMaster, space, box);
+        dimerApproach = new IntegratorDimerApproach(potentialMaster, box);
 
         // Methods in dimerApproach that must be called
         dimerApproach.setMolecules();

@@ -47,7 +47,7 @@ public class HSMD2D extends Simulation {
         double neighborRangeFac = 1.6;
         potentialMaster.setRange(neighborRangeFac * sigma);
 
-        integrator = new IntegratorHard(this, potentialMaster, space, box);
+        integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
 

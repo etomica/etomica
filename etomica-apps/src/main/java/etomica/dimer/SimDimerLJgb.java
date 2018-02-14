@@ -71,7 +71,7 @@ public class SimDimerLJgb extends Simulation{
         BoxImposePbc imposePbc = new BoxImposePbc(box, space);
 
         // INTEGRATOR - MD
-        integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, space, box);
+        integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integratorMD.setTimeStep(0.01);
         integratorMD.setTemperature(0.1);
         integratorMD.setThermostatInterval(100);
@@ -112,7 +112,7 @@ public class SimDimerLJgb extends Simulation{
         gbtilt.initializeCoordinates(box);
 
         //INTEGRATOR - Dimer
-        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{movable}, space, box);
+        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{movable}, box);
         integratorDimer.setOrtho(false, false);
         integratorDimer.setFileName("lj");
         activityIntegrateDimer = new ActivityIntegrate(integratorDimer);

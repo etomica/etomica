@@ -54,7 +54,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom
 
         //controller and integrator
         box = new Box(space);
-        integratorHard1 = new IntegratorHard(this, potentialMaster, space, box);
+        integratorHard1 = new IntegratorHard(this, potentialMaster, box);
         integratorHard1.setIsothermal(true);
 
         //construct box

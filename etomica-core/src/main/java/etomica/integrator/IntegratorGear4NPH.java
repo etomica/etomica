@@ -47,13 +47,13 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
     protected int D;
     protected MeterTemperature meterTemperature;
     
-    public IntegratorGear4NPH(Simulation sim, PotentialMaster potentialMaster, Space _space, Box box) {
-        this(potentialMaster, sim.getRandom(),0.05, 1.0, _space, box);
+    public IntegratorGear4NPH(Simulation sim, PotentialMaster potentialMaster, Box box) {
+        this(potentialMaster, sim.getRandom(),0.05, 1.0, box);
     }
     
     public IntegratorGear4NPH(PotentialMaster potentialMaster, IRandom random,
-                              double timeStep, double temperature, Space _space, Box box) {
-        super(potentialMaster, random, timeStep, temperature, _space, box);
+                              double timeStep, double temperature, Box box) {
+        super(potentialMaster, random, timeStep, temperature, box);
         kp = 1.0/rrp/getTimeStep();
         kh = 1.0/rrh/getTimeStep();
         D = space.D();

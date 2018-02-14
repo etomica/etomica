@@ -43,7 +43,7 @@ public class TestHSMD3D extends Simulation {
         potentialMaster.setCellRange(1);
         potentialMaster.setRange(neighborRangeFac * sigma);
         box = new Box(space);
-        integrator = new IntegratorHard(this, potentialMaster, space, box);
+        integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setTimeStep(0.01);
         integrator.setIsothermal(true);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);

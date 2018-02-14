@@ -9,7 +9,6 @@ import etomica.action.BoxImposePbc;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.*;
-import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationLattice;
@@ -68,13 +67,13 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
     protected AtomLeafAgentManager<Vector> leafAgentManager;
     protected MoleculeAgentManager moleculeAgentManager;
 
-    public IntegratorRigidIterative(Simulation sim, PotentialMaster potentialMaster, Space _space, Box box) {
-        this(sim, potentialMaster, 0.05, 1.0, _space, box);
+    public IntegratorRigidIterative(Simulation sim, PotentialMaster potentialMaster, Box box) {
+        this(sim, potentialMaster, 0.05, 1.0, box);
     }
     
     public IntegratorRigidIterative(Simulation sim, PotentialMaster potentialMaster,
-                                    double timeStep, double temperature, Space _space, Box box) {
-        super(potentialMaster,sim.getRandom(),timeStep,temperature, _space, box);
+                                    double timeStep, double temperature, Box box) {
+        super(potentialMaster,sim.getRandom(),timeStep,temperature, box);
         this.sim = sim;
         // if you're motivated to throw away information earlier, you can use 
         // PotentialCalculationForceSum instead.
@@ -716,7 +715,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeInterval = 0.001;
         int maxIterations = 20;
-        IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim, potentialMaster, timeInterval, 1, space, box);
+        IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim, potentialMaster, timeInterval, 1, box);
         integrator.printInterval = 10;
         integrator.setMaxIterations(maxIterations);
         OrientationCalcWater3P calcer = new OrientationCalcWater3P(sim.getSpace());

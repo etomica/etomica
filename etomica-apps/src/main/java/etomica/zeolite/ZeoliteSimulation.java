@@ -101,7 +101,7 @@ public class ZeoliteSimulation extends Simulation {
 
 
         box = new Box(space);
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space, box);
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(10);
         integrator.setTimeStep(0.00611);

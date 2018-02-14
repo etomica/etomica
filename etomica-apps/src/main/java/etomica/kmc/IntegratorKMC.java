@@ -30,7 +30,6 @@ public class IntegratorKMC extends IntegratorBox{
     IntegratorDimerMin integratorMin1, integratorMin2;
     PotentialMaster potentialMaster;
     double temperature;
-    private final Space space;
     IRandom random;
     Simulation sim;
     ISpecies [] species;
@@ -52,11 +51,10 @@ public class IntegratorKMC extends IntegratorBox{
     XYZWriter xyzfile;
     BoxImposePbc imposePbc;
     
-    public IntegratorKMC(Simulation _sim, PotentialMaster _potentialMaster, double _temperature, IRandom _random, ISpecies [] _species, Space _space, Box box){
+    public IntegratorKMC(Simulation _sim, PotentialMaster _potentialMaster, double _temperature, IRandom _random, ISpecies[] _species, Box box){
         super(_potentialMaster, _temperature, box);
         this.potentialMaster = _potentialMaster;
         this.temperature = _temperature;
-        this.space = _space;
         this.random = _random;
         this.sim = _sim;
         this.species = _species;
@@ -308,9 +306,9 @@ public class IntegratorKMC extends IntegratorBox{
     }
 
     public void createIntegrators() {
-        integratorMin1 = new IntegratorDimerMin(sim, potentialMaster, species, true, space, box);
-        integratorMin2 = new IntegratorDimerMin(sim, potentialMaster, species, false, space, box);
-        integratorDimer = new IntegratorDimerRT(sim, potentialMaster, species, space, box);
+        integratorMin1 = new IntegratorDimerMin(sim, potentialMaster, species, true, box);
+        integratorMin2 = new IntegratorDimerMin(sim, potentialMaster, species, false, box);
+        integratorDimer = new IntegratorDimerRT(sim, potentialMaster, species, box);
         integratorDimer.setRotNum(0);
         integratorDimer.setOrtho(false, false);
 

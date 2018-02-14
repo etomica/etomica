@@ -28,8 +28,8 @@ public class IntegratorVelocityVerletSAM extends IntegratorVelocityVerlet {
     protected AtomType sulfurType;
     
     public IntegratorVelocityVerletSAM(PotentialMaster potentialMaster,
-            IRandom random, double timeStep, double temperature, Space _space, Box box) {
-        super(potentialMaster, random, timeStep, temperature, _space, box);
+                                       IRandom random, double timeStep, double temperature, Box box) {
+        super(potentialMaster, random, timeStep, temperature, box);
     }
 
     public void setSulfurType(AtomType newSulfurType) {

@@ -216,7 +216,7 @@ public class SimDimerLJadatom extends Simulation{
     }
 
     public void enableMolecularDynamics(long maxSteps) {
-        integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, space, box);
+        integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integratorMD.setTimeStep(0.01);
         integratorMD.setTemperature(0.1);
         integratorMD.setThermostatInterval(100);
@@ -230,7 +230,7 @@ public class SimDimerLJadatom extends Simulation{
 
     public void enableDimerSearch(String fileName, long maxSteps, Boolean orthoSearch, Boolean fine) {
 
-        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{movable}, space, box);
+        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{movable}, box);
         integratorDimer.setOrtho(orthoSearch, false);
         if (fine) {
             ConfigurationFile configFile = new ConfigurationFile(fileName + "_saddle");
@@ -252,7 +252,7 @@ public class SimDimerLJadatom extends Simulation{
 
     public void enableMinimumSearch(String fileName, Boolean normalDir) {
 
-        integratorDimerMin = new IntegratorDimerMin(this, potentialMaster, new ISpecies[]{movable}, normalDir, space, box);
+        integratorDimerMin = new IntegratorDimerMin(this, potentialMaster, new ISpecies[]{movable}, normalDir, box);
         integratorDimerMin.setFileName(fileName);
         activityIntegrateMin = new ActivityIntegrate(integratorDimerMin);
         integratorDimerMin.setActivityIntegrate(activityIntegrateMin);

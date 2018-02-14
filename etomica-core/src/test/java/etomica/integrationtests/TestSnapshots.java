@@ -1,6 +1,5 @@
 package etomica.integrationtests;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import etomica.action.ActionIntegrate;
 import etomica.action.BoxInflate;
@@ -13,22 +12,16 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardSphere;
 import etomica.simulation.Simulation;
-import etomica.simulation.prototypes.HSMD3D;
-import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.Species;
-import etomica.species.SpeciesSpheres;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.random.RandomMersenneTwister;
-import etomica.util.random.RandomNumberGenerator;
 import org.junit.Test;
 
 import java.io.*;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -72,7 +65,7 @@ public class TestSnapshots {
             inflater.actionPerformed();
             new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box());
 
-            IntegratorHard integrator = new IntegratorHard(this, pm, this.space, box());
+            IntegratorHard integrator = new IntegratorHard(this, pm, box());
             integrator.setIsothermal(false);
             integrator.setTimeStep(0.01);
 

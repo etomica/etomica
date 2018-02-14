@@ -60,7 +60,7 @@ public class TestSWChain extends Simulation {
         // makes eta = 0.35
         double l = 14.4094 * Math.pow((numAtoms / 2000.0), 1.0 / 3.0);
         box = new Box(space);
-        integrator = new IntegratorHard(this, potentialMaster, space, box);
+        integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setTimeStep(timeStep);
         integrator.setIsothermal(true);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);

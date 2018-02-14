@@ -61,7 +61,7 @@ public class SimTarget extends Simulation {
         addBox(box);
         box.setNMolecules(species, numAtoms);
 
-        integrator = new IntegratorHard(this, potentialMaster, space, box);
+        integrator = new IntegratorHard(this, potentialMaster, box);
 
         integrator.setIsothermal(false);
         activityIntegrate = new ActivityIntegrate(integrator);

@@ -49,7 +49,7 @@ public class SingleWaterShake {
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeStep = 0.000166;
         int maxIterations = 200;
-        final IntegratorVelocityVerletShake integrator = new IntegratorVelocityVerletShake(sim, potentialMaster, space, box);
+        final IntegratorVelocityVerletShake integrator = new IntegratorVelocityVerletShake(sim, potentialMaster, box);
         integrator.setTimeStep(timeStep);
         integrator.printInterval = 0;
         integrator.setMaxIterations(maxIterations);

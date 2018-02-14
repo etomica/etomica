@@ -44,7 +44,7 @@ public class Insertion extends Simulation {
 
         //controller and integrator
         box = new Box(space);
-        integrator = new IntegratorHard(this, potentialMaster, space, box);
+        integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setTimeStep(1.0);
         integrator.setTemperature(1.0);
         integrator.setIsothermal(false);

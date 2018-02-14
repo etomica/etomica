@@ -38,18 +38,18 @@ public final class IntegratorConNVT extends IntegratorMD {
     protected AtomLeafAgentManager<Vector> agentManager;
 
     public IntegratorConNVT(PotentialMaster potentialMaster, IRandom random,
-                            double timeStep, double temperature, Space space, Box box) {
-        super(potentialMaster,random,timeStep,temperature, space, box);
+                            double timeStep, double temperature, Box box) {
+        super(potentialMaster,random,timeStep,temperature, box);
         forceSum = new PotentialCalculationForceSum();
         allAtoms = new IteratorDirective();
         // allAtoms is used only for the force calculation, which has no LRC
         allAtoms.setIncludeLrc(false);
-        work = space.makeVector();
-        work1 = space.makeVector();
-        work2 = space.makeVector();
-        work3 = space.makeVector();
-       	work4 = space.makeVector();
-        agentManager = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
+        work = this.space.makeVector();
+        work1 = this.space.makeVector();
+        work2 = this.space.makeVector();
+        work3 = this.space.makeVector();
+       	work4 = this.space.makeVector();
+        agentManager = new AtomLeafAgentManager<>(a -> this.space.makeVector(), box);
         forceSum.setAgentManager(agentManager);
     }
 

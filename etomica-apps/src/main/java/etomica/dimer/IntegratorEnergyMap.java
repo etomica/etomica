@@ -22,15 +22,13 @@ public class IntegratorEnergyMap extends IntegratorBox {
     IAtom adatom;
     public MeterPotentialEnergy energy;
     String fileTail;
-    private final Space space;
 
     public IntegratorEnergyMap(Simulation aSim, PotentialMaster potentialMaster,
                                IAtom aAdatom, String aFileTail,
-                               Space _space, Box box) {
+                               Box box) {
         super(potentialMaster, 1.0, box);
         this.fileTail = aFileTail;
         this.adatom = aAdatom;
-        this.space = _space;
     }
 
     protected void doStepInternal() {

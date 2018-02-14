@@ -37,7 +37,6 @@ public class IntegratorKMCCluster extends IntegratorBox{
     IntegratorDimerMin integratorMin1, integratorMin2;
     PotentialMaster potentialMaster;
     double temperature;
-    private final Space space;
     IRandom random;
     Simulation sim;
     ISpecies [] species;
@@ -65,12 +64,11 @@ public class IntegratorKMCCluster extends IntegratorBox{
     BufferedReader buffReader;
     FileWriter writer;
     
-    public IntegratorKMCCluster(Simulation _sim, PotentialMaster _potentialMaster, double _temperature, int _totalSearches, IRandom _random, ISpecies [] _species, Space _space, Box box){
+    public IntegratorKMCCluster(Simulation _sim, PotentialMaster _potentialMaster, double _temperature, int _totalSearches, IRandom _random, ISpecies[] _species, Box box){
         super(_potentialMaster, _temperature, box);
         
         this.potentialMaster = _potentialMaster;
         this.temperature = _temperature;
-        this.space = _space;
         this.random = _random;
         this.sim = _sim;
         this.species = _species;
@@ -386,8 +384,8 @@ public class IntegratorKMCCluster extends IntegratorBox{
     }
     
     public void createIntegrators() {
-        integratorMin1 = new IntegratorDimerMin(sim, potentialMaster, species, true, space, box);
-        integratorMin2 = new IntegratorDimerMin(sim, potentialMaster, species, false, space, box);
+        integratorMin1 = new IntegratorDimerMin(sim, potentialMaster, species, true, box);
+        integratorMin2 = new IntegratorDimerMin(sim, potentialMaster, species, false, box);
 
         if (potentialMaster instanceof PotentialMasterListDimer) {
             integratorMin2.getEventManager().addListener(((PotentialMasterList) potentialMaster).getNeighborManager(box));

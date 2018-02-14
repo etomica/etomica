@@ -193,13 +193,13 @@ public class SimKMCLJadatom extends Simulation{
     }
     
     public void integratorKMC() {
-        integratorKMC = new IntegratorKMC(this, potentialMaster, 0.7, this.getRandom(), new ISpecies[]{movable}, this.getSpace(), box);
+        integratorKMC = new IntegratorKMC(this, potentialMaster, 0.7, this.getRandom(), new ISpecies[]{movable}, box);
         activityIntegrateKMC = new ActivityIntegrate(integratorKMC);
         getController().addAction(activityIntegrateKMC);
     }
     
     public void integratorKMCCluster(double temp, int steps, int totalSearch) {
-        integratorKMCCluster = new IntegratorKMCCluster(this, potentialMaster, temp, totalSearch, this.getRandom(), new ISpecies[]{movable}, this.getSpace(), box);
+        integratorKMCCluster = new IntegratorKMCCluster(this, potentialMaster, temp, totalSearch, this.getRandom(), new ISpecies[]{movable}, box);
         activityIntegrateKMCCluster = new ActivityIntegrate(integratorKMCCluster);
         activityIntegrateKMCCluster.setMaxSteps(steps);
         getController().addAction(activityIntegrateKMCCluster);
@@ -207,7 +207,7 @@ public class SimKMCLJadatom extends Simulation{
 
     public void enableDimerSearch(String fileName, long maxSteps) {
 
-        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{movable}, space, box);
+        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{movable}, box);
         integratorDimer.setOrtho(false, false);
         integratorDimer.setFileName(fileName);
 

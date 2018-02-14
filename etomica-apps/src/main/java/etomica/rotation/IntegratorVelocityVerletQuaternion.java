@@ -8,14 +8,12 @@ import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.*;
-import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
-import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorRigidMatrixIterative.BoxImposePbcMolecule;
 import etomica.lattice.LatticeCubicFcc;
@@ -64,33 +62,33 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
     protected AtomLeafAgentManager<Vector> leafAgentManager;
     protected MoleculeAgentManager moleculeAgentManager;
 
-    public IntegratorVelocityVerletQuaternion(Simulation sim, PotentialMaster potentialMaster, Space space, Box box) {
-        this(sim, potentialMaster, 0.05, 1.0, space, box);
+    public IntegratorVelocityVerletQuaternion(Simulation sim, PotentialMaster potentialMaster, Box box) {
+        this(sim, potentialMaster, 0.05, 1.0, box);
     }
     
     public IntegratorVelocityVerletQuaternion(Simulation sim, PotentialMaster potentialMaster,
-                                              double timeStep, double temperature, Space space, Box box) {
-        super(potentialMaster,sim.getRandom(),timeStep,temperature, space, box);
+                                              double timeStep, double temperature, Box box) {
+        super(potentialMaster,sim.getRandom(),timeStep,temperature, box);
         this.sim = sim;
-        forceSum = new PotentialCalculationForcePressureSum(space);
+        forceSum = new PotentialCalculationForcePressureSum(this.space);
         allAtoms = new IteratorDirective();
         // allAtoms is used only for the force calculation, which has no LRC
         // but we're also calculating the pressure tensor, which does have LRC.
         // things deal with this OK.
         allAtoms.setIncludeLrc(true);
-        pressureTensor = space.makeTensor();
-        workTensor = space.makeTensor();
-        rotationTensor = (RotationTensor3D)space.makeRotationTensor();
-        xWork = space.makeVector();
+        pressureTensor = this.space.makeTensor();
+        workTensor = this.space.makeTensor();
+        rotationTensor = (RotationTensor3D)this.space.makeRotationTensor();
+        xWork = this.space.makeVector();
         typeAgentManager = new SpeciesAgentManager(this, sim);
-        angularVelocity = space.makeVector();
+        angularVelocity = this.space.makeVector();
         quatVelocity = new double[4];
         tempQuat = new double[4];
-        atomPositionCOM = new MoleculePositionCOM(space);
-        translateBy = new AtomActionTranslateBy(space);
+        atomPositionCOM = new MoleculePositionCOM(this.space);
+        translateBy = new AtomActionTranslateBy(this.space);
         translator = new MoleculeChildAtomAction(translateBy);
         printInterval = 10;
-        leafAgentManager = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
+        leafAgentManager = new AtomLeafAgentManager<>(a -> this.space.makeVector(), box);
         moleculeAgentManager = new MoleculeAgentManager(sim, this.box, this);
         forceSum.setAgentManager(leafAgentManager);
     }
@@ -113,7 +111,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             configFile.initializeCoordinates(box);
         }
         PotentialMaster potentialMaster = new PotentialMaster();
-        IntegratorVelocityVerletQuaternion integrator = new IntegratorVelocityVerletQuaternion(sim, potentialMaster, timeInterval / interval, 1, space, box);
+        IntegratorVelocityVerletQuaternion integrator = new IntegratorVelocityVerletQuaternion(sim, potentialMaster, timeInterval / interval, 1, box);
         integrator.printInterval = interval;
         integrator.setOrientationCalc(species, new OrientationCalcWater3P(sim.getSpace()));
         integrator.setTemperature(Kelvin.UNIT.toSim(298));

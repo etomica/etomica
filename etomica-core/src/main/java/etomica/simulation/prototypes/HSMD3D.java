@@ -84,7 +84,7 @@ public class HSMD3D extends Simulation {
 
         int numAtoms = params.nAtoms;
 
-        integrator = new IntegratorHard(this, potentialMaster, space, box);
+        integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
 

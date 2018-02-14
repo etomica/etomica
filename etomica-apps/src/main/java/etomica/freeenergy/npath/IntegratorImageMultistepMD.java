@@ -28,8 +28,8 @@ public class IntegratorImageMultistepMD extends IntegratorVelocityVerlet {
     protected P1ImageHarmonic p1;
     protected int numInnerSteps;
 
-    public IntegratorImageMultistepMD(PotentialMaster potentialMaster, IRandom random, double timeStep, double temperature, Space space, Box box) {
-        super(potentialMaster, random, timeStep, temperature, space, box);
+    public IntegratorImageMultistepMD(PotentialMaster potentialMaster, IRandom random, double timeStep, double temperature, Box box) {
+        super(potentialMaster, random, timeStep, temperature, box);
         atomSetSinglet = new AtomSetSinglet();
         setForceSum(new PotentialCalculationForceSum());
     }

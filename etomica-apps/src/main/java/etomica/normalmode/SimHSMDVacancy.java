@@ -92,7 +92,7 @@ public class SimHSMDVacancy extends Simulation {
         potentialMasterList = new PotentialMasterList(this, nbrRange, space);
         potentialMasterList.setCellRange(2);
         double sigma = 1.0;
-        integrator = new IntegratorHardMDMC(this, potentialMasterList, space, box);
+        integrator = new IntegratorHardMDMC(this, potentialMasterList, box);
         integrator.setTimeStep(tStep);
         integrator.setIsothermal(true);
         integrator.setTemperature(1);

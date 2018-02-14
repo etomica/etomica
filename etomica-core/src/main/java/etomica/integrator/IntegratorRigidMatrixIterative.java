@@ -66,13 +66,13 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Spec
     protected AtomLeafAgentManager<Vector> forces;
     protected MoleculeAgentManager moleculeAgentManager;
 
-    public IntegratorRigidMatrixIterative(Simulation sim, PotentialMaster potentialMaster, Space _space, Box box) {
-        this(sim, potentialMaster, 0.05, 1.0, _space, box);
+    public IntegratorRigidMatrixIterative(Simulation sim, PotentialMaster potentialMaster, Box box) {
+        this(sim, potentialMaster, 0.05, 1.0, box);
     }
     
     public IntegratorRigidMatrixIterative(Simulation sim, PotentialMaster potentialMaster,
-                                          double timeStep, double temperature, Space _space, Box box) {
-        super(potentialMaster,sim.getRandom(),timeStep,temperature, _space, box);
+                                          double timeStep, double temperature, Box box) {
+        super(potentialMaster,sim.getRandom(),timeStep,temperature, box);
         this.sim = sim;
         torqueSum = new PotentialCalculationTorqueSum();
         allAtoms = new IteratorDirective();
@@ -80,23 +80,23 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Spec
         // but we're also calculating the pressure tensor, which does have LRC.
         // things deal with this OK.
         allAtoms.setIncludeLrc(true);
-        pressureTensor = _space.makeTensor();
-        workTensor = _space.makeTensor();
-        rotationTensor = (RotationTensor3D)_space.makeRotationTensor();
-        xWork = _space.makeVector();
-        yWork = _space.makeVector();
+        pressureTensor = this.space.makeTensor();
+        workTensor = this.space.makeTensor();
+        rotationTensor = (RotationTensor3D)this.space.makeRotationTensor();
+        xWork = this.space.makeVector();
+        yWork = this.space.makeVector();
         typeAgentManager = new SpeciesAgentManager(this, sim);
-        tempAngularVelocity = _space.makeVector();
-        tempOrientation = new OrientationFull3D(_space);
-        atomPositionCOM = new MoleculePositionCOM(_space);
-        translateBy = new AtomActionTranslateBy(_space);
+        tempAngularVelocity = this.space.makeVector();
+        tempOrientation = new OrientationFull3D(this.space);
+        atomPositionCOM = new MoleculePositionCOM(this.space);
+        translateBy = new AtomActionTranslateBy(this.space);
         translator = new MoleculeChildAtomAction(translateBy);
         maxIterations = 20;
         omegaTolerance = 1.e-30;
         rotationTolerance = 1.e-30;
-        axesTensor = (RotationTensor3D)_space.makeRotationTensor();
-        tempAxesTensor = (RotationTensor3D)_space.makeRotationTensor();
-        omegaTensor = _space.makeTensor();
+        axesTensor = (RotationTensor3D)this.space.makeRotationTensor();
+        tempAxesTensor = (RotationTensor3D)this.space.makeRotationTensor();
+        omegaTensor = this.space.makeTensor();
         meterKE = new MeterKineticEnergyRigid(space, sim);
 
         forces = new AtomLeafAgentManager<>(a -> space.makeVector(), box);

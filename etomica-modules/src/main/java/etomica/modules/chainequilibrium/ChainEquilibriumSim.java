@@ -57,7 +57,7 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource<IAtom
         double diameter = 1.0;
         double lambda = 2.0;
 
-        integratorHard = new IntegratorHard(this, potentialMaster, space, box);
+        integratorHard = new IntegratorHard(this, potentialMaster, box);
         integratorHard.setIsothermal(true);
         integratorHard.setTemperature(Kelvin.UNIT.toSim(300));
         integratorHard.setTimeStep(0.002);

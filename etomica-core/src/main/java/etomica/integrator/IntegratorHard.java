@@ -9,14 +9,12 @@ import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.Box;
 import etomica.box.BoxMoleculeEvent;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.meta.annotations.IgnoreProperty;
 import etomica.molecule.IMolecule;
 import etomica.nbr.PotentialMasterHybrid;
 import etomica.nbr.list.INeighborListListener;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.Debug;
 import etomica.util.TreeLinker;
@@ -59,13 +57,13 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
     private double minDelta;
     private AtomPair debugPair;
 
-    public IntegratorHard(Simulation sim, PotentialMaster potentialMaster, Space _space, Box box) {
-        this(sim, potentialMaster, sim.getRandom(), 0.05, 1.0, _space, box);
+    public IntegratorHard(Simulation sim, PotentialMaster potentialMaster, Box box) {
+        this(potentialMaster, sim.getRandom(), 0.05, 1.0, box);
     }
 
-    public IntegratorHard(Simulation sim, PotentialMaster potentialMaster, IRandom random,
-                          double timeStep, double temperature, Space _space, Box box) {
-        super(potentialMaster,random,timeStep,temperature, _space, box);
+    public IntegratorHard(PotentialMaster potentialMaster, IRandom random,
+                          double timeStep, double temperature, Box box) {
+        super(potentialMaster,random,timeStep,temperature, box);
         pair = new AtomPair();
         singlet = new AtomSetSinglet();
         reverseCollisionHandler = new ReverseCollisionHandler(listToUpdate);

@@ -51,8 +51,8 @@ public class JouleThomsonSim extends Simulation {
 
         //integrator
         box = new Box(space);
-        integratorNVE = new IntegratorVelocityVerlet(this, potentialMaster, space, box);
-        integrator = new IntegratorGear4NPH(this, potentialMaster, space, box);
+        integratorNVE = new IntegratorVelocityVerlet(this, potentialMaster, box);
+        integrator = new IntegratorGear4NPH(this, potentialMaster, box);
         integrator.setRelaxationRateP(500.);
         integrator.setRelaxationRateH(300.);
         integratorNVE.setTemperature(Kelvin.UNIT.toSim(300));

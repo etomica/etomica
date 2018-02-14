@@ -39,7 +39,7 @@ public class SWMD2D extends Simulation {
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         double sigma = 0.8;
         box = new Box(space);
-        integrator = new IntegratorHard(this, potentialMaster, space, box);
+        integrator = new IntegratorHard(this, potentialMaster, box);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(1);
         integrator.setTimeStep(0.02);

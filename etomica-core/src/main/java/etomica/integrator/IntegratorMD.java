@@ -31,7 +31,6 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
 
     protected final IRandom random;
     protected final Vector momentum;
-    protected final Space space;
     protected final Vector temperatureVec;
     protected double timeStep;
     protected double currentKineticEnergy;
@@ -56,12 +55,10 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
      * @param random          random number generator used for initial velocities and some thermostats
      * @param timeStep        time step for integration
      * @param temperature     used by thermostat and/or to initialize velocities
-     * @param space           the governing space, used to generate vectors
      */
-    public IntegratorMD(PotentialMaster potentialMaster, IRandom random, double timeStep, double temperature, Space space, Box box) {
+    public IntegratorMD(PotentialMaster potentialMaster, IRandom random, double timeStep, double temperature, Box box) {
         super(potentialMaster, temperature, box);
         this.random = random;
-        this.space = space;
         setTimeStep(timeStep);
         thermostat = ThermostatType.ANDERSEN;
         setThermostatInterval(100);
@@ -73,12 +70,12 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
         if (meterKE instanceof MeterKineticEnergy) {
             ((MeterKineticEnergy) meterKE).setBox(box);
         }
-        meterTemperature = new MeterTemperature(box, space.D());
+        meterTemperature = new MeterTemperature(box, this.space.D());
         meterTemperature.setKineticEnergyMeter(meterKE);
         this.box.getEventManager().addListener(this);
 
         if (thermostat == ThermostatType.HYBRID_MC) {
-            oldPositionAgentManager = new AtomLeafAgentManager<Vector>(new VectorSource(space), this.box);
+            oldPositionAgentManager = new AtomLeafAgentManager<Vector>(new VectorSource(this.space), this.box);
         }
     }
 

@@ -50,7 +50,7 @@ public class WaterTrimer {
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeInterval = 0.001;
         int maxIterations = 20;
-        IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim, potentialMaster, timeInterval, 1, space, box);
+        IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim, potentialMaster, timeInterval, 1, box);
         integrator.printInterval = 1000;
         integrator.setMaxIterations(maxIterations);
 //        integrator.setIsothermal(true);

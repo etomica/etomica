@@ -70,7 +70,7 @@ public class ColloidSim extends Simulation {
 
         //controller and integrator
         box = new Box(space);
-        integrator = new IntegratorHard(this, potentialMaster, space, box);
+        integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setTimeStep(0.02);
         integrator.setTemperature(2);
         integrator.setIsothermal(true);
