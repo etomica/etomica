@@ -40,7 +40,7 @@ public class Droplet extends Simulation {
         PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(this);
 
         //controller and integrator
-        integrator = new IntegratorDroplet(this, potentialMaster, space, box);
+        integrator = new IntegratorDroplet(this, potentialMaster, box);
         activityIntegrate = new ActivityIntegrate(integrator);
 //        activityIntegrate.setMaxSteps(10);
         getController().addAction(activityIntegrate);

@@ -14,7 +14,6 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.Boundary;
-import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.Debug;
 import etomica.util.random.IRandom;
@@ -29,8 +28,8 @@ public class IntegratorImageHarmonicMD extends IntegratorVelocityVerlet {
     protected P1ImageHarmonic p1;
     protected Boundary boundary;
 
-    public IntegratorImageHarmonicMD(PotentialMaster potentialMaster, IRandom random, double timeStep, double temperature, Space space, Box box) {
-        super(potentialMaster, random, timeStep, temperature, space, box);
+    public IntegratorImageHarmonicMD(PotentialMaster potentialMaster, IRandom random, double timeStep, double temperature, Box box) {
+        super(potentialMaster, random, timeStep, temperature, box);
         dr = space.makeVector();
         drTmp = space.makeVector();
         dv = space.makeVector();

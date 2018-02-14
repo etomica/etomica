@@ -44,7 +44,7 @@ public class HSMD3DNoNbr extends Simulation {
         double l = 14.4573 * Math.pow((numAtoms / 2020.0), 1.0 / 3.0);
 
         box = new Box(space);
-        integrator = new IntegratorHard(this, potentialMaster, space, box);
+        integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
 

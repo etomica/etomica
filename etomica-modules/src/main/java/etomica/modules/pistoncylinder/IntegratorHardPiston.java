@@ -26,9 +26,9 @@ public class IntegratorHardPiston extends IntegratorHard {
      * @param potentialMaster Potential between piston and every atom in the box
      */
     public IntegratorHardPiston(Simulation sim,
-    		           PotentialMaster potentialMaster,
-    		           P1HardMovingBoundary potentialWrapper, Space _space, Box box) {
-        super(sim, potentialMaster, _space, box);
+                                PotentialMaster potentialMaster,
+                                P1HardMovingBoundary potentialWrapper, Box box) {
+        super(sim, potentialMaster, box);
         setTimeStep(1.0);
         pistonPotential = potentialWrapper;
         atomSetSinglet = new AtomSetSinglet();

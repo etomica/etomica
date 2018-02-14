@@ -46,7 +46,7 @@ public class HSNPT2DSim extends Simulation {
         potentialMaster.setRange(neighborRangeFac * sigma);
 
         box = new Box(space);
-        integrator = new IntegratorHard(this, potentialMaster, space, box);
+        integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.05);
 

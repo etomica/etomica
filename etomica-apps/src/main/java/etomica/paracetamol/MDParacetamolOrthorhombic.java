@@ -111,7 +111,7 @@ public class MDParacetamolOrthorhombic extends Simulation {
         double neighborRangeFac = 1.6;
 
         box = new Box(space);
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space, box);
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setIsothermal(false);
         //integrator.setThermostatInterval(1);
         integrator.setTimeStep(0.001); //1 = pico sec

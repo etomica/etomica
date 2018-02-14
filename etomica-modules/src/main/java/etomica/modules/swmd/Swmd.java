@@ -46,7 +46,7 @@ public class Swmd extends Simulation {
 
         //controller and integrator
         box = new Box(space);
-        integrator = new IntegratorHard(this, potentialMaster, space, box);
+        integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setTimeStep(1.0);
         integrator.setTemperature(Kelvin.UNIT.toSim(300));
         integrator.setIsothermal(false);

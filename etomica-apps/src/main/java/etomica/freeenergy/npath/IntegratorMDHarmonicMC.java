@@ -11,7 +11,6 @@ import etomica.box.Box;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialMaster;
 import etomica.space.Boundary;
-import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;
 
@@ -29,8 +28,8 @@ public class IntegratorMDHarmonicMC extends IntegratorVelocityVerlet {
     protected int nAttempted;
     protected double chiSum;
 
-    public IntegratorMDHarmonicMC(PotentialMaster potentialMaster, IRandom random, double timeStep, double temperature, Space space, Box box) {
-        super(potentialMaster, random, timeStep, temperature, space, box);
+    public IntegratorMDHarmonicMC(PotentialMaster potentialMaster, IRandom random, double timeStep, double temperature, Box box) {
+        super(potentialMaster, random, timeStep, temperature, box);
         dr = space.makeVector();
         drTmp = space.makeVector();
         dv = space.makeVector();

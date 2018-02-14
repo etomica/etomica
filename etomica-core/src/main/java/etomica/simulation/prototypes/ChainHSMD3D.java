@@ -51,7 +51,7 @@ public class ChainHSMD3D extends Simulation {
         potentialMaster.setRange(neighborRangeFac);
 
         box = new Box(space);
-        integrator = new IntegratorHard(this, potentialMaster, space, box);
+        integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
 

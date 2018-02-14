@@ -13,7 +13,6 @@ import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
-import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesAgentManager;
@@ -43,13 +42,13 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
     protected final Vector temp;
     public int printInterval = 0;
 
-    public IntegratorVelocityVerletShake(Simulation sim, PotentialMaster potentialMaster, Space _space, Box box) {
-        this(sim, potentialMaster, sim.getRandom(), 0.05, 1.0, _space, box);
+    public IntegratorVelocityVerletShake(Simulation sim, PotentialMaster potentialMaster, Box box) {
+        this(sim, potentialMaster, sim.getRandom(), 0.05, 1.0, box);
     }
     
     public IntegratorVelocityVerletShake(Simulation sim, PotentialMaster potentialMaster, IRandom random,
-                                         double timeStep, double temperature, Space _space, Box box) {
-        super(potentialMaster,random,timeStep,temperature, _space, box);
+                                         double timeStep, double temperature, Box box) {
+        super(potentialMaster,random,timeStep,temperature, box);
         // if you're motivated to throw away information earlier, you can use 
         // PotentialCalculationForceSum instead.
         forceSum = new PotentialCalculationForceSum();
@@ -60,7 +59,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
         allAtoms.setIncludeLrc(true);
 
         
-        dr = _space.makeVector();
+        dr = space.makeVector();
         shakeAgentManager = new SpeciesAgentManager(this, sim);
         setShakeTolerance(1e-14);
         setMaxIterations(20);

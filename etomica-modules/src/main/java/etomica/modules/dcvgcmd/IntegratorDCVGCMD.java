@@ -42,15 +42,12 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 	private ISpecies speciesA, speciesB;
     private final PotentialMasterHybrid potentialMasterHybrid;
 	private int MDStepCount, MDStepRepetitions;
-	private Space space;
-    
+
 	public IntegratorDCVGCMD(PotentialMaster parent, double temperature,
-                             Space _space,
-                             ISpecies species1, ISpecies species2, Box box) {
+							 ISpecies species1, ISpecies species2, Box box) {
 		super(parent, temperature, box);
 		this.speciesA = species1;
 		this.speciesB = species2;
-		this.space = _space;
 		potentialMasterHybrid = (parent instanceof PotentialMasterHybrid)
                         ? (PotentialMasterHybrid)parent : null;
         setMDStepRepetitions(50);

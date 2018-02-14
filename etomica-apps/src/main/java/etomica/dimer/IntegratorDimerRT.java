@@ -14,14 +14,12 @@ import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorBox;
-import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.molecule.IMoleculeList;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
 import etomica.util.random.IRandom;
@@ -79,17 +77,16 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Vect
 	public String file;
 	public ActivityIntegrate activityIntegrate;
 	public CalcVibrationalModes vib;
-	private final Space space;
-	
+
 	
 	public IntegratorDimerRT(Simulation sim, PotentialMaster potentialMaster,
-                             ISpecies[] species, Space _space, Box box) {
-		this(sim, potentialMaster, sim.getRandom(), 1.0, species, _space, box);
+							 ISpecies[] species, Box box) {
+		this(sim, potentialMaster, sim.getRandom(), 1.0, species, box);
 	}
 	
 	public IntegratorDimerRT(Simulation aSim, PotentialMaster potentialMaster,
-                             IRandom random, double temperature,
-                             ISpecies[] aspecies, Space _space, Box box) {
+							 IRandom random, double temperature,
+							 ISpecies[] aspecies, Box box) {
 		super(potentialMaster, temperature, box);
 		this.random1 = random;
 		this.sim = aSim;
@@ -98,8 +95,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Vect
 		this.force2 = new PotentialCalculationForceSum();
 		this.allatoms = new IteratorDirective();
 		this.movableSpecies = aspecies;
-		this.space = _space;
-				
+
 		deltaR = 1E-3;
 		dXl = 1E-3;
 		deltaXl = 0;

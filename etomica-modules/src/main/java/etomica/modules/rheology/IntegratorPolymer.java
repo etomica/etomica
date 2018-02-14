@@ -22,12 +22,12 @@ import etomica.util.random.IRandom;
 public class IntegratorPolymer extends IntegratorMD {
 
     public IntegratorPolymer(PotentialMaster potentialMaster, IRandom random,
-                             double timeStep, double temperature, Space _space, Box box) {
-        super(potentialMaster, random, timeStep, temperature, _space, box);
-        center = _space.makeVector();
-        drPrev = _space.makeVector();
-        dr = _space.makeVector();
-        ds = _space.makeVector();
+                             double timeStep, double temperature, Box box) {
+        super(potentialMaster, random, timeStep, temperature, box);
+        center = this.space.makeVector();
+        drPrev = this.space.makeVector();
+        dr = this.space.makeVector();
+        ds = this.space.makeVector();
         s = new Vector[0];
         r = new Vector[0];
         W = new Vector[0];

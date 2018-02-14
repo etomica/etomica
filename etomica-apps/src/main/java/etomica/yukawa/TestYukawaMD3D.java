@@ -54,7 +54,7 @@ public class TestYukawaMD3D extends Simulation{
         potentialMaster.setRange(neighborRangeFac);
 
         box = new Box(space);
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space, box);
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
 

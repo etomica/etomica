@@ -26,8 +26,8 @@ public class IntegratorAnalytic extends IntegratorMD {
     private AtomTimeAction action;
 
     public IntegratorAnalytic(PotentialMaster potentialMaster, IRandom random,
-                              double timeStep, Space _space, Box box) {
-        super(potentialMaster,random,timeStep,0, _space, box);
+                              double timeStep, Box box) {
+        super(potentialMaster,random,timeStep,0, box);
     }
 
     protected void doStepInternal() {

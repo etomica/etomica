@@ -49,7 +49,7 @@ public class WaterDropletMatrix {
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeInterval = 0.002;
         int maxIterations = 20;
-        IntegratorRigidMatrixIterative integrator = new IntegratorRigidMatrixIterative(sim, potentialMaster, timeInterval, 1, space, box);
+        IntegratorRigidMatrixIterative integrator = new IntegratorRigidMatrixIterative(sim, potentialMaster, timeInterval, 1, box);
         integrator.printInterval = 100;
         integrator.setMaxIterations(maxIterations);
         OrientationCalcWater4P calcer = new OrientationCalcWater4P(sim.getSpace());

@@ -81,7 +81,7 @@ public class EFSTungsten extends Simulation {
         super(Space3D.getInstance());
         potentialMaster = new PotentialMasterList(this, space);
         box = new Box(space);
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space, box);
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setTimeStep(0.001);
         integrator.setTemperature(Kelvin.UNIT.toSim(temperature));
         integrator.setThermostatInterval(100);

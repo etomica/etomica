@@ -9,20 +9,16 @@ import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorBox;
-import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.molecule.IMoleculeList;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
 
@@ -74,19 +70,18 @@ public class IntegratorDimerMin extends IntegratorBox {
 	public boolean rotate, normalD, minFound;
 	public String file;
 	public WriteConfiguration writer;
-	private final Space space;
 	public CalcVibrationalModes vib;
 	
 	
 	public IntegratorDimerMin(Simulation sim, PotentialMaster potentialMaster,
-                              ISpecies[] species,
-                              Boolean normalDir, Space _space, Box box) {
-		this(sim, potentialMaster, 1.0, species, normalDir, _space, box);
+							  ISpecies[] species,
+							  Boolean normalDir, Box box) {
+		this(sim, potentialMaster, 1.0, species, normalDir, box);
 	}
 	
 	public IntegratorDimerMin(Simulation aSim, PotentialMaster potentialMaster,
-                              double temperature,
-                              ISpecies[] aspecies, Boolean normalDir, Space _space, Box box) {
+							  double temperature,
+							  ISpecies[] aspecies, Boolean normalDir, Box box) {
 		super(potentialMaster, temperature, box);
 		this.sim = aSim;
 		this.force0 = new PotentialCalculationForceSum();
@@ -94,8 +89,7 @@ public class IntegratorDimerMin extends IntegratorBox {
 		this.allatoms = new IteratorDirective();
 		this.movableSpecies = aspecies;
 		this.normalD = normalDir;
-		this.space = _space;
-		
+
 		stepLength = 0.005;
 		deltaR = 1E-3;
 		dTheta = 1E-5;

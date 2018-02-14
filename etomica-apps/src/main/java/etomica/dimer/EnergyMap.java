@@ -178,7 +178,7 @@ public class EnergyMap extends Simulation{
 
          */
 
-        integratorMAP = new IntegratorEnergyMap(this, potentialMaster, adAtom, fileTail, space, box);
+        integratorMAP = new IntegratorEnergyMap(this, potentialMaster, adAtom, fileTail, box);
         activityIntegrateMAP = new ActivityIntegrate(integratorMAP);
 
         getController().addAction(activityIntegrateMAP);

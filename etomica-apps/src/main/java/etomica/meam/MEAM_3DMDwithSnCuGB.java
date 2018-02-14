@@ -84,7 +84,7 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
         box = new Box(new BoundaryRectangularSlit(2, space), space);
         addBox(box);
         potentialMaster = new PotentialMasterList(this, space);
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space, box);
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setTimeStep(0.001);
         integrator.setTemperature(Kelvin.UNIT.toSim(295));
         integrator.setThermostatInterval(100);

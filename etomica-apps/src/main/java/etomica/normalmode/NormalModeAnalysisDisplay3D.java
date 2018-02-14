@@ -95,7 +95,7 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
 
         waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
-        integrator = new IntegratorHarmonic(random, 0.0001, temperature, space, box);
+        integrator = new IntegratorHarmonic(random, 0.0001, temperature, box);
 
         integrator.setOmegaSquared(nm.getOmegaSquared(), waveVectorFactory.getCoefficients());
         integrator.setEigenVectors(nm.getEigenvectors());

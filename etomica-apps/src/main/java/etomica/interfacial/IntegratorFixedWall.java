@@ -14,8 +14,8 @@ public class IntegratorFixedWall extends IntegratorVelocityVerlet {
 
     protected FixedWall fixedWall;
     
-    public IntegratorFixedWall(PotentialMaster potentialMaster, IRandom random, double timeStep, double temperature, Space space, Box box) {
-        super(potentialMaster, random, timeStep, temperature, space, box);
+    public IntegratorFixedWall(PotentialMaster potentialMaster, IRandom random, double timeStep, double temperature, Box box) {
+        super(potentialMaster, random, timeStep, temperature, box);
     }
     
     public void setFixedWall(FixedWall fixedWall) {

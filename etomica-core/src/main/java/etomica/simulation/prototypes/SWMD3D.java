@@ -43,7 +43,7 @@ public class SWMD3D extends Simulation {
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 2.5, space);
 
         box = new Box(space);
-        integrator = new IntegratorHard(this, potentialMaster, space, box);
+        integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setTimeStep(0.01);
         integrator.setIsothermal(true);
         integrator.setTemperature(1);

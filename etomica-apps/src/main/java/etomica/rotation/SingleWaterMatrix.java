@@ -48,7 +48,7 @@ public class SingleWaterMatrix {
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeInterval = 0.0008;
         int maxIterations = 20;
-        final IntegratorRigidMatrixIterative integrator = new IntegratorRigidMatrixIterative(sim, potentialMaster, timeInterval, 1, space, box);
+        final IntegratorRigidMatrixIterative integrator = new IntegratorRigidMatrixIterative(sim, potentialMaster, timeInterval, 1, box);
         integrator.printInterval = 0;
         integrator.setMaxIterations(maxIterations);
         OrientationCalcWater3P calcer = new OrientationCalcWater3P(sim.getSpace());

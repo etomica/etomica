@@ -147,7 +147,7 @@ public class Sam extends Simulation {
 
         config.initializeCoordinates(box);
 
-        integrator = new IntegratorVelocityVerletSAM(potentialMaster, random, 0.002, Kelvin.UNIT.toSim(300), space, box);
+        integrator = new IntegratorVelocityVerletSAM(potentialMaster, random, 0.002, Kelvin.UNIT.toSim(300), box);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(500);
         activityIntegrate = new ActivityIntegrate(integrator);

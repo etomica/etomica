@@ -45,13 +45,13 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource<Integra
     protected AtomLeafAgentManager<IntegratorGear4.Agent> agentManager;
     protected AtomLeafAgentManager<Vector> forces;
 
-    public IntegratorGear4(Simulation sim, PotentialMaster potentialMaster, Space _space, Box box) {
-        this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space, box);
+    public IntegratorGear4(Simulation sim, PotentialMaster potentialMaster, Box box) {
+        this(potentialMaster, sim.getRandom(), 0.05, 1.0, box);
     }
     
     public IntegratorGear4(PotentialMaster potentialMaster, IRandom random,
-                           double timeStep, double temperature, Space _space, Box box) {
-        super(potentialMaster,random,timeStep,temperature, _space, box);
+                           double timeStep, double temperature, Box box) {
+        super(potentialMaster,random,timeStep,temperature, box);
         forceSum = new PotentialCalculationForceSum();
         allAtoms = new IteratorDirective();
         // allAtoms is used only for the force calculation, which has no LRC

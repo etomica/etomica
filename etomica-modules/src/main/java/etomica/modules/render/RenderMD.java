@@ -90,7 +90,7 @@ public class RenderMD extends Simulation {
 
         int numAtoms = parser.nAtoms;
         box = new Box(space);
-        integrator = new IntegratorHard(this, potentialMaster, space, box);
+        integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setTemperature(params.temperature);
         integrator.setIsothermal(true);
         integrator.setTimeStep(params.timeStep);
