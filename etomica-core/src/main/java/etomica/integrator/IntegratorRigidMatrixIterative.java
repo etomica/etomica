@@ -98,15 +98,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Spec
         tempAxesTensor = (RotationTensor3D)_space.makeRotationTensor();
         omegaTensor = _space.makeTensor();
         meterKE = new MeterKineticEnergyRigid(space, sim);
-    }
-    
-    public void setBox(Box box) {
-        if (this.box != null) {
-            // allow agentManager to de-register itself as a BoxListener
-            forces.dispose();
-            moleculeAgentManager.dispose();
-        }
-        super.setBox(box);
+
         forces = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
         moleculeAgentManager = new MoleculeAgentManager(sim, this.box, this);
         torqueSum.setAgentManager(forces);

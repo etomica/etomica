@@ -75,17 +75,7 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
         collisionHandlerDown = new CollisionHandlerDown(eventList);
         collisionHandlerDown.setAgentManager(agentManager);
         nullPotentialManager = new HashMap<>();
-    }
-    
-    protected void setBox(Box box) {
-        if (this.box != null) {
-            // allow agentManager to de-register itself as a BoxListener
-            agentManager.dispose();
-            if(this.potentialMaster instanceof PotentialMasterList) {
-                ((PotentialMasterList)this.potentialMaster).getNeighborManager(this.box).getEventManager().removeListener(this);
-            }
-        }
-        super.setBox(box);
+
         agentManager = new AtomLeafAgentManager<Agent>(this, box);
         collisionHandlerUp.setAgentManager(agentManager);
         collisionHandlerDown.setAgentManager(agentManager);
@@ -102,7 +92,7 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
             ((PotentialMasterHybrid)this.potentialMaster).getNeighborManager(this.box).getEventManager().addListener(this);
         }
     }
-
+    
     /* (non-Javadoc)
      * @see etomica.Integrator#setTemperature(double)
      */

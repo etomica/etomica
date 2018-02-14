@@ -29,10 +29,6 @@ public class IntegratorHardMDMC extends IntegratorHard {
         thermostatActions = new ArrayList<IAction>();
     }
     
-    public void setBox(Box box) {
-        super.setBox(box);
-    }
-    
     public void addThermostatAction(IAction a) {
         thermostatActions.add(a);
     }

@@ -67,19 +67,11 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
         workTensor = space.makeTensor();
         workTensor2 = space.makeTensor();
         dr = space.makeVector();
-    }
-    
-    public void setBox(Box box) {
-        if (this.box != null) {
-            // allow agentManager to de-register itself as a BoxListener
-            agentManager.dispose();
-        }
-        super.setBox(box);
         agentManager = new AtomLeafAgentManager<MyAgent>(this, box);
         forces = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
         forceSum.setAgentManager(forces);
     }
-
+    
 //--------------------------------------------------------------
 // steps all particles across time interval tStep
 

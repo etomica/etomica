@@ -37,19 +37,15 @@ public class IntegratorMDHarmonicMC extends IntegratorVelocityVerlet {
         dvTmp = space.makeVector();
         fTot = space.makeVector();
         vTot = space.makeVector();
-    }
-
-    public void setP1Harmonic(P1ImageHarmonic p1) {
-        this.p1 = p1;
-    }
-
-    public void setBox(Box box) {
-        super.setBox(box);
         boundary = box.getBoundary();
         if (drAll == null || drAll.length != box.getLeafList().getAtomCount()) {
             drAll = space.makeVectorArray(box.getLeafList().getAtomCount());
             firstTrial = true;
         }
+    }
+
+    public void setP1Harmonic(P1ImageHarmonic p1) {
+        this.p1 = p1;
     }
 
     protected void doStepInternal() {

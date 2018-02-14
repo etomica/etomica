@@ -57,6 +57,7 @@ public class IntegratorMC extends IntegratorBox {
         trialFailedEvent = new MCMoveTrialFailedEvent(moveManager);
         acceptedEvent = new MCMoveTrialCompletedEvent(moveManager, true);
         rejectedEvent = new MCMoveTrialCompletedEvent(moveManager, false);
+        moveManager.setBox(box);
     }
 
     /**
@@ -71,10 +72,6 @@ public class IntegratorMC extends IntegratorBox {
      */
     public void setMoveManager(MCMoveManager newMoveManager) {
         moveManager = newMoveManager;
-    }
-
-    protected void setBox(Box box) {
-        moveManager.setBox(box);
     }
 
     /**

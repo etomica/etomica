@@ -49,18 +49,10 @@ public final class IntegratorConNVT extends IntegratorMD {
         work2 = space.makeVector();
         work3 = space.makeVector();
        	work4 = space.makeVector();
-    }
-
-	
-    public void setBox(Box box) {
-        if (this.box != null) {
-            agentManager.dispose();
-        }
-        super.setBox(box);
         agentManager = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
         forceSum.setAgentManager(agentManager);
     }
-    
+
   	public final void setTimeStep(double t) {
     	super.setTimeStep(t);
     	halfTime = timeStep/2.0;

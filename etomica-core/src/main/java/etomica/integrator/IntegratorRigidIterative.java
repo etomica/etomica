@@ -98,17 +98,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
         maxIterations = 20;
         omegaTolerance = 1.e-30;
         meterKE = new MeterKineticEnergyRigid(space, sim);
-    }
 
-    public void setBox(Box box) {
-        if (this.box != null) {
-            // allow agentManager to de-register itself as a BoxListener
-            leafAgentManager.dispose();
-            moleculeAgentManager.dispose();
-            leafAgentManager = null;
-            moleculeAgentManager = null;
-        }
-        super.setBox(box);
         leafAgentManager = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
         moleculeAgentManager = new MoleculeAgentManager(sim, box, this);
         torqueSum.setAgentManager(leafAgentManager);
