@@ -77,7 +77,6 @@ public class HSNPT2DSim extends Simulation {
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, new PrimitiveOrthorhombicHexagonal(space, bx / nx), new BasisOrthorhombicHexagonal(), space);
         coordinateDefinition.initializeCoordinates(new int[]{nx, ny});
-        integrator.setBox(box);
 
         potentialMaster.getNeighborManager(box).reset();
         integrator.getEventManager().removeListener(potentialMaster.getNeighborManager(box));

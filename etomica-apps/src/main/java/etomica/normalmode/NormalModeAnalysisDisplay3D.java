@@ -113,7 +113,6 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
         activityIntegrate.setSleepPeriod(0);
 
         getController().addAction(activityIntegrate);
-        integrator.setBox(box);
 
     }
 

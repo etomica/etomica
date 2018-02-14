@@ -77,17 +77,17 @@ public class SimLJVacancy extends Simulation {
         addBox(box);
         box.setNMolecules(species, numAtoms);
 
-        double L = Math.pow(4.0/density, 1.0/3.0);
-        int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-        PrimitiveCubic primitive = new PrimitiveCubic(space, n*L);
-        int[] nCells = new int[]{n,n,n};
+        double L = Math.pow(4.0 / density, 1.0 / 3.0);
+        int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+        PrimitiveCubic primitive = new PrimitiveCubic(space, n * L);
+        int[] nCells = new int[]{n, n, n};
         Boundary boundary = new BoundaryRectangularPeriodic(space, n * L);
         Basis basisFCC = new BasisCubicFcc();
         BasisBigCell basis = new BasisBigCell(space, basisFCC, nCells);
-        
+
         box.setBoundary(boundary);
 
-        
+
         potentialMaster = new PotentialMasterCell(this, rc, space);
         potentialMaster.setCellRange(2);
         integrator = new IntegratorMC(this, potentialMaster, box);
@@ -96,24 +96,22 @@ public class SimLJVacancy extends Simulation {
         move.setStepSize(0.2);
 //        ((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
         integrator.getMoveManager().addMCMove(move);
-        
+
         ai = new ActivityIntegrate(integrator);
         getController().addAction(ai);
-        
+
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
-        
-        integrator.setBox(box);
 
         CoordinateDefinitionLeaf coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
-        coordinateDefinition.initializeCoordinates(new int[]{1,1,1});
+        coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
         // we just needed this to initial coordinates, to keep track of lattice positions of atoms
         coordinateDefinition = null;
 
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
 
-        if (rc > 0.49*box.getBoundary().getBoxSize().getX(0)) {
+        if (rc > 0.49 * box.getBoundary().getBoxSize().getX(0)) {
             throw new RuntimeException("rc is too large");
         }
         p2LJ = ss ? new P2SoftSphere(space, 1, 4, 12) : new P2LennardJones(space, 1, 1);
@@ -129,28 +127,28 @@ public class SimLJVacancy extends Simulation {
             meterPE.setBox(box);
             meterPE.setIncludeLrc(false);
             double uUnshifted = meterPE.getDataAsScalar();
-            
+
             potentialMaster.removePotential(potential);
             potential = new P2SoftSphericalTruncatedShifted(space, p2LJ, rc);
             potentialMaster.addPotential(potential, new AtomType[]{leafType, leafType});
             double uShifted = meterPE.getDataAsScalar();
-            uShift = (uUnshifted - uShifted)/numAtoms;
+            uShift = (uUnshifted - uShifted) / numAtoms;
             Potential0Lrc pShift = new Potential0Lrc(space, new AtomType[]{leafType, leafType}, potential) {
                 public double virial(IAtomList atoms) {
                     return 0;
                 }
-                
+
                 public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
                     return null;
                 }
-                
+
                 public Vector[] gradient(IAtomList atoms) {
                     return null;
                 }
-                
+
                 public double energy(IAtomList atoms) {
-                    if (divisor==0) return 0;
-                    if (divisor==1) {
+                    if (divisor == 0) return 0;
+                    if (divisor == 1) {
                         // the whole system
                         int n = box.getNMolecules(species);
                         // to be consistent with our single-atom correction, we need to assume that
@@ -158,18 +156,18 @@ public class SimLJVacancy extends Simulation {
                         return (numAtoms - (numAtoms - n) * 2) * uShift;
                     }
                     // single atom
-                    return 2*uShift;
+                    return 2 * uShift;
                 }
             };
             potentialMaster.lrcMaster().addPotential(pShift);
         }
 
-        double nbr1 = L/Math.sqrt(2);
-        double y = 1.25*nbr1;
+        double nbr1 = L / Math.sqrt(2);
+        double y = 1.25 * nbr1;
 
         mcMoveID = new MCMoveInsertDeleteLatticeVacancy(potentialMaster, random, space, integrator, y, numAtoms, numV);
 
-        mcMoveID.setMaxInsertDistance(nbr1/40);
+        mcMoveID.setMaxInsertDistance(nbr1 / 40);
         mcMoveID.makeFccVectors(nbr1);
         mcMoveID.setMu(bmu);
         mcMoveID.setSpecies(species);

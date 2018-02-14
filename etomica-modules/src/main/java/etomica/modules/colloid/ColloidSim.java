@@ -152,7 +152,6 @@ public class ColloidSim extends Simulation {
         configuration.setMonomerMonomerBondManager(monomerMonomerBondManager);
         configuration.setColloidMonomerBondManager(colloidMonomerBondManager);
         configuration.initializeCoordinates(box);
-        integrator.setBox(box);
 
         p2pseudo = new P2HardSphere(space, 1, true);
         if (nGraft > 1) {

@@ -88,7 +88,6 @@ public class TestLJGCMC3D extends Simulation {
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
 
         config.initializeCoordinates(box);
-        integrator.setBox(box);
         potentialMaster.getNbrCellManager(box).assignCellAll();
     }
 

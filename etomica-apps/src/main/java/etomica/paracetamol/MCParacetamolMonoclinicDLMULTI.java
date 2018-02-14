@@ -208,7 +208,6 @@ public class MCParacetamolMonoclinicDLMULTI extends Simulation{
             potentialDLPOLY.setConfigDLPOLY(configDLPOLY);
             potentialMaster.addPotential(potentialDLPOLY, new ISpecies[0]);
         }
-        integrator.setBox(box);
     } //end of constructor
     
     public static void main(String[] args) {

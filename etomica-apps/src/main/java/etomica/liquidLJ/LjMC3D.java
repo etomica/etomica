@@ -60,7 +60,7 @@ public class LjMC3D extends Simulation {
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
-        
+
         potentialMasterCell = new PotentialMasterCell(this, rcShort, space);
         potentialMasterCell.setCellRange(2);
         double sigma = 1.0;
@@ -68,7 +68,7 @@ public class LjMC3D extends Simulation {
         integrator.setTemperature(temperature);
         mcMoveAtom = new MCMoveAtom(random, potentialMasterCell, space);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
-        
+
         ai = new ActivityIntegrate(integrator);
         getController().addAction(ai);
 
@@ -78,10 +78,8 @@ public class LjMC3D extends Simulation {
 
         potentialMasterCell.addPotential(potentialTruncated, new AtomType[]{leafType, leafType});
 
-        integrator.setBox(box);
-
         integrator.getMoveEventManager().addListener(potentialMasterCell.getNbrCellManager(box).makeMCMoveListener());
-		
+
         ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         configuration.initializeCoordinates(box);
         potentialMasterCell.getNbrCellManager(box).assignCellAll();

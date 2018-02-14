@@ -125,8 +125,6 @@ public class EFSTungsten extends Simulation {
         potentialMaster.setRange(potentialN.getRange() * 1.3);
         potentialMaster.setCriterion(potentialN, new CriterionSimple(this, space, potentialN.getRange(), potentialN.getRange() * 1.3));
 //        integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
-
-        integrator.setBox(box);
         potentialMaster.getNeighborManager(box).reset();
     }
 

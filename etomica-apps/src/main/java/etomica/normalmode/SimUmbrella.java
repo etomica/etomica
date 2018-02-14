@@ -119,8 +119,6 @@ public class SimUmbrella extends Simulation {
         AtomType sphereType = species.getLeafType();
         potentialMasterMonatomic.addPotential(pTruncated, new AtomType[]{sphereType, sphereType});
 
-        integrator.setBox(box);
-
         /*
          *  1-body Potential to Constraint the atom from moving too far
          *  	away from its lattice-site

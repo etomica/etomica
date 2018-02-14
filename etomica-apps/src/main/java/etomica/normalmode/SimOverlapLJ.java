@@ -81,22 +81,22 @@ public class SimOverlapLJ extends Simulation {
         atomMove.setStepSize(0.1);
         atomMove.setStepSizeMax(0.5);
         integratorTarget.getMoveManager().addMCMove(atomMove);
-        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
+        ((MCMoveStepTracker) atomMove.getTracker()).setNoisyAdjustment(true);
 
         integrators[1] = integratorTarget;
 
         if (space.D() == 1) {
-            primitive = new PrimitiveCubic(space, 1.0/density);
-            boundaryTarget = new BoundaryRectangularPeriodic(space, numAtoms/density);
+            primitive = new PrimitiveCubic(space, 1.0 / density);
+            boundaryTarget = new BoundaryRectangularPeriodic(space, numAtoms / density);
             nCells = new int[]{numAtoms};
             basis = new BasisMonatomic(space);
         } else {
-            double L = Math.pow(4.0/density, 1.0/3.0);
-            int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-            primitive = new PrimitiveCubic(space, n*L);
+            double L = Math.pow(4.0 / density, 1.0 / 3.0);
+            int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+            primitive = new PrimitiveCubic(space, n * L);
             primitiveUnitCell = new PrimitiveCubic(space, L);
 
-            nCells = new int[]{n,n,n};
+            nCells = new int[]{n, n, n};
             boundaryTarget = new BoundaryRectangularPeriodic(space, n * L);
             Basis basisFCC = new BasisCubicFcc();
             basis = new BasisBigCell(space, basisFCC, nCells);
@@ -104,7 +104,7 @@ public class SimOverlapLJ extends Simulation {
         boxTarget.setBoundary(boundaryTarget);
 
         CoordinateDefinitionLeaf coordinateDefinitionTarget = new CoordinateDefinitionLeaf(boxTarget, primitive, basis, space);
-        coordinateDefinitionTarget.initializeCoordinates(new int[] {1,1,1});
+        coordinateDefinitionTarget.initializeCoordinates(new int[]{1, 1, 1});
 
         Potential2SoftSpherical potential = new P2LennardJones(space, 1.0, 1.0);
         double truncationRadius = boundaryTarget.getBoxSize().getX(0) * 0.45;
@@ -114,30 +114,28 @@ public class SimOverlapLJ extends Simulation {
         atomMove.setPotential(pTruncated);
 
 
-		/*
-		 * 1-body Potential to Constraint the atom from moving too far away from
-		 * its lattice-site
-		 */
-		p1Constraint = new P1Constraint(space, primitiveUnitCell.getSize()[0], boxTarget, coordinateDefinitionTarget);
+        /*
+         * 1-body Potential to Constraint the atom from moving too far away from
+         * its lattice-site
+         */
+        p1Constraint = new P1Constraint(space, primitiveUnitCell.getSize()[0], boxTarget, coordinateDefinitionTarget);
         potentialMasterTarget.addPotential(p1Constraint, new AtomType[]{sphereType});
 
         if (potentialMasterTarget instanceof PotentialMasterList) {
             double neighborRange = truncationRadius;
             int cellRange = 7;
-            ((PotentialMasterList)potentialMasterTarget).setRange(neighborRange);
-            ((PotentialMasterList)potentialMasterTarget).setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
+            ((PotentialMasterList) potentialMasterTarget).setRange(neighborRange);
+            ((PotentialMasterList) potentialMasterTarget).setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
             // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-            ((PotentialMasterList)potentialMasterTarget).getNeighborManager(boxTarget).reset();
-            int potentialCells = ((PotentialMasterList)potentialMasterTarget).getNbrCellManager(boxTarget).getLattice().getSize()[0];
-            if (potentialCells < cellRange*2+1) {
-                throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
+            ((PotentialMasterList) potentialMasterTarget).getNeighborManager(boxTarget).reset();
+            int potentialCells = ((PotentialMasterList) potentialMasterTarget).getNbrCellManager(boxTarget).getLattice().getSize()[0];
+            if (potentialCells < cellRange * 2 + 1) {
+                throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
             }
-            if (potentialCells > cellRange*2+1) {
-                System.out.println("could probably use a larger truncation radius ("+potentialCells+" > "+(cellRange*2+1)+")");
+            if (potentialCells > cellRange * 2 + 1) {
+                System.out.println("could probably use a larger truncation radius (" + potentialCells + " > " + (cellRange * 2 + 1) + ")");
             }
         }
-
-        integratorTarget.setBox(boxTarget);
 
         potentialMasterTarget.lrcMaster().setEnabled(false);
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterTarget);
@@ -157,18 +155,18 @@ public class SimOverlapLJ extends Simulation {
         integrators[0] = integratorHarmonic;
 
         if (space.D() == 1) {
-            boundaryHarmonic = new BoundaryRectangularPeriodic(space, numAtoms/density);
+            boundaryHarmonic = new BoundaryRectangularPeriodic(space, numAtoms / density);
         } else {
-            double L = Math.pow(4.0/density, 1.0/3.0);
-            int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
+            double L = Math.pow(4.0 / density, 1.0 / 3.0);
+            int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
             boundaryHarmonic = new BoundaryRectangularPeriodic(space, n * L);
         }
         boxHarmonic.setBoundary(boundaryHarmonic);
 
         CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new CoordinateDefinitionLeaf(boxHarmonic, primitive, basis, space);
-        coordinateDefinitionHarmonic.initializeCoordinates(new int[]{1,1,1});
+        coordinateDefinitionHarmonic.initializeCoordinates(new int[]{1, 1, 1});
 
-        String inFile = "LJDB_nA"+numAtoms+"_d0962";
+        String inFile = "LJDB_nA" + numAtoms + "_d0962";
         normalModes = new NormalModesFromFile(inFile, space.D());
         normalModes.setHarmonicFudge(harmonicFudge);
         //normalModes.setTemperature(temperature);
@@ -184,11 +182,9 @@ public class SimOverlapLJ extends Simulation {
 
         move.setBox(boxHarmonic);
 
-        integratorHarmonic.setBox(boxHarmonic);
-
         if (potentialMasterTarget instanceof PotentialMasterList) {
             // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-            ((PotentialMasterList)potentialMasterTarget).getNeighborManager(boxHarmonic).reset();
+            ((PotentialMasterList) potentialMasterTarget).getNeighborManager(boxHarmonic).reset();
         }
 
         // OVERLAP

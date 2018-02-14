@@ -54,22 +54,22 @@ public class SimCalcSMorse extends Simulation {
         move.setStepSize(0.1);
         move.setStepSizeMax(0.5);
         integrator.getMoveManager().addMCMove(move);
-        ((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
+        ((MCMoveStepTracker) move.getTracker()).setNoisyAdjustment(true);
 
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         // activityIntegrate.setMaxSteps(nSteps);
 
         if (space.D() == 1) {
-            primitive = new PrimitiveCubic(space, 1.0/density);
-            boundary = new BoundaryRectangularPeriodic(space, numAtoms/density);
+            primitive = new PrimitiveCubic(space, 1.0 / density);
+            boundary = new BoundaryRectangularPeriodic(space, numAtoms / density);
             nCells = new int[]{numAtoms};
             basis = new BasisMonatomic(space);
         } else {
-            double L = Math.pow(4.0/density, 1.0/3.0);
+            double L = Math.pow(4.0 / density, 1.0 / 3.0);
             primitive = new PrimitiveCubic(space, L);
-            int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-            nCells = new int[]{n,n,n};
+            int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+            nCells = new int[]{n, n, n};
             boundary = new BoundaryRectangularPeriodic(space, n * L);
             basis = new BasisCubicFcc();
         }
@@ -85,8 +85,6 @@ public class SimCalcSMorse extends Simulation {
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
-
-        integrator.setBox(box);
     }
 
     /**

@@ -119,7 +119,6 @@ public class DHS_NVT extends Simulation {
         imposePbc.setApplyToMolecules(true);
 
         integrator.setTemperature(temperature);
-        integrator.setBox(box);
         integrator.getMoveManager().addMCMove(moveMolecule);
         integrator.getMoveManager().addMCMove(rotateMolecule);
         integrator.getEventManager().addListener(new IntegratorListenerAction(imposePbc));

@@ -54,8 +54,6 @@ public class LJMD2D extends Simulation {
         potential = new P2LennardJones(space);
         potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
-        integrator.setBox(box);
-
         energy = new MeterEnergy(potentialMaster, box);
 
     }

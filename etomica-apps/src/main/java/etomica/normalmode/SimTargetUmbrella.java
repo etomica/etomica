@@ -118,8 +118,6 @@ public class SimTargetUmbrella extends Simulation {
         AtomType sphereType = species.getLeafType();
         potentialMasterMonatomic.addPotential(pTruncated, new AtomType[]{sphereType, sphereType});
 
-        integrator.setBox(box);
-
         potentialMasterMonatomic.lrcMaster().setEnabled(false);
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterMonatomic);
         meterPE.setBox(box);

@@ -102,33 +102,32 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 			file1.delete();
 		}
 		for (int p = 2; p <= 512; p *= 2) {
-			box.setNMolecules(species, 0);
-			species.setChildCount(new int[]{p});
-			box.setNMolecules(species, 1);
+            box.setNMolecules(species, 0);
+            species.setChildCount(new int[]{p});
+            box.setNMolecules(species, 1);
             IntegratorMC integrator = new IntegratorMC(sim, null, box);
-			integrator.setBox(box);
-			MCMoveClusterRingRegrowOrientation move = new MCMoveClusterRingRegrowOrientation(sim.getRandom(), space, p);
+            MCMoveClusterRingRegrowOrientation move = new MCMoveClusterRingRegrowOrientation(sim.getRandom(), space, p);
 
-			for (int iTemp = 40; iTemp <= 40; iTemp += 2) {
-				move.acc = 0;
-				move.setStiffness(Kelvin.UNIT.toSim(iTemp), species.getAtomType(0).getMass());
-				integrator.getMoveManager().addMCMove(move);
-				integrator.reset();
-				int total = 100;
-				for (int i = 0; i < total; i++) {
-					integrator.doStep();
-				}
-				try {
-					FileWriter Temp = new FileWriter("acceptance.dat", true);
-					Temp.write(iTemp + " " + p + " " + move.getStiffness() + " " + ((double) move.acc) / total + "\n");
-					Temp.close();
-				} catch (IOException ex1) {
-					throw new RuntimeException(ex1);
-				}
-				System.out.println("p = " + p + " ,Temp = " + iTemp + " ,acceptance ratio = " + ((double) move.acc) / total);
-			}
+            for (int iTemp = 40; iTemp <= 40; iTemp += 2) {
+                move.acc = 0;
+                move.setStiffness(Kelvin.UNIT.toSim(iTemp), species.getAtomType(0).getMass());
+                integrator.getMoveManager().addMCMove(move);
+                integrator.reset();
+                int total = 100;
+                for (int i = 0; i < total; i++) {
+                    integrator.doStep();
+                }
+                try {
+                    FileWriter Temp = new FileWriter("acceptance.dat", true);
+                    Temp.write(iTemp + " " + p + " " + move.getStiffness() + " " + ((double) move.acc) / total + "\n");
+                    Temp.close();
+                } catch (IOException ex1) {
+                    throw new RuntimeException(ex1);
+                }
+                System.out.println("p = " + p + " ,Temp = " + iTemp + " ,acceptance ratio = " + ((double) move.acc) / total);
+            }
 
-		}
+        }
 	}
 
 	@Override

@@ -85,7 +85,7 @@ public class TestHexaneFileConfig extends Simulation {
         primitive = new PrimitiveHexane(space);
         // close packed density is 0.4165783882178116
         // Monson reports data for 0.373773507616 and 0.389566754417
-        primitive.scaleSize(Math.pow(0.4165783882178116/dens,1.0/3.0));
+        primitive.scaleSize(Math.pow(0.4165783882178116 / dens, 1.0 / 3.0));
         lattice = new BravaisLattice(primitive);
 
         SpeciesHexane species = new SpeciesHexane(space);
@@ -97,26 +97,26 @@ public class TestHexaneFileConfig extends Simulation {
         box.setNMolecules(species, xCells * yCells * zCells);
 //        config.initializeCoordinates(box);
         integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0, box);
-        
+
         moveMolecule = new MCMoveMolecule(potentialMaster, getRandom(),
                 space, 0.1, 1);
         // 0.025 for translate, 0.042 for rotate for rho=0.3737735
-        moveMolecule.setStepSize(0.024);        
+        moveMolecule.setStepSize(0.024);
         integrator.getMoveManager().addMCMove(moveMolecule);
-        ((MCMoveStepTracker)moveMolecule.getTracker()).setNoisyAdjustment(true);
-               
+        ((MCMoveStepTracker) moveMolecule.getTracker()).setNoisyAdjustment(true);
+
         crank = new MCMoveClusterWiggleMulti(potentialMaster, getRandom(), 0.20, 6, space);
-    
+
 //        snake = new MCMoveReptate(potentialMaster, getRandom(), 0.4, 3.0, true);
 //        snake.setBox(box);
 //        integrator.getMoveManager().addMCMove(snake);
-        
+
         rot = new MCMoveRotateMolecule3D(potentialMaster, getRandom(), space);
         rot.setBox(box);
         rot.setStepSize(0.042);
         integrator.getMoveManager().addMCMove(rot);
-        ((MCMoveStepTracker)rot.getTracker()).setNoisyAdjustment(true);
-        
+        ((MCMoveStepTracker) rot.getTracker()).setNoisyAdjustment(true);
+
         growMolecule = new CBMCGrowSolidHexane(potentialMaster,
                 getRandom(), space, integrator, box, species, 20);
         growMolecule.setBox(box);
@@ -124,11 +124,11 @@ public class TestHexaneFileConfig extends Simulation {
 
         coupledMove = new MCMoveMoleculeCoupled(potentialMaster, getRandom(), space);
         integrator.getMoveManager().addMCMove(coupledMove);
-        
+
         cctMove = new MCMoveCombinedCbmcTranslation(potentialMaster, growMolecule, getRandom(), space);
         cctMove.setBox(box);
         integrator.getMoveManager().addMCMove(cctMove);
-        
+
         // nan we're going to need some stuff in there to set the step sizes and
         // other stuff like that.
 
@@ -136,7 +136,7 @@ public class TestHexaneFileConfig extends Simulation {
         activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setMaxSteps(2000000);
         getController().addAction(activityIntegrate);
-            
+
         //nan The box size we want is 5.72906360610622 by 11.21417818673970 by
         // 7.30591061708510
         //nan this is where the squared, unsquared box stuff comes in.
@@ -150,7 +150,7 @@ public class TestHexaneFileConfig extends Simulation {
         // different molecules. We use the class "Potential" because we are
         // reusing the instance as we define each potential.
         Potential potential = new P2HardSphere(space);
-        
+
         //here, we add the species to the PotentialMaster, using types.
         //The PotentialMaster generates a group potential and automatically
         // does a lot of the stuff which we have to do for the intramolecular
@@ -159,19 +159,17 @@ public class TestHexaneFileConfig extends Simulation {
 
         //Add the Potential to the PotentialMaster
         potentialMaster.addPotential(potential, new AtomType[]{sphereType,
-                sphereType });
-        
-        coupledMove.setPotential(potentialMaster.getPotential(new ISpecies[] {
-                species, species }  ));
-        
+                sphereType});
+
+        coupledMove.setPotential(potentialMaster.getPotential(new ISpecies[]{
+                species, species}));
+
         //Initialize the positions of the atoms.
         coordinateDefinition = new CoordinateDefinitionHexane(this, box, primitive, species, space);
         coordinateDefinition.initializeCoordinates(nCells);
-        
+
         ConfigurationFile config = new ConfigurationFile("hexane");
         config.initializeCoordinates(box);
-
-        integrator.setBox(box);
     }
 
     public static void main(String[] args) {

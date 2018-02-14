@@ -381,8 +381,6 @@ public class MDParacetamolMonoclinic extends Simulation {
 
         CoordinateDefinitionParacetamol coordDef = new CoordinateDefinitionParacetamol(this, box, primitive, basis, space);
 
-        integrator.setBox(box);
-
     } //end of constructor
 
     /**

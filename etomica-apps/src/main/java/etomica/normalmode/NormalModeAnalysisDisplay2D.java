@@ -31,64 +31,63 @@ public class NormalModeAnalysisDisplay2D extends Simulation {
     private static final long serialVersionUID = 1L;
 	private static final String APP_NAME = "2-D Harmonic Oscillator";
 
-	public NormalModeAnalysisDisplay2D(Space _space){
-        super(_space);
-        this.space = _space;
-        
-        setNCells(new int[]{getDimx(), getDimy()});
-        
-        species = new SpeciesSpheresMono(this, space);
-        addSpecies(species);
-        
-        box = new Box(space);
-        addBox(box);
-        box.setNMolecules(species, 2*nCells[0]*nCells[1]);
-        
-        primitive = new PrimitiveOrthorhombicHexagonal(space, 1);
-        Vector[] dimension = space.makeVectorArray(space.D());
-        for (int i=0; i<space.D(); i++){
-        	dimension[i].Ea1Tv1(nCells[i], primitive.vectors()[i]);
-        }
-        boundary = new BoundaryDeformablePeriodic(space, dimension);
-        basis = new BasisOrthorhombicHexagonal();
-        box.setBoundary(boundary);
+	public NormalModeAnalysisDisplay2D(Space _space) {
+		super(_space);
+		this.space = _space;
 
-        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
-        coordinateDefinition.initializeCoordinates(nCells);
-        
-        //String filename = "2D_CB_FCC_n12_T01_Mode01a";
-        nm = new NormalModes2D(space, boundary, primitive, basis);
-        nm.setTemperature(temperature);
-                
-        waveVectorFactory = nm.getWaveVectorFactory();
-        waveVectorFactory.makeWaveVectors(box);
-        
-        
-        //IVectorMutable[] waveVectors = waveVectorFactory.getWaveVectors();
-        //double[] coefficients = waveVectorFactory.getCoefficients();
-        
-        //for (int i=0; i<waveVectors.length; i++) {
-        //    System.out.println(coefficients[i]+" "+waveVectors[i]);
-        //}
+		setNCells(new int[]{getDimx(), getDimy()});
+
+		species = new SpeciesSpheresMono(this, space);
+		addSpecies(species);
+
+		box = new Box(space);
+		addBox(box);
+		box.setNMolecules(species, 2 * nCells[0] * nCells[1]);
+
+		primitive = new PrimitiveOrthorhombicHexagonal(space, 1);
+		Vector[] dimension = space.makeVectorArray(space.D());
+		for (int i = 0; i < space.D(); i++) {
+			dimension[i].Ea1Tv1(nCells[i], primitive.vectors()[i]);
+		}
+		boundary = new BoundaryDeformablePeriodic(space, dimension);
+		basis = new BasisOrthorhombicHexagonal();
+		box.setBoundary(boundary);
+
+		coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
+		coordinateDefinition.initializeCoordinates(nCells);
+
+		//String filename = "2D_CB_FCC_n12_T01_Mode01a";
+		nm = new NormalModes2D(space, boundary, primitive, basis);
+		nm.setTemperature(temperature);
+
+		waveVectorFactory = nm.getWaveVectorFactory();
+		waveVectorFactory.makeWaveVectors(box);
+
+
+		//IVectorMutable[] waveVectors = waveVectorFactory.getWaveVectors();
+		//double[] coefficients = waveVectorFactory.getCoefficients();
+
+		//for (int i=0; i<waveVectors.length; i++) {
+		//    System.out.println(coefficients[i]+" "+waveVectors[i]);
+		//}
 
 
 		integrator = new IntegratorHarmonic(random, 0.0005, temperature, space, box);
-        integrator.setCoordinateDefinition(coordinateDefinition);
-        integrator.setWaveVectors(waveVectorFactory.getWaveVectors());
-        integrator.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
-        integrator.setOmegaSquared(nm.getOmegaSquared(), waveVectorFactory.getCoefficients());
-        integrator.setEigenVectors(nm.getEigenvectors());
-        integrator.setTemperature(temperature);
-        integrator.setOneWV(true);
-        integrator.setWaveVectorNum(0);
-        
-        
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setSleepPeriod(0);
-        
-        getController().addAction(activityIntegrate);
-        integrator.setBox(box);
-        
+		integrator.setCoordinateDefinition(coordinateDefinition);
+		integrator.setWaveVectors(waveVectorFactory.getWaveVectors());
+		integrator.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
+		integrator.setOmegaSquared(nm.getOmegaSquared(), waveVectorFactory.getCoefficients());
+		integrator.setEigenVectors(nm.getEigenvectors());
+		integrator.setTemperature(temperature);
+		integrator.setOneWV(true);
+		integrator.setWaveVectorNum(0);
+
+
+		ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+		activityIntegrate.setSleepPeriod(0);
+
+		getController().addAction(activityIntegrate);
+
 	}
 	
 

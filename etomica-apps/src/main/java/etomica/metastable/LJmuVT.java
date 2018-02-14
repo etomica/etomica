@@ -80,7 +80,6 @@ public class LJmuVT extends Simulation {
 
         //construct box
         addBox(box);
-        integrator.setBox(box);
 
         mcMoveID = new MCMoveInsertDelete(potentialMaster, random, space);
         mcMoveID.setMu(mu);

@@ -101,8 +101,6 @@ public class LjMd3D extends Simulation {
         P2SoftSphericalTruncatedForceShifted potentialTruncatedForceShifted = new P2SoftSphericalTruncatedForceShifted(space, potential, rcShort);
 
         potentialMasterList.addPotential(potentialTruncatedForceShifted, new AtomType[]{leafType, leafType});
-
-        integrator.setBox(box);
         integrator.setThermostat(ThermostatType.HYBRID_MC);
         integrator.setThermostatInterval(hybridInterval);
 

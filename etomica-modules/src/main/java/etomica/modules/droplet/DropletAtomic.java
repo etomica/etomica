@@ -50,47 +50,46 @@ public class DropletAtomic extends Simulation {
 
     public DropletAtomic(Space _space) {
         super(_space);
+        //construct box
+        box = new Box(new BoundaryRectangularPeriodic(space), space);
+        addBox(box);
         double pRange = 3;
         sigma = 3.35;
         nNominalAtoms = 32000;
         dropRadius = 0.4;
         xDropAxis = 1;
         density = 0.6;
-        
-        potentialMaster = new PotentialMasterList(this, sigma*pRange*1.5, space);
+
+        potentialMaster = new PotentialMasterList(this, sigma * pRange * 1.5, space);
 
         //controller and integrator
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, space, box);
-	    integrator.setTimeStep(0.005);
-	    integrator.setIsothermal(true);
-	    integrator.setThermostatInterval(5000);
+        integrator.setTimeStep(0.005);
+        integrator.setIsothermal(true);
+        integrator.setThermostatInterval(5000);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         integrator.setTemperature(Kelvin.UNIT.toSim(118));
 
-	    //species and potentials
-	    species = new SpeciesSpheresMono(space, Argon.INSTANCE);
-	    species.setIsDynamic(true);
+        //species and potentials
+        species = new SpeciesSpheresMono(space, Argon.INSTANCE);
+        species.setIsDynamic(true);
         addSpecies(species);
         AtomType leafType = species.getLeafType();
-        
+
         p2LJ = new P2LennardJones(space);
         p2LJ.setEpsilon(Kelvin.UNIT.toSim(118));
         p2LJ.setSigma(sigma);
-        p2LJt = new P2SoftSphericalTruncatedForceShifted(space, p2LJ, sigma*pRange);
+        p2LJt = new P2SoftSphericalTruncatedForceShifted(space, p2LJ, sigma * pRange);
         potentialMaster.addPotential(p2LJt, new AtomType[]{leafType, leafType});
 
         p1Smash = new P1Smash(space);
         p1Smash.setG(4);
         potentialMaster.addPotential(p1Smash, new AtomType[]{leafType});
 
-        //construct box
-	    box = new Box(new BoundaryRectangularPeriodic(space), space);
-        addBox(box);
-        integrator.setBox(box);
 
         makeDropShape();
-        
+
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
     }
 

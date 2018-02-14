@@ -109,7 +109,6 @@ public class HSMD3D extends Simulation {
         } else {
             new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
         }
-        integrator.setBox(box);
 
         if (params.useNeighborLists) {
             NeighborListManager nbrManager = ((PotentialMasterList) potentialMaster).getNeighborManager(box);

@@ -42,7 +42,6 @@ public class SimulationRheology extends Simulation {
         conformation.initializePositions(box.getMoleculeList().getMolecule(0).getChildList());
         integrator = new IntegratorPolymer(null, getRandom(), 0.01, 1.0, space, box);
         integrator.setB(1);
-        integrator.setBox(box);
         activityIntegrate = new ActivityIntegrate(integrator, 0, false);
         getController().addAction(activityIntegrate);
     }

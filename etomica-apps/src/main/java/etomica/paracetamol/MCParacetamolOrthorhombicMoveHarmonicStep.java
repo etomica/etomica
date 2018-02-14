@@ -298,8 +298,6 @@ public class MCParacetamolOrthorhombicMoveHarmonicStep extends Simulation {
 
         moveHarmonicStep.setCoordinateDefinition(coordDef);
 
-        integrator.setBox(box);
-
 
     } //end of constructor
 

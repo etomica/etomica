@@ -101,12 +101,12 @@ public class SimOverlapSsNxy extends Simulation {
         atomMove.setStepSizeMax(0.5);
         atomMove.setDoExcludeNonNeighbors(true);
         integratorTarget.getMoveManager().addMCMove(atomMove);
-        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
+        ((MCMoveStepTracker) atomMove.getTracker()).setNoisyAdjustment(true);
 
         integrators[1] = integratorTarget;
 
-        double L = Math.pow(4.0/density, 1.0/3.0);
-        int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
+        double L = Math.pow(4.0 / density, 1.0 / 3.0);
+        int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
 
         double[] edges = new double[]{shape[0] * L, shape[1] * L, shape[2] * L};
 
@@ -119,13 +119,13 @@ public class SimOverlapSsNxy extends Simulation {
         boxTarget.setBoundary(boundaryTarget);
 
         CoordinateDefinitionLeaf coordinateDefinitionTarget = new CoordinateDefinitionLeaf(boxTarget, primitive, basis, space);
-        coordinateDefinitionTarget.initializeCoordinates(new int[]{1,1,1});
+        coordinateDefinitionTarget.initializeCoordinates(new int[]{1, 1, 1});
 
         Potential2SoftSpherical potentialBase = new P2SoftSphere(space, 1.0, 1.0, exponent);
         double truncationRadius = tr;
 //        1.4803453945760225;
 //        if( numAtoms > 255) { truncationRadius = 2.2;}
-        System.out.println("truncation "+truncationRadius);
+        System.out.println("truncation " + truncationRadius);
         P2SoftSphericalTruncated potential = new P2SoftSphericalTruncated(space, potentialBase, truncationRadius);
 
         atomMove.setPotential(potential);
@@ -142,11 +142,9 @@ public class SimOverlapSsNxy extends Simulation {
 //        P1Constraint p1Constraint = new P1Constraint(space, primitiveUnitCell.getSize()[0], boxTarget, coordinateDefinitionTarget);
 //        potentialMasterTarget.addPotential(p1Constraint, new IAtomType[] {sphereType});
         potentialMasterTarget.lrcMaster().setEnabled(false);
-
-        integratorTarget.setBox(boxTarget);
         double neighborRange = truncationRadius;
-        ((PotentialMasterList)potentialMasterTarget).setRange(neighborRange);
-        ((PotentialMasterList)potentialMasterTarget).getNeighborManager(boxTarget).reset();
+        ((PotentialMasterList) potentialMasterTarget).setRange(neighborRange);
+        ((PotentialMasterList) potentialMasterTarget).getNeighborManager(boxTarget).reset();
 
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterTarget);
         meterPE.setBox(boxTarget);
@@ -168,9 +166,9 @@ public class SimOverlapSsNxy extends Simulation {
         boxHarmonic.setBoundary(boundaryHarmonic);
 
         CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new CoordinateDefinitionLeaf(boxHarmonic, primitive, basis, space);
-        coordinateDefinitionHarmonic.initializeCoordinates(new int[]{1,1,1});
+        coordinateDefinitionHarmonic.initializeCoordinates(new int[]{1, 1, 1});
 
-        String inFile = "inputSSDB_WV"+numAtoms;
+        String inFile = "inputSSDB_WV" + numAtoms;
         normalModes = new NormalModesFromFile(inFile, space.D());
         normalModes.setHarmonicFudge(harmonicFudge);
         /*
@@ -189,9 +187,7 @@ public class SimOverlapSsNxy extends Simulation {
 
         move.setBox(boxHarmonic);
 
-        integratorHarmonic.setBox(boxHarmonic);
-
-        ((PotentialMasterList)potentialMasterTarget).getNeighborManager(boxHarmonic).reset();
+        ((PotentialMasterList) potentialMasterTarget).getNeighborManager(boxHarmonic).reset();
 
         // OVERLAP
         integratorOverlap = new IntegratorOverlap(new IntegratorBox[]{integratorHarmonic, integratorTarget});

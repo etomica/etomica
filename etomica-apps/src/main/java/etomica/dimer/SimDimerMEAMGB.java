@@ -471,13 +471,12 @@ public class SimDimerMEAMGB extends Simulation{
         }
     }
 
-    public void enableMolecularDynamics(long maxSteps){
+    public void enableMolecularDynamics(long maxSteps) {
         integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, space, box);
         integratorMD.setTimeStep(0.001);
         integratorMD.setTemperature(Kelvin.UNIT.toSim(100));
         integratorMD.setThermostatInterval(100);
         integratorMD.setIsothermal(true);
-        integratorMD.setBox(box);
         //pcGB = new PotentialCalculationForcePressureSumGB(space, box);
         //integratorMD.setForceSum(pcGB);
         integratorMD.getEventManager().addListener(potentialMaster.getNeighborManager(box));
@@ -486,20 +485,19 @@ public class SimDimerMEAMGB extends Simulation{
         activityIntegrateMD.setMaxSteps(maxSteps);
     }
 
-    public void enableDimerSearch(String fileName, long maxSteps, Boolean orthoSearch, Boolean fine){
+    public void enableDimerSearch(String fileName, long maxSteps, Boolean orthoSearch, Boolean fine) {
 
         integratorDimer = new IntegratorDimerRT(this, potentialMasterD, new ISpecies[]{dimer}, space, box);
-        integratorDimer.setBox(box);
         integratorDimer.setOrtho(orthoSearch, false);
-        if(fine){
-            ConfigurationFile configFile = new ConfigurationFile(fileName+"_saddle");
+        if (fine) {
+            ConfigurationFile configFile = new ConfigurationFile(fileName + "_saddle");
             configFile.initializeCoordinates(box);
 
-            integratorDimer.setFileName(fileName+"_fine");
+            integratorDimer.setFileName(fileName + "_fine");
             integratorDimer.deltaR = 0.0005;
             integratorDimer.dXl = 10E-5;
             integratorDimer.deltaXmax = 0.005;
-            integratorDimer.dFsq = 0.0001*0.0001;
+            integratorDimer.dFsq = 0.0001 * 0.0001;
             integratorDimer.dFrot = 0.01;
         }
         integratorDimer.setFileName(fileName);
@@ -510,10 +508,9 @@ public class SimDimerMEAMGB extends Simulation{
         activityIntegrateDimer.setMaxSteps(maxSteps);
     }
 
-    public void enableMinimumSearch(String fileName, Boolean normalDir){
+    public void enableMinimumSearch(String fileName, Boolean normalDir) {
 
         integratorDimerMin = new IntegratorDimerMin(this, potentialMasterD, new ISpecies[]{dimer}, normalDir, space, box);
-        integratorDimerMin.setBox(box);
         integratorDimerMin.getEventManager().addListener(potentialMasterD.getNeighborManager(box));
         activityIntegrateMin = new ActivityIntegrate(integratorDimerMin);
         integratorDimerMin.setActivityIntegrate(activityIntegrateMin);

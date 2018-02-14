@@ -75,59 +75,58 @@ public class TestDifferentImage1DHRAdd extends Simulation {
     public TestDifferentImage1DHRAdd(Space _space, int numAtoms, double density, 
             int blocksize, int[] changeable) {
         super(_space);
-        
+
 //        long seed = 3;
 //        System.out.println("Seed explicitly set to " + seed);
 //        IRandom rand = new RandomNumberGenerator(seed);
 //        this.setRandom(rand);
-        
+
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
-        
+
         basis = new BasisMonatomic(space);
         box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
-       
+
         Potential2 potential = new P2HardSphere(space, 1.0, true);
-        potential = new P2XOrder(space, (Potential2HardSpherical)potential);
+        potential = new P2XOrder(space, (Potential2HardSpherical) potential);
         potential.setBox(box);
         potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
-        primitive = new PrimitiveCubic(space, 1.0/density);
-        bdry = new BoundaryRectangularPeriodic(space, numAtoms/density);
+        primitive = new PrimitiveCubic(space, 1.0 / density);
+        bdry = new BoundaryRectangularPeriodic(space, numAtoms / density);
         nCells = new int[]{numAtoms};
         box.setBoundary(bdry);
-        
+
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
         int coordinateDim = coordinateDefinition.getCoordinateDim();
 
-        double neighborRange = 1.01/density;
+        double neighborRange = 1.01 / density;
         potentialMaster.setRange(neighborRange);
         //find neighbors now.  Don't hook up NeighborListManager since the
         //  neighbors won't change
         potentialMaster.getNeighborManager(box).reset();
 
         integrator = new IntegratorMC(this, potentialMaster, box);
-        integrator.setBox(box);
-        
+
         nm = new NormalModes1DHR(box.getBoundary(), numAtoms);
         nm.setHarmonicFudge(1.0);
         nm.setTemperature(1.0);
         nm.getOmegaSquared();
         waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
-        
+
         mcMoveAtom = new MCMoveAtomCoupled(potentialMaster, new MeterPotentialEnergy(potentialMaster), random, space);
         mcMoveAtom.setPotential(potential);
         mcMoveAtom.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         mcMoveAtom.setStepSizeMin(0.001);
         mcMoveAtom.setStepSize(0.01);
-        
+
         mcMoveMode = new MCMoveChangeMultipleWV(potentialMaster, random);
         mcMoveMode.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveMode);
@@ -137,17 +136,17 @@ public class TestDifferentImage1DHRAdd extends Simulation {
         mcMoveMode.setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
         mcMoveMode.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
         mcMoveMode.addChangeableWV(changeable);
-        
+
         meterdi = new MeterDifferentImageAdd1D("MeterDI", /*potentialMaster,*/ numAtoms, density, this,
                 primitive, basis, coordinateDefinition, nm, 1.0);
-        
+
         accumulatorDI = new AccumulatorAverageFixed(blocksize);
         DataPump pumpFromMeter = new DataPump(meterdi, accumulatorDI);
-        
+
         IntegratorListenerAction pumpListener = new IntegratorListenerAction(pumpFromMeter);
         pumpListener.setInterval(blocksize);
         integrator.getEventManager().addListener(pumpListener);
-        
+
         activityIntegrate = new ActivityIntegrate(integrator, 0, true);
         getController().addAction(activityIntegrate);
     }

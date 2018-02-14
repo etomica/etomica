@@ -69,8 +69,8 @@ public class SimLJHTTISuperHCP extends Simulation {
         addBox(box);
         box.setNMolecules(species, numAtoms);
 
-        int n = (int)Math.round(Math.pow(numAtoms/8, 1.0/3.0));
-        if (8*n*n*n != numAtoms) {
+        int n = (int) Math.round(Math.pow(numAtoms / 8, 1.0 / 3.0));
+        if (8 * n * n * n != numAtoms) {
             throw new RuntimeException("Not compatible with HCP");
         }
         // V = nc
@@ -80,15 +80,15 @@ public class SimLJHTTISuperHCP extends Simulation {
         // v = sqrt(3)/2 a^3 coa
         // a = (2 v / (sqrt(3) coa))^(1/3)
         //   = (4 / (sqrt(3) rho coa))^(1/3)
-        double a = Math.pow(4/(Math.sqrt(3)*density*coa), 1.0/3.0);
-        double c = coa*a;  // sqrt(8/3)
+        double a = Math.pow(4 / (Math.sqrt(3) * density * coa), 1.0 / 3.0);
+        double c = coa * a;  // sqrt(8/3)
         Vector[] boxDim = new Vector[3];
-        boxDim[0] = space.makeVector(new double[]{2*n*a, 0, 0});
-        boxDim[1] = space.makeVector(new double[]{-2*n*a*Math.cos(Degree.UNIT.toSim(60)), 2*n*a*Math.sin(Degree.UNIT.toSim(60)), 0});
-        boxDim[2] = space.makeVector(new double[]{0, 0, n*c});
+        boxDim[0] = space.makeVector(new double[]{2 * n * a, 0, 0});
+        boxDim[1] = space.makeVector(new double[]{-2 * n * a * Math.cos(Degree.UNIT.toSim(60)), 2 * n * a * Math.sin(Degree.UNIT.toSim(60)), 0});
+        boxDim[2] = space.makeVector(new double[]{0, 0, n * c});
 
         primitive = new PrimitiveHexagonal(space, a, c);
-        nCells = new int[]{2*n,2*n,n};
+        nCells = new int[]{2 * n, 2 * n, n};
         boundary = new BoundaryDeformableLattice(primitive, nCells);
         boundary.setTruncationRadius(rc);
         basis = new BasisHcp();
@@ -98,7 +98,7 @@ public class SimLJHTTISuperHCP extends Simulation {
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
 
-        if (rc > 0.494*c*n) {
+        if (rc > 0.494 * c * n) {
             throw new RuntimeException("cutoff too big");
         }
 
@@ -130,16 +130,14 @@ public class SimLJHTTISuperHCP extends Simulation {
 
         potentialMaster.lrcMaster().setEnabled(false);
 
-        integrator.setBox(box);
-
         int cellRange = 7;
         potentialMaster.setRange(rc);
         potentialMaster.setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
         // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
         potentialMaster.getNeighborManager(box).reset();
         int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
-        if (potentialCells < cellRange*2+1) {
-            throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
+        if (potentialCells < cellRange * 2 + 1) {
+            throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
         }
 
         activityIntegrate = new ActivityIntegrate(integrator);
@@ -148,7 +146,7 @@ public class SimLJHTTISuperHCP extends Simulation {
 
         // extend potential range, so that atoms that move outside the truncation range will still interact
         // atoms that move in will not interact since they won't be neighbors
-        ((P2SoftSphericalTruncated)potential).setTruncationRadius(0.6*boundary.getBoxSize().getX(0));
+        ((P2SoftSphericalTruncated) potential).setTruncationRadius(0.6 * boundary.getBoxSize().getX(0));
     }
 
     /**

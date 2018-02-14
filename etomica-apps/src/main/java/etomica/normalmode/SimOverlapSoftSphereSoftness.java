@@ -72,7 +72,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
         super(_space);
 
         potentialMasterTarg = new PotentialMasterList(this, space);
-        potentialMasterRef  = new PotentialMasterList(this, space);
+        potentialMasterRef = new PotentialMasterList(this, space);
 
         integrators = new IntegratorBox[2];
         accumulatorPumps = new DataPump[2];
@@ -93,16 +93,16 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
         atomMoveTarg.setStepSizeMax(0.5);
         atomMoveTarg.setDoExcludeNonNeighbors(true);
         integratorTarg.getMoveManager().addMCMove(atomMoveTarg);
-        ((MCMoveStepTracker)atomMoveTarg.getTracker()).setNoisyAdjustment(false);
+        ((MCMoveStepTracker) atomMoveTarg.getTracker()).setNoisyAdjustment(false);
 
         integrators[1] = integratorTarg;
 
-        double L = Math.pow(4.0/density, 1.0/3.0);
-        int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-        primitive = new PrimitiveCubic(space, n*L);
+        double L = Math.pow(4.0 / density, 1.0 / 3.0);
+        int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+        primitive = new PrimitiveCubic(space, n * L);
         primitiveUnitCell = new PrimitiveCubic(space, L);
 
-        nCells = new int[]{n,n,n};
+        nCells = new int[]{n, n, n};
         boundaryTarg = new BoundaryRectangularPeriodic(space, n * L);
         Basis basisFCC = new BasisCubicFcc();
         basis = new BasisBigCell(space, basisFCC, nCells);
@@ -110,20 +110,20 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
         boxTarg.setBoundary(boundaryTarg);
 
         CoordinateDefinitionLeaf coordinateDefinitionTarg = new CoordinateDefinitionLeaf(boxTarg, primitive, basis, space);
-        coordinateDefinitionTarg.initializeCoordinates(new int[]{1,1,1});
+        coordinateDefinitionTarg.initializeCoordinates(new int[]{1, 1, 1});
 
         Potential2SoftSpherical potentialTarg = new P2SoftSphere(space, 1.0, 1.0, exponent[1]);
         double truncationRadius = 2.2;//boundaryTarg.getBoxSize().getX(0) * 0.495;
 
         System.out.println("Truncation Radius: " + truncationRadius);
 
-        if(potentialMasterTarg instanceof PotentialMasterList){
-			potentialTarg = new P2SoftSphericalTruncated(space, potentialTarg, truncationRadius);
+        if (potentialMasterTarg instanceof PotentialMasterList) {
+            potentialTarg = new P2SoftSphericalTruncated(space, potentialTarg, truncationRadius);
 
-		} else {
-			potentialTarg = new P2SoftSphericalTruncatedShifted(space, potentialTarg, truncationRadius);
+        } else {
+            potentialTarg = new P2SoftSphericalTruncatedShifted(space, potentialTarg, truncationRadius);
 
-		}
+        }
         atomMoveTarg.setPotential(potentialTarg);
         AtomType sphereType = species.getLeafType();
         potentialMasterTarg.addPotential(potentialTarg, new AtomType[]{sphereType, sphereType});
@@ -134,29 +134,26 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
          *
          */
 
-        P1ConstraintNbr p1ConstraintTarg = new P1ConstraintNbr(space, L/Math.sqrt(2.0));
+        P1ConstraintNbr p1ConstraintTarg = new P1ConstraintNbr(space, L / Math.sqrt(2.0));
         atomMoveTarg.setConstraint(p1ConstraintTarg);
         potentialMasterTarg.lrcMaster().setEnabled(false);
 
-        integratorTarg.setBox(boxTarg);
-
-		if (potentialMasterTarg instanceof PotentialMasterList) {
+        if (potentialMasterTarg instanceof PotentialMasterList) {
             double neighborRange = truncationRadius;
             int cellRange = 7;
-            ((PotentialMasterList)potentialMasterTarg).setRange(neighborRange);
-            ((PotentialMasterList)potentialMasterTarg).setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
+            ((PotentialMasterList) potentialMasterTarg).setRange(neighborRange);
+            ((PotentialMasterList) potentialMasterTarg).setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
             // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-            ((PotentialMasterList)potentialMasterTarg).getNeighborManager(boxTarg).reset();
-            int potentialCells = ((PotentialMasterList)potentialMasterTarg).getNbrCellManager(boxTarg).getLattice().getSize()[0];
-            if (potentialCells < cellRange*2+1) {
-                throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
+            ((PotentialMasterList) potentialMasterTarg).getNeighborManager(boxTarg).reset();
+            int potentialCells = ((PotentialMasterList) potentialMasterTarg).getNbrCellManager(boxTarg).getLattice().getSize()[0];
+            if (potentialCells < cellRange * 2 + 1) {
+                throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
             }
-            if (potentialCells > cellRange*2+1) {
-                System.out.println("could probably use a larger truncation radius ("+potentialCells+" > "+(cellRange*2+1)+")");
+            if (potentialCells > cellRange * 2 + 1) {
+                System.out.println("could probably use a larger truncation radius (" + potentialCells + " > " + (cellRange * 2 + 1) + ")");
             }
-            ((P2SoftSphericalTruncated)potentialTarg).setTruncationRadius(0.6*boundaryTarg.getBoxSize().getX(0));
-		}
-
+            ((P2SoftSphericalTruncated) potentialTarg).setTruncationRadius(0.6 * boundaryTarg.getBoxSize().getX(0));
+        }
 
 
         // Reference System
@@ -171,21 +168,21 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
         atomMoveRef.setStepSizeMax(0.5);
         atomMoveRef.setDoExcludeNonNeighbors(true);
         integratorRef.getMoveManager().addMCMove(atomMoveRef);
-        ((MCMoveStepTracker)atomMoveRef.getTracker()).setNoisyAdjustment(false);
+        ((MCMoveStepTracker) atomMoveRef.getTracker()).setNoisyAdjustment(false);
 
         integrators[0] = integratorRef;
 
         boxRef.setBoundary(boundaryTarg);
 
         CoordinateDefinitionLeaf coordinateDefinitionRef = new CoordinateDefinitionLeaf(boxRef, primitive, basis, space);
-        coordinateDefinitionRef.initializeCoordinates(new int[]{1,1,1});
+        coordinateDefinitionRef.initializeCoordinates(new int[]{1, 1, 1});
 
         Potential2SoftSpherical potentialRef = new P2SoftSphere(space, 1.0, 1.0, exponent[0]);
-     	if(potentialMasterRef instanceof PotentialMasterList){
-			potentialRef = new P2SoftSphericalTruncated(space, potentialRef, truncationRadius);
+        if (potentialMasterRef instanceof PotentialMasterList) {
+            potentialRef = new P2SoftSphericalTruncated(space, potentialRef, truncationRadius);
 
         } else {
-			potentialRef = new P2SoftSphericalTruncatedShifted(space, potentialRef, truncationRadius);
+            potentialRef = new P2SoftSphericalTruncatedShifted(space, potentialRef, truncationRadius);
 
         }
         atomMoveRef.setPotential(potentialRef);
@@ -197,39 +194,37 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
          *
          */
 
-        P1ConstraintNbr p1ConstraintRef = new P1ConstraintNbr(space, L/Math.sqrt(2.0));
+        P1ConstraintNbr p1ConstraintRef = new P1ConstraintNbr(space, L / Math.sqrt(2.0));
         //potentialMasterRef.addPotential(p1ConstraintRef, new IAtomType[] {sphereType});
         atomMoveRef.setConstraint(p1ConstraintRef);
         potentialMasterRef.lrcMaster().setEnabled(false);
 
-        integratorRef.setBox(boxRef);
-
-		if (potentialMasterRef instanceof PotentialMasterList) {
+        if (potentialMasterRef instanceof PotentialMasterList) {
             double neighborRange = truncationRadius;
             int cellRange = 7;
-            ((PotentialMasterList)potentialMasterRef).setRange(neighborRange);
-            ((PotentialMasterList)potentialMasterRef).setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
+            ((PotentialMasterList) potentialMasterRef).setRange(neighborRange);
+            ((PotentialMasterList) potentialMasterRef).setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
             // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-            ((PotentialMasterList)potentialMasterRef).getNeighborManager(boxRef).reset();
-            int potentialCells = ((PotentialMasterList)potentialMasterRef).getNbrCellManager(boxRef).getLattice().getSize()[0];
-            if (potentialCells < cellRange*2+1) {
-                throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
+            ((PotentialMasterList) potentialMasterRef).getNeighborManager(boxRef).reset();
+            int potentialCells = ((PotentialMasterList) potentialMasterRef).getNbrCellManager(boxRef).getLattice().getSize()[0];
+            if (potentialCells < cellRange * 2 + 1) {
+                throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
             }
-            if (potentialCells > cellRange*2+1) {
-                System.out.println("could probably use a larger truncation radius ("+potentialCells+" > "+(cellRange*2+1)+")");
+            if (potentialCells > cellRange * 2 + 1) {
+                System.out.println("could probably use a larger truncation radius (" + potentialCells + " > " + (cellRange * 2 + 1) + ")");
             }
-            ((P2SoftSphericalTruncated)potentialRef).setTruncationRadius(0.6*boundaryRef.getBoxSize().getX(0));
-		}
+            ((P2SoftSphericalTruncated) potentialRef).setTruncationRadius(0.6 * boundaryRef.getBoxSize().getX(0));
+        }
 
         MeterPotentialEnergy meterPETarg = new MeterPotentialEnergy(potentialMasterRef);
         meterPETarg.setBox(boxTarg);
         latticeEnergyTarg = meterPETarg.getDataAsScalar();
-        System.out.println("lattice energy/N (targ n="+exponent[1]+"): " + latticeEnergyTarg/numAtoms);
+        System.out.println("lattice energy/N (targ n=" + exponent[1] + "): " + latticeEnergyTarg / numAtoms);
 
         MeterPotentialEnergy meterPERef = new MeterPotentialEnergy(potentialMasterTarg);
         meterPERef.setBox(boxRef);
         latticeEnergyRef = meterPERef.getDataAsScalar();
-        System.out.println("lattice energy/N (ref n="+exponent[0]+"): " + latticeEnergyRef/numAtoms);
+        System.out.println("lattice energy/N (ref n=" + exponent[0] + "): " + latticeEnergyRef / numAtoms);
 
 
         // OVERLAP

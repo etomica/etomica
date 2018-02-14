@@ -385,22 +385,19 @@ public class IntegratorKMCCluster extends IntegratorBox{
         config.initializeCoordinates(box);
     }
     
-    public void createIntegrators(){
+    public void createIntegrators() {
         integratorMin1 = new IntegratorDimerMin(sim, potentialMaster, species, true, space, box);
         integratorMin2 = new IntegratorDimerMin(sim, potentialMaster, species, false, space, box);
-        
-        integratorMin1.setBox(box);
-        integratorMin2.setBox(box);
-        
-        if(potentialMaster instanceof PotentialMasterListDimer){
-            integratorMin2.getEventManager().addListener(((PotentialMasterList)potentialMaster).getNeighborManager(box)); 
+
+        if (potentialMaster instanceof PotentialMasterListDimer) {
+            integratorMin2.getEventManager().addListener(((PotentialMasterList) potentialMaster).getNeighborManager(box));
         }
-                
+
         xyzMin1 = new XYZWriter(box);
         xyzMin2 = new XYZWriter(box);
         xyzMin1.setIsAppend(true);
         xyzMin2.setIsAppend(true);
-        
+
         IntegratorListenerAction xyzMin1Listener = new IntegratorListenerAction(xyzMin1);
         xyzMin1Listener.setInterval(5);
         IntegratorListenerAction xyzMin2Listener = new IntegratorListenerAction(xyzMin2);
@@ -413,13 +410,13 @@ public class IntegratorKMCCluster extends IntegratorBox{
         imposePbc2Listener.setInterval(1);
         integratorMin1.getEventManager().addListener(imposePbc1Listener);
         integratorMin2.getEventManager().addListener(imposePbc2Listener);
-        
+
         //Limit MSD calculation to a specific species
         AtomIterator aif = new AtomIteratorLeafFilteredType(box, species[0].getAtomType(0));
         msd1 = new MeterMeanSquareDisplacement(space, integratorMin1);
         msd2 = new MeterMeanSquareDisplacement(space, integratorMin2);
-        msd1.setIterator((AtomIteratorBoxDependent)aif);
-        msd2.setIterator((AtomIteratorBoxDependent)aif);
+        msd1.setIterator((AtomIteratorBoxDependent) aif);
+        msd2.setIterator((AtomIteratorBoxDependent) aif);
     }
     
     

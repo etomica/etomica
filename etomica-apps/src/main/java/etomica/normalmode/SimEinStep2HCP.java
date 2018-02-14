@@ -75,20 +75,20 @@ public class SimEinStep2HCP extends Simulation {
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
 
-        int n = (int)Math.round(Math.pow(numAtoms/8, 1.0/3.0));
-        if (8*n*n*n != numAtoms) {
+        int n = (int) Math.round(Math.pow(numAtoms / 8, 1.0 / 3.0));
+        if (8 * n * n * n != numAtoms) {
             throw new RuntimeException("Not compatible with HCP");
         }
 
-        double a = Math.pow(4/(Math.sqrt(3)*density*coa), 1.0/3.0);
-        double c = coa*a;  // sqrt(8/3)
+        double a = Math.pow(4 / (Math.sqrt(3) * density * coa), 1.0 / 3.0);
+        double c = coa * a;  // sqrt(8/3)
         Vector[] boxDim = new Vector[3];
-        boxDim[0] = space.makeVector(new double[]{2*n*a, 0, 0});
-        boxDim[1] = space.makeVector(new double[]{-2*n*a*Math.cos(Degree.UNIT.toSim(60)), 2*n*a*Math.sin(Degree.UNIT.toSim(60)), 0});
-        boxDim[2] = space.makeVector(new double[]{0, 0, n*c});
+        boxDim[0] = space.makeVector(new double[]{2 * n * a, 0, 0});
+        boxDim[1] = space.makeVector(new double[]{-2 * n * a * Math.cos(Degree.UNIT.toSim(60)), 2 * n * a * Math.sin(Degree.UNIT.toSim(60)), 0});
+        boxDim[2] = space.makeVector(new double[]{0, 0, n * c});
 
         primitive = new PrimitiveHexagonal(space, a, c);
-        nCells = new int[]{2*n,2*n,n};
+        nCells = new int[]{2 * n, 2 * n, n};
         boundary = new BoundaryDeformableLattice(primitive, nCells);
         boundary.setTruncationRadius(rc);
         basis = new BasisHcp();
@@ -102,8 +102,7 @@ public class SimEinStep2HCP extends Simulation {
         Potential2SoftSpherical potential = null;
         if (exponent > 0) {
             potential = new P2SoftSphere(space, 1.0, 1.0, exponent);
-        }
-        else {
+        } else {
             potential = new P2LennardJones(space);
         }
         potential = new P2SoftSphericalTruncated(space, potential, rc);
@@ -113,16 +112,14 @@ public class SimEinStep2HCP extends Simulation {
 
         potentialMaster.lrcMaster().setEnabled(false);
 
-        integrator.setBox(box);
-
         int cellRange = 7;
         potentialMaster.setRange(rc);
         potentialMaster.setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
         // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
         potentialMaster.getNeighborManager(box).reset();
         int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
-        if (potentialCells < cellRange*2+1) {
-            throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
+        if (potentialCells < cellRange * 2 + 1) {
+            throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
         }
 
         final MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
@@ -132,7 +129,7 @@ public class SimEinStep2HCP extends Simulation {
 
         P1HarmonicSite p1Harmonic = new P1HarmonicSite(space);
         p1Harmonic.setSpringConstant(1);
-        p1Harmonic.setAtomAgentManager(box,coordinateDefinition.siteManager);
+        p1Harmonic.setAtomAgentManager(box, coordinateDefinition.siteManager);
         potentialMasterHarmonic = new PotentialMasterMonatomic(this);
         potentialMasterHarmonic.addPotential(p1Harmonic, new AtomType[]{sphereType, sphereType});
 
@@ -141,13 +138,12 @@ public class SimEinStep2HCP extends Simulation {
         meterPEComposite.setLambda(lambda);
         if (false) {
             atomMove = new MCMoveAtom(random, null, space, 0.1, 1, false, meterPEComposite);
-        }
-        else {
-            atomMove = new MCMoveAtomCoupled(potentialMaster, lambda==0 ? meterPE : meterPEComposite, getRandom(), space);
+        } else {
+            atomMove = new MCMoveAtomCoupled(potentialMaster, lambda == 0 ? meterPE : meterPEComposite, getRandom(), space);
             atomMove.setStepSize(0.1);
             atomMove.setStepSizeMax(0.5);
-            ((MCMoveAtomCoupled)atomMove).setPotential(potential);
-            ((MCMoveAtomCoupled)atomMove).setDoExcludeNonNeighbors(true);
+            ((MCMoveAtomCoupled) atomMove).setPotential(potential);
+            ((MCMoveAtomCoupled) atomMove).setDoExcludeNonNeighbors(true);
         }
         integrator.getMoveManager().addMCMove(atomMove);
 //        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
@@ -164,7 +160,7 @@ public class SimEinStep2HCP extends Simulation {
         // extend potential range, so that atoms that move outside the truncation range will still interact
         // atoms that move in will not interact since they won't be neighbors
         //XXX we don't want to do this because our potential is shifted!
-        ((P2SoftSphericalTruncated)potential).setTruncationRadius(0.6*boundary.getBoxSize().getX(0));
+        ((P2SoftSphericalTruncated) potential).setTruncationRadius(0.6 * boundary.getBoxSize().getX(0));
     }
 
     /**

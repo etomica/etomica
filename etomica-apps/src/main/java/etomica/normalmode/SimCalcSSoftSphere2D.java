@@ -67,7 +67,7 @@ public class SimCalcSSoftSphere2D extends Simulation {
         move.setStepSize(0.2);
         move.setStepSizeMax(0.5);
         integrator.getMoveManager().addMCMove(move);
-        ((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
+        ((MCMoveStepTracker) move.getTracker()).setNoisyAdjustment(true);
 
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
@@ -75,7 +75,7 @@ public class SimCalcSSoftSphere2D extends Simulation {
 
         primitive = new PrimitiveOrthorhombicHexagonal(space, 1);
         Vector[] dimension = space.makeVectorArray(2);
-        for(int i=0; i<space.D(); i++){
+        for (int i = 0; i < space.D(); i++) {
             dimension[i].Ea1Tv1(nCells[i], primitive.vectors()[i]);
         }
         boundary = new BoundaryDeformablePeriodic(space, dimension);
@@ -101,10 +101,8 @@ public class SimCalcSSoftSphere2D extends Simulation {
          * 1-body Potential to Constraint the atom from moving too far
          * 	away from its lattice-site
          */
-       P1Constraint p1Constraint = new P1Constraint(space, primitive.getSize()[0], box, coordinateDefinition);
+        P1Constraint p1Constraint = new P1Constraint(space, primitive.getSize()[0], box, coordinateDefinition);
         potentialMaster.addPotential(p1Constraint, new AtomType[]{sphereType});
-
-       integrator.setBox(box);
     }
 
     /**

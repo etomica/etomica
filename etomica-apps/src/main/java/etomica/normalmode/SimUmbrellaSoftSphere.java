@@ -134,8 +134,6 @@ public class SimUmbrellaSoftSphere extends Simulation {
         potentialMaster.addPotential(potential, new AtomType[]{sphereType, sphereType});
         potentialMaster.lrcMaster().setEnabled(false);
 
-        integrator.setBox(box);
-
         /*
          *  1-body Potential to Constraint the atom from moving too far
          *  	away from its lattice-site

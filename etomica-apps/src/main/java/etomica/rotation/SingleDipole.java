@@ -30,7 +30,7 @@ public class SingleDipole {
         SpeciesSpheresRotatingMolecule species = new SpeciesSpheresRotatingMolecule(sim, space);
         sim.addSpecies(species);
         box.setNMolecules(species, 1);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
+        box.getBoundary().setBoxSize(space.makeVector(new double[]{10, 10, 10}));
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeInterval = 0.002;
@@ -38,7 +38,6 @@ public class SingleDipole {
         IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim, potentialMaster, timeInterval, 1, space, box);
 //        integrator.printInterval = 10;
         integrator.setMaxIterations(maxIterations);
-        integrator.setBox(box);
         OrientationCalcAtom calcer = new OrientationCalcAtom();
         integrator.setOrientationCalc(species, calcer);
         integrator.setTemperature(1);
@@ -51,7 +50,7 @@ public class SingleDipole {
 
         ai.setSleepPeriod(10);
         SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1);
-        
+
         return graphic;
     }
     

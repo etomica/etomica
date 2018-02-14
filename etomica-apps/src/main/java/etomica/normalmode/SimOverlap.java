@@ -81,11 +81,10 @@ public class SimOverlap extends Simulation {
         addBox(boxTarget);
         boxTarget.setNMolecules(species, numAtoms);
 
-        integratorTarget = new IntegratorHard(this, potentialMasterTarget, space, box);
+        integratorTarget = new IntegratorHard(this, potentialMasterTarget, space, boxTarget);
         // needs to be irrational so that configurations don't repeat in 1D with 2 atoms
         integratorTarget.setTimeStep(Math.PI);
         integratorTarget.setTemperature(1.0);
-        integratorTarget.setBox(boxTarget);
 
         integratorTarget.setIsothermal(false);
         integrators[1] = integratorTarget;
@@ -93,15 +92,15 @@ public class SimOverlap extends Simulation {
         Potential2 p2 = new P2HardSphere(space, 1.0, false);
         if (space.D() == 1) {
             // don't need this for the target system, but we do need it for the reference
-            p2 = new P2XOrder(space, (Potential2HardSpherical)p2);
+            p2 = new P2XOrder(space, (Potential2HardSpherical) p2);
         }
         potentialMasterTarget.addPotential(p2, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
         if (space.D() == 1) {
-            primitive = new PrimitiveCubic(space, 1.0/density);
-            boundaryTarget = new BoundaryRectangularPeriodic(space, numAtoms/density);
+            primitive = new PrimitiveCubic(space, 1.0 / density);
+            boundaryTarget = new BoundaryRectangularPeriodic(space, numAtoms / density);
             double L = boundaryTarget.getBoxSize().getX(0);
-            if (L-(numAtoms-1) > 0.5*L) {
+            if (L - (numAtoms - 1) > 0.5 * L) {
                 // at low density, the empty space between two atoms can exceed half the box length
                 P1HardPeriodic p1h = new P1HardPeriodic(space);
                 p1h.setSigma(1.0);
@@ -110,31 +109,29 @@ public class SimOverlap extends Simulation {
             nCells = new int[]{numAtoms};
             basis = new BasisMonatomic(space);
         } else {
-            double L = Math.pow(4.0/density, 1.0/3.0);
-            int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-            nCells = new int[]{n,n,n};
+            double L = Math.pow(4.0 / density, 1.0 / 3.0);
+            int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+            nCells = new int[]{n, n, n};
             boundaryTarget = new BoundaryRectangularPeriodic(space, n * L);
             Basis basisFCC = new BasisCubicFcc();
             basis = new BasisBigCell(space, basisFCC, nCells);
-            primitive = new PrimitiveCubic(space, n*L);
+            primitive = new PrimitiveCubic(space, n * L);
         }
         boxTarget.setBoundary(boundaryTarget);
 
         CoordinateDefinitionLeaf coordinateDefinitionTarget = new CoordinateDefinitionLeaf(boxTarget, primitive, basis, space);
         if (space.D() == 1) {
             coordinateDefinitionTarget.initializeCoordinates(nCells);
-        }
-        else {
-            coordinateDefinitionTarget.initializeCoordinates(new int[]{1,1,1});
+        } else {
+            coordinateDefinitionTarget.initializeCoordinates(new int[]{1, 1, 1});
         }
 
         double neighborRange;
         if (space.D() == 1) {
             neighborRange = 1.01 / density;
-        }
-        else {
+        } else {
             //FCC
-            double L = Math.pow(4.01/density, 1.0/3.0);
+            double L = Math.pow(4.01 / density, 1.0 / 3.0);
             neighborRange = L / Math.sqrt(2.0);
         }
         potentialMasterTarget.setRange(neighborRange);
@@ -142,22 +139,19 @@ public class SimOverlap extends Simulation {
         potentialMasterTarget.getNeighborManager(boxTarget).setDoApplyPBC(false);
         potentialMasterTarget.getNeighborManager(boxTarget).reset();
 
-        integratorTarget.setBox(boxTarget);
-
         // HARMONIC
         if (space.D() == 1) {
-            boundaryHarmonic = new BoundaryRectangularPeriodic(space, numAtoms/density);
+            boundaryHarmonic = new BoundaryRectangularPeriodic(space, numAtoms / density);
         } else {
-            double L = Math.pow(4.0/density, 1.0/3.0);
-            int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
+            double L = Math.pow(4.0 / density, 1.0 / 3.0);
+            int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
             boundaryHarmonic = new BoundaryRectangularPeriodic(space, n * L);
         }
         boxHarmonic = new Box(boundaryHarmonic, space);
         addBox(boxHarmonic);
         boxHarmonic.setNMolecules(species, numAtoms);
 
-        IntegratorMC integratorHarmonic = new IntegratorMC(null, random, 1.0, box);
-        integratorHarmonic.setBox(boxHarmonic);
+        IntegratorMC integratorHarmonic = new IntegratorMC(null, random, 1.0, boxHarmonic);
 
         integrators[0] = integratorHarmonic;
 
@@ -165,9 +159,8 @@ public class SimOverlap extends Simulation {
         if (space.D() == 1) {
             coordinateDefinitionHarmonic.initializeCoordinates(nCells);
             normalModes = new NormalModes1DHR(boundaryTarget, numAtoms);
-        }
-        else {
-            coordinateDefinitionHarmonic.initializeCoordinates(new int[]{1,1,1});
+        } else {
+            coordinateDefinitionHarmonic.initializeCoordinates(new int[]{1, 1, 1});
             normalModes = new NormalModesFromFile(filename, space.D());
         }
 
@@ -188,8 +181,6 @@ public class SimOverlap extends Simulation {
         move.setBox(boxHarmonic);
 
         integratorHarmonic.getMoveManager().addMCMove(move);
-
-        integratorHarmonic.setBox(boxHarmonic);
 
         // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
         potentialMasterTarget.getNeighborManager(boxHarmonic).setDoApplyPBC(false);

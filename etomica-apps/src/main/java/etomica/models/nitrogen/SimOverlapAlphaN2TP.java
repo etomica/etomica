@@ -46,83 +46,82 @@ public class SimOverlapAlphaN2TP extends Simulation {
     public SimOverlapAlphaN2TP(Space space, int[] nC, double density, double temperature, double[] otherTemperatures,
     		double[] alpha, int numAlpha, double alphaSpan, long numSteps, double rcScale, double constraintAngle, boolean noRotScale) {
         super(space);
-        
-        int numMolecules = nC[0]*nC[1]*nC[2]*4;
-      	
-		double a = Math.pow(4.0/density, 1.0/3.0);
-		System.out.println("Unit Cell Length, a: " + a);
-        
-		Basis basisFCC = new BasisCubicFcc();
-		Basis basis = new BasisBigCell(space, basisFCC, new int[]{nC[0], nC[1], nC[2]});
-		
-		species = new SpeciesN2(space);
-		addSpecies(species);
 
-		box = new Box(space);
-		addBox(box);
-		box.setNMolecules(species, numMolecules);
-        
-		int[] nCells = new int[]{1,1,1};
-		double[] boxSize = new double[]{nC[0]*a, nC[1]*a, nC[2]*a};
-		Boundary boundary = new BoundaryRectangularPeriodic(space, boxSize);
-		primitive = new PrimitiveTetragonal(space, nC[0]*a, nC[2]*a);
-		
-		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
-		coordinateDef.setIsAlpha();
-		coordinateDef.setOrientationVectorAlpha(space);
-		coordinateDef.initializeCoordinates(nCells);
-		
+        int numMolecules = nC[0] * nC[1] * nC[2] * 4;
+
+        double a = Math.pow(4.0 / density, 1.0 / 3.0);
+        System.out.println("Unit Cell Length, a: " + a);
+
+        Basis basisFCC = new BasisCubicFcc();
+        Basis basis = new BasisBigCell(space, basisFCC, new int[]{nC[0], nC[1], nC[2]});
+
+        species = new SpeciesN2(space);
+        addSpecies(species);
+
+        box = new Box(space);
+        addBox(box);
+        box.setNMolecules(species, numMolecules);
+
+        int[] nCells = new int[]{1, 1, 1};
+        double[] boxSize = new double[]{nC[0] * a, nC[1] * a, nC[2] * a};
+        Boundary boundary = new BoundaryRectangularPeriodic(space, boxSize);
+        primitive = new PrimitiveTetragonal(space, nC[0] * a, nC[2] * a);
+
+        coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
+        coordinateDef.setIsAlpha();
+        coordinateDef.setOrientationVectorAlpha(space);
+        coordinateDef.initializeCoordinates(nCells);
+
         box.setBoundary(boundary);
-		double rC =box.getBoundary().getBoxSize().getX(0)*rcScale;
-		System.out.println("Truncation Radius (" + rcScale +" Box Length): " + rC);
-		potential = new P2Nitrogen(space, rC);
-		potential.setBox(box);
-	
-		pRotConstraint = new PRotConstraint(space,coordinateDef,box);
-		pRotConstraint.setConstraintAngle(constraintAngle);
-		
-		//potentialMaster = new PotentialMaster();
-		potentialMaster = new PotentialMasterListMolecular(this, space);
-		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
-		if(!noRotScale){
-			System.out.println("set constraint angle to = "+ constraintAngle);
-			potentialMaster.addPotential(pRotConstraint,new ISpecies[]{species} );
-		}
-		
-	    int cellRange = 6;
-        potentialMaster.setRange(rC);
-        potentialMaster.setCellRange(cellRange); 
-        potentialMaster.getNeighborManager(box).reset();
-        
-        int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
-        if (potentialCells < cellRange*2+1) {
-            throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
+        double rC = box.getBoundary().getBoxSize().getX(0) * rcScale;
+        System.out.println("Truncation Radius (" + rcScale + " Box Length): " + rC);
+        potential = new P2Nitrogen(space, rC);
+        potential.setBox(box);
+
+        pRotConstraint = new PRotConstraint(space, coordinateDef, box);
+        pRotConstraint.setConstraintAngle(constraintAngle);
+
+        //potentialMaster = new PotentialMaster();
+        potentialMaster = new PotentialMasterListMolecular(this, space);
+        potentialMaster.addPotential(potential, new ISpecies[]{species, species});
+        if (!noRotScale) {
+            System.out.println("set constraint angle to = " + constraintAngle);
+            potentialMaster.addPotential(pRotConstraint, new ISpecies[]{species});
         }
-	
+
+        int cellRange = 6;
+        potentialMaster.setRange(rC);
+        potentialMaster.setCellRange(cellRange);
+        potentialMaster.getNeighborManager(box).reset();
+
+        int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
+        if (potentialCells < cellRange * 2 + 1) {
+            throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
+        }
+
         int numNeigh = potentialMaster.getNeighborManager(box).getDownList(box.getMoleculeList().getMolecule(0))[0].getMoleculeCount();
         System.out.println("numNeigh: " + numNeigh);
 
-		MCMoveMoleculeCoupled move = new MCMoveMoleculeCoupled(potentialMaster,getRandom(),space);
-		move.setBox(box);
-		move.setPotential(potential);
-		move.setDoExcludeNonNeighbors(true);
-		
-		rotate = new MCMoveRotateMolecule3DN2AveCosThetaConstraint(potentialMaster, getRandom(), space, coordinateDef, 0.8);
-		rotate.setBox(box);
+        MCMoveMoleculeCoupled move = new MCMoveMoleculeCoupled(potentialMaster, getRandom(), space);
+        move.setBox(box);
+        move.setPotential(potential);
+        move.setDoExcludeNonNeighbors(true);
+
+        rotate = new MCMoveRotateMolecule3DN2AveCosThetaConstraint(potentialMaster, getRandom(), space, coordinateDef, 0.8);
+        rotate.setBox(box);
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), Kelvin.UNIT.toSim(temperature), box);
-		integrator.getMoveManager().addMCMove(move);
-		integrator.getMoveManager().addMCMove(rotate);
-		integrator.setBox(box);
-		
-	   	potential.setRange(Double.POSITIVE_INFINITY);
-		
+        integrator.getMoveManager().addMCMove(move);
+        integrator.getMoveManager().addMCMove(rotate);
+
+        potential.setRange(Double.POSITIVE_INFINITY);
+
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
         latticeEnergy = meterPE.getDataAsScalar();
-        System.out.println("lattice energy per molecule (sim unit): " + latticeEnergy/numMolecules);
-		
-     	potential.setRange(rC);
+        System.out.println("lattice energy per molecule (sim unit): " + latticeEnergy / numMolecules);
+
+        potential.setRange(rC);
         meter = new MeterTargetTPMolecule(potentialMaster, species, space, this);
         meter.setCoordinateDefinition(coordinateDef);
         meter.setLatticeEnergy(latticeEnergy);
@@ -131,30 +130,29 @@ public class SimOverlapAlphaN2TP extends Simulation {
         meter.setAlpha(alpha);
         meter.setAlphaSpan(alphaSpan);
         meter.setNumAlpha(numAlpha);
-     	potential.setRange(Double.POSITIVE_INFINITY);
-     	
-     	if(noRotScale){
-     		System.out.println("**** NOT SCALING THE ROTATION!");
-     		meter.setBetaPhase(true);
-     	}
-     	
+        potential.setRange(Double.POSITIVE_INFINITY);
+
+        if (noRotScale) {
+            System.out.println("**** NOT SCALING THE ROTATION!");
+            meter.setBetaPhase(true);
+        }
+
         int numBlocks = 100;
         int interval = numMolecules;
-        long blockSize = numSteps/(numBlocks*interval);
+        long blockSize = numSteps / (numBlocks * interval);
         if (blockSize == 0) blockSize = 1;
-        System.out.println("block size "+blockSize+" interval "+interval);
+        System.out.println("block size " + blockSize + " interval " + interval);
         if (otherTemperatures.length > 1) {
             accumulator = new AccumulatorAverageCovariance(blockSize);
-        }
-        else {
+        } else {
             accumulator = new AccumulatorAverageFixed(blockSize);
         }
         accumulatorPump = new DataPumpListener(meter, accumulator, interval);
         integrator.getEventManager().addListener(accumulatorPump);
-       
+
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
-     
+
     }
     
     public void initialize(long initSteps) {

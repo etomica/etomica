@@ -81,7 +81,6 @@ public class Insertion extends Simulation {
         box.setNMolecules(species, N);
         new ConfigurationLattice(space.D() == 3 ? new LatticeCubicFcc(space) : new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
         box.setNMolecules(speciesGhost, 1);
-        integrator.setBox(box);
 
         integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
     }

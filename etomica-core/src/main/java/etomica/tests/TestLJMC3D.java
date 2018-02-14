@@ -78,7 +78,6 @@ public class TestLJMC3D extends Simulation {
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
 
         config.initializeCoordinates(box);
-        integrator.setBox(box);
         potentialMaster.getNbrCellManager(box).assignCellAll();
 //        WriteConfiguration writeConfig = new WriteConfiguration("LJMC3D"+Integer.toString(numAtoms),box,1);
 //        integrator.addListener(writeConfig);

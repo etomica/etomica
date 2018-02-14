@@ -77,17 +77,17 @@ public class SimHSMDVacancy extends Simulation {
         addBox(box);
         box.setNMolecules(species, numAtoms);
 
-        double L = Math.pow(4.0/density, 1.0/3.0);
-        int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-        PrimitiveCubic primitive = new PrimitiveCubic(space, n*L);
-        int[] nCells = new int[]{n,n,n};
+        double L = Math.pow(4.0 / density, 1.0 / 3.0);
+        int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+        PrimitiveCubic primitive = new PrimitiveCubic(space, n * L);
+        int[] nCells = new int[]{n, n, n};
         Boundary boundary = new BoundaryRectangularPeriodic(space, n * L);
         Basis basisFCC = new BasisCubicFcc();
         BasisBigCell basis = new BasisBigCell(space, basisFCC, nCells);
-        
+
         box.setBoundary(boundary);
 
-        
+
         double nbrRange = 1.7;
         potentialMasterList = new PotentialMasterList(this, nbrRange, space);
         potentialMasterList.setCellRange(2);
@@ -99,32 +99,30 @@ public class SimHSMDVacancy extends Simulation {
         integrator.setThermostatNoDrift(true);
         ai = new ActivityIntegrate(integrator);
         getController().addAction(ai);
-        
+
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
-        
-        if (nbrRange > 0.5*box.getBoundary().getBoxSize().getX(0)) {
+
+        if (nbrRange > 0.5 * box.getBoundary().getBoxSize().getX(0)) {
             throw new RuntimeException("rcShort is too large");
         }
 
-        double nbr1 = L/Math.sqrt(2);
-        double y = 1.25*nbr1; //nbr1+(L-nbr1)*0.6+0.06;
+        double nbr1 = L / Math.sqrt(2);
+        double y = 1.25 * nbr1; //nbr1+(L-nbr1)*0.6+0.06;
 
         potential = new P2HardSphere(space, y, false);
         AtomType leafType = species.getLeafType();
 
         potentialMasterList.addPotential(potential, new AtomType[]{leafType, leafType});
-
-        integrator.setBox(box);
         integrator.setThermostat(ThermostatType.HYBRID_MC);
         integrator.setThermostatInterval(hybridInterval);
-        
+
         CoordinateDefinitionLeaf coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
-        coordinateDefinition.initializeCoordinates(new int[]{1,1,1});
+        coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
         // we just needed this to initial coordinates, to keep track of lattice positions of atoms
         coordinateDefinition = null;
-        
+
         integrator.getEventManager().addListener(potentialMasterList.getNeighborManager(box));
         //potentialMasterList.reset();
 
@@ -136,7 +134,7 @@ public class SimHSMDVacancy extends Simulation {
         mcMoveID = new MCMoveInsertDeleteLatticeVacancy(potentialMasterList, random, space, integrator, y, numAtoms, numV);
 //        integrator.setMCMoveID(mcMoveID);
 //        integratorMC.getMoveEventManager().addListener(integrator);
-        double x = (nbr1-1)/4.0;
+        double x = (nbr1 - 1) / 4.0;
         mcMoveID.setMaxInsertDistance(x);
         mcMoveID.makeFccVectors(nbr1);
         mcMoveID.setMu(mu);

@@ -62,18 +62,18 @@ public class SimCalcSSoftSphereFCCSuperBox extends Simulation {
 
         box = new Box(space);
         addBox(box);
-        box.setNMolecules(speciesA, numAtoms/8);
-        box.setNMolecules(speciesB, numAtoms*7/8);
+        box.setNMolecules(speciesA, numAtoms / 8);
+        box.setNMolecules(speciesB, numAtoms * 7 / 8);
         if (space.D() == 1) {
-            primitive = new PrimitiveCubic(space, 1.0/density);
-            boundary = new BoundaryRectangularPeriodic(space, numAtoms/density);
+            primitive = new PrimitiveCubic(space, 1.0 / density);
+            boundary = new BoundaryRectangularPeriodic(space, numAtoms / density);
             nCells = new int[]{numAtoms};
             basis = new BasisMonatomic(space);
         } else {
-            double L = Math.pow(4.0/density, 1.0/3.0);
+            double L = Math.pow(4.0 / density, 1.0 / 3.0);
             primitive = new PrimitiveCubic(space, L);
-            int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-            nCells = new int[]{n,n,n};
+            int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+            nCells = new int[]{n, n, n};
             boundary = new BoundaryRectangularPeriodic(space, n * L);
             basis = new BasisCubicFcc();
         }
@@ -82,7 +82,7 @@ public class SimCalcSSoftSphereFCCSuperBox extends Simulation {
         Potential2SoftSpherical potentialAB = new P2SoftSphere(space, 1.0, 0.5, exponent);
         //Potential2SoftSpherical potentialABafter = new P2SoftSphere(space, 1.0, 1.0, exponent);
 
-        double truncationRadius = boundary.getBoxSize().getX(0)* 0.495;
+        double truncationRadius = boundary.getBoxSize().getX(0) * 0.495;
         pTruncatedAA = new P2SoftSphericalTruncatedShifted(space, potentialAA, truncationRadius);
         pTruncatedAB = new P2SoftSphericalTruncatedShifted(space, potentialAB, truncationRadius);
         //pTruncatedABafter = new P2SoftSphericalTruncatedShifted(space, potentialABafter, truncationRadius);
@@ -104,7 +104,7 @@ public class SimCalcSSoftSphereFCCSuperBox extends Simulation {
         move.setStepSize(0.2);
         move.setStepSizeMax(0.5);
         integrator.getMoveManager().addMCMove(move);
-        ((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
+        ((MCMoveStepTracker) move.getTracker()).setNoisyAdjustment(true);
 
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
@@ -117,10 +117,8 @@ public class SimCalcSSoftSphereFCCSuperBox extends Simulation {
          * 1-body Potential to Constraint the atom from moving too far
          * 	away from its lattice-site
          */
-       P1Constraint p1Constraint = new P1Constraint(space, primitive.getSize()[0], box, coordinateDefinition);
+        P1Constraint p1Constraint = new P1Constraint(space, primitive.getSize()[0], box, coordinateDefinition);
         potentialMaster.addPotential(p1Constraint, new AtomType[]{sphereTypeA});
-
-       integrator.setBox(box);
     }
 
     /**

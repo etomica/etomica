@@ -191,7 +191,6 @@ public class MCParacetamolOrthorhombicDLMULTI extends Simulation {
             //potentialDLPOLY.setConfigDLPOLY(configDLPOLY);
             potentialMaster.addPotential(potentialDLPOLY, new ISpecies[0]);
         }
-        integrator.setBox(box);
 
     } //end of constructor
     

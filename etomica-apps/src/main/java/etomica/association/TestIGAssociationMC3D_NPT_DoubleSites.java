@@ -150,7 +150,6 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         config.initializeCoordinates(box);
         associationManagerOriented.initialize();
-        integrator.setBox(box);
         potentialMaster.getNbrCellManager(box).assignCellAll();
         potentialMaster.getNbrCellManager(box).setDoApplyPBC(true);
     }

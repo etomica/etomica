@@ -307,17 +307,13 @@ public class IntegratorKMC extends IntegratorBox{
         config.initializeCoordinates(box);
     }
 
-    public void createIntegrators(){
+    public void createIntegrators() {
         integratorMin1 = new IntegratorDimerMin(sim, potentialMaster, species, true, space, box);
         integratorMin2 = new IntegratorDimerMin(sim, potentialMaster, species, false, space, box);
         integratorDimer = new IntegratorDimerRT(sim, potentialMaster, species, space, box);
-        
-        integratorMin1.setBox(box);
-        integratorMin2.setBox(box);
-        integratorDimer.setBox(box);
         integratorDimer.setRotNum(0);
         integratorDimer.setOrtho(false, false);
-                
+
         xyzfile = new XYZWriter(box);
         xyzfile.setIsAppend(true);
         xyzfile.setFileName("kmc-lj-3.xyz");

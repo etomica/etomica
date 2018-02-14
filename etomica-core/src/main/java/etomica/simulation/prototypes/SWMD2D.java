@@ -55,8 +55,6 @@ public class SWMD2D extends Simulation {
         potential = new P2SquareWell(space);
         potential.setCoreDiameter(sigma);
         potentialMaster.addPotential(potential, new AtomType[]{leafType, leafType});
-
-        integrator.setBox(box);
         integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
     }
 }

@@ -56,15 +56,15 @@ public class SimIdealGas extends Simulation {
         box.setNMolecules(species, numAtoms);
         Vector l = space.makeVector();
         l.E(10);
-        for (int i=0; i<=offsetDim; i++) {
-            l.setX(i,20);
+        for (int i = 0; i <= offsetDim; i++) {
+            l.setX(i, 20);
         }
         box.getBoundary().setBoxSize(l);
 
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
-        
+
         potentialMasterCell = new PotentialMasterCell(this, 3, space);
         potentialMasterCell.setCellRange(2);
         double sigma = 1.0;
@@ -75,7 +75,7 @@ public class SimIdealGas extends Simulation {
         getController().addAction(ai);
 
         Vector offset = space.makeVector();
-        offset.setX(offsetDim, box.getBoundary().getBoxSize().getX(offsetDim)*0.5);
+        offset.setX(offsetDim, box.getBoundary().getBoxSize().getX(offsetDim) * 0.5);
         p1ImageHarmonic = new P1ImageHarmonic(space, offset, w, false);
         AtomType leafType = species.getLeafType();
         potentialMasterCell.addPotential(p1ImageHarmonic, new AtomType[]{leafType});
@@ -92,18 +92,16 @@ public class SimIdealGas extends Simulation {
         if (boxLength.getX(1) < lMin) lMin = boxLength.getX(1);
         if (boxLength.getX(2) < lMin) lMin = boxLength.getX(2);
         double ww = w / lMin;
-        double swapDistance = 5*Math.sqrt(1.5*temperature/ww);
-        if (swapDistance > lMin/4) swapDistance = lMin/4;
+        double swapDistance = 5 * Math.sqrt(1.5 * temperature / ww);
+        if (swapDistance > lMin / 4) swapDistance = lMin / 4;
         if (swapDistance < 1) swapDistance = 1;
         mcMoveSwap = new MCMoveAtomSwap(random, potentialMasterCell, space, p1ImageHarmonic);
         mcMoveSwap.setNbrDistance(swapDistance);
         integrator.getMoveManager().addMCMove(mcMoveSwap);
-        integrator.getMoveManager().setFrequency(mcMoveSwap,5);
-
-        integrator.setBox(box);
+        integrator.getMoveManager().setFrequency(mcMoveSwap, 5);
 
         integrator.getMoveEventManager().addListener(potentialMasterCell.getNbrCellManager(box).makeMCMoveListener());
-		
+
         ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         configuration.initializeCoordinates(box);
         potentialMasterCell.getNbrCellManager(box).assignCellAll();

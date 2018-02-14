@@ -43,15 +43,14 @@ public class SingleWaterMatrix {
         SpeciesWater3POriented species = new SpeciesWater3POriented(sim.getSpace(), true);
         sim.addSpecies(species);
         box.setNMolecules(species, 1);
-        box.setDensity(0.01/18.0*Constants.AVOGADRO/1E24);
+        box.setDensity(0.01 / 18.0 * Constants.AVOGADRO / 1E24);
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeInterval = 0.0008;
         int maxIterations = 20;
-        final IntegratorRigidMatrixIterative integrator = new IntegratorRigidMatrixIterative(sim, potentialMaster, timeInterval, 1, space, );
+        final IntegratorRigidMatrixIterative integrator = new IntegratorRigidMatrixIterative(sim, potentialMaster, timeInterval, 1, space, box);
         integrator.printInterval = 0;
         integrator.setMaxIterations(maxIterations);
-        integrator.setBox(box);
         OrientationCalcWater3P calcer = new OrientationCalcWater3P(sim.getSpace());
 //        integrator.setOrientAtom((IAtomPositioned)((IMolecule)box.getMoleculeList(speciesOrient).getAtom(0)).getChildList().getAtom(0));
         integrator.setOrientationCalc(species, calcer);
@@ -76,44 +75,41 @@ public class SingleWaterMatrix {
             if (isWriting) {
                 try {
                     fileWriter = new FileWriter("matrixA00166.out");
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
                 bufReader = null;
-            }
-            else {
+            } else {
                 fileWriter = null;
                 String infile = "matrixA00166.out";
                 try {
                     fileReader = new FileReader(infile);
-                }catch(IOException e) {
-                    throw new RuntimeException("Cannot open "+infile+", caught IOException: " + e.getMessage());
+                } catch (IOException e) {
+                    throw new RuntimeException("Cannot open " + infile + ", caught IOException: " + e.getMessage());
                 }
                 bufReader = new BufferedReader(fileReader);
             }
-            
+
             IAction writeA = new IAction() {
                 public void actionPerformed() {
-                    MoleculeOriented molecule = (MoleculeOriented)box.getMoleculeList().getMolecule(0);
-                    A.setOrientation((IOrientationFull3D)molecule.getOrientation());
+                    MoleculeOriented molecule = (MoleculeOriented) box.getMoleculeList().getMolecule(0);
+                    A.setOrientation((IOrientationFull3D) molecule.getOrientation());
                     try {
                         if (isWriting) {
-                            fileWriter.write(integrator.getCurrentTime()+" ");
-                            for (int i=0; i<3; i++) {
-                                for (int j=0; j<3 ;j++) {
-                                    fileWriter.write(A.component(i,j)+" ");
+                            fileWriter.write(integrator.getCurrentTime() + " ");
+                            for (int i = 0; i < 3; i++) {
+                                for (int j = 0; j < 3; j++) {
+                                    fileWriter.write(A.component(i, j) + " ");
                                 }
                             }
                             fileWriter.write("\n");
-                        }
-                        else {
+                        } else {
                             String line = bufReader.readLine();
                             String[] componentsStr = line.split(" +");
                             int k = 1;
-                            for (int i=0; i<3; i++) {
-                                for (int j=0; j<3; j++) {
-                                    Aex.setComponent(i,j,Double.parseDouble(componentsStr[k]));
+                            for (int i = 0; i < 3; i++) {
+                                for (int j = 0; j < 3; j++) {
+                                    Aex.setComponent(i, j, Double.parseDouble(componentsStr[k]));
                                     k++;
                                 }
                             }
@@ -121,31 +117,30 @@ public class SingleWaterMatrix {
                             Aex.E(A);
                             Aex.transpose();
                             A.TE(Aex);
-                            double err = A.trace()/6.0;
+                            double err = A.trace() / 6.0;
                             sum += err;
                             n++;
-                            System.out.println(integrator.getCurrentTime()+" "+Math.sqrt(sum/n));
+                            System.out.println(integrator.getCurrentTime() + " " + Math.sqrt(sum / n));
                         }
-                    }
-                    catch (IOException e) {
+                    } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
                 }
+
                 double sum = 0;
                 int n = 0;
-                RotationTensor3D A = (RotationTensor3D)space.makeRotationTensor();
-                RotationTensor3D Aex = (RotationTensor3D)space.makeRotationTensor();
+                RotationTensor3D A = (RotationTensor3D) space.makeRotationTensor();
+                RotationTensor3D Aex = (RotationTensor3D) space.makeRotationTensor();
             };
             IntegratorListenerAction writeAListener = new IntegratorListenerAction(writeA);
             writeAListener.setInterval(100);
             integrator.getEventManager().addListener(writeAListener);
             sim.getController().actionPerformed();
-        }
-        else {
+        } else {
             ai.setSleepPeriod(10);
             SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1);
-            ((ColorSchemeByType)graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
-            ((ColorSchemeByType)graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);
+            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
+            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);
             return graphic;
         }
         return null;

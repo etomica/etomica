@@ -55,23 +55,23 @@ public class SimCalcS extends Simulation {
         Potential potential = new P2HardSphere(space, 1.0, false);
         AtomType sphereType = species.getLeafType();
         potentialMaster.addPotential(potential, new AtomType[]{sphereType,
-                sphereType });
+                sphereType});
 
         int n;
         Basis basis;
         if (space.D() == 1) {
-            primitive = new PrimitiveCubic(space, 1.0/density);
+            primitive = new PrimitiveCubic(space, 1.0 / density);
             n = numAtoms;
-            bdry = new BoundaryRectangularPeriodic(space, numAtoms/density);
+            bdry = new BoundaryRectangularPeriodic(space, numAtoms / density);
             ((IntegratorHard) integrator).setNullPotential(new P1HardPeriodic(space), sphereType);
             basis = new BasisMonatomic(space);
         } else {
             primitive = new PrimitiveCubic(space, 1);
             double v = primitive.unitCell().getVolume();
-            primitive.scaleSize(Math.pow(v*density/4,-1.0/3.0));
-            n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-            int [] nCells = new int[]{n,n,n};
-            bdry = new BoundaryDeformableLattice(primitive, new int[]{n,n,n});
+            primitive.scaleSize(Math.pow(v * density / 4, -1.0 / 3.0));
+            n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+            int[] nCells = new int[]{n, n, n};
+            bdry = new BoundaryDeformableLattice(primitive, new int[]{n, n, n});
             Basis basisFCC = new BasisCubicFcc();
             basis = new BasisBigCell(space, basisFCC, nCells);
             primitive.scaleSize(n);
@@ -82,13 +82,10 @@ public class SimCalcS extends Simulation {
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         if (space.D() == 1) {
             coordinateDefinition.initializeCoordinates(new int[]{n});
-        }
-        else {
+        } else {
 
             coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
         }
-
-        integrator.setBox(box);
     }
 
     /**

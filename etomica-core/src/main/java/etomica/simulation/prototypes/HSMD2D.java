@@ -85,7 +85,6 @@ public class HSMD2D extends Simulation {
         bi.actionPerformed();
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
-        integrator.setBox(box);
     }
 
     /**
