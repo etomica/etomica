@@ -97,7 +97,7 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
         meters = new IDataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
 
-        integrators[1] = new IntegratorMC(potentialMaster, getRandom(), temperature);
+        integrators[1] = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
         double nbrDistance = 0;
         if (slanty) {
             int c = (int)Math.round(Math.pow(numAtoms, 1.0/3.0));
@@ -187,7 +187,7 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
         addBox(boxRef);
         boxRef.setNMolecules(species, numAtoms);
 
-        IntegratorMC integratorRef = new IntegratorMC(null, random, 1.0); //null changed on 11/20/2009
+        IntegratorMC integratorRef = new IntegratorMC(null, random, 1.0, boxRef); //null changed on 11/20/2009
 
         MCMoveHarmonicEin move = new MCMoveHarmonicEin(getRandom());
         move.setAlphaEin(spring);

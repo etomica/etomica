@@ -77,7 +77,7 @@ public class RenderMD extends Simulation {
     }
     
     public RenderMD(Space _space, RenderMDParam params) {
-        
+
         // invoke the superclass constructor
         // "true" is indicating to the superclass that this is a dynamic simulation
         // the PotentialMaster is selected such as to implement neighbor listing
@@ -85,11 +85,12 @@ public class RenderMD extends Simulation {
         setRandom(new RandomNumberGenerator(2));
 
         potentialMaster = new PotentialMasterList(this, 1, space);
-        
+
         parser = new ParseObj(params.file);
 
         int numAtoms = parser.nAtoms;
-        integrator = new IntegratorHard(this, potentialMaster, space);
+        box = new Box(space);
+        integrator = new IntegratorHard(this, potentialMaster, space, box);
         integrator.setTemperature(params.temperature);
         integrator.setIsothermal(true);
         integrator.setTimeStep(params.timeStep);
@@ -101,13 +102,11 @@ public class RenderMD extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
         addSpecies(species);
-        
-        box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
 
         potentialBonded = new P2PenetrableCar(space, parser, box);
-        
+
         potentialBonded.setEpsilonCore(params.epsilonCore);
         potentialBonded.setEpsilon(params.epsilon);
         potentialBonded.setLambda(params.lambda);
@@ -115,18 +114,18 @@ public class RenderMD extends Simulation {
         AtomType leafType = species.getLeafType();
 
         potentialMaster.addPotential(potentialBonded, new AtomType[]{leafType, leafType});
-        
+
         IAtomList leafList = box.getLeafList();
-        for (int iLeaf=0; iLeaf<numAtoms; iLeaf++) {
+        for (int iLeaf = 0; iLeaf < numAtoms; iLeaf++) {
             IAtom a = leafList.getAtom(iLeaf);
             Vector pos = a.getPosition();
             pos.E(parser.vertices.get(iLeaf));
         }
-        
+
         criterion = new CriterionCar(parser, box);
         potentialMaster.setCriterion(potentialBonded, criterion);
         integrator.setThermostat(params.thermostatType);
-        
+
 //        int bondSum = 0;
 //        int bondMax = 0;
 //        int bondMin = 0;
@@ -144,10 +143,10 @@ public class RenderMD extends Simulation {
         imposepbc.setBox(box);
         integrator.getEventManager().addListener(new IntegratorListenerAction(imposepbc));
 
-        double vNew = box.getMoleculeList().getMoleculeCount()/params.density;
-        double scale = Math.pow(vNew/box.getBoundary().volume(), 1.0/3.0);
+        double vNew = box.getMoleculeList().getMoleculeCount() / params.density;
+        double scale = Math.pow(vNew / box.getBoundary().volume(), 1.0 / 3.0);
 
-        if(params.initCar) {
+        if (params.initCar) {
             Vector3D dimVector = new Vector3D();
             dimVector.E(box.getBoundary().getBoxSize());
             dimVector.TE(scale);
@@ -158,8 +157,8 @@ public class RenderMD extends Simulation {
             inflater.actionPerformed();
             new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
         }
-        potentialMaster.setRange(box.getBoundary().getBoxSize().getX(0)*0.49);
-        
+        potentialMaster.setRange(box.getBoundary().getBoxSize().getX(0) * 0.49);
+
         // find neighbors now.  don't try to update later (neighbors never change)
         potentialMaster.getNeighborManager(box).reset();
     }

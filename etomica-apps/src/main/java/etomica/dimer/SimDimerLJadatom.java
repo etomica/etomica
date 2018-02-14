@@ -215,13 +215,12 @@ public class SimDimerLJadatom extends Simulation{
         }
     }
 
-    public void enableMolecularDynamics(long maxSteps){
-        integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, space);
+    public void enableMolecularDynamics(long maxSteps) {
+        integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, space, box);
         integratorMD.setTimeStep(0.01);
         integratorMD.setTemperature(0.1);
         integratorMD.setThermostatInterval(100);
         integratorMD.setIsothermal(true);
-        integratorMD.setBox(box);
         activityIntegrateMD = new ActivityIntegrate(integratorMD);
         BoxImposePbc imposePbc = new BoxImposePbc(box, space);
         integratorMD.getEventManager().addListener(new IntegratorListenerAction(imposePbc));
@@ -229,24 +228,23 @@ public class SimDimerLJadatom extends Simulation{
         activityIntegrateMD.setMaxSteps(maxSteps);
     }
 
-    public void enableDimerSearch(String fileName, long maxSteps, Boolean orthoSearch, Boolean fine){
+    public void enableDimerSearch(String fileName, long maxSteps, Boolean orthoSearch, Boolean fine) {
 
-        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{movable}, space);
-        integratorDimer.setBox(box);
+        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{movable}, space, box);
         integratorDimer.setOrtho(orthoSearch, false);
-        if(fine){
-            ConfigurationFile configFile = new ConfigurationFile(fileName+"_saddle");
+        if (fine) {
+            ConfigurationFile configFile = new ConfigurationFile(fileName + "_saddle");
             configFile.initializeCoordinates(box);
 
-            integratorDimer.setFileName(fileName+"_fine");
+            integratorDimer.setFileName(fileName + "_fine");
             integratorDimer.deltaR = 0.0005;
             integratorDimer.dXl = 10E-5;
             integratorDimer.deltaXmax = 0.005;
-            integratorDimer.dFsq = 0.0001*0.0001;
+            integratorDimer.dFsq = 0.0001 * 0.0001;
             integratorDimer.dFrot = 0.01;
         }
         integratorDimer.setFileName(fileName);
-       activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
+        activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
         integratorDimer.setActivityIntegrate(activityIntegrateDimer);
         getController().addAction(activityIntegrateDimer);
         activityIntegrateDimer.setMaxSteps(maxSteps);
@@ -254,7 +252,7 @@ public class SimDimerLJadatom extends Simulation{
 
     public void enableMinimumSearch(String fileName, Boolean normalDir){
 
-        integratorDimerMin = new IntegratorDimerMin(this, potentialMaster, new ISpecies[]{movable}, normalDir, space);
+        integratorDimerMin = new IntegratorDimerMin(this, potentialMaster, new ISpecies[]{movable}, normalDir, space, box);
         integratorDimerMin.setBox(box);
         integratorDimerMin.setFileName(fileName);
         activityIntegrateMin = new ActivityIntegrate(integratorDimerMin);

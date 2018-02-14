@@ -95,7 +95,7 @@ public class SimOverlapSsNxy extends Simulation {
         addBox(boxTarget);
         boxTarget.setNMolecules(species, numAtoms);
 
-        IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget, getRandom(), temperature);
+        IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget, getRandom(), temperature, boxTarget);
         atomMove = new MCMoveAtomCoupled(potentialMasterTarget, new MeterPotentialEnergy(potentialMasterTarget), getRandom(), space);
         atomMove.setStepSize(0.1);
         atomMove.setStepSizeMax(0.5);
@@ -159,7 +159,7 @@ public class SimOverlapSsNxy extends Simulation {
         addBox(boxHarmonic);
         boxHarmonic.setNMolecules(species, numAtoms);
 
-        IntegratorMC integratorHarmonic = new IntegratorMC(null, random, 1.0); //null changed on 11/20/2009
+        IntegratorMC integratorHarmonic = new IntegratorMC(null, random, 1.0, boxHarmonic); //null changed on 11/20/2009
 
         move = new MCMoveHarmonic(getRandom());
         integratorHarmonic.getMoveManager().addMCMove(move);

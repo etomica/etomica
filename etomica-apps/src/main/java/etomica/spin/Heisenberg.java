@@ -63,7 +63,7 @@ public class Heisenberg extends Simulation {
 
         potential = new P2Spin(space);
         field = new P1MagneticField(space);
-        integrator = new IntegratorMC(this, potentialMaster);
+        integrator = new IntegratorMC(this, potentialMaster, box);
         mcmove = new MCMoveSpinFlip(potentialMaster, getRandom());
         integrator.getMoveManager().addMCMove(mcmove);
 

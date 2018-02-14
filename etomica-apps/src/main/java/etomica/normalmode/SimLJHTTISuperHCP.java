@@ -106,7 +106,7 @@ public class SimLJHTTISuperHCP extends Simulation {
         BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, this);
         potentialMaster = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc, space), space);
 
-        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
+        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
         atomMove = new MCMoveAtomCoupled(potentialMaster, meterPE, getRandom(), space);

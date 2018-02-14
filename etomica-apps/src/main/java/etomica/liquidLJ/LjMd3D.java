@@ -67,10 +67,11 @@ public class LjMd3D extends Simulation {
 
     public LjMd3D(int numAtoms, double temperature, double density, double pressure, double tStep, double rcShort, double rcLong, int hybridInterval, IFunction vBias, boolean ss) {
         super(Space3D.getInstance());
-        double nbrRange = rcShort*1.6;
+        double nbrRange = rcShort * 1.6;
         potentialMasterList = new PotentialMasterList(this, nbrRange, space);
         potentialMasterList.setCellRange(2);
-        integrator = new IntegratorVelocityVerlet(this, potentialMasterList, space);
+        box = new Box(space);
+        integrator = new IntegratorVelocityVerlet(this, potentialMasterList, space, box);
         integrator.setTimeStep(tStep);
         integrator.setIsothermal(true);
         integrator.setTemperature(temperature);
@@ -79,19 +80,18 @@ public class LjMd3D extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
         addSpecies(species);
-        box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
 
-        double L = Math.pow(numAtoms/density, 1.0/3.0);
-        if (nbrRange > 0.5*L) {
-            if (rcShort > 0.4*L) {
+        double L = Math.pow(numAtoms / density, 1.0 / 3.0);
+        if (nbrRange > 0.5 * L) {
+            if (rcShort > 0.4 * L) {
                 throw new RuntimeException("rcShort is too large");
             }
-            nbrRange = 0.495*L;
+            nbrRange = 0.495 * L;
             potentialMasterList.setRange(nbrRange);
         }
-        
+
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
@@ -107,32 +107,32 @@ public class LjMd3D extends Simulation {
         integrator.setThermostatInterval(hybridInterval);
 
         integrator.getEventManager().addListener(potentialMasterList.getNeighborManager(box));
-		
+
         ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         configuration.initializeCoordinates(box);
-        
-        double rc = rcLong > 0 ? rcLong : 0.495*box.getBoundary().getBoxSize().getX(0);
-        while (rc >= 0.5*box.getBoundary().getBoxSize().getX(0)) {
+
+        double rc = rcLong > 0 ? rcLong : 0.495 * box.getBoundary().getBoxSize().getX(0);
+        while (rc >= 0.5 * box.getBoundary().getBoxSize().getX(0)) {
             rc -= 0.5;
-            System.out.println("long rc => "+rc);
+            System.out.println("long rc => " + rc);
             //throw new RuntimeException("rc must be less than half the box");
         }
         if (rcLong <= 0) {
-            System.out.println("long rc: "+rc);
+            System.out.println("long rc: " + rc);
         }
 //        potentialMasterCell = new PotentialMasterCell(this, rc, space);
         potentialMasterLong = new PotentialMasterMonatomic(this);
-        
+
         P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(space, potential, rc);
 
         potentialMasterLong.addPotential(potentialTruncated, new AtomType[]{leafType, leafType});
-        
+
         potentialMasterLongCut = new PotentialMasterMonatomic(this);
 
         potentialMasterLongCut.addPotential(potential, new AtomType[]{leafType, leafType});
-        
+
         if (!Double.isNaN(pressure)) {
-            integratorMC = new IntegratorMC(potentialMasterList, random, temperature);
+            integratorMC = new IntegratorMC(potentialMasterList, random, temperature, box);
             mcMoveVolume = new MCMoveVolume(potentialMasterList, random, space, pressure);
             mcMoveVolume.setVolumeBias(vBias);
             integratorMC.getMoveManager().addMCMove(mcMoveVolume);

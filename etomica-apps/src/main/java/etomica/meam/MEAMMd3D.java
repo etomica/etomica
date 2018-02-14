@@ -76,7 +76,8 @@ public class MEAMMd3D extends Simulation {
     public MEAMMd3D() {
         super(Space3D.getInstance()); //INSTANCE); kmb change 8/3/05
         potentialMaster = new PotentialMasterList(this, space);
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
+        box = new Box(space);
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space, box);
         integrator.setTimeStep(0.001);
         integrator.setTemperature(Kelvin.UNIT.toSim(295));
         integrator.setThermostatInterval(100);
@@ -94,8 +95,6 @@ public class MEAMMd3D extends Simulation {
         addSpecies(sn);
         addSpecies(ag);
         addSpecies(cu);
-
-        box = new Box(space);
         addBox(box);
         box.setNMolecules(sn, 0);
         box.setNMolecules(ag, 256);
@@ -103,46 +102,46 @@ public class MEAMMd3D extends Simulation {
 
         // beta-Sn box
         /**
-        //The dimensions of the simulation box must be proportional to those of
+         //The dimensions of the simulation box must be proportional to those of
          //the unit cell to prevent distortion of the lattice.  The values for the
          //lattice parameters for tin's beta box (a = 5.8314 angstroms, c = 3.1815
          //angstroms) are taken from the ASM Handbook.
-        box.setDimensions(new Vector3D(5.8314*3, 5.8314*3, 3.1815*6));
-        PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.8318, 3.1819);
-        //Alternatively, using the parameters calculated in Ravelo & Baskes (1997)
-        //box.setDimensions(new Vector3D(5.92*3, 5.92*3, 3.23*6));
-        //PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.92, 3.23);
-        LatticeCrystal crystal = new LatticeCrystal(new Crystal(
-        		primitive, new BasisBetaSnA5(primitive)));
-		*/
+         box.setDimensions(new Vector3D(5.8314*3, 5.8314*3, 3.1815*6));
+         PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.8318, 3.1819);
+         //Alternatively, using the parameters calculated in Ravelo & Baskes (1997)
+         //box.setDimensions(new Vector3D(5.92*3, 5.92*3, 3.23*6));
+         //PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.92, 3.23);
+         LatticeCrystal crystal = new LatticeCrystal(new Crystal(
+         primitive, new BasisBetaSnA5(primitive)));
+         */
 
         //FCC Cu
-		/**
-	    box.setDimensions(new Vector3D(3.6148*4, 3.6148*4, 3.6148*4));
-	    PrimitiveCubic primitive = new PrimitiveCubic(space, 3.6148);
-	    LatticeCrystal crystal = new LatticeCrystal(new Crystal(
-		        primitive, new BasisCubicFcc(primitive)));
-	    */
+        /**
+         box.setDimensions(new Vector3D(3.6148*4, 3.6148*4, 3.6148*4));
+         PrimitiveCubic primitive = new PrimitiveCubic(space, 3.6148);
+         LatticeCrystal crystal = new LatticeCrystal(new Crystal(
+         primitive, new BasisCubicFcc(primitive)));
+         */
 
         //FCC Ag
 
-        box.getBoundary().setBoxSize(new Vector3D(4.0863*4, 4.0863*4, 4.0863*4));
-	    PrimitiveCubic primitive = new PrimitiveCubic(space, 4.0863);
-	    BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisCubicFcc());
+        box.getBoundary().setBoxSize(new Vector3D(4.0863 * 4, 4.0863 * 4, 4.0863 * 4));
+        PrimitiveCubic primitive = new PrimitiveCubic(space, 4.0863);
+        BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisCubicFcc());
 
 
         Configuration config = new ConfigurationLattice(crystal, space);
-		config.initializeCoordinates(box);
+        config.initializeCoordinates(box);
 
         potentialN = new PotentialMEAM(space);
-		potentialN.setParameters(sn.getLeafType(), ParameterSetMEAM.Sn);
-		potentialN.setParameters(ag.getLeafType(), ParameterSetMEAM.Ag);
-		potentialN.setParameters(cu.getLeafType(), ParameterSetMEAM.Cu);
-		potentialN.setParametersIMC(cu.getLeafType(), ParameterSetMEAM.Cu3Sn);
-		potentialN.setParametersIMC(ag.getLeafType(), ParameterSetMEAM.Ag3Sn);
+        potentialN.setParameters(sn.getLeafType(), ParameterSetMEAM.Sn);
+        potentialN.setParameters(ag.getLeafType(), ParameterSetMEAM.Ag);
+        potentialN.setParameters(cu.getLeafType(), ParameterSetMEAM.Cu);
+        potentialN.setParametersIMC(cu.getLeafType(), ParameterSetMEAM.Cu3Sn);
+        potentialN.setParametersIMC(ag.getLeafType(), ParameterSetMEAM.Ag3Sn);
         this.potentialMaster.addPotential(potentialN, new AtomType[]{sn.getLeafType(), ag.getLeafType(), cu.getLeafType()});
-        potentialMaster.setRange(potentialN.getRange()*1.1);
-        potentialMaster.setCriterion(potentialN, new CriterionSimple(this, space, potentialN.getRange(), potentialN.getRange()*1.1));
+        potentialMaster.setRange(potentialN.getRange() * 1.1);
+        potentialMaster.setCriterion(potentialN, new CriterionSimple(this, space, potentialN.getRange(), potentialN.getRange() * 1.1));
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
 
         integrator.setBox(box);
@@ -156,7 +155,7 @@ public class MEAMMd3D extends Simulation {
         // Control simulation lengths
         //activityIntegrate.setMaxSteps(500);
 
-		energy = new MeterEnergy(potentialMaster, box);
+        energy = new MeterEnergy(potentialMaster, box);
     }
 
     public static void main(String[] args) {

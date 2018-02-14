@@ -86,17 +86,15 @@ public class VLESim extends Simulation {
 //        ((P2SoftSphericalTruncatedBox)potential).setTruncationFactor(0.35);
         potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
-        integratorLiquid = new IntegratorMC(potentialMaster, random, temperature);
+        integratorLiquid = new IntegratorMC(potentialMaster, random, temperature, boxLiquid);
         integratorLiquid.getMoveManager().setEquilibrating(true);
-        integratorLiquid.setBox(boxLiquid);
         MCMoveAtom atomMove = new MCMoveAtom(random, potentialMaster, space, 0.5, 5.0, true);
         integratorLiquid.getMoveManager().addMCMove(atomMove);
         MCMoveRotate rotateMove = new MCMoveRotate(potentialMaster, random, space);
         integratorLiquid.getMoveManager().addMCMove(rotateMove);
 //        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
 
-        integratorVapor = new IntegratorMC(potentialMaster, random, temperature);
-        integratorVapor.setBox(boxVapor);
+        integratorVapor = new IntegratorMC(potentialMaster, random, temperature, boxVapor);
         integratorVapor.getMoveManager().setEquilibrating(true);
         atomMove = new MCMoveAtom(random, potentialMaster, space, 0.5, 5.0, true);
         integratorVapor.getMoveManager().addMCMove(atomMove);

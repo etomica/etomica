@@ -55,27 +55,28 @@ public class InterfacialSW extends Simulation {
         int N = 643;  //number of atoms
 
         //controller and integrator
-	    integrator = new IntegratorHard(this, potentialMaster, space);
-	    if (space.D() == 2) {
-	        integrator.setTemperature(0.4);
-	        N = 300;
-	    }
-	    integrator.setIsothermal(true);
+        box = new Box(space);
+        integrator = new IntegratorHard(this, potentialMaster, space, box);
+        if (space.D() == 2) {
+            integrator.setTemperature(0.4);
+            N = 300;
+        }
+        integrator.setIsothermal(true);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         integrator.setTimeStep(0.01);
 
-	    //species and potentials
-	    species = new SpeciesSpheresMono(this, space);
-	    species.setIsDynamic(true);
+        //species and potentials
+        species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
         addSpecies(species);
         surfactant = new SpeciesSpheresHetero(this, space, 2);
         surfactant.setIsDynamic(true);
-        surfactant.setChildCount(new int[]{1,1});
+        surfactant.setChildCount(new int[]{1, 1});
         surfactant.setTotalChildren(2);
-        ((ConformationLinear)surfactant.getConformation()).setBondLength(0.9);
+        ((ConformationLinear) surfactant.getConformation()).setBondLength(0.9);
         addSpecies(surfactant);
         leafType = species.getLeafType();
         headType = surfactant.getAtomType(0); // head likes the monatomic species
@@ -95,31 +96,27 @@ public class InterfacialSW extends Simulation {
         potentialMaster.addPotential(p2Tail, new AtomType[]{leafType, tailType});
         p2HeadTail = new P2HardSphere(space, 1.0, true);
         potentialMaster.addPotential(p2HeadTail, new AtomType[]{headType, tailType});
-        
+
         p2Bond = new P2HardBond(space, 0.8, 0.2, true);
         PotentialGroup p1Surfactant = potentialMaster.makePotentialGroup(1);
         p1Surfactant.addPotential(p2Bond, ApiBuilder.makeAdjacentPairIterator());
         potentialMaster.addPotential(p1Surfactant, new ISpecies[]{surfactant});
 
         //construct box
-	    box = new Box(space);
         addBox(box);
         Vector dim = space.makeVector();
         if (space.D() == 2) {
-            dim.E(new double[]{30,15});
-        }
-        else {
-            dim.E(new double[]{12,10,10});
+            dim.E(new double[]{30, 15});
+        } else {
+            dim.E(new double[]{12, 10, 10});
         }
         box.getBoundary().setBoxSize(dim);
         box.setNMolecules(species, N);
         if (space.D() == 2) {
             new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
-        }
-        else {
+        } else {
             new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
         }
-        integrator.setBox(box);
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
     }
     

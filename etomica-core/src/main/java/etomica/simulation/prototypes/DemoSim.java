@@ -38,8 +38,9 @@ public class DemoSim extends Simulation {
 
     public DemoSim() {
         super(Space3D.getInstance());
+        Box box = new Box(space);
         potentialMaster = new PotentialMasterMonatomic(this);
-        IntegratorMC integrator = new IntegratorMC(this, potentialMaster);
+        IntegratorMC integrator = new IntegratorMC(this, potentialMaster, box);
         integrator.setTemperature(1);
 
 
@@ -51,7 +52,6 @@ public class DemoSim extends Simulation {
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         //species2 = new SpeciesSpheresMono(this);
         addSpecies(species);
-        Box box = new Box(space);
         addBox(box);
         box.setNMolecules(species, 108);
         BoxInflate inflater = new BoxInflate(box, space);

@@ -77,7 +77,7 @@ public class SimEinStep1 extends Simulation {
         addBox(box);
         box.setNMolecules(species, numAtoms);
 
-        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
+        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
 
         if (slanty) {
             int c = (int)Math.round(Math.pow(numAtoms, 1.0/3.0));

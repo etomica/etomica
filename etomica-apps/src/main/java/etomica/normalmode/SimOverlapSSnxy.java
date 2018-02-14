@@ -129,7 +129,7 @@ public class SimOverlapSSnxy extends Simulation {
         coordinateDefinitionTarget.initializeCoordinates(shape);
 
         IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget, 
-                getRandom(), temperature);
+                getRandom(), temperature, boxTarget);
         integratorTarget.setBox(boxTarget);
         integrators[1] = integratorTarget;
         
@@ -152,7 +152,7 @@ public class SimOverlapSSnxy extends Simulation {
         addBox(boxHarmonic);
         boxHarmonic.setNMolecules(species, numAtoms);
 
-        IntegratorMC integratorHarmonic = new IntegratorMC(null, random, 1.0); 
+        IntegratorMC integratorHarmonic = new IntegratorMC(null, random, 1.0, boxHarmonic);
         move = new MCMoveHarmonic(getRandom());
         integratorHarmonic.getMoveManager().addMCMove(move);
         integrators[0] = integratorHarmonic;

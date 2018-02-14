@@ -64,7 +64,7 @@ public class LjMC3D extends Simulation {
         potentialMasterCell = new PotentialMasterCell(this, rcShort, space);
         potentialMasterCell.setCellRange(2);
         double sigma = 1.0;
-        integrator = new IntegratorMC(this, potentialMasterCell);
+        integrator = new IntegratorMC(this, potentialMasterCell, box);
         integrator.setTemperature(temperature);
         mcMoveAtom = new MCMoveAtom(random, potentialMasterCell, space);
         integrator.getMoveManager().addMCMove(mcMoveAtom);

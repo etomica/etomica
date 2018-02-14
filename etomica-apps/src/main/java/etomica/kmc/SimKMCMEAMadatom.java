@@ -328,14 +328,14 @@ public class SimKMCMEAMadatom extends Simulation{
     }
     
     public void integratorKMC(){
-        integratorKMC = new IntegratorKMC(this, potentialMasterD, 273.15, this.getRandom(), new ISpecies[]{movable}, this.getSpace());
+        integratorKMC = new IntegratorKMC(this, potentialMasterD, 273.15, this.getRandom(), new ISpecies[]{movable}, this.getSpace(), box);
         integratorKMC.setBox(box);
         activityIntegrateKMC = new ActivityIntegrate(integratorKMC);
         getController().addAction(activityIntegrateKMC);
     }
     
     public void integratorKMCCluster(double temp, int steps, int totalSearch){
-        integratorKMCCluster = new IntegratorKMCCluster(this, potentialMasterD, temp, totalSearch, this.getRandom(), new ISpecies[]{movable}, this.getSpace());
+        integratorKMCCluster = new IntegratorKMCCluster(this, potentialMasterD, temp, totalSearch, this.getRandom(), new ISpecies[]{movable}, this.getSpace(), box);
         integratorKMCCluster.setBox(box);
         activityIntegrateKMCCluster = new ActivityIntegrate(integratorKMCCluster);
         activityIntegrateKMCCluster.setMaxSteps(steps);
@@ -344,7 +344,7 @@ public class SimKMCMEAMadatom extends Simulation{
     
 public void enableDimerSearch(String fileName, long maxSteps){
 
-    integratorDimer = new IntegratorDimerRT(this, potentialMasterD, new ISpecies[]{movable}, space);
+    integratorDimer = new IntegratorDimerRT(this, potentialMasterD, new ISpecies[]{movable}, space, box);
         integratorDimer.setBox(box);
         integratorDimer.setOrtho(false, false);
         integratorDimer.setFileName(fileName);

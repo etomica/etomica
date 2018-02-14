@@ -46,37 +46,36 @@ public class MappedVirialLJVGr extends Simulation {
         super(_space);
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, rc, space);
         potentialMaster.lrcMaster().setEnabled(false);
-        
+
         //controller and integrator
-	    integrator = new IntegratorMC(potentialMaster, random, temperature);
+        box = new Box(space);
+        integrator = new IntegratorMC(potentialMaster, random, temperature, box);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         move = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(move);
 
-	    //species and potentials
-	    species = new SpeciesSpheresMono(this, space);
+        //species and potentials
+        species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
-        
-	    P2LennardJones potential = new P2LennardJones(space);
+
+        P2LennardJones potential = new P2LennardJones(space);
         p2Truncated = new P2SoftSphericalTruncated(space, potential, rc);
         potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
         //construct box
-	    box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
-        
+
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
-        
+
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
-        integrator.setBox(box);
         potentialMaster.setCellRange(2);
-        
+
         potentialMaster.getNbrCellManager(box).assignCellAll();
-        
+
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
     }
     

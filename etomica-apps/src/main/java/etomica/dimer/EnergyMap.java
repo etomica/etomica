@@ -50,13 +50,13 @@ public class EnergyMap extends Simulation{
 
     
     public EnergyMap(double height, String fileTail) {
-    	super(Space3D.getInstance());
-    	
-    	potentialMaster = new PotentialMaster();
-        
-    	// Sn
+        super(Space3D.getInstance());
+
+        potentialMaster = new PotentialMaster();
+
+        // Sn
         Tin tinFixed = new Tin("SnFix", Double.POSITIVE_INFINITY);
-        
+
         snFix = new SpeciesSpheresMono(space, tinFixed);
         snFix.setIsDynamic(true);
         sn = new SpeciesSpheresMono(space, Tin.INSTANCE);
@@ -65,39 +65,39 @@ public class EnergyMap extends Simulation{
         snAdatom.setIsDynamic(true);
         movable = new SpeciesSpheresMono(space, Tin.INSTANCE);
         movable.setIsDynamic(true);
-        
+
         addSpecies(snFix);
         addSpecies(sn);
         addSpecies(snAdatom);
         addSpecies(movable);
-        
+
         /**
-        // Cu
-        Copper copperFixed = new Copper("CuFix", Double.POSITIVE_INFINITY);
-        
-        cuFix = new SpeciesSpheresMono(this, copperFixed);
-        cu = new SpeciesSpheresMono(this, Copper.INSTANCE);
-        cuAdatom = new SpeciesSpheresMono(this, Copper.INSTANCE);
-        movable = new SpeciesSpheresMono(this, Copper.INSTANCE);
-        
-        getSpeciesManager().addSpecies(cuFix);
-        getSpeciesManager().addSpecies(cu);
-        getSpeciesManager().addSpecies(cuAdatom);
-        getSpeciesManager().addSpecies(movable);
-        
+         // Cu
+         Copper copperFixed = new Copper("CuFix", Double.POSITIVE_INFINITY);
+
+         cuFix = new SpeciesSpheresMono(this, copperFixed);
+         cu = new SpeciesSpheresMono(this, Copper.INSTANCE);
+         cuAdatom = new SpeciesSpheresMono(this, Copper.INSTANCE);
+         movable = new SpeciesSpheresMono(this, Copper.INSTANCE);
+
+         getSpeciesManager().addSpecies(cuFix);
+         getSpeciesManager().addSpecies(cu);
+         getSpeciesManager().addSpecies(cuAdatom);
+         getSpeciesManager().addSpecies(movable);
+
          */
-        
+
         box = new Box(new BoundaryRectangularSlit(0, 5, space), space);
         addBox(box);
-            	
-		// Sn
+
+        // Sn
         box.setNMolecules(snFix, 72);
         box.setNMolecules(sn, 144);
         box.setNMolecules(snAdatom, 0);
-        
+
         potential = new PotentialMEAM(space);
-        
-    	potential.setParameters(snFix.getLeafType(), ParameterSetMEAM.Sn);
+
+        potential.setParameters(snFix.getLeafType(), ParameterSetMEAM.Sn);
         potential.setParameters(sn.getLeafType(), ParameterSetMEAM.Sn);
         potential.setParameters(snAdatom.getLeafType(), ParameterSetMEAM.Sn);
         potential.setParameters(movable.getLeafType(), ParameterSetMEAM.Sn);
@@ -105,38 +105,38 @@ public class EnergyMap extends Simulation{
         this.potentialMaster.addPotential(potential, new AtomType[]{sn.getLeafType(), snFix.getLeafType(), snAdatom.getLeafType(), movable.getLeafType()});
 
         /**
-        // Cu
-        box.setNMolecules(cuFix, 64);
-        box.setNMolecules(cu, 128);
-        box.setNMolecules(cuAdatom, 0);
-        
-        potential = new PotentialMEAM(space);
-        
-        potential.setParameters(cuFix, ParameterSetMEAM.Cu);
-        potential.setParameters(cu, ParameterSetMEAM.Cu);
-        potential.setParameters(cuAdatom, ParameterSetMEAM.Cu);
-        potential.setParameters(movable, ParameterSetMEAM.Cu);
-        
-        this.potentialMaster.addPotential(potential, new Species[]{cu, cuFix, cuAdatom, movable});
-        */
-    	
+         // Cu
+         box.setNMolecules(cuFix, 64);
+         box.setNMolecules(cu, 128);
+         box.setNMolecules(cuAdatom, 0);
+
+         potential = new PotentialMEAM(space);
+
+         potential.setParameters(cuFix, ParameterSetMEAM.Cu);
+         potential.setParameters(cu, ParameterSetMEAM.Cu);
+         potential.setParameters(cuAdatom, ParameterSetMEAM.Cu);
+         potential.setParameters(movable, ParameterSetMEAM.Cu);
+
+         this.potentialMaster.addPotential(potential, new Species[]{cu, cuFix, cuAdatom, movable});
+         */
+
         // Sn box
-     
-        box.getBoundary().setBoxSize(new Vector3D(5.8314*3, 5.8314*3, 3.1815*6));
+
+        box.getBoundary().setBoxSize(new Vector3D(5.8314 * 3, 5.8314 * 3, 3.1815 * 6));
         PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.8318, 3.1819);
         BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisBetaSnA5());
-        
+
         /**
-        // Cu box
-        box.setDimensions(new Vector3D(3.6148*3, 3.6148*4, 3.6148*4));
-        PrimitiveCubic primitive = new PrimitiveCubic(space, 3.6148);
-        BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisCubicFcc());
+         // Cu box
+         box.setDimensions(new Vector3D(3.6148*3, 3.6148*4, 3.6148*4));
+         PrimitiveCubic primitive = new PrimitiveCubic(space, 3.6148);
+         BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisCubicFcc());
 
          */
-        
-        
+
+
         Configuration config = new ConfigurationLattice(crystal, space);
-        config.initializeCoordinates(box); 
+        config.initializeCoordinates(box);
 
         // Sn
         IMolecule adMolecule = snAdatom.makeMolecule();
@@ -146,44 +146,43 @@ public class EnergyMap extends Simulation{
         adAtom.getPosition().setX(0, height);
         adAtom.getPosition().setX(1, -4.37);
         adAtom.getPosition().setX(2, -1.6);
-        
-       /**
-        // Cu
-        IAtom iAtom = cuAdatom.getMoleculeFactory().makeAtom();
-        box.getAgent(cuAdatom).addChildAtom(iAtom);
-    
-        ((IAtomPositioned)iAtom).getPosition().setX(0, 6.3);
-        ((IAtomPositioned)iAtom).getPosition().setX(1, -0.8);
-        ((IAtomPositioned)iAtom).getPosition().setX(2, -1.2);
-        */
-         
-         /**
-         
+
+        /**
+         // Cu
+         IAtom iAtom = cuAdatom.getMoleculeFactory().makeAtom();
+         box.getAgent(cuAdatom).addChildAtom(iAtom);
+
+         ((IAtomPositioned)iAtom).getPosition().setX(0, 6.3);
+         ((IAtomPositioned)iAtom).getPosition().setX(1, -0.8);
+         ((IAtomPositioned)iAtom).getPosition().setX(2, -1.2);
+         */
+
+        /**
+
          IVector rij = space.makeVector();
          AtomArrayList movableList = new AtomArrayList();
          AtomSet loopSet = box.getMoleculeList(sn);
-         
-         for (int i=0; i<loopSet.getAtomCount(); i++){
-             rij.Ev1Mv2(((IAtomPositioned)iAtom).getPosition(),((IAtomPositioned)loopSet.getAtom(i)).getPosition());
-           
-             if(rij.squared()<32.49){
-                movableList.add(loopSet.getAtom(i));
-             } 
-         }
-        
-        for (int i=0; i<movableList.getAtomCount(); i++){
-            ((IAtomPositioned)box.addNewMolecule(movable)).getPosition().E(((IAtomPositioned)movableList.getAtom(i)).getPosition());
-            box.removeMolecule(movableList.getAtom(i));
-        }
-        
-         */
-         
-         integratorMAP = new IntegratorEnergyMap(this, potentialMaster, adAtom, fileTail, space);
-         integratorMAP.setBox(box);
-         activityIntegrateMAP = new ActivityIntegrate(integratorMAP);
 
-         getController().addAction(activityIntegrateMAP);
-       
+         for (int i=0; i<loopSet.getAtomCount(); i++){
+         rij.Ev1Mv2(((IAtomPositioned)iAtom).getPosition(),((IAtomPositioned)loopSet.getAtom(i)).getPosition());
+
+         if(rij.squared()<32.49){
+         movableList.add(loopSet.getAtom(i));
+         }
+         }
+
+         for (int i=0; i<movableList.getAtomCount(); i++){
+         ((IAtomPositioned)box.addNewMolecule(movable)).getPosition().E(((IAtomPositioned)movableList.getAtom(i)).getPosition());
+         box.removeMolecule(movableList.getAtom(i));
+         }
+
+         */
+
+        integratorMAP = new IntegratorEnergyMap(this, potentialMaster, adAtom, fileTail, space, box);
+        activityIntegrateMAP = new ActivityIntegrate(integratorMAP);
+
+        getController().addAction(activityIntegrateMAP);
+
     }
 
     public static void main(String[] args){

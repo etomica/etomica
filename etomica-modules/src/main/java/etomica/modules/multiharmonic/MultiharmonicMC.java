@@ -55,7 +55,7 @@ public class MultiharmonicMC extends Simulation {
         addBox(box);
         box.getBoundary().setBoxSize(new Vector1D(3.0));
         controller = getController();
-        integrator = new IntegratorMC(this, potentialMaster);
+        integrator = new IntegratorMC(this, potentialMaster, box);
         integrator.setBox(box);
         integrator.setTemperature(1.0);
         potentialA = new P1Harmonic(space);

@@ -5,15 +5,12 @@
 package etomica.integrator;
 
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;
@@ -40,13 +37,9 @@ public final class IntegratorConNVT extends IntegratorMD {
 
     protected AtomLeafAgentManager<Vector> agentManager;
 
-    public IntegratorConNVT(Simulation sim, PotentialMaster potentialMaster, Space space) {
-        this(potentialMaster, sim.getRandom(), 0.05, 1.0, space);
-    }
-    
     public IntegratorConNVT(PotentialMaster potentialMaster, IRandom random,
-                            double timeStep, double temperature, Space space) {
-        super(potentialMaster,random,timeStep,temperature, space);
+                            double timeStep, double temperature, Space space, Box box) {
+        super(potentialMaster,random,timeStep,temperature, space, box);
         forceSum = new PotentialCalculationForceSum();
         allAtoms = new IteratorDirective();
         // allAtoms is used only for the force calculation, which has no LRC

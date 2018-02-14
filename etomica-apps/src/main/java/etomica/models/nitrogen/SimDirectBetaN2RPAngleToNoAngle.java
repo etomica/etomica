@@ -107,8 +107,8 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
 		MCMoveRotateMolecule3DFixedAngle rotateFixedAngle
 		= new MCMoveRotateMolecule3DFixedAngle(potentialMasterTarg, getRandom(), space, angle, coordinateDefTarg, boxTarg);
 		rotateFixedAngle.setBox(boxTarg);
-		
-        IntegratorMC integratorTarg = new IntegratorMC(potentialMasterTarg, getRandom(), temperature);
+
+        IntegratorMC integratorTarg = new IntegratorMC(potentialMasterTarg, getRandom(), temperature, box);
         integratorTarg.getMoveManager().addMCMove(moveTarg);
 		//integratorTarg.getMoveManager().addMCMove(rotateTarg);
         integratorTarg.getMoveManager().addMCMove(rotateFixedAngle);

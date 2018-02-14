@@ -131,8 +131,8 @@ public class SimulationGammaNitrogenModel extends Simulation{
 		mcMoveVolume.setBox(box);
 		pressure *= 1e9;
 		mcMoveVolume.setPressure(Pascal.UNIT.toSim(pressure));
-		
-		integrator = new IntegratorMC(this, potentialMaster);
+
+        integrator = new IntegratorMC(this, potentialMaster, box);
 		integrator.getMoveManager().addMCMove(move);
 		integrator.getMoveManager().addMCMove(rotate);
 		//integrator.getMoveManager().addMCMove(mcMoveVolume);

@@ -58,173 +58,172 @@ public class HessianDB extends Simulation {
     protected double latticeEnergy;
 
     public HessianDB(Space _space, int numAtoms, double density, double temperature, int exponent, String filename) {
-        super(_space);
+		super(_space);
 
-        /*
-         * Creating new basis
-         */
+		/*
+		 * Creating new basis
+		 */
 
-        potentialMaster = new PotentialMasterMonatomic(this);
-        integrator = new IntegratorMC(this, potentialMaster);
+		potentialMaster = new PotentialMasterMonatomic(this);
+		box = new Box(space);
+		integrator = new IntegratorMC(this, potentialMaster, box);
+		SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+		addSpecies(species);
+		addBox(box);
+		box.setNMolecules(species, numAtoms);
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
-        addSpecies(species);
+		double L = Math.pow(4.0 / density, 1.0 / 3.0);
+		int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+		primitive = new PrimitiveCubic(space, n * L);
+		nCells = new int[]{n, n, n};
+		boundary = new BoundaryRectangularPeriodic(space, n * L);
+		basisFCC = new BasisCubicFcc();
+		basis = new BasisBigCell(space, basisFCC, nCells);
 
-        box = new Box(space);
-        addBox(box);
-        box.setNMolecules(species, numAtoms);
+		Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, 12);
+		double truncationRadius = boundary.getBoxSize().getX(0) * 0.495;
+		System.out.println("radius: " + truncationRadius);
+		P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
 
-        double L = Math.pow(4.0/density, 1.0/3.0);
-        int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-       	primitive = new PrimitiveCubic(space, n*L);
-       	nCells = new int[]{n,n,n};
-       	boundary = new BoundaryRectangularPeriodic(space, n*L);
-       	basisFCC = new BasisCubicFcc();
-       	basis = new BasisBigCell(space, basisFCC, nCells);
+		AtomType sphereType = species.getLeafType();
+		potentialMaster.addPotential(pTruncated, new AtomType[]{sphereType, sphereType});
+		box.setBoundary(boundary);
 
-        Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, 12);
-        double truncationRadius = boundary.getBoxSize().getX(0) * 0.495;
-        System.out.println("radius: " + truncationRadius);
-        P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
+		coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
+		coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
 
-        AtomType sphereType = species.getLeafType();
-        potentialMaster.addPotential(pTruncated, new AtomType[]{sphereType, sphereType});
-        box.setBoundary(boundary);
-
-        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
-        coordinateDefinition.initializeCoordinates(new int[]{1,1,1});
-
-        Vector pos1 = space.makeVector();
-        Vector pos2 = space.makeVector();
-        Vector r = space.makeVector();
+		Vector pos1 = space.makeVector();
+		Vector pos2 = space.makeVector();
+		Vector r = space.makeVector();
 
 
-        try{
-        	FileWriter fileWriterH = new FileWriter(filename+".h");
-        	FileWriter fileWriterVal = new FileWriter(filename+".val");
-        	FileWriter fileWriterVec = new FileWriter(filename+".vec");
-        	FileWriter fileWriterK = new FileWriter(filename+".k");
+		try {
+			FileWriter fileWriterH = new FileWriter(filename + ".h");
+			FileWriter fileWriterVal = new FileWriter(filename + ".val");
+			FileWriter fileWriterVec = new FileWriter(filename + ".vec");
+			FileWriter fileWriterK = new FileWriter(filename + ".k");
 
-        	WaveVectorFactory wv = new WaveVectorFactorySimple(primitive, space);
-        	wv.makeWaveVectors(box);
+			WaveVectorFactory wv = new WaveVectorFactorySimple(primitive, space);
+			wv.makeWaveVectors(box);
 
-        	int rdim = numAtoms*space.D();
+			int rdim = numAtoms * space.D();
 
-        	double[][] array = new double[rdim][rdim];
+			double[][] array = new double[rdim][rdim];
 
-        	for (int atomN1=0; atomN1<numAtoms; atomN1++){
-        		for (int atomN2=0; atomN2<numAtoms; atomN2++){
-        			if(atomN2==atomN1) continue;
+			for (int atomN1 = 0; atomN1 < numAtoms; atomN1++) {
+				for (int atomN2 = 0; atomN2 < numAtoms; atomN2++) {
+					if (atomN2 == atomN1) continue;
 
-        			IAtom atom1 = box.getLeafList().getAtom(atomN1);
-        			IAtom atom2 = box.getLeafList().getAtom(atomN2);
+					IAtom atom1 = box.getLeafList().getAtom(atomN1);
+					IAtom atom2 = box.getLeafList().getAtom(atomN2);
 
-                    pos1 = atom1.getPosition();
-        			pos2 = atom2.getPosition();
+					pos1 = atom1.getPosition();
+					pos2 = atom2.getPosition();
 
-                    r.Ev1Mv2(pos2, pos1);
+					r.Ev1Mv2(pos2, pos1);
 
-                    box.getBoundary().nearestImage(r); // get the nearest image
+					box.getBoundary().nearestImage(r); // get the nearest image
 
-                    double [][]der2 = new double[space.D()][space.D()];
-        			derivative2nd(r, pTruncated).assignTo(der2);
-        			for(int i=0; i<space.D(); i++){
-        				for (int j=0; j<space.D(); j++){
+					double[][] der2 = new double[space.D()][space.D()];
+					derivative2nd(r, pTruncated).assignTo(der2);
+					for (int i = 0; i < space.D(); i++) {
+						for (int j = 0; j < space.D(); j++) {
 
-                            array[atomN1 * space.D() + i][atomN2 * space.D() + j] = der2[i][j];
-                        }
-        			}
+							array[atomN1 * space.D() + i][atomN2 * space.D() + j] = der2[i][j];
+						}
+					}
 
-                }
+				}
 
-            }
+			}
 
-            // self-term
-        	for (int atomN1=0;atomN1<numAtoms; atomN1++){
-        		for(int atomN2=0; atomN2<numAtoms; atomN2++){
-        			if(atomN1==atomN2) continue; // we might double sum the elements in array[a][a] if we don't skip the pair
-        			for(int i=0; i<space.D(); i++){
-        				for (int j=0; j<space.D(); j++){
+			// self-term
+			for (int atomN1 = 0; atomN1 < numAtoms; atomN1++) {
+				for (int atomN2 = 0; atomN2 < numAtoms; atomN2++) {
+					if (atomN1 == atomN2)
+						continue; // we might double sum the elements in array[a][a] if we don't skip the pair
+					for (int i = 0; i < space.D(); i++) {
+						for (int j = 0; j < space.D(); j++) {
 
-                            array[atomN1 * space.D() + i][atomN1 * space.D() + j] -= array[atomN1 * space.D() + i][atomN2 * space.D() + j];
-                        }
-        			}
-        		}
-        	}
+							array[atomN1 * space.D() + i][atomN1 * space.D() + j] -= array[atomN1 * space.D() + i][atomN2 * space.D() + j];
+						}
+					}
+				}
+			}
 
-        	/*
-        	 * impose symmetry on the matrix
-        	 * Jama would generate a non-orthogonal eigenvectors if the last-digit
-        	 *  in value in the matrix is different (numerical precision problem).
-        	 */
-        	double[][] arrayjjp = array.clone();
-        	double[][] arrayjpj = array.clone();
+			/*
+			 * impose symmetry on the matrix
+			 * Jama would generate a non-orthogonal eigenvectors if the last-digit
+			 *  in value in the matrix is different (numerical precision problem).
+			 */
+			double[][] arrayjjp = array.clone();
+			double[][] arrayjpj = array.clone();
 
-            for (int i=0; i<array.length; i++){
-        		for (int j=i+1; j<array[0].length; j++){
-        			double ave = 0.5*(arrayjjp[i][j]+arrayjpj[j][i]);
-        			array[i][j] = ave;
-        			array[j][i] = ave;
-        		}
-        	}
+			for (int i = 0; i < array.length; i++) {
+				for (int j = i + 1; j < array[0].length; j++) {
+					double ave = 0.5 * (arrayjjp[i][j] + arrayjpj[j][i]);
+					array[i][j] = ave;
+					array[j][i] = ave;
+				}
+			}
 
-            for(int i=0; i<space.D()*numAtoms;i++){
-        		for(int j=0; j<space.D()*numAtoms;j++){
-        			fileWriterH.write(array[i][j]+" ");
-        		}
-        		fileWriterH.write("\n");
-    		}
-
-
-            Matrix matrix = new Matrix(array);
-        	EigenvalueDecomposition ed = new EigenvalueDecomposition(matrix);
-
-            double[] eVals = ed.getRealEigenvalues();
-        	double[][] eVecs = ed.getV().getArray();
-        	double[] kCoefficients = wv.getCoefficients();
+			for (int i = 0; i < space.D() * numAtoms; i++) {
+				for (int j = 0; j < space.D() * numAtoms; j++) {
+					fileWriterH.write(array[i][j] + " ");
+				}
+				fileWriterH.write("\n");
+			}
 
 
-            // output .k file
-        	for( int i=0; i<kCoefficients.length; i++){
-        		fileWriterK.write(Double.toString(kCoefficients[i]));
-        		   for (int j=0; j< wv.getWaveVectors()[i].getD(); j++){
-                   	fileWriterK.write(" "+ wv.getWaveVectors()[i].getX(j));
+			Matrix matrix = new Matrix(array);
+			EigenvalueDecomposition ed = new EigenvalueDecomposition(matrix);
 
-                   }
-                   fileWriterK.write("\n");
-        	}
-        	// output .val file
-        	for (int ival=0; ival<eVals.length; ival++){
-        		if (eVals[ival] < 1E-12){
-        			fileWriterVal.write("0.0 ");
-        		} else {
-        			fileWriterVal.write(1/eVals[ival]+ " ");
-        		}
-        	}
+			double[] eVals = ed.getRealEigenvalues();
+			double[][] eVecs = ed.getV().getArray();
+			double[] kCoefficients = wv.getCoefficients();
 
 
-            // output .vec file
-        	for (int ivec=0; ivec<rdim; ivec++ ){
-        		for(int jvec=0; jvec<rdim; jvec++){
-        			if (Math.abs(eVecs[jvec][ivec])<1e-15){
-        				fileWriterVec.write("0.0 ");
-        			} else {
-        				fileWriterVec.write(eVecs[jvec][ivec] + " ");
-        			}
-        		}
-        		fileWriterVec.write("\n");
-        	}
+			// output .k file
+			for (int i = 0; i < kCoefficients.length; i++) {
+				fileWriterK.write(Double.toString(kCoefficients[i]));
+				for (int j = 0; j < wv.getWaveVectors()[i].getD(); j++) {
+					fileWriterK.write(" " + wv.getWaveVectors()[i].getX(j));
 
-            fileWriterH.close();
-        	fileWriterVal.close();
-        	fileWriterVec.close();
-        	fileWriterK.close();
+				}
+				fileWriterK.write("\n");
+			}
+			// output .val file
+			for (int ival = 0; ival < eVals.length; ival++) {
+				if (eVals[ival] < 1E-12) {
+					fileWriterVal.write("0.0 ");
+				} else {
+					fileWriterVal.write(1 / eVals[ival] + " ");
+				}
+			}
 
 
-        } catch (IOException e){
-        	throw new RuntimeException(e);
-        }
-    }
+			// output .vec file
+			for (int ivec = 0; ivec < rdim; ivec++) {
+				for (int jvec = 0; jvec < rdim; jvec++) {
+					if (Math.abs(eVecs[jvec][ivec]) < 1e-15) {
+						fileWriterVec.write("0.0 ");
+					} else {
+						fileWriterVec.write(eVecs[jvec][ivec] + " ");
+					}
+				}
+				fileWriterVec.write("\n");
+			}
+
+			fileWriterH.close();
+			fileWriterVal.close();
+			fileWriterVec.close();
+			fileWriterK.close();
+
+
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
     /**
      * @param args

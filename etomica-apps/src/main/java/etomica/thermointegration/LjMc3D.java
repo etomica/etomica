@@ -51,7 +51,8 @@ public class LjMc3D extends Simulation {
         super(Space3D.getInstance());
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         double sigma = 1.0;
-        integrator = new IntegratorMC(this, potentialMaster);
+        box = new Box(space);
+        integrator = new IntegratorMC(this, potentialMaster, box);
         MCMoveAtom move = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(move);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
@@ -59,7 +60,6 @@ public class LjMc3D extends Simulation {
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
-        box = new Box(space);
         addBox(box);
         box.setNMolecules(species, 50);
         BoxInflate inflater = new BoxInflate(box, space);
@@ -68,15 +68,15 @@ public class LjMc3D extends Simulation {
 
         potential = new P2LennardJones(space, sigma, 1.0);
         AtomType leafType = species.getLeafType();
-        P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(space, potential, box.getBoundary().getBoxSize().getX(0)*0.45);
+        P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(space, potential, box.getBoundary().getBoxSize().getX(0) * 0.45);
 
         potentialMaster.addPotential(pTruncated, new AtomType[]{leafType, leafType});
-        
+
         integrator.setBox(box);
         BoxImposePbc imposepbc = new BoxImposePbc(space);
         imposepbc.setBox(box);
         integrator.getEventManager().addListener(new IntegratorListenerAction(imposepbc));
-		
+
         ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         configuration.initializeCoordinates(box);
         energy = new MeterPotentialEnergy(potentialMaster);

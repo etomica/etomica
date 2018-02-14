@@ -48,47 +48,45 @@ public class JouleThomsonSim extends Simulation {
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         int nAtoms = (space.D() < 3) ? 50 : 64;
         double sigma = 3.0;
-        
+
         //integrator
-        integratorNVE = new IntegratorVelocityVerlet(this, potentialMaster, space);
-        integrator = new IntegratorGear4NPH(this, potentialMaster, space);
+        box = new Box(space);
+        integratorNVE = new IntegratorVelocityVerlet(this, potentialMaster, space, box);
+        integrator = new IntegratorGear4NPH(this, potentialMaster, space, box);
         integrator.setRelaxationRateP(500.);
         integrator.setRelaxationRateH(300.);
         integratorNVE.setTemperature(Kelvin.UNIT.toSim(300));
         integrator.setTemperature(Kelvin.UNIT.toSim(300));
         final Unit pUnit;
         if (space.D() == 2) {
-            Unit[] units = new Unit[] {Bar.UNIT, new PrefixedUnit(Prefix.NANO, Meter.UNIT)};
-            double[] exponents = new double[] {1.0, 1.0};
+            Unit[] units = new Unit[]{Bar.UNIT, new PrefixedUnit(Prefix.NANO, Meter.UNIT)};
+            double[] exponents = new double[]{1.0, 1.0};
             pUnit = new CompoundUnit(units, exponents);
-        }
-        else {
+        } else {
             pUnit = Bar.UNIT;
         }
         integrator.setTargetP(pUnit.toSim(100.0));
-	    
-	    //species and potential
-	    species = new SpeciesSpheresMono(this, space);
-	    species.setIsDynamic(true);
-	    
-        ((ElementSimple)species.getLeafType().getElement()).setMass(40);
+
+        //species and potential
+        species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
+
+        ((ElementSimple) species.getLeafType().getElement()).setMass(40);
         addSpecies(species);
-	    potential = new P2LennardJones(space, sigma, Kelvin.UNIT.toSim(300));
+        potential = new P2LennardJones(space, sigma, Kelvin.UNIT.toSim(300));
         potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
-        box = new Box(space);
         addBox(box);
         box.setNMolecules(species, nAtoms);
-        
+
         SpaceLattice lattice;
         if (space.D() == 2) {
             lattice = new LatticeOrthorhombicHexagonal(space);
-        }
-        else {
+        } else {
             lattice = new LatticeCubicFcc(space);
         }
         config = new ConfigurationLattice(lattice, space);
         config.initializeCoordinates(box);
-        
+
         integratorJT = new IntegratorJT(getRandom(), integrator, integratorNVE);
         integratorJT.setTemperature(Kelvin.UNIT.toSim(300));
         integratorJT.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));

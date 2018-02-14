@@ -57,60 +57,63 @@ public class ColloidSim extends Simulation {
         BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, _space);
         potentialMaster = new PotentialMasterList(this, 6, boxAgentSource, new BoxAgentManager<NeighborCellManager>(boxAgentSource, this),
                 new NeighborListManagerColloid.NeighborListAgentSourceColloid(6, _space), _space);
-        
+
         int nColloid = 1;
         chainLength = 50;
         nGraft = 12;
-        
+
         double sigma = 1.0;
         double sigmaColloid = 7.5;
         double lambda = 1.5;
         double boxSize = 80;
         double epsMM = 1.0;
-        
+
         //controller and integrator
-	    integrator = new IntegratorHard(this, potentialMaster, space);
-	    integrator.setTimeStep(0.02);
-	    integrator.setTemperature(2);
-	    integrator.setIsothermal(true);
+        box = new Box(space);
+        integrator = new IntegratorHard(this, potentialMaster, space, box);
+        integrator.setTimeStep(0.02);
+        integrator.setTemperature(2);
+        integrator.setIsothermal(true);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);
-        activityIntegrate = new ActivityIntegrate(integrator,0,true);
+        activityIntegrate = new ActivityIntegrate(integrator, 0, true);
         getController().addAction(activityIntegrate);
 
-	    //species and potentials
-	    species = new SpeciesSpheresMono(this, space);
-	    species.setIsDynamic(true);
+        //species and potentials
+        species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
         addSpecies(species);
         speciesColloid = new SpeciesSpheresMono(this, space);
         speciesColloid.setIsDynamic(true);
         addSpecies(speciesColloid);
-
-        box = new Box(space);
         addBox(box);
-        ((NeighborListManagerColloid)potentialMaster.getNeighborManager(box)).setSpeciesColloid(speciesColloid);
-        ((NeighborListManagerColloid)potentialMaster.getNeighborManager(box)).setSpeciesMonomer(species);
+        ((NeighborListManagerColloid) potentialMaster.getNeighborManager(box)).setSpeciesColloid(speciesColloid);
+        ((NeighborListManagerColloid) potentialMaster.getNeighborManager(box)).setSpeciesMonomer(species);
         Vector dim = space.makeVector();
         dim.E(boxSize);
         box.getBoundary().setBoxSize(dim);
         box.setNMolecules(speciesColloid, nColloid);
 
         AgentSource<AtomArrayList> bondAgentSource = new AgentSource<AtomArrayList>() {
-            public void releaseAgent(AtomArrayList agent, IAtom atom, Box agentBox) {}
-            public AtomArrayList makeAgent(IAtom a, Box agentBox) {return new AtomArrayList();}
+            public void releaseAgent(AtomArrayList agent, IAtom atom, Box agentBox) {
+            }
+
+            public AtomArrayList makeAgent(IAtom a, Box agentBox) {
+                return new AtomArrayList();
+            }
         };
         colloidMonomerBondManager = new AtomLeafAgentManager<AtomArrayList>(bondAgentSource, box);
         monomerMonomerBondManager = new AtomLeafAgentManager<AtomArrayList>(bondAgentSource, box);
 
         //instantiate several potentials for selection in combo-box
-	    p2mm = new P2SquareWellMonomer(space, monomerMonomerBondManager);
-	    p2mm.setCoreDiameter(sigma);
-	    p2mm.setLambda(lambda);
-	    p2mm.setBondFac(0.85);
-	    p2mm.setEpsilon(epsMM);
+        p2mm = new P2SquareWellMonomer(space, monomerMonomerBondManager);
+        p2mm.setCoreDiameter(sigma);
+        p2mm.setLambda(lambda);
+        p2mm.setBondFac(0.85);
+        p2mm.setEpsilon(epsMM);
         potentialMaster.addPotential(p2mm, new AtomType[]{species.getLeafType(), species.getLeafType()});
         p2mc = new P2HardSphereMC(space, colloidMonomerBondManager);
-        p2mc.setCollisionDiameter(0.5*(sigma+sigmaColloid));
+        p2mc.setCollisionDiameter(0.5 * (sigma + sigmaColloid));
         p2mc.setBondFac(0.9);
         potentialMaster.addPotential(p2mc, new AtomType[]{species.getLeafType(), speciesColloid.getLeafType()});
         potentialMaster.setCriterion(p2mc, new CriterionNone() {
@@ -119,27 +122,27 @@ public class ColloidSim extends Simulation {
             }
         });
 
-        ((NeighborListManagerColloid)potentialMaster.getNeighborManager(box)).setPotentialMC(p2mc);
-        
+        ((NeighborListManagerColloid) potentialMaster.getNeighborManager(box)).setPotentialMC(p2mc);
+
         p1WallMonomer = new P1Wall(space, monomerMonomerBondManager);
         p1WallMonomer.setBox(box);
         p1WallMonomer.setRange(2);
         p1WallMonomer.setSigma(1);
-        p1WallMonomer.setEpsilon(Math.sqrt(epsMM*epsWallWall));
+        p1WallMonomer.setEpsilon(Math.sqrt(epsMM * epsWallWall));
         potentialMaster.addPotential(p1WallMonomer, new AtomType[]{species.getLeafType()});
         criterionWallMonomer = new CriterionPositionWall(this);
         criterionWallMonomer.setBoundaryWall(true);
         criterionWallMonomer.setNeighborRange(3);
         criterionWallMonomer.setWallDim(1);
         potentialMaster.setCriterion(p1WallMonomer, criterionWallMonomer);
-	    
+
         p1WallColloid = new P1Wall(space, null);
         p1WallColloid.setBox(box);
         p1WallColloid.setRange(10);
         p1WallColloid.setSigma(7.5);
         p1WallColloid.setEpsilon(0.5);
         potentialMaster.addPotential(p1WallColloid, new AtomType[]{speciesColloid.getLeafType()});
-        
+
         //construct box
         configuration = new ConfigurationColloid(space, species, speciesColloid, random);
         configuration.setNGraft(nGraft);
@@ -150,12 +153,12 @@ public class ColloidSim extends Simulation {
         configuration.setColloidMonomerBondManager(colloidMonomerBondManager);
         configuration.initializeCoordinates(box);
         integrator.setBox(box);
-        
+
         p2pseudo = new P2HardSphere(space, 1, true);
         if (nGraft > 1) {
             IAtom atom1 = box.getMoleculeList(species).getMolecule(0).getChildList().getAtom(0);
             double minr2 = Double.POSITIVE_INFINITY;
-            for (int j=chainLength; j<box.getMoleculeList(species).getMoleculeCount(); j+=chainLength) {
+            for (int j = chainLength; j < box.getMoleculeList(species).getMoleculeCount(); j += chainLength) {
                 IAtom atom2 = box.getMoleculeList(species).getMolecule(j).getChildList().getAtom(0);
                 Vector dr = space.makeVector();
                 dr.Ev1Mv2(atom1.getPosition(), atom2.getPosition());
@@ -165,14 +168,14 @@ public class ColloidSim extends Simulation {
                     minr2 = r2;
                 }
             }
-            p2pseudo.setCollisionDiameter(0.9*Math.sqrt(minr2));
+            p2pseudo.setCollisionDiameter(0.9 * Math.sqrt(minr2));
         }
 
         potentialMaster.addPotential(p2pseudo, new AtomType[]{species.getLeafType(), species.getLeafType()});
         potentialMaster.setCriterion(p2pseudo, new CriterionNone());
 
-        ((NeighborListManagerColloid)potentialMaster.getNeighborManager(box)).setPotentialPseudo(p2pseudo);
-        ((NeighborListManagerColloid)potentialMaster.getNeighborManager(box)).setChainLength(chainLength);
+        ((NeighborListManagerColloid) potentialMaster.getNeighborManager(box)).setPotentialPseudo(p2pseudo);
+        ((NeighborListManagerColloid) potentialMaster.getNeighborManager(box)).setChainLength(chainLength);
 
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
     }

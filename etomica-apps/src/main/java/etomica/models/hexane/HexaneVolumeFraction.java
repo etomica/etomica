@@ -53,7 +53,7 @@ public class HexaneVolumeFraction extends Simulation {
         box.getBoundary().setBoxSize(space.makeVector(new double[] {3.8, 3.8, 3.8}));
         box.setNMolecules(species, 1);
 
-        integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0);
+        integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0, box);
 
         activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setMaxSteps(2000000);

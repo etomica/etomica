@@ -109,7 +109,7 @@ public class SimOverlapNitrogenModel extends Simulation {
 		potentialMasterTarget.addPotential(potential, new ISpecies[]{species,species});
 		potentialMasterTarget.addPotential(p0correc, new ISpecies[]{species, species});
 		
-        integratorTarget = new IntegratorMC(potentialMasterTarget, getRandom(), Kelvin.UNIT.toSim(temperature));
+        integratorTarget = new IntegratorMC(potentialMasterTarget, getRandom(), Kelvin.UNIT.toSim(temperature), boxTarget);
 		MCMoveMoleculeCoupled move = new MCMoveMoleculeCoupled(potentialMasterTarget,getRandom(),space);
 		move.setBox(boxTarget);
 		move.setPotential(potential);
@@ -121,7 +121,7 @@ public class SimOverlapNitrogenModel extends Simulation {
 		mcMoveVolume.setBox(boxTarget);
 		mcMoveVolume.setPressure(Pascal.UNIT.toSim(0.0e9));
 				
-		integratorTarget = new IntegratorMC(this, potentialMasterTarget);
+		integratorTarget = new IntegratorMC(this, potentialMasterTarget, boxTarget);
 		integratorTarget.getMoveManager().addMCMove(move);
 		integratorTarget.getMoveManager().addMCMove(rotate);
 		integratorTarget.getMoveManager().addMCMove(mcMoveVolume);
@@ -142,7 +142,7 @@ public class SimOverlapNitrogenModel extends Simulation {
         boxHarmonic.setNMolecules(species, numMolecules);
         boxHarmonic.setBoundary(boundaryHarmonic);
         
-        integratorHarmonic = new IntegratorMC(null, random, 1.0); //null changed on 11/20/2009
+        integratorHarmonic = new IntegratorMC(null, random, 1.0, boxHarmonic); //null changed on 11/20/2009
 
         moveHarmonic = new MCMoveHarmonic(getRandom());
         integratorHarmonic.getMoveManager().addMCMove(moveHarmonic);

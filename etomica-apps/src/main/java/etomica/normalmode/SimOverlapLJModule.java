@@ -107,7 +107,7 @@ public class SimOverlapLJModule {
         sim.addBox(boxHarmonic);
         boxHarmonic.setNMolecules(species, numMolecules);
 
-        IntegratorMC integratorHarmonic = new IntegratorMC(potentialMasterTarget, sim.getRandom(), 1.0);
+        IntegratorMC integratorHarmonic = new IntegratorMC(potentialMasterTarget, sim.getRandom(), 1.0, boxHarmonic);
 
         MCMoveHarmonic move = new MCMoveHarmonic(sim.getRandom());
         integratorHarmonic.getMoveManager().addMCMove(move);
@@ -152,7 +152,7 @@ public class SimOverlapLJModule {
         sim.addBox(boxTarget);
         boxTarget.setNMolecules(species, numMolecules);
 
-        IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget, sim.getRandom(), temperature);
+        IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget, sim.getRandom(), temperature, boxTarget);
         MCMoveAtomCoupled atomMove = new MCMoveAtomCoupled(potentialMasterTarget, new MeterPotentialEnergy(potentialMasterTarget), sim.getRandom(), space);
         atomMove.setStepSize(0.1);
         atomMove.setStepSizeMax(0.5);

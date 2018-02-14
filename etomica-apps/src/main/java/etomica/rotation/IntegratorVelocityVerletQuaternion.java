@@ -110,7 +110,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             configFile.initializeCoordinates(box);
         }
         PotentialMaster potentialMaster = new PotentialMaster();
-        IntegratorVelocityVerletQuaternion integrator = new IntegratorVelocityVerletQuaternion(sim, potentialMaster, timeInterval / interval, 1, space);
+        IntegratorVelocityVerletQuaternion integrator = new IntegratorVelocityVerletQuaternion(sim, potentialMaster, timeInterval / interval, 1, space, box);
         integrator.setBox(box);
         integrator.printInterval = interval;
         integrator.setOrientationCalc(species, new OrientationCalcWater3P(sim.getSpace()));

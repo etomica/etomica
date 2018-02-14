@@ -386,8 +386,8 @@ public class IntegratorKMCCluster extends IntegratorBox{
     }
     
     public void createIntegrators(){
-        integratorMin1 = new IntegratorDimerMin(sim, potentialMaster, species, true, space);
-        integratorMin2= new IntegratorDimerMin(sim, potentialMaster, species, false, space);
+        integratorMin1 = new IntegratorDimerMin(sim, potentialMaster, species, true, space, box);
+        integratorMin2 = new IntegratorDimerMin(sim, potentialMaster, species, false, space, box);
         
         integratorMin1.setBox(box);
         integratorMin2.setBox(box);

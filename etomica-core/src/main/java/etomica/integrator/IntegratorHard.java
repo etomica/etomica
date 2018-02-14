@@ -77,7 +77,7 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
         nullPotentialManager = new HashMap<>();
     }
     
-    public void setBox(Box box) {
+    protected void setBox(Box box) {
         if (this.box != null) {
             // allow agentManager to de-register itself as a BoxListener
             agentManager.dispose();

@@ -35,7 +35,7 @@ public class SingleDipole {
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeInterval = 0.002;
         int maxIterations = 20;
-        IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim, potentialMaster, timeInterval, 1, space);
+        IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim, potentialMaster, timeInterval, 1, space, box);
 //        integrator.printInterval = 10;
         integrator.setMaxIterations(maxIterations);
         integrator.setBox(box);

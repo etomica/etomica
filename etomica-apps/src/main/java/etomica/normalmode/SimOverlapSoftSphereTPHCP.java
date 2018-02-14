@@ -76,7 +76,7 @@ public class SimOverlapSoftSphereTPHCP extends Simulation {
         addBox(box);
         box.setNMolecules(species, numAtoms);
 
-        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
+        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
         atomMove = new MCMoveAtomCoupled(potentialMaster, new MeterPotentialEnergy(potentialMaster), getRandom(), space);
         atomMove.setStepSize(0.1);
         atomMove.setStepSizeMax(0.5);

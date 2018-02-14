@@ -98,8 +98,8 @@ public class PistonCylinder extends Simulation {
         pistonPotential.setThickness(1.0);
         potentialMaster.addPotential(pistonPotential, new AtomType[]{species.getLeafType()});
         ((BoundaryPistonCylinder)box.getBoundary()).setPistonPotential(pistonPotential);
-        
-        integrator = new IntegratorHardPiston(this,potentialMaster,pistonPotential, space);
+
+        integrator = new IntegratorHardPiston(this, potentialMaster, pistonPotential, space, box);
         integrator.setBox(box);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(1);

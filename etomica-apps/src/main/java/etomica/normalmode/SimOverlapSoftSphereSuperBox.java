@@ -107,7 +107,7 @@ public class SimOverlapSoftSphereSuperBox extends Simulation {
         coordinateDefinitionTarget.setIs256();
         coordinateDefinitionTarget.initializeCoordinates(nCells);
 
-        IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget, getRandom(), temperature);
+        IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget, getRandom(), temperature, boxTarget);
         MCMoveAtomSuperBox atomMove = new MCMoveAtomSuperBox(potentialMasterTarget, getRandom(), space, coordinateDefinitionTarget);
         atomMove.setStepSize(0.1);
         atomMove.setStepSizeMax(0.5);
@@ -156,7 +156,7 @@ public class SimOverlapSoftSphereSuperBox extends Simulation {
         boxHarmonic.setNMolecules(speciesA, numAtoms/8);
         boxHarmonic.setNMolecules(speciesB, numAtoms*7/8);
 
-        IntegratorMC integratorHarmonic = new IntegratorMC(potentialMasterTarget, random, 1.0);
+        IntegratorMC integratorHarmonic = new IntegratorMC(potentialMasterTarget, random, 1.0, boxHarmonic);
 
         MCMoveHarmonic move = new MCMoveHarmonic(getRandom());
         integratorHarmonic.getMoveManager().addMCMove(move);

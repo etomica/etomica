@@ -57,7 +57,7 @@ public class ReverseOsmosisWater extends Simulation {
         PotentialMaster potentialMaster = new PotentialMaster(); //List(this, 2.0);
         
         //controller and integrator
-	    integrator = new IntegratorRigidIterative(this, potentialMaster, 0.01, Kelvin.UNIT.toSim(298), space);
+        integrator = new IntegratorRigidIterative(this, potentialMaster, 0.01, Kelvin.UNIT.toSim(298), space, box);
 	    integrator.setIsothermal(true);
         integrator.setThermostatInterval(100);
         integrator.setTimeStep(0.004);

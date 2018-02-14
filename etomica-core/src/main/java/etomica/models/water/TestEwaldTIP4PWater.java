@@ -62,7 +62,12 @@ public class TestEwaldTIP4PWater extends Simulation {
 		species.setConformation(config);
 		addSpecies(species);
 
-		integrator = new IntegratorMC(this, potentialMaster);
+		box = new Box(space);
+		addBox(box);
+		box.getBoundary().setBoxSize(space.makeVector(new double[] {25, 25, 25}));
+		box.setNMolecules(species, 125);
+
+		integrator = new IntegratorMC(this, potentialMaster, box);
 		integrator.setTemperature(Kelvin.UNIT.toSim(298));
 
 		MCMoveMolecule mcMoveMolecule = new MCMoveMolecule(this, potentialMaster, space);
@@ -81,10 +86,6 @@ public class TestEwaldTIP4PWater extends Simulation {
         activityIntegrate.setMaxSteps(6000);
         getController().addAction(activityIntegrate);
 
-        box = new Box(space);
-		addBox(box);
-		box.getBoundary().setBoxSize(space.makeVector(new double[] {25, 25, 25}));
-		box.setNMolecules(species, 125);
 
 
         //Potential
@@ -111,7 +112,6 @@ public class TestEwaldTIP4PWater extends Simulation {
 
         configuration.initializeCoordinates(box);
 
-        integrator.setBox(box);
         integrator.getEventManager().addListener(new IntegratorListenerAction(imposePBC));
 
     }

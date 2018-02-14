@@ -180,8 +180,8 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
 		
 		MCMoveRotateMolecule3D rotate = new MCMoveRotateMolecule3D(potentialMaster, getRandom(), space);
 		rotate.setBox(box);
-			
-		integrator = new IntegratorMC(potentialMaster, getRandom(), Kelvin.UNIT.toSim(temperature));
+
+        integrator = new IntegratorMC(potentialMaster, getRandom(), Kelvin.UNIT.toSim(temperature), box);
 		integrator.getMoveManager().addMCMove(move);
 		integrator.getMoveManager().addMCMove(rotate);
 		integrator.setBox(box);

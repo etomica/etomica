@@ -109,8 +109,8 @@ public class SimOverlapAlphaN2TP extends Simulation {
 		
 		rotate = new MCMoveRotateMolecule3DN2AveCosThetaConstraint(potentialMaster, getRandom(), space, coordinateDef, 0.8);
 		rotate.setBox(box);
-			
-		integrator = new IntegratorMC(potentialMaster, getRandom(), Kelvin.UNIT.toSim(temperature));
+
+        integrator = new IntegratorMC(potentialMaster, getRandom(), Kelvin.UNIT.toSim(temperature), box);
 		integrator.getMoveManager().addMCMove(move);
 		integrator.getMoveManager().addMCMove(rotate);
 		integrator.setBox(box);

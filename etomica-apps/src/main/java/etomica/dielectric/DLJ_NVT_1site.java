@@ -73,14 +73,14 @@ public class DLJ_NVT_1site extends Simulation {
 
 	//************************************* constructor ********************************************//
     public DLJ_NVT_1site(Space space, int numberMolecules, final double sigmaLJ, double epsilonLJ, double mu,
-                         double dielectricOutside, double boxSize, double temperature, double truncation){
-        super(space);
-        species = new SpeciesSpheresRotating(space, new ElementSimple("A"));
-        addSpecies(species);
+                         double dielectricOutside, double boxSize, double temperature, double truncation) {
+		super(space);
+		species = new SpeciesSpheresRotating(space, new ElementSimple("A"));
+		addSpecies(species);
 		box = new Box(space);
 		addBox(box);
 		box.setNMolecules(species, numberMolecules);
-		box.getBoundary().setBoxSize(space.makeVector(new double[]{boxSize,boxSize,boxSize}));
+		box.getBoundary().setBoxSize(space.makeVector(new double[]{boxSize, boxSize, boxSize}));
 
 		IMoleculePositionDefinition positionDefinition = new IMoleculePositionDefinition() {
 			public Vector position(IMolecule molecule) {
@@ -89,25 +89,25 @@ public class DLJ_NVT_1site extends Simulation {
 		};
 
 		// dipolar LJ potential
-		P2LJDipole pDLJ = new P2LJDipole(space,sigmaLJ,epsilonLJ,mu,truncation);
+		P2LJDipole pDLJ = new P2LJDipole(space, sigmaLJ, epsilonLJ, mu, truncation);
 		// add reaction field potential
-		DipoleSourceDLJ dipoleSourceDLJ = new DipoleSourceDLJ(space,mu);// add reaction field potential
-        P2ReactionFieldDipole pRF = new P2ReactionFieldDipole(space,positionDefinition);
-        pRF.setDipoleSource(dipoleSourceDLJ);
-        pRF.setRange(truncation);
-        pRF.setDielectric(dielectricOutside);
+		DipoleSourceDLJ dipoleSourceDLJ = new DipoleSourceDLJ(space, mu);// add reaction field potential
+		P2ReactionFieldDipole pRF = new P2ReactionFieldDipole(space, positionDefinition);
+		pRF.setDipoleSource(dipoleSourceDLJ);
+		pRF.setRange(truncation);
+		pRF.setDielectric(dielectricOutside);
 
 
-        potentialMaster = new PotentialMaster();
-        potentialMaster.addPotential(pDLJ, new ISpecies[] {species,species});
-        potentialMaster.addPotential(pRF, new ISpecies[]{species, species});
-        potentialMaster.lrcMaster().addPotential(pRF.makeP0());
+		potentialMaster = new PotentialMaster();
+		potentialMaster.addPotential(pDLJ, new ISpecies[]{species, species});
+		potentialMaster.addPotential(pRF, new ISpecies[]{species, species});
+		potentialMaster.lrcMaster().addPotential(pRF.makeP0());
 
-        // integrator from potential master
-		integrator = new IntegratorMC(this, potentialMaster);
-        // add mc move
-        moveMolecule = new MCMoveMolecule(this, potentialMaster,space);//stepSize:1.0, stepSizeMax:15.0  ??????????????
-        rotateMolecule = new MCMoveRotate(potentialMaster,random,space);
+		// integrator from potential master
+		integrator = new IntegratorMC(this, potentialMaster, box);
+		// add mc move
+		moveMolecule = new MCMoveMolecule(this, potentialMaster, space);//stepSize:1.0, stepSizeMax:15.0  ??????????????
+		rotateMolecule = new MCMoveRotate(potentialMaster, random, space);
 
 		activityIntegrate = new ActivityIntegrate(integrator);
 		getController().addAction(activityIntegrate);
@@ -117,9 +117,9 @@ public class DLJ_NVT_1site extends Simulation {
 		imposePbc.setApplyToMolecules(true);
 		//**************************** integrator ****************************** //
 		integrator.setTemperature(temperature);
-	    integrator.setBox(box);
-        integrator.getMoveManager().addMCMove(moveMolecule);
-        integrator.getMoveManager().addMCMove(rotateMolecule);
+		integrator.setBox(box);
+		integrator.getMoveManager().addMCMove(moveMolecule);
+		integrator.getMoveManager().addMCMove(rotateMolecule);
 		integrator.getEventManager().addListener(new IntegratorListenerAction(imposePbc));
 
 		//******************************** initial configuration ******************************** //

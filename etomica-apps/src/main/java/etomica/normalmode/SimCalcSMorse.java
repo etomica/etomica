@@ -49,7 +49,7 @@ public class SimCalcSMorse extends Simulation {
         addBox(box);
         box.setNMolecules(species, numAtoms);
 
-        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
+        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
         MCMoveAtomCoupled move = new MCMoveAtomCoupled(potentialMaster, new MeterPotentialEnergy(potentialMaster), getRandom(), space);
         move.setStepSize(0.1);
         move.setStepSizeMax(0.5);

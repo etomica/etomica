@@ -50,7 +50,8 @@ public class ChainHSMD3D extends Simulation {
         double neighborRangeFac = 1.6;
         potentialMaster.setRange(neighborRangeFac);
 
-        integrator = new IntegratorHard(this, potentialMaster, space);
+        box = new Box(space);
+        integrator = new IntegratorHard(this, potentialMaster, space, box);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
 
@@ -66,7 +67,6 @@ public class ChainHSMD3D extends Simulation {
         ((ConformationLinear) model.getConformation()).setBondLength(1.0);
         ((ConformationLinear) model.getConformation()).setAngle(1, 0.35);
 
-        box = new Box(space);
         double l = 14.4573 * Math.pow((chainLength * numAtoms / 2020.0), 1.0 / 3.0);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{l, l, l}));
         addBox(box);
@@ -82,7 +82,6 @@ public class ChainHSMD3D extends Simulation {
         nonBondedCriterion.setBonded(false);
         ((CriterionInterMolecular) potentialMaster.getCriterion(potential)).setIntraMolecularCriterion(nonBondedCriterion);
 
-        integrator.setBox(box);
         MeterRadiusGyration meterRG = new MeterRadiusGyration(space);
         meterRG.setBox(box);
         histogramRG = new AccumulatorHistogram(new HistogramCollapsing(), 10);

@@ -99,7 +99,7 @@ public class SimCalcSSoftSphereFCCSuperBox extends Simulation {
         coordinateDefinition.setIs256();
         coordinateDefinition.initializeCoordinates(nCells);
 
-        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
+        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
         MCMoveAtomSuperBox move = new MCMoveAtomSuperBox(potentialMaster, getRandom(), space, coordinateDefinition);
         move.setStepSize(0.2);
         move.setStepSizeMax(0.5);

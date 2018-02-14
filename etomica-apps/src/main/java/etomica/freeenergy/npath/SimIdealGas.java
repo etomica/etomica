@@ -68,7 +68,7 @@ public class SimIdealGas extends Simulation {
         potentialMasterCell = new PotentialMasterCell(this, 3, space);
         potentialMasterCell.setCellRange(2);
         double sigma = 1.0;
-        integrator = new IntegratorMC(this, potentialMasterCell);
+        integrator = new IntegratorMC(this, potentialMasterCell, box);
         integrator.setTemperature(temperature);
 
         ai = new ActivityIntegrate(integrator);

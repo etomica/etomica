@@ -26,46 +26,45 @@ public class NormalModeAnalysisDisplay1D extends Simulation {
     private static final long serialVersionUID = 1L;
 	private static final String APP_NAME = "1-D Harmonic Oscillator";
 
-	public NormalModeAnalysisDisplay1D(Space space){
+	public NormalModeAnalysisDisplay1D(Space space) {
         super(space);
-     
+
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
-        
+
         box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
-        
-        primitive = new PrimitiveCubic(space, 1.0/density);
-        boundary = new BoundaryRectangularPeriodic(space, numAtoms/density);
+
+        primitive = new PrimitiveCubic(space, 1.0 / density);
+        boundary = new BoundaryRectangularPeriodic(space, numAtoms / density);
         nCells = new int[]{numAtoms};
         box.setBoundary(boundary);
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, space);
         coordinateDefinition.initializeCoordinates(nCells);
-        
+
         nm = new NormalModes1DHR(boundary, numAtoms);
         nm.setTemperature(temperature);
-        
+
         waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
-        
-        integrator = new IntegratorHarmonic(random, 0.01, temperature, space);
+        integrator = new IntegratorHarmonic(random, 0.01, temperature, space, box);
         integrator.setCoordinateDefinition(coordinateDefinition);
         integrator.setWaveVectors(waveVectorFactory.getWaveVectors());
         integrator.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
         integrator.setOmegaSquared(nm.getOmegaSquared(), waveVectorFactory.getCoefficients());
         integrator.setEigenVectors(nm.getEigenvectors());
         integrator.setTemperature(temperature);
-        
-        
+
+
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(1);
-        
+
         getController().addAction(activityIntegrate);
         integrator.setBox(box);
-        
-	}
+
+    }
 	
 	/**
 	 * @param args

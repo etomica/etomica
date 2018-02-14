@@ -83,8 +83,7 @@ public class SimOverlapMultiHarmonic extends Simulation{
 		boxA.getBoundary().setBoxSize(new Vector1D(3.0));
 		boxA.setNMolecules(species, numAtoms);
 
-		integratorA = new IntegratorMC(this, potentialMasterA);
-		integratorA.setBox(boxA);
+		integratorA = new IntegratorMC(this, potentialMasterA, boxA);
 		integratorA.setTemperature(temperature);
 		integrators[0] = integratorA;
 
@@ -101,8 +100,7 @@ public class SimOverlapMultiHarmonic extends Simulation{
 		addBox(boxB);
 		boxB.setNMolecules(species, numAtoms);
 
-		integratorB = new IntegratorMC(this, potentialMasterB);
-		integratorB.setBox(boxB);
+		integratorB = new IntegratorMC(this, potentialMasterB, boxB);
 		integratorB.setTemperature(temperature);
 		integrators[1] = integratorB;
 

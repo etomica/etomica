@@ -81,10 +81,9 @@ public class SimulationVirialMultiOverlap extends Simulation {
             for (int j=0; j<nTypes.length; j++) {
                 box[iBox].setNMolecules(species[j], nTypes[j]);
             }
-            
-            integrators[iBox] = new IntegratorMC(this, potentialMaster);
+
+            integrators[iBox] = new IntegratorMC(this, potentialMaster, box[iBox]);
             integrators[iBox].setTemperature(temperature);
-            integrators[iBox].setBox(box[iBox]);
             integrators[iBox].getMoveManager().setEquilibrating(false);
             
             MCMoveManager moveManager = integrators[iBox].getMoveManager();

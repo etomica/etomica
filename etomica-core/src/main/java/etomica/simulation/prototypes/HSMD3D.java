@@ -75,6 +75,7 @@ public class HSMD3D extends Simulation {
     public HSMD3D(HSMD3DParam params) {
 
         super(Space3D.getInstance());
+        box = new Box(space);
 
         double neighborRangeFac = 1.6;
         double sigma = 1.0;
@@ -82,7 +83,7 @@ public class HSMD3D extends Simulation {
 
         int numAtoms = params.nAtoms;
 
-        integrator = new IntegratorHard(this, potentialMaster, space);
+        integrator = new IntegratorHard(this, potentialMaster, space, box);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
 
@@ -98,7 +99,6 @@ public class HSMD3D extends Simulation {
 
         potentialMaster.addPotential(potential, new AtomType[]{leafType, leafType});
 
-        box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);

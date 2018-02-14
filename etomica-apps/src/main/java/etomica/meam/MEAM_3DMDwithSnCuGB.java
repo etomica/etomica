@@ -81,8 +81,10 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
 
     public MEAM_3DMDwithSnCuGB() {
         super(Space3D.getInstance());//INSTANCE); kmb change 8/3/05
+        box = new Box(new BoundaryRectangularSlit(2, space), space);
+        addBox(box);
         potentialMaster = new PotentialMasterList(this, space);
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space, box);
         integrator.setTimeStep(0.001);
         integrator.setTemperature(Kelvin.UNIT.toSim(295));
         integrator.setThermostatInterval(100);
@@ -114,8 +116,6 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
 //        addSpecies(agB);
         addSpecies(cuB);
 
-        box = new Box(new BoundaryRectangularSlit(2, space), space);
-        addBox(box);
 
 
         double aA, bA, cA, aB, bB, cB;

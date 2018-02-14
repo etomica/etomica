@@ -44,7 +44,8 @@ public class LJMD3D extends Simulation {
         super(Space3D.getInstance());
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         double sigma = 1.0;
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
+        box = new Box(space);
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space, box);
         integrator.setTimeStep(0.02);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(1);
@@ -52,7 +53,6 @@ public class LJMD3D extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
         addSpecies(species);
-        box = new Box(space);
         addBox(box);
         box.setNMolecules(species, 50);
         potential = new P2LennardJones(space, sigma, 1.0);

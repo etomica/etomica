@@ -50,7 +50,7 @@ public class SingleWater {
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeInterval = 0.00016;
         int maxIterations = 40;
-        final IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim, potentialMaster, timeInterval, 1, space);
+        final IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim, potentialMaster, timeInterval, 1, space, box);
         integrator.printInterval = 100;
         integrator.setMaxIterations(maxIterations);
         integrator.setBox(box);

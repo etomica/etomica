@@ -60,7 +60,7 @@ public class DropletAtomic extends Simulation {
         potentialMaster = new PotentialMasterList(this, sigma*pRange*1.5, space);
 
         //controller and integrator
-	    integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space, box);
 	    integrator.setTimeStep(0.005);
 	    integrator.setIsothermal(true);
 	    integrator.setThermostatInterval(5000);

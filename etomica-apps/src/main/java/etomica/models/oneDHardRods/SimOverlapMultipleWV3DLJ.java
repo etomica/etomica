@@ -116,10 +116,9 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
                 {species.getLeafType(), species.getLeafType()});
         
         IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget,
-                random, temperature);
+                random, temperature, boxTarget);
         integrators[1] = integratorTarget;
-        integratorTarget.setBox(boxTarget);
-        
+
         nm = new NormalModesFromFile(filename, space.D());
         nm.setHarmonicFudge(harmonicFudge);
         nm.setTemperature(temperature);
@@ -213,8 +212,7 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
                 {species.getLeafType(), species.getLeafType()});
         
         IntegratorMC integratorRef = new IntegratorMC(potentialMasterRef, 
-                random, temperature);
-        integratorRef.setBox(boxRef);
+                random, temperature, boxRef);
         integrators[0] = integratorRef;
         
         nm = new NormalModesFromFile(filename, space.D());

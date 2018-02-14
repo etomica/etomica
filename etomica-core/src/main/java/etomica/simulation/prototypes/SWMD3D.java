@@ -42,20 +42,19 @@ public class SWMD3D extends Simulation {
         super(Space3D.getInstance());
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 2.5, space);
 
-        integrator = new IntegratorHard(this, potentialMaster, space);
+        box = new Box(space);
+        integrator = new IntegratorHard(this, potentialMaster, space, box);
         integrator.setTimeStep(0.01);
         integrator.setIsothermal(true);
         integrator.setTemperature(1);
         double lambda = 2;
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
-
-        box = new Box(space);
         addBox(box);
-        potential = new etomica.potential.P2SquareWell(space);
+        potential = new P2SquareWell(space);
         potential.setLambda(lambda);
 
-        species = new etomica.species.SpeciesSpheresMono(this, space);
+        species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
         addSpecies(species);
         box.setNMolecules(species, 108);

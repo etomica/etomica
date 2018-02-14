@@ -53,7 +53,8 @@ public class TestLJGCMC3D extends Simulation {
         super(Space3D.getInstance());
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
         double sigma = 1.0;
-        integrator = new IntegratorMC(this, potentialMaster);
+        box = new Box(space);
+        integrator = new IntegratorMC(this, potentialMaster, box);
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         mcMoveAtom.setStepSize(0.2 * sigma);
         ((MCMoveStepTracker) mcMoveAtom.getTracker()).setTunable(false);
@@ -69,7 +70,6 @@ public class TestLJGCMC3D extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
         mcMoveID.setSpecies(species);
-        box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);

@@ -79,8 +79,8 @@ public class SimDirectDisorderedAlphaN2RPInitPert extends Simulation {
 		move.setBox(box);
 		move.setPotential(potential);
 		move.setDoExcludeNonNeighbors(true);
-		
-        IntegratorMC integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
+
+        IntegratorMC integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
         integrator.getMoveManager().addMCMove(move);
 		integrator.setBox(box);
 

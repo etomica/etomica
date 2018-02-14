@@ -42,7 +42,7 @@ public class SingleDumbellRattle {
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeStep = 2*Math.PI/100;
         int maxIterations = 20;
-        IntegratorVelocityVerletShake integrator = new IntegratorVelocityVerletRattle(sim, potentialMaster, space);
+        IntegratorVelocityVerletShake integrator = new IntegratorVelocityVerletRattle(sim, potentialMaster, space, box);
         integrator.setTimeStep(timeStep);
 //        integrator.printInterval = 10;
         integrator.setMaxIterations(maxIterations);

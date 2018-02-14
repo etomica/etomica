@@ -308,9 +308,9 @@ public class IntegratorKMC extends IntegratorBox{
     }
 
     public void createIntegrators(){
-        integratorMin1 = new IntegratorDimerMin(sim, potentialMaster, species, true, space);
-        integratorMin2= new IntegratorDimerMin(sim, potentialMaster, species, false, space);
-        integratorDimer = new IntegratorDimerRT(sim, potentialMaster, species, space);
+        integratorMin1 = new IntegratorDimerMin(sim, potentialMaster, species, true, space, box);
+        integratorMin2 = new IntegratorDimerMin(sim, potentialMaster, species, false, space, box);
+        integratorDimer = new IntegratorDimerRT(sim, potentialMaster, species, space, box);
         
         integratorMin1.setBox(box);
         integratorMin2.setBox(box);

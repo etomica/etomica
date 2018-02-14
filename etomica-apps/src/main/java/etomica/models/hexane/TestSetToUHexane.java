@@ -94,7 +94,7 @@ public class TestSetToUHexane extends Simulation {
         iterator.reset();
         
         PotentialMaster potentialMaster = new PotentialMaster();
-        integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0);
+        integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0, box);
         
         moveMolecule = new MCMoveMolecule(potentialMaster, getRandom(),
                     space, 0.1, 1);

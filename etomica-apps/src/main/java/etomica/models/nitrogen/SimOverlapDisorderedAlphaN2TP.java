@@ -101,8 +101,8 @@ public class SimOverlapDisorderedAlphaN2TP extends Simulation {
 		move.setDoExcludeNonNeighbors(true);
 		//move.setStepSize(Kelvin.UNIT.toSim(temperature));
 		//((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
-		
-		integrator = new IntegratorMC(potentialMaster, getRandom(), Kelvin.UNIT.toSim(temperature));
+
+        integrator = new IntegratorMC(potentialMaster, getRandom(), Kelvin.UNIT.toSim(temperature), box);
 		integrator.getMoveManager().addMCMove(move);
 		if(isBetaHCP){
 			rotate = new MCMoveRotateMolecule3D(potentialMaster, getRandom(), space);

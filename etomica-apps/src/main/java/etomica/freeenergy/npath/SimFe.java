@@ -110,20 +110,20 @@ public class SimFe extends Simulation {
         if (numInnerSteps > 0 && w > 0) {
             if (doHarmonic) {
                 if (w > 3e6) {
-                    integrator = new IntegratorMDHarmonicMC(potentialMaster, random, timeStep, temperature, space);
+                    integrator = new IntegratorMDHarmonicMC(potentialMaster, random, timeStep, temperature, space, box);
                     ((IntegratorMDHarmonicMC) integrator).setP1Harmonic(p1ImageHarmonic);
                     swap = false;
                 } else {
-                    integrator = new IntegratorImageHarmonicMD(potentialMaster, random, timeStep, temperature, space);
+                    integrator = new IntegratorImageHarmonicMD(potentialMaster, random, timeStep, temperature, space, box);
                     ((IntegratorImageHarmonicMD) integrator).setP1Harmonic(p1ImageHarmonic);
                 }
             } else {
-                integrator = new IntegratorImageMultistepMD(potentialMaster, random, timeStep, temperature, space);
+                integrator = new IntegratorImageMultistepMD(potentialMaster, random, timeStep, temperature, space, box);
                 ((IntegratorImageMultistepMD) integrator).setP1Harmonic(p1ImageHarmonic);
                 ((IntegratorImageMultistepMD) integrator).setNumInnerSteps(numInnerSteps);
             }
         } else {
-            integrator = new IntegratorVelocityVerlet(potentialMaster, random, timeStep, temperature, space);
+            integrator = new IntegratorVelocityVerlet(potentialMaster, random, timeStep, temperature, space, box);
         }
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setPotentialCalculation(new PotentialCalculationEnergySumEAM(potential));
@@ -177,7 +177,7 @@ public class SimFe extends Simulation {
         if (swap) {
             mcMoveSwap = new MCMoveAtomSwap(random, potentialMasterCell, space, p1ImageHarmonic);
             mcMoveSwap.setNbrDistance(swapDistance);
-            IntegratorMC integratorMC = new IntegratorMC(potentialMaster, random, temperature);
+            IntegratorMC integratorMC = new IntegratorMC(potentialMaster, random, temperature, box);
             integratorMC.getMoveManager().addMCMove(mcMoveSwap);
             integratorMC.setBox(box);
             integratorMC.reset();

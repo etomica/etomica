@@ -57,7 +57,7 @@ public class SimCalcSSoftSphereFCC extends Simulation {
 		addBox(box);
 		box.setNMolecules(species, numAtoms);
 
-		integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
+        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
 
 		if (space.D() == 1) {
 			primitive = new PrimitiveCubic(space, 1.0 / density);

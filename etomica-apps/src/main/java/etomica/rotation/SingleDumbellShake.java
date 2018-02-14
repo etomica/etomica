@@ -41,7 +41,7 @@ public class SingleDumbellShake {
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeStep = 2*Math.PI/100;
         int maxIterations = 20;
-        IntegratorVelocityVerletShake integrator = new IntegratorVelocityVerletShake(sim, potentialMaster, space);
+        IntegratorVelocityVerletShake integrator = new IntegratorVelocityVerletShake(sim, potentialMaster, space, box);
         integrator.setTimeStep(timeStep);
 //        integrator.printInterval = 10;
         integrator.setMaxIterations(maxIterations);
