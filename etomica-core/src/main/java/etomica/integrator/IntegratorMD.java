@@ -69,6 +69,17 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
         atomActionRandomizeVelocity = new AtomActionRandomizeVelocity(temperature, random);
         momentum = this.space.makeVector();
         temperatureVec = this.space.makeVector();
+
+        if (meterKE instanceof MeterKineticEnergy) {
+            ((MeterKineticEnergy) meterKE).setBox(box);
+        }
+        meterTemperature = new MeterTemperature(box, space.D());
+        meterTemperature.setKineticEnergyMeter(meterKE);
+        this.box.getEventManager().addListener(this);
+
+        if (thermostat == ThermostatType.HYBRID_MC) {
+            oldPositionAgentManager = new AtomLeafAgentManager<Vector>(new VectorSource(space), this.box);
+        }
     }
 
     /**
@@ -84,26 +95,6 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
      */
     public void setTimeStep(double t) {
         timeStep = t;
-    }
-
-
-    protected void setBox(Box box) {
-        if (this.box != null) {
-            this.box.getEventManager().removeListener(this);
-        }
-        if (meterKE instanceof MeterKineticEnergy) {
-            ((MeterKineticEnergy) meterKE).setBox(box);
-        }
-        meterTemperature = new MeterTemperature(box, space.D());
-        meterTemperature.setKineticEnergyMeter(meterKE);
-        this.box.getEventManager().addListener(this);
-
-        if (thermostat == ThermostatType.HYBRID_MC) {
-            oldPositionAgentManager = new AtomLeafAgentManager<Vector>(new VectorSource(space), this.box);
-        }
-        if (integratorMC != null) {
-            integratorMC.setBox(this.box);
-        }
     }
 
     protected void setup() {
@@ -196,10 +187,7 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
         }
         this.integratorMC = integratorMC;
         integratorMC.setTemperature(temperature);
-        if (box != null) {
-            integratorMC.setBox(box);
-            integratorMC.reset();
-        }
+        integratorMC.reset();
         this.mcSteps = mcSteps;
     }
 

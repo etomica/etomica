@@ -44,6 +44,8 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         allAtoms.setIncludeLrc(true);
         pressureTensor = space.makeTensor();
         workTensor = space.makeTensor();
+        agentManager = new AtomLeafAgentManager<>(this, box);
+        forceSum.setAgentManager(agentManager);
     }
 
     public PotentialCalculationForceSum getForceSum() {
@@ -60,16 +62,6 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
             forceSum.setAgentManager(agentManager);
         }
         
-    }
-
-    public void setBox(Box box) {
-        if (this.box != null) {
-            // allow agentManager to de-register itself as a BoxListener
-            agentManager.dispose();
-        }
-        super.setBox(box);
-        agentManager = new AtomLeafAgentManager<>(this, box);
-        forceSum.setAgentManager(agentManager);
     }
 
 //--------------------------------------------------------------

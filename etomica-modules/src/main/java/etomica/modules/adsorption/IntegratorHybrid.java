@@ -41,9 +41,6 @@ public class IntegratorHybrid extends IntegratorBox {
         setMDStepRepetitions(50);
     }
 	
-	public void setBox(Box box) {
-	}
-
 	public void setMCMoveInsertDelete(MyMCMove mcMoveIDA, MyMCMove mcMoveIDB) {
 	    this.mcMoveIDA = mcMoveIDA;
         this.mcMoveIDB = mcMoveIDB;

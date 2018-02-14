@@ -60,6 +60,10 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
         setIsothermal(true);
         forceSumNPH = new ForceSumNPH(space);
         inflate = new BoxInflate(space);
+        inflate.setBox(this.box);
+        meterTemperature = new MeterTemperature(this.box, D);
+        forceSumNPH.setBox(this.box);
+        forceSumNPH.setAgentManager(forces);
     }
 
     public void setTimeStep(double t) {
@@ -94,14 +98,6 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
     public double getTargetT() {return targetT;}
     public Dimension getTargetTDimension() {return Temperature.DIMENSION;}
 
-    public void setBox(Box box) {
-        super.setBox(box);
-        inflate.setBox(this.box);
-        meterTemperature = new MeterTemperature(this.box, D);
-        forceSumNPH.setBox(this.box);
-        forceSumNPH.setAgentManager(forces);
-    }
-    
     
 //--------------------------------------------------------------
 // steps all particles across time interval tStep

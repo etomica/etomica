@@ -60,14 +60,6 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource<Integra
         work2 = space.makeVector();
 
         setTimeStep(timeStep);
-    }
-
-    public void setBox(Box box) {
-        if (this.box != null) {
-            // allow agentManager to de-register itself as a BoxListener
-            agentManager.dispose();
-        }
-        super.setBox(box);
         agentManager = new AtomLeafAgentManager<IntegratorGear4.Agent>(this, box);
         forces = new AtomLeafAgentManager<>(new AgentSource<Vector>() {
             @Override

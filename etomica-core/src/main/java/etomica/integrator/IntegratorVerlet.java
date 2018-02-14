@@ -51,24 +51,16 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource<
         
         pressureTensor = space.makeTensor();
         workTensor = space.makeTensor();
+        agentManager = new AtomLeafAgentManager<Agent>(this, box);
+        forces = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
+        forceSum.setAgentManager(forces);
     }
 
     public final void setTimeStep(double t) {
         super.setTimeStep(t);
         t2 = timeStep * timeStep;
     }
-          
-    public void setBox(Box box) {
-        if (this.box != null) {
-            // allow agentManager to de-register itself as a BoxListener
-            agentManager.dispose();
-        }
-        super.setBox(box);
-        agentManager = new AtomLeafAgentManager<Agent>(this, box);
-        forces = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
-        forceSum.setAgentManager(forces);
-    }
-    
+
 //--------------------------------------------------------------
 // steps all particles across time interval tStep
 

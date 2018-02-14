@@ -38,15 +38,11 @@ public class IntegratorImageHarmonicMD extends IntegratorVelocityVerlet {
         df = space.makeVector();
         fTot = space.makeVector();
         vTot = space.makeVector();
+        boundary = box.getBoundary();
     }
 
     public void setP1Harmonic(P1ImageHarmonic p1) {
         this.p1 = p1;
-    }
-
-    public void setBox(Box box) {
-        super.setBox(box);
-        boundary = box.getBoundary();
     }
 
     public double getRandomizeProbability() {

@@ -70,7 +70,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
     
     public IntegratorVelocityVerletQuaternion(Simulation sim, PotentialMaster potentialMaster,
                                               double timeStep, double temperature, Space space, Box box) {
-        super(potentialMaster,sim.getRandom(),timeStep,temperature, space);
+        super(potentialMaster,sim.getRandom(),timeStep,temperature, space, box);
         this.sim = sim;
         forceSum = new PotentialCalculationForcePressureSum(space);
         allAtoms = new IteratorDirective();
@@ -90,6 +90,9 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         translateBy = new AtomActionTranslateBy(space);
         translator = new MoleculeChildAtomAction(translateBy);
         printInterval = 10;
+        leafAgentManager = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
+        moleculeAgentManager = new MoleculeAgentManager(sim, this.box, this);
+        forceSum.setAgentManager(leafAgentManager);
     }
 
     public static void main(String[] args) {
@@ -172,18 +175,6 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
 //            calcer.calcOrientation((IMolecule)box.getMoleculeList().getAtom(0), orientation);
 //            System.out.println(orientation.getDirection()+" "+orientation.getSecondaryDirection());
         }
-    }
-
-    public void setBox(Box box) {
-        if (this.box != null) {
-            // allow agentManager to de-register itself as a BoxListener
-            leafAgentManager.dispose();
-            moleculeAgentManager.dispose();
-        }
-        super.setBox(box);
-        leafAgentManager = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
-        moleculeAgentManager = new MoleculeAgentManager(sim, this.box, this);
-        forceSum.setAgentManager(leafAgentManager);
     }
 
 //--------------------------------------------------------------

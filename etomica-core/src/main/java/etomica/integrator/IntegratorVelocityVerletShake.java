@@ -67,6 +67,8 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
         moved = new boolean[2][0];
         drOld = new Vector[0];
         temp = space.makeVector();
+        agentManager = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
+        forceSum.setAgentManager(agentManager);
     }
     
     public void setForceSum(PotentialCalculationForceSum pc){
@@ -75,16 +77,6 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
             forceSum.setAgentManager(agentManager);
         }
         
-    }
-    
-    public void setBox(Box box) {
-        if (this.box != null) {
-            // allow agentManager to de-register itself as a BoxListener
-            agentManager.dispose();
-        }
-        super.setBox(box);
-        agentManager = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
-        forceSum.setAgentManager(agentManager);
     }
 
     public void setBondConstraints(ISpecies species, int[][] bondedAtoms, double[] bondLengths) {

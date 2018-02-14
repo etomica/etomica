@@ -61,49 +61,49 @@ public class CH4NVT extends Simulation {
     public Controller controller; //control the simulation process
 
 	//************************************* constructor ********************************************//
-	public CH4NVT(Space space, int numberMolecules, double boxSize, double temperature,double truncation){
-		
-		super(space);		
+	public CH4NVT(Space space, int numberMolecules, double boxSize, double temperature,double truncation) {
+
+		super(space);
 		//setRandom(new RandomNumberGenerator(1));
 		speciesCH4 = new SpeciesMethane(space);
 		addSpecies(speciesCH4);
 		box = new Box(space);
 		addBox(box);
 		box.setNMolecules(speciesCH4, numberMolecules);
-		box.getBoundary().setBoxSize(space.makeVector(new double[]{boxSize,boxSize,boxSize}));
+		box.getBoundary().setBoxSize(space.makeVector(new double[]{boxSize, boxSize, boxSize}));
 		potentialMaster = new PotentialMaster();
 		integrator = new IntegratorMC(this, potentialMaster, box);
-		
+
 		//CH4 potential
-        double sigmaH = 3.31;// "middle point of CH bond"
-        double sigmaC = 3.31;
-        double sigmaCH = (sigmaH+sigmaC)/2;
-        double epsilonH = Kelvin.UNIT.toSim(15.3);
-        double epsilonC = Kelvin.UNIT.toSim(0.01);
-        double epsilonCH = Math.sqrt((epsilonH * epsilonC ));
-        P2LennardJones p2H = new P2LennardJones(space, sigmaH, epsilonH);// H-H
-        P2LennardJones p2C = new P2LennardJones(space, sigmaC, epsilonC);//C-C
-        P2LennardJones p2CH = new P2LennardJones(space, sigmaCH, epsilonCH);//C-H
-        //double truncationRadius = truncation;
-        PotentialGroupSoft pCH4 = new PotentialGroupSoft(2,space,truncation);
-        //PotentialGroup pCH4 = new PotentialGroup(2);
+		double sigmaH = 3.31;// "middle point of CH bond"
+		double sigmaC = 3.31;
+		double sigmaCH = (sigmaH + sigmaC) / 2;
+		double epsilonH = Kelvin.UNIT.toSim(15.3);
+		double epsilonC = Kelvin.UNIT.toSim(0.01);
+		double epsilonCH = Math.sqrt((epsilonH * epsilonC));
+		P2LennardJones p2H = new P2LennardJones(space, sigmaH, epsilonH);// H-H
+		P2LennardJones p2C = new P2LennardJones(space, sigmaC, epsilonC);//C-C
+		P2LennardJones p2CH = new P2LennardJones(space, sigmaCH, epsilonCH);//C-H
+		//double truncationRadius = truncation;
+		PotentialGroupSoft pCH4 = new PotentialGroupSoft(2, space, truncation);
+		//PotentialGroup pCH4 = new PotentialGroup(2);
 
-        AtomType typeC = speciesCH4.getAtomType(0);
-        AtomType typeH = speciesCH4.getAtomType(1);
+		AtomType typeC = speciesCH4.getAtomType(0);
+		AtomType typeH = speciesCH4.getAtomType(1);
 
-        // build methane potential
-        pCH4.addPotential(p2C, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeC}));//C-C
-        pCH4.addPotential(p2CH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeH}));//C-H
-        pCH4.addPotential(p2CH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeH, typeC}));//H-C
-        pCH4.addPotential(p2H, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeH, typeH}));//H-H
-        
-        //add potential to potential master 
-        potentialMaster.addPotential(pCH4, new ISpecies[]{speciesCH4,speciesCH4});
-        moveMolecule = new MCMoveMolecule(this, potentialMaster, space);//stepSize:1.0, stepSizeMax:15.0
-        rotateMolecule = new MCMoveRotateMolecule3D(potentialMaster,random,space);
+		// build methane potential
+		pCH4.addPotential(p2C, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeC}));//C-C
+		pCH4.addPotential(p2CH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeH}));//C-H
+		pCH4.addPotential(p2CH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeH, typeC}));//H-C
+		pCH4.addPotential(p2H, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeH, typeH}));//H-H
+
+		//add potential to potential master
+		potentialMaster.addPotential(pCH4, new ISpecies[]{speciesCH4, speciesCH4});
+		moveMolecule = new MCMoveMolecule(this, potentialMaster, space);//stepSize:1.0, stepSizeMax:15.0
+		rotateMolecule = new MCMoveRotateMolecule3D(potentialMaster, random, space);
 
 		activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setMaxSteps(10000000);
+		activityIntegrate.setMaxSteps(10000000);
 		getController().addAction(activityIntegrate);
 
 		//******************************** periodic boundary condition ******************************** //
@@ -111,16 +111,15 @@ public class CH4NVT extends Simulation {
 		imposePbc.setApplyToMolecules(true);
 		//**************************** integrator ****************************** //
 		integrator.setTemperature(temperature);
-	    integrator.setBox(box);
-        integrator.getMoveManager().addMCMove(moveMolecule);
-        integrator.getMoveManager().addMCMove(rotateMolecule);
+		integrator.getMoveManager().addMCMove(moveMolecule);
+		integrator.getMoveManager().addMCMove(rotateMolecule);
 		integrator.getEventManager().addListener(new IntegratorListenerAction(imposePbc));
-		
+
 		//******************************** initial configuration ******************************** //
 		LatticeCubicBcc lattice = new LatticeCubicBcc(space);
 		ConfigurationLattice configuration = new ConfigurationLattice(lattice, space);
 		configuration.initializeCoordinates(box);
-		
+
 	}
 		
 	// **************************** simulation part **************************** //
