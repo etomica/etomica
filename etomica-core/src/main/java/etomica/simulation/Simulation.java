@@ -93,7 +93,7 @@ public class Simulation {
      * @param newBox the Box being added.
      * @throws IllegalArgumentException if newBox was already added to the simulation.
      */
-    public final void addBox(Box newBox) {
+    public final Box addBox(Box newBox) {
         if (boxes.contains(newBox)) {
             throw new IllegalArgumentException("Box " + newBox + " is already a part of this Simulation");
         }
@@ -104,6 +104,7 @@ public class Simulation {
             newBox.addSpeciesNotify(aSpeciesList);
         }
         eventManager.boxAdded(newBox);
+        return newBox;
     }
 
     /**

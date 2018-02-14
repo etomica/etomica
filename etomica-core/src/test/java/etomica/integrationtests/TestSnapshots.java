@@ -55,6 +55,7 @@ public class TestSnapshots {
         public HSMD3DNeighborList() {
             super(Space3D.getInstance());
             this.setRandom(new RandomMersenneTwister(new int[]{1, 2, 3, 4}));
+            addBox(new Box(this.space));
 
             PotentialMasterList pm = new PotentialMasterList(this, 1.6, this.space);
 
@@ -74,7 +75,6 @@ public class TestSnapshots {
 
             pm.addPotential(potential, new AtomType[]{leafType, leafType});
 
-            addBox(new Box(this.space));
             box().setNMolecules(species, 256);
             BoxInflate inflater = new BoxInflate(box(), space);
             inflater.setTargetDensity(.35 * 2 * space.D() / Math.PI);

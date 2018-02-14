@@ -76,6 +76,7 @@ public class HSMD3D extends Simulation {
 
         super(Space3D.getInstance());
         box = new Box(space);
+        addBox(box);
 
         double neighborRangeFac = 1.6;
         double sigma = 1.0;
@@ -99,7 +100,6 @@ public class HSMD3D extends Simulation {
 
         potentialMaster.addPotential(potential, new AtomType[]{leafType, leafType});
 
-        addBox(box);
         box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(params.eta * 2 * space.D() / Math.PI);
