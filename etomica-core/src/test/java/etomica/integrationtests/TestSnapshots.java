@@ -58,15 +58,6 @@ public class TestSnapshots {
             addBox(new Box(this.space));
 
             PotentialMasterList pm = new PotentialMasterList(this, 1.6, this.space);
-
-            IntegratorHard integrator = new IntegratorHard(this, pm, this.space, box());
-            integrator.setIsothermal(false);
-            integrator.setTimeStep(0.01);
-
-            ActionIntegrate ai = new ActionIntegrate(integrator);
-            ai.setMaxSteps(500);
-            getController().addAction(ai);
-
             SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
             species.setIsDynamic(true);
             addSpecies(species);
@@ -80,6 +71,15 @@ public class TestSnapshots {
             inflater.setTargetDensity(.35 * 2 * space.D() / Math.PI);
             inflater.actionPerformed();
             new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box());
+
+            IntegratorHard integrator = new IntegratorHard(this, pm, this.space, box());
+            integrator.setIsothermal(false);
+            integrator.setTimeStep(0.01);
+
+            ActionIntegrate ai = new ActionIntegrate(integrator);
+            ai.setMaxSteps(500);
+            getController().addAction(ai);
+
             integrator.getEventManager().addListener(pm.getNeighborManager(box()));
         }
 
