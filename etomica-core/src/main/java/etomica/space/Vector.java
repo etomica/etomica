@@ -203,6 +203,8 @@ public interface Vector {
      */
     void setRandomInSphere(IRandom random);
 
+    void nearestImage(Vector dimensions, Vector dimensionsHalf);
+
 
     /**
      * Returns a Vector initialized to the given set of values.
