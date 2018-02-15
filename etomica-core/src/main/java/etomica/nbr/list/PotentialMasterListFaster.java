@@ -19,26 +19,31 @@ import etomica.nbr.cell.NeighborCellManager;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
+import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.spaceNd.VectorND;
+import etomica.space2d.Vector2D;
+import etomica.space3d.Vector3D;
 import etomica.util.Debug;
 
 /**
  * PotentialMaster used to implement neighbor listing.  Instance of this
  * class is given as an argument to the Simulation constructor.
  */
-public class PotentialMasterListFast extends PotentialMasterList {
+@SuppressWarnings("ALL")
+public class PotentialMasterListFaster extends PotentialMasterList {
 
     protected final Vector dr;
     protected final P2SoftSphericalTruncated p2;
     protected final AtomPair pair;
     private Vector[] forces;
+    private Vector[] positions;
+    private int[][] neighbors;
 
     /**
      * Constructor specifying space and range for neighbor listing; uses null AtomPositionDefinition.
      */
-    public PotentialMasterListFast(Simulation sim, double range, Space _space) {
+    public PotentialMasterListFaster(Simulation sim, double range, Space _space) {
         this(sim, range, (IMoleculePositionDefinition) null, _space);
     }
 
@@ -48,22 +53,22 @@ public class PotentialMasterListFast extends PotentialMasterList {
      *
      * @param positionDefinition if null, specifies use of atom type's position definition
      */
-    public PotentialMasterListFast(Simulation sim, double range, IMoleculePositionDefinition positionDefinition, Space _space) {
+    public PotentialMasterListFaster(Simulation sim, double range, IMoleculePositionDefinition positionDefinition, Space _space) {
         this(sim, range, new BoxAgentSourceCellManagerList(sim, positionDefinition, _space), _space);
     }
 
-    public PotentialMasterListFast(Simulation sim, double range, BoxAgentSourceCellManagerList boxAgentSource, Space _space) {
+    public PotentialMasterListFaster(Simulation sim, double range, BoxAgentSourceCellManagerList boxAgentSource, Space _space) {
         this(sim, range, boxAgentSource, new BoxAgentManager<>(boxAgentSource, sim), _space);
     }
 
-    public PotentialMasterListFast(Simulation sim, double range, BoxAgentSourceCellManagerList boxAgentSource, BoxAgentManager<? extends BoxCellManager> agentManager, Space _space) {
+    public PotentialMasterListFaster(Simulation sim, double range, BoxAgentSourceCellManagerList boxAgentSource, BoxAgentManager<? extends BoxCellManager> agentManager, Space _space) {
         this(sim, range, boxAgentSource, agentManager, new NeighborListAgentSource(range, _space), _space);
     }
 
-    public PotentialMasterListFast(Simulation sim, double range,
-                                   BoxAgentSourceCellManagerList boxAgentSource,
-                                   BoxAgentManager<? extends BoxCellManager> agentManager,
-                                   NeighborListAgentSource neighborListAgentSource, Space _space) {
+    public PotentialMasterListFaster(Simulation sim, double range,
+                                     BoxAgentSourceCellManagerList boxAgentSource,
+                                     BoxAgentManager<? extends BoxCellManager> agentManager,
+                                     NeighborListAgentSource neighborListAgentSource, Space _space) {
         super(sim, range, boxAgentSource, agentManager, neighborListAgentSource, _space);
         dr = space.makeVector();
         p2 = new P2SoftSphericalTruncated(space, new P2LennardJones(space), 3);
@@ -84,6 +89,22 @@ public class PotentialMasterListFast extends PotentialMasterList {
         return null;
     }
 
+    public void doSetUp(Box box) {
+        IAtomList atoms = box.getLeafList();
+        if (positions == null) {
+            positions = new Vector[atoms.getAtomCount()];
+            neighbors = new int[atoms.getAtomCount()][];
+        }
+        for (int i = 0; i < atoms.getAtomCount(); i++) {
+            positions[i] = atoms.getAtom(i).getPosition();
+            IAtomList atomNeighbors = neighborListAgentManager.getAgent(box).getUpList(atoms.getAtom(i))[0];
+            neighbors[i] = new int[atomNeighbors.getAtomCount()];
+            for (int j = 0; j < neighbors[i].length; j++) {
+                neighbors[i][j] = atomNeighbors.getAtom(j).getLeafIndex();
+            }
+        }
+    }
+
     /**
      * Overrides superclass method to enable direct neighbor-list iteration
      * instead of iteration via species/potential hierarchy. If no target atoms are
@@ -94,6 +115,9 @@ public class PotentialMasterListFast extends PotentialMasterList {
      * superclass method is invoked.
      */
     public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
+        if (positions == null) {
+            doSetUp(box);
+        }
         if (forces == null) {
             forces = new Vector[box.getLeafList().getAtomCount()];
             for (int i = 0; i < box.getLeafList().getAtomCount(); i++) {
@@ -108,41 +132,30 @@ public class PotentialMasterListFast extends PotentialMasterList {
         IAtom targetAtom = id.getTargetAtom();
         IMolecule targetMolecule = id.getTargetMolecule();
         p2.setBox(box);
-        NeighborListManager neighborManager = neighborListAgentManager.getAgent(box);
         if (targetAtom == null && targetMolecule == null) {
             if (Debug.ON && id.direction() != IteratorDirective.Direction.UP) {
                 throw new IllegalArgumentException("When there is no target, iterator directive must be up");
             }
 
-            IAtomList atoms = box.getLeafList();
             AtomLeafAgentManager<? extends Integrator.Forcible> agentManager = ((PotentialCalculationForceSum) pc).getAgentManager();
             Boundary boundary = box.getBoundary();
-            for (int i = 0; i < atoms.getAtomCount(); i++) {
-                IAtom atom = atoms.getAtom(i);
-                pair.atom0 = atom;
-                Vector v = atom.getPosition();
-                IAtomList list = neighborManager.getUpList(atom)[0];
-                int nNeighbors = list.getAtomCount();
+            Vector3D dimHalf = (Vector3D) ((BoundaryRectangularPeriodic) boundary).dimensionsHalf;
+            Vector3D dim = (Vector3D) ((BoundaryRectangularPeriodic) boundary).dimensions;
+            for (int i = 0; i < positions.length; i++) {
+                Vector pos = positions[i];
+                int[] iNeighbors = neighbors[i];
                 Vector iForce = forces[i];
 
-                for (int j = 0; j < nNeighbors; j++) {
-                    IAtom jAtom = list.getAtom(j);
-                    pair.atom1 = jAtom;
-//                    pc.doCalculation(pair, p2);
-                    ((PotentialCalculationForceSum) pc).doCalcFast(pair, p2, forces);
-//                    p2.gradientFast(pair, iForce, forces[jAtom.getLeafIndex()]);
-//                    dr.Ev1Mv2(v, jAtom.getPosition());
-//                    boundary.nearestImage(dr);
-//                    double r2 = dr.squared();
-//                    if (r2 > 9) continue;
-//                    double s6 = 1 / (r2 * r2 * r2);
-//                    double du = -12 * s6 * (s6 - 0.5);
-//                    dr.Ea1Tv1(du / r2, dr);
-//                    iForce.ME(dr);
-//                    forces[jAtom.getLeafIndex()].PE(dr);
-//                    Integrator.Forcible jAgent = agentManager.getAgent(atom);
-//                    jAgent.force().ME(g[1]);
-//                    iAgent.force().ME(g[0]);
+                for (int j = 0; j < iNeighbors.length; j++) {
+                    dr.Ev1Mv2(pos, positions[iNeighbors[j]]);
+                    boundary.nearestImage(dr);
+                    double r2 = dr.squared();
+                    if (r2 > 9) continue;
+                    double s6 = 1 / (r2 * r2 * r2);
+                    double du = -12 * s6 * (s6 - 0.5);
+                    dr.Ea1Tv1(du / r2, dr);
+                    iForce.ME(dr);
+                    forces[iNeighbors[j]].PE(dr);
                 }
 
             }

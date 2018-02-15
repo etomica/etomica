@@ -4,10 +4,12 @@
 
 package etomica.simulation;
 
+import etomica.nbr.list.PotentialMasterListFaster;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.simulation.prototypes.LJMD3D;
 import etomica.simulation.prototypes.LJMD3DFast;
+import etomica.simulation.prototypes.LJMD3DFaster;
 import org.openjdk.jmh.annotations.*;
 
 import java.util.concurrent.TimeUnit;
@@ -18,6 +20,7 @@ public class BenchSimLJMD3D {
 
     private LJMD3D sim;
     private LJMD3DFast simFast;
+    private LJMD3DFaster simFaster;
     private PotentialCalculationForceSum pc, pcFast;
     private IteratorDirective id;
 
@@ -29,11 +32,18 @@ public class BenchSimLJMD3D {
         id.setDirection(IteratorDirective.Direction.UP);
 
         simFast = new LJMD3DFast();
+        simFaster = new LJMD3DFaster();
         pc = sim.integrator.getForceSum();
         pcFast = simFast.integrator.getForceSum();
         sim.integrator.reset();
         simFast.integrator.reset();
+        simFaster.integrator.reset();
     }
+
+//    @Setup(Level.Invocation)
+//    public void setUpCall() {
+//
+//    }
 
     @Benchmark
     @BenchmarkMode(Mode.Throughput)
@@ -55,6 +65,17 @@ public class BenchSimLJMD3D {
     public long integratorStepFast() {
 //        simFast.integrator.doStep();
         simFast.integrator.getPotentialMaster().calculate(simFast.box, id, pcFast);
+        return simFast.integrator.getStepCount();
+    }
+
+    @Benchmark
+    @BenchmarkMode(Mode.Throughput)
+    @OutputTimeUnit(TimeUnit.SECONDS)
+    @Warmup(time = 1, iterations = 5)
+    @Measurement(time = 3, iterations = 5)
+    public long integratorStepFaster() {
+//        simFast.integrator.doStep();
+        simFaster.integrator.getPotentialMaster().calculate(simFast.box, id, pcFast);
         return simFast.integrator.getStepCount();
     }
 }

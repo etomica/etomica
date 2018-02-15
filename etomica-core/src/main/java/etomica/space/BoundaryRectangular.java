@@ -14,7 +14,7 @@ import etomica.math.geometry.*;
 public abstract class BoundaryRectangular extends Boundary {
 
     private static final long serialVersionUID = 1L;
-    protected final Vector dimensions;
+    public final Vector dimensions;
     protected final float[][] shift0 = new float[0][0];
     protected final Vector[] edgeVectors;
     private final IndexIteratorRectangular indexIterator;

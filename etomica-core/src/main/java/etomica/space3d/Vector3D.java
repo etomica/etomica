@@ -5,6 +5,7 @@
 package etomica.space3d;
 
 import etomica.math.function.IFunction;
+import etomica.space2d.Vector2D;
 import etomica.util.random.IRandom;
 import etomica.space.Vector;
 
@@ -153,6 +154,24 @@ public final class Vector3D implements Vector, java.io.Serializable {
         x = ((Vector3D) u1).x - ((Vector3D) u2).x;
         y = ((Vector3D) u1).y - ((Vector3D) u2).y;
         z = ((Vector3D) u1).z - ((Vector3D) u2).z;
+    }
+
+    public void nearestImage(Vector dimensionsHalf2, Vector dimensions2) {
+        Vector3D dimensionsHalf = ((Vector3D) dimensionsHalf2);
+        Vector3D dimensions = ((Vector3D) dimensions2);
+
+        while (x > dimensionsHalf.x)
+            x -= dimensions.x;
+        while (x < -dimensionsHalf.x)
+            x += dimensions.x;
+        while (y > dimensionsHalf.y)
+            y -= dimensions.y;
+        while (y < -dimensionsHalf.y)
+            y += dimensions.y;
+        while (z > dimensionsHalf.z)
+            z -= dimensions.z;
+        while (z < -dimensionsHalf.z)
+            z += dimensions.z;
     }
     
     public void mod(Vector u) {

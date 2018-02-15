@@ -50,9 +50,7 @@ public class BoundaryRectangularPeriodic extends BoundaryRectangular {
     }
     
     public void nearestImage(Vector dr) {
-        dr.PE(dimensionsHalf);
-        dr.mod(dimensions);
-        dr.ME(dimensionsHalf);
+        dr.nearestImage(dimensionsHalf, dimensions);
     }
 
     public Vector centralImage(Vector r) {
@@ -72,6 +70,6 @@ public class BoundaryRectangularPeriodic extends BoundaryRectangular {
     }
 
     private static final long serialVersionUID = 1L;
-    protected final Vector dimensionsHalf;
+    public final Vector dimensionsHalf;
     protected final Vector tempImage;
 }
