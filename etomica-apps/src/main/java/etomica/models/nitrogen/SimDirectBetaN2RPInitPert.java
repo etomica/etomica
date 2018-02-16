@@ -172,8 +172,7 @@ public class SimDirectBetaN2RPInitPert extends Simulation {
 		int numNeigh = potentialMaster.getNeighborManager(box).getUpList(box.getMoleculeList().getMolecule(0))[0].getMoleculeCount();
 		System.out.println("numNeigh: " + numNeigh);
 
-		MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
-		meterPE.setBox(box);
+		MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
 
 		double latticeEnergy = meterPE.getDataAsScalar();
 		System.out.println("lattice energy (sim unit): " + latticeEnergy);

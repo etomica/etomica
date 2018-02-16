@@ -130,8 +130,7 @@ public class SimUmbrella extends Simulation {
 
 
         potentialMasterMonatomic.lrcMaster().setEnabled(false);
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterMonatomic);
-        meterPE.setBox(box);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterMonatomic, box);
         latticeEnergy = meterPE.getDataAsScalar();
 
         move = new MCMoveAtomCoupledUmbrella(potentialMasterMonatomic, getRandom(),

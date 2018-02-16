@@ -195,8 +195,7 @@ public class LjMd3Dv2y {
             return;
         }
         
-        final MeterPotentialEnergy meterEnergyFast = new MeterPotentialEnergy(sim.potentialMasterList);
-        meterEnergyFast.setBox(sim.box);
+        final MeterPotentialEnergy meterEnergyFast = new MeterPotentialEnergy(sim.potentialMasterList, sim.box);
         long bs = steps/(longInterval*nAccBlocks);
 
         double rcMax = 0.494*L;

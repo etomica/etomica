@@ -152,8 +152,7 @@ public class MinimizeHCP extends Simulation {
 
         double cf = mincf;
 
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
-    	meterPE.setBox(box);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
 
 
         while (true) {

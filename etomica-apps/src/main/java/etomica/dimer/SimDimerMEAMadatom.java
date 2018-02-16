@@ -47,6 +47,8 @@ import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 
+import java.awt.*;
+
 /**
  * Simulation using Henkelman's Dimer method to find a saddle point for
  * an adatom of Sn on a surface, modeled with MEAM.
@@ -251,8 +253,7 @@ public class SimDimerMEAMadatom extends Simulation{
         sim.integratorMD.addIntervalAction(poswriter);
         sim.integratorMD.setActionInterval(poswriter, 1);
         */
-        MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMasterD);
-        energyMeter.setBox(sim.box);
+        MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMasterD, sim.box);
         AccumulatorHistory energyAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
         AccumulatorAverageCollapsing accumulatorAveragePE = new AccumulatorAverageCollapsing();
         DataPump energyPump = new DataPump(energyMeter, accumulatorAveragePE);
@@ -273,9 +274,9 @@ public class SimDimerMEAMadatom extends Simulation{
 
         ColorSchemeByType colorScheme = ((ColorSchemeByType) ((DisplayBox) simGraphic.displayList().getFirst()).getColorScheme());
 
-        colorScheme.setColor(sim.fixed.getLeafType(), java.awt.Color.gray);
-        colorScheme.setColor(sim.movable.getLeafType(), java.awt.Color.red);
-        colorScheme.setColor(sim.potentialSpecies.getLeafType(), java.awt.Color.PINK);
+        colorScheme.setColor(sim.fixed.getLeafType(), Color.gray);
+        colorScheme.setColor(sim.movable.getLeafType(), Color.red);
+        colorScheme.setColor(sim.potentialSpecies.getLeafType(), Color.PINK);
 
         simGraphic.makeAndDisplayFrame(APP_NAME);
     }

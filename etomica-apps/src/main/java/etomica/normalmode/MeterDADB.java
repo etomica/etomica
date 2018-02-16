@@ -53,8 +53,7 @@ public class MeterDADB implements IDataSource {
         forceManager = new AtomLeafAgentManager<>(a -> space.makeVector(), coordinateDefinition.getBox());
         pcForceSum.setAgentManager(forceManager);
         dr = space.makeVector();
-        MeterPotentialEnergy meterPE2 = new MeterPotentialEnergy(potentialMaster);
-        meterPE2.setBox(coordinateDefinition.getBox());
+        MeterPotentialEnergy meterPE2 = new MeterPotentialEnergy(potentialMaster, coordinateDefinition.getBox());
         latticeEnergy = meterPE2.getDataAsScalar();
         this.temperature = temperature;
     }

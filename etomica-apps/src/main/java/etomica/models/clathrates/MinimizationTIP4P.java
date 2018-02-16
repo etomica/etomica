@@ -112,8 +112,7 @@ public class MinimizationTIP4P extends Simulation{
 		AtomPair selfAtomLJ = new AtomPair(box.getLeafList().getAtom(2), box.getLeafList().getAtom(2));
 		selfELJ = potentialLJLS.energy(selfAtomLJ);// = 0 if nLJshells=0
 		System.out.println("selfELJ = "+Joule.UNIT.fromSim(selfELJ)*1.0E-3*Constants.AVOGADRO);
-		MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(potentialMaster);
-		meterPotentialEnergy.setBox(box);
+		MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(potentialMaster, box);
 		double E = Joule.UNIT.fromSim(meterPotentialEnergy.getDataAsScalar()/box.getMoleculeList().getMoleculeCount()+selfELJ)*1.0E-3*Constants.AVOGADRO;
         System.out.println("E (kJ/mol)  = " + E);
         System.out.println("E (kCal/mol)  = " + E*0.239005736);
@@ -148,8 +147,7 @@ public class MinimizationTIP4P extends Simulation{
         double[] d = new double[nd]; 
         double[] x0 = new double[ng];
 		final MinimizationTIP4P sim = new MinimizationTIP4P(Space3D.getInstance(3), rCutLJ, rCutRealES, a0, nC, nBasis, isIce, kCut, configFileName, includeM);
-		final MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster);
-		meterPotentialEnergy.setBox(sim.box);
+		final MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
 		double latticeEnergy = meterPotentialEnergy.getDataAsScalar();
 		PotentialCalculationForceSum pcForce = new PotentialCalculationForceSum();
 		

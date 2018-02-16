@@ -149,22 +149,20 @@ public class SimOverlapBetaN2RP extends Simulation {
 	    
 		integrators[0] = integratorRef;
         
-	    MeterPotentialEnergy meterPERef = new MeterPotentialEnergy(potentialMasterRef);
-        meterPERef.setBox(boxTarg);
+	    MeterPotentialEnergy meterPERef = new MeterPotentialEnergy(potentialMasterRef, boxTarg);
         //System.out.println("lattice energy (sim unit): " + meterPERef.getDataAsScalar());
         
-	    MeterPotentialEnergy meterPETarg = new MeterPotentialEnergy(potentialMasterTarg);
-        meterPETarg.setBox(boxRef);
+	    MeterPotentialEnergy meterPETarg = new MeterPotentialEnergy(potentialMasterTarg, boxRef);
         //System.out.println("lattice energy (sim unit): " + meterPETarg.getDataAsScalar());
         
         // OVERLAP
         integratorOverlap = new IntegratorOverlap(new IntegratorBox[]{integratorRef, integratorTarg});
 
-        etomica.models.nitrogen.MeterBoltzmann meterTarg = new etomica.models.nitrogen.MeterBoltzmann(integratorTarg, meterPERef);
+        MeterBoltzmann meterTarg = new MeterBoltzmann(integratorTarg, meterPERef);
         meters[1] = meterTarg;
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, numAlpha, false), 1);
 
-        etomica.models.nitrogen.MeterBoltzmann meterRef =  new etomica.models.nitrogen.MeterBoltzmann(integratorRef, meterPETarg);
+        MeterBoltzmann meterRef =  new MeterBoltzmann(integratorRef, meterPETarg);
         meters[0] = meterRef;
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, numAlpha, true), 0);
 

@@ -141,8 +141,7 @@ public class SimOverlapSSnxy extends Simulation {
         integratorTarget.getMoveManager().addMCMove(atomMove);
         ((MCMoveStepTracker) atomMove.getTracker()).setNoisyAdjustment(true);
 
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterTarget);
-        meterPE.setBox(boxTarget);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterTarget, boxTarget);
         latticeEnergy = meterPE.getDataAsScalar();
         System.out.println("lattice energy of SS system: " + latticeEnergy);
 

@@ -201,8 +201,7 @@ public class SimulationGammaNitrogenModel extends Simulation{
 	    
 
 	    	    
-		MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster);
-		meterPotentialEnergy.setBox(sim.box);
+		MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
 		double latticeEnergy = meterPotentialEnergy.getDataAsScalar();
 		System.out.println("Lattice Energy (per molecule) in K: "+ Kelvin.UNIT.fromSim(latticeEnergy)/numMolecule);
 		

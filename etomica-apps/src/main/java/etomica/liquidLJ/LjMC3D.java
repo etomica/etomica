@@ -159,8 +159,7 @@ public class LjMC3D extends Simulation {
             return;
         }
 
-        final MeterPotentialEnergy meterEnergyFast = new MeterPotentialEnergy(sim.potentialMasterCell);
-        meterEnergyFast.setBox(sim.box);
+        final MeterPotentialEnergy meterEnergyFast = new MeterPotentialEnergy(sim.potentialMasterCell, sim.box);
         long bs = steps/(longInterval*nAccBlocks);
 
         double rcMax = 0.494*L;

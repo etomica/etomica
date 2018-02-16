@@ -120,8 +120,7 @@ public class HSNPT extends Simulation {
 
         potentialMaster.getNeighborManager(box).reset();
 
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(box);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
         MCMoveAtomCoupled mcMove = new MCMoveAtomCoupled(potentialMaster, meterPE, getRandom(), space);
         mcMove.setPotential(p2);
         integrator.getMoveManager().addMCMove(mcMove);

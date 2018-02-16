@@ -228,8 +228,7 @@ public class MCParacetamolOrthorhombicDLMULTI extends Simulation {
         	new MCParacetamolOrthorhombicDLMULTI(sp, numMolecules, temperature, simType, new int[] {1,1,2});
        
        sim.actionIntegrate.setMaxSteps(simSteps);
-       MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
-       meterPE.setBox(sim.box);
+       MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
        
        DataLogger dataLoggerPE = new DataLogger();
        dataLoggerPE.setWriteInterval(5);

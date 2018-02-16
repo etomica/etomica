@@ -181,8 +181,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
 
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
         
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
-        meterPE.setBox(sim.box);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
         DataProcessor foo = new DataProcessor() {
         
             protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {

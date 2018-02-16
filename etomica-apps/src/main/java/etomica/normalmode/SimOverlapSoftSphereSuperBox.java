@@ -141,8 +141,7 @@ public class SimOverlapSoftSphereSuperBox extends Simulation {
         potentialMasterTarget.addPotential(p1Constraint, new AtomType[]{sphereTypeA});
 
         potentialMasterTarget.lrcMaster().setEnabled(false);
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterTarget);
-        meterPE.setBox(boxTarget);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterTarget, boxTarget);
         double latticeEnergy = meterPE.getDataAsScalar();
 
 

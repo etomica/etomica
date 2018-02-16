@@ -71,8 +71,7 @@ public class DemoSim extends Simulation {
         MCMoveVolume mcMoveVolume = new MCMoveVolume(potentialMaster, this.getRandom(), this.getSpace(), 1);
         integrator.getMoveManager().addMCMove(mcMoveVolume);
 
-        MeterPotentialEnergy energy = new MeterPotentialEnergy(potentialMaster);
-        energy.setBox(box);
+        MeterPotentialEnergy energy = new MeterPotentialEnergy(potentialMaster, box);
 
         AccumulatorHistogram hist = new AccumulatorHistogram();
         DataPump histPump = new DataPump(energy, hist);

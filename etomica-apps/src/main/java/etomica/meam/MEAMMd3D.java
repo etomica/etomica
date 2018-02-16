@@ -33,6 +33,7 @@ import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.*;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 /**
@@ -159,10 +160,8 @@ public class MEAMMd3D extends Simulation {
     public static void main(String[] args) {
         MEAMMd3D sim = new MEAMMd3D();
 
-        MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
+        MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
         MeterKineticEnergy kineticMeter = new MeterKineticEnergy(sim.box);
-
-        energyMeter.setBox(sim.box);
 
         AccumulatorHistory energyAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
         AccumulatorHistory kineticAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
@@ -225,9 +224,9 @@ public class MEAMMd3D extends Simulation {
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
         ColorSchemeByType colorScheme = ((ColorSchemeByType) ((DisplayBox) simGraphic.displayList().getFirst()).getColorScheme());
-        colorScheme.setColor(sim.sn.getLeafType(), java.awt.Color.blue);
-        colorScheme.setColor(sim.ag.getLeafType(), java.awt.Color.gray);
-        colorScheme.setColor(sim.cu.getLeafType(), java.awt.Color.orange);
+        colorScheme.setColor(sim.sn.getLeafType(), Color.blue);
+        colorScheme.setColor(sim.ag.getLeafType(), Color.gray);
+        colorScheme.setColor(sim.cu.getLeafType(), Color.orange);
 
         simGraphic.makeAndDisplayFrame(APP_NAME);
 

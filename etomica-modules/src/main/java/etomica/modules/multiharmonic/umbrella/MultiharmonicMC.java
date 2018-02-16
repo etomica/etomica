@@ -64,10 +64,8 @@ public class MultiharmonicMC extends Simulation {
         integrator.getMoveManager().addMCMove(moveB);
         potentialMasterB.addPotential(potentialB, new AtomType[]{species.getLeafType()});
 
-        MeterPotentialEnergy meterPEAinA = new MeterPotentialEnergy(potentialMasterA);
-        meterPEAinA.setBox(box);
-        MeterPotentialEnergy meterPEBinA = new MeterPotentialEnergy(potentialMasterB);
-        meterPEBinA.setBox(box);
+        MeterPotentialEnergy meterPEAinA = new MeterPotentialEnergy(potentialMasterA, box);
+        MeterPotentialEnergy meterPEBinA = new MeterPotentialEnergy(potentialMasterB, box);
         meterUmbrella = new MeterUmbrella(meterPEAinA, meterPEBinA, 1.0);
 
         accumulator = new AccumulatorRatioAverageCovariance(1);

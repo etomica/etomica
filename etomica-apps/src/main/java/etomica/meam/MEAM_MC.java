@@ -34,6 +34,8 @@ import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 
+import java.awt.*;
+
 /**
  * @author ub2092
  *
@@ -139,8 +141,7 @@ public class MEAM_MC extends Simulation {
 
     public static void main(String[] args) {
         MEAM_MC sim = new MEAM_MC();
-        MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
-        energyMeter.setBox(sim.box);
+        MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
         AccumulatorHistory energyAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
         final DisplayPlot plot = new DisplayPlot();
         energyAccumulator.setDataSink(plot.getDataSet().makeDataSink());
@@ -157,9 +158,9 @@ public class MEAM_MC extends Simulation {
         simgraphic.getController().getReinitButton().setPostAction(simgraphic.getPaintAction(sim.box));
 
         ColorSchemeByType colorScheme = ((ColorSchemeByType) ((DisplayBox) simgraphic.displayList().getFirst()).getColorScheme());
-        colorScheme.setColor(sim.sn.getLeafType(), java.awt.Color.blue);
-        colorScheme.setColor(sim.ag.getLeafType(), java.awt.Color.gray);
-        colorScheme.setColor(sim.cu.getLeafType(), java.awt.Color.orange);
+        colorScheme.setColor(sim.sn.getLeafType(), Color.blue);
+        colorScheme.setColor(sim.ag.getLeafType(), Color.gray);
+        colorScheme.setColor(sim.cu.getLeafType(), Color.orange);
 
         simgraphic.makeAndDisplayFrame(APP_NAME);
 

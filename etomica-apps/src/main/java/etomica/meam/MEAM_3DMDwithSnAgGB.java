@@ -34,6 +34,7 @@ import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.*;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 /**
@@ -207,10 +208,8 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
     public static void main(String[] args) {
         MEAM_3DMDwithSnAgGB sim = new MEAM_3DMDwithSnAgGB();
 
-        MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
+        MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
         MeterKineticEnergy kineticMeter = new MeterKineticEnergy(sim.box);
-
-        energyMeter.setBox(sim.box);
 
         AccumulatorHistory energyAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
         AccumulatorHistory kineticAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
@@ -270,13 +269,13 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
         simgraphic.getController().getReinitButton().setPostAction(simgraphic.getPaintAction(sim.box));
 
         ColorSchemeByType colorScheme = ((ColorSchemeByType) ((DisplayBox) simgraphic.displayList().getFirst()).getColorScheme());
-        colorScheme.setColor(sim.snFixedA.getLeafType(), java.awt.Color.white);
-        colorScheme.setColor(sim.snA.getLeafType(), java.awt.Color.white);
+        colorScheme.setColor(sim.snFixedA.getLeafType(), Color.white);
+        colorScheme.setColor(sim.snA.getLeafType(), Color.white);
 //    	colorScheme.setColor(sim.agA.getMoleculeType(),java.awt.Color.gray);
 //    	colorScheme.setColor(sim.cuA.getMoleculeType(),java.awt.Color.orange);
-        colorScheme.setColor(sim.agFixedB.getLeafType(), java.awt.Color.gray);
+        colorScheme.setColor(sim.agFixedB.getLeafType(), Color.gray);
 //    	colorScheme.setColor(sim.snB.getMoleculeType(),java.awt.Color.white);
-        colorScheme.setColor(sim.agB.getLeafType(), java.awt.Color.gray);
+        colorScheme.setColor(sim.agB.getLeafType(), Color.gray);
 //    	colorScheme.setColor(sim.cuB.getMoleculeType(),java.awt.Color.orange);
 
         simgraphic.makeAndDisplayFrame(APP_NAME);

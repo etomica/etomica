@@ -176,8 +176,7 @@ public class LJMD extends Simulation {
         }
         final int dataInterval = foo;
         
-        final MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
-        meterPE.setBox(sim.box);
+        final MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
         DataFork forkPE = new DataFork();
         DataPumpListener pumpPE = new DataPumpListener(meterPE, forkPE, dataInterval);
         sim.integrator.getEventManager().addListener(pumpPE);

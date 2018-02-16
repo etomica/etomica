@@ -89,8 +89,7 @@ public class SimDirectDisorderedAlphaN2RPInitPert extends Simulation {
         potentialMaster.getNeighborManager(box).reset();
         potential.setRange(Double.POSITIVE_INFINITY);
 
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(box);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
 
         double latticeEnergy = meterPE.getDataAsScalar();
         System.out.println("lattice energy (sim unit): " + latticeEnergy);

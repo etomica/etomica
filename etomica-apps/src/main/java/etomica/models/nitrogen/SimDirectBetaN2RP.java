@@ -99,8 +99,7 @@ public class SimDirectBetaN2RP extends Simulation {
         integratorTarg.getMoveManager().addMCMove(moveTarg);
         integratorTarg.getMoveManager().addMCMove(rotateTarg);
 
-        MeterPotentialEnergy meterPETarg = new MeterPotentialEnergy(potentialMasterTarg);
-        meterPETarg.setBox(boxTarg);
+        MeterPotentialEnergy meterPETarg = new MeterPotentialEnergy(potentialMasterTarg, boxTarg);
         System.out.println("lattice energy (sim unit): " + meterPETarg.getDataAsScalar());
 
         // Reference System
@@ -111,8 +110,7 @@ public class SimDirectBetaN2RP extends Simulation {
         potentialMasterRef.addPotential(potentialTarg, new ISpecies[]{species, species});
         potentialMasterRef.addPotential(pRotConstraintRef, new ISpecies[]{species});
 
-        MeterPotentialEnergy meterPERef = new MeterPotentialEnergy(potentialMasterRef);
-        meterPERef.setBox(boxTarg);
+        MeterPotentialEnergy meterPERef = new MeterPotentialEnergy(potentialMasterRef, boxTarg);
 
         MeterBoltzmannDirect meterBoltzmann = new MeterBoltzmannDirect(integratorTarg, meterPERef);
         boltzmannAverage = new AccumulatorAverageFixed(100);

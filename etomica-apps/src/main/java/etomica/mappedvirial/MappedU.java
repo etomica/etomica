@@ -185,8 +185,7 @@ public class MappedU extends Simulation {
 
 
         if (computeU){
-            final MeterPotentialEnergy meterU = new MeterPotentialEnergy(sim.integrator.getPotentialMaster());
-            meterU.setBox(sim.box);
+            final MeterPotentialEnergy meterU = new MeterPotentialEnergy(sim.integrator.getPotentialMaster(), sim.box);
             accU = new AccumulatorAverageFixed(samplesPerBlock);
             DataPumpListener pumpU = new DataPumpListener(meterU, accU, numAtoms);
             if (computeU) sim.integrator.getEventManager().addListener(pumpU);

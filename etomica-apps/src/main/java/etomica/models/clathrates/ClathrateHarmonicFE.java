@@ -91,8 +91,7 @@ public class ClathrateHarmonicFE extends Simulation{
 	        ConfigurationFileBinary.replicate(config, box, nC, space);			
 		}
 
-		MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(potentialMaster);
-		meterPotentialEnergy.setBox(box);
+		MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(potentialMaster, box);
 		AtomPair selfAtomLJ = new AtomPair(box.getLeafList().getAtom(2), box.getLeafList().getAtom(2));
 		double selfELJ = potentialLJLS.energy(selfAtomLJ);// = 0 if nLJshells=0
 		double E = Joule.UNIT.fromSim(meterPotentialEnergy.getDataAsScalar()/numMolecule + selfELJ)*1.0E-3*Constants.AVOGADRO;

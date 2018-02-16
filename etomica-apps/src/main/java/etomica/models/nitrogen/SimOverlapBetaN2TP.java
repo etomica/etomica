@@ -192,8 +192,7 @@ public class SimOverlapBetaN2TP extends Simulation {
             integrator.getMoveManager().addMCMove(rotate);
         }
 
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(box);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
         latticeEnergy = meterPE.getDataAsScalar();
         System.out.println("lattice energy per molecule (sim unit): " + latticeEnergy / numMolecules);
         System.out.println("lattice energy (sim unit): " + latticeEnergy);

@@ -189,8 +189,7 @@ public class SimEinStep1HCP extends Simulation {
         //instantiate simulation
         final SimEinStep1HCP sim = new SimEinStep1HCP(Space3D.getInstance(), numMolecules, density, temperature, spring, exponentN, rc, Math.sqrt(8.0/3.0));
 
-        final MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
-        meterPE.setBox(sim.box);
+        final MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
         final double latticeEnergy = meterPE.getDataAsScalar();
         System.out.println("uLat "+latticeEnergy/numMolecules);
         System.out.println("buLat "+latticeEnergy/numMolecules/temperature);

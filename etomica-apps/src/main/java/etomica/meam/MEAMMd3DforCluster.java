@@ -48,10 +48,8 @@ public class MEAMMd3DforCluster {
     	sim.activityIntegrate.setMaxSteps(3000);
     	sim.getController().actionPerformed();
     	
-    	MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
-    	MeterKineticEnergy kineticMeter = new MeterKineticEnergy(sim.box);
-    	
-    	energyMeter.setBox(sim.box);
+    	MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
+        MeterKineticEnergy kineticMeter = new MeterKineticEnergy(sim.box);
 
         AccumulatorAverage accumulatorAveragePE = new AccumulatorAverageFixed(50);
     	AccumulatorAverage accumulatorAverageKE = new AccumulatorAverageFixed(50);

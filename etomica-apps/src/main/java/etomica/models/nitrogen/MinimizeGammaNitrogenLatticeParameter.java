@@ -107,8 +107,7 @@ public double findOptRatio(double minRatio, double maxRatio){
        	
     	double ratio = minRatio;
     	
-    	MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
-    	meterPE.setBox(box);
+    	MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
     	
         while (true) {
         	

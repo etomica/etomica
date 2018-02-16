@@ -65,13 +65,12 @@ public class MCParacetamolOrthorhombicDLMULTIEquilibration extends Simulation {
        
     	Space sp = Space.getInstance(3);
     	
-    	etomica.paracetamol.MCParacetamolOrthorhombicDLMULTI sim = 
+    	MCParacetamolOrthorhombicDLMULTI sim =
         	new MCParacetamolOrthorhombicDLMULTI(sp, numMolecules, temperature, simType, new int[] {2,3,4});
        
 
        sim.actionIntegrate.setMaxSteps(simSteps);
-       MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
-       meterPE.setBox(sim.box);
+       MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
        
        DataLogger dataLoggerPE = new DataLogger();
        dataLoggerPE.setWriteInterval(5);

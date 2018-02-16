@@ -134,8 +134,7 @@ public class SimOverlapSoftSphereEin extends Simulation {
             throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
         }
 
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(box);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
         latticeEnergy = meterPE.getDataAsScalar();
         System.out.println("uLat " + latticeEnergy / numAtoms);
 
@@ -279,10 +278,8 @@ public class SimOverlapSoftSphereEin extends Simulation {
 
         sim.activityIntegrate.setMaxSteps(numSteps);
 
-        final MeterPotentialEnergy meterPEHarmonic = new MeterPotentialEnergy(sim.potentialMasterHarmonic);
-        meterPEHarmonic.setBox(sim.box);
-        final MeterPotentialEnergy meterPETarget = new MeterPotentialEnergy(sim.potentialMaster);
-        meterPETarget.setBox(sim.box);
+        final MeterPotentialEnergy meterPEHarmonic = new MeterPotentialEnergy(sim.potentialMasterHarmonic, sim.box);
+        final MeterPotentialEnergy meterPETarget = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
         meterPETarget.setIncludeLrc(false);
         DataSourceScalar meterPEdiff = new DataSourceScalar("PE diff", Energy.DIMENSION) {
             public double getDataAsScalar() {

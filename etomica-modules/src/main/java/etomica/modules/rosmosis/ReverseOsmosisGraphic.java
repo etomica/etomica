@@ -250,9 +250,9 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
 
         //display of box, timer
         ColorSchemeByType colorScheme = (ColorSchemeByType)getDisplayBox(sim.box).getColorScheme();
-        colorScheme.setColor(sim.speciesSolute.getLeafType(),java.awt.Color.RED);
-        colorScheme.setColor(sim.speciesSolvent.getLeafType(),java.awt.Color.BLUE);
-        colorScheme.setColor(sim.speciesMembrane.getLeafType(),java.awt.Color.WHITE);
+        colorScheme.setColor(sim.speciesSolute.getLeafType(), Color.RED);
+        colorScheme.setColor(sim.speciesSolvent.getLeafType(), Color.BLUE);
+        colorScheme.setColor(sim.speciesMembrane.getLeafType(), Color.WHITE);
 
 	    //meters and displays
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
@@ -281,8 +281,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         energyPumpListener.setInterval(10);
         dataStreamPumps.add(energyPump);
 		
-		MeterPotentialEnergy peMeter = new MeterPotentialEnergy(sim.integrator.getPotentialMaster());
-		peMeter.setBox(sim.box);
+		MeterPotentialEnergy peMeter = new MeterPotentialEnergy(sim.integrator.getPotentialMaster(), sim.box);
         final AccumulatorHistory peHistory = new AccumulatorHistory();
         peHistory.setTimeDataSource(timeCounter);
         final AccumulatorAverageCollapsing peAccumulator = new AccumulatorAverageCollapsing();

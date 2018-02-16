@@ -68,14 +68,10 @@ public class MultiharmonicMC extends Simulation {
 
 
 
-        MeterPotentialEnergy meterPEAinA = new MeterPotentialEnergy(potentialMasterA);
-        meterPEAinA.setBox(boxA);
-        MeterPotentialEnergy meterPEAinB = new MeterPotentialEnergy(potentialMasterA);
-        meterPEAinB.setBox(boxB);
-        MeterPotentialEnergy meterPEBinA = new MeterPotentialEnergy(potentialMasterB);
-        meterPEBinA.setBox(boxA);
-        MeterPotentialEnergy meterPEBinB = new MeterPotentialEnergy(potentialMasterB);
-        meterPEBinB.setBox(boxB);
+        MeterPotentialEnergy meterPEAinA = new MeterPotentialEnergy(potentialMasterA, boxA);
+        MeterPotentialEnergy meterPEAinB = new MeterPotentialEnergy(potentialMasterA, boxB);
+        MeterPotentialEnergy meterPEBinA = new MeterPotentialEnergy(potentialMasterB, boxA);
+        MeterPotentialEnergy meterPEBinB = new MeterPotentialEnergy(potentialMasterB, boxB);
         meterOverlapA = new MeterMBAR(new DataSourceScalar[]{meterPEAinA, meterPEBinA}, 1.0);
         meterOverlapA.setNumAlpha(15);
         meterOverlapA.setAlpha(new double[]{1}, new double[]{5});

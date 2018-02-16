@@ -182,8 +182,7 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 		double density = 0.0210;
 		final MinimizationBetaNitrogenModel sim = new MinimizationBetaNitrogenModel(Space3D.getInstance(3), nC, density);
 	    
-		final MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster);
-		meterPotentialEnergy.setBox(sim.box);
+		final MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
 		meterPotentialEnergy.setPotentialCalculation(new PotentialCalculationEnergySumBigDecimal(18));
 	
 		double latticeEnergy = meterPotentialEnergy.getDataAsScalar();

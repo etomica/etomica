@@ -116,8 +116,7 @@ public class SimBennet extends Simulation {
         potentialMasterMonatomic.addPotential(pTruncated, new AtomType[]{sphereType, sphereType});
 
         potentialMasterMonatomic.lrcMaster().setEnabled(false);
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterMonatomic);
-        meterPE.setBox(box);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterMonatomic, box);
         latticeEnergy = meterPE.getDataAsScalar();
 
         meterHarmonicEnergy = new MeterHarmonicEnergy(coordinateDefinition, normalModes);

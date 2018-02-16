@@ -37,6 +37,7 @@ import etomica.units.Bar;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 public class TestEwaldTIP4PWater extends Simulation {
@@ -126,8 +127,7 @@ public class TestEwaldTIP4PWater extends Simulation {
 		ArrayList dataStreamPumps = simGraphic.getController().getDataStreamPumps();
 
         /////////////////////////////////////////////////////////////
-		MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
-		meterPE.setBox(sim.box);
+		MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
 		DisplayTextBox PEbox = new DisplayTextBox();
 		DataPump PEpump = new DataPump(meterPE, PEbox);
 		dataStreamPumps.add(PEpump);
@@ -144,8 +144,8 @@ public class TestEwaldTIP4PWater extends Simulation {
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
-        colorScheme.setColor(sim.species.getHydrogenType(), java.awt.Color.WHITE);
-        colorScheme.setColor(sim.species.getOxygenType(), java.awt.Color.RED);
+        colorScheme.setColor(sim.species.getHydrogenType(), Color.WHITE);
+        colorScheme.setColor(sim.species.getOxygenType(), Color.RED);
         ((DiameterHashByType)simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species.getMType(), 0);
 
         simGraphic.makeAndDisplayFrame(APP_NAME);

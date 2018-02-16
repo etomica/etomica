@@ -138,8 +138,7 @@ public class SimOverlapLJ extends Simulation {
         }
 
         potentialMasterTarget.lrcMaster().setEnabled(false);
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterTarget);
-        meterPE.setBox(boxTarget);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterTarget, boxTarget);
         double latticeEnergy = meterPE.getDataAsScalar();
 
         // HARMONIC

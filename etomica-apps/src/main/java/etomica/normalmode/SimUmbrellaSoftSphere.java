@@ -161,8 +161,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
             //((P2SoftSphericalTruncated)potential).setTruncationRadius(0.6*boundary.getBoxSize().getX(0));
         }
 
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(box);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
         latticeEnergy = meterPE.getDataAsScalar();
 
         move = new MCMoveAtomCoupledUmbrella(potentialMaster, getRandom(),

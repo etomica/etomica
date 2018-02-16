@@ -4,8 +4,7 @@
 
 package etomica.modules.render;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
@@ -85,7 +84,7 @@ public class RenderMDGraphic extends SimulationGraphic {
        
 	    //display of box, timer
         ColorSchemeByType colorScheme = new ColorSchemeByType();
-        colorScheme.setColor(sim.species.getLeafType(),java.awt.Color.red);
+        colorScheme.setColor(sim.species.getLeafType(), Color.red);
         getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType());
 //        sim.integrator.addListener(new IntervalActionAdapter(this.getDisplayBoxPaintAction(sim.box)));
 
@@ -142,8 +141,7 @@ public class RenderMDGraphic extends SimulationGraphic {
         energyHistory.setPushInterval(5);
         dataStreamPumps.add(energyPump);
 		
-		MeterPotentialEnergy peMeter = new MeterPotentialEnergy(sim.integrator.getPotentialMaster());
-        peMeter.setBox(sim.box);
+		MeterPotentialEnergy peMeter = new MeterPotentialEnergy(sim.integrator.getPotentialMaster(), sim.box);
         AccumulatorHistory peHistory = new AccumulatorHistory();
         peHistory.setTimeDataSource(timeCounter);
         final AccumulatorAverageCollapsing peAccumulator = new AccumulatorAverageCollapsing();
@@ -241,7 +239,7 @@ public class RenderMDGraphic extends SimulationGraphic {
         });
 
         // panel for lambda control / display
-        JPanel lambdaSliderPanel = new JPanel(new java.awt.GridLayout(0,1));
+        JPanel lambdaSliderPanel = new JPanel(new GridLayout(0,1));
         lambdaSlider.setShowBorder(false);
         lambdaSliderPanel.add(lambdaSlider.graphic());
 
@@ -277,7 +275,7 @@ public class RenderMDGraphic extends SimulationGraphic {
         });
 
         // panel for epsilon control / display
-        JPanel epsilonSliderPanel = new JPanel(new java.awt.GridLayout(0,1));
+        JPanel epsilonSliderPanel = new JPanel(new GridLayout(0,1));
         epsilonSlider.setShowBorder(false);
         epsilonSliderPanel.add(epsilonSlider.graphic());
  
