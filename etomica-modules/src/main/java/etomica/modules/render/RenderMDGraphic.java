@@ -156,8 +156,7 @@ public class RenderMDGraphic extends SimulationGraphic {
         peHistory.setPushInterval(5);
         dataStreamPumps.add(pePump);
 		
-		MeterKineticEnergy keMeter = new MeterKineticEnergy();
-        keMeter.setBox(sim.box);
+		MeterKineticEnergy keMeter = new MeterKineticEnergy(sim.box);
         AccumulatorHistory keHistory = new AccumulatorHistory();
         keHistory.setTimeDataSource(timeCounter);
         DataFork keFork = new DataFork();

@@ -227,8 +227,7 @@ public class SamGraphic extends SimulationGraphic {
         }
 
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
-        MeterKineticEnergy meterKE = new MeterKineticEnergy();
-        meterKE.setBox(sim.box);
+        MeterKineticEnergy meterKE = new MeterKineticEnergy(sim.box);
         AccumulatorHistory historyKE = new AccumulatorHistory();
         historyKE.setTimeDataSource(timeCounter);
         pump = new DataPump(meterKE, historyKE);

@@ -210,10 +210,9 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
         MEAM_3DMDwithSnCuGB sim = new MEAM_3DMDwithSnCuGB();
 
         MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
-        MeterKineticEnergy kineticMeter = new MeterKineticEnergy();
+        MeterKineticEnergy kineticMeter = new MeterKineticEnergy(sim.box);
 
         energyMeter.setBox(sim.box);
-        kineticMeter.setBox(sim.box);
 
         AccumulatorHistory energyAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
         AccumulatorHistory kineticAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());

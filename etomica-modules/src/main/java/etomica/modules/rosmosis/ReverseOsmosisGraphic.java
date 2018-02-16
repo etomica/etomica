@@ -296,8 +296,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         pePumpListener.setInterval(10);
         dataStreamPumps.add(pePump);
 
-		MeterKineticEnergy keMeter = new MeterKineticEnergy();
-		keMeter.setBox(sim.box);
+		MeterKineticEnergy keMeter = new MeterKineticEnergy(sim.box);
         final AccumulatorHistory keHistory = new AccumulatorHistory();
         keHistory.setTimeDataSource(timeCounter);
         // we do this for the scaling by numAtoms rather than for the overlap exclusion

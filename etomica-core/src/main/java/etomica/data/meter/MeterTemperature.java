@@ -42,8 +42,7 @@ public class MeterTemperature extends DataSourceScalar {
     public MeterTemperature(Simulation sim, Box box, int D) {
 		super("Temperature", Temperature.DIMENSION);
 		dim = D;
-		meterKE = new MeterKineticEnergy();
-		((MeterKineticEnergy)meterKE).setBox(box);
+		meterKE = new MeterKineticEnergy(box);
 		this.sim = sim;
 		this.box = box;
 	}

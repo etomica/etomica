@@ -160,10 +160,9 @@ public class MEAMMd3D extends Simulation {
         MEAMMd3D sim = new MEAMMd3D();
 
         MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
-        MeterKineticEnergy kineticMeter = new MeterKineticEnergy();
+        MeterKineticEnergy kineticMeter = new MeterKineticEnergy(sim.box);
 
         energyMeter.setBox(sim.box);
-        kineticMeter.setBox(sim.box);
 
         AccumulatorHistory energyAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
         AccumulatorHistory kineticAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());

@@ -62,14 +62,11 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
         setTimeStep(timeStep);
         thermostat = ThermostatType.ANDERSEN;
         setThermostatInterval(100);
-        meterKE = new MeterKineticEnergy();
+        meterKE = new MeterKineticEnergy(box);
         atomActionRandomizeVelocity = new AtomActionRandomizeVelocity(temperature, random);
         momentum = this.space.makeVector();
         temperatureVec = this.space.makeVector();
 
-        if (meterKE instanceof MeterKineticEnergy) {
-            ((MeterKineticEnergy) meterKE).setBox(box);
-        }
         meterTemperature = new MeterTemperature(box, this.space.D());
         meterTemperature.setKineticEnergyMeter(meterKE);
         this.box.getEventManager().addListener(this);

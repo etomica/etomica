@@ -391,8 +391,7 @@ public class MDParacetamolOrthorhombic extends Simulation {
         ArrayList dataStreamPumps = simGraphic.getController().getDataStreamPumps();
 
         /*****************************************************************************/
-        MeterKineticEnergy meterKE = new MeterKineticEnergy();
-        meterKE.setBox(sim.box);
+        MeterKineticEnergy meterKE = new MeterKineticEnergy(sim.box);
         DisplayTextBox KEbox = new DisplayTextBox();
         DataPump KEpump = new DataPump(meterKE, KEbox);
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(KEpump));
