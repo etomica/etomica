@@ -107,6 +107,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
 
         potentialMaster.setCellRange(3);
         potentialMaster.setRange(potential1.getRange());
+        potentialMaster.setPotentialHard(true);
 
         AtomType leafType1 = species1.getLeafType();
         AtomType leafType2 = species2.getLeafType();
@@ -130,7 +131,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         }
         else{
             params.numAtoms = 3;
-            params.numSteps = 1000;
+            params.numSteps = 100000;
             params.nBlocks = 100;
             params.vf = 0.1;
             params.computeIdeal = false;
@@ -214,7 +215,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         public int nBlocks = 100;
         public double vf = 0.2;
         public double sizeRatio = 0.2;
-        public boolean computeIdeal = true;
+        public boolean computeIdeal = false;
 
     }
 }

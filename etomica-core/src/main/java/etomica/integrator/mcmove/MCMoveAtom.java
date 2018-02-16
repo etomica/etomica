@@ -30,12 +30,12 @@ public class MCMoveAtom extends MCMoveBoxStep {
     protected final MeterPotentialEnergy energyMeter;
     protected final Vector translationVector;
     protected final IRandom random;
+    protected final boolean fixOverlap;
+    protected final Space space;
     protected IAtom atom;
     protected double uOld;
     protected double uNew = Double.NaN;
     protected AtomSource atomSource;
-    protected boolean fixOverlap;
-    protected Space space;
 
     /**
      * Constructs the move with default stepSize = 1.0, stepSizeMax = 15.0, fixOverlap = false
@@ -65,12 +65,13 @@ public class MCMoveAtom extends MCMoveBoxStep {
     }
 
     /**
+     * Constructs with specification of special-purpose energy meter.
      * @param random          random number generator used to select the atom and its displacement
      * @param potentialMaster not directly used
      * @param space           space of the simulation
      * @param stepSize        starting step size for the trial
      * @param stepSizeMax     maximum allowable value of stepSize
-     * @param fixOverlap      flag specifying whether trial throws an exception if the configuration
+     * @param fixOverlap      if false, throws an exception if the configuration
      *                        at the start of the trial has an overlap
      * @param meterPE         used to compute energies before and after displacement
      */
@@ -95,12 +96,16 @@ public class MCMoveAtom extends MCMoveBoxStep {
     public boolean doTrial() {
          atom = atomSource.getAtom();
         if (atom == null) return false;
-        energyMeter.setTarget(atom);
-        uOld = energyMeter.getDataAsScalar();
-        if (uOld > 1e8 && !fixOverlap) {
-            PotentialCalculationEnergySum.debug = true;
+        if(potential.isPotentialHard() && !fixOverlap) {
+            uOld = 0.0;
+        } else {
+            energyMeter.setTarget(atom);
             uOld = energyMeter.getDataAsScalar();
-            throw new RuntimeException("atom " + atom + " in box " + box + " has an overlap");
+            if (uOld > 1e8 && !fixOverlap) {
+                PotentialCalculationEnergySum.debug = true;
+                uOld = energyMeter.getDataAsScalar();
+                throw new RuntimeException("atom " + atom + " in box " + box + " has an overlap");
+            }
         }
 
         translationVector.setRandomCube(random);
@@ -110,6 +115,7 @@ public class MCMoveAtom extends MCMoveBoxStep {
     }//end of doTrial
 
     public double getChi(double temperature) {
+        energyMeter.setTarget(atom);
         uNew = energyMeter.getDataAsScalar();
         return Math.exp(-(uNew - uOld) / temperature);
     }
