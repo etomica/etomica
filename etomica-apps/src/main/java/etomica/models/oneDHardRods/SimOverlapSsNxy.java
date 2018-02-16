@@ -146,8 +146,7 @@ public class SimOverlapSsNxy extends Simulation {
         ((PotentialMasterList) potentialMasterTarget).setRange(neighborRange);
         ((PotentialMasterList) potentialMasterTarget).getNeighborManager(boxTarget).reset();
 
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterTarget);
-        meterPE.setBox(boxTarget);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterTarget, boxTarget);
         latticeEnergy = meterPE.getDataAsScalar();
         System.out.println("lattice energy: " + latticeEnergy);
 

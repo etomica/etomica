@@ -192,8 +192,8 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
         double latticeEnergyRef = meterRefInRef.getDataAsScalar();
         System.out.println("Reference system lattice energy: " +latticeEnergyRef);
         
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(boxRef);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, boxTarget);
+meterPE.setBox(boxRef);
         MCMoveAtomCoupled mcMoveAtom = new MCMoveAtomCoupled(potentialMaster,
                 meterPE, random, space);
         mcMoveAtom.setPotential(potential);
@@ -201,14 +201,14 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
         mcMoveAtom.setStepSize(0.01);
         integratorRef.getMoveManager().addMCMove(mcMoveAtom);
         integratorRef.setMeterPotentialEnergy(meterRefInRef);
-        
-        
+
+
 //TARGET
         // Set up target system
         boxTarget = new Box(space);
         addBox(boxTarget);
         boxTarget.setNMolecules(species, targAtoms);
-        
+
         bdryTarget = new BoundaryRectangularPeriodic(space, 1.0);
         edges = new Vector3D();
         lengths = new double[3];
@@ -218,16 +218,16 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
         edges.E(lengths);
         bdryTarget.setBoxSize(edges);
         boxTarget.setBoundary(bdryTarget);
-        
+
         cDefTarget = new CoordinateDefinitionLeaf(boxTarget, primitive, basis, space);
         int[] size = new int[space.D()];
         for(int i=0; i < space.D(); i++){
             size[i] = nCellsTarget[i] / nCellsRef[i];
         }
         cDefTarget.initializeCoordinates(size);
-        
+
         potentialMaster.getNeighborManager(boxTarget).reset();
-        
+
         IntegratorMC integratorTarget = new IntegratorMC(potentialMaster,
                 random, temperature, boxTarget);
         integrators[1] = integratorTarget;
@@ -239,17 +239,16 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
         waveVectorFactoryTarg = nmTarg.getWaveVectorFactory();
         waveVectorFactoryTarg.makeWaveVectors(boxTarget);
 //        wvc = nmTarg.getWaveVectorFactory().getCoefficients();
-        
-        System.out.println("We have " + waveVectorFactoryTarg.getWaveVectors().length 
+
+        System.out.println("We have " + waveVectorFactoryTarg.getWaveVectors().length
                 +" target wave vectors.");
-        
+
         meterTargInTarg = new MeterPotentialEnergy(potentialMaster);
         meterTargInTarg.setBox(boxTarget);
         double latticeEnergyTarget = meterTargInTarg.getDataAsScalar();
         System.out.println("Target system lattice energy: " +latticeEnergyTarget);
-        
+
         meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(boxTarget);
         mcMoveAtom = new MCMoveAtomCoupled(potentialMaster, meterPE,random, 
                 space);
         mcMoveAtom.setPotential(potential);

@@ -493,8 +493,7 @@ public class SimulationBetaNitrogenModelTest extends Simulation{
 		
 		SimulationBetaNitrogenModelTest sim = new SimulationBetaNitrogenModelTest(Space3D.getInstance(3), nC, temperature, pressure, newScale);
 	    
-		MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster);
-		meterPotentialEnergy.setBox(sim.box);
+		MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
 		System.out.println("Lattice Energy (per molecule): "+ meterPotentialEnergy.getDataAsScalar()/numMolecule);
 		//System.exit(1);
 		

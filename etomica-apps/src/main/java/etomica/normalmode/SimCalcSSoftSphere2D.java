@@ -170,8 +170,7 @@ public class SimCalcSSoftSphere2D extends Simulation {
         //System.exit(1);
 
 
-        MeterPotentialEnergy meterEnergy = new MeterPotentialEnergy(sim.potentialMaster);
-        meterEnergy.setBox(sim.box);
+        MeterPotentialEnergy meterEnergy = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
         System.out.println("Lattice Energy per particle: "+ meterEnergy.getDataAsScalar()/nA);
         System.out.println(" ");
         //System.exit(1);

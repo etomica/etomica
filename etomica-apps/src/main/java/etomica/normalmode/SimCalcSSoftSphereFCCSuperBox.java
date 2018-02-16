@@ -197,8 +197,7 @@ public class SimCalcSSoftSphereFCCSuperBox extends Simulation {
         //System.exit(1);
 
 
-        MeterPotentialEnergy meterEnergy = new MeterPotentialEnergy(sim.potentialMaster);
-        meterEnergy.setBox(sim.box);
+        MeterPotentialEnergy meterEnergy = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
         System.out.println("Lattice Energy per particle: "+ meterEnergy.getDataAsScalar()/nA);
         System.out.println(" ");
 //        ((P2SoftSphere)pTruncatedABbefore.getWrappedPotential()).setEpsilon(1);

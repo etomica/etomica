@@ -301,8 +301,7 @@ public class LjMd3D extends Simulation {
             System.out.println("equilibration finished ("+eqSteps+" steps)");
         }
     	
-        final MeterPotentialEnergy meterEnergyFast = new MeterPotentialEnergy(sim.potentialMasterList);
-        meterEnergyFast.setBox(sim.box);
+        final MeterPotentialEnergy meterEnergyFast = new MeterPotentialEnergy(sim.potentialMasterList, sim.box);
         long bs = steps/(fastInterval*nAccBlocks);
         final AccumulatorAverageFixed avgEnergyFast = new AccumulatorAverageFixed(bs == 0 ? 1 : bs);
         DataPumpListener energyPumpFast = new DataPumpListener(meterEnergyFast, avgEnergyFast, fastInterval);
@@ -337,8 +336,7 @@ public class LjMd3D extends Simulation {
 //        });
         
     	
-    	MeterPotentialEnergy meterEnergy = new MeterPotentialEnergy(sim.potentialMasterLong);
-        meterEnergy.setBox(sim.box);
+    	MeterPotentialEnergy meterEnergy = new MeterPotentialEnergy(sim.potentialMasterLong, sim.box);
         final double uFac = meterEnergy.getDataAsScalar() - meterEnergyFast.getDataAsScalar();
         DataProcessor energyReweight = new DataProcessor() {
             protected final DataDoubleArray data = new DataDoubleArray(4);
@@ -447,8 +445,7 @@ public class LjMd3D extends Simulation {
         energyReweightCut.setDataSink(uCutSplitter);
         
 
-        final MeterPotentialEnergy meterEnergy2 = new MeterPotentialEnergy(sim.potentialMasterLong);
-        meterEnergy2.setBox(sim.box);
+        final MeterPotentialEnergy meterEnergy2 = new MeterPotentialEnergy(sim.potentialMasterLong, sim.box);
         final ValueCache energyFastCache = new ValueCache(meterEnergyFast, sim.integrator);
         final ValueCache energyFullCache = new ValueCache(meterEnergy, sim.integrator);
 

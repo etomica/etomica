@@ -332,8 +332,7 @@ public class SimFe extends Simulation {
             keHist.addDataSink(kePlot.getDataSet().makeDataSink());
             kePlot.setDoLegend(false);
 
-            MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
-            meterPE.setBox(sim.box);
+            MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
             meterPE.setPotentialCalculation(new DataSourceEnergies.PotentialCalculationEnergiesEAM(sim.potential));
             MeterEnergy meterE = new MeterEnergy(sim.potentialMaster, sim.box);
             meterE.setPotential(meterPE);

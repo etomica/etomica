@@ -191,8 +191,7 @@ public class SimCalcSLJ extends Simulation {
         meterNormalModeListener.setInterval(nA);
         sim.integrator.getEventManager().addListener(meterNormalModeListener);
 
-    	MeterPotentialEnergy meterEnergy = new MeterPotentialEnergy(sim.potentialMaster);
-		meterEnergy.setBox(sim.box);
+    	MeterPotentialEnergy meterEnergy = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
 		double latticeEnergy = meterEnergy.getDataAsScalar();
 		System.out.println("Lattice Energy per particle: " + (latticeEnergy /nA));
 		System.out.println(" ");

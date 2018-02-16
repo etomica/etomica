@@ -180,8 +180,7 @@ public class SimHarmonicHexane extends Simulation {
         }
         
         //meters for FEP calculations
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(sim.box);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, sim.box);
         BoltzmannProcessor bp = new BoltzmannProcessor();
         DataPump pump = new DataPump(meterPE, bp);
         AccumulatorAverage avgBoltzmann = new AccumulatorAverageFixed(1);

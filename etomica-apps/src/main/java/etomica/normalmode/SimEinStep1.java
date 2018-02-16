@@ -205,8 +205,7 @@ public class SimEinStep1 extends Simulation {
         //instantiate simulation
         final SimEinStep1 sim = new SimEinStep1(Space3D.getInstance(), numMolecules, density, temperature, spring, exponentN, rc, slanty);
 
-        final MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
-        meterPE.setBox(sim.box);
+        final MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
         final double latticeEnergy = meterPE.getDataAsScalar();
         System.out.println("uLat "+latticeEnergy/numMolecules);
         System.out.println("buLat "+latticeEnergy/numMolecules/temperature);

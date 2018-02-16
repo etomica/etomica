@@ -92,8 +92,7 @@ public class SimOverlapMultiHarmonic extends Simulation{
 		integratorA.getMoveManager().addMCMove(new MCMoveMultiHarmonic(potentialA, random));
         potentialMasterA.addPotential(potentialA, new AtomType[]{species.getLeafType()});
 
-		MeterPotentialEnergy meterPEA = new MeterPotentialEnergy(potentialMasterA);
-		meterPEA.setBox(boxA);
+		MeterPotentialEnergy meterPEA = new MeterPotentialEnergy(potentialMasterA, boxA);
 
 		//System B
 		boxB = new Box(new BoundaryRectangularNonperiodic(space), space);
@@ -110,8 +109,7 @@ public class SimOverlapMultiHarmonic extends Simulation{
 		integratorB.getMoveManager().addMCMove(new MCMoveMultiHarmonic(potentialB, random));
         potentialMasterB.addPotential(potentialB, new AtomType[]{species.getLeafType()});
 
-		MeterPotentialEnergy meterPEB = new MeterPotentialEnergy(potentialMasterB);
-		meterPEB.setBox(boxB);
+		MeterPotentialEnergy meterPEB = new MeterPotentialEnergy(potentialMasterB, boxB);
 
 		//Overlap
 		integratorOverlap = new IntegratorOverlap(new IntegratorBox[] {integratorA, integratorB});

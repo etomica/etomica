@@ -119,8 +119,7 @@ public class SimTargetUmbrella extends Simulation {
         potentialMasterMonatomic.addPotential(pTruncated, new AtomType[]{sphereType, sphereType});
 
         potentialMasterMonatomic.lrcMaster().setEnabled(false);
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterMonatomic);
-        meterPE.setBox(box);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterMonatomic, box);
         latticeEnergy = meterPE.getDataAsScalar();
 
         MCMoveAtomCoupled move = new MCMoveAtomCoupled(potentialMasterMonatomic, new MeterPotentialEnergy(potentialMasterMonatomic), getRandom(), space);

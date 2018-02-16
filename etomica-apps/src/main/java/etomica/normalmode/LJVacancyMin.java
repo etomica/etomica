@@ -51,8 +51,7 @@ public class LJVacancyMin extends Simulation {
         addBox(box);
         box.setNMolecules(species, numAtoms);
 
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(box);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
 
         double L = Math.pow(4.0/density, 1.0/3.0);
         int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));

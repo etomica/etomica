@@ -34,6 +34,7 @@ import etomica.units.ElectronVolt;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 /**
@@ -309,7 +310,7 @@ public class MCParacetamolOrthorhombicMoveHarmonic extends Simulation {
 
     public static void main(String[] args) {
     	int numMolecules = 192;
-        etomica.paracetamol.MCParacetamolOrthorhombicMoveHarmonic sim = new etomica.paracetamol.MCParacetamolOrthorhombicMoveHarmonic(numMolecules);
+        MCParacetamolOrthorhombicMoveHarmonic sim = new MCParacetamolOrthorhombicMoveHarmonic(numMolecules);
         SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 1);
         Pixel pixel = new Pixel(10);
         simGraphic.getDisplayBox(sim.box).setPixelUnit(pixel);
@@ -320,8 +321,7 @@ public class MCParacetamolOrthorhombicMoveHarmonic extends Simulation {
 
         /*****************************************************************************/
 
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
-        meterPE.setBox(sim.box);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
         DisplayTextBox PEbox = new DisplayTextBox();
         DataPump PEpump = new DataPump(meterPE, PEbox);
         ArrayList dataStreamPumps = simGraphic.getController().getDataStreamPumps();
@@ -338,11 +338,11 @@ public class MCParacetamolOrthorhombicMoveHarmonic extends Simulation {
         simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.
         		displayList().getFirst()).getColorScheme());
-        colorScheme.setColor(sim.species.getAtomType(0), java.awt.Color.red);
-        colorScheme.setColor(sim.species.getAtomType(1), java.awt.Color.gray);
-        colorScheme.setColor(sim.species.getAtomType(2), java.awt.Color.blue);
-        colorScheme.setColor(sim.species.getAtomType(3), java.awt.Color.white);
-        colorScheme.setColor(sim.species.getAtomType(4), java.awt.Color.white);
+        colorScheme.setColor(sim.species.getAtomType(0), Color.red);
+        colorScheme.setColor(sim.species.getAtomType(1), Color.gray);
+        colorScheme.setColor(sim.species.getAtomType(2), Color.blue);
+        colorScheme.setColor(sim.species.getAtomType(3), Color.white);
+        colorScheme.setColor(sim.species.getAtomType(4), Color.white);
 
         simGraphic.getDisplayBox(sim.box).repaint();
 

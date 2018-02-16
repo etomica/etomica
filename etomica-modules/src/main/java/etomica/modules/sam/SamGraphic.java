@@ -235,8 +235,7 @@ public class SamGraphic extends SimulationGraphic {
         IntegratorListenerAction pumpListener = new IntegratorListenerAction(pump);
         sim.integrator.getEventManager().addListener(pumpListener);
         pumpListener.setInterval(10);
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.integrator.getPotentialMaster());
-        meterPE.setBox(sim.box);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.integrator.getPotentialMaster(), sim.box);
         AccumulatorHistory historyPE = new AccumulatorHistory();
         historyPE.setTimeDataSource(timeCounter);
         pump = new DataPump(meterPE, historyPE);

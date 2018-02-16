@@ -130,8 +130,7 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
         potentialMasterTarget.addPotential(p1Constraint, new AtomType[]{sphereType});
 
         potentialMasterTarget.lrcMaster().setEnabled(false);
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterTarget);
-        meterPE.setBox(boxTarget);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterTarget, boxTarget);
         latticeEnergy = meterPE.getDataAsScalar();
 
 

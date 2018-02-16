@@ -187,8 +187,7 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 
 		SimulationAlphaNitrogenModel sim = new SimulationAlphaNitrogenModel(Space3D.getInstance(3), nC, temperature, density);
 	 
-		final MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster);
-		meterPotentialEnergy.setBox(sim.box);
+		final MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
 		final double latticeEnergySim = meterPotentialEnergy.getDataAsScalar();
 		System.out.println("Lattice Energy per molecule (sim unit): "+ latticeEnergySim/numMolecule);
 		System.out.println("Lattice Energy: "+ latticeEnergySim);			

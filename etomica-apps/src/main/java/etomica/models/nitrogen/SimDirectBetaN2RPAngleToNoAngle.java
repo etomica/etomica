@@ -134,8 +134,7 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
 		potentialMasterRef.getNeighborManager(boxTarg).reset();
 		potentialTarg.setRange(Double.POSITIVE_INFINITY);
 
-		MeterPotentialEnergy meterPERef = new MeterPotentialEnergy(potentialMasterRef);
-		meterPERef.setBox(boxTarg);
+		MeterPotentialEnergy meterPERef = new MeterPotentialEnergy(potentialMasterRef, boxTarg);
 		double latticeEnergy = meterPERef.getDataAsScalar();
 		System.out.println("lattice energy (sim unit): " + latticeEnergy);
 		System.out.println("lattice energy per mol(sim unit): " + latticeEnergy / numMolecules);

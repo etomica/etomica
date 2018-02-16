@@ -127,8 +127,7 @@ public class SimOverlapNitrogenModel extends Simulation {
         integratorTarget.getMoveManager().addMCMove(mcMoveVolume);
         integrators[1] = integratorTarget;
 
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterTarget);
-        meterPE.setBox(boxTarget);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterTarget, boxTarget);
         latticeEnergy = meterPE.getDataAsScalar();
 
         System.out.println("lattice energy per molecule in K: " + Kelvin.UNIT.fromSim(latticeEnergy) / numMolecules + "\n");

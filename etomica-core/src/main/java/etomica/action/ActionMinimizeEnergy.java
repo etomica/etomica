@@ -62,8 +62,7 @@ public class ActionMinimizeEnergy implements IAction, AtomLeafAgentManager.Agent
 
     @Override
     public void actionPerformed() {
-        final MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(potentialMaster);
-        meterPotentialEnergy.setBox(box);
+        final MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(potentialMaster, box);
         IAtomList atoms = box.getLeafList();
         int numAtoms = atoms.getAtomCount();
         Vector[] direction = space.makeVectorArray(numAtoms);

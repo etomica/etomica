@@ -216,13 +216,11 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
             ((P2SoftSphericalTruncated) potentialRef).setTruncationRadius(0.6 * boundaryRef.getBoxSize().getX(0));
         }
 
-        MeterPotentialEnergy meterPETarg = new MeterPotentialEnergy(potentialMasterRef);
-        meterPETarg.setBox(boxTarg);
+        MeterPotentialEnergy meterPETarg = new MeterPotentialEnergy(potentialMasterRef, boxTarg);
         latticeEnergyTarg = meterPETarg.getDataAsScalar();
         System.out.println("lattice energy/N (targ n=" + exponent[1] + "): " + latticeEnergyTarg / numAtoms);
 
-        MeterPotentialEnergy meterPERef = new MeterPotentialEnergy(potentialMasterTarg);
-        meterPERef.setBox(boxRef);
+        MeterPotentialEnergy meterPERef = new MeterPotentialEnergy(potentialMasterTarg, boxRef);
         latticeEnergyRef = meterPERef.getDataAsScalar();
         System.out.println("lattice energy/N (ref n=" + exponent[0] + "): " + latticeEnergyRef / numAtoms);
 

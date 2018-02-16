@@ -116,8 +116,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
 
         potential.setRange(Double.POSITIVE_INFINITY);
 
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(box);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
         latticeEnergy = meterPE.getDataAsScalar();
         System.out.println("lattice energy per molecule (sim unit): " + latticeEnergy / numMolecules);
 

@@ -303,7 +303,7 @@ public class MCParacetamolOrthorhombicMoveHarmonicStep extends Simulation {
 
     public static void main(String[] args) {
     	int numMolecules = 192;
-        etomica.paracetamol.MCParacetamolOrthorhombicMoveHarmonicStep sim = new etomica.paracetamol.MCParacetamolOrthorhombicMoveHarmonicStep(numMolecules);
+        MCParacetamolOrthorhombicMoveHarmonicStep sim = new MCParacetamolOrthorhombicMoveHarmonicStep(numMolecules);
 //        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 1);
 //        Pixel pixel = new Pixel(10);
 //        simGraphic.getDisplayPhase(sim.phase).setPixelUnit(pixel);
@@ -312,8 +312,7 @@ public class MCParacetamolOrthorhombicMoveHarmonicStep extends Simulation {
 //        configFile.initializeCoordinates(sim.phase);
         /*****************************************************************************/
 
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
-        meterPE.setBox(sim.box);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
 //        DisplayBox PEbox = new DisplayBox();
 //        DataPump PEpump = new DataPump(meterPE, PEbox);
 

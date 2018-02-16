@@ -123,8 +123,7 @@ public class SimLJVacancy extends Simulation {
 
         potentialMaster.getNbrCellManager(box).assignCellAll();
         if (shifted) {
-            MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
-            meterPE.setBox(box);
+            MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
             meterPE.setIncludeLrc(false);
             double uUnshifted = meterPE.getDataAsScalar();
 

@@ -65,14 +65,10 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         this.sim = simulation;
         
         
-        final MeterPotentialEnergy meterPEAinA = new MeterPotentialEnergy(sim.potentialMasterA);
-        meterPEAinA.setBox(sim.boxA);
-        final MeterPotentialEnergy meterPEAinB = new MeterPotentialEnergy(sim.potentialMasterA);
-        meterPEAinB.setBox(sim.boxB);
-        final MeterPotentialEnergy meterPEBinA = new MeterPotentialEnergy(sim.potentialMasterB);
-        meterPEBinA.setBox(sim.boxA);
-        final MeterPotentialEnergy meterPEBinB = new MeterPotentialEnergy(sim.potentialMasterB);
-        meterPEBinB.setBox(sim.boxB);
+        final MeterPotentialEnergy meterPEAinA = new MeterPotentialEnergy(sim.potentialMasterA, sim.boxA);
+        final MeterPotentialEnergy meterPEAinB = new MeterPotentialEnergy(sim.potentialMasterA, sim.boxB);
+        final MeterPotentialEnergy meterPEBinA = new MeterPotentialEnergy(sim.potentialMasterB, sim.boxA);
+        final MeterPotentialEnergy meterPEBinB = new MeterPotentialEnergy(sim.potentialMasterB, sim.boxB);
         
         final int na = 11;
         final MeterOverlap meterOverlapA = new MeterOverlap(meterPEAinA, meterPEBinA, 1.0, true);

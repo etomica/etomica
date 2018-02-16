@@ -122,8 +122,7 @@ public class SimEinStep2HCP extends Simulation {
             throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
         }
 
-        final MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(box);
+        final MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
         double latticeEnergy = meterPE.getDataAsScalar();
 //        System.out.println("uLat "+latticeEnergy/numAtoms);
 
@@ -213,8 +212,7 @@ public class SimEinStep2HCP extends Simulation {
 
         //instantiate simulation
         final SimEinStep2HCP sim = new SimEinStep2HCP(Space.getInstance(3), numMolecules, density, temperature, lambda, exponentN, rc, Math.sqrt(8.0/3.0));
-        final MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
-        meterPE.setBox(sim.box);
+        final MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
         final double latticeEnergy = meterPE.getDataAsScalar();
         System.out.println("uLat="+latticeEnergy/numMolecules);
 
@@ -260,8 +258,7 @@ public class SimEinStep2HCP extends Simulation {
         sim.activityIntegrate.setMaxSteps(numSteps);
 
         // potentialMasterHarmonic really just gives us sum[r^2]
-        final MeterPotentialEnergy meterPEHarmonic = new MeterPotentialEnergy(sim.potentialMasterHarmonic);
-        meterPEHarmonic.setBox(sim.box);
+        final MeterPotentialEnergy meterPEHarmonic = new MeterPotentialEnergy(sim.potentialMasterHarmonic, sim.box);
         int numBlocks = 100;
         int interval = numMolecules;
         long blockSize = numSteps/(numBlocks*interval);

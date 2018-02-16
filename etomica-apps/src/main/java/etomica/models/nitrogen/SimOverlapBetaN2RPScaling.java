@@ -185,8 +185,7 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
         integrator.getMoveManager().addMCMove(move);
         integrator.getMoveManager().addMCMove(rotate);
 
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(box);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
         latticeEnergy = meterPE.getDataAsScalar();
         System.out.println("lattice energy per molecule (K): " + Kelvin.UNIT.fromSim(latticeEnergy) / numMolecules);
         System.out.println("lattice energy per molecule (sim unit): " + latticeEnergy / numMolecules);

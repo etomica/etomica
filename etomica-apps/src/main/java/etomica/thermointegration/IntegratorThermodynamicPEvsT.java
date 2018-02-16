@@ -26,8 +26,7 @@ public class IntegratorThermodynamicPEvsT extends IntegratorThermodynamic implem
     public IntegratorThermodynamicPEvsT(IntegratorBox subIntegrator) {
         super(subIntegrator);
         setTemperatureDataSource(new DataSourceUniform("temperature", Temperature.DIMENSION, 11, 1, 2, LimitType.INCLUSIVE, LimitType.INCLUSIVE));
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(subIntegrator.getPotentialMaster());
-        meterPE.setBox(subIntegrator.getBox());
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(subIntegrator.getPotentialMaster(), subIntegrator.getBox());
         accumulatorPE = new AccumulatorAverageCollapsing();
         DataPump dataPump = new DataPump(meterPE, accumulatorPE);
         dataPumps.add(dataPump);

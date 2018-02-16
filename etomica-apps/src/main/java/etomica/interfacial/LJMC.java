@@ -147,8 +147,7 @@ public class LJMC extends Simulation {
         DataPumpListener pumpWF = new DataPumpListener(meterWF, forkWF, 1000);
         sim.integrator.getEventManager().addListener(pumpWF);
         
-        MeterPotentialEnergy meterPE2 = new MeterPotentialEnergy(sim.potentialMasterCell);
-        meterPE2.setBox(sim.box);
+        MeterPotentialEnergy meterPE2 = new MeterPotentialEnergy(sim.potentialMasterCell, sim.box);
         double u = meterPE2.getDataAsScalar();
         System.out.println("Potential energy: "+u);
         System.out.println("Wall force: "+meterWF.getDataAsScalar());

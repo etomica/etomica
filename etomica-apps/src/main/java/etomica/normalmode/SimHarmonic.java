@@ -170,8 +170,7 @@ public class SimHarmonic extends Simulation {
         }
 
         //meters for FEP calculations
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(sim.box);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, sim.box);
         BoltzmannProcessor bp = new BoltzmannProcessor();
         bp.setTemperature(1);
         DataPump pump = new DataPump(meterPE,bp);

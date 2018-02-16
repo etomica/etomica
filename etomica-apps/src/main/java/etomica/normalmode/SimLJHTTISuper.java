@@ -68,8 +68,7 @@ public class SimLJHTTISuper extends Simulation {
         box.setNMolecules(species, numAtoms);
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(box);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
         atomMove = new MCMoveAtomCoupled(potentialMaster, meterPE, getRandom(), space);
         atomMove.setStepSize(0.1);
         atomMove.setStepSizeMax(0.5);
@@ -283,8 +282,7 @@ public class SimLJHTTISuper extends Simulation {
         meterSolid.setBPRes(bpharm);
         IData d = meterSolid.getData();
 
-        MeterPotentialEnergy meterEnergyShort = new MeterPotentialEnergy(sim.potentialMaster);
-        meterEnergyShort.setBox(sim.box);
+        MeterPotentialEnergy meterEnergyShort = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
         final double[] uFacCut = new double[cutoffs.length];
         double uShort = meterEnergyShort.getDataAsScalar();
         for (int i=0; i<uFacCut.length; i++) {
