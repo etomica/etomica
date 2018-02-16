@@ -141,8 +141,7 @@ public class SimUmbrella extends Simulation {
 
         meterHarmonicEnergy = new MeterHarmonicEnergy(coordinateDefinition, normalModes);
 
-        meterEnergy = new MeterPotentialEnergy(potentialMasterMonatomic);
-        meterEnergy.setBox(box);
+        meterEnergy = new MeterPotentialEnergy(potentialMasterMonatomic, box);
 
     }
 

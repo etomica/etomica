@@ -23,8 +23,7 @@ public class MeterWorkHarmonicBennet implements IDataSource {
     public MeterWorkHarmonicBennet(MCMoveHarmonic mcMoveHarmonic, PotentialMaster potentialMaster, double ref) {
         this.mcMoveHarmonic = mcMoveHarmonic;
         this.refPref = ref;
-        meterEnergy = new MeterPotentialEnergy(potentialMaster);
-        meterEnergy.setBox(mcMoveHarmonic.getBox());
+        meterEnergy = new MeterPotentialEnergy(potentialMaster, mcMoveHarmonic.getBox());
         data = new DataDouble();
         numSum = 0;
         denomSum = 0;

@@ -143,8 +143,7 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
         changeMove.setStepSizeMin(0.001);
         changeMove.setStepSize(0.01);
 
-        meterAinA = new MeterPotentialEnergy(potentialMasterTarget);
-        meterAinA.setBox(boxTarget);
+        meterAinA = new MeterPotentialEnergy(potentialMasterTarget, boxTarget);
 
         meterBinA = new MeterCompareMultipleWVBrute("meterBinA",
                 potentialMasterTarget, coordinateDefinitionTarget, boxTarget);
@@ -232,8 +231,7 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
         compareMove.setStepSizeMin(0.001);
         compareMove.setStepSize(0.01);
 
-        meterAinB = new MeterPotentialEnergy(potentialMasterRef);
-        meterAinB.setBox(boxRef);
+        meterAinB = new MeterPotentialEnergy(potentialMasterRef, boxRef);
 
         meterBinB = new MeterCompareMultipleWVBrute(potentialMasterRef,
                 coordinateDefinitionRef, boxRef);

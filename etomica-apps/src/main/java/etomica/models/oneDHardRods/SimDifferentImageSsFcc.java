@@ -205,8 +205,7 @@ public class SimDifferentImageSsFcc extends Simulation {
 //                        omega[iWV][iMode]);
 //            }
 //        }
-        meterRefInRef = new MeterPotentialEnergy(potentialMaster);
-        meterRefInRef.setBox(boxRef);
+        meterRefInRef = new MeterPotentialEnergy(potentialMaster, boxRef);
         double latticeEnergyRef = meterRefInRef.getDataAsScalar();
         System.out.println("Reference system lattice energy: " +latticeEnergyRef);
         
@@ -301,8 +300,7 @@ public class SimDifferentImageSsFcc extends Simulation {
 //            }
 //        }
         
-        meterTargInTarg = new MeterPotentialEnergy(potentialMaster);
-        meterTargInTarg.setBox(boxTarget);
+        meterTargInTarg = new MeterPotentialEnergy(potentialMaster, boxTarget);
         double latticeEnergyTarget = meterTargInTarg.getDataAsScalar();
         System.out.println("Target system lattice energy: " +latticeEnergyTarget);
         

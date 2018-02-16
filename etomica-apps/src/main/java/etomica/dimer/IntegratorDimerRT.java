@@ -304,12 +304,9 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Vect
 		   this.getEventManager().addListener(((PotentialMasterList)potentialMaster).getNeighborManager(box1)); 
 		}
 		
-		energyBox0 = new MeterPotentialEnergy(potentialMaster);
-		energyBox0.setBox(box);
-		energyBox1 = new MeterPotentialEnergy(potentialMaster);
-		energyBox1.setBox(box1);
-        energyBox2 = new MeterPotentialEnergy(potentialMaster);
-        energyBox2.setBox(box2);		
+		energyBox0 = new MeterPotentialEnergy(potentialMaster, box);
+		energyBox1 = new MeterPotentialEnergy(potentialMaster, box1);
+        energyBox2 = new MeterPotentialEnergy(potentialMaster, box2);
 		
 		atomAgent0 = new AtomLeafAgentManager<>(this, box);
 		atomAgent1 = new AtomLeafAgentManager<>(this, box1);

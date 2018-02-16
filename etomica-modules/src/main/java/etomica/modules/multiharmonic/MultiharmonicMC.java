@@ -74,8 +74,7 @@ public class MultiharmonicMC extends Simulation {
         dataPump = new DataPump(meter, accumulator);
         integrator.getEventManager().addListener(new IntegratorListenerAction(dataPump));
 
-        meterEnergy = new MeterPotentialEnergy(potentialMaster);
-        meterEnergy.setBox(box);
+        meterEnergy = new MeterPotentialEnergy(potentialMaster, box);
         accumulatorEnergy = new AccumulatorAverageCollapsing();
         dataPumpEnergy = new DataPump(meterEnergy, accumulatorEnergy);
         integrator.getEventManager().addListener(new IntegratorListenerAction(dataPumpEnergy));

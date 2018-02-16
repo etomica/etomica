@@ -157,8 +157,7 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
         }
         
         potentialMaster.getNeighborManager(box).reset();  //this line sets up neighborlists
-        meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(box);
+        meterPE = new MeterPotentialEnergy(potentialMaster, box);
         
         etas = new double[space.D() * (numAtoms - 1)];
         gaussCoord = new double[space.D() * (numAtoms - 

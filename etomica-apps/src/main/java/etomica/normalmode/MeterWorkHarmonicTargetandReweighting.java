@@ -42,8 +42,7 @@ public class MeterWorkHarmonicTargetandReweighting implements IDataSource {
     
     public MeterWorkHarmonicTargetandReweighting(MCMoveHarmonic mcMoveHarmonic, PotentialMaster potentialMaster, double ref) {
     	this.mcMoveHarmonic = mcMoveHarmonic;
-        meterEnergy = new MeterPotentialEnergy(potentialMaster);
-        meterEnergy.setBox(mcMoveHarmonic.getBox());
+        meterEnergy = new MeterPotentialEnergy(potentialMaster, mcMoveHarmonic.getBox());
         this.refPref = ref;
         data = new DataDouble();
         dataInfo = new DataInfoDouble("Scaled Harmonic and soft sphere Energies", Null.DIMENSION);

@@ -155,8 +155,7 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         }
         
         potentialMaster.getNeighborManager(box).reset();
-        meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(box);
+        meterPE = new MeterPotentialEnergy(potentialMaster, box);
         
         etas = new double[space.D() * (simCDef.getBox().getLeafList().getAtomCount() - 1)];
         maxEta = space.D() * (numAtoms - 1); 

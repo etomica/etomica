@@ -113,8 +113,7 @@ public class MeterDifferentImageAdd1D extends DataSourceScalar {
         //  neighbors won't change
         potentialMaster.getNeighborManager(box).reset();
         
-        meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(box);
+        meterPE = new MeterPotentialEnergy(potentialMaster, box);
         
     }
     
