@@ -89,8 +89,7 @@ public class MinimizeBetaNitrogenTranslationDOF extends Simulation {
 		
 		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
 		
-		meterPotential = new MeterPotentialEnergy(potentialMaster);
-    	meterPotential.setBox(box);
+		meterPotential = new MeterPotentialEnergy(potentialMaster, box);
 	}
 	
 

@@ -173,8 +173,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
 
         meterHarmonicEnergy = new MeterHarmonicEnergy(coordinateDefinition, normalModes);
 
-        meterEnergy = new MeterPotentialEnergy(potentialMaster);
-        meterEnergy.setBox(box);
+        meterEnergy = new MeterPotentialEnergy(potentialMaster, box);
 
     }
 

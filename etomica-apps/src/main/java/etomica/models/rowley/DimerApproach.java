@@ -153,9 +153,7 @@ public class DimerApproach extends Simulation {
 	     ****************************************************************************
 	     */
 
-		meterPE = new MeterPotentialEnergy(sim.potentialMaster);
-
-		meterPE.setBox(sim.box);
+		meterPE = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
 		
 		DataLogger dataLoggerPE = new DataLogger();
 		

@@ -77,8 +77,7 @@ public class LjMc3D extends Simulation {
 
         ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         configuration.initializeCoordinates(box);
-        energy = new MeterPotentialEnergy(potentialMaster);
-        energy.setBox(box);
+        energy = new MeterPotentialEnergy(potentialMaster, box);
         avgEnergy = new AccumulatorAverageCollapsing();
         avgEnergy.setPushInterval(10);
         pump = new DataPump(energy, avgEnergy);

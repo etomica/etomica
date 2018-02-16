@@ -24,8 +24,7 @@ public class CheckCBMCHexane implements IAction {
 
     public CheckCBMCHexane(Box p, PotentialMaster potentialMaster, Space space) {
         box = p;
-        energyMeter = new MeterPotentialEnergy(potentialMaster);
-        energyMeter.setBox(box);
+        energyMeter = new MeterPotentialEnergy(potentialMaster, box);
 
         moleculeIterator = new MoleculeIteratorAllMolecules(box);
         moleculeIterator.reset();

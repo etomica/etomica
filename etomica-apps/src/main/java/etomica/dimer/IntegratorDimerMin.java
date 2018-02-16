@@ -214,10 +214,8 @@ public class IntegratorDimerMin extends IntegratorBox {
             getEventManager().addListener(((PotentialMasterList)potentialMaster).getNeighborManager(boxMin)); 
          }
         
-        energyBox0 = new MeterPotentialEnergy(potentialMaster);
-        energyBoxMin = new MeterPotentialEnergy(potentialMaster);
-         
-        energyBox0.setBox(box);
+        energyBox0 = new MeterPotentialEnergy(potentialMaster, box);
+energyBoxMin = new MeterPotentialEnergy(potentialMaster);
         energyBoxMin.setBox(boxMin);
          
 		// Offset Rmin (half-dimer end) from initial configuration, along N.		

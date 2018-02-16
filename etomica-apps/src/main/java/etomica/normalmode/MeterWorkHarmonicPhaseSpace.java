@@ -22,8 +22,7 @@ public class MeterWorkHarmonicPhaseSpace implements IDataSource {
     
     public MeterWorkHarmonicPhaseSpace(MCMoveHarmonic mcMoveHarmonic, PotentialMaster potentialMaster) {
         this.mcMoveHarmonic = mcMoveHarmonic;
-        meterEnergy = new MeterPotentialEnergy(potentialMaster);
-        meterEnergy.setBox(mcMoveHarmonic.getBox());
+        meterEnergy = new MeterPotentialEnergy(potentialMaster, mcMoveHarmonic.getBox());
         data = new DataDouble();
         dataInfo = new DataInfoDouble("Scaled Harmonic and soft sphere Energies", Null.DIMENSION);
 

@@ -80,8 +80,7 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
 
         PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(this);
         potentialMaster.addPotential(pTruncated, new AtomType[]{sphereType, sphereType});
-        meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(box);
+        meterPE = new MeterPotentialEnergy(potentialMaster, box);
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);

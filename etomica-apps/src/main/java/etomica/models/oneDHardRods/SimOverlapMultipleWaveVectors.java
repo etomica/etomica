@@ -143,8 +143,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         changeMove.setStepSize(0.01);
         changeMove.setOmegaSquared(nm.getOmegaSquared());
 
-        meterAinA = new MeterPotentialEnergy(potentialMasterTarget);
-        meterAinA.setBox(boxTarget);
+        meterAinA = new MeterPotentialEnergy(potentialMasterTarget, boxTarget);
 
         meterBinA = new MeterCompareMultipleWVBrute("meterBinA",
                 potentialMasterTarget, coordinateDefinitionTarget, boxTarget);
@@ -230,8 +229,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         compareMove.setStepSizeMin(0.001);
         compareMove.setStepSize(0.01);
 
-        meterAinB = new MeterPotentialEnergy(potentialMasterRef);
-        meterAinB.setBox(boxRef);
+        meterAinB = new MeterPotentialEnergy(potentialMasterRef, boxRef);
 
         meterBinB = new MeterCompareMultipleWVBrute(potentialMasterRef,
                 coordinateDefinitionRef, boxRef);

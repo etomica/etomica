@@ -66,8 +66,7 @@ public class IntegratorEnergyMap extends IntegratorBox {
         super.setup();
     
         // Set variables for energy
-        energy = new MeterPotentialEnergy(potentialMaster);
-        energy.setBox(box);
+        energy = new MeterPotentialEnergy(potentialMaster, box);
         
         
     }

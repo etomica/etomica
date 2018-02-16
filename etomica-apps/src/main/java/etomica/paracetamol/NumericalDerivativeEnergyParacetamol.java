@@ -18,8 +18,7 @@ public class NumericalDerivativeEnergyParacetamol implements FunctionMultiDimens
 	public NumericalDerivativeEnergyParacetamol(Box box, PotentialMaster potentialMaster){
 		this.box = box;
 		this.potentialMaster = potentialMaster;
-		this.meterEnergy = new MeterPotentialEnergy(potentialMaster);
-		meterEnergy.setBox(box);
+		this.meterEnergy = new MeterPotentialEnergy(potentialMaster, box);
 		
 	}
 	

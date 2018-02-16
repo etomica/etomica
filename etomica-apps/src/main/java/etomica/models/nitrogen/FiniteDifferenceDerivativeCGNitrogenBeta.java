@@ -25,8 +25,7 @@ public class FiniteDifferenceDerivativeCGNitrogenBeta{
                                                     CoordinateDefinition coordinateDefinition){
 		this.coordinateDefinition = coordinateDefinition;
 		this.box = box;
-		meterPotential = new MeterPotentialEnergy(potentialMaster);
-		meterPotential.setBox(box);
+		meterPotential = new MeterPotentialEnergy(potentialMaster, box);
 		
 		a = new double[ntab][ntab];
 	}

@@ -175,8 +175,7 @@ public class SimDifferentImage extends Simulation {
         mcMoveMode.addChangeableWV(all);
         integratorTarget.getMoveManager().addMCMove(mcMoveMode);
         
-        meterTargInTarg = new MeterPotentialEnergy(potentialMasterTarget);
-        meterTargInTarg.setBox(boxTarget);
+        meterTargInTarg = new MeterPotentialEnergy(potentialMasterTarget, boxTarget);
         integratorTarget.setMeterPotentialEnergy(meterTargInTarg);
         
         
@@ -248,8 +247,7 @@ public class SimDifferentImage extends Simulation {
         mcMoveMode.addChangeableWV(all);
         integratorRef.getMoveManager().addMCMove(mcMoveMode);
         
-        meterRefInRef = new MeterPotentialEnergy(potentialMasterRef);
-        meterRefInRef.setBox(boxRef);
+        meterRefInRef = new MeterPotentialEnergy(potentialMasterRef, boxRef);
         
         
 //JOINT
