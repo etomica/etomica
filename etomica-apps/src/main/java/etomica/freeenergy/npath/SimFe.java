@@ -320,8 +320,7 @@ public class SimFe extends Simulation {
             tHist.addDataSink(tPlot.getDataSet().makeDataSink());
             tPlot.setDoLegend(false);
 
-            MeterKineticEnergy meterKE = new MeterKineticEnergy();
-            meterKE.setBox(sim.box);
+            MeterKineticEnergy meterKE = new MeterKineticEnergy(sim.box);
             AccumulatorHistory keHist = new AccumulatorHistory(new HistoryCollapsingAverage());
             keHist.setTimeDataSource(tSource);
             DataPumpListener kePump = new DataPumpListener(meterKE, keHist, interval);

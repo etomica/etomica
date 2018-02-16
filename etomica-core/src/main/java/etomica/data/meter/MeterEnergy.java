@@ -22,8 +22,7 @@ public final class MeterEnergy extends DataSourceScalar {
     
     public MeterEnergy(PotentialMaster potentialMaster, Box box) {
     	super("Energy",Energy.DIMENSION);
-        kinetic = new MeterKineticEnergy();
-        ((MeterKineticEnergy)kinetic).setBox(box);
+        kinetic = new MeterKineticEnergy(box);
         potential = new MeterPotentialEnergy(potentialMaster);
         ((MeterPotentialEnergy)potential).setBox(box);
     }

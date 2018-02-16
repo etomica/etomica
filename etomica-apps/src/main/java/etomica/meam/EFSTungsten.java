@@ -145,13 +145,12 @@ public class EFSTungsten extends Simulation {
     	System.out.println(numsteps+" steps");
     	
     	MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
-    	MeterKineticEnergy kineticMeter = new MeterKineticEnergy();
+    	MeterKineticEnergy kineticMeter = new MeterKineticEnergy(sim.box);
         MeterEnergy totalEnergyMeter = new MeterEnergy(sim.potentialMaster,sim.box);
         MeterDADB DADBMeter = new MeterDADB(sim.getSpace(),energyMeter,sim.potentialMaster,sim.coordinateDefinition,Kelvin.UNIT.toSim(temperature));
         MeterPressure pressureMeter = new MeterPressure(sim.getSpace());
 
     	energyMeter.setBox(sim.box);
-    	kineticMeter.setBox(sim.box);
     	System.out.println("lattice energy "+ElectronVolt.UNIT.fromSim(energyMeter.getDataAsScalar()/numatoms));
     	System.out.println("eV is "+ElectronVolt.UNIT.fromSim(1));
     	System.out.println("K is "+Kelvin.UNIT.fromSim(1));

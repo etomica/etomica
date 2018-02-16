@@ -49,11 +49,10 @@ public class MEAMMd3DforCluster {
     	sim.getController().actionPerformed();
     	
     	MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
-    	MeterKineticEnergy kineticMeter = new MeterKineticEnergy();
+    	MeterKineticEnergy kineticMeter = new MeterKineticEnergy(sim.box);
     	
     	energyMeter.setBox(sim.box);
-    	kineticMeter.setBox(sim.box);
-        
+
         AccumulatorAverage accumulatorAveragePE = new AccumulatorAverageFixed(50);
     	AccumulatorAverage accumulatorAverageKE = new AccumulatorAverageFixed(50);
     	
