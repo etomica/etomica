@@ -19,6 +19,8 @@ import etomica.species.ISpecies;
 import etomica.util.random.IRandom;
 import etomica.util.random.RandomMersenneTwister;
 import etomica.util.random.RandomNumberGeneratorUnix;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
@@ -29,6 +31,7 @@ import java.util.*;
  */
 @KeepSimJavadoc
 public class Simulation {
+    protected final Logger LOG = LogManager.getLogger(this.getClass());
 
     protected final Space space;
     protected final SimulationEventManager eventManager;
@@ -47,6 +50,7 @@ public class Simulation {
      * @param space the space used to construct Vectors etc.
      */
     public Simulation(Space space) {
+        LOG.info("Initializing Simulation");
         this.space = space;
         boxes = new ArrayList<>();
         controller = new Controller();
