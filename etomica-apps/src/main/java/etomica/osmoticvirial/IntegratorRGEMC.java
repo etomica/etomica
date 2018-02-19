@@ -7,9 +7,6 @@ package etomica.osmoticvirial;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorManagerMC;
-import etomica.integrator.mcmove.MCMoveMoleculeExchange;
-import etomica.integrator.mcmove.MCMoveVolumeExchange;
-import etomica.nbr.cell.PotentialMasterCell;
 import etomica.space.Space;
 import etomica.species.Species;
 import etomica.util.random.IRandom;
@@ -43,7 +40,7 @@ public class IntegratorRGEMC extends IntegratorManagerMC {
         if (nIntegrators == 2) {
 
             mcMoveGeometricClusterRestrictedGE =
-                    new MCMoveGeometricClusterRestrictedGE((PotentialMasterCell) ((IntegratorBox)newIntegrator).getPotentialMaster(),
+                    new MCMoveGeometricClusterRestrictedGE(((IntegratorBox) newIntegrator).getPotentialMaster(),
                     space, random, ((IntegratorBox)integrators[0]).getBox(),((IntegratorBox)integrators[1]).getBox(), seed);
             moveManager.recomputeMoveFrequencies();
             moveManager.addMCMove(mcMoveGeometricClusterRestrictedGE);
