@@ -16,8 +16,8 @@ import etomica.species.ISpecies;
 public class NeighborListManagerColloid extends NeighborListManager {
 
     public NeighborListManagerColloid(PotentialMasterList potentialMasterList,
-                                      double range, Box box, Space space) {
-        super(potentialMasterList, range, box, space);
+                                      double range, Box box) {
+        super(potentialMasterList, range, box);
     }
     
     public void setSpeciesColloid(ISpecies newSpeciesColloid) {
@@ -74,12 +74,12 @@ public class NeighborListManagerColloid extends NeighborListManager {
     protected int chainLength;
 
     public static class NeighborListAgentSourceColloid extends PotentialMasterList.NeighborListAgentSource {
-        public NeighborListAgentSourceColloid(double range, Space space) {
-            super(range, space);
+        public NeighborListAgentSourceColloid(double range) {
+            super(range);
         }
 
         public NeighborListManagerColloid makeAgent(Box box) {
-            return new NeighborListManagerColloid(potentialMaster, range, box, space);
+            return new NeighborListManagerColloid(potentialMaster, range, box);
         }
     }
 }

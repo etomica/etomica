@@ -13,7 +13,6 @@ import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.IMoleculePositionDefinition;
 import etomica.nbr.*;
-import etomica.nbr.cell.BoxAgentSourceCellManager;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
@@ -73,7 +72,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
     }
 
     public PotentialMasterList(Simulation sim, double range, BoxAgentSourceCellManagerList boxAgentSource, BoxAgentManager<? extends BoxCellManager> agentManager, Space _space){
-        this(sim, range, boxAgentSource, agentManager, new NeighborListAgentSource(range, _space), _space);
+        this(sim, range, boxAgentSource, agentManager, new NeighborListAgentSource(range), _space);
     }
 
     public PotentialMasterList(Simulation sim, double range,
@@ -584,14 +583,11 @@ public class PotentialMasterList extends PotentialMasterNbr {
     }
 
     public static class NeighborListAgentSource implements BoxAgentManager.BoxAgentSource<NeighborListManager> {
-        protected final Space space;
         protected PotentialMasterList potentialMaster;
         protected double range;
         
-        public NeighborListAgentSource(double range, Space space) {
-
+        public NeighborListAgentSource(double range) {
             this.range = range;
-            this.space = space;
         }
         
         public void setRange(double newRange) {
@@ -603,7 +599,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
         }
 
         public NeighborListManager makeAgent(Box box) {
-            return new NeighborListManager(potentialMaster, range, box, space);
+            return new NeighborListManager(potentialMaster, range, box);
         }
 
         public void releaseAgent(NeighborListManager object) {
