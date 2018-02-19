@@ -104,7 +104,7 @@ public class SimLJHTTISuperHCP extends Simulation {
 
         BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, _space);
         BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, this);
-        potentialMaster = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc, space), space);
+        potentialMaster = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc), space);
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
@@ -262,7 +262,7 @@ public class SimLJHTTISuperHCP extends Simulation {
 
             BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(sim, null, sim.space);
             BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, sim);
-            potentialMasterData = new PotentialMasterList(sim, cutoffs[nCutoffs-1], boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc, sim.space), sim.space);
+            potentialMasterData = new PotentialMasterList(sim, cutoffs[nCutoffs-1], boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc), sim.space);
 
             // |potential| is our local potential used for data collection.
             P2SoftSphericalTruncated potentialT = new P2SoftSphericalTruncated(sim.getSpace(), potential, cutoffs[nCutoffs-1]-0.01);

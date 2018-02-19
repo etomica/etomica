@@ -56,7 +56,7 @@ public class ColloidSim extends Simulation {
         setRandom(new RandomNumberGenerator(1));
         BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, _space);
         potentialMaster = new PotentialMasterList(this, 6, boxAgentSource, new BoxAgentManager<NeighborCellManager>(boxAgentSource, this),
-                new NeighborListManagerColloid.NeighborListAgentSourceColloid(6, _space), _space);
+                new NeighborListManagerColloid.NeighborListAgentSourceColloid(6), _space);
 
         int nColloid = 1;
         chainLength = 50;

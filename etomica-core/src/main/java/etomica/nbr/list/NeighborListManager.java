@@ -55,9 +55,9 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
     /**
      * Configures instance for use by the given PotentialMaster.
      */
-    public NeighborListManager(PotentialMasterList potentialMasterList, double range,
-                               Box box, Space space) {
+    public NeighborListManager(PotentialMasterList potentialMasterList, double range, Box box) {
         setUpdateInterval(1);
+        Space space = box.getSpace();
         this.box = box;
         iieCount = updateInterval;
         pbcEnforcer = new BoxImposePbc(space);

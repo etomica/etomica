@@ -28,8 +28,8 @@ public class NeighborListManagerSlanty extends NeighborListManager {
      * Configures instance for use by the given PotentialMaster.
      */
     public NeighborListManagerSlanty(PotentialMasterList potentialMasterList, double range,
-                                     Box box, Space space) {
-        super(potentialMasterList, range, box, space);
+                                     Box box) {
+        super(potentialMasterList, range, box);
         pair = new AtomPair();
     }
 
@@ -147,12 +147,12 @@ public class NeighborListManagerSlanty extends NeighborListManager {
      * PotentialMaster
      */
     public static class NeighborListSlantyAgentSource extends NeighborListAgentSource {
-        public NeighborListSlantyAgentSource(double range, Space space) {
-            super(range, space);
+        public NeighborListSlantyAgentSource(double range) {
+            super(range);
         }
         
         public NeighborListManager makeAgent(Box box) {
-            return new NeighborListManagerSlanty(potentialMaster, range, box, space);
+            return new NeighborListManagerSlanty(potentialMaster, range, box);
         }
     }
     
