@@ -83,8 +83,7 @@ public class SimOverlapSoftSphere extends Simulation {
         addSpecies(species);
 
         // TARGET
-        boxTarget = new Box(space);
-        addBox(boxTarget);
+        boxTarget = this.makeBox();
         boxTarget.setNMolecules(species, numAtoms);
 
         final IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget, getRandom(), temperature, boxTarget);
@@ -158,8 +157,7 @@ public class SimOverlapSoftSphere extends Simulation {
 
         // HARMONIC
         boundaryHarmonic = new BoundaryRectangularPeriodic(space);
-        boxHarmonic = new Box(boundaryHarmonic, space);
-        addBox(boxHarmonic);
+        boxHarmonic = this.makeBox(boundaryHarmonic);
         boxHarmonic.setNMolecules(species, numAtoms);
 
         IntegratorMC integratorHarmonic = new IntegratorMC(null, random, 1.0, boxHarmonic); //null changed on 11/20/2009

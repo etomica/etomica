@@ -63,7 +63,7 @@ public class LJNPT extends Simulation {
         potentialMaster.lrcMaster().setEnabled(false);
 
         //controller and integrator
-        box = new Box(space);
+        box = this.makeBox();
         integrator = new IntegratorMC(potentialMaster, random, temperature, box);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
@@ -79,7 +79,6 @@ public class LJNPT extends Simulation {
         potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
         //construct box
-        addBox(box);
 
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(mcMoveAtom);

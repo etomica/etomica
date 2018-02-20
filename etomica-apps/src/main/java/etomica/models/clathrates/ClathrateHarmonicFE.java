@@ -50,53 +50,53 @@ public class ClathrateHarmonicFE extends Simulation{
 	protected EwaldSummation potentialES;
 
 	public ClathrateHarmonicFE(Space space, int[] nC, double rCutRealES, double rCutLJ, double[] a0_sc, int numMolecule, String configFileName, boolean isIce, double kCut, boolean includeM) {
-		super(space);
-		species = new SpeciesWater4P(space);
-		addSpecies(species);
-		box = new Box(space);
-		addBox(box);
-		box.setNMolecules(species, numMolecule);		
+        super(space);
+        species = new SpeciesWater4P(space);
+        addSpecies(species);
+        box = this.makeBox();
+        box.setNMolecules(species, numMolecule);
         Boundary boundary = new BoundaryRectangularPeriodic(space, a0_sc);
         box.setBoundary(boundary);
-		ChargeAgentSourceRPM agentSource = new ChargeAgentSourceRPM(species, isIce);
-		AtomLeafAgentManager<MyCharge> atomAgentManager = new AtomLeafAgentManager<MyCharge>(agentSource, box);
-		double sigma, epsilon;
-		if(isIce){
-			sigma = 3.1668; epsilon = Kelvin.UNIT.toSim(106.1);//TIP4P/Ice			
+        ChargeAgentSourceRPM agentSource = new ChargeAgentSourceRPM(species, isIce);
+        AtomLeafAgentManager<MyCharge> atomAgentManager = new AtomLeafAgentManager<MyCharge>(agentSource, box);
+        double sigma, epsilon;
+        if (isIce) {
+            sigma = 3.1668;
+            epsilon = Kelvin.UNIT.toSim(106.1);//TIP4P/Ice
 //			sigma = 3.1589; epsilon = Kelvin.UNIT.toSim(93.2);//TIP4P/2005			
-		}else{//TIP4P
-		    double A = 600E3; // kcal A^12 / mol
-		    double C = 610.0; // kcal A^6 / mol
-		    double s6 = A/C;
-		    sigma = Math.pow(s6, 1.0/6.0);
-		    epsilon = Mole.UNIT.fromSim(Calorie.UNIT.toSim(C/s6*1000))/4.0;
+        } else {//TIP4P
+            double A = 600E3; // kcal A^12 / mol
+            double C = 610.0; // kcal A^6 / mol
+            double s6 = A / C;
+            sigma = Math.pow(s6, 1.0 / 6.0);
+            epsilon = Mole.UNIT.fromSim(Calorie.UNIT.toSim(C / s6 * 1000)) / 4.0;
 //            sigma = 3.154; epsilon = Kelvin.UNIT.toSim(78.0); //TIP4P           
-		}
-		//To get Dij(LJ)
-		potentialLJ = new P2LennardJones(space, sigma, epsilon);
-		//To get U
-		potentialLJLS = new Potential2SoftSphericalLS(space,rCutLJ,a0_sc,new P2LennardJones(space, sigma, epsilon));
-		potentialES = new EwaldSummation(box, atomAgentManager, space, kCut, rCutRealES);
+        }
+        //To get Dij(LJ)
+        potentialLJ = new P2LennardJones(space, sigma, epsilon);
+        //To get U
+        potentialLJLS = new Potential2SoftSphericalLS(space, rCutLJ, a0_sc, new P2LennardJones(space, sigma, epsilon));
+        potentialES = new EwaldSummation(box, atomAgentManager, space, kCut, rCutRealES);
 //XXXX Potential Master
-		potentialMaster = new PotentialMaster();
+        potentialMaster = new PotentialMaster();
         potentialMaster.addPotential(potentialLJLS, new AtomType[]{species.getOxygenType(), species.getOxygenType()});
         potentialMaster.addPotential(potentialES, new AtomType[0]);
         potentialLJLS.setBox(box);
 
-		if(includeM){
-			ConfigurationFile config = new ConfigurationFile(configFileName);////to duplicate with M point!
-	        ConfigurationFileBinary.replicate(config, box, nC, space);			
-		}else{
-			ConfigurationFileTIP4P config = new ConfigurationFileTIP4P(configFileName, space, isIce);//to duplicate w.o. M point!
-	        ConfigurationFileBinary.replicate(config, box, nC, space);			
-		}
+        if (includeM) {
+            ConfigurationFile config = new ConfigurationFile(configFileName);////to duplicate with M point!
+            ConfigurationFileBinary.replicate(config, box, nC, space);
+        } else {
+            ConfigurationFileTIP4P config = new ConfigurationFileTIP4P(configFileName, space, isIce);//to duplicate w.o. M point!
+            ConfigurationFileBinary.replicate(config, box, nC, space);
+        }
 
-		MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(potentialMaster, box);
-		AtomPair selfAtomLJ = new AtomPair(box.getLeafList().getAtom(2), box.getLeafList().getAtom(2));
-		double selfELJ = potentialLJLS.energy(selfAtomLJ);// = 0 if nLJshells=0
-		double E = Joule.UNIT.fromSim(meterPotentialEnergy.getDataAsScalar()/numMolecule + selfELJ)*1.0E-3*Constants.AVOGADRO;
-		System.out.println(" E (kJ/mol) = " + E);
-		
+        MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(potentialMaster, box);
+        AtomPair selfAtomLJ = new AtomPair(box.getLeafList().getAtom(2), box.getLeafList().getAtom(2));
+        double selfELJ = potentialLJLS.energy(selfAtomLJ);// = 0 if nLJshells=0
+        double E = Joule.UNIT.fromSim(meterPotentialEnergy.getDataAsScalar() / numMolecule + selfELJ) * 1.0E-3 * Constants.AVOGADRO;
+        System.out.println(" E (kJ/mol) = " + E);
+
 //		System.out.println("******************************************************************");
 //		double s = Math.sqrt(Math.PI*rCutRealES*nKs/nC[0]/a0);
 //		alpha = s/rCutRealES;
@@ -117,8 +117,7 @@ public class ClathrateHarmonicFE extends Simulation{
 //          Joule.UNIT.fromSim(Q2*Math.sqrt(s/2/alpha/boxSize/boxSize/boxSize)*Math.exp(-s*s) /s/s)  *  1.0E-3*Constants.AVOGADRO);
 //        System.exit(0);
 
-		
-		
+
 //		double gmToSim = Gram.UNIT.toSim(1);
 //		double cmToSim = 1.0e8;
 //		double mH2O = species.getOxygenType().getMass() + 2.0 * species.getHydrogenType().getMass();  
@@ -158,7 +157,7 @@ public class ClathrateHarmonicFE extends Simulation{
 //			System.out.println(N +" "+ 1.0/N +" "+ (Atot));
 //			}
 //        System.exit(0);
-	}
+    }
 	public static void main(String[] args){
 		SimParams params = new SimParams();
         ParseArgs.doParseArgs(params, args);

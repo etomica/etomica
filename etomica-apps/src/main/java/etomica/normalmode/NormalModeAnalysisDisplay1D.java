@@ -32,8 +32,7 @@ public class NormalModeAnalysisDisplay1D extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
-        box = new Box(space);
-        addBox(box);
+        box = this.makeBox();
         box.setNMolecules(species, numAtoms);
 
         primitive = new PrimitiveCubic(space, 1.0 / density);

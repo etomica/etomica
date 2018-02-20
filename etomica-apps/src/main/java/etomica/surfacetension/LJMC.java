@@ -53,7 +53,7 @@ public class LJMC extends Simulation {
         potentialMaster.lrcMaster().setEnabled(false);
 
         //controller and integrator
-        box = new Box(space);
+        box = this.makeBox();
         integrator = new IntegratorMC(potentialMaster, random, 1.0, box);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
@@ -69,7 +69,6 @@ public class LJMC extends Simulation {
         potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
         //construct box
-        addBox(box);
         Vector dim = space.makeVector();
         box.getBoundary().setBoxSize(dim);
 

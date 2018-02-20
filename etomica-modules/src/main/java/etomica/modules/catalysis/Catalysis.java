@@ -50,8 +50,7 @@ public class Catalysis extends Simulation {
     public Catalysis(Space _space, int nCellsZ) {
         super(_space);
         //construct box
-        box = new Box(new BoundaryRectangularSlit(1, 20.0, space), space);
-        addBox(box);
+        box = this.makeBox(new BoundaryRectangularSlit(1, 20.0, space));
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 9, space); //List(this, 2.0);
 
         //controller and integrator

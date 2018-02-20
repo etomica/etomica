@@ -90,8 +90,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         // Set up target system - A, 1, hard rod
         PotentialMasterList potentialMasterTarget = new PotentialMasterList(
                 this, space);
-        boxTarget = new Box(space);
-        addBox(boxTarget);
+        boxTarget = this.makeBox();
         boxTarget.setNMolecules(species, numAtoms);
 
         Potential2 p2 = new P2HardSphere(space, 1.0, true);
@@ -183,8 +182,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
 //REFERENCE
         // Set up REFERENCE system - System B - 0 - Hybrid system
         PotentialMasterList potentialMasterRef = new PotentialMasterList(this, space);
-        boxRef = new Box(space);
-        addBox(boxRef);
+        boxRef = this.makeBox();
         boxRef.setNMolecules(species, numAtoms);
 
         p2 = new P2HardSphere(space, 1.0, true);

@@ -101,8 +101,7 @@ public class SimOverlapSoftSphereHCP extends Simulation {
         BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, this);
         potentialMasterTarget = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc), space);
 
-        boxTarget = new Box(space);
-        addBox(boxTarget);
+        boxTarget = this.makeBox();
         boxTarget.setNMolecules(species, numAtoms);
 
         IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget, getRandom(), temperature, boxTarget);
@@ -167,8 +166,7 @@ public class SimOverlapSoftSphereHCP extends Simulation {
 
         // HARMONIC
         boundaryHarmonic = new BoundaryDeformablePeriodic(space, boxDim);
-        boxHarmonic = new Box(boundaryHarmonic, space);
-        addBox(boxHarmonic);
+        boxHarmonic = this.makeBox(boundaryHarmonic);
         boxHarmonic.setNMolecules(species, numAtoms);
 
         IntegratorMC integratorHarmonic = new IntegratorMC(null, random, 1.0, boxHarmonic); //null changed on 11/20/2009

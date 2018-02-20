@@ -51,7 +51,7 @@ public class SoftSphere3d extends Simulation {
     public SoftSphere3d(double density, int exponent, double temperature) {
         super(Space3D.getInstance());
         potentialMaster = new PotentialMasterMonatomic(this);
-        box = new Box(space);
+        box = this.makeBox();
         integrator = new IntegratorMC(this, potentialMaster, box);
         integrator.setTemperature(temperature);
 
@@ -65,7 +65,6 @@ public class SoftSphere3d extends Simulation {
         //species2 = new SpeciesSpheresMono(this);
         addSpecies(species);
         //getSpeciesManager().addSpecies(species2)
-        addBox(box);
         box.setNMolecules(species, 108);
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(density);

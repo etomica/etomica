@@ -94,76 +94,75 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
             int[] nCellsTarget, double density, double tems, int exponent, String inputFile, double constraint) {
         super(_space);
         System.out.println("Running " + APP_NAME);
-        
+
 //        long seed = 0;
 //        System.out.println("Seed explicitly set to " + seed);
 //        IRandom rand = new RandomNumberGenerator(seed);
 //        this.setRandom(rand);
-        
+
         int targAtoms = 1;
         int refAtoms = 1;
-        for(int i = 0; i < space.D(); i++){
+        for (int i = 0; i < space.D(); i++) {
             refAtoms *= nCellsRef[i];
             targAtoms *= nCellsTarget[i];
         }
         refAtoms *= 4;     //definitely fcc
         targAtoms *= 4;    //definitely fcc
-        
+
         double temperature = tems;
         this.constraint = constraint;
         String rIn = inputFile + refAtoms;
         String tIn = inputFile + targAtoms;
-        
+
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
-        
+
         integrators = new IntegratorMC[2];
         accumulatorPumps = new DataPump[2];
         meters = new IDataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
-        
+
 //REFERENCE
         // Set up reference system - B, 0
-        boxRef = new Box(space);
-        addBox(boxRef);
+        boxRef = this.makeBox();
         boxRef.setNMolecules(species, refAtoms);
-        
+
         double primitiveLength = Math.pow(4.0 / density, 1.0 / 3.0);
         bdryRef = new BoundaryRectangularPeriodic(space, 1.0);
         Vector edges = new Vector3D();
         double[] lengths = new double[3];
-        lengths[0] = nCellsRef[0]*primitiveLength;
-        lengths[1] = nCellsRef[1]*primitiveLength;
-        lengths[2] = nCellsRef[2]*primitiveLength;
+        lengths[0] = nCellsRef[0] * primitiveLength;
+        lengths[1] = nCellsRef[1] * primitiveLength;
+        lengths[2] = nCellsRef[2] * primitiveLength;
         edges.E(lengths);
         bdryRef.setBoxSize(edges);
         boxRef.setBoundary(bdryRef);
         primitive = new PrimitiveOrthorhombic(space, lengths[0], lengths[1],
                 lengths[2]);
-        
+
         Basis basisFCC = new BasisCubicFcc();
         basis = new BasisBigCell(space, basisFCC, nCellsRef);
-        
+
         cDefRef = new CoordinateDefinitionLeaf(boxRef, primitive, basis, space);
-        cDefRef.initializeCoordinates(new int[] {1, 1, 1});
-        
+        cDefRef.initializeCoordinates(new int[]{1, 1, 1});
+
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
         //Choose the smallest side to define the neighborRange.
         double neighborRange = 0.0;
-        if(nCellsRef[0] <= nCellsRef[1] && nCellsRef[0] <= nCellsRef[2]){
+        if (nCellsRef[0] <= nCellsRef[1] && nCellsRef[0] <= nCellsRef[2]) {
             neighborRange = 0.495 * lengths[0];
-        } else if(nCellsRef[1] <= nCellsRef[2]) {
+        } else if (nCellsRef[1] <= nCellsRef[2]) {
             neighborRange = 0.495 * lengths[1];
-        }else {
+        } else {
             neighborRange = 0.495 * lengths[2];
         }
-        
-        if(refAtoms >= 256){
+
+        if (refAtoms >= 256) {
             neighborRange = 2.2;
         }
-        
+
         System.out.println("truncation " + neighborRange);
-        Potential2SoftSpherical potentialBase = new P2SoftSphere(space, 1.0, 
+        Potential2SoftSpherical potentialBase = new P2SoftSphere(space, 1.0,
                 1.0, exponent);
         P2SoftSphericalTruncated potential = new P2SoftSphericalTruncated(
                 space, potentialBase, neighborRange);
@@ -172,10 +171,10 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
         potentialMaster.setRange(neighborRange);
         potentialMaster.lrcMaster().setEnabled(false);
         potentialMaster.getNeighborManager(boxRef).reset();
-        
+
         IntegratorMC integratorRef = new IntegratorMC(potentialMaster, random, temperature, boxRef);
         integrators[0] = integratorRef;
-        
+
         nmRef = new NormalModesFromFile(rIn, space.D());
         nmRef.setHarmonicFudge(1.0);
 //        nmRef.setTemperature(temperature);  //not needed - deriv based
@@ -183,16 +182,16 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
         waveVectorFactoryRef = nmRef.getWaveVectorFactory();
         waveVectorFactoryRef.makeWaveVectors(boxRef);
 //        double[] wvc= nmRef.getWaveVectorFactory().getCoefficients();
-        
+
         System.out.println("We have " + waveVectorFactoryRef.getWaveVectors().length
-                +" reference wave vectors.");
-        
+                + " reference wave vectors.");
+
         meterRefInRef = new MeterPotentialEnergy(potentialMaster, boxRef);
         double latticeEnergyRef = meterRefInRef.getDataAsScalar();
-        System.out.println("Reference system lattice energy: " +latticeEnergyRef);
-        
+        System.out.println("Reference system lattice energy: " + latticeEnergyRef);
+
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, boxTarget);
-meterPE.setBox(boxRef);
+        meterPE.setBox(boxRef);
         MCMoveAtomCoupled mcMoveAtom = new MCMoveAtomCoupled(potentialMaster,
                 meterPE, random, space);
         mcMoveAtom.setPotential(potential);
@@ -204,23 +203,22 @@ meterPE.setBox(boxRef);
 
 //TARGET
         // Set up target system
-        boxTarget = new Box(space);
-        addBox(boxTarget);
+        boxTarget = this.makeBox();
         boxTarget.setNMolecules(species, targAtoms);
 
         bdryTarget = new BoundaryRectangularPeriodic(space, 1.0);
         edges = new Vector3D();
         lengths = new double[3];
-        lengths[0] = nCellsTarget[0]*primitiveLength;
-        lengths[1] = nCellsTarget[1]*primitiveLength;
-        lengths[2] = nCellsTarget[2]*primitiveLength;
+        lengths[0] = nCellsTarget[0] * primitiveLength;
+        lengths[1] = nCellsTarget[1] * primitiveLength;
+        lengths[2] = nCellsTarget[2] * primitiveLength;
         edges.E(lengths);
         bdryTarget.setBoxSize(edges);
         boxTarget.setBoundary(bdryTarget);
 
         cDefTarget = new CoordinateDefinitionLeaf(boxTarget, primitive, basis, space);
         int[] size = new int[space.D()];
-        for(int i=0; i < space.D(); i++){
+        for (int i = 0; i < space.D(); i++) {
             size[i] = nCellsTarget[i] / nCellsRef[i];
         }
         cDefTarget.initializeCoordinates(size);
@@ -240,45 +238,45 @@ meterPE.setBox(boxRef);
 //        wvc = nmTarg.getWaveVectorFactory().getCoefficients();
 
         System.out.println("We have " + waveVectorFactoryTarg.getWaveVectors().length
-                +" target wave vectors.");
+                + " target wave vectors.");
 
         meterTargInTarg = new MeterPotentialEnergy(potentialMaster, boxTarget);
         double latticeEnergyTarget = meterTargInTarg.getDataAsScalar();
-        System.out.println("Target system lattice energy: " +latticeEnergyTarget);
+        System.out.println("Target system lattice energy: " + latticeEnergyTarget);
 
         meterPE = new MeterPotentialEnergy(potentialMaster);
-        mcMoveAtom = new MCMoveAtomCoupled(potentialMaster, meterPE,random, 
+        mcMoveAtom = new MCMoveAtomCoupled(potentialMaster, meterPE, random,
                 space);
         mcMoveAtom.setPotential(potential);
         mcMoveAtom.setDoExcludeNonNeighbors(true);
-        
+
         mcMoveAtom.setStepSize(0.01);
         integratorTarget.getMoveManager().addMCMove(mcMoveAtom);
         integratorTarget.setMeterPotentialEnergy(meterTargInTarg);
-        
-        
+
+
 //JOINT
         //measuring potential of target in reference system
         meterTargInRef = new MeterDifferentImageAddDoubleSize(this,
-                space,  temperature, cDefRef, nmRef, cDefTarget, potentialMaster, 
+                space, temperature, cDefRef, nmRef, cDefTarget, potentialMaster,
                 size, nmTarg, tIn);
-        MeterOverlapSameGaussian meterOverlapInRef = new 
-                MeterOverlapSameGaussian("MeterOverlapInB", Null.DIMENSION, 
+        MeterOverlapSameGaussian meterOverlapInRef = new
+                MeterOverlapSameGaussian("MeterOverlapInB", Null.DIMENSION,
                 meterRefInRef, meterTargInRef, temperature);
         meterOverlapInRef.setDsABase(latticeEnergyRef);
         meterOverlapInRef.setDsBBase(latticeEnergyTarget);
-        
+
         //measuring reference potential in target system
-        meterRefInTarg = new MeterDifferentImageSubtractDoubleSize(this, space, 
-                cDefTarget, nmTarg, cDefRef, potentialMaster, new int[] {1,1,1},
+        meterRefInTarg = new MeterDifferentImageSubtractDoubleSize(this, space,
+                cDefTarget, nmTarg, cDefRef, potentialMaster, new int[]{1, 1, 1},
                 nmRef, rIn);
-        MeterOverlap meterOverlapInTarget = new MeterOverlap("MeterOverlapInA", 
+        MeterOverlap meterOverlapInTarget = new MeterOverlap("MeterOverlapInA",
                 Null.DIMENSION, meterTargInTarg, meterRefInTarg, temperature);
         meterOverlapInTarget.setDsABase(latticeEnergyTarget);
         meterOverlapInTarget.setDsBBase(latticeEnergyRef);
-        
-        P1ConstraintNbr nbrConstraint = new P1ConstraintNbr(space, 
-                primitiveLength/Math.sqrt(2.0), constraint);
+
+        P1ConstraintNbr nbrConstraint = new P1ConstraintNbr(space,
+                primitiveLength / Math.sqrt(2.0), constraint);
         potentialMaster.addPotential(nbrConstraint, new AtomType[]{
                 species.getLeafType()});
         nbrConstraint.initBox(boxRef);
@@ -289,23 +287,23 @@ meterPE.setBox(boxRef);
         potentialMaster.getNeighborManager(boxTarget).reset();
         potentialMaster.getNeighborManager(meterTargInRef.getBox()).reset();
         potentialMaster.getNeighborManager(meterRefInTarg.getBox()).reset();
-        
+
         //Just to be sure!
         potential.setTruncationRadius(3000.0);
-        
+
         meters[1] = meterOverlapInTarget;
         meters[0] = meterOverlapInRef;
-        
+
         //Set up the rest of the joint stuff
-        
+
         integratorSim = new IntegratorOverlap(new IntegratorMC[]{integratorRef,
                 integratorTarget});
-        
+
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, true), 0);
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, false), 1);
-        
+
         setBennettParameter(1.0, 30);
-        
+
         activityIntegrate = new ActivityIntegrate(integratorSim, 0, true);
         getController().addAction(activityIntegrate);
     }

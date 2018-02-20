@@ -35,47 +35,46 @@ import etomica.species.ISpecies;
 public class MinimizeGammaNitrogenLatticeParameter extends Simulation{
 
 	public MinimizeGammaNitrogenLatticeParameter(Space space, int numMolecule, double density, double ratio) {
-		super(space);
-		this.space = space;
-		this.density = density;
-		this.numMolecule = numMolecule;
-				
-		nCell = (int)Math.round(Math.pow((numMolecule/2), 1.0/3.0));
-	
-		this.a = Math.pow(numMolecule/(ratio*density), 1.0/3.0)/nCell;
-		this.c = ratio*a;
-		
-		potentialMaster = new PotentialMaster();
-				
-		Basis basisBCC = new BasisCubicBcc();
-		Basis basis = new BasisBigCell(space, basisBCC, new int[]{nCell, nCell, nCell});
-		
-		species = new SpeciesN2ShellModel(space);
-		addSpecies(species);
-		
-		box = new Box(space);
-		addBox(box);
-		box.setNMolecules(species, numMolecule);		
-		int [] nCells = new int[]{1,1,1};
-				
-		Boundary boundary = new BoundaryRectangularPeriodic(space, new double[]{nCell*a, nCell*a, nCell*c});
-		Primitive primitive = new PrimitiveTetragonal(space, nCell*a, nCell*c);
-		
-		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
-		coordinateDef.setIsGamma();
-		coordinateDef.setOrientationVectorGamma(space);
-		coordinateDef.initializeCoordinates(nCells);
-		
-		box.setBoundary(boundary);
-		double rC = box.getBoundary().getBoxSize().getX(0)*0.485;
-		//System.out.println("Truncation Radius: " + rC);
-		potential = new P2NitrogenShellModel(space, rC);
-		potential.setBox(box);
-		
-		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
+        super(space);
+        this.space = space;
+        this.density = density;
+        this.numMolecule = numMolecule;
+
+        nCell = (int) Math.round(Math.pow((numMolecule / 2), 1.0 / 3.0));
+
+        this.a = Math.pow(numMolecule / (ratio * density), 1.0 / 3.0) / nCell;
+        this.c = ratio * a;
+
+        potentialMaster = new PotentialMaster();
+
+        Basis basisBCC = new BasisCubicBcc();
+        Basis basis = new BasisBigCell(space, basisBCC, new int[]{nCell, nCell, nCell});
+
+        species = new SpeciesN2ShellModel(space);
+        addSpecies(species);
+
+        box = this.makeBox();
+        box.setNMolecules(species, numMolecule);
+        int[] nCells = new int[]{1, 1, 1};
+
+        Boundary boundary = new BoundaryRectangularPeriodic(space, new double[]{nCell * a, nCell * a, nCell * c});
+        Primitive primitive = new PrimitiveTetragonal(space, nCell * a, nCell * c);
+
+        coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
+        coordinateDef.setIsGamma();
+        coordinateDef.setOrientationVectorGamma(space);
+        coordinateDef.initializeCoordinates(nCells);
+
+        box.setBoundary(boundary);
+        double rC = box.getBoundary().getBoxSize().getX(0) * 0.485;
+        //System.out.println("Truncation Radius: " + rC);
+        potential = new P2NitrogenShellModel(space, rC);
+        potential.setBox(box);
+
+        potentialMaster.addPotential(potential, new ISpecies[]{species, species});
 
 
-	}
+    }
 	
 	public void setRatio(double ratio, double density){
 		a = Math.pow(numMolecule/(ratio*density), 1.0/3.0)/nCell;

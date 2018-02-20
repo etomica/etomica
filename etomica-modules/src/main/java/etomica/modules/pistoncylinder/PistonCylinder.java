@@ -47,8 +47,7 @@ public class PistonCylinder extends Simulation {
         species.setIsDynamic(true);
         ((ElementSimple) species.getLeafType().getElement()).setMass(16);
         addSpecies(species);
-        box = new Box(new BoundaryPistonCylinder(space), space);
-        addBox(box);
+        box = this.makeBox(new BoundaryPistonCylinder(space));
         box.setNMolecules(species, INIT_NUM_MOLECULES);
         Vector newDim;
         if (space.D() == 2) {

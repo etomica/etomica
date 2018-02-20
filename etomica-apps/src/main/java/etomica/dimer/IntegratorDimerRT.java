@@ -228,86 +228,83 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Vect
 	 */
 	protected void setup() {
 		super.setup();
-			
+
 		movableAtoms = 0;
-		for(int i=0; i<movableSpecies.length; i++){
-		    movableAtoms += box.getMoleculeList(movableSpecies[i]).getMoleculeCount();
+		for (int i = 0; i < movableSpecies.length; i++) {
+			movableAtoms += box.getMoleculeList(movableSpecies[i]).getMoleculeCount();
 		}
 		workVector = space.makeVector();
-		
-        N = new Vector[movableAtoms];
-        Neff = new Vector[movableAtoms];
-        Nstar = new Vector[movableAtoms];
-        N1 = new Vector[movableAtoms];
-        THETA = new Vector[movableAtoms];
-        THETAstar = new Vector[movableAtoms];
-        THETAstarstar = new Vector[movableAtoms];
-        F = new Vector[movableAtoms];
-        F1 = new Vector[movableAtoms];
-        F2 = new Vector[movableAtoms];
-        Fperp = new Vector[movableAtoms];
-        Fperplast = new Vector[movableAtoms];
-        Gperp = new Vector[movableAtoms];
-        Gperplast = new Vector[movableAtoms];
-        F1perp = new Vector[movableAtoms];
-        F2perp = new Vector[movableAtoms];
-        Fstar = new Vector[movableAtoms];
-        F1star = new Vector[movableAtoms];
-        F2star = new Vector[movableAtoms];
-        Fstarperp = new Vector[movableAtoms];
-        Feff = new Vector[movableAtoms];
-        Feffstar = new Vector[movableAtoms];
-        Fr = new Vector[movableAtoms];
-        Fpara = new Vector[movableAtoms];
-        deltaV = new Vector[movableAtoms];
-        V = new Vector[movableAtoms];
-        newPosition = new Vector[movableAtoms];
-        workVector3 = new Vector[movableAtoms];
-        
-        for(int i=0; i<movableAtoms; i++){
-            N[i] = space.makeVector();
-            Neff[i] = space.makeVector();
-            Nstar[i] = space.makeVector();
-            N1[i] = space.makeVector();
-            THETA[i] = space.makeVector();
-            THETAstar[i] = space.makeVector();
-            THETAstarstar[i] = space.makeVector();
-            F[i] = space.makeVector();
-            F1[i] = space.makeVector();
-            F2[i] = space.makeVector();
-            Fperp[i] = space.makeVector();
-            Fperplast[i] = space.makeVector();
-            Gperp[i] = space.makeVector();
-            Gperplast[i] = space.makeVector();
-            F1perp[i] = space.makeVector();
-            F2perp[i] = space.makeVector();
-            Fstar[i] = space.makeVector();
-            F1star[i] = space.makeVector();
-            F2star[i] = space.makeVector();
-            Fstarperp[i] = space.makeVector();
-            Feff[i] = space.makeVector();
-            Feffstar[i] = space.makeVector();
-            Fpara[i] = space.makeVector();
-            deltaV[i] = space.makeVector();
-            V[i] = space.makeVector();
-            newPosition[i] = space.makeVector();
-            workVector3[i] = space.makeVector();
-        }
-				
-		box1 = new Box(box.getBoundary(), space);
-		box2 = new Box(box.getBoundary(), space);
-		
-		sim.addBox(box1);
-		sim.addBox(box2);
-		
-		if(potentialMaster instanceof PotentialMasterListDimer){
-		   this.getEventManager().addListener(((PotentialMasterList)potentialMaster).getNeighborManager(box1)); 
+
+		N = new Vector[movableAtoms];
+		Neff = new Vector[movableAtoms];
+		Nstar = new Vector[movableAtoms];
+		N1 = new Vector[movableAtoms];
+		THETA = new Vector[movableAtoms];
+		THETAstar = new Vector[movableAtoms];
+		THETAstarstar = new Vector[movableAtoms];
+		F = new Vector[movableAtoms];
+		F1 = new Vector[movableAtoms];
+		F2 = new Vector[movableAtoms];
+		Fperp = new Vector[movableAtoms];
+		Fperplast = new Vector[movableAtoms];
+		Gperp = new Vector[movableAtoms];
+		Gperplast = new Vector[movableAtoms];
+		F1perp = new Vector[movableAtoms];
+		F2perp = new Vector[movableAtoms];
+		Fstar = new Vector[movableAtoms];
+		F1star = new Vector[movableAtoms];
+		F2star = new Vector[movableAtoms];
+		Fstarperp = new Vector[movableAtoms];
+		Feff = new Vector[movableAtoms];
+		Feffstar = new Vector[movableAtoms];
+		Fr = new Vector[movableAtoms];
+		Fpara = new Vector[movableAtoms];
+		deltaV = new Vector[movableAtoms];
+		V = new Vector[movableAtoms];
+		newPosition = new Vector[movableAtoms];
+		workVector3 = new Vector[movableAtoms];
+
+		for (int i = 0; i < movableAtoms; i++) {
+			N[i] = space.makeVector();
+			Neff[i] = space.makeVector();
+			Nstar[i] = space.makeVector();
+			N1[i] = space.makeVector();
+			THETA[i] = space.makeVector();
+			THETAstar[i] = space.makeVector();
+			THETAstarstar[i] = space.makeVector();
+			F[i] = space.makeVector();
+			F1[i] = space.makeVector();
+			F2[i] = space.makeVector();
+			Fperp[i] = space.makeVector();
+			Fperplast[i] = space.makeVector();
+			Gperp[i] = space.makeVector();
+			Gperplast[i] = space.makeVector();
+			F1perp[i] = space.makeVector();
+			F2perp[i] = space.makeVector();
+			Fstar[i] = space.makeVector();
+			F1star[i] = space.makeVector();
+			F2star[i] = space.makeVector();
+			Fstarperp[i] = space.makeVector();
+			Feff[i] = space.makeVector();
+			Feffstar[i] = space.makeVector();
+			Fpara[i] = space.makeVector();
+			deltaV[i] = space.makeVector();
+			V[i] = space.makeVector();
+			newPosition[i] = space.makeVector();
+			workVector3[i] = space.makeVector();
 		}
-		
+
+		box1 = sim.makeBox(box.getBoundary());
+		box2 = sim.makeBox(box.getBoundary());
+
+		if (potentialMaster instanceof PotentialMasterListDimer) {
+			this.getEventManager().addListener(((PotentialMasterList) potentialMaster).getNeighborManager(box1));
+		}
+
 		energyBox0 = new MeterPotentialEnergy(potentialMaster, box);
 		energyBox1 = new MeterPotentialEnergy(potentialMaster, box1);
-        energyBox2 = new MeterPotentialEnergy(potentialMaster, box2);
-		
+		energyBox2 = new MeterPotentialEnergy(potentialMaster, box2);
+
 		atomAgent0 = new AtomLeafAgentManager<>(this, box);
 		atomAgent1 = new AtomLeafAgentManager<>(this, box1);
 		atomAgent2 = new AtomLeafAgentManager<>(this, box2);
@@ -315,29 +312,29 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Vect
 		force0.setAgentManager(atomAgent0);
 		force1.setAgentManager(atomAgent1);
 		force2.setAgentManager(atomAgent2);
-		
-		for(int i=0; i<sim.getSpeciesCount(); i++){
+
+		for (int i = 0; i < sim.getSpeciesCount(); i++) {
 			ISpecies species = sim.getSpecies(i);
 			box1.setNMolecules(species, box.getNMolecules(species));
 			box2.setNMolecules(species, box.getNMolecules(species));
 		}
-		
+
 		// Atom list for movable and offset atoms
 		list = new AtomArrayList();
 		list1 = new AtomArrayList();
 		list2 = new AtomArrayList();
-		
-		for(int i=0; i<movableSpecies.length; i++){
-            IMoleculeList molecules = box.getMoleculeList(movableSpecies[i]);
-            IMoleculeList molecules1 = box1.getMoleculeList(movableSpecies[i]);
-            IMoleculeList molecules2 = box2.getMoleculeList(movableSpecies[i]);
-            for (int j=0; j<molecules.getMoleculeCount(); j++) {
-                list.add(molecules.getMolecule(j).getChildList().getAtom(0));
-                list1.add(molecules1.getMolecule(j).getChildList().getAtom(0));
-                list2.add(molecules2.getMolecule(j).getChildList().getAtom(0));
-            }
-		}	
-				
+
+		for (int i = 0; i < movableSpecies.length; i++) {
+			IMoleculeList molecules = box.getMoleculeList(movableSpecies[i]);
+			IMoleculeList molecules1 = box1.getMoleculeList(movableSpecies[i]);
+			IMoleculeList molecules2 = box2.getMoleculeList(movableSpecies[i]);
+			for (int j = 0; j < molecules.getMoleculeCount(); j++) {
+				list.add(molecules.getMolecule(j).getChildList().getAtom(0));
+				list1.add(molecules1.getMolecule(j).getChildList().getAtom(0));
+				list2.add(molecules2.getMolecule(j).getChildList().getAtom(0));
+			}
+		}
+
 	}
 		
 

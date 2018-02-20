@@ -34,8 +34,7 @@ public class Droplet extends Simulation {
 
     public Droplet(Space _space) {
         super(_space);
-        box = new Box(new BoundaryRectangularNonperiodic(space), space);
-        addBox(box);
+        box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         int numAtoms = 2000;
         PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(this);
 

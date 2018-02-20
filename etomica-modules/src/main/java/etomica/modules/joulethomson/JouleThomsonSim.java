@@ -50,7 +50,7 @@ public class JouleThomsonSim extends Simulation {
         double sigma = 3.0;
 
         //integrator
-        box = new Box(space);
+        box = this.makeBox();
         integratorNVE = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator = new IntegratorGear4NPH(this, potentialMaster, box);
         integrator.setRelaxationRateP(500.);
@@ -75,7 +75,6 @@ public class JouleThomsonSim extends Simulation {
         addSpecies(species);
         potential = new P2LennardJones(space, sigma, Kelvin.UNIT.toSim(300));
         potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
-        addBox(box);
         box.setNMolecules(species, nAtoms);
 
         SpaceLattice lattice;

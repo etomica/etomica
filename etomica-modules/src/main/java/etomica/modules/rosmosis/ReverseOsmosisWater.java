@@ -213,8 +213,7 @@ public class ReverseOsmosisWater extends Simulation {
         potentialMaster.addPotential(pTrunc, new AtomType[]{mType, clType});
 
         //construct box
-        box = new Box(new BoundaryRectangularPeriodic(space, 15), space);
-        addBox(box);
+        box = this.makeBox(new BoundaryRectangularPeriodic(space, 15));
         Vector dim = space.makeVector();
         dim.E(new double[]{xSize, yzSize, yzSize});
         box.getBoundary().setBoxSize(dim);

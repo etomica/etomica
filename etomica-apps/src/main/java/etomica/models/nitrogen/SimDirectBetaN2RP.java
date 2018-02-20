@@ -47,8 +47,7 @@ public class SimDirectBetaN2RP extends Simulation {
         addSpecies(species);
 
         // TARGET
-        boxTarg = new Box(space);
-        addBox(boxTarg);
+        boxTarg = this.makeBox();
         boxTarg.setNMolecules(species, numMolecules);
 
         double ratio = 1.631;

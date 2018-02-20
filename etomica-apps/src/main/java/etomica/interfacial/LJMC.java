@@ -55,8 +55,7 @@ public class LJMC extends Simulation {
     public LJMC(double temperature, String lammpsFile) {
         super(Space3D.getInstance());
         BoundaryRectangularSlit boundary = new BoundaryRectangularSlit(2, space);
-        box = new Box(boundary, space);
-        addBox(box);
+        box = this.makeBox(boundary);
 
         speciesFluid = new SpeciesSpheresMono(space, new ElementSimple("F"));
         addSpecies(speciesFluid);

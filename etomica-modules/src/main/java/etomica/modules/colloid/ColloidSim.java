@@ -69,7 +69,7 @@ public class ColloidSim extends Simulation {
         double epsMM = 1.0;
 
         //controller and integrator
-        box = new Box(space);
+        box = this.makeBox();
         integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setTimeStep(0.02);
         integrator.setTemperature(2);
@@ -86,7 +86,6 @@ public class ColloidSim extends Simulation {
         speciesColloid = new SpeciesSpheresMono(this, space);
         speciesColloid.setIsDynamic(true);
         addSpecies(speciesColloid);
-        addBox(box);
         ((NeighborListManagerColloid) potentialMaster.getNeighborManager(box)).setSpeciesColloid(speciesColloid);
         ((NeighborListManagerColloid) potentialMaster.getNeighborManager(box)).setSpeciesMonomer(species);
         Vector dim = space.makeVector();

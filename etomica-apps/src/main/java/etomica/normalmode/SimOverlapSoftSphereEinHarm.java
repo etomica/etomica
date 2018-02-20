@@ -87,8 +87,7 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
         addSpecies(species);
 
         // TARGET
-        box = new Box(space);
-        addBox(box);
+        box = this.makeBox();
         box.setNMolecules(species, numAtoms);
 
         integrators = new IntegratorBox[2];
@@ -178,8 +177,7 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
 
 
         // HARMONIC
-        boxRef = new Box(boundaryRef, space);
-        addBox(boxRef);
+        boxRef = this.makeBox(boundaryRef);
         boxRef.setNMolecules(species, numAtoms);
 
         IntegratorMC integratorRef = new IntegratorMC(null, random, 1.0, boxRef); //null changed on 11/20/2009

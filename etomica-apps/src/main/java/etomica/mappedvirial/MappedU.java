@@ -49,8 +49,7 @@ public class MappedU extends Simulation {
         addSpecies(species);
 
         //construct box
-        box = new Box(space);
-        addBox(box);
+        box = this.makeBox();
         box.setNMolecules(species, numAtoms);
 
         BoxInflate inflater = new BoxInflate(box, space);

@@ -57,8 +57,8 @@ public class CrystalViewer extends SimulationPanel {
         sim.addSpecies(species);
 
         BasisMonatomic basisMonatomic = new BasisMonatomic(space);
-        
-        BravaisLattice[] lattices = new BravaisLattice[] {
+
+        BravaisLattice[] lattices = new BravaisLattice[]{
                 new LatticeCubicSimple(space),
                 new BravaisLatticeCrystal(new PrimitiveTetragonal(space), basisMonatomic),
                 new BravaisLatticeCrystal(new PrimitiveHexagonal(space), basisMonatomic),
@@ -69,13 +69,12 @@ public class CrystalViewer extends SimulationPanel {
                 new LatticeCubicBcc(space),
                 new LatticeHcp(space),
                 new LatticeCubicDiamond(space)
-            };
+        };
 
-        double[]  boxSize = new double[] { 10.0, 10.0, 10.0 };
-        
-        box  = new Box(new BoundaryDeformableLattice(lattices[0].getPrimitive(),
-        		                                         boxSize), space);
-        sim.addBox(box);
+        double[] boxSize = new double[]{10.0, 10.0, 10.0};
+
+        box = sim.makeBox(new BoundaryDeformableLattice(lattices[0].getPrimitive(),
+                boxSize));
 
         String[] latticeNames = new String[]{
                 "Simple Cubic", "Tetragonal", "Hexagonal", "Orthorhombic", "Monoclinic", "Triclinic", "FCC", "BCC", "HCP", "Diamond"};
@@ -85,12 +84,12 @@ public class CrystalViewer extends SimulationPanel {
         displayBox.setResizeOnNewBox(false);
 
         // we pass these to make LatticePlane happy.  they'll get whacked by update() later
-        latticePlane = new LatticePlane(lattices[0].getPrimitive(), new int[] {1,0,0});
-        
+        latticePlane = new LatticePlane(lattices[0].getPrimitive(), new int[]{1, 0, 0});
+
         clipPlaneEditor = new ClipPlaneEditor(sim, latticePlane, displayBox);
-        
+
         latticeEditor = new LatticeEditor(this, lattices, latticeNames, space);
-        
+
         JTabbedPane controlTabs = new JTabbedPane();
         controlTabs.add("Crystal", latticeEditor.getPanel());
         controlTabs.add("Plane", clipPlaneEditor.getPanel());

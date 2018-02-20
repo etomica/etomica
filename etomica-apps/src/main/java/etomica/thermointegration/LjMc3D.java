@@ -51,7 +51,7 @@ public class LjMc3D extends Simulation {
         super(Space3D.getInstance());
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         double sigma = 1.0;
-        box = new Box(space);
+        box = this.makeBox();
         integrator = new IntegratorMC(this, potentialMaster, box);
         MCMoveAtom move = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(move);
@@ -60,7 +60,6 @@ public class LjMc3D extends Simulation {
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
-        addBox(box);
         box.setNMolecules(species, 50);
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(0.05);

@@ -68,9 +68,8 @@ public class MeterTargetTPMolecule implements IDataSource {
         this.potentialMaster = potentialMaster;
         meterPotential = new MeterPotentialEnergy(potentialMaster);
         this.species = species;
-        pretendBox = new Box(space);
-        sim.addBox(pretendBox);
-     
+        pretendBox = sim.makeBox();
+
         tag = new DataTag();
     }
 

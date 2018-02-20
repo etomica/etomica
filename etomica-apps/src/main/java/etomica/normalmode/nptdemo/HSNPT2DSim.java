@@ -45,7 +45,7 @@ public class HSNPT2DSim extends Simulation {
         double neighborRangeFac = 1.4;
         potentialMaster.setRange(neighborRangeFac * sigma);
 
-        box = new Box(space);
+        box = this.makeBox();
         integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.05);
@@ -61,7 +61,6 @@ public class HSNPT2DSim extends Simulation {
         potential = new P2HardSphere(space, sigma, false);
 
         potentialMaster.addPotential(potential, new AtomType[]{leafType1, leafType1});
-        addBox(box);
         int nx = 10;
         int ny = 6;
         double rho = 1.0;

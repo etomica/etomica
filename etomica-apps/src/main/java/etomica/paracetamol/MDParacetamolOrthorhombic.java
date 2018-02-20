@@ -111,7 +111,7 @@ public class MDParacetamolOrthorhombic extends Simulation {
 
         double neighborRangeFac = 1.6;
 
-        box = new Box(space);
+        box = this.makeBox();
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setIsothermal(false);
         //integrator.setThermostatInterval(1);
@@ -122,7 +122,6 @@ public class MDParacetamolOrthorhombic extends Simulation {
         //activityIntegrate.setMaxSteps(100000);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
-        addBox(box);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{25, 25, 25}));
         species = new SpeciesParacetamol(space, true);
         addSpecies(species);

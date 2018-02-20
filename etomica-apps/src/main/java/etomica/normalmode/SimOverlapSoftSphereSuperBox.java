@@ -81,8 +81,7 @@ public class SimOverlapSoftSphereSuperBox extends Simulation {
 
         // TARGET
 
-        boxTarget = new Box(space);
-        addBox(boxTarget);
+        boxTarget = this.makeBox();
         boxTarget.setNMolecules(speciesA, numAtoms / 8);
         boxTarget.setNMolecules(speciesB, numAtoms * 7 / 8);
 
@@ -147,8 +146,7 @@ public class SimOverlapSoftSphereSuperBox extends Simulation {
 
         // HARMONIC
         boundaryHarmonic = new BoundaryRectangularPeriodic(space);
-        boxHarmonic = new Box(space);
-        addBox(boxHarmonic);
+        boxHarmonic = this.makeBox();
         System.out.println("numAtoms: " + numAtoms);
         boxHarmonic.setNMolecules(speciesA, numAtoms / 8);
         boxHarmonic.setNMolecules(speciesB, numAtoms * 7 / 8);

@@ -46,72 +46,71 @@ public class HarmonicDisorderedAlphaNitrogenModelPairMoleculeSequentialHalf2LS e
 
 	
 	public HarmonicDisorderedAlphaNitrogenModelPairMoleculeSequentialHalf2LS(Space space, int numMolecule, double density, double rC) {
-		super(space);
-		this.space = space;
-		
-		int nCell = (int) Math.round(Math.pow((numMolecule/4), 1.0/3.0));
-		double unitCellLength = Math.pow(numMolecule/density, 1.0/3.0)/nCell;//5.661;
+        super(space);
+        this.space = space;
+
+        int nCell = (int) Math.round(Math.pow((numMolecule / 4), 1.0 / 3.0));
+        double unitCellLength = Math.pow(numMolecule / density, 1.0 / 3.0) / nCell;//5.661;
 //		System.out.println("a: " + unitCellLength);
 //		System.out.println("nCell: " + nCell);
-		
-		potentialMaster = new PotentialMaster();
-				
-		int division = 2;
-		Basis basisFCC = new BasisCubicFcc();
-		Basis basis = new BasisBigCell(space, basisFCC, new int[]{nCell/division, nCell/division, nCell/division});
-		
-		ConformationNitrogen conformation = new ConformationNitrogen(space);
-		species = new SpeciesN2(space);
-		species.setConformation(conformation);
-		addSpecies(species);
-		
-		box = new Box(space);
-		addBox(box);
-		box.setNMolecules(species, numMolecule);		
-		
-		int [] nCells = new int[]{division,division,division};
-		Boundary boundary = new BoundaryRectangularPeriodic(space);
-		boundary.setBoxSize(space.makeVector(new double[]{nCell*unitCellLength,nCell*unitCellLength,nCell*unitCellLength}));
-		Primitive primitive = new PrimitiveCubic(space, (nCell/division)*unitCellLength);
-	
-		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
-		coordinateDef.setIsAlpha();
-		coordinateDef.setOrientationVectorAlpha(space);
-		coordinateDef.initializeCoordinates(nCells);
-		
-		box.setBoundary(boundary);
+
+        potentialMaster = new PotentialMaster();
+
+        int division = 2;
+        Basis basisFCC = new BasisCubicFcc();
+        Basis basis = new BasisBigCell(space, basisFCC, new int[]{nCell / division, nCell / division, nCell / division});
+
+        ConformationNitrogen conformation = new ConformationNitrogen(space);
+        species = new SpeciesN2(space);
+        species.setConformation(conformation);
+        addSpecies(species);
+
+        box = this.makeBox();
+        box.setNMolecules(species, numMolecule);
+
+        int[] nCells = new int[]{division, division, division};
+        Boundary boundary = new BoundaryRectangularPeriodic(space);
+        boundary.setBoxSize(space.makeVector(new double[]{nCell * unitCellLength, nCell * unitCellLength, nCell * unitCellLength}));
+        Primitive primitive = new PrimitiveCubic(space, (nCell / division) * unitCellLength);
+
+        coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
+        coordinateDef.setIsAlpha();
+        coordinateDef.setOrientationVectorAlpha(space);
+        coordinateDef.initializeCoordinates(nCells);
+
+        box.setBoundary(boundary);
 //		System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rC);
-		
-		potential = new P2Nitrogen(space, rC);
-		potential.setEnablePBC(false);
-		potential.setBox(box);
 
-		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
-		
-		int nSites = 2*nCell+1;
-		pairMatrix = new double[nSites][nSites][nSites][4][4][3][3];
-		isFoundReverse = new boolean[nSites][nSites][nSites][4][4]; //default to false
+        potential = new P2Nitrogen(space, rC);
+        potential.setEnablePBC(false);
+        potential.setBox(box);
 
-		findPair = new FindPairMoleculeIndex(space, coordinateDef);
-		
-		translateBy = new AtomActionTranslateBy(coordinateDef.getPrimitive().getSpace());
-        atomGroupActionTranslate = new MoleculeChildAtomAction(translateBy); 
-		lsPosition = coordinateDef.getPrimitive().getSpace().makeVector();
-        
-		xVecBox = coordinateDef.getBox().getBoundary().getBoxSize().getX(0);
-		yVecBox = coordinateDef.getBox().getBoundary().getBoxSize().getX(1);
-		zVecBox = coordinateDef.getBox().getBoundary().getBoxSize().getX(2); 
-		
-		double rX = coordinateDef.getBox().getBoundary().getBoxSize().getX(0);
-		this.nLayer = (int)Math.round(rC/rX + 0.5);
-		if (this.nLayer < 1){
-			throw new RuntimeException("<HarmonicDisorderedAlphaNitrogenModelPairMoleculeSequentialHalf2LS> nLayer is "+ this.nLayer);
-		}
-		
-		workArray = new double[3][3*numMolecule];
+        potentialMaster.addPotential(potential, new ISpecies[]{species, species});
+
+        int nSites = 2 * nCell + 1;
+        pairMatrix = new double[nSites][nSites][nSites][4][4][3][3];
+        isFoundReverse = new boolean[nSites][nSites][nSites][4][4]; //default to false
+
+        findPair = new FindPairMoleculeIndex(space, coordinateDef);
+
+        translateBy = new AtomActionTranslateBy(coordinateDef.getPrimitive().getSpace());
+        atomGroupActionTranslate = new MoleculeChildAtomAction(translateBy);
+        lsPosition = coordinateDef.getPrimitive().getSpace().makeVector();
+
+        xVecBox = coordinateDef.getBox().getBoundary().getBoxSize().getX(0);
+        yVecBox = coordinateDef.getBox().getBoundary().getBoxSize().getX(1);
+        zVecBox = coordinateDef.getBox().getBoundary().getBoxSize().getX(2);
+
+        double rX = coordinateDef.getBox().getBoundary().getBoxSize().getX(0);
+        this.nLayer = (int) Math.round(rC / rX + 0.5);
+        if (this.nLayer < 1) {
+            throw new RuntimeException("<HarmonicDisorderedAlphaNitrogenModelPairMoleculeSequentialHalf2LS> nLayer is " + this.nLayer);
+        }
+
+        workArray = new double[3][3 * numMolecule];
 //		System.out.println("rX: " + rX);
 //		System.out.println("nLayer: " + nLayer);
-	}
+    }
 	
 	public double[][] get2ndDerivative(int molec0){
 	

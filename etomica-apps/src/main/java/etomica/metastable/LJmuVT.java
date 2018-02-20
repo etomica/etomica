@@ -63,7 +63,7 @@ public class LJmuVT extends Simulation {
         potentialMaster.setCellRange(2);
 
         //controller and integrator
-        box = new Box(space);
+        box = this.makeBox();
         integrator = new IntegratorMC(potentialMaster, random, temperature, box);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
@@ -79,7 +79,6 @@ public class LJmuVT extends Simulation {
         potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
         //construct box
-        addBox(box);
 
         mcMoveID = new MCMoveInsertDelete(potentialMaster, random, space);
         mcMoveID.setMu(mu);

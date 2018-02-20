@@ -88,7 +88,7 @@ public class MCParacetamolOrthorhombicDLMULTI extends Simulation {
         BasisOrthorhombicParacetamol basis = new BasisOrthorhombicParacetamol();
         lattice = new BravaisLatticeCrystal(primitive, basis);
 
-        box = new Box(space);
+        box = this.makeBox();
         integrator = new IntegratorMC(this, potentialMaster, box);
         integrator.setIsothermal(false);
         //integrator.setThermostatInterval(1);
@@ -101,7 +101,6 @@ public class MCParacetamolOrthorhombicDLMULTI extends Simulation {
         species = new SpeciesParacetamol(space, false);
         species.setConformation(conformation);
         addSpecies(species);
-        addBox(box);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{25, 25, 25}));
         box.setNMolecules(species, numMolecules);
 

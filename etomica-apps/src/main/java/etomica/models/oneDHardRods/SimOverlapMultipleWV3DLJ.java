@@ -91,8 +91,7 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
         // Set up target system - A, 1, hard rod
         PotentialMasterMonatomic potentialMasterTarget = new
                 PotentialMasterMonatomic(this);
-        boxTarget = new Box(space);
-        addBox(boxTarget);
+        boxTarget = this.makeBox();
         boxTarget.setNMolecules(species, numAtoms);
 
         primitiveTarget = new PrimitiveCubic(space, 1.0);
@@ -183,8 +182,7 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
         // Set up REFERENCE system - System B - 0 - Hybrid system
         PotentialMasterMonatomic potentialMasterRef = new
                 PotentialMasterMonatomic(this);
-        boxRef = new Box(space);
-        addBox(boxRef);
+        boxRef = this.makeBox();
         boxRef.setNMolecules(species, numAtoms);
 
         primitiveRef = new PrimitiveCubic(space, 1.0);

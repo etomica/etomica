@@ -164,104 +164,103 @@ public class IntegratorDimerMin extends IntegratorBox {
 	
 	
 	protected void setup() {
-		super.setup();     
-        movableAtoms = 0;
-        for(int i=0; i<movableSpecies.length; i++){
-            movableAtoms += box.getMoleculeList(movableSpecies[i]).getMoleculeCount();
-        }
-        workVector = space.makeVector();
-        N = new Vector[movableAtoms];
-        F0 = new Vector[movableAtoms];
-        Fmin = new Vector[movableAtoms];
-        Fmin2 = new Vector[movableAtoms];
-        Nstar = new Vector[movableAtoms];
-        THETA = new Vector[movableAtoms];
-        THETAstar = new Vector[movableAtoms];
-        Fperp = new Vector[movableAtoms];
-        Fminperp = new Vector[movableAtoms];
-        Fmin2perp = new Vector[movableAtoms];
-        Fstar = new Vector[movableAtoms];
-        Fminstar = new Vector[movableAtoms];
-        Fmin2star = new Vector[movableAtoms];
-        Fstarperp = new Vector[movableAtoms];
-        Fpara = new Vector[movableAtoms];
-        
-        for (int i=0; i<movableAtoms; i++){
-            N[i] = space.makeVector();
-            Nstar[i] = space.makeVector();
-            F0[i] = space.makeVector();
-            Fmin[i] = space.makeVector();
-            Fmin2[i] = space.makeVector();
-            Nstar[i] = space.makeVector();
-            NDelta = space.makeVector();
-            NstarDelta = space.makeVector();
-            THETA[i] = space.makeVector();
-            THETAstar[i] = space.makeVector();
-            Fperp[i] = space.makeVector();
-            Fminperp[i] = space.makeVector();
-            Fmin2perp[i] = space.makeVector();
-            Fstar[i] = space.makeVector();
-            Fminstar[i] = space.makeVector();
-            Fmin2star[i] = space.makeVector();
-            Fstarperp[i] = space.makeVector();
-            Fpara[i] = space.makeVector();
-        }  
-	        
-		boxMin = new Box(box.getBoundary(), space);
-        sim.addBox(boxMin);
-        
-        if(potentialMaster instanceof PotentialMasterListDimer){
-            getEventManager().addListener(((PotentialMasterList)potentialMaster).getNeighborManager(boxMin)); 
-         }
-        
-        energyBox0 = new MeterPotentialEnergy(potentialMaster, box);
-energyBoxMin = new MeterPotentialEnergy(potentialMaster);
-        energyBoxMin.setBox(boxMin);
-         
+		super.setup();
+		movableAtoms = 0;
+		for (int i = 0; i < movableSpecies.length; i++) {
+			movableAtoms += box.getMoleculeList(movableSpecies[i]).getMoleculeCount();
+		}
+		workVector = space.makeVector();
+		N = new Vector[movableAtoms];
+		F0 = new Vector[movableAtoms];
+		Fmin = new Vector[movableAtoms];
+		Fmin2 = new Vector[movableAtoms];
+		Nstar = new Vector[movableAtoms];
+		THETA = new Vector[movableAtoms];
+		THETAstar = new Vector[movableAtoms];
+		Fperp = new Vector[movableAtoms];
+		Fminperp = new Vector[movableAtoms];
+		Fmin2perp = new Vector[movableAtoms];
+		Fstar = new Vector[movableAtoms];
+		Fminstar = new Vector[movableAtoms];
+		Fmin2star = new Vector[movableAtoms];
+		Fstarperp = new Vector[movableAtoms];
+		Fpara = new Vector[movableAtoms];
+
+		for (int i = 0; i < movableAtoms; i++) {
+			N[i] = space.makeVector();
+			Nstar[i] = space.makeVector();
+			F0[i] = space.makeVector();
+			Fmin[i] = space.makeVector();
+			Fmin2[i] = space.makeVector();
+			Nstar[i] = space.makeVector();
+			NDelta = space.makeVector();
+			NstarDelta = space.makeVector();
+			THETA[i] = space.makeVector();
+			THETAstar[i] = space.makeVector();
+			Fperp[i] = space.makeVector();
+			Fminperp[i] = space.makeVector();
+			Fmin2perp[i] = space.makeVector();
+			Fstar[i] = space.makeVector();
+			Fminstar[i] = space.makeVector();
+			Fmin2star[i] = space.makeVector();
+			Fstarperp[i] = space.makeVector();
+			Fpara[i] = space.makeVector();
+		}
+
+		boxMin = sim.makeBox(box.getBoundary());
+
+		if (potentialMaster instanceof PotentialMasterListDimer) {
+			getEventManager().addListener(((PotentialMasterList) potentialMaster).getNeighborManager(boxMin));
+		}
+
+		energyBox0 = new MeterPotentialEnergy(potentialMaster, box);
+		energyBoxMin = new MeterPotentialEnergy(potentialMaster);
+		energyBoxMin.setBox(boxMin);
+
 		// Offset Rmin (half-dimer end) from initial configuration, along N.		
 		atomAgent0 = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
 		atomAgentMin = new AtomLeafAgentManager<>(a -> space.makeVector(), boxMin);
-		
+
 		force0.setAgentManager(atomAgent0);
 		forceMin.setAgentManager(atomAgentMin);
-		
+
 //		ISpecies [] species = sim.getSpeciesManager().getSpecies();
-		
-		for(int i=0; i<sim.getSpeciesCount(); i++){
+
+		for (int i = 0; i < sim.getSpeciesCount(); i++) {
 			boxMin.setNMolecules(sim.getSpecies(i),
 					box.getNMolecules(sim.getSpecies(i)));
 		}
-		    	    	
+
 		// Atom list for movable and offset atoms
 		list = new AtomArrayList();
-        listMin = new AtomArrayList();
-		
-		for(int i=0; i<movableSpecies.length; i++){
-            IMoleculeList molecules = box.getMoleculeList(movableSpecies[i]);
-            IMoleculeList molecules1 = boxMin.getMoleculeList(movableSpecies[i]);
-            for (int j=0; j<molecules.getMoleculeCount(); j++) {
-                list.add(molecules.getMolecule(j).getChildList().getAtom(0));
-                listMin.add(molecules1.getMolecule(j).getChildList().getAtom(0));
-            }
-		}  
-		
-        ConfigurationFile config = new ConfigurationFile(file+"_saddle");
-        config.initializeCoordinates(box);        
-        
-        // Read in coordinates for boxMin atom locations
-        ConfigurationFile configFile = new ConfigurationFile(file+"_A_saddle");
-        configFile.initializeCoordinates(boxMin);
-        writer = new WriteConfiguration(space);
-        writer.setConfName(file+"_A_minimum");
-                
-        if(normalD==true){
-            // Read in coordinates for opposite boxMin atom locations
-            ConfigurationFile configFile1 = new ConfigurationFile(file+"_B_saddle");
-            configFile1.initializeCoordinates(boxMin);
-            writer.setConfName(file+"_B_minimum");
-        }
-        
-        dimerNormal();
+		listMin = new AtomArrayList();
+
+		for (int i = 0; i < movableSpecies.length; i++) {
+			IMoleculeList molecules = box.getMoleculeList(movableSpecies[i]);
+			IMoleculeList molecules1 = boxMin.getMoleculeList(movableSpecies[i]);
+			for (int j = 0; j < molecules.getMoleculeCount(); j++) {
+				list.add(molecules.getMolecule(j).getChildList().getAtom(0));
+				listMin.add(molecules1.getMolecule(j).getChildList().getAtom(0));
+			}
+		}
+
+		ConfigurationFile config = new ConfigurationFile(file + "_saddle");
+		config.initializeCoordinates(box);
+
+		// Read in coordinates for boxMin atom locations
+		ConfigurationFile configFile = new ConfigurationFile(file + "_A_saddle");
+		configFile.initializeCoordinates(boxMin);
+		writer = new WriteConfiguration(space);
+		writer.setConfName(file + "_A_minimum");
+
+		if (normalD == true) {
+			// Read in coordinates for opposite boxMin atom locations
+			ConfigurationFile configFile1 = new ConfigurationFile(file + "_B_saddle");
+			configFile1.initializeCoordinates(boxMin);
+			writer.setConfName(file + "_B_minimum");
+		}
+
+		dimerNormal();
 
 	}
 	

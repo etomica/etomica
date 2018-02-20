@@ -75,8 +75,7 @@ public class TestSetToUHexane extends Simulation {
         addSpecies(species);
         int[] nCells = new int[]{xCells, yCells, zCells};
         bdry = new BoundaryDeformableLattice(prim, nCells);
-        box = new Box(bdry, space);
-        addBox(box);
+        box = this.makeBox(bdry);
         box.setNMolecules(species, xCells * yCells * zCells);
         cdHex = new CoordinateDefinitionHexane(this, box, prim, species, space);
         cdHex = new CoordinateDefinitionHexane(this, box, prim, species, space);

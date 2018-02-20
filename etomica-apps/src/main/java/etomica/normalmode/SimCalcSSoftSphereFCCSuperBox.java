@@ -60,8 +60,7 @@ public class SimCalcSSoftSphereFCCSuperBox extends Simulation {
         addSpecies(speciesA);
         addSpecies(speciesB);
 
-        box = new Box(space);
-        addBox(box);
+        box = this.makeBox();
         box.setNMolecules(speciesA, numAtoms / 8);
         box.setNMolecules(speciesB, numAtoms * 7 / 8);
         if (space.D() == 1) {

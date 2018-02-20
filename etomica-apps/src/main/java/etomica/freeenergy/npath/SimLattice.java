@@ -31,13 +31,12 @@ public class SimLattice extends Simulation {
         super(Space3D.getInstance());
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
-        box = new Box(space);
-        addBox(box);
+        box = this.makeBox();
         box.setNMolecules(species, numAtoms);
         Vector l = space.makeVector();
         l.E(10);
-        for (int i=0; i<=offsetDim; i++) {
-            l.setX(i,20);
+        for (int i = 0; i <= offsetDim; i++) {
+            l.setX(i, 20);
         }
         box.getBoundary().setBoxSize(l);
 

@@ -55,7 +55,7 @@ public class InterfacialSW extends Simulation {
         int N = 643;  //number of atoms
 
         //controller and integrator
-        box = new Box(space);
+        box = this.makeBox();
         integrator = new IntegratorHard(this, potentialMaster, box);
         if (space.D() == 2) {
             integrator.setTemperature(0.4);
@@ -103,7 +103,6 @@ public class InterfacialSW extends Simulation {
         potentialMaster.addPotential(p1Surfactant, new ISpecies[]{surfactant});
 
         //construct box
-        addBox(box);
         Vector dim = space.makeVector();
         if (space.D() == 2) {
             dim.E(new double[]{30, 15});

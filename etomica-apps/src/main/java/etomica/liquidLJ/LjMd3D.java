@@ -70,7 +70,7 @@ public class LjMd3D extends Simulation {
         double nbrRange = rcShort * 1.6;
         potentialMasterList = new PotentialMasterList(this, nbrRange, space);
         potentialMasterList.setCellRange(2);
-        box = new Box(space);
+        box = this.makeBox();
         integrator = new IntegratorVelocityVerlet(this, potentialMasterList, box);
         integrator.setTimeStep(tStep);
         integrator.setIsothermal(true);
@@ -80,7 +80,6 @@ public class LjMd3D extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
         addSpecies(species);
-        addBox(box);
         box.setNMolecules(species, numAtoms);
 
         double L = Math.pow(numAtoms / density, 1.0 / 3.0);

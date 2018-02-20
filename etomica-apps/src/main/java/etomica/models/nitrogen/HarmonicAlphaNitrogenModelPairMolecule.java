@@ -35,52 +35,51 @@ public class HarmonicAlphaNitrogenModelPairMolecule extends Simulation{
 
 	
 	public HarmonicAlphaNitrogenModelPairMolecule(Space space, int numMolecule, double density) {
-		super(space);
-		this.space = space;
-		
-		
-		int nCell = (int) Math.round(Math.pow((numMolecule/4), 1.0/3.0));
-		double unitCellLength = Math.pow(numMolecule/density, 1.0/3.0)/nCell;//5.661;
-		System.out.println("a: " + unitCellLength);
-		System.out.println("nCell: " + nCell);
-		
-		potentialMaster = new PotentialMaster();
-				
-		Basis basisFCC = new BasisCubicFcc();
-		Basis basis = new BasisBigCell(space, basisFCC, new int[]{nCell, nCell, nCell});
-		
-		ConformationNitrogen conformation = new ConformationNitrogen(space);
-		SpeciesN2 species = new SpeciesN2(space);
-		species.setConformation(conformation);
-		addSpecies(species);
-		
-		box = new Box(space);
-		addBox(box);
-		box.setNMolecules(species, numMolecule);		
-		
-		int [] nCells = new int[]{1,1,1};
-		Boundary boundary = new BoundaryRectangularPeriodic(space,nCell*unitCellLength);
-		Primitive primitive = new PrimitiveCubic(space, nCell*unitCellLength);
-	
-		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
-		coordinateDef.setIsAlpha();
-		coordinateDef.setOrientationVectorAlpha(space);
-		coordinateDef.initializeCoordinates(nCells);
-		
-		box.setBoundary(boundary);
-		double rCScale = 0.475;
-		double rC =box.getBoundary().getBoxSize().getX(0)*rCScale;
-		System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rC);
-		
-		potential = new P2Nitrogen(space, rC);
-		potential.setBox(box);
+        super(space);
+        this.space = space;
 
-		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
-		
-		int nSites = 2*nCell+1;
-		pairMatrix = new double[nSites][nSites][nSites][4][4][5][5];
-		
-	}
+
+        int nCell = (int) Math.round(Math.pow((numMolecule / 4), 1.0 / 3.0));
+        double unitCellLength = Math.pow(numMolecule / density, 1.0 / 3.0) / nCell;//5.661;
+        System.out.println("a: " + unitCellLength);
+        System.out.println("nCell: " + nCell);
+
+        potentialMaster = new PotentialMaster();
+
+        Basis basisFCC = new BasisCubicFcc();
+        Basis basis = new BasisBigCell(space, basisFCC, new int[]{nCell, nCell, nCell});
+
+        ConformationNitrogen conformation = new ConformationNitrogen(space);
+        SpeciesN2 species = new SpeciesN2(space);
+        species.setConformation(conformation);
+        addSpecies(species);
+
+        box = this.makeBox();
+        box.setNMolecules(species, numMolecule);
+
+        int[] nCells = new int[]{1, 1, 1};
+        Boundary boundary = new BoundaryRectangularPeriodic(space, nCell * unitCellLength);
+        Primitive primitive = new PrimitiveCubic(space, nCell * unitCellLength);
+
+        coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
+        coordinateDef.setIsAlpha();
+        coordinateDef.setOrientationVectorAlpha(space);
+        coordinateDef.initializeCoordinates(nCells);
+
+        box.setBoundary(boundary);
+        double rCScale = 0.475;
+        double rC = box.getBoundary().getBoxSize().getX(0) * rCScale;
+        System.out.println("Truncation Radius (" + rCScale + " Box Length): " + rC);
+
+        potential = new P2Nitrogen(space, rC);
+        potential.setBox(box);
+
+        potentialMaster.addPotential(potential, new ISpecies[]{species, species});
+
+        int nSites = 2 * nCell + 1;
+        pairMatrix = new double[nSites][nSites][nSites][4][4][5][5];
+
+    }
 	
 	public double[][] get2ndDerivative(){
 		

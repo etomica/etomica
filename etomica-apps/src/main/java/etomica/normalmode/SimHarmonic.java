@@ -57,8 +57,7 @@ public class SimHarmonic extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
-        box = new Box(space);
-        addBox(box);
+        box = this.makeBox();
         box.setNMolecules(species, numAtoms);
 
         integrator = new IntegratorMC(this, null, box);

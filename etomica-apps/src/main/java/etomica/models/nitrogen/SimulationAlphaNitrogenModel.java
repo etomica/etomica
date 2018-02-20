@@ -69,8 +69,7 @@ public class SimulationAlphaNitrogenModel extends Simulation{
         addSpecies(species);
 
         int numMolecule = 4 * nC[0] * nC[1] * nC[2];
-        box = new Box(space);
-        addBox(box);
+        box = this.makeBox();
         box.setNMolecules(species, numMolecule);
 
         int[] nCells = new int[]{1, 1, 1};

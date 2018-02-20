@@ -77,8 +77,7 @@ public class DLJ_NVT_1site extends Simulation {
         super(space);
         species = new SpeciesSpheresRotating(space, new ElementSimple("A"));
         addSpecies(species);
-        box = new Box(space);
-        addBox(box);
+        box = this.makeBox();
         box.setNMolecules(species, numberMolecules);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{boxSize, boxSize, boxSize}));
 

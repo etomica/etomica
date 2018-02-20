@@ -76,7 +76,7 @@ public class HSNPT extends Simulation {
         }
         potentialMaster.setCellRange(1);
         potentialMaster.setRange(neighborRangeFac * sigma);
-        box = new Box(space);
+        box = this.makeBox();
         integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0, box);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
@@ -87,7 +87,6 @@ public class HSNPT extends Simulation {
 
         P2HardSphere p2 = new P2HardSphere(space, sigma, false);
         potentialMaster.addPotential(p2, new AtomType[]{type1, type1});
-        addBox(box);
         box.setNMolecules(species, numAtoms);
         if (sigma2 != sigma) {
             SpeciesSpheresMono species2 = new SpeciesSpheresMono(this, space);

@@ -99,8 +99,7 @@ public class Sam extends Simulation {
         addSpecies(species);
 
         //construct box
-        box = new Box(new BoundaryRectangularSlit(1, space), space);
-        addBox(box);
+        box = this.makeBox(new BoundaryRectangularSlit(1, space));
         Vector dim = space.makeVector();
         dim.E(new double[]{sizeCellX * numXCells, chainLength * 2.4, sizeCellZ * numZCells});
         box.getBoundary().setBoxSize(dim);

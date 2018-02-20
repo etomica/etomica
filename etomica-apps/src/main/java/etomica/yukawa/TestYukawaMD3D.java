@@ -53,7 +53,7 @@ public class TestYukawaMD3D extends Simulation{
 
         potentialMaster.setRange(neighborRangeFac);
 
-        box = new Box(space);
+        box = this.makeBox();
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
@@ -67,7 +67,6 @@ public class TestYukawaMD3D extends Simulation{
         species.setIsDynamic(true);
         addSpecies(species);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{l, l, l}));
-        addBox(box);
         box.setNMolecules(species, numAtoms);
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         potential = new P2Yukawa(space);

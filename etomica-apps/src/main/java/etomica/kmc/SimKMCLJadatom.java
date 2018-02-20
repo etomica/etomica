@@ -55,23 +55,22 @@ public class SimKMCLJadatom extends Simulation{
     
 
     public SimKMCLJadatom() {
-    	super(Space3D.getInstance());
-    	potentialMaster = new PotentialMasterMonatomic(this);
-    	
-    //SIMULATION BOX
-        box = new Box(new BoundaryRectangularSlit(0, 5, space), space);
-        addBox(box);
-        
-    //SPECIES
-    	double sigma = 1.0;
-    	fixed = new SpeciesSpheresMono(space, new ElementSimple("A", Double.POSITIVE_INFINITY));
-        movable = new SpeciesSpheresMono(this, space);  
+        super(Space3D.getInstance());
+        potentialMaster = new PotentialMasterMonatomic(this);
+
+        //SIMULATION BOX
+        box = this.makeBox(new BoundaryRectangularSlit(0, 5, space));
+
+        //SPECIES
+        double sigma = 1.0;
+        fixed = new SpeciesSpheresMono(space, new ElementSimple("A", Double.POSITIVE_INFINITY));
+        movable = new SpeciesSpheresMono(this, space);
         addSpecies(fixed);
         addSpecies(movable);
-    	
+
         // Must be in same order as the respective species is added to SpeciesManager
-        box.setNMolecules(fixed, 256);    	
-    	
+        box.setNMolecules(fixed, 256);
+
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(1);
         inflater.actionPerformed();
@@ -79,13 +78,13 @@ public class SimKMCLJadatom extends Simulation{
         potentialMaster.addPotential(new P2LennardJones(space, sigma, 1.0), new AtomType[]{movable.getLeafType(), fixed.getLeafType()});
         potentialMaster.addPotential(new P2LennardJones(space, sigma, 1.0), new AtomType[]{movable.getLeafType(), movable.getLeafType()});
 
-		
-    //CRYSTAL
+
+        //CRYSTAL
         Configuration config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
-        config.initializeCoordinates(box); 
-       
+        config.initializeCoordinates(box);
+
         //ADATOM CREATION AND PLACEMENT
-        
+
         IMolecule iMolecule = movable.makeMolecule();
         box.addMolecule(iMolecule);
         adAtomPos = iMolecule.getChildList().getAtom(0).getPosition();
@@ -95,7 +94,7 @@ public class SimKMCLJadatom extends Simulation{
         adAtomPos.setX(2, -0.30);
         Vector newBoxLength = space.makeVector();
         newBoxLength.E(box.getBoundary().getBoxSize());
-        newBoxLength.setX(0, 2.0*adAtomPos.getX(0)+2.0);
+        newBoxLength.setX(0, 2.0 * adAtomPos.getX(0) + 2.0);
         box.getBoundary().setBoxSize(newBoxLength);
 
     }

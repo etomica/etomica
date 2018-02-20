@@ -64,8 +64,7 @@ public class SimulationBetaNitrogenModelTest extends Simulation{
         species = new SpeciesN2(space);
         addSpecies(species);
 
-        box = new Box(space);
-        addBox(box);
+        box = this.makeBox();
         box.setNMolecules(species, numMolecule);
         int[] nCells = new int[]{1, 1, 1};
 

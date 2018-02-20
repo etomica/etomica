@@ -59,15 +59,13 @@ public class VLESim extends Simulation {
         moment *= moment;
         density = 0.004;
 
-        double initBoxSize = Math.pow(initNumMolecules/density, (1.0/3.0));
+        double initBoxSize = Math.pow(initNumMolecules / density, (1.0 / 3.0));
 
         species = new SpeciesSpheresRotating(this, space);
         addSpecies(species);
 
-        boxLiquid = new Box(new BoundaryRectangularPeriodic(space, initBoxSize), space);
-        addBox(boxLiquid);
-        boxVapor = new Box(new BoundaryRectangularPeriodic(space, initBoxSize), space);
-        addBox(boxVapor);
+        boxLiquid = this.makeBox(new BoundaryRectangularPeriodic(space, initBoxSize));
+        boxVapor = this.makeBox(new BoundaryRectangularPeriodic(space, initBoxSize));
         boxLiquid.setNMolecules(species, initNumMolecules);
         boxVapor.setNMolecules(species, initNumMolecules);
         Configuration config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
@@ -78,7 +76,7 @@ public class VLESim extends Simulation {
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         if (doNBR) {
             potentialMaster = new PotentialMasterCell(this, range, space);
-            ((PotentialMasterCell)potentialMaster).setCellRange(2);
+            ((PotentialMasterCell) potentialMaster).setCellRange(2);
         }
         p2LJQ = new P2LJQ(space, sigma, epsilon, moment);
         p2LJQ.setTemperature(temperature);
@@ -120,10 +118,10 @@ public class VLESim extends Simulation {
         integratorGEMC.addIntegrator(integratorLiquid);
         integratorGEMC.addIntegrator(integratorVapor);
         final MCMoveVolumeExchangeVLE volumeExchange = new MCMoveVolumeExchangeVLE(
-                potentialMaster, random, space, integratorLiquid,integratorVapor);
+                potentialMaster, random, space, integratorLiquid, integratorVapor);
         volumeExchange.setStepSize(0.05);
         MCMoveMoleculeExchangeVLE moleculeExchange = new MCMoveMoleculeExchangeVLE(
-                potentialMaster, random, space, integratorLiquid,integratorVapor);
+                potentialMaster, random, space, integratorLiquid, integratorVapor);
         integratorGEMC.getMoveManager().addMCMove(volumeExchange);
         integratorGEMC.getMoveManager().addMCMove(moleculeExchange);
         integratorGEMC.getMoveManager().setFrequency(volumeExchange, 0.01);
@@ -131,14 +129,13 @@ public class VLESim extends Simulation {
         integratorGEMC.getMoveEventManager().addListener(new IListener() {
             public void actionPerformed(IEvent event) {
                 if (event instanceof MCMoveTrialCompletedEvent &&
-                    ((MCMoveTrialCompletedEvent)event).isAccepted()) {
+                        ((MCMoveTrialCompletedEvent) event).isAccepted()) {
                     return;
                 }
-                if (((MCMoveEvent)event).getMCMove() == volumeExchange) {
-                    if (boxLiquid.getBoundary().getBoxSize().getX(0)*0.499 < range) {
-                        p2Truncated.setTruncationRadius(0.499*boxLiquid.getBoundary().getBoxSize().getX(0));
-                    }
-                    else {
+                if (((MCMoveEvent) event).getMCMove() == volumeExchange) {
+                    if (boxLiquid.getBoundary().getBoxSize().getX(0) * 0.499 < range) {
+                        p2Truncated.setTruncationRadius(0.499 * boxLiquid.getBoundary().getBoxSize().getX(0));
+                    } else {
                         p2Truncated.setTruncationRadius(range);
                     }
                 }
@@ -149,10 +146,10 @@ public class VLESim extends Simulation {
         getController().addAction(activityIntegrate);
 
         if (doNBR) {
-            ((PotentialMasterCell)potentialMaster).getCellAgentManager().getAgent(boxLiquid).assignCellAll();
-            ((PotentialMasterCell)potentialMaster).getCellAgentManager().getAgent(boxVapor).assignCellAll();
-            integratorLiquid.getMoveEventManager().addListener(((NeighborCellManager)((PotentialMasterCell)potentialMaster).getCellAgentManager().getAgent(boxLiquid)).makeMCMoveListener());
-            integratorVapor.getMoveEventManager().addListener(((NeighborCellManager)((PotentialMasterCell)potentialMaster).getCellAgentManager().getAgent(boxVapor)).makeMCMoveListener());
+            ((PotentialMasterCell) potentialMaster).getCellAgentManager().getAgent(boxLiquid).assignCellAll();
+            ((PotentialMasterCell) potentialMaster).getCellAgentManager().getAgent(boxVapor).assignCellAll();
+            integratorLiquid.getMoveEventManager().addListener(((NeighborCellManager) ((PotentialMasterCell) potentialMaster).getCellAgentManager().getAgent(boxLiquid)).makeMCMoveListener());
+            integratorVapor.getMoveEventManager().addListener(((NeighborCellManager) ((PotentialMasterCell) potentialMaster).getCellAgentManager().getAgent(boxVapor)).makeMCMoveListener());
         }
     }
 

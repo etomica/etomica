@@ -52,7 +52,7 @@ public class TestHC2YukawaMC3D extends Simulation{
         super(Space3D.getInstance());
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
 
-        box = new Box(space);
+        box = this.makeBox();
         integrator = new IntegratorMC(this, potentialMaster, box);
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         mcMoveAtom.setStepSize(0.2);
@@ -62,7 +62,6 @@ public class TestHC2YukawaMC3D extends Simulation{
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
-        addBox(box);
         box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(0.65);

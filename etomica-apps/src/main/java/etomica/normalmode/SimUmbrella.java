@@ -84,13 +84,12 @@ public class SimUmbrella extends Simulation {
         int D = space.D();
 
         potentialMasterMonatomic = new PotentialMasterMonatomic(this);
-        box = new Box(space);
+        box = this.makeBox();
         integrator = new IntegratorMC(potentialMasterMonatomic, getRandom(), temperature, box);
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
         //Target
-        addBox(box);
         box.setNMolecules(species, numAtoms);
 
         activityIntegrate = new ActivityIntegrate(integrator);

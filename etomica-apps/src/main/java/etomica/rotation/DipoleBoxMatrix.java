@@ -32,8 +32,7 @@ public class DipoleBoxMatrix extends Simulation {
     
     public DipoleBoxMatrix(Space space, int nAtoms, double dt) {
         super(space);
-        box = new Box(new BoundaryRectangularPeriodic(getSpace(), 10), space);
-        addBox(box);
+        box = this.makeBox(new BoundaryRectangularPeriodic(getSpace(), 10));
         SpeciesSpheresRotatingMolecule species = new SpeciesSpheresRotatingMolecule(this, space, space.makeVector(new double[]{0.025, 0.025, 0.025}));
         species.setIsDynamic(true);
         addSpecies(species);

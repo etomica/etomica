@@ -58,34 +58,32 @@ public class MeterTargetRPMolecule implements IDataSource {
         this.potentialMaster = potentialMasterSampled;
         this.coordinateDefinition = coordinateDef;
         this.pRotConstraint = pRotConstraint;
-        
+
         meterPotential = new MeterPotentialEnergy(potentialMasterSampled);
         this.species = species;
-        pretendBox = new Box(space);
+        pretendBox = sim.makeBox();
         pretendBox.setBoundary(coordinateDef.getBox().getBoundary());
-        
-        sim.addBox(pretendBox);
         tag = new DataTag();
-        
+
         int numMolec = sim.getBox(0).getNMolecules(species);
-    	initMolecOrientation = new Vector[numMolec][3];
-    	/*
-		 * initializing the initial orientation of the molecule
-		 */
-		for (int i=0; i<numMolec; i++){
-			initMolecOrientation[i] = space.makeVectorArray(3);
-			initMolecOrientation[i] = coordinateDefinition.getMoleculeOrientation(sim.getBox(0).getMoleculeList().getMolecule(i));
-		}
-		
-		Box realBox = coordinateDef.getBox();
-		pretendBox.setBoundary(realBox.getBoundary());
+        initMolecOrientation = new Vector[numMolec][3];
+        /*
+         * initializing the initial orientation of the molecule
+         */
+        for (int i = 0; i < numMolec; i++) {
+            initMolecOrientation[i] = space.makeVectorArray(3);
+            initMolecOrientation[i] = coordinateDefinition.getMoleculeOrientation(sim.getBox(0).getMoleculeList().getMolecule(i));
+        }
+
+        Box realBox = coordinateDef.getBox();
+        pretendBox.setBoundary(realBox.getBoundary());
         pretendBox.setNMolecules(species, realBox.getNMolecules(species));
-        
+
         IMoleculeList pretendMolecule = pretendBox.getMoleculeList();
         double[] initU = new double[coordinateDef.getCoordinateDim()];
         coordinateDef.setToU(pretendMolecule, initU);
-        ((PotentialMasterListMolecular)potentialMasterSampled).getNeighborManager(pretendBox).reset();
-		
+        ((PotentialMasterListMolecular) potentialMasterSampled).getNeighborManager(pretendBox).reset();
+
     }
 
 	public IDataInfo getDataInfo() {

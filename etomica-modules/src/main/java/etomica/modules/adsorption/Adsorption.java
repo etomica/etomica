@@ -44,8 +44,7 @@ public class Adsorption extends Simulation {
     public Adsorption(Space _space) {
         super(_space);
         //construct box
-        box = new Box(new BoundaryRectangularSlit(1, 20.0, space), space);
-        addBox(box);
+        box = this.makeBox(new BoundaryRectangularSlit(1, 20.0, space));
         PotentialMasterHybrid potentialMaster = new PotentialMasterHybrid(this, 2, space); //List(this, 2.0);
 
         //controller and integrator

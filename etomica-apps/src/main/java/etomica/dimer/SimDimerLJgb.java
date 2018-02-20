@@ -67,8 +67,7 @@ public class SimDimerLJgb extends Simulation{
         potentialMaster = new PotentialMasterMonatomic(this);
 
         //SIMULATION BOX
-        box = new Box(new BoundaryRectangularSlit(2, 5, space), space);
-        addBox(box);
+        box = this.makeBox(new BoundaryRectangularSlit(2, 5, space));
 
         BoxImposePbc imposePbc = new BoxImposePbc(box, space);
 

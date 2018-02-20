@@ -51,36 +51,35 @@ public class TestEwaldTIP4PWater extends Simulation {
     protected final IntegratorMC integrator;
     protected final BoundaryRectangularPeriodic boundary;
 
-    TestEwaldTIP4PWater(Space space){
-		super(space);
-		potentialMaster = new PotentialMaster();
+    TestEwaldTIP4PWater(Space space) {
+        super(space);
+        potentialMaster = new PotentialMaster();
 
-		LatticeCubicFcc lattice = new LatticeCubicFcc(space);
-		ConfigurationLattice configuration = new ConfigurationLattice(lattice, space);
+        LatticeCubicFcc lattice = new LatticeCubicFcc(space);
+        ConfigurationLattice configuration = new ConfigurationLattice(lattice, space);
 
-		ConformationWaterTIP4P config = new ConformationWaterTIP4P(space);
-		species = new SpeciesWater4P(space);
-		species.setConformation(config);
-		addSpecies(species);
+        ConformationWaterTIP4P config = new ConformationWaterTIP4P(space);
+        species = new SpeciesWater4P(space);
+        species.setConformation(config);
+        addSpecies(species);
 
-		box = new Box(space);
-		addBox(box);
-		box.getBoundary().setBoxSize(space.makeVector(new double[] {25, 25, 25}));
-		box.setNMolecules(species, 125);
+        box = this.makeBox();
+        box.getBoundary().setBoxSize(space.makeVector(new double[]{25, 25, 25}));
+        box.setNMolecules(species, 125);
 
-		integrator = new IntegratorMC(this, potentialMaster, box);
-		integrator.setTemperature(Kelvin.UNIT.toSim(298));
+        integrator = new IntegratorMC(this, potentialMaster, box);
+        integrator.setTemperature(Kelvin.UNIT.toSim(298));
 
-		MCMoveMolecule mcMoveMolecule = new MCMoveMolecule(this, potentialMaster, space);
-		MCMoveRotateMolecule3D mcMoveRotateMolecule = new MCMoveRotateMolecule3D(potentialMaster, random, space);
-		MCMoveVolume mcMoveVolume = new MCMoveVolume(potentialMaster, random, space, Bar.UNIT.toSim(1.0132501));
+        MCMoveMolecule mcMoveMolecule = new MCMoveMolecule(this, potentialMaster, space);
+        MCMoveRotateMolecule3D mcMoveRotateMolecule = new MCMoveRotateMolecule3D(potentialMaster, random, space);
+        MCMoveVolume mcMoveVolume = new MCMoveVolume(potentialMaster, random, space, Bar.UNIT.toSim(1.0132501));
 
-		((MCMoveStepTracker)mcMoveVolume.getTracker()).setNoisyAdjustment(true);
+        ((MCMoveStepTracker) mcMoveVolume.getTracker()).setNoisyAdjustment(true);
 
 
         integrator.getMoveManager().addMCMove(mcMoveMolecule);
-		integrator.getMoveManager().addMCMove(mcMoveRotateMolecule);
-		integrator.getMoveManager().addMCMove(mcMoveVolume);
+        integrator.getMoveManager().addMCMove(mcMoveRotateMolecule);
+        integrator.getMoveManager().addMCMove(mcMoveVolume);
 
 
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
@@ -88,17 +87,16 @@ public class TestEwaldTIP4PWater extends Simulation {
         getController().addAction(activityIntegrate);
 
 
-
         //Potential
-		P2LennardJones potentialLJ = new P2LennardJones(space, 3.154,Kelvin.UNIT.toSim(78.02));
+        P2LennardJones potentialLJ = new P2LennardJones(space, 3.154, Kelvin.UNIT.toSim(78.02));
         potentialMaster.addPotential(potentialLJ, new AtomType[]{species.getOxygenType(), species.getOxygenType()});
 
-		CriterionAll criterionAll = new CriterionAll();
+        CriterionAll criterionAll = new CriterionAll();
 
         //Ewald Summation
-		ChargeAgentSourceTIP4PWater agentSource = new ChargeAgentSourceTIP4PWater();
-		AtomLeafAgentManager<MyCharge> atomAgentManager = new AtomLeafAgentManager<MyCharge>(agentSource, box);
-		EwaldSummation ewaldSummation = new EwaldSummation(box, atomAgentManager, space, 4, 9);
+        ChargeAgentSourceTIP4PWater agentSource = new ChargeAgentSourceTIP4PWater();
+        AtomLeafAgentManager<MyCharge> atomAgentManager = new AtomLeafAgentManager<MyCharge>(agentSource, box);
+        EwaldSummation ewaldSummation = new EwaldSummation(box, atomAgentManager, space, 4, 9);
 //		ewaldSummation.setCriterion(criterionAll);
 //		ewaldSummation.setBondedIterator(new ApiIntragroup());
         potentialMaster.addPotential(ewaldSummation, new AtomType[0]);
@@ -108,7 +106,7 @@ public class TestEwaldTIP4PWater extends Simulation {
         BoxImposePbc imposePBC = new BoxImposePbc(box, space);
 
         boundary = new BoundaryRectangularPeriodic(space, 20);
-        boundary.setBoxSize(space.makeVector(new double[] {20, 20, 20}));
+        boundary.setBoxSize(space.makeVector(new double[]{20, 20, 20}));
         box.setBoundary(boundary);
 
         configuration.initializeCoordinates(box);

@@ -53,12 +53,11 @@ public class MeterBoltzmannHTTP implements IDataSource {
         this.potentialMaster = potentialMaster;
         meterPotential = new MeterPotentialEnergy(potentialMaster);
         this.species = species;
-        pretendBox = new Box(space);
-        sim.addBox(pretendBox);
-        
+        pretendBox = sim.makeBox();
+
         data = new DataDoubleArray(5);
         dataInfo = new DataInfoDoubleArray("Reduced Energy", Null.DIMENSION, new int[]{5});
-   
+
         tag = new DataTag();
     }
     

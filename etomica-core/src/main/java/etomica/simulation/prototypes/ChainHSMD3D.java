@@ -50,7 +50,7 @@ public class ChainHSMD3D extends Simulation {
         double neighborRangeFac = 1.6;
         potentialMaster.setRange(neighborRangeFac);
 
-        box = new Box(space);
+        box = this.makeBox();
         integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
@@ -69,7 +69,6 @@ public class ChainHSMD3D extends Simulation {
 
         double l = 14.4573 * Math.pow((chainLength * numAtoms / 2020.0), 1.0 / 3.0);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{l, l, l}));
-        addBox(box);
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         box.setNMolecules(species, numAtoms);
         config.initializeCoordinates(box);

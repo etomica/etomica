@@ -61,8 +61,7 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
-        box = new Box(space);
-        addBox(box);
+        box = this.makeBox();
         box.setNMolecules(species, 4 * n * n * n);
 
         L = Math.pow(4.0 / density, 1.0 / 3.0);

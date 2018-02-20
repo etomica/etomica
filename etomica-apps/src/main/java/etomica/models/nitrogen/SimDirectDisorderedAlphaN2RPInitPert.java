@@ -51,8 +51,7 @@ public class SimDirectDisorderedAlphaN2RPInitPert extends Simulation {
         Species species = new SpeciesN2(space);
         addSpecies(species);
 
-        box = new Box(space);
-        addBox(box);
+        box = this.makeBox();
         box.setNMolecules(species, numMolecules);
 
         int[] nCells = new int[]{1, 1, 1};

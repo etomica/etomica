@@ -51,58 +51,57 @@ public class DoubleIntegralEtas extends Simulation{
     double[] atomLocsT, uT, x0PosT, atomLocsR, uR, x0PosR;
 
     
-    public DoubleIntegralEtas(int nAtoms, double density, double a){
+    public DoubleIntegralEtas(int nAtoms, double density, double a) {
         super(Space.getInstance(1));
         this.density = density;
         sqrtT = Math.sqrt(1.0);
         alpha = a;
-        
+
         //TARGET
         this.nAtomsT = nAtoms;
-        
+
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
         Basis basis = new BasisMonatomic(space);
-        
-        boxT = new Box(space);
-        addBox(boxT);
+
+        boxT = this.makeBox();
         boxT.setNMolecules(species, nAtomsT);
-        
-        Primitive primitive = new PrimitiveCubic(space, 1.0/density);
-        Boundary bdryT = new BoundaryRectangularPeriodic(space, nAtomsT/density);
+
+        Primitive primitive = new PrimitiveCubic(space, 1.0 / density);
+        Boundary bdryT = new BoundaryRectangularPeriodic(space, nAtomsT / density);
         nCellsT = new int[]{nAtomsT};
         boxT.setBoundary(bdryT);
-        
+
         cDefT = new CoordinateDefinitionLeaf(boxT, primitive, basis, space);
         cDefT.initializeCoordinates(nCellsT);
-        
+
         tCells = cDefT.getBasisCells();
-        normalizationT = 1/Math.sqrt(tCells.length);
+        normalizationT = 1 / Math.sqrt(tCells.length);
         atomLocsT = new double[tCells.length];
         uT = new double[tCells.length];
         x0PosT = new double[tCells.length];
-        
+
         x0PosT[0] = -2.142857142857143;
         x0PosT[1] = -0.7142857142857142;
         x0PosT[2] = 0.7142857142857142;
-        
+
         nmT = new NormalModes1DHR(boxT.getBoundary(), nAtoms);
         nmT.setHarmonicFudge(1.0);
         nmT.setTemperature(1.0);
         nmT.getOmegaSquared();
         nmT.getWaveVectorFactory().makeWaveVectors(boxT);
         wvT = nmT.getWaveVectorFactory().getWaveVectors();
-        
+
         wvcT = nmT.getWaveVectorFactory().getCoefficients();
         sqrtWvcT = new double[wvcT.length];
-        for (int i =0; i < wvcT.length; i++){
-            sqrtWvcT[i] = Math.sqrt(2*wvcT[i]);
+        for (int i = 0; i < wvcT.length; i++) {
+            sqrtWvcT[i] = Math.sqrt(2 * wvcT[i]);
         }
         omega2T = nmT.getOmegaSquared();
         oneOverOmega2T = new double[omega2T.length][omega2T[0].length];
-        for (int i=0; i<omega2T.length; i++) {
-            for (int j=0; j<omega2T[i].length; j++) {
-                oneOverOmega2T[i][j] = Math.sqrt(1.0/(omega2T[i][j]));
+        for (int i = 0; i < omega2T.length; i++) {
+            for (int j = 0; j < omega2T[i].length; j++) {
+                oneOverOmega2T[i][j] = Math.sqrt(1.0 / (omega2T[i][j]));
             }
         }
 
@@ -111,21 +110,20 @@ public class DoubleIntegralEtas extends Simulation{
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
         basis = new BasisMonatomic(space);
-        
-        boxR = new Box(space);
-        addBox(boxR);
+
+        boxR = this.makeBox();
         boxR.setNMolecules(species, nAtomsR);
-        
-        primitive = new PrimitiveCubic(space, 1.0/density);
-        Boundary bdryR = new BoundaryRectangularPeriodic(space, nAtomsR/density);
+
+        primitive = new PrimitiveCubic(space, 1.0 / density);
+        Boundary bdryR = new BoundaryRectangularPeriodic(space, nAtomsR / density);
         nCellsR = new int[]{nAtomsR};
         boxR.setBoundary(bdryR);
-        
+
         cDefR = new CoordinateDefinitionLeaf(boxR, primitive, basis, space);
         cDefR.initializeCoordinates(nCellsR);
-        
+
         rCells = cDefR.getBasisCells();
-        normalizationR = 1/Math.sqrt(rCells.length);
+        normalizationR = 1 / Math.sqrt(rCells.length);
         atomLocsR = new double[rCells.length];
         uR = new double[rCells.length];
         x0PosR = new double[rCells.length];
@@ -133,27 +131,27 @@ public class DoubleIntegralEtas extends Simulation{
         //THESE ARE HARD CODE FOR 2 RODS, 0.7 density
         x0PosR[0] = -1.4285714285714286;
         x0PosR[1] = 0.0;
-        
+
         nmR = new NormalModes1DHR(boxR.getBoundary(), nAtomsR);
         nmR.setHarmonicFudge(1.0);
         nmR.setTemperature(1.0);
         nmR.getWaveVectorFactory().makeWaveVectors(boxR);
         wvR = nmR.getWaveVectorFactory().getWaveVectors();
-        
+
         wvcR = nmR.getWaveVectorFactory().getCoefficients();
         sqrtWvcR = new double[wvcR.length];
-        for (int i =0; i < wvcR.length; i++){
-            sqrtWvcR[i] = Math.sqrt(2*wvcR[i]);
+        for (int i = 0; i < wvcR.length; i++) {
+            sqrtWvcR[i] = Math.sqrt(2 * wvcR[i]);
         }
         omega2R = nmT.getOmegaSquared();
         oneOverOmega2R = new double[omega2R.length][omega2R[0].length];
-        for (int i=0; i<omega2R.length; i++) {
-            for (int j=0; j<omega2R[i].length; j++) {
-                oneOverOmega2R[i][j] = Math.sqrt(1.0/(omega2R[i][j]));
+        for (int i = 0; i < omega2R.length; i++) {
+            for (int j = 0; j < omega2R[i].length; j++) {
+                oneOverOmega2R[i][j] = Math.sqrt(1.0 / (omega2R[i][j]));
             }
         }
-        
-        
+
+
     }
     
     public double calculate(){

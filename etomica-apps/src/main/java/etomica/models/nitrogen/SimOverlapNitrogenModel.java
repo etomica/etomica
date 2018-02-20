@@ -77,8 +77,7 @@ public class SimOverlapNitrogenModel extends Simulation {
         addSpecies(species);
 
         // TARGET
-        boxTarget = new Box(space);
-        addBox(boxTarget);
+        boxTarget = this.makeBox();
         boxTarget.setNMolecules(species, numMolecules);
 
         int[] nCells = new int[]{1, 1, 1};
@@ -134,8 +133,7 @@ public class SimOverlapNitrogenModel extends Simulation {
 
         // HARMONIC
         boundaryHarmonic = new BoundaryDeformablePeriodic(space, nCell * unitCellLength);
-        boxHarmonic = new Box(boundaryHarmonic, space);
-        addBox(boxHarmonic);
+        boxHarmonic = this.makeBox(boundaryHarmonic);
         boxHarmonic.setNMolecules(species, numMolecules);
         boxHarmonic.setBoundary(boundaryHarmonic);
 

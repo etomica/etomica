@@ -48,8 +48,7 @@ public class HexaneVolumeFraction extends Simulation {
         addSpecies(species);
 
         bdry = new BoundaryRectangularPeriodic(_space);
-        box = new Box(bdry, _space);
-        addBox(box);
+        box = this.makeBox(bdry);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{3.8, 3.8, 3.8}));
         box.setNMolecules(species, 1);
 

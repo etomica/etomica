@@ -39,10 +39,9 @@ public class MaterialFracture extends Simulation {
     public MaterialFracture() {
         super(Space2D.getInstance());
         PotentialMaster potentialMaster = new PotentialMaster();
-        box = new Box(space);
+        box = this.makeBox();
         box.setBoundary(new BoundaryRectangularSlit(0, space));
         box.getBoundary().setBoxSize(space.makeVector(new double[]{90, 30}));
-        addBox(box);
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setIsothermal(true);
         integrator.setTemperature(300.0);

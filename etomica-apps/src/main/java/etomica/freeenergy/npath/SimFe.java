@@ -67,8 +67,7 @@ public class SimFe extends Simulation {
         species = new SpeciesSpheresMono(space, Iron.INSTANCE);
         species.setIsDynamic(true);
         addSpecies(species);
-        box = new Box(space);
-        addBox(box);
+        box = this.makeBox();
         box.setNMolecules(species, numAtoms);
         Primitive primitive = (crystal == HCP) ? new PrimitiveHCP4(space) : new PrimitiveCubic(space);
         Vector l = space.makeVector();

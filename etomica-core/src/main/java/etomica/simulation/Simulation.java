@@ -13,6 +13,7 @@ import etomica.chem.elements.IElement;
 import etomica.integrator.Integrator;
 import etomica.meta.annotations.IgnoreProperty;
 import etomica.meta.javadoc.KeepSimJavadoc;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.species.ISpecies;
 import etomica.util.random.IRandom;
@@ -105,6 +106,29 @@ public class Simulation {
         }
         eventManager.boxAdded(newBox);
         return newBox;
+    }
+
+    /**
+     * Creates a new Box with the default Boundary and adds it to the Simulation.
+     *
+     * @return the new Box.
+     */
+    public Box makeBox() {
+        Box box = new Box(space);
+        this.addBox(box);
+        return box;
+    }
+
+    /**
+     * Creates a new Box and adds it to the Simulation.
+     *
+     * @param boundary the boundary to use when constructing the Box.
+     * @return the new Box.
+     */
+    public Box makeBox(Boundary boundary) {
+        Box box = new Box(boundary, space);
+        this.addBox(box);
+        return box;
     }
 
     /**

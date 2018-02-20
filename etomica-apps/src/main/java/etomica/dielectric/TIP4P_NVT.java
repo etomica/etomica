@@ -106,8 +106,7 @@ public class TIP4P_NVT extends Simulation {
 
          species = new SpeciesWater4P(space);
          addSpecies(species);
-         box = new Box(space);
-         addBox(box);
+         box = this.makeBox();
          box.setNMolecules(species, numberMolecules);
          box.getBoundary().setBoxSize(space.makeVector(new double[]{boxSize, boxSize, boxSize}));
          //	 double mu=168.96979945736229;//in simulation unit

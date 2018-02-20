@@ -70,13 +70,12 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
         System.out.println("association strength = " + wellConstant + "*epsilon");
         System.out.println("temperature = " + temperature);
         System.out.println("numSteps = " + numSteps);
-        box = new Box(space);
+        box = this.makeBox();
         integrator = new IntegratorMC(this, potentialMaster, box);
         integrator.setTemperature(temperature);
         mcMoveAtomMonomer = new MCMoveAtomMonomer(this, potentialMaster, space);//Standard Monte Carlo atom-displacement trial move
         mcMoveAtomDimer = new MCMoveAtomDimer(this, potentialMaster, space);
         //mcMoveRotate = new MCMoveRotate(potentialMaster, random, space);//Performs a rotation of an atom (not a molecule) that has an orientation coordinate
-        addBox(box);
         BiasVolumeSphereOriented bvso = new BiasVolumeSphereOriented(space, random);
         BiasVolumeCube bvc = new BiasVolumeCube(space, random);
         bvso.setTheta(Degree.UNIT.toSim(27.0));

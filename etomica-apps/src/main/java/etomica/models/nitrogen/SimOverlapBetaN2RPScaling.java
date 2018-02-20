@@ -70,8 +70,7 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
         species = new SpeciesN2(space);
         addSpecies(species);
 
-        box = new Box(space);
-        addBox(box);
+        box = this.makeBox();
         box.setNMolecules(species, numMolecules);
 
         Vector[] boxDim = new Vector[3];

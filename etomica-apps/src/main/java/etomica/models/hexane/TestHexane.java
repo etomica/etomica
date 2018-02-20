@@ -93,8 +93,7 @@ public class TestHexane extends Simulation {
         addSpecies(species);
         int[] nCells = new int[]{xCells, yCells, zCells};
         bdry = new BoundaryDeformableLattice(primitive, nCells);
-        box = new Box(bdry, space);
-        addBox(box);
+        box = this.makeBox(bdry);
         box.setNMolecules(species, xCells * yCells * zCells);
 //        config.initializeCoordinates(box);
         integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0, box);

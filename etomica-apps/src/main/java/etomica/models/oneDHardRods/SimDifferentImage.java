@@ -86,55 +86,54 @@ public class SimDifferentImage extends Simulation {
             int blocksize, double tems) {
         super(_space);
         System.out.println("Running " + APP_NAME);
-        
+
 //        long seed = 2;
 //        System.out.println("Seed explicitly set to " + seed);
 //        IRandom rand = new RandomNumberGenerator(seed);
 //        this.setRandom(rand);
-        
+
         int targAtoms = numAtoms + 1;
         int refAtoms = numAtoms;
-        
+
         double temperature = tems;
-        
+
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
-        
+
         integrators = new IntegratorMC[2];
         accumulatorPumps = new DataPump[2];
         meters = new IDataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
-        
+
         basis = new BasisMonatomic(space);
-        
+
 //TARGET
         // Set up target system - A, 1
         PotentialMasterList potentialMasterTarget = new PotentialMasterList(this, space);
-        
-        boxTarget = new Box(space);
-        addBox(boxTarget);
+
+        boxTarget = this.makeBox();
         boxTarget.setNMolecules(species, targAtoms);
-        
+
         Potential2 potential = new P2HardSphere(space, 1.0, true);
-        potential = new P2XOrder(space, (Potential2HardSpherical)potential);
+        potential = new P2XOrder(space, (Potential2HardSpherical) potential);
         potential.setBox(boxTarget);
         potentialMasterTarget.addPotential(potential, new AtomType[]{
                 species.getLeafType(), species.getLeafType()});
 
-        primitive = new PrimitiveCubic(space, 1.0/density);
-        bdryTarget = new BoundaryRectangularPeriodic(space, targAtoms/density);
+        primitive = new PrimitiveCubic(space, 1.0 / density);
+        bdryTarget = new BoundaryRectangularPeriodic(space, targAtoms / density);
         nCellsTarget = new int[]{targAtoms};
         boxTarget.setBoundary(bdryTarget);
-        
+
         cDefTarget = new CoordinateDefinitionLeaf(boxTarget, primitive, basis, space);
         cDefTarget.initializeCoordinates(nCellsTarget);
 
-        double neighborRange = 1.01/density;
+        double neighborRange = 1.01 / density;
         potentialMasterTarget.setRange(neighborRange);
         //find neighbors now.  Don't hook up NeighborListManager since the
         //  neighbors won't change
         potentialMasterTarget.getNeighborManager(boxTarget).reset();
-        
+
         IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget,
                 random, temperature, boxTarget);
         integrators[1] = integratorTarget;
@@ -145,25 +144,25 @@ public class SimDifferentImage extends Simulation {
         nmTarg.getOmegaSquared();
         waveVectorFactoryTarg = nmTarg.getWaveVectorFactory();
         waveVectorFactoryTarg.makeWaveVectors(boxTarget);
-        
-        double[] wvc= nmTarg.getWaveVectorFactory().getCoefficients();
+
+        double[] wvc = nmTarg.getWaveVectorFactory().getCoefficients();
         double[][] omega = nmTarg.getOmegaSquared();
-        
-        System.out.println("We have " + waveVectorFactoryTarg.getWaveVectors().length 
-                +" target wave vectors.");
+
+        System.out.println("We have " + waveVectorFactoryTarg.getWaveVectors().length
+                + " target wave vectors.");
         System.out.println("Target Wave Vector Coefficients:");
         System.out.println("Target WV: 1DHR ASSUMED");
-        for (int i = 0; i < wvc.length; i++){
+        for (int i = 0; i < wvc.length; i++) {
             System.out.println(i + " wvc " + wvc[i] + " omega2 " + omega[i][0]);
         }
-        
+
         mcMoveAtom = new MCMoveAtomCoupled(potentialMasterTarget, new MeterPotentialEnergy(potentialMasterTarget), random, space);
         mcMoveAtom.setPotential(potential);
         mcMoveAtom.setBox(boxTarget);
         mcMoveAtom.setStepSizeMin(0.001);
         mcMoveAtom.setStepSize(0.01);
         integratorTarget.getMoveManager().addMCMove(mcMoveAtom);
-        
+
         mcMoveMode = new MCMoveChangeMultipleWV(potentialMasterTarget, random);
         mcMoveMode.setCoordinateDefinition(cDefTarget);
         mcMoveMode.setEigenVectors(nmTarg.getEigenvectors());
@@ -174,68 +173,67 @@ public class SimDifferentImage extends Simulation {
         String all = new String("all");
         mcMoveMode.addChangeableWV(all);
         integratorTarget.getMoveManager().addMCMove(mcMoveMode);
-        
+
         meterTargInTarg = new MeterPotentialEnergy(potentialMasterTarget, boxTarget);
         integratorTarget.setMeterPotentialEnergy(meterTargInTarg);
-        
-        
+
+
 //REFERENCE
         // Set up reference system - B, 0
         PotentialMasterList potentialMasterRef = new PotentialMasterList(this, space);
-        
-        boxRef = new Box(space);
-        addBox(boxRef);
+
+        boxRef = this.makeBox();
         boxRef.setNMolecules(species, refAtoms);
-        
+
         potential = new P2HardSphere(space, 1.0, true);
-        potential = new P2XOrder(space, (Potential2HardSpherical)potential);
+        potential = new P2XOrder(space, (Potential2HardSpherical) potential);
         potential.setBox(boxRef);
         potentialMasterRef.addPotential(potential, new AtomType[]{
                 species.getLeafType(), species.getLeafType()});
 
-        primitive = new PrimitiveCubic(space, 1.0/density);
-        bdryRef = new BoundaryRectangularPeriodic(space, refAtoms/density);
+        primitive = new PrimitiveCubic(space, 1.0 / density);
+        bdryRef = new BoundaryRectangularPeriodic(space, refAtoms / density);
         nCellsRef = new int[]{refAtoms};
         boxRef.setBoundary(bdryRef);
-        
+
         cDefRef = new CoordinateDefinitionLeaf(boxRef, primitive, basis, space);
         cDefRef.initializeCoordinates(nCellsRef);
 
-        neighborRange = 1.01/density;
+        neighborRange = 1.01 / density;
         potentialMasterRef.setRange(neighborRange);
         //find neighbors now.  Don't hook up NeighborListManager since the
         //  neighbors won't change
         potentialMasterRef.getNeighborManager(boxRef).reset();
-        
-        IntegratorMC integratorRef = new IntegratorMC(potentialMasterRef, 
+
+        IntegratorMC integratorRef = new IntegratorMC(potentialMasterRef,
                 random, temperature, boxRef);
         integrators[0] = integratorRef;
-        
+
         nmRef = new NormalModes1DHR(boxRef.getBoundary(), refAtoms);
         nmRef.setHarmonicFudge(1.0);
         nmRef.setTemperature(temperature);
         nmRef.getOmegaSquared();
         waveVectorFactoryRef = nmRef.getWaveVectorFactory();
         waveVectorFactoryRef.makeWaveVectors(boxRef);
-        
-        wvc= nmRef.getWaveVectorFactory().getCoefficients();
+
+        wvc = nmRef.getWaveVectorFactory().getCoefficients();
         omega = nmRef.getOmegaSquared();
-        
+
         System.out.println("We have " + waveVectorFactoryRef.getWaveVectors().length
-                +" reference wave vectors.");
+                + " reference wave vectors.");
         System.out.println("Reference Wave Vector Coefficients:");
         System.out.println("Ref WV: ");
-        for (int i = 0; i < wvc.length; i++){
+        for (int i = 0; i < wvc.length; i++) {
             System.out.println(i + " wvc " + wvc[i] + " omega2 " + omega[i][0]);
         }
-        
+
         mcMoveAtom = new MCMoveAtomCoupled(potentialMasterRef, new MeterPotentialEnergy(potentialMasterRef), random, space);
         mcMoveAtom.setPotential(potential);
         mcMoveAtom.setBox(boxRef);
         mcMoveAtom.setStepSizeMin(0.001);
         mcMoveAtom.setStepSize(0.01);
         integratorRef.getMoveManager().addMCMove(mcMoveAtom);
-        
+
         mcMoveMode = new MCMoveChangeMultipleWV(potentialMasterRef, random);
         mcMoveMode.setBox(boxRef);
         mcMoveMode.setCoordinateDefinition(cDefRef);
@@ -246,43 +244,43 @@ public class SimDifferentImage extends Simulation {
         mcMoveMode.setWaveVectors(nmRef.getWaveVectorFactory().getWaveVectors());
         mcMoveMode.addChangeableWV(all);
         integratorRef.getMoveManager().addMCMove(mcMoveMode);
-        
+
         meterRefInRef = new MeterPotentialEnergy(potentialMasterRef, boxRef);
-        
-        
+
+
 //JOINT
         meterTargInRef = new MeterDifferentImageAdd(this, space,
                 temperature, cDefRef, nmRef, cDefTarget, potentialMasterRef,
                 new int[targAtoms], nmTarg);
-        MeterOverlapSameGaussian meterOverlapInRef = new 
-                MeterOverlapSameGaussian("MeterOverlapInB", Null.DIMENSION, 
+        MeterOverlapSameGaussian meterOverlapInRef = new
+                MeterOverlapSameGaussian("MeterOverlapInB", Null.DIMENSION,
                 meterRefInRef, meterTargInRef, temperature);
 
-        
-        meterRefInTarg = new MeterDifferentImageSubtract(this, space, 
+
+        meterRefInTarg = new MeterDifferentImageSubtract(this, space,
                 cDefTarget, nmTarg, cDefRef, potentialMasterTarget, new int[refAtoms], nmRef);
-        MeterOverlap meterOverlapInTarget = new MeterOverlap("MeterOverlapInA", 
+        MeterOverlap meterOverlapInTarget = new MeterOverlap("MeterOverlapInA",
                 Null.DIMENSION, meterTargInTarg, meterRefInTarg, temperature);
 
         meters[1] = meterOverlapInTarget;
         meters[0] = meterOverlapInRef;
         potentialMasterRef.getNeighborManager(boxRef).reset();
         potentialMasterTarget.getNeighborManager(boxTarget).reset();
-        
+
         //Set up the rest of the joint stuff
-        
-        integratorSim = new IntegratorOverlap(new 
+
+        integratorSim = new IntegratorOverlap(new
                 IntegratorMC[]{integratorRef, integratorTarget});
-        
+
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, true), 0);
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, false), 1);
-        
+
         setBennettParameter(1.0, 30);
-        
+
         activityIntegrate = new ActivityIntegrate(integratorSim, 0, true);
         getController().addAction(activityIntegrate);
-        
-        
+
+
 //        accRefInRef = new AccumulatorAverageFixed();      
 //        DataPump pump = new DataPump(meterRefInRef, accRefInRef);   
 //        IntegratorListenerAction pumpListener = new IntegratorListenerAction(pump);

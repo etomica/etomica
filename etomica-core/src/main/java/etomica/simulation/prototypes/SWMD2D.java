@@ -38,7 +38,7 @@ public class SWMD2D extends Simulation {
         super(Space2D.getInstance());
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         double sigma = 0.8;
-        box = new Box(space);
+        box = this.makeBox();
         integrator = new IntegratorHard(this, potentialMaster, box);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(1);
@@ -49,7 +49,6 @@ public class SWMD2D extends Simulation {
         species.setIsDynamic(true);
         addSpecies(species);
         AtomType leafType = species.getLeafType();
-        addBox(box);
         box.setNMolecules(species, 50);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
         potential = new P2SquareWell(space);

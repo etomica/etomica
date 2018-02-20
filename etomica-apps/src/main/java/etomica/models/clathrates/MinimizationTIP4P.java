@@ -49,75 +49,75 @@ public class MinimizationTIP4P extends Simulation{
 	protected Potential2SoftSphericalLS potentialLJLS;
 	protected EwaldSummation potentialES;
 	public MinimizationTIP4P(Space space, double rCutLJ, double rCutRealES, double[] a0, int[] nC, int nBasis, boolean isIce, double kCut, String configFile, boolean includeM) {
-		super(space);
-		this.space = space;
-		species = new SpeciesWater4P(space);
-		addSpecies(species);
-		box = new Box(space);
-		addBox(box);
-		box.setNMolecules(species, nBasis*nC[0]*nC[1]*nC[2]);		
-		double[] a0_sc = new double[] {a0[0]*nC[0],a0[1]*nC[1],a0[2]*nC[2]};
+        super(space);
+        this.space = space;
+        species = new SpeciesWater4P(space);
+        addSpecies(species);
+        box = this.makeBox();
+        box.setNMolecules(species, nBasis * nC[0] * nC[1] * nC[2]);
+        double[] a0_sc = new double[]{a0[0] * nC[0], a0[1] * nC[1], a0[2] * nC[2]};
         Boundary boundary = new BoundaryRectangularPeriodic(space, a0_sc);
         box.setBoundary(boundary);
-		ChargeAgentSourceRPM agentSource = new ChargeAgentSourceRPM(species, isIce);
-		AtomLeafAgentManager<MyCharge> atomAgentManager = new AtomLeafAgentManager<MyCharge>(agentSource, box);
-		double sigma, epsilon;
-		if(isIce){
-			sigma = 3.1668; epsilon = Kelvin.UNIT.toSim(106.1);//TIP4P/Ice			
-		}else{//TIP4P
-		    double A = 600E3; // kcal A^12 / mol
-		    double C = 610.0; // kcal A^6 / mol
-		    double s6 = A/C;
-		    sigma = Math.pow(s6, 1.0/6.0);
-		    epsilon = Mole.UNIT.fromSim(Calorie.UNIT.toSim(C/s6*1000))/4.0;
-		}
-		P2LennardJones potentialLJ = new P2LennardJones(space, sigma, epsilon);
+        ChargeAgentSourceRPM agentSource = new ChargeAgentSourceRPM(species, isIce);
+        AtomLeafAgentManager<MyCharge> atomAgentManager = new AtomLeafAgentManager<MyCharge>(agentSource, box);
+        double sigma, epsilon;
+        if (isIce) {
+            sigma = 3.1668;
+            epsilon = Kelvin.UNIT.toSim(106.1);//TIP4P/Ice
+        } else {//TIP4P
+            double A = 600E3; // kcal A^12 / mol
+            double C = 610.0; // kcal A^6 / mol
+            double s6 = A / C;
+            sigma = Math.pow(s6, 1.0 / 6.0);
+            epsilon = Mole.UNIT.fromSim(Calorie.UNIT.toSim(C / s6 * 1000)) / 4.0;
+        }
+        P2LennardJones potentialLJ = new P2LennardJones(space, sigma, epsilon);
 
-		potentialLJLS = new Potential2SoftSphericalLS(space, rCutLJ, a0_sc, potentialLJ);
-		
-		potentialES = new EwaldSummation(box, atomAgentManager, space, kCut, rCutRealES);
-		potentialMaster = new PotentialMaster();
+        potentialLJLS = new Potential2SoftSphericalLS(space, rCutLJ, a0_sc, potentialLJ);
+
+        potentialES = new EwaldSummation(box, atomAgentManager, space, kCut, rCutRealES);
+        potentialMaster = new PotentialMaster();
         potentialMaster.addPotential(potentialLJLS, new AtomType[]{species.getOxygenType(), species.getOxygenType()});
         potentialMaster.addPotential(potentialES, new AtomType[0]);
         potentialLJLS.setBox(box);
-		
-		if(includeM){
-			ConfigurationFile config = new ConfigurationFile(configFile);
-	        ConfigurationFileBinary.replicate(config, box, nC, space);			
-		}else{
-			ConfigurationFileTIP4P config = new ConfigurationFileTIP4P(configFile, space, isIce);
-	        ConfigurationFileBinary.replicate(config, box, nC, space);			
-		}
-		
-//Wrap all MOLECULES (make O in the BOX)
-		if(!true){
-	      for(int i=0;i<box.getMoleculeList().getMoleculeCount();i++){
-	    	IMolecule molecule = box.getMoleculeList().getMolecule(i);
-	        IAtomList childList = molecule.getChildList();
-	        Vector O = childList.getAtom(2).getPosition();//O
-	        O.PE(boundary.centralImage(O));// to wrap all O inside the BOX; next steps will move Hs and M with O to keep the conformation.
-	        for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
-	        	if(iChild == 2){//Ignore O
-	        		continue;
-	        	}
-	            IAtom a = childList.getAtom(iChild);
-	            Vector ri = a.getPosition();
-	            ri.ME(O);
-	            boundary.nearestImage(ri);
-	            ri.PE(O);
-	        }
-	      }
-	}
 
-		AtomPair selfAtomLJ = new AtomPair(box.getLeafList().getAtom(2), box.getLeafList().getAtom(2));
-		selfELJ = potentialLJLS.energy(selfAtomLJ);// = 0 if nLJshells=0
-		System.out.println("selfELJ = "+Joule.UNIT.fromSim(selfELJ)*1.0E-3*Constants.AVOGADRO);
-		MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(potentialMaster, box);
-		double E = Joule.UNIT.fromSim(meterPotentialEnergy.getDataAsScalar()/box.getMoleculeList().getMoleculeCount()+selfELJ)*1.0E-3*Constants.AVOGADRO;
+        if (includeM) {
+            ConfigurationFile config = new ConfigurationFile(configFile);
+            ConfigurationFileBinary.replicate(config, box, nC, space);
+        } else {
+            ConfigurationFileTIP4P config = new ConfigurationFileTIP4P(configFile, space, isIce);
+            ConfigurationFileBinary.replicate(config, box, nC, space);
+        }
+
+//Wrap all MOLECULES (make O in the BOX)
+        if (!true) {
+            for (int i = 0; i < box.getMoleculeList().getMoleculeCount(); i++) {
+                IMolecule molecule = box.getMoleculeList().getMolecule(i);
+                IAtomList childList = molecule.getChildList();
+                Vector O = childList.getAtom(2).getPosition();//O
+                O.PE(boundary.centralImage(O));// to wrap all O inside the BOX; next steps will move Hs and M with O to keep the conformation.
+                for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
+                    if (iChild == 2) {//Ignore O
+                        continue;
+                    }
+                    IAtom a = childList.getAtom(iChild);
+                    Vector ri = a.getPosition();
+                    ri.ME(O);
+                    boundary.nearestImage(ri);
+                    ri.PE(O);
+                }
+            }
+        }
+
+        AtomPair selfAtomLJ = new AtomPair(box.getLeafList().getAtom(2), box.getLeafList().getAtom(2));
+        selfELJ = potentialLJLS.energy(selfAtomLJ);// = 0 if nLJshells=0
+        System.out.println("selfELJ = " + Joule.UNIT.fromSim(selfELJ) * 1.0E-3 * Constants.AVOGADRO);
+        MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(potentialMaster, box);
+        double E = Joule.UNIT.fromSim(meterPotentialEnergy.getDataAsScalar() / box.getMoleculeList().getMoleculeCount() + selfELJ) * 1.0E-3 * Constants.AVOGADRO;
         System.out.println("E (kJ/mol)  = " + E);
-        System.out.println("E (kCal/mol)  = " + E*0.239005736);
+        System.out.println("E (kCal/mol)  = " + E * 0.239005736);
         System.out.println("");
-	}
+    }
 	
 	public static void main (String[] args){
 		SimParams params = new SimParams();

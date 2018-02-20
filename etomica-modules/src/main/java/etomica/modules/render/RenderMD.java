@@ -89,7 +89,7 @@ public class RenderMD extends Simulation {
         parser = new ParseObj(params.file);
 
         int numAtoms = parser.nAtoms;
-        box = new Box(space);
+        box = this.makeBox();
         integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setTemperature(params.temperature);
         integrator.setIsothermal(true);
@@ -102,7 +102,6 @@ public class RenderMD extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
         addSpecies(species);
-        addBox(box);
         box.setNMolecules(species, numAtoms);
 
         potentialBonded = new P2PenetrableCar(space, parser, box);

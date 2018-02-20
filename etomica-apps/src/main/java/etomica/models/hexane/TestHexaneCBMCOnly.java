@@ -67,8 +67,7 @@ public class TestHexaneCBMCOnly extends Simulation {
         SpeciesHexane species = new SpeciesHexane(space);
         addSpecies(species);
         bdry = new BoundaryDeformableLattice(primitive, new int[]{4, 6, 6});
-        box = new Box(bdry, space);
-        addBox(box);
+        box = this.makeBox(bdry);
         box.setNMolecules(species, numMolecules);
         // config.initializeCoordinates(box);
 

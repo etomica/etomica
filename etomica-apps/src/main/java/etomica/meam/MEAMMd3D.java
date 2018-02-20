@@ -77,7 +77,7 @@ public class MEAMMd3D extends Simulation {
     public MEAMMd3D() {
         super(Space3D.getInstance()); //INSTANCE); kmb change 8/3/05
         potentialMaster = new PotentialMasterList(this, space);
-        box = new Box(space);
+        box = this.makeBox();
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setTimeStep(0.001);
         integrator.setTemperature(Kelvin.UNIT.toSim(295));
@@ -96,7 +96,6 @@ public class MEAMMd3D extends Simulation {
         addSpecies(sn);
         addSpecies(ag);
         addSpecies(cu);
-        addBox(box);
         box.setNMolecules(sn, 0);
         box.setNMolecules(ag, 256);
         box.setNMolecules(cu, 0);

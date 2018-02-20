@@ -62,8 +62,7 @@ public class LJMD extends Simulation {
         super(Space3D.getInstance());
         setRandom(new RandomNumberGenerator(2));
         BoundaryRectangularSlit boundary = new BoundaryRectangularSlit(2, space);
-        box = new Box(boundary, space);
-        addBox(box);
+        box = this.makeBox(boundary);
 
         speciesFluid = new SpeciesSpheresMono(space, new ElementSimple("F"));
         speciesFluid.setIsDynamic(true);

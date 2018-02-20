@@ -87,8 +87,7 @@ public class TestDifferentImage1DHRSubtract extends Simulation {
         addSpecies(species);
 
         basis = new BasisMonatomic(space);
-        box = new Box(space);
-        addBox(box);
+        box = this.makeBox();
         box.setNMolecules(species, numAtoms);
 
         Potential2 potential = new P2HardSphere(space, 1.0, true);

@@ -90,8 +90,7 @@ public class SimOverlapSSnxy extends Simulation {
         addSpecies(species);
 
         // TARGET
-        boxTarget = new Box(space);
-        addBox(boxTarget);
+        boxTarget = this.makeBox();
         boxTarget.setNMolecules(species, numAtoms);
 
         double primitiveLength = Math.pow(4.0 / density, 1.0 / 3.0);
@@ -146,8 +145,7 @@ public class SimOverlapSSnxy extends Simulation {
         System.out.println("lattice energy of SS system: " + latticeEnergy);
 
         // HARMONIC
-        boxHarmonic = new Box(space);
-        addBox(boxHarmonic);
+        boxHarmonic = this.makeBox();
         boxHarmonic.setNMolecules(species, numAtoms);
 
         IntegratorMC integratorHarmonic = new IntegratorMC(null, random, 1.0, boxHarmonic);

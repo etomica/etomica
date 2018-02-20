@@ -65,8 +65,7 @@ public class SimLJHTTISuperHCP extends Simulation {
         addSpecies(species);
 
         // TARGET
-        box = new Box(space);
-        addBox(box);
+        box = this.makeBox();
         box.setNMolecules(species, numAtoms);
 
         int n = (int) Math.round(Math.pow(numAtoms / 8, 1.0 / 3.0));

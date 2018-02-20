@@ -119,8 +119,7 @@ public class MEAM_3DMDwithGB extends Simulation {
         nBImpurity = 0;
         nBVacancy = 0;
 
-        box = new Box(new BoundaryRectangularSlit(2, space), space);
-        addBox(box);
+        box = this.makeBox(new BoundaryRectangularSlit(2, space));
 
         // beta-Sn box
 

@@ -76,7 +76,7 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
         System.out.println("temperature = " + temperature);
         System.out.println("numSteps = " + numSteps);
         System.out.println("maximum chain length= " + maxChainLength);
-        box = new Box(space);
+        box = this.makeBox();
         integrator = new IntegratorMC(this, potentialMaster, box);
         integrator.setTemperature(temperature);
         mcMoveAtomMonomer = new MCMoveAtomMonomer(this, potentialMaster, space);//Standard Monte Carlo atom-displacement trial move
@@ -85,7 +85,6 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
         mcMoveAtomSmer.setMaxLength(maxChainLength);
         mcMoveRotate = new MCMoveRotateAssociated(potentialMaster, random, space);//Performs a rotation of an atom (not a molecule) that has an orientation coordinate
         mcMoveRotate.setMaxLength(maxChainLength);
-        addBox(box);
         bvso = new BiasVolumeSphereOrientedDoubleSites(space, random);
         System.out.println("biasVolume= 2*(partialVolume/totalVolume)^2");
         bvso.setTheta(Degree.UNIT.toSim(27.0));

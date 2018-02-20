@@ -40,7 +40,7 @@ public class HSMD2D extends Simulation {
 
     public HSMD2D() {
         super(Space2D.getInstance());
-        box = new Box(space);
+        box = this.makeBox();
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
         double sigma = 1;
 
@@ -75,8 +75,6 @@ public class HSMD2D extends Simulation {
         potentialMaster.addPotential(potential12, new AtomType[]{leafType2, leafType2});
 
         potentialMaster.addPotential(potential22, new AtomType[]{leafType1, leafType2});
-
-        addBox(box);
         box.setNMolecules(species1, 512);
         box.setNMolecules(species2, 5);
 

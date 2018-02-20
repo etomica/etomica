@@ -73,8 +73,7 @@ public class SimHSMDVacancy extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
         addSpecies(species);
-        box = new Box(space);
-        addBox(box);
+        box = this.makeBox();
         box.setNMolecules(species, numAtoms);
 
         double L = Math.pow(4.0 / density, 1.0 / 3.0);

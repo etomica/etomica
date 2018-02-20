@@ -43,7 +43,7 @@ public class HSMD3DNoNbr extends Simulation {
         double sigma = 1.0;
         double l = 14.4573 * Math.pow((numAtoms / 2020.0), 1.0 / 3.0);
 
-        box = new Box(space);
+        box = this.makeBox();
         integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
@@ -56,7 +56,6 @@ public class HSMD3DNoNbr extends Simulation {
         addSpecies(species);
         potential = new P2HardSphere(space, sigma, false);
         potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
-        addBox(box);
         box.setNMolecules(species, numAtoms);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{l, l, l}));
 //        box.setBoundary(new BoundaryTruncatedOctahedron(space));

@@ -66,34 +66,32 @@ public class EwaldSummationTest {
 
     }
     @Before
-    public void setup(){
-        filenum = 4; // pick 1, 2, 3 or 4
-        int numofmolecules = NIST_nmol[filenum-1];
-        double boxlength = NIST_boxl[filenum -1];
-        double kcut = Math.sqrt(26.999)*2*Math.PI/boxlength;
-        double rCutRealES = 10;
+    public void setup() {
         Space space = Space.getInstance(3);
-        box = new Box(space);
-        SpeciesWater3P species = new SpeciesWater3P(space,false);
+        sim = new Simulation(space);
+        filenum = 4; // pick 1, 2, 3 or 4
+        int numofmolecules = NIST_nmol[filenum - 1];
+        double boxlength = NIST_boxl[filenum - 1];
+        double kcut = Math.sqrt(26.999) * 2 * Math.PI / boxlength;
+        double rCutRealES = 10;
+        box = sim.makeBox();
+        SpeciesWater3P species = new SpeciesWater3P(space, false);
         ChargeAgentSourceSPCE agentSource = new ChargeAgentSourceSPCE(species);
         AtomLeafAgentManager<EwaldSummation.MyCharge> atomAgentManager = new AtomLeafAgentManager<EwaldSummation.MyCharge>(agentSource, box);
-        sim = new Simulation(space);
 
         sim.addSpecies(species);
-        sim.addBox(box);
-        box.setNMolecules(species,numofmolecules);
-        box.getBoundary().setBoxSize(new Vector3D(boxlength,boxlength,boxlength));
+        box.setNMolecules(species, numofmolecules);
+        box.getBoundary().setBoxSize(new Vector3D(boxlength, boxlength, boxlength));
 
-        es = new EwaldSummation(box,atomAgentManager,space,kcut,rCutRealES);
-        es.setAlpha(5.6/boxlength);
+        es = new EwaldSummation(box, atomAgentManager, space, kcut, rCutRealES);
+        es.setAlpha(5.6 / boxlength);
 
         Configuration config = new ConfigurationResourceFile(
-                String.format("etomica/potential/spce"+String.valueOf(filenum)+".pos"),
+                String.format("etomica/potential/spce" + String.valueOf(filenum) + ".pos"),
                 EwaldSummationTest.class
         );
 
         config.initializeCoordinates(box);
-
 
 
     }

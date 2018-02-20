@@ -47,113 +47,113 @@ import java.util.Arrays;
 public class MinimizationBetaNitrogenModelLS extends Simulation{
 
 	public MinimizationBetaNitrogenModelLS(Space space, double density, double rC) {
-		super(space);
-		this.space = space;
-		this.density = density;
-		
-		double ratio = 1.631;
-		double aDim = Math.pow(4.0/(Math.sqrt(3.0)*ratio*density), 1.0/3.0);
-		double cDim = aDim*ratio;
-		System.out.println("density: " + density);
-		System.out.println("aDim: " + aDim + " ;cDim: " + cDim);
-		
-		int [] nCells = new int[]{1,2,1};
-		Basis basisHCP = new BasisHcp();
-		basis = new BasisBigCell(space, basisHCP, nCells);
-        
-		ConformationNitrogen conformation = new ConformationNitrogen(space);
-		SpeciesN2 species = new SpeciesN2(space);
-		species.setConformation(conformation);
-		addSpecies(species);
-		
-		SpeciesN2B ghostSpecies = new SpeciesN2B(space);
-		ghostSpecies.setConformation(conformation);
-		addSpecies(ghostSpecies);
-		
-		int numMolecule = 4;
-		box = new Box(space);
-		addBox(box);
-		box.setNMolecules(species, numMolecule);		
-		
-		ghostBox = new Box(space);
-		addBox(ghostBox);
-		ghostBox.setNMolecules(ghostSpecies, 1);
-		
-		Vector[] boxDim = new Vector[3];
-		boxDim[0] = space.makeVector(new double[]{aDim, 0, 0});
-		boxDim[1] = space.makeVector(new double[]{-2*aDim*Math.cos(Degree.UNIT.toSim(60)), 2*aDim*Math.sin(Degree.UNIT.toSim(60)), 0});
-		boxDim[2] = space.makeVector(new double[]{0, 0, cDim});
-		
-		BoundaryDeformablePeriodicSwitch boundary = new BoundaryDeformablePeriodicSwitch(space, boxDim);
-		boundary.setDoPBC(false);
-		primitive = new PrimitiveTriclinic(space, aDim, 2*aDim, cDim, Math.PI*(90/180.0),Math.PI*(90/180.0),Math.PI*(120/180.0));
-		box.setBoundary(boundary);
-	
-		BetaPhaseLatticeParameterLS parameters = new BetaPhaseLatticeParameterLS();
-		double[][] param = parameters.getParameter(density);
-		
-		double[] u = new double[20];
-		int kParam=0;
-		for (int i=0; i<param.length;i++){
-			for (int j=0; j<param[0].length;j++){
-				u[kParam]=param[i][j];
-				kParam++;
-			}	
-		}
-		this.u = u;
-		
-		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
-		coordinateDef.setIsBetaLatticeSum();
-		coordinateDef.setIsDoLatticeSum();
-		coordinateDef.setOrientationVectorBetaLatticeSum(space, density, param);
-		coordinateDef.initializeCoordinates(new int[]{1,1,1});
-		
-		potential = new P2Nitrogen(space, rC);
-		potential.setBox(box);
-		potential.setEnablePBC(false);
-		
-		this.nLayer = (int)(rC/aDim+0.5);
-		
-		FunctionData<Object> function = new FunctionData<Object>() {
-			public IData f(Object obj) {
-				data.x = potential.energy((IMoleculeList)obj);
-				return data;
-			}
-			public IDataInfo getDataInfo() {
-				return dataInfo;
-			}
-			final DataInfo dataInfo = new DataDouble.DataInfoDouble("Lattice energy", Energy.DIMENSION);
-			final DataDouble data = new DataDouble();
-		};
-		
-		BravaisLatticeCrystal lattice = new BravaisLatticeCrystal(primitive, basis);
-		LatticeSumCrystalMolecular latticeSum = new LatticeSumCrystalMolecular(lattice, coordinateDef, ghostBox);
-		latticeSum.setMaxLatticeShell(nLayer);
-		
-		double sum = 0;
-	    double basisDim = lattice.getBasis().getScaledCoordinates().length;
-		DataGroupLSC data = (DataGroupLSC)latticeSum.calculateSum(function);
-        for(int j=0; j<basisDim; j++) {
-            for(int jp=0; jp<basisDim; jp++) {
-                sum += ((DataDouble)data.getDataReal(j,jp)).x; 
+        super(space);
+        this.space = space;
+        this.density = density;
+
+        double ratio = 1.631;
+        double aDim = Math.pow(4.0 / (Math.sqrt(3.0) * ratio * density), 1.0 / 3.0);
+        double cDim = aDim * ratio;
+        System.out.println("density: " + density);
+        System.out.println("aDim: " + aDim + " ;cDim: " + cDim);
+
+        int[] nCells = new int[]{1, 2, 1};
+        Basis basisHCP = new BasisHcp();
+        basis = new BasisBigCell(space, basisHCP, nCells);
+
+        ConformationNitrogen conformation = new ConformationNitrogen(space);
+        SpeciesN2 species = new SpeciesN2(space);
+        species.setConformation(conformation);
+        addSpecies(species);
+
+        SpeciesN2B ghostSpecies = new SpeciesN2B(space);
+        ghostSpecies.setConformation(conformation);
+        addSpecies(ghostSpecies);
+
+        int numMolecule = 4;
+        box = this.makeBox();
+        box.setNMolecules(species, numMolecule);
+
+        ghostBox = this.makeBox();
+        ghostBox.setNMolecules(ghostSpecies, 1);
+
+        Vector[] boxDim = new Vector[3];
+        boxDim[0] = space.makeVector(new double[]{aDim, 0, 0});
+        boxDim[1] = space.makeVector(new double[]{-2 * aDim * Math.cos(Degree.UNIT.toSim(60)), 2 * aDim * Math.sin(Degree.UNIT.toSim(60)), 0});
+        boxDim[2] = space.makeVector(new double[]{0, 0, cDim});
+
+        BoundaryDeformablePeriodicSwitch boundary = new BoundaryDeformablePeriodicSwitch(space, boxDim);
+        boundary.setDoPBC(false);
+        primitive = new PrimitiveTriclinic(space, aDim, 2 * aDim, cDim, Math.PI * (90 / 180.0), Math.PI * (90 / 180.0), Math.PI * (120 / 180.0));
+        box.setBoundary(boundary);
+
+        BetaPhaseLatticeParameterLS parameters = new BetaPhaseLatticeParameterLS();
+        double[][] param = parameters.getParameter(density);
+
+        double[] u = new double[20];
+        int kParam = 0;
+        for (int i = 0; i < param.length; i++) {
+            for (int j = 0; j < param[0].length; j++) {
+                u[kParam] = param[i][j];
+                kParam++;
+            }
+        }
+        this.u = u;
+
+        coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
+        coordinateDef.setIsBetaLatticeSum();
+        coordinateDef.setIsDoLatticeSum();
+        coordinateDef.setOrientationVectorBetaLatticeSum(space, density, param);
+        coordinateDef.initializeCoordinates(new int[]{1, 1, 1});
+
+        potential = new P2Nitrogen(space, rC);
+        potential.setBox(box);
+        potential.setEnablePBC(false);
+
+        this.nLayer = (int) (rC / aDim + 0.5);
+
+        FunctionData<Object> function = new FunctionData<Object>() {
+            public IData f(Object obj) {
+                data.x = potential.energy((IMoleculeList) obj);
+                return data;
+            }
+
+            public IDataInfo getDataInfo() {
+                return dataInfo;
+            }
+
+            final DataInfo dataInfo = new DataDouble.DataInfoDouble("Lattice energy", Energy.DIMENSION);
+            final DataDouble data = new DataDouble();
+        };
+
+        BravaisLatticeCrystal lattice = new BravaisLatticeCrystal(primitive, basis);
+        LatticeSumCrystalMolecular latticeSum = new LatticeSumCrystalMolecular(lattice, coordinateDef, ghostBox);
+        latticeSum.setMaxLatticeShell(nLayer);
+
+        double sum = 0;
+        double basisDim = lattice.getBasis().getScaledCoordinates().length;
+        DataGroupLSC data = (DataGroupLSC) latticeSum.calculateSum(function);
+        for (int j = 0; j < basisDim; j++) {
+            for (int jp = 0; jp < basisDim; jp++) {
+                sum += ((DataDouble) data.getDataReal(j, jp)).x;
             }
         }
 
-        initialLatticeEnergy = (0.5*sum/basisDim);
-		System.out.println("initial energy: " + initialLatticeEnergy);
-		
-		
-		atomGroupAction = new MoleculeChildAtomAction(new AtomActionTransformed(lattice.getSpace()));
-		
-		translateBy = new AtomActionTranslateBy(coordinateDef.getPrimitive().getSpace());
-        atomGroupActionTranslate = new MoleculeChildAtomAction(translateBy); 
-		lsPosition = space.makeVector();
-				
-		xVecBox = Math.sqrt(box.getBoundary().getEdgeVector(0).squared());
-		yVecBox = Math.sqrt(box.getBoundary().getEdgeVector(1).squared());
-		zVecBox = Math.sqrt(box.getBoundary().getEdgeVector(2).squared());
-		
-	}
+        initialLatticeEnergy = (0.5 * sum / basisDim);
+        System.out.println("initial energy: " + initialLatticeEnergy);
+
+
+        atomGroupAction = new MoleculeChildAtomAction(new AtomActionTransformed(lattice.getSpace()));
+
+        translateBy = new AtomActionTranslateBy(coordinateDef.getPrimitive().getSpace());
+        atomGroupActionTranslate = new MoleculeChildAtomAction(translateBy);
+        lsPosition = space.makeVector();
+
+        xVecBox = Math.sqrt(box.getBoundary().getEdgeVector(0).squared());
+        yVecBox = Math.sqrt(box.getBoundary().getEdgeVector(1).squared());
+        zVecBox = Math.sqrt(box.getBoundary().getEdgeVector(2).squared());
+
+    }
 	
 	public double getEnergy (double[] u){
 

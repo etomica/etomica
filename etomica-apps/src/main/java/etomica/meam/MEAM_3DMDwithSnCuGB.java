@@ -82,8 +82,7 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
 
     public MEAM_3DMDwithSnCuGB() {
         super(Space3D.getInstance());//INSTANCE); kmb change 8/3/05
-        box = new Box(new BoundaryRectangularSlit(2, space), space);
-        addBox(box);
+        box = this.makeBox(new BoundaryRectangularSlit(2, space));
         potentialMaster = new PotentialMasterList(this, space);
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setTimeStep(0.001);

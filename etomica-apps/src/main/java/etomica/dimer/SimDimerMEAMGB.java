@@ -86,18 +86,17 @@ public class SimDimerMEAMGB extends Simulation{
 
     
     public SimDimerMEAMGB(int[] amillerPlane, int[] boxSize) {
-    	super(Space3D.getInstance());
-    	
-    	this.millerPlane = amillerPlane;
-    	potentialMaster = new PotentialMasterList(this, space);
-    	potentialMasterD = new PotentialMasterListDimer(this, space);
-        
-      //SIMULATION BOX
-        box = new Box(new BoundaryRectangularSlit(2, 5, space), space);
-        addBox(box);
-     
-      //SPECIES
-        
+        super(Space3D.getInstance());
+
+        this.millerPlane = amillerPlane;
+        potentialMaster = new PotentialMasterList(this, space);
+        potentialMasterD = new PotentialMasterListDimer(this, space);
+
+        //SIMULATION BOX
+        box = this.makeBox(new BoundaryRectangularSlit(2, 5, space));
+
+        //SPECIES
+
         //Sn
         Tin tinFixed = new Tin("SnFix", Double.POSITIVE_INFINITY);
         Tin dimerTin = new Tin("SnD", 118.710);
@@ -114,96 +113,95 @@ public class SimDimerMEAMGB extends Simulation{
         potential.setParameters(fixed.getLeafType(), ParameterSetMEAM.Sn);
         potential.setParameters(movable.getLeafType(), ParameterSetMEAM.Sn);
         potential.setParameters(dimer.getLeafType(), ParameterSetMEAM.Sn);
-        
-        
-        
+
+
         //Sn
         //beta-Sn box
-        
+
         //The dimensions of the simulation box must be proportional to those of
         //the unit cell to prevent distortion of the lattice.  The values for the 
         //lattice parameters for tin's beta box (a = 5.8314 angstroms, c = 3.1815 
         //angstroms) are taken from the ASM Handbook. 
-              
-        double a = 5.92; 
+
+        double a = 5.92;
         double c = 3.23;
         PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, a, c);
         BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisBetaSnA5());
-        GrainBoundaryTiltConfiguration gbtilt = new GrainBoundaryTiltConfiguration(crystal, crystal, new ISpecies[] {fixed, movable}, potential.getRange(), space);
-            
-        
+        GrainBoundaryTiltConfiguration gbtilt = new GrainBoundaryTiltConfiguration(crystal, crystal, new ISpecies[]{fixed, movable}, potential.getRange(), space);
+
+
         //Ag
         /**
-        Silver silverFixed = new Silver("AgFix", Double.POSITIVE_INFINITY);
-        fixed = new SpeciesSpheresMono(this, Silver.INSTANCE);
-        movable = new SpeciesSpheresMono(this, Silver.INSTANCE);
-        getSpeciesManager().addSpecies(fixed);
-        getSpeciesManager().addSpecies(movable);
-        ((AtomTypeSphere)fixed.getLeafType()).setDiameter(2.8895); 
-        ((AtomTypeSphere)movable.getLeafType()).setDiameter(2.8895);
-        potential = new PotentialMEAM(space);
-        potential.setParameters(agFix, ParameterSetMEAM.Ag);
-        potential.setParameters(ag, ParameterSetMEAM.Ag);
-        potential.setParameters(agAdatom, ParameterSetMEAM.Ag);
-        potential.setParameters(movable, ParameterSetMEAM.Ag);
-        
-        double a = 4.0863;
-        PrimitiveCubic primitive = new PrimitiveCubic(space, a);
-        BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisCubicFcc());
-        GrainBoundaryTiltConfiguration gbtilt = new GrainBoundaryTiltConfiguration(crystal, crystal, new ISpecies[] {fixed, movable}, 4.56, space);
+         Silver silverFixed = new Silver("AgFix", Double.POSITIVE_INFINITY);
+         fixed = new SpeciesSpheresMono(this, Silver.INSTANCE);
+         movable = new SpeciesSpheresMono(this, Silver.INSTANCE);
+         getSpeciesManager().addSpecies(fixed);
+         getSpeciesManager().addSpecies(movable);
+         ((AtomTypeSphere)fixed.getLeafType()).setDiameter(2.8895);
+         ((AtomTypeSphere)movable.getLeafType()).setDiameter(2.8895);
+         potential = new PotentialMEAM(space);
+         potential.setParameters(agFix, ParameterSetMEAM.Ag);
+         potential.setParameters(ag, ParameterSetMEAM.Ag);
+         potential.setParameters(agAdatom, ParameterSetMEAM.Ag);
+         potential.setParameters(movable, ParameterSetMEAM.Ag);
 
-        */
-    
-        
+         double a = 4.0863;
+         PrimitiveCubic primitive = new PrimitiveCubic(space, a);
+         BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisCubicFcc());
+         GrainBoundaryTiltConfiguration gbtilt = new GrainBoundaryTiltConfiguration(crystal, crystal, new ISpecies[] {fixed, movable}, 4.56, space);
+
+         */
+
+
         //Cu
-       /**
-        //Copper copperFixed = new Copper("CuFix", Double.POSITIVE_INFINITY);
-        fixed = new SpeciesSpheresMono(this, space, Copper.INSTANCE);
-        movable = new SpeciesSpheresMono(this, space, Copper.INSTANCE);
-        dimer = new SpeciesSpheresMono(this, space, Copper.INSTANCE);
-        getSpeciesManager().addSpecies(fixed);
-        getSpeciesManager().addSpecies(movable);
-        getSpeciesManager().addSpecies(dimer);
-        ((AtomTypeSphere)fixed.getLeafType()).setDiameter(2.5561); 
-        ((AtomTypeSphere)dimer.getLeafType()).setDiameter(2.5561); 
-        ((AtomTypeSphere)movable.getLeafType()).setDiameter(2.5561);
-        potential = new PotentialMEAM(space);
-        potential.setParameters(fixed.getLeafType(), ParameterSetMEAM.Cu);
-        potential.setParameters(movable.getLeafType(), ParameterSetMEAM.Cu);
-        potential.setParameters(dimer.getLeafType(), ParameterSetMEAM.Cu);
-        
-        double a = 3.6148;
-        PrimitiveCubic primitive = new PrimitiveCubic(space, a);
-        BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisCubicFcc());
-        GrainBoundaryTiltConfiguration gbtilt = new GrainBoundaryTiltConfiguration(crystal, crystal, new ISpecies[] {fixed, movable}, potential.getRange(), space);
-       */
+        /**
+         //Copper copperFixed = new Copper("CuFix", Double.POSITIVE_INFINITY);
+         fixed = new SpeciesSpheresMono(this, space, Copper.INSTANCE);
+         movable = new SpeciesSpheresMono(this, space, Copper.INSTANCE);
+         dimer = new SpeciesSpheresMono(this, space, Copper.INSTANCE);
+         getSpeciesManager().addSpecies(fixed);
+         getSpeciesManager().addSpecies(movable);
+         getSpeciesManager().addSpecies(dimer);
+         ((AtomTypeSphere)fixed.getLeafType()).setDiameter(2.5561);
+         ((AtomTypeSphere)dimer.getLeafType()).setDiameter(2.5561);
+         ((AtomTypeSphere)movable.getLeafType()).setDiameter(2.5561);
+         potential = new PotentialMEAM(space);
+         potential.setParameters(fixed.getLeafType(), ParameterSetMEAM.Cu);
+         potential.setParameters(movable.getLeafType(), ParameterSetMEAM.Cu);
+         potential.setParameters(dimer.getLeafType(), ParameterSetMEAM.Cu);
+
+         double a = 3.6148;
+         PrimitiveCubic primitive = new PrimitiveCubic(space, a);
+         BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisCubicFcc());
+         GrainBoundaryTiltConfiguration gbtilt = new GrainBoundaryTiltConfiguration(crystal, crystal, new ISpecies[] {fixed, movable}, potential.getRange(), space);
+         */
 
         this.potentialMaster.addPotential(potential, new AtomType[]{fixed.getLeafType(), movable.getLeafType(), dimer.getLeafType()});
-        potentialMaster.setRange(potential.getRange()*1.1);
-        CriterionSimple criteria = new CriterionSimple(this, space, potential.getRange(), potential.getRange()*1.1);
+        potentialMaster.setRange(potential.getRange() * 1.1);
+        CriterionSimple criteria = new CriterionSimple(this, space, potential.getRange(), potential.getRange() * 1.1);
         potentialMaster.setCriterion(potential, new CriterionTypesCombination(criteria, new AtomType[]{fixed.getLeafType(), movable.getLeafType(), dimer.getLeafType()}));
 
         this.potentialMasterD.addPotential(potential, new AtomType[]{movable.getLeafType(), dimer.getLeafType()});
-        potentialMasterD.setSpecies(new ISpecies []{dimer, movable});
-        potentialMasterD.setRange(potential.getRange()*1.1);
-        CriterionSimple criteria2 = new CriterionSimple(this, space, potential.getRange(), potential.getRange()*1.1);
+        potentialMasterD.setSpecies(new ISpecies[]{dimer, movable});
+        potentialMasterD.setRange(potential.getRange() * 1.1);
+        CriterionSimple criteria2 = new CriterionSimple(this, space, potential.getRange(), potential.getRange() * 1.1);
         potentialMasterD.setCriterion(potential, new CriterionTypesCombination(criteria2, new AtomType[]{movable.getLeafType(), dimer.getLeafType()}));
-        
+
         gbtilt.setFixedSpecies(fixed);
         gbtilt.setMobileSpecies(movable);
 
         gbtilt.setGBplane(millerPlane);
         gbtilt.setBoxSize(box, boxSize);
         gbtilt.initializeCoordinates(box);
-               
+
         Vector newBoxLength = space.makeVector();
         newBoxLength.E(box.getBoundary().getBoxSize());
-        newBoxLength.setX(2,newBoxLength.getX(2)+1.0);
-        newBoxLength.setX(1,newBoxLength.getX(1)+0.0001);
-        newBoxLength.setX(0,newBoxLength.getX(0)+0.0001);
+        newBoxLength.setX(2, newBoxLength.getX(2) + 1.0);
+        newBoxLength.setX(1, newBoxLength.getX(1) + 0.0001);
+        newBoxLength.setX(0, newBoxLength.getX(0) + 0.0001);
         box.getBoundary().setBoxSize(newBoxLength);
-        
-        
+
+
     }
 
     public static void main(String[] args) {

@@ -54,8 +54,7 @@ public class SimLJ extends Simulation {
         super(Space3D.getInstance());
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
-        box = new Box(space);
-        addBox(box);
+        box = this.makeBox();
         box.setNMolecules(species, numAtoms);
         Vector l = space.makeVector();
         l.E(10);

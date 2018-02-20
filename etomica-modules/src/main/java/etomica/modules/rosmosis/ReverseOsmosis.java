@@ -47,7 +47,7 @@ public class ReverseOsmosis extends Simulation {
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this); //List(this, 2.0);
 
         //controller and integrator
-        box = new Box(space);
+        box = this.makeBox();
         integrator = new IntegratorVelocityVerlet(potentialMaster, getRandom(), 0.01, Kelvin.UNIT.toSim(125), box);
         integrator.setIsothermal(false);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
@@ -113,7 +113,6 @@ public class ReverseOsmosis extends Simulation {
 
 
         //construct box
-        addBox(box);
         Vector dim = space.makeVector();
         dim.E(new double[]{xSize, yzSize, yzSize});
         box.getBoundary().setBoxSize(dim);

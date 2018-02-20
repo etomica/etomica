@@ -102,13 +102,12 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
         double volume = 1 / (density / numAtoms);
         double boxLength = Math.pow(volume, 1.0 / 3.0);
 
-        box = new Box(space);
+        box = this.makeBox();
         integrator = new IntegratorMC(this, potentialMaster, box);
         integrator.setTemperature(temperature);
         mcMoveMoleculeMonomer = new MCMoveMoleculeMonomer(this, potentialMaster, space);//Standard Monte Carlo atom-displacement trial move
         mcMoveMoleculeSmer = new MCMoveMoleculeSmer(this, potentialMaster, space);
         mcMoveMoleculeRotate = new MCMoveMoleculeRotateAssociated(potentialMaster, random, space);//Performs a rotation of an atom (not a molecule) that has an orientation coordinate;
-        addBox(box);
         bv = new BiasVolumeAceticAcid(space, random, box);
         bv.setBox(box);
 

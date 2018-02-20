@@ -51,8 +51,7 @@ public class DropletAtomic extends Simulation {
     public DropletAtomic(Space _space) {
         super(_space);
         //construct box
-        box = new Box(new BoundaryRectangularPeriodic(space), space);
-        addBox(box);
+        box = this.makeBox(new BoundaryRectangularPeriodic(space));
         double pRange = 3;
         sigma = 3.35;
         nNominalAtoms = 32000;

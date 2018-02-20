@@ -45,7 +45,7 @@ public class Swmd extends Simulation {
         double lambda = 2.0;
 
         //controller and integrator
-        box = new Box(space);
+        box = this.makeBox();
         integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setTimeStep(1.0);
         integrator.setTemperature(Kelvin.UNIT.toSim(300));
@@ -69,7 +69,6 @@ public class Swmd extends Simulation {
         potentialMaster.addPotential(potentialWrapper, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
         //construct box
-        addBox(box);
         Vector dim = space.makeVector();
         dim.E(space.D() == 3 ? 30 : 50);
         box.getBoundary().setBoxSize(dim);

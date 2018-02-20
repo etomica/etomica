@@ -55,12 +55,11 @@ public class MeterDDP implements IDataSource {
         this.potentialMaster = potentialMaster;
         meterPotential = new MeterPotentialEnergy(potentialMaster);
         this.species = species;
-        pretendBox = new Box(space);
-        sim.addBox(pretendBox);
+        pretendBox = sim.makeBox();
         if (potentialMaster instanceof PotentialMasterList) {
-            pretendBox.getBoundary().getEventManager().removeListener(((PotentialMasterList)potentialMaster).getNbrCellManager(pretendBox));
+            pretendBox.getBoundary().getEventManager().removeListener(((PotentialMasterList) potentialMaster).getNbrCellManager(pretendBox));
         }
-        
+
         work = space.makeVector();
 
         tag = new DataTag();

@@ -68,18 +68,17 @@ public class SimKMCMEAMadatom extends Simulation{
     //public Boolean saddleFine, calcModes, minSearch, normalDir;
     
     public SimKMCMEAMadatom() {
-        super(Space3D.getInstance());    	
+        super(Space3D.getInstance());
 
         potentialMasterD = new PotentialMasterListDimer(this, space);
-        
-      //SIMULATION BOX
-        box = new Box(new BoundaryRectangularSlit(0, 5, space), space);
-        addBox(box);
-     
-      //SPECIES
-        
+
+        //SIMULATION BOX
+        box = this.makeBox(new BoundaryRectangularSlit(0, 5, space));
+
+        //SPECIES
+
         //Sn
-        Tin tinFixed = new Tin("SnFix", Double.POSITIVE_INFINITY);  
+        Tin tinFixed = new Tin("SnFix", Double.POSITIVE_INFINITY);
         fixed = new SpeciesSpheresMono(space, tinFixed);
         movable = new SpeciesSpheresMono(space, Tin.INSTANCE);
         potentialSpecies = new SpeciesSpheresMono(space, tinFixed);
@@ -87,85 +86,84 @@ public class SimKMCMEAMadatom extends Simulation{
         addSpecies(movable);
         addSpecies(potentialSpecies);
         box.setNMolecules(fixed, 180);
-        
+
         potential = new PotentialMEAM(space);
         potential.setParameters(fixed.getLeafType(), ParameterSetMEAM.Sn);
         potential.setParameters(movable.getLeafType(), ParameterSetMEAM.Sn);
         potential.setParameters(potentialSpecies.getLeafType(), ParameterSetMEAM.Sn);
-        
-        
-        
+
+
         //Sn
         //beta-Sn box
-        
+
         //The dimensions of the simulation box must be proportional to those of
         //the unit cell to prevent distortion of the lattice.  The values for the 
         //lattice parameters for tin's beta box (a = 5.8314 angstroms, c = 3.1815 
         //angstroms) are taken from the ASM Handbook. 
-              
-        double a = 5.92; 
+
+        double a = 5.92;
         double c = 3.23;
-        box.getBoundary().setBoxSize(new Vector3D(a*3, a*3, c*5));
+        box.getBoundary().setBoxSize(new Vector3D(a * 3, a * 3, c * 5));
         PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, a, c);
         BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisBetaSnA5());
 
-                
+
         //Ag
         /**
-        Silver silverFixed = new Silver("AgFix", Double.POSITIVE_INFINITY);
-        fixed = new SpeciesSpheresMono(this, Silver.INSTANCE);
-        movable = new SpeciesSpheresMono(this, Silver.INSTANCE);
-        getSpeciesManager().addSpecies(fixed);
-        getSpeciesManager().addSpecies(movable);
-        ((AtomTypeSphere)fixed.getLeafType()).setDiameter(2.8895); 
-        ((AtomTypeSphere)movable.getLeafType()).setDiameter(2.8895);
-        potential = new PotentialMEAM(space);
-        potential.setParameters(agFix, ParameterSetMEAM.Ag);
-        potential.setParameters(ag, ParameterSetMEAM.Ag);
-        potential.setParameters(agAdatom, ParameterSetMEAM.Ag);
-        potential.setParameters(movable, ParameterSetMEAM.Ag);
-        
-        double a = 4.0863;
-        PrimitiveCubic primitive = new PrimitiveCubic(space, a);
-        BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisCubicFcc());
-        
-        */
-    
-        
+         Silver silverFixed = new Silver("AgFix", Double.POSITIVE_INFINITY);
+         fixed = new SpeciesSpheresMono(this, Silver.INSTANCE);
+         movable = new SpeciesSpheresMono(this, Silver.INSTANCE);
+         getSpeciesManager().addSpecies(fixed);
+         getSpeciesManager().addSpecies(movable);
+         ((AtomTypeSphere)fixed.getLeafType()).setDiameter(2.8895);
+         ((AtomTypeSphere)movable.getLeafType()).setDiameter(2.8895);
+         potential = new PotentialMEAM(space);
+         potential.setParameters(agFix, ParameterSetMEAM.Ag);
+         potential.setParameters(ag, ParameterSetMEAM.Ag);
+         potential.setParameters(agAdatom, ParameterSetMEAM.Ag);
+         potential.setParameters(movable, ParameterSetMEAM.Ag);
+
+         double a = 4.0863;
+         PrimitiveCubic primitive = new PrimitiveCubic(space, a);
+         BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisCubicFcc());
+
+         */
+
+
         //Cu
         /**
-        //Copper copperFixed = new Copper("CuFix", Double.POSITIVE_INFINITY);
-        fixed = new SpeciesSpheresMono(this, space, Copper.INSTANCE);
-        movable = new SpeciesSpheresMono(this, space, Copper.INSTANCE);
-        dimer = new SpeciesSpheresMono(this, space, Copper.INSTANCE);
-        getSpeciesManager().addSpecies(fixed);
-        getSpeciesManager().addSpecies(movable);
-        getSpeciesManager().addSpecies(dimer);
-        ((AtomTypeSphere)fixed.getLeafType()).setDiameter(2.5561); 
-        ((AtomTypeSphere)dimer.getLeafType()).setDiameter(2.5561); 
-        ((AtomTypeSphere)movable.getLeafType()).setDiameter(2.5561);
-        potential = new PotentialMEAM(space);
-        potential.setParameters(fixed.getLeafType(), ParameterSetMEAM.Cu);
-        potential.setParameters(movable.getLeafType(), ParameterSetMEAM.Cu);
-        potential.setParameters(dimer.getLeafType(), ParameterSetMEAM.Cu);
-        
-        double a = 3.6148;
-        PrimitiveCubic primitive = new PrimitiveCubic(space, a);
-        BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisCubicFcc());
-        */
-        
+         //Copper copperFixed = new Copper("CuFix", Double.POSITIVE_INFINITY);
+         fixed = new SpeciesSpheresMono(this, space, Copper.INSTANCE);
+         movable = new SpeciesSpheresMono(this, space, Copper.INSTANCE);
+         dimer = new SpeciesSpheresMono(this, space, Copper.INSTANCE);
+         getSpeciesManager().addSpecies(fixed);
+         getSpeciesManager().addSpecies(movable);
+         getSpeciesManager().addSpecies(dimer);
+         ((AtomTypeSphere)fixed.getLeafType()).setDiameter(2.5561);
+         ((AtomTypeSphere)dimer.getLeafType()).setDiameter(2.5561);
+         ((AtomTypeSphere)movable.getLeafType()).setDiameter(2.5561);
+         potential = new PotentialMEAM(space);
+         potential.setParameters(fixed.getLeafType(), ParameterSetMEAM.Cu);
+         potential.setParameters(movable.getLeafType(), ParameterSetMEAM.Cu);
+         potential.setParameters(dimer.getLeafType(), ParameterSetMEAM.Cu);
+
+         double a = 3.6148;
+         PrimitiveCubic primitive = new PrimitiveCubic(space, a);
+         BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisCubicFcc());
+         */
+
         Configuration config = new ConfigurationLattice(crystal, space);
         config.initializeCoordinates(box);
 
         this.potentialMasterD.addPotential(potential, new AtomType[]{movable.getLeafType(), potentialSpecies.getLeafType()});
-        potentialMasterD.setSpecies(new ISpecies []{potentialSpecies, movable});
-        potentialMasterD.setRange(potential.getRange()*1.1);
-        CriterionSimple criteria2 = new CriterionSimple(this, space, potential.getRange(), potential.getRange()*1.1);
+        potentialMasterD.setSpecies(new ISpecies[]{potentialSpecies, movable});
+        potentialMasterD.setRange(potential.getRange() * 1.1);
+        CriterionSimple criteria2 = new CriterionSimple(this, space, potential.getRange(), potential.getRange() * 1.1);
         potentialMasterD.setCriterion(potential, new CriterionTypesCombination(criteria2, new AtomType[]{movable.getLeafType(), potentialSpecies.getLeafType()}));
-        
-    //ADATOM CREATION AND PLACEMENT
+
+        //ADATOM CREATION AND PLACEMENT
         // Sn
-        
+
         IMolecule iMolecule = movable.makeMolecule();
         box.addMolecule(iMolecule);
         adAtomPos = iMolecule.getChildList().getAtom(0).getPosition();
@@ -175,25 +173,25 @@ public class SimKMCMEAMadatom extends Simulation{
         adAtomPos.setX(2, -1.0);
         Vector newBoxLength = space.makeVector();
         newBoxLength.E(box.getBoundary().getBoxSize());
-        newBoxLength.setX(0, 2.0*adAtomPos.getX(0)+2.0);
+        newBoxLength.setX(0, 2.0 * adAtomPos.getX(0) + 2.0);
         box.getBoundary().setBoxSize(newBoxLength);
-        
+
         /**
-        //Ag
-        IAtom iAtom = agAdatom.getMoleculeFactory().makeAtom();
-        box.getAgent(agAdatom).addChildAtom(iAtom);
-        iAtom).getPosition().setX(0, 7.5);
-        iAtom).getPosition().setX(1, 0.9477016722828758);
-        iAtom).getPosition().setX(2, 1.0709520701043456);
-        */
+         //Ag
+         IAtom iAtom = agAdatom.getMoleculeFactory().makeAtom();
+         box.getAgent(agAdatom).addChildAtom(iAtom);
+         iAtom).getPosition().setX(0, 7.5);
+         iAtom).getPosition().setX(1, 0.9477016722828758);
+         iAtom).getPosition().setX(2, 1.0709520701043456);
+         */
         /**
-        //Cu
-        IAtom iAtom = cuAdatom.getMoleculeFactory().makeAtom();
-        box.getAgent(cuAdatom).addChildAtom(iAtom);
-        iAtom).getPosition().setX(0, 6.0);
-        iAtom).getPosition().setX(1, 0.9477016722828758);
-        iAtom).getPosition().setX(2, 1.0709520701043456);
-        */
+         //Cu
+         IAtom iAtom = cuAdatom.getMoleculeFactory().makeAtom();
+         box.getAgent(cuAdatom).addChildAtom(iAtom);
+         iAtom).getPosition().setX(0, 6.0);
+         iAtom).getPosition().setX(1, 0.9477016722828758);
+         iAtom).getPosition().setX(2, 1.0709520701043456);
+         */
     }
 
     public static void main(String[] args) {

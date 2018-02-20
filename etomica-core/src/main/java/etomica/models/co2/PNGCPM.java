@@ -226,7 +226,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         Simulation sim = new Simulation(space);
         SpeciesWater4PCOM speciesWaterCOM = new SpeciesWater4PCOM(space);
         sim.addSpecies(speciesWaterCOM);
-        Box box = new etomica.box.Box(space);
+        Box box = new Box(space);
         sim.addBox(box);
         box.setNMolecules(speciesWaterCOM, 3);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{100, 100, 100}));
@@ -256,8 +256,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         sim = new Simulation(space);
         SpeciesWater4P speciesWater = new SpeciesWater4P(space);
         sim.addSpecies(speciesWater);
-        box = new etomica.box.Box(space);
-        sim.addBox(box);
+        box = sim.makeBox();
         box.setNMolecules(speciesWater, 3);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{100, 100, 100}));
         mol0 = box.getMoleculeList().getMolecule(0);

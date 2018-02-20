@@ -100,7 +100,7 @@ public class ZeoliteSimulation extends Simulation {
         potentialMaster.setRange(3.214 * neighborRangeFac * 2.5);
 
 
-        box = new Box(space);
+        box = this.makeBox();
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(10);
@@ -111,7 +111,6 @@ public class ZeoliteSimulation extends Simulation {
         activityIntegrate = new ActivityIntegrate(integrator, 2, true);
         activityIntegrate.setMaxSteps(500);
         getController().addAction(activityIntegrate);
-        addBox(box);
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         species = new SpeciesSpheresMono[numAtoms.length];
         for (int i = 0; i < numAtoms.length; i++) {

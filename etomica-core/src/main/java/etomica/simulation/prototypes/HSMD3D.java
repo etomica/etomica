@@ -75,8 +75,7 @@ public class HSMD3D extends Simulation {
     public HSMD3D(HSMD3DParam params) {
 
         super(Space3D.getInstance());
-        box = new Box(space);
-        addBox(box);
+        box = this.makeBox();
 
         double neighborRangeFac = 1.6;
         double sigma = 1.0;

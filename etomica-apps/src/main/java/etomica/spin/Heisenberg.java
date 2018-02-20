@@ -53,8 +53,7 @@ public class Heisenberg extends Simulation {
     public Heisenberg(Space _space, int nCells) {
         super(_space);
         potentialMaster = new PotentialMasterSite(this, nCells, space);
-        box = new Box(space);
-        addBox(box);
+        box = this.makeBox();
         int numAtoms = space.powerD(nCells);
         spins = new SpeciesSpheresMono(this, space);
         addSpecies(spins);

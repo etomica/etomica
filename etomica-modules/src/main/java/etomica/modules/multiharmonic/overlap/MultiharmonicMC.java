@@ -43,12 +43,10 @@ public class MultiharmonicMC extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
-        boxA = new Box(new BoundaryRectangularNonperiodic(space), space);
-        addBox(boxA);
+        boxA = this.makeBox(new BoundaryRectangularNonperiodic(space));
         boxA.getBoundary().setBoxSize(new Vector1D(3.0));
         boxA.setNMolecules(species, 10);
-        boxB = new Box(new BoundaryRectangularNonperiodic(space), space);
-        addBox(boxB);
+        boxB = this.makeBox(new BoundaryRectangularNonperiodic(space));
         boxB.getBoundary().setBoxSize(new Vector1D(3.0));
         boxB.setNMolecules(species, 10);
 

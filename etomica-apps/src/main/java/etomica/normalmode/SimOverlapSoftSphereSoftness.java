@@ -83,8 +83,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
         addSpecies(species);
 
         // TARGET
-        boxTarg = new Box(space);
-        addBox(boxTarg);
+        boxTarg = this.makeBox();
         boxTarg.setNMolecules(species, numAtoms);
 
         IntegratorMC integratorTarg = new IntegratorMC(potentialMasterTarg, getRandom(), temperature, boxTarg);
@@ -158,8 +157,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
 
         // Reference System
         boundaryRef = new BoundaryRectangularPeriodic(space);
-        boxRef = new Box(boundaryRef, space);
-        addBox(boxRef);
+        boxRef = this.makeBox(boundaryRef);
         boxRef.setNMolecules(species, numAtoms);
 
         IntegratorMC integratorRef = new IntegratorMC(potentialMasterRef, getRandom(), temperature, boxRef);

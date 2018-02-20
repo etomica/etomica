@@ -39,7 +39,7 @@ public class LJMD2D extends Simulation {
     public LJMD2D() {
         super(Space2D.getInstance());
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
-        box = new Box(space);
+        box = this.makeBox();
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setTimeStep(0.01);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
@@ -48,7 +48,6 @@ public class LJMD2D extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
         addSpecies(species);
-        addBox(box);
         box.setNMolecules(species, 50);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
         potential = new P2LennardJones(space);

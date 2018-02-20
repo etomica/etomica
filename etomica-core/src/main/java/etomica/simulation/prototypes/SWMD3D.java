@@ -42,7 +42,7 @@ public class SWMD3D extends Simulation {
         super(Space3D.getInstance());
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 2.5, space);
 
-        box = new Box(space);
+        box = this.makeBox();
         integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setTimeStep(0.01);
         integrator.setIsothermal(true);
@@ -50,7 +50,6 @@ public class SWMD3D extends Simulation {
         double lambda = 2;
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
-        addBox(box);
         potential = new P2SquareWell(space);
         potential.setLambda(lambda);
 

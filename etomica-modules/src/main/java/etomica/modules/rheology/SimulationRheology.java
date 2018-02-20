@@ -29,11 +29,10 @@ public class SimulationRheology extends Simulation {
     
     public SimulationRheology(Space space) {
         super(space);
-        box = new Box(new BoundaryRectangularNonperiodic(space), space);
+        box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         Vector d = space.makeVector();
         d.E(20);
         box.getBoundary().setBoxSize(d);
-        addBox(box);
         species = new SpeciesSpheres(this, space, 2);
         species.setIsDynamic(true);
         addSpecies(species);

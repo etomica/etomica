@@ -43,7 +43,7 @@ public class Insertion extends Simulation {
         double lambda = 1.5;
 
         //controller and integrator
-        box = new Box(space);
+        box = this.makeBox();
         integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setTimeStep(1.0);
         integrator.setTemperature(1.0);
@@ -74,7 +74,6 @@ public class Insertion extends Simulation {
         potentialMaster.addPotential(potentialGhost, new AtomType[]{species.getLeafType(), speciesGhost.getLeafType()});
 
         //construct box
-        addBox(box);
         Vector dim = space.makeVector();
         dim.E(space.D() == 3 ? 8 : 13.5);
         box.getBoundary().setBoxSize(dim);

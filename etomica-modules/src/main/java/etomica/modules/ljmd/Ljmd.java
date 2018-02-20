@@ -37,7 +37,7 @@ public class Ljmd extends Simulation {
         int N = 182;  //number of atoms
 
         //controller and integrator
-        box = new Box(space);
+        box = this.makeBox();
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setIsothermal(false);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
@@ -58,7 +58,6 @@ public class Ljmd extends Simulation {
         potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
         //construct box
-        addBox(box);
         Vector dim = space.makeVector();
         dim.E(15);
         box.getBoundary().setBoxSize(dim);

@@ -36,8 +36,7 @@ public class Mu extends Simulation {
     
     public Mu(Space _space) {
         super(_space);
-        box = new Box(new BoundaryRectangularSlit(0, space), space);
-        addBox(box);
+        box = this.makeBox(new BoundaryRectangularSlit(0, space));
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 4, space); //List(this, 2.0);
 
         int N = 300;  //number of atoms

@@ -77,8 +77,7 @@ public class SimOverlap extends Simulation {
 
         // TARGET
         potentialMasterTarget = new PotentialMasterList(this, space);
-        boxTarget = new Box(space);
-        addBox(boxTarget);
+        boxTarget = this.makeBox();
         boxTarget.setNMolecules(species, numAtoms);
 
         integratorTarget = new IntegratorHard(this, potentialMasterTarget, boxTarget);
@@ -147,8 +146,7 @@ public class SimOverlap extends Simulation {
             int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
             boundaryHarmonic = new BoundaryRectangularPeriodic(space, n * L);
         }
-        boxHarmonic = new Box(boundaryHarmonic, space);
-        addBox(boxHarmonic);
+        boxHarmonic = this.makeBox(boundaryHarmonic);
         boxHarmonic.setNMolecules(species, numAtoms);
 
         IntegratorMC integratorHarmonic = new IntegratorMC(null, random, 1.0, boxHarmonic);

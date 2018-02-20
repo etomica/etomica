@@ -63,8 +63,7 @@ public class SimLJHTTISuper extends Simulation {
         addSpecies(species);
 
         // TARGET
-        box = new Box(space);
-        addBox(box);
+        box = this.makeBox();
         box.setNMolecules(species, numAtoms);
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);

@@ -296,18 +296,15 @@ public class LatticeEditor {
     }
 
     protected void changeBox() {
-    	
-    	Box oldBox = box;
-        double[]  boxSize = new double[] { 10.0, 10.0, 10.0 };
 
-    	box = new Box(new BoundaryDeformableLattice
-    			                             (currentLattice.getPrimitive(),
-    			    		                  boxSize), space);
-    	if(oldBox != null) {
-    	    viewer.sim.removeBox(oldBox);
-    	}
-    	viewer.sim.addBox(box);
-    	viewer.displayBox.setBox(box);
+        Box oldBox = box;
+        double[] boxSize = new double[]{10.0, 10.0, 10.0};
+        if (oldBox != null) {
+            viewer.sim.removeBox(oldBox);
+        }
+
+        box = viewer.sim.makeBox(new BoundaryDeformableLattice(currentLattice.getPrimitive(), boxSize));
+        viewer.displayBox.setBox(box);
     }
 
     public JPanel getPanel() {return panel;}

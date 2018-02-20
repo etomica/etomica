@@ -67,8 +67,7 @@ public class CH4NVT extends Simulation {
         //setRandom(new RandomNumberGenerator(1));
         speciesCH4 = new SpeciesMethane(space);
         addSpecies(speciesCH4);
-        box = new Box(space);
-        addBox(box);
+        box = this.makeBox();
         box.setNMolecules(speciesCH4, numberMolecules);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{boxSize, boxSize, boxSize}));
         potentialMaster = new PotentialMaster();

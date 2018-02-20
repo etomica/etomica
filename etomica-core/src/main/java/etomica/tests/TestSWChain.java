@@ -59,7 +59,7 @@ public class TestSWChain extends Simulation {
 
         // makes eta = 0.35
         double l = 14.4094 * Math.pow((numAtoms / 2000.0), 1.0 / 3.0);
-        box = new Box(space);
+        box = this.makeBox();
         integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setTimeStep(timeStep);
         integrator.setIsothermal(true);
@@ -87,7 +87,6 @@ public class TestSWChain extends Simulation {
         CriterionBondedSimple nonBondedCriterion = new CriterionBondedSimple(new CriterionAll());
         nonBondedCriterion.setBonded(false);
         sqwCriterion.setIntraMolecularCriterion(nonBondedCriterion);
-        addBox(box);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{l, l, l}));
         box.setNMolecules(species, numMolecules);
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));

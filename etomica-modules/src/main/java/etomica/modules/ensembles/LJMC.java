@@ -42,7 +42,7 @@ public class LJMC extends Simulation {
         int N = 200;  //number of atoms
 
         //controller and integrator
-        box = new Box(space);
+        box = this.makeBox();
         integrator = new IntegratorMC(potentialMaster, random, 1.0, box);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
@@ -58,7 +58,6 @@ public class LJMC extends Simulation {
         potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
         //construct box
-        addBox(box);
         Vector dim = space.makeVector();
         dim.E(space.D() == 2 ? 15 : 10);
         box.getBoundary().setBoxSize(dim);

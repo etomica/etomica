@@ -55,15 +55,14 @@ public class MinimizeHCP extends Simulation {
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
-        box = new Box(space);
-        addBox(box);
+        box = this.makeBox();
         box.setNMolecules(species, numAtoms);
 
         setC(initC, density);
 
-        if(exponent ==6){
-        	System.out.println("set rc");
-        	rc = box.getBoundary().getBoxSize().getX(0)*0.495;
+        if (exponent == 6) {
+            System.out.println("set rc");
+            rc = box.getBoundary().getBoxSize().getX(0) * 0.495;
         }
 
         BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, space);
@@ -79,13 +78,13 @@ public class MinimizeHCP extends Simulation {
         potentialMaster.lrcMaster().setEnabled(false);
 
 
-        ((PotentialMasterList)potentialMaster).setRange(rc);
+        ((PotentialMasterList) potentialMaster).setRange(rc);
         // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-        ((PotentialMasterList)potentialMaster).getNeighborManager(box).reset();
+        ((PotentialMasterList) potentialMaster).getNeighborManager(box).reset();
 
         // extend potential range, so that atoms that move outside the truncation range will still interact
         // atoms that move in will not interact since they won't be neighbors
-        ((P2SoftSphericalTruncated)potential).setTruncationRadius(0.6*box.getBoundary().getBoxSize().getX(0));
+        ((P2SoftSphericalTruncated) potential).setTruncationRadius(0.6 * box.getBoundary().getBoxSize().getX(0));
     }
 
     /**

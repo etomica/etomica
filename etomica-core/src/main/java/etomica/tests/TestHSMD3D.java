@@ -42,7 +42,7 @@ public class TestHSMD3D extends Simulation {
         double l = 14.4573 * Math.pow((numAtoms / 2000.0), 1.0 / 3.0);
         potentialMaster.setCellRange(1);
         potentialMaster.setRange(neighborRangeFac * sigma);
-        box = new Box(space);
+        box = makeBox();
         integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setTimeStep(0.01);
         integrator.setIsothermal(true);
@@ -67,7 +67,6 @@ public class TestHSMD3D extends Simulation {
         potentialMaster.addPotential(new P2HardSphere(space, sigma, false), new AtomType[]{type1, type2});
 
         potentialMaster.addPotential(new P2HardSphere(space, sigma, false), new AtomType[]{type2, type2});
-        addBox(box);
         box.setNMolecules(species, numAtoms);
         box.setNMolecules(species2, numAtoms / 100);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{l, l, l}));
@@ -104,7 +103,7 @@ public class TestHSMD3D extends Simulation {
     }
 
     public static class SimParams extends ParameterBase {
-        public int numAtoms = 500;
+        public int numAtoms = 32000;
         public int numSteps = 20000000;
     }
 }

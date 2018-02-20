@@ -64,8 +64,7 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource<IAtom
         integratorHard.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integratorHard.setThermostatInterval(1);
 
-        box = new Box(new BoundaryRectangularPeriodic(space, space.D() == 2 ? 60 : 20), space);
-        addBox(box);
+        box = this.makeBox(new BoundaryRectangularPeriodic(space, space.D() == 2 ? 60 : 20));
         integratorHard.getEventManager().addListener(((PotentialMasterList) potentialMaster).getNeighborManager(box));
 
         speciesA = new SpeciesSpheresMono(this, space);

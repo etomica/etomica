@@ -77,8 +77,7 @@ public class TestHexaneHarmonic extends Simulation {
         addSpecies(species);
         int[] nCells = new int[]{4, 6, 6};
         bdry = new BoundaryDeformableLattice(primitive, nCells);
-        box = new Box(bdry, space);
-        addBox(box);
+        box = this.makeBox(bdry);
         box.setNMolecules(species, numMolecules);
 //        config.initializeCoordinates(box);
 

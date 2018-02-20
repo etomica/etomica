@@ -28,8 +28,7 @@ public class MeterRMSDTest {
     public void setUp() throws Exception {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        box = new Box(space);
-        sim.addBox(box);
+        box = sim.makeBox();
         Vector L = space.makeVector();
         L.E(10);
         box.getBoundary().setBoxSize(L);

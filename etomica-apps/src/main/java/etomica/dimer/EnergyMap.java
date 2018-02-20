@@ -87,8 +87,7 @@ public class EnergyMap extends Simulation{
 
          */
 
-        box = new Box(new BoundaryRectangularSlit(0, 5, space), space);
-        addBox(box);
+        box = this.makeBox(new BoundaryRectangularSlit(0, 5, space));
 
         // Sn
         box.setNMolecules(snFix, 72);
