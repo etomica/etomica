@@ -50,7 +50,7 @@ public class BoundaryRectangularPeriodic extends BoundaryRectangular {
     }
     
     public void nearestImage(Vector dr) {
-        dr.nearestImage(dimensions, dimensionsHalf);
+        dr.nearestImage(dimensions);
     }
 
     public Vector centralImage(Vector r) {

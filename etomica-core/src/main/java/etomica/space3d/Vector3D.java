@@ -241,21 +241,23 @@ public final class Vector3D implements Vector, java.io.Serializable {
     }
 
     @Override
-    public void nearestImage(Vector dimensions, Vector dimensionsHalf) {
-        Vector3D dimensionsHalf3D = ((Vector3D) dimensionsHalf);
+    public void nearestImage(Vector dimensions) {
         Vector3D dimensions3D = ((Vector3D) dimensions);
+        final double halfX = dimensions3D.x / 2;
+        final double halfY = dimensions3D.y / 2;
+        final double halfZ = dimensions3D.z / 2;
 
-        while (x > dimensionsHalf3D.x)
+        while (x > halfX)
             x -= dimensions3D.x;
-        while (x < -dimensionsHalf3D.x)
+        while (x < -halfX)
             x += dimensions3D.x;
-        while (y > dimensionsHalf3D.y)
+        while (y > halfY)
             y -= dimensions3D.y;
-        while (y < -dimensionsHalf3D.y)
+        while (y < -halfY)
             y += dimensions3D.y;
-        while (z > dimensionsHalf3D.z)
+        while (z > halfZ)
             z -= dimensions3D.z;
-        while (z < -dimensionsHalf3D.z)
+        while (z < -halfZ)
             z += dimensions3D.z;
     }
 
