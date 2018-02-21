@@ -31,7 +31,7 @@ public class BenchSimLJMC3D {
     public void setUp() {
 
         Configuration config = new ConfigurationResourceFile(
-                String.format("tests/LJMC3D%d.pos", numMolecules),
+                String.format("LJMC3D%d.pos", numMolecules),
                 TestLJMC3D.class
         );
 

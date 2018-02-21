@@ -39,7 +39,7 @@ public class BenchSimSWChain {
     public void setUp() {
         double simTime = numSteps / numMolecules;
         Configuration config = new ConfigurationResourceFile(
-                String.format("tests/SWChain%d.pos", numMolecules),
+                String.format("SWChain%d.pos", numMolecules),
                 TestSWChain.class
         );
 

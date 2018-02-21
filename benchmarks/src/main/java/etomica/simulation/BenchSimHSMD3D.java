@@ -31,7 +31,7 @@ public class BenchSimHSMD3D {
     public void setUp() {
 
         Configuration config = new ConfigurationResourceFile(
-                String.format("tests/HSMD3D%d.pos", numMolecules),
+                String.format("HSMD3D%d.pos", numMolecules),
                 TestHSMD3D.class
         );
 

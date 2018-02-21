@@ -87,7 +87,7 @@ public class EwaldSummationTest {
         es.setAlpha(5.6 / boxlength);
 
         Configuration config = new ConfigurationResourceFile(
-                String.format("etomica/potential/spce" + String.valueOf(filenum) + ".pos"),
+                String.format("spce%d.pos", filenum),
                 EwaldSummationTest.class
         );
 
