@@ -197,15 +197,14 @@ public final class VectorND implements Vector, java.io.Serializable {
     }
 
     @Override
-    public void nearestImage(Vector dimensions, Vector dimensionsHalf) {
-        VectorND dimensionsHalf1D = ((VectorND) dimensionsHalf);
-        VectorND dimensions1D = ((VectorND) dimensions);
+    public void nearestImage(Vector dimensions) {
+        VectorND dimensionsND = ((VectorND) dimensions);
 
         for (int i = 0; i < x.length; i++) {
-            while (x[i] > dimensionsHalf1D.x[i])
-                x[i] -= dimensions1D.x[i];
-            while (x[i] < -dimensionsHalf1D.x[i])
-                x[i] += dimensions1D.x[i];
+            while (x[i] > dimensionsND.x[i] / 2)
+                x[i] -= dimensionsND.x[i];
+            while (x[i] < -dimensionsND.x[i] / 2)
+                x[i] += dimensionsND.x[i];
         }
     }
 

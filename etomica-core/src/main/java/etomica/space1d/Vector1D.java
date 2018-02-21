@@ -130,13 +130,13 @@ public final class Vector1D implements Vector, java.io.Serializable {
     }
 
     @Override
-    public void nearestImage(Vector dimensions, Vector dimensionsHalf) {
-        Vector1D dimensionsHalf1D = ((Vector1D) dimensionsHalf);
+    public void nearestImage(Vector dimensions) {
         Vector1D dimensions1D = ((Vector1D) dimensions);
+        final double halfX = dimensions1D.x / 2;
 
-        while (x > dimensionsHalf1D.x)
+        while (x > halfX)
             x -= dimensions1D.x;
-        while (x < -dimensionsHalf1D.x)
+        while (x < -halfX)
             x += dimensions1D.x;
     }
 

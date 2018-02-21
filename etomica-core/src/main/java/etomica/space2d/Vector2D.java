@@ -204,17 +204,18 @@ public final class Vector2D implements Vector, java.io.Serializable {
     }
 
     @Override
-    public void nearestImage(Vector dimensions, Vector dimensionsHalf) {
-        Vector2D dimensionsHalf2D = ((Vector2D) dimensionsHalf);
+    public void nearestImage(Vector dimensions) {
         Vector2D dimensions2D = ((Vector2D) dimensions);
+        final double halfX = dimensions2D.x / 2;
+        final double halfY = dimensions2D.y / 2;
 
-        while (x > dimensionsHalf2D.x)
+        while (x > halfX)
             x -= dimensions2D.x;
-        while (x < -dimensionsHalf2D.x)
+        while (x < -halfX)
             x += dimensions2D.x;
-        while (y > dimensionsHalf2D.y)
+        while (y > halfY)
             y -= dimensions2D.y;
-        while (y < -dimensionsHalf2D.y)
+        while (y < -halfY)
             y += dimensions2D.y;
     }
 
