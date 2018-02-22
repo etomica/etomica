@@ -117,6 +117,7 @@ public class LJMC3D extends Simulation {
 
         sim.activityIntegrate.setMaxSteps(steps);
         sim.getIntegrator().resetStepCount();
+        sim.integrator.getMoveManager().setEquilibrating(false);
         sim.activityIntegrate.actionPerformed();
 
         long t2 = System.currentTimeMillis();
