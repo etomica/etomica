@@ -10,6 +10,7 @@ import etomica.atom.iterator.ApiBuilder;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationFile;
+import etomica.config.Configurations;
 import etomica.config.ConformationLinear;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
@@ -98,7 +99,7 @@ public class TestSWChain extends Simulation {
         ParseArgs.doParseArgs(params, args);
         int numMolecules = params.numAtoms;
         double simTime = params.numSteps/numMolecules;
-        ConfigurationFile config = new ConfigurationFile("SWChain"+Integer.toString(numMolecules));
+        Configuration config = Configurations.fromResourceFile(String.format("SWChain%d.pos", numMolecules), TestSWChain.class);
 
         Space sp = Space3D.getInstance();
         TestSWChain sim = new TestSWChain(sp, numMolecules, simTime, config);

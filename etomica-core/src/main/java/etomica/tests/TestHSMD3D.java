@@ -9,6 +9,7 @@ import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationFile;
+import etomica.config.Configurations;
 import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
 import etomica.nbr.list.PotentialMasterList;
@@ -84,7 +85,7 @@ public class TestHSMD3D extends Simulation {
         SimParams params = new SimParams();
         ParseArgs.doParseArgs(params, args);
         int numAtoms = params.numAtoms;
-        ConfigurationFile config = new ConfigurationFile("HSMD3D"+Integer.toString(numAtoms));
+        Configuration config = Configurations.fromResourceFile(String.format("HSMD3D%d.pos", numAtoms), TestHSMD3D.class);
 
         TestHSMD3D sim = new TestHSMD3D(Space3D.getInstance(), numAtoms, params.numSteps / numAtoms, config);
 

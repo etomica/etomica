@@ -11,6 +11,7 @@ import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationFile;
+import etomica.config.Configurations;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
@@ -94,7 +95,7 @@ public class TestLJGCMC3D extends Simulation {
         SimParams params = new SimParams();
         ParseArgs.doParseArgs(params, args);
         int numAtoms = params.numAtoms;
-        ConfigurationFile config = new ConfigurationFile("LJMC3D" + Integer.toString(numAtoms));
+        Configuration config = Configurations.fromResourceFile(String.format("LJMC3D%d.pos", numAtoms), TestLJGCMC3D.class);
 
         TestLJGCMC3D sim = new TestLJGCMC3D(numAtoms, params.numSteps, config);
 
