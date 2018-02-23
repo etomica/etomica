@@ -647,8 +647,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         plotT.setLegend(new DataTag[]{targetTemperatureDataSource.getTag()}, "target");
         dataStreamPumps.add(targetTemperatureDataPump);
 
-        pressureMeter = new DataSourceWallPressure(pc.getSpace(),pc.pistonPotential);
-        pressureMeter.setIntegrator(pc.integrator);
+        pressureMeter = new DataSourceWallPressure(pc.pistonPotential, pc.integrator);
         final AccumulatorHistory pressureHistory = new AccumulatorHistory();
         pressureHistory.setTimeDataSource(meterCycles);
         pressureHistory.getHistory().setHistoryLength(historyLength);

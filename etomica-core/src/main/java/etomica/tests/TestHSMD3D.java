@@ -8,7 +8,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.Configuration;
-import etomica.config.ConfigurationFile;
 import etomica.config.Configurations;
 import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
@@ -89,8 +88,7 @@ public class TestHSMD3D extends Simulation {
 
         TestHSMD3D sim = new TestHSMD3D(Space3D.getInstance(), numAtoms, params.numSteps / numAtoms, config);
 
-        MeterPressureHard pMeter = new MeterPressureHard(sim.space);
-        pMeter.setIntegrator(sim.integrator);
+        MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
 
         sim.getController().actionPerformed();
 

@@ -37,8 +37,7 @@ public class BenchSimHSMD3D {
 
         sim = new TestHSMD3D(Space3D.getInstance(), numMolecules, numSteps / numMolecules, config);
 
-        pMeter = new MeterPressureHard(sim.space);
-        pMeter.setIntegrator(sim.integrator);
+        pMeter = new MeterPressureHard(sim.integrator);
         sim.integrator.reset();
     }
 

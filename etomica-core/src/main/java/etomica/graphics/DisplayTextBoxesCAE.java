@@ -182,8 +182,7 @@ public class DisplayTextBoxesCAE extends Display implements IDataSink {
         final HSMD2D sim = new HSMD2D();
         final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
         sim.integrator.setIsothermal(true);
-        MeterPressureHard pressureMeter = new MeterPressureHard(sim.getSpace());
-        pressureMeter.setIntegrator(sim.integrator);
+        MeterPressureHard pressureMeter = new MeterPressureHard(sim.integrator);
         AccumulatorAverageCollapsing accumulator = new AccumulatorAverageCollapsing();
         DataPump dataPump = new DataPump(pressureMeter, accumulator);
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(dataPump));

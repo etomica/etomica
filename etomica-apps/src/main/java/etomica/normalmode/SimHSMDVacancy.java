@@ -245,8 +245,7 @@ public class SimHSMDVacancy extends Simulation {
         mcMoveOverlapMeter.setTemperature(1);
         sim.integratorMC.getMoveEventManager().addListener(mcMoveOverlapMeter);
 
-        final MeterPressureHard meterP = new MeterPressureHard(sim.getSpace());
-        meterP.setIntegrator(sim.integrator);
+        final MeterPressureHard meterP = new MeterPressureHard(sim.integrator);
         DataDistributer.Indexer indexer = new DataDistributer.Indexer() {
             public int getIndex() {
                 return numAtoms-sim.box.getNMolecules(sim.species);

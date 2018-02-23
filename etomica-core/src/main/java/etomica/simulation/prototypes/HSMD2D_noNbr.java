@@ -72,8 +72,7 @@ public class HSMD2D_noNbr extends Simulation {
 //        potentialBoundary.setActive(1,false,true);
         integrator.setIsothermal(true);
 
-        meterPressure = new MeterPressureHard(space);
-        meterPressure.setIntegrator(integrator);
+        meterPressure = new MeterPressureHard(integrator);
         pressureAverage = new AccumulatorAverageCollapsing();
         pressurePump = new DataPump(meterPressure, pressureAverage);
 //        IntervalActionAdapter pressureAction = new IntervalActionAdapter(pressurePump, integrator);

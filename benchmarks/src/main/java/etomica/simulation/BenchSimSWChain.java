@@ -14,7 +14,6 @@ import etomica.data.meter.MeterPressureHard;
 import etomica.space3d.Space3D;
 import etomica.tests.TestSWChain;
 import org.openjdk.jmh.annotations.*;
-import org.openjdk.jmh.profile.GCProfiler;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
@@ -45,8 +44,7 @@ public class BenchSimSWChain {
 
         sim = new TestSWChain(Space3D.getInstance(), numMolecules, simTime, config);
 
-        pMeter = new MeterPressureHard(sim.getSpace());
-        pMeter.setIntegrator(sim.integrator);
+        pMeter = new MeterPressureHard(sim.integrator);
         MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed();
         DataPumpListener energyPump = new DataPumpListener(energyMeter, energyAccumulator);

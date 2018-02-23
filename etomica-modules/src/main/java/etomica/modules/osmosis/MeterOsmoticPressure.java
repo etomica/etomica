@@ -14,13 +14,12 @@ import etomica.space.Space;
  */
 public class MeterOsmoticPressure extends MeterPressureHard {
     
-    private static final long serialVersionUID = 1L;
     private double virialSum;
     private double collisionRadius;
     private final P1HardBoundary[] boundaryPotentials;
     
-    public MeterOsmoticPressure(Space space, P1HardBoundary[] boundaryPotentials) {
-        super(space);
+    public MeterOsmoticPressure(P1HardBoundary[] boundaryPotentials, IntegratorHard integrator) {
+        super(integrator);
         this.boundaryPotentials = boundaryPotentials;
     }
 

@@ -350,8 +350,7 @@ public class SwmdGraphic extends SimulationGraphic {
 		ePlot.setUnit(eUnit);
 		ePlot.setXUnit(Picosecond.UNIT);
 		
-        MeterPressureHard pMeter = new MeterPressureHard(sim.getSpace());
-        pMeter.setIntegrator(sim.integrator);
+        MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
         final AccumulatorAverageCollapsing pAccumulator = new AccumulatorAverageCollapsing();
         final DataPumpListener pPump = new DataPumpListener(pMeter, pAccumulator);
         sim.integrator.getEventManager().addListener(pPump);

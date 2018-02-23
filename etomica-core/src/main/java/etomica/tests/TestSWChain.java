@@ -9,7 +9,6 @@ import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.box.Box;
 import etomica.config.Configuration;
-import etomica.config.ConfigurationFile;
 import etomica.config.Configurations;
 import etomica.config.ConformationLinear;
 import etomica.data.AccumulatorAverage;
@@ -104,8 +103,7 @@ public class TestSWChain extends Simulation {
         Space sp = Space3D.getInstance();
         TestSWChain sim = new TestSWChain(sp, numMolecules, simTime, config);
 
-        MeterPressureHard pMeter = new MeterPressureHard(sim.space);
-        pMeter.setIntegrator(sim.integrator);
+        MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
         MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed();
         DataPumpListener energyPump = new DataPumpListener(energyMeter, energyAccumulator);

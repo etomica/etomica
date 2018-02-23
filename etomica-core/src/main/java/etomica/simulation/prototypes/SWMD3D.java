@@ -83,8 +83,7 @@ public class SWMD3D extends Simulation {
         ColorSchemeByType colorScheme = ((ColorSchemeByType) ((DisplayBox) simGraphic.displayList().getFirst()).getColorScheme());
         colorScheme.setColor(sim.species.getLeafType(), java.awt.Color.red);
 
-        MeterPressureHard pMeter = new MeterPressureHard(sim.space);
-        pMeter.setIntegrator(sim.integrator);
+        MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
 
         DisplayTextBox pdisplay = new DisplayTextBox();
         DataPumpListener pPump = new DataPumpListener(pMeter, pdisplay, 100);
