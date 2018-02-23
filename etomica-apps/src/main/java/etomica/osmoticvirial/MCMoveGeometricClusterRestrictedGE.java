@@ -184,6 +184,14 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
         return true;
     }
 
+    /**
+     * Informs the move that p2 is the potential between type1 and type2.
+     * type1 and type2 may the same.
+     *
+     * @param type1 the first atom type
+     * @param type2 the second atom type
+     * @param p2    the potential between type1 and type2
+     */
     public void setPotential(AtomType type1, AtomType type2, IPotentialAtomic p2) {
         int iIndex = type1.getIndex();
         int jIndex = type2.getIndex();
@@ -233,9 +241,8 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
         return p.energy(atomPair);
     }
 
-
     private void gatherNeighbors(IAtom atomI, Box boxI) {
-        if (neighbors != null && (!mixedPM || atomI.getType().getIndex() == 1)) {
+        if (neighbors != null && (!mixedPM || atomI.getType().getSpecies() != solute)) {
             neighbors.setTarget(atomI);
             neighbors.setBox(boxI);
             neighbors.reset();

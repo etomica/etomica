@@ -45,7 +45,7 @@ public class PotentialMasterCellMixed extends PotentialMasterCell {
 
     public PotentialMasterCellMixed(Simulation sim, double range,
                                     BoxAgentSourceCellManager boxAgentSource, Space _space) {
-        this(sim, range, boxAgentSource, new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class), _space);
+        this(sim, range, boxAgentSource, new BoxAgentManager<>(boxAgentSource, NeighborCellManager.class), _space);
     }
 
     public PotentialMasterCellMixed(Simulation sim, double range, BoxAgentSourceCellManager boxAgentSource,
@@ -54,14 +54,29 @@ public class PotentialMasterCellMixed extends PotentialMasterCell {
         cellSpecies = new HashSet<>();
         unrangedPotentials = new HashMap<>();
         pair = new AtomPair();
-        setRange(range);
     }
 
+    /**
+     * Indicates that the given species is handled by cell lists.  The potential
+     * that applies to the species should be added via the standard
+     * addPotential method.
+     *
+     * @param species   a species that is handled by cell lists.
+     * @param isHandled Indicates that the given species is handled by cell lists.
+     */
     public void setHandledByCells(ISpecies species, boolean isHandled) {
         if (isHandled) cellSpecies.add(species);
         else if (cellSpecies.contains(species)) cellSpecies.remove(species);
     }
 
+    /**
+     * Indicatest that the given potential describes the interactions between the
+     * given atom types.
+     *
+     * @param type1 the first atom type
+     * @param type2 the second atom type
+     * @param p2 the potential
+     */
     public void addUnrangedPotential(AtomType type1, AtomType type2, IPotentialAtomic p2) {
         Map<AtomType, IPotentialAtomic> pMap = unrangedPotentials.get(type1);
         if (pMap == null) {
@@ -132,7 +147,6 @@ public class PotentialMasterCellMixed extends PotentialMasterCell {
                 IPotentialAtomic p2 = pMap.get(jAtom.getType());
                 if (p2 == null) continue;
                 pair.atom1 = jAtom;
-//                System.out.println("brute-force handling "+pair);
                 pc.doCalculation(pair, p2);
             }
         }
