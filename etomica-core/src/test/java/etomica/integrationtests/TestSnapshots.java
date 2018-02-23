@@ -32,7 +32,7 @@ public class TestSnapshots {
 
     @Test
     public void testHSMD3DNeighborListSnapshot() throws URISyntaxException, IOException {
-        String coordsStr = Files.lines(Paths.get(TestSnapshots.class.getResource("HSMD3DNeighborList_0bb95cd51.json").toURI()))
+        String coordsStr = Files.lines(Paths.get(TestSnapshots.class.getResource("HSMD3DNeighborList_021af6881.json").toURI()))
                 .findFirst().get();
 
         Simulation sim = new HSMD3DNeighborList();
