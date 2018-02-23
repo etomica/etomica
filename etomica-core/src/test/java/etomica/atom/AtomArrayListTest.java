@@ -299,7 +299,7 @@ public class AtomArrayListTest extends TestCase {
 			arrayList.add(atomList[i]);
 		}
 
-		AtomsetArray atomSet = new AtomsetArray(size);
+		AtomListFromArray atomSet = new AtomListFromArray(size);
 		for(int i = 0; i < size; i++) {
 			atomsetList[i] = new Atom(space);
 		}

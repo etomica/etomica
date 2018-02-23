@@ -90,7 +90,7 @@ public abstract class IteratorTestAbstract extends TestCase {
         int j=0;
         for (IAtomList nextAtom = iterator.next(); nextAtom != null;
                nextAtom = iterator.next()) {
-            atoms[j] = new AtomsetArray(nextAtom);
+            atoms[j] = new AtomArrayList(nextAtom);
             lister[1].actionPerformed(nextAtom);
             j++;
         }

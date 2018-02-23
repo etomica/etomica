@@ -4,7 +4,7 @@
 
 package etomica.atom.iterator;
 
-import etomica.atom.AtomsetArray;
+import etomica.atom.AtomListFromArray;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.molecule.IMoleculeList;
@@ -18,7 +18,7 @@ public class TripletInnerSequential implements AtomsetIteratorBasisDependent,
 
     public TripletInnerSequential() {
         super();
-        next = new AtomsetArray(3);
+        next = new AtomListFromArray(3);
         atomArray = next.getArray();
     }
 
@@ -168,7 +168,7 @@ public class TripletInnerSequential implements AtomsetIteratorBasisDependent,
     protected IAtomList childList;
     protected IAtom targetAtom;
     protected int cursor;
-    protected final AtomsetArray next;
+    protected final AtomListFromArray next;
     protected final IAtom[] atomArray;
     private static final long serialVersionUID = 1L;
 }
