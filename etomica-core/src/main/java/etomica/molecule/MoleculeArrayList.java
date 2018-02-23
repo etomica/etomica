@@ -24,6 +24,11 @@ public final class MoleculeArrayList extends AbstractList<IMolecule> implements 
         molecules = new IMolecule[initialSize];
     }
 
+    public MoleculeArrayList(Collection<IMolecule> collection) {
+        this(collection.size());
+        this.addAll(collection);
+    }
+
     public static float getSizeIncreaseRatio() {
         return SIZE_INCREASE_RATIO;
     }
