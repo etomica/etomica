@@ -59,9 +59,9 @@ public class P3CPSNonAdditiveHeOrig extends Potential implements PotentialSoft {
         
         IAtomList atomSet2 = atomSet;
         
-        IAtom atomA = atomSet2.getAtom(0);
-        IAtom atomB = atomSet2.getAtom(1);
-        IAtom atomC = atomSet2.getAtom(2);
+        IAtom atomA = atomSet2.get(0);
+        IAtom atomB = atomSet2.get(1);
+        IAtom atomC = atomSet2.get(2);
         
        
         drAB.Ev1Mv2(atomA.getPosition(),atomB.getPosition());

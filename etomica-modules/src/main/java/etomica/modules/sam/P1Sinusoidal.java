@@ -52,7 +52,7 @@ public class P1Sinusoidal implements IPotential, PotentialSoft {
     }
     
     public double energy(IAtomList atoms) {
-        IAtom a = atoms.getAtom(0);
+        IAtom a = atoms.get(0);
         r.Ev1Mv2(a.getPosition(), offset);
         double sum = 0;
         for (int i=0; i<3; i++) {
@@ -62,7 +62,7 @@ public class P1Sinusoidal implements IPotential, PotentialSoft {
     }
 
     public Vector[] gradient(IAtomList atoms) {
-        IAtom a = atoms.getAtom(0);
+        IAtom a = atoms.get(0);
         r.Ev1Mv2(a.getPosition(), offset);
         gradient[0].E(0);
         for (int i=0; i<3; i++) {

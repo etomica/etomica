@@ -27,7 +27,7 @@ public class MeterDensitySides extends DataSourceScalar {
         IMoleculeList moleculeList = box.getMoleculeList(species);
         int n = 0;
         for (int i=0; i<moleculeList.getMoleculeCount(); i++) {
-            Vector p = moleculeList.getMolecule(i).getChildList().getAtom(0).getPosition();
+            Vector p = moleculeList.getMolecule(i).getChildList().get(0).getPosition();
             if (p.getX(0) < 0 == ig) {
                 n++;
             }

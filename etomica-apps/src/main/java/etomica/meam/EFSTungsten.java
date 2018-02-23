@@ -318,19 +318,19 @@ public class EFSTungsten extends Simulation {
         }
 
         double PE = accumulatorAveragePE.getData(AccumulatorAverage.AVERAGE).getValue(0)
-                    /sim.box.getLeafList().getAtomCount();
+                    /sim.box.getLeafList().size();
         double PEerror = accumulatorAveragePE.getData(AccumulatorAverage.ERROR).getValue(0)
-                /sim.box.getLeafList().getAtomCount();
+                /sim.box.getLeafList().size();
         double PEcor = accumulatorAveragePE.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0)
-                /sim.box.getLeafList().getAtomCount();
+                /sim.box.getLeafList().size();
         double PV = Pascal.UNIT.toSim(0)*1e9/(Mole.UNIT.toSim(1/16.870e24));
 
         double dadb = accumulatorAverageDADB.getData(AccumulatorAverage.AVERAGE).getValue(0)
-                /sim.box.getLeafList().getAtomCount();
+                /sim.box.getLeafList().size();
         double dadbError = accumulatorAverageDADB.getData(AccumulatorAverage.ERROR).getValue(0)
-                /sim.box.getLeafList().getAtomCount();
+                /sim.box.getLeafList().size();
         double dadbCor = accumulatorAverageDADB.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0)
-                /sim.box.getLeafList().getAtomCount();
+                /sim.box.getLeafList().size();
 	
         System.out.println("PE(eV) "+ElectronVolt.UNIT.fromSim(PE)+" error: "+ElectronVolt.UNIT.fromSim(PEerror)+ " corrolation: "+PEcor);
 	//        System.out.println("PV(ev)= "+ElectronVolt.UNIT.fromSim(PV));

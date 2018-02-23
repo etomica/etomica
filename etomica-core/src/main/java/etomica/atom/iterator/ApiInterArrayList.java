@@ -51,12 +51,12 @@ public class ApiInterArrayList implements AtomLeafsetIterator, java.io.Serializa
                     "ApiInterList will not work correctly if inner and outer lists are the same instance");
         }
         outerIndex = 0;
-        if (outerList.getAtomCount() == 0) {
-            innerIndex = innerList.getAtomCount() - 1;
+        if (outerList.size() == 0) {
+            innerIndex = innerList.size() - 1;
             return;
         }
         innerIndex = -1;
-        atoms.atom0 = outerList.getAtom(outerIndex);
+        atoms.atom0 = outerList.get(outerIndex);
     }
 
     /**
@@ -72,16 +72,16 @@ public class ApiInterArrayList implements AtomLeafsetIterator, java.io.Serializa
      * iterates.
      */
     public IAtomList next() {
-        if (innerIndex > innerList.getAtomCount() - 2) {
-            if (outerIndex > outerList.getAtomCount() - 2 || innerList.getAtomCount() == 0) {
+        if (innerIndex > innerList.size() - 2) {
+            if (outerIndex > outerList.size() - 2 || innerList.size() == 0) {
                 return null;
             }
             outerIndex++;
-            atoms.atom0 = outerList.getAtom(outerIndex);
+            atoms.atom0 = outerList.get(outerIndex);
             innerIndex = -1;
         }
         innerIndex++;
-        atoms.atom1 = innerList.getAtom(innerIndex);
+        atoms.atom1 = innerList.get(innerIndex);
         return atoms;
     }
 
@@ -89,7 +89,7 @@ public class ApiInterArrayList implements AtomLeafsetIterator, java.io.Serializa
      * Returns the number of iterates, which is list.size*(list.size-1)/2
      */
     public int size() {
-        return outerList.getAtomCount() * innerList.getAtomCount();
+        return outerList.size() * innerList.size();
     }
 
     /**

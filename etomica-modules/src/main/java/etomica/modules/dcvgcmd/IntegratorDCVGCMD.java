@@ -19,7 +19,6 @@ import etomica.integrator.mcmove.MCMoveManager;
 import etomica.modifier.Modifier;
 import etomica.nbr.PotentialMasterHybrid;
 import etomica.potential.PotentialMaster;
-import etomica.space.Space;
 import etomica.species.ISpecies;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Null;
@@ -95,9 +94,9 @@ public class IntegratorDCVGCMD extends IntegratorBox {
                 integratormc.doStep();
             }
 			IAtomList allAtoms = box.getLeafList();
-			for (int i=0; i<allAtoms.getAtomCount(); i++) {
-			    if (allAtoms.getAtom(i).getPosition().getX(2) < -40) {
-			        throw new RuntimeException(i+" "+allAtoms.getAtom(i)+" "+allAtoms.getAtom(i).getPosition());
+			for (int i = 0; i<allAtoms.size(); i++) {
+			    if (allAtoms.get(i).getPosition().getX(2) < -40) {
+			        throw new RuntimeException(i+" "+allAtoms.get(i)+" "+allAtoms.get(i).getPosition());
 			    }
 			}
             potentialMasterHybrid.setUseNbrLists(true);
@@ -107,9 +106,9 @@ public class IntegratorDCVGCMD extends IntegratorBox {
             MDStepCount--;
 	 		integratormd.doStep();
             IAtomList allAtoms = box.getLeafList();
-            for (int i=0; i<allAtoms.getAtomCount(); i++) {
-                if (allAtoms.getAtom(i).getPosition().getX(2) < -40) {
-                    throw new RuntimeException(i+" "+allAtoms.getAtom(i)+" "+allAtoms.getAtom(i).getPosition());
+            for (int i = 0; i<allAtoms.size(); i++) {
+                if (allAtoms.get(i).getPosition().getX(2) < -40) {
+                    throw new RuntimeException(i+" "+allAtoms.get(i)+" "+allAtoms.get(i).getPosition());
                 }
             }
 		} 

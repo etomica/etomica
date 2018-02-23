@@ -5,10 +5,7 @@
 package etomica.math.numerical;
 
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.math.function.FunctionMultiDimensionalDifferentiable;
 import etomica.molecule.IMoleculeList;
 import etomica.nbr.list.PotentialMasterList;
@@ -72,14 +69,14 @@ public class CalcGradientDifferentiable implements FunctionMultiDimensionalDiffe
         
         for(int i=0; i<position.length/3; i++){
            for(int j=0; j<3; j++){
-        	   movableSet.getMolecule(i).getChildList().getAtom(0).getPosition().setX(j, position[(3*i)+j]);
+        	   movableSet.getMolecule(i).getChildList().get(0).getPosition().setX(j, position[(3*i)+j]);
            }
         }
         force.reset();
         potentialMaster.calculate(box, allAtoms, force);
         
         //not used
-        return atomAgent.getAgent(movableSet.getMolecule(gradDcomponent/3).getChildList().getAtom(0)).getX(gradDcomponent%3);
+        return atomAgent.getAgent(movableSet.getMolecule(gradDcomponent/3).getChildList().get(0)).getX(gradDcomponent%3);
 
     }
     
@@ -112,14 +109,14 @@ public class CalcGradientDifferentiable implements FunctionMultiDimensionalDiffe
         f(position);
         
         for(int j=0; j<forceRow.length; j++){
-            forceRow[j] = -atomAgent.getAgent(movableSet.getMolecule(j/3).getChildList().getAtom(0)).getX(j%3);
+            forceRow[j] = -atomAgent.getAgent(movableSet.getMolecule(j/3).getChildList().get(0)).getX(j%3);
         }
         
         position[elem]-=2*newH;
         f(position);
         
         for(int j=0; j<forceRow.length; j++){
-            forceRow[j] -= -atomAgent.getAgent(movableSet.getMolecule(j/3).getChildList().getAtom(0)).getX(j%3);
+            forceRow[j] -= -atomAgent.getAgent(movableSet.getMolecule(j/3).getChildList().get(0)).getX(j%3);
             forceRow[j] /= (2.0*newH);
         }
         

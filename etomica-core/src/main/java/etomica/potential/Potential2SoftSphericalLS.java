@@ -36,9 +36,9 @@ public class Potential2SoftSphericalLS extends Potential2 implements PotentialSo
 	}
         
     public double energy(IAtomList atoms) {
-    	boolean isSelf = (atoms.getAtom(1) == atoms.getAtom(0));
+    	boolean isSelf = (atoms.get(1) == atoms.get(0));
 		double u_LJ = 0;
-        dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
+        dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
         boundary.nearestImage(dr);
         for(int nx = -nShells[0]; nx <= nShells[0]; nx++) {
         	Lxyz.setX(0, nx*a0[0]);
@@ -63,7 +63,7 @@ public class Potential2SoftSphericalLS extends Potential2 implements PotentialSo
      */
     public double virial(IAtomList atoms) {
         double tmpVir = 0;
-        dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
+        dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
         boundary.nearestImage(dr);
 		for(int nx = -nShells[0]; nx <= nShells[0]; nx++) {
         	Lxyz.setX(0, nx*a0[0]);
@@ -84,8 +84,8 @@ public class Potential2SoftSphericalLS extends Potential2 implements PotentialSo
      * Gradient of the pair potential as given by the du(double) method.
      */
     public Vector[] gradient(IAtomList atoms) {
-    	boolean isSelf = (atoms.getAtom(1) == atoms.getAtom(0));
-        dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
+    	boolean isSelf = (atoms.get(1) == atoms.get(0));
+        dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
         boundary.nearestImage(dr);
         gradient[0].E(0);
         gradient[1].E(0);

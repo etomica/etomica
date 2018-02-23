@@ -126,18 +126,18 @@ public final class AtomArrayList implements IAtomList {
     }
 
     public void addAll(IAtomList atoms) {
-        if((itemsInList + atoms.getAtomCount()) > atomList.length) {
+        if((itemsInList + atoms.size()) > atomList.length) {
             atomList = Arrays.copyOf(
                     atomList,
-                    (int)((float)itemsInList * (1.0f + SIZE_INCREASE_RATIO)) + atoms.getAtomCount()
+                    (int)((float)itemsInList * (1.0f + SIZE_INCREASE_RATIO)) + atoms.size()
             );
         }
         if (atoms instanceof AtomArrayList) {
-            System.arraycopy(((AtomArrayList) atoms).atomList, 0, this.atomList, itemsInList, atoms.getAtomCount());
-            itemsInList += atoms.getAtomCount();
+            System.arraycopy(((AtomArrayList) atoms).atomList, 0, this.atomList, itemsInList, atoms.size());
+            itemsInList += atoms.size();
         } else {
-            for(int i = 0; i < atoms.getAtomCount(); i++) {
-                atomList[itemsInList] = atoms.getAtom(i);
+            for(int i = 0; i < atoms.size(); i++) {
+                atomList[itemsInList] = atoms.get(i);
                 itemsInList++;
             }
         }
@@ -186,11 +186,11 @@ public final class AtomArrayList implements IAtomList {
         return atom;
     }
 
-    public int getAtomCount() {
+    public int size() {
         return itemsInList;
     }
     
-    public IAtom getAtom(int index) {
+    public IAtom get(int index) {
         if (Debug.ON && (index < 0 || index >= itemsInList)) {
             throw new IndexOutOfBoundsException("AtomLeafArrayList.remove invalid index");
         }

@@ -253,8 +253,8 @@ public class ConfigurationClusterAceticAcid extends ConfigurationCluster {
 
 	         r0.E(positionDefinition.position(pair.atom1));
 	         IAtomList childList = pair.atom1.getChildList();
-	         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {//free rotation until finding association
-	        	 IAtom a = childList.getAtom(iChild);
+	         for (int iChild = 0; iChild<childList.size(); iChild++) {//free rotation until finding association
+	        	 IAtom a = childList.get(iChild);
 	        	 Vector r = a.getPosition();
 	        	 r.ME(r0);
 	        	 box.getBoundary().nearestImage(r);

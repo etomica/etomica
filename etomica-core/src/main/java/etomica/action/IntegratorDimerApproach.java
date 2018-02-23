@@ -11,7 +11,6 @@ import etomica.integrator.IntegratorBox;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialMaster;
-import etomica.space.Space;
 import etomica.space.Vector;
 
 /*
@@ -236,14 +235,14 @@ public class IntegratorDimerApproach extends IntegratorBox {
 		atomSetA = monomerA.getChildList();
 	    atomSetB = monomerB.getChildList();
 	    
-	    atom_O_A  = atomSetA.getAtom(0);
-	    atom_aC_A = atomSetA.getAtom(1);
-	    atom_aH_A = atomSetA.getAtom(2);
-	    atom_H1_A = atomSetA.getAtom(4);
+	    atom_O_A  = atomSetA.get(0);
+	    atom_aC_A = atomSetA.get(1);
+	    atom_aH_A = atomSetA.get(2);
+	    atom_H1_A = atomSetA.get(4);
 	    
-	    atom_O_B  = atomSetB.getAtom(0);
-	    atom_aC_B = atomSetB.getAtom(1);
-	    atom_aH_B = atomSetB.getAtom(2);
+	    atom_O_B  = atomSetB.get(0);
+	    atom_aC_B = atomSetB.get(1);
+	    atom_aH_B = atomSetB.get(2);
 	    
 	}
 	

@@ -81,11 +81,11 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
 
         // Long rotational axis of atom 1
         Vector leafPos1 =  molecule
-                .getChildList().getAtom(0).getPosition();
+                .getChildList().get(0).getPosition();
         Vector leafPos2 =  molecule
-                .getChildList().getAtom(1).getPosition();
+                .getChildList().get(1).getPosition();
         Vector leafPos3 =  molecule
-                .getChildList().getAtom(2).getPosition();
+                .getChildList().get(2).getPosition();
         axis0prime.Ev1Mv2(leafPos3, leafPos1);
         // axis0Prime goes from the 1st atom on the molecule to the 3rd atom on
         // the molecule
@@ -193,17 +193,17 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         //Calculate the torsional angles
       for (int i = 0; i < 6 - 3; i++) {
           vex.E(molecule
-                  .getChildList().getAtom(i).getPosition());
+                  .getChildList().get(i).getPosition());
           vex.ME(molecule
-                  .getChildList().getAtom(i+1).getPosition());
+                  .getChildList().get(i+1).getPosition());
           temp.E(molecule
-                  .getChildList().getAtom(i+3).getPosition());        
+                  .getChildList().get(i+3).getPosition());
           temp.ME(molecule
-                  .getChildList().getAtom(i+2).getPosition());        
+                  .getChildList().get(i+2).getPosition());
           axial.E(molecule
-                  .getChildList().getAtom(i+2).getPosition());
+                  .getChildList().get(i+2).getPosition());
           axial.ME(molecule
-                  .getChildList().getAtom(i+1).getPosition());
+                  .getChildList().get(i+1).getPosition());
                       
           // Project each vector onto the axial vector, and subtract the
           // axial portion from the result, leaving the radial portion
@@ -261,11 +261,11 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         
         // Long rotational axis of atom 0
         Vector leafPos1 = molecule
-                .getChildList().getAtom(0).getPosition();
+                .getChildList().get(0).getPosition();
         Vector leafPos2 = molecule
-                .getChildList().getAtom(1).getPosition();
+                .getChildList().get(1).getPosition();
         Vector leafPos3 = molecule
-                .getChildList().getAtom(2).getPosition();
+                .getChildList().get(2).getPosition();
         // axes[0] should point from the 0th atom on the molecule to the 2nd
         // atom on the molecule
         axes[0].Ev1Mv2(leafPos3, leafPos1);
@@ -322,8 +322,8 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         
         //now we rotate everything about the axis.
         for(int i = 1; i < 6; i++){
-            temp.E(childlist.getAtom(i).getPosition());
-            temp.ME(childlist.getAtom(i-1).getPosition());
+            temp.E(childlist.get(i).getPosition());
+            temp.ME(childlist.get(i-1).getPosition());
             rotor.transform(temp);
         }
         
@@ -373,8 +373,8 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         });
         
         for(int i = 1; i < 6; i++){
-             temp.E(childlist.getAtom(i).getPosition());
-             temp.ME(childlist.getAtom(i-1).getPosition());
+             temp.E(childlist.get(i).getPosition());
+             temp.ME(childlist.get(i-1).getPosition());
              rotor.transform(temp);
         }
         
@@ -386,10 +386,10 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
             // get a normal vector to the a-b vector and the b-c vector
             // This vector is, by definition, perpendicular to the a-b vector, which
             // makes it a radius of a circle centered on that axis.
-            vex.E(childlist.getAtom(i+2).getPosition());
-            vex.ME(childlist.getAtom(i+1).getPosition());
-            temp.E(childlist.getAtom(i+1).getPosition());
-            temp.ME(childlist.getAtom(i).getPosition());
+            vex.E(childlist.get(i+2).getPosition());
+            vex.ME(childlist.get(i+1).getPosition());
+            temp.E(childlist.get(i+1).getPosition());
+            temp.ME(childlist.get(i).getPosition());
 
             // Create the rotation matrix for an arbitrary unit vector
             vex.normalize();
@@ -412,8 +412,8 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
             temp.normalize();
             temp.TE(length);
 
-            childlist.getAtom(i+3).getPosition().E(temp);
-            childlist.getAtom(i+3).getPosition().PE(childlist.getAtom(i+2).getPosition());
+            childlist.get(i+3).getPosition().E(temp);
+            childlist.get(i+3).getPosition().PE(childlist.get(i+2).getPosition());
         }
         //Translate the molecule to its proper place.
         //Uses center of mass/ geometric center.

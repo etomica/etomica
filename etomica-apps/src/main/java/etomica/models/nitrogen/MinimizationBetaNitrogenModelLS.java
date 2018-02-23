@@ -388,7 +388,7 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
 	                translator.actionPerformed(iMol);
 	                
 	                if (orient0[i].isZero()) {
-                        orient0[i].E(iMol.getChildList().getAtom(0).getPosition());
+                        orient0[i].E(iMol.getChildList().get(0).getPosition());
                         orient0[i].ME(pos.position(iMol));
                         orient0[i].normalize();
                     }
@@ -427,7 +427,7 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
                 disp += dx*dx;
             }
             
-            orientf[i].E(iMol.getChildList().getAtom(0).getPosition());
+            orientf[i].E(iMol.getChildList().get(0).getPosition());
             orientf[i].ME(pos.position(iMol));
             orientf[i].normalize();
             angleDisp += orientf[i].Mv1Squared(orient0[i]);
@@ -499,8 +499,8 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
     protected static void doTransform(IMolecule molecule, IMoleculePositionDefinition posDef, Tensor rotationTensor) {
         IAtomList childList = molecule.getChildList();
         Vector com = posDef.position(molecule);
-        for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
-            IAtom a = childList.getAtom(iChild);
+        for (int iChild = 0; iChild<childList.size(); iChild++) {
+            IAtom a = childList.get(iChild);
             Vector r = a.getPosition();
             r.ME(com);
             rotationTensor.transform(r);

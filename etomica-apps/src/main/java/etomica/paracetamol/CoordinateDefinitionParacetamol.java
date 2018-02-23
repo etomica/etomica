@@ -244,9 +244,9 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	    	 * Determine the Orientation of Each Molecule
 	    	 */
 	    	
-	    	Vector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-	    	Vector leafPos5 = molecule.getChildList().getAtom(5).getPosition();
-	    	Vector leafPos10 = molecule.getChildList().getAtom(10).getPosition();
+	    	Vector leafPos0 = molecule.getChildList().get(0).getPosition();
+	    	Vector leafPos5 = molecule.getChildList().get(5).getPosition();
+	    	Vector leafPos10 = molecule.getChildList().get(10).getPosition();
 	    	
 	    	/*
 	    	 * Determine axis 1 by using Vector Projection
@@ -339,9 +339,9 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
     	    	 * Determine the Orientation of Each Molecule
     	    	 */
     	    	
-    	    	Vector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-    	    	Vector leafPos5 = molecule.getChildList().getAtom(5).getPosition();
-    	    	Vector leafPos10 = molecule.getChildList().getAtom(10).getPosition();
+    	    	Vector leafPos0 = molecule.getChildList().get(0).getPosition();
+    	    	Vector leafPos5 = molecule.getChildList().get(5).getPosition();
+    	    	Vector leafPos10 = molecule.getChildList().get(10).getPosition();
     	    	
     	    	
     	    	/*
@@ -386,9 +386,9 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	    	 * Determine the Orientation of Each Molecule
 	    	 */
             
-	    	Vector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-	    	Vector leafPos5 = molecule.getChildList().getAtom(5).getPosition();
-	    	Vector leafPos10 = molecule.getChildList().getAtom(10).getPosition();
+	    	Vector leafPos0 = molecule.getChildList().get(0).getPosition();
+	    	Vector leafPos5 = molecule.getChildList().get(5).getPosition();
+	    	Vector leafPos10 = molecule.getChildList().get(10).getPosition();
 	    	
 	    	/*
 	    	 * Determine axis 1 by using Vector Projection

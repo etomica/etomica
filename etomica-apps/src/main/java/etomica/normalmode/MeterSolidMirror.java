@@ -59,8 +59,8 @@ public class MeterSolidMirror implements IDataSource {
 
     protected void reflect() {
         IAtomList atoms = box.getLeafList();
-        for (int i=0; i<atoms.getAtomCount(); i++) {
-            IAtom atom = atoms.getAtom(i);
+        for (int i = 0; i<atoms.size(); i++) {
+            IAtom atom = atoms.get(i);
             dr.Ev1Mv2(atom.getPosition(), coordinateDefinition.getLatticePosition(atom));
             atom.getPosition().PEa1Tv1(-2, dr);
         }

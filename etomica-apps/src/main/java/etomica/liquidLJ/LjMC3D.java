@@ -386,7 +386,7 @@ public class LjMC3D extends Simulation {
 
         if (nCutoffsLS > 0) {
             AtomPair selfPair = new AtomPair();
-            selfPair.atom0 = selfPair.atom1 = sim.box.getLeafList().getAtom(0);
+            selfPair.atom0 = selfPair.atom1 = sim.box.getLeafList().get(0);
             double[][] puSelfLRC = pLS.energyVirialCut(selfPair);
 
             dataPU = (DataGroup)accPULS.getData();

@@ -140,7 +140,7 @@ public class EnergyMap extends Simulation{
         // Sn
         IMolecule adMolecule = snAdatom.makeMolecule();
         box.addMolecule(adMolecule);
-        IAtom adAtom = adMolecule.getChildList().getAtom(0);
+        IAtom adAtom = adMolecule.getChildList().get(0);
 
         adAtom.getPosition().setX(0, height);
         adAtom.getPosition().setX(1, -4.37);

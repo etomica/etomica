@@ -116,7 +116,7 @@ public class RenderMD extends Simulation {
 
         IAtomList leafList = box.getLeafList();
         for (int iLeaf = 0; iLeaf < numAtoms; iLeaf++) {
-            IAtom a = leafList.getAtom(iLeaf);
+            IAtom a = leafList.get(iLeaf);
             Vector pos = a.getPosition();
             pos.E(parser.vertices.get(iLeaf));
         }
@@ -170,14 +170,14 @@ public class RenderMD extends Simulation {
         public CriterionCar(ParseObj parser, Box box) {
             bondedSet = new HashMap<IAtom,Set<IAtom>>();
             IAtomList leafList = box.getLeafList();
-            for (int i=0; i<leafList.getAtomCount(); i++) {
-                bondedSet.put(leafList.getAtom(i), new HashSet<IAtom>());
+            for (int i = 0; i<leafList.size(); i++) {
+                bondedSet.put(leafList.get(i), new HashSet<IAtom>());
             }
             int nBonds = parser.bondList.size();
             for(int i=0; i<nBonds; i++) {
                 BondInfo bond = parser.bondList.get(i);
-                IAtom atom0 = leafList.getAtom(bond.i0);
-                IAtom atom1 = leafList.getAtom(bond.i1);
+                IAtom atom0 = leafList.get(bond.i0);
+                IAtom atom1 = leafList.get(bond.i1);
                 bondedSet.get(atom0).add(atom1);
                 bondedSet.get(atom1).add(atom0);
             }
@@ -185,7 +185,7 @@ public class RenderMD extends Simulation {
 
 
         public boolean accept(IAtomList pair) {
-            return bondedSet.get(pair.getAtom(0)).contains(pair.getAtom(1));
+            return bondedSet.get(pair.get(0)).contains(pair.get(1));
         }
 
         public boolean needUpdate(IAtom atom) {return false;}
@@ -208,15 +208,15 @@ public class RenderMD extends Simulation {
             int nBonds = parser.bondList.size();
             for(int i=0; i<nBonds; i++) {
                 BondInfo bond = parser.bondList.get(i);
-                IAtom atom0 = leafList.getAtom(bond.i0);
-                IAtom atom1 = leafList.getAtom(bond.i1);
+                IAtom atom0 = leafList.get(bond.i0);
+                IAtom atom1 = leafList.get(bond.i1);
                 bondMap.put(new AtomPair(atom0, atom1), bond.bondLengthSquared*0.9999);
             }
         }
 
         public void bump(IAtomList pair, double falseTime) {
-            IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);
-            IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);
+            IAtomKinetic atom0 = (IAtomKinetic)pair.get(0);
+            IAtomKinetic atom1 = (IAtomKinetic)pair.get(1);
             double v2old = atom1.getVelocity().Mv1Squared(atom0.getVelocity());
 
             setCoreDiameterSquared(bondMap.get(pair));

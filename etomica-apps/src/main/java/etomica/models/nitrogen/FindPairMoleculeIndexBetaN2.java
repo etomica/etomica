@@ -101,8 +101,8 @@ public class FindPairMoleculeIndexBetaN2 {
 		// Molecule A
 		molAVec.E(positionDefinition.position(moleculeA));
 			
-		Vector molAleafPos0 = moleculeA.getChildList().getAtom(0).getPosition();
-    	Vector molAleafPos1 = moleculeA.getChildList().getAtom(1).getPosition();
+		Vector molAleafPos0 = moleculeA.getChildList().get(0).getPosition();
+    	Vector molAleafPos1 = moleculeA.getChildList().get(1).getPosition();
     	 
 		tempOrientA.Ev1Mv2(molAleafPos1, molAleafPos0);
 		tempOrientA.normalize();
@@ -112,8 +112,8 @@ public class FindPairMoleculeIndexBetaN2 {
 		// Molecule B
 		molBVec.E(positionDefinition.position(moleculeB));
 
-		Vector molBleafPos0 = moleculeB.getChildList().getAtom(0).getPosition();
-	    Vector molBleafPos1 = moleculeB.getChildList().getAtom(1).getPosition();
+		Vector molBleafPos0 = moleculeB.getChildList().get(0).getPosition();
+	    Vector molBleafPos1 = moleculeB.getChildList().get(1).getPosition();
 	    	 
 		tempOrientB. Ev1Mv2(molBleafPos1, molBleafPos0);
 		tempOrientB.normalize();		

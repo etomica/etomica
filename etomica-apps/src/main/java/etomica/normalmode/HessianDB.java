@@ -113,8 +113,8 @@ public class HessianDB extends Simulation {
                 for (int atomN2 = 0; atomN2 < numAtoms; atomN2++) {
                     if (atomN2 == atomN1) continue;
 
-                    IAtom atom1 = box.getLeafList().getAtom(atomN1);
-                    IAtom atom2 = box.getLeafList().getAtom(atomN2);
+                    IAtom atom1 = box.getLeafList().get(atomN1);
+                    IAtom atom2 = box.getLeafList().get(atomN2);
 
                     pos1 = atom1.getPosition();
                     pos2 = atom2.getPosition();

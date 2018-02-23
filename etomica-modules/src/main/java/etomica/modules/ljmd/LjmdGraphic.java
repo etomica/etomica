@@ -216,7 +216,7 @@ public class LjmdGraphic extends SimulationGraphic {
                     // in adiabatic mode, we want the average kinetic temperature, which we'll
                     // steal from our kinetic energy accumulator
                     double temp = keAvg.getData().getValue(keAvg.AVERAGE.index);
-                    temp *= 2.0 / (sim.box.getLeafList().getAtomCount() * space.D());
+                    temp *= 2.0 / (sim.box.getLeafList().size() * space.D());
                     mbDistribution.setTemperature(temp);
                     mbSource.update();
                 }

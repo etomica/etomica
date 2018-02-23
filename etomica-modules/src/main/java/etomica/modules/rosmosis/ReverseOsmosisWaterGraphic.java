@@ -698,7 +698,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         
         public IData processData(IData data) {
             myData.E(data);
-            myData.TE(1.0/box.getLeafList().getAtomCount());
+            myData.TE(1.0/box.getLeafList().size());
             return myData;
         }
 

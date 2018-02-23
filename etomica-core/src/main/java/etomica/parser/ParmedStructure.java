@@ -113,9 +113,9 @@ public class ParmedStructure {
         theSpecies.setChildAtomTypes(speciesAtomTypes.stream().mapToInt(i -> i).toArray());
 
         theSpecies.setConformation(atomList -> {
-            for(int i = 0; i < atomList.getAtomCount(); i++) {
+            for(int i = 0; i < atomList.size(); i++) {
                 Vector atomVec = atomPositions.get(i);
-                atomList.getAtom(i).getPosition().E(atomVec);
+                atomList.get(i).getPosition().E(atomVec);
             }
         });
 
@@ -181,9 +181,9 @@ public class ParmedStructure {
 
             JsonNode atomsListNode = moleculeNode.get("atoms");
             IAtomList atomList = molecule.getChildList();
-            for(int i = 0; i < atomList.getAtomCount(); i++) {
+            for(int i = 0; i < atomList.size(); i++) {
                 JsonNode atomNode = atomsListNode.get(i);
-                atomList.getAtom(i).getPosition().E(new Vector3D(
+                atomList.get(i).getPosition().E(new Vector3D(
                         atomNode.get("xx").asDouble(),
                         atomNode.get("xy").asDouble(),
                         atomNode.get("xz").asDouble()

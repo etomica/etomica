@@ -46,9 +46,9 @@ public class MeterTilt implements IDataSource {
         for (int i=0; i<nMolecules; i++) {
             IMolecule molecule = molecules.getMolecule(i);
             IAtomList atomList = molecule.getChildList();
-            int leafCount = atomList.getAtomCount();
-            dr.E(atomList.getAtom(leafCount-1).getPosition());
-            dr.ME(atomList.getAtom(1).getPosition());
+            int leafCount = atomList.size();
+            dr.E(atomList.get(leafCount-1).getPosition());
+            dr.ME(atomList.get(1).getPosition());
             thetaSum += Math.acos(dr.getX(1)/Math.sqrt(dr.squared()));
             drSum.PE(dr);
         }

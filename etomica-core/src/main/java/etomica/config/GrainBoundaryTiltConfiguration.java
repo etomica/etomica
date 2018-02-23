@@ -296,7 +296,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
                 a = mobileSpecies.makeMolecule();
             }
             box.addMolecule(a);
-            a.getChildList().getAtom(0).getPosition().E(transformedPosition);
+            a.getChildList().get(0).getPosition().E(transformedPosition);
             
         }
         
@@ -369,7 +369,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
                 a = mobileSpecies.makeMolecule();
             }
             box.addMolecule(a);
-            a.getChildList().getAtom(0).getPosition().E(transformedPosition);
+            a.getChildList().get(0).getPosition().E(transformedPosition);
             
         }      
       
@@ -383,16 +383,16 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
         
         
         double range = 0.0;
-        for(int i=0; i<box.getLeafList().getAtomCount()-1; i++){
-            for(int j=i+1; j<box.getLeafList().getAtomCount(); j++){
+        for(int i = 0; i<box.getLeafList().size()-1; i++){
+            for(int j = i+1; j<box.getLeafList().size(); j++){
                 
-                rij.E(box.getLeafList().getAtom(i).getPosition());
-                rij.ME(box.getLeafList().getAtom(j).getPosition());
+                rij.E(box.getLeafList().get(i).getPosition());
+                rij.ME(box.getLeafList().get(j).getPosition());
                 box.getBoundary().nearestImage(rij);
                 range = rij.squared();
                 
                 if(range<dist){
-                    box.removeMolecule(box.getLeafList().getAtom(j).getParentGroup());
+                    box.removeMolecule(box.getLeafList().get(j).getParentGroup());
                     removeCount++;
                }
             }

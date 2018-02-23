@@ -178,8 +178,8 @@ public class VirialN2 {
         // that is not overlapping for any two molecules
         if (nPoints == 3 && nonAdditive) {
             IAtomList tarList = sim.box[1].getLeafList();
-            for (int i=0; i<tarList.getAtomCount(); i++) {
-                Vector p = tarList.getAtom(i).getPosition();
+            for (int i = 0; i<tarList.size(); i++) {
+                Vector p = tarList.get(i).getPosition();
                 p.setX(i, 4.0);
             }
             sim.box[1].trialNotify();

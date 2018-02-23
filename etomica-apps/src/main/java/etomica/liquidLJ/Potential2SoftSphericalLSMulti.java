@@ -48,8 +48,8 @@ public class Potential2SoftSphericalLSMulti extends Potential2 implements Potent
     }
     
     public double[][] energyVirialCut(IAtomList atoms) {
-    	boolean isSelf = (atoms.getAtom(1) == atoms.getAtom(0));
-        dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
+    	boolean isSelf = (atoms.get(1) == atoms.get(0));
+        dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
         boundary.nearestImage(dr);
         for (int i=rCut2.length-1; i>=0; i--) {
             sums[0][i] = sums[1][i] = 0;

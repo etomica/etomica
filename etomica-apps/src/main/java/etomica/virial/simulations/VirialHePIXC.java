@@ -154,10 +154,10 @@ public class VirialHePIXC {
         
         double r = 2;
         IAtomList leafList = sim.box.getLeafList();
-        for (int i=0; i<leafList.getAtomCount(); i++) {
-            Vector p = leafList.getAtom(i).getPosition();
-            p.setX(0, r*Math.cos((2*Math.PI*i)/leafList.getAtomCount()));
-            p.setX(1, r*Math.sin((2*Math.PI*i)/leafList.getAtomCount()));
+        for (int i = 0; i<leafList.size(); i++) {
+            Vector p = leafList.get(i).getPosition();
+            p.setX(0, r*Math.cos((2*Math.PI*i)/leafList.size()));
+            p.setX(1, r*Math.sin((2*Math.PI*i)/leafList.size()));
         }
 
         if (false) {

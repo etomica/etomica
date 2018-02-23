@@ -218,11 +218,11 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
     private void printLocations(){
         IAtomList list = box.getLeafList();
         int coordinateDim = coordinateDefinition.getCoordinateDim();
-        int ats = box.getLeafList().getAtomCount();
+        int ats = box.getLeafList().size();
         
         if(box.getBoundary().getEdgeVector(0).getD() == 1){
             for(int i = 0; i < ats; i++){
-                System.out.println(i + "  " + list.getAtom(i).getPosition().getX(0));
+                System.out.println(i + "  " + list.get(i).getPosition().getX(0));
             }
         }
         
@@ -230,7 +230,7 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
             for(int i = 0; i < ats; i++){
                 System.out.println("Atom " + i);
                 for(int j = 0; j < 3; j++){
-                    System.out.println(j + " " + list.getAtom(i).getPosition().getX(j));
+                    System.out.println(j + " " + list.get(i).getPosition().getX(j));
                 }
             }
         }

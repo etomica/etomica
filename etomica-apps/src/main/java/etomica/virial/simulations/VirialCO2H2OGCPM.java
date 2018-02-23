@@ -111,9 +111,9 @@ public class VirialCO2H2OGCPM {
         speciesCO2.setConformation(new IConformation() {
             
             public void initializePositions(IAtomList atomList) {
-                atomList.getAtom(0).getPosition().E(0);
-                atomList.getAtom(1).getPosition().setX(0,1.161);
-                atomList.getAtom(2).getPosition().setX(0,-1.161);
+                atomList.get(0).getPosition().E(0);
+                atomList.get(1).getPosition().setX(0,1.161);
+                atomList.get(2).getPosition().setX(0,-1.161);
             }
         });
 
@@ -179,7 +179,7 @@ public class VirialCO2H2OGCPM {
             protected final Vector r = space.makeVector();
             public Vector getParallelAxis(IMolecule mol) {
                 IAtomList atoms = mol.getChildList();
-                r.Ev1Mv2(atoms.getAtom(2).getPosition(),atoms.getAtom(1).getPosition());
+                r.Ev1Mv2(atoms.get(2).getPosition(),atoms.get(1).getPosition());
                 r.normalize();
                 return r;
             }

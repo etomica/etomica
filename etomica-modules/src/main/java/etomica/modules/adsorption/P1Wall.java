@@ -44,7 +44,7 @@ public class P1Wall implements PotentialHard {
     }
 
     public double energy(IAtomList atoms) {
-        Vector p = atoms.getAtom(0).getPosition();
+        Vector p = atoms.get(0).getPosition();
         double y = p.getX(1);
         double Ly = boundary.getBoxSize().getX(1);
         if (Math.abs(y) > 0.5*Ly-0.5*sigma) {
@@ -69,7 +69,7 @@ public class P1Wall implements PotentialHard {
     }
 
     public void bump(IAtomList a, double falseTime) {
-        IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
+        IAtomKinetic atom = (IAtomKinetic)a.get(0);
         Vector v = atom.getVelocity();
         double vy = v.getX(1);
         // dv = 2*NewVelocity
@@ -132,7 +132,7 @@ public class P1Wall implements PotentialHard {
     }
 
     public double collisionTime(IAtomList a, double falseTime) {
-        IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
+        IAtomKinetic atom = (IAtomKinetic)a.get(0);
         double y = atom.getPosition().getX(1);
         double v = atom.getVelocity().getX(1);
         if (v == 0) return Double.POSITIVE_INFINITY;

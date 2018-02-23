@@ -86,10 +86,10 @@ public class TIP4P_NVT extends Simulation {
          }
          public Vector getDipole(IMolecule molecule) {// dipole = sum of position * charge on the site
              IAtomList childList = molecule.getChildList();
-             IAtom atomH1 = childList.getAtom(0);
-             IAtom atomH2 = childList.getAtom(1);
-             IAtom atomO = childList.getAtom(2);
-             IAtom atomM = childList.getAtom(3);
+             IAtom atomH1 = childList.get(0);
+             IAtom atomH2 = childList.get(1);
+             IAtom atomO = childList.get(2);
+             IAtom atomM = childList.get(3);
              double chargeH = Electron.UNIT.toSim(+0.52);
              double chargeM = Electron.UNIT.toSim(-1.04);
              dipole.Ea1Tv1(chargeH, atomH1.getPosition());

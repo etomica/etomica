@@ -95,7 +95,7 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
             }
 
         	IAtomList childList = moleculeList.getMolecule(i).getChildList();
-        	int numChildren = childList.getAtomCount(); // number of total atoms in the i-th molecule
+        	int numChildren = childList.size(); // number of total atoms in the i-th molecule
             numCarbons = (numChildren - 2)/3; // number of carbons in the i-th molecule
             
             int j = random.nextInt(numCarbons);
@@ -110,9 +110,9 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
             ///// ######################################################################### ///////////////////
             //////////////////////////////// selectedAtoms & positionSelectedAtoms & translationVectors ///////
             ///// ######################################################################### ///////////////////
-            selectedAtoms[i][0] = childList.getAtom(j);// j carbon
-            selectedAtoms[i][1] = childList.getAtom(j+numCarbons);// H1 on j
-            selectedAtoms[i][2] = childList.getAtom(j+numCarbons*2);// H2 on j
+            selectedAtoms[i][0] = childList.get(j);// j carbon
+            selectedAtoms[i][1] = childList.get(j+numCarbons);// H1 on j
+            selectedAtoms[i][2] = childList.get(j+numCarbons*2);// H2 on j
             
             for (int t = 3; t<8; t++){
             	selectedAtoms[i][t]=null;
@@ -121,44 +121,44 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
             if (  (j==0) || ( j==(numCarbons-1)  )|| ( j==1 )||  (  j==(numCarbons-2)  )    ){
             	numAtomsMove = 6;// 1 carbon and 5 H in total
             	if ( j == 0 ){
-            		selectedAtoms[i][3] = childList.getAtom(numCarbons*3);//H3 on j=0
-            		selectedAtoms[i][4] = childList.getAtom(j+1+numCarbons);//H1 on j+1=1
-            		selectedAtoms[i][5] = childList.getAtom(j+1+numCarbons*2);//H2 on j+1=1
+            		selectedAtoms[i][3] = childList.get(numCarbons*3);//H3 on j=0
+            		selectedAtoms[i][4] = childList.get(j+1+numCarbons);//H1 on j+1=1
+            		selectedAtoms[i][5] = childList.get(j+1+numCarbons*2);//H2 on j+1=1
             	}
            
             	if (   j==(numCarbons-1)   ){
-            		selectedAtoms[i][3] = childList.getAtom(numCarbons*3+1);//H3 on j=n-1
-            		selectedAtoms[i][4] = childList.getAtom(j-1+numCarbons);//H1 on j-1=n-2
-            		selectedAtoms[i][5] = childList.getAtom(j-1+numCarbons*2);//H2 on j-1=n-2
+            		selectedAtoms[i][3] = childList.get(numCarbons*3+1);//H3 on j=n-1
+            		selectedAtoms[i][4] = childList.get(j-1+numCarbons);//H1 on j-1=n-2
+            		selectedAtoms[i][5] = childList.get(j-1+numCarbons*2);//H2 on j-1=n-2
             	}
             	
             	if ( j == 1 ){
                 	numAtomsMove = 8;// 1 carbon and 7 H in total
-            		selectedAtoms[i][3] = childList.getAtom(j-1+numCarbons);//H1 on j-1=0   
-            		selectedAtoms[i][4] = childList.getAtom(j-1+numCarbons*2);//H2 on j-1=0   
-            		selectedAtoms[i][5] = childList.getAtom(j-1+numCarbons*3);//H3 on j-1=0
-            		selectedAtoms[i][6] = childList.getAtom(j+1+numCarbons);//H1 on j+1=2
-            		selectedAtoms[i][7] = childList.getAtom(j+1+numCarbons*2);//H2 on j+1=2
+            		selectedAtoms[i][3] = childList.get(j-1+numCarbons);//H1 on j-1=0
+            		selectedAtoms[i][4] = childList.get(j-1+numCarbons*2);//H2 on j-1=0
+            		selectedAtoms[i][5] = childList.get(j-1+numCarbons*3);//H3 on j-1=0
+            		selectedAtoms[i][6] = childList.get(j+1+numCarbons);//H1 on j+1=2
+            		selectedAtoms[i][7] = childList.get(j+1+numCarbons*2);//H2 on j+1=2
  
             	}
             
             	if ( j == (numCarbons-2) ){
                 	numAtomsMove = 8;// 1 carbon and 7 H in total
-                	selectedAtoms[i][3] = childList.getAtom(numCarbons*2-1);//H1 on j+1   
-            		selectedAtoms[i][4] = childList.getAtom(numCarbons*3-1);//H2 on j+1   
-            		selectedAtoms[i][5] = childList.getAtom(numCarbons*3+1);//H3 on j+1
-            		selectedAtoms[i][6] = childList.getAtom(j-1+numCarbons);//H1 on j-1=n-3
-            		selectedAtoms[i][7] = childList.getAtom(j-1+numCarbons*2);//H2 on j-1=n-3
+                	selectedAtoms[i][3] = childList.get(numCarbons*2-1);//H1 on j+1
+            		selectedAtoms[i][4] = childList.get(numCarbons*3-1);//H2 on j+1
+            		selectedAtoms[i][5] = childList.get(numCarbons*3+1);//H3 on j+1
+            		selectedAtoms[i][6] = childList.get(j-1+numCarbons);//H1 on j-1=n-3
+            		selectedAtoms[i][7] = childList.get(j-1+numCarbons*2);//H2 on j-1=n-3
    
             	}
                        	
             }
             else{ 
             	numAtomsMove = 7;// 1 carbon and 5 H in total
-            	selectedAtoms[i][3] = childList.getAtom(j - 1 + numCarbons);//H1 on j-1   
-            	selectedAtoms[i][4] = childList.getAtom(j - 1 + numCarbons*2);//H2 on j-1   
-            	selectedAtoms[i][5] = childList.getAtom(j + 1 + numCarbons);//H1 on j+1   
-            	selectedAtoms[i][6] = childList.getAtom(j + 1 + numCarbons*2);//H2 on j+1   
+            	selectedAtoms[i][3] = childList.get(j - 1 + numCarbons);//H1 on j-1
+            	selectedAtoms[i][4] = childList.get(j - 1 + numCarbons*2);//H2 on j-1
+            	selectedAtoms[i][5] = childList.get(j + 1 + numCarbons);//H1 on j+1
+            	selectedAtoms[i][6] = childList.get(j + 1 + numCarbons*2);//H2 on j+1
             }
             
             for ( int m = 0;m < numAtomsMove; m++){
@@ -189,12 +189,12 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
  
                
                 if (j == 0) {// C(H3) on the left
-                	work1.ME(childList.getAtom(j+1).getPosition());
+                	work1.ME(childList.get(j+1).getPosition());
                                    
                 }
                 
                 else { // j==(n-1),C(H3) on the right
-                    work1.ME(childList.getAtom(j-1).getPosition());
+                    work1.ME(childList.get(j-1).getPosition());
                 }
                 
   //              System.out.println("work1 = r(C0)-r(C1)"+work1);
@@ -266,7 +266,7 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
                 	for (int s=0;s<3; s++){
      //           		System.out.println("s is:"+s);
                     
-                		jH[s] =  childList.getAtom(numCarbons * (s+1));
+                		jH[s] =  childList.get(numCarbons * (s+1));
                         Vector r = jH[s].getPosition();
                 	//	System.out.println("position of H before move is:"+r);
                 		
@@ -295,10 +295,10 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
                     ///// #########  GET the new positions of 2 H on (j+1)= C1 ###################### ///////////////////
                     ///// ######################################################################### ///////////////////
 
-                	Vector jPlus1 = childList.getAtom(j+1).getPosition();// (j+1) carbon position
-                    Vector jPlus2 = childList.getAtom(j+2).getPosition();// (j+2) carbon position
-                    Vector jPlus1_H1 = childList.getAtom(numCarbons+j+1).getPosition();//H1 on (j+1) carbon
-                    Vector jPlus1_H2 = childList.getAtom(numCarbons*2+j+1).getPosition();//H2 on (j+1) carbon
+                	Vector jPlus1 = childList.get(j+1).getPosition();// (j+1) carbon position
+                    Vector jPlus2 = childList.get(j+2).getPosition();// (j+2) carbon position
+                    Vector jPlus1_H1 = childList.get(numCarbons+j+1).getPosition();//H1 on (j+1) carbon
+                    Vector jPlus1_H2 = childList.get(numCarbons*2+j+1).getPosition();//H2 on (j+1) carbon
                     Vector crossV = space.makeVector();
                     Vector jPlus1H1_q = space.makeVector();// r(H1)-r(q)
                     Vector jPlus1H2_q = space.makeVector();// r(H2)-r(q)
@@ -359,9 +359,9 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
                 	///// #########  GET the new positions of 3 H on j = n-1  ###################### ///////////////////
                 	///// ######################################################################### ///////////////////
                 	IAtom[] hydrogen = new IAtom[3];
-                	hydrogen[0]=childList.getAtom(numCarbons*2-1);
-                	hydrogen[1]=childList.getAtom(numCarbons*3-1);
-                	hydrogen[2]=childList.getAtom(numCarbons*3+1);
+                	hydrogen[0]=childList.get(numCarbons*2-1);
+                	hydrogen[1]=childList.get(numCarbons*3-1);
+                	hydrogen[2]=childList.get(numCarbons*3+1);
 
                 	for (int s=0;s<3; s++){
                 		Vector r = hydrogen[s].getPosition();
@@ -380,10 +380,10 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
                 	///// ######################################################################### ///////////////////
                 	///// #########  GET the new positions of 2 H on (j-1)= (n-2) ###################### ///////////////////
                 	///// ######################################################################### ///////////////////
-                	Vector jMinus1 = childList.getAtom(j-1).getPosition();// (j-1) position
-                	Vector jMinus2 = childList.getAtom(j-2).getPosition();// (j-2)  position
-                	Vector jMinus1_H1 = childList.getAtom(j-1 + numCarbons).getPosition();// H1 on (j-1)
-                	Vector jMinus1_H2 = childList.getAtom(j-1 + numCarbons * 2 ).getPosition();// H2 on (j-1)
+                	Vector jMinus1 = childList.get(j-1).getPosition();// (j-1) position
+                	Vector jMinus2 = childList.get(j-2).getPosition();// (j-2)  position
+                	Vector jMinus1_H1 = childList.get(j-1 + numCarbons).getPosition();// H1 on (j-1)
+                	Vector jMinus1_H2 = childList.get(j-1 + numCarbons * 2 ).getPosition();// H2 on (j-1)
 
                 	Vector H1_q = space.makeVector();
                 	Vector H2_q = space.makeVector();
@@ -425,8 +425,8 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
                 }
                 work1.E(translationVectors[i][0]);// based on carbon
                 work1.TE(1.0/numCarbons);//numCarbons// keep COM at the same place
-                for (int k=0; k<childList.getAtomCount(); k++) {
-   	             	childList.getAtom(k).getPosition().ME(work1);
+                for (int k = 0; k<childList.size(); k++) {
+   	             	childList.get(k).getPosition().ME(work1);
                 
                 } 
               
@@ -443,8 +443,8 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
             	// j-1 - j and j - j+1 bond lengths are unaltered.
 //                System.out.println("middle move "+j+" "+position);
 
-            	Vector jMinus1 = childList.getAtom(j-1).getPosition();// (j-1) carbon position
-            	Vector jPlus1  = childList.getAtom(j+1).getPosition();// (j+1) carbon position
+            	Vector jMinus1 = childList.get(j-1).getPosition();// (j-1) carbon position
+            	Vector jPlus1  = childList.get(j+1).getPosition();// (j+1) carbon position
             	
             	work1.Ev1Mv2(jMinus1, positionSelectedAtoms[0]);
                 work2.Ev1Mv2(jPlus1, positionSelectedAtoms[0]);
@@ -489,8 +489,8 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
               	///// ######################################################################### ///////////////////
             	///// #########  GET the new positions of 2H on j       ####################### ///////////////////
             	///// ######################################################################### ///////////////////
-                Vector j_H1 = childList.getAtom(j + numCarbons ).getPosition();  // H1 on j
-                Vector j_H2 = childList.getAtom(j + numCarbons * 2).getPosition();// H2 on j
+                Vector j_H1 = childList.get(j + numCarbons ).getPosition();  // H1 on j
+                Vector j_H2 = childList.get(j + numCarbons * 2).getPosition();// H2 on j
                 
                 Vector j_jMinus1 = space.makeVector();// r(j)-r(j-1)
                 j_jMinus1.Ev1Mv2(positionSelectedAtoms[0], jMinus1);
@@ -528,7 +528,7 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
             	IAtom[] hydrogen = new IAtom[3];
             	if (j==1){
             		for (int s=0;s<3; s++){
-                		hydrogen[s] = childList.getAtom(numCarbons * (s+1));
+                		hydrogen[s] = childList.get(numCarbons * (s+1));
                 		Vector r = hydrogen[s].getPosition();
                 		r.ME(jMinus1);
                 		rotateTensor.transform(r);
@@ -537,9 +537,9 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
 
             	}
                 if (j ==(numCarbons-2)) {
-                	hydrogen[0]=childList.getAtom(numCarbons*2-1);
-                	hydrogen[1]=childList.getAtom(numCarbons*3-1);
-                	hydrogen[2]=childList.getAtom(numCarbons*3+1);
+                	hydrogen[0]=childList.get(numCarbons*2-1);
+                	hydrogen[1]=childList.get(numCarbons*3-1);
+                	hydrogen[2]=childList.get(numCarbons*3+1);
                 	for (int s=0;s<3; s++){
                 		Vector r = hydrogen[s].getPosition();
                 		r.ME(jMinus1);
@@ -553,9 +553,9 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
                 	///// ######################################################################### ///////////////////
                 	///// #########  GET the new positions of 2H on (j+1)              ############ ///////////////////
                 	///// ######################################################################### ///////////////////
-                	Vector jPlus2 = childList.getAtom(j+2).getPosition();// (j+2) carbon position
-                	Vector jPlus1_H1 = childList.getAtom( j + 1 + numCarbons).getPosition();     // H1 on j+1
-                	Vector jPlus1_H2 = childList.getAtom( j + 1 + numCarbons * 2).getPosition(); // H2 on j+1
+                	Vector jPlus2 = childList.get(j+2).getPosition();// (j+2) carbon position
+                	Vector jPlus1_H1 = childList.get( j + 1 + numCarbons).getPosition();     // H1 on j+1
+                	Vector jPlus1_H2 = childList.get( j + 1 + numCarbons * 2).getPosition(); // H2 on j+1
                     	
                    	Vector jPlus1_j = space.makeVector();//r(j+1)-r(j)
                     Vector jPlus1_jPlus2 = space.makeVector();// r(j+1)-r(j+2)
@@ -587,9 +587,9 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
                 	///// ######################################################################### ///////////////////
                 	///// #########  GET the new positions of 2H on (j-1)              ############ ///////////////////
                 	///// ######################################################################### ///////////////////
-                	Vector jMinus2 = childList.getAtom(j-2).getPosition();// (j-2) carbon position
-                	Vector jMinus1_H1 = childList.getAtom(j - 1 + numCarbons).getPosition();     // H1 on (j-1)
-                	Vector jMinus1_H2 = childList.getAtom(j - 1 + numCarbons * 2 ).getPosition();// H2 on (j-1)
+                	Vector jMinus2 = childList.get(j-2).getPosition();// (j-2) carbon position
+                	Vector jMinus1_H1 = childList.get(j - 1 + numCarbons).getPosition();     // H1 on (j-1)
+                	Vector jMinus1_H2 = childList.get(j - 1 + numCarbons * 2 ).getPosition();// H2 on (j-1)
                 
                 	Vector jMinus1_jMinus2 = space.makeVector();// r(j-1)-r(j-2)
                    	Vector jMinus1_j = space.makeVector();//r(j-1)-r(j)
@@ -627,22 +627,22 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
                 }
                 work1.E(translationVectors[i][0]);//work1: translation of COM based on carbon
                 work1.TE(1.0/numCarbons);
-                for (int k=0; k<childList.getAtomCount(); k++) {
-                    childList.getAtom(k).getPosition().ME(work1);
+                for (int k = 0; k<childList.size(); k++) {
+                    childList.get(k).getPosition().ME(work1);
                 }
                 
             }
 
             if (Debug.ON && Debug.DEBUG_NOW) {
                 if (j > 0) {
-                    work1.Ev1Mv2(positionSelectedAtoms[0], childList.getAtom(j-1).getPosition());
+                    work1.Ev1Mv2(positionSelectedAtoms[0], childList.get(j-1).getPosition());
                     double bondLength = Math.sqrt(work1.squared());
                     if (Math.abs(bondLength - oldBondLength1)/oldBondLength1 > 0.000001) {
                         throw new IllegalStateException("wiggle "+i+" "+j+" bond length should be close to "+oldBondLength1+" ("+bondLength+")");
                     }
                 }
                 if (j < numCarbons-1) {
-                    work1.Ev1Mv2(positionSelectedAtoms[0], childList.getAtom(j+1).getPosition());
+                    work1.Ev1Mv2(positionSelectedAtoms[0], childList.get(j+1).getPosition());
                     double bondLength = Math.sqrt(work1.squared());
                     double oldBondLength = oldBondLength2 == 0 ? oldBondLength1 : oldBondLength2;
                     if (Math.abs(bondLength - oldBondLength)/oldBondLength > 0.000001) {
@@ -669,8 +669,8 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
             IAtomList childList = moleculeList.getMolecule(i).getChildList();
             work1.E(translationVectors[i][0]);//based on carbon 
             work1.TE(1.0/numCarbons);// Center of mass is based on all carbons
-            for (int k=0; k<childList.getAtomCount(); k++) {
-                childList.getAtom(k).getPosition().PE(work1);
+            for (int k = 0; k<childList.size(); k++) {
+                childList.get(k).getPosition().PE(work1);
             }
             
             for (int t = 0; t<8; t++){// put all the moved atoms (carbon and hydrogens) back

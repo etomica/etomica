@@ -92,8 +92,8 @@ public class MCMoveRotateMolecule3DConstraint extends MCMoveMolecule {
             throw new RuntimeException("Overlap in initial state");
         }
         
-        Vector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-		Vector leaftPos1 = molecule.getChildList().getAtom(1).getPosition();
+        Vector leafPos0 = molecule.getChildList().get(0).getPosition();
+		Vector leaftPos1 = molecule.getChildList().get(1).getPosition();
 		
 		molecOrientation.Ev1Mv2(leaftPos1, leafPos0);
 		molecOrientation.normalize();
@@ -140,8 +140,8 @@ public class MCMoveRotateMolecule3DConstraint extends MCMoveMolecule {
     
     protected void doTransform() {
         IAtomList childList = molecule.getChildList();
-        for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
-            IAtom a = childList.getAtom(iChild);
+        for (int iChild = 0; iChild<childList.size(); iChild++) {
+            IAtom a = childList.get(iChild);
             Vector r = a.getPosition();
             r.ME(r0);
             box.getBoundary().nearestImage(r);
@@ -152,8 +152,8 @@ public class MCMoveRotateMolecule3DConstraint extends MCMoveMolecule {
     
     protected void doTransformMolec(int iMolecule, double dTheta) {
         IAtomList childList = molecule.getChildList();
-        for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
-            IAtom a = childList.getAtom(iChild);
+        for (int iChild = 0; iChild<childList.size(); iChild++) {
+            IAtom a = childList.get(iChild);
             Vector r = a.getPosition();
             r.ME(r0);
         }
@@ -179,8 +179,8 @@ public class MCMoveRotateMolecule3DConstraint extends MCMoveMolecule {
         ((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(rotation);
         atomGroupAction.actionPerformed(molecule);
         
-        for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
-            IAtom a = childList.getAtom(iChild);
+        for (int iChild = 0; iChild<childList.size(); iChild++) {
+            IAtom a = childList.get(iChild);
             Vector r = a.getPosition();
             r.PE(r0);
         }
@@ -189,8 +189,8 @@ public class MCMoveRotateMolecule3DConstraint extends MCMoveMolecule {
     
     protected void doTransformToInitial(int iMolecule, double angleMol) {
         IAtomList childList = molecule.getChildList();
-        for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
-            IAtom a = childList.getAtom(iChild);
+        for (int iChild = 0; iChild<childList.size(); iChild++) {
+            IAtom a = childList.get(iChild);
             Vector r = a.getPosition();
             r.ME(r0);
         }
@@ -203,8 +203,8 @@ public class MCMoveRotateMolecule3DConstraint extends MCMoveMolecule {
         ((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(rotation);
         atomGroupAction.actionPerformed(molecule);
         
-        for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
-            IAtom a = childList.getAtom(iChild);
+        for (int iChild = 0; iChild<childList.size(); iChild++) {
+            IAtom a = childList.get(iChild);
             Vector r = a.getPosition();
             r.PE(r0);
         }

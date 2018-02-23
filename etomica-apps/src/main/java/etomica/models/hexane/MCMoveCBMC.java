@@ -88,11 +88,11 @@ public abstract class MCMoveCBMC extends MCMoveBox {
         // we assume that that atoms that make the molecule are children of the
         // molecule.
         atomList = atom.getChildList();
-        chainlength = atomList.getAtomCount();
+        chainlength = atomList.size();
 
         // store the old locations of every atom in the molecule in positionOld.
         for (int i = 0; i < chainlength; i++) {
-            positionOld[i].E(atomList.getAtom(i).getPosition());
+            positionOld[i].E(atomList.get(i).getPosition());
         }
 
         return calcRosenbluthFactors(); // this means we were able to propose a move.
@@ -107,11 +107,11 @@ public abstract class MCMoveCBMC extends MCMoveBox {
         // we assume that that atoms that make the molecule are children of the
         // molecule.
         atomList = atom.getChildList();
-        chainlength = atomList.getAtomCount();
+        chainlength = atomList.size();
 
         // store the old locations of every atom in the molecule in positionOld.
         for (int i = 0; i < chainlength; i++) {
-            positionOld[i].E(atomList.getAtom(i).getPosition());
+            positionOld[i].E(atomList.get(i).getPosition());
         }
 
         calcRosenbluthFactors();
@@ -142,7 +142,7 @@ public abstract class MCMoveCBMC extends MCMoveBox {
 
     public void rejectNotify() {
         for (int i = 0; i < chainlength; i++) {
-             atomList.getAtom(i).getPosition().E(positionOld[i]);
+             atomList.get(i).getPosition().E(positionOld[i]);
         }
 //        System.out.println("MCMoveCBMC rejects another!!");
     }

@@ -130,8 +130,8 @@ public class P2SquareWellRadical extends P2SquareWell {
 
         if (ignoreOverlap) {
 
-            IAtomKinetic atom0 = (IAtomKinetic)atoms.getAtom(0);
-            IAtomKinetic atom1 = (IAtomKinetic)atoms.getAtom(1);
+            IAtomKinetic atom0 = (IAtomKinetic)atoms.get(0);
+            IAtomKinetic atom1 = (IAtomKinetic)atoms.get(1);
             dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
             
             dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
@@ -153,8 +153,8 @@ public class P2SquareWellRadical extends P2SquareWell {
 
     public void bump(IAtomList pair, double falseTime) {
 
-        IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);
-        IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);
+        IAtomKinetic atom0 = (IAtomKinetic)pair.get(0);
+        IAtomKinetic atom1 = (IAtomKinetic)pair.get(1);
         dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
 
         dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());

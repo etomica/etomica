@@ -40,7 +40,7 @@ public class MeterRMSDTest {
     
     @Test
     public void testGetDataAsScalar() throws Exception {
-        Vector p = box.getLeafList().getAtom(0).getPosition();
+        Vector p = box.getLeafList().get(0).getPosition();
         assertEquals(meter.getDataAsScalar(), 0, EPSILON);
         
         // move a full box length without apply PBC to atom

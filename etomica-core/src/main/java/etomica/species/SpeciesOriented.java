@@ -38,8 +38,8 @@ public abstract class SpeciesOriented extends Species implements ISpeciesOriente
         double[] I = new double[3];
         Vector xWork = space.makeVector();
         mass = 0;
-        for (int i=0; i<children.getAtomCount(); i++) {
-            IAtom atom = children.getAtom(i);
+        for (int i = 0; i<children.size(); i++) {
+            IAtom atom = children.get(i);
             xWork.Ev1Mv2(atom.getPosition(), com);
             double atomMass = atom.getType().getMass();
             mass += atomMass;

@@ -190,8 +190,8 @@ public class PotentialCalculationMappedEnergy implements PotentialCalculation {
     public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
         if (!(potential instanceof Potential2SoftSpherical)) return;
         Potential2SoftSpherical p2 = (Potential2SoftSpherical)potential;
-        IAtom a = atoms.getAtom(0);
-        IAtom b = atoms.getAtom(1);
+        IAtom a = atoms.get(0);
+        IAtom b = atoms.get(1);
 //        System.out.println("volume "+vol);
         dr.Ev1Mv2(b.getPosition(),a.getPosition());
         box.getBoundary().nearestImage(dr);

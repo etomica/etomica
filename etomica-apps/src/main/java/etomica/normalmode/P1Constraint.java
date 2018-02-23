@@ -15,14 +15,14 @@ public class P1Constraint extends Potential1{
 	public P1Constraint(Space space, double neighborRadius, Box box, CoordinateDefinition coordinateDefinition) {
 	    super(space);
 
-	    siteIndex = box.getLeafList().getAtomCount();
+	    siteIndex = box.getLeafList().size();
 	    latticeSite = space.makeVectorArray(siteIndex);
 
 	    radiusInner = neighborRadius*neighborRadius/4;
 
 	    //Lattice Site Assignment
 	    for(int i=0; i<siteIndex; i++){
-	        latticeSite[i] = coordinateDefinition.getLatticePosition(box.getLeafList().getAtom(i));
+	        latticeSite[i] = coordinateDefinition.getLatticePosition(box.getLeafList().get(i));
 	    }
 	}
 	
@@ -33,9 +33,9 @@ public class P1Constraint extends Potential1{
 	@Override
 	public double energy(IAtomList atoms) {
 
-	    Vector posAtom = atoms.getAtom(0).getPosition();
+	    Vector posAtom = atoms.get(0).getPosition();
 
-	    int atomIndex = atoms.getAtom(0).getLeafIndex();
+	    int atomIndex = atoms.get(0).getLeafIndex();
 	    double d = posAtom.Mv1Squared(latticeSite[atomIndex]);
 
 	    if (d < radiusInner){

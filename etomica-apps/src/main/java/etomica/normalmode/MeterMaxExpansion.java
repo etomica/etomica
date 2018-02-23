@@ -37,11 +37,11 @@ public class MeterMaxExpansion extends DataSourceScalar {
         Boundary boundary = box.getBoundary();
         IAtomList leafList = box.getLeafList();
         double min = 1e10;
-        for (int i=0; i<leafList.getAtomCount(); i++) {
-            IAtom atomi = leafList.getAtom(i);
+        for (int i = 0; i<leafList.size(); i++) {
+            IAtom atomi = leafList.get(i);
             IAtomList nbrs = neighborManager.getUpList(atomi)[0];
-            for (int j=0; j<nbrs.getAtomCount(); j++) {
-                IAtom atomj = nbrs.getAtom(j);
+            for (int j = 0; j<nbrs.size(); j++) {
+                IAtom atomj = nbrs.get(j);
                 dr.Ev1Mv2(atomi.getPosition(), atomj.getPosition());
                 boundary.nearestImage(dr);
                 double r2 = dr.squared();

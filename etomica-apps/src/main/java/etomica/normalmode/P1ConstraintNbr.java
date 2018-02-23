@@ -56,15 +56,15 @@ public class P1ConstraintNbr implements IPotentialAtomic {
 
         boundary = box.getBoundary();
         IAtomList list = box.getLeafList();
-        neighborAtoms = new int[list.getAtomCount()][12];
+        neighborAtoms = new int[list.size()][12];
         AtomArrayList tmpList = new AtomArrayList(12);
 
-        for (int i = 0; i < list.getAtomCount(); i++) {
-            IAtom atomi = list.getAtom(i);
+        for (int i = 0; i < list.size(); i++) {
+            IAtom atomi = list.get(i);
             tmpList.clear();
-            for (int j = 0; j < list.getAtomCount(); j++) {
+            for (int j = 0; j < list.size(); j++) {
                 if (i == j) continue;
-                IAtom atomj = list.getAtom(j);
+                IAtom atomj = list.get(j);
                 drj.Ev1Mv2(atomi.getPosition(), atomj.getPosition());
                 boundary.nearestImage(drj);
                 if (drj.squared() < neighborRadiusSq * 1.01) {
@@ -73,14 +73,14 @@ public class P1ConstraintNbr implements IPotentialAtomic {
             }
 
             for (int j = 0; j < 6; j++) {
-                IAtom atomj = tmpList.getAtom(0);
+                IAtom atomj = tmpList.get(0);
                 drj.Ev1Mv2(atomi.getPosition(), atomj.getPosition());
                 boundary.nearestImage(drj);
                 drj.TE(1.0 / neighborRadiusSq);
                 neighborAtoms[i][j * 2] = atomj.getLeafIndex();
                 tmpList.remove(0);
                 int indexj2 = findOppositeAtomIndex(atomi, tmpList);
-                neighborAtoms[i][j * 2 + 1] = tmpList.getAtom(indexj2).getLeafIndex();
+                neighborAtoms[i][j * 2 + 1] = tmpList.get(indexj2).getLeafIndex();
                 tmpList.remove(indexj2);
             }
         }
@@ -111,8 +111,8 @@ public class P1ConstraintNbr implements IPotentialAtomic {
      * find atom in list that is opposite atomi from atomj (as defined by drj)
      */
     protected int findOppositeAtomIndex(IAtom atomi, IAtomList list) {
-        for (int k = 0; k < list.getAtomCount(); k++) {
-            IAtom atomk = list.getAtom(k);
+        for (int k = 0; k < list.size(); k++) {
+            IAtom atomk = list.get(k);
             drk.Ev1Mv2(atomi.getPosition(), atomk.getPosition());
             boundary.nearestImage(drk);
             double dot = drj.dot(drk);
@@ -127,7 +127,7 @@ public class P1ConstraintNbr implements IPotentialAtomic {
      * Returns sum of energy for all triplets containing the given atom
      */
     public double energy(IAtomList atoms) {
-        IAtom atom = atoms.getAtom(0);
+        IAtom atom = atoms.get(0);
         double u = energyi(atom);
         if (u == Double.POSITIVE_INFINITY) {
             return u;
@@ -136,7 +136,7 @@ public class P1ConstraintNbr implements IPotentialAtomic {
         int atomIndex = atom.getLeafIndex();
         int[] list = neighborAtoms[atomIndex];
         for (int i = 0; i < 12; i++) {
-            u += energyij(leafList.getAtom(list[i]), atom);
+            u += energyij(leafList.get(list[i]), atom);
             if (u == Double.POSITIVE_INFINITY) {
                 return u;
             }
@@ -154,8 +154,8 @@ public class P1ConstraintNbr implements IPotentialAtomic {
         int atomIndex = atom.getLeafIndex();
         int[] list = neighborAtoms[atomIndex];
         for (int i = 0; i < 12; i += 2) {
-            IAtom atomj = leafList.getAtom(list[i]);
-            IAtom atomk = leafList.getAtom(list[i + 1]);
+            IAtom atomj = leafList.get(list[i]);
+            IAtom atomk = leafList.get(list[i + 1]);
             drj.Ev1Mv2(posAtom, atomj.getPosition());
             boundary.nearestImage(drj);
             // second-nearest neighbor should be at 2.66, 3rd nearest around 3.5
@@ -185,11 +185,11 @@ public class P1ConstraintNbr implements IPotentialAtomic {
         int atomIndex = atomi.getLeafIndex();
         int[] list = neighborAtoms[atomIndex];
         for (int i = 0; i < 12; i += 2) {
-            IAtom atomk = leafList.getAtom(list[i]);
+            IAtom atomk = leafList.get(list[i]);
             if (atomk == atomj) {
-                atomk = leafList.getAtom(list[i + 1]);
+                atomk = leafList.get(list[i + 1]);
             } else {
-                IAtom atomkk = leafList.getAtom(list[i + 1]);
+                IAtom atomkk = leafList.get(list[i + 1]);
                 if (atomkk != atomj) {
                     continue;
                 }

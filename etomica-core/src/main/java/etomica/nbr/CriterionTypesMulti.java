@@ -31,11 +31,11 @@ public class CriterionTypesMulti extends CriterionAdapter {
      * if the wrapped criterion also accepts the AtomSet.
      */
     public boolean accept(IAtomList atoms) {
-        final int nAtoms = atoms.getAtomCount();
+        final int nAtoms = atoms.size();
         for (int i=0; i<types.length; i++) {
             boolean accepted = false;
             for (int j=0; j<nAtoms; j++) {
-                if (atoms.getAtom(j).getType() == types[i]) {
+                if (atoms.get(j).getType() == types[i]) {
                     accepted = true;
                 }
             }

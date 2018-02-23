@@ -89,7 +89,7 @@ public class MCMoveDimerRotate extends MCMoveBoxStep {
         atom = atomSource.getAtom();
         if (atom == null) return false;
         IAtom atom0 = atom;
-        atom1 = associationManager.getAssociatedAtoms(atom).getAtom(0);
+        atom1 = associationManager.getAssociatedAtoms(atom).get(0);
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();
         energyMeter.setTarget(atom1);
@@ -119,12 +119,12 @@ public class MCMoveDimerRotate extends MCMoveBoxStep {
         }
 
     public double getChi(double temperature) {
-        if (associationManager.getAssociatedAtoms(atom).getAtomCount() > 1) {
+        if (associationManager.getAssociatedAtoms(atom).size() > 1) {
         	return 0;
         } 
-        if (associationManager.getAssociatedAtoms(atom).getAtomCount() == 1){
-        	IAtom atomj = associationManager.getAssociatedAtoms(atom).getAtom(0);
-        	if(associationManager.getAssociatedAtoms(atomj).getAtomCount() > 1){
+        if (associationManager.getAssociatedAtoms(atom).size() == 1){
+        	IAtom atomj = associationManager.getAssociatedAtoms(atom).get(0);
+        	if(associationManager.getAssociatedAtoms(atomj).size() > 1){
         		return 0;
         	} 
         }

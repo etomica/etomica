@@ -25,8 +25,8 @@ public class P2HardAssociationGCPMReference extends PNWaterGCPM {
         IAtomList water1Atoms = atoms.getMolecule(0).getChildList();
         IAtomList water2Atoms = atoms.getMolecule(1).getChildList();
 
-        Vector O1r = water1Atoms.getAtom(SpeciesWater4P.indexO).getPosition();
-        Vector O2r = water2Atoms.getAtom(SpeciesWater4P.indexO).getPosition();
+        Vector O1r = water1Atoms.get(SpeciesWater4P.indexO).getPosition();
+        Vector O2r = water2Atoms.get(SpeciesWater4P.indexO).getPosition();
         
         work.Ev1Mv2(O1r, O2r);
         
@@ -35,13 +35,13 @@ public class P2HardAssociationGCPMReference extends PNWaterGCPM {
       
         work.normalize();
 
-        Vector H11r = water1Atoms.getAtom(SpeciesWater4P.indexH1).getPosition();
-        Vector H12r = water1Atoms.getAtom(SpeciesWater4P.indexH2).getPosition();
-        Vector H21r = water2Atoms.getAtom(SpeciesWater4P.indexH1).getPosition();
-        Vector H22r = water2Atoms.getAtom(SpeciesWater4P.indexH2).getPosition();
+        Vector H11r = water1Atoms.get(SpeciesWater4P.indexH1).getPosition();
+        Vector H12r = water1Atoms.get(SpeciesWater4P.indexH2).getPosition();
+        Vector H21r = water2Atoms.get(SpeciesWater4P.indexH1).getPosition();
+        Vector H22r = water2Atoms.get(SpeciesWater4P.indexH2).getPosition();
 
-        Vector M1r = water1Atoms.getAtom(SpeciesWater4P.indexM).getPosition();
-        Vector M2r = water2Atoms.getAtom(SpeciesWater4P.indexM).getPosition();
+        Vector M1r = water1Atoms.get(SpeciesWater4P.indexM).getPosition();
+        Vector M2r = water2Atoms.get(SpeciesWater4P.indexM).getPosition();
         
         Vector rH11O2 = space.makeVector();
 		rH11O2.E(H11r);

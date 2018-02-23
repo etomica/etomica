@@ -17,12 +17,12 @@ public class AtomSetSinglet implements IAtomList, java.io.Serializable {
         this.atom = atom;
     }
     
-    public final IAtom getAtom(int i) {
+    public final IAtom get(int i) {
         if(i == 0) return atom;
         throw new IllegalArgumentException();
     }
 
-    public final int getAtomCount() {
+    public final int size() {
         return 1;
     }
     

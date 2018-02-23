@@ -91,11 +91,11 @@ public class P2HardBondedList extends Potential2 implements PotentialHard, Agent
         return getBondedList(atom0).contains(atom1);
     }
     public boolean isBonded(IAtomList pair) {
-        return isBonded(pair.getAtom(0), pair.getAtom(1));
+        return isBonded(pair.get(0), pair.get(1));
     }
     
     private MyBond getBond(IAtomList pair) {
-        return getBondedList(pair.getAtom(0)).getBond(pair.getAtom(1));
+        return getBondedList(pair.get(0)).getBond(pair.get(1));
     }
     
     /**

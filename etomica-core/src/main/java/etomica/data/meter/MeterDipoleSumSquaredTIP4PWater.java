@@ -42,10 +42,10 @@ public class MeterDipoleSumSquaredTIP4PWater extends DataSourceScalar{
 		int numMolecule = moleculeList.getMoleculeCount();
 		for (int i=0;i<numMolecule; i++){
 			IAtomList childList = moleculeList.getMolecule(i).getChildList();
-			IAtom atomH1 = childList.getAtom(0);
-			IAtom atomH2 = childList.getAtom(1);
-			IAtom atomO = childList.getAtom(2);
-			IAtom atomM = childList.getAtom(3);
+			IAtom atomH1 = childList.get(0);
+			IAtom atomH2 = childList.get(1);
+			IAtom atomO = childList.get(2);
+			IAtom atomM = childList.get(3);
 			double chargeH = Electron.UNIT.toSim(+0.52);
 			double chargeM = Electron.UNIT.toSim(-1.04);
 			

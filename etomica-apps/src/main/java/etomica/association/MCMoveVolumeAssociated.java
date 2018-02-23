@@ -92,7 +92,7 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
         vScale = (2.*random.nextDouble()-1.)*stepSize;
         vNew = vOld * Math.exp(vScale); //Step in ln(V)
         double rScale = Math.exp(vScale/D);
-        numAssociatedAtoms = associationManager.getAssociatedAtoms().getAtomCount();
+        numAssociatedAtoms = associationManager.getAssociatedAtoms().size();
 //        System.out.println("doTrial, associated atoms = " +associationManager.getAssociatedAtoms());//list of the associated atoms
 //        associationManager.initialize();
 //        if (numAssociatedAtoms != associationManager.getAssociatedAtoms().getAtomCount()){//numAssociatedAtoms after move
@@ -152,12 +152,12 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
     	}
     	numMer = 0;
     	IAtomList atomList = box.getLeafList();// all atoms in the box
-    	for (int i=0; i< atomList.getAtomCount(); i++){
-        	IAtom atom = atomList.getAtom(i);
+    	for (int i = 0; i< atomList.size(); i++){
+        	IAtom atom = atomList.get(i);
         	atomLeafAgentManager.getAgent(atom).nAtoms = 0;
     	}
-    	for (int i=0; i< atomList.getAtomCount(); i++){
-        	IAtom atom = atomList.getAtom(i);
+    	for (int i = 0; i< atomList.size(); i++){
+        	IAtom atom = atomList.get(i);
         	if (atomLeafAgentManager.getAgent(atom).nAtoms!= 0){
         		continue;
         	}
@@ -173,13 +173,13 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
         			throw new RuntimeException(e);
     			}
         	}
-        	for (int j=0; j<smerList.getAtomCount(); j+=1){
-        		Agent jAgent = atomLeafAgentManager.getAgent(smerList.getAtom(j));
-        		jAgent.nAtoms = smerList.getAtomCount();
-        		jAgent.nextAtom = j<smerList.getAtomCount()-1 ? smerList.getAtom(j+1) : null;//if condition is true, 1st value, if condition is false, 2nd value
+        	for (int j = 0; j<smerList.size(); j+=1){
+        		Agent jAgent = atomLeafAgentManager.getAgent(smerList.get(j));
+        		jAgent.nAtoms = smerList.size();
+        		jAgent.nextAtom = j<smerList.size()-1 ? smerList.get(j+1) : null;//if condition is true, 1st value, if condition is false, 2nd value
         	}
         	//System.out.println("atom= "+atom+" bonded atoms= "+bondedAtoms);
-        	if (smerList.getAtomCount() == 1){
+        	if (smerList.size() == 1){
 //        		if (atom.getLeafIndex() == 226 || atom.getLeafIndex() == 66) {
 //        			System.out.println("monomer atom1 before = "+ atom+ "its position = "+atom.getPosition());
 //        		}
@@ -191,18 +191,18 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
         	}
         	
         	r.E(0.0);
-            for (int j = 0; j<smerList.getAtomCount(); j+=1){
+            for (int j = 0; j<smerList.size(); j+=1){
 //            	if (smerList.getAtom(j).getLeafIndex() == 226 || smerList.getAtom(j).getLeafIndex() == 66) {
 //        			System.out.println("atom1 = "+ smerList.getAtom(j)+ "its position = "+smerList.getAtom(j).getPosition());
 //        		}
-            	dr.Ev1Mv2((smerList.getAtom(j)).getPosition(), r);//dr = distance from the atom to the center of the mass
+            	dr.Ev1Mv2((smerList.get(j)).getPosition(), r);//dr = distance from the atom to the center of the mass
             	box.getBoundary().nearestImage(dr);
-            	smerList.getAtom(j).getPosition().Ev1Pv2(r, dr);//move atom2 to the outside of box
+            	smerList.get(j).getPosition().Ev1Pv2(r, dr);//move atom2 to the outside of box
             	r.PEa1Tv1(1.0/(j+1), dr);
             }
             r.TE(rScale-1.0);
-            for (int j = 0; j<smerList.getAtomCount(); j+=1){
-            	smerList.getAtom(j).getPosition().PE(r);
+            for (int j = 0; j<smerList.size(); j+=1){
+            	smerList.get(j).getPosition().PE(r);
 //            	if (smerList.getAtom(j).getLeafIndex() == 226 || smerList.getAtom(j).getLeafIndex() == 66) {
 //            		System.out.println("rScale= "+rScale+"translation scaling "+ r);
 //            	}
@@ -224,14 +224,14 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
     protected void unscaleAtoms(double rScale) {
     	IAtomList atomList = box.getLeafList();
         
-        for (int i=0; i< atomList.getAtomCount(); i++){
-        	IAtom atom = atomList.getAtom(i);
+        for (int i = 0; i< atomList.size(); i++){
+        	IAtom atom = atomList.get(i);
         	Agent iAgent = atomLeafAgentManager.getAgent(atom);
         	if (iAgent.nAtoms == 0){
         		continue;
         	}
         	IAtomList bondedAtoms = associationManager.getAssociatedAtoms(atom);
-        	if (bondedAtoms.getAtomCount() == 0) {
+        	if (bondedAtoms.size() == 0) {
 //        		if (atom.getLeafIndex() == 226 || atom.getLeafIndex() == 66) {
 //        			System.out.println("unscale atom  = "+ atom +" " +atom.getPosition());
 //        		}
@@ -239,8 +239,8 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
         		if (dodebug){
         			if (atom.getLeafIndex() == 19 || atom.getLeafIndex() == 76||atom.getLeafIndex() == 127 || atom.getLeafIndex() == 139||atom.getLeafIndex() == 196){
         				System.out.println("One of these is monomer:1st "+atom);
-        				IAtomOriented atom19 = (IAtomOriented)box.getLeafList().getAtom(19);
-        				IAtomOriented atom139 = (IAtomOriented)box.getLeafList().getAtom(139);
+        				IAtomOriented atom19 = (IAtomOriented)box.getLeafList().get(19);
+        				IAtomOriented atom139 = (IAtomOriented)box.getLeafList().get(139);
         				System.out.println(" orientation of atom19: "+atom19.getOrientation().getDirection());
     					System.out.println(" orientation of atom139: "+atom139.getOrientation().getDirection());
         			}
@@ -305,32 +305,32 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
     	IAtomList bondList = associationManager.getAssociatedAtoms(atom);
     	double innerRadius = 0.8;
     	double minDistance = 2*(innerRadius*innerRadius)*(1+Math.cos(etomica.units.Degree.UNIT.toSim(27.0)));
-    	if (bondList.getAtomCount() > 2){
+    	if (bondList.size() > 2){
     		//System.out.println("atom "+ atom+" bondList: "+ bondList);
     		return 0;
     	}
-    	if (bondList.getAtomCount() == 2){
-    		IAtom atom0 = bondList.getAtom(0);
-    		IAtom atom1 = bondList.getAtom(1);
+    	if (bondList.size() == 2){
+    		IAtom atom0 = bondList.get(0);
+    		IAtom atom1 = bondList.get(1);
     		dr2.Ev1Mv2((atom0).getPosition(), (atom1).getPosition());//dr = distance from the atom0 to atom1
         	box.getBoundary().nearestImage(dr2);
         	if (dr2.squared() < minDistance){
         		return 0;
         	}
     	}
-    	if (bondList.getAtomCount() == 0){
+    	if (bondList.size() == 0){
     		return 1;
     	}
-    	IAtom thisAtom = bondList.getAtom(0);
+    	IAtom thisAtom = bondList.get(0);
     	mySmerList.add(thisAtom);
     	IAtomList bondList1 = associationManager.getAssociatedAtoms(thisAtom);
-    	if (bondList1.getAtomCount() > 2){
+    	if (bondList1.size() > 2){
     		//System.out.println("this atom "+ thisAtom+" bondList1: "+ bondList1);
     		return 0;
     	}
-    	if (bondList1.getAtomCount() == 2){
-    		IAtom atom0 = bondList1.getAtom(0);
-    		IAtom atom1 = bondList1.getAtom(1);
+    	if (bondList1.size() == 2){
+    		IAtom atom0 = bondList1.get(0);
+    		IAtom atom1 = bondList1.get(1);
     		dr2.Ev1Mv2((atom0).getPosition(), (atom1).getPosition());//dr = distance from the atom0 to atom1
         	box.getBoundary().nearestImage(dr2);
         	if (dr2.squared() < minDistance){
@@ -338,23 +338,23 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
         	}
     	}
     	IAtom previousAtom = atom;
-    	while (bondList1.getAtomCount() > 1){
-    		IAtom nextAtom = bondList1.getAtom(0);
+    	while (bondList1.size() > 1){
+    		IAtom nextAtom = bondList1.get(0);
     		if (nextAtom == previousAtom){
-    			nextAtom = bondList1.getAtom(1);
+    			nextAtom = bondList1.get(1);
     		} 
     		if (nextAtom == atom){
     			return 1;
     		}
     		mySmerList.add(nextAtom);
     		bondList1 = associationManager.getAssociatedAtoms(nextAtom);
-    		if (bondList1.getAtomCount() > 2){
+    		if (bondList1.size() > 2){
     			//System.out.println("next atom "+ nextAtom+" bondList1: "+ bondList1);
         		return 0;
         	}
-    		if (bondList1.getAtomCount() == 2){
-        		IAtom atom0 = bondList1.getAtom(0);
-        		IAtom atom1 = bondList1.getAtom(1);
+    		if (bondList1.size() == 2){
+        		IAtom atom0 = bondList1.get(0);
+        		IAtom atom1 = bondList1.get(1);
         		dr2.Ev1Mv2((atom0).getPosition(), (atom1).getPosition());//dr = distance from the atom0 to atom1
             	box.getBoundary().nearestImage(dr2);
             	if (dr2.squared() < minDistance){
@@ -364,17 +364,17 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
     		previousAtom = thisAtom;
     		thisAtom = nextAtom;
     	}
-    	if (bondList.getAtomCount()>1){
-    		thisAtom = bondList.getAtom(1);
+    	if (bondList.size()>1){
+    		thisAtom = bondList.get(1);
         	mySmerList.add(thisAtom);
         	bondList1 = associationManager.getAssociatedAtoms(thisAtom);
-        	if (bondList1.getAtomCount() > 2){
+        	if (bondList1.size() > 2){
         		//System.out.println("this atom "+ thisAtom+" bondList1: "+ bondList1);
         		return 0;
         	}
-        	if (bondList1.getAtomCount() == 2){
-        		IAtom atom0 = bondList1.getAtom(0);
-        		IAtom atom1 = bondList1.getAtom(1);
+        	if (bondList1.size() == 2){
+        		IAtom atom0 = bondList1.get(0);
+        		IAtom atom1 = bondList1.get(1);
         		dr2.Ev1Mv2((atom0).getPosition(), (atom1).getPosition());//dr = distance from the atom0 to atom1
             	box.getBoundary().nearestImage(dr2);
             	
@@ -383,20 +383,20 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
             	}
         	}
         	previousAtom = atom;
-        	while (bondList1.getAtomCount() > 1){
-        		IAtom nextAtom = bondList1.getAtom(0);
+        	while (bondList1.size() > 1){
+        		IAtom nextAtom = bondList1.get(0);
         		if (nextAtom == previousAtom){
-        			nextAtom = bondList1.getAtom(1);
+        			nextAtom = bondList1.get(1);
         		} 
         		mySmerList.add(nextAtom);
         		bondList1 = associationManager.getAssociatedAtoms(nextAtom);
-        		if (bondList1.getAtomCount() > 2){
+        		if (bondList1.size() > 2){
         			//System.out.println("next atom "+ nextAtom+" bondList1: "+ bondList1);
             		return 0;
             	}
-        		if (bondList1.getAtomCount() == 2){
-            		IAtom atom0 = bondList1.getAtom(0);
-            		IAtom atom1 = bondList1.getAtom(1);
+        		if (bondList1.size() == 2){
+            		IAtom atom0 = bondList1.get(0);
+            		IAtom atom1 = bondList1.get(1);
             		dr2.Ev1Mv2((atom0).getPosition(), (atom1).getPosition());//dr = distance from the atom0 to atom1
                 	box.getBoundary().nearestImage(dr2);
                 	if (dr2.squared() < minDistance){
@@ -426,12 +426,12 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
 //    		throw new RuntimeException ("!!!");
 //    	}
     	IAtomList atomList = box.getLeafList();
-    	for (int i=0; i< atomList.getAtomCount(); i++){
-        	IAtom atom = atomList.getAtom(i);
+    	for (int i = 0; i< atomList.size(); i++){
+        	IAtom atom = atomList.get(i);
         	populateList(smerList, atom);
-        	for (int j=0; j<smerList.getAtomCount(); j+=1){
+        	for (int j = 0; j<smerList.size(); j+=1){
         		Agent jAgent = atomLeafAgentManager.getAgent(atom);
-        		if (jAgent.nAtoms != smerList.getAtomCount()){
+        		if (jAgent.nAtoms != smerList.size()){
         			return 0;
         		}
         	}

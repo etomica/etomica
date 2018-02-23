@@ -142,8 +142,8 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
         IAtomList water1Atoms = atoms.getMolecule(0).getChildList();
         IAtomList water2Atoms = atoms.getMolecule(1).getChildList();
 
-        Vector O1r = water1Atoms.getAtom(SpeciesWater4P.indexO).getPosition();
-        Vector O2r = water2Atoms.getAtom(SpeciesWater4P.indexO).getPosition();
+        Vector O1r = water1Atoms.get(SpeciesWater4P.indexO).getPosition();
+        Vector O2r = water2Atoms.get(SpeciesWater4P.indexO).getPosition();
 
         work.Ev1Mv2(O1r, O2r);
         shift.Ea1Tv1(-1, work);
@@ -157,13 +157,13 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
             return Double.POSITIVE_INFINITY;
         }
 
-        Vector H11r = water1Atoms.getAtom(SpeciesWater4P.indexH1).getPosition();
-        Vector H12r = water1Atoms.getAtom(SpeciesWater4P.indexH2).getPosition();
-        Vector H21r = water2Atoms.getAtom(SpeciesWater4P.indexH1).getPosition();
-        Vector H22r = water2Atoms.getAtom(SpeciesWater4P.indexH2).getPosition();
+        Vector H11r = water1Atoms.get(SpeciesWater4P.indexH1).getPosition();
+        Vector H12r = water1Atoms.get(SpeciesWater4P.indexH2).getPosition();
+        Vector H21r = water2Atoms.get(SpeciesWater4P.indexH1).getPosition();
+        Vector H22r = water2Atoms.get(SpeciesWater4P.indexH2).getPosition();
 
-        Vector M1r = water1Atoms.getAtom(SpeciesWater4P.indexM).getPosition();
-        Vector M2r = water2Atoms.getAtom(SpeciesWater4P.indexM).getPosition();
+        Vector M1r = water1Atoms.get(SpeciesWater4P.indexM).getPosition();
+        Vector M2r = water2Atoms.get(SpeciesWater4P.indexM).getPosition();
 
         double r = Math.sqrt(r2);
         double rOverSigma = r / sigma;
@@ -281,9 +281,9 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
 
         for (int i = 0; i < atoms.getMoleculeCount(); i++) {
             IAtomList iLeafAtoms = atoms.getMolecule(i).getChildList();
-            Vector O1r = iLeafAtoms.getAtom(SpeciesWater4P.indexO).getPosition();
-            Vector H11r = iLeafAtoms.getAtom(SpeciesWater4P.indexH1).getPosition();
-            Vector H12r = iLeafAtoms.getAtom(SpeciesWater4P.indexH2).getPosition();
+            Vector O1r = iLeafAtoms.get(SpeciesWater4P.indexO).getPosition();
+            Vector H11r = iLeafAtoms.get(SpeciesWater4P.indexH1).getPosition();
+            Vector H12r = iLeafAtoms.get(SpeciesWater4P.indexH2).getPosition();
 
             comWi.Ea1Tv1(massH, H11r);
             comWi.PEa1Tv1(massO, O1r);
@@ -293,10 +293,10 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
             for (int j = 0; j < atoms.getMoleculeCount(); j++) {
                 if (i == j) continue;
                 IAtomList jLeafAtoms = atoms.getMolecule(j).getChildList();
-                Vector Mjr = jLeafAtoms.getAtom(SpeciesWater4P.indexM).getPosition();
-                Vector Ojr = jLeafAtoms.getAtom(SpeciesWater4P.indexO).getPosition();
-                Vector Hj1r = jLeafAtoms.getAtom(SpeciesWater4P.indexH1).getPosition();
-                Vector Hj2r = jLeafAtoms.getAtom(SpeciesWater4P.indexH2).getPosition();
+                Vector Mjr = jLeafAtoms.get(SpeciesWater4P.indexM).getPosition();
+                Vector Ojr = jLeafAtoms.get(SpeciesWater4P.indexO).getPosition();
+                Vector Hj1r = jLeafAtoms.get(SpeciesWater4P.indexH1).getPosition();
+                Vector Hj2r = jLeafAtoms.get(SpeciesWater4P.indexH2).getPosition();
 
                 work.Ev1Mv2(O1r, Ojr);
                 shift.Ea1Tv1(-1, work);

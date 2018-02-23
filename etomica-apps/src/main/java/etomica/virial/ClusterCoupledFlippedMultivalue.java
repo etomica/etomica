@@ -146,10 +146,10 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
     protected void flip(IMolecule flippedMolecule) {
         Vector COM = positionDefinition.position(flippedMolecule);
 		IAtomList childAtoms = flippedMolecule.getChildList();
-		for (int i = 0; i < childAtoms.getAtomCount(); i++) {
+		for (int i = 0; i < childAtoms.size(); i++) {
 		    childAtomVector.Ea1Tv1(2,COM);
-			childAtomVector.ME(childAtoms.getAtom(i).getPosition());
-			childAtoms.getAtom(i).getPosition().E(childAtomVector);
+			childAtomVector.ME(childAtoms.get(i).getPosition());
+			childAtoms.get(i).getPosition().E(childAtomVector);
 		}
     }
 

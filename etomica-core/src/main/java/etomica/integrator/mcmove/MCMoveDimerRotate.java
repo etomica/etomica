@@ -88,9 +88,9 @@ public class MCMoveDimerRotate extends MCMoveBoxStep {
         atom1 = null;
         for (IAtomList pair = neighborIterator.next(); pair != null;
              pair = neighborIterator.next()) {
-        	 atom1 = pair.getAtom(1);
+        	 atom1 = pair.get(1);
         	 if (atom1 == atom0) {
-        		 atom1 = pair.getAtom(0);
+        		 atom1 = pair.get(0);
         	 }
         	dr.Ev1Mv2(atom0.getPosition(),atom1.getPosition());
         	box.getBoundary().nearestImage(dr);

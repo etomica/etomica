@@ -61,10 +61,10 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
 	public void acceptNotify() {
         IAtomList leafList1 = integrator1.getBox().getLeafList();
         IAtomList leafList2 = integrator2.getBox().getLeafList();
-        int nLeaf = leafList1.getAtomCount();
+        int nLeaf = leafList1.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom a1 = leafList1.getAtom(iLeaf);
-            IAtom a2 = leafList2.getAtom(iLeaf);
+            IAtom a1 = leafList1.get(iLeaf);
+            IAtom a2 = leafList2.get(iLeaf);
 
 			r.E(a1.getPosition());
 				

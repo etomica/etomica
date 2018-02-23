@@ -63,7 +63,7 @@ public class BoxCluster extends Box {
             // assume 1 species
             IMoleculeList molecules = getMoleculeList();
             IAtomList leafAtoms = getLeafList();
-            if (molecules.getMoleculeCount() == leafAtoms.getAtomCount()) {
+            if (molecules.getMoleculeCount() == leafAtoms.size()) {
                 cPairSet = new CoordinatePairLeafSet(leafAtoms,space);
                 cPairTrialSet = new CoordinatePairLeafSet(leafAtoms,space);
             }

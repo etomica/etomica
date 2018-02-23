@@ -31,7 +31,7 @@ public class MCMoveClusterAtomDiscrete extends MCMoveAtom {
     public void setBox(Box p) {
         super.setBox(p);
         if (translationVectors == null) {
-            translationVectors = new Vector[box.getLeafList().getAtomCount()-1];
+            translationVectors = new Vector[box.getLeafList().size()-1];
             for (int i=0; i<translationVectors.length; i++) {
                 translationVectors[i] = space.makeVector();
             }
@@ -51,17 +51,17 @@ public class MCMoveClusterAtomDiscrete extends MCMoveAtom {
         int imax = (int)Math.ceil(stepSize / dr);
         int idr = random.nextInt(2*imax) - imax;
         if (idr >= 0) idr++;
-        Vector p1 = box.getLeafList().getAtom(1).getPosition();
+        Vector p1 = box.getLeafList().get(1).getPosition();
         oldR = p1.getX(0);
         int iOldR = (int)Math.round(oldR/dr);
         newR = (iOldR + idr)*dr;
         p1.setX(0, newR);
 
         IAtomList leafAtoms = box.getLeafList();
-        for(int i=2; i<leafAtoms.getAtomCount(); i++) {
+        for(int i = 2; i<leafAtoms.size(); i++) {
             translationVectors[i-1].setRandomCube(random);
             translationVectors[i-1].TE(0.5*stepSize);
-            leafAtoms.getAtom(i).getPosition().PE(translationVectors[i-1]);
+            leafAtoms.get(i).getPosition().PE(translationVectors[i-1]);
         }
 
         ((BoxCluster)box).trialNotify();
@@ -85,12 +85,12 @@ public class MCMoveClusterAtomDiscrete extends MCMoveAtom {
     }
     
     public void rejectNotify() {
-        Vector p1 = box.getLeafList().getAtom(1).getPosition();
+        Vector p1 = box.getLeafList().get(1).getPosition();
         p1.setX(0, oldR);
 
         IAtomList leafAtoms = box.getLeafList();
-        for(int i=2; i<leafAtoms.getAtomCount(); i++) {
-            leafAtoms.getAtom(i).getPosition().ME(translationVectors[i-1]);
+        for(int i = 2; i<leafAtoms.size(); i++) {
+            leafAtoms.get(i).getPosition().ME(translationVectors[i-1]);
         }
 
         ((BoxCluster)box).rejectNotify();

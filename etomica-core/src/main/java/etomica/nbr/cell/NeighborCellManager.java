@@ -213,9 +213,9 @@ public class NeighborCellManager implements BoxCellManager, BoundaryEventListene
         }
 
         IAtomList leafList = box.getLeafList();
-        int count = leafList.getAtomCount();
+        int count = leafList.size();
         for (int i=0; i<count; i++) {
-            IAtom atom = leafList.getAtom(i);
+            IAtom atom = leafList.get(i);
             assignCell(atom);
         }
     }

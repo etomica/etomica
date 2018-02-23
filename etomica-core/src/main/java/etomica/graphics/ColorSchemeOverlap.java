@@ -25,14 +25,14 @@ public class ColorSchemeOverlap extends ColorSchemeCollectiveAgent {
     public ColorSchemeOverlap(Space space, PotentialMasterList potentialMaster, Box box) {
         super(box);
         leafList = box.getLeafList();
-        nOverlaps = new int[leafList.getAtomCount()];
+        nOverlaps = new int[leafList.size()];
         neighborManager = potentialMaster.getNeighborManager(box);
         dr = space.makeVector();
         boundary = box.getBoundary();
     }
 
     public synchronized void colorAllAtoms() {
-        int nLeaf = leafList.getAtomCount();
+        int nLeaf = leafList.size();
         if (nOverlaps.length != nLeaf) {
             nOverlaps = new int[nLeaf];
         }
@@ -41,12 +41,12 @@ public class ColorSchemeOverlap extends ColorSchemeCollectiveAgent {
                 nOverlaps[iLeaf] = 0;
             }
         }
-        for (int i=0; i<leafList.getAtomCount(); i++) {
-            IAtom atom = leafList.getAtom(i);
+        for (int i = 0; i<leafList.size(); i++) {
+            IAtom atom = leafList.get(i);
             IAtomList list = neighborManager.getDownList(atom)[0];
             Vector p = atom.getPosition();
-            for (int j=0; j<list.getAtomCount(); j++) {
-                IAtom jAtom = list.getAtom(j);
+            for (int j = 0; j<list.size(); j++) {
+                IAtom jAtom = list.get(j);
                 dr.Ev1Mv2(p, jAtom.getPosition());
                 boundary.nearestImage(dr);
                 double r2 = dr.squared();
@@ -57,9 +57,9 @@ public class ColorSchemeOverlap extends ColorSchemeCollectiveAgent {
                 }
             }
         }
-        for (int i=0; i<leafList.getAtomCount(); i++) {
+        for (int i = 0; i<leafList.size(); i++) {
             // set appropriate color for the # of overlaps for each atom
-            agentManager.setAgent(leafList.getAtom(i), colors[nOverlaps[i]]);
+            agentManager.setAgent(leafList.get(i), colors[nOverlaps[i]]);
         }
     }
 

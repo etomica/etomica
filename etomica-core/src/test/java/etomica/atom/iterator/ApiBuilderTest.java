@@ -150,21 +150,21 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         LinkedList list0 = generalIteratorMethodTests(api);
         assertEquals(list0.size(), 12);
         //test 3 and 4, one of the 3 given as target
-        IAtom target0 = moleculeList0.getMolecule(2).getChildList().getAtom(1);
+        IAtom target0 = moleculeList0.getMolecule(2).getChildList().get(1);
         api.setTarget(target0);
         LinkedList list1 = generalIteratorMethodTests(api);
         assertEquals(list1.size(), 4);
         //test 3 and 4, one of the 4 given as target
-        IAtom target1 = moleculeList1.getMolecule(1).getChildList().getAtom(0);
+        IAtom target1 = moleculeList1.getMolecule(1).getChildList().get(0);
         api.setTarget(target1);
         list1 = generalIteratorMethodTests(api);
         assertEquals(list1.size(), 3);
         //give target that isn't the specified type
-        target0 = moleculeList0.getMolecule(2).getChildList().getAtom(4);
+        target0 = moleculeList0.getMolecule(2).getChildList().get(4);
         api.setTarget(target0);
         testNoIterates(api);
         //again
-        target1 = moleculeList1.getMolecule(1).getChildList().getAtom(10);
+        target1 = moleculeList1.getMolecule(1).getChildList().get(10);
         api.setTarget(target1);
         testNoIterates(api);
         //no targets again
@@ -182,11 +182,11 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         api.setBasis(basisPair);
         testNoIterates(api);
         //test 3 and 4, one of the 3 given as target
-        target0 = moleculeList0.getMolecule(2).getChildList().getAtom(1);
+        target0 = moleculeList0.getMolecule(2).getChildList().get(1);
         api.setTarget(target0);
         testNoIterates(api);
         //test 3 and 4, one of the 4 given as target
-        target1 = moleculeList1.getMolecule(1).getChildList().getAtom(0);
+        target1 = moleculeList1.getMolecule(1).getChildList().get(0);
         api.setTarget(target1);
         testNoIterates(api);
 
@@ -201,12 +201,12 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         list0 = generalIteratorMethodTests(api);
         assertEquals(12, list0.size());
         //test 3 and 4, one of the 3 given as target
-        target0 = moleculeList0.getMolecule(2).getChildList().getAtom(1);
+        target0 = moleculeList0.getMolecule(2).getChildList().get(1);
         api.setTarget(target0);
         list1 = generalIteratorMethodTests(api);
         assertEquals(4, list1.size());
         //test 3 and 4, one of the 4 given as target
-        target1 = moleculeList1.getMolecule(1).getChildList().getAtom(0);
+        target1 = moleculeList1.getMolecule(1).getChildList().get(0);
         api.setTarget(target1);
         list1 = generalIteratorMethodTests(api);
         assertEquals(3, list1.size());
@@ -221,21 +221,21 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         list0 = generalIteratorMethodTests(api);
         assertEquals(3, list0.size());
         //test 3 and 1, one of the 3 given as target
-        target0 = moleculeList0.getMolecule(2).getChildList().getAtom(1);
+        target0 = moleculeList0.getMolecule(2).getChildList().get(1);
         api.setTarget(target0);
         list1 = generalIteratorMethodTests(api);
         assertEquals(1, list1.size());
         //test 3 and 1, the 1 given as target
-        target1 = moleculeList1.getMolecule(1).getChildList().getAtom(4);
+        target1 = moleculeList1.getMolecule(1).getChildList().get(4);
         api.setTarget(target1);
         list1 = generalIteratorMethodTests(api);
         assertEquals(3, list1.size());
         //give target that isn't the specified type
-        target0 = moleculeList0.getMolecule(2).getChildList().getAtom(4);
+        target0 = moleculeList0.getMolecule(2).getChildList().get(4);
         api.setTarget(target0);
         testNoIterates(api);
         //again
-        target1 = moleculeList1.getMolecule(1).getChildList().getAtom(10);
+        target1 = moleculeList1.getMolecule(1).getChildList().get(10);
         api.setTarget(target1);
         testNoIterates(api);
         //no targets again
@@ -299,7 +299,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         Box box = sim.getBox(1);
         ISpecies species1 = sim.getSpecies(1);
         parent = box.getMoleculeList(species1).getMolecule(0);//box1, species1, molecule0
-        target = parent.getChildList().getAtom(0);
+        target = parent.getChildList().get(0);
         targetFirst = target;
         targetLast = target;
         up = dn = upFirst = dnLast = null;
@@ -313,22 +313,22 @@ public class ApiBuilderTest extends IteratorTestAbstract {
     private void setup1() {
         parent = sim.getBox(0).getMoleculeList(sim.getSpecies(0)).getMolecule(2);
         IAtomList childList = parent.getChildList();
-        target = childList.getAtom(5);
-        targetFirst = childList.getAtom(0);
-        targetLast = childList.getAtom(9);
-        up = childList.getAtom(6);
-        upNon = new IAtom[] {childList.getAtom(7),childList.getAtom(8),childList.getAtom(9)};
-        upFirst = childList.getAtom(1);
-        upFirstNon = new IAtom[] {childList.getAtom(2),childList.getAtom(3),
-                childList.getAtom(4),childList.getAtom(5),childList.getAtom(6),
-                childList.getAtom(7),childList.getAtom(8),childList.getAtom(9)};
-        dn = childList.getAtom(4);
-        dnNon = new IAtom[] {childList.getAtom(3),childList.getAtom(2),childList.getAtom(1),
-                childList.getAtom(0)};
-        dnLast = childList.getAtom(8);
-        dnLastNon = new IAtom[] {childList.getAtom(7),childList.getAtom(6),
-                childList.getAtom(5),childList.getAtom(4),childList.getAtom(3),
-                childList.getAtom(2),childList.getAtom(1),childList.getAtom(0)};
+        target = childList.get(5);
+        targetFirst = childList.get(0);
+        targetLast = childList.get(9);
+        up = childList.get(6);
+        upNon = new IAtom[] {childList.get(7),childList.get(8),childList.get(9)};
+        upFirst = childList.get(1);
+        upFirstNon = new IAtom[] {childList.get(2),childList.get(3),
+                childList.get(4),childList.get(5),childList.get(6),
+                childList.get(7),childList.get(8),childList.get(9)};
+        dn = childList.get(4);
+        dnNon = new IAtom[] {childList.get(3),childList.get(2),childList.get(1),
+                childList.get(0)};
+        dnLast = childList.get(8);
+        dnLastNon = new IAtom[] {childList.get(7),childList.get(6),
+                childList.get(5),childList.get(4),childList.get(3),
+                childList.get(2),childList.get(1),childList.get(0)};
         iterate = target;
         iterateFirst = targetFirst;
         iterateLast = targetLast;
@@ -391,7 +391,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         //no target, n-1 iterates
         api.setTarget(null);
         LinkedList list0 = generalIteratorMethodTests(api);
-        assertEquals(list0.size(), parent.getChildList().getAtomCount()-1);
+        assertEquals(list0.size(), parent.getChildList().size()-1);
 
         //if no target, direction doesn't matter
         api.setDirection(null);
@@ -463,7 +463,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         //(first and last have n-2, the other n-2 have n-3)
         api.setTarget(null);
         LinkedList list0 = generalIteratorMethodTests(api);
-        int n = parent.getChildList().getAtomCount();
+        int n = parent.getChildList().size();
         assertEquals(list0.size(), (2*(n-2) + (n-2)*(n-3))/2);
 
         //if no target, direction doesn't matter

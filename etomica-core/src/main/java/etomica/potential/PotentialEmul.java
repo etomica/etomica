@@ -70,9 +70,9 @@ public class PotentialEmul extends PotentialMolecular {
 	public double energy(IMoleculeList molecules) {
         
     	for (int i=0; i<molecules.getMoleculeCount(); i++) {
-    	    IAtom atomi = molecules.getMolecule(i).getChildList().getAtom(0);
+    	    IAtom atomi = molecules.getMolecule(i).getChildList().get(0);
             for (int j=i+1; j<molecules.getMoleculeCount(); j++) {
-                IAtom atomj = molecules.getMolecule(j).getChildList().getAtom(0);
+                IAtom atomj = molecules.getMolecule(j).getChildList().get(0);
                 r12Vec.Ev1Mv2(atomi.getPosition(), atomj.getPosition());
                 boundary.nearestImage(r12Vec);
                 
@@ -94,7 +94,7 @@ public class PotentialEmul extends PotentialMolecular {
 		    System.err.println("failed to get energy.");
 		    System.err.println("Here are the atomic coordinates:");
 	        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-	            IAtom atomi = molecules.getMolecule(i).getChildList().getAtom(0);
+	            IAtom atomi = molecules.getMolecule(i).getChildList().get(0);
 	            System.out.println(i+" "+atomi.getPosition());
 	        }
 	        throw new RuntimeException(ex);
@@ -172,7 +172,7 @@ public class PotentialEmul extends PotentialMolecular {
                     fw.write(bufReader.readLine()+"\n");
                     // the next line has the element and we add the x-y-z coordinate
                     // XXX we only handle mono-atomic molecules
-                    IAtom atom = molecules.getMolecule(nAtomsWritten).getChildList().getAtom(0);
+                    IAtom atom = molecules.getMolecule(nAtomsWritten).getChildList().get(0);
                     Vector p = atom.getPosition();
                     fw.write(bufReader.readLine()+" "+p.getX(0)+" "+p.getX(1)+" "+p.getX(2)+"\n");
                     nAtomsWritten++;
@@ -182,7 +182,7 @@ public class PotentialEmul extends PotentialMolecular {
                     fw.write(bufReader.readLine()+"\n");
                     // the following lines have the element and we add the x-y-z coordinate
                 	for (int i=0; i<molecules.getMoleculeCount(); i++) {
-                        IAtom atom = molecules.getMolecule(i).getChildList().getAtom(0);
+                        IAtom atom = molecules.getMolecule(i).getChildList().get(0);
                 	    Vector p = atom.getPosition();
                         fw.write(bufReader.readLine()+" "+p.getX(0)+" "+p.getX(1)+" "+p.getX(2)+"\n");
                 	}
@@ -265,7 +265,7 @@ public class PotentialEmul extends PotentialMolecular {
     	    p2He.setBox(box);
     	    for (int i=10; i<100; i++) {
     	    	double r = i*0.1;
-    		    box.getLeafList().getAtom(1).getPosition().setX(0, r);
+    		    box.getLeafList().get(1).getPosition().setX(0, r);
     		    double uEmul = p2.energy(box.getMoleculeList(species));
     		    double uLJ = p2LJ.energy(box.getLeafList());
     		    double uQ = 0; //p2Q.energy(box.getMoleculeList(species));
@@ -285,10 +285,10 @@ public class PotentialEmul extends PotentialMolecular {
 	        box.setNMolecules(species, 3);
             p2.setBox(box);
 	        p3.setBox(box);
-            box.getLeafList().getAtom(0).getPosition().setX(0, -4);
-            box.getLeafList().getAtom(1).getPosition().setX(0, -4);
-            box.getLeafList().getAtom(0).getPosition().setX(1, -3);
-            box.getLeafList().getAtom(1).getPosition().setX(1, 3);
+            box.getLeafList().get(0).getPosition().setX(0, -4);
+            box.getLeafList().get(1).getPosition().setX(0, -4);
+            box.getLeafList().get(0).getPosition().setX(1, -3);
+            box.getLeafList().get(1).getPosition().setX(1, 3);
             MoleculeArrayList molecules02 = new MoleculeArrayList(2);
             molecules02.add(box.getMoleculeList().getMolecule(0));
             molecules02.add(box.getMoleculeList().getMolecule(1));
@@ -302,7 +302,7 @@ public class PotentialEmul extends PotentialMolecular {
             
 	        for (int i=0; i<100; i++) {
 	            double r = -3 + i*0.1;
-	            box.getLeafList().getAtom(2).getPosition().setX(0, r);
+	            box.getLeafList().get(2).getPosition().setX(0, r);
 	            double uEmul = p3.energy(box.getMoleculeList(species));
                 double u02 = p2.energy(molecules02);
 	            double u12 = p2.energy(molecules12);

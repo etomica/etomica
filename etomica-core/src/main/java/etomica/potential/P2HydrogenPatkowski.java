@@ -567,10 +567,10 @@ public class P2HydrogenPatkowski implements IPotential {
         public double energy(IMoleculeList molecules) {
             IMolecule m0 = molecules.getMolecule(0);
             IMolecule m1 = molecules.getMolecule(1);
-            IAtom a00 = m0.getChildList().getAtom(0);
-            IAtom a01 = m0.getChildList().getAtom(1);
-            IAtom a10 = m1.getChildList().getAtom(0);
-            IAtom a11 = m1.getChildList().getAtom(1);
+            IAtom a00 = m0.getChildList().get(0);
+            IAtom a01 = m0.getChildList().get(1);
+            IAtom a10 = m1.getChildList().get(0);
+            IAtom a11 = m1.getChildList().get(1);
             Vector orient00 = a00.getPosition();
             Vector orient01 = a01.getPosition();
             Vector orient10 = a10.getPosition();
@@ -614,8 +614,8 @@ public class P2HydrogenPatkowski implements IPotential {
         }
 
         public double energy(IAtomList atoms) {
-            IAtom m0 = atoms.getAtom(0);
-            IAtom m1 = atoms.getAtom(1);        
+            IAtom m0 = atoms.get(0);
+            IAtom m1 = atoms.get(1);
             Vector hh0 = ((IAtomOriented)m0).getOrientation().getDirection();
             Vector hh1 = ((IAtomOriented)m1).getOrientation().getDirection();
             Vector com0 = m0.getPosition();

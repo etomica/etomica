@@ -65,13 +65,13 @@ public class DropletGraphic extends SimulationGraphic {
             public void actionPerformed() {
                 IAtomList leafList = sim.box.getLeafList();
                 center.E(0);
-                for (int i=0; i<leafList.getAtomCount(); i++) {
-                    center.PE(leafList.getAtom(i).getPosition());
+                for (int i = 0; i<leafList.size(); i++) {
+                    center.PE(leafList.get(i).getPosition());
                 }
-                center.TE(1.0/leafList.getAtomCount());
+                center.TE(1.0/leafList.size());
 
-                for (int i=0; i<leafList.getAtomCount(); i++) {
-                    leafList.getAtom(i).getPosition().ME(center);
+                for (int i = 0; i<leafList.size(); i++) {
+                    leafList.get(i).getPosition().ME(center);
                 }
             }
             final Vector center = sim.getSpace().makeVector();

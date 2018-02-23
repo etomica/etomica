@@ -57,8 +57,8 @@ public class P2HydrogenHindePatkowskiAtomic implements IPotentialAtomic {
     
 
         public double energy(IAtomList atoms) {
-            AtomHydrogen m0 = (AtomHydrogen) atoms.getAtom(0);
-            AtomHydrogen m1 = (AtomHydrogen) atoms.getAtom(1);            
+            AtomHydrogen m0 = (AtomHydrogen) atoms.get(0);
+            AtomHydrogen m1 = (AtomHydrogen) atoms.get(1);
             Vector hh0 = m0.getOrientation().getDirection();
             Vector hh1 = m1.getOrientation().getDirection();
             Vector com0 = m0.getPosition();

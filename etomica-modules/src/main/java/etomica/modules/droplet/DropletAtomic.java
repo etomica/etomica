@@ -115,8 +115,8 @@ public class DropletAtomic extends Simulation {
         double dropRadiusSq = 0.25*dropRadius*dropRadius*dim.getX(0)*dim.getX(0);
         int ambientCount = 0;
         MoleculeArrayList outerMolecules = new MoleculeArrayList();
-        for (int i=0; i<leafList.getAtomCount(); i++) {
-            v.E(leafList.getAtom(i).getPosition());
+        for (int i = 0; i<leafList.size(); i++) {
+            v.E(leafList.get(i).getPosition());
             v.setX(0, v.getX(0)/xDropAxis);
             if (v.squared() > dropRadiusSq) {
                 ambientCount++;
@@ -124,7 +124,7 @@ public class DropletAtomic extends Simulation {
                     ambientCount = 0;
                 }
                 else {
-                    outerMolecules.add(leafList.getAtom(i).getParentGroup());
+                    outerMolecules.add(leafList.get(i).getParentGroup());
                 }
             }
         }

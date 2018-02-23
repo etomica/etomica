@@ -92,8 +92,8 @@ public class SimLattice extends Simulation {
         Vector offset = sim.space.makeVector();
         offset.setX(offsetDim, sim.box.getBoundary().getBoxSize().getX(offsetDim)*0.5);
         IAtomList atoms = sim.box.getLeafList();
-        IAtom atom0 = atoms.getAtom(0);
-        IAtom atom1 = atoms.getAtom(numAtoms/2);
+        IAtom atom0 = atoms.get(0);
+        IAtom atom1 = atoms.get(numAtoms/2);
         Vector p0 = atom0.getPosition();
         Vector p1 = atom1.getPosition();
 
@@ -103,7 +103,7 @@ public class SimLattice extends Simulation {
         double uSum = 0;
         double wSum = 0;
         for (int i=1; i<numAtoms; i++) {
-            dr.Ev1Mv2(atoms.getAtom(i).getPosition(),p0);
+            dr.Ev1Mv2(atoms.get(i).getPosition(),p0);
             dr.ME(offset);
             boundary.nearestImage(dr);
             double R2 = dr.squared();

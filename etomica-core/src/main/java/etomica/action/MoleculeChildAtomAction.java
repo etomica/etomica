@@ -31,9 +31,9 @@ public class MoleculeChildAtomAction implements MoleculeAction, Serializable {
      */
     public void actionPerformed(IMolecule atom) {
         IAtomList atomList = atom.getChildList();
-        int size = atomList.getAtomCount();
+        int size = atomList.size();
         for(int i=0; i<size; i++) {
-            action.actionPerformed(atomList.getAtom(i));
+            action.actionPerformed(atomList.get(i));
         }
     }
 

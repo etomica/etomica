@@ -78,7 +78,7 @@ public class P2DiscreteFeynmanHibbs implements Potential2Spherical {
      * Energy of the pair as given by the u(double) method
      */
     public double energy(IAtomList atoms) {
-        dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
+        dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
         boundary.nearestImage(dr);
         return u(dr.squared());
     }

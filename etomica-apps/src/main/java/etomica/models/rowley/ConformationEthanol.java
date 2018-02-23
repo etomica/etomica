@@ -35,39 +35,39 @@ public class ConformationEthanol implements IConformation {
  
  
     	
-    	IAtom oxygen = list.getAtom(SpeciesEthanol.indexO);
+    	IAtom oxygen = list.get(SpeciesEthanol.indexO);
         oxygen.getPosition().E(new double[]         {0.000000,    0.000000,   1.425003});
         
         // carbon attached to oxygen
-        IAtom alpha_carbon = list.getAtom(SpeciesEthanol.indexaC);
+        IAtom alpha_carbon = list.get(SpeciesEthanol.indexaC);
         alpha_carbon.getPosition().E(new double[]   { 0.000000,    0.000000,   0.000000});
         
         // carbon NOT attached to oxygen
-        IAtom carbon = list.getAtom(SpeciesEthanol.indexC);
+        IAtom carbon = list.get(SpeciesEthanol.indexC);
         carbon.getPosition().E(new double[]         {-1.439886,    0.000000,  -0.449889});
         
         // hydrogen attached to oxygen
-        IAtom alpha_hydrogen = list.getAtom(SpeciesEthanol.indexaH);
+        IAtom alpha_hydrogen = list.get(SpeciesEthanol.indexaH);
         alpha_hydrogen.getPosition().E(new double[] { 0.910604,    0.000000,   1.727510});
         
         // hydrogen attached to alpha carbon
-        IAtom hydrogen_1a = list.getAtom(SpeciesEthanol.indexH1a);
+        IAtom hydrogen_1a = list.get(SpeciesEthanol.indexH1a);
         hydrogen_1a.getPosition().E(new double[]    { 0.515370,   -0.883917,   -0.383467});
         
         // hydrogen attached to alpha carbon
-        IAtom hydrogen_1b = list.getAtom(SpeciesEthanol.indexH1b);
+        IAtom hydrogen_1b = list.get(SpeciesEthanol.indexH1b);
         hydrogen_1b.getPosition().E(new double[]    { 0.515370,    0.883917,   -0.383467});
         
         // hydrogen attached to non-alpha carbon
-        IAtom hydrogen_2a = list.getAtom(SpeciesEthanol.indexH2a);
+        IAtom hydrogen_2a = list.get(SpeciesEthanol.indexH2a);
         hydrogen_2a.getPosition().E(new double[]    {-1.952009,    0.882056,    -0.072720});
         
         // hydrogen attached to non-alpha carbon
-        IAtom hydrogen_2b = list.getAtom(SpeciesEthanol.indexH2b);
+        IAtom hydrogen_2b = list.get(SpeciesEthanol.indexH2b);
         hydrogen_2b.getPosition().E(new double[]    {-1.952009,   -0.882056,    -0.072720});
         
         // hydrogen attached to non-alpha carbon
-        IAtom hydrogen_2c = list.getAtom(SpeciesEthanol.indexH2c);
+        IAtom hydrogen_2c = list.get(SpeciesEthanol.indexH2c);
         hydrogen_2c.getPosition().E(new double[]    {-1.500395,    0.000000,    -1.536664});
         
         // The satellite site, X, is closer to the oxygen atom in the model with point charges.
@@ -77,7 +77,7 @@ public class ConformationEthanol implements IConformation {
         	// Ethanol model with point charges at O, aC, aH
         	
         	// satellite site to model location of high electron density for oxygen
-        	IAtom x = list.getAtom(SpeciesEthanol.indexX);
+        	IAtom x = list.get(SpeciesEthanol.indexX);
         	x.getPosition().E(new double[]          {-0.274574,    0.000000,    1.623110});
         }
         else {
@@ -85,7 +85,7 @@ public class ConformationEthanol implements IConformation {
         	// Ethanol model without point charges
         	
         	// satellite site to model location of high electron density for oxygen
-        	IAtom x = list.getAtom(SpeciesEthanol.indexX);
+        	IAtom x = list.get(SpeciesEthanol.indexX);
         	x.getPosition().E(new double[]          {-0.898492,    0.000000,    2.073284});
         }
        

@@ -73,20 +73,20 @@ public class MCMoveClusterRingScale extends MCMoveBox {
         }
         if (single) {
             atoms = molecules.getMolecule(i).getChildList();
-            nAtoms = atoms.getAtomCount();
+            nAtoms = atoms.size();
         }
         else {
             myAtoms.clear();
             for (int j=0; j<tangled.length; j++) {
                 IAtomList jAtoms = molecules.getMolecule(tangled[j]).getChildList();
                 myAtoms.addAll(jAtoms);
-                nAtoms += jAtoms.getAtomCount();
+                nAtoms += jAtoms.size();
             }
             atoms = myAtoms;
         }
         com.E(0);
         for (int j=0; j<nAtoms; j++) {
-            com.PE(atoms.getAtom(j).getPosition());
+            com.PE(atoms.get(j).getPosition());
         }
         com.TE(1.0/nAtoms);
         //System.out.println(com);
@@ -94,13 +94,13 @@ public class MCMoveClusterRingScale extends MCMoveBox {
         scale = scaleUp ? 1.001 : 1.0/1.001;
         double uOld = 0;
         for (int j=0; j<nAtoms; j++) {
-            Vector p = atoms.getAtom(j).getPosition();
+            Vector p = atoms.get(j).getPosition();
             double uj = 0;
             if (j==0) {
-                uj += p.Mv1Squared(atoms.getAtom(nAtoms-1).getPosition());
+                uj += p.Mv1Squared(atoms.get(nAtoms-1).getPosition());
             }
             if (j<nAtoms-1) {
-                uj += p.Mv1Squared(atoms.getAtom(j+1).getPosition());
+                uj += p.Mv1Squared(atoms.get(j+1).getPosition());
             }
 //            System.out.println(j+" "+uj*fac+" "+uOld*fac);
             uOld += uj;
@@ -125,15 +125,15 @@ public class MCMoveClusterRingScale extends MCMoveBox {
     }
     
     public void rejectNotify() {
-        int nAtoms = atoms.getAtomCount();
+        int nAtoms = atoms.size();
         for (int j=0; j<nAtoms; j++) {
-            Vector p = atoms.getAtom(j).getPosition();
+            Vector p = atoms.get(j).getPosition();
             double uj = 0;
             if (j==0) {
-                uj += p.Mv1Squared(atoms.getAtom(nAtoms-1).getPosition());
+                uj += p.Mv1Squared(atoms.get(nAtoms-1).getPosition());
             }
             if (j<nAtoms-1) {
-                uj += p.Mv1Squared(atoms.getAtom(j+1).getPosition());
+                uj += p.Mv1Squared(atoms.get(j+1).getPosition());
             }
             p.ME(com);
             p.TE(1.0/scale);

@@ -107,7 +107,7 @@ public class AssociationHelperMolecule implements IAssociationHelperMolecule {
                 IMolecule moleculei = bondList.getMolecule(i);
                 for (int j=i+1; j<bondList.getMoleculeCount(); j++) {
                     IMolecule moleculej = bondList.getMolecule(j);
-                    dr.Ev1Mv2(moleculei.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition(), moleculej.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition());
+                    dr.Ev1Mv2(moleculei.getChildList().get(SpeciesAceticAcid.indexC).getPosition(), moleculej.getChildList().get(SpeciesAceticAcid.indexC).getPosition());
                     boundary.nearestImage(dr);
                     if (dr.squared() < minR2) {
                         if (mightBeBroken) {

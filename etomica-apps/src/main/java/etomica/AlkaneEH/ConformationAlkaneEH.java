@@ -41,21 +41,21 @@ import etomica.space.Space;
 	  public void initializePositions(IAtomList atomList) {
 		  
 		  /////////////////////////// C0 and c[n-1] atoms ////////////////////////////////////////////////////
-		  IAtom c0 = atomList.getAtom(speciesAlkaneEH.indexC_3_1);// carbon atom in CH3 group on the left(label: "0")
+		  IAtom c0 = atomList.get(speciesAlkaneEH.indexC_3_1);// carbon atom in CH3 group on the left(label: "0")
 		  c0.getPosition().E(new double[]{0.0,0.0,0.0});// put at the origin
 		  
-		  IAtom cEnd = atomList.getAtom(speciesAlkaneEH.indexC_3_2);// carbon atom in CH3 group on the right(label:"n-1")
+		  IAtom cEnd = atomList.get(speciesAlkaneEH.indexC_3_2);// carbon atom in CH3 group on the right(label:"n-1")
 		  double cEndX = (numCarbons-1) * CCbondL * Math.sin(angleCCC_half);
 		  double cEndY = (1-(numCarbons%2)) * CCbondL * Math.cos(angleCCC_half);// even number: not on x-axis; odd number: on x-axis
 		  cEnd.getPosition().E(new double[]{cEndX,cEndY,0.0});
 		 
 		  ////////////////////// 6 H of CH3 groups  ////////////////////////////////////
-		  IAtom h01 = atomList.getAtom(numCarbons  * 3 );// on c0, in xOy plane
-		  IAtom h02 = atomList.getAtom(numCarbons );// on c0
-		  IAtom h03 = atomList.getAtom(numCarbons * 2);// on c0
-		  IAtom hEnd1 = atomList.getAtom(numCarbons * 3 + 1 );      // on c[n-1], in xOy plane
-		  IAtom hEnd2 = atomList.getAtom(numCarbons - 1 + numCarbons);// on c[n-1]
-		  IAtom hEnd3 = atomList.getAtom(numCarbons - 1 + numCarbons * 2 );//on c[n-1]
+		  IAtom h01 = atomList.get(numCarbons  * 3 );// on c0, in xOy plane
+		  IAtom h02 = atomList.get(numCarbons );// on c0
+		  IAtom h03 = atomList.get(numCarbons * 2);// on c0
+		  IAtom hEnd1 = atomList.get(numCarbons * 3 + 1 );      // on c[n-1], in xOy plane
+		  IAtom hEnd2 = atomList.get(numCarbons - 1 + numCarbons);// on c[n-1]
+		  IAtom hEnd3 = atomList.get(numCarbons - 1 + numCarbons * 2 );//on c[n-1]
 	  
 		  double beta = angleCCH - angleCCC_half; // angle of (H-C-yAxis) 
 		  double gamma = Math.PI- angleCCH;
@@ -125,15 +125,15 @@ import etomica.space.Space;
 			  
 			  for ( int m = 1; m < (numCH2+1); m++ ) {// put C of CH2 group in the chain, loop from 1st C(H2) to the last(numCH2)
 				
-				  IAtom c_ch2 = atomList.getAtom(m);
+				  IAtom c_ch2 = atomList.get(m);
 				  double cX = m*CCbondL * Math.sin(angleCCC_half);
 				  double cY = (m%2) * CCbondL * Math.cos(angleCCC_half);
 				  
 				  c_ch2.getPosition().E(new double[] { cX, cY, 0.0});
 
 				  // put Ha and Hb on the chain, the first (numCarbons-2) number of H are specified first; then next (numCarbons-2) number of H put on the opposite direction
-				  IAtom h_ch2_a = atomList.getAtom( m + numCarbons );
-				  IAtom h_ch2_b = atomList.getAtom( m + numCarbons * 2 );
+				  IAtom h_ch2_a = atomList.get( m + numCarbons );
+				  IAtom h_ch2_b = atomList.get( m + numCarbons * 2 );
 
 				  double h_ch2_aY = c_ch2.getPosition().getX(1) -Math.pow(-1, m)* CHbondL*Math.cos(angleHCH_half);
 				  double h_ch2_aZ = CHbondL * Math.sin(angleHCH_half);

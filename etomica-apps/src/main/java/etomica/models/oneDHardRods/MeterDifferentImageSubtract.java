@@ -91,9 +91,9 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
             }
         }
 
-        double density = simCDef.getBox().getLeafList().getAtomCount() /
+        double density = simCDef.getBox().getLeafList().size() /
                 simCDef.getBox().getBoundary().volume();
-        numAtoms = otherCD.getBox().getLeafList().getAtomCount();
+        numAtoms = otherCD.getBox().getLeafList().size();
         box = sim.makeBox();
         box.setNMolecules(sim.getSpecies(0), numAtoms);
 
@@ -156,7 +156,7 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         potentialMaster.getNeighborManager(box).reset();
         meterPE = new MeterPotentialEnergy(potentialMaster, box);
 
-        etas = new double[space.D() * (simCDef.getBox().getLeafList().getAtomCount() - 1)];
+        etas = new double[space.D() * (simCDef.getBox().getLeafList().size() - 1)];
         maxEta = space.D() * (numAtoms - 1);
 
     }

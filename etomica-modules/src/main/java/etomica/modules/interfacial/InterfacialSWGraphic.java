@@ -99,11 +99,11 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                     IMolecule surfactant = surfactants.getMolecule(0);
                     pretendBox.removeMolecule(surfactant);
                     double deltaX = 0.55 * dim.getX(0);
-                    if (surfactant.getChildList().getAtom(0).getPosition().getX(0) < 0) {
+                    if (surfactant.getChildList().get(0).getPosition().getX(0) < 0) {
                         deltaX = -deltaX;
                     }
                     for (int j=0; j<2; j++) {
-                        Vector pos = surfactant.getChildList().getAtom(j).getPosition();
+                        Vector pos = surfactant.getChildList().get(j).getPosition();
                         pos.setX(0, pos.getX(0) + deltaX);
                     }
                     sim.box.addMolecule(surfactant);
@@ -186,11 +186,11 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 // concentration wave (delta rho (x)).
                 
                 IAtomList leafAtoms = sim.box.getLeafList();
-                int nTot = leafAtoms.getAtomCount();
+                int nTot = leafAtoms.size();
                 double sumCos = 0, sumSin = 0;
                 double q = 2*Math.PI/L;
                 for (int i=0; i<nTot; i++) {
-                    Vector pos = leafAtoms.getAtom(i).getPosition();
+                    Vector pos = leafAtoms.get(i).getPosition();
                     double sinx = Math.sin(q*pos.getX(0));
                     double cosx = Math.cos(q*pos.getX(0));
                     sumCos += cosx;
@@ -213,7 +213,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                     center = -1;
                 }
                 for (int i=0; i<nTot; i++) {
-                    Vector pos = leafAtoms.getAtom(i).getPosition();
+                    Vector pos = leafAtoms.get(i).getPosition();
                     pos.setX(0, pos.getX(0) - center);
                 }
                 ((PotentialMasterList)sim.integrator.getPotentialMaster()).getNeighborManager(sim.box).reset();

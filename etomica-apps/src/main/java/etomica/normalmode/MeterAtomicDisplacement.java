@@ -63,7 +63,7 @@ public class MeterAtomicDisplacement implements IDataSource, DataSourceIndepende
     		
     		for (int i=0; i< cell.molecules.getMoleculeCount(); i++){
     			workVector = space.makeVector();
-    			IAtom a = molecules.getMolecule(i).getChildList().getAtom(0);
+    			IAtom a = molecules.getMolecule(i).getChildList().get(0);
     			Vector pos = a.getPosition();
     			Vector site = coordinateDefinition.getLatticePosition(a);
     			

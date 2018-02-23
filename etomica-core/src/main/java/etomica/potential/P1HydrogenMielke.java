@@ -118,7 +118,7 @@ public class P1HydrogenMielke implements IPotential, P1IntraMolecular{
         }
 
         public double energy(IAtomList atoms) {
-            AtomHydrogen m0 = (AtomHydrogen)atoms.getAtom(0);
+            AtomHydrogen m0 = (AtomHydrogen)atoms.get(0);
             double bL = m0.getBondLength();
             double f = u(bL);
             return f;
@@ -136,8 +136,8 @@ public class P1HydrogenMielke implements IPotential, P1IntraMolecular{
     	}
     	
     	public double energy(IAtomList atoms) {
-    		IAtom a0 = atoms.getAtom(0);
-    		IAtom a1 = atoms.getAtom(1);
+    		IAtom a0 = atoms.get(0);
+    		IAtom a1 = atoms.get(1);
             double bL = Math.sqrt(a0.getPosition().Mv1Squared(a1.getPosition()));
             double f = u(bL);
             return f;

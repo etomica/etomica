@@ -13,7 +13,6 @@ import etomica.potential.P1HardMovingBoundary;
 import etomica.potential.PotentialHard;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
 import etomica.util.Debug;
 
 /**
@@ -74,9 +73,9 @@ public class IntegratorHardPiston extends IntegratorHard {
         listToUpdate.clear();
         // look for atoms that wanted to collide with the wall and queue up an uplist recalculation for them.
         IAtomList leafList = box.getLeafList();
-        int nAtoms = leafList.getAtomCount();
+        int nAtoms = leafList.size();
         for (int iLeaf=0; iLeaf<nAtoms; iLeaf++) {
-            IAtom atom1 = leafList.getAtom(iLeaf);
+            IAtom atom1 = leafList.get(iLeaf);
             atomSetSinglet.atom = atom1;
             PotentialHard atom1Potential = agentManager.getAgent(atom1).collisionPotential;
             if (Debug.ON && Debug.DEBUG_NOW && ((Debug.allAtoms(atomSetSinglet) && Debug.LEVEL > 1) || (Debug.anyAtom(atomSetSinglet) && Debug.LEVEL > 2))) {

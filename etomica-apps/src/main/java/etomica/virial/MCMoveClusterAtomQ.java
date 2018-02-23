@@ -27,14 +27,14 @@ public class MCMoveClusterAtomQ extends MCMoveAtom {
         boolean b = mcMove.doTrial();
         if (!b) return false;
         IAtomList leafAtoms = mcMove.getBox().getLeafList();
-        int n = leafAtoms.getAtomCount();
+        int n = leafAtoms.size();
         for (int i=0; i<n; i++) {
             double u1 = random.nextDouble();
             double u2 = 2*Math.PI*random.nextDouble();
             double u3 = 2*Math.PI*random.nextDouble();
             double s1 = Math.sqrt(u1);
             double s2 = Math.sqrt(1-u1);
-            Vector q = ((AtomOrientedQuaternion)leafAtoms.getAtom(i)).getQuaternion();
+            Vector q = ((AtomOrientedQuaternion)leafAtoms.get(i)).getQuaternion();
             q.setX(0, s1*Math.sin(u2));
             q.setX(1, s1*Math.cos(u2));
             q.setX(2, s2*Math.sin(u3));

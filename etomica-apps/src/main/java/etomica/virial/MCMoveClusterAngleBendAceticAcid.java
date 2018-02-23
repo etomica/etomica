@@ -74,7 +74,7 @@ public class MCMoveClusterAngleBendAceticAcid extends MCMoveBoxStep {
             }
             IMolecule molecule = moleculeList.getMolecule(i);
             IAtomList childList = molecule.getChildList();
-            int numChildren = childList.getAtomCount();
+            int numChildren = childList.size();
             if (numChildren != 5) continue;
             double dt = stepSize * (random.nextDouble() - 0.5);
             dTheta[i] = dt;
@@ -88,14 +88,14 @@ public class MCMoveClusterAngleBendAceticAcid extends MCMoveBoxStep {
     
     protected void transform(IMolecule molecule, double dt) {
         IAtomList childList = molecule.getChildList();
-        int numChildren = childList.getAtomCount();
+        int numChildren = childList.size();
         if (numChildren != 3) return;
         
-        Vector pos0 = childList.getAtom(3).getPosition();//SBO
-        Vector pos1 = childList.getAtom(1).getPosition();//C
-        Vector pos2 = childList.getAtom(2).getPosition();//DBO
-        Vector pos3 = childList.getAtom(4).getPosition();//H
-        Vector pos4 = childList.getAtom(0).getPosition();//CH3
+        Vector pos0 = childList.get(3).getPosition();//SBO
+        Vector pos1 = childList.get(1).getPosition();//C
+        Vector pos2 = childList.get(2).getPosition();//DBO
+        Vector pos3 = childList.get(4).getPosition();//H
+        Vector pos4 = childList.get(0).getPosition();//CH3
         
         work1.Ev1Mv2(pos0, pos1);
         double bondLength01 = Math.sqrt(work1.squared());

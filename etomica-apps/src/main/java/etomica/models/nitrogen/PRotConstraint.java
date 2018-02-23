@@ -50,8 +50,8 @@ public class PRotConstraint extends PotentialMolecular{
 		IMolecule molecule = molecules.getMolecule(0);
 		int index = molecule.getIndex();
 				
-		Vector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-		Vector leaftPos1 = molecule.getChildList().getAtom(1).getPosition();
+		Vector leafPos0 = molecule.getChildList().get(0).getPosition();
+		Vector leaftPos1 = molecule.getChildList().get(1).getPosition();
 		
 		molecOrientation.Ev1Mv2(leaftPos1, leafPos0);
 		molecOrientation.normalize();

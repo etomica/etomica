@@ -111,11 +111,11 @@ public class VirialN2TraPPE {
         	public void initializePositions(IAtomList atomList) {
         		// atoms are N-COM("A")-N, 1-0-2 
         		double bondL = 1.10;// length of N--N
-                atomList.getAtom(0).getPosition().E(0);// COM("A")
-                atomList.getAtom(1).getPosition().E(0);// Nitrogen atom on the left
-                atomList.getAtom(1).getPosition().setX(0, -0.5 * bondL);
-                atomList.getAtom(2).getPosition().E(0);// Nitrogen atom on the right
-                atomList.getAtom(2).getPosition().setX(0, +0.5 * bondL);
+                atomList.get(0).getPosition().E(0);// COM("A")
+                atomList.get(1).getPosition().E(0);// Nitrogen atom on the left
+                atomList.get(1).getPosition().setX(0, -0.5 * bondL);
+                atomList.get(2).getPosition().E(0);// Nitrogen atom on the right
+                atomList.get(2).getPosition().setX(0, +0.5 * bondL);
             }
         };
         

@@ -167,9 +167,9 @@ public class VirialH2PIBoltzmann {
         
         
         IAtomList leafList = sim.box.getLeafList();
-        int half = leafList.getAtomCount()/2;
-        for (int i=half; i<leafList.getAtomCount(); i++) {
-            Vector p = leafList.getAtom(i).getPosition();
+        int half = leafList.size()/2;
+        for (int i = half; i<leafList.size(); i++) {
+            Vector p = leafList.get(i).getPosition();
             p.setX(2, r0);
         }
         sim.box.trialNotify();

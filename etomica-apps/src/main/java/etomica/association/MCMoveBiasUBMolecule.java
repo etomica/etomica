@@ -91,9 +91,9 @@ public class MCMoveBiasUBMolecule extends MCMoveBox implements MCMoveMolecular{
             IMoleculeList molecules = box.getMoleculeList();
             moleculeA = molecules.getMolecule(random.nextInt(molecules.getMoleculeCount()));
             IAtomList atoms = moleculeA.getChildList();
-            if (oldPosition.length < atoms.getAtomCount()){
-            	oldPosition = new Vector[atoms.getAtomCount()];
-                for (int i = 0; i<atoms.getAtomCount();i+=1){
+            if (oldPosition.length < atoms.size()){
+            	oldPosition = new Vector[atoms.size()];
+                for (int i = 0; i<atoms.size(); i+=1){
                 	oldPosition[i] = space.makeVector();
                 }
             }
@@ -103,8 +103,8 @@ public class MCMoveBiasUBMolecule extends MCMoveBox implements MCMoveMolecular{
             uOld = meterPotentialEnergy.getDataAsScalar();
             ni = associationManager.getAssociatedMolecules(moleculeA).getMoleculeCount();
             Nai = associationManager.getAssociatedMolecules().getMoleculeCount();
-            for (int i = 0; i<atoms.getAtomCount();i+=1){
-            	oldPosition[i].E(atoms.getAtom(i).getPosition());
+            for (int i = 0; i<atoms.size(); i+=1){
+            	oldPosition[i].E(atoms.get(i).getPosition());
             }
             biasVolume.biasInsert(moleculeA, moleculeB);
         }//end bonding
@@ -115,9 +115,9 @@ public class MCMoveBiasUBMolecule extends MCMoveBox implements MCMoveMolecular{
         	}
             moleculeA = molecules.getMolecule(random.nextInt(molecules.getMoleculeCount()));
             IAtomList atoms = moleculeA.getChildList();
-            if (oldPosition.length < atoms.getAtomCount()){
-            	oldPosition = new Vector[atoms.getAtomCount()];
-                for (int i = 0; i<atoms.getAtomCount();i+=1){
+            if (oldPosition.length < atoms.size()){
+            	oldPosition = new Vector[atoms.size()];
+                for (int i = 0; i<atoms.size(); i+=1){
                 	oldPosition[i] = space.makeVector();
                 }
             }
@@ -125,8 +125,8 @@ public class MCMoveBiasUBMolecule extends MCMoveBox implements MCMoveMolecular{
             Nai = associationManager.getAssociatedMolecules().getMoleculeCount();
             meterPotentialEnergy.setTarget(moleculeA);
             uOld = meterPotentialEnergy.getDataAsScalar();
-            for (int i = 0; i<atoms.getAtomCount();i+=1){
-            	oldPosition[i].E(atoms.getAtom(i).getPosition());
+            for (int i = 0; i<atoms.size(); i+=1){
+            	oldPosition[i].E(atoms.get(i).getPosition());
             }
             doTransform(moleculeA, oldPosition[SpeciesAceticAcid.indexC]);//random rotation of moleculeA
             groupTranslationVector.setRandomCube(random);
@@ -161,8 +161,8 @@ public class MCMoveBiasUBMolecule extends MCMoveBox implements MCMoveMolecular{
     protected void doTransform(IMolecule molecule, Vector r0) {
         IAtomList childList = molecule.getChildList();
         rotationTensor.setAxial(random.nextInt(3), random.nextDouble()*2*Math.PI);//axis for rotation is x, y or z, and the amount of rotation is up to 2pi
-        for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
-            IAtom a = childList.getAtom(iChild);
+        for (int iChild = 0; iChild<childList.size(); iChild++) {
+            IAtom a = childList.get(iChild);
             Vector r = a.getPosition();
             r.ME(r0);
             rotationTensor.transform(r);
@@ -178,8 +178,8 @@ public class MCMoveBiasUBMolecule extends MCMoveBox implements MCMoveMolecular{
 	}
 
 	public void rejectNotify() {
-        for (int i = 0; i<moleculeA.getChildList().getAtomCount();i+=1){
-        	moleculeA.getChildList().getAtom(i).getPosition().E(oldPosition[i]);
+        for (int i = 0; i<moleculeA.getChildList().size(); i+=1){
+        	moleculeA.getChildList().get(i).getPosition().E(oldPosition[i]);
         }
 	}
 

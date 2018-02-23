@@ -68,27 +68,27 @@ public class MeterDeformation implements IDataSource {
     public IData getData() {
         IAtomList leafList = box.getLeafList();
         center.E(0);
-        for (int i = 0; i < leafList.getAtomCount(); i++) {
-            if (!filter.test(leafList.getAtom(i))) {
+        for (int i = 0; i < leafList.size(); i++) {
+            if (!filter.test(leafList.get(i))) {
                 continue;
             }
-            center.PE(leafList.getAtom(i).getPosition());
+            center.PE(leafList.get(i).getPosition());
         }
-        center.TE(1.0 / leafList.getAtomCount());
+        center.TE(1.0 / leafList.size());
 
         rg.E(0);
         moment.E(0);
-        for (int i = 0; i < leafList.getAtomCount(); i++) {
-            if (!filter.test(leafList.getAtom(i))) {
+        for (int i = 0; i < leafList.size(); i++) {
+            if (!filter.test(leafList.get(i))) {
                 continue;
             }
-            dr.Ev1Mv2(leafList.getAtom(i).getPosition(), center);
+            dr.Ev1Mv2(leafList.get(i).getPosition(), center);
             workTensor.Ev1v2(dr, dr);
             moment.PE(workTensor);
 
         }
 
-        moment.TE(1.0 / leafList.getAtomCount());
+        moment.TE(1.0 / leafList.size());
         rg.setX(0, moment.component(0, 0));
         rg.setX(1, moment.component(1, 1));
         rg.setX(2, moment.component(2, 2));

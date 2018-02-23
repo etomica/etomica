@@ -26,12 +26,12 @@ public class ColorSchemeCoordination extends ColorSchemeCollectiveAgent {
     public void colorAllAtoms() {
     	
 		//color all atoms according to their type
-        int nLeaf = leafList.getAtomCount();
+        int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom atom = leafList.getAtom(iLeaf);
+            IAtom atom = leafList.get(iLeaf);
             
-            int coordNum = nbrManager.getDownList(atom)[0].getAtomCount();
-            coordNum += nbrManager.getUpList(atom)[0].getAtomCount();
+            int coordNum = nbrManager.getDownList(atom)[0].size();
+            coordNum += nbrManager.getUpList(atom)[0].size();
             
             if(coordNum>colors.length-1){
             	coordNum = colors.length-1;	

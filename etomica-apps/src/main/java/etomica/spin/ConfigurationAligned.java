@@ -28,8 +28,8 @@ public class ConfigurationAligned implements Configuration, java.io.Serializable
      */
     public void initializeCoordinates(Box box) {
         IAtomList leafAtoms = box.getLeafList();
-        for (int i=0; i<leafAtoms.getAtomCount(); i++) {
-            Vector spin = leafAtoms.getAtom(i).getPosition();
+        for (int i = 0; i<leafAtoms.size(); i++) {
+            Vector spin = leafAtoms.get(i).getPosition();
             spin.E(0.0);
             spin.setX(0,1.0);
         }

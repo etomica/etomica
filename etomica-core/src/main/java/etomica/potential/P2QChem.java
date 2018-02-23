@@ -45,8 +45,8 @@ public class P2QChem extends PotentialMolecular {
     	IMolecule molecule1 = atoms.getMolecule(0);
     	IMolecule molecule2 = atoms.getMolecule(1);
     	
-    	Vector atomPos1 = molecule1.getChildList().getAtom(0).getPosition();
-    	Vector atomPos2  = molecule2.getChildList().getAtom(0).getPosition();
+    	Vector atomPos1 = molecule1.getChildList().get(0).getPosition();
+    	Vector atomPos2  = molecule2.getChildList().get(0).getPosition();
       
     	Vector r12Vec = space.makeVector();
     	r12Vec.Ev1Mv2(atomPos1, atomPos2);

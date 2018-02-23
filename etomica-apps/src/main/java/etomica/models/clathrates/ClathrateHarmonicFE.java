@@ -13,7 +13,6 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
-import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.models.clathrates.MinimizationTIP4P.ChargeAgentSourceRPM;
@@ -92,7 +91,7 @@ public class ClathrateHarmonicFE extends Simulation{
         }
 
         MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(potentialMaster, box);
-        AtomPair selfAtomLJ = new AtomPair(box.getLeafList().getAtom(2), box.getLeafList().getAtom(2));
+        AtomPair selfAtomLJ = new AtomPair(box.getLeafList().get(2), box.getLeafList().get(2));
         double selfELJ = potentialLJLS.energy(selfAtomLJ);// = 0 if nLJshells=0
         double E = Joule.UNIT.fromSim(meterPotentialEnergy.getDataAsScalar() / numMolecule + selfELJ) * 1.0E-3 * Constants.AVOGADRO;
         System.out.println(" E (kJ/mol) = " + E);
@@ -336,13 +335,13 @@ public class ClathrateHarmonicFE extends Simulation{
 			        pcForce.reset();
 		            sim.potentialMaster.calculate(sim.box, id, pcForce);
 			        for(int j=0;j<4;j++){
-				        IAtom atomj = atoms.getAtom(j);	
+				        IAtom atomj = atoms.get(j);
 
 			            Vector fndx = space.makeVector();
 			            fndx.E(atomAgentManager.getAgent(atomj));
 //			            System.out.println(fndx);
 			            f4dx.PE(fndx);
-	            		dr.Ev1Mv2(atomj.getPosition(), atoms.getAtom(2).getPosition());
+	            		dr.Ev1Mv2(atomj.getPosition(), atoms.get(2).getPosition());
 	            		sim.box.getBoundary().nearestImage(dr);
 	            		dr.XE(fndx);
 	            		torque.PE(dr);

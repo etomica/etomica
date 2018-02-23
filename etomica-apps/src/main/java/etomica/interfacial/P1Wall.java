@@ -26,7 +26,7 @@ public class P1Wall extends Potential1 implements PotentialSoft {
     }
 
     public double energy(IAtomList atoms) {
-        double dz = atoms.getAtom(0).getPosition().getX(2)-springPosition;
+        double dz = atoms.get(0).getPosition().getX(2)-springPosition;
         double uSpring = 0.5*spring*dz*dz;
         return uSpring + gSat*dz;
     }
@@ -36,7 +36,7 @@ public class P1Wall extends Potential1 implements PotentialSoft {
     }
 
     public Vector[] gradient(IAtomList atoms) {
-        double dz = atoms.getAtom(0).getPosition().getX(2)-springPosition;
+        double dz = atoms.get(0).getPosition().getX(2)-springPosition;
         grad[0].setX(2, gSat + spring*dz);
         return grad;
     }

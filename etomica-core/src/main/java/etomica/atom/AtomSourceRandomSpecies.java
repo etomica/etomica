@@ -56,9 +56,9 @@ public class AtomSourceRandomSpecies implements AtomSource {
         IMolecule m = list.getMolecule(r);
         IAtomList atoms = m.getChildList();
 //        IAtomList atoms = list.getMolecule(random.nextInt(n)).getChildList();
-        n = atoms.getAtomCount();
+        n = atoms.size();
         if (n == 0) return null;
-        return atoms.getAtom(random.nextInt(n));
+        return atoms.get(random.nextInt(n));
     }
     
     protected IMoleculeList list = null;

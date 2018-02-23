@@ -106,8 +106,8 @@ public class MeterMappedRdf implements IAction, IDataSource, DataSourceIndepende
         // iterate over all pairs
         for (IAtomList pair = iterator.next(); pair != null;
              pair = iterator.next()) {
-            if (type1 != null && (pair.getAtom(0).getType() != type1 || pair.getAtom(1).getType() != type2)) continue;
-            dr.Ev1Mv2(pair.getAtom(1).getPosition(), pair.getAtom(0).getPosition());
+            if (type1 != null && (pair.get(0).getType() != type1 || pair.get(1).getType() != type2)) continue;
+            dr.Ev1Mv2(pair.get(1).getPosition(), pair.get(0).getPosition());
             boundary.nearestImage(dr);
              double r2 = dr.squared();       //compute pair separation
              if(r2 < xMaxSquared) {
@@ -134,14 +134,14 @@ public class MeterMappedRdf implements IAction, IDataSource, DataSourceIndepende
         final double[] y = data.getData();
         long numAtomPairs = 0;
         if (type1 == null) {
-            long numAtoms = box.getLeafList().getAtomCount();
+            long numAtoms = box.getLeafList().size();
             numAtomPairs = numAtoms*(numAtoms-1)/2;
         }
         else {
             iterator.setBox(box);
             iterator.reset();
             for (IAtomList pair = iterator.next(); pair != null; pair = iterator.next()) {
-                if (pair.getAtom(0).getType() != type1 || pair.getAtom(1).getType() != type2) continue;
+                if (pair.get(0).getType() != type1 || pair.get(1).getType() != type2) continue;
                 numAtomPairs++;
             }
         }

@@ -60,8 +60,8 @@ public class P1HarmonicSite extends Potential1 implements PotentialSoft {
     }
 
     public double energy(IAtomList a) {
-        Vector x0 = atomAgentManager.getAgent(a.getAtom(0));
-        return w*a.getAtom(0).getPosition().Mv1Squared(x0);
+        Vector x0 = atomAgentManager.getAgent(a.get(0));
+        return w*a.get(0).getPosition().Mv1Squared(x0);
     }
     
     public double virial(IAtomList a) {
@@ -69,8 +69,8 @@ public class P1HarmonicSite extends Potential1 implements PotentialSoft {
     }
 
     public Vector[] gradient(IAtomList a){
-        Vector r = a.getAtom(0).getPosition();
-        Vector x0 = atomAgentManager.getAgent(a.getAtom(0));
+        Vector r = a.get(0).getPosition();
+        Vector x0 = atomAgentManager.getAgent(a.get(0));
         force[0].Ev1Mv2(r,x0);
         force[0].TE(2*w);
             

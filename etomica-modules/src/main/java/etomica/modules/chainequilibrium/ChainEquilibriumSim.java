@@ -151,8 +151,8 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource<IAtom
     
     public void resetBonds() {
         IAtomList atoms = box.getLeafList();
-        for (int i=0; i<atoms.getAtomCount(); i++) {
-            IAtom a = atoms.getAtom(i);
+        for (int i = 0; i<atoms.size(); i++) {
+            IAtom a = atoms.get(i);
             agentManager.setAgent(a, makeAgent(a, box));
         }
     }

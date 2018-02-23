@@ -44,7 +44,7 @@ public class PotentialCalculationSumCutoff implements PotentialCalculation {
 	 * atoms produced by the given iterator.  Iterator is reset by method before beginning calculation.
 	 */
 	public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
-        dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
+        dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
         if (r2 > r2Cuts[r2Cuts.length-1]) return;

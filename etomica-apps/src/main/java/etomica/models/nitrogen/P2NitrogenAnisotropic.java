@@ -68,8 +68,8 @@ public class P2NitrogenAnisotropic extends PotentialMolecular {
 		IMolecule nitrogenb = pair.getMolecule(1);
 		
 		// to compute the midpoint distance between the two
-		Vector pos1 = (nitrogena.getChildList().getAtom(1)).getPosition();
-		Vector pos2 = (nitrogenb.getChildList().getAtom(1)).getPosition();
+		Vector pos1 = (nitrogena.getChildList().get(1)).getPosition();
+		Vector pos2 = (nitrogenb.getChildList().get(1)).getPosition();
 		
 		com1.E(pos1);
 		com2.E(pos2);
@@ -77,8 +77,8 @@ public class P2NitrogenAnisotropic extends PotentialMolecular {
 		Vector diff1 = space.makeVector();
 		Vector diff2 = space.makeVector();
 		
-		diff1.Ev1Mv2(com1, nitrogena.getChildList().getAtom(0).getPosition());
-		diff2.Ev1Mv2(com2, nitrogenb.getChildList().getAtom(0).getPosition());
+		diff1.Ev1Mv2(com1, nitrogena.getChildList().get(0).getPosition());
+		diff2.Ev1Mv2(com2, nitrogenb.getChildList().get(0).getPosition());
 					
 		com1.PEa1Tv1(-0.5, diff1); 		
 		com2.PEa1Tv1(-0.5, diff2);
@@ -106,15 +106,15 @@ public class P2NitrogenAnisotropic extends PotentialMolecular {
 		 * refer to SpeciesN2.java class
 		 * 
 		 */
-        Vector Pa1l = nitrogena.getChildList().getAtom(2).getPosition();
-        Vector Pa2l = nitrogena.getChildList().getAtom(3).getPosition();
-        Vector Pa1r = nitrogena.getChildList().getAtom(4).getPosition();
-        Vector Pa2r = nitrogena.getChildList().getAtom(5).getPosition();
+        Vector Pa1l = nitrogena.getChildList().get(2).getPosition();
+        Vector Pa2l = nitrogena.getChildList().get(3).getPosition();
+        Vector Pa1r = nitrogena.getChildList().get(4).getPosition();
+        Vector Pa2r = nitrogena.getChildList().get(5).getPosition();
         
-        Vector Pb1l = nitrogenb.getChildList().getAtom(2).getPosition();
-        Vector Pb2l = nitrogenb.getChildList().getAtom(3).getPosition();
-        Vector Pb1r = nitrogenb.getChildList().getAtom(4).getPosition();
-        Vector Pb2r = nitrogenb.getChildList().getAtom(5).getPosition();
+        Vector Pb1l = nitrogenb.getChildList().get(2).getPosition();
+        Vector Pb2l = nitrogenb.getChildList().get(3).getPosition();
+        Vector Pb1r = nitrogenb.getChildList().get(4).getPosition();
+        Vector Pb2r = nitrogenb.getChildList().get(5).getPosition();
         
         double r2QQ = 0*2.25;
         
@@ -123,22 +123,22 @@ public class P2NitrogenAnisotropic extends PotentialMolecular {
     		 * 'for' loop for 4 pairs van der Waals interaction between the 
     		 * 	non-bonded atoms between the 2 molecules 
     		 */
-    		zk[0].Ev1Mv2((nitrogena.getChildList().getAtom(0)).getPosition(), 
-    				(nitrogena.getChildList().getAtom(1)).getPosition());
+    		zk[0].Ev1Mv2((nitrogena.getChildList().get(0)).getPosition(),
+    				(nitrogena.getChildList().get(1)).getPosition());
         	zk[0].normalize();
         	zk[1].Ea1Tv1(-1.0, zk[0]);
         	
-        	zl[0].Ev1Mv2((nitrogenb.getChildList().getAtom(0)).getPosition(), 
-        			(nitrogenb.getChildList().getAtom(1)).getPosition());
+        	zl[0].Ev1Mv2((nitrogenb.getChildList().get(0)).getPosition(),
+        			(nitrogenb.getChildList().get(1)).getPosition());
         	zl[0].normalize();
         	zl[1].Ea1Tv1(-1.0, zl[0]);
         	
     		for (int i=0; i<2; i++){
-    			Vector dist = (nitrogenb.getChildList().getAtom(i)).getPosition();
+    			Vector dist = (nitrogenb.getChildList().get(i)).getPosition();
     			  			
     			for (int j=0; j<2; j++){
     				
-    				rkl.Ev1Mv2(dist, (nitrogena.getChildList().getAtom(j).getPosition()));
+    				rkl.Ev1Mv2(dist, (nitrogena.getChildList().get(j).getPosition()));
     				double distr2 = rkl.squared();
     				rkl.normalize();
     				
@@ -219,24 +219,24 @@ public class P2NitrogenAnisotropic extends PotentialMolecular {
     		 * 
     		 */
         	
-    		zk[0].Ev1Mv2((nitrogena.getChildList().getAtom(0)).getPosition(), 
-    				(nitrogena.getChildList().getAtom(1)).getPosition());
+    		zk[0].Ev1Mv2((nitrogena.getChildList().get(0)).getPosition(),
+    				(nitrogena.getChildList().get(1)).getPosition());
         	zk[0].normalize();
         	zk[1].Ea1Tv1(-1.0, zk[0]);
         	
-        	zl[0].Ev1Mv2((nitrogenb.getChildList().getAtom(0)).getPosition(), 
-        			(nitrogenb.getChildList().getAtom(1)).getPosition());
+        	zl[0].Ev1Mv2((nitrogenb.getChildList().get(0)).getPosition(),
+        			(nitrogenb.getChildList().get(1)).getPosition());
         	zl[0].normalize();
         	zl[1].Ea1Tv1(-1.0, zl[0]);
         	
     		for (int i=0; i<2; i++){
-    			Vector dist = (nitrogenb.getChildList().getAtom(i)).getPosition();
+    			Vector dist = (nitrogenb.getChildList().get(i)).getPosition();
     			shift.TE(-1.0);
     			shift.PE(dist);
     			
     			for (int j=0; j<2; j++){
     				
-    				rkl.Ev1Mv2(shift, (nitrogena.getChildList().getAtom(j).getPosition()));
+    				rkl.Ev1Mv2(shift, (nitrogena.getChildList().get(j).getPosition()));
     				double distr2 = rkl.squared();
     				rkl.normalize();
     				

@@ -6,12 +6,9 @@ package etomica.conjugategradient;
 
 import etomica.action.Activity;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.math.function.FunctionMultiDimensionalDifferentiable;
 import etomica.molecule.IMoleculeList;
 import etomica.normalmode.CoordinateDefinition;
@@ -136,8 +133,8 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 				
 				moleculeForce.E(0); //initialize moleculeForce to zero
 				
-				for (int r=0; r<childList.getAtomCount(); r++){
-					moleculeForce.PE(agentManager.getAgent(childList.getAtom(r)));
+				for (int r = 0; r<childList.size(); r++){
+					moleculeForce.PE(agentManager.getAgent(childList.get(r)));
 				}
 					
 				

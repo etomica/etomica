@@ -187,12 +187,12 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
 //				}
 				if (sim.integrator.getStepCount()%100 == 0){
 					IAtomList leafList = sim.box.getLeafList();
-					for (int i=0;i <leafList.getAtomCount();i+=1){
-						IAtomOriented atomi = (IAtomOriented)sim.box.getLeafList().getAtom(i);
+					for (int i = 0; i <leafList.size(); i+=1){
+						IAtomOriented atomi = (IAtomOriented)sim.box.getLeafList().get(i);
 						AtomArrayList bondList = (AtomArrayList)sim.associationManagerOriented.getAssociatedAtoms(atomi);
-						if (bondList.getAtomCount() == 2){
-				    		IAtom atom0 = bondList.getAtom(0);
-				    		IAtom atom1 = bondList.getAtom(1);
+						if (bondList.size() == 2){
+				    		IAtom atom0 = bondList.get(0);
+				    		IAtom atom1 = bondList.get(1);
 				    		double innerRadius = 0.8;
 				        	double minDistance = 2*(innerRadius*innerRadius)*(1+Math.cos(etomica.units.Degree.UNIT.toSim(27.0)));
 				    		dr.Ev1Mv2((atom0).getPosition(), (atom1).getPosition());//dr = distance from the atom0 to atom1
@@ -204,13 +204,13 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
 								throw new RuntimeException();
 				        	}
 				    	}
-						if (bondList.getAtomCount() > 2) {
+						if (bondList.size() > 2) {
 							System.out.println(sim.integrator.getStepCount()+ " steps");
 							System.out.println("atomi "+atomi+ "bondList "+bondList);
 							throw new RuntimeException();
 						}
 						for (int j =0; j<i;j+=1){
-							IAtomOriented atomj = (IAtomOriented)sim.box.getLeafList().getAtom(j);
+							IAtomOriented atomj = (IAtomOriented)sim.box.getLeafList().get(j);
 							boolean isBonded1 = bondList.indexOf(atomj)>-1;
 							boolean isBonded2 = sim.bvso.isAssociated(atomi, atomj);
 							if (isBonded1 != isBonded2){
@@ -305,8 +305,8 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
         IAction energyDiffAction = new IAction() {
 		
 			public void actionPerformed() {
-				IAtomOriented atom253 = (IAtomOriented)sim.box.getLeafList().getAtom(253);
-				IAtomOriented atom63 = (IAtomOriented)sim.box.getLeafList().getAtom(63);
+				IAtomOriented atom253 = (IAtomOriented)sim.box.getLeafList().get(253);
+				IAtomOriented atom63 = (IAtomOriented)sim.box.getLeafList().get(63);
 				AtomArrayList bondList = (AtomArrayList)sim.associationManagerOriented.getAssociatedAtoms(atom253);
 				boolean isBonded1 = bondList.indexOf(atom63)>-1;
 				boolean isBonded2 = sim.bvso.isAssociated(atom253, atom63);

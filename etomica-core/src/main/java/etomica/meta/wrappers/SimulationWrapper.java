@@ -6,15 +6,12 @@ import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorManagerMC;
 import etomica.meta.SimulationModel;
 import etomica.meta.properties.ArrayProperty;
-import etomica.meta.properties.InstanceProperty;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -73,12 +70,12 @@ public class SimulationWrapper extends ObjectWrapper<Simulation> {
 
         for(int i = 0; i < sim.getBoxCount(); i++) {
             IAtomList leafList = sim.getBox(i).getLeafList();
-            if(boxes[i] == null || boxes[i].length != leafList.getAtomCount()) {
-                boxes[i] = new double[leafList.getAtomCount()][sim.getSpace().D()];
+            if(boxes[i] == null || boxes[i].length != leafList.size()) {
+                boxes[i] = new double[leafList.size()][sim.getSpace().D()];
             }
 
-            for(int j = 0; j < leafList.getAtomCount(); j++) {
-                leafList.getAtom(j).getPosition().assignTo(boxes[i][j]);
+            for(int j = 0; j < leafList.size(); j++) {
+                leafList.get(j).getPosition().assignTo(boxes[i][j]);
             }
         }
         return boxes;

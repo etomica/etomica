@@ -7,7 +7,6 @@ package etomica.normalmode;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.crystal.Primitive;
 import etomica.molecule.*;
 import etomica.potential.IteratorDirective;
@@ -30,7 +29,7 @@ public class LatticeSumMolecularCrystal {
     	this.atomPosDef = new MoleculePositionGeometricCenterPBC(space, box.getBoundary());
     	this.com0 = space.makeVector();
     	this.com1 = space.makeVector();
-    	int atomsPerMol = box.getLeafList().getAtomCount() / box.getMoleculeList().getMoleculeCount();   
+    	int atomsPerMol = box.getLeafList().size() / box.getMoleculeList().getMoleculeCount();
     	this.tmpAtomicTensor3 = new Tensor[basisDim*atomsPerMol];//46X4=184 atoms dimensional array of 3D Tensor
     	for (int i=0; i<basisDim*atomsPerMol ;i++){
     		tmpAtomicTensor3[i] = space.makeTensor();
@@ -68,7 +67,7 @@ public class LatticeSumMolecularCrystal {
             }
         }
         
-    	posl0.E(molList.getMolecule(0).getChildList().getAtom(0).getPosition());
+    	posl0.E(molList.getMolecule(0).getChildList().get(0).getPosition());
 
         for(int j=0; j<basisDim; j++) {//1st u.c.
         	System.out.println("j = "+j+" out of "+basisDim );
@@ -76,7 +75,7 @@ public class LatticeSumMolecularCrystal {
         	int L = box.getMoleculeList().getMoleculeCount()/basisDim;
             for(int lp=0; lp<L; lp++) {//basisDim=46
             	if(lp==0){
-            		poslp.E(molList.getMolecule(0).getChildList().getAtom(0).getPosition());
+            		poslp.E(molList.getMolecule(0).getChildList().get(0).getPosition());
             		dRpR0.Ev1Mv2(poslp, posl0);
             	}
                 for(int jp=0; jp<basisDim; jp++) {//basisDim=46
@@ -84,7 +83,7 @@ public class LatticeSumMolecularCrystal {
                 	
                 	IMolecule moleculejp = molList.getMolecule(basisDim*lp+jp);
                 	if(jp==0){
-                		poslp.E(moleculejp.getChildList().getAtom(0).getPosition());
+                		poslp.E(moleculejp.getChildList().get(0).getPosition());
                 		dRpR0.Ev1Mv2(poslp, posl0);
                 	}
                 	Tensor D6jjp = atomicToMolecularD(atomicTensorAtomicPair,moleculej,moleculejp);
@@ -95,7 +94,7 @@ public class LatticeSumMolecularCrystal {
                 }//jp
             }//lp
             
-    		poslp.E(molList.getMolecule(0).getChildList().getAtom(0).getPosition());//acc. ineffic.
+    		poslp.E(molList.getMolecule(0).getChildList().get(0).getPosition());//acc. ineffic.
     		dRpR0.Ev1Mv2(poslp, posl0);
         	Tensor D6jj = atomicToMolecularD(atomicTensorAtomicPair,moleculej,moleculej);
         	for(int k=0; k<kv.length; k++){
@@ -128,10 +127,10 @@ public class LatticeSumMolecularCrystal {
 //    	com1.E(mol1.getChildList().getAtom(2).getPosition()); // O (-6.016203213551466, 6.025148464416224, -2.996521341193713)
 //    	com0.PE(4.4);
 //    	com1.PE(4.4);
-		int numSites0 = mol0.getChildList().getAtomCount();
-		int numSites1 = mol1.getChildList().getAtomCount();
+		int numSites0 = mol0.getChildList().size();
+		int numSites1 = mol1.getChildList().size();
     	for (int atomk=0; atomk < numSites0; atomk++){
-    		Vector posk = mol0.getChildList().getAtom(atomk).getPosition();
+    		Vector posk = mol0.getChildList().get(atomk).getPosition();
     		Xk.Ev1Mv2(posk, com0);
     		box.getBoundary().nearestImage(Xk);
     		Rk.setComponent(0,0,0.0); Rk.setComponent(1,1,0.0);	Rk.setComponent(2,2,0.0);
@@ -140,7 +139,7 @@ public class LatticeSumMolecularCrystal {
     		Rk.setComponent(1,2, Xk.getX(0));  Rk.setComponent(2,1,-Xk.getX(0));
     		for (int atomkp=0; atomkp < numSites1; atomkp++){
     			if(atomk == atomkp && mol0 == mol1) continue;//ADDED:: Non-self
-        		Vector poskp = mol1.getChildList().getAtom(atomkp).getPosition();
+        		Vector poskp = mol1.getChildList().get(atomkp).getPosition();
         		Xkp.Ev1Mv2(poskp, com1);
         		box.getBoundary().nearestImage(Xkp);
         		Rkp.setComponent(0,0,0.0); Rkp.setComponent(1,1,0.0);	Rkp.setComponent(2,2,0.0);
@@ -148,16 +147,16 @@ public class LatticeSumMolecularCrystal {
         		Rkp.setComponent(0,2,-Xkp.getX(1));  Rkp.setComponent(2,0, Xkp.getX(1));
         		Rkp.setComponent(1,2, Xkp.getX(0));  Rkp.setComponent(2,1,-Xkp.getX(0));
 
-        		D3tt_.E(aTensor.atomicTensor(mol0.getChildList().getAtom(atomk) , mol1.getChildList().getAtom(atomkp)));
+        		D3tt_.E(aTensor.atomicTensor(mol0.getChildList().get(atomk) , mol1.getChildList().get(atomkp)));
         		D3tt.PE(D3tt_);
         		D3tr_.E(D3tt_); D3tr_.TE(Rkp);  D3tr.PE(D3tr_);
         		Rk_.E(Rk);  Rk_.TE(D3tt_);  D3rt.ME(Rk_);
                 Rk_.TE(Rkp); D3rr.ME(Rk_);    
-        		tmpAtomicTensor3[mol0.getChildList().getAtom(atomk).getLeafIndex()].ME(D3tt_);//self summation(sum rule)
+        		tmpAtomicTensor3[mol0.getChildList().get(atomk).getLeafIndex()].ME(D3tt_);//self summation(sum rule)
         	}//atomkp
     		
     		if(mol0 == mol1){//self
-    			D3tt_.E(tmpAtomicTensor3[mol0.getChildList().getAtom(atomk).getLeafIndex()]);
+    			D3tt_.E(tmpAtomicTensor3[mol0.getChildList().get(atomk).getLeafIndex()]);
     			
         		D3tt.PE(D3tt_);//Transform to molecular
         		
@@ -174,7 +173,7 @@ public class LatticeSumMolecularCrystal {
 //Drr Symmetric Part
  
                 Tensor3D tmpDrr2 = new Tensor3D();
-	        	IAtom atom = mol0.getChildList().getAtom(atomk);
+	        	IAtom atom = mol0.getChildList().get(atomk);
 	        	
 	        	Vector fk = atomAgentManager.getAgent(atom);//gradient NOT fk
 	        	Xk.TE(-1);

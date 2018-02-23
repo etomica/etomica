@@ -101,7 +101,7 @@ public abstract class IteratorTestAbstract extends TestCase {
             int i = 0;
             for (IAtom next = ((AtomIterator)iterator).nextAtom(); i<atoms.length;
                  next = ((AtomIterator)iterator).nextAtom()) {
-                assertEquals(next, atoms[i++].getAtom(0));
+                assertEquals(next, atoms[i++].get(0));
             }
             assertNull(((AtomIterator)iterator).nextAtom());
         }
@@ -120,7 +120,7 @@ public abstract class IteratorTestAbstract extends TestCase {
         iterator.reset();
         for (IAtomList atomSet = iterator.next(); atomSet != null;
              atomSet = iterator.next()) {
-            assertEquals(atomSet.getAtomCount(), iterator.nBody());
+            assertEquals(atomSet.size(), iterator.nBody());
         }
 
         print("Just tested nBody method");

@@ -358,7 +358,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
             Cell cell = (Cell)lattice.site(v);
             
             double[] size = lattice.getCellSize();
-            return cell.occupants().getAtomCount() / (size[0]*size[1]*size[2]);
+            return cell.occupants().size() / (size[0]*size[1]*size[2]);
         }
     }
 

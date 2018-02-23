@@ -33,8 +33,8 @@ public class MuGeneral implements MayerFunction, java.io.Serializable {
 		IMolecule molecule2 = pair.getMolecule(1);
 		IAtomList atomList1 = molecule1.getChildList();
 		IAtomList atomList2 = molecule2.getChildList();
-        IAtomOriented atom1 = (IAtomOriented)atomList1.getAtom(0);
-        IAtomOriented atom2 = (IAtomOriented)atomList2.getAtom(0);
+        IAtomOriented atom1 = (IAtomOriented)atomList1.get(0);
+        IAtomOriented atom2 = (IAtomOriented)atomList2.get(0);
 		// should have a loop to loop over all the atoms in the molecules 
         Vector v1 = atom1.getOrientation().getDirection();//dipole1
         Vector v2 = atom2.getOrientation().getDirection();//dipole2

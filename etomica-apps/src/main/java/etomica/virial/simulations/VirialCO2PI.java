@@ -425,7 +425,7 @@ public class VirialCO2PI {
                 groupTranslationVector.setX(1, r*Math.sin(2*(i-1)*Math.PI/(nPoints-1)));
                 moveMoleculeAction.actionPerformed(molecules.getMolecule(i));
                 if (nBeads>1) {
-                    Vector v = molecules.getMolecule(i).getChildList().getAtom(1).getPosition();
+                    Vector v = molecules.getMolecule(i).getChildList().get(1).getPosition();
                     v.TE(0.95);
                 }
             }
@@ -598,14 +598,14 @@ public class VirialCO2PI {
                 for (int i=0; i<mols.getMoleculeCount(); i++) {
                     IAtomList atoms = mols.getMolecule(i).getChildList();
                     r.E(0);
-                    for (int j=0; j<atoms.getAtomCount(); j++) {
-                        r.PE(atoms.getAtom(j).getPosition());
+                    for (int j = 0; j<atoms.size(); j++) {
+                        r.PE(atoms.get(j).getPosition());
                     }
-                    r.TE(1.0/atoms.getAtomCount());
-                    for (int j=0; j<atoms.getAtomCount(); j++) {
-                        sum += r.Mv1Squared(atoms.getAtom(j).getPosition());
+                    r.TE(1.0/atoms.size());
+                    for (int j = 0; j<atoms.size(); j++) {
+                        sum += r.Mv1Squared(atoms.get(j).getPosition());
                     }
-                    n += atoms.getAtomCount();
+                    n += atoms.size();
                 }
                 sum /= n;
                 return sum;

@@ -28,10 +28,10 @@ public class MCMoveClusterAtomRotateMulti extends MCMoveAtom {
         super.setBox(box);
         if (oldOrientations != null) return;
         IAtomList atoms = box.getLeafList();
-        int nAtoms = atoms.getAtomCount();
+        int nAtoms = atoms.size();
         oldOrientations = new IOrientation[nAtoms];
         for (int i=0; i<nAtoms; i++) {
-            if (((IAtomOriented)atoms.getAtom(i)).getOrientation() instanceof Orientation3D) {
+            if (((IAtomOriented)atoms.get(i)).getOrientation() instanceof Orientation3D) {
                 oldOrientations[i] = new Orientation3D(space);
             }
             else {
@@ -44,15 +44,15 @@ public class MCMoveClusterAtomRotateMulti extends MCMoveAtom {
 	public boolean doTrial() {
         uOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         IAtomList atoms = box.getLeafList();
-        int nAtoms = atoms.getAtomCount();
+        int nAtoms = atoms.size();
         for(int i=0; i<nAtoms; i++) {
-            IAtomOriented a = (IAtomOriented)atoms.getAtom(i);
+            IAtomOriented a = (IAtomOriented)atoms.get(i);
             oldOrientations[i].E(a.getOrientation());
             a.getOrientation().randomRotation(random, stepSize);
         }
         if (random.nextInt(100) == 0) {
             for(int i=0; i<nAtoms; i++) {
-                IAtomOriented a = (IAtomOriented)atoms.getAtom(i);
+                IAtomOriented a = (IAtomOriented)atoms.get(i);
                 a.getOrientation().getDirection().normalize();
             }
         }
@@ -67,9 +67,9 @@ public class MCMoveClusterAtomRotateMulti extends MCMoveAtom {
 
     public void rejectNotify() {
         IAtomList atoms = box.getLeafList();
-        int nAtoms = atoms.getAtomCount();
+        int nAtoms = atoms.size();
         for(int i=0; i<nAtoms; i++) {
-            IAtomOriented a = (IAtomOriented)atoms.getAtom(i);
+            IAtomOriented a = (IAtomOriented)atoms.get(i);
             a.getOrientation().E(oldOrientations[i]);
         }
     	((BoxCluster)box).rejectNotify();

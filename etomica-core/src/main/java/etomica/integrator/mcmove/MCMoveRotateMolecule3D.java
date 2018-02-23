@@ -62,8 +62,8 @@ public class MCMoveRotateMolecule3D extends MCMoveMolecule {
     
     protected void doTransform() {
         IAtomList childList = molecule.getChildList();
-        for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
-            IAtom a = childList.getAtom(iChild);
+        for (int iChild = 0; iChild<childList.size(); iChild++) {
+            IAtom a = childList.get(iChild);
             Vector r = a.getPosition();
             r.ME(r0);
             box.getBoundary().nearestImage(r);

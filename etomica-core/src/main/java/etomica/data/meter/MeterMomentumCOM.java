@@ -41,9 +41,9 @@ public class MeterMomentumCOM implements IDataSource, java.io.Serializable {
     public IData getData() {
         momentumSum.E(0.0);
         IAtomList leafList = box.getLeafList();
-        int nLeaf = leafList.getAtomCount();
+        int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
             double mass = a.getType().getMass();
             momentumSum.PEa1Tv1(mass,a.getVelocity());
         }

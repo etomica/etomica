@@ -74,9 +74,9 @@ public class P3NitrogenHellmannNonAdditive implements IPotentialAtomic{
     }
     
     public double energy(IAtomList atoms) {
-        final IAtomOriented atom0 = (IAtomOriented) atoms.getAtom(0);
-        final IAtomOriented atom1 = (IAtomOriented) atoms.getAtom(1);
-        final IAtomOriented atom2 = (IAtomOriented) atoms.getAtom(2);
+        final IAtomOriented atom0 = (IAtomOriented) atoms.get(0);
+        final IAtomOriented atom1 = (IAtomOriented) atoms.get(1);
+        final IAtomOriented atom2 = (IAtomOriented) atoms.get(2);
         Vector cm0 = atom0.getPosition();
         Vector cm1 = atom1.getPosition();
         Vector cm2 = atom2.getPosition();

@@ -19,17 +19,17 @@ public class P2HardSphereMC extends P2HardSphere {
     }
     
     public double energy(IAtomList pair) {
-        IAtom atom0 = pair.getAtom(0);
-        IAtom atom1 = pair.getAtom(1);
+        IAtom atom0 = pair.get(0);
+        IAtom atom1 = pair.get(1);
 
         dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
         if (r2 < sig2*(1+1e-9)) {
-            IAtomList bondList = bondManager.getAgent(pair.getAtom(0));
+            IAtomList bondList = bondManager.getAgent(pair.get(0));
             boolean bonded = false;
-            for (int i=0; !bonded && i<bondList.getAtomCount(); i++) {
-                bonded = bondList.getAtom(i) == pair.getAtom(1);
+            for (int i = 0; !bonded && i<bondList.size(); i++) {
+                bonded = bondList.get(i) == pair.get(1);
             }
             if (bonded) {
                 return 0;
@@ -44,8 +44,8 @@ public class P2HardSphereMC extends P2HardSphere {
      * approach, or when they edge of the wells are reached as atoms diverge.
      */
     public double collisionTime(IAtomList pair, double falseTime) {
-        IAtomKinetic coord0 = (IAtomKinetic)pair.getAtom(0);
-        IAtomKinetic coord1 = (IAtomKinetic)pair.getAtom(1);
+        IAtomKinetic coord0 = (IAtomKinetic)pair.get(0);
+        IAtomKinetic coord1 = (IAtomKinetic)pair.get(1);
         dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
         
         dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());
@@ -64,10 +64,10 @@ public class P2HardSphereMC extends P2HardSphere {
             if(discr > 0) {  // Hard cores collide next
                 if (r2 < sig2+1e-9) {
                     // check for bonding
-                    IAtomList bondList = bondManager.getAgent(pair.getAtom(0));
+                    IAtomList bondList = bondManager.getAgent(pair.get(0));
                     boolean bonded = false;
-                    for (int i=0; !bonded && i<bondList.getAtomCount(); i++) {
-                        bonded = bondList.getAtom(i) == pair.getAtom(1);
+                    for (int i = 0; !bonded && i<bondList.size(); i++) {
+                        bonded = bondList.get(i) == pair.get(1);
                     }
                     if (bonded) {
                         double discrBonding = discr + v2 * sig2*(bondFac*bondFac-1);
@@ -98,10 +98,10 @@ public class P2HardSphereMC extends P2HardSphere {
         else {           // Moving away from each other, wells collide next
             if (r2 < sig2+1e-9) {
                 // check for bonding
-                IAtomList bondList = bondManager.getAgent(pair.getAtom(0));
+                IAtomList bondList = bondManager.getAgent(pair.get(0));
                 boolean bonded = false;
-                for (int i=0; !bonded && i<bondList.getAtomCount(); i++) {
-                    bonded = bondList.getAtom(i) == pair.getAtom(1);
+                for (int i = 0; !bonded && i<bondList.size(); i++) {
+                    bonded = bondList.get(i) == pair.get(1);
                 }
                 if (bonded) {
                     // take bond stretch time
@@ -110,10 +110,10 @@ public class P2HardSphereMC extends P2HardSphere {
                 }
             }
             else {
-                IAtomList bondList = bondManager.getAgent(pair.getAtom(0));
+                IAtomList bondList = bondManager.getAgent(pair.get(0));
                 boolean bonded = false;
-                for (int i=0; !bonded && i<bondList.getAtomCount(); i++) {
-                    bonded = bondList.getAtom(i) == pair.getAtom(1);
+                for (int i = 0; !bonded && i<bondList.size(); i++) {
+                    bonded = bondList.get(i) == pair.get(1);
                 }
                 if (bonded) {
                     // take bond stretch time

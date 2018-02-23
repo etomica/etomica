@@ -128,8 +128,8 @@ public class LJMC extends Simulation {
         box.setNMolecules(species, numAtoms);
         IAtomList atoms = box.getLeafList();
         for (int i = 0; i < numAtoms - nL; i++) {
-            Vector vx = boxV.getLeafList().getAtom(i).getPosition();
-            Vector x = atoms.getAtom(nL + i).getPosition();
+            Vector vx = boxV.getLeafList().get(i).getPosition();
+            Vector x = atoms.get(nL + i).getPosition();
             x.E(vx);
             if (vx.getX(0) > 0) {
                 x.setX(0, vx.getX(0) + 0.5 * Lx * xL);

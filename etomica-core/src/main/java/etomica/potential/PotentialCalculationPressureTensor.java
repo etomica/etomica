@@ -81,16 +81,16 @@ public class PotentialCalculationPressureTensor implements PotentialCalculation 
      * PotentialMaster.calculate
      */
     public Tensor getPressureTensor() {
-        if (leafList.getAtomCount() == 0) {
+        if (leafList.size() == 0) {
             return pressureTensor;
         }
 
         if (doNonEquilibrium) {
             
             // use the velocities
-            int nLeaf = leafList.getAtomCount();
+            int nLeaf = leafList.size();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-                IAtomKinetic atom = (IAtomKinetic)leafList.getAtom(iLeaf);
+                IAtomKinetic atom = (IAtomKinetic)leafList.get(iLeaf);
                 workTensor.Ev1v2(atom.getVelocity(), atom.getVelocity());
                 workTensor.TE(atom.getType().getMass());
                 pressureTensor.PE(workTensor);
@@ -100,7 +100,7 @@ public class PotentialCalculationPressureTensor implements PotentialCalculation 
 
         // or just include ideal gas term
         double T = integrator != null ? integrator.getTemperature() : temperature;
-        pressureTensor.PEa1Tt1(leafList.getAtomCount()*T,I);
+        pressureTensor.PEa1Tt1(leafList.size()*T,I);
         return pressureTensor;
     }
 }

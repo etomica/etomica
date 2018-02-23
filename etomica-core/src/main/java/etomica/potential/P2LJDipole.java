@@ -79,8 +79,8 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
 		IAtomList atomList1 = molecule1.getChildList();
 		IAtomList atomList2 = molecule2.getChildList();
 
-		IAtomOriented atom1 = (IAtomOriented)atomList1.getAtom(0);
-		IAtomOriented atom2 = (IAtomOriented)atomList2.getAtom(0);
+		IAtomOriented atom1 = (IAtomOriented)atomList1.get(0);
+		IAtomOriented atom2 = (IAtomOriented)atomList2.get(0);
 
         // LJ contributation
 
@@ -99,8 +99,8 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
 		IMolecule molecule2 = pair.getMolecule(1);
 		IAtomList atomList1 = molecule1.getChildList();
 		IAtomList atomList2 = molecule2.getChildList();
-        IAtomOriented atom1 = (IAtomOriented)atomList1.getAtom(0);
-        IAtomOriented atom2 = (IAtomOriented)atomList2.getAtom(0);
+        IAtomOriented atom1 = (IAtomOriented)atomList1.get(0);
+        IAtomOriented atom2 = (IAtomOriented)atomList2.get(0);
 
         // LJ contribution
         dr.Ev1Mv2(atom1.getPosition(), atom2.getPosition());//r1-r2
@@ -143,8 +143,8 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
 		IAtomList atomList1 = molecule1.getChildList();
 		IAtomList atomList2 = molecule2.getChildList();
 
-		IAtomOriented atom1 = (IAtomOriented)atomList1.getAtom(0);
-		IAtomOriented atom2 = (IAtomOriented)atomList2.getAtom(0);
+		IAtomOriented atom1 = (IAtomOriented)atomList1.get(0);
+		IAtomOriented atom2 = (IAtomOriented)atomList2.get(0);
 
 		dr.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
 		boundary.nearestImage(dr);
@@ -208,8 +208,8 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
 		IMolecule molecule1 = molecules.getMolecule(1);
 		IAtomList atomList0 = molecule0.getChildList();
 		IAtomList atomList1 = molecule1.getChildList();
-		IAtomOriented atom0 = (IAtomOriented)atomList0.getAtom(0);
-		IAtomOriented atom1 = (IAtomOriented)atomList1.getAtom(0);
+		IAtomOriented atom0 = (IAtomOriented)atomList0.get(0);
+		IAtomOriented atom1 = (IAtomOriented)atomList1.get(0);
 		Vector pos0 = atom1.getPosition();
 		Vector pos1 = atom0.getPosition();
 		Vector ei =  atom0.getOrientation().getDirection();

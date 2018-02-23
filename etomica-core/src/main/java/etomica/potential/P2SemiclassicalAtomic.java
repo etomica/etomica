@@ -70,7 +70,7 @@ public class P2SemiclassicalAtomic implements IPotentialAtomic {
         Vector[][] gradAndTorque = p2Classy.gradientAndTorque(molecules);
         double sum = 0;
         for (int i = 0; i < 2; i++) {
-            IAtom iMol = molecules.getAtom(i);
+            IAtom iMol = molecules.get(i);
             double mi = iMol.getType().getMass();
             sum += gradAndTorque[0][i].squared() / mi;
             if (iMol instanceof IAtomOriented) {

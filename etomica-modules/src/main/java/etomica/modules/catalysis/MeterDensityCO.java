@@ -29,7 +29,7 @@ public class MeterDensityCO extends DataSourceScalar {
         IMoleculeList listC = box.getMoleculeList(speciesC);
         int count = 0;
         for (int i=0; i<listC.getMoleculeCount(); i++) {
-            IAtom atom = listC.getMolecule(i).getChildList().getAtom(0);
+            IAtom atom = listC.getMolecule(i).getChildList().get(0);
             CatalysisAgent agent = (CatalysisAgent)interactionAgentManager.getAgent(atom);
             if (agent.isRadical || agent.bondedAtom2 != null) continue;
             count++;

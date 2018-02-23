@@ -113,12 +113,12 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
     
     public void drivePT() {
         double kineticT = meterTemperature.getDataAsScalar();
-        double mvsq = kineticT * D * box.getLeafList().getAtomCount();
+        double mvsq = kineticT * D * box.getLeafList().size();
         double volume = box.getBoundary().volume();
         double density = box.getMoleculeList().getMoleculeCount() / box.getBoundary().volume();
         double pCurrent = density*kineticT - forceSumNPH.w/(D*volume);
         double pDot = kp*(targetP - pCurrent);
-        double kDot = kp*(targetT - kineticT)*box.getLeafList().getAtomCount();
+        double kDot = kp*(targetT - kineticT)*box.getLeafList().size();
         chi = ( - forceSumNPH.rvx - D*pDot*volume)/
                     ( forceSumNPH.x + D*D*pCurrent*volume);
         zeta = (forceSumNPH.vf - kDot)/mvsq - chi;
@@ -126,7 +126,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
     
     public void drivePH() {
         double kineticT = meterTemperature.getDataAsScalar();
-        double mvsq = kineticT * D * box.getLeafList().getAtomCount();
+        double mvsq = kineticT * D * box.getLeafList().size();
         double volume = box.getBoundary().volume();
         double density = box.getMoleculeList().getMoleculeCount() / box.getBoundary().volume();
         double pCurrent = density*kineticT - forceSumNPH.w/(D*volume);
@@ -203,7 +203,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
                 integrator.calculateForces();
                 Box box = integrator.getBox();
                 double kineticT = integrator.getMeterTemperature().getDataAsScalar();
-                double mvsq = kineticT * dim * box.getLeafList().getAtomCount();
+                double mvsq = kineticT * dim * box.getLeafList().size();
                 double volume = box.getBoundary().volume();
                 double density = box.getMoleculeList().getMoleculeCount() / box.getBoundary().volume();
                 double pCurrent = density*kineticT - integrator.forceSumNPH.w/(dim*volume);
@@ -241,7 +241,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
         public IData getData() {
             Box box = integrator.getBox();
             double kineticT = integrator.getMeterTemperature().getDataAsScalar();
-            double mvsq = kineticT* dim * box.getLeafList().getAtomCount();
+            double mvsq = kineticT* dim * box.getLeafList().size();
             double volume = box.getBoundary().volume();
             double density = box.getMoleculeList().getMoleculeCount() / box.getBoundary().volume();
             double pCurrent = density*kineticT - integrator.forceSumNPH.w/(dim*volume);
@@ -282,8 +282,8 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
         //pair
         public void doCalculation(IAtomList pair, IPotential potential2) {
             Potential2Soft potentialSoft = (Potential2Soft)potential2;
-            IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);
-            IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);
+            IAtomKinetic atom0 = (IAtomKinetic)pair.get(0);
+            IAtomKinetic atom1 = (IAtomKinetic)pair.get(1);
             dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
             
             dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());

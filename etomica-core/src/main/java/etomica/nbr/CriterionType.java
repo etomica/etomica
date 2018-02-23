@@ -29,7 +29,7 @@ public class CriterionType extends CriterionAdapter {
      * construction and if the wrapped criterion accept also returns true.
      */
     public boolean accept(IAtomList atom) {
-        if (atom.getAtom(0).getType() == type) {
+        if (atom.get(0).getType() == type) {
             return subCriterion.accept(atom);
         }
         return false;

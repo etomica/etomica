@@ -120,22 +120,22 @@ public class PotentialCalculationTorqueSum implements PotentialCalculationMolecu
 			Vector[] t = gt[1];
 			switch(nBody) {
 				case 1:
-					((IntegratorBox.Torquable)leafAgentManager.getAgent(atoms.getAtom(0))).torque().PE(t[0]);
-                    ((IntegratorBox.Forcible)leafAgentManager.getAgent(atoms.getAtom(0))).force().ME(g[0]);
+					((IntegratorBox.Torquable)leafAgentManager.getAgent(atoms.get(0))).torque().PE(t[0]);
+                    ((IntegratorBox.Forcible)leafAgentManager.getAgent(atoms.get(0))).force().ME(g[0]);
 					break;
 				case 2:
-                    ((IntegratorBox.Torquable)leafAgentManager.getAgent(atoms.getAtom(0))).torque().PE(t[0]);
-                    ((IntegratorBox.Torquable)leafAgentManager.getAgent(atoms.getAtom(1))).torque().PE(t[1]);
-                    ((IntegratorBox.Forcible)leafAgentManager.getAgent(atoms.getAtom(0))).force().ME(g[0]);
-                    ((IntegratorBox.Forcible)leafAgentManager.getAgent(atoms.getAtom(1))).force().ME(g[1]);
+                    ((IntegratorBox.Torquable)leafAgentManager.getAgent(atoms.get(0))).torque().PE(t[0]);
+                    ((IntegratorBox.Torquable)leafAgentManager.getAgent(atoms.get(1))).torque().PE(t[1]);
+                    ((IntegratorBox.Forcible)leafAgentManager.getAgent(atoms.get(0))).force().ME(g[0]);
+                    ((IntegratorBox.Forcible)leafAgentManager.getAgent(atoms.get(1))).force().ME(g[1]);
 			 		break;
                 default:
                     //XXX atoms.count might not equal f.length.  The potential might size its 
                     //array of vectors to be large enough for one AtomSet and then not resize it
                     //back down for another AtomSet with fewer atoms.
-                    for (int i=0; i<atoms.getAtomCount(); i++) {
-                        ((IntegratorBox.Torquable)leafAgentManager.getAgent(atoms.getAtom(i))).torque().PE(t[i]);
-                        ((IntegratorBox.Forcible)leafAgentManager.getAgent(atoms.getAtom(i))).force().ME(g[i]);
+                    for (int i = 0; i<atoms.size(); i++) {
+                        ((IntegratorBox.Torquable)leafAgentManager.getAgent(atoms.get(i))).torque().PE(t[i]);
+                        ((IntegratorBox.Forcible)leafAgentManager.getAgent(atoms.get(i))).force().ME(g[i]);
                     }
 			}
 	    }
@@ -145,18 +145,18 @@ public class PotentialCalculationTorqueSum implements PotentialCalculationMolecu
             Vector[] gradient = potentialSoft.gradient(atoms);
             switch(nBody) {
                 case 1:
-                    ((IntegratorBox.Forcible)leafAgentManager.getAgent(atoms.getAtom(0))).force().ME(gradient[0]);
+                    ((IntegratorBox.Forcible)leafAgentManager.getAgent(atoms.get(0))).force().ME(gradient[0]);
                     break;
                 case 2:
-                    ((IntegratorBox.Forcible)leafAgentManager.getAgent(atoms.getAtom(0))).force().ME(gradient[0]);
-                    ((IntegratorBox.Forcible)leafAgentManager.getAgent(atoms.getAtom(1))).force().ME(gradient[1]);
+                    ((IntegratorBox.Forcible)leafAgentManager.getAgent(atoms.get(0))).force().ME(gradient[0]);
+                    ((IntegratorBox.Forcible)leafAgentManager.getAgent(atoms.get(1))).force().ME(gradient[1]);
                     break;
                 default:
                     //XXX atoms.count might not equal f.length.  The potential might size its 
                     //array of vectors to be large enough for one AtomSet and then not resize it
                     //back down for another AtomSet with fewer atoms.
-                    for (int i=0; i<atoms.getAtomCount(); i++) {
-                        ((IntegratorBox.Forcible)leafAgentManager.getAgent(atoms.getAtom(i))).force().ME(gradient[i]);
+                    for (int i = 0; i<atoms.size(); i++) {
+                        ((IntegratorBox.Forcible)leafAgentManager.getAgent(atoms.get(i))).force().ME(gradient[i]);
                     }
             }
 	    }

@@ -91,9 +91,9 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
             }
         }
 
-        double density = simCDef.getBox().getLeafList().getAtomCount() /
+        double density = simCDef.getBox().getLeafList().size() /
                 simCDef.getBox().getBoundary().volume();
-        numAtoms = otherCD.getBox().getLeafList().getAtomCount();
+        numAtoms = otherCD.getBox().getLeafList().size();
         box = sim.makeBox();
         //nan this will be an issue if we have more than one species.
         box.setNMolecules(sim.getSpecies(0), numAtoms);
@@ -160,7 +160,7 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
 
         etas = new double[space.D() * (numAtoms - 1)];
         gaussCoord = new double[space.D() * (numAtoms -
-                simCDef.getBox().getLeafList().getAtomCount())];
+                simCDef.getBox().getLeafList().size())];
     }
     
     public double getDataAsScalar() {

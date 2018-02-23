@@ -41,18 +41,18 @@ public class P3AxilrodTeller implements IPotentialAtomic {
         double cp = 3;
         double rp = 1;
         for (int i=0; i<3; i++) {
-            MyAgent ag = paramsManager.get(atoms.getAtom(i).getType());
+            MyAgent ag = paramsManager.get(atoms.get(i).getType());
             eps[(i+1)%3] += ag.E;
             eps[(i+2)%3] += ag.E;
             ep *= ag.E;
             es += ag.E;
 
             ap *= ag.alpha;
-            dr1.Ev1Mv2(atoms.getAtom(i).getPosition(),atoms.getAtom((i+1)%3).getPosition());
+            dr1.Ev1Mv2(atoms.get(i).getPosition(),atoms.get((i+1)%3).getPosition());
             boundary.nearestImage(dr1);
             double r2 = dr1.squared();
             rp *= r2*Math.sqrt(r2);
-            dr2.Ev1Mv2(atoms.getAtom((i+2)%3).getPosition(),atoms.getAtom((i+1)%3).getPosition());
+            dr2.Ev1Mv2(atoms.get((i+2)%3).getPosition(),atoms.get((i+1)%3).getPosition());
             boundary.nearestImage(dr2);
             double cos = dr1.dot(dr2)/Math.sqrt(r2*dr2.squared());
             cp *= cos;

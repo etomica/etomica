@@ -44,8 +44,8 @@ public class MeterExcessAdsorbed extends DataSourceScalar {
     public double getDataAsScalar() {
         IAtomList list = box.getLeafList();
         int n = 0;
-        for (int i=0; i<list.getAtomCount(); i++) {
-            IAtom atom = list.getAtom(i);
+        for (int i = 0; i<list.size(); i++) {
+            IAtom atom = list.get(i);
             if (atom.getParentGroup().getType() != species) continue;
             Vector p = atom.getPosition();
             double x = p.getX(dim);

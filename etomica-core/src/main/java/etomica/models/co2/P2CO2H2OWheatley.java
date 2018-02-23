@@ -253,8 +253,8 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
     }
     
     public double energy(IAtomList atoms) {
-        IAtomOriented atom0 = (IAtomOriented)atoms.getAtom(0);
-        IAtomOriented atom1 = (IAtomOriented)atoms.getAtom(1);
+        IAtomOriented atom0 = (IAtomOriented)atoms.get(0);
+        IAtomOriented atom1 = (IAtomOriented)atoms.get(1);
         Vector cm0 = atom0.getPosition();
         Vector cm1 = atom1.getPosition();
 //        System.out.println("cm1 "+cm1);
@@ -371,8 +371,8 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
     }
 
     public Vector[][] gradientAndTorque(IAtomList atoms) {
-        IAtomOriented atom0 = (IAtomOriented)atoms.getAtom(0);
-        IAtomOriented atom1 = (IAtomOriented)atoms.getAtom(1);
+        IAtomOriented atom0 = (IAtomOriented)atoms.get(0);
+        IAtomOriented atom1 = (IAtomOriented)atoms.get(1);
         Vector cm0 = atom0.getPosition();
         Vector cm1 = atom1.getPosition();
         for (int i=0; i<3; i++) {
@@ -520,8 +520,8 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         }
         public double[][] d2tot = new double[2][6];
         public double energy(IAtomList atoms) {
-            IAtomOriented atom0 = (IAtomOriented)atoms.getAtom(0);
-            IAtomOriented atom1 = (IAtomOriented)atoms.getAtom(1);
+            IAtomOriented atom0 = (IAtomOriented)atoms.get(0);
+            IAtomOriented atom1 = (IAtomOriented)atoms.get(1);
             Vector cm0 = atom0.getPosition();
             Vector cm1 = atom1.getPosition();
             double bohrConv = BohrRadius.UNIT.fromSim(1);
@@ -885,8 +885,8 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         }
 
         public double energy(IAtomList atoms) {
-            IAtomOriented atom0 = (IAtomOriented)atoms.getAtom(0);
-            IAtomOriented atom1 = (IAtomOriented)atoms.getAtom(1);
+            IAtomOriented atom0 = (IAtomOriented)atoms.get(0);
+            IAtomOriented atom1 = (IAtomOriented)atoms.get(1);
             Vector cm0 = atom0.getPosition();
             Vector cm1 = atom1.getPosition();
             double bohrConv = BohrRadius.UNIT.fromSim(1);
@@ -1126,8 +1126,8 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         p2.setBox(box);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{100,100,100}));
         IAtomList pair = box.getLeafList();
-        IAtomOriented atom0 = (IAtomOriented)pair.getAtom(0);
-        IAtomOriented atom1 = (IAtomOriented)pair.getAtom(1);
+        IAtomOriented atom0 = (IAtomOriented)pair.get(0);
+        IAtomOriented atom1 = (IAtomOriented)pair.get(1);
         FileReader fReader = new FileReader("geometry.txt");
         BufferedReader bufReader = new BufferedReader(fReader);
         String line = null;
@@ -1219,8 +1219,8 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         box.setNMolecules(speciesH2O, 1);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{100,100,100}));
         IAtomList pair = box.getLeafList();
-        IAtomOriented atom0 = (IAtomOriented)pair.getAtom(0);
-        IAtomOriented atom1 = (IAtomOriented)pair.getAtom(1);
+        IAtomOriented atom0 = (IAtomOriented)pair.get(0);
+        IAtomOriented atom1 = (IAtomOriented)pair.get(1);
 //        ((IAtomOriented)pair.getAtom(0)).getOrientation().setDirection(space.makeVector(new double[]{Math.cos(22.5/180.0*Math.PI), Math.sin(22.5/180.0*Math.PI),0}));
         Vector o1 = space.makeVector(new double[]{0,0,-1});
         Vector o2 = space.makeVector(new double[]{1,0,0});
@@ -1325,8 +1325,8 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         box.setNMolecules(speciesH2O, 1);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{100,100,100}));
         IAtomList pair = box.getLeafList();
-        IAtomOriented atom0 = (IAtomOriented)pair.getAtom(0);
-        IAtomOriented atom1 = (IAtomOriented)pair.getAtom(1);
+        IAtomOriented atom0 = (IAtomOriented)pair.get(0);
+        IAtomOriented atom1 = (IAtomOriented)pair.get(1);
         Vector p1 = atom1.getPosition();
         IOrientation or0 = atom0.getOrientation();
         OrientationFull3D or1 = (OrientationFull3D)atom1.getOrientation();
@@ -1383,8 +1383,8 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         box.setNMolecules(speciesH2O, 1);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{100,100,100}));
         IAtomList pair = box.getLeafList();
-        IAtomOriented atom0 = (IAtomOriented)pair.getAtom(0);
-        IAtomOriented atom1 = (IAtomOriented)pair.getAtom(1);
+        IAtomOriented atom0 = (IAtomOriented)pair.get(0);
+        IAtomOriented atom1 = (IAtomOriented)pair.get(1);
         Vector p0 = atom1.getPosition();
         Vector p1 = atom1.getPosition();
         IOrientation or0 = atom0.getOrientation();

@@ -192,7 +192,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             IAtomList pair = Debug.getAtoms(box);
             if (pair != null) {
                 Vector dr = space.makeVector();
-                dr.Ev1Mv2(pair.getAtom(1).getPosition(), pair.getAtom(0).getPosition());
+                dr.Ev1Mv2(pair.get(1).getPosition(), pair.get(0).getPosition());
                 System.out.println(pair+" dr "+dr);
             }
         }
@@ -203,8 +203,8 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             MyTypeAgent typeAgent = (MyTypeAgent)typeAgentManager.getAgent(molecule.getType());
             IAtomList children = molecule.getChildList();
             if (typeAgent == null) {
-                for (int iLeaf=0; iLeaf<children.getAtomCount(); iLeaf++) {
-                    IAtomKinetic a = (IAtomKinetic)children.getAtom(iLeaf);
+                for (int iLeaf = 0; iLeaf<children.size(); iLeaf++) {
+                    IAtomKinetic a = (IAtomKinetic)children.get(iLeaf);
                     Vector force = leafAgentManager.getAgent(a);
                     Vector r = a.getPosition();
                     Vector v = a.getVelocity();
@@ -352,8 +352,8 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             if (typeAgent == null) {
                 // unimolecular or at least not rigid
                 //Finish integration step
-                for (int iLeaf=0; iLeaf<children.getAtomCount(); iLeaf++) {
-                    IAtomKinetic a = (IAtomKinetic)children.getAtom(iLeaf);
+                for (int iLeaf = 0; iLeaf<children.size(); iLeaf++) {
+                    IAtomKinetic a = (IAtomKinetic)children.get(iLeaf);
 //                    System.out.println("force: "+((MyAgent)a.ia).force.toString());
                     Vector velocity = a.getVelocity();
                     workTensor.Ev1v2(velocity,velocity);
@@ -373,8 +373,8 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             agent.torque.E(0);
             agent.force.E(0);
             Vector moleculePosition = ((IMoleculePositioned)molecule).getPosition();
-            for (int i=0; i<children.getAtomCount(); i++) {
-                IAtomKinetic atom = (IAtomKinetic)children.getAtom(i);
+            for (int i = 0; i<children.size(); i++) {
+                IAtomKinetic atom = (IAtomKinetic)children.get(i);
                 Vector atomForce = leafAgentManager.getAgent(atom);
                 agent.force.PE(atomForce);
 
@@ -416,7 +416,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             IMolecule molecule = moleculeList.getMolecule(iMolecule);
             MyTypeAgent typeAgent = (MyTypeAgent)typeAgentManager.getAgent(molecule.getType());
             if (typeAgent == null) {
-                super.randomizeMomentum((IAtomKinetic)molecule.getChildList().getAtom(0));
+                super.randomizeMomentum((IAtomKinetic)molecule.getChildList().get(0));
                 continue;
             }
 
@@ -501,7 +501,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             IAtomList pair = Debug.getAtoms(box);
             if (pair != null) {
                 Vector dr = space.makeVector();
-                dr.Ev1Mv2(pair.getAtom(1).getPosition(), pair.getAtom(0).getPosition());
+                dr.Ev1Mv2(pair.get(1).getPosition(), pair.get(0).getPosition());
                 System.out.println(pair+" dr "+dr);
             }
         }
@@ -527,8 +527,8 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             agent.torque.E(0);
             //calc angular velocities
             IAtomList children = molecule.getChildList();
-            for (int i=0; i<children.getAtomCount(); i++) {
-                IAtom atom = children.getAtom(i);
+            for (int i = 0; i<children.size(); i++) {
+                IAtom atom = children.get(i);
                 Vector force = leafAgentManager.getAgent(atom);
                 agent.force.PE(force);
 

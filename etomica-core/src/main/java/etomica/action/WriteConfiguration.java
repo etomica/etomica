@@ -88,9 +88,9 @@ public class WriteConfiguration implements IAction {
         }
         try {
             IAtomList leafList = box.getLeafList();
-            int nLeaf = leafList.getAtomCount();
+            int nLeaf = leafList.size();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-                IAtom a = leafList.getAtom(iLeaf);
+                IAtom a = leafList.get(iLeaf);
                 writeAtom(fileWriter, a);
             }
             fileWriter.close();

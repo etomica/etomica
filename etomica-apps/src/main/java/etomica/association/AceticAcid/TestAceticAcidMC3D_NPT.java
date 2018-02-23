@@ -85,7 +85,7 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
         //setRandom(new RandomNumberGenerator(3));
         IMoleculePositionDefinition positionDefinition = new IMoleculePositionDefinition() {//anonymous class
             public Vector position(IMolecule molecule) {
-                return molecule.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition();
+                return molecule.getChildList().get(SpeciesAceticAcid.indexC).getPosition();
             }
         };
         BoxAgentSourceCellManagerMolecular bASCellManagerMolecular = new BoxAgentSourceCellManagerMolecular(this, positionDefinition, space);//tracking neighbors
