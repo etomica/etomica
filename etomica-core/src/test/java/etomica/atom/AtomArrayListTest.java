@@ -290,29 +290,18 @@ public class AtomArrayListTest extends TestCase {
 	public void testAddAll() {
 		Space space = Space.getInstance(3);
 		int size = 10;
-        IAtom[] atomList = new IAtom[size];
-        IAtom[] atomsetList = new IAtom[size];
 
 		AtomArrayList arrayList = new AtomArrayList(size);
 		for(int i = 0; i < size; i++) {
-			atomList[i] = new Atom(space);
-			arrayList.add(atomList[i]);
+            arrayList.add(new Atom(space));
 		}
 
-		AtomListFromArray atomSet = new AtomListFromArray(size);
-		for(int i = 0; i < size; i++) {
-			atomsetList[i] = new Atom(space);
-		}
-		atomSet.setAtoms(atomsetList);
-		arrayList.addAll(atomSet);
+		IAtomList pair = new AtomPair(new Atom(space), new Atom(space));
+		arrayList.addAll(pair);
 
-		for(int i = 0; i < size; i++) {
-			assertSame(atomList[i], arrayList.get(i));
-		}
-		for(int i = 0; i < size; i++) {
-			assertSame(atomsetList[i], arrayList.get(size+i));
-		}
-		assertEquals(23, arrayList.sizeOfArray());
+		assertEquals(pair.get(0), arrayList.get(10));
+		assertEquals(pair.get(1), arrayList.get(11));
+		assertEquals(12, arrayList.size());
 	}
 
 	public void testAddAllAtomArrayList() {
