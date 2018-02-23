@@ -103,6 +103,12 @@ public class LJMC3D extends Simulation {
         int blocks = 100;
         long blockSize = steps / (interval * blocks);
 
+        System.out.println("Lennard-Jones Monte Carlo simulation");
+        System.out.println("N: " + params.numAtoms);
+        System.out.println("T: " + params.temperature);
+        System.out.println("density: " + params.density);
+        System.out.println("steps: " + params.steps);
+
         // equilibration
         long t1 = System.currentTimeMillis();
         sim.activityIntegrate.setMaxSteps(steps / 10);
