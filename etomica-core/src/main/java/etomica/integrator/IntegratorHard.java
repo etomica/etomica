@@ -35,7 +35,6 @@ import java.util.*;
  */
 public class IntegratorHard extends IntegratorMD implements INeighborListListener, AgentSource<IntegratorHard.Agent> {
 
-    private static final long serialVersionUID = 1L;
     protected final IteratorDirective upList = new IteratorDirective(IteratorDirective.Direction.UP);
     protected final IteratorDirective downList = new IteratorDirective(IteratorDirective.Direction.DOWN);
     protected final AtomArrayList listToUpdate = new AtomArrayList();
@@ -52,7 +51,7 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
     private final List<CollisionListener> collisionListeners = new ArrayList<>();
     protected double collisionTimeStep;
     protected long collisionCount;
-    protected AtomLeafAgentManager<Agent> agentManager;
+    protected final AtomLeafAgentManager<Agent> agentManager;
     protected int handlingEvent;
     private double minDelta;
     private AtomPair debugPair;
@@ -66,22 +65,12 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
         super(potentialMaster,random,timeStep,temperature, box);
         pair = new AtomPair();
         singlet = new AtomSetSinglet();
-        reverseCollisionHandler = new ReverseCollisionHandler(listToUpdate);
-        reverseCollisionHandler.setAgentManager(agentManager);
-        collisionHandlerUp = new CollisionHandlerUp();
-        collisionHandlerUp.setAgentManager(agentManager);
-        collisionHandlerDown = new CollisionHandlerDown(eventList);
-        collisionHandlerDown.setAgentManager(agentManager);
         nullPotentialManager = new HashMap<>();
 
         agentManager = new AtomLeafAgentManager<Agent>(this, box);
-        collisionHandlerUp.setAgentManager(agentManager);
-        collisionHandlerDown.setAgentManager(agentManager);
-        reverseCollisionHandler.setAgentManager(agentManager);
-
-        for (PotentialHard potential : this.nullPotentialManager.values()) {
-            potential.setBox(box);
-        }
+        reverseCollisionHandler = new ReverseCollisionHandler(listToUpdate, agentManager);
+        collisionHandlerUp = new CollisionHandlerUp(agentManager);
+        collisionHandlerDown = new CollisionHandlerDown(eventList, agentManager);
 
         if(this.potentialMaster instanceof PotentialMasterList) {
             ((PotentialMasterList)this.potentialMaster).getNeighborManager(this.box).getEventManager().addListener(this);
@@ -173,7 +162,7 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
                     IAtomKinetic atom0 = (IAtomKinetic)debugPair.atom0;
                     IAtomKinetic atom1 = (IAtomKinetic)debugPair.atom1;
                     dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
-                    
+
                     dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
 
                     dr.PEa1Tv1(collisionTimeStep,dv);
@@ -509,19 +498,17 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
      */
     public void setNullPotential(PotentialHard nullPotential, AtomType type) {
         nullPotentialManager.put(type, nullPotential);
-        if (nullPotential != null && box != null) {
+        if (nullPotential != null) {
             nullPotential.setBox(box);
         }
-        if (box != null) {
-            // inefficient -- we could loop over molecules of type.getSpecies()
-            // and then their children.  oh well.
-            IAtomList leafList = box.getLeafList();
-            int nLeaf = leafList.getAtomCount();
-            for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-                IAtom atom = leafList.getAtom(iLeaf);
-                if (atom.getType() == type) {
-                    agentManager.getAgent(atom).setNullPotential(nullPotential);
-                }
+        // inefficient -- we could loop over molecules of type.getSpecies()
+        // and then their children.  oh well.
+        IAtomList leafList = box.getLeafList();
+        int nLeaf = leafList.getAtomCount();
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            IAtom atom = leafList.getAtom(iLeaf);
+            if (atom.getType() == type) {
+                agentManager.getAgent(atom).setNullPotential(nullPotential);
             }
         }
     }
@@ -559,7 +546,11 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
         IntegratorHard.Agent aia;
         IAtom atom1;
         double collisionTimeStep;
-        private AtomLeafAgentManager<Agent> integratorAgentManager;
+        private final AtomLeafAgentManager<Agent> integratorAgentManager;
+
+        CollisionHandlerUp(AtomLeafAgentManager<Agent> integratorAgentManager) {
+            this.integratorAgentManager = integratorAgentManager;
+        }
 
         /**
          * resets the "atom" held by this class, ensuring the method will
@@ -568,10 +559,6 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
          */
         public void reset() {
             atom1 = null;
-        }
-
-        public void setAgentManager(AtomLeafAgentManager<Agent> newAgentManager) {
-            integratorAgentManager = newAgentManager;
         }
 
         /**
@@ -605,18 +592,16 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
 	//the down-handler has the logic of the Allen & Tildesley downList subroutine
 	//sets collision times of atoms downlist of given atom to minimum of their current
 	//value and their value with given atom
-	private static final class CollisionHandlerDown implements PotentialCalculation, java.io.Serializable {
-        private static final long serialVersionUID = 1L;
+	private static final class CollisionHandlerDown implements PotentialCalculation {
         final TreeList eventList;
         double collisionTimeStep;
-        private AtomLeafAgentManager<Agent> integratorAgentManager;
-        CollisionHandlerDown(TreeList list) {
+        private final AtomLeafAgentManager<Agent> integratorAgentManager;
+
+        CollisionHandlerDown(TreeList list, AtomLeafAgentManager<Agent> integratorAgentManager) {
             eventList = list;
+            this.integratorAgentManager = integratorAgentManager;
         }
 
-        public void setAgentManager(AtomLeafAgentManager<Agent> newAgentManager) {
-            integratorAgentManager = newAgentManager;
-        }
 
 		public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
 			if (atoms.getAtomCount() != 2) return;
@@ -647,17 +632,13 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
      * with an atom.  The iterator should return an atom and its "down"
      * neighbors.
      */
-    private static final class ReverseCollisionHandler implements PotentialCalculation, java.io.Serializable {
-        private static final long serialVersionUID = 1L;
+    private static final class ReverseCollisionHandler implements PotentialCalculation {
         final AtomArrayList listToUpdate;
-        private AtomLeafAgentManager<Agent> integratorAgentManager;
+        private final AtomLeafAgentManager<Agent> integratorAgentManager;
 
-        ReverseCollisionHandler(AtomArrayList list) {
+        ReverseCollisionHandler(AtomArrayList list, AtomLeafAgentManager<Agent> agentManager) {
             listToUpdate = list;
-        }
-
-        public void setAgentManager(AtomLeafAgentManager<Agent> newAgentManager) {
-            integratorAgentManager = newAgentManager;
+            this.integratorAgentManager = agentManager;
         }
 
         public void doCalculation(IAtomList pair, IPotentialAtomic p) {
