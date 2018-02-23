@@ -74,6 +74,11 @@ public class DCVGCMD extends Simulation {
     private DCVGCMD(Space _space) {
         //Instantiate classes
         super(_space);
+
+        box = this.makeBox();
+        box.setBoundary(new BoundaryRectangularSlit(2, space));
+        box.getBoundary().setBoxSize(new Vector3D(40, 40, 80));
+
         PotentialMasterHybrid potentialMaster = new PotentialMasterHybrid(this, 5.2, space);
         double mass = 40.;
         double sigma = 3.0;
@@ -168,9 +173,6 @@ public class DCVGCMD extends Simulation {
         potentialMaster.getPotentialMasterList().setCriterion(potentialwallPorousB1, new CriterionType(criterionWallB1, speciestype1));
 
 
-        box = this.makeBox();
-        box.setBoundary(new BoundaryRectangularSlit(2, space));
-        box.getBoundary().setBoxSize(new Vector3D(40, 40, 80));
         box.setNMolecules(species1, 20);
         box.setNMolecules(species2, 20);
         box.setNMolecules(speciesTube, 1);
@@ -274,5 +276,11 @@ public class DCVGCMD extends Simulation {
         integratorDCV.getEventManager().addListener(new IntegratorListenerAction(profile2pump));
 
         potentialMaster.getNbrCellManager(box).assignCellAll();
+    }
+
+    public static void main(String[] args) {
+        DCVGCMD sim = new DCVGCMD();
+        sim.activityIntegrate.setMaxSteps(5000);
+        sim.getController().actionPerformed();
     }
 }
