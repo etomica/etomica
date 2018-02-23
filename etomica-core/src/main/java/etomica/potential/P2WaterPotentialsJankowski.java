@@ -4,10 +4,7 @@
 
 package etomica.potential;
 
-import etomica.atom.AtomType;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
-import etomica.atom.IAtomOriented;
+import etomica.atom.*;
 import etomica.box.Box;
 import etomica.math.numerical.AkimaSpline;
 import etomica.molecule.IMolecule;
@@ -2108,18 +2105,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
             }
         };
 
-        IAtomList atoms = new IAtomList() {
-
-            public int getAtomCount() {
-                return 2;
-            }
-
-            public IAtom getAtom(int i) {
-                if (i == 0) return atom0;
-                return atom1;
-            }
-        };
-        return atoms;
+        return new AtomPair(atom0, atom1);
     }
     
     public static void atomToPosVec(IAtom atomi) {
