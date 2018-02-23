@@ -45,7 +45,7 @@ public class PotentialGroupNbr extends PotentialGroup {
         }
         for (PotentialLinker link=firstRangeIndependent; link!= null; link=link.next) {
             if(!link.enabled) continue;
-            atomSetSinglet.atom = atom;
+            atomSetSinglet.mol = atom;
             AtomsetIteratorBasisDependent atomIterator = link.iterator;
             atomIterator.setBasis(atomSetSinglet);
             atomIterator.reset();

@@ -131,10 +131,10 @@ public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule implements MC
         uOld = energyMeter.getDataAsScalar();
         
         uCorrect = 0.0;
-        pairAB.atom0 = molecule;
+        pairAB.mol0 = molecule;
         for(int i=0; i<molIndex.length; i++){
         	if(i==13) continue;
-        	pairAB.atom1 = basisCell[0].molecules.get(molIndex[i][molNum]);
+        	pairAB.mol1 = basisCell[0].molecules.get(molIndex[i][molNum]);
         	uCorrect += potentialAA.energy(pairAB);
      
         }
@@ -169,10 +169,10 @@ public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule implements MC
          * uCorrect is account for the double-counting of the molecular energy
          */
         uCorrect = 0.0;
-        pairAB.atom0 = molecule;
+        pairAB.mol0 = molecule;
         for(int i=0; i<molIndex.length; i++){
         	if(i==13) continue;
-        	pairAB.atom1 = basisCell[0].molecules.get(molIndex[i][molNum]);
+        	pairAB.mol1 = basisCell[0].molecules.get(molIndex[i][molNum]);
         	uCorrect += potentialAA.energy(pairAB);
 
         }

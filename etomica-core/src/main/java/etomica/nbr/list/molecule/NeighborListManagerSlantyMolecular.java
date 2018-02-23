@@ -61,7 +61,7 @@ public class NeighborListManagerSlantyMolecular extends NeighborListManagerMolec
                 if (potentials[i].nBody() != 1) {
                     continue;
                 }
-                moleculeSetSinglet.atom = molecule;
+                moleculeSetSinglet.mol = molecule;
                 ((MoleculePotentialList)agentManager1Body.getAgent(molecule)).setIsInteracting(criteria[i].accept(moleculeSetSinglet),i);
             }
         }
@@ -69,7 +69,7 @@ public class NeighborListManagerSlantyMolecular extends NeighborListManagerMolec
         moleculeList = box.getMoleculeList();
         for (int iMolecule = 0; iMolecule<moleculeList.size()-1; iMolecule++) {
             IMolecule molecule0 = moleculeList.get(iMolecule);
-            pair.atom0 = molecule0;
+            pair.mol0 = molecule0;
             PotentialArrayMolecular potentialArray = potentialMaster.getRangedPotentials(molecule0.getType());
             IPotentialMolecular[] potentials = potentialArray.getPotentials();
             NeighborCriterionMolecular[] criteria = potentialArray.getCriteria();
@@ -77,7 +77,7 @@ public class NeighborListManagerSlantyMolecular extends NeighborListManagerMolec
             for (int jMolecule = iMolecule+1; jMolecule<moleculeList.size(); jMolecule++) {
         
                 IMolecule molecule1 = moleculeList.get(jMolecule);
-                pair.atom1 = molecule1;
+                pair.mol1 = molecule1;
                 for (int i = 0; i < potentials.length; i++) {
                     if (potentials[i].nBody() < 2) {
                         continue;
@@ -110,7 +110,7 @@ public class NeighborListManagerSlantyMolecular extends NeighborListManagerMolec
             // nulling out agents for removed atoms.
             agentManager2Body.setAgent(molecule, makeAgent(molecule));
         }
-        pair.atom0 = molecule;
+        pair.mol0 = molecule;
         IMoleculeList moleculeList = box.getMoleculeList();
         PotentialArrayMolecular potentialArray = potentialMaster.getRangedPotentials(molecule.getType());
         IPotentialMolecular[] potentials = potentialArray.getPotentials();
@@ -121,20 +121,20 @@ public class NeighborListManagerSlantyMolecular extends NeighborListManagerMolec
             }
             IMolecule molecule1 = moleculeList.get(jMolecule);
             if (jMolecule < molecule.getIndex()) {
-                pair.atom1 = molecule;
-                pair.atom0 = molecule1;
+                pair.mol1 = molecule;
+                pair.mol0 = molecule1;
             }
             else {
-                pair.atom0 = molecule;
-                pair.atom1 = molecule1;
+                pair.mol0 = molecule;
+                pair.mol1 = molecule1;
             }
             for (int i = 0; i < potentials.length; i++) {
                 if (potentials[i].nBody() < 2) {
                     continue;
                 }
                 if (criteria[i].accept(pair)) {
-                    ((MoleculeNeighborLists)agentManager2Body.getAgent(pair.atom0)).addUpNbr(pair.atom1,i);
-                    ((MoleculeNeighborLists)agentManager2Body.getAgent(pair.atom1)).addDownNbr(pair.atom0,
+                    ((MoleculeNeighborLists)agentManager2Body.getAgent(pair.mol0)).addUpNbr(pair.mol1,i);
+                    ((MoleculeNeighborLists)agentManager2Body.getAgent(pair.mol1)).addDownNbr(pair.mol0,
                             potentialMaster.getRangedPotentials(molecule1.getType()).getPotentialIndex(potentials[i]));
                 }
             }

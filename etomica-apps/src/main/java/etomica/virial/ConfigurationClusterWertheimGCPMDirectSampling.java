@@ -61,10 +61,10 @@ public class ConfigurationClusterWertheimGCPMDirectSampling extends Configuratio
 		IMoleculeList list = box.getMoleculeList();
 		MoleculePair pair1 = new MoleculePair();
 		MoleculePair pair2 = new MoleculePair();
-		pair1.atom0 = list.get(0);
-		pair1.atom1 = list.get(1);
-		pair2.atom0 = list.get(1);
-		pair2.atom1 = list.get(2);
+		pair1.mol0 = list.get(0);
+		pair1.mol1 = list.get(1);
+		pair2.mol0 = list.get(1);
+		pair2.mol1 = list.get(2);
 		
 		double[] d = new double[] {3.5,0,0};
 		double[] e = new double[] {7,0.0,0};
@@ -88,12 +88,12 @@ public class ConfigurationClusterWertheimGCPMDirectSampling extends Configuratio
 		MoleculePair pair1 = new MoleculePair();
 		MoleculePair pair2 = new MoleculePair();
 		MoleculePair pair3 = new MoleculePair();
-		pair1.atom0 = list.get(0);
-		pair1.atom1 = list.get(1);
-		pair2.atom0 = list.get(1);
-		pair2.atom1 = list.get(2);
-		pair3.atom0 = list.get(2);
-		pair3.atom1 = list.get(3);
+		pair1.mol0 = list.get(0);
+		pair1.mol1 = list.get(1);
+		pair2.mol0 = list.get(1);
+		pair2.mol1 = list.get(2);
+		pair3.mol0 = list.get(2);
+		pair3.mol1 = list.get(3);
 		
 		double[] d = new double[] {3.5,0,0};
 		double[] e = new double[] {3.5,3.5,0};
@@ -119,12 +119,12 @@ public class ConfigurationClusterWertheimGCPMDirectSampling extends Configuratio
 		MoleculePair pair1 = new MoleculePair();
 		MoleculePair pair2 = new MoleculePair();
 		MoleculePair pair3 = new MoleculePair();
-		pair1.atom0 = list.get(0);
-		pair1.atom1 = list.get(1);
-		pair2.atom0 = list.get(1);
-		pair2.atom1 = list.get(2);
-		pair3.atom0 = list.get(1);
-		pair3.atom1 = list.get(3);
+		pair1.mol0 = list.get(0);
+		pair1.mol1 = list.get(1);
+		pair2.mol0 = list.get(1);
+		pair2.mol1 = list.get(2);
+		pair3.mol0 = list.get(1);
+		pair3.mol1 = list.get(3);
 		
 		double[] d = new double[] {3.5,0,0};
 		double[] e = new double[] {3.5,3.5,0};
@@ -180,9 +180,9 @@ public class ConfigurationClusterWertheimGCPMDirectSampling extends Configuratio
 		Vector r0 = space.makeVector();
 		IMoleculePositionDefinition positionDefinition = new MoleculePositionGeometricCenter(space);
 		IMoleculeList list = box.getMoleculeList();
-		pair.atom0 = list.get(0);
+		pair.mol0 = list.get(0);
 		IMolecule water = list.get(1);
-		pair.atom1 = water;
+		pair.mol1 = water;
 
 		
         while (true){
@@ -220,15 +220,15 @@ public class ConfigurationClusterWertheimGCPMDirectSampling extends Configuratio
 		Vector r0 = space.makeVector();
 		IMoleculePositionDefinition positionDefinition = new MoleculePositionGeometricCenter(space);
 		IMoleculeList list = box.getMoleculeList();
-		pair.atom0 = list.get(1);
+		pair.mol0 = list.get(1);
 		IMolecule water = list.get(2);
-		pair.atom1 = water;
+		pair.mol1 = water;
 	
         while (true){
         	Vector positionWater = space.makeVector();
 	        positionWater.setRandomInSphere(random);
 	        positionWater.TE(4.0);//place water molecule within a sphere with r = 8A
-	        positionWater.PE(pair.atom0.getChildList().get(0).getPosition());
+	        positionWater.PE(pair.mol0.getChildList().get(0).getPosition());
 	        MoleculeActionTranslateTo translation = new MoleculeActionTranslateTo(space);
 	        translation.setDestination(positionWater);
 	        translation.actionPerformed(water);
@@ -260,15 +260,15 @@ public class ConfigurationClusterWertheimGCPMDirectSampling extends Configuratio
 		Vector r0 = space.makeVector();
 		IMoleculePositionDefinition positionDefinition = new MoleculePositionGeometricCenter(space);
 		IMoleculeList list = box.getMoleculeList();
-		pair.atom0 = list.get(2);
+		pair.mol0 = list.get(2);
 		IMolecule water = list.get(3);
-		pair.atom1 = water;
+		pair.mol1 = water;
 	
         while (true){
         	Vector positionWater = space.makeVector();
 	        positionWater.setRandomInSphere(random);
 	        positionWater.TE(4.0);//place water molecule within a sphere with r = 8A
-	        positionWater.PE(pair.atom0.getChildList().get(0).getPosition());
+	        positionWater.PE(pair.mol0.getChildList().get(0).getPosition());
 	        MoleculeActionTranslateTo translation = new MoleculeActionTranslateTo(space);
 	        translation.setDestination(positionWater);
 	        translation.actionPerformed(water);
@@ -300,15 +300,15 @@ public class ConfigurationClusterWertheimGCPMDirectSampling extends Configuratio
 		Vector r0 = space.makeVector();
 		IMoleculePositionDefinition positionDefinition = new MoleculePositionGeometricCenter(space);
 		IMoleculeList list = box.getMoleculeList();
-		pair.atom0 = list.get(1);
+		pair.mol0 = list.get(1);
 		IMolecule water = list.get(3);
-		pair.atom1 = water;
+		pair.mol1 = water;
 	
         while (true){
         	Vector positionWater = space.makeVector();
 	        positionWater.setRandomInSphere(random);
 	        positionWater.TE(4.0);//place water molecule within a sphere with r = 8A
-	        positionWater.PE(pair.atom0.getChildList().get(0).getPosition());
+	        positionWater.PE(pair.mol0.getChildList().get(0).getPosition());
 	        MoleculeActionTranslateTo translation = new MoleculeActionTranslateTo(space);
 	        translation.setDestination(positionWater);
 	        translation.actionPerformed(water);

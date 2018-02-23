@@ -98,7 +98,7 @@ public class HarmonicAlphaNitrogenModelPairMolecule extends Simulation{
 		 *	(Skipping the molec1 == molec2) 
 		 */
 		for(int molec0=0; molec0<numMolecule; molec0++){
-			pair.atom0 = box.getMoleculeList().get(molec0);
+			pair.mol0 = box.getMoleculeList().get(molec0);
 			
 			for(int molec1=molec0; molec1<numMolecule; molec1++){
 				if(molec0 == molec1) continue;
@@ -106,9 +106,9 @@ public class HarmonicAlphaNitrogenModelPairMolecule extends Simulation{
 				 * working within the 5x5 Matrix
 				 */
 				// Analytical calculation for 3x3 Translational second Derivative
-				pair.atom1 = box.getMoleculeList().get(molec1);
+				pair.mol1 = box.getMoleculeList().get(molec1);
 		
-				int[] index = findPair.getPairMoleculesIndex(pair.atom0, pair.atom1, false);
+				int[] index = findPair.getPairMoleculesIndex(pair.mol0, pair.mol1, false);
 				boolean isNewPair = findPair.getIsNewPair(index);
 				
 				if(isNewPair){

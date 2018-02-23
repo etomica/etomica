@@ -98,8 +98,8 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
         if(molecule0==null || molecule1==null || molecule0==molecule1) return false;
         
         //make sure we don't double count the molecule0-molecule1 interaction
-        pair.atom0 = molecule0;
-        pair.atom1 = molecule1;
+        pair.mol0 = molecule0;
+        pair.mol1 = molecule1;
         energyMeter.setTarget(molecule0);
         uOld = energyMeter.getDataAsScalar();
         energyMeter.setTarget(molecule1);

@@ -236,14 +236,14 @@ public final class Debug {
             for (int i = 0; i<moleculeList.size(); i++) {
                 IMolecule molecule = moleculeList.get(i);
                 if (molecule.getIndex() == MOLECULE1_INDEX && molecule.getType().getIndex() == SPECIES1_INDEX) {
-                    debugMoleculePair.atom0 = molecule;
+                    debugMoleculePair.mol0 = molecule;
                 }
                 else if (molecule.getIndex() == MOLECULE2_INDEX && molecule.getType().getIndex() == SPECIES2_INDEX) {
-                    debugMoleculePair.atom1 = molecule;
+                    debugMoleculePair.mol1 = molecule;
                 }
             }
         }
-        if (debugMoleculePair.atom0 == null || debugMoleculePair.atom1 == null) return null;
+        if (debugMoleculePair.mol0 == null || debugMoleculePair.mol1 == null) return null;
         return debugMoleculePair;
     }
     

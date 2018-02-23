@@ -48,12 +48,12 @@ public class ConfigurationClusterAceticAcid extends ConfigurationCluster {
 		MoleculePair pair1 = new MoleculePair();
 		MoleculePair pair2 = new MoleculePair();
 		MoleculePair pair3 = new MoleculePair();
-		pair1.atom0 = list.get(0);
-		pair1.atom1 = list.get(1);
+		pair1.mol0 = list.get(0);
+		pair1.mol1 = list.get(1);
 		association(f,pair1,box);
 		if (list.size()==3){
-			pair2.atom0 = list.get(1);
-			pair2.atom1 = list.get(2);
+			pair2.mol0 = list.get(1);
+			pair2.mol1 = list.get(2);
 			double[] e = new double[] {1.0,1.0,0};
 			translation2Mol(2, e, box);
 			if(a){
@@ -61,10 +61,10 @@ public class ConfigurationClusterAceticAcid extends ConfigurationCluster {
 			}
 		}
 		if (list.size()==4){
-			pair2.atom0 = list.get(1);
-			pair2.atom1 = list.get(2);
-			pair3.atom0 = list.get(2);
-			pair3.atom1 = list.get(3);
+			pair2.mol0 = list.get(1);
+			pair2.mol1 = list.get(2);
+			pair3.mol0 = list.get(2);
+			pair3.mol1 = list.get(3);
 			double[] e = new double[] {1.0,1.0,0};
 			double[] g = new double[] {0,1.0,0};
 			translation3Mol(e,g,box);
@@ -92,18 +92,18 @@ public class ConfigurationClusterAceticAcid extends ConfigurationCluster {
 		MoleculePair pair3 = new MoleculePair();
 		MoleculePair pair4 = new MoleculePair();
 		MoleculePair pair5 = new MoleculePair();
-		pair1.atom0 = list.get(0);
-		pair1.atom1 = list.get(1);
-		pair2.atom0 = list.get(1);
-		pair2.atom1 = list.get(2);
-		pair4.atom0 = list.get(0);
-		pair4.atom1 = list.get(2);
+		pair1.mol0 = list.get(0);
+		pair1.mol1 = list.get(1);
+		pair2.mol0 = list.get(1);
+		pair2.mol1 = list.get(2);
+		pair4.mol0 = list.get(0);
+		pair4.mol1 = list.get(2);
 		  
 		if (list.size() >3){
-			pair3.atom0 = list.get(0);
-			pair3.atom1 = list.get(3);
-			pair5.atom0 = list.get(2);
-			pair5.atom1 = list.get(3);
+			pair3.mol0 = list.get(0);
+			pair3.mol1 = list.get(3);
+			pair5.mol0 = list.get(2);
+			pair5.mol1 = list.get(3);
 		}
 		if (molNumber2 >-1){
 			double[] amount = new double[] {5.0,5.0,0};
@@ -172,12 +172,12 @@ public class ConfigurationClusterAceticAcid extends ConfigurationCluster {
 		MoleculePair pair1 = new MoleculePair();
 		MoleculePair pair2 = new MoleculePair();
 		MoleculePair pair3 = new MoleculePair();
-		pair1.atom0 = list.get(0);
-		pair1.atom1 = list.get(1);
-		pair2.atom0 = list.get(1);
-		pair2.atom1 = list.get(2);
-		pair3.atom0 = list.get(2);
-		pair3.atom1 = list.get(3);
+		pair1.mol0 = list.get(0);
+		pair1.mol1 = list.get(1);
+		pair2.mol0 = list.get(1);
+		pair2.mol1 = list.get(2);
+		pair3.mol0 = list.get(2);
+		pair3.mol1 = list.get(3);
 		double[] e = new double[] {1.0,1.0,0};
 		double[] g = new double[] {0,1.0,0};
 		translation3Mol(e,g,box);
@@ -239,10 +239,10 @@ public class ConfigurationClusterAceticAcid extends ConfigurationCluster {
 			Vector positionAceticAcid = space.makeVector();
 			positionAceticAcid.setRandomInSphere(random);
 			positionAceticAcid.TE(8.0);//place acetic acid molecule within a sphere with r = 8A
-			positionAceticAcid.PE(positionDefinition.position(pair.atom0));
+			positionAceticAcid.PE(positionDefinition.position(pair.mol0));
 			MoleculeActionTranslateTo translation = new MoleculeActionTranslateTo(space);
 			translation.setDestination(positionAceticAcid);
-			translation.actionPerformed(pair.atom1);
+			translation.actionPerformed(pair.mol1);
 			
 			if (f.f(pair, 0, 0.001) != 0.0){//when there is an association, fix position of the molecule
 				f.f(pair, 0, 0.001);
@@ -251,8 +251,8 @@ public class ConfigurationClusterAceticAcid extends ConfigurationCluster {
 	         double dTheta = (2*random.nextDouble() - 1.0)*Math.PI;
 	         rotationTensor.setAxial(r0.getD() == 3 ? random.nextInt(3) : 2,dTheta);
 
-	         r0.E(positionDefinition.position(pair.atom1));
-	         IAtomList childList = pair.atom1.getChildList();
+	         r0.E(positionDefinition.position(pair.mol1));
+	         IAtomList childList = pair.mol1.getChildList();
 	         for (int iChild = 0; iChild<childList.size(); iChild++) {//free rotation until finding association
 	        	 IAtom a = childList.get(iChild);
 	        	 Vector r = a.getPosition();

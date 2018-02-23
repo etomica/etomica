@@ -244,7 +244,7 @@ public class NeighborListManagerMolecular implements IntegratorListener, Molecul
                 if (potentials[i].nBody() != 1) {
                     continue;
                 }
-                moleculeSetSinglet.atom = molecule;
+                moleculeSetSinglet.mol = molecule;
                 ((MoleculePotentialList)agentManager1Body.getAgent(molecule)).setIsInteracting(criteria[i].accept(moleculeSetSinglet),i);
             }
         }

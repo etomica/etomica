@@ -108,14 +108,14 @@ public class HarmonicAlphaNitrogenModelDecomposed extends Simulation{
 		 *	(Skipping the molec1 == molec2) 
 		 */
 	
-		pair.atom0 = box.getMoleculeList().get(iMolecule);
+		pair.mol0 = box.getMoleculeList().get(iMolecule);
 			
 		for(int molec1=(iMolecule+1); molec1<numMolecule; molec1++){
 			/*
 			 * working within the 5x5 Matrix
 			 */
 			// Analytical calculation for 3x3 Translational second Derivative
-			pair.atom1 = box.getMoleculeList().get(molec1);
+			pair.mol1 = box.getMoleculeList().get(molec1);
 		
 			transTensor.E(potential.secondDerivative(pair));
 			for(int i=0; i<3; i++){

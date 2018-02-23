@@ -167,30 +167,30 @@ public class MCMoveMoleculeCoupledSuperBox extends MCMoveBoxStep implements MCMo
          * uCorrect is account for the double-counting of the molecular energy
          */
         uCorrect = 0.0;
-        pairAB.atom0 = molecule0;
+        pairAB.mol0 = molecule0;
         for(int i=0; i<molIndex.length; i++){
         	if(i==13) continue;
-        	pairAB.atom1 = basisCell[0].molecules.get(molIndex[i][randomMol0]);
+        	pairAB.mol1 = basisCell[0].molecules.get(molIndex[i][randomMol0]);
         	uCorrect += potential.energy(pairAB);
         	
-        	pairAB.atom1 = basisCell[0].molecules.get(molIndex[i][randomMol1]);
+        	pairAB.mol1 = basisCell[0].molecules.get(molIndex[i][randomMol1]);
         	uCorrect += potential.energy(pairAB);
         }
-        pairAB.atom0 = molecule1;
+        pairAB.mol0 = molecule1;
         for(int i=0; i<molIndex.length; i++){
         	if(i==13) continue;
-        	pairAB.atom1 = basisCell[0].molecules.get(molIndex[i][randomMol0]);
+        	pairAB.mol1 = basisCell[0].molecules.get(molIndex[i][randomMol0]);
         	uCorrect += potential.energy(pairAB);
         	
-        	pairAB.atom1 = basisCell[0].molecules.get(molIndex[i][randomMol1]);
+        	pairAB.mol1 = basisCell[0].molecules.get(molIndex[i][randomMol1]);
         	uCorrect += potential.energy(pairAB);
         }
         
         energyMeter.setTarget(molecule1);
         uOld += energyMeter.getDataAsScalar();
         uOld -= 0.5*uCorrect;
-        pair.atom0 = molecule0;
-        pair.atom1 = molecule1;
+        pair.mol0 = molecule0;
+        pair.mol1 = molecule1;
         uOld -= potential.energy(pair);
         
         
@@ -212,22 +212,22 @@ public class MCMoveMoleculeCoupledSuperBox extends MCMoveBoxStep implements MCMo
         molecule1 = basisCell[0].molecules.get(molIndex[13][randomMol1]);
 
         uCorrect = 0.0;
-        pairAB.atom0 = molecule0;
+        pairAB.mol0 = molecule0;
         for(int i=0; i<molIndex.length; i++){
         	if(i==13) continue;
-        	pairAB.atom1 = basisCell[0].molecules.get(molIndex[i][randomMol0]);
+        	pairAB.mol1 = basisCell[0].molecules.get(molIndex[i][randomMol0]);
         	uCorrect += potential.energy(pairAB);
         	
-        	pairAB.atom1 = basisCell[0].molecules.get(molIndex[i][randomMol1]);
+        	pairAB.mol1 = basisCell[0].molecules.get(molIndex[i][randomMol1]);
         	uCorrect += potential.energy(pairAB);
         }
-        pairAB.atom0 = molecule1;
+        pairAB.mol0 = molecule1;
         for(int i=0; i<molIndex.length; i++){
         	if(i==13) continue;
-        	pairAB.atom1 = basisCell[0].molecules.get(molIndex[i][randomMol0]);
+        	pairAB.mol1 = basisCell[0].molecules.get(molIndex[i][randomMol0]);
         	uCorrect += potential.energy(pairAB);
         	
-        	pairAB.atom1 = basisCell[0].molecules.get(molIndex[i][randomMol1]);
+        	pairAB.mol1 = basisCell[0].molecules.get(molIndex[i][randomMol1]);
         	uCorrect += potential.energy(pairAB);
         }
         

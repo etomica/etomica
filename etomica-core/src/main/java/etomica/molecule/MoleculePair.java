@@ -11,30 +11,30 @@ import java.util.*;
  * Data structure that contains two mutable atom instances.
  */
 public final class MoleculePair extends AbstractList<IMolecule> implements IMoleculeList, RandomAccess {
-    public IMolecule atom0, atom1;
+    public IMolecule mol0, mol1;
 
     public MoleculePair() {
     }
 
-    public MoleculePair(IMolecule atom0, IMolecule atom1) {
-        this.atom0 = atom0;
-        this.atom1 = atom1;
+    public MoleculePair(IMolecule mol0, IMolecule mol1) {
+        this.mol0 = mol0;
+        this.mol1 = mol1;
     }
 
     public boolean equals(Object obj) {
-        if (((MoleculePair)obj).atom0 == atom0) {
-            return ((MoleculePair)obj).atom1 == atom1;
+        if (((MoleculePair)obj).mol0 == mol0) {
+            return ((MoleculePair)obj).mol1 == mol1;
         }
-        return (((MoleculePair)obj).atom0 == atom1 && ((MoleculePair)obj).atom1 == atom0);
+        return (((MoleculePair)obj).mol0 == mol1 && ((MoleculePair)obj).mol1 == mol0);
     }
 
     public int hashCode() {
-        return atom0.hashCode() + atom1.hashCode();
+        return mol0.hashCode() + mol1.hashCode();
     }
 
     public IMolecule get(int i) {
-        if(i == 0) return atom0;
-        if(i == 1) return atom1;
+        if(i == 0) return mol0;
+        if(i == 1) return mol1;
         throw new IllegalArgumentException();
     }
 
@@ -43,12 +43,12 @@ public final class MoleculePair extends AbstractList<IMolecule> implements IMole
         IMolecule oldAtom;
         switch (i) {
             case 0:
-                oldAtom = atom0;
-                atom0 = iAtom;
+                oldAtom = mol0;
+                mol0 = iAtom;
                 break;
             case 1:
-                oldAtom = atom1;
-                atom1 = iAtom;
+                oldAtom = mol1;
+                mol1 = iAtom;
                 break;
             default:
                 throw new IndexOutOfBoundsException();
@@ -68,9 +68,9 @@ public final class MoleculePair extends AbstractList<IMolecule> implements IMole
 
     @Override
     public int indexOf(Object o) {
-        if (o == atom0) {
+        if (o == mol0) {
             return 0;
-        } else if (o == atom1) {
+        } else if (o == mol1) {
             return 1;
         } else {
             return -1;
@@ -83,12 +83,12 @@ public final class MoleculePair extends AbstractList<IMolecule> implements IMole
 
     @Override
     public boolean isEmpty() {
-        return atom0 == null && atom1 == null;
+        return mol0 == null && mol1 == null;
     }
 
     @Override
     public boolean contains(Object o) {
-        return o == atom0 || o == atom1;
+        return o == mol0 || o == mol1;
     }
 
     @Override
@@ -98,7 +98,7 @@ public final class MoleculePair extends AbstractList<IMolecule> implements IMole
 
     @Override
     public IMolecule[] toArray() {
-        return new IMolecule[]{atom0, atom1};
+        return new IMolecule[]{mol0, mol1};
     }
 
 
@@ -134,12 +134,12 @@ public final class MoleculePair extends AbstractList<IMolecule> implements IMole
 
     @Override
     public void clear() {
-        atom0 = null;
-        atom1 = null;
+        mol0 = null;
+        mol1 = null;
     }
 
     public String toString() {
-        return "["+atom0+","+atom1+"]";
+        return "["+ mol0 +","+ mol1 +"]";
     }
 
     private class Itr implements Iterator<IMolecule> {
@@ -155,10 +155,10 @@ public final class MoleculePair extends AbstractList<IMolecule> implements IMole
             switch (cursor) {
                 case 0:
                     cursor++;
-                    return atom0;
+                    return mol0;
                 case 1:
                     cursor++;
-                    return atom1;
+                    return mol1;
                 default:
                     throw new NoSuchElementException();
 

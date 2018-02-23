@@ -47,7 +47,7 @@ public class MpiIntraArrayList implements MoleculesetIterator, java.io.Serializa
         }
         outerIndex = 0;
         innerIndex = 0;
-        molecules.atom0 = list.get(0);
+        molecules.mol0 = list.get(0);
     }
 
     /**
@@ -74,12 +74,12 @@ public class MpiIntraArrayList implements MoleculesetIterator, java.io.Serializa
                 return null;
             }
             outerIndex++;
-            molecules.atom0 = list.get(outerIndex);
+            molecules.mol0 = list.get(outerIndex);
             innerIndex = outerIndex;
         }
         innerIndex++;
-        molecules.atom1 = list.get(innerIndex);
-        if (Debug.ON && molecules.atom0 == molecules.atom1) {
+        molecules.mol1 = list.get(innerIndex);
+        if (Debug.ON && molecules.mol0 == molecules.mol1) {
             throw new RuntimeException("oops");
         }
         return molecules;

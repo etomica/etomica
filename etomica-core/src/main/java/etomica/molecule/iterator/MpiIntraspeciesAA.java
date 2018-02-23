@@ -50,7 +50,7 @@ public class MpiIntraspeciesAA implements MoleculesetIteratorBoxDependent, Seria
         }
         outerIndex = 0;
         innerIndex = 0;
-        atoms.atom0 = list.get(0);
+        atoms.mol0 = list.get(0);
     }
 
     /**
@@ -77,12 +77,12 @@ public class MpiIntraspeciesAA implements MoleculesetIteratorBoxDependent, Seria
                 return null;
             }
             outerIndex++;
-            atoms.atom0 = list.get(outerIndex);
+            atoms.mol0 = list.get(outerIndex);
             innerIndex = outerIndex;
         }
         innerIndex++;
-        atoms.atom1 = list.get(innerIndex);
-        if (Debug.ON && atoms.atom0 == atoms.atom1) {
+        atoms.mol1 = list.get(innerIndex);
+        if (Debug.ON && atoms.mol0 == atoms.mol1) {
             throw new RuntimeException("oops");
         }
         return atoms;

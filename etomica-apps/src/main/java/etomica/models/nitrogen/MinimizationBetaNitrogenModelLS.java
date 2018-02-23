@@ -255,7 +255,7 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
 		        	            
 		        for (int i=0; i<4; i++) {
 		            IMolecule molecule0 = sim.box.getMoleculeList().get(i);
-		            pair.atom0 = molecule0;
+		            pair.mol0 = molecule0;
 		            
 		            Vector destination = sim.getSpace().makeVector();
 		            Vector f = sim.getSpace().makeVector();
@@ -265,7 +265,7 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
 		                IMolecule ghostMol = sim.ghostBox.getMoleculeList(sim.ghostBox.getMoleculeList().get(0).getType()).get(0);
 	                    ghostMol.getType().initializeConformation(ghostMol);
 	                    
-	                    pair.atom1 = ghostMol;
+	                    pair.mol1 = ghostMol;
 	            		
 	                    int rotationNum = jp%4;
 	                    ((AtomActionTransformed)sim.atomGroupAction.getAtomAction()).setTransformationTensor(sim.coordinateDef.yOrientationTensor[rotationNum]);
@@ -276,7 +276,7 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
 		            	
 		            	destination.E(pos.position(sim.box.getMoleculeList().get(jp)));
 		        		translator.setDestination(destination);
-						translator.actionPerformed(pair.atom1); 
+						translator.actionPerformed(pair.mol1);
 						
 		            	int nLayer = sim.nLayer;
 		            	for(int x=-nLayer; x<=nLayer; x++){
