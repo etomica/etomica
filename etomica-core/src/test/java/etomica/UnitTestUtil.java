@@ -26,6 +26,8 @@ public class UnitTestUtil {
 
     public static boolean VERBOSE = false;
 
+    public static final double DELTA = 0.0001;
+
     /**
      * Private to prevent instantiation
      */
